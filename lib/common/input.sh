@@ -292,29 +292,17 @@ case $installtype in
         done
         ;;
 esac
-while [[ -z $dohttps ]]; do
-    if [[ -z $autoaccept && -z $shttpproto ]]; then
-        echo
-        echo "  Using encrypted connections is state of the art on the web and we"
-        echo "  encourage you to enable this for your FOG server. But using HTTPS"
-        echo "  has some implications within FOG, PXE and fog-client and you want"
-        echo "  to read https://wiki.fogproject.org/HTTPS before you decide!"
-        echo -n "  Would you like to enable secure HTTPS on your FOG server? [y/N] "
-        read dohttps
-    fi
-    [[ "$shttpproto" == "https" ]] && dohttps="yes"
-    case $dohttps in
-        [Nn]|[Nn][Oo]|"")
-            dohttps=0
-            httpproto="http"
-            ;;
-        [Yy]|[Yy][Ee][Ss])
-            dohttps=1
-            httpproto="https"
-            ;;
-        *)
-            echo "  Invalid input, please try again."
-            dohttps=""
-            ;;
-    esac
-done
+# The "would you like to enable secure HTTPS" question used to live here. It
+# set $httpproto, which is now https on every install, so it no longer mapped to
+# anything an admin could decide -- and answering "no" to it used to silently
+# turn off Secure Boot staging and turn on a 25-minute iPXE rebuild, neither of
+# which it mentioned.
+#
+# What is actually a choice -- the redirect, what the certificate chains to, and
+# whether iPXE is rebuilt -- is asked once, together, by promptInstallMode() at
+# the end of installfog.sh, where the four options can be shown with their
+# consequences instead of hidden behind one yes/no. Two prompts covering the
+# same ground could also contradict each other.
+#
+# (The old text pointed at wiki.fogproject.org, which has been retired in favour
+# of docs.fogproject.org.)

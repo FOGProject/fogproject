@@ -132,113 +132,72 @@ uses a copy. This matters if you keep the pair somewhere the installer
 rebuilds, such as under the web root: without the copy it would be deleted
 mid-install.
 
+>[!note]
+>**`--no-secure-boot` declines enrolment, not signatures.** It stops the server
+>publishing `MOK.der` and the `PK`/`KEK`/`db` variable updates, and with them the
+>*Enroll Secure Boot Key* PXE menu entry, which is gated on `MOK.der` existing.
+>The signing key is still generated and the binaries are still signed.
+>
+>That is deliberate: an appended PE signature is inert on a machine booting with
+>Secure Boot **off** — which is every machine on a server that passed this flag —
+>so signing costs nothing. Leaving the binaries unsigned instead would only mean
+>that the day you do enrol, or move one of these files onto a machine that
+>already has Secure Boot on, the file is useless and nothing on the server can
+>fix it short of a re-install.
+
 ---
 
 ## Local ESP boot files
 
-**Not a customization point — a generated directory, rebuilt on every run.**
+**Not a customization point — generated archives, rebuilt on every run.**
 
-Machines whose firmware has no PXE boot option, and machines you would rather
-not have to reorder the boot menu on for every task, can be booted into FOG from
-an iPXE binary on their own EFI System Partition. The installer publishes the
-binaries for that here, so you can fetch one over HTTP instead of hand-rolling a
+Machines whose firmware has no PXE boot option, and machines you would rather not
+reorder the boot menu on for every task, can be booted into FOG from an iPXE
+binary on their own EFI System Partition. The installer publishes ready-to-copy
+archives for that here, so you can fetch one over HTTP instead of hand-rolling a
 symlink from the TFTP tree into your web root:
 
 ```
 <webroot>/service/localboot/
+  manifest.json               index of everything below
+  fog-esp-x86_64.zip          fog-esp-x86_64-10sec.zip
+  fog-esp-i386.zip            fog-esp-i386-10sec.zip
+  fog-esp-arm64.zip           fog-esp-arm64-10sec.zip
 ```
+
+One archive per architecture and delay variant, and nothing else. Each holds a
+single top-level directory named after the archive — **copy its contents onto the
+ESP** (`\EFI\FOG\` is a good place) and point the firmware boot manager at one of
+the entry points below.
+
+>[!note]
+>Where the `zip` package is missing the installer falls back to `.tar.gz`.
+>`manifest.json` always names the file that was actually produced, so fetch the
+>name it gives rather than assuming an extension.
 
 **This is not a Secure Boot feature and does not need Secure Boot keys.** Local
 ESP boot predates Secure Boot by years; Secure Boot only added the requirement
-for a signature. The directory is published either way:
+for a signature. The archives are published either way — a server with no key
+publishes the same set unsigned, which is what every machine booting with Secure
+Boot **off** needs anyway.
 
-- **No Secure Boot keys on the server** — the binaries are published unsigned.
-  They work on any machine booting with Secure Boot **off**, which is what local
-  ESP boot has always needed. Nothing else changes.
-- **Secure Boot keys present** — the installer signs FOG's own iPXE builds with
-  your key first, so the same binaries also work on a machine booting with
-  Secure Boot **on**, provided your MOK is already enrolled on it (see
-  `service/secureboot/` and the *Enroll Secure Boot Key* menu entry).
+### Which archive
 
-### What is published
+`-10sec` is the only choice you have to make up front. Those binaries each wait
+10 seconds before DHCP, which is what lets a link come up on a switch running STP
+or port power-save. They are otherwise identical.
 
-A curated set, not the whole TFTP tree — 25 files, about 12MB. Per architecture
-(x86_64 at the top level, plus `i386-efi/` and `arm64-efi/`):
-
-| File | Use |
-| --- | --- |
-| `ipxe.efi` | **Start here.** Carries iPXE's own NIC drivers, all of them. |
-| `snp.efi` | Uses the firmware's UEFI SNP protocol instead. For hardware iPXE's own drivers do not cover, where the firmware does provide SNP. |
-| `intel.efi`, `realtek.efi` | Single-vendor builds, for when the all-drivers build misbehaves on that specific NIC. |
-| `10secdelay/ipxe.efi` | `ipxe.efi` plus a 10-second pause before DHCP, which is what lets a link come up on a switch running STP or port power-save. |
-
-Plus `secureboot/`, which is upstream's Microsoft-signed shim, the loaders it
-chains to, and MokManager — the first stages of a Secure Boot chain. These are
-never re-signed by FOG. They are absent on an HTTPS-only install, which does not
-stage them.
+It is a separate archive rather than a second set of files inside one because
+iPXE runs exactly the file called `autoexec.ipxe` and has no way to ask you which
+set you want — so a combined folder made choosing mean renaming one file over
+another. Choosing at download time removes the step: the binaries inside a
+`-10sec` archive carry the same plain names, and its single `autoexec.ipxe` is
+already the right one.
 
 >[!warning]
->`secureboot/ipxe.efi` is not a shortcut. It is upstream's signed build and it
->does carry iPXE's own NIC drivers, so it looks like the one file you need — but
->booted locally off an ESP it does not load them. Use it only as a chain stage
->that hands off to one of FOG's binaries above, never as the binary that has to
->bring up the network.
-
-`snponly.efi` is deliberately **not** published even though TFTP serves it. It
-binds only the device iPXE was loaded from, and booted off an ESP that device is
-the disk — so it never finds a NIC. It is the right binary for netboot and the
-wrong one here. The EMBED-less `autoexec/` builds are left out for a similar
-reason: they carry no boot script and fetch `autoexec.ipxe` from wherever they
-were loaded, which this directory does not provide. Both remain available over
-TFTP if you are assembling something deliberately.
-
-### `esp/` — the ready-to-copy kit
-
-Everything above is a menu. `esp/` is the opposite: **one folder you copy onto an
-EFI System Partition verbatim**, with the files already carrying the names the
-Secure Boot chain requires.
-
-```
-esp/snponly-shimx64.efi   point your boot manager at EITHER shim
-esp/snponly.efi             …this one loads snponly.efi
-esp/ipxe-shimx64.efi      point your boot manager at EITHER shim
-esp/ipxe.efi                …this one loads ipxe.efi
-esp/mmx64.efi             MokManager — how you enrol the key
-esp/autoexec.ipxe         chains the standard set, with fallbacks
-esp/autoexec-10sec.ipxe   chains the 10-second-delay set instead
-esp/fogipxe.efi           FOG's build, all drivers      ← the one that boots
-esp/fogsnp.efi            FOG's build, firmware SNP
-esp/fogintel.efi          FOG's build, Intel only
-esp/fogrealtek.efi        FOG's build, Realtek only
-esp/fogipxe10sec.efi      the same four, each waiting 10s
-esp/fogsnp10sec.efi         before DHCP
-esp/fogintel10sec.efi
-esp/fogrealtek10sec.efi
-esp/arm64-efi/            the same set, aa64 shims
-```
-
-The chain is: shim → its loader → `autoexec.ipxe` → one of the `fog*.efi`. shim
-establishes MOK trust, so the FOG binary — signed with your Secure Boot key —
-loads; and because it carries FOG's boot script compiled in, it finds the server
-itself.
-
-**Both shims are published; pick whichever your firmware gets along with.**
-`snponly-shimx64.efi` loads `snponly.efi`, `ipxe-shimx64.efi` loads `ipxe.efi`.
-Neither loader needs to drive a NIC — each only reads `autoexec.ipxe` out of the
-same folder and chains onward — so the choice is about which shim your firmware
-accepts, not about network hardware. One `autoexec.ipxe` serves both.
-
-**`mmx64.efi` is not optional.** shim launches MokManager from its own directory
-when it cannot verify the next stage, and that is the only way to enrol your key
-— shim's `MokList` is a boot-services-only variable, so nothing in a running OS
-can write it. Without MokManager beside the shim, an ESP that has not been
-enrolled yet is a dead end with no route out.
-
-**Two sets of binaries, two scripts.** The `10sec` binaries are identical except
-that each waits 10 seconds before DHCP, which is what lets a link come up on a
-switch running STP or port power-save. iPXE runs exactly the file called
-`autoexec.ipxe` and has no way to ask you which set you want, so choosing means
-swapping the file: rename `autoexec-10sec.ipxe` over `autoexec.ipxe`.
+>For the same reason, do **not** extract the plain and `-10sec` archives into the
+>same folder. They contain the same filenames with different bytes. Each unpacks
+>into its own named directory, so this only happens if you go out of your way.
 
 >[!note]
 >The delay has to live in the binary, not the script — `sleep` is an optional
@@ -247,28 +206,146 @@ swapping the file: rename `autoexec-10sec.ipxe` over `autoexec.ipxe`.
 >your boot manager reads no script at all, so there the embedded delay is the
 >only route to one.
 
+### What is inside
+
+```
+fog-esp-x86_64/
+  README.txt              what it is, both enrolment routes, which file to boot
+  MANIFEST.json           every file here with its sha256 and what it is for
+  autoexec.ipxe           chains the FOG builds in preference order
+  snponly-shimx64.efi   ] upstream's Microsoft-signed shim and the loader it
+  snponly.efi           ]  hands off to — point the boot manager at either shim
+  ipxe-shimx64.efi      ]
+  ipxe.efi              ]
+  mmx64.efi               MokManager
+  fogipxe.efi             FOG's build, all of iPXE's NIC drivers   ← start here
+  fogsnp.efi              FOG's build, firmware SNP protocol
+  fogintel.efi            FOG's build, Intel only
+  fogrealtek.efi          FOG's build, Realtek only
+  fogsnponly.efi          FOG's build, SNP bound to the load device
+  MOK.der               ] present when the server publishes enrolment material
+  PK.auth KEK.auth      ]
+  db.auth               ]
+  fog-enroll-mok.sh     ] enrol from a booted Linux OS via mokutil
+  fog-enroll-mok.desktop]
+```
+
+arm64 substitutes `snponly-shimaa64.efi`, `ipxe-shimaa64.efi` and `mmaa64.efi`.
+The `.auth` blobs and `MOK.der` are absent on a server that publishes no
+enrolment material (`--no-secureboot`, or a run where key generation failed).
+
+**Both shims are published; pick whichever your firmware gets along with.**
+`snponly-shimx64.efi` loads `snponly.efi`, `ipxe-shimx64.efi` loads `ipxe.efi`.
+Neither loader needs to drive a NIC — each only reads `autoexec.ipxe` out of the
+same folder and chains onward — so the choice is about which shim your firmware
+accepts, not about network hardware. One `autoexec.ipxe` serves both.
+
 **Two names are not yours to choose.** shim picks its second stage by rewriting
 its own `-shim<arch>.efi` suffix to `.efi`, so `snponly-shimx64.efi` will load
 `snponly.efi` and nothing else, and it must be upstream's copy — that is what
 shim's embedded certificate vouches for. This is why FOG's own builds are here
-under `fog` names instead of their natural ones: putting FOG's `ipxe.efi` next
-to `ipxe-shimx64.efi` would have shim try to load an image it cannot verify.
+under `fog` names instead of their natural ones: putting FOG's `ipxe.efi` next to
+`ipxe-shimx64.efi` would have shim try to load an image it cannot verify.
+
+**`mmx64.efi` is not optional, and neither is `MOK.der`.** shim launches
+MokManager from its own directory when it cannot verify the next stage, and that
+is the only way to enrol your key — shim's `MokList` is a boot-services-only
+variable, so nothing in a running OS can write it. MokManager then enrols by
+browsing the ESP for a certificate, which is what `MOK.der` is. Without both, an
+ESP that has not been enrolled yet is a dead end.
+
+>[!warning]
+>`ipxe.efi` in these archives is upstream's signed build, not FOG's. It does
+>carry iPXE's own NIC drivers, so it looks like the one file you need — but
+>booted locally off an ESP it does not load them. It works only as a chain stage
+>that hands off to one of the `fog*.efi`, never as the binary that has to bring
+>up the network. That is the whole reason FOG's own builds have to be here.
+
+### Booting it
+
+**Secure Boot off** — point the boot manager straight at `fogipxe.efi`.
+
+**Secure Boot on, via shim** — point the boot manager at `snponly-shimx64.efi`
+(or `ipxe-shimx64.efi`). The first time on a machine, shim cannot verify FOG's
+binary yet, so it launches MokManager: choose *Enroll key from disk* and select
+`MOK.der`. Reboot, and it boots from then on.
+
+**Secure Boot on, via firmware Setup Mode** — put the machine into Setup Mode in
+its firmware and enrol `PK.auth`, `KEK.auth` and `db.auth`. Firmware then
+verifies FOG's signed binaries directly, so you can point the boot manager at
+`fogipxe.efi` with no shim and no MokManager at all.
+
+>[!important]
+>**The Setup Mode route is the only Secure Boot path i386 has**, and it does
+>work. Upstream signs no shim for ia32, so the `i386` archives contain no shim,
+>loader or MokManager — but they do contain the `.auth` blobs, and a signed
+>`fogipxe.efi` verified directly against `db` needs none of that machinery.
+
+### If `fogipxe.efi` does not bring up your network
+
+Try `fogsnp.efi`, then `fogintel.efi` or `fogrealtek.efi`, then `fogsnponly.efi`.
+`autoexec.ipxe` already tries them in that order.
+
+`fogsnponly.efi` is last on purpose: it binds only the device iPXE was loaded
+from, and booted off an ESP that device is the disk, so it usually finds no NIC.
+It is included because it is the right binary when something chainloads it over
+the network, and there is hardware where it works — but it is the least likely
+of the five to be the answer here.
 
 >[!important]
 >`autoexec.ipxe`'s fallbacks tell you **which files you copied**, not which
 >driver works. They fire only when a binary is missing or fails verification.
 >Once one loads and runs, control never comes back — a variant that starts but
 >finds no NIC stops at its own prompt rather than falling through to the next.
->If `fogipxe.efi` doesn't drive your NIC, replace it; the script won't do it
->for you.
+>If `fogipxe.efi` doesn't drive your NIC, replace it; the script won't do it for
+>you.
 
-x86_64 and arm64 only — those are the two architectures upstream signs a shim
-for. An i386 machine with Secure Boot off needs none of this; take
-`i386-efi/ipxe.efi` from the list above and point the boot manager straight at it.
+### `manifest.json`
+
+A static file written at install time, so you can script against it without
+guessing filenames:
+
+```json
+{
+  "schema": 1,
+  "generated": "2026-08-17T14:02:11Z",
+  "fogVersion": "1.6.0-beta.123",
+  "ipxeVersion": "v2.0.0-fog.6",
+  "archives": [
+    { "path": "fog-esp-x86_64.zip", "arch": "x86_64", "variant": "standard",
+      "root": "fog-esp-x86_64", "size": 6812345, "sha256": "…",
+      "contents": [ { "name": "fogipxe.efi", "size": 1012345, "sha256": "…",
+                      "role": "fog-ipxe", "origin": "fog", "fogSigned": true,
+                      "note": "FOG's build with all of iPXE's own NIC drivers…" } ] }
+  ],
+  "kernels": [
+    { "name": "bzImage", "path": "../ipxe/bzImage", "arch": "x86_64",
+      "kind": "kernel", "size": 12345678, "sha256": "…" }
+  ]
+}
+```
+
+Paths are relative to the manifest's own URL, so it resolves under whatever
+hostname and webroot you reached it by. Every `sha256` is of the bytes as
+published — including after signing — so it is a real integrity check.
+
+`fogSigned` says whether **FOG's** signature is on the file. It is `false` for
+the upstream shim and loaders, which carry Microsoft's and iPXE's signatures
+instead; that is correct, not a gap.
+
+`kernels` lists the FOS kernel and initrd set that is **already published** under
+`service/ipxe/`. Nothing is copied — the archives do not contain a kernel. They
+are listed so this manifest is a single index of everything fetchable for a local
+boot. A kernel and initrd on an ESP would not boot FOG on their own in any case:
+FOS reads per-host, per-task arguments that `boot.php` generates.
 
 ### Notes
 
-Directory listing is off in every subdirectory; fetch files by name.
+Directory listing is off; fetch files by name, or read `manifest.json`.
+
+**Everything here is an archive.** No individual `.efi` has its own URL, which
+means these cannot be used as a UEFI HTTP Boot target or an iPXE `chain`
+destination. If you need that, unpack an archive and serve the file yourself.
 
 **The directory is deleted and rebuilt on every install**, so nothing you put in
 it survives. It is a publication of files from the TFTP tree, not a place to keep
@@ -276,9 +353,69 @@ things — edit the originals under your TFTP directory instead, and they will b
 re-signed and republished on the next run.
 
 Nothing here is secret. These are the same binaries TFTP already serves
-unauthenticated, and FOG already serves the signed FOS kernel over HTTP from
-`service/ipxe/`. If you do not want them published, delete the directory after
-an install; only local-ESP boot depends on it, and it comes back on the next run.
+unauthenticated, upstream's signed shim and loader (downloadable from fog-ipxe's
+release assets anyway), and certificates plus signatures over them — FOG already
+serves the signed FOS kernel over HTTP from `service/ipxe/`. The private keys
+never leave the PKI zone directory. If you do not want the archives published,
+delete the directory after an install; only local-ESP boot depends on it, and it
+comes back on the next run.
+
+---
+
+## Custom iPXE binaries in the TFTP tree
+
+**Automatic**, since 1.6.
+
+FOG ships around 55 binaries into your TFTP root (`/tftpboot` on most
+distributions): `snponly.efi`, `ipxe.efi`, `undionly.kkpxe`, the `i386-efi/`
+and `arm64-efi/` variants, and the `10secdelay/` and `autoexec/` sets.
+
+If you replace one of those with your own build, **it is no longer overwritten
+on the next install or update.** FOG records the checksum of every file it
+writes, in `.fog-ipxe-manifest` at the root of the tree, and skips any file
+whose contents no longer match what FOG last put there. Files it skips are
+listed by name at the end of the run.
+
+>[!note]
+>Protection starts from the **first run after upgrading to this version**.
+>Before that there is no manifest, so a binary you replaced earlier is
+>overwritten once, and protected from then on. Keep a copy elsewhere if that
+>matters to you.
+
+To go back to FOG's version, delete your file — the next run reinstalls it.
+
+A file under a name FOG does not ship — `custom.ipxe`, your own
+`myloader.efi` — has always been safe and still is. Nothing removes files from
+the TFTP root.
+
+| Customization | What happens |
+|---|---|
+| Replaced one of FOG's binaries | Kept; named in the run's output |
+| Added a file under a new name | Kept; FOG never touches it |
+| Deleted your replacement | FOG's version is reinstalled next run |
+
+### `stock/` — the binaries FOG published
+
+When you use `--rebuild-ipxe-with-my-ca`, FOG compiles iPXE with your CA
+embedded and those builds take the normal top-level names, so your DHCP
+configuration needs no change. The binaries FOG *downloaded* are kept
+alongside, in `stock/`, so you can compare against them or fall back to one
+without re-running the installer.
+
+`secureboot/` is deliberately **not** copied there: those are Microsoft's and
+iPXE's signed shim and loader, and a second copy outside the signing sweep's
+exclusion would get a FOG signature added to it.
+
+### Signing
+
+Every `.efi` under the TFTP root that does not already carry this server's
+signature is signed for Secure Boot, including binaries you built yourself.
+`sbsign` *appends*, so your own signature survives and the binary gains one
+this server's MOK also vouches for — which is what lets a custom build boot on
+a machine enrolled against FOG.
+
+`secureboot/` is excluded, always. Those two stages are what the whole chain
+hangs off and are already signed by their vendors.
 
 ---
 
@@ -289,7 +426,9 @@ Listed plainly so none of it is a surprise.
 - **Edits inside the FOG-managed vhost block.** They are overwritten on the
   next run. Move them outside the markers.
 - **Direct edits to `default.ipxe`.** Regenerated every run; there is no
-  supported hook point for pre-boot customization yet.
+  supported hook point for pre-boot customization yet. This is the one file in
+  the TFTP root the manifest above does not protect, because FOG has to rewrite
+  it to keep the netboot URL correct.
 - **A kernel-signing key rotated after a generation was captured.** Restoring
   that generation re-signs with the *current* key, which is correct, but any
   client enrolled against the old key still needs re-enrollment.

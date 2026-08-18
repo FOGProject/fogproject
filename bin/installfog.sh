@@ -102,9 +102,32 @@ usage() {
     echo -e "\t-d    --no-defaults\t\tDon't guess defaults"
     echo -e "\t-U    --no-upgrade\t\tDon't attempt to upgrade"
     echo -e "\t-H    --no-htmldoc\t\tNo htmldoc, means no PDFs"
-    echo -e "\t-S    --force-https\t\tForce HTTPS for all comunication"
+    echo -e "\t      --install-mode\t\tPreset for the four settings below."
+    echo -e "\t                  \t\t\tstandard (default): HTTPS web UI, HTTP"
+    echo -e "\t                  \t\t\t  netboot, no redirect, no rebuild"
+    echo -e "\t                  \t\t\thttp-only: plain HTTP everywhere"
+    echo -e "\t                  \t\t\tpublic-cert: a publicly-trusted cert, so"
+    echo -e "\t                  \t\t\t  netboot can use HTTPS with no rebuild"
+    echo -e "\t                  \t\t\tembed-ca: rebuild iPXE with your CA"
+    echo -e "\t                  \t\t\t  (adds 10-25 min and a Secure Boot step)"
+    echo -e "\t-S    --force-https\t\tForce the HTTP->HTTPS redirect"
+    echo -e "\t      --https-redirect\t\t  (same thing, clearer name)"
     echo -e "\t      --no-force-https\t\tUndo --force-https: serve both HTTP and"
-    echo -e "\t                     \t\t\tHTTPS without redirecting"
+    echo -e "\t      --no-https-redirect\t\t\tHTTPS without redirecting"
+    echo -e "\t      --public-web-cert\t\tThe web certificate chains to a PUBLIC"
+    echo -e "\t                       \t\t\troot, so iPXE can validate it without"
+    echo -e "\t                       \t\t\ta rebuild. Needs an FQDN, not an IP"
+    echo -e "\t      --no-public-web-cert\tUndo --public-web-cert"
+    echo -e "\t      --rebuild-ipxe-with-my-ca\tRebuild iPXE embedding the"
+    echo -e "\t                              \t\tconfigured CA. Slow, and the"
+    echo -e "\t                              \t\tresult is not upstream's signed"
+    echo -e "\t                              \t\tbinary, so its MOK must be"
+    echo -e "\t                              \t\tenrolled before a client netboots"
+    echo -e "\t      --no-rebuild-ipxe-with-my-ca\tUndo the above"
+    echo -e "\t      --netboot-proto\t\thttp or https: the protocol iPXE uses to"
+    echo -e "\t                     \t\t\tfetch boot.php. Defaults to http, and"
+    echo -e "\t                     \t\t\tto https when the certificate is public"
+    echo -e "\t                     \t\t\tor iPXE was rebuilt with your CA"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t-K    --recreate-keys\t\tRecreate the SSL Keys"
     echo -e "\t      --external-ca\t\tSign FOG's server certificate with an"
@@ -189,8 +212,11 @@ usage() {
     echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
     echo -e "\t      --secure-boot-cert\tCertificate matching --secure-boot-key"
     echo -e "\t                        \t\t\t(both are required together)"
-    echo -e "\t      --no-secure-boot\t\tDo not generate a Secure Boot signing"
-    echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
+    echo -e "\t      --no-secure-boot\t\tDo not publish Secure Boot ENROLMENT"
+    echo -e "\t                      \t\t\tmaterial: no MOK.der, no PK/KEK/db.auth,"
+    echo -e "\t                      \t\t\tand no 'Enroll Secure Boot Key' menu"
+    echo -e "\t                      \t\t\tentry. Binaries are still signed -- a"
+    echo -e "\t                      \t\t\tsignature is inert with Secure Boot off"
     echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
     echo -e "\t                   \t\t\tserver's own system trust store"
     exit 0
@@ -199,7 +225,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -294,20 +320,58 @@ while :; do
             signorehtmldoc=1
             shift
             ;;
-        -S | --force-https)
-            shttpproto="https"
+        -S | --force-https | --https-redirect)
+            # -S now sets ONLY the redirect, which is what its help text has
+            # always described: --no-force-https is documented as "serve both
+            # HTTP and HTTPS without redirecting". It used to set httpproto,
+            # which also silently decided whether iPXE got rebuilt and whether
+            # Secure Boot binaries were staged at all. Those are separate keys
+            # now -- see --rebuild-ipxe-with-my-ca and --public-web-cert.
+            shttpsRedirect="yes"
             shift
             ;;
-        --no-force-https)
+        --no-force-https | --no-https-redirect)
             # GH-978: the counterpart to -S, and the only way back out of it.
-            # httpproto is a managed key, so once -S writes https into
-            # .fogsettings the `[[ -z $httpproto ]] && httpproto="http"` default
-            # can never fire again -- .fogsettings is sourced first. Re-running
-            # without -S therefore kept forcing HTTPS, and hand-editing
-            # .fogsettings was the only escape. Setting shttpproto routes this
-            # through the same override that -S uses, so the two are symmetric.
-            shttpproto="http"
+            # httpsRedirect is a managed key, so once -S writes yes into
+            # .fogsettings a default can never fire again -- .fogsettings is
+            # sourced first. Re-running without -S therefore kept forcing the
+            # redirect, and hand-editing .fogsettings was the only escape.
+            # Setting the same shadow -S uses keeps the two symmetric.
+            shttpsRedirect="no"
             shift
+            ;;
+        --public-web-cert)
+            # The web certificate chains to a PUBLIC root. Persisted, never
+            # measured: a value re-derived each run from a trust store other
+            # software also writes to is not something to hang a 25-minute
+            # build on. It also cannot be measured reliably -- FOG adds its own
+            # CA to the host store by default, so a plain `openssl verify`
+            # answers "trusted" for FOG's own leaf, which is exactly the case
+            # that needs the rebuild.
+            spublicWebCert="yes"
+            shift
+            ;;
+        --no-public-web-cert)
+            spublicWebCert="no"
+            shift
+            ;;
+        --rebuild-ipxe-with-my-ca)
+            # Deliberately long: it states WHY the rebuild happens. Not
+            # "...WithMyFogCA", because it must adapt to a configured external
+            # CA too -- the build embeds whichever CA signs the web leaf.
+            srebuildIpxeWithMyCA="yes"
+            shift
+            ;;
+        --no-rebuild-ipxe-with-my-ca)
+            srebuildIpxeWithMyCA="no"
+            shift
+            ;;
+        --install-mode)
+            case $2 in
+                standard|http-only|public-cert|embed-ca) sinstallMode="$2" ;;
+                *) echo "$1 must be standard, http-only, public-cert or embed-ca"; usage; exit 3 ;;
+            esac
+            shift 2
             ;;
         -K | --recreate-keys)
             srecreateKeys="yes"
@@ -692,6 +756,10 @@ resolvedfoggitpath="$fog_git_path"
 [[ -z $guessdefaults ]] && guessdefaults=1
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
+# NOT the new default. httpproto is forced to https for everyone further down,
+# after .fogsettings has been sourced -- the migration there has to be able to
+# tell a PERSISTED https (the only evidence an admin ever asked for -S) from a
+# defaulted one, and it cannot if the default has already written https here.
 [[ -z $httpproto ]] && httpproto="http"
 [[ -z $externalca ]] && externalca="no"
 [[ -z $mysqldbname ]] && mysqldbname="fog"
@@ -736,8 +804,47 @@ case $doupdate in
         echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
+# --- httpproto / httpsRedirect migration -------------------------------------
+#
+# Runs after .fogsettings is sourced and BEFORE the flags below, so the order
+# stays: explicit flag > persisted value > migrated value.
+#
+# $httpproto used to mean three unrelated things at once -- "FOG uses HTTPS for
+# its own URLs", "redirect HTTP to HTTPS", and "rebuild iPXE with the CA baked
+# in". They are separate keys now. Splitting them needs one guess made once,
+# about existing servers:
+#
+#   An existing httpproto=https is the ONLY evidence its admin ever asked for
+#   -S, so seed httpsRedirect from it. Everybody else gets no redirect, which
+#   is the point -- trust in FOG's CA reaches a client when fog-client installs
+#   it there, so on a fresh server a forced redirect breaks exactly the
+#   machines that cannot fix themselves.
+#
+# Guarded on httpsRedirect being unset, so it fires once. After that the key is
+# persisted and this branch can never re-run -- which matters, because an admin
+# who turns the redirect off must not have it turned back on by the next
+# upgrade re-reading httpproto.
+if [[ -z $httpsRedirect ]]; then
+    [[ $httpproto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
+fi
+# Safe for everyone: 443 already listens on every install (both web servers
+# emit their :443 vhost in both arms), and no redirect follows from this.
+httpproto="https"
+[[ -z $publicWebCert ]] && publicWebCert="no"
+[[ -z $rebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA="no"
+
+# --- --install-mode ----------------------------------------------------------
+#
+# A preset over the model, never a replacement for it: it writes the same four
+# keys an admin could set individually. Applied BEFORE the discrete flags, so
+# `--install-mode public-cert --no-rebuild-ipxe-with-my-ca` means what it reads
+# like -- each discrete key overrides its own field and nothing else.
+_applyInstallMode
+
 # evaluation of command line options
-[[ -n $shttpproto ]] && httpproto=$shttpproto
+[[ -n $shttpsRedirect ]] && httpsRedirect=$shttpsRedirect
+[[ -n $spublicWebCert ]] && publicWebCert=$spublicWebCert
+[[ -n $srebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA=$srebuildIpxeWithMyCA
 [[ -n $shostname ]] && hostname=$shostname
 [[ ${#sextraServerNames[@]} -gt 0 ]] && extraServerNames="${sextraServerNames[*]}"
 [[ -n $sstartrange ]] && startrange=$sstartrange
@@ -947,7 +1054,15 @@ case $sendreports in
         echo "No"
         ;;
 esac
+# Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
+# it resolved rather than only what was passed.
+echo " * Web protocol: $httpproto"
+echo " * Netboot (PXE) protocol: ${netbootproto:-http (resolved during install)}"
+echo -n " * Force HTTP->HTTPS redirect: "; [[ $httpsRedirect == yes ]] && echo "Yes" || echo "No"
+echo -n " * Web certificate chains to a public root: "; [[ $publicWebCert == yes ]] && echo "Yes" || echo "No"
+echo -n " * Rebuild iPXE with your CA: "; [[ $rebuildIpxeWithMyCA == yes ]] && echo "Yes (adds 10-25 min)" || echo "No"
 echo
+promptInstallMode
 while [[ -z $blGo ]]; do
     echo
     [[ -n $autoaccept ]] && blGo="y"
@@ -1150,13 +1265,21 @@ while [[ -z $blGo ]]; do
                     # does not hold the signing key.
                     _signLocalIpxe
                     # Separate call, not folded into the one above, because the
-                    # two do not share a trigger. Signing needs Secure Boot keys;
-                    # publishing does not -- booting a machine from an iPXE
+                    # two do not share a trigger. Signing needs a Secure Boot
+                    # key; publishing does not -- booting a machine from an iPXE
                     # binary on its own ESP predates Secure Boot, and unsigned
                     # copies still work on every machine booting with it off. The
                     # web root is also rebuilt from scratch every run by
                     # configureHttpd, so publishing has to happen even on a run
                     # that signed nothing.
+                    #
+                    # Also downstream of _publishSecureBootKit and
+                    # _publishSecureBootAuthVars, which run inside configureHttpd
+                    # above via downloadfiles(). Each archive carries whatever
+                    # enrolment material those two actually published -- MOK.der
+                    # and the PK/KEK/db variable updates -- so one archive on a
+                    # USB stick holds every enrolment route. Taken by existence,
+                    # so a server that published neither simply ships neither.
                     _publishLocalBootFiles
                     configureFTP
                     configureSnapins
@@ -1188,6 +1311,11 @@ while [[ -z $blGo ]]; do
                     updateStorageNodeCredentials
                     recordGitUpdateSettings
                     setupFogReporting
+                    # Last, so it is the part still on screen. An admin who
+                    # asked for HTTPS and got HTTP netboot has to be told; the
+                    # resolution used to happen silently in the middle of
+                    # writing default.ipxe.
+                    _reportNetbootProto
                     echo
                     echo " * Setup complete"
                     echo

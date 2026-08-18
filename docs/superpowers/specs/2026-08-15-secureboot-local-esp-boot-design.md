@@ -483,3 +483,137 @@ every run, and tells an admin who does not want it published to delete it.
    boots a machine from its ESP with Secure Boot off. This is the case the first
    implementation skipped entirely — it gated publishing on `$secureBootMokCert`,
    so a non-Secure-Boot server got nothing.
+
+---
+
+## Superseded: the published layout is now archives (2026-08-17)
+
+Everything above about *why* these binaries exist, which names shim reserves, and
+what the hardware testing established still holds and is still the reason the
+feature is shaped as it is. **What changed is Design §2 and §4 — what gets
+published and how.** Recorded here rather than edited in above, so the reasoning
+that led to the first shape stays readable.
+
+Reworks GH-1117. Prompted by looking at the tree on a server running the result:
+
+```
+service/localboot:
+  10secdelay  arm64-efi  esp  i386-efi  index.php
+  intel.efi  ipxe.efi  realtek.efi  secureboot  snp.efi
+```
+
+### What was wrong
+
+§2 published a *menu* and §4 published a *kit*, and they were the same bytes
+twice — `localbootfiles` under the TFTP names at the root, `localbootespfiles`
+under `esp/` with the `fog*` names. Consequences, all visible in that listing:
+
+- **arm64 in four places**: `arm64-efi/`, `10secdelay/arm64-efi/`,
+  `esp/arm64-efi/`, `secureboot/arm64-efi/`.
+- **The delay set was inconsistent between the two lists.** The menu published
+  only `10secdelay/ipxe.efi`; the kit published all four 10sec variants. Neither
+  list was wrong on its own terms; together they said two different things.
+- **Nothing told a downloader which file to take**, and with listing off the only
+  way to enumerate the directory was to already know the filenames.
+
+The premise that the two lists served two audiences did not survive contact.
+The *only* reason the kit needed different filenames is that shim reserves
+`snponly.efi` and `ipxe.efi` on an ESP — and those names are the strictly safer
+choice everywhere. So one correctly-named folder serves both the admin
+assembling an ESP and the admin who wants one binary out of it.
+
+### What replaced it
+
+Six archives and a `manifest.json`, and nothing else. One archive per
+(architecture × delay variant), each holding a single top-level directory named
+after itself.
+
+**The delay variant is its own archive.** §4 shipped both binary sets plus
+`autoexec.ipxe` and `autoexec-10sec.ipxe` in one folder, and choosing meant
+renaming one over the other — because iPXE runs exactly the file called
+`autoexec.ipxe` and cannot be asked which set you want. Choosing at *download*
+time deletes the step: the binaries in a `-10sec` archive carry the plain names
+and its single `autoexec.ipxe` is already correct. It costs each variant its own
+copy of the upstream shim set, which is the only reason the total is not smaller
+than the tree it replaced.
+
+**`manifest.json` is what makes curation honest.** §2 curated by *omission* —
+which is how FOG's `snponly.efi` came to be unavailable at all, and how an
+archive-less directory ended up saying nothing about which of five binaries to
+reach for. A manifest carries the same advice per file (`role`, `origin`,
+`fogSigned`, a prose `note`) without having to withhold anything to give it. It
+is a static file written at install time, deliberately not a PHP endpoint that
+lists the directory on request — that would be a directory listing with a
+traversal surface, to save writing a file that changes only when the installer
+runs.
+
+### Reversals
+
+| Was | Now | Why |
+| --- | --- | --- |
+| FOG's `snponly.efi` excluded | published as `fogsnponly.efi`, tried **last** in the ladder | The exclusion was only forced because `snponly.efi` is a shim-reserved name. Under the `fog` prefix there is no collision, the manifest note carries the disk-not-NIC caveat, and there is hardware where it works. |
+| `MOK.der` not in the kit | in every archive | MokManager enrols by browsing the ESP for a certificate. Shipping MokManager without one is still a dead end — it just fails one screen later. §4 missed this. |
+| No `.auth` blobs in the kit | `PK`/`KEK`/`db.auth` in every archive | They are signed EFI variable updates a machine in Setup Mode writes to put this server's certificate straight into `db`, after which firmware verifies a signed `fogipxe.efi` **directly** — no shim, no MokManager, no MOK. |
+| "i386 has no Secure Boot chain to assemble" (§4) | **wrong, and corrected** | True that upstream signs no shim for ia32. But the `db` route needs no shim, so i386 Secure Boot local boot works. The conclusion followed from treating the shim chain as the only route. |
+| Publishing gated on nothing; **signing** gated on `--no-secure-boot` | signing always runs; the opt-out declines **enrolment** | A PE signature is inert with Secure Boot off, so signing costs nothing, while an unsigned binary is useless the day anyone enrols with nothing on the server able to fix it. The flag now stops `MOK.der`, the `.auth` blobs, and so the PXE enrol entry — applied in `_ensureSecureBootPlatformKeys` and `_publishSecureBootKit` instead of by blanking `$secureBootKey`. |
+| ~~Curated list of loose files~~ | archives only | See the trade below. |
+
+### Traded away, deliberately
+
+**No individual binary has a URL any more**, so nothing published here can be a
+UEFI HTTP Boot target or an iPXE `chain` destination — which `service/secureboot/mmx64.efi`
+demonstrates is a real use (the PXE menu chains that single file over HTTP, and
+that is exactly why it is copied there). Accepted because the archive serves the
+"prepare an ESP" case that this feature exists for, and publishing the loose set
+alongside is purely additive if the other case ever turns up.
+
+### Bug found in adjacent code
+
+`_copyIpxeTree()` records a sha256 of every file it lays down in
+`${tftpdirdst}/.fog-ipxe-manifest`, so a later run can tell FOG's copy from one
+the admin replaced. `_signLocalIpxe()` re-signs those `.efi` **in place**
+afterwards and never re-stamped. On the *second* install of a Secure Boot server
+every `.efi` compares unequal: FOG stops updating its own binaries and reports
+all 45 as admin-modified, every run, permanently.
+
+The note under *Resolved during implementation* above — "nothing stamps or
+verifies `/tftpboot` contents, so no re-stamping is needed" — was true when
+written and stopped being true when `.fog-ipxe-manifest` landed. Fixed by
+`_restampIpxeManifest()`, which rewrites only the lines for files actually
+signed; an entry deliberately carrying the *original* sum for a file the admin
+really did replace is copied through untouched, so that file stays protected.
+
+### Rejected during the rework
+
+| Alternative | Why not |
+| --- | --- |
+| Keep the menu/kit split, dedupe with symlinks | Preserves the two-tree mental model, which is the thing that was confusing. A symlink inside the web root would work — same SELinux label, `Options +FollowSymLinks` already emitted, so the objection that killed the TFTP-tree symlink does not apply — but archiving symlinks is a trap and the split was the problem, not the copying. |
+| Loose files *and* archives | ~8MB more and, more to the point, it keeps the Secure Boot material as a third loose copy of what `service/secureboot/` already holds. The single-file URL it buys is real but hypothetical here. |
+| Bundle `bzImage`/`init.xz` per arch | 60–80MB per architecture, and it would not produce a working local boot on its own: FOS reads per-host, per-task kernel arguments that `boot.php` generates. Listed in the manifest's `kernels` section instead — no bytes moved, and the manifest becomes the single index. |
+| Grab `.usb`/`.iso` if present | A coherent but *different* feature (boot iPXE off a USB stick without touching the ESP), with its own layout question. Not published, and not silently dropped — say so if it is wanted. |
+| Build the manifest with `jq` | `jq` is in the install list, so it is normally there — but a missing package would mean publishing no manifest at all, which is the whole feature. Hand-written through a `_jsonStr` escaper instead: everything encoded here is content this file produced, so the escaping problem is bounded. Same reasoning as the `tar` fallback for `zip`. |
+| Symlink the enrolment material from `../secureboot/` | `_publishSecureBootKit()` `rm -rf`s that directory when there is no MOK, so a link inside an archive could dangle. Copies keep each archive self-contained, and the files are a few KB. |
+
+### Verification (in addition to the list above)
+
+`tests/localboot-publish.test.sh`, 62 assertions. Every mock file's **content is
+its own path in the tree**, so provenance is read out of the file rather than
+inferred — which is what pins the failure that is otherwise invisible on the
+server: a `-10sec` archive whose `fogipxe.efi` came from the plain tree shows up
+only as "the delay does nothing" on a switch running STP.
+
+Also covered: the manifest parses as JSON under an independent implementation
+(python, not the shell that wrote it) with every sha256 matching the published
+bytes; no BIOS artifact and no EMBED-less `autoexec/` build leaks in; upstream
+keeps the two shim-reserved names; the HTTPS-only shape publishes six archives
+and correctly omits an `autoexec.ipxe` no loader could read; a server with no
+enrolment material still succeeds; an empty tree reports `Failed` rather than
+publishing silently; a re-run is stable; and the `.fog-ipxe-manifest` regression
+is pinned end to end.
+
+Steps 3/3b of the original verification list are replaced by: fetch
+`manifest.json`, check each archive's sha256 against it, and confirm the
+directory itself 404s. Step 4 becomes: extract `fog-esp-x86_64.zip` and point the
+boot manager at `snponly-shimx64.efi`. New step: enrol `db.auth` from
+`fog-esp-i386.zip` through firmware Setup Mode and boot `fogipxe.efi` directly,
+with no shim — the path this spec originally said did not exist.

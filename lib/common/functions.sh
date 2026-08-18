@@ -1362,7 +1362,11 @@ listPackages() {
             packages=$(echo $packages | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g')
             ;;
     esac
-    packages="$packages jq unzip attr ${webserver}"
+    # zip is the WRITER and is a separate package from unzip on every distro
+    # here -- _publishLocalBootFiles() builds the local ESP boot archives with
+    # it. Named "zip" identically on apt/dnf/pacman/apk, so it needs no
+    # per-distro alternatives list.
+    packages="$packages jq unzip zip attr ${webserver}"
     case $osid in
         1)
             packages="$packages php-bcmath bc"
@@ -1768,7 +1772,39 @@ configureDefaultiPXEfile() {
     # (FOGBase::$httpproto reads $_SERVER['HTTPS']), so chaining over HTTP here
     # makes the whole boot sequence HTTP with no PHP change.
     _resolveNetbootProto
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # HTTPS netboot has to address this server by NAME, never by IP.
+    #
+    # A certificate is issued to a name. Public CAs will not issue for a
+    # private IP at all, and even where the chain itself validates, iPXE still
+    # fails the handshake on a name mismatch -- so an https:// URL built from
+    # $ipaddress cannot work, whatever the certificate is. HTTP does not care,
+    # which is why this has never mattered before.
+    local nbhost="$ipaddress"
+    if [[ $netbootproto == https ]]; then
+        nbhost="${hostname:-$ipaddress}"
+        # validip echoes 0 for a valid IPv4 literal, 1 otherwise.
+        if [[ -z $hostname || $(validip "$nbhost") -eq 0 ]]; then
+            echo "Failed"
+            echo
+            echo " ###################################################################"
+            echo " # HTTPS netboot needs a hostname, and this server has only an IP.  #"
+            echo " #                                                                 #"
+            echo " # A certificate is issued to a NAME. Public CAs will not issue for #"
+            echo " # a private IP, and iPXE fails the handshake on a name mismatch    #"
+            echo " # even after the chain validates -- so every PXE client would stop #"
+            echo " # at the TLS handshake.                                            #"
+            echo " #                                                                 #"
+            echo " # Set a resolvable hostname with --hostname, or put netboot back   #"
+            echo " # on HTTP with --netboot-proto http.                               #"
+            echo " ###################################################################"
+            echo
+            # Fatal on purpose. Writing this file with an IP would produce an
+            # install that completes cleanly and cannot boot anything.
+            [[ -z $exitFail ]] && exit 1
+            return 1
+        fi
+    fi
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://${nbhost}${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -1881,6 +1917,177 @@ fetchipxeasset() {
     cd $cwd
     return $stat
 }
+# The CA that gets compiled into a locally built iPXE. $sslcachain when there
+# is one, so an external CA's chain is embedded rather than FOG's own root --
+# buildipxe.sh takes it as CERT=/TRUST=, its only per-site input.
+_resolveIpxeTrust() {
+    [[ -n $sslcachain && -f $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
+}
+# What a built tree is built FROM: the iPXE release tag, and the exact bytes of
+# the CA that got compiled into it.
+#
+# The CA half is not decoration. TRUST=/CERT= bakes the certificate into the
+# binary, so --recreate-ca, switching to an external CA, or rotating the
+# intermediate all leave a binary trusting a CA that no longer signs anything --
+# at an unchanged iPXE tag. A version-only check would skip that rebuild, and
+# the failure lands at a PXE client as a TLS error with nothing on the server to
+# connect it to the cause.
+_ipxeBuildStampValue() {
+    local sum=""
+    [[ -n $ipxetrust && -f $ipxetrust ]] && \
+        sum=$(sha256sum "$ipxetrust" 2>/dev/null | cut -d' ' -f1)
+    printf 'ipxe=%s ca=%s' "${ipxeVer:-unknown}" "${sum:-none}"
+}
+# Does this server compile its own iPXE?
+#
+# One predicate, replacing three separate `$httpproto == https` tests that had
+# quietly become three different questions wearing the same clothes: whether to
+# download the release asset, whether to stage Secure Boot binaries, and
+# whether to compile. Only the last one is about compiling.
+#
+# The trade the old test encoded is real but much narrower than it looked. iPXE
+# validates TLS strictly and cannot be told to trust a private CA, so serving
+# boot.php over HTTPS from a FOG-PKI certificate needs the CA compiled in
+# (TRUST=) -- and a locally rebuilt binary is not upstream's SIGNED one, so it
+# costs the Secure Boot shim and makes onboarding harder, not easier. What was
+# wrong was inferring that from "the web UI uses HTTPS", which says nothing
+# about the netboot transport and nothing about what the certificate chains to.
+#
+# So: the build happens iff the admin asked for it. A public certificate with
+# HTTPS netboot never builds -- iPXE's crosscert path validates it already.
+#
+# And then only when the result would actually differ. buildipxe.sh does
+# `git clean -fd && git reset --hard && touch crypto/rootcert.c`, so every
+# invocation is a cold rebuild of eight make passes -- 10-25 minutes, on every
+# install AND every update, to reproduce bytes that are usually identical.
+#
+# Equality against a stamp, not an ordering comparison, the same shape
+# bin/fetch-plugins.sh uses for the plugin tree. Deliberately NOT its other
+# clause though: there, a populated directory with no stamp means "someone else
+# put this here, leave it alone". Here the same state means an install that
+# predates the stamp, whose binaries came from the old always-rebuild flow --
+# so a missing stamp has to mean rebuild, or the first run after this lands
+# would skip the very build it exists to schedule.
+_needsLocalIpxeBuild() {
+    [[ $rebuildIpxeWithMyCA == yes ]] || return 1
+    _resolveIpxeTrust
+    local stamp="${tftpdirdst%/}/.fog-ipxe-build"
+    local want
+    want="$(_ipxeBuildStampValue)"
+    [[ -f $stamp && -n $want && "$(cat "$stamp" 2>/dev/null)" == "$want" ]] && return 1
+    return 0
+}
+# Keep a pristine copy of the published binaries when we are about to replace
+# them with locally built ones.
+#
+# The rebuild writes into the same staging tree the download unpacked into, so
+# without this the stock binaries are simply gone -- and an admin who wanted to
+# compare, or to fall back, had no copy and no way to get one except re-running
+# the installer with the rebuild off.
+#
+# Copied inside $tftpdirsrc so the normal copy loop carries it to $tftpdirdst
+# with everything else, and so it inherits the same ownership, SELinux labelling
+# and signing sweep. No separate path to keep in step.
+#
+# secureboot/ is excluded, and that exclusion is load-bearing rather than tidy:
+# _signLocalIpxe() prunes exactly "$tftproot/secureboot" and nothing deeper, so
+# a copy of it under stock/ would fall outside the prune and FOG would add its
+# own signature to Microsoft's and iPXE's signed shim and loader -- the two
+# stages the whole Secure Boot chain hangs off.
+_preserveStockIpxe() {
+    local src="${tftpdirsrc%/}" entry base
+    [[ -d $src ]] || return 0
+    dots "Preserving stock iPXE binaries"
+    rm -rf "${src}/stock" >>$error_log 2>&1
+    mkdir -p "${src}/stock" >>$error_log 2>&1
+    for entry in "$src"/*; do
+        [[ -e $entry ]] || continue
+        base=$(basename "$entry")
+        case $base in
+            stock|secureboot) continue ;;
+        esac
+        cp -a "$entry" "${src}/stock/" >>$error_log 2>&1
+    done
+    errorStat $?
+}
+# Copy the staged tree into place WITHOUT destroying an admin's own binaries.
+#
+# The historic loop was `find -type f -exec cp -Rfv {} $tftpdirdst/{}`, which
+# overwrites unconditionally. A file whose name is not in the staging tree
+# survives -- nothing deletes it -- but any of the ~55 names FOG does ship was
+# destroyed on every single run. That is the whole set an admin is most likely
+# to have replaced: snponly.efi, ipxe.efi, undionly.kkpxe.
+#
+# The customization machinery that would have protected it covers only the WEB
+# tree; both backupPreservedCustomizations and restorePreservedCustomizations
+# hardcode $webdirdest/service/ipxe. The TFTP tree was assumed safe "by
+# construction", which holds for new names and is false for colliding ones.
+#
+# So: record the checksum of every file FOG writes here, and skip a destination
+# whose current checksum no longer matches what FOG last wrote.
+#
+# A sidecar manifest rather than the fogsum XATTR the kernel path uses, and the
+# difference matters. That mechanism no-ops entirely when the `attr` binary is
+# absent or the filesystem does not carry extended attributes -- it degrades to
+# "unknown", which is correctly treated as "not modified". For kernels that is
+# survivable because they are backed up regardless. Here there is no backup, so
+# a silent degradation means silently overwriting the admin's binary while
+# reporting that it is protected. A TFTP root is also exactly the sort of path
+# that ends up on a mount without xattr support.
+#
+# The manifest lists only checksums of public boot binaries, so serving it over
+# TFTP alongside them gives nothing away.
+#
+# Protection begins with the FIRST run after this lands: before that there is no
+# manifest, nothing can be compared, and a file with no entry is treated as
+# FOG's -- the same "unknown is not modified" rule the kernel path uses, and the
+# only choice that lets an ordinary upgrade still update anything.
+_copyIpxeTree() {
+    local src="${tftpdirsrc%/}" dst="${tftpdirdst%/}"
+    local manifest="${dst}/.fog-ipxe-manifest"
+    local rel target sum recorded have
+    declare -A fogsums=()
+    ipxeSkipped=""
+    [[ -d $src ]] || return 0
+    if [[ -f $manifest ]]; then
+        while IFS='|' read -r sum rel; do
+            [[ -n $sum && -n $rel ]] && fogsums["$rel"]="$sum"
+        done < "$manifest"
+    fi
+    while IFS= read -r rel; do
+        rel="${rel#./}"
+        [[ -z $rel || $rel == "." ]] && continue
+        mkdir -p "${dst}/${rel}" >>$error_log 2>&1
+    done < <(cd "$src" && find . -type d 2>>$error_log)
+    local staging="${manifest}.new"
+    : > "$staging" 2>>$error_log
+    while IFS= read -r rel; do
+        rel="${rel#./}"
+        [[ -z $rel ]] && continue
+        # Never manage our own bookkeeping.
+        case $rel in
+            .fog-ipxe-manifest|.fog-ipxe-manifest.new|.fog-ipxe-build) continue ;;
+        esac
+        target="${dst}/${rel}"
+        recorded="${fogsums[$rel]:-}"
+        if [[ -f $target && -n $recorded ]]; then
+            have=$(sha256sum "$target" 2>/dev/null | cut -d' ' -f1)
+            if [[ -n $have && $have != "$recorded" ]]; then
+                ipxeSkipped="${ipxeSkipped}${ipxeSkipped:+ }${rel}"
+                # Carry the ORIGINAL sum forward, not the admin's. Recording
+                # theirs would make the file match on the next run and be
+                # quietly overwritten then instead.
+                printf '%s|%s\n' "$recorded" "$rel" >> "$staging" 2>>$error_log
+                continue
+            fi
+        fi
+        cp -f "${src}/${rel}" "$target" >>$error_log 2>&1 || continue
+        sum=$(sha256sum "$target" 2>/dev/null | cut -d' ' -f1)
+        [[ -n $sum ]] && printf '%s|%s\n' "$sum" "$rel" >> "$staging" 2>>$error_log
+    done < <(cd "$src" && find . -type f 2>>$error_log)
+    mv -f "$staging" "$manifest" >>$error_log 2>&1
+    return 0
+}
 downloadipxe() {
     # iPXE binaries used to be 70 files committed to this repository. They are
     # now a release asset, verified and unpacked into the same staging tree the
@@ -1891,13 +2098,15 @@ downloadipxe() {
     local tarball="fog-ipxe-${ipxeVer}.tar.gz"
     local dest=$(readlink -f $tftpdirsrc)
     dots "Downloading iPXE binaries (${ipxeVer})"
-    # An HTTPS install is about to rebuild these from source anyway, and the
-    # rebuild writes to this same directory. Downloading first would be wasted
-    # bandwidth on every such install.
-    if [[ "x$httpproto" = "xhttps" ]]; then
-        echo "Skipped (built locally)"
-        return 0
-    fi
+    # Downloaded on EVERY install, including one that is about to rebuild.
+    #
+    # This used to skip whenever httpproto was https, on the reasoning that a
+    # rebuild overwrites these anyway. Two things were wrong with that. The
+    # obvious one: httpproto had nothing to do with whether a rebuild happens.
+    # The one that mattered more: it meant a rebuilding server never had a
+    # pristine copy of the published binaries at all, so there was nothing to
+    # preserve into stock/ and no way back to a stock binary short of
+    # re-running the installer with the rebuild turned off.
     if ! fetchipxeasset "$tarball" "$dest"; then
         # Guidance first: errorStat exits before returning unless $exitFail is
         # set, so anything printed after it is never seen.
@@ -1960,16 +2169,28 @@ downloadipxesecureboot() {
     local tarball="fog-ipxe-secureboot-${ipxeVer}.tar.gz"
     local dest=$(readlink -f $tftpdirsrc)
     dots "Downloading iPXE Secure Boot binaries (${ipxeVer})"
-    # These are upstream's generic signed binaries, so they cannot carry this
-    # server's CA -- which is the whole reason an HTTPS install rebuilds iPXE
-    # locally. A signed binary cannot be rebuilt without invalidating the
-    # signature, so Secure Boot and HTTPS are mutually exclusive here. Staging
-    # them anyway would leave an admin a directory that looks usable and fails
-    # at the client with a TLS error.
-    if [[ "x$httpproto" = "xhttps" ]]; then
-        echo "Skipped (not usable with HTTPS)"
-        return 0
-    fi
+    # Staged in EVERY mode. This used to skip whenever httpproto was https,
+    # under the heading "Secure Boot and HTTPS are mutually exclusive here" --
+    # the reasoning being that upstream's generic signed binaries cannot carry
+    # this server's CA, and a signed binary cannot be rebuilt without
+    # invalidating the signature.
+    #
+    # The premise is true and the conclusion does not follow, which testing has
+    # now established both ways:
+    #
+    #   * Upstream iPXE defines CROSSCERT unconditionally in config/crypto.h,
+    #     and FOG's overlay replaces only general.h/settings.h/console.h. So
+    #     upstream's signed binaries DO validate a publicly-issued certificate
+    #     at boot, with no rebuild and no embedded CA. Confirmed in production
+    #     against a Let's Encrypt vhost.
+    #   * And where the certificate is private, netboot simply stays on HTTP --
+    #     which has nothing to do with whether a Secure Boot chain is available
+    #     for the machines that need one.
+    #
+    # The practical effect of the old gate was that every -S install staged no
+    # Secure Boot binaries at all, so the feature was missing precisely on the
+    # servers whose admins had gone furthest out of their way to configure TLS.
+    # See #1116 finding 1.
     # Deliberately NOT fatal, unlike downloadipxe above. A missing Secure Boot
     # set costs nothing to any client that boots today, so failing the whole
     # install over it would be a regression for every site that does not use it.
@@ -1993,26 +2214,63 @@ configureTFTPandPXE() {
     [[ -d $tftpdirdst && ! -d ${tftpdirdst}.prev ]] && mkdir -p ${tftpdirdst}.prev >>$error_log 2>&1
     [[ -d ${tftpdirdst}.prev ]] && cp -Rf $tftpdirdst/* ${tftpdirdst}.prev/ >>$error_log 2>&1
     sslpath=${sslpath//\/$}
-    if [[ "x$httpproto" = "xhttps" ]]; then
+    if _needsLocalIpxeBuild; then
         # The one case a release asset cannot serve: CERT=/TRUST= bake this
         # server's CA into the binary so iPXE can fetch boot.php over TLS,
         # which makes it a per-server artifact by definition. Everything else
         # about the build is identical everywhere, which is why every other
         # install just downloads. See GH-959.
+        # Said before the 10-25 minutes start, not after. A rebuilt binary is
+        # not upstream's SIGNED one, so it cannot be the first stage of a
+        # Secure Boot chain -- the shim will only load what its embedded
+        # certificate vouches for. The chain has to hand off to a MOK-signed
+        # FOG build instead, which means enrolling the MOK on each machine
+        # FIRST. Rebuilding therefore makes Secure Boot onboarding harder, not
+        # easier, and an existing HTTPS install is usually better off moving
+        # away from it.
+        echo
+        echo " * Rebuilding iPXE with your CA embedded (--rebuild-ipxe-with-my-ca)."
+        echo "   This takes 10-25 minutes and has no warm path."
+        echo "   The result is NOT upstream's signed binary, so Secure Boot"
+        echo "   machines must have this server's MOK enrolled before they can"
+        echo "   netboot at all. If your web certificate chains to a PUBLIC"
+        echo "   root, you do not need this -- use --public-web-cert instead."
+        echo
         prepareiPXEsource || return 1
+        # Before the build, while the staging tree still holds what the release
+        # asset unpacked. Afterwards these bytes no longer exist anywhere.
+        _preserveStockIpxe
         dots "Compiling iPXE binaries trusting your SSL certificate"
-        [[ -n $sslcachain ]] && ipxetrust="$sslcachain" || ipxetrust="$sslcapem"
+        _resolveIpxeTrust
         # Second argument is the output directory: build straight into the
         # staging tree the copy loop below already reads, so a locally built
         # binary lands exactly where a downloaded one would.
         "${buildipxesrc}/buildipxe.sh" "${ipxetrust}" "$(readlink -f $tftpdirsrc)" >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
-        errorStat $?
+        local buildstat=$?
+        errorStat $buildstat
+        # Recorded only on success, and only after the copy loop below has
+        # actually put the result in place -- a stamp written for a build that
+        # failed would suppress every retry.
+        [[ $buildstat -eq 0 ]] && ipxeBuildStampPending="$(_ipxeBuildStampValue)"
         cd $workingdir
     fi
-    cd $tftpdirsrc
-    find -type d -exec mkdir -p $tftpdirdst/{} \; >>$error_log 2>&1
-    find -type f -exec cp -Rfv {} $tftpdirdst/{} \; >>$error_log 2>&1
-    cd $workingdir
+    _copyIpxeTree
+    if [[ -n $ipxeBuildStampPending ]]; then
+        printf '%s' "$ipxeBuildStampPending" > "${tftpdirdst%/}/.fog-ipxe-build" 2>>$error_log
+        ipxeBuildStampPending=""
+    fi
+    # Named, not counted. "3 files preserved" tells an admin nothing they can
+    # act on; declining to update snponly.efi is something they need to know
+    # about by name, because it means their replacement is now the one every
+    # PXE client gets and FOG's newer copy is not being installed.
+    if [[ -n $ipxeSkipped ]]; then
+        local skipped
+        echo " * Kept your own copies of these iPXE files (not overwritten):"
+        for skipped in $ipxeSkipped; do
+            echo "     ${skipped}"
+        done
+        echo "   Delete one to have FOG's version installed on the next run."
+    fi
     # iPXE resolves the bare name "autoexec.ipxe" against its current working
     # URI -- the TFTP directory the running .efi was itself fetched from -- not
     # against a fixed path. So our EMBED-less binaries under autoexec/ look
@@ -2936,7 +3194,10 @@ _firewallPortList() {
     # firewalld path, the ufw path, the iptables instructions and the
     # "here is what you still need to open" message all read this.
     echo "80/tcp HTTP (web UI, client check-in, iPXE boot)"
-    [[ $httpproto == https ]] && echo "443/tcp HTTPS (web UI, client check-in)"
+    # Unconditional: both web servers emit their :443 vhost in BOTH arms, so
+    # 443 is listening on every install whatever httpproto says. Gating this on
+    # httpproto told admins to leave closed a port their server was serving on.
+    echo "443/tcp HTTPS (web UI, client check-in)"
     [[ $noTftpBuild != 1 ]] && echo "69/udp TFTP (PXE boot)"
     echo "21/tcp FTP (image/snapin replication, node operations)"
     # Passive data. vsftpd is pinned to this range by configureFTP() for
@@ -2975,7 +3236,8 @@ _configureFirewalld() {
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
-    [[ $httpproto == https ]] && { firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1; }
+    # See _firewallPortList: 443 listens on every install.
+    firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1
     # No named service for these two.
     firewall-cmd --permanent --add-port=${ftppasvmin}-${ftppasvmax}/tcp >>$error_log 2>&1 || failed=1
     firewall-cmd --permanent --add-port=${mcastportmin}-${mcastportmax}/udp >>$error_log 2>&1 || failed=1
@@ -4228,7 +4490,10 @@ _hardenPkiPermissions() {
     # Web CA key above is FOG's whatever the leaf's provenance, and an earlier
     # version of this loop skipped both, leaving a CA key at 775 on exactly the
     # servers whose admins had thought hardest about certificates.
-    if [[ $acmeLeaf != yes && -n $sslprivkey && -f $sslprivkey ]]; then
+    # publicWebCert joins acmeLeaf here for the same reason it does in
+    # _createWebLeaf: a publicly-issued leaf came from outside FOG too, and its
+    # renewal writes this key as whatever user that process runs as.
+    if [[ $acmeLeaf != yes && $publicWebCert != yes && -n $sslprivkey && -f $sslprivkey ]]; then
         chown root:root "$sslprivkey" >>$error_log 2>&1
         chmod 0600 "$sslprivkey" >>$error_log 2>&1
     fi
@@ -4571,6 +4836,22 @@ writeUpdateFile() {
         blexports installtype snmysqlexternal snmysqluser snmysqlpass snmysqlhost
         mysqldbname installlang storageLocation fogupdateloaded docroot webroot
         caCreated httpproto startrange endrange packages noTftpBuild tftpAdvOpts
+        # What httpproto used to conflate, as three independent keys.
+        #
+        # httpsRedirect is what -S/--force-https has always MEANT -- its own
+        # help text says "serve both HTTP and HTTPS without redirecting" -- and
+        # is seeded once from a pre-existing httpproto=https (installfog.sh).
+        # Persisting it is what makes that migration one-shot: an admin who
+        # turns the redirect off must not have the next upgrade turn it back on
+        # by re-reading httpproto.
+        #
+        # publicWebCert is a persisted STATEMENT, never a measurement. FOG adds
+        # its own CA to the host trust store by default, so a plain openssl
+        # probe answers "trusted" for FOG's own leaf -- exactly the case that
+        # needs the rebuild -- and a value re-derived every run from a store
+        # other software also writes to is not something to hang a 25-minute
+        # build on.
+        httpsRedirect publicWebCert rebuildIpxeWithMyCA
         sslpath backupPath php_ver sslprivkey sslcakey sslcapem sslcachain
         externalca extcacert extcakey extcaroot sslcsr sslpubcert sendreports webserver
         # The Web-zone counterparts of the three above. Persisted for the same
@@ -5309,7 +5590,9 @@ _collectPkiNames() {
     local needRoot=0 needWeb=0 needSB=0
     [[ ! -f $rootCAPem ]] && needRoot=1
     [[ ! -f "$(_pkiZoneDir web)/ca/.fogWebCA.pem" ]] && needWeb=1
-    [[ ${secureboot:-1} != 0 && ! -f "$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem" ]] && needSB=1
+    # Not conditional on $secureboot: that flag declines ENROLMENT, not signing,
+    # so the Secure Boot CA is minted on every server. See _ensureSecureBootKeys.
+    [[ ! -f "$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem" ]] && needSB=1
     [[ $needRoot -eq 0 && $needWeb -eq 0 && $needSB -eq 0 ]] && return 0
     [[ -n $extraServerNames || -n $internalDomains ]] && return 0
 
@@ -5347,27 +5630,167 @@ _collectPkiNames() {
 # the web UI gets real HTTPS while netboot fetches stay on HTTP, which is the
 # same exposure a default HTTP install already has, on a pre-boot network.
 #
-# Public CA is the exception -- there the crosscert path works, so netboot
-# follows $httpproto like everything else. There is no reliable way to detect
-# "this certificate chains to a public root" from the file alone, so this
-# defaults conservatively and --netboot-proto overrides it in either direction.
+# There are exactly two ways HTTPS netboot can work, and both are now stated
+# rather than guessed at:
 #
-# Keyed on a FRESH install using FOG's own PKI, not on "is this CA private".
-# An existing server keeps whatever it has been doing: one running HTTPS
-# netboot against a private CA has a TRUST=-rebuilt iPXE to make it work, and
-# silently dropping it to HTTP on the next update would break a working setup
-# to fix a problem its admin does not have. --netboot-proto lets such a server
-# adopt the new behavior deliberately.
+#   publicWebCert=yes        iPXE's crosscert path validates a public root.
+#   rebuildIpxeWithMyCA=yes  the CA is compiled into the binary.
 #
-# On a fresh HTTPS install with FOG's own CA there is nothing to preserve --
-# HTTPS netboot simply fails there -- so HTTP is a strict improvement.
+# So netboot defaults to HTTP and is steered to HTTPS by either of those, and
+# nothing else. An explicit --netboot-proto always wins, in either direction.
+#
+# This replaced a test keyed on $caCreated, which was a trap rather than a bug
+# while httpproto defaulted to http: $caCreated is a PERSISTED key, so it is
+# "yes" on every re-run of an existing server. The moment httpproto defaults to
+# https -- which it now does, for everyone -- that old test resolved
+# netbootproto=https on every upgraded install in existence, which is precisely
+# the configuration that cannot work behind a private CA. Keying on what the
+# admin actually declared removes the whole class.
+# The one place an admin is asked how this server should handle TLS, netboot
+# and the iPXE build -- shown together, with what each costs.
+#
+# This replaces "would you like to enable secure HTTPS on your FOG server?",
+# which asked about $httpproto and silently also decided whether Secure Boot
+# binaries were staged and whether iPXE was rebuilt. Four named modes are
+# honest about a four-dimensional choice in a way one yes/no cannot be.
+#
+# A preset, not a replacement for the model: it writes the same keys
+# --https-redirect/--public-web-cert/--rebuild-ipxe-with-my-ca write, and an
+# admin who passed any of those (or --install-mode) is not asked at all -- they
+# have already answered.
+#
+# Guarded on `! -t 0` as well as $autoaccept, following the schema-update prompt
+# in this file: a piped or cron-driven install has no one to answer, and a read
+# there returns instantly with empty input rather than blocking.
+promptInstallMode() {
+    [[ -n $sinstallMode ]] && return 0
+    [[ -n $shttpsRedirect || -n $spublicWebCert || -n $srebuildIpxeWithMyCA ]] && return 0
+    [[ -n $autoaccept || ! -t 0 ]] && return 0
+
+    local answer=""
+    echo
+    echo " * How should this server handle HTTPS, netboot and Secure Boot?"
+    echo
+    echo "   1) standard     (default) HTTPS web UI and API, netboot over HTTP."
+    echo "                   Secure Boot binaries staged. No redirect, no rebuild."
+    echo "                   Right for almost everyone, including FOG's own CA."
+    echo
+    echo "   2) http-only    Plain HTTP everywhere. Simplest, and what FOG did"
+    echo "                   before 1.6."
+    echo
+    echo "   3) public-cert  Your web certificate chains to a PUBLIC root (Let's"
+    echo "                   Encrypt, a commercial CA). Netboot can then use"
+    echo "                   HTTPS with no rebuild, because iPXE cross-certifies"
+    echo "                   public roots on its own. Needs an FQDN, not an IP."
+    echo
+    echo "   4) embed-ca     Rebuild iPXE with your own CA compiled in, so"
+    echo "                   netboot can use HTTPS behind a private CA."
+    echo "                   CAUTION: adds 10-25 minutes to this install AND to"
+    echo "                   every future update, with no warm path. The result"
+    echo "                   is not upstream's signed binary, so each machine"
+    echo "                   needs this server's MOK enrolled BEFORE it can"
+    echo "                   netboot at all. Most sites want 1 or 3 instead."
+    echo
+    read -p " * Choose 1-4, or press Enter for standard: " answer
+    case $answer in
+        2|http-only)   sinstallMode="http-only" ;;
+        3|public-cert) sinstallMode="public-cert" ;;
+        4|embed-ca)    sinstallMode="embed-ca" ;;
+        # Anything else, including empty and a typo, takes the safe default.
+        # There is no wrong answer to re-ask for here: standard is what an
+        # admin who is not sure should get.
+        *)             sinstallMode="standard" ;;
+    esac
+    _applyInstallMode
+    echo
+    echo " * Using install mode: $sinstallMode"
+    echo "   web=$httpproto netboot=${netbootproto:-http} redirect=${httpsRedirect:-no}"
+    echo "   publicWebCert=${publicWebCert:-no} rebuildIpxeWithMyCA=${rebuildIpxeWithMyCA:-no}"
+    echo
+}
+# The preset itself, factored out so installfog.sh's flag handling and the
+# prompt above cannot drift apart.
+_applyInstallMode() {
+    case $sinstallMode in
+        standard)
+            httpproto="https"; netbootproto="http"; publicWebCert="no"; rebuildIpxeWithMyCA="no"
+            ;;
+        http-only)
+            httpproto="http"; netbootproto="http"; publicWebCert="no"; rebuildIpxeWithMyCA="no"
+            ;;
+        public-cert)
+            httpproto="https"; netbootproto="https"; publicWebCert="yes"; rebuildIpxeWithMyCA="no"
+            ;;
+        embed-ca)
+            httpproto="https"; netbootproto="https"; publicWebCert="no"; rebuildIpxeWithMyCA="yes"
+            ;;
+    esac
+}
 _resolveNetbootProto() {
     [[ -n $netbootproto ]] && return 0
-    if [[ $httpproto == https && $externalca != yes && $caCreated != yes ]]; then
-        netbootproto="http"
+    if [[ $publicWebCert == yes || $rebuildIpxeWithMyCA == yes ]]; then
+        netbootproto="https"
     else
-        netbootproto="$httpproto"
+        netbootproto="http"
     fi
+}
+# Say out loud what just got decided.
+#
+# _resolveNetbootProto used to emit nothing at all -- no dots, no echo -- so an
+# admin who asked for HTTPS and got HTTP netboot had no way to learn that from
+# the install, and the divergence only surfaced later as "why is my PXE traffic
+# in the clear". This is the user-facing half of the whole change: the point of
+# splitting the protocols is that the admin gets to choose, and a choice nobody
+# is told about is not one.
+#
+# Printed after the vhost is settled, not inside _resolveNetbootProto, because
+# that runs from configureDefaultiPXEfile() in the middle of writing a file and
+# has no business owning several lines of output.
+_reportNetbootProto() {
+    if [[ $netbootproto == https ]]; then
+        # Legal, and worth saying: forcing HTTPS netboot with neither of the
+        # two things that make it work is the one combination that produces a
+        # server which looks configured and cannot boot a client. Warned, not
+        # refused -- an admin may have arranged trust some way FOG cannot see.
+        if [[ $publicWebCert != yes && $rebuildIpxeWithMyCA != yes ]]; then
+            echo
+            echo " ###################################################################"
+            echo " # WARNING: netboot is set to HTTPS, but neither                   #"
+            echo " # --public-web-cert nor --rebuild-ipxe-with-my-ca is set.         #"
+            echo " #                                                                 #"
+            echo " # iPXE cannot be told to trust a private CA. Unless this server's #"
+            echo " # certificate chains to a PUBLIC root, or the iPXE binaries were  #"
+            echo " # built elsewhere with your CA embedded, every PXE client will    #"
+            echo " # fail at the TLS handshake with nothing logged on the server.    #"
+            echo " #                                                                 #"
+            echo " # If that is not what you meant: --netboot-proto http             #"
+            echo " ###################################################################"
+            echo
+        fi
+        return 0
+    fi
+    echo
+    echo " * Netboot (PXE) is using HTTP, not HTTPS."
+    if [[ $httpproto == https ]]; then
+        echo "   Your web UI and API are HTTPS; only iPXE's own fetches are not."
+    fi
+    echo "   iPXE validates TLS strictly and cannot be told to trust a private"
+    echo "   CA, so an HTTPS netboot against one simply fails. HTTP here is the"
+    echo "   same exposure a default install has always had, on a pre-boot"
+    echo "   network."
+    echo
+    echo " * Secure Boot binaries ARE staged on this server, in every mode."
+    echo "   That used to be skipped on any HTTPS install. To enrol a machine,"
+    echo "   boot it and choose 'Enroll Secure Boot Key' from the FOG menu."
+    echo
+    echo " * To move netboot onto HTTPS, tell FOG which is true:"
+    echo "     --public-web-cert          your certificate chains to a public"
+    echo "                                root (needs an FQDN, not an IP)"
+    echo "     --rebuild-ipxe-with-my-ca  rebuild iPXE with your CA embedded"
+    echo "                                (slow, and its MOK must be enrolled"
+    echo "                                 before a client can netboot)"
+    echo "   Or force it outright with --netboot-proto https."
+    echo
 }
 # Issue an intermediate CA from the root. Shared by both zones so their
 # certificates differ only in subject, location and constraints, never in
@@ -5739,8 +6162,17 @@ _createWebLeaf() {
     leafdir="${webdir}/leaf"
     stamp="${leafdir}/.webLeaf.sans"
 
-    if [[ $acmeLeaf == yes && $recreateKeys != yes && $recreateCA != yes ]]; then
-        echo " * Web certificate is externally managed (acmeLeaf=yes) -- leaving it in place."
+    # OR, never an implication. The two keys answer different questions --
+    # acmeLeaf is WHO MANAGES the leaf file, publicWebCert is WHAT IT CHAINS TO
+    # -- and all four combinations are real (internal ACME with step-ca is
+    # acmeLeaf=yes with publicWebCert=no). Either one means the certificate was
+    # issued outside FOG, so FOG should use it and not touch it. Making one
+    # imply the other would silently mutate a setting the admin set.
+    if [[ ( $acmeLeaf == yes || $publicWebCert == yes ) \
+        && $recreateKeys != yes && $recreateCA != yes ]]; then
+        local why="acmeLeaf=yes"
+        [[ $acmeLeaf != yes ]] && why="publicWebCert=yes"
+        echo " * Web certificate is externally managed (${why}) -- leaving it in place."
         echo "   Re-issue it yourself if you changed --hostname/--extra-server-name,"
         echo "   or the certificate will not cover the new name."
         return 0
@@ -6236,7 +6668,11 @@ EOF
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
     errorStat $?
-    [[ $httpproto == https ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
+    # "Forced SSL" describes the REDIRECT, so it follows httpsRedirect. Left on
+    # httpproto it would print on every install, since httpproto is https for
+    # everyone now -- labelling a plain HTTPS-available server as one that
+    # forces HTTPS, which is the opposite of what this line is for.
+    [[ $httpsRedirect == yes ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
     # $extraServerNames is a space-joined string (see --extra-server-name).
     # Computed once here and reused by both the nginx server_name lines below
     # and Apache's vhostaliases, so an admin's extra name(s) reach every vhost
@@ -6284,7 +6720,12 @@ EOF
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
                     echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
-                    if [[ $httpproto != https ]]; then
+                    # Whether :80 SERVES the site or redirects away from it is
+                    # the redirect's decision, not $httpproto's. 443 listens
+                    # either way -- see the ssl server block emitted in both
+                    # arms below -- so an admin can move to HTTPS whenever they
+                    # like without this being on.
+                    if [[ $httpsRedirect != yes ]]; then
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -6358,7 +6799,19 @@ EOF
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
-                        echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
+                        # HSTS follows the redirect, and only the redirect.
+                        #
+                        # This used to be emitted on the :443 server in BOTH
+                        # arms -- including on a plain-HTTP install -- which
+                        # made it the one setting an admin could not take back.
+                        # A browser that has seen this header refuses plain HTTP
+                        # to this host for six months, from its own cache; no
+                        # server-side change reaches it, so turning the redirect
+                        # off did nothing for anyone who had already visited.
+                        # That is the redirect's semantics with a memory, so it
+                        # belongs to the redirect's key.
+                        [[ $httpsRedirect == yes ]] && \
+                            echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
                         [[ -n $nginxhttp2directive ]] && echo "$nginxhttp2directive" >> "$etcconf"
                         echo "    gzip on;" >> "$etcconf"
                         echo "    gzip_types text/css text/javascript application/javascript application/json image/svg+xml;" >> "$etcconf"
@@ -6423,7 +6876,7 @@ EOF
                         # verification, so it survives one. That tolerance is
                         # load-bearing and undocumented anywhere else: if a FOS
                         # fetch ever drops -k, its path has to be added here too.
-                        if [[ $netbootproto != "$httpproto" ]]; then
+                        if [[ $netbootproto != https ]]; then
                             local nbdir
                             for nbdir in ipxe secureboot; do
                                 echo "    location ^~ ${webroot}service/${nbdir}/ {" >> "$etcconf"
@@ -6500,7 +6953,19 @@ EOF
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
-                        echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
+                        # HSTS follows the redirect, and only the redirect.
+                        #
+                        # This used to be emitted on the :443 server in BOTH
+                        # arms -- including on a plain-HTTP install -- which
+                        # made it the one setting an admin could not take back.
+                        # A browser that has seen this header refuses plain HTTP
+                        # to this host for six months, from its own cache; no
+                        # server-side change reaches it, so turning the redirect
+                        # off did nothing for anyone who had already visited.
+                        # That is the redirect's semantics with a memory, so it
+                        # belongs to the redirect's key.
+                        [[ $httpsRedirect == yes ]] && \
+                            echo "    add_header Strict-Transport-Security max-age=15768000;" >> "$etcconf"
                         [[ -n $nginxhttp2directive ]] && echo "$nginxhttp2directive" >> "$etcconf"
                         echo "    gzip on;" >> "$etcconf"
                         echo "    gzip_types text/css text/javascript application/javascript application/json image/svg+xml;" >> "$etcconf"
@@ -6629,7 +7094,8 @@ EOF
                     echo "        Require local" >> "$etcconf"
                     echo "    </LocationMatch>" >> "$etcconf"
                     echo "    DocumentRoot $docroot" >> "$etcconf"
-                    if [[ $httpproto == https ]]; then
+                    # See the nginx branch: the redirect is its own setting now.
+                    if [[ $httpsRedirect == yes ]]; then
                         echo "    RewriteEngine On" >> "$etcconf"
                         echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                         echo "    RewriteRule .* - [F]" >> "$etcconf"
@@ -6656,7 +7122,7 @@ EOF
                         # RewriteRule. Multiple RewriteConds are ANDed by
                         # default, which is what is wanted: skip the redirect
                         # only when the request is for neither directory.
-                        if [[ $netbootproto != "$httpproto" ]]; then
+                        if [[ $netbootproto != https ]]; then
                             local nbdir
                             for nbdir in ipxe secureboot; do
                                 echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"
@@ -7854,17 +8320,26 @@ _ensureSecureBootKeys() {
     local cert="${keydir}/MOK.pem"
     local f
 
-    # Explicit opt-out. Left unset rather than half-set, so every downstream
-    # function's existing "no key configured" branch does the right thing.
-    # Defaulted and string-compared on purpose: an unset $secureboot under
-    # `-eq` is arithmetic, evaluates empty as 0, and would silently opt every
-    # caller that reaches here without config.sh straight out of the feature.
-    if [[ ${secureboot:-1} == 0 ]]; then
-        secureBootKey=""
-        secureBootCert=""
-        secureBootMokCert=""
-        return 0
-    fi
+    # $secureboot=0 is deliberately NOT handled here any more, and the keys are
+    # minted for an opted-out server exactly as for any other.
+    #
+    # What the opt-out turns off is ENROLMENT -- publishing MOK.der and the
+    # PK/KEK/db variable updates, and with them the PXE menu entry, which
+    # BootMenu gates on service/secureboot/MOK.der existing
+    # (bootmenu.class.php:2089). It does not turn off SIGNING, because an
+    # appended PE signature is inert on a machine booting with Secure Boot off
+    # -- which is every machine on an opted-out server -- and costs nothing.
+    # Leaving the binaries unsigned instead only means that the day anyone does
+    # enrol, or moves one of these files onto a machine that already has Secure
+    # Boot on, the file is useless and nothing on this server can fix it without
+    # a re-install.
+    #
+    # So the gate every downstream signer already has -- "is there a key?" --
+    # now answers yes on every server, and _signLocalIpxe/_resignRefind/
+    # _resignKernels/_resignCustomKernels sign unconditionally. The opt-out is
+    # re-applied in _ensureSecureBootPlatformKeys and _publishSecureBootKit,
+    # which are the two functions that publish enrolment material.
+    #
     # An admin-supplied pair always wins and is never touched or overwritten.
     # Their certificate is also what gets enrolled, exactly as before -- an
     # admin bringing their own Secure Boot intermediate points
@@ -7917,7 +8392,12 @@ _ensureSecureBootKeys() {
     # The old MOK.key/MOK.pem are left on disk untouched, so an admin who needs
     # to re-sign something with the previously enrolled key still can.
     if createSecureBootIntermediateCA; then
-        if [[ -f $key && -f $cert ]]; then
+        # Suppressed on an opted-out server: it publishes no MOK.der and offers
+        # no "Enroll Secure Boot Key" menu item, so both routes this names are
+        # absent and the notice would only send an admin looking for a 404. The
+        # keys are still minted and the binaries still signed -- see the top of
+        # this function -- there is simply nothing to enrol them with yet.
+        if [[ -f $key && -f $cert && ${secureboot:-1} != 0 ]]; then
             echo
             echo "  ###################################################################"
             echo "  # NOTICE: this server's Secure Boot trust has moved from a self-  #"
@@ -8035,6 +8515,13 @@ _ensureSecureBootPlatformKeys() {
     secureBootKEKKey=""
     secureBootKEKCert=""
 
+    # The platform keys exist for one job -- signing the PK/KEK/db variable
+    # updates a client writes in Setup Mode -- so this is one of the two places
+    # the $secureboot opt-out is applied. Signing keys are minted regardless
+    # (see _ensureSecureBootKeys); enrolment material is not. Blanked rather
+    # than merely skipped so _publishSecureBootAuthVars takes its "no platform
+    # keys" branch and clears any blobs a previous, non-opted-out run left.
+    [[ ${secureboot:-1} == 0 ]] && return 0
     # No signing key means the whole feature is opted out; there is nothing for
     # a platform key to authorise.
     [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
@@ -8110,7 +8597,14 @@ _publishSecureBootKit() {
     # rotated signing leaf never invalidates an enrolment; in flat mode
     # $secureBootMokCert is the same file as $secureBootCert and this is
     # byte-identical to before.
-    if [[ -z $secureBootMokCert ]]; then
+    #
+    # $secureboot=0 lands here too, and this is the second of the two places the
+    # opt-out is applied. Declining Secure Boot means declining ENROLMENT: no
+    # MOK.der, and so no PXE menu entry either, since BootMenu gates that on
+    # this file existing (bootmenu.class.php:2089). The binaries are still
+    # signed -- see _ensureSecureBootKeys for why signing is not part of what
+    # the flag turns off.
+    if [[ -z $secureBootMokCert || ${secureboot:-1} == 0 ]]; then
         rm -rf "$kitdir" >>$error_log 2>&1
         return 0
     fi
@@ -8648,6 +9142,43 @@ _resignRefind() {
     fi
     echo "Done"
 }
+# Re-stamp .fog-ipxe-manifest for the files just signed.
+#
+# _copyIpxeTree() records a sha256 of every file it lays down so a later run can
+# tell FOG's own copy from one the admin replaced, and decline to overwrite
+# theirs -- the "Kept your own copies of these iPXE files" report. Signing
+# rewrites those bytes AFTER that stamp was taken, so without this every .efi
+# compares unequal on the NEXT run: FOG stops updating its own binaries and
+# names all 45 as admin-modified, every run, permanently. Found by reading; it
+# needs two installs of a Secure Boot server to show up, which is why the
+# original design's "nothing stamps or verifies /tftpboot" note was true when
+# written and is not now.
+#
+# Only lines for files actually signed are rewritten. Everything else is copied
+# through byte for byte -- including an entry deliberately carrying the ORIGINAL
+# sum for a file the admin really did replace, which is what keeps that file
+# from being quietly overwritten on the run after this one.
+_restampIpxeManifest() {
+    local tftproot="$1"; shift
+    local manifest="${tftproot}/.fog-ipxe-manifest"
+    [[ -f $manifest && $# -gt 0 ]] || return 0
+    command -v sha256sum >/dev/null 2>&1 || return 0
+    local rel sum staging="${manifest}.restamp"
+    declare -A resigned=()
+    for rel in "$@"; do resigned["$rel"]=1; done
+    : > "$staging" 2>>$error_log || return 0
+    while IFS='|' read -r sum rel; do
+        [[ -z $sum || -z $rel ]] && continue
+        if [[ -n ${resigned[$rel]:-} ]]; then
+            sum=$(sha256sum "${tftproot}/${rel}" 2>/dev/null | cut -d' ' -f1)
+            # A file that vanished between signing and here: drop the line
+            # rather than carry a sum that matches nothing.
+            [[ -z $sum ]] && continue
+        fi
+        printf '%s|%s\n' "$sum" "$rel" >> "$staging" 2>>$error_log
+    done < "$manifest"
+    mv -f "$staging" "$manifest" >>$error_log 2>&1
+}
 # Sign FOG's own iPXE binaries so one can be chainloaded from a machine's ESP
 # under Secure Boot.
 #
@@ -8683,6 +9214,9 @@ _resignRefind() {
 # verbatim, so these already carry FOG's embedded boot scripts, config overlays
 # and the whole variant matrix. The only per-site input to a build is the CA, and
 # an HTTPS-with-your-own-CA install has already compiled locally before this runs.
+#
+# Runs on every server, including one that passed --no-secureboot: that flag
+# declines enrolment, not signatures. See _ensureSecureBootKeys.
 _signLocalIpxe() {
     [[ -z $secureBootKey || -z $secureBootCert ]] && return 0
     local tftproot="${tftpdirdst%/}"
@@ -8693,6 +9227,7 @@ _signLocalIpxe() {
         return 0
     fi
     local fpath certpem anchorpem failed=0 signed=0
+    local restamp=()
     certpem=$(_secureBootCertPem) || return 0
     # Verified against the anchor, signed with the leaf -- the same split-PKI
     # handling _resignRefind() uses. See _secureBootAnchorPem().
@@ -8711,15 +9246,29 @@ _signLocalIpxe() {
     #
     # Read from a process substitution rather than a pipe so the loop runs in
     # this shell and $signed/$failed survive it.
+    local count=0
     while IFS= read -r fpath; do
-        # Already carrying OUR signature. Either this run has nothing to do, or
-        # an admin dropped in their own signed copy -- leave both alone. This is
-        # also what stops a re-run stacking a second signature, and it verifies
-        # against the anchor rather than the signing cert so that a rotated leaf
-        # does not restart the stacking.
+        # Already carrying OUR signature: nothing to do. This is what stops a
+        # re-run stacking a second signature, and it verifies against the anchor
+        # rather than the signing cert so a rotated leaf does not restart the
+        # stacking.
+        #
+        # Note what this test does NOT skip, because it is deliberate rather
+        # than incidental: a binary the admin built and signed with their OWN
+        # CA does not verify against FOG's anchor, so it falls through and gets
+        # signed here too. That is wanted. sbsign APPENDS to the signature list
+        # rather than replacing it, so their signature survives intact and the
+        # binary gains one this server's MOK vouches for -- which is what lets a
+        # custom build boot on a machine enrolled against FOG.
+        #
+        # It also means the sweep below is a sweep, not a list: anything an
+        # admin dropped anywhere under the TFTP root gets the same treatment,
+        # including the stock/ copies kept when a rebuild replaces the published
+        # binaries.
         sbverify --cert "$anchorpem" "$fpath" >/dev/null 2>&1 && continue
         [[ $signed -eq 0 ]] && dots "Signing iPXE binaries for Secure Boot"
         signed=1
+        count=$((count + 1))
         # Signed via a temporary rather than in place: sbsign reads its input
         # while writing its output, so input and --output must differ. The
         # temporary is created in the same directory so it inherits the same
@@ -8728,13 +9277,21 @@ _signLocalIpxe() {
                 --output "${fpath}.signing" "$fpath" >>$error_log 2>&1; then
             chown --reference="$fpath" "${fpath}.signing" >>$error_log 2>&1
             chmod --reference="$fpath" "${fpath}.signing" >>$error_log 2>&1
-            mv -f "${fpath}.signing" "$fpath" >>$error_log 2>&1 || failed=1
+            if mv -f "${fpath}.signing" "$fpath" >>$error_log 2>&1; then
+                # Collected rather than stamped here: the sum has to be taken
+                # after the mv, and rewriting the manifest once at the end is
+                # one pass over it instead of one per file.
+                restamp+=("${fpath#${tftproot}/}")
+            else
+                failed=1
+            fi
         else
             rm -f "${fpath}.signing" >>$error_log 2>&1
             failed=1
         fi
     done < <(find "$tftproot" -path "${tftproot}/secureboot" -prune -o \
                 -type f -name '*.efi' -print 2>>$error_log)
+    [[ ${#restamp[@]} -gt 0 ]] && _restampIpxeManifest "$tftproot" "${restamp[@]}"
     [[ $signed -eq 0 ]] && return 0
     if [[ $failed -ne 0 ]]; then
         echo "Failed"
@@ -8743,191 +9300,240 @@ _signLocalIpxe() {
         echo "   own ESP with Secure Boot on will fail until this is fixed."
         return 0
     fi
-    echo "Done"
+    # Counted so "everything is signed" is observable rather than assumed. A
+    # run that signs nothing prints nothing at all (the early return above), so
+    # a number here means work actually happened.
+    echo "Done (${count})"
 }
-# The binaries an ESP needs, relative to $tftpdirdst -- a CURATED list, not a
-# sweep of every *.efi in the tree. The tree carries 45 FOG binaries (5 names x
-# 3 architectures x 3 embed variants) and publishing all of them says nothing
-# about which one an admin should reach for. This says it.
+# ===========================================================================
+# Local ESP boot: the published archives
+# ===========================================================================
 #
-# Kept, per architecture -- x86_64 at the root, i386-efi/, arm64-efi/:
+# Machines this exists for cannot fetch a boot file over the network -- that is
+# the whole problem -- so the files have to be reachable over HTTP to get onto
+# an ESP at all. The TFTP tree is not web-served, which until this existed meant
+# every admin hand-rolling symlinks into the document root.
 #
-#   ipxe.efi      iPXE's own NIC drivers, all of them. The primary choice, and
-#                 the one the Secure Boot chain has to reach: a machine that
-#                 cannot netboot usually cannot because its firmware provides no
-#                 UEFI SNP protocol, so a binary that needs one is no use to it.
-#   snp.efi       Drives the NIC through the firmware's SNP protocol instead,
-#                 binding every SNP device it can see. For firmware that does
-#                 provide one and hardware iPXE's own drivers do not cover.
-#   intel.efi     Single-vendor native builds, for the case where the
-#   realtek.efi   all-drivers build misbehaves on that specific NIC.
+# What is published is SIX ARCHIVES and a manifest, and nothing else:
 #
-# Plus 10secdelay/ipxe.efi per architecture: identical to ipxe.efi but for a
-# "sleep 10" ahead of DHCP, which is what makes a link come up on a switch
-# running STP or port power-save. That is a network-side problem, so it applies
-# to a locally-booted binary exactly as it does to a netbooted one -- but only
-# the primary is published in that flavour. Needing both the delay AND a
-# fallback driver is rare enough to copy by hand off TFTP.
+#   service/localboot/manifest.json          the index
+#   service/localboot/fog-esp-<arch>.zip     ready-to-copy ESP folder
+#   service/localboot/fog-esp-<arch>-10sec.zip          "  , 10s DHCP delay
 #
-# Deliberately NOT published:
+# One archive per (architecture x delay variant), each holding a single
+# top-level directory named after the archive. That shape replaced a directory
+# tree that published the same bytes twice -- a "menu" of binaries under their
+# TFTP names at the root, and a "kit" of the same binaries renamed fog*.efi
+# under esp/ -- with arm64 appearing in four different places and the 10-second
+# set present in one list but not the other.
 #
-#   snponly.efi   Binds ONLY the device iPXE was loaded from. Loaded off an ESP
-#                 that device is the disk, so it never finds a NIC. It is the
-#                 right binary for netboot and the wrong one here -- which is
-#                 exactly the kind of mistake an uncurated directory invites.
-#                 (Upstream's secureboot/snponly.efi below is a different case:
-#                 it only has to read autoexec.ipxe off the same ESP and chain
-#                 onward, so it needs no NIC of its own.)
-#   autoexec/     The EMBED-less builds. They carry no boot script and fetch
-#                 autoexec.ipxe from wherever they were loaded -- which this
-#                 does not publish, so they would arrive inert. Still on TFTP
-#                 for anyone assembling that setup deliberately.
-#   .kpxe/.lkrn/  BIOS artifacts. Not PE images, and an ESP cannot boot them.
-#   .usb/.iso
+# WHY THE ARCHIVE, AND NOT LOOSE FILES: the two audiences turned out to be one.
+# The only reason the kit needed different filenames is that two names on an ESP
+# are reserved (see below), and those names are strictly the safer choice
+# everywhere -- so publishing one correctly-named folder serves both the admin
+# assembling an ESP and the admin who wants a single binary out of it. The cost,
+# recorded because it is a real one: no single binary has a URL any more, so
+# nothing here can be a UEFI HTTP Boot target or an iPXE `chain` destination.
+# Publishing the loose set alongside is purely additive if that is ever wanted.
 #
-# The upstream secureboot/ set is published whole. It is only ten files and each
-# one is a stage of a chain: shim, the loader it hands off to, and MokManager.
-# shim.c rewrites its own "-shim<arch>.efi" suffix to ".efi" to pick its second
-# stage, so snponly-shimx64.efi loads snponly.efi and ipxe-shimx64.efi loads
-# ipxe.efi -- the pairs have to travel together or neither works.
+# WHY THE DELAY VARIANT IS ITS OWN ARCHIVE, rather than a second set of binaries
+# and a second script inside one: iPXE runs exactly the file called
+# autoexec.ipxe and has no way to ask which set you want, so a combined folder
+# made choosing mean renaming a file over another. Choosing at download time
+# removes the step entirely -- the binaries inside a -10sec archive carry the
+# plain names, and its single autoexec.ipxe is already the right one. It costs
+# each variant its own copy of the upstream shim set, which is the only reason
+# the total is not smaller than the tree it replaced.
 #
-# Do not mistake upstream's secureboot/ipxe.efi for a replacement for the FOG
-# binaries above. It is built with iPXE's own NIC drivers and looks like it makes
-# all of this unnecessary -- sign nothing, ship upstream's pair and a two-line
+# TWO NAMES ARE NOT FREE CHOICES, and this is the whole reason the fog* prefix
+# exists. shim picks its second stage by rewriting its OWN "-shim<arch>.efi"
+# suffix to ".efi". So snponly-shimx64.efi will load "snponly.efi" and nothing
+# else, and it has to be upstream's copy, because upstream's is what shim's
+# embedded certificate vouches for. That reserves snponly.efi -- and ipxe.efi
+# for the other pair. Dropping FOG's ipxe.efi in beside ipxe-shimx64.efi would
+# have shim try to load an image it cannot verify.
+#
+# BOTH shim pairs ship. Each derives its own second stage from its own filename,
+# so they are independent entry points -- point the boot manager at
+# snponly-shimx64.efi or at ipxe-shimx64.efi and the rest follows. Neither stage
+# 2 needs a NIC: both only read autoexec.ipxe out of the same directory and
+# chain onward, which is why upstream's ipxe.efi is fine HERE despite the
+# finding below.
+#
+# DO NOT mistake upstream's ipxe.efi for a replacement for the FOG binaries. It
+# is built with iPXE's own NIC drivers and looks like it makes all of this
+# unnecessary -- sign nothing, ship upstream's pair and a two-line
 # autoexec.ipxe. Tested on hardware: booted locally off an ESP it does NOT load
-# those drivers. Both upstream loaders therefore dead-end on exactly the hardware
-# this feature exists for, which is why the chain has to reach FOG's own build.
-# Nothing in either source tree predicts this; it took a machine to find.
-localbootfiles=(
-    ipxe.efi
-    snp.efi
-    intel.efi
-    realtek.efi
-    10secdelay/ipxe.efi
-    i386-efi/ipxe.efi
-    i386-efi/snp.efi
-    i386-efi/intel.efi
-    i386-efi/realtek.efi
-    10secdelay/i386-efi/ipxe.efi
-    arm64-efi/ipxe.efi
-    arm64-efi/snp.efi
-    arm64-efi/intel.efi
-    arm64-efi/realtek.efi
-    10secdelay/arm64-efi/ipxe.efi
-    secureboot/snponly.efi
-    secureboot/snponly-shimx64.efi
-    secureboot/ipxe.efi
-    secureboot/ipxe-shimx64.efi
-    secureboot/mmx64.efi
-    secureboot/arm64-efi/snponly.efi
-    secureboot/arm64-efi/snponly-shimaa64.efi
-    secureboot/arm64-efi/ipxe.efi
-    secureboot/arm64-efi/ipxe-shimaa64.efi
-    secureboot/arm64-efi/mmaa64.efi
-)
-# The ready-to-copy ESP kit: "src|dst", relative to $tftpdirdst and to the
-# published esp/ directory respectively.
+# those drivers. Both upstream loaders therefore dead-end on exactly the
+# hardware this feature exists for, which is why the chain has to reach FOG's
+# own build. Nothing in either source tree predicts this; it took a machine to
+# find.
 #
-# Everything above is a menu to choose from. This is the opposite -- one folder
-# an admin copies verbatim onto an ESP, with the files already carrying the names
-# the chain requires. It exists because two of those names are NOT free choices.
+# MokManager ships too. shim launches mm<arch>.efi FROM ITS OWN DIRECTORY when
+# it cannot verify the next stage, and that is the only way to enrol a MOK --
+# shim's MokList is a boot-services-only variable, so nothing in a running OS
+# can write it. Without mmx64.efi beside the shim, an ESP that has not been
+# enrolled yet is a dead end with no route out of it. Found the hard way: it had
+# to be downloaded by hand.
 #
-# shim picks its second stage by rewriting its OWN "-shim<arch>.efi" suffix to
-# ".efi". So snponly-shimx64.efi will load "snponly.efi" and nothing else, and it
-# has to be upstream's copy, because upstream's is what its embedded certificate
-# vouches for. That reserves "snponly.efi" -- and, if the other pair is ever used,
-# "ipxe.efi" too. FOG's own builds therefore cannot keep their natural names on an
-# ESP, hence the "fog" prefix. It is not cosmetic: dropping FOG's ipxe.efi in
-# beside ipxe-shimx64.efi would have shim load an image it cannot verify.
+# MOK.der ships WITH it, which the first implementation missed. MokManager
+# enrols by browsing the ESP for a certificate, so shipping MokManager without
+# one is still a dead end -- it just fails one screen later.
 #
-# The kit is x86_64 and arm64 only, because those are the two architectures
-# upstream signs a shim for. i386 has no signed shim, so there is no Secure Boot
-# chain to assemble -- an i386 machine booting with Secure Boot off just takes
-# i386-efi/ipxe.efi from the menu above and needs none of this.
+# PK/KEK/db.auth ship as well, and they are what make the i386 archive worth
+# building. Those are signed EFI variable updates a machine in Setup Mode
+# writes to put THIS server's certificate straight into db, after which firmware
+# verifies a signed fogipxe.efi directly -- no shim, no MokManager, no MOK.
+# Upstream signs no shim for ia32, so the earlier design concluded i386 had no
+# Secure Boot path at all. Via db it does.
 #
-# Copied AFTER _signLocalIpxe() has run, so the fog*.efi here already carry
-# FOG's signature wherever the server holds keys.
-# BOTH shim pairs ship, not just the snponly one. Each shim derives its own
-# second stage from its own filename, so the two are independent entry points and
-# an admin picks whichever their firmware gets along with -- point the boot
-# manager at snponly-shimx64.efi or at ipxe-shimx64.efi, and the rest follows.
+# STILL NOT PUBLISHED: the EMBED-less autoexec/ builds, which carry no boot
+# script and would only chain the binaries already here; and the BIOS artifacts
+# (.kpxe/.lkrn/.usb/.iso), which are not PE images and which an ESP cannot boot.
+# Both remain on TFTP for anyone assembling that setup deliberately.
 #
-# Neither stage 2 needs a NIC. Both only read autoexec.ipxe out of this same
-# directory and chain onward, which is why upstream's ipxe.efi is fine HERE
-# despite not driving a NIC when booted locally as a final stage. One
-# autoexec.ipxe serves both, because both resolve it against the directory they
-# were loaded from.
+# Everything here is public by nature: FOG's own binaries, upstream's signed
+# shim and loader (downloadable from fog-ipxe's release assets anyway), and
+# certificates plus signatures over them. FOG already serves the MOK-signed
+# bzImage over unauthenticated HTTP from service/ipxe, so this is not a new
+# class of exposure. The private keys never leave the PKI zone directory.
+# The files one archive holds, as "src|dst" -- src relative to $tftpdirdst, dst
+# relative to the archive's top-level directory.
 #
-# This is also the collision the fog* prefix exists to avoid: upstream's
-# ipxe.efi has to keep its own name for ipxe-shimx64.efi to find it, so FOG's
-# all-drivers build cannot be called ipxe.efi in this directory.
-# MokManager ships too. shim launches mm<arch>.efi FROM ITS OWN DIRECTORY when it
-# cannot verify the next stage, and that is the only way to enrol a MOK -- shim's
-# MokList is a boot-services-only variable, so nothing in a running OS can write
-# it. Without mmx64.efi beside the shim, an ESP that has not been enrolled yet is
-# a dead end with no route out of it. Found the hard way: it had to be downloaded
-# by hand.
-localbootespfiles=(
-    "secureboot/snponly-shimx64.efi|snponly-shimx64.efi"
-    "secureboot/snponly.efi|snponly.efi"
-    "secureboot/ipxe-shimx64.efi|ipxe-shimx64.efi"
-    "secureboot/ipxe.efi|ipxe.efi"
-    "secureboot/mmx64.efi|mmx64.efi"
-    "ipxe.efi|fogipxe.efi"
-    "snp.efi|fogsnp.efi"
-    "intel.efi|fogintel.efi"
-    "realtek.efi|fogrealtek.efi"
-    "10secdelay/ipxe.efi|fogipxe10sec.efi"
-    "10secdelay/snp.efi|fogsnp10sec.efi"
-    "10secdelay/intel.efi|fogintel10sec.efi"
-    "10secdelay/realtek.efi|fogrealtek10sec.efi"
-    "secureboot/arm64-efi/snponly-shimaa64.efi|arm64-efi/snponly-shimaa64.efi"
-    "secureboot/arm64-efi/snponly.efi|arm64-efi/snponly.efi"
-    "secureboot/arm64-efi/ipxe-shimaa64.efi|arm64-efi/ipxe-shimaa64.efi"
-    "secureboot/arm64-efi/ipxe.efi|arm64-efi/ipxe.efi"
-    "secureboot/arm64-efi/mmaa64.efi|arm64-efi/mmaa64.efi"
-    "arm64-efi/ipxe.efi|arm64-efi/fogipxe.efi"
-    "arm64-efi/snp.efi|arm64-efi/fogsnp.efi"
-    "arm64-efi/intel.efi|arm64-efi/fogintel.efi"
-    "arm64-efi/realtek.efi|arm64-efi/fogrealtek.efi"
-    "10secdelay/arm64-efi/ipxe.efi|arm64-efi/fogipxe10sec.efi"
-    "10secdelay/arm64-efi/snp.efi|arm64-efi/fogsnp10sec.efi"
-    "10secdelay/arm64-efi/intel.efi|arm64-efi/fogintel10sec.efi"
-    "10secdelay/arm64-efi/realtek.efi|arm64-efi/fogrealtek10sec.efi"
-)
-# The kit's autoexec.ipxe, written into each architecture's directory.
+#   $1  architecture: x86_64 | i386 | arm64
+#   $2  variant: empty for the standard set, "10sec" for the delayed one
 #
-# Static, not a template. default.ipxe is generated per install because it embeds
-# the server address; this has no per-server content at all -- it chains a sibling
-# by relative filename, and FOG's build carries the DHCP/next-server script
-# compiled in, so it finds the server by itself. iPXE resolves a bare filename
-# against the URI the running binary was loaded from, which on an ESP is the
-# directory this sits in.
+# The delay lives in the BINARY, not in a script: `sleep` is an optional iPXE
+# command that FOG's own builds enable but upstream's signed loader may not, and
+# the loader is what runs autoexec.ipxe. It is also the only route to a delay at
+# all when a fog*.efi is launched straight from the boot manager, which reads no
+# script.
+_espKitFiles() {
+    local arch="$1" variant="$2"
+    local fogdir="" sbdir="secureboot" shimsfx="x64" mm="mmx64.efi" name
+    case $arch in
+        i386)
+            fogdir="i386-efi/"
+            # No shim, loader or MokManager: upstream signs none for ia32. The
+            # archive is still built, because Setup Mode enrolment via db.auth
+            # needs no shim -- see the header.
+            sbdir=""
+            ;;
+        arm64)
+            fogdir="arm64-efi/"
+            sbdir="secureboot/arm64-efi"
+            shimsfx="aa64"
+            mm="mmaa64.efi"
+            ;;
+    esac
+    if [[ -n $sbdir ]]; then
+        echo "${sbdir}/snponly-shim${shimsfx}.efi|snponly-shim${shimsfx}.efi"
+        echo "${sbdir}/snponly.efi|snponly.efi"
+        echo "${sbdir}/ipxe-shim${shimsfx}.efi|ipxe-shim${shimsfx}.efi"
+        echo "${sbdir}/ipxe.efi|ipxe.efi"
+        echo "${sbdir}/${mm}|${mm}"
+    fi
+    # FOG's own builds, pre-named for the ESP. Ordered as autoexec.ipxe tries
+    # them, so the list reads as the preference order it is.
+    for name in ipxe snp intel realtek snponly; do
+        echo "${variant:+10secdelay/}${fogdir}${name}.efi|fog${name}.efi"
+    done
+}
+# What each published file is, for the manifest. Kept as data rather than
+# comments because it is what replaced curation-by-omission: the earlier
+# directory said which binary to use by leaving the others out, which is how
+# fogsnponly.efi came to be unavailable at all. A manifest can carry the same
+# advice without having to withhold a file to give it.
+_espFileRole() {
+    case "$1" in
+        snponly-shim*.efi|ipxe-shim*.efi) echo "shim" ;;
+        snponly.efi|ipxe.efi)             echo "upstream-loader" ;;
+        mmx64.efi|mmaa64.efi)             echo "mokmanager" ;;
+        fogipxe.efi)                      echo "fog-ipxe" ;;
+        fogsnp.efi)                       echo "fog-snp" ;;
+        fogintel.efi)                     echo "fog-intel" ;;
+        fogrealtek.efi)                   echo "fog-realtek" ;;
+        fogsnponly.efi)                   echo "fog-snponly" ;;
+        autoexec.ipxe)                    echo "script" ;;
+        MOK.der)                          echo "enrolment-cert" ;;
+        PK.auth|KEK.auth|db.auth)         echo "enrolment-var" ;;
+        fog-enroll-mok.*)                 echo "helper" ;;
+        README.txt|MANIFEST.json)         echo "doc" ;;
+        *)                                echo "other" ;;
+    esac
+}
+_espFileOrigin() {
+    case "$1" in
+        snponly-shim*.efi|ipxe-shim*.efi|snponly.efi|ipxe.efi|mmx64.efi|mmaa64.efi)
+            echo "upstream" ;;
+        autoexec.ipxe|README.txt|MANIFEST.json)
+            echo "generated" ;;
+        *)  echo "fog" ;;
+    esac
+}
+_espFileNote() {
+    case "$1" in
+        snponly-shim*.efi|ipxe-shim*.efi)
+            echo "Microsoft-signed shim. Point your boot manager at this. It loads the matching loader beside it, named by rewriting this file's own -shim<arch>.efi suffix to .efi." ;;
+        snponly.efi|ipxe.efi)
+            echo "Upstream's signed loader, shim's second stage. It only reads autoexec.ipxe from this same directory and chains onward; it does not drive a NIC when booted from an ESP." ;;
+        mmx64.efi|mmaa64.efi)
+            echo "MokManager. shim launches it from this directory when it cannot verify the next stage; enrol MOK.der here. Not optional -- nothing in a running OS can write shim's MokList." ;;
+        fogipxe.efi)
+            echo "FOG's build with all of iPXE's own NIC drivers. Try this first: a machine that cannot netboot usually cannot because its firmware provides no UEFI SNP protocol, so a binary needing one is no use to it." ;;
+        fogsnp.efi)
+            echo "FOG's build driving the NIC through the firmware's SNP protocol, binding every SNP device it can see. For firmware that does provide one and hardware iPXE's own drivers do not cover." ;;
+        fogintel.efi)
+            echo "FOG's build, Intel driver only. For when the all-drivers build misbehaves on that specific NIC." ;;
+        fogrealtek.efi)
+            echo "FOG's build, Realtek driver only. For when the all-drivers build misbehaves on that specific NIC." ;;
+        fogsnponly.efi)
+            echo "FOG's build bound to the SNP device iPXE was loaded FROM. Booted off an ESP that device is the disk, so it usually finds no NIC -- which is why autoexec.ipxe tries it last. Included because it is the right binary when something chainloads it over the network, and there is hardware where it works." ;;
+        autoexec.ipxe)
+            echo "Read by the upstream loader out of this directory. Chains the FOG binaries in preference order. Its fallbacks fire only when a file is MISSING or fails verification -- not when one loads and then finds no NIC." ;;
+        MOK.der)
+            echo "This server's certificate, in the DER form MokManager wants. Enrol it once per machine through MokManager, after which any binary here that FOG signed will load." ;;
+        PK.auth|KEK.auth|db.auth)
+            echo "Signed EFI variable update. Written by a machine in Setup Mode to trust this server's certificate directly, with no shim and no MokManager -- the only Secure Boot route available on i386, and the one that scales everywhere else." ;;
+        fog-enroll-mok.sh|fog-enroll-mok.desktop)
+            echo "Enrols MOK.der via mokutil from a booted Linux OS. Not read by firmware; it is here so one folder carries every enrolment route." ;;
+        README.txt)
+            echo "What this archive is and how to use it." ;;
+        *)  echo "" ;;
+    esac
+}
+# The kit's autoexec.ipxe.
 #
-# The fallback covers WHICH FILES GOT COPIED, not which driver works. Say it that
-# way in the docs too. `chain X || goto Y` only branches when the image fails to
-# LOAD -- absent, malformed, or rejected by shim's verification. Once an image
-# loads and runs, control never returns: FOG's embedded script ends its own
-# failure path with `prompt ... && shell || reboot`, so a binary that starts fine
-# but binds no NIC parks there. The next branch is never reached. That is the
-# difference from the net0/net1/net2 ladder in the netboot script, which works
-# because it stays inside one iPXE instance rather than handing off.
+# Static, not a template. default.ipxe is generated per install because it
+# embeds the server address; this has no per-server content at all -- it chains
+# a sibling by relative filename, and FOG's build carries the DHCP/next-server
+# script compiled in, so it finds the server by itself. iPXE resolves a bare
+# filename against the URI the running binary was loaded from, which on an ESP
+# is the directory this sits in.
 #
-# Still worth having: it means one kit boots whether the admin copied the whole
-# folder or only the variant their hardware needs.
-# $1 is the binary-set suffix: empty for the standard set, "10sec" for the
-# delayed one. Two scripts are written per architecture rather than one with a
-# branch, because iPXE runs exactly the file called autoexec.ipxe and there is no
-# way for it to ask which set you want -- choosing means swapping the file.
+# THE FALLBACK LADDER COVERS WHICH FILES GOT COPIED, NOT WHICH DRIVER WORKS, and
+# the docs must say it in those words. `chain X || goto Y` only branches when the
+# image fails to LOAD -- absent, malformed, or rejected by shim's verification.
+# Once an image loads and runs, control never returns: FOG's embedded script ends
+# its own failure path with `prompt ... && shell || reboot`, so a binary that
+# starts fine but binds no NIC parks there and the next branch is never reached.
+# That is the difference from the net0/net1/net2 ladder in the netboot script,
+# which works because it stays inside one iPXE instance rather than handing off.
+#
+# Still worth having: it means one archive boots whether the admin copied the
+# whole folder or only the variant their hardware needs.
+#
+# fogsnponly.efi is last on purpose -- it is the one most likely to load
+# cleanly and then find nothing, so anything with a chance of working should
+# have been tried before it.
 _espAutoexecScript() {
-    local sfx="$1" note
-    if [[ -n $sfx ]]; then
+    local variant="$1" note
+    if [[ -n $variant ]]; then
         note="# THE 10-SECOND-DELAY SET. Each binary waits 10s before DHCP, which is what
-# lets a link come up on a switch running STP or port power-save. Rename this
-# over autoexec.ipxe to use it."
+# lets a link come up on a switch running STP or port power-save."
     else
         note="# The standard set. If the link is not up in time on your switch -- STP or
-# port power-save -- rename autoexec-10sec.ipxe over this file instead."
+# port power-save -- download the -10sec archive instead."
     fi
     cat <<ESPAUTOEXEC
 #!ipxe
@@ -8938,134 +9544,373 @@ ${note}
 #
 # The fallbacks fire only if a file is MISSING or fails verification -- not if it
 # loads and then finds no NIC. Copy the variant your hardware needs.
-chain fogipxe${sfx}.efi || goto trysnp
+chain fogipxe.efi || goto trysnp
 :trysnp
-chain fogsnp${sfx}.efi || goto tryintel
+chain fogsnp.efi || goto tryintel
 :tryintel
-chain fogintel${sfx}.efi || goto tryrealtek
+chain fogintel.efi || goto tryrealtek
 :tryrealtek
-chain fogrealtek${sfx}.efi || goto nofogbinary
+chain fogrealtek.efi || goto trysnponly
+:trysnponly
+chain fogsnponly.efi || goto nofogbinary
 :nofogbinary
 echo No usable FOG iPXE binary found on this ESP.
 prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
 ESPAUTOEXEC
 }
-# Publish the EFI binaries an ESP needs, under the web root.
+# The archive's README. Written per archive rather than once, because which of
+# the two enrolment routes is even available depends on whether a shim landed.
+#   $1 arch  $2 variant  $3 archive stem  $4 1 if an upstream loader is present
+_espKitReadme() {
+    local arch="$1" variant="$2" stem="$3" haveloader="$4"
+    cat <<ESPREADME
+${stem}
+$(printf '%*s' ${#stem} '' | tr ' ' '=')
+
+FOG Project -- iPXE boot files for an EFI System Partition (${arch}${variant:+, ${variant} DHCP delay}).
+
+Copy the CONTENTS of this folder onto the ESP -- \\EFI\\FOG\\ is a good place --
+then point the firmware boot manager at one of the entry points below.
+${variant:+
+This is the 10-second-delay set. Every FOG binary here waits 10s before DHCP,
+which is what lets a link come up on a switch running STP or port power-save.
+The files are otherwise identical to the plain ${stem%-${variant}} archive and
+carry the same names, so do not extract both into the same folder.
+}
+WHICH FILE TO BOOT
+------------------
+$(if [[ $haveloader -eq 1 ]]; then cat <<'ESPSB'
+  Secure Boot ON, via shim:
+      Point the boot manager at snponly-shim*.efi  (or ipxe-shim*.efi -- either
+      works; each loads the loader whose name matches its own). The loader reads
+      autoexec.ipxe from this folder and chains FOG's build.
+      First time on a machine: shim cannot verify FOG's binary yet, so it
+      launches MokManager. Choose "Enroll key from disk" and select MOK.der
+      here. Reboot; it boots from then on.
+
+  Secure Boot ON, via firmware Setup Mode (no shim, no MokManager):
+      Put the machine into Setup Mode in its firmware, then enrol PK.auth,
+      KEK.auth and db.auth. Firmware then verifies FOG's signed binaries
+      directly and you can boot fogipxe.efi straight from the boot manager.
+
+  Secure Boot OFF:
+      Point the boot manager straight at fogipxe.efi.
+ESPSB
+else cat <<'ESPNOSB'
+  Secure Boot OFF:
+      Point the boot manager straight at fogipxe.efi.
+
+  Secure Boot ON, via firmware Setup Mode:
+      There is no Microsoft-signed shim for this architecture, so the shim
+      route does not exist here -- but the Setup Mode route does. Put the
+      machine into Setup Mode in its firmware, enrol PK.auth, KEK.auth and
+      db.auth, and firmware will then verify FOG's signed fogipxe.efi
+      directly. Point the boot manager at it.
+      (If those .auth files are absent, this server publishes no enrolment
+      material and only the Secure Boot OFF route is available.)
+ESPNOSB
+fi)
+
+IF fogipxe.efi DOES NOT BRING UP YOUR NETWORK
+---------------------------------------------
+Try fogsnp.efi, then fogintel.efi or fogrealtek.efi, then fogsnponly.efi.
+$(if [[ $haveloader -eq 1 ]]; then cat <<'ESPLADDER'
+autoexec.ipxe already tries them in that order -- but ONLY when a file is
+missing or fails verification. Once a binary loads and runs, control never comes
+back, so one that starts and then finds no NIC stops at its own prompt rather
+than falling through. If it is the wrong driver, you have to change which file
+is there.
+ESPLADDER
+else cat <<'ESPNOLADDER'
+There is no autoexec.ipxe in this archive, because nothing here reads one --
+that is upstream's signed loader's job and this archive has no loader. Point
+the boot manager at whichever binary you want to try; there is no fallback
+chain to do it for you.
+ESPNOLADDER
+fi)
+
+fogsnponly.efi binds only the device iPXE was loaded from. Booted off an ESP
+that device is the disk, so it usually finds no NIC at all -- which is why it is
+tried last.
+
+MANIFEST.json lists every file here with its sha256 and what it is for.
+Full documentation: docs/SUPPORTED_CUSTOMIZATIONS.md, "Local ESP boot files".
+ESPREADME
+}
+# Quote a string as a JSON scalar.
 #
-# The machines this exists for cannot fetch a boot file over the network -- that
-# is the whole problem -- so the binaries have to be reachable over HTTP to get
-# onto their ESP in the first place. The TFTP tree is not web-served, which until
-# now meant every admin hand-rolling their own symlinks into the document root.
+# Deliberately not jq, even though jq is in the package list. Everything this
+# feature encodes is content this file itself produced -- our own filenames,
+# the role/note text above, hex checksums, decimal sizes -- so the escaping
+# problem is bounded, and one code path that always works beats a dependency
+# whose absence would mean publishing no manifest at all. That is the same
+# reasoning as the tar fallback for zip below: a partly-failed package install
+# should cost a server some polish, not the whole feature.
+#
+# Covers the characters JSON forbids in a string; anything else in the ASCII
+# range is legal unescaped, and nothing here emits a control character.
+_jsonStr() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\t'/\\t}"
+    s="${s//$'\r'/\\r}"
+    s="${s//$'\n'/\\n}"
+    printf '"%s"' "$s"
+}
+# One JSON array describing every file in a staged archive directory.
+#
+# Called BEFORE MANIFEST.json is written, so MANIFEST.json is deliberately
+# absent from its own inventory -- a file cannot carry its own checksum.
+#   $1 staged directory   $2 Secure Boot anchor PEM, or empty
+_espKitContentsJson() {
+    local dir="$1" anchor="$2"
+    local f name sum size fogsigned first=1
+    printf '['
+    while IFS= read -r f; do
+        name="${f##*/}"
+        sum=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
+        size=$(wc -c < "$f" 2>/dev/null | tr -d '[:space:]')
+        [[ -z $sum || -z $size ]] && continue
+        # Asked of the file rather than inferred from whether this server holds
+        # keys, so the answer stays right for the upstream binaries (which carry
+        # Microsoft's and iPXE's signatures, never FOG's) and for a run where
+        # signing partly failed.
+        fogsigned=false
+        if [[ -n $anchor && $name == *.efi ]] && \
+           sbverify --cert "$anchor" "$f" >/dev/null 2>&1; then
+            fogsigned=true
+        fi
+        [[ $first -eq 0 ]] && printf ','
+        first=0
+        printf '{"name":%s,"size":%s,"sha256":%s,"role":%s,"origin":%s,"fogSigned":%s,"note":%s}' \
+            "$(_jsonStr "$name")" "$size" "$(_jsonStr "$sum")" \
+            "$(_jsonStr "$(_espFileRole "$name")")" \
+            "$(_jsonStr "$(_espFileOrigin "$name")")" \
+            "$fogsigned" "$(_jsonStr "$(_espFileNote "$name")")"
+    done < <(find "$dir" -maxdepth 1 -type f 2>/dev/null | sort)
+    printf ']'
+}
+# The FOS kernel/init set, listed but NOT copied.
+#
+# Bundling them would be 60-80MB per architecture and would still not produce a
+# working local boot on its own: FOS reads per-host, per-task kernel arguments
+# that boot.php generates, so a kernel and initrd sitting on an ESP do nothing
+# until someone hand-writes those. That is a different feature with its own
+# design questions.
+#
+# Listing them costs nothing and makes this manifest the single index for
+# everything fetchable for a local boot. No new exposure: every PXE client
+# already fetches these over unauthenticated HTTP from the same directory
+# (bootmenu.class.php, $_booturl).
+_espKernelsJson() {
+    local ipxedir="${webdirdest%/}/service/ipxe"
+    local n arch kind sum size first=1
+    printf '['
+    for n in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
+        [[ -f ${ipxedir}/${n} ]] || continue
+        case $n in
+            bzImage)          arch=x86_64; kind=kernel ;;
+            bzImage32)        arch=i386;   kind=kernel ;;
+            arm_Image)        arch=arm64;  kind=kernel ;;
+            init.xz)          arch=x86_64; kind=init ;;
+            init_32.xz)       arch=i386;   kind=init ;;
+            arm_init.cpio.gz) arch=arm64;  kind=init ;;
+        esac
+        sum=$(sha256sum "${ipxedir}/${n}" 2>/dev/null | cut -d' ' -f1)
+        size=$(wc -c < "${ipxedir}/${n}" 2>/dev/null | tr -d '[:space:]')
+        [[ -z $sum || -z $size ]] && continue
+        [[ $first -eq 0 ]] && printf ','
+        first=0
+        printf '{"name":%s,"path":%s,"arch":%s,"kind":%s,"size":%s,"sha256":%s}' \
+            "$(_jsonStr "$n")" "$(_jsonStr "../ipxe/${n}")" \
+            "$(_jsonStr "$arch")" "$(_jsonStr "$kind")" \
+            "$size" "$(_jsonStr "$sum")"
+    done
+    printf ']'
+}
+# Build and publish the archives.
 #
 # NOT gated on Secure Boot, and not gated on _signLocalIpxe() having signed
 # anything. Booting a machine from an iPXE binary on its own ESP is a plain
-# feature that predates Secure Boot by years -- firmware with no PXE option, or a
-# queued task that would otherwise need the boot order changed. Secure Boot only
-# added the requirement for a signature. So a server with no Secure Boot keys
-# publishes the same directory with unsigned binaries in it, and those work on
-# every machine booting with Secure Boot off. Signing, where keys exist, has
-# already happened in place upstream of this by the time it runs.
+# feature that predates Secure Boot by years -- firmware with no PXE option, or
+# a queued task that would otherwise need the boot order changed. Secure Boot
+# only added the requirement for a signature.
 #
 # That is also why this lives at service/localboot/ rather than under
 # service/secureboot/: _publishSecureBootKit() rm -rf's its whole kit directory
-# when there is no MOK to publish, which would take this with it on exactly the
-# servers that still want it.
+# when it has no MOK to publish, which would take this with it on exactly the
+# servers that still want it. The enrolment material it publishes is COPIED into
+# each archive rather than linked, so an archive stays self-contained and a
+# server that later opts out of enrolment cannot dangle a reference inside one.
 #
-# COPIES, not a symlink to $tftpdirdst, which was the first attempt. Three
-# reasons, and the last two are what settled it:
-#
-#   1. SELinux. setSELinuxContext() labels the TFTP tree tftpdir_t, and httpd_t
-#      has no rule permitting it to read that type -- so a symlink 403s on every
-#      enforcing host. That is the same failure GH-963 fixed in the other
-#      direction, where tftpd_t could not read default_t. Relabelling to
-#      public_content_t would fix it, but widens the tree to ftpd, rsync and
-#      samba as well, to serve a feature that needs none of them. Files created
-#      here inherit the web root's own label and need no policy change at all.
-#   2. No vhost changes. A real directory takes an index.php that 404s, exactly
-#      as the Secure Boot kit and service/ipxe already do, so nothing has to be
-#      added to configureHttpd(). A symlink needed Options -Indexes emitted in
-#      all three Apache variants, and rested on apache matching <Directory>
-#      against the unresolved path (GH-529) -- a dependency that fails OPEN,
-#      exposing a listing of the whole TFTP tree, if it is ever wrong.
-#   3. Narrower. A link publishes the tree as it will be; this publishes the
-#      fixed list above. Nothing an admin later drops into $tftpdirdst becomes
-#      web-reachable, so there is no standing rule against using that directory.
-#
-# Everything here is public by nature: FOG's own binaries, and upstream's signed
-# shim and loader, which are downloadable from fog-ipxe's release assets anyway.
-# FOG already serves the MOK-signed bzImage over unauthenticated HTTP from
-# service/ipxe, so this is not a new class of exposure.
+# COPIES, never a symlink to $tftpdirdst, which was the first design. SELinux
+# labels the TFTP tree tftpdir_t and httpd_t has no rule permitting it to read
+# that type, so a link 403s on every enforcing host; it also needed Options
+# -Indexes across three Apache variants and rested on Apache matching
+# <Directory> against the unresolved path (GH-529), a dependency that fails
+# OPEN. Files created here inherit the web root's own label and need no policy
+# change at all.
 _publishLocalBootFiles() {
     local tftproot="${tftpdirdst%/}"
     [[ -d $tftproot ]] || return 0
     local bootdir="${webdirdest%/}/service/localboot"
-    dots "Publishing local ESP boot files"
+    local kitdir="${webdirdest%/}/service/secureboot"
+    dots "Publishing local ESP boot archives"
     # Rebuilt rather than updated in place: a variant dropped upstream should
-    # disappear here too, and a stale copy must not outlive the binary it came
-    # from. Safe to do unconditionally -- configureHttpd() rm -rf's the whole web
-    # root every run, so there is never anything here worth keeping.
+    # disappear here too, and a stale archive must not outlive the binaries it
+    # was built from. Safe unconditionally -- configureHttpd() rm -rf's the
+    # whole web root every run, so there is never anything here worth keeping.
     rm -rf "$bootdir" >>$error_log 2>&1
     mkdir -p "$bootdir" >>$error_log 2>&1
-    local rel dir copied=0 failed=0
-    for rel in "${localbootfiles[@]}"; do
-        # Missing is not a failure. An HTTPS install stages no Secure Boot
-        # binaries at all -- downloadipxesecureboot() skips it -- so the
-        # secureboot/ entries are absent on those servers by design.
-        [[ -f ${tftproot}/${rel} ]] || continue
-        mkdir -p "${bootdir}/$(dirname "$rel")" >>$error_log 2>&1
-        if cp -f "${tftproot}/${rel}" "${bootdir}/${rel}" >>$error_log 2>&1; then
-            copied=$((copied + 1))
-        else
-            failed=1
-        fi
+    # Resolved once. Empty on a server with no signing key, which makes every
+    # fogSigned in the manifest false -- correctly.
+    local anchorpem=""
+    if [[ -n $secureBootKey && -n $secureBootCert ]] && \
+       command -v sbverify >/dev/null 2>&1; then
+        anchorpem=$(_secureBootAnchorPem) || anchorpem=""
+    fi
+    local work
+    work=$(mktemp -d 2>>$error_log) || {
+        echo "Failed"
+        echo " * Could not create a staging directory. See $error_log."
+        return 0
+    }
+    local arch variant stem staged pair src dst f
+    local copied haveloader contents archive ext asum asize
+    local built=0 failed=0 archjson="" first=1
+    for arch in x86_64 i386 arm64; do
+        for variant in "" 10sec; do
+            stem="fog-esp-${arch}${variant:+-${variant}}"
+            staged="${work}/${stem}"
+            mkdir -p "$staged" >>$error_log 2>&1
+            copied=0
+            haveloader=0
+            while IFS= read -r pair; do
+                [[ -z $pair ]] && continue
+                src="${pair%%|*}"
+                dst="${pair#*|}"
+                # Missing is not a failure. An HTTPS install stages no Secure
+                # Boot binaries at all -- downloadipxesecureboot() skips it --
+                # so the upstream entries are absent on those servers by design,
+                # and the archive is still worth building without them.
+                [[ -f ${tftproot}/${src} ]] || continue
+                if cp -f "${tftproot}/${src}" "${staged}/${dst}" >>$error_log 2>&1; then
+                    copied=$((copied + 1))
+                    case $dst in
+                        snponly.efi|ipxe.efi) haveloader=1 ;;
+                    esac
+                else
+                    failed=1
+                fi
+            done < <(_espKitFiles "$arch" "$variant")
+            # Nothing for this architecture in the tree at all: no archive,
+            # rather than an archive holding only a README.
+            if [[ $copied -eq 0 ]]; then
+                rm -rf "$staged" >>$error_log 2>&1
+                continue
+            fi
+            # Whatever enrolment material this server actually published. Taken
+            # by existence rather than by asking whether Secure Boot is
+            # configured, so an opted-out server ships neither and a server with
+            # only a MOK ships only that.
+            for f in MOK.der PK.auth KEK.auth db.auth \
+                     fog-enroll-mok.sh fog-enroll-mok.desktop; do
+                [[ -f ${kitdir}/${f} ]] && \
+                    cp -f "${kitdir}/${f}" "${staged}/${f}" >>$error_log 2>&1
+            done
+            # Only where something can read it. Nothing in an i386 archive, or
+            # in any archive on an HTTPS-only install, ever loads autoexec.ipxe
+            # -- upstream's loader is what reads it -- so shipping one there
+            # would be an inert file implying a chain that is not present.
+            [[ $haveloader -eq 1 ]] && \
+                _espAutoexecScript "$variant" > "${staged}/autoexec.ipxe" 2>>$error_log
+            _espKitReadme "$arch" "$variant" "$stem" "$haveloader" \
+                > "${staged}/README.txt" 2>>$error_log
+            contents=$(_espKitContentsJson "$staged" "$anchorpem")
+            {
+                printf '{\n'
+                printf '  "archive": %s,\n' "$(_jsonStr "$stem")"
+                printf '  "arch": %s,\n' "$(_jsonStr "$arch")"
+                printf '  "variant": %s,\n' "$(_jsonStr "${variant:-standard}")"
+                printf '  "contents": %s\n' "$contents"
+                printf '}\n'
+            } > "${staged}/MANIFEST.json" 2>>$error_log
+            ext="zip"
+            # Both writers change directory so the archive holds "$stem/..."
+            # rather than the staging path, which means $bootdir has to be
+            # absolute. It always is -- $docroot is a distro default under / and
+            # --docroot is normalised with a leading slash (installfog.sh) -- but
+            # that is the dependency to keep in mind if docroot handling changes.
+            if command -v zip >/dev/null 2>&1; then
+                # -X drops the extra attribute blocks, so a re-run over
+                # unchanged binaries differs only by mtime.
+                ( cd "$work" && zip -q -r -X "${bootdir}/${stem}.zip" "$stem" ) \
+                    >>$error_log 2>&1
+            else
+                # zip is in the install list, so this is a fallback for a server
+                # whose package install partly failed rather than an expected
+                # path. tar is a hard dependency of the installer already.
+                ext="tar.gz"
+                tar -czf "${bootdir}/${stem}.tar.gz" -C "$work" "$stem" \
+                    >>$error_log 2>&1
+            fi
+            archive="${stem}.${ext}"
+            if [[ ! -f ${bootdir}/${archive} ]]; then
+                failed=1
+                rm -rf "$staged" >>$error_log 2>&1
+                continue
+            fi
+            asum=$(sha256sum "${bootdir}/${archive}" 2>/dev/null | cut -d' ' -f1)
+            asize=$(wc -c < "${bootdir}/${archive}" 2>/dev/null | tr -d '[:space:]')
+            [[ $first -eq 0 ]] && archjson="${archjson},"
+            first=0
+            archjson="${archjson}$(printf \
+                '{"path":%s,"arch":%s,"variant":%s,"root":%s,"size":%s,"sha256":%s,"contents":%s}' \
+                "$(_jsonStr "$archive")" "$(_jsonStr "$arch")" \
+                "$(_jsonStr "${variant:-standard}")" "$(_jsonStr "$stem")" \
+                "${asize:-0}" "$(_jsonStr "$asum")" "$contents")"
+            built=$((built + 1))
+            rm -rf "$staged" >>$error_log 2>&1
+        done
     done
-    # The ready-to-copy kit, on top of the menu above. Its sources are the same
-    # files, so a missing one is skipped here for the same reason: an HTTPS
-    # install stages no secureboot/ at all, which costs the kit its shim and
-    # leaves an unsigned-boot-only folder rather than a broken one.
-    local src dst
-    for rel in "${localbootespfiles[@]}"; do
-        src="${rel%%|*}"
-        dst="${rel#*|}"
-        [[ -f ${tftproot}/${src} ]] || continue
-        mkdir -p "${bootdir}/esp/$(dirname "$dst")" >>$error_log 2>&1
-        if cp -f "${tftproot}/${src}" "${bootdir}/esp/${dst}" >>$error_log 2>&1; then
-            copied=$((copied + 1))
-        else
-            failed=1
-        fi
-    done
-    # One per architecture directory, because iPXE looks for autoexec.ipxe beside
-    # the binary that is running, not at a fixed path.
-    local espdir
-    for espdir in "${bootdir}/esp" "${bootdir}/esp/arm64-efi"; do
-        [[ -d $espdir ]] || continue
-        _espAutoexecScript "" > "${espdir}/autoexec.ipxe" 2>>$error_log
-        _espAutoexecScript "10sec" > "${espdir}/autoexec-10sec.ipxe" 2>>$error_log
-    done
-    # The same 404 stub the Secure Boot kit uses, in EVERY directory rather than
-    # just the top one. DirectoryIndex names index.php in every variant
-    # configureHttpd() emits, but it only suppresses a listing where an
-    # index.php actually exists -- and mod_autoindex is live on a stock
-    # /var/www/html, because the "Options +FollowSymLinks" emitted there MERGES
-    # with the distro's own "Options Indexes FollowSymLinks" rather than
-    # replacing it. Without a stub per directory, arm64-efi/ and friends list.
-    while IFS= read -r dir; do
-        echo '<?php header("HTTP/1.1 404 Not Found");' > "${dir}/index.php"
-    done < <(find "$bootdir" -type d -print 2>>$error_log)
-    find "$bootdir" -type d -exec chmod 755 {} \; >>$error_log 2>&1
-    find "$bootdir" ! -type d -exec chmod 644 {} \; >>$error_log 2>&1
+    rm -rf "$work" >>$error_log 2>&1
+    # Static, written once here. Deliberately NOT a PHP endpoint that lists the
+    # directory on request: that would be a directory listing with a traversal
+    # surface, to save writing a file that changes only when the installer runs.
+    # Paths are relative to this file's own URL so it resolves under whatever
+    # hostname and webroot the admin reached it by.
+    {
+        printf '{\n'
+        printf '  "schema": 1,\n'
+        printf '  "generated": %s,\n' \
+            "$(_jsonStr "$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null)")"
+        printf '  "fogVersion": %s,\n' "$(_jsonStr "${version}")"
+        printf '  "ipxeVersion": %s,\n' "$(_jsonStr "${ipxeVer}")"
+        printf '  "archives": [%s],\n' "$archjson"
+        printf '  "kernels": %s\n' "$(_espKernelsJson)"
+        printf '}\n'
+    } > "${bootdir}/manifest.json" 2>>$error_log
+    # The same 404 stub the Secure Boot kit and service/ipxe use. One directory
+    # now instead of ten: DirectoryIndex names index.php in every variant
+    # configureHttpd() emits, but only suppresses a listing where an index.php
+    # actually exists -- and mod_autoindex is live on a stock /var/www/html,
+    # because the "Options +FollowSymLinks" emitted there MERGES with the
+    # distro's own "Options Indexes FollowSymLinks" rather than replacing it.
+    echo '<?php header("HTTP/1.1 404 Not Found");' > "${bootdir}/index.php"
+    chmod 0755 "$bootdir" >>$error_log 2>&1
+    find "$bootdir" -type f -exec chmod 0644 {} \; >>$error_log 2>&1
     # _publishSecureBootKit()'s own chown -R does not reach here; this is a
     # sibling of that directory, not a child of it.
     chown -R "${apacheuser}":"${apacheuser}" "$bootdir" >>$error_log 2>&1
-    if [[ $failed -ne 0 || $copied -eq 0 ]]; then
+    if [[ $failed -ne 0 || $built -eq 0 || ! -s ${bootdir}/manifest.json ]]; then
         echo "Failed"
-        echo " * Could not publish the local ESP boot files to $bootdir."
+        echo " * Could not publish the local ESP boot archives to $bootdir."
         echo "   Netboot is unaffected; assembling an ESP from that URL will be"
         echo "   missing files. See $error_log."
         return 0
     fi
-    echo "Done"
+    echo "Done (${built})"
 }
 # Sign CUSTOM kernels for UEFI Secure Boot.
 #
