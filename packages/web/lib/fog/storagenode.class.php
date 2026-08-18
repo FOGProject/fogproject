@@ -204,12 +204,31 @@ class StorageNode extends FOGController
      */
     public function loadOnline()
     {
-        // This probe is an ssh reachability test, so it must follow
-        // FOG_SSH_PORT. Hardcoding 22 reported every node offline -- and so
-        // "No nodes available" on tasking -- whenever ssh was moved
-        // (forums 18210). -1 lets isAvailable resolve the configured port.
-        $test = self::$FOGURLRequests->isAvailable($this->get('ip'), '0.1', -1);
-        $this->set('online', array_shift($test));
+        // FOG reaches a node two ways and both count as "up": ssh for the
+        // transfers, and http(s) for everything _getData() asks for -- the
+        // image, snapin and log file listings all come from
+        // <proto>://<ip>/fog/status/getfiles.php. Probing only ssh reported a
+        // node offline that FOG was in the middle of talking to over http,
+        // which is what a NAS with ssh switched off looks like (forums
+        // 18217). Try ssh first because it is the transport tasking needs,
+        // then fall back rather than declaring the node dead on one port.
+        //
+        // -1 lets isAvailable resolve FOG_SSH_PORT; hardcoding 22 reported
+        // every node offline whenever ssh was moved (forums 18210).
+        //
+        // One second, not 0.1. A tenth of a second is inside the noise for a
+        // switched network and a NAS that has to wake a disk, so the probe
+        // was answering "offline" for hosts that were merely unhurried. 1.5
+        // used a second here and additionally floored anything below one.
+        $ip = $this->get('ip');
+        $test = self::$FOGURLRequests->isAvailable($ip, 1, -1);
+        $online = array_shift($test);
+        if (!$online) {
+            $webPort = 'https' === self::$httpproto ? 443 : 80;
+            $test = self::$FOGURLRequests->isAvailable($ip, 1, $webPort);
+            $online = array_shift($test);
+        }
+        $this->set('online', $online);
     }
     /**
      * Load the location url for us.

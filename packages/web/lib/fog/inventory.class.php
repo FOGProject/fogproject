@@ -81,6 +81,16 @@ class Inventory extends FOGController
         'hostID'
     ];
     /**
+     * Ends in "id" but is not one: iSystemUUID is varchar(255) holding the
+     * SMBIOS UUID. Without this, save() read the name as a foreign key and
+     * rewrote every UUID it stored to 0.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = [
+        'sysuuid'
+    ];
+    /**
      * Additional fields
      *
      * @var array
