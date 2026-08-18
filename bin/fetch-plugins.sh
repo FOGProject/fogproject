@@ -87,9 +87,12 @@ while [[ $checksum -ne 0 && $cnt -lt 5 ]]; do
     [[ -f $tmp/$tarball.sha256 ]] && (cd "$tmp" && sha256sum -c "$tarball.sha256" >/dev/null 2>&1)
     checksum=$?
     if [[ $checksum -ne 0 ]]; then
-        curl --silent -fkL --connect-timeout "$inetConnectTimeout" \
+        # No -k. The sha256 fetched on the next line comes down the same
+        # connection, so an unverified transport voids the checksum as well as
+        # the tarball -- and this tarball becomes PHP that runs in the web tier.
+        curl --silent -fL --connect-timeout "$inetConnectTimeout" \
             --speed-time 30 --speed-limit 1024 -o "$tmp/$tarball" "$url" >/dev/null 2>&1
-        curl --silent -fkL --connect-timeout "$inetConnectTimeout" \
+        curl --silent -fL --connect-timeout "$inetConnectTimeout" \
             --speed-time 30 --speed-limit 1024 -o "$tmp/$tarball.sha256" "${url}.sha256" >/dev/null 2>&1
     fi
     let cnt+=1

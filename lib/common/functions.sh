@@ -477,6 +477,25 @@ registerStorageNode() {
     # -s: without it curl draws its progress meter straight into the installer's
     # own output, so this step used to print two lines of transfer statistics in
     # the middle of the dotted "Checking if this node is registered....." line.
+    #
+    # -k stays here, and in the calls below, ON PURPOSE. Every other -k in
+    # this installer has been removed; these four -- two in this function, one
+    # in updateStorageNodeCredentials, one in _requestNodeCert -- are the
+    # genuine chicken-and-egg. On a fresh storage node installfog.sh runs
+    # registerStorageNode -> updateStorageNodeCredentials -> _installNodeWebCert
+    # -> _installCATrustAnchor in that order, so at this moment the node is
+    # serving a certificate nothing has issued yet and holds no anchor for
+    # anything: verification cannot succeed, because the very thing that makes
+    # it possible is what registering is a precondition of. Using
+    # _resolveSelfCacert here would resolve to nothing and then hard-fail.
+    #
+    # What that costs is bounded and worth stating: an attacker on the path
+    # between this node and its own web tier sees the node's storage
+    # credentials. It does NOT see the database password -- that never travels
+    # this way -- and _requestNodeCert below is separately protected by an HMAC
+    # over $snmysqlpass, which is the real control on the node<->master trust
+    # bootstrap. Closing this properly needs the master to hand a node its
+    # anchor out of band, which is a design change, not a flag change.
     storageNodeExists=$(curl -s -X POST -d "ip=${ipaddress}" -d "fogverified" -kL ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php -o -)
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
@@ -529,6 +548,9 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/fog/"   # see registerStorageNode, GH-529
     dots "Ensuring node username and passwords match"
+    # -k on purpose -- see registerStorageNode. This is called from the node
+    # path before any anchor exists, and from the master path after one does;
+    # the shared function has to work in the earlier of the two.
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}/maintenance/create_update_node.php
     echo "Done"
 }
@@ -623,7 +645,10 @@ backupDB() {
         local dbhttpcode=""
         local dbcurlstat=0
         local dbjqstat=0
-        dbhttpcode=$(curl -sk --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
+        # Verified, not -k: this is an HTTPS call to this server, and
+        # _resolveSelfCacert names the anchor for the chain it is serving.
+        _resolveSelfCacert
+        dbhttpcode=$(curl -s "${selfCacertOpts[@]}" --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
         dbcurlstat=$?
         jq -r '. | ._content' < "$dbraw" > "$dbbackupfile" 2>>"$dbcurlerr"
         dbjqstat=$?
@@ -704,7 +729,8 @@ checkWebTier() {
     local probeBody=$(mktemp)
     # We care whether bytes came back at all, not just about the status code,
     # because a pre-output fatal loses exactly that.
-    curl -sS -k --noproxy '*' -m 30 -fL -o "$probeBody" "$probeUrl" >>$error_log 2>&1
+    _resolveSelfCacert
+    curl -sS "${selfCacertOpts[@]}" --noproxy '*' -m 30 -fL -o "$probeBody" "$probeUrl" >>$error_log 2>&1
     local probeStat=$?
     local probeSize=$(stat -c %s "$probeBody" 2>/dev/null)
     [[ -z $probeSize ]] && probeSize=0
@@ -827,8 +853,42 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' -fksL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
-            errorStat $?
+            # Verified. This request carries X-Fog-Install-Token, which
+            # grants a schema deploy on a server that has no users yet; -k
+            # handed that to whoever answered on $ipaddress.
+            _resolveSelfCacert
+            curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' "${selfCacertOpts[@]}" -fsL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
+            local schemarc=$?
+            # errorStat tails $error_log, so curl's own "SSL certificate
+            # problem" line is already visible -- but it does not say what to
+            # do about it, and this is the one place where verifying instead
+            # of passing -k can stop an upgrade that used to finish. Name the
+            # two installs it can happen on before handing over.
+            case $schemarc in
+                35|51|60|77)
+                    echo "Failed!"
+                    echo
+                    echo " * TLS verification failed talking to this server's own web tier at"
+                    echo "   ${httpproto}://${ipaddress}${webroot} -- so the schema was NOT deployed."
+                    echo " * This step used to skip verification, which handed the schema"
+                    echo "   install token to whatever answered on that address. It no longer"
+                    echo "   does, so a certificate this host cannot verify now stops here."
+                    echo " * Two causes, both fixable:"
+                    echo "     - the web certificate was replaced by hand, so the chain in"
+                    echo "       ${sslcachain:-the vhost} no longer describes what is served"
+                    echo "     - the certificate does not cover the address ${ipaddress}"
+                    echo "       (re-run with --external-ca, or issue one that names it)"
+                    echo " * Full error in $error_log"
+                    echo
+                    tail -n 5 $error_log
+                    # Exit rather than fall through to errorStat: the schema
+                    # not deploying has always been fatal here, and errorStat
+                    # would reprint a generic banner over a message that has
+                    # already said more than it can.
+                    exit $schemarc
+                    ;;
+            esac
+            errorStat $schemarc
             ;;
         *)
             echo
@@ -1797,9 +1857,16 @@ fetchipxeasset() {
             # bounds a connection that opens and then stalls. --max-time is
             # deliberately NOT used here -- these are multi-megabyte tarballs
             # and a slow but working link must be allowed to finish.
-            curl --silent -fkOL --connect-timeout $inetConnectTimeout \
+            #
+            # No -k. This is an ordinary internet download from a host with a
+            # perfectly good certificate, and the sha256 below does not save
+            # us -- it is fetched over the same unverified connection, so
+            # whoever could substitute the tarball could substitute the hash
+            # with it. checkInternetConnection() already explains a TLS
+            # failure here as an untrusted intercepting proxy.
+            curl --silent -fOL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 "$url" >>$error_log 2>&1
-            curl --silent -fkOL --connect-timeout $inetConnectTimeout \
+            curl --silent -fOL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 "${url}.sha256" >>$error_log 2>&1
         fi
         let cnt+=1
@@ -3768,6 +3835,12 @@ _requestNodeCert() {
     mac=$(printf '%s\n%s' "$type" "$b64" \
         | openssl dgst -sha256 -hmac "$snmysqlpass" -hex 2>>$error_log \
         | awk '{print $NF}')
+    # -k on purpose. This is the node<->master bootstrap: a node that has
+    # never been issued a certificate has no anchor for the master either. The
+    # control on this request is not TLS but the HMAC computed just above, keyed
+    # on $snmysqlpass -- a secret only a genuine node of this master holds -- and
+    # what comes back is a certificate chain the caller validates on its own
+    # terms. See registerStorageNode for the full reasoning.
     resp=$(curl -sS -k -X POST \
         -d "type=${type}" \
         -d "hmac=${mac}" \
@@ -3983,6 +4056,38 @@ _resolveTrustAnchor() {
     [[ -s $out ]] || return 1
     trustAnchorPem="$out"
     return 0
+}
+# The --cacert arguments for an HTTPS call this server makes to ITSELF.
+#
+# Sets $selfCacertOpts, which callers splice in as "${selfCacertOpts[@]}". Empty
+# when there is nothing to anchor, or when the install is serving plain HTTP, in
+# which case curl verifies against the system store and the call is unchanged.
+#
+# Why a helper and not just the system store: _installCATrustAnchor() writes the
+# anchor there, but it runs at installfog.sh:1175 -- AFTER configureHttpd,
+# backupDB and updateDB, which are the calls that need it. On a fresh install
+# the store therefore does not know FOG's CA yet at the moment those three fire.
+# The anchor FILE exists by then (configureHttpd has just written the chain), so
+# naming it explicitly is correct whatever the store happens to contain, and
+# stays correct on an --external-ca install where the served chain terminates in
+# the admin's root rather than FOG's.
+#
+# --cacert REPLACES curl's default bundle rather than adding to it, and these
+# calls address the server by $ipaddress, so both halves have to hold: the
+# served chain must terminate in the anchor this resolves, and the leaf must
+# cover that address. FOG-issued certificates satisfy both by construction. An
+# admin who hand-replaced the certificate without telling the installer has
+# satisfied neither, and updateDB says so rather than failing blankly.
+#
+# These calls used to pass -k. That mattered more than it looks: the schema
+# update carries X-Fog-Install-Token, a secret that grants a schema deploy on a
+# server with no users yet, and it was being handed to whoever answered.
+_resolveSelfCacert() {
+    selfCacertOpts=()
+    [[ $httpproto == https ]] || return 0
+    _resolveTrustAnchor >>$error_log 2>&1 || return 0
+    [[ -s $trustAnchorPem ]] || return 0
+    selfCacertOpts=(--cacert "$trustAnchorPem")
 }
 # Anchor this server's own CA in this server's own system trust store.
 #
@@ -7417,7 +7522,7 @@ downloadfiles() {
         # make sure we download the most recent hash file to start with
         if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
             rm -f $hashfile
-            curl --silent -kOL --connect-timeout $inetConnectTimeout \
+            curl --silent -OL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
         fi
         # Eight URLs, ten rounds, two curls each: 160 connects, none of them
@@ -7435,9 +7540,12 @@ downloadfiles() {
             [[ -f $hashfile ]] && sha256sum -c $hashfile >>$error_log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
-                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                # No -k, same reasoning as fetchipxeasset(): the hash file
+                # travels the same connection as the payload, so skipping
+                # verification here voids the checksum too.
+                curl --silent -OL --connect-timeout $inetConnectTimeout \
                     --speed-time 30 --speed-limit 1024 $url >>$error_log
-                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                curl --silent -OL --connect-timeout $inetConnectTimeout \
                     --speed-time 30 --speed-limit 1024 $hashurl >>$error_log
             fi
             let cnt+=1
