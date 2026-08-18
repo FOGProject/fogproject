@@ -78,6 +78,41 @@ if (isset($node) && in_array($node, ['logout', 'login'])) {
 
 // Render login page if user is not valid
 if (!isset($node) || (!in_array($node, $nodes) && !$currentUser->isValid())) {
+    /*
+     * Somewhere else to send an anonymous visitor instead of the login form
+     * -- an external identity provider, where the install has decided
+     * everyone signs in through one (fog-plugins#17). A listener that sets
+     * nothing changes nothing, which is every install without such a plugin.
+     *
+     * NOT offered when FOG_LOCAL_LOGIN is defined. management/login.php
+     * defines it, and that is the whole of how the break-glass page is
+     * guaranteed: the hook is not fired and overruled there, it is never
+     * reached. A forced-redirect setting can otherwise lock every
+     * administrator out of a server permanently -- provider down, expired
+     * certificate, broken discovery -- with no way back in through a
+     * browser, including for the local account that exists for exactly that.
+     *
+     * Only for a visitor who is NOT signed in, and only on the form render,
+     * so nothing here can bounce a working session or an in-flight callback.
+     */
+    if (!defined('FOG_LOCAL_LOGIN')) {
+        $loginRedirect = '';
+        $HookManager->processEvent(
+            'LOGIN_PAGE_REDIRECT',
+            ['redirect' => &$loginRedirect]
+        );
+        // Absolute http(s) only. This reaches a Location header, and
+        // "whatever a hook put there" is not a good enough answer for one.
+        // 302, not redirect()'s cacheable 308 default: a browser that
+        // remembered the login page as permanently moved to a provider that
+        // has since been turned off would have no way back.
+        if ('' !== $loginRedirect
+            && preg_match('#^https?://#i', $loginRedirect)
+        ) {
+            FOGCore::redirect($loginRedirect, 302);
+            exit;
+        }
+    }
     $Page
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])
