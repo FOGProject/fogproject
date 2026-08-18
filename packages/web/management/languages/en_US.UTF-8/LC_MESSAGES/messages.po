@@ -5832,6 +5832,9 @@ msgstr "Port"
 msgid "Port is not valid ldap/ldaps port"
 msgstr "Port is not valid ldap/ldaps ports"
 
+msgid "Post-Logout Redirect URI"
+msgstr ""
+
 #, fuzzy
 msgid "Postfix requires an action of login"
 msgstr "Postfix requires an action of login, logout, or start to operate"
@@ -6120,6 +6123,9 @@ msgstr "Receive"
 #, fuzzy
 msgid "Record not found"
 msgstr "Record not found, Error: %s"
+
+msgid "Redirect Login To This Provider"
+msgstr ""
 
 msgid "Redirect URI"
 msgstr ""
@@ -6776,6 +6782,10 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
+
+#, fuzzy
+msgid "Single Logout"
+msgstr "Logout"
 
 #, fuzzy
 msgid "Site"
@@ -9586,6 +9596,9 @@ msgstr ""
 msgid "register this at your provider"
 msgstr ""
 
+msgid "register this too, if you enable single logout"
+msgstr ""
+
 #, fuzzy
 msgid "second"
 msgstr "Icon"
@@ -9609,6 +9622,9 @@ msgid "settings"
 msgstr "Settings"
 
 msgid "short"
+msgstr ""
+
+msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
 msgid "sites with clients moving back and forth"
@@ -9675,6 +9691,10 @@ msgid "the host defined location where available"
 msgstr ""
 
 msgid "the initrd (initial ramdisk) which is alongside the"
+msgstr ""
+
+#, php-format
+msgid "the local login form stays available at %s"
 msgstr ""
 
 #, fuzzy
