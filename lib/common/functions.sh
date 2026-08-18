@@ -1364,67 +1364,138 @@ listPackages() {
     echo $packages;
     exit 0;
 }
+# One bounded reachability probe against a single host. Returns curl's exit
+# status so the caller can name the cause without running three separate tests
+# to find it out.
+#
+# Both bounds matter. Without --connect-timeout, curl inherits libcurl's 300
+# second default, which is exactly what a firewall that DROPs rather than
+# REJECTs outbound traffic costs -- per host, per address family. Without
+# --max-time, a connection that opens and then stalls never returns at all.
+#
+# Deliberately no -k. A proxy presenting its own CA passes an unverified probe
+# and then fails the git clone that follows, and predicting that clone is the
+# entire point of the check. Equally deliberately no -f: a host that answers 404
+# at "/" is still a reachable host, and reachability is what is being measured.
+inetProbe() {
+    local host="$1"
+    if command -v curl >/dev/null 2>&1; then
+        curl -sS --connect-timeout $inetConnectTimeout --max-time $inetMaxTime \
+            -o /dev/null "https://${host}/" >>$error_log 2>&1
+        return $?
+    fi
+    # curl is in every distro's package list, but installPackages has not run
+    # yet at this point, so a minimal image can legitimately reach here without
+    # it. bash's own /dev/tcp keeps the fallback dependency free. It sees only
+    # the TCP handshake -- not TLS, and not a proxy -- so it reports the generic
+    # connect failure (7) rather than claiming to know more than it does.
+    # Bounded by the connect timeout rather than the total: a handshake is all
+    # this does, so there is no transfer phase for $inetMaxTime to govern.
+    timeout $inetConnectTimeout bash -c "exec 3<>/dev/tcp/${host}/443" >>$error_log 2>&1
+    [[ $? -eq 0 ]] && return 0
+    return 7
+}
+# Probe the hosts this install is actually going to pull from, and record the
+# answer somewhere the code that downloads can read it.
+#
+# This used to test DNS, then plain HTTP, then HTTPS, against httpbin.org,
+# neverssl.com, github.com and fogproject.org -- none of them with a timeout,
+# and none of them a host FOG needs. Worse, it opened by running
+# `$packageinstaller curl`, so a connectivity check's first act was a package
+# transaction that needed the very connectivity it was about to test: metadata
+# refresh against every configured mirror, unbounded on Debian/Ubuntu whenever
+# unattended-upgrades holds the dpkg lock (apt has no lock timeout), and on Arch
+# a full system upgrade, because $packageinstaller there is `pacman -Syu`. All
+# of it redirected to the error log, so the screen showed "Testing internet
+# connection" and nothing else for minutes at a time.
+#
+# Nothing read the result either. dns_ok/http_ok/https_ok were set and never
+# looked at, both failure paths returned rather than exited, and the caller
+# ignored the status -- so the install proceeded identically either way and the
+# stall bought a message and nothing more.
+#
+# What the install genuinely needs from the internet is the distro's package
+# repositories -- which installPackages reports on for itself -- and the hosts
+# behind $ipxegit/$ipxeurl and $pluginsgit/$pluginsurl, for the iPXE sources,
+# the iPXE and Secure Boot release assets, and the plugins. Those are what is
+# probed, so pointing any of them at an internal mirror tests the mirror instead
+# of github.com rather than as well as it. One HTTPS request per host settles
+# DNS, TCP and TLS together, and curl's exit status says which of the three
+# failed, so the old three-stage ladder is not needed to produce a specific
+# message.
+#
+# Failure stays non-fatal, as before: offline installs are supported and
+# documented (pre-placed iPXE sources, a pre-placed release tarball, pre-placed
+# plugin directories), so the output is advice plus $internet_ok, not an exit.
+# $internet_ok is what fetchipxeasset and prepipxe read to avoid re-attempting
+# a fetch that has already been shown to be unreachable.
 checkInternetConnection() {
     dots "Testing internet connection"
-    DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$error_log 2>&1
-
-    http_sites=("httpbin.org" "neverssl.com")
-    https_sites=("github.com" "fogproject.org")
-    dns_ok=0
-    http_ok=0
-    https_ok=0
-
-    for dnsname in "${http_sites[@]}" "${https_sites[@]}"; do
-        echo -n "Testing DNS name resolution (${dnsname})... " >> $error_log
-        getent hosts ${dnsname} >/dev/null 2>&1
-        if [[ $? -ne 0 ]]; then
-            echo "Failed" >> $error_log
+    internet_ok=0
+    local url host rc failhost="" failrc=0
+    # Deduplicated because $ipxeurl is derived from $ipxegit and $pluginsurl
+    # from $pluginsgit, so the stock configuration is one host probed once
+    # rather than github.com probed four times.
+    local hosts=$(
+        for url in "$ipxegit" "$ipxeurl" "$pluginsgit" "$pluginsurl"; do
+            host="${url#*://}"
+            echo "${host%%/*}"
+        done | grep . | sort -u
+    )
+    for host in $hosts; do
+        echo -n "Testing connection to ${host}... " >> $error_log
+        inetProbe "$host"
+        rc=$?
+        if [[ $rc -eq 0 ]]; then
+            echo "OK" >> $error_log
             continue
         fi
-        dns_ok=1
-        echo "OK" >> $error_log
-        break
+        echo "Failed (curl exit ${rc})" >> $error_log
+        failhost="$host"
+        failrc=$rc
     done
-    if [[ $dns_ok -eq 0 ]]; then
-        echo "Failed"
-        echo
-        echo "There seems to be a DNS problem. Check the contents of /etc/resolv.conf" | tee -a $error_log
-        echo "If this is CentOS, RHEL, or Fedora or an other RH variant, also check" | tee -a $error_log
-        echo "the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $error_log
-        echo
-        return
+    if [[ -z $failhost ]]; then
+        internet_ok=1
+        echo "Done"
+        return 0
     fi
-    for url in "${http_sites[@]}"; do
-        echo -n "Testing HTTP connection (http://${url})... " >> $error_log
-        curl --silent http://${url} >/dev/null 2>>$error_log
-        if [[ $? -ne 0 ]]; then
-            echo "Failed" >> $error_log
-            continue
-        fi
-        http_ok=1
-        echo "OK" >> $error_log
-        break
-    done
-    for url in "${https_sites[@]}"; do
-        echo -n "Testing HTTPS connection (https://${url})... " >> $error_log
-        curl --silent -k https://${url} >/dev/null 2>>$error_log
-        if [[ $? -ne 0 ]]; then
-            echo "Failed" >> $error_log
-            continue
-        fi
-        https_ok=1
-        echo "OK" >> $error_log
-        break
-    done
-    if [[ $http_ok -eq 0 && $https_ok -eq 0 ]]; then
-        echo "Failed"
-        echo
-        echo "There was no interface with an active internet connection found." | tee -a $error_log
-        echo "If you are using a proxy server, please export http_proxy and https_proxy or use .curlrc" | tee -a $error_log
-        echo
-        return
-    fi
-    echo "Done"
+    echo "Failed"
+    echo
+    case $failrc in
+        6)
+            echo "Could not resolve ${failhost}. Check the contents of /etc/resolv.conf," | tee -a $error_log
+            echo "and on RHEL, CentOS, Fedora or another RH variant also the DNS settings" | tee -a $error_log
+            echo "on the connection itself (nmcli con show <name> | grep ipv4.dns)." | tee -a $error_log
+            ;;
+        # 7 and 28 share a message on purpose. A firewall that DROPs outbound
+        # traffic -- the usual cause on an isolated or corporate network --
+        # produces 28 (the connect timeout expiring), not 7; 7 is what an
+        # explicit REJECT or "network unreachable" gives. Naming only $inetMaxTime
+        # against a 28 would report the wrong bound, since it is almost always
+        # $inetConnectTimeout that fired.
+        7|28)
+            echo "Could not reach ${failhost} on port 443 within ${inetConnectTimeout}s to connect" | tee -a $error_log
+            echo "or ${inetMaxTime}s in total. A firewall that drops outbound traffic rather than" | tee -a $error_log
+            echo "rejecting it looks exactly like this." | tee -a $error_log
+            ;;
+        35|60|77)
+            echo "TLS to ${failhost} failed. If a proxy or filter is intercepting HTTPS," | tee -a $error_log
+            echo "its CA has to be trusted by this machine -- git and curl will both fail" | tee -a $error_log
+            echo "the same way until it is." | tee -a $error_log
+            ;;
+        *)
+            echo "Could not reach ${failhost} (curl exit ${failrc})." | tee -a $error_log
+            ;;
+    esac
+    echo
+    echo "The install will continue. FOG needs ${failhost} for the iPXE sources," | tee -a $error_log
+    echo "the iPXE release binaries and the bundled plugins, so those steps are the" | tee -a $error_log
+    echo "ones expected to fail." | tee -a $error_log
+    echo "If you are using a proxy server, please export http_proxy and https_proxy or use .curlrc" | tee -a $error_log
+    echo "For a deliberate offline install, pre-place those sources -- each download" | tee -a $error_log
+    echo "step below prints the exact path it looks in." | tee -a $error_log
+    echo
+    return 0
 }
 join() {
     local IFS="$1"
@@ -1546,8 +1617,15 @@ configureUDPCast() {
     cd $udpcastout
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
     if [[ $? -eq 0 ]]; then
-        wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$error_log 2>&1
-        wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$error_log 2>&1
+        # Bounded, and the retry count cut right down. wget defaults to
+        # --tries=20 with no connect timeout at all, so on a Pi that cannot
+        # reach savannah this sat here for twenty full SYN retry cycles, twice,
+        # silently. Both files are a few KB, so a 30 second read timeout cannot
+        # cut a legitimate transfer short.
+        wget -qO config.guess --connect-timeout=$inetConnectTimeout --read-timeout=30 --tries=2 \
+            "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$error_log 2>&1
+        wget -qO config.sub --connect-timeout=$inetConnectTimeout --read-timeout=30 --tries=2 \
+            "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$error_log 2>&1
         chmod +x config.guess config.sub >>$error_log 2>&1
     fi
     errorStat $?
@@ -1646,6 +1724,15 @@ prepareiPXEsource() {
     # subdirectory of upstream clones) and nothing here needs the network.
     dots "Preparing iPXE build sources"
     if [[ -d $buildipxesrc/.git ]]; then
+        # git has no connect timeout of its own, so an unreachable host stalls
+        # here for as long as the kernel retries the SYN. The fetch is only ever
+        # an update to a checkout that already works, so when the host is known
+        # to be unreachable, skip straight to using what is on disk -- the same
+        # outcome the failed-checkout branch below produces, minus the wait.
+        if [[ $internet_ok -ne 1 ]]; then
+            echo "Skipped (using existing checkout)"
+            return 0
+        fi
         git -C "$buildipxesrc" fetch --tags --force "$ipxegit" >>$error_log 2>&1
         if ! git -C "$buildipxesrc" checkout -q "$ipxeVer" >>$error_log 2>&1; then
             # Offline, or the tag does not exist yet. A usable checkout is
@@ -1694,12 +1781,26 @@ fetchipxeasset() {
     cd ../tmp/
     local checksum=1
     local cnt=0
-    while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+    # Ten rounds of two timeout-less curls is the most expensive stall in the
+    # whole installer: on a network that drops outbound traffic each of those
+    # twenty connects sat at libcurl's 300 second default before returning, all
+    # of it silent under one "Downloading iPXE binaries" line. When
+    # checkInternetConnection has already established the host is unreachable
+    # there is nothing to retry FOR, so make the one attempt and report.
+    local tries=10
+    [[ $internet_ok -ne 1 ]] && tries=1
+    while [[ $checksum -ne 0 && $cnt -lt $tries ]]; do
         [[ -f ${tarball}.sha256 ]] && sha256sum -c ${tarball}.sha256 >>$error_log 2>&1
         checksum=$?
         if [[ $checksum -ne 0 ]]; then
-            curl --silent -fkOL "$url" >>$error_log 2>&1
-            curl --silent -fkOL "${url}.sha256" >>$error_log 2>&1
+            # --connect-timeout bounds an unreachable host; --speed-time/-limit
+            # bounds a connection that opens and then stalls. --max-time is
+            # deliberately NOT used here -- these are multi-megabyte tarballs
+            # and a slow but working link must be allowed to finish.
+            curl --silent -fkOL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 "$url" >>$error_log 2>&1
+            curl --silent -fkOL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 "${url}.sha256" >>$error_log 2>&1
         fi
         let cnt+=1
     done
@@ -1760,6 +1861,7 @@ downloadplugins() {
         return 0
     fi
     if ! pluginsgit="$pluginsgit" pluginsurl="$pluginsurl" pluginsVer="$pluginsVer" \
+        inetConnectTimeout="$inetConnectTimeout" \
         ../bin/fetch-plugins.sh --quiet >>$error_log 2>&1
     then
         # Guidance first: errorStat exits before returning unless $exitFail is
@@ -7285,7 +7387,10 @@ downloadfiles() {
     dots "Downloading kernel, init and fog-client binaries"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
-    fileversions=$(curl -sL -H "Accept: application/vnd.github+json" 'https://api.github.com/repos/FOGProject/fos/releases/latest' | jq '.tag_name, .body' | paste -sd '|')
+    # Bounded like every other fetch here. This one takes --max-time as well as
+    # --connect-timeout because it is a few KB of JSON, not a tarball, so there
+    # is no legitimate slow-link case for it to break.
+    fileversions=$(curl -sL --connect-timeout $inetConnectTimeout --max-time $inetMaxTime -H "Accept: application/vnd.github+json" 'https://api.github.com/repos/FOGProject/fos/releases/latest' | jq '.tag_name, .body' | paste -sd '|')
     tag_name="$(echo $fileversions | awk -F'|' '{print $1}')"
     fileversion="$(echo $fileversions | awk -F'|' '{print $2}')"
     kern_version=$(echo -e $fileversion | sed -n 's/.*Linux kernel \([0-9.]*\).*/\1/p')
@@ -7312,14 +7417,28 @@ downloadfiles() {
         # make sure we download the most recent hash file to start with
         if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
             rm -f $hashfile
-            curl --silent -kOL $hashurl >>$error_log 2>&1
+            curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
         fi
-        while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+        # Eight URLs, ten rounds, two curls each: 160 connects, none of them
+        # bounded, all of them silent under one "Downloading kernel, init and
+        # fog-client binaries" line. On a host with no route out that was the
+        # single longest stall the installer could produce. --connect-timeout
+        # bounds an unreachable host and --speed-time/--speed-limit a transfer
+        # that opens and then stops; --max-time is deliberately absent, because
+        # these are multi-megabyte kernels and a slow link must still finish.
+        # When checkInternetConnection has already established the host is
+        # unreachable there is nothing to retry FOR, so make one attempt.
+        tries=10
+        [[ $internet_ok -ne 1 ]] && tries=1
+        while [[ $checksum -ne 0 && $cnt -lt $tries ]]; do
             [[ -f $hashfile ]] && sha256sum -c $hashfile >>$error_log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
-                curl --silent -kOL $url >>$error_log
-                curl --silent -kOL $hashurl >>$error_log
+                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $url >>$error_log
+                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $hashurl >>$error_log
             fi
             let cnt+=1
         done
@@ -7986,7 +8105,8 @@ _ensureEfitools() {
     # without them.
     $packageinstaller gcc make gnu-efi-devel libuuid-devel openssl-devel \
         help2man perl-File-Slurp >>$error_log 2>&1
-    if ! curl -fsSL "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
+    if ! curl -fsSL --connect-timeout $inetConnectTimeout \
+        --speed-time 30 --speed-limit 1024 "$url" -o "${work}/efitools.tar.gz" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not download efitools ${ver} from ${url}."
         rm -rf "$work" >>$error_log 2>&1
