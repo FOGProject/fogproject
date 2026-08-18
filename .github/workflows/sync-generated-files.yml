@@ -10,27 +10,45 @@ name: Sync generated files and version
 # FOG_VERSION goes stale until the daily sweep fires at 10:10 UTC. This closes
 # that window.
 #
-# pull_request_target, NOT push -- and that distinction is the whole safety
-# argument, not caution. The sweep pushes its fixup commit straight to the
-# branch, and a direct push is not a PR merge, so it cannot re-fire this stub.
-# The 2026-07-28 runaway that put ~30 commits on dev-branch in about 20 minutes
-# was a push-triggered stub doing exactly that. The schedule in fog-workflows
-# stays exactly as it is, and remains the backstop for direct pushes and for
-# rc-*/feature-* branches.
+# WHY `pull_request`, AND NOT `pull_request_target`
 #
-# pull_request_target rather than pull_request because secrets are withheld from
-# fork PRs, and the reusable workflow needs FOG_WORKFLOWS_PRIVATE_KEY to mint its
-# App token. The usual pull_request_target hazard does not apply here: nothing
-# checks out the PR head. The reusable workflow checks out FOGProject/fogproject
-# at the base branch -- code a maintainer has already merged.
+# `pull_request_target` looks like the right answer -- it is the variant that
+# gets secrets on fork PRs -- and the first version of this file used it. It
+# never fired once. GitHub reads a `pull_request_target` workflow from the
+# repository's DEFAULT branch (`stable` here), not from the PR's base branch, so
+# a copy living on working-1.6 and dev-branch is simply never consulted: the
+# workflow did not even appear in the Actions list, and four PRs merged into
+# working-1.6 without it running.
+#
+# `pull_request` is read from the base branch instead, so this file works where
+# it actually lives. Do not "fix" it back to `pull_request_target` without also
+# putting the file on `stable` -- and note that then only stable's copy would
+# execute, which makes editing the version on this branch a no-op.
+#
+# WHY NOT `push`
+#
+# That distinction is the whole safety argument, not caution. The sweep pushes
+# its fixup commit straight to the branch, and a direct push is not a PR merge,
+# so it cannot re-fire this stub. The 2026-07-28 runaway that put ~30 commits on
+# dev-branch in about 20 minutes was a push-triggered stub doing exactly that.
+# The schedule in fog-workflows stays exactly as it is, and remains the backstop
+# for direct pushes and for rc-*/feature-* branches.
+#
+# WHY THE SAME-REPO GUARD
+#
+# `pull_request` withholds secrets from fork PRs, and the reusable workflow needs
+# FOG_WORKFLOWS_PRIVATE_KEY to mint its App token -- so on a fork PR it would
+# fail rather than work. Skipping is right: a merged fork PR is picked up by the
+# daily sweep, exactly as a direct push already is. Better a gap the schedule
+# already covers than a red X on every external contribution.
 #
 # One file, identical on every branch that carries it, for the same reason
-# tests.yml is: fixing it should not mean editing it on three branches. GitHub
-# reads this from the PR's BASE branch, so each branch's copy only ever acts on
-# merges into that branch, and the allowlist below is what scopes it.
+# tests.yml is: fixing it should not mean editing it on three branches. Each
+# branch's copy only ever acts on merges into that branch, and the allowlist
+# below is what scopes it.
 
 on:
-  pull_request_target:
+  pull_request:
     types: [closed]
 
 concurrency:
@@ -51,6 +69,7 @@ jobs:
     # against its own watched list, so constraining it is this file's job.
     if: >-
       github.event.pull_request.merged == true
+      && github.event.pull_request.head.repo.full_name == github.repository
       && contains(fromJson('["working-1.6", "dev-branch"]'), github.event.pull_request.base.ref)
 
     # Least privilege, stated rather than inherited. Everything the reusable
