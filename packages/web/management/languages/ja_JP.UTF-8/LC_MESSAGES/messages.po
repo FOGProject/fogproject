@@ -9051,6 +9051,12 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no enabled master node answered the probe"
+msgstr ""
+
+msgid "no node in the group answered the probe"
+msgstr ""
+
 msgid "no reason given"
 msgstr ""
 
@@ -9223,6 +9229,10 @@ msgstr "次の処理に使用される Linux カーネル"
 
 msgid "the following command in a terminal"
 msgstr "ターミナルで次のコマンドを実行してください"
+
+#, fuzzy
+msgid "the group has no enabled master node"
+msgstr "ストレージグループに到達可能なマスターノードがありません"
 
 msgid "the host defined location where available"
 msgstr "利用可能な場合は、ホストで定義されたロケーション"

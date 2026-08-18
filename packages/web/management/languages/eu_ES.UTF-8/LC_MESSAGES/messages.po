@@ -9487,6 +9487,12 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no enabled master node answered the probe"
+msgstr ""
+
+msgid "no node in the group answered the probe"
+msgstr ""
+
 msgid "no reason given"
 msgstr ""
 
@@ -9667,6 +9673,10 @@ msgstr "aktualisieren, der genutzt wird um"
 
 msgid "the following command in a terminal"
 msgstr "den folgenden Terminalbefehlen tun"
+
+#, fuzzy
+msgid "the group has no enabled master node"
+msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
 
 msgid "the host defined location where available"
 msgstr "Speicherort herunterzuladen, sofern verfügbar."

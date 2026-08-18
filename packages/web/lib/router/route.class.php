@@ -6270,21 +6270,69 @@ class Route extends FOGBase
         self::$data = self::getClass('StorageNode', $id)->get('snapinfiles');
     }
     /**
-     * Returns settings from fogsettings file.
+     * The five server facts this route publishes, in the order they are
+     * returned. Also the exact key list the installer writes into
+     * .fogsettings.pub -- keep the two in step.
+     *
+     * @var array
+     */
+    const WHOAMI_KEYS = [
+        'ipaddress',
+        'hostname',
+        'osid',
+        'osname',
+        'installtype'
+    ];
+
+    /**
+     * Returns this server's own identity facts.
+     *
+     * Reads .fogsettings.pub, NOT .fogsettings. The latter holds the
+     * $password and $snmysqlpass cleartext credentials and is now 0600
+     * root:root; this route reading it directly was the reason it had to be
+     * world-readable, which meant every local account on the server could
+     * read the database password and the fleet-wide replication FTP one.
+     * The installer publishes just these five keys separately so the route
+     * keeps working with the secrets shut away.
+     *
+     * Per server, deliberately, rather than from globalSettings: a storage
+     * node serves this route too and its database is the MASTER's, so a
+     * table-backed answer would have every node reporting the master's
+     * hostname, IP and installtype.
      *
      * @return void
      */
     public static function whoami()
     {
-        $data = parse_ini_file(FOG_BASE_DIR . DS . '.fogsettings', true);
-        extract($data);
-        self::$data = [
-            'ipaddress' => $ipaddress,
-            'hostname' => $hostname,
-            'osid' => $osid,
-            'osname' => $osname,
-            'installtype' => $installtype
-        ];
+        $base = FOG_BASE_DIR . DS;
+        $data = false;
+        // .fogsettings is still tried, second, for the window where the web
+        // tree has been updated but the installer has not been re-run --
+        // copybacktrunk.sh and any other web-only deploy produce exactly
+        // that. It is unreadable once the installer has run, so this costs
+        // nothing on a fully updated server and stops the route going blank
+        // on a partially updated one.
+        foreach (['.fogsettings.pub', '.fogsettings'] as $file) {
+            if (!is_readable($base . $file)) {
+                continue;
+            }
+            $parsed = @parse_ini_file($base . $file);
+            if (is_array($parsed)) {
+                $data = $parsed;
+                break;
+            }
+        }
+        // Answer with empty strings rather than dying when neither file can
+        // be read. The old code extract()ed the parse result unchecked, so a
+        // missing or unparsable file raised undefined-variable warnings and,
+        // on a false return, a TypeError -- a 500 on a route whose whole job
+        // is to let a client find out what it is talking to.
+        self::$data = [];
+        foreach (self::WHOAMI_KEYS as $key) {
+            self::$data[$key] = is_array($data) && isset($data[$key])
+                ? $data[$key]
+                : '';
+        }
     }
 }
 
