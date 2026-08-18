@@ -103,6 +103,19 @@ registerStorageNode() {
     # unset. Every fallback in this file now matches the installer's.
     [[ -z $webroot ]] && webroot="/fog/"
     dots "Checking if this node is registered"
+    # --no-check-certificate stays here, and in the two calls below, ON PURPOSE.
+    # Every other unverified call in this installer has been removed; these
+    # three are the genuine chicken-and-egg. On a fresh storage node
+    # installfog.sh runs registerStorageNode -> updateStorageNodeCredentials
+    # -> _installCATrustAnchor in that order, so at this moment the node holds
+    # no anchor for anything and verification cannot succeed -- the thing that
+    # would make it possible is what registering is a precondition of.
+    #
+    # What that costs is bounded and worth stating: an attacker on the path
+    # between this node and its own web tier sees the node's storage
+    # credentials. It does NOT see the database password, which never travels
+    # this way. Closing it properly needs the master to hand a node its anchor
+    # out of band, which is a design change, not a flag change.
     storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
@@ -117,6 +130,9 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/fog/"   # see registerStorageNode, GH-529
     dots "Ensuring node username and passwords match"
+    # -k on purpose -- see registerStorageNode. This is called from the node
+    # path before any anchor exists, and from the master path after one does;
+    # the shared function has to work in the earlier of the two.
     curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}maintenance/create_update_node.php
     echo "Done"
 }
@@ -165,7 +181,10 @@ backupDB() {
         # update run at 05:57 and one at 17:57 on the same day produced the
         # same filename and the second silently overwrote the first.
         dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%H%M%S").sql"
-        wget --no-check-certificate -O "$dbbackupfile" "${httpproto}://${ipaddress}${webroot}/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$error_log 2>&1 || dbbackupstat=1
+        # Verified, not --no-check-certificate: this is an HTTPS call to this
+        # server, and _resolveSelfCacert names the CA it is serving under.
+        _resolveSelfCacert
+        wget "${selfCacertOpts[@]}" -O "$dbbackupfile" "${httpproto}://${ipaddress}${webroot}/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$error_log 2>&1 || dbbackupstat=1
         [[ ! -s $dbbackupfile ]] && dbbackupstat=1
     fi
     if [[ -z $dbbackupfile ]]; then
@@ -200,7 +219,8 @@ checkWebTier() {
     local probeBody=$(mktemp)
     # No -q on the body: we care whether bytes came back at all, not just about
     # the status code, because that is exactly what a pre-output fatal loses.
-    wget --no-check-certificate -q -O "$probeBody" --no-proxy "$probeUrl" >>$error_log 2>&1
+    _resolveSelfCacert
+    wget "${selfCacertOpts[@]}" -q -O "$probeBody" --no-proxy "$probeUrl" >>$error_log 2>&1
     local probeStat=$?
     local probeSize=$(stat -c %s "$probeBody" 2>/dev/null)
     [[ -z $probeSize ]] && probeSize=0
@@ -298,8 +318,40 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget --no-check-certificate -qO - --header="X-Fog-Install-Token: ${installToken}" --post-data="schemaupdate=1" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$error_log 2>&1
-            errorStat $?
+            # Verified. This request carries X-Fog-Install-Token, which grants
+            # a schema deploy on a server that has no users yet;
+            # --no-check-certificate handed that to whoever answered on
+            # $ipaddress.
+            _resolveSelfCacert
+            wget "${selfCacertOpts[@]}" -qO - --header="X-Fog-Install-Token: ${installToken}" --post-data="schemaupdate=1" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$error_log 2>&1
+            local schemarc=$?
+            # errorStat tails $error_log, so wget's own certificate error is
+            # already visible -- but it does not say what to do about it, and
+            # this is the one place where verifying instead of skipping can
+            # stop an upgrade that used to finish. wget reports every TLS
+            # failure as exit 5.
+            if [[ $schemarc -eq 5 ]]; then
+                echo "Failed!"
+                echo
+                echo " * TLS verification failed talking to this server's own web tier at"
+                echo "   ${httpproto}://${ipaddress}${webroot} -- so the schema was NOT deployed."
+                echo " * This step used to skip verification, which handed the schema"
+                echo "   install token to whatever answered on that address. It no longer"
+                echo "   does, so a certificate this host cannot verify now stops here."
+                echo " * Two causes, both fixable:"
+                echo "     - the web certificate was replaced by hand, so ${rootCAPem:-the FOG CA}"
+                echo "       is no longer what signed it"
+                echo "     - the certificate does not cover the address ${ipaddress}"
+                echo " * Full error in $error_log"
+                echo
+                tail -n 5 $error_log
+                # Exit rather than fall through to errorStat: the schema not
+                # deploying has always been fatal here, and errorStat would
+                # reprint a generic banner over a message that has already
+                # said more than it can.
+                exit $schemarc
+            fi
+            errorStat $schemarc
             ;;
         *)
             echo
@@ -1005,9 +1057,15 @@ fetchipxeasset() {
             # bounds a connection that opens and then stalls. --max-time is
             # deliberately NOT used here -- these are multi-megabyte tarballs
             # and a slow but working link must be allowed to finish.
-            curl --silent -fkOL --connect-timeout $inetConnectTimeout \
+            # No -k. This is an ordinary internet download from a host with a
+            # perfectly good certificate, and the sha256 below does not save
+            # us -- it is fetched over the same unverified connection, so
+            # whoever could substitute the tarball could substitute the hash
+            # with it. checkInternetConnection() already explains a TLS
+            # failure here as an untrusted intercepting proxy.
+            curl --silent -fOL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 "$url" >>$error_log 2>&1
-            curl --silent -fkOL --connect-timeout $inetConnectTimeout \
+            curl --silent -fOL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 "${url}.sha256" >>$error_log 2>&1
         fi
         let cnt+=1
@@ -3963,6 +4021,43 @@ _caTrustLayout() {
 #
 # Reads only the certificate, never a key, so it is deliberately placed on the
 # far side of _hardenPkiPermissions.
+# The certificate-authority argument for an HTTPS call this server makes to
+# ITSELF.
+#
+# Sets $selfCacertOpts, which callers splice in as "${selfCacertOpts[@]}". Empty
+# when there is nothing to anchor, or when the install is serving plain HTTP --
+# which is the default here, so on most installs this is a no-op and the calls
+# are unchanged. When it is empty the tool verifies against the system store,
+# which is the right answer for a certificate from a public CA.
+#
+# Why a helper and not just the system store: _installCATrustAnchor() writes
+# $rootCAPem there, but it runs at installfog.sh:805 -- AFTER configureHttpd,
+# checkWebTier, backupDB and updateDB, which are the calls that need it. On a
+# fresh install the store therefore does not know FOG's CA yet at the moment
+# those fire. The file exists by then, so naming it explicitly is correct
+# whatever the store happens to contain.
+#
+# $rootCAPem deliberately, not the chain: it is exactly what
+# _installCATrustAnchor would have anchored, so the two agree by construction,
+# and the leaf's issuing intermediate is served by the web server itself.
+#
+# Both callers are wget, whose flag is --ca-certificate. It REPLACES the
+# default bundle rather than adding to it, and these calls address the server
+# by $ipaddress, so both halves have to hold: the served chain must terminate
+# in $rootCAPem, and the leaf must cover that address. FOG-issued certificates
+# satisfy both by construction. An admin who hand-replaced the certificate has
+# satisfied neither, and updateDB says so rather than failing blankly.
+#
+# These calls used to pass --no-check-certificate. That mattered more than it
+# looks: the schema update carries X-Fog-Install-Token, a secret that grants a
+# schema deploy on a server with no users yet, and it was being handed to
+# whoever answered.
+_resolveSelfCacert() {
+    selfCacertOpts=()
+    [[ $httpproto == https ]] || return 0
+    [[ -n $rootCAPem && -s $rootCAPem ]] || return 0
+    selfCacertOpts=(--ca-certificate="$rootCAPem")
+}
 _installCATrustAnchor() {
     local anchor="$rootCAPem" st=0
     # Default-on, --no-ca-trust to decline, persisted in .fogsettings -- the
@@ -5000,7 +5095,7 @@ downloadfiles() {
         # make sure we download the most recent hash file to start with
         if [[ -f $hashfile ]]; then
             rm -f $hashfile
-            curl --silent -kOL --connect-timeout $inetConnectTimeout \
+            curl --silent -OL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
         fi
         # Eight URLs, ten rounds, two curls each: 160 connects, none of them
@@ -5018,9 +5113,12 @@ downloadfiles() {
             [[ -f $hashfile ]] && sha256sum --check $hashfile >>$error_log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
-                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                # No -k, same reasoning as fetchipxeasset(): the hash file
+                # travels the same connection as the payload, so skipping
+                # verification here voids the checksum too.
+                curl --silent -OL --connect-timeout $inetConnectTimeout \
                     --speed-time 30 --speed-limit 1024 $url >>$error_log
-                curl --silent -kOL --connect-timeout $inetConnectTimeout \
+                curl --silent -OL --connect-timeout $inetConnectTimeout \
                     --speed-time 30 --speed-limit 1024 $hashurl >>$error_log
             fi
             let cnt+=1
