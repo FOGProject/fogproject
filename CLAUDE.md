@@ -65,9 +65,35 @@ The web root the user edits live is `/var/www/fog/` (symlinked to `/var/www/html
 
 Net effect: a typical commit will also include a `system.class.php` version bump, and often `messages.pot` + `.po` churn and/or PSR-2 reformatting. Expect it; don't be surprised by the extra files.
 
+### Commit authorship
+
+Commits are **authored by the maintainer and co-authored by the agent**, not the
+other way round. Set this per-clone before committing:
+
+```bash
+git config user.name  "JJ Fullmer"
+git config user.email "7743340+darksidemilk@users.noreply.github.com"
+```
+
+That address is the GitHub noreply for `darksidemilk` and is what the existing
+history already uses (`git log --author=darksidemilk`) — don't invent a variant,
+and don't fall back to `Claude <noreply@anthropic.com>` as the author.
+
+Then end the message with a co-author trailer:
+
+```
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+No model name in the trailer, and no model identifier anywhere else in a commit
+message, PR title/body, or code comment. Some older commits in this history do
+carry one (`Claude Opus 5`); they are not the pattern to copy.
+
 ---
 
 ## Directory Structure
+
+
 
 ```
 fogproject/

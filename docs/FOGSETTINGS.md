@@ -13,7 +13,7 @@ mechanics here — that is the same split `PKI_ZONES.md` and
 
 ---
 
-## The three kinds of key
+## The four kinds of key
 
 Every managed key is one of these, and confusing them is the source of most bugs
 in this area:
@@ -22,11 +22,25 @@ in this area:
 |---|---|---|
 | **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `secureboot`, `catrust`, `fwconfigure`, `fog_update_channel`, `internalSubnets`, `kernelBackupGenerations` |
 | **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `fogprogramdir`, `fog_git_path`, `packages`, `php_ver` |
-| **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `acmeLeaf`, `snmysqlexternal`, `dhcpengine`, `tftpAdvOpts`, `inetConnectTimeout` |
+| **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `snmysqlexternal`, `dhcpengine`, `tftpAdvOpts`, `inetConnectTimeout` |
+| **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `acmeLeaf`, `webCertFile`, `webKeyFile`, `httpsRedirect` |
 
 The preference/record distinction is load-bearing. A preference that gets
 recomputed is a setting the admin cannot make stick; a record that gets trusted
 is a stale path silently relocating the install. Both have shipped as bugs.
+
+**An inferred preference is written once and never re-derived.** `acmeLeaf` used
+to be hand-set only, and forgetting it was expensive: `createSSLCA()` regenerated
+the web leaf from the original CSR while the private key on disk was an ACME key,
+leaving a mismatched pair and a web server that would not start. So the installer
+now infers it from evidence about the certificate itself and records it, together
+with `webCertFile`/`webKeyFile` naming the files it found.
+
+The guard that makes this a preference rather than a measurement is the same one
+`httpsRedirect` uses: the inference is skipped entirely once the key has a value.
+Re-deriving every run would let a heuristic overrule an admin who cleared it,
+which is the failure mode a *record* has and a preference must not. Clearing all
+three by hand is the documented way back to FOG managing the leaf.
 
 **Hand-set keys work because of ordering**, not because anything supports them:
 `lib/common/config.sh` guards its defaults with `[[ -z $x ]]`, and `.fogsettings`
