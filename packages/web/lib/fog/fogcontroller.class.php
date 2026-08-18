@@ -58,6 +58,19 @@ abstract class FOGController extends FOGBase
      */
     protected $databaseFieldsRequired = array();
     /**
+     * Keys that end in "id" but do not hold a foreign key.
+     *
+     * save() and isValid() both infer "this is an integer id" from the key's
+     * name, which is right for every real foreign key in the tree and wrong
+     * for a string identifier that happens to end the same way -- a system
+     * UUID, a task id kept in a text column. The name is a proxy for the
+     * column's type, and the model is the only thing that knows the actual
+     * type, so it says so here.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = array();
+    /**
      * Additional elements unrelated to DB side directly for object.
      *
      * @var array
@@ -406,6 +419,13 @@ abstract class FOGController extends FOGBase
                 $required[$reqKeyNorm] = true;
             }
 
+            // Keys the model has declared are NOT foreign keys, normalized the
+            // same way, so the branch below can ask about $key directly.
+            $notInt = [];
+            foreach ($this->databaseFieldsNotInt as $strKey) {
+                $notInt[$this->key($strKey)] = true;
+            }
+
             foreach ($this->databaseFields as $rawKey => $column) {
                 $key = $this->key($rawKey);
                 $column = trim($column);
@@ -429,8 +449,11 @@ abstract class FOGController extends FOGBase
                     $val = (int)$validId;
                 }
 
-                // Keys ending with "id" (case-insensitive)
-                elseif (strtolower(substr($key, -2)) === 'id') {
+                // Keys ending with "id" (case-insensitive), unless the model
+                // has said this one is a string rather than a foreign key.
+                elseif (strtolower(substr($key, -2)) === 'id'
+                    && !isset($notInt[$key])
+                ) {
                     $isRequired = isset($required[$key]);
                     $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
 
@@ -947,12 +970,23 @@ abstract class FOGController extends FOGBase
     public function isValid()
     {
         try {
+            // The same opt-out save() honors. Both methods carry their own
+            // copy of the "ends in id, so it is a foreign key" inference, so
+            // both need the exclusion: fixing only save() lets an object save
+            // its string identifier and then fail validation forever after.
+            $notInt = [];
+            foreach ($this->databaseFieldsNotInt as $strKey) {
+                $notInt[$this->key($strKey)] = true;
+            }
+
             foreach ($this->databaseFieldsRequired as $reqKey) {
                 $key = $this->key($reqKey);
                 $val = $this->get($key);
 
                 // If key ends with ID (case-insensitive), require integer >= 1
-                if (strtolower(substr($key, -2)) === 'id') {
+                if (strtolower(substr($key, -2)) === 'id'
+                    && !isset($notInt[$key])
+                ) {
                     if (filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
                         throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
                     }
