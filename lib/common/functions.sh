@@ -2026,11 +2026,25 @@ _resolveIpxeTrust() {
 # at an unchanged iPXE tag. A version-only check would skip that rebuild, and
 # the failure lands at a PXE client as a TLS error with nothing on the server to
 # connect it to the cause.
+#
+# The third field, bin=, is the sha256 of snponly.efi AS IT SITS IN THE STAGING
+# TREE, and it is what turns the stamp from an intention into a fact. Without
+# it the stamp said "a build was run for this tag and this CA" and nothing
+# more: downloadipxe() unpacks the published tarball over the staging tree on
+# every run, so the run AFTER a build found the published, CA-less binaries
+# waiting there, matched the stamp on tag and CA alone, skipped the rebuild,
+# and copied the published binaries to the TFTP root. Every HTTPS netboot then
+# died at boot.php with iPXE's "Permission denied" out of x509.c -- no trusted
+# root to build a path to -- while the install printed nothing at all about the
+# build having been skipped. Comparing the staged bytes is also what lets
+# downloadipxe() decide whether unpacking is safe.
 _ipxeBuildStampValue() {
-    local sum=""
+    local sum="" bin="" staged
     [[ -n $ipxetrust && -f $ipxetrust ]] && \
         sum=$(sha256sum "$ipxetrust" 2>/dev/null | cut -d' ' -f1)
-    printf 'ipxe=%s ca=%s' "${ipxeVer:-unknown}" "${sum:-none}"
+    staged="$(readlink -f "$tftpdirsrc" 2>/dev/null)/snponly.efi"
+    [[ -s $staged ]] && bin=$(sha256sum "$staged" 2>/dev/null | cut -d' ' -f1)
+    printf 'ipxe=%s ca=%s bin=%s' "${ipxeVer:-unknown}" "${sum:-none}" "${bin:-none}"
 }
 # Does this server compile its own iPXE?
 #
@@ -2344,6 +2358,25 @@ downloadipxe() {
     # subdirectories worth keeping. See GH-959.
     local tarball="fog-ipxe-${ipxeVer}.tar.gz"
     local dest=$(readlink -f $tftpdirsrc)
+    # Never unpack the published binaries over a local build.
+    #
+    # --rebuild-ipxe-with-my-ca compiles this server's CA into the binary, the
+    # only thing that lets iPXE fetch boot.php over TLS from a private CA. That
+    # build writes into this same staging tree, so unpacking here first destroys
+    # it -- and because the old stamp did not describe the staged bytes,
+    # _needsLocalIpxeBuild() then read its own stamp as "already built", skipped
+    # the rebuild, and let the published binaries through to the TFTP root. The
+    # first install worked and every install after it silently broke netboot.
+    #
+    # "No build needed" is now exactly the condition under which unpacking must
+    # not happen, because it can only be true when the built binaries are still
+    # sitting here. Every other state -- a new release, a changed CA, a staging
+    # tree someone emptied -- fails that test and unpacks as it always did.
+    if [[ $rebuildIpxeWithMyCA == yes ]] && ! _needsLocalIpxeBuild; then
+        dots "Downloading iPXE binaries (${ipxeVer})"
+        echo "Kept local build"
+        return 0
+    fi
     dots "Downloading iPXE binaries (${ipxeVer})"
     # Downloaded on EVERY install, including one that is about to rebuild.
     #
