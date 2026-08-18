@@ -9481,6 +9481,12 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no enabled master node answered the probe"
+msgstr ""
+
+msgid "no node in the group answered the probe"
+msgstr ""
+
 msgid "no reason given"
 msgstr ""
 
@@ -9660,6 +9666,10 @@ msgstr ""
 
 msgid "the following command in a terminal"
 msgstr ""
+
+#, fuzzy
+msgid "the group has no enabled master node"
+msgstr "Storage Group Updated"
 
 msgid "the host defined location where available"
 msgstr ""

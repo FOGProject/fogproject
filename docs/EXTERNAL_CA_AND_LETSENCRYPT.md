@@ -174,8 +174,9 @@ What the installer does with them (see `validateExternalCA()` in
 5. Passes the full chain (`.fogCAchain.pem`) to the iPXE build (`TRUST=`) and to
    the web server, so both trust root → intermediate → leaf.
 
-The relevant values are persisted to `.fogsettings` (`externalca`, `extcacert`,
-`extcakey`, `extcaroot`, `sslcachain`) so re-running the installer reuses them.
+The relevant values are persisted to [`.fogsettings`](FOGSETTINGS.md)
+(`externalca`, `extcacert`, `extcakey`, `extcaroot`, `sslcachain`) so re-running
+the installer reuses them.
 If the source files are no longer readable on a later run, the installer reuses
 the already-imported CA in `/opt/fog/pki/root/ca/`.
 

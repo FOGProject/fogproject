@@ -9127,6 +9127,12 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no enabled master node answered the probe"
+msgstr ""
+
+msgid "no node in the group answered the probe"
+msgstr ""
+
 msgid "no reason given"
 msgstr ""
 
@@ -9297,6 +9303,10 @@ msgstr "il kernel Linux che verrà usato"
 
 msgid "the following command in a terminal"
 msgstr "il seguente comando in un terminale"
+
+#, fuzzy
+msgid "the group has no enabled master node"
+msgstr "Aggiornamento Gruppo di archiviazione fallito"
 
 msgid "the host defined location where available"
 msgstr "la posizione definita dall'host, se disponibile"

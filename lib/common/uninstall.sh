@@ -99,6 +99,7 @@ uninstallFOG() {
     _ifPresent "$fogprogramdir/lib"
     _ifPresent "$fogprogramdir/php.loc"
     _ifPresent "$fogprogramdir/.fogsettings"
+    _ifPresent "$fogprogramdir/.fogsettings.pub"
     _ifPresent "$webdirdest"
     _ifPresent "/etc/fog"
     _ifPresent "/var/log/fog"
@@ -211,7 +212,8 @@ uninstallFOG() {
     rm -rf "$servicedst" "$servicelogs" "$fogprogramdir/cache" \
         "$fogprogramdir/reporting" "$fogprogramdir/utils" \
         "$fogprogramdir/lib" >>$error_log 2>&1
-    rm -f "$fogprogramdir/php.loc" "$fogprogramdir/.fogsettings" >>$error_log 2>&1
+    rm -f "$fogprogramdir/php.loc" "$fogprogramdir/.fogsettings" \
+        "$fogprogramdir/.fogsettings.pub" >>$error_log 2>&1
     errorStat $?
 
     # $st accumulates the status of the removals that actually matter. Do NOT
