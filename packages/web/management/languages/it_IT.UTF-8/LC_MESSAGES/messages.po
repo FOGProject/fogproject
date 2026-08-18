@@ -112,6 +112,10 @@ msgid "%s ships with FOG and cannot be replaced by an upload."
 msgstr ""
 
 #, php-format
+msgid "%s signs in through %s, so a password stored here would never be accepted. Clear the authentication source first."
+msgstr ""
+
+#, php-format
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
 msgstr ""
 
@@ -6549,6 +6553,10 @@ msgstr ""
 
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
+
+#, fuzzy
+msgid "Signs In With"
+msgstr "Snapin Avvia con"
 
 #, fuzzy
 msgid "Single Logout"
