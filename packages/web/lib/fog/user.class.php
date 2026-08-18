@@ -593,12 +593,33 @@ class User extends FOGController
     /**
      * Perform logout cleanup
      *
-     * @return void
+     * Returns where the browser should go next, which is normally nothing --
+     * the caller then uses its own default. A USER_LOGGING_OUT listener may
+     * set it to send the browser somewhere else instead, and the one case
+     * that needs this is an external identity provider: destroying FOG's
+     * session leaves the provider's SSO session untouched, so clicking the
+     * provider button again signs straight back into the same account and
+     * there is no way to become somebody else (fog-plugins#15). Ending that
+     * session is a redirect to the provider's end_session_endpoint, and
+     * only the plugin that started the session knows the URL.
+     *
+     * The hook runs BEFORE the session is destroyed on purpose: whatever a
+     * listener needs to build that URL -- an id_token_hint, the endpoint it
+     * cached at sign-in -- is in $_SESSION, and a moment later it is not.
+     *
+     * A listener that sets nothing changes nothing, so this is inert on an
+     * install with no such plugin.
+     *
+     * @return string somewhere to redirect, or '' for the caller's default
      */
     public function logout()
     {
+        $redirect = '';
         self::$HookManager
-            ->processEvent('USER_LOGGING_OUT');
+            ->processEvent(
+                'USER_LOGGING_OUT',
+                ['redirect' => &$redirect]
+            );
         // Clear all the cookies
         self::clearAuthCookie();
 
@@ -608,9 +629,13 @@ class User extends FOGController
             ->set('name', '')
             ->set('password', '', true);
 
-        // If the session is already gone, return.
+        // If the session is already gone, return. Still hands back whatever
+        // the hook asked for: a listener that recorded its provider's
+        // end-session URL from a cookie rather than the session is still
+        // owed the redirect, and silently dropping it here would make single
+        // logout work or not depending on session state.
         if (session_status() !== PHP_SESSION_ACTIVE) {
-            return;
+            return $redirect;
         }
         // Preserve any queued flash messages across the session rebuild so
         // they can toast on the login page after we redirect (e.g. the
@@ -625,6 +650,7 @@ class User extends FOGController
         if ($messages) {
             $_SESSION['FOG_MESSAGES'] = $messages;
         }
+        return $redirect;
     }
 
     /**
