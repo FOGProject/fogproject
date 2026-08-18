@@ -619,7 +619,8 @@ backupDB() {
     dbhastables=$(mysql $sqloptionsuser --password="${snmysqlpass}" --skip-column-names --execute="SHOW TABLES" $mysqldbname 2>>$error_log | head -n 1)
     if [[ -n $dbhastables ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
-        url="${httpproto}://$ipaddress$webroot/maintenance/backup_db.php"
+        local selfName=$(_servedCertName)
+        url="${httpproto}://${selfName}$webroot/maintenance/backup_db.php"
         # %H, not %I: %I is the 12-hour clock with no AM/PM marker, so an
         # update run at 05:57 and one at 17:57 on the same day produced the
         # same filename and the second silently overwrote the first.
@@ -725,12 +726,15 @@ checkWebTier() {
     # unauthenticated node and a plain GET renders regardless -- and a token in
     # a query string lands in the web server access log and, on failure, in the
     # installer's tee'd stdout. The deploy itself uses the header channel.
-    local probeUrl="${httpproto}://${ipaddress}${webroot}management/index.php?node=schema"
+    local selfName=$(_servedCertName)
+    local probeUrl="${httpproto}://${selfName}${webroot}management/index.php?node=schema"
     local probeBody=$(mktemp)
     # We care whether bytes came back at all, not just about the status code,
-    # because a pre-output fatal loses exactly that.
+    # because a pre-output fatal loses exactly that. %{http_code} is captured
+    # alongside so a 500 can be named as a 500 rather than as "curl exit 22".
     _resolveSelfCacert
-    curl -sS "${selfCacertOpts[@]}" --noproxy '*' -m 30 -fL -o "$probeBody" "$probeUrl" >>$error_log 2>&1
+    local probeCode=""
+    probeCode=$(curl -sS "${selfCacertOpts[@]}" --noproxy '*' -m 30 -fL -w '%{http_code}' -o "$probeBody" "$probeUrl" 2>>$error_log)
     local probeStat=$?
     local probeSize=$(stat -c %s "$probeBody" 2>/dev/null)
     [[ -z $probeSize ]] && probeSize=0
@@ -739,17 +743,96 @@ checkWebTier() {
         echo "Done"
         return 0
     fi
+    # Say which failure this was. Every outcome used to print the same "almost
+    # always a PHP fatal" advice, including a TLS handshake that was rejected
+    # before any response existed to be empty -- which reads as a dead site and
+    # sends an administrator to the PHP error log for a trust problem.
+    local reason="" advice="plain"
+    case $probeStat in
+        0)
+            reason="the server answered ${probeCode:-200} with an empty body"
+            advice="php"
+            ;;
+        22)
+            reason="the server answered HTTP ${probeCode:-4xx/5xx}"
+            advice="php"
+            ;;
+        35|51|60|77)
+            reason="TLS verification failed (curl ${probeStat})"
+            advice="tls"
+            ;;
+        6)
+            reason="the name ${selfName} did not resolve from this server"
+            ;;
+        7)
+            reason="the connection to ${selfName} was refused"
+            ;;
+        28)
+            reason="the request timed out after 30s"
+            ;;
+        *)
+            reason="curl exited ${probeStat}"
+            ;;
+    esac
+    # A rejected certificate says nothing about whether the web tier renders.
+    # Prove that separately before deciding this is fatal: if the same URL
+    # answers with content when verification is skipped, the site is up and
+    # what failed is trust, which must not abort an install that was otherwise
+    # fine. The retry is only ever a DIAGNOSTIC -- it carries no token, and the
+    # schema deploy in updateDB still refuses to degrade this way.
+    if [[ $advice == tls ]]; then
+        local retryBody=$(mktemp)
+        curl -sS -k --noproxy '*' -m 30 -fL -o "$retryBody" "$probeUrl" >>$error_log 2>&1
+        local retryStat=$?
+        local retrySize=$(stat -c %s "$retryBody" 2>/dev/null)
+        [[ -z $retrySize ]] && retrySize=0
+        rm -f "$retryBody"
+        if [[ $retryStat -eq 0 && $retrySize -gt 0 ]]; then
+            echo "Warning"
+            echo
+            echo "   The web server IS serving FOG at:"
+            echo "     $probeUrl"
+            echo "   but this host cannot verify the certificate it presents."
+            echo
+            echo "   ${reason}. The page rendered when verification was skipped,"
+            echo "   so this is a trust problem and not a broken site -- the"
+            echo "   install continues."
+            echo
+            echo "   Likely causes:"
+            echo "     - the certificate is managed outside FOG (acme.sh, certbot)"
+            echo "       and has not been declared: set acmeLeaf=\"yes\" in"
+            echo "       ${fogprogramdir:-the FOG program dir}/.fogsettings"
+            echo "     - the served chain does not terminate in the anchor FOG"
+            echo "       resolved (${sslcachain:-the vhost})"
+            echo
+            echo "   Note the schema deploy verifies strictly and will NOT"
+            echo "   continue past this -- it carries an install token."
+            echo
+            return 0
+        fi
+    fi
     echo "Failed!"
     echo
     echo "   The web server did not return a usable page for:"
     echo "     $probeUrl"
     echo "   (curl exit ${probeStat}, ${probeSize} bytes of body)"
+    echo "   Reason: ${reason}."
     echo
-    echo "   An empty or truncated response with a 500 is almost always a PHP"
-    echo "   fatal in the FOG boot chain rather than a database problem. In a"
-    echo "   browser this looks like a blank white page. Check your web"
-    echo "   server's error log."
-    echo "   PHP in use: $(php -v 2>/dev/null | head -1)"
+    if [[ $advice == php ]]; then
+        echo "   An empty or truncated response with a 500 is almost always a PHP"
+        echo "   fatal in the FOG boot chain rather than a database problem. In a"
+        echo "   browser this looks like a blank white page. Check your web"
+        echo "   server's error log."
+        echo "   PHP in use: $(php -v 2>/dev/null | head -1)"
+    elif [[ $advice == tls ]]; then
+        echo "   The certificate was rejected AND the page did not render with"
+        echo "   verification skipped, so the web tier is not answering usefully"
+        echo "   on this address either. Check the web server is running and that"
+        echo "   ${selfName} resolves to this server from this server."
+    else
+        echo "   Check the web server is running and reachable at ${selfName}"
+        echo "   from this host. Full error in $error_log"
+    fi
     echo
     [[ -z $exitFail ]] && exit 1
     return 1
@@ -829,6 +912,12 @@ verifySchemaDeploy() {
     return 1
 }
 updateDB() {
+    # Every URL below -- the POST, the failure messages and the browser
+    # instructions -- addresses the server by the name its certificate
+    # carries. Dialling $ipaddress verified only by luck: FOG's own leaf
+    # happens to carry IP SANs, and a leaf from a public CA cannot, because
+    # no public CA issues for an address.
+    local selfName=$(_servedCertName)
     # This substitution has to happen on BOTH paths. It used to sit inside the
     # [Yy] branch, and dbupdate is set in exactly one place (bin/installfog.sh,
     # under -y), so every interactive install baked the literal '/images/'
@@ -857,7 +946,7 @@ updateDB() {
             # grants a schema deploy on a server that has no users yet; -k
             # handed that to whoever answered on $ipaddress.
             _resolveSelfCacert
-            curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' "${selfCacertOpts[@]}" -fsL ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
+            curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' "${selfCacertOpts[@]}" -fsL ${httpproto}://${selfName}${webroot}management/index.php?node=schema -o - >>$error_log 2>&1
             local schemarc=$?
             # errorStat tails $error_log, so curl's own "SSL certificate
             # problem" line is already visible -- but it does not say what to
@@ -869,15 +958,20 @@ updateDB() {
                     echo "Failed!"
                     echo
                     echo " * TLS verification failed talking to this server's own web tier at"
-                    echo "   ${httpproto}://${ipaddress}${webroot} -- so the schema was NOT deployed."
+                    echo "   ${httpproto}://${selfName}${webroot} -- so the schema was NOT deployed."
                     echo " * This step used to skip verification, which handed the schema"
                     echo "   install token to whatever answered on that address. It no longer"
                     echo "   does, so a certificate this host cannot verify now stops here."
-                    echo " * Two causes, both fixable:"
-                    echo "     - the web certificate was replaced by hand, so the chain in"
-                    echo "       ${sslcachain:-the vhost} no longer describes what is served"
-                    echo "     - the certificate does not cover the address ${ipaddress}"
-                    echo "       (re-run with --external-ca, or issue one that names it)"
+                    echo " * The address is no longer the likely cause -- this call now"
+                    echo "   dials ${selfName}, taken from the served certificate's own CN,"
+                    echo "   so it is a name that certificate covers by construction."
+                    echo " * Two causes remain, both fixable:"
+                    echo "     - the served chain does not terminate in the anchor FOG"
+                    echo "       resolved (${sslcachain:-the vhost}), i.e. the certificate was"
+                    echo "       replaced without telling the installer -- re-run with"
+                    echo "       --external-ca, or declare it with acmeLeaf=\"yes\""
+                    echo "     - ${selfName} does not resolve to this server FROM this server"
+                    echo "       (check /etc/hosts and this host's resolver, not just DNS)"
                     echo " * Full error in $error_log"
                     echo
                     tail -n 5 $error_log
@@ -902,7 +996,7 @@ updateDB() {
             # is safe: it still requires possession of the token.
             local userCount=$(fogUserCount)
             if [[ -z $userCount || $userCount -gt 0 ]]; then
-                echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema"
+                echo "   ${httpproto}://${selfName}${webroot}management/index.php?node=schema"
                 echo
                 echo " * Log in as a FOG administrator there, then click"
                 echo "   Install/Update now."
@@ -920,7 +1014,7 @@ updateDB() {
                 echo "   (the FOG_SCHEMA_INSTALL_TOKEN line), with:"
                 echo "     curl -X POST -H \"X-Fog-Install-Token: <token>\" \\"
                 echo "       -d \"schemaupdate=1\" \\"
-                echo "       \"${httpproto}://${ipaddress}${webroot}management/index.php?node=schema\""
+                echo "       \"${httpproto}://${selfName}${webroot}management/index.php?node=schema\""
             fi
             if [[ -z $userCount || $userCount -eq 0 ]]; then
                 # Only a userless install can use the token, and only in a URL
@@ -928,7 +1022,7 @@ updateDB() {
                 # instruction when the user probe could not run, so we neither
                 # publish a secret needlessly nor strand a fresh install.
                 [[ -z $userCount ]] && echo " * If this is a brand new install with no FOG users yet, use:"
-                echo "   ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
+                echo "   ${httpproto}://${selfName}${webroot}management/index.php?node=schema&fogtoken=${installToken}"
             fi
             echo
             read -p " * Press [Enter] key when database is updated/installed."
@@ -4319,6 +4413,56 @@ _resolveTrustAnchor() {
     trustAnchorPem="$out"
     return 0
 }
+# The name this server's own certificate says it is.
+#
+# Every HTTPS call the installer makes to itself has to address the server by a
+# name the SERVED leaf actually covers. Anchoring correctly is not enough: a
+# chain that verifies against the right root is still rejected when the address
+# dialled is not in the certificate, and that is one of the two halves
+# _resolveSelfCacert() below depends on.
+#
+# So ask the certificate rather than guessing. One rule covers both cases a FOG
+# server can be in: a FOG-issued leaf carries CN=$hostname (_createWebLeaf sets
+# exactly that), and a leaf from a public CA carries whatever the admin had
+# issued. Neither needs a new setting to describe it.
+#
+# The VHOST is consulted first, and that ordering is the point. On an install
+# whose certificate is managed outside FOG -- acme.sh, certbot, a corporate
+# issuance process -- $sslpubcert still names FOG's own leaf while the web
+# server serves somebody else's, so reading FOG's copy answers confidently with
+# a name that is not being presented to anybody.
+#
+# Falling back to $hostname converges rather than guesses: _createWebLeaf sets
+# the leaf's CN FROM $hostname, so on a fresh install -- where configureHttpd
+# has not written a leaf yet -- $hostname is the same answer one step early.
+# $ipaddress is last and is only ever right for a FOG-issued certificate, since
+# no public CA will issue for an address at all.
+_servedCertName() {
+    local cert cn candidate
+    local -a candidates=()
+    if [[ -n $etcconf && -f $etcconf ]]; then
+        # ssl_certificate_key and SSLCertificateKeyFile do NOT match: both
+        # patterns require whitespace immediately after the directive name, and
+        # those two continue with '_' and 'K'. Same reason SSLCertificateChainFile
+        # is excluded -- it is the chain, not the leaf whose subject we want.
+        candidate=$(grep -aoiE '^[[:space:]]*(SSLCertificateFile|ssl_certificate)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
+            | awk '{print $NF}' | head -1)
+        [[ -n $candidate ]] && candidates+=("$candidate")
+    fi
+    candidates+=("$sslpubcert" "$sslfullchain")
+    for cert in "${candidates[@]}"; do
+        [[ -n $cert && -f $cert ]] || continue
+        # -nameopt multiline rather than parsing the one-line form: the compact
+        # subject is rendered differently across openssl versions (leading
+        # slash, spaces around '='), and a CN containing a comma cannot be
+        # split out of it reliably at all.
+        cn=$(openssl x509 -noout -subject -nameopt multiline -in "$cert" 2>/dev/null \
+            | awk -F' = ' '/commonName/{print $2; exit}')
+        [[ -n $cn ]] && { echo "$cn"; return 0; }
+    done
+    [[ -n $hostname ]] && { echo "$hostname"; return 0; }
+    echo "$ipaddress"
+}
 # The --cacert arguments for an HTTPS call this server makes to ITSELF.
 #
 # Sets $selfCacertOpts, which callers splice in as "${selfCacertOpts[@]}". Empty
@@ -4347,6 +4491,12 @@ _resolveTrustAnchor() {
 _resolveSelfCacert() {
     selfCacertOpts=()
     [[ $httpproto == https ]] || return 0
+    # A leaf issued outside FOG chains to a PUBLIC root the system store
+    # already holds. --cacert REPLACES that store rather than adding to it, so
+    # naming FOG's own root here does not add trust -- it removes the only
+    # trust that would have worked, and turns a verifiable ACME certificate
+    # into an unverifiable one. Leave curl's default bundle in place.
+    [[ $acmeLeaf == yes || $publicWebCert == yes ]] && return 0
     _resolveTrustAnchor >>$error_log 2>&1 || return 0
     [[ -s $trustAnchorPem ]] || return 0
     selfCacertOpts=(--cacert "$trustAnchorPem")
