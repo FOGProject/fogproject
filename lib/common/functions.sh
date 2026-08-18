@@ -2104,36 +2104,6 @@ _preserveStockIpxe() {
     done
     errorStat $?
 }
-# Copy the staged tree into place WITHOUT destroying an admin's own binaries.
-#
-# The historic loop was `find -type f -exec cp -Rfv {} $tftpdirdst/{}`, which
-# overwrites unconditionally. A file whose name is not in the staging tree
-# survives -- nothing deletes it -- but any of the ~55 names FOG does ship was
-# destroyed on every single run. That is the whole set an admin is most likely
-# to have replaced: snponly.efi, ipxe.efi, undionly.kkpxe.
-#
-# The customization machinery that would have protected it covers only the WEB
-# tree; both backupPreservedCustomizations and restorePreservedCustomizations
-# hardcode $webdirdest/service/ipxe. The TFTP tree was assumed safe "by
-# construction", which holds for new names and is false for colliding ones.
-#
-# So: record the checksum of every file FOG writes here, and skip a destination
-# whose current checksum no longer matches what FOG last wrote.
-#
-# A sidecar manifest rather than the fogsum XATTR the kernel path uses, and the
-# difference matters. That mechanism no-ops entirely when the `attr` binary is
-# absent or the filesystem does not carry extended attributes -- it degrades to
-# "unknown", which is correctly treated as "not modified". For kernels that is
-# survivable because they are backed up regardless. Here there is no backup, so
-# a silent degradation means silently overwriting the admin's binary while
-# reporting that it is protected. A TFTP root is also exactly the sort of path
-# that ends up on a mount without xattr support.
-#
-# The manifest lists only checksums of public boot binaries, so serving it over
-# TFTP alongside them gives nothing away.
-#
-# Protection begins with the FIRST run after this lands: before that there is no
-# manifest, nothing can be compared, and a file with no entry is treated as
 # Which BIOS boot file DHCP should hand out, given --boot-delay.
 #
 # EFI takes its delay from autoexec.ipxe (_applyBootDelay). BIOS cannot: there
@@ -2205,43 +2175,118 @@ _applyBootDelay() {
         echo "   DHCP points it at 10secdelay/, which is exactly 10 seconds."
     fi
 }
-# Retire the pre-v2.0.0-fog.8 autoexec/ tree.
+# Remove the EFI artefacts that v2.0.0-fog.8 stopped shipping.
 #
-# It held a duplicate set of EMBED-less EFI binaries, opted into by pointing
-# DHCP at autoexec/<file>. Every EFI binary is EMBED-less now and the TFTP root
-# carries the script, so the directory is an exact duplicate of the root and no
-# release ships it any more.
+# Two trees are stale after the EMBED-less change, and _copyIpxeTree() cannot
+# clear either of them -- it only ever writes, so anything a release stops
+# shipping stays on disk forever, getting quietly older with each upgrade while
+# looking maintained.
 #
-# Deleted rather than left in place: _copyIpxeTree() only ever writes, so a
-# leftover autoexec/ would go on serving whichever release last created it,
-# getting quietly older with every upgrade while looking maintained. A stale
-# netboot binary is worse than a missing path -- a missing path fails
-# immediately and visibly, where a stale one boots and misbehaves.
+#   autoexec/            a duplicate set of EMBED-less binaries, opted into by
+#                        pointing DHCP at autoexec/<file>. The TFTP root IS that
+#                        build now, so the directory is a stale copy of it.
 #
-# A site whose DHCP still names autoexec/<file> has to be told, because TFTP
+#   10secdelay/*.efi     the real hazard. Those are EMBED-marked binaries, and
+#   10secdelay/{i386,arm64}-efi/
+#                        the root now carries an autoexec.ipxe.
+#                        efi_autoexec_network() falls back to /autoexec.ipxe
+#                        when the binary's own directory has none -- and
+#                        10secdelay/ has none -- so one of these downloads the
+#                        script, never runs it (first_image() returns its
+#                        embedded one), nothing unregisters it, and
+#                        initrd_load_all() concatenates 2 KB of iPXE script
+#                        ahead of init.xz. The client panics with
+#
+#                            VFS: Unable to mount root fs on "/dev/ram0"
+#
+#                        (forums #18213). Leaving them is not "stale but
+#                        harmless"; it is an upgrade that breaks a path which
+#                        worked before the upgrade.
+#
+# The BIOS files in 10secdelay/ stay. They are why the directory still exists:
+# legacy BIOS has no efi_autoexec_load(), so its delay is still a separate
+# build rather than a --boot-delay edit to autoexec.ipxe.
+#
+# stock/ gets the same treatment. _preserveStockIpxe() rebuilds its source copy
+# every run, but the copy already in $tftpdirdst is only ever added to.
+#
+# A site whose DHCP still names one of these has to be told, because TFTP
 # answers a missing file with an error the client renders as a generic PXE
 # failure with no clue in it. Warn and name the replacement rather than failing
 # the install: the DHCP server handing out that name is frequently not this
 # machine, so this run cannot fix it and should not block on it.
-_retireAutoexecDir() {
-    # Never let an unset tftpdirdst turn this into rm -rf /autoexec.
+#
+# An admin who deliberately placed their own .efi under 10secdelay/ loses it.
+# That is accepted: every EFI binary that can legitimately live there now is one
+# that would panic its client, and a file that cannot be booted safely is not
+# worth preserving over one that can.
+_retireStaleEfiPaths() {
+    # Never let an unset tftpdirdst turn any of this into rm -rf /autoexec.
     [[ -n $tftpdirdst ]] || return 0
-    local dir="${tftpdirdst%/}/autoexec"
-    [[ -d $dir ]] || return 0
-    dots "Retiring the obsolete autoexec/ directory"
-    rm -rf "$dir" >>$error_log 2>&1
-    if [[ -d $dir ]]; then
-        echo "Failed"
-        echo " * Could not remove $dir. See $error_log."
-        return 0
-    fi
+    local root="${tftpdirdst%/}" d base touched=0
+    for d in "$root/autoexec" "$root/stock/autoexec"; do
+        [[ -d $d ]] || continue
+        touched=1
+        rm -rf "$d" >>$error_log 2>&1
+    done
+    for base in "$root/10secdelay" "$root/stock/10secdelay"; do
+        [[ -d $base ]] || continue
+        for d in "$base/i386-efi" "$base/arm64-efi"; do
+            [[ -d $d ]] || continue
+            touched=1
+            rm -rf "$d" >>$error_log 2>&1
+        done
+        # -maxdepth 1 so the subdirectory sweep above owns those, and this only
+        # ever sees the loose files beside the BIOS builds.
+        if [[ -n $(find "$base" -maxdepth 1 -type f -name '*.efi' -print -quit 2>/dev/null) ]]; then
+            touched=1
+            find "$base" -maxdepth 1 -type f -name '*.efi' -delete >>$error_log 2>&1
+        fi
+    done
+    [[ $touched -eq 1 ]] || return 0
+    dots "Removing iPXE paths retired in v2.0.0-fog.8"
     echo "Done"
-    echo " * NOTE: autoexec/ has been removed. Every EFI binary in the TFTP"
-    echo "   root now reads autoexec.ipxe, so the duplicate tree served no"
-    echo "   purpose. If any DHCP server hands out a boot filename starting"
-    echo "   \"autoexec/\", drop that prefix -- autoexec/snponly.efi becomes"
-    echo "   snponly.efi."
+    echo " * autoexec/ is gone: every EFI binary in the TFTP root reads"
+    echo "   autoexec.ipxe now, so the duplicate tree served no purpose."
+    echo " * 10secdelay/ keeps its BIOS builds and has lost its EFI ones. On"
+    echo "   EFI the delay is installfog.sh --boot-delay, which writes a sleep"
+    echo "   into autoexec.ipxe; an EMBED-marked .efi sitting next to a root"
+    echo "   autoexec.ipxe panics the client it boots."
+    echo " * If any DHCP server hands out a boot filename starting \"autoexec/\","
+    echo "   drop that prefix -- autoexec/snponly.efi becomes snponly.efi. If one"
+    echo "   names 10secdelay/<something>.efi, point it at the same file without"
+    echo "   the 10secdelay/ prefix and set --boot-delay instead."
 }
+# Copy the staged tree into place WITHOUT destroying an admin's own binaries.
+#
+# The historic loop was `find -type f -exec cp -Rfv {} $tftpdirdst/{}`, which
+# overwrites unconditionally. A file whose name is not in the staging tree
+# survives -- nothing deletes it -- but any of the ~55 names FOG does ship was
+# destroyed on every single run. That is the whole set an admin is most likely
+# to have replaced: snponly.efi, ipxe.efi, undionly.kkpxe.
+#
+# The customization machinery that would have protected it covers only the WEB
+# tree; both backupPreservedCustomizations and restorePreservedCustomizations
+# hardcode $webdirdest/service/ipxe. The TFTP tree was assumed safe "by
+# construction", which holds for new names and is false for colliding ones.
+#
+# So: record the checksum of every file FOG writes here, and skip a destination
+# whose current checksum no longer matches what FOG last wrote.
+#
+# A sidecar manifest rather than the fogsum XATTR the kernel path uses, and the
+# difference matters. That mechanism no-ops entirely when the `attr` binary is
+# absent or the filesystem does not carry extended attributes -- it degrades to
+# "unknown", which is correctly treated as "not modified". For kernels that is
+# survivable because they are backed up regardless. Here there is no backup, so
+# a silent degradation means silently overwriting the admin's binary while
+# reporting that it is protected. A TFTP root is also exactly the sort of path
+# that ends up on a mount without xattr support.
+#
+# The manifest lists only checksums of public boot binaries, so serving it over
+# TFTP alongside them gives nothing away.
+#
+# Protection begins with the FIRST run after this lands: before that there is no
+# manifest, nothing can be compared, and a file with no entry is treated as
 # FOG's -- the same "unknown is not modified" rule the kernel path uses, and the
 # only choice that lets an ordinary upgrade still update anything.
 _copyIpxeTree() {
@@ -2535,7 +2580,7 @@ configureTFTPandPXE() {
         arm64-efi/autoexec.ipxe \
         secureboot/autoexec.ipxe \
         secureboot/arm64-efi/autoexec.ipxe
-    _retireAutoexecDir
+    _retireStaleEfiPaths
     chown -R $username $tftpdirdst >>$error_log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$error_log 2>&1
     find $tftpdirdst -type d -exec chmod 755 {} \; >>$error_log 2>&1
