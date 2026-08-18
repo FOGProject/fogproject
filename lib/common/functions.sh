@@ -4440,15 +4440,8 @@ _resolveTrustAnchor() {
 _servedCertName() {
     local cert cn candidate
     local -a candidates=()
-    if [[ -n $etcconf && -f $etcconf ]]; then
-        # ssl_certificate_key and SSLCertificateKeyFile do NOT match: both
-        # patterns require whitespace immediately after the directive name, and
-        # those two continue with '_' and 'K'. Same reason SSLCertificateChainFile
-        # is excluded -- it is the chain, not the leaf whose subject we want.
-        candidate=$(grep -aoiE '^[[:space:]]*(SSLCertificateFile|ssl_certificate)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
-            | awk '{print $NF}' | head -1)
-        [[ -n $candidate ]] && candidates+=("$candidate")
-    fi
+    candidate=$(_vhostCertPath)
+    [[ -n $candidate ]] && candidates+=("$candidate")
     candidates+=("$sslpubcert" "$sslfullchain")
     for cert in "${candidates[@]}"; do
         [[ -n $cert && -f $cert ]] || continue
@@ -5063,6 +5056,14 @@ writeUpdateFile() {
         # CSR (stale public key) while the private key on disk is the ACME
         # key, producing a cert/key mismatch that stops the web server.
         acmeLeaf
+        # Where the externally-managed leaf and its key actually live, captured
+        # from the vhost the admin wrote. Persisted because FOG regenerates the
+        # vhost on every run: without these it would re-emit its OWN
+        # $sslpubcert, pointing the web server at a certificate whose key is not
+        # the one on disk. Empty on an ordinary install, which means "FOG's
+        # own". Only ever written alongside acmeLeaf=yes.
+        webCertFile
+        webKeyFile
         # How many prior kernel/init generations backupPreservedCustomizations()
         # keeps under customizations/kernel-backups. A genuine persisted
         # preference like fog_update_channel, not a record: an admin who chose
@@ -6663,6 +6664,121 @@ endManagedVhost() {
     unset vhostfinal vhostprior
     return $st
 }
+# The certificate path the live vhost actually serves, or empty.
+#
+# Shared by _servedCertName() above and _detectExternalCertManagement() below,
+# which both need it and would otherwise drift apart on the directive-matching.
+_vhostCertPath() {
+    [[ -n $etcconf && -f $etcconf ]] || return 0
+    # ssl_certificate_key and SSLCertificateKeyFile do NOT match: both patterns
+    # require whitespace immediately after the directive name, and those two
+    # continue with '_' and 'K'. SSLCertificateChainFile is excluded for the
+    # same reason -- it is the chain, not the leaf.
+    grep -aoiE '^[[:space:]]*(SSLCertificateFile|ssl_certificate)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
+        | awk '{print $NF}' | head -1
+}
+# The private-key path the live vhost names, or empty. Companion to
+# _vhostCertPath(); kept separate because the two directives differ per server.
+_vhostKeyPath() {
+    [[ -n $etcconf && -f $etcconf ]] || return 0
+    grep -aoiE '^[[:space:]]*(SSLCertificateKeyFile|ssl_certificate_key)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
+        | awk '{print $NF}' | head -1
+}
+# Whether the certificate this server serves is managed OUTSIDE FOG.
+#
+# acmeLeaf has always been the answer to that question and has always had to be
+# typed into .fogsettings by hand. The cost of forgetting is not cosmetic:
+# createSSLCA() regenerates the leaf from the ORIGINAL CSR, so an install whose
+# private key on disk is an ACME key ends up with a cert/key mismatch and a web
+# server that will not start. An unattended `-y` upgrade did that silently,
+# which is the whole reason this exists.
+#
+# Echoes a reason and returns 0 when the certificate FOG is about to touch is
+# demonstrably not FOG's own; returns 1 otherwise.
+#
+# Only STRONG signals answer yes, and every one of them is about the
+# certificate itself. The presence of acme.sh or certbot on the box is
+# deliberately NOT among them: plenty of servers run either for an unrelated
+# domain, and treating that as proof would stop FOG managing a leaf it really
+# does issue -- a false positive that costs an admin their renewals. Tooling is
+# reported by _warnExternalCertTooling() instead, which advises and changes
+# nothing. Vhost drift is likewise only advisory: an admin may have edited the
+# vhost for reasons that have nothing to do with the certificate.
+_detectExternalCertManagement() {
+    local p leaf vhostcert
+    # 1. FOG pointed at a file inside an ACME client's tree. The most direct
+    #    evidence available -- somebody already told FOG to use their leaf.
+    for p in "$sslprivkey" "$sslpubcert"; do
+        [[ -n $p ]] || continue
+        case "$p" in
+            /etc/letsencrypt/*|*/.acme.sh/*|/etc/dehydrated/*)
+                echo "$p is inside an ACME client's tree"
+                return 0
+                ;;
+        esac
+    done
+    # 2. The live vhost serving a leaf from outside $sslpath. FOG issues into
+    #    $sslpath and nowhere else, so anywhere else is the admin's file. This
+    #    is the signal that fires on a novhost=yes install, where FOG never
+    #    wrote the vhost and $sslpubcert still names FOG's own unused leaf.
+    vhostcert=$(_vhostCertPath)
+    if [[ -n $vhostcert && -n $sslpath && $vhostcert != "$sslpath"* ]]; then
+        echo "the vhost serves $vhostcert, outside FOG's $sslpath"
+        return 0
+    fi
+    # 3. A leaf sitting at FOG's own path that FOG's own CA did not sign --
+    #    _createCommLeaf() documents dropping a certificate in place as a
+    #    supported thing to do, so this is a real configuration and not an
+    #    error. Decided by verification rather than by matching "FOG" in the
+    #    issuer name, because an admin can rename their CA and a public issuer
+    #    can be called anything.
+    #
+    #    -trusted, not -CAfile: -CAfile ADDS to curl's default locations
+    #    instead of replacing them, and _installCATrustAnchor() puts FOG's own
+    #    CA into this host's store -- so a -CAfile test can answer "verified"
+    #    out of the system store rather than out of the file it was handed.
+    #    Same reasoning as _createWebLeaf()'s own check.
+    leaf="$vhostcert"
+    [[ -n $leaf && -f $leaf ]] || leaf="$sslpubcert"
+    if [[ -n $leaf && -f $leaf && -n $rootCAPem && -f $rootCAPem ]] \
+        && command -v openssl >/dev/null 2>&1; then
+        if ! openssl verify -trusted "$rootCAPem" \
+            ${sslcachain:+-untrusted "$sslcachain"} "$leaf" >/dev/null 2>&1; then
+            echo "$leaf does not chain to this server's own CA"
+            return 0
+        fi
+    fi
+    return 1
+}
+# Advisory only. Names tooling and vhost drift that MIGHT mean the certificate
+# is managed elsewhere, without concluding it -- see the comment above for why
+# neither is allowed to set acmeLeaf on its own.
+_warnExternalCertTooling() {
+    local -a notes=()
+    if command -v acme.sh >/dev/null 2>&1 \
+        || [[ -x $HOME/.acme.sh/acme.sh || -x /root/.acme.sh/acme.sh ]]; then
+        notes+=("acme.sh is installed")
+    fi
+    if command -v certbot >/dev/null 2>&1 \
+        || [[ -d /etc/letsencrypt/live ]] && [[ -n $(ls -A /etc/letsencrypt/live 2>/dev/null) ]]; then
+        notes+=("certbot or /etc/letsencrypt/live is present")
+    fi
+    # Drift: the file exists, has content, and carries none of FOG's markers.
+    if [[ -n $etcconf && -s $etcconf ]] \
+        && ! grep -qF "$FOG_MANAGED_BEGIN" "$etcconf" 2>/dev/null; then
+        notes+=("$etcconf carries no FOG managed block, so it was authored by hand")
+    fi
+    [[ ${#notes[@]} -eq 0 ]] && return 0
+    local n
+    echo " * Note: this server's web certificate looks FOG-issued, but:"
+    for n in "${notes[@]}"; do
+        echo "     - $n"
+    done
+    echo "   If that certificate is in fact managed elsewhere, set"
+    echo "   acmeLeaf=\"yes\" in $fogprogramdir/.fogsettings so FOG stops"
+    echo "   re-issuing it. FOG will keep managing the vhost either way."
+    return 0
+}
 createSSLCA() {
     # This function also emits the web server vhost further down, and those
     # nginx location / apache LocationMatch blocks used to hardcode ^/fog/ --
@@ -6677,6 +6793,49 @@ createSSLCA() {
     [[ ! -d $sslpath/CA ]] && mkdir -p $sslpath/CA >>$error_log 2>&1
     _collectPkiNames
     _resolveRootCA
+    # Detect-then-DECLARE, before anything below decides whether to issue a
+    # leaf. The point is not to hand the vhost back to the admin -- FOG goes on
+    # managing the redirect, the iPXE exclusions and HSTS, which nobody wants to
+    # hand-maintain. It is only to stop re-issuing a certificate FOG did not
+    # issue, which createSSLCA() would otherwise do from the ORIGINAL CSR and
+    # leave the web server unable to start.
+    #
+    # No prompt. Under -y there is nobody to ask, and that is exactly the run
+    # that used to do the damage silently, so the safe behaviour has to be the
+    # DEFAULT rather than an answer. Everything needed is already on disk: the
+    # vhost names the files and the certificate names itself.
+    if [[ $acmeLeaf != yes ]]; then
+        local extReason=""
+        if extReason=$(_detectExternalCertManagement); then
+            acmeLeaf="yes"
+            webCertFile=$(_vhostCertPath)
+            webKeyFile=$(_vhostKeyPath)
+            # Fall back to whatever FOG was already pointed at -- signal 1 of
+            # the detector is exactly the case where those ARE the admin's
+            # files and the vhost may not exist yet.
+            [[ -z $webCertFile ]] && webCertFile="$sslpubcert"
+            [[ -z $webKeyFile ]] && webKeyFile="$sslprivkey"
+            echo " * Detected a web certificate managed outside FOG:"
+            echo "     $extReason"
+            echo " * Recording acmeLeaf=\"yes\" in .fogsettings. FOG will keep"
+            echo "   managing this vhost, but will not re-issue or re-key that"
+            echo "   certificate. Undo by clearing acmeLeaf/webCertFile/webKeyFile."
+        else
+            _warnExternalCertTooling
+        fi
+    fi
+    # Re-emit exactly what the vhost already said rather than FOG's own paths.
+    # Doing it by reassignment here means all four vhost arms below need no
+    # change, and _hardenPkiPermissions already exempts acmeLeaf from locking
+    # the key to root:root 0600 out from under whatever renews it.
+    if [[ $acmeLeaf == yes && -n $webCertFile && -f $webCertFile ]]; then
+        sslpubcert="$webCertFile"
+        # nginx's ssl_certificate must BE the concatenated chain, and the file
+        # we captured is whatever that directive already named -- so it is
+        # correct for nginx by construction and must not be second-guessed.
+        sslfullchain="$webCertFile"
+        [[ -n $webKeyFile && -f $webKeyFile ]] && sslprivkey="$webKeyFile"
+    fi
     # An interface can carry several IPs, so $ipaddress may arrive as a list:
     # newline-separated from fresh detection, or space-separated when read back
     # from .fogsettings. A certificate has a single subject, so the first IP
