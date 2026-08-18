@@ -125,6 +125,9 @@ usage() {
     echo -e "\t                              \t\tenrolled before a client netboots"
     echo -e "\t      --no-rebuild-ipxe-with-my-ca\tUndo the above"
     echo -e "\t      --netboot-proto\t\thttp or https: the protocol iPXE uses to"
+    echo -e "\t      --boot-delay\t\tseconds to sleep before the first DHCP"
+    echo -e "\t\t\t\t\tattempt, for switches slow out of STP or"
+    echo -e "\t\t\t\t\tpowersave. 0 (default) writes no sleep."
     echo -e "\t                     \t\t\tfetch boot.php. Defaults to http, and"
     echo -e "\t                     \t\t\tto https when the certificate is public"
     echo -e "\t                     \t\t\tor iPXE was rebuilt with your CA"
@@ -225,7 +228,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -569,6 +572,18 @@ while :; do
             esac
             shift 2
             ;;
+        --boot-delay)
+            # Bounded rather than free: this is a sleep every client waits
+            # through on every boot, and a fat-fingered 600 is indistinguishable
+            # from a hung PXE stack to the person standing at the machine.
+            if [[ ! $2 =~ ^[0-9]+$ ]] || [[ $2 -gt 120 ]]; then
+                echo "$1 requires a whole number of seconds, 0 to 120"
+                usage
+                exit 3
+            fi
+            sbootdelay="$2"
+            shift 2
+            ;;
         --no-sb-name-constraints)
             ssbNameConstraints="no"
             shift
@@ -877,6 +892,7 @@ _applyInstallMode
 # that somebody actually passed --netboot-proto. It used to, and that is how a
 # value one run derived went on overriding the keys it was derived from.
 [[ -n $snetbootproto ]] && netbootproto=$snetbootproto
+[[ -n $sbootdelay ]] && bootdelay=$sbootdelay
 [[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
 [[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
 [[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
