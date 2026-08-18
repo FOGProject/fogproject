@@ -480,6 +480,15 @@ Safe, and sometimes necessary:
 | `dhcpengine='kea'` / `'isc'` | Force an engine instead of letting detection choose |
 | `tftpAdvOpts` | Extra `in.tftpd` options |
 | `fwconfigure` | Change your mind about the firewall without being re-prompted |
+| `inetConnectTimeout` / `inetMaxTime` | Raise the bounds on the installer's network fetches (default 5s connect, 15s total) for a link genuinely slower than that. They exist so an unreachable host costs seconds rather than libcurl's 300s default, so lower them only with that in mind |
+
+The last two rows are worth a note on **why** hand-editing works for keys the
+installer never writes. `lib/common/config.sh` sets its defaults with
+`[[ -z $x ]] && x=…`, and `.fogsettings` is sourced *before* that file — so any
+value you put here wins, and the in-place merge preserves the line untouched
+forever because it is not a managed key. That is the same mechanism `acmeLeaf`
+relies on. `internet_ok` is *not* in this class despite living beside them: it is
+a runtime result computed by `checkInternetConnection()`, not a setting.
 
 Before you edit:
 
