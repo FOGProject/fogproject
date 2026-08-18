@@ -368,6 +368,38 @@ class UserManagement extends FOGPage
             )
         ];
 
+        /*
+         * Where this account authenticates, read-only.
+         *
+         * Shown because of what it takes AWAY: an account with an auth
+         * source has no Password tab (see edit()), and without this field
+         * the tab is simply missing with nothing on the page to explain
+         * why. Read-only rather than editable -- clearing it hands the
+         * account back to local password login, which is an auth decision
+         * and not a text box.
+         */
+        $authSource = trim((string)$this->obj->get('authsource'));
+        if ('' !== $authSource) {
+            $fields[self::makeLabel(
+                $labelClass,
+                'authsource',
+                _('Signs In With')
+            )] = self::makeInput(
+                'form-control',
+                'authsource',
+                '',
+                'text',
+                'authsource',
+                $authSource,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true
+            );
+        }
+
         $buttons = self::makeButton(
             'general-send',
             _('Update'),
@@ -535,6 +567,28 @@ class UserManagement extends FOGPage
     public function userChangePWPost()
     {
         self::checkAuthAndCSRF();
+        /*
+         * The tab is not rendered for this account (see edit()), so this
+         * refusal is what makes that removal mean something rather than
+         * merely look like it: the tab-update URL is guessable and a stale
+         * page left open still holds the form.
+         *
+         * It is not a security boundary -- a password stored here would be
+         * inert either way, because passwordValidate() refuses a local
+         * credential for an account with an auth source. It is an honesty
+         * one. Silently accepting the write is how an admin comes to
+         * believe a directory account has a working local password.
+         */
+        $authSource = trim((string)$this->obj->get('authsource'));
+        if ('' !== $authSource) {
+            throw new \Exception(
+                sprintf(
+                    _('%s signs in through %s, so a password stored here would never be accepted. Clear the authentication source first.'),
+                    $this->obj->get('name'),
+                    $authSource
+                )
+            );
+        }
         $password = trim(
             filter_input(INPUT_POST, 'password')
         );
@@ -755,14 +809,33 @@ class UserManagement extends FOGPage
             }
         ];
 
-        // Password Changing
-        $tabData[] = [
-            'name' => _('Password'),
-            'id' => 'user-changepw',
-            'generator' => function () {
-                $this->userChangePW();
-            }
-        ];
+        /*
+         * Password Changing -- only for an account that authenticates here.
+         *
+         * User::passwordValidate() refuses a local credential outright for
+         * an account carrying uAuthSource, so on a directory-owned account
+         * this tab could only ever store a password that nothing would
+         * accept. That is worse than useless: it reads as "I have set them
+         * a password", which is exactly the thing an admin would rely on in
+         * an outage and find does not work.
+         *
+         * To give such an account a local password, clear its auth source
+         * first -- that is the supported recovery direction, and
+         * User::save() deliberately permits it (see
+         * _assertAuthSourceKeepsBreakGlass).
+         *
+         * The General tab shows the auth source, so the missing tab has an
+         * explanation on the same page.
+         */
+        if ('' === trim((string)$this->obj->get('authsource'))) {
+            $tabData[] = [
+                'name' => _('Password'),
+                'id' => 'user-changepw',
+                'generator' => function () {
+                    $this->userChangePW();
+                }
+            ];
+        }
 
         // API Updating
         $tabData[] = [
