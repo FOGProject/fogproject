@@ -9,12 +9,15 @@ echo " *                                                             *"
 echo " * Your FOG server may go offline during this upgrade process! *"
 echo " *                                                             *"
 echo " ***************************************************************"
+# No --no-check-certificate anywhere in this script: fogproject.org and the
+# update mirrors all present valid certificates, and what comes back is the
+# tarball this utility then unpacks and installs as the FOG server.
 dots "Checking latest version"
 if [[ -z $trunk ]]; then
-    latest=$(wget --no-check-certificate -qO - --post-data="stable" https://fogproject.org/version/index.php)
+    latest=$(wget -qO - --post-data="stable" https://fogproject.org/version/index.php)
     latest=$(echo $latest | $(pwd)/jq32 .stable)
 else
-    latest=$(wget --no-check-certificate -qO - --post-data="dev" https://fogproject.org/version/index.php)
+    latest=$(wget -qO - --post-data="dev" https://fogproject.org/version/index.php)
     latest=$(echo $latest | $(pwd)/jq32 .dev)
 fi
 [[ -z $latest ]] && errorStat 1
@@ -40,7 +43,7 @@ for url in $updatemirrors; do
     dots "Attempting Download"
     fileplace="$downloaddir/fog_${latest}.tar.gz"
     [[ -z $trunk ]] && filedownload="fog_${latest}.tar.gz" || filedownload='dev-branch'
-    wget --no-check-certificate -qO $fileplace $url/$filedownload >/dev/null 2>&1
+    wget -qO $fileplace $url/$filedownload >/dev/null 2>&1
     case $? in
         0)
             echo "Done"
