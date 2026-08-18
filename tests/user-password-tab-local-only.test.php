@@ -31,6 +31,15 @@
  * auth source first, and an administrator cannot decide to do that if
  * nothing tells them there is one.
  *
+ *   4. That clear is reachable from the page, and is a CLEAR ONLY. Until
+ *      it was, recovering an account meant a REST call or a hand-written
+ *      UPDATE -- a bad place to be standing when the reason you want it is
+ *      that the directory is down. The direction matters far more than the
+ *      control does: writing an auth source takes local password login
+ *      away from an account, which is how an install locks itself out, and
+ *      a general-details form must not be able to do that as a side
+ *      effect.
+ *
  * Source assertions -- rendering the page needs a database, a session and
  * a loaded user.
  *
@@ -83,12 +92,23 @@ function squashed($file)
  * is the entire claim here, and a containment claim computed from a
  * substring search is not one.
  *
+ * More than one guard can test the same condition -- the render and the
+ * POST both ask whether this account has an auth source -- so a caller can
+ * name something the body itself must contain. Without that the function
+ * answers about whichever happens to come first in the file, and a
+ * mutation that closes the real guard early and reopens an unconditional
+ * one still lands inside the returned block.
+ *
+ * NOTE: whitespace TOKENS are dropped, but whitespace inside a string
+ * literal is not. Needles containing a translated label keep their spaces.
+ *
  * @param string $file      the file
  * @param string $condition text the condition must contain, squashed
+ * @param string $contains  text the body must contain, or '' for the first
  *
- * @return string|null squashed body, or null
+ * @return string|null body, or null
  */
-function guardBody($file, $condition)
+function guardBody($file, $condition, $contains = '')
 {
     $pieces = [];
     foreach (token_get_all(file_get_contents($file)) as $c) {
@@ -127,6 +147,7 @@ function guardBody($file, $condition)
         if (false === strpos($cond . ')', $condition)) {
             continue;
         }
+        $wantedBody = $contains;
         // A braceless guard cannot contain anything, so a single-statement
         // rewrite reads as "not found" rather than passing with an empty
         // body.
@@ -145,14 +166,24 @@ function guardBody($file, $condition)
                 $depth++;
             } elseif (null === $type && '}' === $tok) {
                 if (0 === --$depth) {
-                    return $body;
+                    if ('' === $wantedBody
+                        || false !== strpos($body, $wantedBody)
+                    ) {
+                        return $body;
+                    }
+                    // Wrong guard; keep looking from after it.
+                    $body = null;
+                    $i = $k;
+                    break;
                 }
             }
             if ($depth > 0 && $k > $j + 1) {
                 $body .= $tok;
             }
         }
-        return null;
+        if (null !== $body) {
+            return null;
+        }
     }
     return null;
 }
@@ -279,6 +310,88 @@ if ('' === $general) {
     }
 }
 
+/*
+ * 4. The way back, and only the way back.
+ *
+ * Scoped to the region the guard actually covers -- from the guard's
+ * opening brace to the $buttons assignment that follows it -- rather than
+ * to the method as a whole, so a checkbox rendered unconditionally for
+ * every account does not pass by being somewhere in the same function.
+ */
+$guarded = guardBody(
+    $pageFile,
+    "''!==\$authSource",
+    "_('Signs In With')"
+);
+if (null === $guarded) {
+    $fails[] = 'the authentication source is no longer rendered inside a'
+        . ' guard on the account having one';
+} elseif (false === strpos($guarded, "'returnlocal'")) {
+    $fails[] = 'the General tab offers no way to return the account to'
+        . ' local login inside the same guard; recovering one then means a'
+        . ' REST call or a hand-written UPDATE, which is a bad place to be'
+        . ' standing when the reason you want it is that the directory is'
+        . ' down -- and a control rendered outside that guard offers it on'
+        . ' accounts that have nothing to return';
+}
+/*
+ * Exactly one. A second copy elsewhere on the page is one that is not
+ * covered by the guard above.
+ */
+$controls = substr_count($page, "_('ReturnToLocalLogin')");
+if ($controls > 1) {
+    $fails[] = 'the return-to-local control is rendered ' . $controls
+        . ' times; only the guarded one is verified here';
+}
+
+/*
+ * And the POST half: clears, and ONLY clears.
+ *
+ * The assertion that matters is the second one. A form that can also SET
+ * an auth source can take local password login away from the last
+ * administrator who has one -- User::save() has a guard for exactly that,
+ * but a general-details form has no business being the thing that trips
+ * it, and the failure mode if the guard were ever weakened is an install
+ * nobody can sign in to.
+ */
+$generalPost = methodBody($page, 'publicfunctionuserGeneralPost()');
+if ('' === $generalPost) {
+    $fails[] = 'UserManagement::userGeneralPost() is missing';
+} else {
+    if (false === strpos($generalPost, "isset(\$_POST['returnlocal'])")) {
+        $fails[] = 'userGeneralPost() no longer acts on the return-to-local'
+            . ' request, so ticking the box does nothing';
+    }
+    if (false === strpos($generalPost, "set('authsource','')")) {
+        $fails[] = 'userGeneralPost() no longer clears the authentication'
+            . ' source';
+    }
+    /*
+     * Every write to the column in this method must be the empty string.
+     * Anything else is the page learning to hand an account to a
+     * directory, which is the direction that locks people out.
+     */
+    if (preg_match_all("#set\('authsource',([^)]*)\)#", $generalPost, $m)) {
+        foreach ($m[1] as $written) {
+            if ("''" !== $written) {
+                $fails[] = 'userGeneralPost() writes ' . $written . ' to the'
+                    . ' authentication source; this form may only CLEAR it,'
+                    . ' because setting one takes local password login away'
+                    . ' from the account';
+            }
+        }
+    }
+    /*
+     * Guarded on there being something to clear, so an ordinary Update on
+     * an ordinary local account cannot mark the field dirty and drag it
+     * through User::save()'s break-glass check for no reason.
+     */
+    if (false === strpos($generalPost, "\$this->obj->get('authsource')")) {
+        $fails[] = 'userGeneralPost() clears the authentication source'
+            . ' without first checking there is one';
+    }
+}
+
 if (count($fails) > 0) {
     echo 'FAIL: ' . count($fails) . " problem(s):\n";
     foreach ($fails as $f) {
@@ -286,5 +399,6 @@ if (count($fails) > 0) {
     }
     exit(1);
 }
-echo "ok: only a locally-authenticating account is offered a password\n";
+echo "ok: only a locally-authenticating account is offered a password,"
+    . " and there is a way back\n";
 exit(0);

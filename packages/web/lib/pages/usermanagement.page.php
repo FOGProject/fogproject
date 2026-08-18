@@ -398,6 +398,56 @@ class UserManagement extends FOGPage
                 '',
                 true
             );
+            /*
+             * Hand the account back to FOG's own password.
+             *
+             * Until this existed the only way to do it was a REST call or
+             * a hand-written UPDATE, which is a bad place to be standing
+             * when the reason you want it is that the directory is down.
+             *
+             * A checkbox that takes effect on Update, rather than a button
+             * of its own: it is two deliberate acts, it reuses the form's
+             * CSRF and its existing handler, and it is undone by not
+             * pressing Update. User::save() permits the clear -- it is the
+             * recovery direction the break-glass guard exists to keep open
+             * -- so nothing here can reduce the number of administrators
+             * able to sign in without a directory.
+             *
+             * The warning is not boilerplate. Whether the account can
+             * still sign in through its provider afterwards depends on how
+             * that provider works, and core cannot tell which kind this is:
+             * a provider that vouches through USER_LOGGING_IN (LDAP) is
+             * refused once the stamp is gone, because passwordValidate()
+             * honours that vouching ONLY for stamped accounts -- that
+             * restriction is what stops a plugin authenticating a local
+             * account. A provider that establishes the session itself
+             * (OIDC) never reaches passwordValidate() and is unaffected.
+             * So the safe instruction is the same either way: set a
+             * password immediately.
+             */
+            $fields[self::makeLabel(
+                $labelClass,
+                'returnlocal',
+                _('Return To Local Login')
+                . '<br/>('
+                . sprintf(
+                    _('lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterwards'),
+                    \Initiator::e($authSource)
+                )
+                . ')'
+            )] = self::makeInput(
+                'returnlocal-input',
+                'returnlocal',
+                '',
+                'checkbox',
+                'returnlocal',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                isset($_POST['returnlocal']) ? ' checked' : ''
+            );
         }
 
         $buttons = self::makeButton(
@@ -463,6 +513,25 @@ class UserManagement extends FOGPage
         $this->obj
             ->set('name', $user)
             ->set('display', $display);
+
+        /*
+         * Return the account to FOG's own password, if asked.
+         *
+         * Only ever clears. There is no path here that SETS an auth source
+         * -- writing one takes local password login away from an account,
+         * which is the direction that can lock an install out of itself,
+         * and it is not something a general-details form should be able to
+         * do as a side effect. Clearing is the recovery direction and
+         * User::save() lets it through unconditionally.
+         *
+         * Guarded on there being one to clear so an unrelated Update on a
+         * local account cannot mark the field dirty.
+         */
+        if (isset($_POST['returnlocal'])
+            && '' !== trim((string)$this->obj->get('authsource'))
+        ) {
+            $this->obj->set('authsource', '');
+        }
     }
     /**
      * Change password div element.
