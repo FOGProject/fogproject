@@ -102,7 +102,7 @@ class System
         // given FOG release ships a known iPXE -- the installer uses this both
         // to pick the download and to check out the matching source when an
         // HTTPS install has to rebuild with its own CA.
-        define('FOG_IPXE_VERSION', 'v2.0.0-fog.6');
+        define('FOG_IPXE_VERSION', 'v2.0.0-fog.7');
         // ADR 0009: the bundled plugins live in FOGProject/fog-plugins and are
         // no longer committed here. Same shape as the iPXE pin above -- the
         // installer reads this to pick which release to download, so a given
