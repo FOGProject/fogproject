@@ -2134,6 +2134,114 @@ _preserveStockIpxe() {
 #
 # Protection begins with the FIRST run after this lands: before that there is no
 # manifest, nothing can be compared, and a file with no entry is treated as
+# Which BIOS boot file DHCP should hand out, given --boot-delay.
+#
+# EFI takes its delay from autoexec.ipxe (_applyBootDelay). BIOS cannot: there
+# is no efi_autoexec_load() on that platform, so its script is still compiled in
+# and the delay still needs a separate binary. 10secdelay/ is that binary, and
+# it is exactly ten seconds -- no build exists for any other value. So every
+# non-zero delay maps to the same file, and the install says so rather than
+# letting --boot-delay 7 look like it did something here.
+_biosBootFile() {
+    if [[ ${bootdelay:-0} -gt 0 ]]; then
+        echo "10secdelay/undionly.kkpxe"
+    else
+        echo "undionly.kkpxe"
+    fi
+}
+# Write the pre-DHCP sleep into autoexec.ipxe, per --boot-delay.
+#
+# Some switches take several seconds to bring a port out of STP listening or
+# out of powersave, and iPXE's first DHCP attempt goes out before that. FOG has
+# always shipped a second copy of every binary with a 10-second sleep compiled
+# in (10secdelay/) as the answer. On EFI that is now two lines of text in a
+# file instead, which is the whole point of dropping EMBED.
+#
+# Bracketed by sentinel comments rather than matched on the sleep line. An
+# admin may have added their own sleep for their own reason, and a bare
+# /^sleep /d would silently eat it. The sentinels also make the option
+# idempotent in both directions: the block is removed and rewritten every run,
+# so lowering the delay or clearing it works exactly like raising it.
+#
+# Written in place with a redirect rather than sed -i or a temp-and-mv, because
+# by the time this runs the file may already be hard-linked into i386-efi/,
+# arm64-efi/ and the secureboot tree. A rename would replace the inode and
+# leave those links pointing at the old content -- exactly the drift the links
+# exist to prevent.
+#
+# Legacy BIOS cannot be served this way: it has no efi_autoexec_load(), so its
+# script is still compiled in and 10secdelay/ still holds a BIOS build.
+# configureDHCP points BIOS clients there when a delay is set.
+_applyBootDelay() {
+    local script="${tftpdirdst%/}/autoexec.ipxe"
+    [[ -f $script ]] || return 0
+    local delay="${bootdelay:-0}"
+    local tmp
+    tmp=$(mktemp) || return 0
+    awk -v delay="$delay" '
+        # Prefix match, not anchored: the BEGIN line carries a trailing
+        # "(installfog.sh --boot-delay...)" note, so a $-anchored pattern never
+        # matches what this same function writes and the blocks stack on every
+        # run instead of being replaced.
+        /^# FOG-BOOT-DELAY-BEGIN/ { skip = 1 }
+        skip { if ( $0 ~ /^# FOG-BOOT-DELAY-END/ ) skip = 0; next }
+        { print }
+        NR == 1 && delay > 0 {
+            print "# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)"
+            print "echo Sleeping " delay " seconds to wait for STP/Powersave to switchoff and on"
+            print "sleep " delay
+            print "# FOG-BOOT-DELAY-END"
+        }
+    ' "$script" > "$tmp" 2>>$error_log
+    # Never truncate the real script on a failed rewrite -- an empty
+    # autoexec.ipxe is a server that netboots nothing.
+    if [[ -s $tmp ]]; then
+        cat "$tmp" > "$script" 2>>$error_log
+    fi
+    rm -f "$tmp" >>$error_log 2>&1
+    if [[ $delay -gt 0 && $delay -ne 10 ]]; then
+        echo " * NOTE: --boot-delay $delay applies to EFI clients, which read"
+        echo "   the sleep from autoexec.ipxe. Legacy BIOS embeds its script, so"
+        echo "   DHCP points it at 10secdelay/, which is exactly 10 seconds."
+    fi
+}
+# Retire the pre-v2.0.0-fog.8 autoexec/ tree.
+#
+# It held a duplicate set of EMBED-less EFI binaries, opted into by pointing
+# DHCP at autoexec/<file>. Every EFI binary is EMBED-less now and the TFTP root
+# carries the script, so the directory is an exact duplicate of the root and no
+# release ships it any more.
+#
+# Deleted rather than left in place: _copyIpxeTree() only ever writes, so a
+# leftover autoexec/ would go on serving whichever release last created it,
+# getting quietly older with every upgrade while looking maintained. A stale
+# netboot binary is worse than a missing path -- a missing path fails
+# immediately and visibly, where a stale one boots and misbehaves.
+#
+# A site whose DHCP still names autoexec/<file> has to be told, because TFTP
+# answers a missing file with an error the client renders as a generic PXE
+# failure with no clue in it. Warn and name the replacement rather than failing
+# the install: the DHCP server handing out that name is frequently not this
+# machine, so this run cannot fix it and should not block on it.
+_retireAutoexecDir() {
+    # Never let an unset tftpdirdst turn this into rm -rf /autoexec.
+    [[ -n $tftpdirdst ]] || return 0
+    local dir="${tftpdirdst%/}/autoexec"
+    [[ -d $dir ]] || return 0
+    dots "Retiring the obsolete autoexec/ directory"
+    rm -rf "$dir" >>$error_log 2>&1
+    if [[ -d $dir ]]; then
+        echo "Failed"
+        echo " * Could not remove $dir. See $error_log."
+        return 0
+    fi
+    echo "Done"
+    echo " * NOTE: autoexec/ has been removed. Every EFI binary in the TFTP"
+    echo "   root now reads autoexec.ipxe, so the duplicate tree served no"
+    echo "   purpose. If any DHCP server hands out a boot filename starting"
+    echo "   \"autoexec/\", drop that prefix -- autoexec/snponly.efi becomes"
+    echo "   snponly.efi."
+}
 # FOG's -- the same "unknown is not modified" rule the kernel path uses, and the
 # only choice that lets an ordinary upgrade still update anything.
 _copyIpxeTree() {
@@ -2365,75 +2473,69 @@ configureTFTPandPXE() {
         done
         echo "   Delete one to have FOG's version installed on the next run."
     fi
-    # iPXE resolves the bare name "autoexec.ipxe" against its current working
-    # URI -- the TFTP directory the running .efi was itself fetched from -- not
-    # against a fixed path. So our EMBED-less binaries under autoexec/ look
-    # inside autoexec/, and the Secure Boot chain's under secureboot/ look
-    # inside secureboot/. Publish every such path.
+    # autoexec.ipxe is now THE boot script for every EFI binary FOG ships, and
+    # the TFTP root is the primary copy.
     #
-    # This is what the Secure Boot chain needs: upstream's signed snponly.efi
-    # has no script compiled in, so without this it asks for a file that was
-    # never created. See GH-960.
+    # Since fog-ipxe v2.0.0-fog.8 no EFI target is built with EMBED=, so each
+    # one downloads autoexec.ipxe and EXECUTES it. That inverts the rule this
+    # block used to enforce. Previously the root held EMBED-marked binaries,
+    # which download the script and then never run it -- first_image() returns
+    # the embedded one ahead of it, nothing unregisters it, and at "boot"
+    # initrd_load_all() concatenates 2 KB of iPXE script ahead of init.xz, so
+    # the kernel finds no compression magic and panics with
     #
-    # Every directory an EMBED-less binary can be booted from therefore needs
-    # its own copy. Hard link, not copies: they are meant to be one script, and
-    # a link keeps them from drifting -- an admin who edits the boot logic
-    # should not have to know how many copies exist.
+    #     VFS: Unable to mount root fs on "/dev/ram0" or unknown-block(1,0)
     #
-    # The root of $tftpdirdst is deliberately NOT in this list, and any root
-    # copy left by an earlier release is removed below.
+    # (forums #18213). An EMBED-less binary executes the script instead, and
+    # image_exec() unregisters it for the duration, so it is gone before boot
+    # runs. Removing EMBED from every EFI target is what makes a root
+    # autoexec.ipxe safe -- and necessary, because efi_autoexec_network() falls
+    # back to /autoexec.ipxe when the binary's own directory has none.
     #
-    # Not a symlink -- some TFTP daemons refuse to follow those, and a hard link
-    # is indistinguishable from a regular file to every daemon.
+    # Legacy BIOS still embeds its script and is unaffected: there is no
+    # efi_autoexec_load() on that platform, so a root autoexec.ipxe is a file it
+    # never asks for.
     #
-    # Relinked unconditionally on every run. In practice the copy loop above
-    # truncates the existing file in place and the link survives, but that is
-    # cp's behaviour rather than a guarantee, and an admin who replaced the
-    # file with an editor that writes-and-renames will have broken the link.
-    # ln -f is idempotent, so re-running costs nothing and restores the
-    # invariant either way.
-    if [[ -f $tftpdirdst/autoexec/autoexec.ipxe ]]; then
+    # Hard link, not copy: every path is meant to be one script, and a link
+    # keeps them from drifting -- an admin who edits the boot logic should not
+    # have to know how many copies exist. Not a symlink, because some TFTP
+    # daemons refuse to follow those while a hard link is indistinguishable from
+    # a regular file to every daemon.
+    #
+    # Relinked unconditionally on every run: the copy loop truncates in place
+    # and the link usually survives, but that is cp's behaviour rather than a
+    # guarantee, and an editor that writes-and-renames breaks it. ln -f is
+    # idempotent.
+    # Before the links, so every path picks the delay up from one rewrite.
+    _applyBootDelay
+    if [[ -f $tftpdirdst/autoexec.ipxe ]]; then
         local autoexecpath
         for autoexecpath in \
-            $tftpdirdst/autoexec/i386-efi/autoexec.ipxe \
-            $tftpdirdst/autoexec/arm64-efi/autoexec.ipxe \
+            $tftpdirdst/i386-efi/autoexec.ipxe \
+            $tftpdirdst/arm64-efi/autoexec.ipxe \
             $tftpdirdst/secureboot/autoexec.ipxe \
             $tftpdirdst/secureboot/arm64-efi/autoexec.ipxe; do
             # Skip rather than create: the secureboot directories only exist if
             # that asset was staged, and an autoexec.ipxe with no binary beside
             # it serves no one.
             [[ -d $(dirname $autoexecpath) ]] || continue
-            ln -f $tftpdirdst/autoexec/autoexec.ipxe $autoexecpath >>$error_log 2>&1
+            ln -f $tftpdirdst/autoexec.ipxe $autoexecpath >>$error_log 2>&1
         done
     fi
-    # Remove any autoexec.ipxe at the root of $tftpdirdst. Earlier releases
-    # linked one there. Dropping it from the list above is not enough on its
-    # own -- an upgrade would leave the existing file in place and the install
-    # would stay broken -- so it is deleted here.
-    #
-    # Nothing we ship at the root reads it. The root holds the EMBED-marked
-    # binaries, which run their compiled-in script; only the EMBED-less ones
-    # under autoexec/ and secureboot/ ever execute a downloaded autoexec.ipxe.
-    #
-    # Every EFI binary nonetheless *downloads* it. efi_probe() calls
-    # efi_autoexec_load() unconditionally, which registers the script before any
-    # driver is connected. An EMBED-marked binary then never executes it --
-    # first_image() returns the embedded script, which sorts ahead of it -- so
-    # nothing ever unregisters it. iPXE has no notion of an image that was
-    # loaded but not wanted, and only fdt/shim images are ever hidden.
-    #
-    # At "boot", initrd_load_all() concatenates every registered non-hidden
-    # image into the ramdisk in registration order. autoexec.ipxe registered
-    # first, so the kernel is handed 2 KB of iPXE script where it expects the
-    # head of init.xz, does not find the compression magic, falls back to
-    # treating the blob as a legacy initrd, and panics with
-    #
-    #     VFS: Unable to mount root fs on "/dev/ram0" or unknown-block(1,0)
-    #
-    # See forums #18213. This costs nothing: the file is a hard link to
-    # autoexec/autoexec.ipxe, so its content -- including any local edit, which
-    # the link shares -- survives in every other published path.
-    rm -f $tftpdirdst/autoexec.ipxe >>$error_log 2>&1
+    # _copyIpxeTree() hashed autoexec.ipxe as it laid it down; _applyBootDelay
+    # then rewrote it, and the links above propagated that to every other path.
+    # Without re-stamping, the next run compares the delayed file against the
+    # pristine sum, reads the difference as "the admin replaced this", and stops
+    # updating the boot script for good -- the same trap _signLocalIpxe() hits
+    # and for the same reason. Naming a path the manifest does not carry is
+    # harmless: only existing lines are rewritten.
+    _restampIpxeManifest "${tftpdirdst%/}" \
+        autoexec.ipxe \
+        i386-efi/autoexec.ipxe \
+        arm64-efi/autoexec.ipxe \
+        secureboot/autoexec.ipxe \
+        secureboot/arm64-efi/autoexec.ipxe
+    _retireAutoexecDir
     chown -R $username $tftpdirdst >>$error_log 2>&1
     chown -R $username $webdirdest/service/ipxe >>$error_log 2>&1
     find $tftpdirdst -type d -exec chmod 755 {} \; >>$error_log 2>&1
@@ -5064,6 +5166,12 @@ writeUpdateFile() {
         # own". Only ever written alongside acmeLeaf=yes.
         webCertFile
         webKeyFile
+        # Seconds of pre-DHCP sleep written into autoexec.ipxe, for switches
+        # that take time to come out of STP/powersave. A genuine preference: it
+        # is the admin's answer to their own network hardware, and losing it on
+        # upgrade brings back the intermittent "no DHCP answer" boots it was set
+        # to cure. 0 (the default) writes no sleep at all.
+        bootdelay
         # How many prior kernel/init generations backupPreservedCustomizations()
         # keeps under customizations/kernel-backups. A genuine persisted
         # preference like fog_update_channel, not a record: an admin who chose
@@ -10455,7 +10563,10 @@ _resignCustomKernels() {
 # Hoisted into a helper so the live Kea config (configureKeaDHCP) and the
 # copy-ready sample (writeKeaSample) can never drift apart.
 _keaBaseClasses() {
-    cat <<'EOFCLS'
+    # Piped through sed rather than unquoting the heredoc: the block is JSON and
+    # keeping it literal is what stops a stray $ or backtick in a future edit
+    # being expanded by the shell. Only the BIOS name varies -- see _biosBootFile.
+    cat <<'EOFCLS' | sed "s|\"boot-file-name\": \"undionly.kkpxe\"|\"boot-file-name\": \"$(_biosBootFile)\"|"
         {
             "name": "FOG-Legacy-BIOS",
             "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
@@ -10814,7 +10925,7 @@ configureDHCP() {
             echo "}" >> "$dhcptouse"
             echo "class \"Legacy\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00000\";" >> "$dhcptouse"
-            echo "    filename \"undionly.kkpxe\";" >> "$dhcptouse"
+            echo "    filename \"$(_biosBootFile)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-32-2\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00002\";" >> "$dhcptouse"
