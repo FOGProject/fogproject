@@ -5159,6 +5159,42 @@ writeUpdateFile() {
             echo "## End of FOG Settings"
         } > "$fogprogramdir/.fogsettings"
     fi
+    # This file holds two cleartext passwords -- $password (the $username
+    # system account, which is also the FTP account image replication logs in
+    # with) and $snmysqlpass -- and used to be left at whatever the umask gave
+    # it, which is 0644. Every local account on the server could read both, and
+    # the FTP one is fleet-wide.
+    #
+    # It was never merely an oversight: Route::whoami() read this file directly
+    # with parse_ini_file(), so the web user NEEDED it readable. That is what
+    # .fogsettings.pub below exists to end -- the five server facts whoami
+    # answers with are published separately, so the secrets can be shut away
+    # without taking a working API route with them.
+    chown root:root "$fogprogramdir/.fogsettings" >>$error_log 2>&1
+    chmod 0600 "$fogprogramdir/.fogsettings" >>$error_log 2>&1
+    # The public half: exactly the facts Route::whoami() answers with, and
+    # nothing else. World-readable on purpose -- the web user parses it.
+    #
+    # Written per server rather than mirrored into globalSettings, which was
+    # the obvious alternative and is wrong here. A storage node serves the API
+    # too (configureMinHttpd stubs out the management UI, not api/index.php)
+    # and its config.class.php points at the MASTER's database, so a
+    # globalSettings-backed whoami would have every node reporting the
+    # master's hostname, IP and installtype='N'. Answering "what am I" from a
+    # shared table cannot work. Same format as .fogsettings so the same
+    # parse_ini_file() call reads it.
+    {
+        echo "## Written by the FOG installer -- DO NOT EDIT."
+        echo "## The public subset of .fogsettings: the server facts the"
+        echo "## /api/whoami route answers with. Regenerated on every run."
+        echo "## .fogsettings itself is 0600 because it holds passwords."
+        local pubkey
+        for pubkey in ipaddress hostname osid osname installtype; do
+            settingLine "$pubkey"
+        done
+    } > "$fogprogramdir/.fogsettings.pub" 2>>$error_log
+    chown root:root "$fogprogramdir/.fogsettings.pub" >>$error_log 2>&1
+    chmod 0644 "$fogprogramdir/.fogsettings.pub" >>$error_log 2>&1
 }
 displayBanner() {
     echo

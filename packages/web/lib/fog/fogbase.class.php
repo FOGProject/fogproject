@@ -945,7 +945,7 @@ abstract class FOGBase
      *
      * @return void
      */
-    public static function redirect($url = '')
+    public static function redirect($url = '', $status = 308)
     {
         if (self::$service) {
             return;
@@ -955,7 +955,20 @@ abstract class FOGBase
         header('X-XSS-Protection: 1; mode=block');
         header('X-Robots-Tag: none');
         header('X-Frame-Options: SAMEORIGIN');
-        header("Location: $url", true, 308);
+        /*
+         * 308 stays the default because every existing caller redirects to a
+         * fixed place and has done for years. It is the wrong answer for a
+         * ONE-OFF destination: 308 is permanent and cacheable, so a browser
+         * may keep sending that URL to the same target without asking again.
+         * Single logout is exactly that case -- the target carries an
+         * id_token_hint that is valid for one sign-in -- so those callers
+         * pass 302. (fog-plugins#15)
+         */
+        $status = (int)$status;
+        if (!in_array($status, [301, 302, 303, 307, 308], true)) {
+            $status = 308;
+        }
+        header("Location: $url", true, $status);
         exit;
     }
     /**

@@ -68,7 +68,7 @@ your own configuration.
 |---|---|
 | Extra directives, headers, `location`/`Directory` blocks | Keep them outside the markers; never touched |
 | Extra hostnames / DNS aliases | Use `--extra-server-name` (repeatable) so they land in both the vhost **and** the certificate SAN |
-| Primary hostname | Use `--hostname`; remembered in `.fogsettings` |
+| Primary hostname | Use `--hostname`; remembered in [`.fogsettings`](https://docs.fogproject.org/install-fogsettings) |
 | Custom certificate paths | Point the vhost's cert directives at your paths **outside** the block, or replace the files FOG already references |
 
 On the first run after upgrading into this scheme, a vhost with no markers is

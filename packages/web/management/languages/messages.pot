@@ -8064,6 +8064,12 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "no enabled master node answered the probe"
+msgstr ""
+
+msgid "no node in the group answered the probe"
+msgstr ""
+
 msgid "no reason given"
 msgstr ""
 
@@ -8225,6 +8231,9 @@ msgid "the Linux kernel which is used to"
 msgstr ""
 
 msgid "the following command in a terminal"
+msgstr ""
+
+msgid "the group has no enabled master node"
 msgstr ""
 
 msgid "the host defined location where available"
