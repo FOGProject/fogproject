@@ -212,8 +212,11 @@ usage() {
     echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
     echo -e "\t      --secure-boot-cert\tCertificate matching --secure-boot-key"
     echo -e "\t                        \t\t\t(both are required together)"
-    echo -e "\t      --no-secure-boot\t\tDo not generate a Secure Boot signing"
-    echo -e "\t                      \t\t\tkey, and leave the FOS kernels unsigned"
+    echo -e "\t      --no-secure-boot\t\tDo not publish Secure Boot ENROLMENT"
+    echo -e "\t                      \t\t\tmaterial: no MOK.der, no PK/KEK/db.auth,"
+    echo -e "\t                      \t\t\tand no 'Enroll Secure Boot Key' menu"
+    echo -e "\t                      \t\t\tentry. Binaries are still signed -- a"
+    echo -e "\t                      \t\t\tsignature is inert with Secure Boot off"
     echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
     echo -e "\t                   \t\t\tserver's own system trust store"
     exit 0
@@ -1262,13 +1265,21 @@ while [[ -z $blGo ]]; do
                     # does not hold the signing key.
                     _signLocalIpxe
                     # Separate call, not folded into the one above, because the
-                    # two do not share a trigger. Signing needs Secure Boot keys;
-                    # publishing does not -- booting a machine from an iPXE
+                    # two do not share a trigger. Signing needs a Secure Boot
+                    # key; publishing does not -- booting a machine from an iPXE
                     # binary on its own ESP predates Secure Boot, and unsigned
                     # copies still work on every machine booting with it off. The
                     # web root is also rebuilt from scratch every run by
                     # configureHttpd, so publishing has to happen even on a run
                     # that signed nothing.
+                    #
+                    # Also downstream of _publishSecureBootKit and
+                    # _publishSecureBootAuthVars, which run inside configureHttpd
+                    # above via downloadfiles(). Each archive carries whatever
+                    # enrolment material those two actually published -- MOK.der
+                    # and the PK/KEK/db variable updates -- so one archive on a
+                    # USB stick holds every enrolment route. Taken by existence,
+                    # so a server that published neither simply ships neither.
                     _publishLocalBootFiles
                     configureFTP
                     configureSnapins
