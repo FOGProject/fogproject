@@ -1815,6 +1815,10 @@ msgstr "Pas de hachage disponible"
 msgid "Database save failed"
 msgstr "mise à jour de base de données a échoué"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "Base de données de schéma d'installation / Updater"
+
 msgid "Date"
 msgstr "date"
 

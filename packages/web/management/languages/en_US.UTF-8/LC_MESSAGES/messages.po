@@ -1813,6 +1813,10 @@ msgstr "No hash available"
 msgid "Database save failed"
 msgstr "Database update failed"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "Database Schema Installer / Updater"
+
 msgid "Date"
 msgstr "Date"
 

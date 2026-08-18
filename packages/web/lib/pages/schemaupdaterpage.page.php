@@ -51,6 +51,22 @@ class SchemaUpdaterPage extends FOGPage
         if ($schema->get('version') >= FOG_SCHEMA
             && !Schema::requiredRowsMissing()
         ) {
+            /*
+             * The installer POSTs its deploy here and reads nothing but the
+             * HTTP status, so bouncing it to the dashboard made "the schema
+             * is already current" indistinguishable from "the login page
+             * happened to render" -- and once a plugin could send that page
+             * to an identity provider instead, installfog.sh reported
+             * "Updating Database...Failed!" on a healthy database.
+             *
+             * Only the header channel can reach this: validSchemaBootstrap()
+             * accepts the URL token only while a deploy is outstanding, and
+             * by definition none is here.
+             */
+            if (self::validSchemaBootstrap()) {
+                echo _('Database schema is already up to date.');
+                exit;
+            }
             self::redirect('../management/index.php');
         }
         $this->name = _('Database Schema Installer / Updater');

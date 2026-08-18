@@ -94,8 +94,29 @@ if (!isset($node) || (!in_array($node, $nodes) && !$currentUser->isValid())) {
      *
      * Only for a visitor who is NOT signed in, and only on the form render,
      * so nothing here can bounce a working session or an in-flight callback.
+     *
+     * And only for a caller that could actually follow a browser sign-in.
+     * The installer is the proof that matters: updateDB() POSTs its schema
+     * deploy to ?node=schema, a schema that is already current bounces that
+     * request here (schemaupdaterpage.page.php), and with a forced redirect
+     * configured the next hop was the provider -- so installfog.sh reported
+     * "Updating Database...Failed!" on a server whose database was fine.
+     * This is the same class of gate as FOG_WANTS_SESSION at the top of this
+     * file: an entry point shared by browsers and machines has to tell them
+     * apart before doing something only a browser can complete.
+     *
+     * A document navigation is a GET that asks for text/html. fetch/XHR,
+     * curl, the installer and every client library send a wildcard or a
+     * specific type. A caller that fails the test gets the login form, which
+     * is the safe direction to fail in -- it is what this page did before
+     * any of this existed.
      */
-    if (!defined('FOG_LOCAL_LOGIN')) {
+    $browserNavigation = 'GET' === ($_SERVER['REQUEST_METHOD'] ?? '')
+        && false !== stripos(
+            (string)($_SERVER['HTTP_ACCEPT'] ?? ''),
+            'text/html'
+        );
+    if (!defined('FOG_LOCAL_LOGIN') && $browserNavigation) {
         $loginRedirect = '';
         $HookManager->processEvent(
             'LOGIN_PAGE_REDIRECT',

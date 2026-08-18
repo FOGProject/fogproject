@@ -1810,6 +1810,10 @@ msgstr "Pfad ist nicht verfügbar"
 msgid "Database save failed"
 msgstr "Datenbankspeicherung fehlgeschlagen"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
+
 msgid "Date"
 msgstr "Datum"
 
