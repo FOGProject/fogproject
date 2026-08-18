@@ -21,9 +21,9 @@ in this area:
 | Kind | Meaning | Examples |
 |---|---|---|
 | **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `secureboot`, `catrust`, `fwconfigure`, `fog_update_channel`, `internalSubnets`, `kernelBackupGenerations` |
-| **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `fogprogramdir`, `fog_git_path`, `packages`, `php_ver` |
+| **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `fogprogramdir`, `fog_git_path`, `packages`, `php_ver`, `netbootproto` |
 | **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `snmysqlexternal`, `dhcpengine`, `tftpAdvOpts`, `inetConnectTimeout` |
-| **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `acmeLeaf`, `webCertFile`, `webKeyFile`, `httpsRedirect` |
+| **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `acmeLeaf`, `webCertFile`, `webKeyFile`, `httpsRedirect`, `netbootProtoForced` |
 
 The preference/record distinction is load-bearing. A preference that gets
 recomputed is a setting the admin cannot make stick; a record that gets trusted
@@ -41,6 +41,21 @@ The guard that makes this a preference rather than a measurement is the same one
 Re-deriving every run would let a heuristic overrule an admin who cleared it,
 which is the failure mode a *record* has and a preference must not. Clearing all
 three by hand is the documented way back to FOG managing the leaf.
+
+**A record and a preference cannot share one key.** `netbootproto` was a
+preference, on the reasoning that an admin who forced it should not get the
+computed default back next upgrade. But the installer also *derives* it when
+nobody forced anything, and writes the result to the same key — so a derived
+value became indistinguishable from a forced one and outlived the keys it was
+derived from. Reported from a live server: a run resolved `http` and persisted
+it, the admin then set `publicWebCert="yes"`, and the resolver short-circuited on
+the stale value and reported HTTP netboot as though it had just decided that.
+
+The pair now splits the two jobs. `netbootproto` is a record, re-derived every
+run; `netbootProtoForced` is the preference, and the only thing that makes "the
+admin forced this" distinguishable from "a previous run worked this out". When a
+key needs protecting from recomputation *and* is itself computed, it needs two
+keys, not a comment.
 
 **Hand-set keys work because of ordering**, not because anything supports them:
 `lib/common/config.sh` guards its defaults with `[[ -z $x ]]`, and `.fogsettings`

@@ -5070,9 +5070,18 @@ writeUpdateFile() {
         # deeper history must keep it across every future upgrade, or the
         # generations they were relying on get evicted by the next run.
         kernelBackupGenerations
-        # Protocol iPXE uses for boot.php. Persisted so an admin who forced it
-        # one way does not silently get the computed default back next upgrade.
+        # Protocol iPXE uses for boot.php. A RECORD, not a preference: it is
+        # re-derived on every run from publicWebCert/rebuildIpxeWithMyCA, and
+        # persisting it is so .fogsettings readers can see what was resolved.
+        # It used to be treated as a preference, which is what let a derived
+        # value outlive the keys it was derived from -- see _resolveNetbootProto.
         netbootproto
+        # Whether netbootproto was chosen by --netboot-proto rather than derived.
+        # This is the preference half of the pair, and the only thing that makes
+        # "the admin forced this" distinguishable from "a previous run worked
+        # this out". Without it, protecting a forced value and protecting a stale
+        # one are the same code path.
+        netbootProtoForced
         # The trust anchor: what ca.cert.der publishes and what fog-client pins.
         # Recorded explicitly rather than inferred from $sslcapem, because that
         # variable names the CA that signs the VHOST leaf -- after this change
@@ -5914,7 +5923,26 @@ _applyInstallMode() {
     esac
 }
 _resolveNetbootProto() {
-    [[ -n $netbootproto ]] && return 0
+    # An explicit --netboot-proto wins, and is REMEMBERED as explicit so a later
+    # run without the flag goes on honouring it.
+    #
+    # That marker is the fix. This used to return early on any non-empty
+    # $netbootproto -- and $netbootproto is persisted, so a value this function
+    # DERIVED on one run was indistinguishable from one an admin forced, and
+    # short-circuited every run afterwards. The consequence was reported from a
+    # live server: an install resolved http, wrote it down, and the admin then
+    # declared publicWebCert="yes" and watched it be read and ignored, because
+    # netbootproto=http was already in the file. Nothing said so -- the summary
+    # reported HTTP netboot as though it had just decided that.
+    if [[ -n $snetbootproto ]]; then
+        netbootproto="$snetbootproto"
+        netbootProtoForced="yes"
+        return 0
+    fi
+    [[ $netbootProtoForced == yes && -n $netbootproto ]] && return 0
+    # Otherwise DERIVE, every run. Re-deriving is the point rather than a cost:
+    # these two keys are exactly what an admin edits to change this answer, so
+    # the answer has to follow them instead of outliving them.
     if [[ $publicWebCert == yes || $rebuildIpxeWithMyCA == yes ]]; then
         netbootproto="https"
     else
