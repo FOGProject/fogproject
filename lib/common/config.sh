@@ -27,6 +27,16 @@
 # rather than whatever happened to be tagged the day someone installed.
 [[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
 [[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.6"
+# Bounds for every network fetch the installer makes, and the answer
+# checkInternetConnection works out for the fetches that follow it. Overridable
+# from .fogsettings for a link slow enough that fifteen seconds is genuinely too
+# short, which is the only reason to raise them -- they exist so an unreachable
+# host costs seconds instead of libcurl's 300 second default connect timeout.
+# internet_ok starts optimistic so any path that reaches a download without
+# having run the check behaves exactly as it did before.
+[[ -z $inetConnectTimeout ]] && inetConnectTimeout=5
+[[ -z $inetMaxTime ]] && inetMaxTime=15
+[[ -z $internet_ok ]] && internet_ok=1
 [[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-20250223.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-20250223"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
