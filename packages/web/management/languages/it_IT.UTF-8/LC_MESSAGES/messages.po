@@ -6053,6 +6053,9 @@ msgstr ""
 msgid "Return Code"
 msgstr "Codice di ritorno"
 
+msgid "Return To Local Login"
+msgstr ""
+
 msgid "Return code"
 msgstr "Codice di ritorno"
 
@@ -9086,6 +9089,10 @@ msgid "keys"
 msgstr ""
 
 msgid "leave to keep the current one"
+msgstr ""
+
+#, php-format
+msgid "lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterwards"
 msgstr ""
 
 msgid "limited to 1Mbps on that node"

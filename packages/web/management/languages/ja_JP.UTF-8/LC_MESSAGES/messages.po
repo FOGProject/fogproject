@@ -6006,6 +6006,9 @@ msgstr ""
 msgid "Return Code"
 msgstr "戻りコード"
 
+msgid "Return To Local Login"
+msgstr ""
+
 msgid "Return code"
 msgstr "戻りコード"
 
@@ -9012,6 +9015,10 @@ msgstr ""
 #, fuzzy
 msgid "leave to keep the current one"
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
+#, php-format
+msgid "lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterwards"
+msgstr ""
 
 msgid "limited to 1Mbps on that node"
 msgstr "そのノードで 1 Mbps に制限されます"
