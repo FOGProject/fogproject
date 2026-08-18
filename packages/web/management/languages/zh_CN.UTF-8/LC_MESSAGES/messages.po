@@ -1814,6 +1814,10 @@ msgstr "没有可用的散列"
 msgid "Database save failed"
 msgstr "数据库更新失败"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "数据库模式安装/更新"
+
 msgid "Date"
 msgstr "日期"
 

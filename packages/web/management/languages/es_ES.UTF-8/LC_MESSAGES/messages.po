@@ -1835,6 +1835,10 @@ msgstr "No se dispone de hash"
 msgid "Database save failed"
 msgstr "actualización de la base no"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "Esquema de base de datos del instalador / actualizador"
+
 msgid "Date"
 msgstr "Fecha"
 

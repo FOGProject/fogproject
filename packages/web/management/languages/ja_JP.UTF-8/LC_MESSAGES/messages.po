@@ -1734,6 +1734,10 @@ msgstr "データベースを利用できません"
 msgid "Database save failed"
 msgstr "データベースの保存に失敗しました"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "FOG データベースのスキーマが最新ではありません"
+
 msgid "Date"
 msgstr "日付"
 

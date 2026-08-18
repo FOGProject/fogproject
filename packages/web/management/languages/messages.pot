@@ -1530,6 +1530,9 @@ msgstr ""
 msgid "Database save failed"
 msgstr ""
 
+msgid "Database schema is already up to date."
+msgstr ""
+
 msgid "Date"
 msgstr ""
 

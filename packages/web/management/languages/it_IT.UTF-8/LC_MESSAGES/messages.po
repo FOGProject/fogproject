@@ -1752,6 +1752,10 @@ msgstr "Percorso non disponibile"
 msgid "Database save failed"
 msgstr "Salvataggio del database non riuscito"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "Il tuo schema di database FOG non è aggiornato"
+
 msgid "Date"
 msgstr "Data"
 

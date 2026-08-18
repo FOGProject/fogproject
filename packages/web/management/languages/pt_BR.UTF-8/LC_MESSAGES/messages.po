@@ -1814,6 +1814,10 @@ msgstr "Nenhum de hash disponíveis"
 msgid "Database save failed"
 msgstr "atualização de banco de dados falhou"
 
+#, fuzzy
+msgid "Database schema is already up to date."
+msgstr "Banco de dados de esquema Instalador / Updater"
+
 msgid "Date"
 msgstr "Encontro"
 
