@@ -104,7 +104,12 @@ joined() {
 # call cannot accidentally inherit one:
 #
 #   ipaddress     the maintenance/* posts -- this same host over loopback
-#   dbhttpcode=   backupDB's fetch of backup_db.php, likewise $ipaddress
+#   selfName      the schema post and the liveness probe. Same host, same
+#                 loopback: these address it by the name its own certificate
+#                 carries instead of by $ipaddress, because no public CA will
+#                 issue for an address and the old form could not verify on an
+#                 ACME install. A rename, not a new remote fetch.
+#   dbhttpcode=   backupDB's fetch of backup_db.php, likewise this same host
 #   nodecert.php  a storage node asking its master for a certificate: LAN, not
 #                 the internet. Still unbounded, and still able to stall a node
 #                 install if the master is down -- out of scope here, but a
@@ -117,6 +122,7 @@ remotecurls() {
         | grep -E '(^|[^-[:alnum:]_])curl[[:space:]]+-' \
         | grep -vE '^[[:space:]]*echo ' \
         | grep -v 'ipaddress' \
+        | grep -v 'selfName' \
         | grep -v 'dbhttpcode=' \
         | grep -v 'nodecert.php'
 }
