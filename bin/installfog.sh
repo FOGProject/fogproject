@@ -872,7 +872,10 @@ _applyInstallMode
 [[ -n $scatrust ]] && catrust=$scatrust
 [[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
-# persisted value and a persisted value beats the computed default.
+# persisted value. A persisted value does NOT beat the computed default any
+# more: netbootproto is re-derived every run unless netbootProtoForced records
+# that somebody actually passed --netboot-proto. It used to, and that is how a
+# value one run derived went on overriding the keys it was derived from.
 [[ -n $snetbootproto ]] && netbootproto=$snetbootproto
 [[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
 [[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey

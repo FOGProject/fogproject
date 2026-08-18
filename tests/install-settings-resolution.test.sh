@@ -108,8 +108,16 @@ is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
    "https|https|no|yes" "embed-ca: HTTPS netboot via a rebuild"
 
 # --- netboot transport -------------------------------------------------------
+# $1 publicWebCert, $2 rebuildIpxeWithMyCA, $3 the --netboot-proto FLAG,
+# $4 a value already sitting in .fogsettings, $5 netbootProtoForced.
+#
+# $3 and $4 used to be the same argument, which is precisely the bug this
+# function's caller was reported for: a value the resolver DERIVED on one run is
+# persisted, and was then indistinguishable from one an admin forced. Modelling
+# them as one thing is how a test can pass while the behaviour is wrong.
 nb() {
-    publicWebCert="$1"; rebuildIpxeWithMyCA="$2"; netbootproto="$3"
+    publicWebCert="$1"; rebuildIpxeWithMyCA="$2"
+    snetbootproto="$3"; netbootproto="$4"; netbootProtoForced="$5"
     _resolveNetbootProto
     printf '%s' "$netbootproto"
 }
@@ -123,6 +131,18 @@ is "$(nb yes yes '')" "https" "both triggers together still https"
 # anyway must be able to say so.
 is "$(nb no no https)"  "https" "explicit --netboot-proto https wins"
 is "$(nb yes no http)"  "http"  "explicit --netboot-proto http wins over publicWebCert"
+
+# The reported regression. A run with neither trigger resolves http and persists
+# it; the admin then declares publicWebCert="yes" and re-runs. The persisted
+# value must NOT survive that -- it was derived from the very key that changed.
+is "$(nb yes no '' http '')"   "https" "a persisted derived http is re-derived when publicWebCert appears"
+is "$(nb no yes '' http '')"   "https" "...and when rebuildIpxeWithMyCA appears"
+is "$(nb no no '' https '')"   "http"  "a persisted derived https is re-derived when both triggers go away"
+
+# ...but a value the admin actually forced does survive, which is the whole
+# reason the marker exists rather than the persisted value simply being ignored.
+is "$(nb yes no '' http yes)"  "http"  "a FORCED http survives publicWebCert=yes"
+is "$(nb no no '' https yes)"  "https" "a FORCED https survives with neither trigger set"
 
 # The old resolver keyed on $caCreated, a PERSISTED key that is "yes" on every
 # re-run of an existing server. With httpproto now https for everyone, that
