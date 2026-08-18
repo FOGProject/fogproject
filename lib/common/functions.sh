@@ -6301,8 +6301,15 @@ _writeWebChainFiles() {
     local leafdir block subj issuer
     sslfullchain=""
     sslchainonly=""
-    [[ -n $sslpubcert && -f $sslpubcert ]] || return 0
-    [[ -n $sslcachain && -f $sslcachain ]] || return 0
+    # -s, not -f. An EMPTY certificate file passes -f, and cat'ing it into the
+    # bundle below contributes nothing -- producing a "full chain" that is only
+    # the CA. The web server then presents the CA as the leaf, whose key is not
+    # $sslprivkey, and refuses to start with "key values mismatch" while
+    # `nginx -t` on the very same config still passes. That took a live server
+    # down, and the leaf on disk was correct the whole time, so nothing about
+    # the failure pointed at the file that was actually wrong.
+    [[ -n $sslpubcert && -s $sslpubcert ]] || return 0
+    [[ -n $sslcachain && -s $sslcachain ]] || return 0
 
     leafdir="$(_pkiZoneDir web)/leaf"
     mkdir -p "$leafdir" >>$error_log 2>&1
@@ -6337,7 +6344,29 @@ _writeWebChainFiles() {
         rm -f "$chainonly" >>$error_log 2>&1
         return 0
     fi
-    cat "$sslpubcert" "$chainonly" > "$fullchain" 2>>$error_log || return 0
+    # Assemble beside the live file, not over it. This bundle is what the web
+    # server serves, so a bad one costs the server its start-up; keeping the
+    # previous chain is always better than installing a broken one.
+    cat "$sslpubcert" "$chainonly" > "${fullchain}.new" 2>>$error_log || return 0
+    # The first certificate in the bundle is the leaf the web server will pair
+    # with $sslprivkey. Check that here rather than let the web server discover
+    # it at start-up: openssl x509 reads only the first certificate, which is
+    # exactly the one being checked.
+    local leafpub keypub
+    leafpub=$(openssl x509 -in "${fullchain}.new" -noout -pubkey 2>>$error_log \
+        | openssl sha256 2>>$error_log)
+    keypub=""
+    [[ -n $sslprivkey && -s $sslprivkey ]] && \
+        keypub=$(openssl pkey -in "$sslprivkey" -pubout 2>>$error_log \
+            | openssl sha256 2>>$error_log)
+    if [[ -n $leafpub && -n $keypub && $leafpub != "$keypub" ]]; then
+        echo " * WARNING: assembled chain does not match $sslprivkey."
+        echo "   Keeping the existing ${fullchain} rather than installing one"
+        echo "   the web server would refuse to load."
+        rm -f "${fullchain}.new" >>$error_log 2>&1
+        return 0
+    fi
+    mv -f "${fullchain}.new" "$fullchain" >>$error_log 2>&1 || return 0
     chmod 0644 "$chainonly" "$fullchain" >>$error_log 2>&1
     sslchainonly="$chainonly"
     sslfullchain="$fullchain"
