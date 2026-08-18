@@ -6684,6 +6684,42 @@ _vhostKeyPath() {
     grep -aoiE '^[[:space:]]*(SSLCertificateKeyFile|ssl_certificate_key)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
         | awk '{print $NF}' | head -1
 }
+# The vhost's primary name and its alias list, for both web servers.
+#
+# The certificate has been name-first for a while -- _createWebLeaf() issues
+# CN=$hostname with every address as an IP SAN -- but the vhost was still
+# address-first: ServerName was $ipaddress and the name was demoted to an alias.
+# That was harmless while nothing verified, and stopped being harmless when the
+# installer's own calls to itself started verifying: no public CA will issue for
+# an address, so an ACME server could not satisfy a check keyed on one.
+#
+# So the primary name comes from _servedCertName() -- the same value the
+# self-calls verify against, which is what keeps the vhost's identity and the
+# TLS identity from disagreeing. It falls back to $ipaddress when no name is
+# available, so a DNS-less lab install is unchanged.
+#
+# EVERY address stays, as an alias. That is deliberate and must not be tidied
+# away: on an ACME install the address will never verify over HTTPS, but a
+# client configured with the address still talks to FOG over HTTP, and the alias
+# is the general failsafe for anything addressing this server by number.
+#
+# One helper for both web servers, because the two used to compute this
+# separately and drifted -- see the sweep comment above _rewriteManagedNames().
+# ServerName takes exactly one name (GH-650: a second address on the same NIC
+# emitted a bare "10.0.0.2" line and apache refused to start), so the split
+# matters rather than being cosmetic.
+_resolveVhostNames() {
+    local n seen
+    vhostname=$(_servedCertName)
+    seen=" $vhostname "
+    vhostaliases=""
+    for n in $ipaddresses $hostname $extraServerNames; do
+        [[ -z $n ]] && continue
+        [[ " $seen " == *" $n "* ]] && continue
+        seen="$seen$n "
+        vhostaliases="${vhostaliases} ${n}"
+    done
+}
 # Whether the certificate this server serves is managed OUTSIDE FOG.
 #
 # acmeLeaf has always been the answer to that question and has always had to be
@@ -7026,6 +7062,8 @@ EOF
     for extraname in $extraServerNames; do
         extraServerNamesSuffix="${extraServerNamesSuffix} ${extraname}"
     done
+    # Name-first, addresses as aliases, for both web servers at once.
+    _resolveVhostNames
     case $webserver in
         nginx)
             case $novhost in
@@ -7064,7 +7102,7 @@ EOF
                     beginManagedVhost
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
-                    echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
+                    echo "    server_name ${vhostname}${vhostaliases};" >> "$etcconf"
                     # Whether :80 SERVES the site or redirects away from it is
                     # the redirect's decision, not $httpproto's. 443 listens
                     # either way -- see the ssl server block emitted in both
@@ -7129,7 +7167,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
+                        echo "    server_name ${vhostname}${vhostaliases};" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -7283,7 +7321,7 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen $ipaddress:443 ssl${nginxhttp2listen};" >> "$etcconf"
-                        echo "    server_name $ipaddresses $hostname${extraServerNamesSuffix};" >> "$etcconf"
+                        echo "    server_name ${vhostname}${vhostaliases};" >> "$etcconf"
                         echo "    root ${docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
@@ -7395,9 +7433,6 @@ EOF
                     # exactly one name; the extras go on ServerAlias, which is
                     # variadic, so a multi-homed server still answers to every
                     # address it has.
-                    vhostname="$ipaddress"
-                    vhostaliases=$(echo $ipaddresses | awk '{for (i = 2; i <= NF; i++) printf " %s", $i}')
-                    vhostaliases="${vhostaliases}${extraServerNamesSuffix}"
                     mv -fv "${etcconf}" "${etcconf}.${timestamp}" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     # See the nginx branch above -- same scratch-file swap, so
                     # none of the write sites below change.
@@ -7420,7 +7455,7 @@ EOF
                     echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                     echo "    KeepAlive Off" >> "$etcconf"
                     echo "    ServerName $vhostname" >> "$etcconf"
-                    echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                    [[ -n $vhostaliases ]] && echo "    ServerAlias${vhostaliases}" >> "$etcconf"
                     # maintenance/ holds installer-only endpoints (a full DB dump,
                     # storage-node create/update). Each one gates itself on the
                     # request being same-machine, but the directory is only removed
@@ -7487,7 +7522,7 @@ EOF
                         # Keeps API basic auth working; see the :80 vhost.
                         echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                         echo "    ServerName $vhostname" >> "$etcconf"
-                        echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                        [[ -n $vhostaliases ]] && echo "    ServerAlias${vhostaliases}" >> "$etcconf"
                         # See the :80 vhost -- installer-only, same-machine only.
                         echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
                         echo "        Require local" >> "$etcconf"
@@ -7614,7 +7649,7 @@ EOF
                         # Keeps API basic auth working; see the :80 vhost.
                         echo "    SetEnvIf Authorization \"(.+)\" HTTP_AUTHORIZATION=\$1" >> "$etcconf"
                         echo "    ServerName $vhostname" >> "$etcconf"
-                        echo "    ServerAlias ${hostname}${vhostaliases}" >> "$etcconf"
+                        [[ -n $vhostaliases ]] && echo "    ServerAlias${vhostaliases}" >> "$etcconf"
                         # See the :80 vhost -- installer-only, same-machine only.
                         echo "    <LocationMatch \"^${webrootre}maintenance/\">" >> "$etcconf"
                         echo "        Require local" >> "$etcconf"
