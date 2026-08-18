@@ -369,7 +369,7 @@ whatever your site already runs, and point its install hook at the paths FOG's
 vhost reads. Full walkthrough in
 [EXTERNAL_CA_AND_LETSENCRYPT.md](EXTERNAL_CA_AND_LETSENCRYPT.md).
 
-Set `acmeLeaf="yes"` in [`/opt/fog/.fogsettings`](FOGSETTINGS.md) so the installer
+Set `acmeLeaf="yes"` in [`/opt/fog/.fogsettings`](https://docs.fogproject.org/install-fogsettings) so the installer
 stops regenerating the leaf, and so it leaves the permissions on your key alone.
 
 > The historic warning about not letting an ACME client replace
