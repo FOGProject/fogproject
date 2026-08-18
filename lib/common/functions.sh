@@ -6742,6 +6742,40 @@ EOF
         if [[ -n $phpsessdir && $phpsessdir == /* && $phpsessdir != "/" && -d $phpsessdir && $phpsessdir == *session* ]]; then
             chown -R ${apacheuser}:${apacheuser} "$phpsessdir" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         fi
+        # The pool's error log is orphaned by the same user change, and it
+        # fails silently in a way the session directory does not: php-fpm
+        # cannot open it, so every error_log() call from FOG's PHP is
+        # discarded and the log stays zero bytes forever. Nothing reports
+        # this -- not the browser, not the master's own error.log. The
+        # diagnostics that vanish are the ones written for exactly the
+        # cases nobody can reproduce: the storage-group fallback warning,
+        # the OIDC plugin's reason for rejecting an ID token, the login
+        # page's reason for refusing a provider button.
+        #
+        # Measured on a Fedora nginx install: the RPM ships
+        # /var/log/php-fpm owned apache:root and www-error.log owned
+        # apache:apache, the pool runs as nginx after the rewrite above,
+        # and `test -w` says no to both.
+        #
+        # The file is chowned unconditionally; the directory only when its
+        # own name marks it as php-fpm's. On Debian the log sits directly
+        # in /var/log, and chowning that to the web user would be a far
+        # worse bug than the one being fixed.
+        #
+        # logrotate keeps the ownership: the packaged php-fpm rule has no
+        # `create` line, so a rotated file inherits the attributes of the
+        # one it replaced.
+        phpfpmlog=$(sed -n "s/^[;[:space:]]*php_admin_value\[error_log\][[:space:]]*=[[:space:]]*//p" $phpfpmconf | tail -1 | tr -d '"')
+        if [[ -n $phpfpmlog && $phpfpmlog == /* && $phpfpmlog != "/" && -d $(dirname "$phpfpmlog") ]]; then
+            [[ -f $phpfpmlog ]] || touch "$phpfpmlog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            chown ${apacheuser}:${apacheuser} "$phpfpmlog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+            phpfpmlogdir=$(dirname "$phpfpmlog")
+            case "$(basename "$phpfpmlogdir")" in
+                *fpm*|*php*)
+                    chown ${apacheuser}:${apacheuser} "$phpfpmlogdir" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    ;;
+            esac
+        fi
         sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
         sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$workingdir/error_logs/fog_error_${version}.log 2>&1
