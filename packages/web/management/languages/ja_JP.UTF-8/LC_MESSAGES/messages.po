@@ -3160,6 +3160,9 @@ msgstr "ホストの更新に成功しました"
 msgid "Host added!"
 msgstr "ホストを追加しました！"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "ホストは既に実行中のタスクに含まれています"
 
@@ -4773,6 +4776,10 @@ msgstr "アクセスは許可されていません"
 msgid "No active task found for this host"
 msgstr "このホストの実行中タスクは見つかりません"
 
+#, fuzzy
+msgid "No active tasks to cancel for this group"
+msgstr "このホストの実行中タスクは見つかりません"
+
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
@@ -5139,6 +5146,9 @@ msgid "One or more macs are associated with a host"
 msgstr "1 つ以上の MAC アドレスがホストに関連付けられています"
 
 msgid "Online"
+msgstr ""
+
+msgid "Only a task in a queued or in-progress state can be cancelled. Naming a resource whose task has already finished -- Complete, Cancelled or Failed -- answers 409 rather than reporting a success it did not perform."
 msgstr ""
 
 msgid "Only administrators may use it until the plugin declares a permission for the route."
@@ -5862,6 +5872,10 @@ msgstr "キュー済み"
 
 msgid "Queued Path Deletions"
 msgstr ""
+
+#, fuzzy
+msgid "Queued deletion is not active and cannot be cancelled"
+msgstr "スナップインは保護されているため削除できません"
 
 msgid "RESOURCES"
 msgstr ""
@@ -7326,6 +7340,10 @@ msgid "Task finished"
 msgstr "タスク実行に失敗しました"
 
 #, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "イメージは保護されているため削除できません"
+
+#, fuzzy
 msgid "Task not created as there are no associated Tasks"
 msgstr "関連付けられたタスクがないため、タスクは作成されませんでした"
 
@@ -7599,6 +7617,9 @@ msgid "The provider published no https %s"
 msgstr ""
 
 msgid "The provider returned a configuration for a different issuer"
+msgstr ""
+
+msgid "The resource is not in a cancellable state."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
