@@ -1889,9 +1889,6 @@ msgstr ""
 msgid "Event Data must be an array"
 msgstr ""
 
-msgid "Event and data are not set"
-msgstr ""
-
 msgid "Event must be a string"
 msgstr ""
 

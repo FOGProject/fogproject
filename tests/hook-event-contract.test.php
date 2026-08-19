@@ -272,11 +272,81 @@ if (false === strpos($printed, 'CHAR_PRINTED')) {
 
 // ------------------------------------------------------------- notify()
 
+// The name-recording cache is what makes notify() reachable from a test at
+// all: it used to ask the notifyevents table on every call, before any guard
+// and before anything a test could intercept.
+$knownNotify = new \ReflectionProperty('FOG\EventManager', 'knownNotifyEvents');
+$knownNotify->setAccessible(true);
+$knownNotify->setValue(null, [
+    'CHAR_NOTIFY' => true,
+    'CHAR_NOTIFY_OFF' => true,
+    'CHAR_NOTIFY_NOBODY' => true,
+]);
+
+$em2 = $bare('FOG\EventManager');
+$heard = $bare('CharEvent');
+$em2->register('CHAR_NOTIFY', $heard);
+if (true !== $em2->notify('CHAR_NOTIFY', ['payload' => 1])) {
+    $fails[] = 'notify() does not report success when a listener ran';
+}
+if ($heard->seen !== ['CHAR_NOTIFY']) {
+    $fails[] = 'notify() did not reach its listener';
+}
+
+$off = $bare('CharEvent');
+$off->active = false;
+$em2->register('CHAR_NOTIFY_OFF', $off);
+$em2->notify('CHAR_NOTIFY_OFF', []);
+if ([] !== $off->seen) {
+    $fails[] = 'notify() dispatched to an inactive event listener';
+}
+
+// Nobody listening is the ordinary case, not an error. It used to throw into
+// the handler, which logs -- and once an admin is signed in FOGBase::log()
+// writes a history row, so a stock server wrote one per host checkin for an
+// event nothing has ever listened to.
+ob_start();
+$em2->logLevel = 9;
+$quiet = $em2->notify('CHAR_NOTIFY_NOBODY', []);
+$em2->logLevel = 0;
+$noise = ob_get_clean();
+if (false !== $quiet) {
+    $fails[] = 'notify() no longer reports that nothing was notified';
+}
+if ('' !== trim($noise)) {
+    $fails[] = 'notify() logs when nobody is listening: ' . trim($noise);
+}
+
+// What it does log has to be readable. The register() half carried a literal
+// $s where a specifier was meant; so did this one.
+$em2->logLevel = 9;
+ob_start();
+$em2->notify(['not', 'a', 'name'], []);
+$badName = ob_get_clean();
+$em2->logLevel = 0;
+if (false !== strpos($badName, '$s:')) {
+    $fails[] = 'the notify failure message still carries the literal $s typo';
+}
+
+// The cases above seed the name cache, so they say nothing about whether
+// notify() still records names it has not seen. Without that the notifyevents
+// table stops filling and the notification plugins lose their event list.
+$notifySrc = file_get_contents($web . '/lib/fog/eventmanager.class.php');
+$notifyBody = substr($notifySrc, strpos($notifySrc, 'public function notify('));
+$notifyBody = substr($notifyBody, 0, strpos($notifyBody, 'public function load('));
+if (false === strpos($notifyBody, '_recordEventName(')) {
+    $fails[] = 'notify() no longer records the event name, so notifyevents'
+        . ' stops filling and the notification plugins lose their event list';
+}
+if (false !== strpos($notifyBody, "getClass('NotifyEventManager')")) {
+    $fails[] = 'notify() asks the database for the name list again, on every'
+        . ' call -- the GH-707 shape processEvent() was fixed for';
+}
+
 // F-17. HookManager inherits notify(), which iterates listeners as objects
 // while HookManager stores them as [object, method] arrays -- so it invokes
-// nothing and returns true. Pinned structurally rather than by calling it:
-// notify() asks the notifyevents table a question before anything a test can
-// intercept.
+// nothing and returns true. Pinned structurally; H.7 in the plan gives
+// HookManager an override, at which point this case gets rewritten.
 $declares = (new \ReflectionMethod('FOG\HookManager', 'notify'))
     ->getDeclaringClass()->getName();
 if ('FOG\EventManager' !== $declares) {

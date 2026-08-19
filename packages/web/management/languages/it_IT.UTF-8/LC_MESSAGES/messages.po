@@ -2158,9 +2158,6 @@ msgstr "Evento"
 msgid "Event Data must be an array"
 msgstr "Event data deve essere un array"
 
-msgid "Event and data are not set"
-msgstr "Event e data non sono impostati"
-
 msgid "Event must be a string"
 msgstr "Evento deve essere una stringa"
 
@@ -9646,6 +9643,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
+
+#~ msgid "Event and data are not set"
+#~ msgstr "Event e data non sono impostati"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

@@ -2224,9 +2224,6 @@ msgstr "Ereignis"
 msgid "Event Data must be an array"
 msgstr "Ereignisdaten müssen ein Array sein."
 
-msgid "Event and data are not set"
-msgstr "Ereignis und Daten sind nicht gesetzt"
-
 msgid "Event must be a string"
 msgstr "Ereignisname muss eine Zeichenfolge sein."
 
@@ -10028,6 +10025,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
+
+#~ msgid "Event and data are not set"
+#~ msgstr "Ereignis und Daten sind nicht gesetzt"
 
 #, fuzzy
 #~ msgid "Export Host Exts"

@@ -2227,9 +2227,6 @@ msgstr "添加事件"
 msgid "Event Data must be an array"
 msgstr "事件必须是字符串"
 
-msgid "Event and data are not set"
-msgstr ""
-
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
 

@@ -58,6 +58,22 @@ class EventManager extends FOGBase
      */
     public $data = [];
     /**
+     * Names already present in notifyEvents, as a lookup set.
+     *
+     * The same fix HookManager::$knownEvents carries for GH-707, applied to
+     * the other half of the subsystem. notify() asked the database whether it
+     * had seen the name before on EVERY call -- an exists() SELECT that was
+     * 87% of the cost of a notify() nobody was listening to. The table is a
+     * discovery aid for the notification plugins' settings pages, so the
+     * answer is safe to remember for the life of the process: nothing here
+     * removes names, so the only staleness possible is a name another process
+     * added after we loaded, which costs at worst one redundant save(), and
+     * save() is an upsert.
+     *
+     * @var array|null
+     */
+    private static $knownNotifyEvents = null;
+    /**
      * The events to work from.
      *
      * @var mixed
@@ -107,6 +123,31 @@ class EventManager extends FOGBase
             );
         }
         return $this;
+    }
+    /**
+     * Remembers an event name in notifyEvents, once per process.
+     *
+     * @param string $event The event name to record.
+     *
+     * @return void
+     */
+    private static function _recordEventName($event)
+    {
+        if (self::$knownNotifyEvents === null) {
+            self::$knownNotifyEvents = array_flip(
+                Route::getIds('notifyevent', false, 'name')
+            );
+        }
+        if (isset(self::$knownNotifyEvents[$event])) {
+            return;
+        }
+        // Marked known before the save, not after, so an event fired from
+        // inside save() could never recurse into saving the same name again.
+        // Matches HookManager::processEvent().
+        self::$knownNotifyEvents[$event] = true;
+        self::getClass('NotifyEvent')
+            ->set('name', $event)
+            ->save();
     }
     /**
      * Refuses a listener this manager cannot dispatch.
@@ -198,16 +239,6 @@ class EventManager extends FOGBase
      */
     public function notify($event, $eventData = [])
     {
-        $exists = self::getClass('NotifyEventManager')->exists(
-            $event,
-            '',
-            'name'
-        );
-        if (!$exists) {
-            self::getClass('NotifyEvent')
-                ->set('name', $event)
-                ->save();
-        }
         try {
             if (!is_string($event)) {
                 throw new \Exception(_('Event must be a string'));
@@ -215,22 +246,28 @@ class EventManager extends FOGBase
             if (!is_array($eventData)) {
                 throw new \Exception(_('Event Data must be an array'));
             }
+            // After the guards, not before them: this used to run first, so a
+            // caller who passed something that was not an event name got it
+            // written to the database before being told it was invalid.
+            self::_recordEventName($event);
             if (!isset($this->data[$event])) {
-                throw new \Exception(_('Event and data are not set'));
+                // Nobody is listening. That is not an error -- it is the
+                // ordinary case for four of the five names core notifies, and
+                // for HOST_CHECKIN it is the only case there has ever been --
+                // so it returns like processEvent() does instead of throwing
+                // into the handler below and logging a line per checkin.
+                return false;
             }
-            $runEvent = function ($element) use ($event, $eventData) {
+            foreach ((array) $this->data[$event] as &$element) {
                 if (!$element->active) {
-                    return;
+                    continue;
                 }
                 $element->onEvent($event, $eventData);
-            };
-            foreach ((array) $this->data[$event] as &$element) {
-                $runEvent($element);
                 unset($element);
             }
         } catch (\Exception $e) {
             $string = sprintf(
-                '%s: %s: %s, $s: %s',
+                '%s: %s: %s, %s: %s',
                 _('Could not notify'),
                 _('Error'),
                 $e->getMessage(),

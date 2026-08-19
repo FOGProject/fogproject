@@ -2139,9 +2139,6 @@ msgstr "イベント"
 msgid "Event Data must be an array"
 msgstr "イベントデータは配列である必要があります"
 
-msgid "Event and data are not set"
-msgstr "イベントとデータが設定されていません"
-
 msgid "Event must be a string"
 msgstr "イベントは文字列で指定してください"
 
@@ -9892,6 +9889,9 @@ msgstr ""
 
 #~ msgid "Especially when your organization has many hosts"
 #~ msgstr "特に、多数のホストを管理している組織では"
+
+#~ msgid "Event and data are not set"
+#~ msgstr "イベントとデータが設定されていません"
 
 #~ msgid "Exit to Hard Drive Type"
 #~ msgstr "ハードドライブへの起動方法"

@@ -2227,9 +2227,6 @@ msgstr "Adicionar Evento"
 msgid "Event Data must be an array"
 msgstr "Evento deve ser uma string"
 
-msgid "Event and data are not set"
-msgstr ""
-
 msgid "Event must be a string"
 msgstr "Evento deve ser uma string"
 
