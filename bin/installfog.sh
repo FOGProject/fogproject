@@ -1329,6 +1329,12 @@ while [[ -z $blGo ]]; do
                     installUtilities
                     updateStorageNodeCredentials
                     recordGitUpdateSettings
+                    # Beside recordGitUpdateSettings because it is the same kind
+                    # of write -- a record, not a control -- and this is the
+                    # earliest point where both halves it needs are in place: the
+                    # schema is deployed, and configureHttpd has put the served
+                    # certificate on disk for _resolveNetbootHost to read.
+                    recordNetbootWebHost
                     setupFogReporting
                     # Last, so it is the part still on screen. An admin who
                     # asked for HTTPS and got HTTP netboot has to be told; the

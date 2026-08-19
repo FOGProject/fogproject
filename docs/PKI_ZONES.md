@@ -466,8 +466,21 @@ Override either way with `--netboot-proto http|https`.
 
 **Public Let's Encrypt for netboot** works only on an FQDN in a domain you
 control — it need not be publicly reachable, DNS-01 is enough — and only on
-that exact FQDN, not a short hostname and not an IP. Set `FOG_WEB_HOST` to
-that FQDN or the generated boot URLs will not match the certificate.
+that exact FQDN, not a short hostname and not an IP.
+
+You no longer have to set `FOG_WEB_HOST` yourself: the installer resolves the
+netboot name from the certificate the vhost actually serves and records it into
+that setting, so both hops of a boot use one name. Under `netbootproto=https`
+the row is therefore a **record, not a control** — it is rewritten on every
+install run and an edit through FOG Settings will not survive. Plain-HTTP
+netboot is untouched, and `FOG_WEB_HOST` stays yours to set there.
+
+If the served certificate carries no name the netboot URL could use, the install
+**stops** and prints the names it does carry, rather than writing a
+`default.ipxe` that cannot boot. Note that `--extra-server-name` cannot rescue
+this case: it only feeds FOG's own SAN list, and a Let's Encrypt leaf was issued
+outside FOG. Re-issue the certificate for the name you need, or fall back with
+`--netboot-proto http`. See `docs/adr/0018`.
 
 ## Secure Boot
 

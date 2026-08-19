@@ -575,6 +575,30 @@ recordGitUpdateSettings() {
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('SERVICE_LOG_PATH', 'Where the linux side fog services write their logs. Recorded automatically by installfog.sh from the install path -- editing it here has no effect. To move the logs, re-run the installer with a different base path.', \"${servicelogs%/}/\", 'FOG Linux Service Logs') ON DUPLICATE KEY UPDATE settingValue=\"${servicelogs%/}/\", settingDesc=VALUES(settingDesc)" $mysqldbname >>$error_log 2>&1
     errorStat $?
 }
+# Keeps FOG_WEB_HOST in step with the name netboot uses.
+#
+# A boot is two hops with two host sources. default.ipxe names the server for
+# the fetch of boot.php; BootMenu builds everything after it -- the iPXE menu,
+# the kernel's web= argument, the Secure Boot MOK.der and mmx64.efi -- from this
+# row. The row is seeded from $ipaddress on a fresh schema deploy and was then
+# never written again, so a fresh public-cert install pointed all of those at
+# https://<address>/ and nothing compared the two. Recording it makes them agree
+# by construction, the same argument as SERVICE_LOG_PATH above.
+#
+# Under HTTPS netboot ONLY, and that guard is load-bearing. On a plain-HTTP
+# install FOG_WEB_HOST is a name plenty of admins set deliberately and no
+# certificate has to match it, so rewriting it there would be a regression
+# dressed as a fix.
+recordNetbootWebHost() {
+    [[ $netbootproto == https ]] || return 0
+    _resolveNetbootHost || return 1
+    [[ -n $netboothost ]] || return 0
+    dots "Pointing FOG_WEB_HOST at the netboot certificate name"
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_WEB_HOST', 'This setting defines the hostname or ip address of the web server used with fog. Under HTTPS netboot it is recorded automatically from the served certificate name, because every boot URL iPXE fetches after boot.php is built from it -- an edit here is overwritten on the next install.', \"$netboothost\", 'Web Server') ON DUPLICATE KEY UPDATE settingValue=\"$netboothost\", settingDesc=VALUES(settingDesc)" $mysqldbname >>$error_log 2>&1
+    errorStat $?
+    echo "   FOG_WEB_HOST is now $netboothost. Every boot URL after boot.php is"
+    echo "   built from it, and HTTPS netboot needs them to match the certificate."
+}
 backupDB() {
     # ---------------------------------------------------------
     # External Unprivileged Database Implementation
@@ -1891,37 +1915,25 @@ configureDefaultiPXEfile() {
     # (FOGBase::$httpproto reads $_SERVER['HTTPS']), so chaining over HTTP here
     # makes the whole boot sequence HTTP with no PHP change.
     _resolveNetbootProto
-    # HTTPS netboot has to address this server by NAME, never by IP.
+    # HTTPS netboot has to address this server by a name its CERTIFICATE
+    # carries -- not by IP, and not merely by "a name".
     #
-    # A certificate is issued to a name. Public CAs will not issue for a
-    # private IP at all, and even where the chain itself validates, iPXE still
-    # fails the handshake on a name mismatch -- so an https:// URL built from
-    # $ipaddress cannot work, whatever the certificate is. HTTP does not care,
-    # which is why this has never mattered before.
+    # A certificate is issued to a name. Public CAs will not issue for a private
+    # IP at all, and even where the chain itself validates, iPXE still fails the
+    # handshake on a name mismatch -- so an https:// URL built from $ipaddress
+    # cannot work, whatever the certificate is. HTTP does not care, which is why
+    # this has never mattered before.
+    #
+    # $hostname is NOT good enough, which is the bug this replaces. It is a
+    # short label on plenty of servers and validhostname() accepts one; that is
+    # harmless against a FOG-issued leaf, because _defaultServerNames() puts the
+    # short form in the SAN list, and impossible against a publicly-issued one.
+    # _resolveNetbootHost asks the certificate instead, and is shared with
+    # recordNetbootWebHost so the two hops of a boot cannot name different hosts.
     local nbhost="$ipaddress"
     if [[ $netbootproto == https ]]; then
-        nbhost="${hostname:-$ipaddress}"
-        # validip echoes 0 for a valid IPv4 literal, 1 otherwise.
-        if [[ -z $hostname || $(validip "$nbhost") -eq 0 ]]; then
-            echo "Failed"
-            echo
-            echo " ###################################################################"
-            echo " # HTTPS netboot needs a hostname, and this server has only an IP.  #"
-            echo " #                                                                 #"
-            echo " # A certificate is issued to a NAME. Public CAs will not issue for #"
-            echo " # a private IP, and iPXE fails the handshake on a name mismatch    #"
-            echo " # even after the chain validates -- so every PXE client would stop #"
-            echo " # at the TLS handshake.                                            #"
-            echo " #                                                                 #"
-            echo " # Set a resolvable hostname with --hostname, or put netboot back   #"
-            echo " # on HTTP with --netboot-proto http.                               #"
-            echo " ###################################################################"
-            echo
-            # Fatal on purpose. Writing this file with an IP would produce an
-            # install that completes cleanly and cannot boot anything.
-            [[ -z $exitFail ]] && exit 1
-            return 1
-        fi
+        _resolveNetbootHost || return 1
+        nbhost="$netboothost"
     fi
     echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${netbootproto}://${nbhost}${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
@@ -4660,6 +4672,151 @@ _servedCertName() {
     done
     [[ -n $hostname ]] && { echo "$hostname"; return 0; }
     echo "$ipaddress"
+}
+# The DNS names a certificate carries as subjectAltName entries.
+#
+# Echoes one per line, nothing at all when the certificate has no
+# subjectAltName extension -- and that difference is load-bearing, because it is
+# what decides whether the commonName counts as a host name (see
+# _certServesName below).
+#
+# -text and awk rather than `openssl x509 -ext subjectAltName`: -ext arrived in
+# OpenSSL 1.1.1 and this has to work wherever the installer runs. The
+# continuation match is not decoration either -- openssl wraps a long SAN list
+# across lines, and reading only the first would silently drop names.
+_certDnsNames() {
+    local cert="$1"
+    [[ -n $cert && -f $cert ]] || return 0
+    openssl x509 -noout -text -in "$cert" 2>/dev/null \
+        | awk '/X509v3 Subject Alternative Name/ { grab = 1; next }
+               grab && /^[[:space:]]+(DNS|IP|IP Address|email|URI|DirName|othername|Registered ID):/ { print; next }
+               grab { exit }' \
+        | tr ',' '\n' \
+        | sed -n 's/^[[:space:]]*DNS:[[:space:]]*//p'
+}
+# Does the certificate at $1 serve the name in $2?
+#
+# By iPXE's rule, not OpenSSL's. Per docs/adr/0016, iPXE's x509_check_name()
+# accepts a commonName as a host name ONLY when the certificate carries no
+# subjectAltName at all. Mirroring that exactly matters: a check laxer than the
+# validator we are trying to satisfy is worse than no check, because it blesses
+# an install that completes cleanly and then cannot boot anything.
+#
+# IP SANs are deliberately ignored. They cannot help a URL built from a name,
+# and iPXE matches addresses and names separately anyway.
+#
+# Echoes "exact" or "wildcard" and returns 0 on a match; echoes nothing and
+# returns 1 otherwise. The two are distinguished because whether iPXE honours a
+# wildcard SAN is UNVERIFIED -- fog-ipxe is an overlay and carries no upstream
+# crypto/x509.c to read -- so the caller reports a wildcard match rather than
+# trusting it silently.
+_certServesName() {
+    local cert="$1" name="$2" sans cn n bare
+    [[ -n $cert && -f $cert && -n $name ]] || return 1
+    name=$(echo "$name" | tr '[:upper:]' '[:lower:]')
+    sans=$(_certDnsNames "$cert")
+    if [[ -z $sans ]]; then
+        cn=$(openssl x509 -noout -subject -nameopt multiline -in "$cert" 2>/dev/null \
+            | awk -F' = ' '/commonName/{print $2; exit}' \
+            | tr '[:upper:]' '[:lower:]')
+        [[ -n $cn && $cn == "$name" ]] && { echo exact; return 0; }
+        return 1
+    fi
+    # Exact matches first, so one anywhere in the list beats a wildcard that
+    # also happens to cover the name.
+    while IFS= read -r n; do
+        n=$(echo "$n" | tr '[:upper:]' '[:lower:]')
+        [[ -n $n && $n == "$name" ]] && { echo exact; return 0; }
+    done <<< "$sans"
+    while IFS= read -r n; do
+        n=$(echo "$n" | tr '[:upper:]' '[:lower:]')
+        [[ $n == '*.'* ]] || continue
+        # One label, and a real one. Comparing what is left after the first dot
+        # rather than glob-matching '*.example.org' is what keeps this from
+        # accepting deep.sub.example.org, which a glob would.
+        bare="${n#\*.}"
+        [[ $name == *.* && ${name#*.} == "$bare" ]] && { echo wildcard; return 0; }
+    done <<< "$sans"
+    return 1
+}
+# The single name HTTPS netboot addresses this server by. Sets $netboothost.
+#
+# Not local, on purpose. A boot is two hops with two host sources: default.ipxe
+# names the server for the fetch of boot.php, and BootMenu builds every URL
+# after it from the FOG_WEB_HOST row. Those two used to be $hostname and a DB
+# setting with nothing comparing them, which is the defect this fixes -- so
+# configureDefaultiPXEfile and recordNetbootWebHost read one variable and cannot
+# disagree.
+#
+# Idempotent and silent on a second call, because the recorder asks after
+# configureDefaultiPXEfile already has.
+#
+# Why the certificate and not $hostname: $hostname is a short label on plenty of
+# servers, and validhostname() accepts one. That is harmless on a FOG-issued
+# leaf -- _defaultServerNames() puts the short form in the SAN list -- and
+# cannot work on a publicly-issued one, which carries only the names its issuer
+# was asked for. publicWebCert is one of exactly two triggers for HTTPS netboot,
+# so the short-name case is not an edge case here; it is half the population.
+_resolveNetbootHost() {
+    local cert match="" reason=""
+    [[ -n $netboothost ]] && return 0
+    netboothost=$(_servedCertName)
+    cert=$(_vhostCertPath)
+    [[ -n $cert && -f $cert ]] || cert="$sslpubcert"
+    [[ -n $cert && -f $cert ]] || cert="$sslfullchain"
+    [[ -n $cert && -f $cert ]] || cert=""
+    # validip echoes 0 for a valid IPv4 literal, 1 otherwise.
+    if [[ -z $netboothost || $(validip "$netboothost") -eq 0 ]]; then
+        reason="address"
+    elif [[ -n $cert ]] && ! match=$(_certServesName "$cert" "$netboothost"); then
+        reason="mismatch"
+    fi
+    if [[ -n $reason ]]; then
+        echo "Failed"
+        echo
+        echo " ##################################################################"
+        echo " # HTTPS netboot has to address this server by a name its          #"
+        echo " # certificate carries. iPXE has no --insecure and fails the       #"
+        echo " # handshake on a name mismatch, so every PXE client would stop    #"
+        echo " # before it fetched anything.                                    #"
+        echo " ##################################################################"
+        echo
+        if [[ $reason == address ]]; then
+            echo "   This server has no name to use, only the address ${netboothost:-$ipaddress}."
+            echo
+            echo "   Set a resolvable name with --hostname, or put netboot back on"
+            echo "   HTTP with --netboot-proto http."
+        else
+            echo "   Resolved name: $netboothost"
+            echo "   Certificate:   $cert"
+            echo "   It carries:    $(_certDnsNames "$cert" | tr '\n' ' ')"
+            echo
+            echo "   Re-issue the certificate for $netboothost, or put netboot back"
+            echo "   on HTTP with --netboot-proto http."
+            echo
+            # Deliberately NOT offered above: --extra-server-name. It only feeds
+            # FOG's own SAN list, and _createWebLeaf() returns early on an
+            # acmeLeaf/publicWebCert install, so it cannot change a leaf issued
+            # outside FOG -- which is the install this branch mostly fires on.
+            echo "   Note: --extra-server-name cannot help here. It only affects a"
+            echo "   leaf FOG issues, and this certificate was issued elsewhere."
+        fi
+        echo
+        # Fatal on purpose, and before anything is written: an install that
+        # completes having laid down an unbootable default.ipxe is worse than one
+        # that stops and says why.
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    if [[ $match == wildcard ]]; then
+        echo
+        echo "   Note: $netboothost matches only a WILDCARD name in the served"
+        echo "   certificate. Whether iPXE honours a wildcard SAN is unverified,"
+        echo "   so if netboot stops at the TLS handshake, re-issue with"
+        echo "   $netboothost as an explicit name."
+        echo
+    fi
+    return 0
 }
 # The --cacert arguments for an HTTPS call this server makes to ITSELF.
 #
