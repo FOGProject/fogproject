@@ -85,6 +85,16 @@ directories**, not one.
 | 4 | `${boot-url}/service/secureboot/MOK.der` (`imgfetch`), `mmx64.efi` / `arm64-efi/mmaa64.efi` (`chain`) | `BootMenu`'s Secure Boot entries |
 | 5 | `web=<proto>://<host><webroot>/` | handed to **FOS**, not fetched by iPXE |
 
+>[!important]
+>**`<host>` is not one value.** Step 1's host is written by the installer; steps
+>2, 4 and 5's come from the `FOG_WEB_HOST` DB row, read by `BootMenu`; step 3's
+>is inherited from step 1 because the URLs are relative. Nothing used to compare
+>the two — step 1 was `$hostname` and could be a short label, while
+>`FOG_WEB_HOST` was seeded from `$ipaddress` and never rewritten, so an HTTPS
+>netboot install could fail at step 1, at step 2, or at both, for different
+>reasons. Both are now derived from the served certificate's name and
+>`FOG_WEB_HOST` is recorded from it; see `docs/adr/0018`.
+
 **The rule: exclude every path iPXE itself fetches — `service/ipxe/` and
 `service/secureboot/`.**
 
