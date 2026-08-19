@@ -1183,6 +1183,10 @@ msgstr "スナップインを更新しました！"
 msgid "Capture"
 msgstr "キャプチャ"
 
+#, fuzzy
+msgid "Capture Complete"
+msgstr "エクスポートが完了しました"
+
 msgid "Captured"
 msgstr "キャプチャ済み"
 
@@ -1854,6 +1858,10 @@ msgstr "リモートファイルを削除しています"
 
 msgid "Deploy"
 msgstr "展開"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "ダウンロードに失敗しました"
 
 msgid "Deploy Method"
 msgstr "展開方法"
@@ -3003,6 +3011,18 @@ msgstr "ホーム"
 msgid "Host"
 msgstr "ホスト"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "承認に成功しました"
@@ -3507,6 +3527,10 @@ msgstr "イメージ処理が完了しました"
 
 msgid "Imaging Duration"
 msgstr "イメージ処理時間"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "イメージ処理に失敗しました。"
 
 #, fuzzy
 msgid "Imaging History"
@@ -7732,6 +7756,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "このホストは既に存在します"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "このホストは既に存在します"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8689,6 +8725,10 @@ msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
 #, fuzzy
+msgid "an unnamed image"
+msgstr "無効なイメージ"
+
+#, fuzzy
 msgid "and below"
 msgstr "サブツリー以下"
 
@@ -8756,10 +8796,6 @@ msgstr "クライアント"
 
 msgid "clients"
 msgstr "クライアント"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "イメージ処理が完了しました。"
 
 msgid "confirm"
 msgstr ""
@@ -8987,10 +9023,6 @@ msgid "images to a storage group"
 msgstr "イメージをストレージグループへ"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "イメージ処理に失敗しました。"
-
-#, fuzzy
 msgid "in"
 msgstr "分"
 
@@ -9138,6 +9170,9 @@ msgid "no node in the group answered the probe"
 msgstr ""
 
 msgid "no reason given"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
@@ -11644,6 +11679,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "自分より前"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "イメージ処理が完了しました。"
 
 #~ msgid "config files that run on the client computers."
 #~ msgstr "クライアントコンピューター上で実行される設定ファイル。"

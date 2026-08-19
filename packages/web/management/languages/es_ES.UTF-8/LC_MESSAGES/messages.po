@@ -1262,6 +1262,10 @@ msgid "Capture"
 msgstr "Creado"
 
 #, fuzzy
+msgid "Capture Complete"
+msgstr "impresora iPrint"
+
+#, fuzzy
 msgid "Captured"
 msgstr "Creado"
 
@@ -1964,6 +1968,10 @@ msgstr "Menú Error de creación"
 #, fuzzy
 msgid "Deploy"
 msgstr "última Desplegado"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "Descarga fracasó"
 
 #, fuzzy
 msgid "Deploy Method"
@@ -3187,6 +3195,18 @@ msgstr "nombre de host"
 msgid "Host"
 msgstr "Anfitrión"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "Creado"
@@ -3740,6 +3760,10 @@ msgstr "después de la realización de tareas"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "Transferencia de imágenes Entrar"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Carga ha fallado: %s"
 
 #, fuzzy
 msgid "Imaging History"
@@ -8279,6 +8303,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Impresora ya existe"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Impresora ya existe"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -9273,6 +9309,10 @@ msgstr " hace"
 msgid "all current storage nodes"
 msgstr "nodo de almacenamiento no válido"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "carpeta no válida"
+
 msgid "and below"
 msgstr ""
 
@@ -9344,10 +9384,6 @@ msgstr "Clientela"
 #, fuzzy
 msgid "clients"
 msgstr "Clientela"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "suprimido"
 
 #, fuzzy
 msgid "confirm"
@@ -9597,10 +9633,6 @@ msgid "images to a storage group"
 msgstr "Grupo de almacenamiento primaria"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "Carga ha fallado: %s"
-
-#, fuzzy
 msgid "in"
 msgstr "minutos"
 
@@ -9754,6 +9786,9 @@ msgid "no node in the group answered the probe"
 msgstr ""
 
 msgid "no reason given"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
@@ -10699,6 +10734,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "before me"
 #~ msgstr "Nombre del núcleo"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "suprimido"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

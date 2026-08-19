@@ -1202,6 +1202,10 @@ msgstr "Snap-in aggiornato!"
 msgid "Capture"
 msgstr "Catturare"
 
+#, fuzzy
+msgid "Capture Complete"
+msgstr "Esportazione Completata"
+
 msgid "Captured"
 msgstr "Catturato"
 
@@ -1872,6 +1876,10 @@ msgstr "Eliminazione di file remoti"
 
 msgid "Deploy"
 msgstr "Distribuisci"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "Scaricamento fallito"
 
 msgid "Deploy Method"
 msgstr "Metodo Deploy"
@@ -3033,6 +3041,18 @@ msgstr "Casa"
 msgid "Host"
 msgstr "Host"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "Creazione Host con successo"
@@ -3541,6 +3561,10 @@ msgstr "Attività di immagine completata"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "Imaging Log"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Caricamento non riuscito"
 
 #, fuzzy
 msgid "Imaging History"
@@ -7802,6 +7826,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Questo host esiste già"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Questo host esiste già"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8763,6 +8799,10 @@ msgid "all current storage nodes"
 msgstr "tutti i nodi di archiviazione attivi"
 
 #, fuzzy
+msgid "an unnamed image"
+msgstr "immagine non valido"
+
+#, fuzzy
 msgid "and below"
 msgstr "Sottoalbero e inferiore"
 
@@ -8831,10 +8871,6 @@ msgstr "client"
 #, fuzzy
 msgid "clients"
 msgstr "client"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "Completato"
 
 #, fuzzy
 msgid "confirm"
@@ -9063,10 +9099,6 @@ msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "Caricamento non riuscito"
-
-#, fuzzy
 msgid "in"
 msgstr "minuti"
 
@@ -9215,6 +9247,9 @@ msgid "no node in the group answered the probe"
 msgstr ""
 
 msgid "no reason given"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
@@ -10151,6 +10186,10 @@ msgstr ""
 
 #~ msgid "but"
 #~ msgstr "ma"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "Completato"
 
 #~ msgid "e.g."
 #~ msgstr "es."

@@ -1050,6 +1050,9 @@ msgstr ""
 msgid "Capture"
 msgstr ""
 
+msgid "Capture Complete"
+msgstr ""
+
 msgid "Captured"
 msgstr ""
 
@@ -1634,6 +1637,9 @@ msgid "Deleting remote file"
 msgstr ""
 
 msgid "Deploy"
+msgstr ""
+
+msgid "Deploy Complete"
 msgstr ""
 
 msgid "Deploy Method"
@@ -2650,6 +2656,18 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr ""
+
 msgid "Host Approval Success"
 msgstr ""
 
@@ -3097,6 +3115,9 @@ msgid "Imaging Completed"
 msgstr ""
 
 msgid "Imaging Duration"
+msgstr ""
+
+msgid "Imaging Failed"
 msgstr ""
 
 msgid "Imaging History"
@@ -6861,6 +6882,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr ""
 
+#, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -7723,6 +7756,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
+msgid "an unnamed image"
+msgstr ""
+
 msgid "and below"
 msgstr ""
 
@@ -7787,9 +7823,6 @@ msgid "client"
 msgstr ""
 
 msgid "clients"
-msgstr ""
-
-msgid "completed imaging"
 msgstr ""
 
 msgid "confirm"
@@ -7994,9 +8027,6 @@ msgstr ""
 msgid "images to a storage group"
 msgstr ""
 
-msgid "imaging failed"
-msgstr ""
-
 msgid "in"
 msgstr ""
 
@@ -8139,6 +8169,9 @@ msgid "no node in the group answered the probe"
 msgstr ""
 
 msgid "no reason given"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
