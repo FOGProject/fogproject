@@ -1134,6 +1134,10 @@ msgid "Cannot filter %s on: %s"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot notify from the hook manager"
+msgstr "自身がグループマネージャーか確認しています"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"
 
@@ -8195,6 +8199,9 @@ msgstr ""
 
 msgid "Use extreme caution with this setting"
 msgstr "この設定は十分注意して使用してください"
+
+msgid "Use processEvent instead"
+msgstr ""
 
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""

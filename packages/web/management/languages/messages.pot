@@ -1011,6 +1011,9 @@ msgstr ""
 msgid "Cannot filter %s on: %s"
 msgstr ""
 
+msgid "Cannot notify from the hook manager"
+msgstr ""
+
 msgid "Cannot task pending hosts"
 msgstr ""
 
@@ -7279,6 +7282,9 @@ msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the p
 msgstr ""
 
 msgid "Use extreme caution with this setting"
+msgstr ""
+
+msgid "Use processEvent instead"
 msgstr ""
 
 msgid "Use the buttons below to create a new power management task to all hosts in this group."

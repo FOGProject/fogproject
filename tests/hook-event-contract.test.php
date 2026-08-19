@@ -343,15 +343,36 @@ if (false !== strpos($notifyBody, "getClass('NotifyEventManager')")) {
         . ' call -- the GH-707 shape processEvent() was fixed for';
 }
 
-// F-17. HookManager inherits notify(), which iterates listeners as objects
-// while HookManager stores them as [object, method] arrays -- so it invokes
-// nothing and returns true. Pinned structurally; H.7 in the plan gives
-// HookManager an override, at which point this case gets rewritten.
+// F-17, fixed. HookManager used to inherit notify(), which iterates listeners
+// as objects while HookManager stores [object, method] arrays -- so under
+// PHP 8 the property read on an array warned, yielded null, every listener was
+// skipped, and the method returned TRUE having invoked nothing. It now refuses,
+// audibly, rather than reporting success for work it did not do.
 $declares = (new \ReflectionMethod('FOG\HookManager', 'notify'))
     ->getDeclaringClass()->getName();
-if ('FOG\EventManager' !== $declares) {
-    $fails[] = 'HookManager now declares its own notify(); that closes F-17,'
-        . ' so rewrite this case to assert what the override does';
+if ('FOG\HookManager' !== $declares) {
+    $fails[] = 'HookManager inherits notify() again, which cannot read its own'
+        . ' listener shape and reports success anyway';
+}
+$hmN = $bare('FOG\HookManager');
+$notified = $bare('CharHook');
+$hmN->register('CHAR_HM_NOTIFY', [$notified, 'fire']);
+$hmN->logLevel = 9;
+ob_start();
+$refused = $hmN->notify('CHAR_HM_NOTIFY', []);
+$refusal = ob_get_clean();
+$hmN->logLevel = 0;
+if (false !== $refused) {
+    $fails[] = 'HookManager::notify() reports success';
+}
+if ([] !== $notified->seen) {
+    $fails[] = 'HookManager::notify() dispatched; if that is deliberate it is a'
+        . ' bigger decision than this case, because notify() and processEvent()'
+        . ' pass their payloads differently';
+}
+if (false === stripos($refusal, 'processEvent')) {
+    $fails[] = 'HookManager::notify() refuses without saying what to call'
+        . ' instead: ' . trim($refusal);
 }
 
 // ------------------------------------------------------- activation, at load

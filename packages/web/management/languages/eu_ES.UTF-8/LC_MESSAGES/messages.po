@@ -1191,6 +1191,10 @@ msgid "Cannot filter %s on: %s"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot notify from the hook manager"
+msgstr "Prüfe, ob ich der Gruppenmanager bin"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Es können keine Tasks auf ausstehende Hosts ausgeführt werden!"
 
@@ -8572,6 +8576,9 @@ msgstr ""
 
 msgid "Use extreme caution with this setting"
 msgstr "Seien Sie seeehr vorsichtig mit diesen Einstellungen"
+
+msgid "Use processEvent instead"
+msgstr ""
 
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""

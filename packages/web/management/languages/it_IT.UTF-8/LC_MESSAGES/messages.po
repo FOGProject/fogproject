@@ -1153,6 +1153,10 @@ msgid "Cannot filter %s on: %s"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot notify from the hook manager"
+msgstr "Controllare se sono il responsabile del gruppo"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossibile affidare attività ad host in attesa"
 
@@ -8266,6 +8270,9 @@ msgstr ""
 
 msgid "Use extreme caution with this setting"
 msgstr "Usa la massima attenzione con questa impostazione"
+
+msgid "Use processEvent instead"
+msgstr ""
 
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""

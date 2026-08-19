@@ -118,8 +118,8 @@ class EventManager extends FOGBase
                 $string,
                 $this->logLevel,
                 0,
-                $this,
-                0
+                0,
+                $this
             );
         }
         return $this;
@@ -278,8 +278,8 @@ class EventManager extends FOGBase
                 $string,
                 $this->logLevel,
                 0,
-                $this,
-                0
+                0,
+                $this
             );
 
             return false;

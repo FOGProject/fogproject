@@ -74,6 +74,47 @@ class HookManager extends EventManager
      */
     private static $knownEvents = null;
     /**
+     * Refuses to notify. A hook is not an event listener.
+     *
+     * notify() is EventManager's, and it iterates listeners as objects --
+     * $element->active, $element->onEvent(). HookManager stores them as
+     * [object, method] arrays and Closures, so under PHP 8 the property read
+     * on an array is a warning that yields null, every listener is skipped,
+     * and the inherited method returned TRUE having invoked nothing.
+     *
+     * Nothing in core, in packages/service or in fog-plugins calls it, so the
+     * only code this reaches is third-party code whose listeners have never
+     * fired. Say so rather than fixing it silently: the two are not two spellings
+     * of one thing. processEvent() merges an `event` key into the payload and
+     * calls a named method that can mutate its arguments through references;
+     * notify() passes a copy to a fixed method and discards the result. Quietly
+     * making one behave as the other would blur a boundary the rest of this
+     * work is sharpening -- see EventManager::register(), which no longer
+     * accepts a Hook as an event listener either.
+     *
+     * @param string $event     the event to notify against
+     * @param array  $eventData the data to pass
+     *
+     * @return bool
+     */
+    public function notify($event, $eventData = [])
+    {
+        self::log(
+            sprintf(
+                '%s: %s. %s',
+                _('Cannot notify from the hook manager'),
+                is_string($event) ? $event : gettype($event),
+                _('Use processEvent instead')
+            ),
+            $this->logLevel,
+            0,
+            0,
+            $this
+        );
+
+        return false;
+    }
+    /**
      * Refuses a listener this manager cannot dispatch.
      *
      * A hook listener is either [Hook, method] or a Closure. Both have an
