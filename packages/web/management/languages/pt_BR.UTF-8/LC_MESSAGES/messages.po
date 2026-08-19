@@ -4505,6 +4505,10 @@ msgid "Log contents."
 msgstr ""
 
 #, fuzzy
+msgid "Log entry"
+msgstr "Visualizador de log"
+
+#, fuzzy
 msgid "Log entry type filter"
 msgstr "atualização da impressora falhou!"
 

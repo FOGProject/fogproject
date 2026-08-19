@@ -115,6 +115,58 @@ if (!preg_match('#default:\s*\$types = \$reports;#', $endpoint[0] ?? '')) {
         . ' endpoint disagree about what is selected on arrival';
 }
 
+// ------------------------------------------------------------ the typing
+
+// A column DEFAULT does not type these rows: FOGController::save() writes
+// every declared field, so a writer that sets no type stores ''. The model
+// has to supply it, or every state row written after schema 338 is missing
+// from the 'state' filter -- which is the one view built to show them.
+$model = file_get_contents($web . '/lib/fog/tasklog.class.php');
+if (!preg_match(
+    '#__construct.*?get\(\'type\'\).*?set\(\'type\', self::TYPE_STATE\)#s',
+    $model
+)) {
+    $fails[] = 'TaskLog does not default its own type, so every row written by'
+        . ' a caller that sets none stores an empty string and disappears from'
+        . ' the state filter';
+}
+$schema = file_get_contents($web . '/commons/schema.php');
+if (!preg_match(
+    "#UPDATE `taskLog`.*?SET `logType` = 'state'.*?WHERE `logType` = ''#s",
+    $schema
+)) {
+    $fails[] = 'no schema step retypes the rows written untyped before the'
+        . ' model was fixed, so they stay invisible to the state filter';
+}
+
+// ------------------------------------------------------------- the modal
+
+// The message column truncates, and a FOS report's value is its full text --
+// the script it came from and the arguments it was passed.
+if (false === strpos($page, "'task-log-modal'")) {
+    $fails[] = 'the logs pane has no detail modal, so a truncated message'
+        . ' cannot be read in full';
+}
+if (false === strpos($js, "#task-log-modal")
+    || false === strpos($js, "#task-logs-table tbody tr")
+) {
+    $fails[] = 'nothing opens the log detail modal from a row, so the markup'
+        . ' is emitted and unreachable';
+}
+if (false === strpos($js, "closest('a').length")) {
+    $fails[] = 'the row click does not defer to the links inside it, so'
+        . ' clicking through to a host opens the modal instead';
+}
+// Filled, not merely referenced: dropping the write leaves the modal showing
+// whatever the last click put there, which reads as the wrong row's detail
+// rather than as a bug.
+if (false === strpos($js, '$(\'#task-log-detail\')')
+    || false === strpos($js, '$dl.html(')
+) {
+    $fails[] = 'the modal is opened without being filled, so it shows the'
+        . ' previous row (or nothing) whatever was clicked';
+}
+
 if ($fails) {
     echo 'FAIL: ' . count($fails) . " problem(s):\n";
     foreach ($fails as $f) {

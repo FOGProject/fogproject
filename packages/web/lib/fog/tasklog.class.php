@@ -67,6 +67,23 @@ class TaskLog extends FOGController
     /**
      * Initializes the class to set the ip from the remote.
      *
+     * Also types the row, because the column default cannot. Schema 338 gave
+     * `logType` a DEFAULT of 'state', and a default only applies when the
+     * column is left out of the INSERT -- which FOGController::save() never
+     * does: it writes every declared field, so an unset one arrives as ''.
+     * So TaskingElement::taskLog(), which has recorded task state changes
+     * since long before this column existed and sets no type, started writing
+     * untyped rows the moment the field was declared. Proven on a live
+     * install 2026-08-19: one row with logType '' against 52 pre-existing
+     * rows reading 'state', those 52 being rows the ALTER had backfilled.
+     *
+     * The consequence is silent: Task Management's log pane filters on
+     * `logType IN ('state')`, so every state row written after the upgrade
+     * would be missing from the one view built to show them.
+     *
+     * Guarded rather than assigned, so loading an existing row and saving it
+     * cannot retype it as a state change.
+     *
      * @param mixed $data the data to initialize with.
      *
      * @return void
@@ -75,6 +92,9 @@ class TaskLog extends FOGController
     {
         parent::__construct($data);
         $this->set('ip', self::$remoteaddr);
+        if ('' === (string) $this->get('type')) {
+            $this->set('type', self::TYPE_STATE);
+        }
     }
     /**
      * Gets the task object.
