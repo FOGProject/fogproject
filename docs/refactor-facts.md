@@ -474,6 +474,21 @@ Closure alongside the existing `[object, 'method']` arrays a non-event.
 grep -rn 'HookManager->data\|EventManager->data' packages /home/telliott/fog-plugins   # nothing
 ```
 
+### F-27 — Both catches render `$event` with `%s`, and a non-string `$event` is one of the things they exist to report
+`register()` and `notify()` each throw `_('Event must be a string')` and then
+interpolate that same `$event` into the log line. `%s` on an object with no
+`__toString` is an `\Error`, which `catch (\Exception)` does not catch, so
+the handler goes fatal on exactly the input it was written for. This is the
+`_describeListener()` defect (F-13) one argument along; fixing the listener
+half left this half live on both branches. An array name only warns -- an
+object is the fatal case.
+```
+php -r 'try { echo sprintf("%s", new stdClass); }
+  catch (\Exception $e) { echo "caught\n"; }
+  catch (\Error $e) { echo "ESCAPED: ".$e->getMessage()."\n"; }'
+# ESCAPED: Object of class stdClass could not be converted to string
+```
+
 ---
 
 ## How to add an entry

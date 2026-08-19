@@ -110,7 +110,7 @@ class EventManager extends FOGBase
                 _('Error'),
                 $e->getMessage(),
                 _('Event'),
-                $event,
+                self::_describeEvent($event),
                 _('Class'),
                 self::_describeListener($listener)
             );
@@ -190,6 +190,23 @@ class EventManager extends FOGBase
         if ($listener instanceof Hook) {
             throw new \Exception(_('A hook is not an event listener'));
         }
+    }
+    /**
+     * Renders an event name for a log line.
+     *
+     * The other half of the _describeListener() defect below, missed when
+     * that one was fixed. One of the conditions that reaches either catch is
+     * "$event is not a string", and %s on an object with no __toString is an
+     * \Error, which catch (\Exception) does not catch -- so reporting the
+     * bad event name was itself fatal.
+     *
+     * @param mixed $event The event as the caller supplied it.
+     *
+     * @return string
+     */
+    private static function _describeEvent($event)
+    {
+        return is_string($event) ? $event : gettype($event);
     }
     /**
      * Names a listener for a log line, whatever shape it arrived in.
@@ -286,7 +303,7 @@ class EventManager extends FOGBase
                 _('Error'),
                 $e->getMessage(),
                 _('Event'),
-                $event
+                self::_describeEvent($event)
             );
             self::log(
                 $string,

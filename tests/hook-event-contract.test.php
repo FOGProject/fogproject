@@ -209,6 +209,22 @@ if (false === strpos($msg, 'string')) {
     $fails[] = 'a listener of an unusable type is logged without being named';
 }
 
+// The same defect one argument along, missed when the listener half was
+// fixed. register() throws when $event is not a string, and the catch then
+// rendered $event with %s -- and %s on an object with no __toString is an
+// \Error, which catch (\Exception) does not catch. So the handler that
+// exists to report a bad event name was itself fatal for the one input that
+// produces a bad event name.
+$objEvent = new \stdClass();
+if ('' !== $escapes($hm, $objEvent, [$hook, 'fire'])) {
+    $fails[] = 'register() goes fatal reporting a non-string event name';
+}
+$msg = $logged($hm, $objEvent, [$hook, 'fire']);
+if (false === strpos($msg, 'object')) {
+    $fails[] = 'the register failure message does not say what the event name'
+        . ' was, which is the only field identifying the bad call';
+}
+
 // F-12 in the plan: register() used to switch on self::shortName($this), with
 // a case per subclass and a default arm that threw -- caught, logged, and
 // returning normally, so a subclass of either manager registered nothing and
@@ -342,6 +358,26 @@ $badName = ob_get_clean();
 $em2->logLevel = 0;
 if (false !== strpos($badName, '$s:')) {
     $fails[] = 'the notify failure message still carries the literal $s typo';
+}
+
+// An array name renders as "Array" and only warns; an object with no
+// __toString is the fatal half. Same \Error, same uncaught 500.
+$em2->logLevel = 9;
+ob_start();
+$objThrew = '';
+try {
+    $em2->notify(new \stdClass(), []);
+} catch (\Throwable $t) {
+    $objThrew = get_class($t);
+}
+$objLog = ob_get_clean();
+$em2->logLevel = 0;
+if ('' !== $objThrew) {
+    $fails[] = 'notify() goes fatal reporting a non-string event name: '
+        . $objThrew;
+}
+if (false === strpos($objLog, 'object')) {
+    $fails[] = 'the notify failure message does not say what the event name was';
 }
 
 // The cases above seed the name cache, so they say nothing about whether
