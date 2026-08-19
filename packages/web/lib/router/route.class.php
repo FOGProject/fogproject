@@ -447,6 +447,18 @@ class Route extends FOGBase
                 ? self::$matches['params']['class']
                 : ''
             );
+            /**
+             * Object boundary for a per-object route. Inert unless a
+             * plugin answers API_SCOPE_IDS.
+             */
+            self::_requireObjectScope(
+                isset(self::$matches['params']['class'])
+                ? self::$matches['params']['class']
+                : '',
+                isset(self::$matches['params']['id'])
+                ? self::$matches['params']['id']
+                : 0
+            );
             call_user_func_array(
                 self::$matches['target'],
                 array_values(self::$matches['params'])
@@ -506,6 +518,103 @@ class Route extends FOGBase
         if (in_array($name, $allowed, true)
             && in_array(strtolower((string)$class), self::$nonAdminClasses, true)
         ) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_FORBIDDEN
+        );
+    }
+    /**
+     * The object ids the acting user may see for this class, or null when
+     * no boundary applies.
+     *
+     * THE RETURN IS A TRI-STATE and every caller below depends on it:
+     *
+     *   null          no boundary -- leave the result set alone
+     *   array(...)    narrow to exactly these ids
+     *   array()       a real answer meaning "nothing"
+     *
+     * null is the ONLY value meaning unbounded. `if (!$ids)` is true for
+     * both null and array(), so a caller written that way shows every
+     * object to the one user entitled to none. Test `null ===`.
+     *
+     * Inert in core: nothing here knows what a site is. The site plugin
+     * answers the event; with the plugin absent or the user unrestricted
+     * the value stays null and the read behaves exactly as it always did.
+     *
+     * @param string $classname The class being read.
+     *
+     * @return array|null
+     */
+    private static function _scopeIDs($classname)
+    {
+        $ids = null;
+        self::$HookManager
+            ->processEvent(
+                'API_SCOPE_IDS',
+                array(
+                    'classname' => &$classname,
+                    'ids' => &$ids
+                )
+            );
+        return is_array($ids) ? array_values($ids) : null;
+    }
+    /**
+     * Narrows a filter set to the ids the acting user may see.
+     *
+     * Folded into the WHERE rather than applied to the rows afterwards, so
+     * a route that only ever produces ids -- names() and ids() -- is
+     * bounded by the query itself. An intersection that comes out empty is
+     * passed through as an empty array on purpose: _buildWhere() compiles
+     * that to `WHERE 1=0` rather than dropping the term, which is the
+     * difference between "you may see nothing" and "here is everything".
+     *
+     * @param string $classname  The class being read.
+     * @param array  $whereItems The caller's filter.
+     *
+     * @return array
+     */
+    private static function _scopeWhereItems($classname, $whereItems)
+    {
+        $scope = self::_scopeIDs($classname);
+        if (null === $scope) {
+            return $whereItems;
+        }
+        $whereItems = (array)$whereItems;
+        if (isset($whereItems['id'])) {
+            $whereItems['id'] = array_values(
+                array_intersect(
+                    array_map('intval', (array)$whereItems['id']),
+                    $scope
+                )
+            );
+            return $whereItems;
+        }
+        $whereItems['id'] = $scope;
+        return $whereItems;
+    }
+    /**
+     * Denies a per-object route whose target is outside the acting user's
+     * scope.
+     *
+     * At dispatch rather than in each handler, for the same reason
+     * _requireAuthorized() is: one place to audit, and it covers indiv,
+     * update, delete, task and cancel without each of them remembering.
+     * Routes carrying no id are unaffected.
+     *
+     * @param string $class The class the route is acting on, if any.
+     * @param int    $id    The target object id, if any.
+     *
+     * @return void
+     */
+    private static function _requireObjectScope($class, $id)
+    {
+        $id = (int)$id;
+        if ($id < 1) {
+            return;
+        }
+        $scope = self::_scopeIDs(strtolower((string)$class));
+        if (null === $scope || in_array($id, $scope, true)) {
             return;
         }
         self::sendResponse(
@@ -638,6 +747,10 @@ class Route extends FOGBase
             $find,
             self::getsearchbody($classname)
         );
+        // Object boundary. Applied to the rows rather than the query
+        // because this route has no LIMIT -- every match is built and
+        // returned -- so filtering here is exact and keeps 'count' honest.
+        $scope = self::_scopeIDs($classname);
         switch ($classname) {
             case 'plugin':
                 self::$data['count_active'] = 0;
@@ -669,6 +782,11 @@ class Route extends FOGBase
                         '_api_'
                     );
                     if (!$bypass && false != $test) {
+                        continue;
+                    }
+                    if (null !== $scope
+                        && !in_array((int)$class->get('id'), $scope, true)
+                    ) {
                         continue;
                     }
                     self::$data[$classname.'s'][] = self::getter(
@@ -726,8 +844,14 @@ class Route extends FOGBase
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
+        $scope = self::_scopeIDs($classname);
         foreach ($classman->search($item, true) as &$class) {
             if (false != stripos($class->get('name'), '_api_')) {
+                continue;
+            }
+            if (null !== $scope
+                && !in_array((int)$class->get('id'), $scope, true)
+            ) {
                 continue;
             }
             self::$data[$classname.'s'][] = self::getter(
@@ -2101,6 +2225,7 @@ class Route extends FOGBase
         );
 
         $whereItems = self::handleWhereItems($whereItems, $class);
+        $whereItems = self::_scopeWhereItems($classname, $whereItems);
 
         $sql = 'SELECT `'
             . $classVars['databaseFields']['id']
@@ -2188,6 +2313,8 @@ class Route extends FOGBase
                 );
             }
         }
+
+        $whereItems = self::_scopeWhereItems($classname, $whereItems);
 
         $sql = 'SELECT `'
             . $classVars['databaseFields'][$getField]

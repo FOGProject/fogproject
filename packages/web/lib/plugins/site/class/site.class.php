@@ -323,4 +323,119 @@ class Site extends FOGController
         }
         return $this;
     }
+    /**
+     * Whether this user's view is bounded by site membership.
+     *
+     * @param int $userID The user to test.
+     *
+     * @return bool
+     */
+    public static function userIsRestricted($userID)
+    {
+        $userID = (int)$userID;
+        if ($userID < 1) {
+            return false;
+        }
+        $flags = self::getSubObjectIDs(
+            'SiteUserRestriction',
+            array('userID' => $userID),
+            'isRestricted'
+        );
+        return (bool)(isset($flags[0]) ? $flags[0] : false);
+    }
+    /**
+     * The sites this user belongs to.
+     *
+     * @param int $userID The user to look up.
+     *
+     * @return array
+     */
+    public static function userSiteIDs($userID)
+    {
+        return (array)self::getSubObjectIDs(
+            'SiteUserAssociation',
+            array('userID' => (int)$userID),
+            'siteID'
+        );
+    }
+    /**
+     * The hosts belonging to any of these sites.
+     *
+     * @param array $siteIDs The sites.
+     *
+     * @return array
+     */
+    public static function hostIDsForSites($siteIDs)
+    {
+        return (array)self::getSubObjectIDs(
+            'SiteHostAssociation',
+            array('siteID' => (array)$siteIDs),
+            'hostID'
+        );
+    }
+    /**
+     * The groups holding one or more hosts of these sites.
+     *
+     * @param array $siteIDs The sites.
+     *
+     * @return array
+     */
+    public static function groupIDsForSites($siteIDs)
+    {
+        $hostIDs = self::hostIDsForSites($siteIDs);
+        if (count($hostIDs) < 1) {
+            return array();
+        }
+        return (array)self::getSubObjectIDs(
+            'GroupAssociation',
+            array('hostID' => $hostIDs),
+            'groupID'
+        );
+    }
+    /**
+     * The object ids $userID may see for $classname.
+     *
+     * THE RETURN IS A TRI-STATE and the distinction is the whole point:
+     *
+     *   null          no boundary applies -- leave the caller's set alone
+     *   array(...)    narrow to exactly these ids
+     *   array()       a real answer meaning "nothing", NOT "no boundary"
+     *
+     * null is the only value that means "unbounded". Treating an empty
+     * array as unbounded -- which is what any `if (!$ids)` test does -- is
+     * how a user entitled to nothing ends up seeing everything, so callers
+     * must test `null ===` and nothing looser.
+     *
+     * This is the single statement of the membership rule. The management
+     * pages reach it through AddSiteFilterSearch and the API reaches it
+     * through AddSiteAPI; if the two ever disagree about who may see what,
+     * the boundary is decorative.
+     *
+     * @param string $classname The class being listed or fetched.
+     * @param int    $userID    The acting user.
+     *
+     * @return array|null
+     */
+    public static function scopedObjectIDs($classname, $userID)
+    {
+        $classname = strtolower((string)$classname);
+        // Only what the plugin actually associates. Everything else --
+        // images, snapins, storage nodes, the association tables -- has no
+        // site boundary to apply, and returning an id list for one would
+        // narrow lookups the plugin knows nothing about.
+        if (!in_array($classname, array('host', 'group'), true)) {
+            return null;
+        }
+        $userID = (int)$userID;
+        if (!self::userIsRestricted($userID)) {
+            return null;
+        }
+        $siteIDs = self::userSiteIDs($userID);
+        if (count($siteIDs) < 1) {
+            return array();
+        }
+        return 'group' === $classname
+            ? self::groupIDsForSites($siteIDs)
+            : self::hostIDsForSites($siteIDs);
+    }
 }
