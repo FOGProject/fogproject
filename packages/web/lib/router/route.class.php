@@ -4518,6 +4518,31 @@ class Route extends FOGBase
         }
         $fields = self::$sensitiveFields;
         $always = self::$sensitiveAlwaysFields;
+        // Memoized with the CORE tiers BEFORE the event fires, and again with
+        // the plugin-augmented ones after. The pre-set is what makes this
+        // re-entrant, and it has to be: HookManager::processEvent() populates
+        // its $knownEvents list by calling Route::getIds('hookevent'), so
+        // firing ANY event can re-enter Route -- and any Route path that
+        // consults this map then arrives here with $_sensitiveMap still null
+        // and fires the event again, forever. That is not hypothetical; it is
+        // an OOM in ~40 frames, and today only the accident that ids() never
+        // asked for the map keeps the cycle finite:
+        //
+        //   sensitiveFieldMap -> processEvent -> getIds -> ids
+        //     -> unfilterableFields -> sensitiveFieldMap -> ...
+        //
+        // A re-entrant caller sees the core tiers, never a smaller set, so it
+        // can only ever miss a PLUGIN-declared field for the duration of that
+        // one nested call -- and the only re-entrant caller is the hookevent
+        // name lookup, whose class declares no secrets at all. Losing a
+        // plugin field for that is the safe side of the trade; the unsafe
+        // side is the process dying.
+        //
+        // Same shape, same fix, in serverOwnedFields() below.
+        self::$_sensitiveMap = [
+            'fields' => (array)$fields,
+            'always' => (array)$always
+        ];
         self::$HookManager->processEvent(
             'API_SENSITIVE_FIELDS',
             [
@@ -4541,6 +4566,11 @@ class Route extends FOGBase
     {
         if (null === self::$_serverOwnedMap) {
             $fields = self::$serverOwnedFields;
+            // Pre-set before the event, then again after -- see the long note
+            // in sensitiveFieldMap(). Not currently reachable re-entrantly
+            // (no path from processEvent() consults this map), but it is the
+            // same construction one call site away from the same OOM.
+            self::$_serverOwnedMap = (array)$fields;
             self::$HookManager->processEvent(
                 'API_SERVER_OWNED_FIELDS',
                 ['fields' => &$fields]
@@ -4912,6 +4942,75 @@ class Route extends FOGBase
             // columns together read them in one query rather than one query
             // per row. Refs GH-707.
             $getFields = (array)$getField;
+            // A field the emitter would strip must not be SELECTable either.
+            //
+            // getField is request-supplied -- it is the last segment of
+            // "/ids/id=1/name" -- and it names a column outright, so the only
+            // check standing between a caller and any column of any class in
+            // $validClasses was the databaseFields test below. That test says
+            // the column exists, not that the caller may read it, and
+            // stripSensitivePayload() cannot make up the difference: this
+            // route answers with a bare array of scalars carrying no '_lang'
+            // stamp, so the emitter resolves an empty classname and returns
+            // the payload untouched. GET /host/ids/id=1/sec_tok therefore
+            // handed a host's plaintext fog-client token -- and ADPass,
+            // productKey, user.password, user.token -- to any caller holding
+            // <entity>.view, the same permission as reading the list.
+            //
+            // Refused rather than dropped, matching _assertNoSensitiveFilter()
+            // exactly: silently substituting a different column would answer a
+            // question the caller did not ask. Same list, read the same way,
+            // so a plugin's own declared secret is covered by construction.
+            //
+            // Deliberately before the existence test, so a sensitive field is
+            // named as forbidden rather than as valid-but-refused, and so the
+            // 'valid' hint below cannot advertise it.
+            //
+            // Gated on SAPI for the same reason the unknown-field branch
+            // below is: sendResponse() exits, and a daemon that exits is a
+            // systemd restart loop (cf. 2d199fa4b). Both arms refuse -- what
+            // differs is how. Serving a request answers 400. Off-request the
+            // call returns an EMPTY result and logs, which is fail-closed
+            // without ending the process; falling through the way the
+            // unknown-field branch does would hand the secret back, and that
+            // is the one outcome this must not have.
+            //
+            // No in-repo caller is affected. Every getIds()/ids() call site
+            // was checked and the fields asked for are id, name, path,
+            // snapinpath, hostID, ip, mac, userID, usergroupID, siteID,
+            // storagegroupID, imageID, groupID, msID, isMaster, pending,
+            // sslpath, trustedcidrs, grantroleID, clientIgnore, imageIgnore.
+            //   grep -rn 'getIds(' --include=*.php packages/ /path/to/fog-plugins
+            $blocked = array_intersect(
+                $getFields,
+                self::unfilterableFields($classname)
+            );
+            if (count($blocked) > 0) {
+                if ('cli' === PHP_SAPI) {
+                    self::error(
+                        sprintf(
+                            'Route::ids: refusing sensitive field(s) for %s: %s.'
+                            . ' Returning no rows.',
+                            $classname,
+                            implode(', ', $blocked)
+                        )
+                    );
+                    self::$data = [];
+                    return;
+                }
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        [
+                            'error' => sprintf(
+                                _('Cannot select %s field(s): %s'),
+                                $classname,
+                                implode(', ', $blocked)
+                            )
+                        ]
+                    )
+                );
+            }
             foreach ($getFields as $field) {
                 if (isset($classVars['databaseFields'][$field])) {
                     continue;

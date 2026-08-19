@@ -1137,6 +1137,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr "自身がグループマネージャーか確認しています"
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"

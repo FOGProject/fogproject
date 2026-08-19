@@ -1014,6 +1014,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr ""
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 msgid "Cannot task pending hosts"
 msgstr ""
 

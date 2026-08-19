@@ -1156,6 +1156,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr "Controllare se sono il responsabile del gruppo"
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossibile affidare attività ad host in attesa"
