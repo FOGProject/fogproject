@@ -58,7 +58,10 @@ $sanitize->setAccessible(true);
 $clean = function ($raw) use ($sanitize) {
     return $sanitize->invoke(null, $raw);
 };
-$max = (new \ReflectionClass('FOG\TaskError'))->getConstant('MAX_REASON');
+$refl = new \ReflectionClass('FOG\TaskError');
+$maxReason = $refl->getConstant('MAX_REASON');
+$maxText = $refl->getConstant('MAX_TEXT');
+$max = $maxText;
 
 // ------------------------------------------------------------- one line
 
@@ -82,24 +85,46 @@ foreach ([
 
 // ---------------------------------------------------------------- bounds
 
-if (!is_int($max) || $max < 1) {
-    $fails[] = 'MAX_REASON is not a positive integer, so the report is unbounded';
+// Two bounds, not one, and they must not collapse back into each other. The
+// stored row and the push notification pull in opposite directions: a phone
+// message wants to stay readable, a diagnostic wants the whole trace. If
+// MAX_TEXT ever stops being the larger of the two, the split has been undone
+// and widening storage has quietly started widening what gets pushed.
+foreach (['MAX_REASON' => $maxReason, 'MAX_TEXT' => $maxText] as $name => $val) {
+    if (!is_int($val) || $val < 1) {
+        $fails[] = "$name is not a positive integer, so the report is unbounded";
+    }
 }
-$long = str_repeat('A', $max * 3);
-if (mb_strlen($clean($long)) > $max) {
-    $fails[] = 'a long report is not truncated, so an unauthenticated caller'
-        . ' can use a notification channel as a paste bin';
+if ($maxText <= $maxReason) {
+    $fails[] = 'MAX_TEXT is not larger than MAX_REASON, so splitting them'
+        . ' bought nothing -- the stored report is still notification-sized';
+}
+// The column is TEXT: 65535 BYTES. Bounding above that would mean an
+// oversized report fails its INSERT under STRICT_TRANS_TABLES and is lost
+// entirely, rather than being stored short.
+if ($maxText > 65535) {
+    $fails[] = 'MAX_TEXT exceeds what taskLog.logText can hold, so a large'
+        . ' report fails the INSERT instead of being truncated';
 }
 
-// A multibyte string must not be cut into an invalid sequence, and must not
-// be thrown away either.
-$mb = str_repeat('é', $max * 2);
+// Bytes, not characters -- that is the budget the column actually spends.
+$long = str_repeat('A', $maxText * 2);
+if (strlen($clean($long)) > $maxText) {
+    $fails[] = 'a long report is not truncated, so an unauthenticated caller'
+        . ' can write whatever it likes into the task log';
+}
+
+// A multibyte string must not be cut into an invalid sequence, must not be
+// thrown away, and must not be cut by CHARACTERS: 8192 utf8mb3 characters is
+// 24576 bytes, three times the budget, which the column would reject.
+$mb = str_repeat('é', $maxText);
 $cut = $clean($mb);
 if ('' === $cut) {
     $fails[] = 'a multibyte report is discarded entirely';
 }
-if (mb_strlen($cut) > $max) {
-    $fails[] = 'a multibyte report is not truncated';
+if (strlen($cut) > $maxText) {
+    $fails[] = 'a multibyte report is bounded by characters rather than bytes,'
+        . ' so it can exceed the column and fail the INSERT';
 }
 if ($cut !== mb_convert_encoding($cut, 'UTF-8', 'UTF-8')) {
     $fails[] = 'truncation split a multibyte character, so the message is no'
@@ -122,6 +147,38 @@ if ('' !== $clean('   ') || '' !== $clean('')) {
 // --------------------------------------------------------------- the class
 
 $src = file_get_contents($web . '/lib/reg-task/taskerror.class.php');
+
+// The split only exists if the SHORT bound is applied at the notification and
+// nowhere earlier. Cut at the top instead and both halves shrink together,
+// which is the state this change was undoing.
+if (false === strpos(
+    $src,
+    "'Reason' => mb_substr(\$text, 0, self::MAX_REASON)"
+)) {
+    $fails[] = 'the notification payload is not cut to MAX_REASON at the'
+        . ' notify() call, so widening what is stored also widens what is'
+        . ' pushed to an administrator\'s phone';
+}
+// _logRow gets the WHOLE text. If MAX_REASON reaches it, the stored row is
+// notification-sized again and the extra capacity is unreachable.
+// `self::` and the semicolon on purpose: without them this also matches the
+// method's own SIGNATURE, `_logRow($Task, $type, $text)`, so narrowing the
+// argument at the call site passed clean.
+if (false === strpos($src, 'self::_logRow($Task, $type, $text);')) {
+    $fails[] = 'the stored row is no longer written from the full report text';
+}
+// text and script arrive bounded separately, so the join has to be re-bounded
+// or the column is handed twice what it was promised.
+if (!preg_match(
+    '#sprintf\(\'%s \(%s\)\', \$text, \$script\)#s',
+    $src
+) || !preg_match(
+    '#\$text = self::_limit\(\s*sprintf#s',
+    $src
+)) {
+    $fails[] = 'the composed text+script is not re-bounded, so a report with a'
+        . ' script name can be twice MAX_TEXT';
+}
 
 if (false === strpos($src, '$Task->isImagingTask()')) {
     $fails[] = 'the endpoint no longer checks the task is an imaging one, so a'
