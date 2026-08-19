@@ -161,18 +161,28 @@ if ($hm->hasListeners('CHAR_BAD_METHOD')) {
     $fails[] = 'a listener naming a method that does not exist was registered';
 }
 
-// F-13. The catch block interpolates $listener[0]; a Closure is an object and
-// not an array, so the handler that exists to swallow the failure raises an
-// \Error instead -- which catch (\Exception) does not catch. Registration runs
-// in a hook constructor during LoadGlobals, so in production this is HTTP 500
-// with an empty body on every entry point.
+// F-13, fixed. The catch used to interpolate $listener[0]; a Closure is an
+// object and not an array, so the handler that exists to swallow the failure
+// raised an \Error -- which catch (\Exception) does not catch. Registration
+// runs in a hook constructor during LoadGlobals, so that was HTTP 500 with an
+// empty body on every entry point until the file was deleted from disk.
 //
-// F-14. docs/plugin-development.md documents exactly this shape three times,
-// for the three Phase 2 authentication seams.
-if ('Error' !== $escapes($hm, 'CHAR_CLOSURE', function ($a) {
-})) {
-    $fails[] = 'a Closure listener no longer raises \Error out of register();'
-        . ' if that is deliberate, this case and F-13 both need rewriting';
+// An error handler must not be able to fail harder than the error it reports,
+// so this asserts that nothing escapes, whatever shape arrives.
+foreach ([
+    'closure' => function ($a) {
+    },
+    'plain object' => new \stdClass(),
+    'string' => 'strlen',
+    'integer' => 7,
+    'null' => null,
+] as $what => $listener) {
+    if ('' !== $escapes($hm, 'CHAR_JUNK', $listener)) {
+        $fails[] = "a $what listener escapes register() instead of being logged";
+    }
+    if ($hm->hasListeners('CHAR_JUNK')) {
+        $fails[] = "a $what listener was registered";
+    }
 }
 
 // F-19 in miniature: the one diagnostic a swallowed failure produces does not
@@ -183,13 +193,22 @@ $msg = $logged($hm, 'CHAR_LOGGED', [new \stdClass(), 'fire']);
 if (false === strpos($msg, 'Could not register')) {
     $fails[] = 'a swallowed registration failure no longer logs anything';
 }
-if (false === strpos($msg, '$s:')) {
-    $fails[] = 'the literal $s typo is gone from the failure message; good, but'
-        . ' this case pins it deliberately -- rewrite it alongside the fix';
+if (false !== strpos($msg, '$s:')) {
+    $fails[] = 'the failure message still carries the literal $s typo';
 }
-if (false !== strpos($msg, 'stdClass')) {
-    $fails[] = 'the failure message now names the offending class; good, but'
-        . ' this case pins its absence deliberately -- rewrite it';
+if (false === strpos($msg, 'stdClass')) {
+    $fails[] = 'the failure message does not name the class that failed, which'
+        . ' is the only field that says which plugin to go and look at';
+}
+if (false === strpos($msg, 'CHAR_LOGGED')) {
+    $fails[] = 'the failure message does not name the event';
+}
+// The shape that used to be fatal has to name itself too, or the fix has
+// traded a crash for an unattributable log line.
+$msg = $logged($hm, 'CHAR_LOGGED_CLOSURE', function ($a) {
+});
+if (false === strpos($msg, 'Closure')) {
+    $fails[] = 'a Closure listener is logged without being named';
 }
 
 // ------------------------------------------------ registering against events
@@ -201,9 +220,12 @@ if ('' !== $escapes($em, 'CHAR_EVT', $event)) {
     $fails[] = 'the supported event listener shape (an Event object) no longer registers';
 }
 
-// Same defect as the Closure case: a non-Event object reaches $listener[0].
-if ('Error' !== $escapes($em, 'CHAR_EVT_BAD', new \stdClass())) {
-    $fails[] = 'a non-Event object no longer raises \Error out of register()';
+// Same defect as the Closure case, and fixed with it.
+if ('' !== $escapes($em, 'CHAR_EVT_BAD', new \stdClass())) {
+    $fails[] = 'a non-Event object escapes register() instead of being logged';
+}
+if ($em->hasListeners('CHAR_EVT_BAD')) {
+    $fails[] = 'a non-Event object was registered as an event listener';
 }
 
 // F-18. Hook extends Event, so the instanceof guard that is supposed to keep
