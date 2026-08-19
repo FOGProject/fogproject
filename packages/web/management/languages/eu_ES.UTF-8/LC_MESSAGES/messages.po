@@ -244,6 +244,9 @@ msgstr "Speichergruppe gelöscht"
 msgid "A group name is required!"
 msgstr "Ein Gruppenname ist erforderlich!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
@@ -1189,6 +1192,10 @@ msgstr ""
 #, php-format
 msgid "Cannot filter %s on: %s"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot notify from the hook manager"
+msgstr "Prüfe, ob ich der Gruppenmanager bin"
 
 #, fuzzy
 msgid "Cannot task pending hosts"
@@ -2223,9 +2230,6 @@ msgstr "Ereignis"
 #, fuzzy
 msgid "Event Data must be an array"
 msgstr "Ereignisdaten müssen ein Array sein."
-
-msgid "Event and data are not set"
-msgstr "Ereignis und Daten sind nicht gesetzt"
 
 msgid "Event must be a string"
 msgstr "Ereignisname muss eine Zeichenfolge sein."
@@ -4422,6 +4426,10 @@ msgstr "Installierte Plugins"
 msgid "List of MACs"
 msgstr "Alle %s auflisten"
 
+#, fuzzy
+msgid "Listener must be [class,function] or a closure"
+msgstr "Listener muss ein Array oder ein Objekt sein"
+
 msgid "Listener must be an array or an object"
 msgstr "Listener muss ein Array oder ein Objekt sein"
 
@@ -6147,12 +6155,6 @@ msgstr "Service-Status"
 msgid "Refresh the settings cache"
 msgstr "Service-Status"
 
-msgid "Register must be managed from hooks or events"
-msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
-
-msgid "Registered"
-msgstr "Registriert"
-
 msgid "Registered Hosts"
 msgstr "Registrierte Hosts"
 
@@ -6541,9 +6543,6 @@ msgstr "Die Suche lieferte kein passendes Ergebnis"
 #, fuzzy
 msgid "Search settings"
 msgstr "Service-Status"
-
-msgid "Second paramater must be in [class,function]"
-msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
@@ -8578,6 +8577,9 @@ msgstr ""
 msgid "Use extreme caution with this setting"
 msgstr "Seien Sie seeehr vorsichtig mit diesen Einstellungen"
 
+msgid "Use processEvent instead"
+msgstr ""
+
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
@@ -10032,6 +10034,9 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
 
+#~ msgid "Event and data are not set"
+#~ msgstr "Ereignis und Daten sind nicht gesetzt"
+
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Hosts exportieren"
@@ -10296,6 +10301,12 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Drucker-Alias"
+
+#~ msgid "Register must be managed from hooks or events"
+#~ msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
+
+#~ msgid "Registered"
+#~ msgstr "Registriert"
 
 #, fuzzy
 #~ msgid "Remove Selected"

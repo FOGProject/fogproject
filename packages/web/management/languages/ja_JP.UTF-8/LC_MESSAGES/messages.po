@@ -233,6 +233,9 @@ msgstr "グループを選択してください。"
 msgid "A group name is required!"
 msgstr "グループ名は必須です！"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr "この名前のホストは既に存在します！"
 
@@ -1132,6 +1135,10 @@ msgstr ""
 #, php-format
 msgid "Cannot filter %s on: %s"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot notify from the hook manager"
+msgstr "自身がグループマネージャーか確認しています"
 
 #, fuzzy
 msgid "Cannot task pending hosts"
@@ -2138,9 +2145,6 @@ msgstr "イベント"
 
 msgid "Event Data must be an array"
 msgstr "イベントデータは配列である必要があります"
-
-msgid "Event and data are not set"
-msgstr "イベントとデータが設定されていません"
 
 msgid "Event must be a string"
 msgstr "イベントは文字列で指定してください"
@@ -4219,6 +4223,10 @@ msgstr "インストール済みプラグイン"
 msgid "List of MACs"
 msgstr "すべての %s を一覧表示"
 
+#, fuzzy
+msgid "Listener must be [class,function] or a closure"
+msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
+
 msgid "Listener must be an array or an object"
 msgstr "リスナーは配列またはオブジェクトである必要があります"
 
@@ -5888,12 +5896,6 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr "FOG 設定"
 
-msgid "Register must be managed from hooks or events"
-msgstr "登録はフックまたはイベントから管理する必要があります"
-
-msgid "Registered"
-msgstr "登録済み"
-
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
 
@@ -6260,10 +6262,6 @@ msgstr "検索結果が false を返しました"
 #, fuzzy
 msgid "Search settings"
 msgstr "設定"
-
-#, fuzzy
-msgid "Second paramater must be in [class,function]"
-msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
@@ -8202,6 +8200,9 @@ msgstr ""
 msgid "Use extreme caution with this setting"
 msgstr "この設定は十分注意して使用してください"
 
+msgid "Use processEvent instead"
+msgstr ""
+
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
@@ -9896,6 +9897,9 @@ msgstr ""
 #~ msgid "Especially when your organization has many hosts"
 #~ msgstr "特に、多数のホストを管理している組織では"
 
+#~ msgid "Event and data are not set"
+#~ msgstr "イベントとデータが設定されていません"
+
 #~ msgid "Exit to Hard Drive Type"
 #~ msgstr "ハードドライブへの起動方法"
 
@@ -10912,6 +10916,12 @@ msgstr ""
 
 #~ msgid "Rebranding element has been successfully updated!"
 #~ msgstr "ブランド設定を更新しました！"
+
+#~ msgid "Register must be managed from hooks or events"
+#~ msgstr "登録はフックまたはイベントから管理する必要があります"
+
+#~ msgid "Registered"
+#~ msgstr "登録済み"
 
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "返却担当者のイニシャル"

@@ -249,6 +249,9 @@ msgstr "Grupo de armazenamento excluído"
 msgid "A group name is required!"
 msgstr "Um nome de imagem é necessário!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
@@ -1192,6 +1195,9 @@ msgstr ""
 
 #, php-format
 msgid "Cannot filter %s on: %s"
+msgstr ""
+
+msgid "Cannot notify from the hook manager"
 msgstr ""
 
 #, fuzzy
@@ -2226,9 +2232,6 @@ msgstr "Adicionar Evento"
 #, fuzzy
 msgid "Event Data must be an array"
 msgstr "Evento deve ser uma string"
-
-msgid "Event and data are not set"
-msgstr ""
 
 msgid "Event must be a string"
 msgstr "Evento deve ser uma string"
@@ -4422,6 +4425,9 @@ msgstr "Plugins instalados"
 msgid "List of MACs"
 msgstr "Listar todos os %s"
 
+msgid "Listener must be [class,function] or a closure"
+msgstr ""
+
 msgid "Listener must be an array or an object"
 msgstr ""
 
@@ -6147,12 +6153,6 @@ msgstr "status do serviço"
 msgid "Refresh the settings cache"
 msgstr "status do serviço"
 
-msgid "Register must be managed from hooks or events"
-msgstr ""
-
-msgid "Registered"
-msgstr "Registrado"
-
 msgid "Registered Hosts"
 msgstr "hosts registrados"
 
@@ -6541,9 +6541,6 @@ msgstr ""
 #, fuzzy
 msgid "Search settings"
 msgstr "status do serviço"
-
-msgid "Second paramater must be in [class,function]"
-msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
@@ -8576,6 +8573,9 @@ msgstr ""
 msgid "Use extreme caution with this setting"
 msgstr ""
 
+msgid "Use processEvent instead"
+msgstr ""
+
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
@@ -10280,6 +10280,9 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
+
+#~ msgid "Registered"
+#~ msgstr "Registrado"
 
 #, fuzzy
 #~ msgid "Remove Selected"

@@ -244,6 +244,9 @@ msgstr "Storage Group cancellato"
 msgid "A group name is required!"
 msgstr "È richiesto un nome di gruppo!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 
@@ -1151,6 +1154,10 @@ msgstr ""
 #, php-format
 msgid "Cannot filter %s on: %s"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot notify from the hook manager"
+msgstr "Controllare se sono il responsabile del gruppo"
 
 #, fuzzy
 msgid "Cannot task pending hosts"
@@ -2157,9 +2164,6 @@ msgstr "Evento"
 
 msgid "Event Data must be an array"
 msgstr "Event data deve essere un array"
-
-msgid "Event and data are not set"
-msgstr "Event e data non sono impostati"
 
 msgid "Event must be a string"
 msgstr "Evento deve essere una stringa"
@@ -4262,6 +4266,10 @@ msgstr "plugin installati"
 msgid "List of MACs"
 msgstr "Elencare tutti %s"
 
+#, fuzzy
+msgid "Listener must be [class,function] or a closure"
+msgstr "Listener deve essere un array o un oggetto"
+
 msgid "Listener must be an array or an object"
 msgstr "Listener deve essere un array o un oggetto"
 
@@ -5934,12 +5942,6 @@ msgstr "Stato servizio"
 msgid "Refresh the settings cache"
 msgstr "Stato servizio"
 
-msgid "Register must be managed from hooks or events"
-msgstr "Registro deve essere gestito da hook o eventi"
-
-msgid "Registered"
-msgstr "Registrato"
-
 msgid "Registered Hosts"
 msgstr "host registrati"
 
@@ -6312,9 +6314,6 @@ msgstr "Risultati di ricerca che restituiscono false"
 #, fuzzy
 msgid "Search settings"
 msgstr "Stato servizio"
-
-msgid "Second paramater must be in [class,function]"
-msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
@@ -8272,6 +8271,9 @@ msgstr ""
 msgid "Use extreme caution with this setting"
 msgstr "Usa la massima attenzione con questa impostazione"
 
+msgid "Use processEvent instead"
+msgstr ""
+
 msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
@@ -9649,6 +9651,9 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
 
+#~ msgid "Event and data are not set"
+#~ msgstr "Event e data non sono impostati"
+
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Host Export"
@@ -9904,6 +9909,12 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
+
+#~ msgid "Register must be managed from hooks or events"
+#~ msgstr "Registro deve essere gestito da hook o eventi"
+
+#~ msgid "Registered"
+#~ msgstr "Registrato"
 
 #, fuzzy
 #~ msgid "Remove Selected"
