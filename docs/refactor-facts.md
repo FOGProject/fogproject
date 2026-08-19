@@ -840,6 +840,37 @@ SCRIPT_FILENAME=.../probe_scope1_routes.php REDIRECT_STATUS=200 \
 php tests/route-read-path-guards.test.php   # ok  108 checks passed
 ```
 
+### F-44 — `?expand` is primed; ~20 statements/row became ~7, payload identical
+
+The expand branch resolved a full object per row and then every member of
+every expanded collection one at a time. Both now go through
+`primeRel()`/`rel()`, the pair GH-707 introduced for the grid columns and that
+this branch never used. Measured on the lab, `?expand=all` on `host`: 1024
+statements for a 50-row page becomes 389, and the payload is byte-identical at
+every page size (compared as sorted JSON).
+
+Not flat, and the remainder is known: `$class->get($rel['field'])` still loads
+lazily through `FOGController` on each row. The per-row OBJECT loads are gone,
+the per-row RELATION accessor is not.
+
+Pinned in the net as a MARGINAL cost -- the slope between two page sizes.
+The intercept is a property of the fake; the slope is the defect.
+
+Two measurement traps worth not re-discovering:
+
+- `listem()`'s third argument is `$inputoverride`, a BOOL meaning "no
+  php://input body". Passing a pass_vars array is merely truthy, skips the
+  branch that folds `?length`/`?start` in, and silently returns the WHOLE
+  TABLE -- so a probe reports the same query count for every page size asked
+  for.
+- `parseExpand()` runs at the top of `listem()`, so `QUERY_STRING` must be set
+  before the call.
+
+```
+php /home/telliott/scripts/background_scripts/compare_expand_payload.php Host 50 < /dev/null
+php tests/route-read-path-guards.test.php   # ok  110 checks passed
+```
+
 ---
 
 ## How to add an entry

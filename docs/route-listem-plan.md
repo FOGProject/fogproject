@@ -593,6 +593,9 @@ The other three are commit 4.
 
 ## Commit 6 — PERF-1: prime the `?expand` branch
 
+**DONE** — marginal cost per row 20 → 7 statements, payload byte-identical.
+Result at the end of this section.
+
 `VERIFIED`, measured:
 
 | rows | plain queries | `?expand=all` queries | expand wall |
@@ -618,6 +621,47 @@ change — the same relations are inlined, resolved from a cache instead of one
 at a time.
 **Alternative rejected:** lowering `EXPAND_MAX_ITEMS`. It caps the damage
 without fixing it and silently truncates pages that work today.
+
+### Result
+
+Two per-row loads became two primed ones, both with `primeRel()`/`rel()` — the
+pair GH-707 introduced and this branch never used. The outer one resolves the
+page's own objects; the inner one, in `expandRelations()`, resolves each
+expanded collection's members, and that is the larger half: a host expanded
+with its macs, snapins and modules resolves every one of them there.
+
+Measured on the lab against the live database, `?expand=all` on `host`:
+
+| page | before | after |
+|---|---|---|
+| 1 | 49 | 49 |
+| 10 | 264 | 149 |
+| 25 | 549 | 239 |
+| 50 | 1024 | 389 |
+
+Marginal cost: **~20 statements/row → ~7**. The payload is byte-identical at
+every page size, compared as sorted JSON
+(`background_scripts/compare_expand_payload.php`).
+
+Not flat, and it is worth saying why rather than implying the job is finished:
+what remains is `$class->get($rel['field'])` on each row, which lazily loads
+through `FOGController` and is not reachable from here. The per-row *object*
+loads are gone; the per-row *relation* accessor is not.
+
+Pinned in the net as a **marginal** cost — the slope between two page sizes,
+not an absolute count. The intercept is a property of the fixture; the slope is
+the defect. Reverting the commit takes the net red.
+
+Two measurement traps, both hit while doing this and both now written into the
+probe so the next person does not:
+
+- `listem()`'s third argument is `$inputoverride`, a **bool** meaning "there is
+  no `php://input` body". Passing a `pass_vars` array there is merely truthy,
+  skips the branch that folds `?length`/`?start` in, and silently returns the
+  whole table — so the first run of the probe reported the same query count for
+  every page size it was asked for.
+- `parseExpand()` runs at the top of `listem()`, so `QUERY_STRING` has to be
+  set before the call, not after.
 
 ---
 

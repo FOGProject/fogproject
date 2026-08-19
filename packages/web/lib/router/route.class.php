@@ -1753,6 +1753,17 @@ class Route extends FOGBase
                 // loop is immune to that clobbering, then restore it.
                 $listData = self::$data;
                 $rows = $listData['data'];
+                // One query for the page's objects instead of one per row.
+                // Same treatment the grid columns got for GH-707 -- rel() and
+                // primeRel() exist for exactly this and the expand branch
+                // never used them, so ?expand cost ~20 statements per row
+                // where the plain path is flat at 4 for the whole page.
+                //
+                // rel() falls back to a load for anything the prime missed,
+                // and caches an empty object carrying the id for an id with
+                // no record -- which is the state a failed load() leaves
+                // behind, so the isValid() test below behaves as it did.
+                self::primeRel($class, array_column($rows, 'id'));
                 foreach ($rows as $i => $row) {
                     if (!is_array($row)) {
                         continue;
@@ -1761,7 +1772,7 @@ class Route extends FOGBase
                     if ($rid < 1) {
                         continue;
                     }
-                    $robj = self::getClass($class, $rid);
+                    $robj = self::rel($class, $rid);
                     if (!$robj->isValid()) {
                         continue;
                     }
@@ -4781,8 +4792,13 @@ class Route extends FOGBase
                 $truncated = true;
             }
             $items = [];
+            // As above: the whole collection in one query rather than one per
+            // member. This is the inner half of the cost -- a host expanded
+            // with its macs, snapins and modules resolves every one of them
+            // here.
+            self::primeRel($rel['class'], $ids);
             foreach ($ids as $rid) {
-                $robj = self::getClass($rel['class'], $rid);
+                $robj = self::rel($rel['class'], $rid);
                 if (!$robj->isValid()) {
                     continue;
                 }

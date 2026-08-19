@@ -1197,4 +1197,76 @@ $t->check(
     count($args) > 0 && $args === array_fill(0, count($args), 'hostID')
 );
 
+/*
+ * ===========================================================================
+ * 10. ?expand does not cost a query per row.
+ *
+ *     GH-707 bounded the grid columns with rel()/primeRel(): the plain read
+ *     path is flat at four statements from one row to the whole table. The
+ *     ?expand branch never used them and resolved a full object per row, and
+ *     then every member of every expanded collection one at a time --
+ *     measured on the lab at ~20 statements per row, so EXPAND_MAX_ITEMS =
+ *     2500 permitted tens of thousands of statements for one response.
+ *
+ *     Asserted as a MARGINAL cost -- the slope between two page sizes, not an
+ *     absolute count. The intercept is fixture-dependent and uninteresting;
+ *     the slope is the defect. A per-row load makes it grow with the page, a
+ *     primed one does not.
+ *
+ *     A threshold, not an exact number, because the exact number is a
+ *     property of the fake rather than of FOG. It is set well clear of both
+ *     sides: the unprimed slope here is ~17 statements/row and the primed one
+ *     ~6. Anything reintroducing a per-row load crosses it; ordinary drift
+ *     does not.
+ * ===========================================================================
+ */
+$savedQs = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : null;
+$_SERVER['QUERY_STRING'] = 'expand=all';
+Route::parseExpand();
+siteScenario($db, ['siteCount' => 0], [7 => ['*']]);
+
+/**
+ * Statements issued listing $rows rows with every relation expanded.
+ *
+ * @param FogFakeDb $db   the fake
+ * @param int       $rows the page size
+ *
+ * @return int
+ */
+function expandCost($db, $rows)
+{
+    $db->pdo->rowCount = $rows;
+    $db->pdo->countValue = $rows;
+    $before = count($db->log) + count($db->pdo->log);
+    try {
+        Route::asValue(
+            function () {
+                Route::listem('host', false, true);
+            }
+        );
+    } catch (\Throwable $e) {
+        // Statements, not payload.
+    }
+    Route::$data = [];
+    return count($db->log) + count($db->pdo->log) - $before;
+}
+
+$small = expandCost($db, 2);
+$large = expandCost($db, 10);
+$perRow = ($large - $small) / 8;
+$t->check('the expand branch actually ran', Route::expandRequested() && $large > $small);
+$t->check(
+    sprintf('?expand does not cost a query per row (%.1f statements/row)', $perRow),
+    $perRow < 10
+);
+
+$db->pdo->rowCount = 4;
+$db->pdo->countValue = 4;
+if (null === $savedQs) {
+    unset($_SERVER['QUERY_STRING']);
+} else {
+    $_SERVER['QUERY_STRING'] = $savedQs;
+}
+Route::parseExpand();
+
 $t->finish();
