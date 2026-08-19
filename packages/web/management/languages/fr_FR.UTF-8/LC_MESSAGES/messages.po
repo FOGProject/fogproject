@@ -1246,6 +1246,10 @@ msgid "Capture"
 msgstr "Créer"
 
 #, fuzzy
+msgid "Capture Complete"
+msgstr "Achevée"
+
+#, fuzzy
 msgid "Captured"
 msgstr "Créé"
 
@@ -1938,6 +1942,10 @@ msgstr "Menu create a échoué"
 
 msgid "Deploy"
 msgstr "Déployer"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "Échec du téléchargement"
 
 msgid "Deploy Method"
 msgstr "Déployer Méthode"
@@ -3130,6 +3138,18 @@ msgstr "Accueil"
 msgid "Host"
 msgstr "Hôte"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "hôte Créé"
@@ -3660,6 +3680,10 @@ msgstr "après l'achèvement des tâches"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "Imaging Log"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Échec du chargement: %s"
 
 #, fuzzy
 msgid "Imaging History"
@@ -8092,6 +8116,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Imprimante existe déjà"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Imprimante existe déjà"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -9089,6 +9125,10 @@ msgstr " depuis"
 msgid "all current storage nodes"
 msgstr "nœud de stockage non valide"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Invalid image"
+
 msgid "and below"
 msgstr ""
 
@@ -9160,10 +9200,6 @@ msgstr "Client"
 #, fuzzy
 msgid "clients"
 msgstr "Client"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "Terminé"
 
 #, fuzzy
 msgid "confirm"
@@ -9410,10 +9446,6 @@ msgid "images to a storage group"
 msgstr "Groupe de stockage primaire"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "Échec du chargement: %s"
-
-#, fuzzy
 msgid "in"
 msgstr "minutes"
 
@@ -9569,6 +9601,9 @@ msgid "no node in the group answered the probe"
 msgstr ""
 
 msgid "no reason given"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
@@ -10525,6 +10560,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "avant moi"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "Terminé"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

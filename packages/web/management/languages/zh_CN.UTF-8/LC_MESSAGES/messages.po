@@ -1245,6 +1245,10 @@ msgid "Capture"
 msgstr "创建"
 
 #, fuzzy
+msgid "Capture Complete"
+msgstr "完成"
+
+#, fuzzy
 msgid "Captured"
 msgstr "创建"
 
@@ -1937,6 +1941,10 @@ msgstr "菜单创建失败"
 
 msgid "Deploy"
 msgstr "部署"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "下载失败"
 
 msgid "Deploy Method"
 msgstr "部署方法"
@@ -3129,6 +3137,18 @@ msgstr "家"
 msgid "Host"
 msgstr "主办"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "主机创建"
@@ -3659,6 +3679,10 @@ msgstr "任务完成后，"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "成像测井"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "加载失败： %s"
 
 #, fuzzy
 msgid "Imaging History"
@@ -8091,6 +8115,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "打印机已经存在"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "打印机已经存在"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -9088,6 +9124,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "无效的存储节点"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "图片无效"
+
 msgid "and below"
 msgstr ""
 
@@ -9159,10 +9199,6 @@ msgstr "客户"
 #, fuzzy
 msgid "clients"
 msgstr "客户"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "完成"
 
 #, fuzzy
 msgid "confirm"
@@ -9409,10 +9445,6 @@ msgid "images to a storage group"
 msgstr "主存储组"
 
 #, fuzzy
-msgid "imaging failed"
-msgstr "加载失败： %s"
-
-#, fuzzy
 msgid "in"
 msgstr "分钟"
 
@@ -9568,6 +9600,9 @@ msgid "no node in the group answered the probe"
 msgstr ""
 
 msgid "no reason given"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
@@ -10524,6 +10559,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "我面前"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "完成"
 
 #, fuzzy
 #~ msgid "multicast tasks!"
