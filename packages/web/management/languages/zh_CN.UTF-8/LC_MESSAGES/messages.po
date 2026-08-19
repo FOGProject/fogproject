@@ -4505,6 +4505,10 @@ msgid "Log contents."
 msgstr ""
 
 #, fuzzy
+msgid "Log entry"
+msgstr "日志查看器"
+
+#, fuzzy
 msgid "Log entry type filter"
 msgstr "打印机更新失败！"
 

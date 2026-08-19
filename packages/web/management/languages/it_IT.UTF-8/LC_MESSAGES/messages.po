@@ -4338,6 +4338,10 @@ msgid "Log contents."
 msgstr ""
 
 #, fuzzy
+msgid "Log entry"
+msgstr "Log Viewer"
+
+#, fuzzy
 msgid "Log entry type filter"
 msgstr "Aggiornamento della stampante non è riuscito!"
 

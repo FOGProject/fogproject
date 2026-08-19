@@ -3802,6 +3802,9 @@ msgstr ""
 msgid "Log contents."
 msgstr ""
 
+msgid "Log entry"
+msgstr ""
+
 msgid "Log entry type filter"
 msgstr ""
 

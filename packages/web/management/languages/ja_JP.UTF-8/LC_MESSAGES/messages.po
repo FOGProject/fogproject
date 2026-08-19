@@ -4294,6 +4294,10 @@ msgid "Log contents."
 msgstr ""
 
 #, fuzzy
+msgid "Log entry"
+msgstr "ログビューアー"
+
+#, fuzzy
 msgid "Log entry type filter"
 msgstr "サイトの更新に失敗しました！"
 

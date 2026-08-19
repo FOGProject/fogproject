@@ -536,6 +536,32 @@ class TaskManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         $this->render(12, 'task-logs-table');
+        // Clicking a row opens this. The message column is the one that gets
+        // truncated on a narrow viewport, and it is also the only column
+        // whose whole point is its text -- a FOS report carries the script it
+        // came from and the arguments it was passed. The modal is filled
+        // client side from the row the grid already has, so opening it costs
+        // no request.
+        //
+        // Dismiss only: nothing here is editable, so there is no commit
+        // button for it to sit to the left of, and it takes the outline
+        // secondary a modal dismiss always takes.
+        echo self::makeModal(
+            'task-log-modal',
+            '<h4 class="card-title">'
+            . _('Log entry')
+            . '</h4>',
+            '<dl class="row mb-0" id="task-log-detail"></dl>',
+            self::makeButton(
+                'task-log-close',
+                _('Close'),
+                'btn btn-outline-secondary float-start',
+                'data-bs-dismiss="modal"'
+            ),
+            '',
+            'default',
+            'modal-lg'
+        );
     }
     /**
      * Get the task log entries.

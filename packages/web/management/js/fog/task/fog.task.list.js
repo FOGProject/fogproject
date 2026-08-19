@@ -472,9 +472,13 @@
           targets: 3
         },
         {
+          // Ranked above task type and state, because it is the column that
+          // says whether the machine stopped or carried on -- the first thing
+          // anyone opening this tab is looking for, and the one that must not
+          // be the one Responsive collapses away on a laptop.
+          responsivePriority: 2,
           render: function(data) {
-            // The type is what tells an operator whether the machine stopped
-            // or carried on, so it is badged rather than left as bare text.
+            // Badged rather than left as bare text, for the same reason.
             var cls = {error: 'bg-danger', warning: 'bg-warning text-dark'};
             return '<span class="badge ' + (cls[data] || 'bg-secondary') + '">'
               + $.escapeHtml(data || '')
@@ -494,9 +498,64 @@
         data: function(d) {
           d.logtypes = $('input[name="log-type-filter"]:checked').val();
         }
+      },
+      createdRow: function(row) {
+        // The whole row is the target, so say so: without a pointer there is
+        // nothing to suggest the message has more behind it.
+        $(row).css('cursor', 'pointer');
       }
     });
   }
+
+  // ---------------------------------------------------------------
+  // LOG ENTRY DETAIL
+  //
+  // Filled from the row the grid already holds -- no request. The message is
+  // the reason this exists: it is the column that truncates on a narrow
+  // viewport, and a FOS report carries the script it came from and the
+  // arguments it was passed, which is exactly what someone reading it needs.
+  function showLogDetail(row) {
+    var badge = {error: 'bg-danger', warning: 'bg-warning text-dark'},
+      $dl = $('#task-log-detail'),
+      pairs = [
+        ['Time', $.escapeHtml(row.logtime || '')],
+        ['Host', row.hostid ?
+          '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + $.escapeHtml(row.hostname || '') + '</a>' :
+          $.escapeHtml(row.hostname || '')],
+        ['Task', $.escapeHtml(String(row.taskid || '')) + ' &mdash; ' + $.escapeHtml(row.tasktypename || '')],
+        ['State at the time', $.escapeHtml(row.taskstatename || '')
+          + ' <i class="fa fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i>'],
+        ['Type', '<span class="badge ' + (badge[row.logtype] || 'bg-secondary') + '">'
+          + $.escapeHtml(row.logtype || '') + '</span>'],
+        ['Recorded by', $.escapeHtml(row.createdBy || '')]
+      ],
+      html = '';
+    $.each(pairs, function(i, pair) {
+      html += '<dt class="col-sm-3">' + pair[0] + '</dt>'
+        + '<dd class="col-sm-9">' + pair[1] + '</dd>';
+    });
+    // A state change has no message at all, which is a fact worth showing
+    // rather than an empty box.
+    html += '<dt class="col-sm-3">Message</dt><dd class="col-sm-9">'
+      + (row.logtext ?
+        '<pre class="mb-0 text-wrap">' + $.escapeHtml(row.logtext) + '</pre>' :
+        '<em>none</em>')
+      + '</dd>';
+    $dl.html(html);
+    $('#task-log-modal').modal('show');
+  }
+
+  // Delegated, because the grid replaces its rows on every draw.
+  $(document).on('click', '#task-logs-table tbody tr', function(e) {
+    // A row carries links out to the host; let those win.
+    if ($(e.target).closest('a').length) {
+      return;
+    }
+    var row = panes.logs.table && panes.logs.table.row(this).data();
+    if (row) {
+      showLogDetail(row);
+    }
+  });
 
   // ---------------------------------------------------------------
   // PER-PANE ACTION BUTTONS (cancel / reload toggle)

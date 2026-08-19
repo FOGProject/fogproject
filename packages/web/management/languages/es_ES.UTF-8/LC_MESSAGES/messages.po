@@ -4615,6 +4615,10 @@ msgid "Log contents."
 msgstr ""
 
 #, fuzzy
+msgid "Log entry"
+msgstr "FOG Visor de registro"
+
+#, fuzzy
 msgid "Log entry type filter"
 msgstr "actualización de la impresora ha fallado!"
 
