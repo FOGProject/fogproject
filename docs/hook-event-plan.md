@@ -358,8 +358,8 @@ not intend "print the event name into the page" as behaviour.
 
 `HOST_IMAGE_FAIL` and `HOST_IMAGEUP_COMPLETE` need a core `notify()` at the
 right place. That is making a notification feature work for the first time, not
-refactoring a subsystem, and it needs its own issue and its own test. Listed
-here only so it is not lost.
+refactoring a subsystem, and it needs its own issue and its own test. Filed as
+**#1202**.
 
 ---
 
@@ -438,7 +438,7 @@ rather than one being a kind of the other — is no longer deferred on the freez
 argument, but it is still not part of this work: it changes the answer to
 `$obj instanceof Event` for every hook, and the defect it would close (F-18) is
 already closed by the one-line guard. It belongs in its own issue with its own
-blast-radius argument, not folded into a bug-fix sequence.
+blast-radius argument, not folded into a bug-fix sequence. Filed as **#1203**.
 
 ### A refinement that falls out of Decisions 2 and 4
 
@@ -462,8 +462,10 @@ property read per listener per fire, which the measurement says is free.
 the right shape — `load()`, `register()` and dispatch all branch on which
 manager they are, which is a class doing two jobs. Rejected here, not deferred
 to a release: it moves every line a plugin can observe at once, and every defect
-on the list above is fixable without it. Worth its own issue, on its own
-evidence, whenever someone wants to make that argument.
+on the list above is fixable without it. Deliberately **not** filed as an issue
+-- nobody is currently making that argument, and an open issue for a rejected
+alternative reads as agreed work. Noted in #1203 instead, next to the hierarchy
+change it would subsume.
 
 **Make activation a database setting rather than a property.** Would let an
 admin toggle a core example hook without editing a file, and would kill D4
