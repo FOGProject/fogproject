@@ -9680,10 +9680,10 @@ _resignKernels() {
 }
 # Re-sign the rEFInd binaries for UEFI Secure Boot.
 #
-# Why this exists at all: FOG_EFI_BOOT_EXIT_TYPE defaults to 'refind_efi', so on
-# a stock install rEFInd is what EVERY UEFI host chainloads on the way out of
-# the boot menu -- when a task finishes and when no task exists. bootmenu.class
-# emits 'chain -ar ${boot-url}/service/ipxe/refind*.efi', and under EFI that is
+# Why this exists at all: FOG_EFI_BOOT_EXIT_TYPE selects how a UEFI host leaves
+# the boot menu -- when a task finishes and when no task exists -- and
+# 'refind_efi' is one of the choices. bootmenu.class then emits
+# 'chain -ar ${boot-url}/service/ipxe/refind*.efi', and under EFI that is
 # LoadImage/StartImage, so the firmware (or shim, on our signed snponly path)
 # validates it exactly as it validates the FOS kernel. An unsigned rEFInd dies
 # there with SECURITY VIOLATION.
@@ -9693,6 +9693,14 @@ _resignKernels() {
 # and the machine only fails afterwards, on the way to the disk. It reads as a
 # bootloader or partitioning problem, not a Secure Boot one. Reported on the
 # forum against 1.6.3200 (topic 18217), where the reporter fixed it by hand.
+#
+# Still unconditional now that 'sanboot' is the default rather than
+# 'refind_efi', and deliberately so. The default only decides what an untouched
+# server does; rEFInd is still shipped, still restored across upgrades, still
+# offered in the dropdown, and still settable per host. Signing it costs one
+# sbsign per binary on installs that will never boot it, and NOT signing it
+# turns a dropdown selection into a Secure Boot failure two reboots later, with
+# the deceptive symptom above. That trade has not changed.
 #
 # What ships is not a substitute: refind.efi and refind_x64.efi carry Rod
 # Smith's own self-signed certificate, which is in nobody's db, and
@@ -9977,18 +9985,16 @@ _signLocalIpxe() {
 # an ESP at all. The TFTP tree is not web-served, which until this existed meant
 # every admin hand-rolling symlinks into the document root.
 #
-# What is published is SIX ARCHIVES and a manifest, and nothing else:
+# What is published is THREE ARCHIVES and a manifest, and nothing else:
 #
 #   service/localboot/manifest.json          the index
 #   service/localboot/fog-esp-<arch>.zip     ready-to-copy ESP folder
-#   service/localboot/fog-esp-<arch>-10sec.zip          "  , 10s DHCP delay
 #
-# One archive per (architecture x delay variant), each holding a single
-# top-level directory named after the archive. That shape replaced a directory
-# tree that published the same bytes twice -- a "menu" of binaries under their
-# TFTP names at the root, and a "kit" of the same binaries renamed fog*.efi
-# under esp/ -- with arm64 appearing in four different places and the 10-second
-# set present in one list but not the other.
+# One archive per architecture, each holding a single top-level directory named
+# after the archive. That shape replaced a directory tree that published the
+# same bytes twice -- a "menu" of binaries under their TFTP names at the root,
+# and a "kit" of the same binaries renamed fog*.efi under esp/ -- with arm64
+# appearing in four different places.
 #
 # WHY THE ARCHIVE, AND NOT LOOSE FILES: the two audiences turned out to be one.
 # The only reason the kit needed different filenames is that two names on an ESP
@@ -9999,22 +10005,63 @@ _signLocalIpxe() {
 # nothing here can be a UEFI HTTP Boot target or an iPXE `chain` destination.
 # Publishing the loose set alongside is purely additive if that is ever wanted.
 #
-# WHY THE DELAY VARIANT IS ITS OWN ARCHIVE, rather than a second set of binaries
-# and a second script inside one: iPXE runs exactly the file called
-# autoexec.ipxe and has no way to ask which set you want, so a combined folder
-# made choosing mean renaming a file over another. Choosing at download time
-# removes the step entirely -- the binaries inside a -10sec archive carry the
-# plain names, and its single autoexec.ipxe is already the right one. It costs
-# each variant its own copy of the upstream shim set, which is the only reason
-# the total is not smaller than the tree it replaced.
+# ---------------------------------------------------------------------------
+# WHY FOG'S OWN BINARIES SIT IN local/ AND NOT AT THE TOP LEVEL
+# ---------------------------------------------------------------------------
 #
-# TWO NAMES ARE NOT FREE CHOICES, and this is the whole reason the fog* prefix
-# exists. shim picks its second stage by rewriting its OWN "-shim<arch>.efi"
-# suffix to ".efi". So snponly-shimx64.efi will load "snponly.efi" and nothing
-# else, and it has to be upstream's copy, because upstream's is what shim's
-# embedded certificate vouches for. That reserves snponly.efi -- and ipxe.efi
-# for the other pair. Dropping FOG's ipxe.efi in beside ipxe-shimx64.efi would
-# have shim try to load an image it cannot verify.
+# This is the load-bearing part of the layout, and it is not cosmetic.
+#
+# Since fog-ipxe v2.0.0-fog.8 no EFI target is built with EMBED=, so FOG's own
+# builds no longer carry the DHCP/proxyDHCP/next-server script internally --
+# they READ it, from a file called autoexec.ipxe. iPXE resolves that name
+# against the directory the running binary was itself loaded from
+# (efi_autoexec_filesystem() -> "file:autoexec.ipxe", falling back to
+# "file:/autoexec.ipxe" at the volume root).
+#
+# There are therefore TWO different scripts wanted on one ESP:
+#
+#   the archive root   read by upstream's signed loader, which shim hands off
+#                      to. That loader drives no NIC when booted from an ESP
+#                      (see below), so all it can usefully do is chain FOG's
+#                      build. Its script is the fallback ladder.
+#
+#   local/             read by FOG's own build, which DOES drive the NIC. Its
+#                      script is the real boot logic -- the net0/net1/net2 walk,
+#                      proxyDHCP, next-server, then default.ipxe.
+#
+# Flat, those two are the same file, and the archive could not boot at all: a
+# fog*.efi launched straight from the boot manager read the ladder and executed
+# `chain fogipxe.efi`, which is itself. One directory apiece is the entire fix.
+# Neither script can reach the other's, because neither binary looks outside its
+# own directory. GH-1195.
+#
+# Worth knowing before rearranging this: reading iPXE's source alone suggests a
+# binary that another iPXE `chain`ed resolves autoexec.ipxe through the synthetic
+# handle efi_image_exec() installs iPXE's own EFI_SIMPLE_FILE_SYSTEM_PROTOCOL on
+# -- which serves registered images by flat name and would never reach the ESP at
+# all. Observed behaviour on hardware is the sibling read, for the chained case
+# as well as the firmware-loaded one. Do not "correct" this layout on the
+# strength of the source read; if a client ever does dead-end on the chained
+# route, that handle is where to look.
+#
+# THE 10-SECOND DELAY IS NO LONGER A SECOND SET OF ARCHIVES. It used to be, back
+# when it was two lines compiled into a binary and the choice therefore had to be
+# made at download time. With the script on disk it is two lines of text, so
+# local/autoexec.ipxe carries them commented out, and --boot-delay writes them
+# live -- exactly what _applyBootDelay() already does to the TFTP copy for
+# netboot clients. Six archives become three, one behaviour, one place to look.
+#
+# ---------------------------------------------------------------------------
+#
+# TWO NAMES ARE NOT FREE CHOICES, and this is why the upstream set stays at the
+# root and keeps its own names. shim picks its second stage by rewriting its OWN
+# "-shim<arch>.efi" suffix to ".efi". So snponly-shimx64.efi will load
+# "snponly.efi" and nothing else, and it has to be upstream's copy, because
+# upstream's is what shim's embedded certificate vouches for. That reserves
+# snponly.efi -- and ipxe.efi for the other pair. FOG's builds keep the fog*
+# prefix inside local/ even though the subdirectory has made the collision
+# impossible: the names are in the README, in the docs and in every bug report
+# since GH-1117, and renaming them buys nothing.
 #
 # BOTH shim pairs ship. Each derives its own second stage from its own filename,
 # so they are independent entry points -- point the boot manager at
@@ -10050,29 +10097,40 @@ _signLocalIpxe() {
 # Upstream signs no shim for ia32, so the earlier design concluded i386 had no
 # Secure Boot path at all. Via db it does.
 #
-# STILL NOT PUBLISHED: the EMBED-less autoexec/ builds, which carry no boot
-# script and would only chain the binaries already here; and the BIOS artifacts
-# (.kpxe/.lkrn/.usb/.iso), which are not PE images and which an ESP cannot boot.
-# Both remain on TFTP for anyone assembling that setup deliberately.
+# rEFInd ships in refind/, which is new (GH-1185). It is what a UEFI host
+# chainloads leaving the boot menu when FOG_EFI_BOOT_EXIT_TYPE is 'refind_efi',
+# and an ESP assembled from this kit had no local-boot chainloader on it at all.
+# It comes from the WEB tree rather than $tftpdirdst (it has never existed in the
+# TFTP tree) and _resignRefind() has already signed it by the time this runs. Its
+# own subdirectory because rEFInd reads refind.conf from the directory it was
+# loaded from, which is also where every rEFInd installation on earth puts it.
+#
+# Published even though the default exit type is now 'sanboot', which needs no
+# chainloader at all -- firmware boots the next entry itself. Two reasons. The
+# archive is assembled by hand onto a disk that may never talk to this server
+# again, so it should carry every route the server supports rather than only the
+# one this server is currently configured for; and refind_efi remains a
+# per-host setting, so a host booting from this ESP can be the one that wants
+# it. It is ~230KB in an archive already several MB of signed binaries.
+#
+# STILL NOT PUBLISHED: the BIOS artifacts (.kpxe/.lkrn/.usb/.iso), which are not
+# PE images and which an ESP cannot boot. They remain on TFTP for anyone
+# assembling that setup deliberately.
 #
 # Everything here is public by nature: FOG's own binaries, upstream's signed
 # shim and loader (downloadable from fog-ipxe's release assets anyway), and
 # certificates plus signatures over them. FOG already serves the MOK-signed
 # bzImage over unauthenticated HTTP from service/ipxe, so this is not a new
 # class of exposure. The private keys never leave the PKI zone directory.
-# The files one archive holds, as "src|dst" -- src relative to $tftpdirdst, dst
-# relative to the archive's top-level directory.
+# The files one archive takes from $tftpdirdst, as "src|dst" -- src relative to
+# $tftpdirdst, dst relative to the archive's top-level directory.
 #
 #   $1  architecture: x86_64 | i386 | arm64
-#   $2  variant: empty for the standard set, "10sec" for the delayed one
 #
-# The delay lives in the BINARY, not in a script: `sleep` is an optional iPXE
-# command that FOG's own builds enable but upstream's signed loader may not, and
-# the loader is what runs autoexec.ipxe. It is also the only route to a delay at
-# all when a fog*.efi is launched straight from the boot manager, which reads no
-# script.
+# See the header for why the upstream set keeps its names at the root while
+# FOG's own builds go under local/.
 _espKitFiles() {
-    local arch="$1" variant="$2"
+    local arch="$1"
     local fogdir="" sbdir="secureboot" shimsfx="x64" mm="mmx64.efi" name
     case $arch in
         i386)
@@ -10096,28 +10154,64 @@ _espKitFiles() {
         echo "${sbdir}/ipxe.efi|ipxe.efi"
         echo "${sbdir}/${mm}|${mm}"
     fi
-    # FOG's own builds, pre-named for the ESP. Ordered as autoexec.ipxe tries
+    # FOG's own builds, pre-named for the ESP. Ordered as the root ladder tries
     # them, so the list reads as the preference order it is.
     for name in ipxe snp intel realtek snponly; do
-        echo "${variant:+10secdelay/}${fogdir}${name}.efi|fog${name}.efi"
+        echo "${fogdir}${name}.efi|local/fog${name}.efi"
     done
+}
+# The files one archive takes from the WEB tree's service/ipxe, same "src|dst"
+# shape. Separate from _espKitFiles() because it is a different source root, not
+# because it is a different kind of file.
+#
+#   $1  architecture: x86_64 | i386 | arm64
+#
+# WHICH rEFInd BINARY IS NOT A STRAIGHT THREE-WAY MAP. refind.efi is a preferred
+# generic: bootmenu.class.php:235-237 uses it in place of refind_x64.efi whenever
+# it exists, so the same preference is applied here. Otherwise the ESP and the
+# PXE path would disagree about which binary is canonical, and a bug report
+# naming "rEFInd" would mean two different files.
+#
+# refind.conf rides along and is deliberately NOT signed -- it is data, not a PE
+# image (see _resignRefind). rEFInd reads it from its own directory, which is
+# what refind/ is for.
+_espRefindFiles() {
+    local arch="$1" ipxedir="${webdirdest%/}/service/ipxe"
+    case $arch in
+        i386)  echo "refind_ia32.efi|refind/refind_ia32.efi" ;;
+        arm64) echo "refind_aa64.efi|refind/refind_aa64.efi" ;;
+        *)
+            if [[ -f ${ipxedir}/refind.efi ]]; then
+                echo "refind.efi|refind/refind.efi"
+            else
+                echo "refind_x64.efi|refind/refind_x64.efi"
+            fi
+            ;;
+    esac
+    echo "refind.conf|refind/refind.conf"
 }
 # What each published file is, for the manifest. Kept as data rather than
 # comments because it is what replaced curation-by-omission: the earlier
 # directory said which binary to use by leaving the others out, which is how
 # fogsnponly.efi came to be unavailable at all. A manifest can carry the same
 # advice without having to withhold a file to give it.
+#
+# Matched on the path relative to the archive root, not on the basename, because
+# there are two files called autoexec.ipxe now and they do different jobs.
 _espFileRole() {
     case "$1" in
         snponly-shim*.efi|ipxe-shim*.efi) echo "shim" ;;
         snponly.efi|ipxe.efi)             echo "upstream-loader" ;;
         mmx64.efi|mmaa64.efi)             echo "mokmanager" ;;
-        fogipxe.efi)                      echo "fog-ipxe" ;;
-        fogsnp.efi)                       echo "fog-snp" ;;
-        fogintel.efi)                     echo "fog-intel" ;;
-        fogrealtek.efi)                   echo "fog-realtek" ;;
-        fogsnponly.efi)                   echo "fog-snponly" ;;
-        autoexec.ipxe)                    echo "script" ;;
+        local/fogipxe.efi)                echo "fog-ipxe" ;;
+        local/fogsnp.efi)                 echo "fog-snp" ;;
+        local/fogintel.efi)               echo "fog-intel" ;;
+        local/fogrealtek.efi)             echo "fog-realtek" ;;
+        local/fogsnponly.efi)             echo "fog-snponly" ;;
+        local/autoexec.ipxe)              echo "boot-script" ;;
+        autoexec.ipxe)                    echo "chain-script" ;;
+        refind/*.efi)                     echo "chainloader" ;;
+        refind/refind.conf)               echo "config" ;;
         MOK.der)                          echo "enrolment-cert" ;;
         PK.auth|KEK.auth|db.auth)         echo "enrolment-var" ;;
         fog-enroll-mok.*)                 echo "helper" ;;
@@ -10129,7 +10223,7 @@ _espFileOrigin() {
     case "$1" in
         snponly-shim*.efi|ipxe-shim*.efi|snponly.efi|ipxe.efi|mmx64.efi|mmaa64.efi)
             echo "upstream" ;;
-        autoexec.ipxe|README.txt|MANIFEST.json)
+        autoexec.ipxe|local/autoexec.ipxe|README.txt|MANIFEST.json)
             echo "generated" ;;
         *)  echo "fog" ;;
     esac
@@ -10139,21 +10233,27 @@ _espFileNote() {
         snponly-shim*.efi|ipxe-shim*.efi)
             echo "Microsoft-signed shim. Point your boot manager at this. It loads the matching loader beside it, named by rewriting this file's own -shim<arch>.efi suffix to .efi." ;;
         snponly.efi|ipxe.efi)
-            echo "Upstream's signed loader, shim's second stage. It only reads autoexec.ipxe from this same directory and chains onward; it does not drive a NIC when booted from an ESP." ;;
+            echo "Upstream's signed loader, shim's second stage. It reads autoexec.ipxe from this same directory and chains onward; it does not drive a NIC when booted from an ESP." ;;
         mmx64.efi|mmaa64.efi)
             echo "MokManager. shim launches it from this directory when it cannot verify the next stage; enrol MOK.der here. Not optional -- nothing in a running OS can write shim's MokList." ;;
-        fogipxe.efi)
+        local/fogipxe.efi)
             echo "FOG's build with all of iPXE's own NIC drivers. Try this first: a machine that cannot netboot usually cannot because its firmware provides no UEFI SNP protocol, so a binary needing one is no use to it." ;;
-        fogsnp.efi)
+        local/fogsnp.efi)
             echo "FOG's build driving the NIC through the firmware's SNP protocol, binding every SNP device it can see. For firmware that does provide one and hardware iPXE's own drivers do not cover." ;;
-        fogintel.efi)
+        local/fogintel.efi)
             echo "FOG's build, Intel driver only. For when the all-drivers build misbehaves on that specific NIC." ;;
-        fogrealtek.efi)
+        local/fogrealtek.efi)
             echo "FOG's build, Realtek driver only. For when the all-drivers build misbehaves on that specific NIC." ;;
-        fogsnponly.efi)
-            echo "FOG's build bound to the SNP device iPXE was loaded FROM. Booted off an ESP that device is the disk, so it usually finds no NIC -- which is why autoexec.ipxe tries it last. Included because it is the right binary when something chainloads it over the network, and there is hardware where it works." ;;
+        local/fogsnponly.efi)
+            echo "FOG's build bound to the SNP device iPXE was loaded FROM. Booted off an ESP that device is the disk, so it usually finds no NIC -- which is why the root autoexec.ipxe tries it last. Included because it is the right binary when something chainloads it over the network, and there is hardware where it works." ;;
+        local/autoexec.ipxe)
+            echo "FOG's boot script, read by whichever fog*.efi in this directory runs. Walks net0/net1/net2 for DHCP, handles proxyDHCP and next-server, then chains default.ipxe from the server. This is the file to edit to change FOG's boot behaviour on this ESP; a pre-DHCP sleep for STP or port power-save is commented out at the top." ;;
         autoexec.ipxe)
-            echo "Read by the upstream loader out of this directory. Chains the FOG binaries in preference order. Its fallbacks fire only when a file is MISSING or fails verification -- not when one loads and then finds no NIC." ;;
+            echo "Read by the upstream loader out of this directory. Chains the FOG builds in local/ in preference order. Its fallbacks fire only when a file is MISSING or fails verification -- not when one loads and then finds no NIC." ;;
+        refind/refind.conf)
+            echo "rEFInd's configuration, read from its own directory. Data, not a PE image, so it carries no signature and needs none." ;;
+        refind/*.efi)
+            echo "rEFInd, signed by this server. A boot manager that finds and boots whatever OS is installed locally. Not needed by the default exit type (sanboot hands straight back to firmware), but it is what the refind_efi exit type chainloads, and it is here so an ESP assembled from this archive carries every route off FOG rather than only the configured one." ;;
         MOK.der)
             echo "This server's certificate, in the DER form MokManager wants. Enrol it once per machine through MokManager, after which any binary here that FOG signed will load." ;;
         PK.auth|KEK.auth|db.auth)
@@ -10165,23 +10265,21 @@ _espFileNote() {
         *)  echo "" ;;
     esac
 }
-# The kit's autoexec.ipxe.
+# The archive root's autoexec.ipxe: the fallback ladder.
 #
 # Static, not a template. default.ipxe is generated per install because it
 # embeds the server address; this has no per-server content at all -- it chains
-# a sibling by relative filename, and FOG's build carries the DHCP/next-server
-# script compiled in, so it finds the server by itself. iPXE resolves a bare
-# filename against the URI the running binary was loaded from, which on an ESP
-# is the directory this sits in.
+# a relative path, and iPXE resolves that against the directory the running
+# binary was loaded from, which on an ESP is the directory this sits in.
 #
-# THE FALLBACK LADDER COVERS WHICH FILES GOT COPIED, NOT WHICH DRIVER WORKS, and
-# the docs must say it in those words. `chain X || goto Y` only branches when the
-# image fails to LOAD -- absent, malformed, or rejected by shim's verification.
-# Once an image loads and runs, control never returns: FOG's embedded script ends
-# its own failure path with `prompt ... && shell || reboot`, so a binary that
-# starts fine but binds no NIC parks there and the next branch is never reached.
-# That is the difference from the net0/net1/net2 ladder in the netboot script,
-# which works because it stays inside one iPXE instance rather than handing off.
+# THE LADDER COVERS WHICH FILES GOT COPIED, NOT WHICH DRIVER WORKS, and the docs
+# must say it in those words. `chain X || goto Y` only branches when the image
+# fails to LOAD -- absent, malformed, or rejected by shim's verification. Once an
+# image loads and runs, control never returns: local/autoexec.ipxe ends its own
+# failure path with `prompt ... && shell || reboot`, so a binary that starts fine
+# but binds no NIC parks there and the next branch is never reached. That is the
+# difference from the net0/net1/net2 ladder in local/autoexec.ipxe, which works
+# because it stays inside one iPXE instance rather than handing off.
 #
 # Still worth having: it means one archive boots whether the admin copied the
 # whole folder or only the variant their hardware needs.
@@ -10189,64 +10287,157 @@ _espFileNote() {
 # fogsnponly.efi is last on purpose -- it is the one most likely to load
 # cleanly and then find nothing, so anything with a chance of working should
 # have been tried before it.
-_espAutoexecScript() {
-    local variant="$1" note
-    if [[ -n $variant ]]; then
-        note="# THE 10-SECOND-DELAY SET. Each binary waits 10s before DHCP, which is what
-# lets a link come up on a switch running STP or port power-save."
-    else
-        note="# The standard set. If the link is not up in time on your switch -- STP or
-# port power-save -- download the -10sec archive instead."
-    fi
-    cat <<ESPAUTOEXEC
+_espChainScript() {
+    cat <<'ESPCHAIN'
 #!ipxe
 # Read off the ESP by upstream's signed loader, after shim has established MOK
-# trust. Chains FOG's own build, which carries the FOG boot script compiled in.
-#
-${note}
+# trust. That loader drives no NIC when it is booted from an ESP, so the only
+# useful thing it can do is hand off to FOG's own build -- which does, and which
+# reads its own boot script out of local/autoexec.ipxe once it is running.
 #
 # The fallbacks fire only if a file is MISSING or fails verification -- not if it
 # loads and then finds no NIC. Copy the variant your hardware needs.
-chain fogipxe.efi || goto trysnp
+chain local/fogipxe.efi || goto trysnp
 :trysnp
-chain fogsnp.efi || goto tryintel
+chain local/fogsnp.efi || goto tryintel
 :tryintel
-chain fogintel.efi || goto tryrealtek
+chain local/fogintel.efi || goto tryrealtek
 :tryrealtek
-chain fogrealtek.efi || goto trysnponly
+chain local/fogrealtek.efi || goto trysnponly
 :trysnponly
-chain fogsnponly.efi || goto nofogbinary
+chain local/fogsnponly.efi || goto nofogbinary
 :nofogbinary
-echo No usable FOG iPXE binary found on this ESP.
+echo No usable FOG iPXE binary found in local/ on this ESP.
 prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+ESPCHAIN
+}
+# local/autoexec.ipxe: FOG's real boot script.
+#
+# Whichever fog*.efi in local/ ends up running reads this, whether it got there
+# via the root ladder or straight from the firmware boot manager. Before
+# fog-ipxe v2.0.0-fog.8 this logic was compiled into each binary; it is a file
+# now, which is the whole reason local/ has to be its own directory (see the
+# section header).
+#
+# Keep this in step with fog-ipxe's own autoexec.ipxe and with src/ipxescript,
+# the script the BIOS binaries still embed. All three must behave identically,
+# or which platform a site booted becomes a variable in every bug report.
+#
+# THE DELAY. Some switches take several seconds to bring a port out of STP
+# listening or out of powersave, and iPXE's first DHCP attempt goes out before
+# that. Written live from --boot-delay, bracketed by the same sentinels
+# _applyBootDelay() uses on the TFTP copy so the two read the same way; shipped
+# commented out otherwise, because an admin who discovers the problem on one
+# machine at 2am should be able to fix it by uncommenting a line rather than by
+# reinstalling the server.
+_espLocalAutoexecScript() {
+    local delay="${bootdelay:-0}" delayblock
+    if [[ $delay -gt 0 ]]; then
+        delayblock="# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)
+echo Sleeping ${delay} seconds to wait for STP/Powersave to switchoff and on
+sleep ${delay}
+# FOG-BOOT-DELAY-END"
+    else
+        delayblock="# No pre-DHCP delay is configured. If your switch runs STP or port power-save
+# and the link is not up by the time iPXE first asks for DHCP, uncomment the two
+# lines below -- or reinstall with --boot-delay <seconds>, which writes them here
+# and in the server's own netboot copy at the same time.
+#echo Sleeping 10 seconds to wait for STP/Powersave to switchoff and on
+#sleep 10"
+    fi
+    cat <<ESPAUTOEXEC
+#!ipxe
+# FOG's boot script, read off the ESP by whichever fog*.efi in this directory
+# runs. Finds a DHCP answer, works out which server to talk to, and chains
+# FOG's menu. Edit this file to change how this ESP boots.
+#
+# Kept in step with the copy on the FOG server's TFTP root -- if the two differ,
+# which one a machine booted becomes a variable in every bug report.
+${delayblock}
+echo Checking net0 for DHCP...
+isset \${net0/mac} && ifopen net0 && dhcp net0 || goto dhcpnet1
+echo Received DHCP answer on interface net0 && goto proxycheck
+
+:dhcpnet1
+echo Checking net1 for DHCP...
+isset \${net1/mac} && ifopen net1 && dhcp net1 || goto dhcpnet2
+echo Received DHCP answer on interface net1 && goto proxycheck
+
+:dhcpnet2
+echo Checking net2 for DHCP...
+isset \${net2/mac} && ifopen net2 && dhcp net2 || goto dhcpall
+echo Received DHCP answer on interface net2 && goto proxycheck
+
+:dhcpall
+echo No DHCP answer on any interface, trying proxy DHCP...
+dhcp && goto proxycheck || goto dhcperror
+
+:dhcperror
+echo DHCP error!
+prompt --key s --timeout 10000 DHCP failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+
+:proxycheck
+echo Trying proxy DHCP...
+isset \${proxydhcp/next-server} && set next-server \${proxydhcp/next-server} || goto nextservercheck
+
+:nextservercheck
+echo Checking for next-server...
+isset \${next-server} && goto netboot || goto setserv
+
+:setserv
+echo -n Please enter tftp server: && read next-server && goto netboot || goto setserv
+
+:chainloadfailed
+prompt --key s --timeout 10000 Chainloading failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+
+:netboot
+echo starting netboot to default.ipxe...
+chain tftp://\${next-server}/default.ipxe || goto chainloadfailed
 ESPAUTOEXEC
 }
 # The archive's README. Written per archive rather than once, because which of
 # the two enrolment routes is even available depends on whether a shim landed.
-#   $1 arch  $2 variant  $3 archive stem  $4 1 if an upstream loader is present
+#   $1 arch  $2 archive stem  $3 1 if an upstream loader is present
+#   $4 1 if rEFInd is present
 _espKitReadme() {
-    local arch="$1" variant="$2" stem="$3" haveloader="$4"
+    local arch="$1" stem="$2" haveloader="$3" haverefind="$4"
+    local dirs="local/ subdirectory as it is" why
+    [[ $haverefind -eq 1 ]] && dirs="local/ and refind/ subdirectories as they are"
+    # Why local/ exists reads differently depending on whether there is a second
+    # script in the archive at all. Saying "there are two scripts here" in an
+    # i386 archive, which has no upstream loader and so no root autoexec.ipxe,
+    # would send an admin looking for a file that is not there.
+    if [[ $haveloader -eq 1 ]]; then
+        why="local/ is not tidiness. iPXE reads its boot script, autoexec.ipxe, out of
+the directory the running binary was loaded from, and there are two different
+scripts wanted here: the one in this folder is read by upstream's loader and
+only chains FOG's build, while the one in local/ is FOG's actual boot logic.
+Flatten them together and neither one works."
+    else
+        why="local/ is not tidiness. iPXE reads its boot script, autoexec.ipxe, out of
+the directory the running binary was loaded from, so FOG's builds and the script
+they read have to travel together. Keep them in local/ and it works from
+wherever on the ESP you put the folder."
+    fi
     cat <<ESPREADME
 ${stem}
 $(printf '%*s' ${#stem} '' | tr ' ' '=')
 
-FOG Project -- iPXE boot files for an EFI System Partition (${arch}${variant:+, ${variant} DHCP delay}).
+FOG Project -- iPXE boot files for an EFI System Partition (${arch}).
 
 Copy the CONTENTS of this folder onto the ESP -- \\EFI\\FOG\\ is a good place --
-then point the firmware boot manager at one of the entry points below.
-${variant:+
-This is the 10-second-delay set. Every FOG binary here waits 10s before DHCP,
-which is what lets a link come up on a switch running STP or port power-save.
-The files are otherwise identical to the plain ${stem%-${variant}} archive and
-carry the same names, so do not extract both into the same folder.
-}
+keeping the ${dirs}. Then point the firmware boot
+manager at one of the entry points below.
+
+${why}
+
 WHICH FILE TO BOOT
 ------------------
 $(if [[ $haveloader -eq 1 ]]; then cat <<'ESPSB'
   Secure Boot ON, via shim:
-      Point the boot manager at snponly-shim*.efi  (or ipxe-shim*.efi -- either
+      Point the boot manager at snponly-shimx64.efi  (or ipxe-shimx64.efi -- either
       works; each loads the loader whose name matches its own). The loader reads
-      autoexec.ipxe from this folder and chains FOG's build.
+      autoexec.ipxe from this folder and chains FOG's build out of local\.
       First time on a machine: shim cannot verify FOG's binary yet, so it
       launches MokManager. Choose "Enroll key from disk" and select MOK.der
       here. Reboot; it boots from then on.
@@ -10254,20 +10445,20 @@ $(if [[ $haveloader -eq 1 ]]; then cat <<'ESPSB'
   Secure Boot ON, via firmware Setup Mode (no shim, no MokManager):
       Put the machine into Setup Mode in its firmware, then enrol PK.auth,
       KEK.auth and db.auth. Firmware then verifies FOG's signed binaries
-      directly and you can boot fogipxe.efi straight from the boot manager.
+      directly and you can boot local\fogipxe.efi straight from the boot manager.
 
   Secure Boot OFF:
-      Point the boot manager straight at fogipxe.efi.
+      Point the boot manager straight at local\fogipxe.efi.
 ESPSB
 else cat <<'ESPNOSB'
   Secure Boot OFF:
-      Point the boot manager straight at fogipxe.efi.
+      Point the boot manager straight at local\fogipxe.efi.
 
   Secure Boot ON, via firmware Setup Mode:
       There is no Microsoft-signed shim for this architecture, so the shim
       route does not exist here -- but the Setup Mode route does. Put the
       machine into Setup Mode in its firmware, enrol PK.auth, KEK.auth and
-      db.auth, and firmware will then verify FOG's signed fogipxe.efi
+      db.auth, and firmware will then verify FOG's signed local\fogipxe.efi
       directly. Point the boot manager at it.
       (If those .auth files are absent, this server publishes no enrolment
       material and only the Secure Boot OFF route is available.)
@@ -10276,25 +10467,45 @@ fi)
 
 IF fogipxe.efi DOES NOT BRING UP YOUR NETWORK
 ---------------------------------------------
-Try fogsnp.efi, then fogintel.efi or fogrealtek.efi, then fogsnponly.efi.
+Try local\fogsnp.efi, then local\fogintel.efi or local\fogrealtek.efi, then
+local\fogsnponly.efi.
 $(if [[ $haveloader -eq 1 ]]; then cat <<'ESPLADDER'
-autoexec.ipxe already tries them in that order -- but ONLY when a file is
-missing or fails verification. Once a binary loads and runs, control never comes
-back, so one that starts and then finds no NIC stops at its own prompt rather
-than falling through. If it is the wrong driver, you have to change which file
-is there.
+This folder's autoexec.ipxe already tries them in that order -- but ONLY when a
+file is missing or fails verification. Once a binary loads and runs, control
+never comes back, so one that starts and then finds no NIC stops at its own
+prompt rather than falling through. If it is the wrong driver, point the boot
+manager at a different one.
 ESPLADDER
 else cat <<'ESPNOLADDER'
-There is no autoexec.ipxe in this archive, because nothing here reads one --
-that is upstream's signed loader's job and this archive has no loader. Point
-the boot manager at whichever binary you want to try; there is no fallback
-chain to do it for you.
+There is no chain ladder in this archive, because nothing here reads one -- that
+is upstream's signed loader's job and no loader is signed for this architecture.
+Point the boot manager at whichever binary in local\ you want to try.
 ESPNOLADDER
 fi)
 
-fogsnponly.efi binds only the device iPXE was loaded from. Booted off an ESP
-that device is the disk, so it usually finds no NIC at all -- which is why it is
-tried last.
+local\fogsnponly.efi binds only the device iPXE was loaded from. Booted off an
+ESP that device is the disk, so it usually finds no NIC at all -- which is why it
+is tried last.
+
+CHANGING HOW IT BOOTS
+---------------------
+local\autoexec.ipxe is FOG's boot script: the DHCP walk across net0/net1/net2,
+proxyDHCP, next-server, then FOG's menu. Edit it in place; nothing has to be
+rebuilt. If your switch runs STP or port power-save and the link is not up when
+iPXE first asks for DHCP, uncomment the sleep at the top of it -- or reinstall
+the server with --boot-delay <seconds>, which writes that line for you here and
+for netboot clients at the same time.
+$(if [[ $haverefind -eq 1 ]]; then cat <<'ESPREFIND'
+
+BOOTING THE LOCAL OS AGAIN
+--------------------------
+refind\ holds rEFInd, signed by this server. FOG's default exit type chainloads
+it to boot whatever OS is installed on the machine, so it is what gets a host off
+FOG and back into Windows or Linux. You can also point the firmware boot manager
+straight at it. refind.conf beside it is its configuration; rEFInd reads that
+from its own directory, which is why the two travel together.
+ESPREFIND
+fi)
 
 MANIFEST.json lists every file here with its sha256 and what it is for.
 Full documentation: docs/SUPPORTED_CUSTOMIZATIONS.md, "Local ESP boot files".
@@ -10323,6 +10534,15 @@ _jsonStr() {
 }
 # One JSON array describing every file in a staged archive directory.
 #
+# RECURSES, and "name" is the path relative to the staged root --
+# "local/fogipxe.efi", not "fogipxe.efi". A -maxdepth 1 walk would omit the
+# subdirectories entirely, and it would do it silently: every consumer of this
+# array, including the test harness, checks the files the manifest names rather
+# than the files on disk, so an under-reporting manifest reads as a passing one.
+#
+# The role/origin/note lookups take that same relative path, because two files
+# here are called autoexec.ipxe and they are not the same thing.
+#
 # Called BEFORE MANIFEST.json is written, so MANIFEST.json is deliberately
 # absent from its own inventory -- a file cannot carry its own checksum.
 #   $1 staged directory   $2 Secure Boot anchor PEM, or empty
@@ -10331,7 +10551,7 @@ _espKitContentsJson() {
     local f name sum size fogsigned first=1
     printf '['
     while IFS= read -r f; do
-        name="${f##*/}"
+        name="${f#${dir}/}"
         sum=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
         size=$(wc -c < "$f" 2>/dev/null | tr -d '[:space:]')
         [[ -z $sum || -z $size ]] && continue
@@ -10351,7 +10571,7 @@ _espKitContentsJson() {
             "$(_jsonStr "$(_espFileRole "$name")")" \
             "$(_jsonStr "$(_espFileOrigin "$name")")" \
             "$fogsigned" "$(_jsonStr "$(_espFileNote "$name")")"
-    done < <(find "$dir" -maxdepth 1 -type f 2>/dev/null | sort)
+    done < <(find "$dir" -type f 2>/dev/null | sort)
     printf ']'
 }
 # The FOS kernel/init set, listed but NOT copied.
@@ -10419,6 +10639,7 @@ _publishLocalBootFiles() {
     [[ -d $tftproot ]] || return 0
     local bootdir="${webdirdest%/}/service/localboot"
     local kitdir="${webdirdest%/}/service/secureboot"
+    local ipxedir="${webdirdest%/}/service/ipxe"
     dots "Publishing local ESP boot archives"
     # Rebuilt rather than updated in place: a variant dropped upstream should
     # disappear here too, and a stale archive must not outlive the binaries it
@@ -10439,103 +10660,128 @@ _publishLocalBootFiles() {
         echo " * Could not create a staging directory. See $error_log."
         return 0
     }
-    local arch variant stem staged pair src dst f
-    local copied haveloader contents archive ext asum asize
+    local arch stem staged pair src dst f
+    local copied haveloader haverefind contents archive ext asum asize
     local built=0 failed=0 archjson="" first=1
     for arch in x86_64 i386 arm64; do
-        for variant in "" 10sec; do
-            stem="fog-esp-${arch}${variant:+-${variant}}"
-            staged="${work}/${stem}"
-            mkdir -p "$staged" >>$error_log 2>&1
-            copied=0
-            haveloader=0
-            while IFS= read -r pair; do
-                [[ -z $pair ]] && continue
-                src="${pair%%|*}"
-                dst="${pair#*|}"
-                # Missing is not a failure. An HTTPS install stages no Secure
-                # Boot binaries at all -- downloadipxesecureboot() skips it --
-                # so the upstream entries are absent on those servers by design,
-                # and the archive is still worth building without them.
-                [[ -f ${tftproot}/${src} ]] || continue
-                if cp -f "${tftproot}/${src}" "${staged}/${dst}" >>$error_log 2>&1; then
-                    copied=$((copied + 1))
-                    case $dst in
-                        snponly.efi|ipxe.efi) haveloader=1 ;;
-                    esac
-                else
-                    failed=1
-                fi
-            done < <(_espKitFiles "$arch" "$variant")
-            # Nothing for this architecture in the tree at all: no archive,
-            # rather than an archive holding only a README.
-            if [[ $copied -eq 0 ]]; then
-                rm -rf "$staged" >>$error_log 2>&1
-                continue
-            fi
-            # Whatever enrolment material this server actually published. Taken
-            # by existence rather than by asking whether Secure Boot is
-            # configured, so an opted-out server ships neither and a server with
-            # only a MOK ships only that.
-            for f in MOK.der PK.auth KEK.auth db.auth \
-                     fog-enroll-mok.sh fog-enroll-mok.desktop; do
-                [[ -f ${kitdir}/${f} ]] && \
-                    cp -f "${kitdir}/${f}" "${staged}/${f}" >>$error_log 2>&1
-            done
-            # Only where something can read it. Nothing in an i386 archive, or
-            # in any archive on an HTTPS-only install, ever loads autoexec.ipxe
-            # -- upstream's loader is what reads it -- so shipping one there
-            # would be an inert file implying a chain that is not present.
-            [[ $haveloader -eq 1 ]] && \
-                _espAutoexecScript "$variant" > "${staged}/autoexec.ipxe" 2>>$error_log
-            _espKitReadme "$arch" "$variant" "$stem" "$haveloader" \
-                > "${staged}/README.txt" 2>>$error_log
-            contents=$(_espKitContentsJson "$staged" "$anchorpem")
-            {
-                printf '{\n'
-                printf '  "archive": %s,\n' "$(_jsonStr "$stem")"
-                printf '  "arch": %s,\n' "$(_jsonStr "$arch")"
-                printf '  "variant": %s,\n' "$(_jsonStr "${variant:-standard}")"
-                printf '  "contents": %s\n' "$contents"
-                printf '}\n'
-            } > "${staged}/MANIFEST.json" 2>>$error_log
-            ext="zip"
-            # Both writers change directory so the archive holds "$stem/..."
-            # rather than the staging path, which means $bootdir has to be
-            # absolute. It always is -- $docroot is a distro default under / and
-            # --docroot is normalised with a leading slash (installfog.sh) -- but
-            # that is the dependency to keep in mind if docroot handling changes.
-            if command -v zip >/dev/null 2>&1; then
-                # -X drops the extra attribute blocks, so a re-run over
-                # unchanged binaries differs only by mtime.
-                ( cd "$work" && zip -q -r -X "${bootdir}/${stem}.zip" "$stem" ) \
-                    >>$error_log 2>&1
+        stem="fog-esp-${arch}"
+        staged="${work}/${stem}"
+        # local/ has to exist before the copy loop, because the destinations in
+        # _espKitFiles() carry that prefix and cp will not create it.
+        mkdir -p "${staged}/local" >>$error_log 2>&1
+        copied=0
+        haveloader=0
+        haverefind=0
+        while IFS= read -r pair; do
+            [[ -z $pair ]] && continue
+            src="${pair%%|*}"
+            dst="${pair#*|}"
+            # Missing is not a failure. An HTTPS install stages no Secure
+            # Boot binaries at all -- downloadipxesecureboot() skips it --
+            # so the upstream entries are absent on those servers by design,
+            # and the archive is still worth building without them.
+            [[ -f ${tftproot}/${src} ]] || continue
+            if cp -f "${tftproot}/${src}" "${staged}/${dst}" >>$error_log 2>&1; then
+                copied=$((copied + 1))
+                case $dst in
+                    snponly.efi|ipxe.efi) haveloader=1 ;;
+                esac
             else
-                # zip is in the install list, so this is a fallback for a server
-                # whose package install partly failed rather than an expected
-                # path. tar is a hard dependency of the installer already.
-                ext="tar.gz"
-                tar -czf "${bootdir}/${stem}.tar.gz" -C "$work" "$stem" \
-                    >>$error_log 2>&1
-            fi
-            archive="${stem}.${ext}"
-            if [[ ! -f ${bootdir}/${archive} ]]; then
                 failed=1
-                rm -rf "$staged" >>$error_log 2>&1
-                continue
             fi
-            asum=$(sha256sum "${bootdir}/${archive}" 2>/dev/null | cut -d' ' -f1)
-            asize=$(wc -c < "${bootdir}/${archive}" 2>/dev/null | tr -d '[:space:]')
-            [[ $first -eq 0 ]] && archjson="${archjson},"
-            first=0
-            archjson="${archjson}$(printf \
-                '{"path":%s,"arch":%s,"variant":%s,"root":%s,"size":%s,"sha256":%s,"contents":%s}' \
-                "$(_jsonStr "$archive")" "$(_jsonStr "$arch")" \
-                "$(_jsonStr "${variant:-standard}")" "$(_jsonStr "$stem")" \
-                "${asize:-0}" "$(_jsonStr "$asum")" "$contents")"
-            built=$((built + 1))
+        done < <(_espKitFiles "$arch")
+        # rEFInd, from the web tree. A storage node has no service/ipxe at all
+        # (configureMinHttpd never lays it down), and an admin can have removed
+        # a binary, so absence is not a failure here either -- the archive is
+        # still a working netboot kit without a local-boot chainloader.
+        while IFS= read -r pair; do
+            [[ -z $pair ]] && continue
+            src="${pair%%|*}"
+            dst="${pair#*|}"
+            [[ -f ${ipxedir}/${src} ]] || continue
+            mkdir -p "$(dirname "${staged}/${dst}")" >>$error_log 2>&1
+            if cp -f "${ipxedir}/${src}" "${staged}/${dst}" >>$error_log 2>&1; then
+                copied=$((copied + 1))
+                case $dst in
+                    refind/*.efi) haverefind=1 ;;
+                esac
+            else
+                failed=1
+            fi
+        done < <(_espRefindFiles "$arch")
+        # Nothing for this architecture in the tree at all: no archive,
+        # rather than an archive holding only a README.
+        if [[ $copied -eq 0 ]]; then
             rm -rf "$staged" >>$error_log 2>&1
+            continue
+        fi
+        # Whatever enrolment material this server actually published. Taken
+        # by existence rather than by asking whether Secure Boot is
+        # configured, so an opted-out server ships neither and a server with
+        # only a MOK ships only that.
+        for f in MOK.der PK.auth KEK.auth db.auth \
+                 fog-enroll-mok.sh fog-enroll-mok.desktop; do
+            [[ -f ${kitdir}/${f} ]] && \
+                cp -f "${kitdir}/${f}" "${staged}/${f}" >>$error_log 2>&1
         done
+        # FOG's own boot script goes in unconditionally -- whichever fog*.efi
+        # runs reads it, however that binary was reached. This is NOT gated on
+        # haveloader the way the root ladder is: an i386 archive has no shim and
+        # no upstream loader, and its fog*.efi still needs a script.
+        _espLocalAutoexecScript > "${staged}/local/autoexec.ipxe" 2>>$error_log
+        # The root ladder IS gated, because only upstream's loader reads it.
+        # Without one it would be an inert file implying a chain that is not
+        # present -- and, worse, a second autoexec.ipxe for an admin to confuse
+        # with the one that does something.
+        [[ $haveloader -eq 1 ]] && \
+            _espChainScript > "${staged}/autoexec.ipxe" 2>>$error_log
+        _espKitReadme "$arch" "$stem" "$haveloader" "$haverefind" \
+            > "${staged}/README.txt" 2>>$error_log
+        contents=$(_espKitContentsJson "$staged" "$anchorpem")
+        {
+            printf '{\n'
+            printf '  "archive": %s,\n' "$(_jsonStr "$stem")"
+            printf '  "arch": %s,\n' "$(_jsonStr "$arch")"
+            printf '  "contents": %s\n' "$contents"
+            printf '}\n'
+        } > "${staged}/MANIFEST.json" 2>>$error_log
+        ext="zip"
+        # Both writers change directory so the archive holds "$stem/..."
+        # rather than the staging path, which means $bootdir has to be
+        # absolute. It always is -- $docroot is a distro default under / and
+        # --docroot is normalised with a leading slash (installfog.sh) -- but
+        # that is the dependency to keep in mind if docroot handling changes.
+        # Both recurse, so local/ and refind/ need nothing extra here.
+        if command -v zip >/dev/null 2>&1; then
+            # -X drops the extra attribute blocks, so a re-run over
+            # unchanged binaries differs only by mtime.
+            ( cd "$work" && zip -q -r -X "${bootdir}/${stem}.zip" "$stem" ) \
+                >>$error_log 2>&1
+        else
+            # zip is in the install list, so this is a fallback for a server
+            # whose package install partly failed rather than an expected
+            # path. tar is a hard dependency of the installer already.
+            ext="tar.gz"
+            tar -czf "${bootdir}/${stem}.tar.gz" -C "$work" "$stem" \
+                >>$error_log 2>&1
+        fi
+        archive="${stem}.${ext}"
+        if [[ ! -f ${bootdir}/${archive} ]]; then
+            failed=1
+            rm -rf "$staged" >>$error_log 2>&1
+            continue
+        fi
+        asum=$(sha256sum "${bootdir}/${archive}" 2>/dev/null | cut -d' ' -f1)
+        asize=$(wc -c < "${bootdir}/${archive}" 2>/dev/null | tr -d '[:space:]')
+        [[ $first -eq 0 ]] && archjson="${archjson},"
+        first=0
+        archjson="${archjson}$(printf \
+            '{"path":%s,"arch":%s,"root":%s,"size":%s,"sha256":%s,"contents":%s}' \
+            "$(_jsonStr "$archive")" "$(_jsonStr "$arch")" \
+            "$(_jsonStr "$stem")" \
+            "${asize:-0}" "$(_jsonStr "$asum")" "$contents")"
+        built=$((built + 1))
+        rm -rf "$staged" >>$error_log 2>&1
     done
     rm -rf "$work" >>$error_log 2>&1
     # Static, written once here. Deliberately NOT a PHP endpoint that lists the
@@ -10545,7 +10791,7 @@ _publishLocalBootFiles() {
     # hostname and webroot the admin reached it by.
     {
         printf '{\n'
-        printf '  "schema": 1,\n'
+        printf '  "schema": 2,\n'
         printf '  "generated": %s,\n' \
             "$(_jsonStr "$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null)")"
         printf '  "fogVersion": %s,\n' "$(_jsonStr "${version}")"

@@ -210,6 +210,12 @@ class BootMenu extends FOGBase
             . '--config-file="%s"';
 
         /** Booting to hard disk via sanboot
+         * The default for both FOG_BOOT_EXIT_TYPE and FOG_EFI_BOOT_EXIT_TYPE, and
+         * the fallback below when neither names a type this class knows. UEFI used
+         * to default to refind_efi instead, because iPXE's sanboot could not then
+         * boot the next UEFI boot entry and leaving FOG meant chainloading rEFInd
+         * over HTTP to do it. It can now, so the third-party boot manager buys
+         * nothing -- see the migration labelled 337 in commons/schema.php.
          * reset console to detected display resolution first to avoid graphical anamolies
          * --drive 0 will boot the first drive found with an efi boot file at the default file path of \EFI\Boot\bootx64.efi (side note, removable install media is found before local disks)
          * could add additional linux detections per distro like `sanboot --drive 0 --no-describe --extra \EFI\rocky` and EFI\centos and EFI\debian etc. but need an || entry for every distro.

@@ -617,3 +617,146 @@ directory itself 404s. Step 4 becomes: extract `fog-esp-x86_64.zip` and point th
 boot manager at `snponly-shimx64.efi`. New step: enrol `db.auth` from
 `fog-esp-i386.zip` through firmware Setup Mode and boot `fogipxe.efi` directly,
 with no shim — the path this spec originally said did not exist.
+
+---
+
+## Superseded again: EMBED-less iPXE forces two scripts, and kills the delay set (2026-08-19)
+
+The archives above stopped booting a day after they were designed, and nothing in
+the installer noticed. Recorded here rather than edited in above for the same
+reason as the last block: the shape only makes sense alongside the shape it
+replaced.
+
+Fixes GH-1195, and lands GH-1185 with it because both turn on the same layout
+question.
+
+### What changed underneath
+
+fog-ipxe `v2.0.0-fog.8` (fog-ipxe#7) removed `EMBED=` from every EFI target. The
+`fog*.efi` builds these archives publish no longer carry FOG's
+DHCP/proxyDHCP/`next-server` logic — they read it from a file called
+`autoexec.ipxe`, which iPXE resolves against the directory the running binary was
+itself loaded from.
+
+That invalidated two things this spec asserted:
+
+1. **§4's flat archive could not work.** Its single `autoexec.ipxe` was the chain
+   ladder, written for upstream's driverless loader, and it sat in the same
+   directory as the binaries it chained. A `fog*.efi` launched from the firmware
+   boot manager — the Secure Boot OFF route, and the Setup Mode route this spec
+   was proud of adding — read that ladder and executed `chain fogipxe.efi`:
+   itself. Via shim the binary came up with no FOG script at all, so no multi-NIC
+   walk, no proxyDHCP, no `next-server` prompt.
+
+2. **The `-10sec` archives were being published empty of FOG binaries.**
+   `_espKitFiles()` sourced them from `10secdelay/`, which is BIOS-only now, and
+   which `_retireStaleEfiPaths()` actively clears of `.efi` files. The copy loop
+   treats a missing source as fine by design (an HTTPS install stages no
+   `secureboot/`), and `copied` stayed non-zero from the shim set, so three
+   archives were staged, checksummed and advertised in `manifest.json` holding a
+   shim, MokManager, enrolment material, and a README telling the admin to boot a
+   file that was not in them.
+
+### What replaced it
+
+**FOG's builds move into `local/` with their own `autoexec.ipxe`.** Two scripts,
+two directories, and neither binary can reach the other's:
+
+```
+fog-esp-x86_64/
+  autoexec.ipxe          the ladder: chain local/fog*.efi in order
+  snponly-shim*.efi snponly.efi ipxe-shim*.efi ipxe.efi mm*.efi
+  MOK.der PK.auth KEK.auth db.auth  README.txt  MANIFEST.json
+  local/
+    autoexec.ipxe        FOG's real boot script; the delay lives here
+    fogipxe.efi fogsnp.efi fogintel.efi fogrealtek.efi fogsnponly.efi
+  refind/
+    refind.efi refind.conf
+```
+
+The upstream set stays at the top level, non-negotiably: shim derives its second
+stage *and* MokManager from its own directory by name. FOG's builds keep the `fog`
+prefix even though the subdirectory has made the collision impossible — §4's
+reason for the prefix is gone, but the names are in the README, the docs and every
+bug report since GH-1117, and renaming buys nothing.
+
+The root ladder is still gated on an upstream loader being present.
+`local/autoexec.ipxe` is **not** — the binary that reads it is FOG's own, so an
+i386 archive and an HTTPS-only install both need it. That inverts §2's gate,
+which asked "is there something here that reads a script" and answered by looking
+for the loader.
+
+**Three archives, not six.** With the script on disk the delay is two lines of
+text, so `local/autoexec.ipxe` ships them commented out and `--boot-delay` writes
+them live inside the same `# FOG-BOOT-DELAY-BEGIN`/`-END` sentinels
+`_applyBootDelay()` uses on the TFTP copy. So one option now covers netboot and
+ESP boot, where before it covered netboot and the ESP needed a different download.
+
+This directly reverses the note at §4 and in `SUPPORTED_CUSTOMIZATIONS.md` that
+"the delay has to live in the binary, not the script — `sleep` is an optional iPXE
+command that FOG's own builds enable but upstream's signed loader may not". True
+as far as it went, and beside the point: the loader only chains. The `sleep` runs
+in FOG's build, which enables it, immediately before the DHCP it is delaying.
+
+**rEFInd ships in `refind/`** (GH-1185). `FOG_EFI_BOOT_EXIT_TYPE` defaults to
+`refind_efi`, so rEFInd is what a UEFI host chainloads on the way out of the boot
+menu, and an ESP assembled from this kit had no local-boot chainloader on it at
+all. It is the first thing published here that comes from the **web** tree rather
+than `$tftpdirdst` — rEFInd has never existed in the TFTP tree, which is exactly
+why `_publishLocalBootFiles()` never saw it. `_resignRefind()` has already signed
+it by the time this runs (`installfog.sh:1266` vs `:1302`), so nothing needed
+reordering. Its own subdirectory because rEFInd reads `refind.conf` from the
+directory it was loaded from. x86_64 follows `bootmenu.class.php`'s
+`refind.efi`-over-`refind_x64.efi` preference so the ESP and the netboot path
+agree on which binary is canonical.
+
+### The iPXE behaviour this rests on
+
+`efi_autoexec_filesystem()` tries `file:autoexec.ipxe` — resolved against the
+directory of the running image's `FilePath` — and then `file:/autoexec.ipxe` at
+the volume root (`interface/efi/efi_autoexec.c`, `efi_local.c`). A binary loaded
+from an ESP therefore reads the `autoexec.ipxe` beside it, at any depth. That is
+the whole mechanism.
+
+**Worth writing down because the source reads the other way.** For a binary that
+another iPXE `chain`ed, `efi_image_exec()` builds a synthetic device handle and
+installs iPXE's own `EFI_SIMPLE_FILE_SYSTEM_PROTOCOL` on it
+(`image/efi_image.c`, `interface/efi/efi_file.c`); `efi_local_open_volume()`
+resolves through `LocateDevicePath()`, which matches the longest device-path
+prefix and so lands on that synthetic handle. That virtual filesystem serves
+registered images by flat name only — no directories, no passthrough — and
+`image_exec()` unregisters the running script for the duration, so on paper the
+chained binary should find nothing. Observed behaviour on hardware is the sibling
+read, for the chained case as well as the firmware-loaded one.
+
+Hardware wins, and the layout is built on the observed behaviour. Do not
+"correct" it on the strength of the source read. If a client ever does dead-end
+on the chained route specifically — reaching iPXE's bare `autoboot()` instead of
+FOG's script — that synthetic handle is where to look, and the fix would be for
+the root ladder to register the script under the name the child looks for
+(`imgfetch local/autoexec.ipxe`) before chaining.
+
+### Manifest
+
+`schema` goes to `2`. `variant` is gone from each archive, and
+`contents[].name` is the path relative to the archive root
+(`local/fogipxe.efi`), because `_espKitContentsJson()` now recurses.
+
+That last part matters more than it looks. It used `find -maxdepth 1` and stored
+basenames; left alone it would have omitted `local/` and `refind/` **silently**,
+and every consumer — including the test harness's per-file checksum loop, which
+walks the manifest rather than the directory — would have gone on passing. An
+under-reporting manifest reads exactly like a correct one.
+
+### Verification
+
+`tests/localboot-publish.test.sh` grew from 62 to 87 assertions. The mock tree's
+"every file's content is its own path" mechanism carried over unchanged and is
+what proves rEFInd came from the web tree and matches its archive's architecture.
+All 50 of the assertions touching the new behaviour were confirmed to fail against
+the pre-fix `functions.sh` before being relied on.
+
+Hardware step still owed, and the only one that cannot be faked: boot an ESP
+assembled from an archive by both routes — shim → upstream loader → chain, and
+boot manager → `local\fogipxe.efi` directly — and confirm `Checking net0 for
+DHCP...` appears each time rather than iPXE's bare autoboot.
