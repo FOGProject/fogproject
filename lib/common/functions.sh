@@ -1048,18 +1048,29 @@ updateDB() {
     # holds INSERT; a failure here is read as "the grants need redoing", which
     # is what sends the installer off to ask for the database root password.
     #
-    # So the row has to be valid, and the marker cannot live in taskID. That
-    # column used to be mediumtext and took the literal '999test'; schema 336
-    # made it the int(11) it always held, and under STRICT_TRANS_TABLES -- the
-    # MariaDB default -- inserting a non-numeric string into it is error 1265,
-    # not a warning. The probe then failed on a server whose grants were
-    # perfectly correct, and every upgrade demanded a root password nobody
-    # needed to type. Reported on a 1.6 server at schema 336 while two nodes
-    # still on the old column type were unaffected.
+    # NAME THE COLUMNS. This probe has now broken twice, both times because it
+    # was a positional INSERT against a table somebody else changed, and both
+    # times the symptom was identical and misleading: an upgrade demanding a
+    # database root password on a server whose grants were perfectly correct.
     #
-    # createdBy is varchar(30), so the marker goes there and the DELETE keys
-    # on it. taskID 0 points at no task, which is what a throwaway row should.
-    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, 0, 3, '127.0.0.1', NOW(), 'fog-install-probe');" >/dev/null 2>&1
+    #   schema 336 made taskID the int(11) it always held. The marker was the
+    #     literal '999test' in that column, and under STRICT_TRANS_TABLES --
+    #     the MariaDB default -- a non-numeric string there is error 1265, not
+    #     a warning. Fixed by moving the marker to createdBy, which left the
+    #     positional list in place;
+    #   schema 338 added logType and logText, taking the table from six
+    #     columns to eight, so the six-value list became error 1136, "Column
+    #     count doesn't match value count".
+    #
+    # A named column list cannot break that way: a column added later takes
+    # its default and this INSERT does not care. That -- not the marker's
+    # position -- is the actual fix, and it is why the previous repair did not
+    # hold.
+    #
+    # id is AUTO_INCREMENT so it is omitted. taskID 0 points at no task, which
+    # is what a throwaway row should. The marker lives in createdBy (varchar
+    # 30) and the DELETE below keys on it.
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog (taskID, taskStateID, ip, createTime, createdBy) VALUES (0, 3, '127.0.0.1', NOW(), 'fog-install-probe');" >/dev/null 2>&1
     connect_as_fogstorage=$?
     if [[ $connect_as_fogstorage -eq 0 ]]; then
         mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE createdBy='fog-install-probe' AND ip='127.0.0.1';" >/dev/null 2>&1
