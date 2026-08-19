@@ -47,9 +47,9 @@ class HookManager extends EventManager
     /**
      * Data to store and use.
      *
-     * @var mixed
+     * @var array
      */
-    public $data;
+    public $data = [];
     /**
      * Events to work off.
      *
@@ -73,6 +73,50 @@ class HookManager extends EventManager
      * @var array|null
      */
     private static $knownEvents = null;
+    /**
+     * Refuses a listener this manager cannot dispatch.
+     *
+     * A hook listener is either [Hook, method] or a Closure. Both have an
+     * owner -- the object for the pair, and whatever $this the closure was
+     * written inside for the closure -- and the owner is what carries
+     * $active, so admitting closures needed no new activation rule. A closure
+     * with no bound $this has no owner and always runs: registering it is the
+     * opt-in.
+     *
+     * docs/plugin-development.md has documented the closure form for the
+     * three Phase 2 authentication seams since ADR 0014.
+     *
+     * @param mixed $listener The listener as the caller supplied it.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected function acceptListener($listener)
+    {
+        if ($listener instanceof \Closure) {
+            return;
+        }
+        if (!is_array($listener) || count($listener ?: []) !== 2) {
+            throw new \Exception(
+                _('Listener must be [class,function] or a closure')
+            );
+        }
+        if (!($listener[0] instanceof Hook)) {
+            throw new \Exception(_('Class must extend hook'));
+        }
+        if (!method_exists($listener[0], $listener[1])) {
+            throw new \Exception(
+                sprintf(
+                    '%s: %s->%s',
+                    _('Method does not exist'),
+                    // Short name: this is log text, not a class reference.
+                    self::shortName($listener[0]),
+                    $listener[1]
+                )
+            );
+        }
+    }
     /**
      * Processes the system for customizable elements.
      *

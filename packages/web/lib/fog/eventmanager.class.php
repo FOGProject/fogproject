@@ -82,60 +82,11 @@ class EventManager extends FOGBase
             if (!is_array($listener) && !is_object($listener)) {
                 throw new \Exception(_('Listener must be an array or an object'));
             }
-            // Short name: the cases below are bare class names and the
-            // default arm throws. A namespaced FQCN would hit that default
-            // for every register() call, so no hook and no event would ever
-            // register -- and the throw is caught and merely logged.
-            switch (self::shortName($this)) {
-                case 'EventManager':
-                    if (!($listener instanceof Event)) {
-                        throw new \Exception(_('Class must extend event'));
-                    }
-                    if (!isset($this->data[$event])) {
-                        $this->data[$event] = [];
-                    }
-                    array_push($this->data[$event], $listener);
-                    break;
-                case 'HookManager':
-                    // A hook listener is either [Hook, method] or a Closure.
-                    // Both have an owner -- the object for the pair, and
-                    // whatever $this the closure was written inside for the
-                    // closure -- and the owner is what carries $active, so
-                    // admitting closures needs no new activation rule. A
-                    // closure with no bound $this has no owner and is
-                    // therefore always active: its registration is the opt-in.
-                    //
-                    // docs/plugin-development.md has documented the closure
-                    // form for the three Phase 2 authentication seams since
-                    // ADR 0014; until now it did not work.
-                    if ($listener instanceof \Closure) {
-                        $this->data[$event][] = $listener;
-                        break;
-                    }
-                    if (!is_array($listener) || count($listener ?: []) !== 2) {
-                        throw new \Exception(
-                            _('Listener must be [class,function] or a closure')
-                        );
-                    }
-                    if (!($listener[0] instanceof Hook)) {
-                        throw new \Exception(_('Class must extend hook'));
-                    }
-                    if (!method_exists($listener[0], $listener[1])) {
-                        $msg = sprintf(
-                            '%s: %s->%s',
-                            _('Method does not exist'),
-                            self::shortName($listener[0]),
-                            $listener[1]
-                        );
-                        throw new \Exception($msg);
-                    }
-                    $this->data[$event][] = $listener;
-                    break;
-                default:
-                    throw new \Exception(
-                        _('Register must be managed from hooks or events')
-                    );
+            $this->acceptListener($listener);
+            if (!isset($this->data[$event])) {
+                $this->data[$event] = [];
             }
+            $this->data[$event][] = $listener;
         } catch (\Exception $e) {
             $string = sprintf(
                 '%s: %s: %s, %s: %s, %s: %s',
@@ -156,6 +107,34 @@ class EventManager extends FOGBase
             );
         }
         return $this;
+    }
+    /**
+     * Refuses a listener this manager cannot dispatch.
+     *
+     * The override point that replaced a switch on self::shortName($this),
+     * with a case per subclass and a default arm that threw. A parent
+     * enumerating its children by name is fragile in exactly the way the
+     * comment above that switch recorded: during the namespace migration every
+     * register() call landed on the default arm, so no hook and no event
+     * registered anywhere, and because the throw is caught and logged the
+     * application went on serving pages with every hook silently absent. It
+     * also meant any subclass of either manager -- something a plugin is free
+     * to write -- registered nothing at all and was told so only in the log.
+     *
+     * Each manager now answers for its own listener shapes and inherits the
+     * one it does not override.
+     *
+     * @param mixed $listener The listener as the caller supplied it.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected function acceptListener($listener)
+    {
+        if (!($listener instanceof Event)) {
+            throw new \Exception(_('Class must extend event'));
+        }
     }
     /**
      * Names a listener for a log line, whatever shape it arrived in.

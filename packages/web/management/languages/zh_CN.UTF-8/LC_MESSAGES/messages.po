@@ -6150,9 +6150,6 @@ msgstr "服务状态"
 msgid "Refresh the settings cache"
 msgstr "服务状态"
 
-msgid "Register must be managed from hooks or events"
-msgstr ""
-
 msgid "Registered"
 msgstr "注册"
 

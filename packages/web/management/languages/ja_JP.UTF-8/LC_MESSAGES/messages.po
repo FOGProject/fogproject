@@ -5892,9 +5892,6 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr "FOG 設定"
 
-msgid "Register must be managed from hooks or events"
-msgstr "登録はフックまたはイベントから管理する必要があります"
-
 msgid "Registered"
 msgstr "登録済み"
 
@@ -10912,6 +10909,9 @@ msgstr ""
 
 #~ msgid "Rebranding element has been successfully updated!"
 #~ msgstr "ブランド設定を更新しました！"
+
+#~ msgid "Register must be managed from hooks or events"
+#~ msgstr "登録はフックまたはイベントから管理する必要があります"
 
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "返却担当者のイニシャル"

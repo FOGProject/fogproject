@@ -5212,9 +5212,6 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr ""
 
-msgid "Register must be managed from hooks or events"
-msgstr ""
-
 msgid "Registered"
 msgstr ""
 

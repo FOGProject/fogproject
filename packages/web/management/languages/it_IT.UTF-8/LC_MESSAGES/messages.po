@@ -5938,9 +5938,6 @@ msgstr "Stato servizio"
 msgid "Refresh the settings cache"
 msgstr "Stato servizio"
 
-msgid "Register must be managed from hooks or events"
-msgstr "Registro deve essere gestito da hook o eventi"
-
 msgid "Registered"
 msgstr "Registrato"
 
@@ -9905,6 +9902,9 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
+
+#~ msgid "Register must be managed from hooks or events"
+#~ msgstr "Registro deve essere gestito da hook o eventi"
 
 #, fuzzy
 #~ msgid "Remove Selected"

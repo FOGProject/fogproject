@@ -6149,9 +6149,6 @@ msgstr "Service Status"
 msgid "Refresh the settings cache"
 msgstr "Service Status"
 
-msgid "Register must be managed from hooks or events"
-msgstr ""
-
 msgid "Registered"
 msgstr "Registered"
 

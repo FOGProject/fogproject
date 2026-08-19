@@ -209,6 +209,29 @@ if (false === strpos($msg, 'string')) {
     $fails[] = 'a listener of an unusable type is logged without being named';
 }
 
+// F-12 in the plan: register() used to switch on self::shortName($this), with
+// a case per subclass and a default arm that threw -- caught, logged, and
+// returning normally, so a subclass of either manager registered nothing and
+// said so only in a log line nobody reads. Each manager now answers for its
+// own shapes through an override point.
+class CharManager extends \FOG\HookManager
+{
+}
+$sub = $bare('CharManager');
+if ('' !== $escapes($sub, 'CHAR_SUBCLASS', [$hook, 'fire'])) {
+    $fails[] = 'a subclass of HookManager cannot register a listener';
+}
+if (!$sub->hasListeners('CHAR_SUBCLASS')) {
+    $fails[] = 'a subclass of HookManager silently registers nothing, which is'
+        . ' the shape that took every hook in the system down once already';
+}
+if (false !== strpos(
+    file_get_contents($web . '/lib/fog/eventmanager.class.php'),
+    'switch (self::shortName'
+)) {
+    $fails[] = 'register() identifies its own subclasses by name again';
+}
+
 // ------------------------------------------------ registering against events
 
 $em = $bare('FOG\EventManager');
