@@ -2468,20 +2468,52 @@ class Route extends FOGBase
                 ];
                 break;
             case 'storagegroup':
-                $StorageGroup = new StorageGroup();
+                // Each formatter resolves the row's OWN group.
+                //
+                // They used to share one `new StorageGroup()` threaded
+                // between them by reference: the enablednodes formatter did
+                // ->set('id', $row['ngID'])->load(), and the masternode
+                // formatter then called getMasterStorageNode() on whatever
+                // that had left behind.
+                //
+                // That was not merely an ordering dependency. set()/load() on
+                // an object that has already loaded a DIFFERENT group does
+                // not clear what it resolved for the previous one, so from
+                // the second row onwards both columns answered about the
+                // FIRST group. On the lab, three groups whose real members
+                // are [1], [3,2] and [] all reported enablednodes [1] and
+                // DefaultMember as their master node. The wrong answer is a
+                // real node name, so the grid looked right.
+                //
+                // Memoized per group id -- the $snapinTaskHost pattern a few
+                // cases above -- with a fresh object per id, so each group is
+                // loaded once and answers about itself. Same load() call as
+                // before, deliberately: loadMany() through primeRel() leaves
+                // a group in a state getMasterStorageNode() answers
+                // differently on, so priming here would trade one wrong
+                // answer for another.
+                $storageGroups = [];
+                $groupFor = function ($id) use (&$storageGroups) {
+                    $id = (int) $id;
+                    if (!isset($storageGroups[$id])) {
+                        $storageGroups[$id] = self::getClass('StorageGroup')
+                            ->set('id', $id)
+                            ->load();
+                    }
+                    return $storageGroups[$id];
+                };
                 $columns[] = [
                     'dt' => 'enablednodes',
-                    'formatter' => function ($d, $row) use (&$StorageGroup) {
-                        return $StorageGroup->set('id', $row['ngID'])
-                            ->load()
-                            ->get('enablednodes');
+                    'formatter' => function ($d, $row) use ($groupFor) {
+                        return $groupFor($row['ngID'])->get('enablednodes');
                     }
                 ];
                 $columns[] = [
                     'dt' => 'masternode',
-                    'formatter' => function ($d, $row) use (&$StorageGroup) {
+                    'formatter' => function ($d, $row) use ($groupFor) {
                         try {
-                            $sn = $StorageGroup->getMasterStorageNode();
+                            $sn = $groupFor($row['ngID'])
+                                ->getMasterStorageNode();
                         } catch (\Exception $e) {
                             $sn = new StorageNode();
                         }

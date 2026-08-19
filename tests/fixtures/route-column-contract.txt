@@ -465,8 +465,8 @@ storagegroup	2	ngName	name	-	-
 storagegroup	3	ngName	mainlink	f:classname,tmpcolumns	-
 storagegroup	4	ngDesc	description	-	-
 storagegroup	5	ngTrustedCIDRs	trustedcidrs	-	-
-storagegroup	6	-	enablednodes	f:StorageGroup	-
-storagegroup	7	-	masternode	f:StorageGroup	-
+storagegroup	6	-	enablednodes	f:groupFor	-
+storagegroup	7	-	masternode	f:groupFor	-
 storagegroup	8	totalclients	totalclients	-	-
 storagenode	0	ngmID	id	-	-
 storagenode	1	ngmID	DT_RowId	f	-

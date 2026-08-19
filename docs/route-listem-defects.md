@@ -204,6 +204,26 @@ fixed, so that decision is no longer blocked.
 
 ### DEC-3 — `storagegroup`'s `masternode` column depends on column order
 
+**CORRECTED AND FIXED 2026-08-19 (commit 7). The premise above is wrong: it
+was not order-dependence, it was state leaking between rows, and it produced
+wrong output on every storage-group grid.**
+
+`set('id', …)->load()` on an object that has already loaded a DIFFERENT group
+does not clear what it resolved for the previous one. So from the second row
+onwards, BOTH columns answered about the FIRST group — not merely if the two
+were swapped, but as shipped. On the lab, three groups whose real members are
+`[1]`, `[3,2]` and `[]` all reported `enablednodes [1]` and `DefaultMember` as
+their master node, verified against `nfsGroupMembers` directly. The wrong
+answer is a real node name, which is why nobody noticed.
+
+Each formatter now resolves the row's own group through a per-id memo (the
+`$snapinTaskHost` pattern). Same `load()` call — `loadMany()` via `primeRel()`
+leaves a group in a state `getMasterStorageNode()` answers differently on, so
+priming here trades one wrong answer for another.
+
+This is a **behaviour change and the point of the commit**: the grid now
+reports each group's own enabled nodes and master node.
+
 `:2645-2673`. A single `new StorageGroup()` is shared by two formatters: the
 `enablednodes` formatter calls `->set('id', $row['ngID'])->load()`, and the
 `masternode` formatter then calls `getMasterStorageNode()` on whatever that

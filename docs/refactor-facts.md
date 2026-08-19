@@ -900,6 +900,39 @@ assertion about the task grid's.
 php tests/route-column-contract.test.php   # ok  598 columns across 52 classes
 ```
 
+### F-46 — The storage group grid showed every group the FIRST group's nodes
+
+Two formatters shared one `new StorageGroup()` by reference: `enablednodes`
+called `->set('id', $row['ngID'])->load()`, `masternode` called
+`getMasterStorageNode()` on what that left behind. `set()/load()` on an object
+that has already loaded a different group does not clear the previous group's
+resolved relations, so from row two onwards both columns answered about the
+first group.
+
+On the lab, three groups whose real members are `[1]`, `[3,2]` and `[]` all
+reported `enablednodes [1]` and `DefaultMember` as their master node. Verified
+against `nfsGroupMembers` directly. The wrong answer is a real node name, which
+is why it never looked wrong.
+
+This corrects DEC-3, which recorded it as an ordering accident that "changes no
+output".
+
+Priming with `primeRel()` was tried and is WRONG here: `loadMany()` leaves a
+group in a state `getMasterStorageNode()` answers differently on. The fix is a
+per-id memo holding a fresh object, keeping the exact `load()` path.
+
+PERF-2's premise does not survive measurement either. None of its three classes
+is rel-shaped; the cost is inside model methods that query on their own --
+`getMasterStorageNode()` probing nodes, `getClientLoad()` counting tasks per
+node, and `imaginglog` resolving its image BY NAME, which `primeRel()` cannot
+serve because it keys on id. Batching those means changing StorageNode and
+StorageGroup, not the column table.
+
+```
+php /home/telliott/scripts/background_scripts/probe_perf2_classes.php < /dev/null
+# storagegroup 36 q/row, storagenode 12.5, imaginglog 1.09 -- all model-side
+```
+
 ---
 
 ## How to add an entry

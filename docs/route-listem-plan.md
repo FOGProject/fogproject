@@ -667,6 +667,10 @@ probe so the next person does not:
 
 ## Commit 7 — PERF-2: the three unprimed classes
 
+**DONE, and it found a bug rather than a slowness.** The premise below — that
+these three want `relColumn()` — does not survive measurement. Result at the
+end of this section.
+
 `VERIFIED`, plain `listem()`, marginal queries per row:
 
 | class | rows | queries | q/row | wall |
@@ -684,6 +688,64 @@ two formatters by column order).
 
 **Blast radius:** the storage group, storage node and imaging log grids.
 Formatter output is unchanged; only where the object comes from changes.
+
+### Result
+
+Re-measured after commits 2, 3 and 6 — unchanged, so the cost is where it was:
+
+| class | rows | q/row |
+|---|---|---|
+| `storagegroup` | 3 | 36.0 |
+| `storagenode` | 4 | 12.5 |
+| `imaginglog` | 11 | 1.09 |
+
+**None of it is rel-shaped, and `relColumn()` is the wrong tool for all three.**
+The cost is inside model methods that each run their own queries:
+
+- `storagegroup` → `getMasterStorageNode()`, which walks the group's nodes and
+  probes each.
+- `storagenode` → `getClientLoad()` → `getUsedSlotCount()` +
+  `getQueuedSlotCount()`, which count tasks per node. These are the nested
+  `listem()` calls F-45 found.
+- `imaginglog` → the image is resolved **by name**
+  (`getClass('Image')->set('name', $d)->load('name')`), and `primeRel()` keys
+  on id, so no primer can serve it.
+
+Batching any of those means changing `StorageNode`/`StorageGroup`, not the
+column table. That is a different commit against a different file and it is not
+this one.
+
+**What this commit does instead is fix a wrong answer.** DEC-3 described the
+shared `StorageGroup` object as an ordering accident that "changes no output".
+Measuring it showed otherwise: `set('id', …)->load()` on an object that has
+already loaded a different group does not clear the previous group's resolved
+relations, so from the second row onwards both columns answered about the
+**first** group — as shipped, not only if reordered.
+
+On the lab, three groups whose real members are `[1]`, `[3,2]` and `[]` all
+reported `enablednodes [1]` and `DefaultMember` as master. After:
+
+```
+id  name        enablednodes  masternode
+1   default     [1]           DefaultMember
+6   something   []            (empty)
+2   testgroup   [3,2]         redhat
+```
+
+which matches `nfsGroupMembers` read directly. The old answer was a real node
+name, which is why it never looked wrong.
+
+Priming was tried first and rejected on evidence: `loadMany()` through
+`primeRel()` leaves a group in a state `getMasterStorageNode()` answers
+differently on, which trades one wrong answer for another. The fix is a per-id
+memo holding a **fresh** object — the `$snapinTaskHost` pattern already in this
+file — keeping the exact `load()` path.
+
+Query count is 107 → 113 for three groups, and that is the fix costing what the
+bug was avoiding: it is now doing the per-group work it was skipping.
+
+The contract test catches a revert, because the formatters' `use (...)` list is
+part of what it pins: `f:StorageGroup` became `f:groupFor`.
 
 ---
 
