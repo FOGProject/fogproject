@@ -27,6 +27,25 @@ namespace FOG;
 class EventManager extends FOGBase
 {
     /**
+     * The file extension this manager's listeners are declared in.
+     *
+     * Declared per class rather than decided in load(), which used to run two
+     * sequential instanceof checks -- EventManager first, then HookManager.
+     * HookManager extends EventManager, so it satisfied both, and reached
+     * .hook.php only because the second assignment overwrote the first.
+     * Swapping the blocks made every HookManager load .event.php instead, and
+     * nothing would have said so.
+     *
+     * @var string
+     */
+    protected $fileExtension = '.event.php';
+    /**
+     * The directory under BASEPATH those files live in.
+     *
+     * @var string
+     */
+    protected $fileDirectory = 'events';
+    /**
      * Items log level.
      *
      * @var int
@@ -38,6 +57,22 @@ class EventManager extends FOGBase
      * @var array
      */
     public $data = [];
+    /**
+     * Names already present in notifyEvents, as a lookup set.
+     *
+     * The same fix HookManager::$knownEvents carries for GH-707, applied to
+     * the other half of the subsystem. notify() asked the database whether it
+     * had seen the name before on EVERY call -- an exists() SELECT that was
+     * 87% of the cost of a notify() nobody was listening to. The table is a
+     * discovery aid for the notification plugins' settings pages, so the
+     * answer is safe to remember for the life of the process: nothing here
+     * removes names, so the only staleness possible is a name another process
+     * added after we loaded, which costs at worst one redundant save(), and
+     * save() is an upsert.
+     *
+     * @var array|null
+     */
+    private static $knownNotifyEvents = null;
     /**
      * The events to work from.
      *
@@ -63,65 +98,128 @@ class EventManager extends FOGBase
             if (!is_array($listener) && !is_object($listener)) {
                 throw new \Exception(_('Listener must be an array or an object'));
             }
-            // Short name: the cases below are bare class names and the
-            // default arm throws. A namespaced FQCN would hit that default
-            // for every register() call, so no hook and no event would ever
-            // register -- and the throw is caught and merely logged.
-            switch (self::shortName($this)) {
-                case 'EventManager':
-                    if (!($listener instanceof Event)) {
-                        throw new \Exception(_('Class must extend event'));
-                    }
-                    if (!isset($this->data[$event])) {
-                        $this->data[$event] = [];
-                    }
-                    array_push($this->data[$event], $listener);
-                    break;
-                case 'HookManager':
-                    if (!is_array($listener) || count($listener ?: []) !== 2) {
-                        throw new \Exception(
-                            _('Second paramater must be in [class,function]')
-                        );
-                    }
-                    if (!($listener[0] instanceof Hook)) {
-                        throw new \Exception(_('Class must extend hook'));
-                    }
-                    if (!method_exists($listener[0], $listener[1])) {
-                        $msg = sprintf(
-                            '%s: %s->%s',
-                            _('Method does not exist'),
-                            self::shortName($listener[0]),
-                            $listener[1]
-                        );
-                        throw new \Exception($msg);
-                    }
-                    $this->data[$event][] = $listener;
-                    break;
-                default:
-                    throw new \Exception(
-                        _('Register must be managed from hooks or events')
-                    );
+            $this->acceptListener($listener);
+            if (!isset($this->data[$event])) {
+                $this->data[$event] = [];
             }
+            $this->data[$event][] = $listener;
         } catch (\Exception $e) {
             $string = sprintf(
-                '%s: %s: %s, $s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s',
                 _('Could not register'),
                 _('Error'),
                 $e->getMessage(),
                 _('Event'),
                 $event,
                 _('Class'),
-                $listener[0]
+                self::_describeListener($listener)
             );
             self::log(
                 $string,
                 $this->logLevel,
                 0,
-                $this,
-                0
+                0,
+                $this
             );
         }
         return $this;
+    }
+    /**
+     * Remembers an event name in notifyEvents, once per process.
+     *
+     * @param string $event The event name to record.
+     *
+     * @return void
+     */
+    private static function _recordEventName($event)
+    {
+        if (self::$knownNotifyEvents === null) {
+            self::$knownNotifyEvents = array_flip(
+                Route::getIds('notifyevent', false, 'name')
+            );
+        }
+        if (isset(self::$knownNotifyEvents[$event])) {
+            return;
+        }
+        // Marked known before the save, not after, so an event fired from
+        // inside save() could never recurse into saving the same name again.
+        // Matches HookManager::processEvent().
+        self::$knownNotifyEvents[$event] = true;
+        self::getClass('NotifyEvent')
+            ->set('name', $event)
+            ->save();
+    }
+    /**
+     * Refuses a listener this manager cannot dispatch.
+     *
+     * The override point that replaced a switch on self::shortName($this),
+     * with a case per subclass and a default arm that threw. A parent
+     * enumerating its children by name is fragile in exactly the way the
+     * comment above that switch recorded: during the namespace migration every
+     * register() call landed on the default arm, so no hook and no event
+     * registered anywhere, and because the throw is caught and logged the
+     * application went on serving pages with every hook silently absent. It
+     * also meant any subclass of either manager -- something a plugin is free
+     * to write -- registered nothing at all and was told so only in the log.
+     *
+     * Each manager now answers for its own listener shapes and inherits the
+     * one it does not override.
+     *
+     * @param mixed $listener The listener as the caller supplied it.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected function acceptListener($listener)
+    {
+        if (!($listener instanceof Event)) {
+            throw new \Exception(_('Class must extend event'));
+        }
+        // Hook extends Event, so the guard above accepts a hook -- the only
+        // type check separating the two, and it does not. What follows from
+        // that is not theoretical: notify() would then call Event::onEvent()
+        // on it, and hooks do not implement onEvent(), so the inherited
+        // default ran. That default used to print the event name into the
+        // response, which on a client protocol endpoint is arbitrary text in
+        // front of a ##@GO reply.
+        //
+        // The two have genuinely different dispatch contracts -- see
+        // HookManager::notify() -- so a hook is refused here rather than
+        // silently dispatched as something it is not.
+        if ($listener instanceof Hook) {
+            throw new \Exception(_('A hook is not an event listener'));
+        }
+    }
+    /**
+     * Names a listener for a log line, whatever shape it arrived in.
+     *
+     * This used to be a bare `$listener[0]`, written inside the very catch
+     * that exists to swallow a bad listener. Handing register() an object that
+     * is not an array -- a Closure, say -- therefore raised "Cannot use object
+     * of type X as array", which is an \Error and not caught by
+     * catch (\Exception). Registration runs in a hook constructor during
+     * LoadGlobals, so that escaped to the top and the whole application
+     * answered 500 with an empty body, on every entry point, until the file
+     * was deleted from disk. An error handler must not be able to fail harder
+     * than the error it is reporting.
+     *
+     * @param mixed $listener The listener as the caller supplied it.
+     *
+     * @return string
+     */
+    private static function _describeListener($listener)
+    {
+        if (is_array($listener)) {
+            $first = reset($listener);
+            // Short name: this is log text, not a class reference.
+            return is_object($first) ? self::shortName($first) : gettype($first);
+        }
+        if (is_object($listener)) {
+            // Short name: as above.
+            return self::shortName($listener);
+        }
+        return gettype($listener);
     }
     /**
      * Tells whether anything is registered against an event.
@@ -155,16 +253,6 @@ class EventManager extends FOGBase
      */
     public function notify($event, $eventData = [])
     {
-        $exists = self::getClass('NotifyEventManager')->exists(
-            $event,
-            '',
-            'name'
-        );
-        if (!$exists) {
-            self::getClass('NotifyEvent')
-                ->set('name', $event)
-                ->save();
-        }
         try {
             if (!is_string($event)) {
                 throw new \Exception(_('Event must be a string'));
@@ -172,22 +260,28 @@ class EventManager extends FOGBase
             if (!is_array($eventData)) {
                 throw new \Exception(_('Event Data must be an array'));
             }
+            // After the guards, not before them: this used to run first, so a
+            // caller who passed something that was not an event name got it
+            // written to the database before being told it was invalid.
+            self::_recordEventName($event);
             if (!isset($this->data[$event])) {
-                throw new \Exception(_('Event and data are not set'));
+                // Nobody is listening. That is not an error -- it is the
+                // ordinary case for four of the five names core notifies, and
+                // for HOST_CHECKIN it is the only case there has ever been --
+                // so it returns like processEvent() does instead of throwing
+                // into the handler below and logging a line per checkin.
+                return false;
             }
-            $runEvent = function ($element) use ($event, $eventData) {
+            foreach ((array) $this->data[$event] as &$element) {
                 if (!$element->active) {
-                    return;
+                    continue;
                 }
                 $element->onEvent($event, $eventData);
-            };
-            foreach ((array) $this->data[$event] as &$element) {
-                $runEvent($element);
                 unset($element);
             }
         } catch (\Exception $e) {
             $string = sprintf(
-                '%s: %s: %s, $s: %s',
+                '%s: %s: %s, %s: %s',
                 _('Could not notify'),
                 _('Error'),
                 $e->getMessage(),
@@ -198,8 +292,8 @@ class EventManager extends FOGBase
                 $string,
                 $this->logLevel,
                 0,
-                $this,
-                0
+                0,
+                $this
             );
 
             return false;
@@ -208,21 +302,58 @@ class EventManager extends FOGBase
         return true;
     }
     /**
+     * Whether a hook or event file's class declares itself active.
+     *
+     * Reads the declared default of $active off the class, which is what the
+     * source-text regex this replaced was trying to approximate. A value
+     * assigned in a constructor is still not consulted, exactly as before, so
+     * no shipped file changes verdict -- all eleven core hooks and events
+     * declare `public $active = false;` and none of the 87 bundled plugin
+     * files disagrees with the old regex either.
+     *
+     * Two things do change, both deliberately. Spacing and case no longer
+     * decide anything. And a file that declares no $active at all now
+     * inherits Event's default of true and runs, where the regex found no
+     * literal and skipped it -- which is the point of asking the class: the
+     * class genuinely is active.
+     *
+     * Truthiness, not identity, so this agrees with the check
+     * HookManager::processEvent() makes at dispatch. One notion of active.
+     *
+     * @param string $file   Absolute path to the .hook.php/.event.php file.
+     * @param int    $strlen Negative length of the extension, as load() has it.
+     *
+     * @return bool
+     */
+    private static function _declaresActive($file, $strlen)
+    {
+        $className = str_replace(
+            ["\t","\n",' '],
+            '_',
+            substr(
+                basename($file),
+                0,
+                $strlen
+            )
+        );
+        // class-name consumer: handed to class_exists() and ReflectionClass,
+        // both of which resolve a namespaced name and a global one alike.
+        if (!class_exists($className)) {
+            return false;
+        }
+        $defaults = (new \ReflectionClass($className))->getDefaultProperties();
+        return !empty($defaults['active']);
+    }
+    /**
      * Loads the events or hooks.
      *
      * @return void
      */
     public function load()
     {
-        // Sets up regex and paths to scan for
-        if ($this instanceof EventManager) {
-            $extension = '.event.php';
-            $dirpath = 'events';
-        }
-        if ($this instanceof HookManager) {
-            $extension = '.hook.php';
-            $dirpath = 'hooks';
-        }
+        // Each manager says what it loads; see $fileExtension.
+        $extension = $this->fileExtension;
+        $dirpath = $this->fileDirectory;
         $strlen = -strlen($extension);
         list(
             $normalfiles,
@@ -232,31 +363,20 @@ class EventManager extends FOGBase
             $dirpath,
             true
         );
-        // Scan non plugin files and see if the active flag is set.
-        // If active, start the class, otherwise on to next file.
+        // Non-plugin files opt in through $active. Ask the class, not the
+        // file: this used to be a line-by-line regex for the literal text
+        // `$active = true;`, which decided whether a hook ran on its
+        // whitespace and its case, and could not tell a comment from code.
+        // `public $active  = true;` with two spaces was inactive, and so was
+        // `TRUE`, while `public $active = false;` with `= true;` written in
+        // the comment above it -- the obvious way to document the toggle --
+        // was active.
         $startfiles = [];
         foreach ($normalfiles as &$file) {
-            if (false === ($fh = fopen($file, 'rb'))) {
-                continue;
-            }
-            while (feof($fh) === false) {
-                unset($active);
-                $line = fgets($fh, 4096);
-                if (false === $line) {
-                    continue;
-                }
-                preg_match(
-                    '#(\$active\s?=\s?true;)#',
-                    $line,
-                    $linefound
-                );
-                if (count($linefound ?: []) < 1) {
-                    continue;
-                }
+            if (self::_declaresActive($file, $strlen)) {
                 $startfiles[] = $file;
-                break;
             }
-            fclose($fh);
+            unset($file);
         }
         unset($normalfiles);
         $startfiles = self::fastmerge(

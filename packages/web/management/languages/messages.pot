@@ -210,6 +210,9 @@ msgstr ""
 msgid "A group name is required!"
 msgstr ""
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr ""
 
@@ -1009,6 +1012,9 @@ msgstr ""
 
 #, php-format
 msgid "Cannot filter %s on: %s"
+msgstr ""
+
+msgid "Cannot notify from the hook manager"
 msgstr ""
 
 msgid "Cannot task pending hosts"
@@ -1887,9 +1893,6 @@ msgid "Event"
 msgstr ""
 
 msgid "Event Data must be an array"
-msgstr ""
-
-msgid "Event and data are not set"
 msgstr ""
 
 msgid "Event must be a string"
@@ -3733,6 +3736,9 @@ msgstr ""
 msgid "List of MACs"
 msgstr ""
 
+msgid "Listener must be [class,function] or a closure"
+msgstr ""
+
 msgid "Listener must be an array or an object"
 msgstr ""
 
@@ -5209,12 +5215,6 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr ""
 
-msgid "Register must be managed from hooks or events"
-msgstr ""
-
-msgid "Registered"
-msgstr ""
-
 msgid "Registered Hosts"
 msgstr ""
 
@@ -5547,9 +5547,6 @@ msgid "Search results returned false"
 msgstr ""
 
 msgid "Search settings"
-msgstr ""
-
-msgid "Second paramater must be in [class,function]"
 msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."
@@ -7285,6 +7282,9 @@ msgid "Use [FOG_SNAPIN_PATH] in the arguments to point at the folder where the p
 msgstr ""
 
 msgid "Use extreme caution with this setting"
+msgstr ""
+
+msgid "Use processEvent instead"
 msgstr ""
 
 msgid "Use the buttons below to create a new power management task to all hosts in this group."

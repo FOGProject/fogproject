@@ -2931,8 +2931,8 @@ $this->schema[] = [
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
     . "('FOG_EFI_BOOT_EXIT_TYPE','The method (U)EFI uses to boot the "
-    . "next boot entry/hard drive. Most will require exit. (Default REFIND)',"
-    . "'refind_efi','FOG Boot Settings')",
+    . "next boot entry/hard drive. (Default SANBOOT)',"
+    . "'sanboot','FOG Boot Settings')",
 ];
 // 193
 $this->schema[] = [
@@ -5754,4 +5754,52 @@ $this->schema[] = [
 
         return true;
     },
+];
+// 337
+$this->schema[] = [
+    // sanboot replaces rEFInd as the default UEFI exit type. GH-1185 follow-up.
+    //
+    // FOG_EFI_BOOT_EXIT_TYPE was seeded 'refind_efi' at step 192 because iPXE
+    // could not then boot the next UEFI boot entry itself: `sanboot` on EFI did
+    // nothing useful, so leaving FOG meant chainloading a whole third-party boot
+    // manager over HTTP to do it. iPXE grew UEFI sanboot support, and
+    // BootMenu::__construct()'s 'sanboot' entry already drives it --
+    // `sanboot --drive 0` boots \EFI\Boot\bootx64.efi, with 0x80/0x81/0x82
+    // behind it -- so the third party is no longer buying anything.
+    //
+    // It is strictly less machinery for the same job. rEFInd is a 200-260KB PE
+    // image fetched over unauthenticated HTTP on every single exit from the boot
+    // menu, on every host, whether or not a task ran. Under Secure Boot it also
+    // has to be signed by this server first (_resignRefind), because the copies
+    // upstream ships carry Rod Smith's own certificate or none at all -- so the
+    // stock exit path depended on FOG's PKI having worked. sanboot hands control
+    // to firmware and adds no image to verify.
+    //
+    // WHY THIS ALSO MOVES EXISTING SERVERS, and not just new installs.
+    // Step 192's INSERT IGNORE cannot: the row already exists everywhere, so
+    // editing its seeded value (done, above) only reaches a fresh database.
+    // Every server in the field would keep rEFInd forever, which makes the
+    // change inert where it matters.
+    //
+    // Scoped to rows still holding exactly 'refind_efi'. That value was seeded,
+    // not chosen -- nobody picked it, it was simply what step 192 wrote -- so
+    // moving it is completing the default change rather than overriding a
+    // decision. Anything else an admin selected is left alone, and per-host
+    // `hosts`.`hostExitEfi` is not touched at all: BootMenu reads the host
+    // field FIRST and only falls back to this setting, so an explicit per-host
+    // choice still wins.
+    //
+    // The honest cost, since it is real: an admin who deliberately selected
+    // refind_efi globally is moved to sanboot and has to select it again.
+    // 'refind_efi' stays in Setting::buildExitSelector(), rEFInd is still
+    // shipped, still preserved across installs and still signed, so re-picking
+    // it is one dropdown away and nothing about that path has regressed.
+    "UPDATE `globalSettings`"
+    . " SET `settingValue` = 'sanboot'"
+    . " WHERE `settingKey` = 'FOG_EFI_BOOT_EXIT_TYPE'"
+    . " AND `settingValue` = 'refind_efi'",
+    "UPDATE `globalSettings`"
+    . " SET `settingDesc` = 'The method (U)EFI uses to boot the next boot"
+    . " entry/hard drive. (Default SANBOOT)'"
+    . " WHERE `settingKey` = 'FOG_EFI_BOOT_EXIT_TYPE'",
 ];
