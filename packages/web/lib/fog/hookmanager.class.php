@@ -186,7 +186,7 @@ class HookManager extends EventManager
         if (!isset($this->data[$event])) {
             return;
         }
-        foreach ((array) $this->data[$event] as &$function) {
+        foreach ((array) $this->data[$event] as $function) {
             // Two listener shapes, one activation rule. A pair's owner is its
             // object; a closure's owner is whatever $this it was written
             // inside, which for a closure declared in a hook constructor is
@@ -203,18 +203,14 @@ class HookManager extends EventManager
                 }
                 $callable = [$owner, $function[1]];
             }
-            if ($owner instanceof Hook) {
-                // class-name consumer: handed straight to ReflectionClass,
-                // which resolves a namespaced name and a global one alike.
-                $className = get_class($owner);
-                $refClass = new \ReflectionClass($className);
-                $filename = $refClass->getFileName();
-                if (stripos($filename, 'plugins') !== false) {
-                    $owner->active = true;
-                }
-                if (!$owner->active) {
-                    continue;
-                }
+            // $active decides, wherever the file lives. This used to reflect
+            // on the listener's class, take its filename and force
+            // active = true whenever the path contained the substring
+            // "plugins" -- so the flag was decorative for every plugin hook
+            // and a plugin could not turn one of its own hooks off. See
+            // docs/adr/0017.
+            if ($owner instanceof Hook && !$owner->active) {
+                continue;
             }
             // Kept in a variable rather than inlined into the call: a listener
             // is free to declare its parameter by reference, and only a
@@ -224,7 +220,6 @@ class HookManager extends EventManager
                 $arguments
             );
             $callable($mergedArr);
-            unset($function);
         }
     }
 }

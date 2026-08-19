@@ -518,22 +518,42 @@ $pluginHook = $bare('CharPluginHook');
 $hm2 = $bare('FOG\HookManager');
 $hm2->register('CHAR_DISPATCH', [$pluginHook, 'fire']);
 $hm2->processEvent('CHAR_DISPATCH', ['payload' => 1]);
-if (count($pluginHook->seen) !== 1) {
-    $fails[] = 'a plugin-path hook declaring $active = false no longer fires;'
-        . ' that is the force-activation being removed, so rewrite this case';
+if (count($pluginHook->seen) !== 0) {
+    $fails[] = 'a hook declaring $active = false fired because its file lives'
+        . ' under a path containing "plugins"';
 }
-if (true !== $pluginHook->active) {
-    $fails[] = 'processEvent() no longer writes active = true onto the listener';
+if (false !== $pluginHook->active) {
+    $fails[] = 'processEvent() writes active = true onto the listener, so the'
+        . ' flag says one thing and the dispatcher does another';
 }
 
-// The same hook off a plugin path is skipped, which is what makes the
-// force-activation load-bearing rather than decorative.
+// The same hook off a plugin path behaves identically. That is the whole
+// point: where the file lives is not part of the activation decision.
 $coreHook = $bare('CharHook');
 $coreHook->active = false;
 $hm2->register('CHAR_CORE_DISPATCH', [$coreHook, 'fire']);
 $hm2->processEvent('CHAR_CORE_DISPATCH', ['payload' => 1]);
 if (count($coreHook->seen) !== 0) {
     $fails[] = 'a non-plugin hook declaring $active = false was dispatched';
+}
+
+// And an active plugin-path hook still fires, so the deletion did not simply
+// turn plugin hooks off.
+$pluginHook->active = true;
+$hm2->processEvent('CHAR_DISPATCH', ['payload' => 1]);
+if (count($pluginHook->seen) !== 1) {
+    $fails[] = 'an active plugin hook does not fire';
+}
+
+// The path substring is gone from the dispatcher entirely, and with it the
+// per-listener ReflectionClass that existed only to feed it.
+$dispatchSrc = file_get_contents($web . '/lib/fog/hookmanager.class.php');
+if (false !== strpos($dispatchSrc, "'plugins'")) {
+    $fails[] = 'processEvent() decides activation from the file path again';
+}
+if (false !== strpos($dispatchSrc, 'ReflectionClass')) {
+    $fails[] = 'processEvent() reflects on the listener class again; nothing'
+        . ' in dispatch needs it now the path test is gone';
 }
 
 // The payload gains the event name, and the listener sees it.
