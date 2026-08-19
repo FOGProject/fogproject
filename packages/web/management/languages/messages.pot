@@ -2205,6 +2205,10 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr ""
 
@@ -2673,6 +2677,9 @@ msgid "Imaging Completed"
 msgstr ""
 
 msgid "Imaging Duration"
+msgstr ""
+
+msgid "Imaging Failed"
 msgstr ""
 
 msgid "Imaging Log"
@@ -5739,6 +5746,10 @@ msgstr ""
 msgid "This host already exists"
 msgstr ""
 
+#, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr ""
+
 msgid "This installation process may take a few minutes"
 msgstr ""
 
@@ -6389,6 +6400,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
+msgid "an unnamed image"
+msgstr ""
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -6695,9 +6709,6 @@ msgstr ""
 msgid "images to a storage group"
 msgstr ""
 
-msgid "imaging failed."
-msgstr ""
-
 msgid "in seconds"
 msgstr ""
 
@@ -6822,6 +6833,9 @@ msgid "n/a"
 msgstr ""
 
 msgid "no login will appear"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "node is the distributor of the images"

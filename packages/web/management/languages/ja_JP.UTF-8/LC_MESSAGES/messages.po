@@ -2222,6 +2222,10 @@ msgstr "自宅電話番号"
 msgid "Host"
 msgstr "ホスト"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr "ホスト AD ドメイン"
 
@@ -2694,6 +2698,10 @@ msgstr "イメージ処理が完了しました"
 
 msgid "Imaging Duration"
 msgstr "イメージ処理時間"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "イメージ処理に失敗しました。"
 
 msgid "Imaging Log"
 msgstr "イメージログ"
@@ -5769,6 +5777,10 @@ msgstr "このファイルは Windows でのみ使用できます"
 msgid "This host already exists"
 msgstr "このホストは既に存在します"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "このホストは既に存在します"
+
 msgid "This installation process may take a few minutes"
 msgstr "このインストール処理には数分かかる場合があります"
 
@@ -6419,6 +6431,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "無効なイメージ"
+
 msgid "and Mac OS X"
 msgstr "および Mac OS X"
 
@@ -6725,9 +6741,6 @@ msgstr "イメージ"
 msgid "images to a storage group"
 msgstr "イメージをストレージグループへ"
 
-msgid "imaging failed."
-msgstr "イメージ処理に失敗しました。"
-
 msgid "in seconds"
 msgstr "秒単位"
 
@@ -6853,6 +6866,9 @@ msgstr "N/A"
 
 msgid "no login will appear"
 msgstr "ログイン画面は表示されません"
+
+msgid "no reason was reported"
+msgstr ""
 
 msgid "node is the distributor of the images"
 msgstr "ノードがイメージの配布元になります"

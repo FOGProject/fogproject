@@ -2538,6 +2538,10 @@ msgstr "Home Phone"
 msgid "Host"
 msgstr "Host"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Host AD Domain"
 msgstr "AD Domain"
@@ -3075,6 +3079,10 @@ msgstr "after task completion"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "Imaging Log"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Load failed: %s"
 
 msgid "Imaging Log"
 msgstr "Imaging Log"
@@ -6593,6 +6601,10 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Printer already exists"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Printer already exists"
+
 msgid "This installation process may take a few minutes"
 msgstr ""
 
@@ -7342,6 +7354,10 @@ msgstr " ago"
 msgid "all current storage nodes"
 msgstr "Invalid storage node"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Invalid image"
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -7693,10 +7709,6 @@ msgstr "Images"
 msgid "images to a storage group"
 msgstr "Primary Storage Group"
 
-#, fuzzy
-msgid "imaging failed."
-msgstr "Load failed: %s"
-
 msgid "in seconds"
 msgstr ""
 
@@ -7839,6 +7851,9 @@ msgid "n/a"
 msgstr "n/a"
 
 msgid "no login will appear"
+msgstr ""
+
+msgid "no reason was reported"
 msgstr ""
 
 msgid "node is the distributor of the images"

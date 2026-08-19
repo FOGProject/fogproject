@@ -2236,6 +2236,10 @@ msgstr "Telefone Residencial"
 msgid "Host"
 msgstr "Host"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr "Domínio AD do Host"
 
@@ -2709,6 +2713,10 @@ msgstr "Criação de Imagem Concluída"
 
 msgid "Imaging Duration"
 msgstr "Duração da Criação de Imagem"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "criação de imagem falhou."
 
 msgid "Imaging Log"
 msgstr "Log de Criação de Imagem"
@@ -5796,6 +5804,10 @@ msgstr "Este arquivo funcionará apenas no Windows"
 msgid "This host already exists"
 msgstr "Este host já existe"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Este host já existe"
+
 msgid "This installation process may take a few minutes"
 msgstr "Este processo de instalação pode levar alguns minutos"
 
@@ -6447,6 +6459,10 @@ msgstr "atrás"
 msgid "all current storage nodes"
 msgstr "todos os nós de armazenamento atuais"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Imagem inválida"
+
 msgid "and Mac OS X"
 msgstr "e Mac OS X"
 
@@ -6754,9 +6770,6 @@ msgstr "imagens"
 msgid "images to a storage group"
 msgstr "imagens para um grupo de armazenamento"
 
-msgid "imaging failed."
-msgstr "criação de imagem falhou."
-
 msgid "in seconds"
 msgstr "em segundos"
 
@@ -6882,6 +6895,9 @@ msgstr "n/d"
 
 msgid "no login will appear"
 msgstr "nenhum login aparecerá"
+
+msgid "no reason was reported"
+msgstr ""
 
 msgid "node is the distributor of the images"
 msgstr "nó é o distribuidor das imagens"
