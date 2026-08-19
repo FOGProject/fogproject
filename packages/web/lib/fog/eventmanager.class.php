@@ -173,22 +173,24 @@ class EventManager extends FOGBase
      */
     protected function acceptListener($listener)
     {
-        if (!($listener instanceof Event)) {
-            throw new \Exception(_('Class must extend event'));
-        }
-        // Hook extends Event, so the guard above accepts a hook -- the only
-        // type check separating the two, and it does not. What follows from
-        // that is not theoretical: notify() would then call Event::onEvent()
-        // on it, and hooks do not implement onEvent(), so the inherited
-        // default ran. That default used to print the event name into the
-        // response, which on a client protocol endpoint is arbitrary text in
-        // front of a ##@GO reply.
+        // Hooks first, and it has to stay first. Both arms refuse a hook now
+        // that Hook no longer extends Event (#1203), so whichever runs first
+        // decides the message -- and "a hook is not an event listener" is the
+        // one that tells a plugin author what they did. Falling through to
+        // "Class must extend event" would send them off to add an `extends`
+        // that is exactly the thing #1203 removed.
         //
-        // The two have genuinely different dispatch contracts -- see
-        // HookManager::notify() -- so a hook is refused here rather than
-        // silently dispatched as something it is not.
+        // The refusal itself predates the hierarchy change and is not made
+        // redundant by it: the two have genuinely different dispatch
+        // contracts -- see HookManager::notify() -- and before #1194 a hook
+        // registered here would be handed to Event::onEvent(), whose default
+        // printed the event name into the response, which on a client
+        // protocol endpoint is arbitrary text in front of a ##@GO reply.
         if ($listener instanceof Hook) {
             throw new \Exception(_('A hook is not an event listener'));
+        }
+        if (!($listener instanceof Event)) {
+            throw new \Exception(_('Class must extend event'));
         }
     }
     /**
