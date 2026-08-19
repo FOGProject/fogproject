@@ -834,4 +834,45 @@ foreach (
 }
 $t->check("the envelope's _lang is the classname the emitter needs", 'host' === $envelope['_lang']);
 
+/*
+ * ===========================================================================
+ * 9. The primary key reaches the count queries.
+ *
+ *    listem() learns the id column while walking the column table and hands
+ *    it to complex(), which interpolates it into BOTH count statements --
+ *    `SELECT COUNT(<pk>) FROM <table>`. Lose it and the counts become
+ *    `COUNT()`, which no server accepts, so recordsTotal and recordsFiltered
+ *    stop being answers.
+ *
+ *    Pinned because that value now crosses a function boundary
+ *    (_gridColumns() returns it by reference) and nothing else here can see
+ *    it: the column table is identical whether or not it was captured, and
+ *    the fake answers a malformed COUNT as readily as a good one. Asserted on
+ *    the SQL for that reason -- it is the only place the value becomes
+ *    visible.
+ * ===========================================================================
+ */
+$before = count($db->pdo->log);
+Route::listem('host', false, true);
+Route::getData();
+$counts = [];
+foreach (array_slice($db->pdo->log, $before) as $sql) {
+    if (preg_match('/^\s*SELECT\s+COUNT/i', $sql)) {
+        $counts[] = $sql;
+    }
+}
+$t->check('listem() issues its count queries', count($counts) > 0);
+// The COUNT ARGUMENT, parsed out -- not a substring search for the column
+// name over the whole statement. `hostID` also appears in two JOIN clauses of
+// this very query, so `strpos($sql, 'hostID')` is true whether the key
+// arrived or not: it matched the mutation it was written to catch.
+$args = [];
+foreach ($counts as $sql) {
+    $args[] = preg_match('/COUNT\(([^)]*)\)/i', $sql, $m) ? trim($m[1], '` ') : null;
+}
+$t->check(
+    'every count query counts the primary key column, not nothing',
+    count($args) > 0 && $args === array_fill(0, count($args), 'hostID')
+);
+
 $t->finish();

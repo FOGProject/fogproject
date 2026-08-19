@@ -372,7 +372,10 @@ that commit reviewable; it does not silently fix it.
 
 ## Commit 3 — extract the column table
 
-`VERIFIED` (from the line counts above) — this is 834 of 1,103 lines.
+**DONE** — `listem()` is **256 lines**, down from 1,103. 739 lines moved
+verbatim. Result at the end of this section.
+
+`VERIFIED` (from the line counts above) — this was 834 of 1,103 lines.
 
 Move the per-field loop and the extra-columns `switch` into
 `_gridColumns($classname, $tmpcolumns, $classman)`, returning `$columns`. `listem()` keeps the two hook
@@ -387,6 +390,41 @@ After this commit `listem()` is ~260 lines and can be read.
 `_taskColumns()`, …). 20-plus new methods, each called from exactly one place,
 to replace a `switch` that is already a dispatch on one variable. That is
 abstraction for its own sake and the CLAUDE.md rule forbids it.
+
+### Result
+
+`_gridColumns($classname, $tmpcolumns, &$tableID)`. 739 lines moved, and
+"verbatim" is checked rather than claimed: the moved body is byte-identical to
+the original region, line for line, modulo the one indent level. The column
+table is byte-identical for all 52 classes.
+
+`listem()` keeps every hook fire and every guard exactly where the map says
+they are — `arrayRemove` and `API_REMOVE_COLUMNS` before the call,
+`CUSTOMIZE_DT_COLUMNS` and the `nosearch` pass after it. Nothing in
+`docs/route-listem-access-control-map.md` moved.
+
+**One thing the gate could not see, and the net now can.** `$tableID` is
+learned while walking the column table and handed to `complex()`, which
+interpolates it into both count statements. It now crosses a function
+boundary, and nothing tested it: dropping the assignment left the column
+contract green (the table is identical either way), the whole suite green, and
+produced `SELECT COUNT(``) FROM `hosts`` — no `recordsTotal`, no
+`recordsFiltered`, on every list in the product.
+
+Section 9 of the net closes it. The first version of that assertion did **not**
+catch the mutation: it searched the statement for `hostID`, which also appears
+in two JOIN clauses of the same query, so it was true either way. It now parses
+the `COUNT(...)` argument. Worth recording because it is the second time in
+this work that a substring search over SQL passed for the wrong reason — the
+first was the `ids()` test, which grepped for friendly field names that
+happened to be substrings of the real columns.
+
+**Observed, not fixed:** `complex()` recovers the key from the column table
+only `if ($primaryKey == 'id')`, and an unset `$tableID` is `null`, which does
+not match. So a plugin that removed the `id` column on `API_REMOVE_COLUMNS`
+would produce that same `COUNT(``)`. Pre-existing, unreachable without such a
+plugin, and fixing it is a decision about what a list should do with no primary
+key — not part of a move.
 
 ---
 

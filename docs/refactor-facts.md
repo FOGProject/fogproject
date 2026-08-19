@@ -748,6 +748,37 @@ php tests/route-column-contract.test.php --update   # after an intended change
 sh tests/run-all.sh | tail -1              # 75 passed, 0 failed
 ```
 
+### F-41 — `listem()` is 256 lines; the column table lives in `_gridColumns()`
+
+739 lines moved out verbatim — byte-identical line for line modulo one indent
+level, and the column table byte-identical for all 52 classes per F-40. Every
+guard and hook fire in `docs/route-listem-access-control-map.md` stayed where
+that document puts it.
+
+`$tableID` is the part worth remembering. It is learned while walking the
+column table and handed to `complex()`, which interpolates it into both count
+statements. Nothing tested it, and it now crosses a function boundary:
+deleting the assignment left the column contract green — the table is
+identical either way — and the whole suite green, while producing
+
+    SELECT COUNT(``) FROM `hosts` ...
+
+so `recordsTotal` and `recordsFiltered` stop being answers on every list in
+the product. Section 9 of the net pins it now, by parsing the `COUNT(...)`
+argument. Its first version searched the statement for `hostID` and passed
+under the mutation, because `hostID` also appears in two JOIN clauses of the
+same query. That is the second substring-over-SQL assertion in this work to
+pass for the wrong reason.
+
+If this is false, a decomposition of `listem()` can break both record counts
+with every test green.
+
+```
+php tests/route-read-path-guards.test.php   # ok  95 checks passed
+php tests/route-column-contract.test.php    # ok  628 columns across 52 classes
+sh tests/run-all.sh | tail -1               # 75 passed, 0 failed
+```
+
 ---
 
 ## How to add an entry

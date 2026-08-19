@@ -1580,7 +1580,7 @@ class Route extends FOGBase
                 $whereItems = self::getsearchbody($class);
             }
 
-            self::$data = $columns = [];
+            self::$data = [];
             // Fresh per grid -- see $relCache and rel().
             self::$relCache = [];
             $classname = strtolower($class);
@@ -1641,745 +1641,9 @@ class Route extends FOGBase
                 ['tmpcolumns' => &$tmpcolumns]
             );
 
-            // Setup our columns to return
-            foreach ((array)$tmpcolumns as $common => &$real) {
-                switch ($common) {
-                    case 'id':
-                        $tableID = $real;
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'DT_RowId',
-                            'formatter' => function ($d, $row) {
-                                return 'row_'.$d;
-                            }
-                        ];
-                        break;
-                    case 'name':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'mainlink',
-                            // `Name - (id)`, via the shared sink. This grid used to
-                            // emit `(id) - Name` while every association tab emitted
-                            // the other order; entityLink() settles it on the name
-                            // first, so the two agree. The pxemenuoptions -> ipxe
-                            // remap stays here: it is a quirk of how this class is
-                            // named versus its node, not something a link formatter
-                            // should know about.
-                            'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
-                                return self::entityLink(
-                                    ($classname == 'pxemenuoptions' ? 'ipxe' : $classname),
-                                    $row[$tmpcolumns['id']],
-                                    $d
-                                );
-                            }
-                        ];
-                        break;
-                    case 'start':
-                    case 'finish':
-                    case 'failureTime':
-                    case 'completetime':
-                    case 'starttime':
-                    case 'sec_time':
-                    case 'checkInTime':
-                    case 'scheduledStartTime':
-                    case 'deployed':
-                    case 'datetime':
-                    case 'createdTime':
-                    case 'completedTime':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                if (self::validDate($d)) {
-                                    return self::niceDate($d)->format('Y-m-d H:i:s');
-                                }
-                                return self::EMPTY_CELL;
-                            }
-                        ];
-                        break;
-                    case 'pingstatus':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'pingstatuscode',
-                            'formatter' => function ($d, $row) {
-                                return (int)$d;
-                            }
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'pingstatustext',
-                            'formatter' => function ($d, $row) {
-                                return socket_strerror((int)$d);
-                            }
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                // hostPingCode: NULL/'' = never pinged,
-                                // 0 = online, any non-zero errno = unreachable.
-                                // Only "online" is worth an attention color;
-                                // an unreachable host is the normal resting
-                                // state for a managed host, so keep it neutral
-                                // and surface the specific reason as the text.
-                                if ($d === null || $d === '') {
-                                    return '<span class="badge bg-secondary">'
-                                        . _('Not pinged')
-                                        . '</span>';
-                                }
-                                if ((int)$d === 0) {
-                                    return '<span class="badge bg-success">'
-                                        . _('Online')
-                                        . '</span>';
-                                }
-                                return '<span class="badge bg-secondary">'
-                                    . _(socket_strerror((int)$d))
-                                    . '</span>';
-                            }
-                        ];
-                        break;
-                    case 'groupID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'groupLink',
-                            'group',
-                            function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=group&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
-                                    . '</a>';
-                            }
-                        );
-                        break;
-                    case 'hostID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'hostLink',
-                            'host',
-                            function ($d, $row) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=host&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
-                                    . '</a>';
-                            }
-                        );
-                        break;
-                    case 'image':
-                    case 'imageID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'imageLink',
-                            'Image',
-                            function ($d, $row) use ($classname) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                switch ($classname) {
-                                    case 'imaginglog':
-                                        $image = self::getClass('Image')
-                                            ->set('name', $d)
-                                            ->load('name');
-                                        $imageName = $d;
-                                        break;
-                                    default:
-                                        $image = self::rel('Image', $d);
-                                        $imageName = $image->get('name');
-                                }
-                                if ($image->isValid()) {
-                                    return '<a href="../management/index.php?node=image&'
-                                        . 'sub=edit&id='
-                                        . $d
-                                        . '">'
-                                        . '(' . $d . ') - ' . $imageName
-                                        . '</a>';
-                                }
-                                return $imageName;
-                            }
-                        );
-                        break;
-                    case 'snapinID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'snapinLink',
-                            'Snapin',
-                            function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=snapin&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
-                                    . '</a>';
-                            }
-                        );
-                        break;
-                    case 'mem':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return Inventory::getMemory($d);
-                            }
-                        ];
-                        break;
-                    case 'storagegroupID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'storagegroupLink',
-                            'storagegroup',
-                            function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=storagegroup&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
-                                    . '</a>';
-                            }
-                        );
-                        break;
-                    case 'storagenodeID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'storagenodeLink',
-                            'storagenode',
-                            function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=storagenode&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
-                                    . '</a>';
-                            }
-                        );
-                        break;
-                    case 'userID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = self::relColumn(
-                            $real,
-                            'userLink',
-                            'user',
-                            function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=user&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
-                                    . '</a>';
-                            }
-                        );
-                        break;
-                    case 'regMenu':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                return PXEMenuOptionsManager::regText($d);
-                            }
-                        ];
-                        break;
-                    default:
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                }
-                unset($real);
-            }
-            // Any extra columns not in the db fields.
-            switch ($classname) {
-                case 'host':
-                    $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
-                    $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
-                    // Vendor name for the primary MAC; rides along in the JSON
-                    // and is rendered as a tooltip icon client-side. Not a
-                    // visible column and never reaches the CSV export path.
-                    $columns[] = [
-                        'db' => 'hmMAC',
-                        'dt' => 'primac_vendor',
-                        'prime' => function ($rows) {
-                            MACAddress::primeVendors(
-                                array_column((array) $rows, 'hmMAC')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return MACAddress::getVendor($d);
-                        }
-                    ];
-                    break;
-                case 'macaddressassociation':
-                    // Vendor name for each MAC row (additional + pending MACs).
-                    $columns[] = [
-                        'db' => 'hmMAC',
-                        'dt' => 'mac_vendor',
-                        'prime' => function ($rows) {
-                            MACAddress::primeVendors(
-                                array_column((array) $rows, 'hmMAC')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return MACAddress::getVendor($d);
-                        }
-                    ];
-                    break;
-                case 'group':
-                    $columns[] = [
-                        'db' => 'gmMembers',
-                        'dt' => 'members',
-                        'removeFromQuery' => true
-                    ];
-                    break;
-                case 'site':
-                    // The four member counts Site::$sqlQueryStr computes.
-                    // removeFromQuery because they are aggregates of the
-                    // JOINs, not columns of `sites` -- selecting them again
-                    // by name would be an unknown-column error.
-                    //
-                    // The dt names are the plugin's, unchanged: they are
-                    // the DataTables field names fog.site.list.js binds to,
-                    // and a tidier spelling here would leave every column
-                    // rendering empty with nothing to say why.
-                    $columns[] = [
-                        'db' => 'shmMembers',
-                        'dt' => 'hostcount',
-                        'removeFromQuery' => true
-                    ];
-                    $columns[] = [
-                        'db' => 'sumMembers',
-                        'dt' => 'usercount',
-                        'removeFromQuery' => true
-                    ];
-                    $columns[] = [
-                        'db' => 'sgmMembers',
-                        'dt' => 'groupcount',
-                        'removeFromQuery' => true
-                    ];
-                    $columns[] = [
-                        'db' => 'sugmMembers',
-                        'dt' => 'usergroupcount',
-                        'removeFromQuery' => true
-                    ];
-                    break;
-                case 'inventory':
-                    $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
-                    $columns[] = [
-                        'db' => 'hostID',
-                        'dt' => 'hostLink',
-                        'formatter' => function ($d, $row) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            // Aisle 019: this column is an intentional anchor, so
-                            // the Inventory Report cannot neutralise it with
-                            // DataTables render.text() the way it now does for the
-                            // other columns -- escape the host name here instead.
-                            // Mirrors the 'mainlink' formatter above.
-                            return '<a href="../management/index.php?node=host&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . \Initiator::e($row['hostName'])
-                                . '</a>';
-                        }
-                    ];
-                    break;
-                case 'scheduledtask':
-                    $columns[] = [
-                        'db' => 'stGroupHostID',
-                        'dt' => 'hostLink',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Group',
-                                array_column((array) $rows, 'stGroupHostID')
-                            );
-                            self::primeRel(
-                                'Host',
-                                array_column((array) $rows, 'stGroupHostID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            $linkName = $row['stIsGroup'] ? 'group' : 'host';
-                            $capName = $row['stIsGroup'] ? 'Group' : 'Host';
-                            $itemName = self::rel($capName, $d)->get('name');
-                            return sprintf(
-                                '<a href="../management/index.php?node=%s&sub=edit&id=%s">%s: (%s) - %s</a>',
-                                $linkName,
-                                $d,
-                                _($capName),
-                                $d,
-                                $itemName
-                            );
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stType',
-                        'dt' => 'type',
-                        'formatter' => function ($d, $row) {
-                            $type = strtolower($d);
-                            switch ($type) {
-                                case 'c':
-                                    return _('Cron');
-                                default:
-                                    return _('Delayed');
-                            }
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stID',
-                        'dt' => 'starttime',
-                        'formatter' => function ($d, $row) {
-                            $type = strtolower($row['stType']);
-                            switch ($type) {
-                                case 'c':
-                                    $cronstr = sprintf(
-                                        '%s %s %s %s %s',
-                                        $row['stMinute'],
-                                        $row['stHour'],
-                                        $row['stDOM'],
-                                        $row['stMonth'],
-                                        $row['stDOW']
-                                    );
-                                    $date = FOGCron::parse($cronstr);
-                                    break;
-                                default:
-                                    $date = $row['stDateTime'];
-                            }
-                            return self::niceDate()
-                                ->setTimestamp($date)
-                                ->format('Y-m-d H:i:s');
-                        }
-                    ];
-                    $columns[] = self::relColumn(
-                        'stTaskTypeID',
-                        'taskTypeName',
-                        'TaskType',
-                        function ($d, $row) {
-                            return self::rel('TaskType', $d)->get('name');
-                        }
-                    );
-                    $columns[] = [
-                        'db' => 'stActive',
-                        'dt' => 'isActive',
-                        'formatter' => function ($d, $row) {
-                            return $d <= 0 ? _('No') : _('Yes');
-                        }
-                    ];
-                    break;
-                case 'filedeletequeue':
-                    $columns[] = self::relColumn(
-                        'fdqState',
-                        'taskstateicon',
-                        'taskstate',
-                        function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('icon');
-                        }
-                    );
-                    $columns[] = self::relColumn(
-                        'fdqState',
-                        'taskstatename',
-                        'taskstate',
-                        function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('name');
-                        }
-                    );
-                    break;
-                case 'snapintask':
-                    // Every host column below is reached through the task's
-                    // job. When that job is not there -- deleted, or a stJobID
-                    // of 0 for a task that never had one -- get('host')
-                    // returns a STRING, and calling get() on it is a fatal,
-                    // not an empty cell. One such row took the entire snapin
-                    // task list down with "Call to a member function get() on
-                    // string". Resolve once, defensively, and let a row that
-                    // cannot name its host render blank instead of killing the
-                    // page for every other row.
-                    //
-                    // Schema step 318 sweeps the rows themselves; this is what
-                    // stops the next one being fatal.
-                    //
-                    // Refs https://github.com/FOGProject/fogproject/issues/895
-                    $snapinTaskHost = function ($jobID) {
-                        $host = self::rel('snapinjob', $jobID)
-                            ->get('host');
-                        return is_object($host) && $host->isValid()
-                            ? $host
-                            : null;
-                    };
-                    // Primed once for all three stJobID columns below -- they
-                    // share $snapinTaskHost, so the first primer to run fills
-                    // the cache the other two read. SnapinJob declares Host as
-                    // a class relationship, so the job's host is joined in by
-                    // the same query and costs nothing extra.
-                    $columns[] = self::relColumn(
-                        'stJobID',
-                        'hostID',
-                        'snapinjob',
-                        function ($d, $row) use ($snapinTaskHost) {
-                            $host = $snapinTaskHost($d);
-                            return $host ? $host->get('id') : '';
-                        }
-                    );
-                    $columns[] = [
-                        'db' => 'stJobID',
-                        'dt' => 'hostname',
-                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
-                            $host = $snapinTaskHost($d);
-                            return $host ? $host->get('name') : '';
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stJobID',
-                        'dt' => 'hostLink',
-                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
-                            $tmphost = $snapinTaskHost($d);
-                            if (!$tmphost) {
-                                return '';
-                            }
-                            return '<a href="../management/index.php?node=host&'
-                                . 'sub=edit&id='
-                                . $tmphost->get('id')
-                                . '">'
-                                . '(' . $tmphost->get('id') . ') - ' . $tmphost->get('name')
-                                . '</a>';
-                        }
-                    ];
-                    $columns[] = self::relColumn(
-                        'stState',
-                        'taskstateicon',
-                        'taskstate',
-                        function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('icon');
-                        }
-                    );
-                    $columns[] = self::relColumn(
-                        'stState',
-                        'taskstatename',
-                        'taskstate',
-                        function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('name');
-                        }
-                    );
-                    $columns[] = self::relColumn(
-                        'stSnapinID',
-                        'snapinID',
-                        'Snapin',
-                        function ($d, $row) {
-                            return self::rel('Snapin', $d)->get('id');
-                        }
-                    );
-                    $columns[] = self::relColumn(
-                        'stSnapinID',
-                        'snapinname',
-                        'Snapin',
-                        function ($d, $row) {
-                            return self::rel('Snapin', $d)->get('name');
-                        }
-                    );
-                    $columns[] = self::relColumn(
-                        'stSnapinID',
-                        'snapinLink',
-                        'Snapin',
-                        function ($d, $row) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=snapin&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    $columns[] = [
-                        'db' => 'stCheckinDate',
-                        'dt' => 'diff',
-                        'formatter' => function ($d, $row) {
-                            $start = $d;
-                            $end = $row['stCompleteDate'];
-                            return self::diff($start, $end);
-                        }
-                    ];
-                    break;
-                case 'imaginglog':
-                    $columns[] = [
-                        'db' => 'ilStartTime',
-                        'dt' => 'diff',
-                        'formatter' => function ($d, $row) {
-                            $start = $d;
-                            $end = $row['ilFinishTime'];
-                            return self::diff($start, $end);
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'hostName',
-                        'dt' => 'hostname',
-                    ];
-                    break;
-                case 'storagegroup':
-                    $StorageGroup = new StorageGroup();
-                    $columns[] = [
-                        'dt' => 'enablednodes',
-                        'formatter' => function ($d, $row) use (&$StorageGroup) {
-                            return $StorageGroup->set('id', $row['ngID'])
-                                ->load()
-                                ->get('enablednodes');
-                        }
-                    ];
-                    $columns[] = [
-                        'dt' => 'masternode',
-                        'formatter' => function ($d, $row) use (&$StorageGroup) {
-                            try {
-                                $sn = $StorageGroup->getMasterStorageNode();
-                            } catch (\Exception $e) {
-                                $sn = new StorageNode();
-                            }
-                            return self::getter('storagenode', $sn);
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'totalclients',
-                        'dt' => 'totalclients',
-                        'removeFromQuery' => true
-                    ];
-                    break;
-                case 'storagenode':
-                    $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
-                    $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
-                    $columns[] = self::relColumn(
-                        'ngmID',
-                        'clientload',
-                        'StorageNode',
-                        function ($d, $row) {
-                            return self::rel('StorageNode', $d)->getClientLoad();
-                        }
-                    );
-                    $columns[] = self::relColumn(
-                        'ngmID',
-                        'location_url',
-                        'StorageNode',
-                        function ($d, $row) {
-                            $node = self::rel('StorageNode', $d);
-                            return sprintf(
-                                '%s://%s/%s',
-                                self::$httpproto,
-                                $node->get('ip'),
-                                $node->get('webroot')
-                            );
-                        }
-                    );
-                    /*$columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'online',
-                        'formatter' => function ($d, $row) {
-                            return self::getClass('StorageNode', $d)->get('online');
-                        }
-                    ];*/
-                    /*$columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'logfiles',
-                        'formatter' => function ($d, $row) {
-                            return self::getClass('StorageNode', $d)->get('logfiles');
-                        }
-                    ];*/
-                    break;
-                case 'usertracking':
-                    $columns[] = [
-                        'db' => 'utUserName',
-                        'dt' => 'username',
-                        'formatter' => function ($d, $row) {
-                            return \Initiator::e($d);
-                        }
-                    ];
-                    $columns[] = self::relColumn(
-                        'utHostID',
-                        'hostname',
-                        'Host',
-                        function ($d, $row) {
-                            return \Initiator::e(self::rel('Host', $d)->get('name'));
-                        }
-                    );
-                    $columns[] = [
-                        'db' => 'utAction',
-                        'dt' => 'action',
-                        'formatter' => function ($d, $row) {
-                            switch ($d) {
-                                case '0':
-                                    return _('Logout');
-                                case '1':
-                                    return _('Login');
-                                case '99':
-                                    return _('Service Start');
-                            }
-                        }
-                    ];
-                    break;
-                case 'plugin':
-                    $columns[] = [
-                        'dt' => 'hash',
-                        'formatter' => function ($d, $row) {
-                            return md5($row['pName']);
-                        }
-                    ];
-            }
+            // The column table itself: see _gridColumns(). $tableID comes
+            // back by reference because a class need not have an id column.
+            $columns = self::_gridColumns($classname, $tmpcolumns, $tableID);
             self::$HookManager->processEvent(
                 'CUSTOMIZE_DT_COLUMNS',
                 [
@@ -2500,6 +1764,780 @@ class Route extends FOGBase
                 $e->getMessage()
             );
         }
+    }
+    /**
+     * Builds the DataTables column table for one class.
+     *
+     * This is the bulk of listem() by line count and none of it is policy: it
+     * maps each of the manager's columns onto one or more output columns, and
+     * then adds the per-class extras that have no database field behind them.
+     * Every access-control decision listem() makes happens either before this
+     * runs (arrayRemove, API_REMOVE_COLUMNS) or after it (CUSTOMIZE_DT_COLUMNS,
+     * the nosearch pass, the row filters, the emitter), and all of those stay
+     * where they are -- see docs/route-listem-access-control-map.md, which is
+     * written against those positions.
+     *
+     * Moved out verbatim. The column table it produces is pinned line for line
+     * by tests/route-column-contract.test.php, including each formatter's
+     * `use (...)` list and what each primer actually primes, so "verbatim" is
+     * checked rather than asserted.
+     *
+     * @param string $classname  The lowercased class being listed.
+     * @param array  $tmpcolumns The manager's columns, already filtered by
+     *                           arrayRemove() and API_REMOVE_COLUMNS.
+     * @param mixed  $tableID    Out. The database column holding the primary
+     *                           key, which listem() needs for its DT_RowId and
+     *                           for the DataTables request. Set only if the
+     *                           class still has an `id` column -- a plugin can
+     *                           remove it on API_REMOVE_COLUMNS -- so it is
+     *                           passed by reference rather than returned, and
+     *                           left alone when there is nothing to say.
+     *
+     * @return array The column definitions.
+     */
+    private static function _gridColumns($classname, $tmpcolumns, &$tableID)
+    {
+        $columns = [];
+        // Setup our columns to return
+        foreach ((array)$tmpcolumns as $common => &$real) {
+            switch ($common) {
+                case 'id':
+                    $tableID = $real;
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'DT_RowId',
+                        'formatter' => function ($d, $row) {
+                            return 'row_'.$d;
+                        }
+                    ];
+                    break;
+                case 'name':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'mainlink',
+                        // `Name - (id)`, via the shared sink. This grid used to
+                        // emit `(id) - Name` while every association tab emitted
+                        // the other order; entityLink() settles it on the name
+                        // first, so the two agree. The pxemenuoptions -> ipxe
+                        // remap stays here: it is a quirk of how this class is
+                        // named versus its node, not something a link formatter
+                        // should know about.
+                        'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
+                            return self::entityLink(
+                                ($classname == 'pxemenuoptions' ? 'ipxe' : $classname),
+                                $row[$tmpcolumns['id']],
+                                $d
+                            );
+                        }
+                    ];
+                    break;
+                case 'start':
+                case 'finish':
+                case 'failureTime':
+                case 'completetime':
+                case 'starttime':
+                case 'sec_time':
+                case 'checkInTime':
+                case 'scheduledStartTime':
+                case 'deployed':
+                case 'datetime':
+                case 'createdTime':
+                case 'completedTime':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            if (self::validDate($d)) {
+                                return self::niceDate($d)->format('Y-m-d H:i:s');
+                            }
+                            return self::EMPTY_CELL;
+                        }
+                    ];
+                    break;
+                case 'pingstatus':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'pingstatuscode',
+                        'formatter' => function ($d, $row) {
+                            return (int)$d;
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'pingstatustext',
+                        'formatter' => function ($d, $row) {
+                            return socket_strerror((int)$d);
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            // hostPingCode: NULL/'' = never pinged,
+                            // 0 = online, any non-zero errno = unreachable.
+                            // Only "online" is worth an attention color;
+                            // an unreachable host is the normal resting
+                            // state for a managed host, so keep it neutral
+                            // and surface the specific reason as the text.
+                            if ($d === null || $d === '') {
+                                return '<span class="badge bg-secondary">'
+                                    . _('Not pinged')
+                                    . '</span>';
+                            }
+                            if ((int)$d === 0) {
+                                return '<span class="badge bg-success">'
+                                    . _('Online')
+                                    . '</span>';
+                            }
+                            return '<span class="badge bg-secondary">'
+                                . _(socket_strerror((int)$d))
+                                . '</span>';
+                        }
+                    ];
+                    break;
+                case 'groupID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'groupLink',
+                        'group',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=group&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'hostID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'hostLink',
+                        'host',
+                        function ($d, $row) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=host&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'image':
+                case 'imageID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'imageLink',
+                        'Image',
+                        function ($d, $row) use ($classname) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            switch ($classname) {
+                                case 'imaginglog':
+                                    $image = self::getClass('Image')
+                                        ->set('name', $d)
+                                        ->load('name');
+                                    $imageName = $d;
+                                    break;
+                                default:
+                                    $image = self::rel('Image', $d);
+                                    $imageName = $image->get('name');
+                            }
+                            if ($image->isValid()) {
+                                return '<a href="../management/index.php?node=image&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . '(' . $d . ') - ' . $imageName
+                                    . '</a>';
+                            }
+                            return $imageName;
+                        }
+                    );
+                    break;
+                case 'snapinID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'snapinLink',
+                        'Snapin',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=snapin&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'mem':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return Inventory::getMemory($d);
+                        }
+                    ];
+                    break;
+                case 'storagegroupID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'storagegroupLink',
+                        'storagegroup',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=storagegroup&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'storagenodeID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'storagenodeLink',
+                        'storagenode',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=storagenode&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'userID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'userLink',
+                        'user',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=user&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'regMenu':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            return PXEMenuOptionsManager::regText($d);
+                        }
+                    ];
+                    break;
+                default:
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+            }
+            unset($real);
+        }
+        // Any extra columns not in the db fields.
+        switch ($classname) {
+            case 'host':
+                $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
+                $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+                // Vendor name for the primary MAC; rides along in the JSON
+                // and is rendered as a tooltip icon client-side. Not a
+                // visible column and never reaches the CSV export path.
+                $columns[] = [
+                    'db' => 'hmMAC',
+                    'dt' => 'primac_vendor',
+                    'prime' => function ($rows) {
+                        MACAddress::primeVendors(
+                            array_column((array) $rows, 'hmMAC')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        return MACAddress::getVendor($d);
+                    }
+                ];
+                break;
+            case 'macaddressassociation':
+                // Vendor name for each MAC row (additional + pending MACs).
+                $columns[] = [
+                    'db' => 'hmMAC',
+                    'dt' => 'mac_vendor',
+                    'prime' => function ($rows) {
+                        MACAddress::primeVendors(
+                            array_column((array) $rows, 'hmMAC')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        return MACAddress::getVendor($d);
+                    }
+                ];
+                break;
+            case 'group':
+                $columns[] = [
+                    'db' => 'gmMembers',
+                    'dt' => 'members',
+                    'removeFromQuery' => true
+                ];
+                break;
+            case 'site':
+                // The four member counts Site::$sqlQueryStr computes.
+                // removeFromQuery because they are aggregates of the
+                // JOINs, not columns of `sites` -- selecting them again
+                // by name would be an unknown-column error.
+                //
+                // The dt names are the plugin's, unchanged: they are
+                // the DataTables field names fog.site.list.js binds to,
+                // and a tidier spelling here would leave every column
+                // rendering empty with nothing to say why.
+                $columns[] = [
+                    'db' => 'shmMembers',
+                    'dt' => 'hostcount',
+                    'removeFromQuery' => true
+                ];
+                $columns[] = [
+                    'db' => 'sumMembers',
+                    'dt' => 'usercount',
+                    'removeFromQuery' => true
+                ];
+                $columns[] = [
+                    'db' => 'sgmMembers',
+                    'dt' => 'groupcount',
+                    'removeFromQuery' => true
+                ];
+                $columns[] = [
+                    'db' => 'sugmMembers',
+                    'dt' => 'usergroupcount',
+                    'removeFromQuery' => true
+                ];
+                break;
+            case 'inventory':
+                $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
+                $columns[] = [
+                    'db' => 'hostID',
+                    'dt' => 'hostLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return self::EMPTY_CELL;
+                        }
+                        // Aisle 019: this column is an intentional anchor, so
+                        // the Inventory Report cannot neutralise it with
+                        // DataTables render.text() the way it now does for the
+                        // other columns -- escape the host name here instead.
+                        // Mirrors the 'mainlink' formatter above.
+                        return '<a href="../management/index.php?node=host&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . '(' . $d . ') - ' . \Initiator::e($row['hostName'])
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'scheduledtask':
+                $columns[] = [
+                    'db' => 'stGroupHostID',
+                    'dt' => 'hostLink',
+                    'prime' => function ($rows) {
+                        self::primeRel(
+                            'Group',
+                            array_column((array) $rows, 'stGroupHostID')
+                        );
+                        self::primeRel(
+                            'Host',
+                            array_column((array) $rows, 'stGroupHostID')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        $linkName = $row['stIsGroup'] ? 'group' : 'host';
+                        $capName = $row['stIsGroup'] ? 'Group' : 'Host';
+                        $itemName = self::rel($capName, $d)->get('name');
+                        return sprintf(
+                            '<a href="../management/index.php?node=%s&sub=edit&id=%s">%s: (%s) - %s</a>',
+                            $linkName,
+                            $d,
+                            _($capName),
+                            $d,
+                            $itemName
+                        );
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'stType',
+                    'dt' => 'type',
+                    'formatter' => function ($d, $row) {
+                        $type = strtolower($d);
+                        switch ($type) {
+                            case 'c':
+                                return _('Cron');
+                            default:
+                                return _('Delayed');
+                        }
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'stID',
+                    'dt' => 'starttime',
+                    'formatter' => function ($d, $row) {
+                        $type = strtolower($row['stType']);
+                        switch ($type) {
+                            case 'c':
+                                $cronstr = sprintf(
+                                    '%s %s %s %s %s',
+                                    $row['stMinute'],
+                                    $row['stHour'],
+                                    $row['stDOM'],
+                                    $row['stMonth'],
+                                    $row['stDOW']
+                                );
+                                $date = FOGCron::parse($cronstr);
+                                break;
+                            default:
+                                $date = $row['stDateTime'];
+                        }
+                        return self::niceDate()
+                            ->setTimestamp($date)
+                            ->format('Y-m-d H:i:s');
+                    }
+                ];
+                $columns[] = self::relColumn(
+                    'stTaskTypeID',
+                    'taskTypeName',
+                    'TaskType',
+                    function ($d, $row) {
+                        return self::rel('TaskType', $d)->get('name');
+                    }
+                );
+                $columns[] = [
+                    'db' => 'stActive',
+                    'dt' => 'isActive',
+                    'formatter' => function ($d, $row) {
+                        return $d <= 0 ? _('No') : _('Yes');
+                    }
+                ];
+                break;
+            case 'filedeletequeue':
+                $columns[] = self::relColumn(
+                    'fdqState',
+                    'taskstateicon',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('icon');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'fdqState',
+                    'taskstatename',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('name');
+                    }
+                );
+                break;
+            case 'snapintask':
+                // Every host column below is reached through the task's
+                // job. When that job is not there -- deleted, or a stJobID
+                // of 0 for a task that never had one -- get('host')
+                // returns a STRING, and calling get() on it is a fatal,
+                // not an empty cell. One such row took the entire snapin
+                // task list down with "Call to a member function get() on
+                // string". Resolve once, defensively, and let a row that
+                // cannot name its host render blank instead of killing the
+                // page for every other row.
+                //
+                // Schema step 318 sweeps the rows themselves; this is what
+                // stops the next one being fatal.
+                //
+                // Refs https://github.com/FOGProject/fogproject/issues/895
+                $snapinTaskHost = function ($jobID) {
+                    $host = self::rel('snapinjob', $jobID)
+                        ->get('host');
+                    return is_object($host) && $host->isValid()
+                        ? $host
+                        : null;
+                };
+                // Primed once for all three stJobID columns below -- they
+                // share $snapinTaskHost, so the first primer to run fills
+                // the cache the other two read. SnapinJob declares Host as
+                // a class relationship, so the job's host is joined in by
+                // the same query and costs nothing extra.
+                $columns[] = self::relColumn(
+                    'stJobID',
+                    'hostID',
+                    'snapinjob',
+                    function ($d, $row) use ($snapinTaskHost) {
+                        $host = $snapinTaskHost($d);
+                        return $host ? $host->get('id') : '';
+                    }
+                );
+                $columns[] = [
+                    'db' => 'stJobID',
+                    'dt' => 'hostname',
+                    'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                        $host = $snapinTaskHost($d);
+                        return $host ? $host->get('name') : '';
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'stJobID',
+                    'dt' => 'hostLink',
+                    'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                        $tmphost = $snapinTaskHost($d);
+                        if (!$tmphost) {
+                            return '';
+                        }
+                        return '<a href="../management/index.php?node=host&'
+                            . 'sub=edit&id='
+                            . $tmphost->get('id')
+                            . '">'
+                            . '(' . $tmphost->get('id') . ') - ' . $tmphost->get('name')
+                            . '</a>';
+                    }
+                ];
+                $columns[] = self::relColumn(
+                    'stState',
+                    'taskstateicon',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('icon');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stState',
+                    'taskstatename',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('name');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stSnapinID',
+                    'snapinID',
+                    'Snapin',
+                    function ($d, $row) {
+                        return self::rel('Snapin', $d)->get('id');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stSnapinID',
+                    'snapinname',
+                    'Snapin',
+                    function ($d, $row) {
+                        return self::rel('Snapin', $d)->get('name');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stSnapinID',
+                    'snapinLink',
+                    'Snapin',
+                    function ($d, $row) {
+                        if (!$d) {
+                            return self::EMPTY_CELL;
+                        }
+                        return '<a href="../management/index.php?node=snapin&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
+                            . '</a>';
+                    }
+                );
+                $columns[] = [
+                    'db' => 'stCheckinDate',
+                    'dt' => 'diff',
+                    'formatter' => function ($d, $row) {
+                        $start = $d;
+                        $end = $row['stCompleteDate'];
+                        return self::diff($start, $end);
+                    }
+                ];
+                break;
+            case 'imaginglog':
+                $columns[] = [
+                    'db' => 'ilStartTime',
+                    'dt' => 'diff',
+                    'formatter' => function ($d, $row) {
+                        $start = $d;
+                        $end = $row['ilFinishTime'];
+                        return self::diff($start, $end);
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'hostName',
+                    'dt' => 'hostname',
+                ];
+                break;
+            case 'storagegroup':
+                $StorageGroup = new StorageGroup();
+                $columns[] = [
+                    'dt' => 'enablednodes',
+                    'formatter' => function ($d, $row) use (&$StorageGroup) {
+                        return $StorageGroup->set('id', $row['ngID'])
+                            ->load()
+                            ->get('enablednodes');
+                    }
+                ];
+                $columns[] = [
+                    'dt' => 'masternode',
+                    'formatter' => function ($d, $row) use (&$StorageGroup) {
+                        try {
+                            $sn = $StorageGroup->getMasterStorageNode();
+                        } catch (\Exception $e) {
+                            $sn = new StorageNode();
+                        }
+                        return self::getter('storagenode', $sn);
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'totalclients',
+                    'dt' => 'totalclients',
+                    'removeFromQuery' => true
+                ];
+                break;
+            case 'storagenode':
+                $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
+                $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
+                $columns[] = self::relColumn(
+                    'ngmID',
+                    'clientload',
+                    'StorageNode',
+                    function ($d, $row) {
+                        return self::rel('StorageNode', $d)->getClientLoad();
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'ngmID',
+                    'location_url',
+                    'StorageNode',
+                    function ($d, $row) {
+                        $node = self::rel('StorageNode', $d);
+                        return sprintf(
+                            '%s://%s/%s',
+                            self::$httpproto,
+                            $node->get('ip'),
+                            $node->get('webroot')
+                        );
+                    }
+                );
+                /*$columns[] = [
+                    'db' => 'ngmID',
+                    'dt' => 'online',
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('StorageNode', $d)->get('online');
+                    }
+                ];*/
+                /*$columns[] = [
+                    'db' => 'ngmID',
+                    'dt' => 'logfiles',
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('StorageNode', $d)->get('logfiles');
+                    }
+                ];*/
+                break;
+            case 'usertracking':
+                $columns[] = [
+                    'db' => 'utUserName',
+                    'dt' => 'username',
+                    'formatter' => function ($d, $row) {
+                        return \Initiator::e($d);
+                    }
+                ];
+                $columns[] = self::relColumn(
+                    'utHostID',
+                    'hostname',
+                    'Host',
+                    function ($d, $row) {
+                        return \Initiator::e(self::rel('Host', $d)->get('name'));
+                    }
+                );
+                $columns[] = [
+                    'db' => 'utAction',
+                    'dt' => 'action',
+                    'formatter' => function ($d, $row) {
+                        switch ($d) {
+                            case '0':
+                                return _('Logout');
+                            case '1':
+                                return _('Login');
+                            case '99':
+                                return _('Service Start');
+                        }
+                    }
+                ];
+                break;
+            case 'plugin':
+                $columns[] = [
+                    'dt' => 'hash',
+                    'formatter' => function ($d, $row) {
+                        return md5($row['pName']);
+                    }
+                ];
+        }
+        return $columns;
     }
     /**
      * Annotates a list envelope with pagination metadata so a client can see
