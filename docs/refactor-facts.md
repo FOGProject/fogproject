@@ -679,6 +679,44 @@ sh tests/run-all.sh | tail -1          # 73 passed, 0 failed
 php tests/route-ids-getfield-sensitive.test.php   # ok  41 checks passed
 ```
 
+### F-39 — The read path's access controls now have a behavioural net, and it turns fourteen mutations red
+
+`tests/route-read-path-guards.test.php` (93 checks) drives the real functions
+against `tests/lib/fog-test-harness.php`, a fake PDODB with no database behind
+it. It closes F-28: all eight mutations that previously left the suite green
+now fail it, plus six more found while writing it.
+
+Three of the six are the interesting ones, because each is a mechanism a
+reader would assume the obvious assertion already covered:
+
+- Deleting the dedicated sensitive-filter guard still refuses the request.
+  `_assertFilterKeys()` computes its valid-key list by subtracting
+  `unfilterableFields()`, so a blocked field is also an unknown one and the
+  fallback arm answers 400 anyway. "Was it refused?" cannot see the real guard
+  go; the arms differ in that the unknown-key one returns a `valid` list.
+- `search()` applies the site boundary a second time, after
+  `API_MASSDATA_MAPPING` — protecting only rows a plugin **added** to the
+  payload, since `listem()` already scoped. Removing it leaves every
+  listem()-driven scope assertion green.
+- Pinning `stripSensitivePayload()`'s behaviour does not pin `printer()`'s
+  call to it.
+
+Two facts the net depends on. `DatabaseManager::getLink()` is
+`self::$DB->link()`, so a fake on the static `$DB` reaches the statements
+`complex()` prepares on the raw handle — that is the only reason an end-to-end
+`listem()` assertion is possible without a database. And the CLI SAPI never
+populates `php://input`, so the two body-side guards are driven from `php-cgi`
+children instead.
+
+If this is false, the decomposition in `docs/route-listem-plan.md` proceeds
+with no net, which is the thing the plan's first commit exists to prevent.
+
+```
+sh tests/run-all.sh | tail -1                       # 74 passed, 0 failed
+php tests/route-read-path-guards.test.php           # ok  93 checks passed
+# and with any one of the fourteen mutations applied: exit 1
+```
+
 ---
 
 ## How to add an entry

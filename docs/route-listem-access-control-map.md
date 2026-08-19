@@ -211,5 +211,30 @@ The reason is consistent, and it is the failure documented in
   route names described, both directions. Not paths, methods, parameters or
   response bodies.
 
-This is the map's most important line: **the net does not exist yet.** Build it
+This was the map's most important line: **the net did not exist.** Build it
 before decomposing anything.
+
+### Closed 2026-08-19
+
+Built: `tests/route-read-path-guards.test.php` (93 checks) on
+`tests/lib/fog-test-harness.php`. Every mutation above now fails it, along with
+six more found while writing it — fourteen in total, tabulated with their
+reproduction in `docs/route-listem-plan.md` under "Commit 1 → Result".
+
+Three of those six matter to anyone reading *this* document, because they are
+mechanisms it describes that a plausible assertion does not actually cover:
+
+- §1's sensitive-filter guard can be **deleted outright** and the request is
+  still refused, by the unknown-key arm below it — that arm subtracts
+  `unfilterableFields()` when computing its list of valid keys, so a blocked
+  field is also an unknown one. Asserting "refused" therefore cannot see the
+  guard go. The two arms are told apart by whether the refusal body carries a
+  `valid` list.
+- §3's `_applySiteScope` is applied **twice** on the `search()` route: once
+  inside `listem()`, then again after `API_MASSDATA_MAPPING`. The second call
+  is not redundant — it is the only thing standing between a plugin hook and
+  the payload, since hooks receive `data` by reference. Nothing that drives
+  `listem()` can observe it.
+- §4's `stripSensitivePayload()` behaves correctly whether or not `printer()
+  ` calls it. The call site needs its own assertion, driving `printer()`
+  through `asValue()` and reading the wire bytes.

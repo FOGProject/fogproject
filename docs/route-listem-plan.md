@@ -117,7 +117,11 @@ where the same class of check already lives.
 
 ## Commit 1 — build the net. This is the first commit and it is not optional.
 
-`VERIFIED` — the net does not exist. Eight mutations, full suite each time,
+**DONE** — `tests/lib/fog-test-harness.php` and
+`tests/route-read-path-guards.test.php`, 93 checks. Results at the bottom of
+this section. What follows is the finding that motivated it, kept as written.
+
+`VERIFIED` — the net did not exist. Eight mutations, full suite each time,
 file restored from a scratchpad copy between runs (never `git checkout --`):
 
 | Mutation to `route.class.php` | Suite |
@@ -211,7 +215,84 @@ table above is the acceptance criterion: re-run all eight with the net in
 place and every one must fail. A net that does not turn that table red has not
 been built, whatever its assertion count says.
 
-**Blast radius:** none. New file only.
+### Result
+
+Met. All eight turn the net red, and building it surfaced six more mutations
+worth pinning, so the table stands at fourteen. Each run: restore
+`route.class.php` from a scratchpad copy, apply one mutation, run the net,
+restore. Baseline green and the file back at its starting md5 at the end.
+
+| # | Mutation to `route.class.php` | Net |
+|---|---|---|
+| — | *(baseline, unmutated)* | **green** |
+| M1a | delete `_applySiteScope($classname)` from `listem()` | red |
+| M1b | delete `_applySiteScope($classname)` from `search()` | red |
+| M2 | `_assertNoSensitiveFilter()` → `return;` | red |
+| M3 | `unfilterableFields($classname)` → `[]` (no `nosearch`) | red |
+| M4 | comment out `stripSensitivePayload()` in `printer()` | red |
+| M5 | `_applySettingValueScope()` → `return;` | red |
+| M6 | rename the `_lang` stamp | red |
+| M7 | rename envelope key `recordsReturned` | red |
+| M8 | `null === $scopeIDs` → `!$scopeIDs` (deny-all becomes allow-all) | red |
+| M9 | `isset($allowed[$id])` → `true` (scope filter keeps every row) | red |
+| M10 | `!$alwaysOnly` → `false` in `stripSensitive()` | red |
+| M11 | delete the `_assertNoSensitiveFilter()` call from `_assertFilterKeys()` | red |
+| M12 | delete the `_assertNoSensitiveFilter()` call from `getsearchbody()` | red |
+| M13 | `$valid` stops subtracting `unfilterableFields()` | red |
+
+Three of the six additions are the ones a reader would assume were already
+covered, and each cost an assertion that would not otherwise have been written:
+
+- **M11.** Deleting the dedicated sensitive-filter guard still refuses the
+  request — the unknown-key arm underneath it computes its valid-key list by
+  subtracting the same blocked list, so a blocked field is also an "unknown"
+  one. "Was it refused?" cannot see the real guard go. The arms are
+  distinguished structurally: the unknown-key arm answers with a `valid` list
+  of alternatives, the sensitive arm with `error` alone. **M13** is the other
+  half — the subtraction is deliberate (`_assertFilterKeys()` says so in a
+  comment) and nothing tested it; alone it is harmless because the dedicated
+  guard fires first, but it is the layer that would be left holding the line
+  if M11 ever shipped.
+- **M1b.** `search()` applies the boundary a second time, *after*
+  `API_MASSDATA_MAPPING`. Every section-6 assertion stays green without it,
+  because `listem()` already scoped. The only thing it protects is rows a
+  plugin **added** in between — and hooks get `data` by reference precisely so
+  they can. Section 6b registers a hook that appends an out-of-scope row and
+  asserts it never reaches the wire. This is the line a decomposition drops on
+  the grounds that `listem()` already did it.
+- **M4.** Pinning `stripSensitivePayload()`'s behaviour does not pin the
+  emitter's **call** to it — the exact failure mode this file exists to
+  prevent, reproduced while writing the file that prevents it. Closed by
+  driving `printer()` itself through `asValue()` and asserting on the wire
+  bytes.
+
+Reproduce any row:
+
+```
+SP=/tmp/route-net            # anywhere outside the repo
+cp packages/web/lib/router/route.class.php $SP/route.baseline.php
+# ...apply one mutation...
+php tests/route-read-path-guards.test.php   # want exit 1
+cp $SP/route.baseline.php packages/web/lib/router/route.class.php
+```
+
+### Two facts that made it possible, both worth not breaking
+
+- `DatabaseManager::getLink()` is `self::$DB->link()`. `complex()` prepares its
+  statements on that raw handle rather than going through `FOGBase::$DB`, so a
+  fake installed on the static `$DB` still reaches the row query, the filter
+  count **and** the total count. That single dereference is why `listem()` can
+  be asserted end to end with no database. Tidying `getLink()` into a private
+  connection would take the net with it.
+- The CLI SAPI does not populate `php://input`, whatever stdin points at, so
+  the two guards that read the request **body** are unreachable from an
+  ordinary test process. Those cases run as `php-cgi` children
+  (`SCRIPT_FILENAME` + `REDIRECT_STATUS` + `REQUEST_METHOD=POST` +
+  `CONTENT_LENGTH`), which has the side benefit of exercising the
+  request-serving arm of every `PHP_SAPI`-gated guard rather than the daemon
+  arm.
+
+**Blast radius:** none. New files only.
 **Alternative rejected:** waiting to write tests until after the extraction, on
 the grounds that the extraction gives better seams. That is the argument for
 having no net during the one change that needs it most.
