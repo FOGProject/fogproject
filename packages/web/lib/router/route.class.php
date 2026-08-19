@@ -1390,6 +1390,38 @@ class Route extends FOGBase
         );
     }
     /**
+     * Ends the response for an exception caught in a route handler.
+     *
+     * DEC-5. Every one of these catches used to answer HTTP 406 and discard
+     * the code the inner failure chose. Over plain HTTP that was invisible:
+     * the inner sendResponse() exits inside breakHead(), so the wire status
+     * was whatever that inner call picked and the catch never ran. Under a
+     * getX()/asValue() result wrapper it is not -- there sendResponse()
+     * throws rather than exiting (see above), the catch below it does run,
+     * and a caller reading through the wrapper saw 406 for a refusal the
+     * source raised as 400.
+     *
+     * So re-raise the inner code when it is one, and keep 406 for everything
+     * else. "Is one" means 400-599 and nothing wider: a PDOException carries
+     * a SQLSTATE ('42S22'), which casts to a plausible-looking 42, and a
+     * hand-thrown Exception defaults to 0.
+     *
+     * @param \Exception $e The caught exception.
+     *
+     * @return void
+     */
+    private static function _sendCaught(\Exception $e)
+    {
+        $code = (int)$e->getCode();
+        if ($code < 400 || $code > 599) {
+            $code = HTTPResponseCodes::HTTP_NOT_ACCEPTABLE;
+        }
+        self::sendResponse(
+            $code,
+            $e->getMessage()
+        );
+    }
+    /**
      * Presents status to show up or down state.
      *
      * @return void
@@ -1635,6 +1667,7 @@ class Route extends FOGBase
                         ],
                         $tmpcolumns
                     );
+                    break;
             }
             self::$HookManager->processEvent(
                 'API_REMOVE_COLUMNS',
@@ -1795,10 +1828,7 @@ class Route extends FOGBase
             }
             self::paginate(isset($pass_vars) ? $pass_vars : []);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -2718,10 +2748,7 @@ class Route extends FOGBase
             }
             self::$data = ['total' => self::$data['recordsFiltered']];
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -2951,10 +2978,7 @@ class Route extends FOGBase
             );
             self::$data = $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -2992,10 +3016,7 @@ class Route extends FOGBase
             );
             self::_applySiteScope($classname);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3044,10 +3065,7 @@ class Route extends FOGBase
                 ]
             );
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3312,10 +3330,7 @@ class Route extends FOGBase
             }
             self::indiv($classname, $id);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3545,10 +3560,7 @@ class Route extends FOGBase
             }
             self::indiv($classname, $id);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3809,10 +3821,7 @@ class Route extends FOGBase
                     }
             }
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3878,10 +3887,7 @@ class Route extends FOGBase
             // caught internally-built filters -- see expandSearchWildcards).
             return self::expandSearchWildcards($find);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3915,10 +3921,7 @@ class Route extends FOGBase
             }
             self::listem($class, $find);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3953,10 +3956,7 @@ class Route extends FOGBase
             // instead of a bare row delete that orphaned every association.
             return self::deletemass($class, $whereItems);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -4425,10 +4425,7 @@ class Route extends FOGBase
             );
             return $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         } finally {
             self::$getterDepth--;
         }
@@ -5127,10 +5124,7 @@ class Route extends FOGBase
             }
             self::$data = $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -5755,10 +5749,7 @@ class Route extends FOGBase
 
             return self::$DB->query($sqlResult['sql'], [], $sqlResult['params']);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         } finally {
             // max() because the guard above can throw before the increment.
             self::$_deleteDepth = max(0, self::$_deleteDepth - 1);
@@ -6166,10 +6157,7 @@ class Route extends FOGBase
 
             return ['sql' => $sql, 'params' => $params];
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -6243,10 +6231,7 @@ class Route extends FOGBase
 
             self::$data = $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -6427,10 +6412,7 @@ class Route extends FOGBase
             }
             self::sendResponse($code);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**

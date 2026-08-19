@@ -389,6 +389,7 @@ $t->check(
 foreach ([['host', $hostBlocked], ['user', $userBlocked]] as list($class, $blocked)) {
     foreach ($blocked as $field) {
         $refusal = null;
+        $refusalCode = null;
         try {
             Route::asValue(
                 function () use ($class, $field) {
@@ -397,6 +398,7 @@ foreach ([['host', $hostBlocked], ['user', $userBlocked]] as list($class, $block
             );
         } catch (\RuntimeException $e) {
             $refusal = $e->getMessage();
+            $refusalCode = $e->getCode();
         }
         Route::$data = [];
         $t->check(
@@ -415,7 +417,43 @@ foreach ([['host', $hostBlocked], ['user', $userBlocked]] as list($class, $block
             && isset($decoded['error'])
             && !array_key_exists('valid', $decoded)
         );
+        // DEC-5. The refusal is a 400 and listem()'s catch used to relabel
+        // every failure 406 -- invisible over plain HTTP, where the inner
+        // sendResponse() exits before the catch, and wrong here, which is
+        // the seam every service and client endpoint reads through.
+        $t->check(
+            "the refusal for $class.$field keeps its own 400, not listem()'s"
+            . ' catch-all 406',
+            400 === $refusalCode
+        );
     }
+}
+
+/*
+ * DEC-5, the other half: a code that is NOT an HTTP status still becomes 406.
+ * A PDOException carries a SQLSTATE ('42S22'), which casts to a plausible
+ * 42, and a hand-thrown Exception defaults to 0 -- either one reaching
+ * breakHead() as a status is a worse answer than the catch-all it replaced.
+ */
+$sendCaught = new \ReflectionMethod('Route', '_sendCaught');
+$sendCaught->setAccessible(true);
+foreach ([['42S22', 406], [0, 406], [399, 406], [404, 404], [600, 406]] as list($raised, $want)) {
+    $got = null;
+    try {
+        Route::asValue(
+            function () use ($sendCaught, $raised) {
+                $sendCaught->invoke(null, new \Exception('probe', (int)$raised));
+            }
+        );
+    } catch (\RuntimeException $e) {
+        $got = $e->getCode();
+    }
+    Route::$data = [];
+    $t->check(
+        "_sendCaught() maps an inner code of " . var_export($raised, true)
+        . " to $want",
+        $want === $got
+    );
 }
 
 /*

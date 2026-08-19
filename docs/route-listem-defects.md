@@ -264,17 +264,25 @@ Preserving today's wire behaviour while fixing the wrapper means re-raising with
 `$e->getCode()` when the code is a real HTTP status and falling back to 406
 otherwise. That is a behaviour change for wrapper callers, so it is yours.
 
-**DECIDED 2026-08-19: re-raise the inner code.** Not yet implemented — it is
-not required for SEC-1's fix to be correct, and a half-applied status policy is
-worse than either, so it lands as one sweep in the plan sequence. Note that
-SEC-1's new refusal is subject to it: `ids()` has the same catch, so a wrapper
-caller currently sees 406 for what the source raises as 400.
+**DECIDED 2026-08-19: re-raise the inner code. FIXED 2026-08-19.** All 17
+catches in the class now call one helper, `Route::_sendCaught()`, which re-raises
+`$e->getCode()` when it is in 400-599 and keeps 406 for everything else. The
+range matters in both directions: a `PDOException` carries a SQLSTATE
+(`'42S22'`), which casts to a plausible-looking 42, and a hand-thrown
+`Exception` defaults to 0 — either reaching `breakHead()` as a status would be
+worse than the catch-all it replaced.
 
-### DEC-4 — `case 'host':` in the column-removal switch has no `break`
+No change over plain HTTP, where the inner `sendResponse()` still exits before
+the catch runs. Pinned in `tests/route-read-path-guards.test.php`: the sensitive
+filter refusal now asserts code 400 (8 checks, all fail if the helper relabels),
+and five direct cases pin the range guard (4 fail if it is dropped).
+
+### DEC-4 — `case 'host':` in the column-removal switch has no `break` · **FIXED**
 
 `:1622-1633`. Harmless today (it is the last arm) and a live hazard the moment
-anyone appends a case. One-line fix; flagged rather than done because the file
-is otherwise untouched.
+anyone appends a case. `break` added 2026-08-19 — the reason for flagging it
+rather than fixing it was that the file was otherwise untouched, which stopped
+being true.
 
 ### REENTRANCY-1 — `sensitiveFieldMap()` memoized after its own event, one call site away from an OOM · **high** · **FIXED**
 
@@ -460,3 +468,49 @@ The `dev-branch` question is therefore not "port SEC-1's fix" but "does the
 decision than this scan, it is a shipped-behaviour change on a patches line,
 and it is entirely yours. I have not shaped anything in §1–§5 to make it
 easier.
+
+### The 1.5 `site` plugin: investigated 2026-08-19, and it is a different defect
+
+Checked because SCOPE-1 had a working exploit path and the brief scoped
+`dev-branch` in for exactly that case. `dev-branch` at `b7b748da4`,
+read-only in `/home/telliott/fog-worktrees/hook-dev`.
+
+**1.5 does not have SCOPE-1.** SCOPE-1 is "six routes carry the object
+boundary and four forgot it". On 1.5 *no* API route carries one, because
+`Route` on that branch never consults the site plugin at all — `listem()`
+(`:625`), `search()` (`:722`), `names()` (`:2093`) and `ids()` (`:2140`)
+contain no reference to `Site`, `scope` or `FOGUser` between them.
+
+**What 1.5 has instead is a boundary that exists in the UI and not in the
+API.** The site plugin's only filtering hook is
+`plugins/site/hooks/addsitefiltersearch.hook.php`, registered on `HOST_DATA`
+and `GROUP_DATA`. Both handlers open with `global $node; global $sub;` and
+switch on them — `host`/`list` and `host`/`search`. Those events are fired by
+the management pages; nothing in `api/` fires them. The plugin's *other* hook,
+`addsiteapi.hook.php`, is registered on `API_VALID_CLASSES`, `API_GETTER`,
+`API_INDIVDATA_MAPPING` and `API_MASSDATA_MAPPING` — it *adds* `site` and
+`sitehostassociation` as API classes and decorates host payloads with their
+`siteID`. It filters nothing.
+
+So a site-restricted user sees their site's hosts in the grid and every host
+on the server through the API, on the same credentials.
+
+**Reachability.** Two ways in, both without an administrator:
+
+- `Route::__construct()` skips `_testToken()`/`_testAuth()` entirely when
+  `self::$FOGUser->isValid()` (`:252`) — i.e. when a normal web-UI session
+  cookie is present. A site-restricted user already logged into the UI can
+  navigate to `/fog/host/list` and get the unfiltered set. No API token, no
+  `uAllowAPI`, no second credential.
+- Or with API credentials: `_requireAuthorized()` (`:489`) allows a non-admin
+  `list`, `listdetails`, `search`, `names`, `ids`, `indiv`, `active` on
+  `host` and `group`, among others.
+
+Precondition for both: `FOG_API_ENABLED` (`:218`), which is off by default.
+
+**This is a pre-existing design gap on 1.5, not a regression**, and unlike
+SEC-1 it is not a one-line fix — 1.5 has no `SiteScope`, no
+`Authorization::scopedObjectWhere()`, and the membership rule lives inside a
+UI hook that also formats rows for display. Porting the 1.6 shape means
+building the boundary on that branch, not moving a guard. Flagged, not
+proposed. Nothing in §1–§5 was shaped to make it easier.
