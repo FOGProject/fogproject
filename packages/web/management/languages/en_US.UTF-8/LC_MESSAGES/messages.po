@@ -4421,6 +4421,9 @@ msgstr "Installed Plugins"
 msgid "List of MACs"
 msgstr "List All %s"
 
+msgid "Listener must be [class,function] or a closure"
+msgstr ""
+
 msgid "Listener must be an array or an object"
 msgstr ""
 
@@ -6540,9 +6543,6 @@ msgstr ""
 #, fuzzy
 msgid "Search settings"
 msgstr "Service Status"
-
-msgid "Second paramater must be in [class,function]"
-msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""

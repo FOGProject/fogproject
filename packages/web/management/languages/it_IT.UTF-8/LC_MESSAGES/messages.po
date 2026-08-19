@@ -4262,6 +4262,10 @@ msgstr "plugin installati"
 msgid "List of MACs"
 msgstr "Elencare tutti %s"
 
+#, fuzzy
+msgid "Listener must be [class,function] or a closure"
+msgstr "Listener deve essere un array o un oggetto"
+
 msgid "Listener must be an array or an object"
 msgstr "Listener deve essere un array o un oggetto"
 
@@ -6312,9 +6316,6 @@ msgstr "Risultati di ricerca che restituiscono false"
 #, fuzzy
 msgid "Search settings"
 msgstr "Stato servizio"
-
-msgid "Second paramater must be in [class,function]"
-msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""

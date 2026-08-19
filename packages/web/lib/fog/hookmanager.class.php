@@ -90,27 +90,43 @@ class HookManager extends EventManager
             return;
         }
         foreach ((array) $this->data[$event] as &$function) {
-            $active = false;
-            // class-name consumer: handed straight to ReflectionClass,
-            // which resolves a namespaced name and a global one alike.
-            $className = get_class($function[0]);
-            $refClass = new \ReflectionClass($className);
-            $filename = $refClass->getFileName();
-            if (!method_exists($function[0], $function[1])) {
-                continue;
+            // Two listener shapes, one activation rule. A pair's owner is its
+            // object; a closure's owner is whatever $this it was written
+            // inside, which for a closure declared in a hook constructor is
+            // that hook. Either way the owner is what carries $active, so a
+            // closure obeys the flag exactly as [$this, 'method'] does. A
+            // closure with no bound $this has no owner and always runs.
+            if ($function instanceof \Closure) {
+                $owner = (new \ReflectionFunction($function))->getClosureThis();
+                $callable = $function;
+            } else {
+                $owner = $function[0];
+                if (!method_exists($owner, $function[1])) {
+                    continue;
+                }
+                $callable = [$owner, $function[1]];
             }
-            if (stripos($filename, 'plugins') !== false) {
-                $function[0]->active = true;
+            if ($owner instanceof Hook) {
+                // class-name consumer: handed straight to ReflectionClass,
+                // which resolves a namespaced name and a global one alike.
+                $className = get_class($owner);
+                $refClass = new \ReflectionClass($className);
+                $filename = $refClass->getFileName();
+                if (stripos($filename, 'plugins') !== false) {
+                    $owner->active = true;
+                }
+                if (!$owner->active) {
+                    continue;
+                }
             }
-            $active = $function[0]->active;
-            if (!$active) {
-                continue;
-            }
+            // Kept in a variable rather than inlined into the call: a listener
+            // is free to declare its parameter by reference, and only a
+            // variable can bind to one.
             $mergedArr = self::fastmerge(
                 ['event' => $event],
                 $arguments
             );
-            $function[0]->{$function[1]}($mergedArr);
+            $callable($mergedArr);
             unset($function);
         }
     }

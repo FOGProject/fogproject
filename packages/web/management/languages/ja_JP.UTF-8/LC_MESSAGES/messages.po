@@ -4219,6 +4219,10 @@ msgstr "インストール済みプラグイン"
 msgid "List of MACs"
 msgstr "すべての %s を一覧表示"
 
+#, fuzzy
+msgid "Listener must be [class,function] or a closure"
+msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
+
 msgid "Listener must be an array or an object"
 msgstr "リスナーは配列またはオブジェクトである必要があります"
 
@@ -6260,10 +6264,6 @@ msgstr "検索結果が false を返しました"
 #, fuzzy
 msgid "Search settings"
 msgstr "設定"
-
-#, fuzzy
-msgid "Second paramater must be in [class,function]"
-msgstr "2 番目のパラメーターは array(class,function) 形式である必要があります"
 
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""

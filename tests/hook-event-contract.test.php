@@ -170,12 +170,11 @@ if ($hm->hasListeners('CHAR_BAD_METHOD')) {
 // An error handler must not be able to fail harder than the error it reports,
 // so this asserts that nothing escapes, whatever shape arrives.
 foreach ([
-    'closure' => function ($a) {
-    },
     'plain object' => new \stdClass(),
     'string' => 'strlen',
     'integer' => 7,
     'null' => null,
+    'three-element array' => [$hook, 'fire', 'extra'],
 ] as $what => $listener) {
     if ('' !== $escapes($hm, 'CHAR_JUNK', $listener)) {
         $fails[] = "a $what listener escapes register() instead of being logged";
@@ -203,12 +202,11 @@ if (false === strpos($msg, 'stdClass')) {
 if (false === strpos($msg, 'CHAR_LOGGED')) {
     $fails[] = 'the failure message does not name the event';
 }
-// The shape that used to be fatal has to name itself too, or the fix has
-// traded a crash for an unattributable log line.
-$msg = $logged($hm, 'CHAR_LOGGED_CLOSURE', function ($a) {
-});
-if (false === strpos($msg, 'Closure')) {
-    $fails[] = 'a Closure listener is logged without being named';
+// A shape that is still refused has to name itself too, or the fix has traded
+// a crash for an unattributable log line.
+$msg = $logged($hm, 'CHAR_LOGGED_STR', 'strlen');
+if (false === strpos($msg, 'string')) {
+    $fails[] = 'a listener of an unusable type is logged without being named';
 }
 
 // ------------------------------------------------ registering against events
@@ -365,6 +363,88 @@ $hook->seen = [];
 $hm2->processEvent('CHAR_DISPATCH', ['payload' => 2]);
 if (!isset($hook->seen[0]['event']) || 'CHAR_DISPATCH' !== $hook->seen[0]['event']) {
     $fails[] = 'processEvent() no longer merges the event name into the payload';
+}
+
+// ------------------------------------------------------------------- closures
+
+// docs/plugin-development.md has documented the closure form for the three
+// Phase 2 authentication seams since ADR 0014, and until now handing register()
+// one took the server down. Both listener shapes are supported; the owner is
+// what carries $active, so admitting closures needed no new activation rule.
+$closureSaw = [];
+$hm3 = $bare('FOG\HookManager');
+$hm3->register('CHAR_CLOSURE_OK', function ($arguments) use (&$closureSaw) {
+    $closureSaw[] = $arguments;
+});
+if (!$hm3->hasListeners('CHAR_CLOSURE_OK')) {
+    $fails[] = 'a Closure listener does not register';
+}
+$known->setValue(null, [
+    'CHAR_DISPATCH' => true,
+    'CHAR_CORE_DISPATCH' => true,
+    'CHAR_CLOSURE_OK' => true,
+    'CHAR_CLOSURE_OWNED' => true,
+    'CHAR_CLOSURE_REF' => true,
+]);
+$hm3->processEvent('CHAR_CLOSURE_OK', ['payload' => 3]);
+if (count($closureSaw) !== 1) {
+    $fails[] = 'a Closure listener does not fire';
+} elseif (!isset($closureSaw[0]['event'])
+    || 'CHAR_CLOSURE_OK' !== $closureSaw[0]['event']
+) {
+    $fails[] = 'a Closure listener is not handed the merged payload';
+}
+
+// A closure written inside a hook is bound to that hook, so the hook's $active
+// governs it -- the same rule as [$this, 'method'], not a second one.
+class CharClosureHook extends \FOG\Hook
+{
+    public $name = 'CharClosureHook';
+    public $node = 'demo';
+    public $active = false;
+    public $seen = 0;
+
+    public function listener()
+    {
+        return function ($arguments) {
+            $this->seen++;
+        };
+    }
+}
+$owned = $bare('CharClosureHook');
+$hm3->register('CHAR_CLOSURE_OWNED', $owned->listener());
+$hm3->processEvent('CHAR_CLOSURE_OWNED', []);
+if (0 !== $owned->seen) {
+    $fails[] = 'a closure owned by an inactive hook fired anyway; $active has'
+        . ' to mean the same thing for both listener shapes';
+}
+$owned->active = true;
+$hm3->processEvent('CHAR_CLOSURE_OWNED', []);
+if (1 !== $owned->seen) {
+    $fails[] = 'a closure owned by an active hook did not fire';
+}
+
+// A listener is free to declare its parameter by reference, so the payload has
+// to reach it as a variable and not as the return value of the merge. PHP does
+// not refuse the call when it is not -- it emits "Only variables should be
+// passed by reference" and silently drops the binding -- so the diagnostic is
+// the only thing there is to assert on.
+$hm3->register('CHAR_CLOSURE_REF', function (&$arguments) {
+    $arguments['touched'] = true;
+});
+$diagnostics = [];
+set_error_handler(function ($no, $str) use (&$diagnostics) {
+    $diagnostics[] = $str;
+    return true;
+});
+$hm3->processEvent('CHAR_CLOSURE_REF', []);
+restore_error_handler();
+foreach ($diagnostics as $d) {
+    if (false !== stripos($d, 'passed by reference')) {
+        $fails[] = 'the merged payload no longer reaches a listener as a'
+            . ' variable, so a listener declaring its parameter by reference'
+            . ' is silently handed a copy';
+    }
 }
 
 // ---------------------------------------------------------------- hasListeners

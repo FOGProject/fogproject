@@ -3733,6 +3733,9 @@ msgstr ""
 msgid "List of MACs"
 msgstr ""
 
+msgid "Listener must be [class,function] or a closure"
+msgstr ""
+
 msgid "Listener must be an array or an object"
 msgstr ""
 
@@ -5547,9 +5550,6 @@ msgid "Search results returned false"
 msgstr ""
 
 msgid "Search settings"
-msgstr ""
-
-msgid "Second paramater must be in [class,function]"
 msgstr ""
 
 msgid "Seconds before the client gives up. 0 is no timeout."

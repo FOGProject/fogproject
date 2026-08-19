@@ -78,9 +78,24 @@ class EventManager extends FOGBase
                     array_push($this->data[$event], $listener);
                     break;
                 case 'HookManager':
+                    // A hook listener is either [Hook, method] or a Closure.
+                    // Both have an owner -- the object for the pair, and
+                    // whatever $this the closure was written inside for the
+                    // closure -- and the owner is what carries $active, so
+                    // admitting closures needs no new activation rule. A
+                    // closure with no bound $this has no owner and is
+                    // therefore always active: its registration is the opt-in.
+                    //
+                    // docs/plugin-development.md has documented the closure
+                    // form for the three Phase 2 authentication seams since
+                    // ADR 0014; until now it did not work.
+                    if ($listener instanceof \Closure) {
+                        $this->data[$event][] = $listener;
+                        break;
+                    }
                     if (!is_array($listener) || count($listener ?: []) !== 2) {
                         throw new \Exception(
-                            _('Second paramater must be in [class,function]')
+                            _('Listener must be [class,function] or a closure')
                         );
                     }
                     if (!($listener[0] instanceof Hook)) {
