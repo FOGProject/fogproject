@@ -249,25 +249,41 @@ if ($em->hasListeners('CHAR_EVT_BAD')) {
     $fails[] = 'a non-Event object was registered as an event listener';
 }
 
-// F-18. Hook extends Event, so the instanceof guard that is supposed to keep
-// the two apart accepts a hook as an event listener.
-if ('' !== $escapes($em, 'CHAR_EVT_HOOK', $hook)) {
-    $fails[] = 'EventManager::register() now refuses a Hook; that closes F-18,'
-        . ' and this case has to be rewritten to assert the refusal';
+// F-18, fixed. Hook extends Event, so `instanceof Event` -- the only type
+// check separating the two -- accepted a hook as an event listener. It is
+// refused now. Note the refusal is observable in what registered, not in what
+// escaped: register() logs and returns whatever happens.
+$hookRefusal = $logged($em, 'CHAR_EVT_HOOK', $hook);
+if ($em->hasListeners('CHAR_EVT_HOOK')) {
+    $fails[] = 'a Hook still registers as an event listener, so notify() will'
+        . ' call Event::onEvent() on an object that never implemented it';
+}
+if (false === stripos($hookRefusal, 'hook')) {
+    $fails[] = 'a Hook is refused as an event listener without saying why: '
+        . trim($hookRefusal);
 }
 
-// F-18, second half. Event::onEvent()'s default body prints into the response.
-// Every bundled plugin event overrides it; lib/events/hostlist.event.php, the
-// one shipped core event, does not.
+// F-18, second half. Event::onEvent()'s default used to print the event name
+// into the response, so an event class that had not overridden it wrote text
+// into whatever output was being produced -- including a client protocol reply
+// the fog-client parses positionally. A listener that does nothing should do
+// nothing.
 if (!(new \ReflectionMethod('FOG\Event', 'onEvent'))->isPublic()) {
     $fails[] = 'Event::onEvent() is no longer the public default dispatch target';
 }
 ob_start();
 (new \ReflectionMethod('FOG\Event', 'onEvent'))->invoke($hook, 'CHAR_PRINTED', []);
 $printed = ob_get_clean();
-if (false === strpos($printed, 'CHAR_PRINTED')) {
-    $fails[] = 'Event::onEvent() no longer prints the event name into the'
-        . ' response; that closes half of F-18, so rewrite this case';
+if ('' !== $printed) {
+    $fails[] = 'Event::onEvent() writes to the response by default: '
+        . var_export($printed, true);
+}
+// The one shipped core event does not override it, which is what made the
+// default reachable from code we ship.
+if ((new \ReflectionMethod('FOG\HostList', 'onEvent'))->getDeclaringClass()
+    ->getName() !== 'FOG\Event'
+) {
+    $fails[] = 'HostList now defines onEvent(); the note above is stale';
 }
 
 // ------------------------------------------------------------- notify()

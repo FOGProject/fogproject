@@ -244,6 +244,9 @@ msgstr "Storage Group cancellato"
 msgid "A group name is required!"
 msgstr "È richiesto un nome di gruppo!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 
@@ -5939,9 +5942,6 @@ msgstr "Stato servizio"
 msgid "Refresh the settings cache"
 msgstr "Stato servizio"
 
-msgid "Registered"
-msgstr "Registrato"
-
 msgid "Registered Hosts"
 msgstr "host registrati"
 
@@ -9912,6 +9912,9 @@ msgstr ""
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Registro deve essere gestito da hook o eventi"
+
+#~ msgid "Registered"
+#~ msgstr "Registrato"
 
 #, fuzzy
 #~ msgid "Remove Selected"

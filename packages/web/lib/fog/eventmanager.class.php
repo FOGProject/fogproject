@@ -176,6 +176,20 @@ class EventManager extends FOGBase
         if (!($listener instanceof Event)) {
             throw new \Exception(_('Class must extend event'));
         }
+        // Hook extends Event, so the guard above accepts a hook -- the only
+        // type check separating the two, and it does not. What follows from
+        // that is not theoretical: notify() would then call Event::onEvent()
+        // on it, and hooks do not implement onEvent(), so the inherited
+        // default ran. That default used to print the event name into the
+        // response, which on a client protocol endpoint is arbitrary text in
+        // front of a ##@GO reply.
+        //
+        // The two have genuinely different dispatch contracts -- see
+        // HookManager::notify() -- so a hook is refused here rather than
+        // silently dispatched as something it is not.
+        if ($listener instanceof Hook) {
+            throw new \Exception(_('A hook is not an event listener'));
+        }
     }
     /**
      * Names a listener for a log line, whatever shape it arrived in.

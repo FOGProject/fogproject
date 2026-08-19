@@ -244,6 +244,9 @@ msgstr "Speichergruppe gelöscht"
 msgid "A group name is required!"
 msgstr "Ein Gruppenname ist erforderlich!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
@@ -6151,9 +6154,6 @@ msgstr "Service-Status"
 msgid "Refresh the settings cache"
 msgstr "Service-Status"
 
-msgid "Registered"
-msgstr "Registriert"
-
 msgid "Registered Hosts"
 msgstr "Registrierte Hosts"
 
@@ -10303,6 +10303,9 @@ msgstr ""
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
+
+#~ msgid "Registered"
+#~ msgstr "Registriert"
 
 #, fuzzy
 #~ msgid "Remove Selected"

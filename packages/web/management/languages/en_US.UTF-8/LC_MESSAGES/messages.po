@@ -249,6 +249,9 @@ msgstr "Storage Group deleted"
 msgid "A group name is required!"
 msgstr "An image name is required!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "An image already exists with this name!"
@@ -6149,9 +6152,6 @@ msgstr "Service Status"
 msgid "Refresh the settings cache"
 msgstr "Service Status"
 
-msgid "Registered"
-msgstr "Registered"
-
 msgid "Registered Hosts"
 msgstr "Registered Hosts"
 
@@ -10275,6 +10275,9 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
+
+#~ msgid "Registered"
+#~ msgstr "Registered"
 
 #, fuzzy
 #~ msgid "Remove Selected"

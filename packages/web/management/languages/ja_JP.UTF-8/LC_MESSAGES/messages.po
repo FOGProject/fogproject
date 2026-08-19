@@ -233,6 +233,9 @@ msgstr "グループを選択してください。"
 msgid "A group name is required!"
 msgstr "グループ名は必須です！"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr "この名前のホストは既に存在します！"
 
@@ -5893,9 +5896,6 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr "FOG 設定"
 
-msgid "Registered"
-msgstr "登録済み"
-
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
 
@@ -10919,6 +10919,9 @@ msgstr ""
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "登録はフックまたはイベントから管理する必要があります"
+
+#~ msgid "Registered"
+#~ msgstr "登録済み"
 
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "返却担当者のイニシャル"

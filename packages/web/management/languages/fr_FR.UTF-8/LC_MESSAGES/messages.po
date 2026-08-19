@@ -250,6 +250,9 @@ msgstr "Groupe de stockage supprimé"
 msgid "A group name is required!"
 msgstr "Un nom de l'image est nécessaire!"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
@@ -6151,9 +6154,6 @@ msgstr "État du service"
 msgid "Refresh the settings cache"
 msgstr "État du service"
 
-msgid "Registered"
-msgstr "Inscrit"
-
 msgid "Registered Hosts"
 msgstr "hôtes inscrits"
 
@@ -10281,6 +10281,9 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "imprimante Alias"
+
+#~ msgid "Registered"
+#~ msgstr "Inscrit"
 
 #, fuzzy
 #~ msgid "Remove Selected"

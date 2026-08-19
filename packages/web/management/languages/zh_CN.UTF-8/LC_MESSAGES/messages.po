@@ -249,6 +249,9 @@ msgstr "存储组中删除"
 msgid "A group name is required!"
 msgstr "图像名是必需的！"
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -6150,9 +6153,6 @@ msgstr "服务状态"
 msgid "Refresh the settings cache"
 msgstr "服务状态"
 
-msgid "Registered"
-msgstr "注册"
-
 msgid "Registered Hosts"
 msgstr "注册主机"
 
@@ -10280,6 +10280,9 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "打印机别名"
+
+#~ msgid "Registered"
+#~ msgstr "注册"
 
 #, fuzzy
 #~ msgid "Remove Selected"

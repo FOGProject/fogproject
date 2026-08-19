@@ -210,6 +210,9 @@ msgstr ""
 msgid "A group name is required!"
 msgstr ""
 
+msgid "A hook is not an event listener"
+msgstr ""
+
 msgid "A host already exists with this name!"
 msgstr ""
 
@@ -5210,9 +5213,6 @@ msgid "Refresh Settings Cache"
 msgstr ""
 
 msgid "Refresh the settings cache"
-msgstr ""
-
-msgid "Registered"
 msgstr ""
 
 msgid "Registered Hosts"
