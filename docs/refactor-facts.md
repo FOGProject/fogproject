@@ -871,6 +871,35 @@ php /home/telliott/scripts/background_scripts/compare_expand_payload.php Host 50
 php tests/route-read-path-guards.test.php   # ok  110 checks passed
 ```
 
+### F-45 — Listing a storage group or node runs NESTED listem() calls
+
+`Route::listem('storagenode')` fires `CUSTOMIZE_DT_COLUMNS` three times: once
+for `storagenode`, then twice for `task`, because the storage machinery
+reaches tasks while rendering. Same for `storagegroup`.
+
+This corrects F-40. The column-contract hook kept the LAST table it saw, so it
+filed `task`'s 34 columns under `storagenode`'s name and under
+`storagegroup`'s -- 68 of the fixture's 628 lines described the wrong class,
+and looked entirely plausible doing it. The hook now takes the FIRST fire
+whose `classname` matches the class being listed: first because the outermost
+call builds its table before anything nested runs, and matched because a
+nested call for another class must not answer for this one.
+
+The corrected fixture is 598 columns. The 50 unaffected classes are unchanged,
+so commits 2 and 3 were gated on a correct table for everything they touched;
+what was wrong was the record for two classes neither commit changed.
+
+A class whose table is never captured is now recorded as `__NO_TABLE__` rather
+than contributing no lines, so "stopped building a table" cannot show up as
+merely a shorter fixture.
+
+If this is false, any assertion about the storage grids' columns is an
+assertion about the task grid's.
+
+```
+php tests/route-column-contract.test.php   # ok  598 columns across 52 classes
+```
+
 ---
 
 ## How to add an entry

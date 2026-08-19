@@ -73,11 +73,26 @@ FogTestHarness::setStatic('Authorization', '_permCache', [1 => ['*']]);
 
 /**
  * Captures the column table at the point plugins receive it.
+ *
+ * MATCHED ON CLASSNAME, and that is not defensive tidiness. Listing a storage
+ * group or a storage node runs NESTED listem() calls -- the storage machinery
+ * reaches tasks -- so one Route::listem('storagenode') fires this event three
+ * times: once for storagenode, then twice for task. A hook that simply keeps
+ * the last table it saw therefore files TASK's 34 columns under storagenode's
+ * name, and the same under storagegroup's, and looks entirely plausible doing
+ * it.
+ *
+ * First fire for the requested class wins: first because the outermost call
+ * builds its table before anything nested runs, and for the requested class
+ * because a nested call for a DIFFERENT class must not answer for it.
  */
 class ColumnContractHook extends Hook
 {
-    /** @var array|null the last table seen */
+    /** @var array|null the table for the class under test */
     public static $captured = null;
+
+    /** @var string|null the class being listed */
+    public static $want = null;
 
     public $name = 'ColumnContractHook';
     public $description = 'Captures the DataTables column table';
@@ -91,6 +106,12 @@ class ColumnContractHook extends Hook
 
     public function grab($arguments)
     {
+        if (null !== self::$captured) {
+            return;
+        }
+        if (null !== self::$want && $arguments['classname'] !== self::$want) {
+            return;
+        }
         self::$captured = $arguments['columns'];
     }
 }
@@ -151,6 +172,7 @@ $classes = (array)FogTestHarness::getStatic('Route', 'validClasses');
 sort($classes);
 foreach ($classes as $classname) {
     ColumnContractHook::$captured = null;
+    ColumnContractHook::$want = $classname;
     Route::$data = [];
     // Rendering is noise here, and it is noise that must not be mistaken for
     // a finding: a synthetic row is not a real one, so formatters warn about
@@ -189,6 +211,13 @@ foreach ($classes as $classname) {
     error_reporting($prevLevel);
     ob_end_clean();
     Route::$data = [];
+    // A class whose table was never captured is recorded as such rather than
+    // skipped: silently contributing no lines would let a class stop building
+    // a table at all with the fixture merely getting shorter.
+    if (null === ColumnContractHook::$captured) {
+        $lines[] = implode("\t", [$classname, 0, '-', '__NO_TABLE__', '-', '-']);
+        continue;
+    }
     foreach ((array)ColumnContractHook::$captured as $n => $col) {
         $db = array_key_exists('db', $col) ? $col['db'] : null;
         $lines[] = implode(
