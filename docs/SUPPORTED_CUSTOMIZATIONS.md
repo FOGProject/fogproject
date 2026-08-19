@@ -257,7 +257,7 @@ fog-esp-x86_64/
     fogrealtek.efi        FOG's build, Realtek only
     fogsnponly.efi        FOG's build, SNP bound to the load device
   refind/
-    refind.efi            rEFInd, signed by this server — boots the local OS
+    refind.efi            rEFInd, signed by this server — for the refind_efi exit
     refind.conf           rEFInd's config, read from its own directory
 ```
 
@@ -311,10 +311,13 @@ its firmware and enrol `PK.auth`, `KEK.auth` and `db.auth`. Firmware then
 verifies FOG's signed binaries directly, so you can point the boot manager at
 `local\fogipxe.efi` with no shim and no MokManager at all.
 
-**Back out to the locally installed OS** — `refind\refind.efi`. FOG's default
-exit type (`FOG_EFI_BOOT_EXIT_TYPE`, `refind_efi`) chainloads rEFInd when a task
-finishes or when there is no task, so an ESP without it could enter FOG and not
-leave again. You can also point the firmware boot manager straight at it.
+**Back out to the locally installed OS** — the default exit type
+(`FOG_EFI_BOOT_EXIT_TYPE`, `sanboot`) hands straight back to firmware and needs
+nothing on the ESP. `refind\refind.efi` is here for the `refind_efi` exit type,
+which is still selectable globally and per host, and because an ESP assembled by
+hand should carry every route off FOG rather than only the one this server is
+configured for today. You can also point the firmware boot manager straight at
+it.
 
 >[!important]
 >**The Setup Mode route is the only Secure Boot path i386 has**, and it does

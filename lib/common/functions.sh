@@ -9680,10 +9680,10 @@ _resignKernels() {
 }
 # Re-sign the rEFInd binaries for UEFI Secure Boot.
 #
-# Why this exists at all: FOG_EFI_BOOT_EXIT_TYPE defaults to 'refind_efi', so on
-# a stock install rEFInd is what EVERY UEFI host chainloads on the way out of
-# the boot menu -- when a task finishes and when no task exists. bootmenu.class
-# emits 'chain -ar ${boot-url}/service/ipxe/refind*.efi', and under EFI that is
+# Why this exists at all: FOG_EFI_BOOT_EXIT_TYPE selects how a UEFI host leaves
+# the boot menu -- when a task finishes and when no task exists -- and
+# 'refind_efi' is one of the choices. bootmenu.class then emits
+# 'chain -ar ${boot-url}/service/ipxe/refind*.efi', and under EFI that is
 # LoadImage/StartImage, so the firmware (or shim, on our signed snponly path)
 # validates it exactly as it validates the FOS kernel. An unsigned rEFInd dies
 # there with SECURITY VIOLATION.
@@ -9693,6 +9693,14 @@ _resignKernels() {
 # and the machine only fails afterwards, on the way to the disk. It reads as a
 # bootloader or partitioning problem, not a Secure Boot one. Reported on the
 # forum against 1.6.3200 (topic 18217), where the reporter fixed it by hand.
+#
+# Still unconditional now that 'sanboot' is the default rather than
+# 'refind_efi', and deliberately so. The default only decides what an untouched
+# server does; rEFInd is still shipped, still restored across upgrades, still
+# offered in the dropdown, and still settable per host. Signing it costs one
+# sbsign per binary on installs that will never boot it, and NOT signing it
+# turns a dropdown selection into a Secure Boot failure two reboots later, with
+# the deceptive symptom above. That trade has not changed.
 #
 # What ships is not a substitute: refind.efi and refind_x64.efi carry Rod
 # Smith's own self-signed certificate, which is in nobody's db, and
@@ -10089,14 +10097,21 @@ _signLocalIpxe() {
 # Upstream signs no shim for ia32, so the earlier design concluded i386 had no
 # Secure Boot path at all. Via db it does.
 #
-# rEFInd ships in refind/, which is new (GH-1185). FOG_EFI_BOOT_EXIT_TYPE
-# defaults to refind_efi, so rEFInd is what a UEFI host chainloads on the way
-# out of the boot menu -- and an ESP assembled from this kit had no local-boot
-# chainloader on it at all. It comes from the WEB tree rather than $tftpdirdst
-# (it has never existed in the TFTP tree) and _resignRefind() has already signed
-# it by the time this runs. Its own subdirectory because rEFInd reads refind.conf
-# from the directory it was loaded from, which is also where every rEFInd
-# installation on earth puts it.
+# rEFInd ships in refind/, which is new (GH-1185). It is what a UEFI host
+# chainloads leaving the boot menu when FOG_EFI_BOOT_EXIT_TYPE is 'refind_efi',
+# and an ESP assembled from this kit had no local-boot chainloader on it at all.
+# It comes from the WEB tree rather than $tftpdirdst (it has never existed in the
+# TFTP tree) and _resignRefind() has already signed it by the time this runs. Its
+# own subdirectory because rEFInd reads refind.conf from the directory it was
+# loaded from, which is also where every rEFInd installation on earth puts it.
+#
+# Published even though the default exit type is now 'sanboot', which needs no
+# chainloader at all -- firmware boots the next entry itself. Two reasons. The
+# archive is assembled by hand onto a disk that may never talk to this server
+# again, so it should carry every route the server supports rather than only the
+# one this server is currently configured for; and refind_efi remains a
+# per-host setting, so a host booting from this ESP can be the one that wants
+# it. It is ~230KB in an archive already several MB of signed binaries.
 #
 # STILL NOT PUBLISHED: the BIOS artifacts (.kpxe/.lkrn/.usb/.iso), which are not
 # PE images and which an ESP cannot boot. They remain on TFTP for anyone
@@ -10238,7 +10253,7 @@ _espFileNote() {
         refind/refind.conf)
             echo "rEFInd's configuration, read from its own directory. Data, not a PE image, so it carries no signature and needs none." ;;
         refind/*.efi)
-            echo "rEFInd, signed by this server. FOG's default exit type (refind_efi) chainloads it to boot whatever OS is installed locally, so this is the piece that makes an ESP assembled from this archive able to leave FOG again rather than only enter it." ;;
+            echo "rEFInd, signed by this server. A boot manager that finds and boots whatever OS is installed locally. Not needed by the default exit type (sanboot hands straight back to firmware), but it is what the refind_efi exit type chainloads, and it is here so an ESP assembled from this archive carries every route off FOG rather than only the configured one." ;;
         MOK.der)
             echo "This server's certificate, in the DER form MokManager wants. Enrol it once per machine through MokManager, after which any binary here that FOG signed will load." ;;
         PK.auth|KEK.auth|db.auth)
