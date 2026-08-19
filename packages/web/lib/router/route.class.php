@@ -1383,6 +1383,13 @@ class Route extends FOGBase
     {
         $classname = strtolower($class);
         $class = new $class($id);
+        // The states a task can be cancelled FROM. The same allowlist every
+        // "is this task live" test uses, so anything outside it -- Complete
+        // or Cancelled -- is already finished.
+        $states = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
         switch ($classname) {
             case 'group':
                 if (!$class->isValid()) {
@@ -1390,13 +1397,32 @@ class Route extends FOGBase
                         HTTPResponseCodes::HTTP_NOT_FOUND
                     );
                 }
+                // isValid(), not instanceof. Host::loadTask() sets this field
+                // to `new Task(null)` when the host has nothing running and
+                // that IS instanceof Task, so the test was true for every
+                // host in the group. Task::cancel() then opens with
+                // getHost()->get('snapinjob'), and getHost() on an empty task
+                // returns the empty STRING -- "Call to a member function
+                // get() on string", an Error rather than an Exception. This
+                // method has no catch at all, so one idle member killed the
+                // request outright: every host after it in the loop kept its
+                // task running, under a bodyless 500. Reproduced on the 1.6
+                // copy of this code, whose Task::cancel() is identical here.
+                $cancelled = 0;
                 foreach (self::getClass('HostManager')
                     ->find(array('id' => $class->get('hosts'))) as &$Host
                 ) {
-                    if ($Host->get('task') instanceof Task) {
-                        $Host->get('task')->cancel();
+                    $Task = $Host->get('task');
+                    if ($Task instanceof Task && $Task->isValid()) {
+                        $Task->cancel();
+                        $cancelled++;
                     }
                     unset($Host);
+                }
+                if ($cancelled < 1) {
+                    self::_notCancellable(
+                        _('No active tasks to cancel for this group')
+                    );
                 }
                 break;
             case 'host':
@@ -1405,15 +1431,31 @@ class Route extends FOGBase
                         HTTPResponseCodes::HTTP_NOT_FOUND
                     );
                 }
-                if ($class->get('task') instanceof Task) {
-                    $class->get('task')->cancel();
+                // Same empty-Task trap as the group arm above, reached one
+                // host at a time: an idle host answered a bodyless 500
+                // instead of saying it had nothing running.
+                $Task = $class->get('task');
+                if (!($Task instanceof Task) || !$Task->isValid()) {
+                    self::_notCancellable(
+                        _('Host has no active task to cancel')
+                    );
                 }
+                $Task->cancel();
+                break;
+            case 'scheduledtask':
+                // Carries isActive, not stateID, so it fell into the default
+                // arm and failed a state test it could never pass: the
+                // endpoint returned 200 and cancelled nothing, every time.
+                // Its cancel() is a destroy(), which is what the management
+                // page does, and there is no state to be wrong about.
+                if (!$class->isValid()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_NOT_FOUND
+                    );
+                }
+                $class->cancel();
                 break;
             default:
-                $states = self::fastmerge(
-                    (array)self::getQueuedStates(),
-                    (array)self::getProgressState()
-                );
                 if (!$class->isValid()) {
                     $classman = $class->getManager();
                     $find = self::getsearchbody($classname, $class);
@@ -1422,13 +1464,52 @@ class Route extends FOGBase
                         $classname,
                         $find
                     );
+                    // A search that matches nothing stays a 200. This arm is
+                    // a bulk filter and an empty result is a legitimate
+                    // outcome for one; the 409s here are for a caller who
+                    // named a specific resource.
                     $classman->cancel($ids);
                 } else {
-                    if (in_array($class->get('stateID'), $states)) {
-                        $class->cancel();
+                    // Falling out of this test used to be silent -- the
+                    // method returned normally and the caller was told the
+                    // task had been cancelled while its state sat untouched.
+                    if (!in_array($class->get('stateID'), $states)) {
+                        $stateName = self::getClass(
+                            'TaskState',
+                            $class->get('stateID')
+                        )->get('name');
+                        self::_notCancellable(
+                            sprintf(
+                                '%s: %s',
+                                _('Task is not active and cannot be cancelled'),
+                                ($stateName ? $stateName : $class->get('stateID'))
+                            )
+                        );
                     }
+                    $class->cancel();
                 }
         }
+    }
+    /**
+     * Refuses a cancel the named resource is not in a state to accept.
+     *
+     * The body is a JSON object rather than the bare reason string the older
+     * non-2xx paths here emit: breakHead() has always declared
+     * `Content-Type: application/json` and then echoed whatever it was given,
+     * so those replies claim a type they are not. 409 is a status no caller
+     * receives today, so it can start out matching its own header without
+     * breaking anyone.
+     *
+     * @param string $msg Why the resource cannot be cancelled.
+     *
+     * @return void
+     */
+    private static function _notCancellable($msg)
+    {
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_CONFLICT,
+            json_encode(array('msg' => $msg))
+        );
     }
     /**
      * Gets the json body and sets our vars.

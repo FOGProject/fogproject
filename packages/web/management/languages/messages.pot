@@ -2376,6 +2376,9 @@ msgstr ""
 msgid "Host general"
 msgstr ""
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr ""
 
@@ -3726,6 +3729,9 @@ msgid "No access is allowed"
 msgstr ""
 
 msgid "No active task found for this host"
+msgstr ""
+
+msgid "No active tasks to cancel for this group"
 msgstr ""
 
 msgid "No activity information available for this group"
@@ -5557,6 +5563,9 @@ msgid "Task Types"
 msgstr ""
 
 msgid "Task forced to start"
+msgstr ""
+
+msgid "Task is not active and cannot be cancelled"
 msgstr ""
 
 msgid "Task not created as there are no associated tasks"

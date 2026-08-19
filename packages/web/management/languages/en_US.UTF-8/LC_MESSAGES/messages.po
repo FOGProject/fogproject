@@ -2736,6 +2736,9 @@ msgstr "Host Description"
 msgid "Host general"
 msgstr "Host Kernel"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "Host is already a member of an active task"
 
@@ -4277,6 +4280,10 @@ msgstr ""
 
 #, fuzzy
 msgid "No active task found for this host"
+msgstr "No Active Task found for Host"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
 msgstr "No Active Task found for Host"
 
 msgid "No activity information available for this group"
@@ -6388,6 +6395,10 @@ msgstr "Task Types"
 
 msgid "Task forced to start"
 msgstr "Task forced to start"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "Image is protected and cannot be deleted"
 
 msgid "Task not created as there are no associated tasks"
 msgstr ""

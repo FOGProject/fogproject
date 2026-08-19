@@ -2407,6 +2407,9 @@ msgstr "主机描述"
 msgid "Host general"
 msgstr "主机通用"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "主机已经是一个活动任务中的一员"
 
@@ -3770,6 +3773,10 @@ msgstr "不允许访问"
 
 #, fuzzy
 msgid "No active task found for this host"
+msgstr "主机没有活动任务"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
 msgstr "主机没有活动任务"
 
 msgid "No activity information available for this group"
@@ -5611,6 +5618,10 @@ msgstr "任务类型"
 
 msgid "Task forced to start"
 msgstr "任务强行启动"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "镜像被保护，不能被删除"
 
 msgid "Task not created as there are no associated tasks"
 msgstr "未创建任务，由于没有相关任务"

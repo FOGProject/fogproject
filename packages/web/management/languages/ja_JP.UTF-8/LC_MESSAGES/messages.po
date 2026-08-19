@@ -2393,6 +2393,9 @@ msgstr "ホストの説明"
 msgid "Host general"
 msgstr "ホスト全般"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "ホストは既に実行中のタスクに含まれています"
 
@@ -3750,6 +3753,10 @@ msgstr "アクセスは許可されていません"
 
 #, fuzzy
 msgid "No active task found for this host"
+msgstr "このホストの実行中タスクは見つかりません"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
 msgstr "このホストの実行中タスクは見つかりません"
 
 msgid "No activity information available for this group"
@@ -5584,6 +5591,10 @@ msgstr "タスクタイプ"
 
 msgid "Task forced to start"
 msgstr "タスクを強制開始しました"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "イメージは保護されているため削除できません"
 
 msgid "Task not created as there are no associated tasks"
 msgstr "関連付けられたタスクがないため、タスクは作成されませんでした"
