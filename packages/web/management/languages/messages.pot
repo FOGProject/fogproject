@@ -4212,6 +4212,9 @@ msgstr ""
 msgid "No access is allowed"
 msgstr ""
 
+msgid "No active task found for this host"
+msgstr ""
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -4237,6 +4240,9 @@ msgid "No data to insert"
 msgstr ""
 
 msgid "No database to work off"
+msgstr ""
+
+msgid "No error text supplied"
 msgstr ""
 
 msgid "No external data to download the file from"
@@ -6469,6 +6475,9 @@ msgid "Task failed"
 msgstr ""
 
 msgid "Task finished"
+msgstr ""
+
+msgid "Task is not an imaging task"
 msgstr ""
 
 msgid "Task not created as there are no associated Tasks"

@@ -5104,6 +5104,10 @@ msgstr "Sin administración de la impresora"
 msgid "No access is allowed"
 msgstr ""
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "No se encontró Clase FOGPage para este nodo"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -5136,6 +5140,9 @@ msgstr "No se obtuvieron datos"
 #, fuzzy
 msgid "No database to work off"
 msgstr "No se obtuvieron datos"
+
+msgid "No error text supplied"
+msgstr ""
 
 msgid "No external data to download the file from"
 msgstr ""
@@ -7837,6 +7844,9 @@ msgstr "Carga ha fallado: %s"
 msgid "Task finished"
 msgstr "Nombre de la tarea"
 
+msgid "Task is not an imaging task"
+msgstr ""
+
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
 
@@ -10426,9 +10436,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "No nodo asociado"
-
-#~ msgid "No FOGPage Class found for this node"
-#~ msgstr "No se encontró Clase FOGPage para este nodo"
 
 #, fuzzy
 #~ msgid "No directory group feeds this user group."

@@ -4979,6 +4979,10 @@ msgstr "Sem gerenciamento de impressoras"
 msgid "No access is allowed"
 msgstr ""
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "Nenhuma tarefa ativa encontrada para o Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -5008,6 +5012,9 @@ msgstr "Não há dados retornados"
 
 msgid "No database to work off"
 msgstr "Nenhum banco de dados para trabalhar fora"
+
+msgid "No error text supplied"
+msgstr ""
 
 msgid "No external data to download the file from"
 msgstr ""
@@ -7649,6 +7656,9 @@ msgstr "Carga falhou: %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "tarefa iniciada"
+
+msgid "Task is not an imaging task"
+msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""
