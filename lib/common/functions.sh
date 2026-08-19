@@ -10290,107 +10290,60 @@ _espFileNote() {
         *)  echo "" ;;
     esac
 }
-# The archive root's autoexec.ipxe: the fallback ladder.
+# The pre-DHCP delay, emitted into BOTH ESP scripts.
 #
-# Static, not a template. default.ipxe is generated per install because it
-# embeds the server address; this has no per-server content at all -- it chains
-# a relative path, and iPXE resolves that against the directory the running
-# binary was loaded from, which on an ESP is the directory this sits in.
-#
-# THE LADDER COVERS WHICH FILES GOT COPIED, NOT WHICH DRIVER WORKS, and the docs
-# must say it in those words. `chain X || goto Y` only branches when the image
-# fails to LOAD -- absent, malformed, or rejected by shim's verification. Once an
-# image loads and runs, control never returns: local/autoexec.ipxe ends its own
-# failure path with `prompt ... && shell || reboot`, so a binary that starts fine
-# but binds no NIC parks there and the next branch is never reached. That is the
-# difference from the net0/net1/net2 ladder in local/autoexec.ipxe, which works
-# because it stays inside one iPXE instance rather than handing off.
-#
-# Still worth having: it means one archive boots whether the admin copied the
-# whole folder or only the variant their hardware needs.
-#
-# fogsnponly.efi is last on purpose -- it is the one most likely to load
-# cleanly and then find nothing, so anything with a chance of working should
-# have been tried before it.
-_espChainScript() {
-    cat <<'ESPCHAIN'
-#!ipxe
-# Read off the ESP by upstream's signed loader, after shim has established MOK
-# trust. That loader drives no NIC when it is booted from an ESP, so the only
-# useful thing it can do is hand off to FOG's own build -- which does, and which
-# reads its own boot script out of local/autoexec.ipxe once it is running.
-#
-# The fallbacks fire only if a file is MISSING or fails verification -- not if it
-# loads and then finds no NIC. Copy the variant your hardware needs.
-chain local/fogipxe.efi || goto trysnp
-:trysnp
-chain local/fogsnp.efi || goto tryintel
-:tryintel
-chain local/fogintel.efi || goto tryrealtek
-:tryrealtek
-chain local/fogrealtek.efi || goto trysnponly
-:trysnponly
-chain local/fogsnponly.efi || goto nofogbinary
-:nofogbinary
-echo No usable FOG iPXE binary found in local/ on this ESP.
-prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
-ESPCHAIN
-}
-# local/autoexec.ipxe: FOG's real boot script.
-#
-# Whichever fog*.efi in local/ ends up running reads this, whether it got there
-# via the root ladder or straight from the firmware boot manager. Before
-# fog-ipxe v2.0.0-fog.8 this logic was compiled into each binary; it is a file
-# now, which is the whole reason local/ has to be its own directory (see the
-# section header).
-#
-# Keep this in step with fog-ipxe's own autoexec.ipxe and with src/ipxescript,
-# the script the BIOS binaries still embed. All three must behave identically,
-# or which platform a site booted becomes a variable in every bug report.
-#
-# THE DELAY. Some switches take several seconds to bring a port out of STP
-# listening or out of powersave, and iPXE's first DHCP attempt goes out before
-# that. Written live from --boot-delay, bracketed by the same sentinels
-# _applyBootDelay() uses on the TFTP copy so the two read the same way; shipped
-# commented out otherwise, because an admin who discovers the problem on one
-# machine at 2am should be able to fix it by uncommenting a line rather than by
-# reinstalling the server.
-_espLocalAutoexecScript() {
-    local delay="${bootdelay:-0}" delayblock
+# Some switches take several seconds to bring a port out of STP listening or out
+# of powersave, and iPXE's first DHCP attempt goes out before that. Written live
+# from --boot-delay, bracketed by the same sentinels _applyBootDelay() uses on
+# the TFTP copy so the two read the same way; shipped commented out otherwise,
+# because an admin who discovers the problem on one machine at 2am should be able
+# to fix it by uncommenting a line rather than by reinstalling the server.
+_espDelayBlock() {
+    local delay="${bootdelay:-0}"
     if [[ $delay -gt 0 ]]; then
-        delayblock="# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)
+        cat <<ESPDELAY
+# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)
 echo Sleeping ${delay} seconds to wait for STP/Powersave to switchoff and on
 sleep ${delay}
-# FOG-BOOT-DELAY-END"
+# FOG-BOOT-DELAY-END
+ESPDELAY
     else
-        delayblock="# No pre-DHCP delay is configured. If your switch runs STP or port power-save
+        cat <<'ESPNODELAY'
+# No pre-DHCP delay is configured. If your switch runs STP or port power-save
 # and the link is not up by the time iPXE first asks for DHCP, uncomment the two
 # lines below -- or reinstall with --boot-delay <seconds>, which writes them here
 # and in the server's own netboot copy at the same time.
 #echo Sleeping 10 seconds to wait for STP/Powersave to switchoff and on
-#sleep 10"
+#sleep 10
+ESPNODELAY
     fi
-    cat <<ESPAUTOEXEC
-#!ipxe
-# FOG's boot script, read off the ESP by whichever fog*.efi in this directory
-# runs. Finds a DHCP answer, works out which server to talk to, and chains
-# FOG's menu. Edit this file to change how this ESP boots.
+}
+# FOG's boot logic: find a DHCP answer, work out which server to talk to, chain
+# FOG's menu.
 #
-# Kept in step with the copy on the FOG server's TFTP root -- if the two differ,
-# which one a machine booted becomes a variable in every bug report.
-${delayblock}
+# Emitted into BOTH ESP scripts from this one function, which is the point. The
+# two copies used to be different scripts doing different jobs, and the archive
+# root's copy could not boot a machine on its own. They are now the same logic
+# with a different preamble, so they cannot drift -- and a binary that reads
+# either one boots the same way.
+#
+# Keep this in step with fog-ipxe's own autoexec.ipxe and with src/ipxescript,
+# the script the BIOS binaries still embed. All three must behave identically,
+# or which platform a site booted becomes a variable in every bug report.
+_espBootWalk() {
+    cat <<'ESPWALK'
 echo Checking net0 for DHCP...
-isset \${net0/mac} && ifopen net0 && dhcp net0 || goto dhcpnet1
+isset ${net0/mac} && ifopen net0 && dhcp net0 || goto dhcpnet1
 echo Received DHCP answer on interface net0 && goto proxycheck
 
 :dhcpnet1
 echo Checking net1 for DHCP...
-isset \${net1/mac} && ifopen net1 && dhcp net1 || goto dhcpnet2
+isset ${net1/mac} && ifopen net1 && dhcp net1 || goto dhcpnet2
 echo Received DHCP answer on interface net1 && goto proxycheck
 
 :dhcpnet2
 echo Checking net2 for DHCP...
-isset \${net2/mac} && ifopen net2 && dhcp net2 || goto dhcpall
+isset ${net2/mac} && ifopen net2 && dhcp net2 || goto dhcpall
 echo Received DHCP answer on interface net2 && goto proxycheck
 
 :dhcpall
@@ -10403,11 +10356,11 @@ prompt --key s --timeout 10000 DHCP failed, hit 's' for the iPXE shell; reboot i
 
 :proxycheck
 echo Trying proxy DHCP...
-isset \${proxydhcp/next-server} && set next-server \${proxydhcp/next-server} || goto nextservercheck
+isset ${proxydhcp/next-server} && set next-server ${proxydhcp/next-server} || goto nextservercheck
 
 :nextservercheck
 echo Checking for next-server...
-isset \${next-server} && goto netboot || goto setserv
+isset ${next-server} && goto netboot || goto setserv
 
 :setserv
 echo -n Please enter tftp server: && read next-server && goto netboot || goto setserv
@@ -10417,8 +10370,134 @@ prompt --key s --timeout 10000 Chainloading failed, hit 's' for the iPXE shell; 
 
 :netboot
 echo starting netboot to default.ipxe...
-chain tftp://\${next-server}/default.ipxe || goto chainloadfailed
-ESPAUTOEXEC
+chain tftp://${next-server}/default.ipxe || goto chainloadfailed
+ESPWALK
+}
+# The archive root's autoexec.ipxe: FOG's boot logic, behind a hand-off guard.
+#
+# THIS FILE USED TO BE A CHAIN LADDER AND NOTHING ELSE. It assumed upstream's
+# signed loader could not drive a NIC off an ESP, so the only useful thing it
+# could do was `chain local/fogipxe.efi`.
+#
+# Measured on VMware, and this is the part that matters: upstream's snponly.efi
+# booted off an ESP brings up net0 and netboots FOG perfectly well with the
+# WHOLE local/ DIRECTORY DELETED. So the assumption is at least not universal,
+# and on firmware that provides SNP the chain is not needed at all.
+#
+# NOT yet explained, and left here rather than tidied away because the next
+# person will hit it: an earlier attempt that put the plain netboot autoexec.ipxe
+# at this same path reportedly did NOT boot, which is what motivated the ladder
+# in the first place.
+#
+# Diffed since: that script and this one differ by the guard preamble below and
+# NOTHING else -- every line from :fogboot down is byte-identical to fog-ipxe's
+# netboot autoexec.ipxe. So either the preamble is somehow material, or those
+# runs differed in their environment. Three variables were in fact uncontrolled
+# across them, any of which could gate whether an image loads at all:
+#
+#   * install media was mounted for some runs (which also produced a Secure Boot
+#     violation on exit, because sanboot --drive 0 finds removable media first)
+#   * it is not recorded which shim/loader pair was used, and upstream's
+#     ipxe.efi and snponly.efi have different driver models
+#   * db/KEK enrolment state changed partway through, and with FOG's certificate
+#     in db the firmware verifies FOG's binaries directly -- so shim, a chained
+#     image and the signed FOS kernel all stop failing verification at once
+#
+# Do NOT read the guard below as the thing that fixed it. It is here for the
+# no-SNP case only, and it is inert wherever a NIC is present.
+#
+# The old shape also LOOPED. When iPXE chains an EFI image, the chained image
+# resolves autoexec.ipxe through the synthetic EFI_SIMPLE_FILE_SYSTEM_PROTOCOL
+# that efi_image_exec() installs, and that handle serves registered images BY
+# FLAT NAME -- so the chained fog*.efi re-read THIS file rather than its own
+# sibling in local/, hit the ladder again, and chained itself until the firmware
+# ran out of pool memory. local/ never isolated the two scripts: flat-name
+# lookup ignores directories. Refs GH-1195.
+#
+# So: branch on whether we drive a NIC.
+#
+#   NIC present -- we are FOG's own build (or upstream's loader on firmware that
+#                  provides SNP). Run the boot logic. Never chain from here;
+#                  chaining from this path is what looped.
+#
+#   no NIC      -- firmware provides no SNP, which is the hardware this whole
+#                  feature exists for. Hand off to FOG's native-driver build.
+#
+# THE HAND-OFF TARGET IS fogipxe.efi, NOT fogsnp.efi, and the reason is easy to
+# get backwards. The no-NIC branch is only ever reached on firmware with no SNP
+# -- and fogsnp.efi binds firmware SNP devices, so it cannot work there either.
+# Only the native-driver build can. fogipxe.efi is also the build that cannot
+# read its own autoexec.ipxe when the FIRMWARE launches it off an ESP (its
+# driver init displaces the volume it booted from; efi_local_open_volume() then
+# finds no root). That does not apply here: chained, it gets this script through
+# the synthetic handle above and never touches the real ESP volume.
+#
+# ONE hand-off, then stop. A ladder of five would be re-entered by whatever it
+# started -- each chained binary re-reads this file from the top -- which is a
+# loop, not a fallback. A FOG build that comes up with no NIC on no-SNP firmware
+# is genuinely unbootable, and a prompt is the honest outcome. An admin who
+# copied only one variant points the boot manager at it directly; the README
+# says so.
+_espRootAutoexecScript() {
+    cat <<'ESPROOT'
+#!ipxe
+# FOG's boot script -- archive root copy. Edit this file to change how this ESP
+# boots. The copy in local/ is the same logic without the hand-off below.
+#
+# Read by whatever the firmware started (upstream's signed loader, after shim
+# has established MOK trust) AND by any FOG build another iPXE chained -- a
+# chaining iPXE serves its images by flat name, so a binary in local/ reaches
+# this file rather than its own sibling. Both cases are handled by the guard.
+isset ${net0/mac} && goto fogboot
+isset ${net1/mac} && goto fogboot
+isset ${net2/mac} && goto fogboot
+
+# No network device, so firmware provides no SNP and this is upstream's loader.
+# Hand off ONCE to the native-driver build -- the only one that can drive a NIC
+# here -- and stop. See the installer comment for why this is not a ladder.
+echo No network device found; handing off to FOG's own iPXE build...
+echo Reading and verifying local/fogipxe.efi. This is silent and can take
+echo several seconds under Secure Boot; it is not a hang.
+chain local/fogipxe.efi || goto handofffailed
+
+:handofffailed
+echo Could not load local/fogipxe.efi from this ESP.
+echo Copy it from the archive, or point the boot manager at another local\fog*.efi.
+prompt --key s --timeout 10000 Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+
+:fogboot
+ESPROOT
+    _espDelayBlock
+    _espBootWalk
+}
+# local/autoexec.ipxe: the same boot logic, without the hand-off.
+#
+# Read by a FOG build in local/ that the FIRMWARE launched -- iPXE resolves
+# autoexec.ipxe against the directory the running binary was loaded from, which
+# for those binaries is local/. A build that another iPXE CHAINED does not reach
+# this file; it gets the archive root's copy by flat name through the synthetic
+# handle efi_image_exec() installs. Both copies now carry identical boot logic
+# from _espBootWalk(), so which one a machine read stops being a variable in
+# every bug report.
+#
+# NO HAND-OFF PREAMBLE HERE, deliberately. This file must never contain a `chain`
+# to a sibling binary: whatever it started would read a script and could come
+# straight back here, which is the loop that shipped before. Only the root copy
+# hands off, and only once.
+#
+# Before fog-ipxe v2.0.0-fog.8 this logic was compiled into each binary.
+_espLocalAutoexecScript() {
+    cat <<'ESPLOCAL'
+#!ipxe
+# FOG's boot script, read off the ESP by whichever fog*.efi in this directory
+# runs. Finds a DHCP answer, works out which server to talk to, and chains
+# FOG's menu. Edit this file to change how this ESP boots.
+#
+# Kept in step with the copy on the FOG server's TFTP root and with the archive
+# root's autoexec.ipxe -- all three are the same walk.
+ESPLOCAL
+    _espDelayBlock
+    _espBootWalk
 }
 # The archive's README. Written per archive rather than once, because which of
 # the two enrolment routes is even available depends on whether a shim landed.
@@ -10749,17 +10828,22 @@ _publishLocalBootFiles() {
             [[ -f ${kitdir}/${f} ]] && \
                 cp -f "${kitdir}/${f}" "${staged}/${f}" >>$error_log 2>&1
         done
-        # FOG's own boot script goes in unconditionally -- whichever fog*.efi
-        # runs reads it, however that binary was reached. This is NOT gated on
-        # haveloader the way the root ladder is: an i386 archive has no shim and
-        # no upstream loader, and its fog*.efi still needs a script.
+        # Both scripts go in unconditionally, and neither is gated any more.
+        #
+        # The root copy used to be written only when an upstream loader landed,
+        # on the grounds that nothing else read it. Two things changed that. It
+        # is no longer a chain ladder -- it carries FOG's boot logic, so it boots
+        # a machine on its own rather than implying a hand-off that may not be
+        # there. And it is read by more than the loader: a FOG build that another
+        # iPXE chained resolves autoexec.ipxe by flat name through the synthetic
+        # handle efi_image_exec() installs, which reaches THIS file and not the
+        # sibling in local/. Withholding it is what left that path with no script.
+        #
+        # The old worry -- two files with one name, one of them inert -- is gone
+        # for the same reason: they are now the same boot logic from
+        # _espBootWalk(), differing only by the root copy's hand-off preamble.
         _espLocalAutoexecScript > "${staged}/local/autoexec.ipxe" 2>>$error_log
-        # The root ladder IS gated, because only upstream's loader reads it.
-        # Without one it would be an inert file implying a chain that is not
-        # present -- and, worse, a second autoexec.ipxe for an admin to confuse
-        # with the one that does something.
-        [[ $haveloader -eq 1 ]] && \
-            _espChainScript > "${staged}/autoexec.ipxe" 2>>$error_log
+        _espRootAutoexecScript > "${staged}/autoexec.ipxe" 2>>$error_log
         _espKitReadme "$arch" "$stem" "$haveloader" "$haverefind" \
             > "${staged}/README.txt" 2>>$error_log
         contents=$(_espKitContentsJson "$staged" "$anchorpem")
