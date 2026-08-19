@@ -508,9 +508,19 @@ on the server through the API, on the same credentials.
 
 Precondition for both: `FOG_API_ENABLED` (`:218`), which is off by default.
 
-**This is a pre-existing design gap on 1.5, not a regression**, and unlike
-SEC-1 it is not a one-line fix — 1.5 has no `SiteScope`, no
-`Authorization::scopedObjectWhere()`, and the membership rule lives inside a
-UI hook that also formats rows for display. Porting the 1.6 shape means
-building the boundary on that branch, not moving a guard. Flagged, not
-proposed. Nothing in §1–§5 was shaped to make it easier.
+**FIXED on `dev-branch` 2026-08-19** — #1229, merged. Not a port: 1.5 has no
+`SiteScope` and no `Authorization::scopedObjectWhere()`, so the boundary had to
+be built there. Core gained one seam, `API_SCOPE_IDS`, and stays ignorant of
+sites; the site plugin answers it, and the membership rule moved to `Site` as
+static methods that BOTH hooks now call. `listem()`/`search()` filter the rows
+(neither has a `LIMIT`, so that is exact), `names()`/`ids()` fold it into the
+`WHERE`, and `runMatches()` gates `indiv`/`update`/`delete`/`task`/`cancel` in
+one place. Same tri-state as 1.6 — `null` no boundary, array narrows, empty
+array denies — and `_buildWhere()` already compiled an empty `IN` to `WHERE
+1=0`, so deny-all was safe by construction on that branch.
+
+Verified on the 1.5 lab, 2079 hosts and a user entitled to 2: every read route
+went from 126/68/2079/2079 to 2, the administrator unchanged, a restricted user
+with no site gets 0 rather than 2079, and with nobody logged in — the daemons —
+`ids('host')` still answers 2079. Pinned by `tests/site-api-scope.test.php`
+(28 checks, 8 mutations caught).
