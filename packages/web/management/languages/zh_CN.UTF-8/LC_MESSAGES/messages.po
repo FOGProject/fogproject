@@ -3768,6 +3768,10 @@ msgstr "没有站点"
 msgid "No access is allowed"
 msgstr "不允许访问"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "主机没有活动任务"
+
 msgid "No activity information available for this group"
 msgstr "该群组暂无活动信息"
 
@@ -3873,6 +3877,9 @@ msgstr "没有查询结果，请先使用 query()"
 
 msgid "No query sent"
 msgstr "无查询发送"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "无结果"

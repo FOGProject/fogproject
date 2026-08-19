@@ -3768,6 +3768,10 @@ msgstr "Sem Site"
 msgid "No access is allowed"
 msgstr "Nenhum acesso é permitido"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "Nenhuma Tarefa Ativa encontrada para o Host"
+
 msgid "No activity information available for this group"
 msgstr "Nenhuma informação de atividade disponível para este grupo"
 
@@ -3873,6 +3877,9 @@ msgstr "Nenhum resultado de consulta, use query() primeiro"
 
 msgid "No query sent"
 msgstr "Nenhuma consulta enviada"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "Nenhum resultado encontrado"

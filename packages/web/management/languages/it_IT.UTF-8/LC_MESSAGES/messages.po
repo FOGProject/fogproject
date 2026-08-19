@@ -3857,6 +3857,10 @@ msgstr "Nessun Sito"
 msgid "No access is allowed"
 msgstr "Nessun accesso è consentito"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "Nessun compito attivo trovato per Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -3963,6 +3967,9 @@ msgstr "Nessun risultato della query, utilizzare query () prima"
 
 msgid "No query sent"
 msgstr "No query inviata"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "nessun risultato trovato"

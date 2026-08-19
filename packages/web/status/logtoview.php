@@ -66,9 +66,16 @@ function vals($reverse, $HookManager, $lines, $file)
         '#^%s$#',
         $folder
     );
+    // Anchored and exact against the requested file's dirname, so every
+    // path needs its trailing separator and BOTH spellings of FOG's log
+    // directory -- the viewer reaches a file through the symlink while
+    // /opt/fog/log is the real path. Keep in step with the two enumeration
+    // lists; see the note in StorageNode::_getData().
     $folders = array(
         '/var/log/fog/',
+        '/var/log/fog/fos/',
         '/opt/fog/log/',
+        '/opt/fog/log/fos/',
         '/var/log/httpd/',
         '/var/log/apache2/',
         '/var/log/nginx/',

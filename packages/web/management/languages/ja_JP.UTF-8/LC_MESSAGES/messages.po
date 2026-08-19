@@ -3748,6 +3748,10 @@ msgstr "サイトなし"
 msgid "No access is allowed"
 msgstr "アクセスは許可されていません"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "このホストの実行中タスクは見つかりません"
+
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
@@ -3852,6 +3856,9 @@ msgstr "クエリ結果がありません。先に query() を使用してくだ
 
 msgid "No query sent"
 msgstr "クエリが送信されていません"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "結果が見つかりません"

@@ -413,7 +413,23 @@ updateDB() {
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
-    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
+    # The probe writes a throwaway row to find out whether fogstorage still
+    # holds INSERT; a failure here is read as "the grants need redoing", which
+    # is what sends the installer off to ask for the database root password.
+    #
+    # NAME THE COLUMNS. This was a positional INSERT, and schema 280 adds
+    # logType and logText to taskLog -- six values into an eight column table
+    # is error 1136, "Column count doesn't match value count", and the symptom
+    # is an upgrade demanding a database root password on a server whose
+    # grants are perfectly correct. 1.6 hit exactly this twice (schema 336,
+    # then 338) before naming the columns; see fogproject#1209. A named list
+    # cannot break that way -- a column added later takes its default and this
+    # INSERT does not care.
+    #
+    # id is AUTO_INCREMENT so it is omitted. The '999test' marker stays in
+    # taskID, which on 1.5 is still mediumtext, and the DELETE still keys on
+    # it -- this change is about the column list, not the marker.
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog (taskID, taskStateID, ip, createTime, createdBy) VALUES ('999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
     connect_as_fogstorage=$?
     if [[ $connect_as_fogstorage -eq 0 ]]; then
         mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE taskID='999test' AND ip='127.0.0.1';" >/dev/null 2>&1
@@ -872,6 +888,20 @@ installFOGServices() {
     chmod +x -R $servicedst/
     mkdir -p $servicelogs
     errorStat $?
+    # Where the web tier records what FOS told it (service/taskerror.php).
+    # Its own subdirectory rather than group-write on $servicelogs: that
+    # directory is root's and holds the daemons' logs, and rotation renames
+    # and unlinks, so shared write would let the web user delete them.
+    dots "Creating FOS report log directory"
+    mkdir -p $servicelogs/fos >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/fos >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller:
+    # setSELinuxContext prints its own line. The _rw_ type is not optional --
+    # /opt/fog inherits usr_t and httpd_t may READ usr_t but not write it, so
+    # without this the directory exists, looks right, and every report is
+    # dropped with nothing but an AVC to say so.
+    setSELinuxContext "$servicelogs/fos" httpd_sys_rw_content_t
 }
 configureUDPCast() {
     dots "Setting up UDPCast"

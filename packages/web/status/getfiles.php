@@ -39,9 +39,12 @@ Route::ids('storagenode', [], 'path');
 $imagePaths = json_decode(Route::getData(), true);
 Route::ids('storagenode', [], 'snapinpath');
 $snapinPaths = json_decode(Route::getData(), true);
+// Keep in step with StorageNode::_getData() and logtoview.php; see the note
+// there. '/var/log/fog/fos' is the FOS report log's own subdirectory.
 $validPaths = [
     '/var/log/apache2',
     '/var/log/fog',
+    '/var/log/fog/fos',
     '/var/log/httpd',
     '/var/log/nginx',
     '/var/log/php*'

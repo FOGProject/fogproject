@@ -4275,6 +4275,10 @@ msgstr "Not Set"
 msgid "No access is allowed"
 msgstr ""
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "No Active Task found for Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -4390,6 +4394,9 @@ msgstr "No query result, use query() first"
 
 msgid "No query sent"
 msgstr "No query sent"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "No results found"

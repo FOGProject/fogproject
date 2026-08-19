@@ -3725,6 +3725,9 @@ msgstr ""
 msgid "No access is allowed"
 msgstr ""
 
+msgid "No active task found for this host"
+msgstr ""
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -3828,6 +3831,9 @@ msgid "No query result, use query() first"
 msgstr ""
 
 msgid "No query sent"
+msgstr ""
+
+msgid "No report text supplied"
 msgstr ""
 
 msgid "No results found"
