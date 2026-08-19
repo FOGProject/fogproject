@@ -524,3 +524,4 @@ went from 126/68/2079/2079 to 2, the administrator unchanged, a restricted user
 with no site gets 0 rather than 2079, and with nobody logged in — the daemons —
 `ids('host')` still answers 2079. Pinned by `tests/site-api-scope.test.php`
 (28 checks, 8 mutations caught).
+
