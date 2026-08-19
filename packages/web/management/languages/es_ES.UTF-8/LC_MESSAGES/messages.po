@@ -6594,7 +6594,7 @@ msgstr ""
 msgid "Rows in this page."
 msgstr "No se pudo encontrar ningún nodos que contienen esta imagen"
 
-msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
 #, fuzzy
@@ -8519,7 +8519,7 @@ msgstr "El espacio total del disco"
 msgid "Total Memory"
 msgstr "Memoria total"
 
-msgid "Total rows in the table, unfiltered."
+msgid "Total rows the caller may see, unfiltered. For a site-restricted user this is the total within their sites, not the server total."
 msgstr ""
 
 msgid "Transmit"
