@@ -3294,6 +3294,9 @@ msgstr "Host Aktualisierung erfolgreich!"
 msgid "Host added!"
 msgstr "Host hinzugefügt"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "Host ist bereits Mitglied eines aktiven Tasks"
 
@@ -4996,6 +4999,10 @@ msgstr "Kein Zugriff erlaubt"
 msgid "No active task found for this host"
 msgstr "Keinen aktiven Task gefunden für Host"
 
+#, fuzzy
+msgid "No active tasks to cancel for this group"
+msgstr "Keinen aktiven Task gefunden für Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -5377,6 +5384,9 @@ msgid "One or more macs are associated with a host"
 msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 
 msgid "Online"
+msgstr ""
+
+msgid "Only a task in a queued or in-progress state can be cancelled. Naming a resource whose task has already finished -- Complete, Cancelled or Failed -- answers 409 rather than reporting a success it did not perform."
 msgstr ""
 
 msgid "Only administrators may use it until the plugin declares a permission for the route."
@@ -6118,6 +6128,10 @@ msgstr "In der Warteschlange"
 
 msgid "Queued Path Deletions"
 msgstr ""
+
+#, fuzzy
+msgid "Queued deletion is not active and cannot be cancelled"
+msgstr "Snapin ist geschützt und kann nicht gelöscht werden"
 
 msgid "RESOURCES"
 msgstr ""
@@ -7679,6 +7693,10 @@ msgstr "Laden fehlgeschlagen: %s"
 msgid "Task finished"
 msgstr "Task gestartet"
 
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "Image ist geschützt und kann nicht gelöscht werden"
+
 msgid "Task not created as there are no associated Tasks"
 msgstr "Task wird nicht erstellt, da keine zugeordneten Tasks vorhanden sind"
 
@@ -7958,6 +7976,9 @@ msgid "The provider published no https %s"
 msgstr ""
 
 msgid "The provider returned a configuration for a different issuer"
+msgstr ""
+
+msgid "The resource is not in a cancellable state."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."

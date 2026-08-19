@@ -3636,6 +3636,15 @@ class Route extends FOGBase
         try {
             $classname = strtolower($class);
             $class = new $class($id);
+            // The states a task can be cancelled FROM. This is the same
+            // allowlist every "is this task live" test in the tree uses --
+            // Host::loadTask() and getActiveTaskCount() both ask for exactly
+            // it -- so anything outside it is already finished: Complete,
+            // Cancelled, and Failed since schema 339.
+            $states = self::fastmerge(
+                (array)self::getQueuedStates(),
+                (array)self::getProgressState()
+            );
             switch ($classname) {
                 case 'group':
                     if (!$class->isValid()) {
@@ -3643,21 +3652,38 @@ class Route extends FOGBase
                             HTTPResponseCodes::HTTP_NOT_FOUND
                         );
                     }
-                    Route::listem(
+                    // Read ids, filtered by state, rather than paging through
+                    // listem(). Two separate faults lived in that call:
+                    //
+                    //  - It passed NO state filter, and every row that came
+                    //    back was cancelled regardless of state. The listing
+                    //    is not state-scoped either: the same host filter
+                    //    matches 29 rows for group 2 on the development
+                    //    server, none of them active. How much of that a real
+                    //    bodyless DELETE actually reached could not be
+                    //    reproduced outside a browser session -- listem()
+                    //    returns nothing at all to a CLI harness -- so treat
+                    //    29 as the exposure, not as a measured outcome.
+                    //  - listem() returns a PAGINATED envelope, so the work
+                    //    was bounded by a page either way. (Iterating the
+                    //    envelope rather than ->data once cancelled nothing at
+                    //    all -- that half was already fixed.)
+                    //
+                    // TaskManager::cancel() is the established bulk path and
+                    // re-applies the same state filter itself.
+                    $taskIDs = self::getIds(
                         'task',
-                        ['hostID' => $class->get('hosts')]
+                        [
+                            'hostID' => $class->get('hosts'),
+                            'stateID' => $states
+                        ]
                     );
-                    $Tasks = json_decode(
-                        Route::getData()
-                    );
-                    // ->data, not the envelope: listem() returns the paginated
-                    // wrapper. Iterating the wrapper walked its own scalar
-                    // members, so $Task->id was null on every pass and this
-                    // cancelled nothing at all -- cancelling a group's tasks
-                    // reported success and left every task running.
-                    foreach ($Tasks->data as $Task) {
-                        self::getClass('Task', $Task->id)->cancel();
+                    if (count($taskIDs) < 1) {
+                        self::_notCancellable(
+                            _('No active tasks to cancel for this group')
+                        );
                     }
+                    self::getClass('TaskManager')->cancel($taskIDs);
                     break;
                 case 'host':
                     if (!$class->isValid()) {
@@ -3665,25 +3691,90 @@ class Route extends FOGBase
                             HTTPResponseCodes::HTTP_NOT_FOUND
                         );
                     }
-                    if ($class->get('task') instanceof Task) {
-                        $class->get('task')->cancel();
+                    // isValid(), not instanceof. Host::loadTask() sets this
+                    // field to `new Task(null)` when the host has nothing
+                    // running, and that IS `instanceof Task` -- so the old
+                    // test was true unconditionally. Task::cancel() then opens
+                    // with getHost()->get('snapinjob'), and getHost() on an
+                    // empty task returns the empty STRING, so the call raised
+                    // "Call to a member function get() on string": an Error,
+                    // not an \Exception, so the catch below never saw it and
+                    // an idle host answered a bodyless 500. Reproduced against
+                    // a copy of the live database, host 154.
+                    $Task = $class->get('task');
+                    if (!($Task instanceof Task) || !$Task->isValid()) {
+                        self::_notCancellable(
+                            _('Host has no active task to cancel')
+                        );
                     }
+                    $Task->cancel();
+                    break;
+                case 'scheduledtask':
+                    // Has no stateID at all -- it carries isActive -- so it
+                    // fell into the default arm below, failed the state test
+                    // and returned 200 having done nothing. The endpoint has
+                    // therefore never cancelled a scheduled task. Its model
+                    // cancel() is a destroy(), which is what the management
+                    // page does too, and there is no state to be wrong about.
+                    if (!$class->isValid()) {
+                        self::sendResponse(
+                            HTTPResponseCodes::HTTP_NOT_FOUND
+                        );
+                    }
+                    $class->cancel();
+                    break;
+                case 'filedeletequeue':
+                    // FileDeleteQueue is the one tasking class with no model
+                    // cancel(); only the manager implements one. So a valid id
+                    // reached $class->cancel() and raised an Error -- which is
+                    // not an \Exception, so the catch below never saw it and
+                    // the caller got a bodyless 500. The daemon does set these
+                    // rows to the progress state (filedeleter.class.php), so
+                    // that is reachable, not theoretical.
+                    if (!$class->isValid()) {
+                        self::sendResponse(
+                            HTTPResponseCodes::HTTP_NOT_FOUND
+                        );
+                    }
+                    if (!in_array($class->get('stateID'), $states)) {
+                        self::_notCancellable(
+                            _('Queued deletion is not active and cannot be cancelled')
+                        );
+                    }
+                    $class->getManager()->cancel([$class->get('id')]);
                     break;
                 default:
-                    $states = self::fastmerge(
-                        (array)self::getQueuedStates(),
-                        (array)self::getProgressState()
-                    );
                     if (!$class->isValid()) {
                         $classman = $class->getManager();
                         $find = self::getsearchbody($classname);
                         $find['stateID'] = $states;
                         $ids = self::ids($classname, $find);
+                        // A search that matches nothing stays a 200. This arm
+                        // is a bulk filter, and matching no rows is a
+                        // legitimate result for one; the 409s in this method
+                        // are for a caller who named a specific resource and
+                        // is entitled to know it was not touched.
                         $classman->cancel($ids);
                     } else {
-                        if (in_array($class->get('stateID'), $states)) {
-                            $class->cancel();
+                        // Falling out of this test used to be silent: the
+                        // method returned normally and the router answered 200
+                        // "cancelled" with the state untouched. That is how a
+                        // Failed task came back from the API reporting success
+                        // and stayed Failed.
+                        if (!in_array($class->get('stateID'), $states)) {
+                            $stateName = self::getClass(
+                                'TaskState',
+                                $class->get('stateID')
+                            )->get('name');
+                            self::_notCancellable(
+                                sprintf(
+                                    '%s: %s',
+                                    _('Task is not active and cannot be cancelled'),
+                                    ($stateName ?: $class->get('stateID'))
+                                )
+                            );
                         }
+                        $class->cancel();
                     }
             }
         } catch (\Exception $e) {
@@ -3692,6 +3783,28 @@ class Route extends FOGBase
                 $e->getMessage()
             );
         }
+    }
+    /**
+     * Refuses a cancel the named resource is not in a state to accept.
+     *
+     * The body is a JSON object, not the bare reason string the older non-2xx
+     * paths in this class emit. breakHead() has always declared
+     * `Content-Type: application/json` and then echoed whatever it was given,
+     * so those replies claim a type they are not; 409 is a status no caller
+     * receives today, so it can start out matching its own header without
+     * breaking anyone. Same `{"msg": ...}` shape the 200 already uses, which
+     * is what $.notifyFromAPI() reads.
+     *
+     * @param string $msg Why the resource cannot be cancelled.
+     *
+     * @return void
+     */
+    private static function _notCancellable($msg)
+    {
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_CONFLICT,
+            json_encode(['msg' => $msg])
+        );
     }
     /**
      * Gets the json body and sets our vars.

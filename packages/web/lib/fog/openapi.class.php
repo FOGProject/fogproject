@@ -1020,8 +1020,18 @@ class OpenAPI extends FOGBase
                     $class,
                     'cancel',
                     sprintf(_('Cancel a %s task'), $class),
-                    '',
-                    self::_messageResponse()
+                    // Hand-written, because the 409 is a router decision the
+                    // generic emitter cannot see. Only cancel answers it, so
+                    // it belongs on this operation and not in the shared
+                    // _errorResponses() map every path picks up.
+                    _(
+                        'Only a task in a queued or in-progress state can be '
+                        . 'cancelled. Naming a resource whose task has already '
+                        . 'finished -- Complete, Cancelled or Failed -- answers '
+                        . '409 rather than reporting a success it did not '
+                        . 'perform.'
+                    ),
+                    self::_messageResponse() + self::_conflictResponse()
                 )
             ];
         }
@@ -1222,6 +1232,33 @@ class OpenAPI extends FOGBase
         return [
             '200' => [
                 'description' => _('Success.'),
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'type' => 'object',
+                            'properties' => ['msg' => ['type' => 'string']]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * The 409 the cancel route answers when the named resource is not in a
+     * cancellable state.
+     *
+     * Carries the same {msg} object the 200 does, rather than the Error
+     * schema: the reason is written for a person, and the UI reads it with
+     * the same $.notifyFromAPI() call either way.
+     *
+     * @return array
+     */
+    private static function _conflictResponse()
+    {
+        return [
+            '409' => [
+                'description' => _('The resource is not in a cancellable state.'),
                 'content' => [
                     'application/json' => [
                         'schema' => [
