@@ -3590,7 +3590,65 @@ abstract class FOGBase
             if (class_exists($className, false)) {
                 continue;
             }
-            self::getClass($className);
+            // The file list is a TTL-cached snapshot (Initiator::
+            // classFileList), so it is ALLOWED to be stale -- that is the
+            // documented design, and forgetClassFileList() exists because of
+            // it. This was the one consumer that treated staleness as fatal:
+            // a file named by the cache and since removed produced an
+            // include_once warning and then an uncaught ReflectionException
+            // out of getClass(), which is a bodyless 500 on every page of the
+            // site for the rest of the TTL.
+            //
+            // Not hypothetical. An install swaps the whole of lib/plugins for
+            // a new pinned release; if that release drops a hook -- ldap lost
+            // addldapapi.hook.php in fog-plugins v1.6.11 -- every request in
+            // the remaining TTL window dies in LoadGlobals, and the installer
+            // reports "Checking web server serves FOG ... Failed!" with an
+            // empty body. It then heals itself, which is why it reads as a
+            // flaky install rather than a bug.
+            //
+            // Skipped and logged rather than swallowed: a listener that does
+            // not load is a feature that silently stops happening, so it has
+            // to leave a trace.
+            //
+            // error_log(), not self::error(). _writeLog() is gated on
+            // `self::$mySchema >= FOG_SCHEMA` and on a globalSettings lookup,
+            // and this runs inside LoadGlobals during an install -- which is
+            // to say it would be silently dropped in exactly the situation it
+            // exists to report. The PHP error log is also where the fatal
+            // this replaces showed up, so both lines land in one place for
+            // whoever is reading. Precedent: authorization.class.php,
+            // hostmanager.class.php.
+            if (!is_file($file)) {
+                error_log(
+                    sprintf(
+                        'FOG startClassFromFiles: %s is in the cached class'
+                        . ' file list but no longer exists; skipping %s.'
+                        . ' Harmless if a plugin was just updated -- the list'
+                        . ' refreshes on its own.',
+                        $file,
+                        $className
+                    )
+                );
+                continue;
+            }
+            // Second guard, different cause: the file is present but does not
+            // declare the class its name promises. Same consequence if it
+            // throws here -- the whole boot dies -- and the same reasoning
+            // applies, so it is reported rather than fatal.
+            try {
+                self::getClass($className);
+            } catch (\ReflectionException $e) {
+                error_log(
+                    sprintf(
+                        'FOG startClassFromFiles: %s does not declare %s'
+                        . ' (%s); skipping it.',
+                        $file,
+                        $className,
+                        $e->getMessage()
+                    )
+                );
+            }
             unset($file);
         }
     }
