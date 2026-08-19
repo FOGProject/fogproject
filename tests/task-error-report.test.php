@@ -58,22 +58,62 @@ $maxText = constant('TaskError::MAX_TEXT');
 
 // ------------------------------------------------------------- one line
 
+// Line breaks are the ONE control character the stored row keeps -- a trace
+// is worth having in the shape FOS wrote it. Everything else still goes,
+// including the carriage return, so a CRLF report does not store stray \r.
 foreach (array(
-    "Failed to mount\nHost imaging completed successfully" => 'a newline',
-    "Failed to mount\r\nsecond line" => 'a CRLF',
     "Failed\tto mount" => 'a tab',
     "Failed to mount\x00truncated" => 'a NUL',
     "Failed \x1b[31mto\x1b[0m mount" => 'a terminal escape',
+    "Failed to mount\r\nsecond line" => 'a carriage return',
 ) as $raw => $what) {
     $out = $clean($raw);
-    if (preg_match('#[\r\n\t\x00\x1b]#', $out)) {
-        $fails[] = "$what survives sanitizing, so a caller can forge a second"
-            . ' line in an administrator\'s notification';
+    if (preg_match('#[\r\t\x00\x1b]#', $out)) {
+        $fails[] = "$what survives sanitizing, so it reaches a log file and a"
+            . ' notification that are both single-line by contract';
     }
     if ('' === $out) {
         $fails[] = "$what makes the whole report empty, which throws away the"
             . ' only thing it carries';
     }
+}
+
+$multi = $clean("Failed to mount\nArgs: -i 2\r\nexit 32");
+if (2 !== substr_count($multi, "\n")) {
+    $fails[] = 'the stored report does not keep its line breaks, so 8K of'
+        . ' trace arrives as one unreadable line -- the reason MAX_TEXT was'
+        . ' widened in the first place';
+}
+// Exact, because stripping the CR without NORMALISING it first turns every
+// CRLF into "space + newline": a trailing space on every line of a report
+// from a machine that ends lines the DOS way, which is most of them.
+if ("a\nb" !== $clean("a\r\nb")) {
+    $fails[] = 'a CRLF report is not normalised to a bare newline, so every'
+        . ' line of it is stored with trailing whitespace';
+}
+// The invalid-UTF-8 fallback has to keep the newline too. [[:cntrl:]] --
+// the obvious class, and what this used to be -- includes it, so a report
+// from a machine with the wrong locale would silently lose its shape while
+// a well-formed one kept it.
+if (false === strpos($clean("Failed \xC3\x28 to mount\nsecond line"), "\n")) {
+    $fails[] = 'the invalid-UTF-8 fallback strips line breaks, so a report'
+        . ' from a machine with the wrong locale is flattened while every'
+        . ' other report keeps its shape';
+}
+
+// ...and the two destinations that ARE single-line by contract flatten it
+// themselves. A newline in a chat message lets a caller forge a second one;
+// a newline in fosreports.log breaks the one-entry-per-line property `tail`
+// depends on.
+$flatten = new ReflectionMethod('TaskError', '_flatten');
+$flatten->setAccessible(true);
+$flat = $flatten->invoke(null, $multi);
+if (false !== strpos($flat, "\n")) {
+    $fails[] = '_flatten() leaves line breaks in, so a caller can forge a'
+        . ' second line in an administrator\'s notification';
+}
+if ('' === $flat) {
+    $fails[] = '_flatten() empties the report';
 }
 
 // ---------------------------------------------------------------- bounds
@@ -161,13 +201,20 @@ $imaging = strpos($src, '$Task->isImagingTask()');
 // The split only exists if the SHORT bound is applied at the notification and
 // nowhere earlier. Cut at the top instead and both halves shrink together,
 // which is the state this change was undoing.
-if (false === strpos(
-    $src,
-    "'Reason' => mb_substr(\$text, 0, self::MAX_REASON)"
+if (!preg_match(
+    '#\'Reason\' => mb_substr\(\s*self::_flatten\(\$text\),\s*0,\s*self::MAX_REASON\s*\)#s',
+    $src
 )) {
-    $fails[] = 'the notification payload is not cut to MAX_REASON at the'
-        . ' notify() call, so widening what is stored also widens what is'
-        . ' pushed to an administrator\'s phone';
+    $fails[] = 'the notification payload is not flattened and cut to'
+        . ' MAX_REASON at the notify() call, so widening what is stored also'
+        . ' widens -- or breaks the line discipline of -- what is pushed to'
+        . ' an administrator\'s phone';
+}
+// The log file is the other single-line contract. Its entries are one
+// timestamped line each, written by _record().
+if (!preg_match('#self::_record\(\s*sprintf\((?:[^;]*?)self::_flatten\(\$text\)#s', $src)) {
+    $fails[] = 'the fosreports.log line is not flattened, so one report can'
+        . ' span several lines and forge entries around itself';
 }
 // _logRow gets the WHOLE text. `self::` and the semicolon on purpose: without
 // them this also matches the method's own SIGNATURE, so narrowing the
