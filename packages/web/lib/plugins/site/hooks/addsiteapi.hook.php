@@ -81,6 +81,13 @@ class AddSiteAPI extends Hook
                     $this,
                     'adjustMassInfo'
                 )
+            )
+            ->register(
+                'API_SCOPE_IDS',
+                array(
+                    $this,
+                    'scopeIDs'
+                )
             );
     }
     /**
@@ -188,6 +195,53 @@ class AddSiteAPI extends Hook
                 
                 break;
         }
+    }
+    /**
+     * Narrows an API read to the acting user's sites.
+     *
+     * Until this existed the plugin's boundary was a management-page
+     * feature: the only filtering hook is AddSiteFilterSearch, registered
+     * on HOST_DATA and GROUP_DATA, and both handlers switch on the global
+     * $node/$sub the pages set. Nothing under api/ fires those events, so
+     * a site-restricted user saw their site in the grid and every host on
+     * the server through /fog/host/list -- on the same credentials, and
+     * without an API token, because Route skips API auth entirely when a
+     * management session is already valid.
+     *
+     * Sets $arguments['ids'] only when a boundary actually applies. Left
+     * alone it stays null, which is the caller's "no narrowing" value; an
+     * EMPTY array set here is a real answer meaning the user may see
+     * nothing. See Site::scopedObjectIDs() for why those must not be
+     * collapsed.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function scopeIDs($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        // No acting user means no boundary to apply -- the service daemons
+        // and the status endpoints reach Route::ids()/names() with nobody
+        // logged in, and narrowing those to a site would break imaging
+        // rather than protect anything.
+        if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return;
+        }
+        $scope = Site::scopedObjectIDs(
+            $arguments['classname'],
+            self::$FOGUser->get('id')
+        );
+        if (null === $scope) {
+            return;
+        }
+        $arguments['ids'] = array_values(
+            array_unique(
+                array_map('intval', (array)$scope)
+            )
+        );
     }
     /**
      * This function changes the getter to enact on this particular item.

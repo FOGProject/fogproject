@@ -85,11 +85,17 @@ class AddSiteFilterSearch extends Hook
             case 'host':
                 switch ($sub) {
                     case 'search':
+                        // Narrowed against $siteHosts rather than by a
+                        // second SiteHostAssociation lookup of its own:
+                        // the membership rule lives in Site now, and two
+                        // statements of who may see what is a boundary
+                        // that is decorative the first time they differ.
                         $hostsID = self::getClass('HostManager')->search('');
-                        $hosts = self::getSubObjectIDs(
-                            'SiteHostAssociation',
-                            array('hostID' => $hostsID,'siteID'=>$siteIDbyUser),
-                            'hostID'
+                        $hosts = array_values(
+                            array_intersect(
+                                array_map('intval', (array)$hostsID),
+                                array_map('intval', (array)$siteHosts)
+                            )
                         );
                         break;
                     case 'list':
@@ -212,12 +218,7 @@ class AddSiteFilterSearch extends Hook
      */
     public function isRestricted($userid)
     {
-        $userRestrictions = self::getSubObjectIDs(
-            'SiteUserRestriction',
-            array('userID' => $userid),
-            'isRestricted'
-        );
-        return $userRestrictions[0];
+        return Site::userIsRestricted($userid);
     }
     /**
      * Get site IDs where the user is associated.
@@ -228,12 +229,7 @@ class AddSiteFilterSearch extends Hook
      */
     public function getSiteIDbyUser($userID)
     {
-        $find = array('userID' => $userID);
-        return self::getSubObjectIDs(
-            'SiteUserAssociation',
-            $find,
-            'siteID'
-        );
+        return Site::userSiteIDs($userID);
     }
 
     /**
@@ -245,12 +241,7 @@ class AddSiteFilterSearch extends Hook
      */
     public function getHostIDbySite($siteIDs)
     {
-        $find = array('siteID' => $siteIDs);
-        return self::getSubObjectIDs(
-            'SiteHostAssociation',
-            $find,
-            'hostID'
-        );
+        return Site::hostIDsForSites($siteIDs);
     }
     /**
      * Get the group IDs which have one or more hosts of the user locations.
@@ -261,11 +252,6 @@ class AddSiteFilterSearch extends Hook
      */
     public function getGroupIDbySite($siteIDbyUser)
     {
-        $siteHosts = $this->getHostIDbySite($siteIDbyUser);
-        return self::getSubObjectIDs(
-            'GroupAssociation',
-            array('hostID' => $siteHosts),
-            'groupID'
-        );
+        return Site::groupIDsForSites($siteIDbyUser);
     }
 }
