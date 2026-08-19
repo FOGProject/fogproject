@@ -330,6 +330,32 @@ public function __construct()
 }
 ```
 
+A listener may also be a **closure**, which is the shape the three
+authentication seams in §7 use — one callback, registered inline, no method to
+name:
+
+```php
+self::$HookManager->register('LOGIN_PAGE_PROVIDERS', function ($args) { /* ... */ });
+```
+
+Both shapes are supported and nothing else is: a bare function name and
+`[SomeClass::class, 'staticMethod']` are refused. Prefer `registerInstalled()`
+when a hook registers several callbacks, since it also carries the
+installed-plugin guard.
+
+**`$active` decides whether your callbacks run.** `Hook` inherits
+`public $active = true;` from `Event`, so you get it for free and only need to
+declare it if you want the hook off. It is read from the class's declared
+default when the file is loaded, and from the live property each time an event
+fires — so a hook is free to compute it in its constructor, and a plugin can
+turn one of its own hooks off. A closure obeys the `$active` of the hook it was
+written inside; a closure with no `$this` — a `static function`, or one created
+outside a hook — has no owner and always runs.
+
+> Before 1.6.0 a hook whose file path contained the string `plugins` was
+> force-activated regardless of its flag, so `$active` was decorative for every
+> plugin hook. See `docs/adr/0017-hook-dispatch-contract.md`.
+
 The example ships three hooks:
 
 - **Menu** (`AddHelloWorldMenuItem`) — `MAIN_MENU_DATA` adds the sidebar entry;
@@ -806,6 +832,12 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
   status codes are honest (`500` vs `400`).
 - **Hook constructors must early‑return** when the node isn't in
   `$pluginsinstalled`, or your hooks run for a plugin that isn't enabled.
+  `registerInstalled()` does this for you.
+- **A registration that fails is logged, not thrown.** `register()` catches an
+  unusable listener, writes one line naming the class and the event, and
+  returns — so a typo in a method name costs you a hook that silently never
+  fires. If a callback isn't running, check the log before you check the event
+  name.
 - **List columns** in the JS must match `$headerData` order and the keys the
   router emits (`mainlink`, `id`, friendly field names).
 - **An external plugin's assets are served through a symlink FOG maintains for

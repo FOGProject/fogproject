@@ -175,7 +175,16 @@ abstract class Event extends FOGBase
     {
     }
     /**
-     * This is a default function for events only.
+     * What EventManager::notify() calls. Subclasses override it.
+     *
+     * Deliberately empty. It used to printf the event name into the response,
+     * which meant an event class that had not overridden it wrote text into
+     * whatever output was being produced -- a page, or a client protocol reply
+     * that the fog-client parses positionally. Every bundled plugin event
+     * overrides this; lib/events/hostlist.event.php, the one core event, does
+     * not, and it is only inactive that saved it.
+     *
+     * A listener that does nothing should do nothing.
      *
      * @param string $event the event to work off.
      * @param mixed  $data  the data, though unused.
@@ -184,11 +193,6 @@ abstract class Event extends FOGBase
      */
     public function onEvent($event, $data)
     {
-        printf(
-            '%s %s',
-            $event,
-            _('Registered')
-        );
     }
 }
 

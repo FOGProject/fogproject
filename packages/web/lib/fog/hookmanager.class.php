@@ -27,6 +27,18 @@ namespace FOG;
 class HookManager extends EventManager
 {
     /**
+     * The file extension this manager's listeners are declared in.
+     *
+     * @var string
+     */
+    protected $fileExtension = '.hook.php';
+    /**
+     * The directory under BASEPATH those files live in.
+     *
+     * @var string
+     */
+    protected $fileDirectory = 'hooks';
+    /**
      * Log level if needed.
      *
      * @var int
@@ -35,9 +47,9 @@ class HookManager extends EventManager
     /**
      * Data to store and use.
      *
-     * @var mixed
+     * @var array
      */
-    public $data;
+    public $data = [];
     /**
      * Events to work off.
      *
@@ -61,6 +73,91 @@ class HookManager extends EventManager
      * @var array|null
      */
     private static $knownEvents = null;
+    /**
+     * Refuses to notify. A hook is not an event listener.
+     *
+     * notify() is EventManager's, and it iterates listeners as objects --
+     * $element->active, $element->onEvent(). HookManager stores them as
+     * [object, method] arrays and Closures, so under PHP 8 the property read
+     * on an array is a warning that yields null, every listener is skipped,
+     * and the inherited method returned TRUE having invoked nothing.
+     *
+     * Nothing in core, in packages/service or in fog-plugins calls it, so the
+     * only code this reaches is third-party code whose listeners have never
+     * fired. Say so rather than fixing it silently: the two are not two spellings
+     * of one thing. processEvent() merges an `event` key into the payload and
+     * calls a named method that can mutate its arguments through references;
+     * notify() passes a copy to a fixed method and discards the result. Quietly
+     * making one behave as the other would blur a boundary the rest of this
+     * work is sharpening -- see EventManager::register(), which no longer
+     * accepts a Hook as an event listener either.
+     *
+     * @param string $event     the event to notify against
+     * @param array  $eventData the data to pass
+     *
+     * @return bool
+     */
+    public function notify($event, $eventData = [])
+    {
+        self::log(
+            sprintf(
+                '%s: %s. %s',
+                _('Cannot notify from the hook manager'),
+                is_string($event) ? $event : gettype($event),
+                _('Use processEvent instead')
+            ),
+            $this->logLevel,
+            0,
+            0,
+            $this
+        );
+
+        return false;
+    }
+    /**
+     * Refuses a listener this manager cannot dispatch.
+     *
+     * A hook listener is either [Hook, method] or a Closure. Both have an
+     * owner -- the object for the pair, and whatever $this the closure was
+     * written inside for the closure -- and the owner is what carries
+     * $active, so admitting closures needed no new activation rule. A closure
+     * with no bound $this has no owner and always runs: registering it is the
+     * opt-in.
+     *
+     * docs/plugin-development.md has documented the closure form for the
+     * three Phase 2 authentication seams since ADR 0014.
+     *
+     * @param mixed $listener The listener as the caller supplied it.
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    protected function acceptListener($listener)
+    {
+        if ($listener instanceof \Closure) {
+            return;
+        }
+        if (!is_array($listener) || count($listener ?: []) !== 2) {
+            throw new \Exception(
+                _('Listener must be [class,function] or a closure')
+            );
+        }
+        if (!($listener[0] instanceof Hook)) {
+            throw new \Exception(_('Class must extend hook'));
+        }
+        if (!method_exists($listener[0], $listener[1])) {
+            throw new \Exception(
+                sprintf(
+                    '%s: %s->%s',
+                    _('Method does not exist'),
+                    // Short name: this is log text, not a class reference.
+                    self::shortName($listener[0]),
+                    $listener[1]
+                )
+            );
+        }
+    }
     /**
      * Processes the system for customizable elements.
      *
@@ -89,29 +186,40 @@ class HookManager extends EventManager
         if (!isset($this->data[$event])) {
             return;
         }
-        foreach ((array) $this->data[$event] as &$function) {
-            $active = false;
-            // class-name consumer: handed straight to ReflectionClass,
-            // which resolves a namespaced name and a global one alike.
-            $className = get_class($function[0]);
-            $refClass = new \ReflectionClass($className);
-            $filename = $refClass->getFileName();
-            if (!method_exists($function[0], $function[1])) {
+        foreach ((array) $this->data[$event] as $function) {
+            // Two listener shapes, one activation rule. A pair's owner is its
+            // object; a closure's owner is whatever $this it was written
+            // inside, which for a closure declared in a hook constructor is
+            // that hook. Either way the owner is what carries $active, so a
+            // closure obeys the flag exactly as [$this, 'method'] does. A
+            // closure with no bound $this has no owner and always runs.
+            if ($function instanceof \Closure) {
+                $owner = (new \ReflectionFunction($function))->getClosureThis();
+                $callable = $function;
+            } else {
+                $owner = $function[0];
+                if (!method_exists($owner, $function[1])) {
+                    continue;
+                }
+                $callable = [$owner, $function[1]];
+            }
+            // $active decides, wherever the file lives. This used to reflect
+            // on the listener's class, take its filename and force
+            // active = true whenever the path contained the substring
+            // "plugins" -- so the flag was decorative for every plugin hook
+            // and a plugin could not turn one of its own hooks off. See
+            // docs/adr/0017.
+            if ($owner instanceof Hook && !$owner->active) {
                 continue;
             }
-            if (stripos($filename, 'plugins') !== false) {
-                $function[0]->active = true;
-            }
-            $active = $function[0]->active;
-            if (!$active) {
-                continue;
-            }
+            // Kept in a variable rather than inlined into the call: a listener
+            // is free to declare its parameter by reference, and only a
+            // variable can bind to one.
             $mergedArr = self::fastmerge(
                 ['event' => $event],
                 $arguments
             );
-            $function[0]->{$function[1]}($mergedArr);
-            unset($function);
+            $callable($mergedArr);
         }
     }
 }
