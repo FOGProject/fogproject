@@ -2236,6 +2236,10 @@ msgstr "主页电话"
 msgid "Host"
 msgstr "主机"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr "主机AD域"
 
@@ -2709,6 +2713,10 @@ msgstr "映像已完成"
 
 msgid "Imaging Duration"
 msgstr "映像期间"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "映像失败"
 
 msgid "Imaging Log"
 msgstr "映像日志"
@@ -5796,6 +5804,10 @@ msgstr "这个文件只能在Windows上使用"
 msgid "This host already exists"
 msgstr "主机已经存在"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "主机已经存在"
+
 msgid "This installation process may take a few minutes"
 msgstr "安装进程将持续几分钟"
 
@@ -6447,6 +6459,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "所有目前的存储节点"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "镜像无效"
+
 msgid "and Mac OS X"
 msgstr "和MAC OS X"
 
@@ -6753,9 +6769,6 @@ msgstr "镜像"
 msgid "images to a storage group"
 msgstr "存储组镜像"
 
-msgid "imaging failed."
-msgstr "映像失败"
-
 msgid "in seconds"
 msgstr "几秒钟内"
 
@@ -6881,6 +6894,9 @@ msgstr "N/A"
 
 msgid "no login will appear"
 msgstr "不会出现登录"
+
+msgid "no reason was reported"
+msgstr ""
 
 msgid "node is the distributor of the images"
 msgstr "节点是镜像的分发器"

@@ -62,15 +62,32 @@ class ImageFail_Slack extends Event
      */
     public function onEvent($event, $data)
     {
+        // See the pushbullet listener: the reason is the actionable half of
+        // this notification, and every added key is read defensively so the
+        // plugin keeps working against a web tree that still sends HostName
+        // alone.
+        $image = (string) ($data['ImageName'] ?? '');
+        if ('' === $image) {
+            $image = _('an unnamed image');
+        }
+        $reason = (string) ($data['Reason'] ?? '');
+        if ('' === $reason) {
+            $reason = _('no reason was reported');
+        }
         foreach ((array)self::getClass('SlackManager')
             ->find() as &$Token
         ) {
             $args = array(
                 'channel' => $Token->get('name'),
+                // Whole sentence inside _() with positional specifiers: the
+                // old form put 'Host: %s ' outside the call and translated
+                // the tail on its own, which is not a sentence a translator
+                // can work with.
                 'text' => sprintf(
-                    'Host: %s %s',
+                    _('Host %1$s failed imaging %2$s: %3$s'),
                     $data['HostName'],
-                    _('imaging failed.')
+                    $image,
+                    $reason
                 )
             );
             $Token->call('chat.postMessage', $args);

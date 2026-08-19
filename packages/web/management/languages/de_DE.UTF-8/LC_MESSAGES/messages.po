@@ -2536,6 +2536,10 @@ msgstr "Telefonnummer"
 msgid "Host"
 msgstr "Host"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Host AD Domain"
 msgstr "Host AD-Domäne"
@@ -3074,6 +3078,10 @@ msgstr "Image Task vollständig"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "Imaging Log"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Laden fehlgeschlagen: %s"
 
 msgid "Imaging Log"
 msgstr "Imaging Log"
@@ -6595,6 +6603,10 @@ msgstr "Diese Datei funktioniert nur auf Windows"
 msgid "This host already exists"
 msgstr "Dieser Host ist bereits vorhanden."
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Dieser Host ist bereits vorhanden."
+
 msgid "This installation process may take a few minutes"
 msgstr "Der Installationsprozess kann ein paar Minuten dauern, "
 
@@ -7345,6 +7357,10 @@ msgstr "vor"
 msgid "all current storage nodes"
 msgstr "momentanen Speicherknoten löschen."
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Ungültiges Image"
+
 msgid "and Mac OS X"
 msgstr "und Mac OS X"
 
@@ -7696,10 +7712,6 @@ msgstr "Images"
 msgid "images to a storage group"
 msgstr "bildet ab zu einer Speichergruppe"
 
-#, fuzzy
-msgid "imaging failed."
-msgstr "Laden fehlgeschlagen: %s"
-
 msgid "in seconds"
 msgstr "in Sekunden"
 
@@ -7844,6 +7856,9 @@ msgstr "nicht verfügbar"
 
 msgid "no login will appear"
 msgstr "wird kein Login erscheinen."
+
+msgid "no reason was reported"
+msgstr ""
 
 msgid "node is the distributor of the images"
 msgstr "welcher Knoten die Images verteilt."

@@ -2247,6 +2247,10 @@ msgstr "Téléphone fixe"
 msgid "Host"
 msgstr "Machine"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr "Domaine AD machine"
 
@@ -2721,6 +2725,10 @@ msgstr "Clonage terminé"
 
 msgid "Imaging Duration"
 msgstr "Durée du clonage"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "La connexion a échoué"
 
 msgid "Imaging Log"
 msgstr "Journal des clonages"
@@ -5825,6 +5833,10 @@ msgstr "Ce fichier ne fonctionnera que sous Windows"
 msgid "This host already exists"
 msgstr "Cette machine existe déjà"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Cette machine existe déjà"
+
 msgid "This installation process may take a few minutes"
 msgstr "Ce processus d'installation peut prendre quelques minutes"
 
@@ -6482,6 +6494,10 @@ msgstr "depuis"
 msgid "all current storage nodes"
 msgstr "tous les nœuds de stockage actuels"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Image invalide"
+
 msgid "and Mac OS X"
 msgstr "and MacOS X"
 
@@ -6791,10 +6807,6 @@ msgstr "images"
 msgid "images to a storage group"
 msgstr "images vers un groupe de stockage"
 
-#, fuzzy
-msgid "imaging failed."
-msgstr "La connexion a échoué"
-
 msgid "in seconds"
 msgstr "en secondes"
 
@@ -6921,6 +6933,9 @@ msgstr "n/a"
 
 msgid "no login will appear"
 msgstr "aucun login n'apparaîtra"
+
+msgid "no reason was reported"
+msgstr ""
 
 msgid "node is the distributor of the images"
 msgstr "nœud est le distributeur des images"

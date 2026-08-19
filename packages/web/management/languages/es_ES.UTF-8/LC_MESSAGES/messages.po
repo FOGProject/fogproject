@@ -2530,6 +2530,10 @@ msgstr ""
 msgid "Host"
 msgstr "Equipo"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Host AD Domain"
 msgstr "Gestión de equipos"
@@ -3096,6 +3100,10 @@ msgstr "Imagen"
 #, fuzzy
 msgid "Imaging Duration"
 msgstr "Descripción"
+
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Error al cargar"
 
 msgid "Imaging Log"
 msgstr ""
@@ -6578,6 +6586,10 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Ya existe este equipo"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Ya existe este equipo"
+
 msgid "This installation process may take a few minutes"
 msgstr ""
 
@@ -7294,6 +7306,10 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr "todos los Nodos de Almacenamiento"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Imagen inválida"
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -7645,10 +7661,6 @@ msgstr "Imágenes"
 msgid "images to a storage group"
 msgstr "Añadir grupo de almacenamiento"
 
-#, fuzzy
-msgid "imaging failed."
-msgstr "Error al cargar"
-
 msgid "in seconds"
 msgstr ""
 
@@ -7788,6 +7800,9 @@ msgstr ""
 #, fuzzy
 msgid "no login will appear"
 msgstr "Gestión de login"
+
+msgid "no reason was reported"
+msgstr ""
 
 msgid "node is the distributor of the images"
 msgstr "exportar imágenes"
