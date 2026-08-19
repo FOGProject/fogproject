@@ -27,6 +27,18 @@ namespace FOG;
 class HookManager extends EventManager
 {
     /**
+     * The file extension this manager's listeners are declared in.
+     *
+     * @var string
+     */
+    protected $fileExtension = '.hook.php';
+    /**
+     * The directory under BASEPATH those files live in.
+     *
+     * @var string
+     */
+    protected $fileDirectory = 'hooks';
+    /**
      * Log level if needed.
      *
      * @var int

@@ -27,6 +27,25 @@ namespace FOG;
 class EventManager extends FOGBase
 {
     /**
+     * The file extension this manager's listeners are declared in.
+     *
+     * Declared per class rather than decided in load(), which used to run two
+     * sequential instanceof checks -- EventManager first, then HookManager.
+     * HookManager extends EventManager, so it satisfied both, and reached
+     * .hook.php only because the second assignment overwrote the first.
+     * Swapping the blocks made every HookManager load .event.php instead, and
+     * nothing would have said so.
+     *
+     * @var string
+     */
+    protected $fileExtension = '.event.php';
+    /**
+     * The directory under BASEPATH those files live in.
+     *
+     * @var string
+     */
+    protected $fileDirectory = 'events';
+    /**
      * Items log level.
      *
      * @var int
@@ -302,15 +321,9 @@ class EventManager extends FOGBase
      */
     public function load()
     {
-        // Sets up regex and paths to scan for
-        if ($this instanceof EventManager) {
-            $extension = '.event.php';
-            $dirpath = 'events';
-        }
-        if ($this instanceof HookManager) {
-            $extension = '.hook.php';
-            $dirpath = 'hooks';
-        }
+        // Each manager says what it loads; see $fileExtension.
+        $extension = $this->fileExtension;
+        $dirpath = $this->fileDirectory;
         $strlen = -strlen($extension);
         list(
             $normalfiles,

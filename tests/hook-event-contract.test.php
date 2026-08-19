@@ -331,19 +331,35 @@ if (false !== strpos($loader, 'active' . chr(92) . 's?=')) {
     $fails[] = 'the source-text activation regex is back in EventManager';
 }
 
-// F-22. load() picks the extension with two sequential instanceof checks, and
-// HookManager satisfies both. It reaches .hook.php only because the second
-// assignment overwrites the first, so reordering the blocks silently makes
-// every HookManager load .event.php.
-$body = substr($loader, strpos($loader, 'public function load()'));
-$evtAt = strpos($body, "'.event.php'");
-$hookAt = strpos($body, "'.hook.php'");
-if (false === $evtAt || false === $hookAt) {
-    $fails[] = 'load() no longer chooses between .event.php and .hook.php by'
-        . ' assignment; if the choice moved onto the classes, rewrite this case';
-} elseif ($evtAt > $hookAt) {
-    $fails[] = 'the two instanceof blocks in load() have been reordered, which'
-        . ' makes HookManager load .event.php files';
+// F-22, fixed. load() used to pick its file extension with two sequential
+// instanceof checks. HookManager extends EventManager, so it satisfied both,
+// and reached .hook.php only because the second assignment overwrote the
+// first -- reordering the blocks silently made every HookManager load
+// .event.php. Each manager now declares what it loads.
+foreach ([
+    'FOG\\EventManager' => ['.event.php', 'events'],
+    'FOG\\HookManager' => ['.hook.php', 'hooks'],
+] as $class => list($ext, $dir)) {
+    $obj = $bare($class);
+    foreach (['fileExtension' => $ext, 'fileDirectory' => $dir] as $prop => $want) {
+        $r = new \ReflectionProperty($class, $prop);
+        $r->setAccessible(true);
+        if ($want !== $r->getValue($obj)) {
+            $fails[] = sprintf(
+                '%s::$%s is %s, not %s -- the manager would load the other'
+                . " manager's files",
+                $class,
+                $prop,
+                var_export($r->getValue($obj), true),
+                var_export($want, true)
+            );
+        }
+    }
+}
+$loadBody = substr($loader, strpos($loader, 'public function load()'));
+if (false !== strpos($loadBody, 'instanceof')) {
+    $fails[] = 'load() decides what to load by instanceof again, which cannot'
+        . ' tell a HookManager from the EventManager it extends';
 }
 
 // ------------------------------------------------------ activation, at dispatch
