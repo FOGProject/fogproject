@@ -592,14 +592,72 @@ class TaskQueue extends TaskingElement
                     throw new \Exception(_('Failed to update imaging log'));
                 }
             }
-            self::$EventManager->notify(
-                'HOST_IMAGE_COMPLETE',
-                ['HostName' => self::$Host->get('name')]
-            );
+            $this->_notifyImagingOutcome();
             echo '##';
         } catch (\Exception $e) {
+            // Imaging ran but FOG could not finish recording it -- the host
+            // update, the task save, the task log or the imaging log failed.
+            // The task is left short of Complete and FOS is told, but until
+            // now nobody watching notifications was. See #1202.
+            $this->_notifyImagingOutcome($e->getMessage());
             echo $e->getMessage();
         }
+    }
+    /**
+     * Notifies listeners that an imaging task finished, or did not.
+     *
+     * Three things were wrong here before #1202.
+     *
+     * `HOST_IMAGEUP_COMPLETE` was never fired by anything, on any server,
+     * ever, despite all three bundled notification plugins registering a
+     * listener for it. Captures announced themselves as `HOST_IMAGE_COMPLETE`
+     * -- the deploy name -- so "an image finished uploading" and "a machine
+     * finished being imaged" were indistinguishable to anything listening.
+     * The two names exist precisely to tell those apart.
+     *
+     * The notification also fired for tasks that are not imaging at all. This
+     * method is reached from Post_Wipe.php as well as Post_Stage2/3.php, so
+     * wiping a disk sent "This host has finished imaging."
+     *
+     * And the payload was the host's name and nothing else, which is why every
+     * bundled listener can only say "this host has finished imaging" without
+     * naming the image. The existing `HostName` key is kept exactly as it was
+     * -- it is the only key any current listener reads, in core, in the
+     * bundled plugins and in whatever third-party plugins exist -- and the
+     * rest is added alongside it.
+     *
+     * @param string $reason Empty on success; the failure text otherwise.
+     *
+     * @return void
+     */
+    private function _notifyImagingOutcome($reason = '')
+    {
+        if (!$this->imagingTask) {
+            return;
+        }
+        $data = [
+            'HostName' => self::$Host->get('name'),
+            'Host' => self::$Host,
+            'Task' => $this->Task,
+            'Image' => $this->Image,
+            'ImageName' => (
+                $this->Image && $this->Image->isValid() ?
+                $this->Image->get('name') :
+                ''
+            ),
+            'TaskType' => $this->Task->getTaskTypeText()
+        ];
+        if ('' !== (string) $reason) {
+            $data['Reason'] = (string) $reason;
+            self::$EventManager->notify('HOST_IMAGE_FAIL', $data);
+            return;
+        }
+        self::$EventManager->notify(
+            $this->Task->isCapture() ?
+            'HOST_IMAGEUP_COMPLETE' :
+            'HOST_IMAGE_COMPLETE',
+            $data
+        );
     }
 }
 
