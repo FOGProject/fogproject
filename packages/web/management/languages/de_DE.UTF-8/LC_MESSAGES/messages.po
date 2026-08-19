@@ -2734,6 +2734,9 @@ msgstr "Host-Beschreibung"
 msgid "Host general"
 msgstr "Host-Kernel"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "Host ist bereits Mitglied eines aktiven Tasks"
 
@@ -4277,6 +4280,10 @@ msgstr "Kein Zugriff erlaubt"
 
 #, fuzzy
 msgid "No active task found for this host"
+msgstr "Keinen aktiven Task gefunden für Host"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
 msgstr "Keinen aktiven Task gefunden für Host"
 
 msgid "No activity information available for this group"
@@ -6390,6 +6397,10 @@ msgstr "Task-Typen"
 
 msgid "Task forced to start"
 msgstr "Task Start erzwungen"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "Image ist geschützt und kann nicht gelöscht werden"
 
 msgid "Task not created as there are no associated tasks"
 msgstr ""

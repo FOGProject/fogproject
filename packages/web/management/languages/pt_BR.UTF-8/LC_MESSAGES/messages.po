@@ -2407,6 +2407,9 @@ msgstr "Descrição do host"
 msgid "Host general"
 msgstr "Geral do host"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "Host já é membro de uma tarefa ativa"
 
@@ -3770,6 +3773,10 @@ msgstr "Nenhum acesso é permitido"
 
 #, fuzzy
 msgid "No active task found for this host"
+msgstr "Nenhuma Tarefa Ativa encontrada para o Host"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
 msgstr "Nenhuma Tarefa Ativa encontrada para o Host"
 
 msgid "No activity information available for this group"
@@ -5611,6 +5618,10 @@ msgstr "Tipos de Tarefa"
 
 msgid "Task forced to start"
 msgstr "Tarefa forçada a iniciar"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "A imagem está protegida e não pode ser excluída"
 
 msgid "Task not created as there are no associated tasks"
 msgstr "Tarefa não criada pois não há tarefas associadas"

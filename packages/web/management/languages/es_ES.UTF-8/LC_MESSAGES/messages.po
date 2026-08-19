@@ -2749,6 +2749,9 @@ msgstr "Descripción"
 msgid "Host general"
 msgstr "Equipo"
 
+msgid "Host has no active task to cancel"
+msgstr ""
+
 msgid "Host is already a member of an active task"
 msgstr "El equipo ya es miembro de una tarea activa"
 
@@ -4296,6 +4299,10 @@ msgstr "No permitido aquí"
 
 #, fuzzy
 msgid "No active task found for this host"
+msgstr "No hay tareas activas para este equipo"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
 msgstr "No hay tareas activas para este equipo"
 
 msgid "No activity information available for this group"
@@ -6384,6 +6391,10 @@ msgstr "Tarea"
 #, fuzzy
 msgid "Task forced to start"
 msgstr "Gestión de tareas"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "Imagen protegida y no puede ser borrada"
 
 msgid "Task not created as there are no associated tasks"
 msgstr ""
