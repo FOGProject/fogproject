@@ -4805,6 +4805,10 @@ msgstr "No Printer Management"
 msgid "No access is allowed"
 msgstr "Nessun accesso è consentito"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "Nessun compito attivo trovato per Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -4833,6 +4837,9 @@ msgstr "Nessun dato da inserire"
 
 msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
+
+msgid "No error text supplied"
+msgstr ""
 
 msgid "No external data to download the file from"
 msgstr ""
@@ -7369,6 +7376,10 @@ msgstr "Caricamento non riuscito"
 #, fuzzy
 msgid "Task finished"
 msgstr "Attività iniziata"
+
+#, fuzzy
+msgid "Task is not an imaging task"
+msgstr "Impossibile modificare l'immagine durante l'attività"
 
 msgid "Task not created as there are no associated Tasks"
 msgstr "Attività non creata poiché non ci sono attività associate"

@@ -4979,6 +4979,10 @@ msgstr "没有打印机管理"
 msgid "No access is allowed"
 msgstr ""
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "发现主机没有活动任务"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -5008,6 +5012,9 @@ msgstr "无数据返回"
 
 msgid "No database to work off"
 msgstr "没有数据库工作关闭"
+
+msgid "No error text supplied"
+msgstr ""
 
 msgid "No external data to download the file from"
 msgstr ""
@@ -7649,6 +7656,9 @@ msgstr "加载失败： %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "任务开始"
+
+msgid "Task is not an imaging task"
+msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""

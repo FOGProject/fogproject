@@ -4978,6 +4978,10 @@ msgstr "No Printer Management"
 msgid "No access is allowed"
 msgstr ""
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "No Active Task found for Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -5007,6 +5011,9 @@ msgstr "No data returned"
 
 msgid "No database to work off"
 msgstr "No database to work off"
+
+msgid "No error text supplied"
+msgstr ""
 
 msgid "No external data to download the file from"
 msgstr ""
@@ -7648,6 +7655,9 @@ msgstr "Load failed: %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "Task Started"
+
+msgid "Task is not an imaging task"
+msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""

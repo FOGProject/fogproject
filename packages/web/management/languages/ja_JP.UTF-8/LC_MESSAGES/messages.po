@@ -4757,6 +4757,10 @@ msgstr "プリンター管理なし"
 msgid "No access is allowed"
 msgstr "アクセスは許可されていません"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "このホストの実行中タスクは見つかりません"
+
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
@@ -4785,6 +4789,9 @@ msgstr "挿入するデータがありません"
 
 msgid "No database to work off"
 msgstr "使用するデータベースがありません"
+
+msgid "No error text supplied"
+msgstr ""
 
 msgid "No external data to download the file from"
 msgstr ""
@@ -7298,6 +7305,10 @@ msgstr "タスク実行に失敗しました"
 #, fuzzy
 msgid "Task finished"
 msgstr "タスク実行に失敗しました"
+
+#, fuzzy
+msgid "Task is not an imaging task"
+msgstr "タスク実行中はイメージを変更できません"
 
 #, fuzzy
 msgid "Task not created as there are no associated Tasks"
