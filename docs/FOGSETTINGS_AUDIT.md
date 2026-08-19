@@ -10,12 +10,17 @@ each is a behaviour change with its own blast radius, and bundling them into a
 rename commit would have made both unreviewable. They are recorded here so the
 next person starts from a list rather than from a rediscovery.
 
+Findings **2** and **12** were fixed in `046fe81e9` while this was being
+written, independently and from the other direction. Both are struck through
+below with a note on what shipped, rather than deleted: the point of a list
+like this is that the next one of the same shape is easier to see.
+
 ## Summary
 
 | # | Finding | Severity |
 |---|---|---|
 | 1 | `public-cert`/`embed-ca` are not self-consistent — `FOG_WEB_HOST` still holds an IP | High |
-| 2 | The two `-10sec` ESP archives ship with no FOG binaries; a third is not built | High |
+| 2 | ~~The two `-10sec` ESP archives ship with no FOG binaries; a third is not built~~ | **Fixed** |
 | 3 | `service/secureboot/mmx64.efi` is missing on a first install | Medium |
 | 4 | `_booturl` hardcodes `/fog/service`, ignoring `FOG_WEB_ROOT` | Medium |
 | 5 | `--install-mode http-only` does not survive an upgrade | Medium |
@@ -25,7 +30,7 @@ next person starts from a list rather than from a rediscovery.
 | 9 | `httpProto=http` with `httpsRedirect=yes` is reachable and unguarded | Low |
 | 10 | Three reporting defects around the install-mode prompt | Low |
 | 11 | Two keys are read but never written | Low |
-| 12 | `localboot-publish.test.sh` cannot see finding 2 | Medium (test) |
+| 12 | ~~`localboot-publish.test.sh` cannot see finding 2~~ | **Fixed** |
 
 ---
 
@@ -52,7 +57,22 @@ In practice it also needs a manual `FOG_WEB_HOST` edit, and nothing in the
 installer says so. Either set it when `netbootProto` resolves to `https`, or
 warn. Documented as a manual step meanwhile.
 
-## 2. The `-10sec` ESP archives contain no FOG binaries
+## 2. The `-10sec` ESP archives contain no FOG binaries — FIXED
+
+> **Fixed in `046fe81e9`** ("Give the ESP archives a boot script that works,
+> and rEFInd"), which landed independently while this audit was being written
+> and confirms the diagnosis below. The delay variants were **removed** rather
+> than repaired: six archives become three. With FOG's boot script now on disk
+> at `local/autoexec.ipxe`, the delay is two lines of text written there by
+> `--boot-delay` inside the same `FOG-BOOT-DELAY` sentinels
+> `_applyBootDelay()` uses on the TFTP copy — so **one option now covers both
+> netboot and ESP boot**, which is what the "the delay has to live in the
+> binary" note in three places got wrong. The original finding is kept below
+> because the failure mode it describes — a `copied` count kept non-zero by the
+> shim set, so an archive missing its whole point is still staged, checksummed
+> and advertised — is the shape to watch for, not a one-off.
+
+
 
 `_espKitFiles()` sources the delay variant from `10secdelay/${fogdir}${name}.efi`
 (`functions.sh:10102`). `_retireStaleEfiPaths()` deletes exactly those —
@@ -178,7 +198,15 @@ Separately, `writeKeaSample()` declares `local startrange` / `local endrange`
 (`functions.sh:10926`, `:10931`), so the Kea sample ignores a persisted or
 `-s`/`-e`-supplied range while the ISC path honours it.
 
-## 12. The localboot test cannot see finding 2
+## 12. The localboot test cannot see finding 2 — FIXED
+
+> **Fixed alongside finding 2 in `046fe81e9`.** The suite went from 62 to 87
+> assertions, and every one of the 50 covering new behaviour was confirmed to
+> fail against the pre-fix `functions.sh` before being relied on — which is the
+> discipline the finding below was asking for. The fixture problem is moot now
+> that `10secdelay/` has no part in the archives at all.
+
+
 
 `tests/localboot-publish.test.sh:122–146` fabricates `10secdelay/`,
 `10secdelay/i386-efi/` and `10secdelay/arm64-efi/` full of `.efi` files — a tree
