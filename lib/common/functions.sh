@@ -8555,6 +8555,32 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
+    # The web root was rm -rf'd above and rebuilt, so any file the new release
+    # DROPPED is genuinely gone. Initiator::classFileList() caches the scanned
+    # class-file list to $fogprogramdir/cache with a 300 second TTL, and that
+    # cache does not know the tree just changed underneath it.
+    #
+    # Left alone, every request for the rest of the TTL walks a list naming
+    # files that no longer exist. startClassFromFiles() used to die on the
+    # first one, which is an uncaught ReflectionException inside LoadGlobals --
+    # a bodyless 500 on every page, including the "Checking web server serves
+    # FOG" probe a few steps below, which then reports a failed install. It
+    # heals itself when the TTL expires, so it reads as a flaky install rather
+    # than as this.
+    #
+    # Observed with fog-plugins v1.6.11, which drops ldap/hooks/addldapapi.hook.php.
+    #
+    # startClassFromFiles() now skips a vanished file instead of dying, so this
+    # is the second of two guards rather than the only one -- but a stale list
+    # still means a hook that quietly does not load, and that is a feature
+    # silently not happening. Clearing it here means the very next request
+    # rescans.
+    #
+    # Only the file lists. The same directory holds the settings-cache flush
+    # signal (see the cache block in configureFOGService) which must survive.
+    dots "Dropping the stale class file list"
+    rm -f $fogprogramdir/cache/filelist.*.json >>$error_log 2>&1
+    errorStat $?
     for i in $(find $backupPath/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$error_log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$error_log 2>&1
     done
