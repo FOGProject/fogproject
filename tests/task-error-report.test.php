@@ -157,11 +157,62 @@ if (substr_count($src, "echo '##';") !== 1) {
     $fails[] = 'the endpoint does not answer identically on every path, so the'
         . ' response says whether the MAC had an active imaging task';
 }
-if (false !== strpos($src, '$Task->set(')
-    || false !== strpos($src, '$Task->save(')
+
+// ------------------------------------------------------------- the state
+
+// Schema 281 gave a failed task a state of its own. Read out of the source
+// rather than called: this file stubs FOGBase so the class can be included
+// without a database, and TaskState needs a hook manager.
+$stateSrc = file_get_contents($web . '/lib/fog/taskstate.class.php');
+if (!preg_match('#function getFailedState\(\).*?\$failedState = (\d+);#s', $stateSrc, $m)) {
+    $fails[] = 'TaskState has no getFailedState(), so the endpoint has no'
+        . ' state to move a dead task to';
+    $failed = 0;
+} else {
+    $failed = (int) $m[1];
+}
+$schema = file_get_contents($web . '/commons/schema.php');
+if (!$failed
+    || !preg_match('#`taskStates`.*?VALUES.*?\(' . $failed . ",'Failed'#s", $schema)
 ) {
-    $fails[] = 'the endpoint changes the task; taskStates has no Failed and'
-        . ' choosing one is a separate decision';
+    $fails[] = "no schema step seeds taskStates row $failed as Failed, so the"
+        . ' state the endpoint writes does not exist';
+}
+
+// Only the state is written. The endpoint's whole discipline is that it
+// reports rather than decides -- writing anything else about the task would
+// make an unauthenticated caller able to edit it.
+preg_match_all('#\$Task->set\(\s*\'([^\']+)\'#', $src, $written);
+foreach (array_unique($written[1]) as $field) {
+    if ($field !== 'stateID') {
+        $fails[] = "the endpoint writes \$Task->$field; an unauthenticated"
+            . ' report may set the task state and nothing else';
+    }
+}
+
+$mark = strpos($src, 'self::_markFailed(');
+if (false === $mark) {
+    $fails[] = 'the endpoint no longer fails the task, so a host that died'
+        . ' mid-image still shows as running and cannot be re-tasked';
+}
+// A warning must not fail the task, and the state must be written for
+// non-imaging tasks too -- a Memtest the host died on is just as finished as
+// a deploy; only the notification is imaging-specific.
+if (false === $mark || false === $warnGuard || $mark < $warnGuard) {
+    $fails[] = 'a warning marks the task Failed, so a machine that carried on'
+        . ' has its task killed under it';
+}
+if (false === $mark || false === $imaging || $mark > $imaging) {
+    $fails[] = 'only imaging tasks are marked Failed, so a failed Memtest or'
+        . ' inventory task still shows as running forever';
+}
+// Guarded on the row existing: a web tree can be updated ahead of its
+// database, and a stateID with no taskStates row behind it is worse than
+// leaving the task alone.
+if (!preg_match('#getClass\(\s*\'TaskState\'.*?isValid\(\)#s', $src)) {
+    $fails[] = 'the endpoint writes the Failed state without checking the row'
+        . ' exists, so a server updated ahead of its schema gets tasks'
+        . ' pointing at a state that is not there';
 }
 if (false === strpos($src, 'error_log(')) {
     $fails[] = 'the endpoint leaves no fallback trace when the log file is'
