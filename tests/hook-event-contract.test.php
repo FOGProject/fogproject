@@ -263,39 +263,72 @@ if ('FOG\EventManager' !== $declares) {
 
 // ------------------------------------------------------- activation, at load
 
-// F-15. Whether a non-plugin hook runs is decided by a regular expression over
-// the file's source text, so it turns on whitespace and case and does not know
-// a comment from code. The pattern is read out of the shipped source rather
-// than copied, so replacing it fails this case instead of leaving it green
-// against a regex nobody uses any more.
-$loader = file_get_contents($web . '/lib/fog/eventmanager.class.php');
-// Walk out from the regex's own text to the quotes around it, rather than
-// writing a pattern that matches a pattern.
-$at = strpos($loader, 'active' . chr(92) . 's?=' . chr(92) . 's?true;');
-$open = false === $at ? false : strrpos(substr($loader, 0, $at), chr(39));
-$close = false === $open ? false : strpos($loader, chr(39), $open + 1);
-if (false === $close) {
-    $fails[] = 'the activation regex is gone from EventManager; if it was'
-        . ' replaced by reading the property, rewrite this whole section';
-} else {
-    $pattern = substr($loader, $open + 1, $close - $open - 1);
-    $variants = [
-        ['public $active = true;', true],
-        ['public $active  = true;', false],
-        ['public $active =  true;', false],
-        ['public $active=true;', true],
-        ['public $active = TRUE;', false],
-        ['public $active = false; // set $active = true; to enable', true],
-    ];
-    foreach ($variants as list($line, $loads)) {
-        if ((bool) preg_match($pattern, $line) !== $loads) {
-            $fails[] = sprintf(
-                'activation verdict changed for %s (was %s)',
-                var_export($line, true),
-                $loads ? 'loaded' : 'skipped'
-            );
-        }
+// F-15, fixed. Whether a non-plugin hook runs used to be decided by a regular
+// expression over the file's source text, so it turned on whitespace and case
+// and could not tell a comment from code. It now reads the declared default of
+// $active off the class. Same six variants, and the property wins every time.
+$decl = new \ReflectionMethod('FOG\EventManager', '_declaresActive');
+$decl->setAccessible(true);
+
+$variants = [
+    ['V1', 'public $active = true;', true],
+    ['V2', 'public $active  = true;', true],
+    ['V3', 'public $active =  true;', true],
+    ['V4', 'public $active=true;', true],
+    ['V5', 'public $active = TRUE;', true],
+    ['V6', 'public $active = false; // set $active = true; to enable', false],
+    // Declares nothing: inherits Event's default of true, where the regex
+    // found no literal and skipped the file.
+    ['V7', '', true],
+];
+@mkdir($tmp . '/hooks', 0777, true);
+foreach ($variants as list($tag, $line, $active)) {
+    $class = 'CharActive' . $tag;
+    $path = $tmp . '/hooks/' . strtolower($class) . '.hook.php';
+    file_put_contents(
+        $path,
+        "<?php\nclass $class extends \\FOG\\Hook\n{\n"
+        . "    public \$node = 'demo';\n"
+        . ('' === $line ? '' : "    $line\n")
+        . "    public function fire(\$a) {}\n}\n"
+    );
+    require $path;
+    if ($decl->invoke(null, $path, -strlen('.hook.php')) !== $active) {
+        $fails[] = sprintf(
+            'activation verdict for %s is wrong; the property says %s',
+            '' === $line ? 'a file declaring no $active' : var_export($line, true),
+            $active ? 'true' : 'false'
+        );
     }
+}
+
+// A file whose class cannot be resolved is skipped, not fatal. Reflecting on a
+// name nothing declares throws, and load() runs inside LoadGlobals, so an
+// unresolvable file here would be a 500 rather than one hook not starting.
+try {
+    if (false !== $decl->invoke(null, $tmp . '/hooks/charnosuch.hook.php', -strlen('.hook.php'))) {
+        $fails[] = 'a hook file with no resolvable class is treated as active';
+    }
+} catch (\Throwable $t) {
+    $fails[] = 'a hook file with no resolvable class throws ' . get_class($t)
+        . ' out of activation, which during LoadGlobals is a 500';
+}
+
+// The cases above drive the helper directly, so they say nothing about whether
+// load() still uses it. Assert both: that load() asks the helper, and that the
+// source-text regex has not come back beside it.
+$loader = file_get_contents($web . '/lib/fog/eventmanager.class.php');
+$loadBody = substr($loader, strpos($loader, 'public function load()'));
+if (false === strpos($loadBody, '_declaresActive(')) {
+    $fails[] = 'load() no longer decides activation through _declaresActive(),'
+        . ' so the cases above are testing something nothing calls';
+}
+if (false !== strpos($loadBody, 'preg_match')) {
+    $fails[] = 'load() is matching a pattern again; activation is a property,'
+        . ' not a shape in the source text';
+}
+if (false !== strpos($loader, 'active' . chr(92) . 's?=')) {
+    $fails[] = 'the source-text activation regex is back in EventManager';
 }
 
 // F-22. load() picks the extension with two sequential instanceof checks, and

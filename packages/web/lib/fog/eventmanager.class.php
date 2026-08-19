@@ -253,6 +253,49 @@ class EventManager extends FOGBase
         return true;
     }
     /**
+     * Whether a hook or event file's class declares itself active.
+     *
+     * Reads the declared default of $active off the class, which is what the
+     * source-text regex this replaced was trying to approximate. A value
+     * assigned in a constructor is still not consulted, exactly as before, so
+     * no shipped file changes verdict -- all eleven core hooks and events
+     * declare `public $active = false;` and none of the 87 bundled plugin
+     * files disagrees with the old regex either.
+     *
+     * Two things do change, both deliberately. Spacing and case no longer
+     * decide anything. And a file that declares no $active at all now
+     * inherits Event's default of true and runs, where the regex found no
+     * literal and skipped it -- which is the point of asking the class: the
+     * class genuinely is active.
+     *
+     * Truthiness, not identity, so this agrees with the check
+     * HookManager::processEvent() makes at dispatch. One notion of active.
+     *
+     * @param string $file   Absolute path to the .hook.php/.event.php file.
+     * @param int    $strlen Negative length of the extension, as load() has it.
+     *
+     * @return bool
+     */
+    private static function _declaresActive($file, $strlen)
+    {
+        $className = str_replace(
+            ["\t","\n",' '],
+            '_',
+            substr(
+                basename($file),
+                0,
+                $strlen
+            )
+        );
+        // class-name consumer: handed to class_exists() and ReflectionClass,
+        // both of which resolve a namespaced name and a global one alike.
+        if (!class_exists($className)) {
+            return false;
+        }
+        $defaults = (new \ReflectionClass($className))->getDefaultProperties();
+        return !empty($defaults['active']);
+    }
+    /**
      * Loads the events or hooks.
      *
      * @return void
@@ -277,31 +320,20 @@ class EventManager extends FOGBase
             $dirpath,
             true
         );
-        // Scan non plugin files and see if the active flag is set.
-        // If active, start the class, otherwise on to next file.
+        // Non-plugin files opt in through $active. Ask the class, not the
+        // file: this used to be a line-by-line regex for the literal text
+        // `$active = true;`, which decided whether a hook ran on its
+        // whitespace and its case, and could not tell a comment from code.
+        // `public $active  = true;` with two spaces was inactive, and so was
+        // `TRUE`, while `public $active = false;` with `= true;` written in
+        // the comment above it -- the obvious way to document the toggle --
+        // was active.
         $startfiles = [];
         foreach ($normalfiles as &$file) {
-            if (false === ($fh = fopen($file, 'rb'))) {
-                continue;
-            }
-            while (feof($fh) === false) {
-                unset($active);
-                $line = fgets($fh, 4096);
-                if (false === $line) {
-                    continue;
-                }
-                preg_match(
-                    '#(\$active\s?=\s?true;)#',
-                    $line,
-                    $linefound
-                );
-                if (count($linefound ?: []) < 1) {
-                    continue;
-                }
+            if (self::_declaresActive($file, $strlen)) {
                 $startfiles[] = $file;
-                break;
             }
-            fclose($fh);
+            unset($file);
         }
         unset($normalfiles);
         $startfiles = self::fastmerge(
