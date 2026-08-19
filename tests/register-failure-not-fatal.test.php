@@ -158,6 +158,80 @@ if (false === strpos($msg, 'Closure')) {
     $fails[] = 'a closure listener is logged without being named';
 }
 
+// The same defect one argument along. Both register() and notify() throw when
+// $event is not a string, and both catches then rendered that same $event with
+// %s -- and %s on an object with no __toString is an Error, which
+// catch (Exception) does not catch. So the handler went fatal on exactly the
+// input the guard exists to reject. An array name only warns; an object is the
+// fatal case, which is why the array-name test above never caught it.
+$objEvent = new stdClass();
+if ('' !== $escapes($hm, $objEvent, array($hook, 'fire'))) {
+    $fails[] = 'register() goes fatal reporting a non-string event name';
+}
+$msg = $logged($hm, $objEvent, array($hook, 'fire'));
+if (false === strpos($msg, 'object')) {
+    $fails[] = 'the register failure message does not say what the event name'
+        . ' was, which is the only field identifying the bad call';
+}
+
+// notify() has the same catch, and reaching it also proves the event name is
+// no longer recorded before the guard: _recordEventName() would query and then
+// save the object as a name, and there is no database here to answer.
+$em->logLevel = 9;
+ob_start();
+$objThrew = '';
+try {
+    $em->notify($objEvent, array());
+} catch (Exception $e) {
+    $objThrew = get_class($e);
+} catch (Throwable $t) {
+    $objThrew = get_class($t);
+}
+$objLog = ob_get_clean();
+$em->logLevel = 0;
+if ('' !== $objThrew) {
+    $fails[] = 'notify() goes fatal reporting a non-string event name: '
+        . $objThrew;
+}
+if (false !== strpos($objLog, '$s:')) {
+    $fails[] = 'the notify failure message still carries the literal $s typo';
+}
+if (false === strpos($objLog, 'object')) {
+    $fails[] = 'the notify failure message does not say what the event name was';
+}
+
+// A name already known is not re-saved, which is what makes notify() reachable
+// without a database at all. It used to ask notifyEvents on every call, above
+// the try and before any guard.
+$knownNotify = new ReflectionProperty('EventManager', 'knownNotifyEvents');
+$knownNotify->setAccessible(true);
+$knownNotify->setValue(null, array('REGFAIL_NOTIFY' => true));
+$notifyThrew = '';
+try {
+    $em->notify('REGFAIL_NOTIFY', array());
+} catch (Exception $e) {
+    $notifyThrew = get_class($e) . ': ' . $e->getMessage();
+} catch (Throwable $t) {
+    $notifyThrew = get_class($t) . ': ' . $t->getMessage();
+}
+if ('' !== $notifyThrew) {
+    $fails[] = 'notify() still reaches the database for a name it has already'
+        . ' seen: ' . $notifyThrew;
+}
+
+// load() picks its file extension and directory from one decision, not from
+// two overlapping ifs where the second had to overwrite the first. A
+// HookManager satisfies `instanceof self` as well, so reordering those two
+// blocks silently made every hook load as an event and find nothing.
+$src = file_get_contents($web . '/lib/fog/eventmanager.class.php');
+if (false !== strpos($src, 'if ($this instanceof self) {')) {
+    $fails[] = 'load() decides between events and hooks by statement order again';
+}
+if (false !== strpos($src, 'get_declared_classes()')) {
+    $fails[] = 'load() builds a lookup of every declared class again, once per'
+        . ' hook or event file, and then overwrites it unread';
+}
+
 if (count($fails) > 0) {
     fwrite(STDERR, 'FAIL: ' . count($fails) . " problem(s):\n");
     foreach ($fails as $f) {
@@ -166,5 +240,5 @@ if (count($fails) > 0) {
     exit(1);
 }
 
-echo "ok: an unusable listener is logged and named, never thrown\n";
+echo "ok: an unusable listener or event name is logged, never thrown\n";
 exit(0);

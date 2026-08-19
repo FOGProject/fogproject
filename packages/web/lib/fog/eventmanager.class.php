@@ -42,6 +42,19 @@ class EventManager extends FOGBase
      */
     public $events;
     /**
+     * Names already present in notifyEvents, as a lookup set.
+     *
+     * notify() used to ask the database whether the event name was already
+     * recorded on EVERY call, and notify() is called from the snapin client
+     * protocol and from taskqueue, so that was a round trip per snapin per
+     * check-in. This is the same mistake HookManager::processEvent() had and
+     * the same fix; see HookManager::$knownEvents for why remembering the
+     * answer for the life of the process is safe.
+     *
+     * @var array|null
+     */
+    private static $knownNotifyEvents = null;
+    /**
      * Registers events and listeners within the system.
      *
      * @param string       $event    the event name to register
@@ -103,9 +116,9 @@ class EventManager extends FOGBase
                 _('Error'),
                 $e->getMessage(),
                 _('Event'),
-                $event,
+                self::_describeEvent($event),
                 _('Class'),
-                self::describeListener($listener)
+                self::_describeListener($listener)
             );
             self::log(
                 $string,
@@ -134,7 +147,7 @@ class EventManager extends FOGBase
      *
      * @return string
      */
-    private static function describeListener($listener)
+    private static function _describeListener($listener)
     {
         if (is_array($listener)) {
             $first = reset($listener);
@@ -144,6 +157,54 @@ class EventManager extends FOGBase
             return get_class($listener);
         }
         return gettype($listener);
+    }
+    /**
+     * Renders an event name for a log line.
+     *
+     * One of the conditions that reaches the catch below is "$event is not a
+     * string", and %s on an object with no __toString is an Error, which
+     * catch (Exception) does not catch. Same defect as _describeListener()
+     * covers for the listener: an error handler must not be able to fail
+     * harder than the error it is reporting.
+     *
+     * @param mixed $event The event as the caller supplied it.
+     *
+     * @return string
+     */
+    private static function _describeEvent($event)
+    {
+        return is_string($event) ? $event : gettype($event);
+    }
+    /**
+     * Records an event name in notifyEvents if it is not already there.
+     *
+     * The table is a discovery aid -- it is what the notify event list is
+     * built from -- so it is written opportunistically rather than being
+     * authoritative. Marked known before the save, not after, so an event
+     * fired from inside save() could not recurse into saving the same name.
+     *
+     * @param string $event the event name to record
+     *
+     * @return void
+     */
+    private static function _recordEventName($event)
+    {
+        if (self::$knownNotifyEvents === null) {
+            self::$knownNotifyEvents = array_flip(
+                (array) self::getSubObjectIDs(
+                    'NotifyEvent',
+                    array(),
+                    'name'
+                )
+            );
+        }
+        if (isset(self::$knownNotifyEvents[$event])) {
+            return;
+        }
+        self::$knownNotifyEvents[$event] = true;
+        self::getClass('NotifyEvent')
+            ->set('name', $event)
+            ->save();
     }
     /**
      * Notifies the system of events.
@@ -157,16 +218,6 @@ class EventManager extends FOGBase
      */
     public function notify($event, $eventData = array())
     {
-        $exists = self::getClass('NotifyEventManager')->exists(
-            $event,
-            '',
-            'name'
-        );
-        if (!$exists) {
-            self::getClass('NotifyEvent')
-                ->set('name', $event)
-                ->save();
-        }
         try {
             if (!is_string($event)) {
                 throw new Exception(_('Event must be a string'));
@@ -174,6 +225,13 @@ class EventManager extends FOGBase
             if (!is_array($eventData)) {
                 throw new Exception(_('Event Data must be an array'));
             }
+            // Recorded here rather than above the try, which is where it used
+            // to sit. Running before the guard meant a caller that passed an
+            // array or an object still got that value handed to
+            // NotifyEvent::set('name') and saved, so the discovery table
+            // collected rows for things that were never event names -- and
+            // the guard then rejected the same value one line later.
+            self::_recordEventName($event);
             if (!isset($this->data[$event])) {
                 throw new Exception(_('Event and data are not set'));
             }
@@ -189,12 +247,12 @@ class EventManager extends FOGBase
             }
         } catch (Exception $e) {
             $string = sprintf(
-                '%s: %s: %s, $s: %s',
+                '%s: %s: %s, %s: %s',
                 _('Could not notify'),
                 _('Error'),
                 $e->getMessage(),
                 _('Event'),
-                $event
+                self::_describeEvent($event)
             );
             self::log(
                 $string,
@@ -216,34 +274,33 @@ class EventManager extends FOGBase
      */
     public function load()
     {
-        // Sets up regex and paths to scan for
-        if ($this instanceof self) {
-            $regext = sprintf(
-                '#^.+%sevents%s.*\.event\.php$#',
-                DS,
-                DS
-            );
-            ;
-            $dirpath = sprintf(
-                '%sevents%s',
-                DS,
-                DS
-            );
-            $strlen = -strlen('.event.php');
-        }
+        // Sets up regex and paths to scan for.
+        //
+        // HookManager extends EventManager, so a HookManager satisfies
+        // `instanceof self` too. This used to be two sequential ifs and the
+        // hook branch was reached only because it ran second and overwrote
+        // what the event branch had just assigned -- reordering the two
+        // blocks silently made every hook load as an event and find nothing.
+        // One decision, taken most-specific first, cannot be reordered wrong.
         if ($this instanceof HookManager) {
-            $regext = sprintf(
-                '#^.+%shooks%s.*\.hook\.php$#',
-                DS,
-                DS
-            );
-            $dirpath = sprintf(
-                '%shooks%s',
-                DS,
-                DS
-            );
-            $strlen = -strlen('.hook.php');
+            $type = 'hook';
+        } else {
+            $type = 'event';
         }
+        $regext = sprintf(
+            '#^.+%s%ss%s.*\.%s\.php$#',
+            DS,
+            $type,
+            DS,
+            $type
+        );
+        $dirpath = sprintf(
+            '%s%ss%s',
+            DS,
+            $type,
+            DS
+        );
+        $strlen = -strlen(sprintf('.%s.php', $type));
         // Initiates plugins used in fileitems function
         $plugins = '';
         // Function simply returns the files based on the regex and data passed.
@@ -316,11 +373,10 @@ class EventManager extends FOGBase
                     $strlen
                 )
             );
-            $decClasses = get_declared_classes();
-            foreach ((array)$decClasses as $key => &$classExist) {
-                $exists[$classExist] = 1;
-                unset($classExist);
-            }
+            // There used to be a loop building a lookup of every declared
+            // class into $exists here, immediately before $exists was
+            // overwritten by the class_exists() call below. It ran once per
+            // hook or event file and its result was never read.
             $exists = class_exists(
                 $className,
                 false
@@ -335,7 +391,7 @@ class EventManager extends FOGBase
                     $className
                 )
             );
-            unset($element, $key);
+            unset($element);
         };
         // Plugins should be established first so menus and what not are setup.
         array_map(
