@@ -941,6 +941,61 @@ class Authorization extends FOGBase
      */
     public static function scopedObjectIDs($node, $userID = null)
     {
+        $userID = self::_boundedUserID($node, $userID);
+        if (null === $userID) {
+            return null;
+        }
+        return SiteScope::allInScopeIDs($node, $userID);
+    }
+    /**
+     * The same boundary as scopedObjectIDs(), as a SQL WHERE fragment.
+     *
+     * For callers that can push the boundary into the query instead of
+     * filtering rows the database has already chosen. A paginated list must:
+     * the LIMIT is applied before any post-filter runs, so filtering
+     * afterwards empties pages while later pages still hold rows the user may
+     * see, and leaves the counts describing objects they may not.
+     *
+     * Tri-state, and the falsy value is the permissive one on purpose. `null`
+     * -- the only falsy return -- means no boundary applies. A user who
+     * reaches nothing gets '1=0', which is truthy, so the natural
+     * `if (!$where) { skip }` skips only when skipping is right. See
+     * SiteScope::inScopeWhere().
+     *
+     * The decision of WHETHER a boundary applies is shared with
+     * scopedObjectIDs() rather than restated here, and the membership rule
+     * itself is shared inside SiteScope. Neither can drift from the other.
+     *
+     * @param string   $node   the node being listed
+     * @param string   $idExpr the object-id column, quoted and qualified
+     * @param int|null $userID the acting user (defaults to current)
+     *
+     * @return string|null the WHERE fragment, or null for no boundary
+     */
+    public static function scopedObjectWhere($node, $idExpr, $userID = null)
+    {
+        $userID = self::_boundedUserID($node, $userID);
+        if (null === $userID) {
+            return null;
+        }
+        return SiteScope::inScopeWhere($node, $idExpr, $userID);
+    }
+    /**
+     * Does a site boundary apply, and to whom?
+     *
+     * The shared front half of scopedObjectIDs() and scopedObjectWhere() --
+     * everything up to the membership lookup itself. Two copies of this
+     * ladder would be two chances to answer "is this user bounded?"
+     * differently, in the one place where the two answers must agree.
+     *
+     * @param string   $node   the node being listed
+     * @param int|null $userID the acting user (defaults to current)
+     *
+     * @return int|null the acting user id when a boundary applies, null when
+     *                  none does
+     */
+    private static function _boundedUserID($node, $userID = null)
+    {
         if (self::_isUnrestricted($userID)) {
             return null;
         }
@@ -963,7 +1018,7 @@ class Authorization extends FOGBase
         if (!SiteScope::sitesInUse() || SiteScope::isUnscoped($userID)) {
             return null;
         }
-        return SiteScope::allInScopeIDs($node, $userID);
+        return $userID;
     }
     /**
      * Enforce object scope for a management page request. Allowed →

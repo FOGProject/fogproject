@@ -681,6 +681,183 @@ Route::getData();
 $t->check('an unscoped node is not filtered', count($image['data']) === 4);
 
 /*
+ * ---------------------------------------------------------------------------
+ * The boundary must be in the SQL, not only on the rows.
+ *
+ * Everything above would pass with the boundary applied purely as a
+ * post-filter -- which is what it used to be, and which is broken on any list
+ * with a LIMIT: the database picks the page BEFORE the filter runs, so a user
+ * scoped to one site of a 90-host server saw an empty first page (their host
+ * sat at offset 75), recordsTotal 0 and nextUrl null. The rows existed; the
+ * grid said there were none.
+ *
+ * The fake answers statements structurally and does not evaluate a WHERE, so
+ * no assertion on the returned ROWS can tell the two designs apart. The
+ * statement text is where the difference lives, so that is what is read.
+ *
+ * All three statements matter and are asserted separately: the row query, the
+ * filtered count and the total count. A boundary on the rows alone still
+ * leaves both counts describing objects the user cannot see.
+ * ---------------------------------------------------------------------------
+ */
+
+/**
+ * The statements listem() issued for one class, split by kind.
+ *
+ * @param FogFakeDb $db     the fake
+ * @param string    $class  the class to list
+ *
+ * @return array ['rows' => [...], 'counts' => [...]]
+ */
+function statementsFor($db, $class)
+{
+    $before = count($db->pdo->log);
+    Route::listem($class, false, true);
+    Route::getData();
+    $rows = [];
+    $counts = [];
+    foreach (array_slice($db->pdo->log, $before) as $sql) {
+        if (preg_match('/^\s*SELECT\s+COUNT/i', $sql)) {
+            $counts[] = $sql;
+        } else {
+            $rows[] = $sql;
+        }
+    }
+    return ['rows' => $rows, 'counts' => $counts];
+}
+
+// (e) A scoped user's statements all carry the membership subquery.
+siteScenario(
+    $db,
+    ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => [5]], 'members' => [2, 3]],
+    [7 => ['host.view']]
+);
+$stmts = statementsFor($db, 'host');
+$all = array_merge($stmts['rows'], $stmts['counts']);
+$carrying = 0;
+foreach ($all as $sql) {
+    if (false !== strpos($sql, 'siteHostMembers')) {
+        $carrying++;
+    }
+}
+$t->check('a scoped list issues a row query and both counts', count($stmts['rows']) > 0 && count($stmts['counts']) === 2);
+$t->check(
+    'every statement of a scoped list carries the membership subquery',
+    count($all) > 0 && $carrying === count($all)
+);
+$t->check(
+    'the boundary is a subquery, not an id list',
+    count($all) > 0 && false !== strpos($all[0], 'SELECT DISTINCT')
+);
+
+// (f) A user in no site denies in SQL, and denies with a TRUTHY fragment --
+//     '' would read as "no filter" at every call site that tests the value.
+siteScenario($db, ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => []]], [7 => ['host.view']]);
+$stmts = statementsFor($db, 'host');
+$all = array_merge($stmts['rows'], $stmts['counts']);
+$denying = 0;
+foreach ($all as $sql) {
+    if (false !== strpos($sql, '1=0')) {
+        $denying++;
+    }
+}
+$t->check(
+    'a user in no site is denied by the SQL, in every statement',
+    count($all) > 0 && $denying === count($all)
+);
+$t->check(
+    'the deny-all fragment is truthy, so `if (!$where)` cannot drop it',
+    (bool)Authorization::scopedObjectWhere('host', '`hosts`.`hostID`')
+);
+
+// (g) An unrestricted user's statements carry no boundary at all. Without
+//     this the fix could be "always filter", which breaks every unscoped
+//     server -- the overwhelming majority of installs.
+siteScenario($db, ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => []]], [7 => ['*']]);
+$stmts = statementsFor($db, 'host');
+$all = array_merge($stmts['rows'], $stmts['counts']);
+$clean = 0;
+foreach ($all as $sql) {
+    if (false === strpos($sql, 'siteHostMembers') && false === strpos($sql, '1=0')) {
+        $clean++;
+    }
+}
+$t->check(
+    'an unrestricted user gets no boundary in any statement',
+    count($all) > 0 && $clean === count($all)
+);
+$t->check(
+    'no boundary is the ONLY null scopedObjectWhere() returns',
+    null === Authorization::scopedObjectWhere('host', '`hosts`.`hostID`')
+);
+
+// (h) An unscoped NODE takes no boundary even for a scoped user.
+siteScenario(
+    $db,
+    ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => [5]], 'members' => [2, 3]],
+    [7 => ['image.view']]
+);
+$stmts = statementsFor($db, 'image');
+$all = array_merge($stmts['rows'], $stmts['counts']);
+$clean = 0;
+foreach ($all as $sql) {
+    if (false === strpos($sql, '1=0') && false === strpos($sql, 'Members')) {
+        $clean++;
+    }
+}
+$t->check(
+    'an unscoped node takes no boundary in its SQL either',
+    count($all) > 0 && $clean === count($all)
+);
+
+// (i) The fragment's SHAPE, read off the return value rather than inferred
+//     from a substring of a statement. Everything above is satisfied by any
+//     statement merely MENTIONING the membership table -- `NOT IN` the same
+//     subquery mentions it too, and shows the user exactly the objects they
+//     may not see.
+siteScenario(
+    $db,
+    ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => [5]], 'members' => [2, 3]],
+    [7 => ['host.view']]
+);
+$frag = Authorization::scopedObjectWhere('host', '`hosts`.`hostID`');
+$t->check(
+    'the fragment restricts TO the membership set, not away from it',
+    is_string($frag)
+    && 1 === preg_match('/^`hosts`\.`hostID` IN \(SELECT /', $frag)
+);
+
+// (j) No valid acting user is DENY, not "unbounded".
+//
+//     The boundary decision resolves the acting user to an id, and an absent
+//     or invalid user resolves to 0 -- which belongs to no site and therefore
+//     reaches nothing. That is a real answer, not a missing one, and it is
+//     one `if (!$userID)` away from becoming "no boundary applies". Same
+//     shape as the null-vs-[] trap one level down, so it is pinned the same
+//     way: by identity, on the value, for the case that would otherwise show
+//     an unauthenticated caller the whole server.
+$savedUser = FogTestHarness::getStatic('Authorization', 'FOGUser');
+foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
+    FogTestHarness::setStatic($cls, 'FOGUser', null);
+}
+FogTestHarness::setStatic('Authorization', '_permCache', []);
+SiteScope::forgetCaches();
+$noUser = Authorization::scopedObjectWhere('host', '`hosts`.`hostID`');
+$t->check(
+    'no acting user is denied, not unbounded',
+    '1=0' === $noUser
+);
+// The same question of the id-list path, which the pages and the mass-op
+// guard use and which this file's SQL assertions cannot reach.
+$t->check(
+    'no acting user is denied on the id-list path too',
+    [] === Authorization::scopedObjectIDs('host')
+);
+foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
+    FogTestHarness::setStatic($cls, 'FOGUser', $savedUser);
+}
+
+/*
  * The null-vs-[] distinction, asserted directly on the filter as well. The
  * end-to-end cases above would both pass if listem() stopped calling the
  * filter AND the filter were also broken; these two cannot.

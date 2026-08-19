@@ -447,6 +447,9 @@ untouched — `VERIFIED` by the map §3 and by
 
 ## Commit 5 — SCOPE-2: push the boundary into the query
 
+**DONE** — and it fixed `count()` (a quarter of SCOPE-1) with no code of its
+own. Result at the end of this section.
+
 `VERIFIED` end to end:
 
 ```
@@ -474,6 +477,65 @@ produces a very long literal. Worth measuring before this commit, and it may
 argue for a subquery against `siteHostMembers` instead of an id list — which
 `SiteScope::allInScopeIDs()` already builds as SQL for the `task` case
 (`sitescope.class.php:443-455`) and could expose.
+
+### Result
+
+The `UNKNOWN` did not need measuring, because the subquery it pointed at is
+strictly better and costs nothing: one expression whatever the fleet size, and
+one round trip fewer, since the ids are never fetched. So the boundary is
+`<idcol> IN (SELECT …)`, and the packet-size question does not arise.
+
+`SiteScope::_inScopeSelect()` builds that SELECT; `allInScopeIDs()` runs it and
+`inScopeWhere()` embeds it, so the membership rule exists **once**. Two copies
+in two dialects is the failure this codebase already documents in
+`unisearch()`'s setting comment — when they drift nothing fails, the boundary
+simply stops matching in one of the two places.
+
+`Authorization::scopedObjectWhere()` is the twin of `scopedObjectIDs()`, and
+the ladder deciding *whether* a boundary applies is shared between them
+(`_boundedUserID()`) rather than restated.
+
+**The tri-state is safe by construction.** `null` — the only falsy value the
+function can return — means no boundary. A user who reaches nothing gets
+`'1=0'`, which is truthy, so a caller writing the natural
+`if (!$where) { skip }` skips only when skipping is correct. Returning `''`
+there would make that same line show every row on the server.
+
+`_applySiteScope()` stays as the fail-closed backstop and now logs when it
+removes anything, because since the boundary moved into the query it should
+have nothing to remove on the `listem()` path. It legitimately still does on
+`search()`, which runs it after `API_MASSDATA_MAPPING` — a plugin appending an
+out-of-scope row is exactly what that second call is for, and an administrator
+should be able to find out it happened.
+
+**Verified against the live lab database**, same probe as the finding:
+
+```
+# before                          # after
+start rows recordsTotal           start rows recordsTotal
+0     0    0                      0     1    1
+75    1    1                      25    0    0
+```
+
+Five mutations, all caught by the net: not passing the fragment to `complex()`;
+returning `''` for deny-all; collapsing the deny into no-boundary on either
+`scopedObjectWhere()` **or** `scopedObjectIDs()`; and inverting the fragment to
+`NOT IN`. That last one matters because every assertion phrased as "the
+statement mentions `siteHostMembers`" is true of `NOT IN` too — it is pinned by
+reading the fragment's shape instead.
+
+**It also fixed `count()`**, one of SCOPE-1's four routes, with no code of its
+own: `recordsFiltered` is computed by SQL, and the SQL now carries the
+boundary. Measured on the lab — a user entitled to 1 of 86 hosts:
+
+| Route | Before | After |
+|---|---|---|
+| `count` | 86 | **1** |
+| `names` | 86 | 86 |
+| `ids` | 86 | 86 |
+| `unisearch` | 86 | 86 |
+
+The other three are commit 4.
 
 ---
 

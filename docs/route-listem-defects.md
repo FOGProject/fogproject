@@ -99,6 +99,12 @@ name and id on the server is one request.
 
 ### SCOPE-2 — scope filters the page, not the query, so a scoped user's grid is empty · **high (functional, fail-closed)**
 
+**FIXED 2026-08-19** (commit 5). The boundary is now ANDed into the row
+query and both counts as a subquery. Verified on the lab: page 1 of the
+site1-scoped user's list returns their host with `recordsTotal` 1, where it
+previously returned nothing. This also fixed SCOPE-1's `count()` arm — 86 → 1
+for a user entitled to one host — with no code of its own.
+
 `_applySiteScope` (`:5656`) runs after `complex()` has applied the SQL `LIMIT`.
 It removes rows from the page and then rewrites `recordsTotal` and
 `recordsFiltered` to the size of what is left *of that page*.

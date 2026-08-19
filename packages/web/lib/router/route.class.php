@@ -1682,6 +1682,31 @@ class Route extends FOGBase
                 }
             }
 
+            // The site boundary goes into the QUERY, not onto the rows.
+            //
+            // _applySiteScope() below still runs and still filters, but it
+            // cannot be the enforcement on a paginated list: complex()
+            // applies the LIMIT, so the database chooses the page before any
+            // row filtering happens. A user scoped to one site of a 90-host
+            // server therefore got an EMPTY first page -- their host was at
+            // offset 75 -- with recordsTotal 0 and nextUrl null, so the grid
+            // said "no records" while the rows existed two pages further on.
+            // The counts have the same problem in the other direction:
+            // computed by SQL over the unscoped set, they described objects
+            // the user may not see.
+            //
+            // $whereAll is the parameter for this and already existed: it is
+            // ANDed into the row query and the filter count, and appended to
+            // the total count, which is exactly the three places the boundary
+            // has to hold. Passed as a subquery rather than an id list so it
+            // costs one expression whatever the fleet size.
+            //
+            // Qualified with the table name because these queries carry joins
+            // and a bare id column can be ambiguous.
+            $scopeWhere = Authorization::scopedObjectWhere(
+                $classname,
+                sprintf('`%s`.`%s`', $table, $tableID)
+            );
             self::$data = FOGManagerController::complex(
                 isset($pass_vars) ? $pass_vars : '',
                 $table,
@@ -1691,7 +1716,7 @@ class Route extends FOGBase
                 $fltrstr,
                 $ttlstr,
                 $where,
-                null,
+                $scopeWhere,
                 $orderby,
                 self::$countOnly
             );
@@ -5728,6 +5753,32 @@ class Route extends FOGBase
             self::$data = $payload;
             return;
         }
+        // Reaching here means this filter REMOVED something, which since the
+        // boundary moved into the query should not happen on the listem()
+        // path -- the database was told to exclude those rows before it chose
+        // the page. Removing them is still correct and this stays as the
+        // fail-closed backstop; what is worth knowing is that the two
+        // disagreed.
+        //
+        // Not every removal is a fault. search() runs this a second time
+        // AFTER API_MASSDATA_MAPPING, and hooks receive `data` by reference,
+        // so a plugin appending an out-of-scope row lands here by design --
+        // which is also something an administrator should be able to find out
+        // about.
+        //
+        // One line per list rather than per row, and through error() rather
+        // than error_log(): a diagnostic for someone already looking, not a
+        // condition to shout about on a server that is working.
+        self::error(
+            sprintf(
+                'Route::_applySiteScope: removed %d of %d %s row(s) the query'
+                . ' should already have excluded. Either the boundary did not'
+                . ' reach the SQL, or something added rows after it ran.',
+                count($payload['data']) - count($kept),
+                count($payload['data']),
+                $node
+            )
+        );
         $payload['data'] = array_values($kept);
         $payload['recordsFiltered'] = count($kept);
         $payload['recordsTotal'] = count($kept);

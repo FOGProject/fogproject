@@ -779,6 +779,36 @@ php tests/route-column-contract.test.php    # ok  628 columns across 52 classes
 sh tests/run-all.sh | tail -1               # 75 passed, 0 failed
 ```
 
+### F-42 — The site boundary is in the query; `count()` was fixed by that alone
+
+`listem()` passes `Authorization::scopedObjectWhere()` to `complex()` as
+`$whereAll`, so the boundary is ANDed into the row query and both counts
+instead of filtering rows the database has already paged. Verified on the lab
+against the live database: a site1-scoped user's page 1 now returns their host
+and `recordsTotal` 1, where before it returned nothing and their one host sat
+at offset 75.
+
+Three properties worth keeping:
+
+- The membership rule exists once. `SiteScope::_inScopeSelect()` builds the
+  SELECT; `allInScopeIDs()` runs it, `inScopeWhere()` embeds it. Two copies in
+  two dialects drift silently.
+- A subquery, not an id list — one expression whatever the fleet size, one
+  round trip fewer, and the `max_allowed_packet` question never arises.
+- The tri-state is safe by construction: `null` (no boundary) is the ONLY
+  falsy return, and deny-all is the truthy `'1=0'`. `if (!$where) { skip }`
+  therefore skips only when skipping is right.
+
+`count()` needed no code of its own — `recordsFiltered` is SQL. On the lab, a
+user entitled to 1 of 86 hosts: `count` 86 → **1**. `names`, `ids` and
+`unisearch` still answer 86 and are the rest of SCOPE-1.
+
+```
+php /home/telliott/scripts/background_scripts/probe_sitescope_pagination.php < /dev/null
+php /home/telliott/scripts/background_scripts/probe_scope1_routes.php < /dev/null
+php tests/route-read-path-guards.test.php   # ok  106 checks passed
+```
+
 ---
 
 ## How to add an entry
