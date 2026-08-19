@@ -998,9 +998,6 @@ msgstr "Boot-Optionen:"
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast hinzugefügt!"
@@ -2168,6 +2165,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Bitte geben Sie einen gültigen Hostnamen ein"
+
+#, fuzzy
+msgid "Entry Type"
+msgstr "Druckertyp"
 
 msgid "Equipment Loan"
 msgstr "Equipmentleihe"
@@ -4505,6 +4506,10 @@ msgstr "Log-Viewer"
 msgid "Log contents."
 msgstr ""
 
+#, fuzzy
+msgid "Log entry type filter"
+msgstr "Drucker-Update fehlgeschlagen!"
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4536,6 +4541,9 @@ msgstr "Erfolgreich"
 
 msgid "Logout"
 msgstr "Logout"
+
+msgid "Logs"
+msgstr ""
 
 msgid "MAC"
 msgstr "MAC"
@@ -6148,6 +6156,9 @@ msgstr "Erhalten"
 msgid "Record not found"
 msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -7158,6 +7169,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Zustand"
+
+#, fuzzy
+msgid "State changes"
+msgstr "Änderungen speichern"
 
 #, fuzzy
 msgid "State filter"
@@ -8857,6 +8872,9 @@ msgid "Wake On Lan"
 msgstr "Wake On Lan"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"

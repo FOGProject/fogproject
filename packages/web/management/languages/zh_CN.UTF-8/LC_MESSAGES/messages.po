@@ -1002,9 +1002,6 @@ msgstr "启动选项："
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "广播名称"
@@ -2170,6 +2167,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "请输入一个有效的主机名"
+
+#, fuzzy
+msgid "Entry Type"
+msgstr "打印机类型"
 
 msgid "Equipment Loan"
 msgstr "器材信贷"
@@ -4503,6 +4504,10 @@ msgstr "日志查看器"
 msgid "Log contents."
 msgstr ""
 
+#, fuzzy
+msgid "Log entry type filter"
+msgstr "打印机更新失败！"
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4534,6 +4539,9 @@ msgstr "成功"
 
 msgid "Logout"
 msgstr "登出"
+
+msgid "Logs"
+msgstr ""
 
 msgid "MAC"
 msgstr "苹果电脑"
@@ -6146,6 +6154,9 @@ msgstr "接收"
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -7156,6 +7167,10 @@ msgstr ""
 
 msgid "State"
 msgstr "州"
+
+#, fuzzy
+msgid "State changes"
+msgstr "保存更改"
 
 #, fuzzy
 msgid "State filter"
@@ -8853,6 +8868,9 @@ msgid "Wake On Lan"
 msgstr "网络唤醒？"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"

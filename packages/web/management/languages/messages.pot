@@ -847,9 +847,6 @@ msgstr ""
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 msgid "Broadcast Address"
 msgstr ""
 
@@ -1836,6 +1833,9 @@ msgstr ""
 
 #, php-format
 msgid "Enter a valid %s name"
+msgstr ""
+
+msgid "Entry Type"
 msgstr ""
 
 msgid "Equipment Loan"
@@ -3802,6 +3802,9 @@ msgstr ""
 msgid "Log contents."
 msgstr ""
 
+msgid "Log entry type filter"
+msgstr ""
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -3827,6 +3830,9 @@ msgid "Login successful!"
 msgstr ""
 
 msgid "Logout"
+msgstr ""
+
+msgid "Logs"
 msgstr ""
 
 msgid "MAC"
@@ -5209,6 +5215,9 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -6063,6 +6072,9 @@ msgid "Starting download"
 msgstr ""
 
 msgid "State"
+msgstr ""
+
+msgid "State changes"
 msgstr ""
 
 msgid "State filter"
@@ -7519,6 +7531,9 @@ msgid "Wake On Lan"
 msgstr ""
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"

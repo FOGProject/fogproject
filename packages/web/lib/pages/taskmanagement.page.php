@@ -108,6 +108,15 @@ class TaskManagement extends FOGPage
         $this->_tabbed('recent');
     }
     /**
+     * Deep link: pre-select the task log tab.
+     *
+     * @return void
+     */
+    public function logs()
+    {
+        $this->_tabbed('logs');
+    }
+    /**
      * Renders the single tabbed task page.
      *
      * @param string $initialTab The tab pane id to pre-select client side.
@@ -163,6 +172,13 @@ class TaskManagement extends FOGPage
                 'id' => 'recent',
                 'generator' => function () {
                     $this->_recentPane();
+                }
+            ],
+            [
+                'name' => _('Logs'),
+                'id' => 'logs',
+                'generator' => function () {
+                    $this->_logsPane();
                 }
             ]
         ];
@@ -425,10 +441,14 @@ class TaskManagement extends FOGPage
         echo '<div class="btn-group" role="group" aria-label="'
             . _('State filter')
             . '">';
+        // 'all' rather than 'both': there are three finished states since
+        // schema 339 added Failed, so a two-way label was about to start
+        // lying. getRecentTasks() still treats any unrecognised value as
+        // all-of-them, so a page cached before this keeps working.
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
-            . ' id="recent-state-both" value="both" autocomplete="off" checked/>';
-        echo '<label class="btn btn-outline-primary" for="recent-state-both">'
-            . _('Both')
+            . ' id="recent-state-all" value="all" autocomplete="off" checked/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-all">'
+            . _('All')
             . '</label>';
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
             . ' id="recent-state-complete" value="complete" autocomplete="off"/>';
@@ -440,10 +460,178 @@ class TaskManagement extends FOGPage
         echo '<label class="btn btn-outline-primary" for="recent-state-cancelled">'
             . _('Cancelled')
             . '</label>';
+        echo '<input type="radio" class="btn-check" name="recent-state-filter"'
+            . ' id="recent-state-failed" value="failed" autocomplete="off"/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-failed">'
+            . _('Failed')
+            . '</label>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
         $this->render(12, 'recent-tasks-table');
+    }
+    /**
+     * Renders the task log pane.
+     *
+     * taskLog has existed since 1.2 and nothing has ever shown it. Every task
+     * state transition wrote a row and the only way to read one was SQL --
+     * which stopped being merely untidy at schema 338, when FOS reports
+     * started landing in the same table: the text a machine sends when a
+     * deploy dies was being stored and shown to nobody.
+     *
+     * Defaults to reports rather than everything. State rows are one per
+     * transition per task, so they outnumber reports by roughly five to one
+     * and would bury them on the tab that exists to surface them; 'All' is
+     * one click away.
+     *
+     * @return void
+     */
+    private function _logsPane()
+    {
+        $this->headerData = [
+            _('Time'),
+            _('Host Name'),
+            _('Task Type'),
+            _('State'),
+            _('Type'),
+            _('Message'),
+            _('Recorded By')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+        echo '<!-- Task Logs -->';
+        echo '<div class="row mb-3">';
+        echo '<div class="col-sm-6">';
+        echo '<label class="form-label d-block">' . _('Entry Type') . '</label>';
+        echo '<div class="btn-group" role="group" aria-label="'
+            . _('Log entry type filter')
+            . '">';
+        $types = [
+            'reports' => _('Reports'),
+            'error' => _('Errors'),
+            'warning' => _('Warnings'),
+            'state' => _('State changes'),
+            'all' => _('All')
+        ];
+        foreach ($types as $value => $label) {
+            echo '<input type="radio" class="btn-check" name="log-type-filter"'
+                . ' id="log-type-' . $value . '" value="' . $value . '"'
+                . ' autocomplete="off"'
+                . ($value == 'reports' ? ' checked' : '')
+                . '/>';
+            echo '<label class="btn btn-outline-primary" for="log-type-'
+                . $value
+                . '">'
+                . $label
+                . '</label>';
+        }
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        $this->render(12, 'task-logs-table');
+    }
+    /**
+     * Get the task log entries.
+     *
+     * Read through a derived table because taskLog and tasks both have
+     * `taskID` and `taskStateID` columns, and complex() builds its select
+     * list as bare backticked names -- an unqualified `taskID` across that
+     * join is ambiguous and the query dies. Aliasing inside the subquery
+     * gives every column a name of its own, and MariaDB merges a derived
+     * table with no aggregate in it, so this is not a materialisation.
+     *
+     * @return void
+     */
+    public function getTaskLogs()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+
+        $reports = [TaskLog::TYPE_ERROR, TaskLog::TYPE_WARNING];
+        switch ($pass_vars['logtypes'] ?? '') {
+            case 'error':
+                $types = [TaskLog::TYPE_ERROR];
+                break;
+            case 'warning':
+                $types = [TaskLog::TYPE_WARNING];
+                break;
+            case 'state':
+                $types = [TaskLog::TYPE_STATE];
+                break;
+            case 'all':
+                $types = [];
+                break;
+            default:
+                $types = $reports;
+        }
+        $where = '';
+        if (count($types) > 0) {
+            $where = "`logType` IN ('" . implode("','", $types) . "')";
+        }
+
+        $from = "FROM (
+            SELECT `taskLog`.`id` AS `id`,
+                `taskLog`.`createTime` AS `logTime`,
+                `taskLog`.`createdBy` AS `logBy`,
+                `taskLog`.`logType` AS `logType`,
+                `taskLog`.`logText` AS `logText`,
+                `taskLog`.`taskID` AS `logTaskID`,
+                `taskStates`.`tsName` AS `logStateName`,
+                `taskStates`.`tsIcon` AS `logStateIcon`,
+                `taskTypes`.`ttName` AS `logTypeName`,
+                `taskTypes`.`ttIcon` AS `logTypeIcon`,
+                `hosts`.`hostID` AS `logHostID`,
+                `hosts`.`hostName` AS `logHostName`
+            FROM `taskLog`
+            LEFT OUTER JOIN `taskStates`
+            ON `taskLog`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `tasks`
+            ON `taskLog`.`taskID` = `tasks`.`taskID`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `hosts`
+            ON `tasks`.`taskHostID` = `hosts`.`hostID`
+        ) AS `%s`";
+        $logsSqlStr = "SELECT `%s` $from %s %s %s";
+        $logsFilterStr = "SELECT COUNT(`%s`) $from %s";
+        $logsTotalStr = "SELECT COUNT(`%s`) $from";
+
+        $columns = [
+            ['db' => 'id', 'dt' => 'id'],
+            ['db' => 'logTime', 'dt' => 'logtime'],
+            ['db' => 'logHostName', 'dt' => 'hostname'],
+            ['db' => 'logHostID', 'dt' => 'hostid'],
+            ['db' => 'logTypeName', 'dt' => 'tasktypename'],
+            ['db' => 'logTypeIcon', 'dt' => 'tasktypeicon'],
+            ['db' => 'logStateName', 'dt' => 'taskstatename'],
+            ['db' => 'logStateIcon', 'dt' => 'taskstateicon'],
+            ['db' => 'logType', 'dt' => 'logtype'],
+            ['db' => 'logText', 'dt' => 'logtext'],
+            ['db' => 'logBy', 'dt' => 'createdBy'],
+            ['db' => 'logTaskID', 'dt' => 'taskid']
+        ];
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+            FOGManagerController::complex(
+                $pass_vars,
+                'taskLogView',
+                'id',
+                $columns,
+                $logsSqlStr,
+                $logsFilterStr,
+                $logsTotalStr,
+                $where
+            )
+        ));
     }
     /**
      * Get the active tasks
@@ -548,6 +736,10 @@ class TaskManagement extends FOGPage
 
         $complete = (int)self::getCompleteState();
         $cancelled = (int)self::getCancelledState();
+        // Failed has to be here or it is in no pane at all: it is not an
+        // active state, so the active pane excludes it by construction, and
+        // this is the only view of finished tasks there is.
+        $failed = (int)self::getFailedState();
         switch ($pass_vars['states'] ?? '') {
             case 'complete':
                 $states = [$complete];
@@ -555,8 +747,11 @@ class TaskManagement extends FOGPage
             case 'cancelled':
                 $states = [$cancelled];
                 break;
+            case 'failed':
+                $states = [$failed];
+                break;
             default:
-                $states = [$complete, $cancelled];
+                $states = [$complete, $cancelled, $failed];
         }
         $where = "`tasks`.`taskStateID` IN ("
             . implode(',', $states)

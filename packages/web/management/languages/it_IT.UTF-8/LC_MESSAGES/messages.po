@@ -970,9 +970,6 @@ msgstr "Opzioni di avvio:"
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast aggiunto!"
@@ -2104,6 +2101,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Si prega di inserire un nome host valido"
+
+#, fuzzy
+msgid "Entry Type"
+msgstr "Tipo stampante"
 
 msgid "Equipment Loan"
 msgstr "attrezzature di prestito"
@@ -4336,6 +4337,10 @@ msgstr "Log Viewer"
 msgid "Log contents."
 msgstr ""
 
+#, fuzzy
+msgid "Log entry type filter"
+msgstr "Aggiornamento della stampante non è riuscito!"
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4367,6 +4372,9 @@ msgstr "Riuscito"
 
 msgid "Logout"
 msgstr "Disconnettersi"
+
+msgid "Logs"
+msgstr ""
 
 msgid "MAC"
 msgstr "MAC"
@@ -5935,6 +5943,9 @@ msgstr "Ricevere"
 msgid "Record not found"
 msgstr "Record non trovato"
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -6900,6 +6911,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Stato"
+
+#, fuzzy
+msgid "State changes"
+msgstr "Salva i cambiamenti"
 
 #, fuzzy
 msgid "State filter"
@@ -8537,6 +8552,9 @@ msgid "Wake On Lan"
 msgstr "Wake On LAN"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"
