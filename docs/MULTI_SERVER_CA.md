@@ -291,7 +291,7 @@ vhost block while that migration still appended rather than replaced, so FOG's
 previous vhost is sitting above the managed one — and the first matching vhost
 is the one the web server uses. Update the installer and run it again; it
 detects and removes the stale copy by itself now. `openssl x509 -in
-"$(grep -oP "(?<=^sslpubcert=').*(?=')" /opt/fog/.fogsettings)" -noout -issuer`
+"$(grep -oP "(?<=^sslPubCert=').*(?=')" /opt/fog/.fogsettings)" -noout -issuer`
 is what tells you the leaf itself was fine all along.
 
 **The far server's web tier will not start, or its certificate does not
@@ -302,8 +302,8 @@ names passed as extra arguments. `fog-mint-web-ca` probes for this before
 emitting, so this mostly appears when a CA was built by hand.
 
 **The installer prompts for CA paths even though you passed the flags.**
-Fixed. Passing `--web-ca-*` set `externalca=yes`, which triggered the
-interactive prompt for the *flat* `extcacert`/`extcakey`/`extcaroot` paths —
+Fixed. Passing `--web-ca-*` set `externalCA=yes`, which triggered the
+interactive prompt for the *flat* `extCACert`/`extCAKey`/`extCARoot` paths —
 and those were then ignored, because the command-line values take precedence.
 Pressing Enter through it was harmless. On a version with the fix the run prints
 the paths it is using instead.

@@ -117,9 +117,9 @@ while [[ -z $sendreports ]]; do
             ;;
     esac
 done
-while [[ -z $externalca ]]; do
+while [[ -z $externalCA ]]; do
     blExtCA="N"
-    if [[ -z $autoaccept && -z $sexternalca ]]; then
+    if [[ -z $autoaccept && -z $sexternalCA ]]; then
         echo
         echo "  By default FOG generates its own self-signed Certificate Authority"
         echo "  (CA) and uses it to sign the SSL certificate for the web server, the"
@@ -130,52 +130,52 @@ while [[ -z $externalca ]]; do
         echo -n "  Do you have an existing external/intermediate CA to use? [y/N] "
         read blExtCA
     fi
-    [[ -n $sexternalca ]] && blExtCA="Y"
+    [[ -n $sexternalCA ]] && blExtCA="Y"
     case $blExtCA in
         [Nn]|[Nn][Oo]|"")
-            externalca="no"
+            externalCA="no"
             ;;
         [Yy]|[Yy][Ee][Ss])
-            externalca="yes"
+            externalCA="yes"
             ;;
         *)
-            externalca=""
+            externalCA=""
             echo "  Invalid input, please try again."
             ;;
     esac
 done
 # --web-ca-cert/--web-ca-key/--web-ca-root already answer this, and answering
-# it twice was worse than redundant: the prompt collects $extcacert/$extcakey/
-# $extcaroot, but validateExternalCA resolves ${webExtCACert:-$extcacert} and so
+# it twice was worse than redundant: the prompt collects $extCACert/$extCAKey/
+# $extCARoot, but validateExternalCA resolves ${webExtCACert:-$extCACert} and so
 # prefers the command line -- meaning anything typed here was silently
 # discarded. Under -y the prompt never ran and the flags worked, which made the
 # whole thing look like the flags only worked with -y.
 #
 # All three, not any: a partial trio still needs the rest collected, and the
 # per-variable fallback in validateExternalCA merges the two sources correctly.
-if [[ $externalca == yes && -n $webExtCACert && -n $webExtCAKey && -n $webExtCARoot ]]; then
+if [[ $externalCA == yes && -n $webExtCACert && -n $webExtCAKey && -n $webExtCARoot ]]; then
     echo
     echo "  Using the CA files given on the command line:"
     echo "    intermediate cert: $webExtCACert"
     echo "    intermediate key:  $webExtCAKey"
     echo "    root cert:         $webExtCARoot"
-elif [[ $externalca == yes && -z $autoaccept ]]; then
+elif [[ $externalCA == yes && -z $autoaccept ]]; then
     echo
     echo "  Please provide the paths to your CA files. The intermediate CA"
     echo "  certificate and key are used to sign FOG's server certificate; the"
     echo "  root CA certificate is used as the trust anchor. Press [Enter] to"
     echo "  keep the value shown in brackets (from a previous install)."
     echo
-    [[ -n $extcacert ]] && dfltcacert=" [$extcacert]" || dfltcacert=""
+    [[ -n $extCACert ]] && dfltcacert=" [$extCACert]" || dfltcacert=""
     echo -n "  Path to the intermediate CA certificate (PEM)$dfltcacert: "
     read inextcacert
-    [[ -n $inextcacert ]] && extcacert="$inextcacert"
-    [[ -n $extcakey ]] && dfltcakey=" [$extcakey]" || dfltcakey=""
+    [[ -n $inextcacert ]] && extCACert="$inextcacert"
+    [[ -n $extCAKey ]] && dfltcakey=" [$extCAKey]" || dfltcakey=""
     echo -n "  Path to the intermediate CA private key (PEM)$dfltcakey: "
     read inextcakey
-    [[ -n $inextcakey ]] && extcakey="$inextcakey"
-    [[ -n $extcaroot ]] && dfltcaroot=" [$extcaroot]" || dfltcaroot=""
+    [[ -n $inextcakey ]] && extCAKey="$inextcakey"
+    [[ -n $extCARoot ]] && dfltcaroot=" [$extCARoot]" || dfltcaroot=""
     echo -n "  Path to the root CA certificate (PEM)$dfltcaroot: "
     read inextcaroot
-    [[ -n $inextcaroot ]] && extcaroot="$inextcaroot"
+    [[ -n $inextcaroot ]] && extCARoot="$inextcaroot"
 fi

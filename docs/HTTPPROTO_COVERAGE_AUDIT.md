@@ -1,11 +1,11 @@
-# `httpproto` coverage audit, and the conditional HTTPS redirect
+# `httpProto` coverage audit, and the conditional HTTPS redirect
 
-> **Headline:** `httpproto` is honoured by every URL the installer emits, so
+> **Headline:** `httpProto` is honoured by every URL the installer emits, so
 > redefining it as *"the protocol FOG uses for its own **non-netboot** URLs"* is
 > safe on the installer side. It is **not** safe yet on three other fronts:
 > three sites still gate the iPXE download, the Secure Boot staging and the
-> local iPXE rebuild on `httpproto` rather than on `netbootproto`; the HTTP→HTTPS
-> redirect and HSTS are both welded to `httpproto` with no separate key; and the
+> local iPXE rebuild on `httpProto` rather than on `netbootProto`; the HTTP→HTTPS
+> redirect and HSTS are both welded to `httpProto` with no separate key; and the
 > redirect's exclusion list was missing a directory iPXE fetches directly.
 > Everything in Part B §4 and §5 was found broken **before** any default was
 > flipped, and is fixed on this branch.
@@ -35,9 +35,9 @@ value. Conflating them is what
 
 | Decision | Governed by | Why it is separate |
 | --- | --- | --- |
-| The scheme FOG uses for its **own non-netboot** URLs — the web UI, the API, the client installer download, URLs handed to fog-client | `httpproto` | An ordinary TLS decision. Every consumer here can be told to trust a CA. |
-| The scheme **iPXE** uses to fetch `boot.php` and everything downstream of it | `netbootproto` | iPXE can be told to trust nothing. It validates strictly, has no `--insecure`, and its only route to a private CA is a rebuild that costs the signed Secure Boot chain. |
-| Whether plain HTTP is **redirected** to HTTPS | the redirect, today welded to `httpproto` | Trust reaches a client machine when fog-client installs FOG's CA into that machine's store. On a fresh server nothing has fog-client yet, so a forced redirect breaks exactly the machines that cannot fix themselves. |
+| The scheme FOG uses for its **own non-netboot** URLs — the web UI, the API, the client installer download, URLs handed to fog-client | `httpProto` | An ordinary TLS decision. Every consumer here can be told to trust a CA. |
+| The scheme **iPXE** uses to fetch `boot.php` and everything downstream of it | `netbootProto` | iPXE can be told to trust nothing. It validates strictly, has no `--insecure`, and its only route to a private CA is a rebuild that costs the signed Secure Boot chain. |
+| Whether plain HTTP is **redirected** to HTTPS | the redirect, today welded to `httpProto` | Trust reaches a client machine when fog-client installs FOG's CA into that machine's store. On a fresh server nothing has fog-client yet, so a forced redirect breaks exactly the machines that cannot fix themselves. |
 
 >[!important]
 >iPXE can only validate a chain terminating in a **public** root, via its
@@ -49,15 +49,15 @@ value. Conflating them is what
 
 ### Why PHP derives its scheme from the request, and why that is correct
 
-`FOGBase::$httpproto` is set from `$_SERVER['HTTPS']` — *how this request
+`FOGBase::$httpProto` is set from `$_SERVER['HTTPS']` — *how this request
 arrived*, not a configured value. For the netboot path this is not an oversight,
 it is the mechanism:
 
-The installer writes `default.ipxe` with `chain <netbootproto>://…/boot.php`.
+The installer writes `default.ipxe` with `chain <netbootProto>://…/boot.php`.
 `BootMenu` then builds the whole menu, the `web=` kernel argument and every
-`${boot-url}` from `self::$httpproto` — so the entire boot sequence inherits the
+`${boot-url}` from `self::$httpProto` — so the entire boot sequence inherits the
 protocol iPXE arrived on, with no PHP configuration at all. Replacing that with
-a configured `httpproto` would break every HTTPS-web / HTTP-netboot install.
+a configured `httpProto` would break every HTTPS-web / HTTP-netboot install.
 
 Self-derivation is likewise correct for same-origin work: the API-disabled
 redirect, the OpenAPI `servers[0].url`, the Swagger spec URL.
@@ -69,7 +69,7 @@ It is **wrong**, or at least insufficient, in two places:
   column for it; the replicator works around this by trying HTTP and retrying
   HTTPS.
 - **The CLI daemons.** `$_SERVER['HTTPS']` is unset outside a request, so
-  `$httpproto` is unconditionally `http` in every background service.
+  `$httpProto` is unconditionally `http` in every background service.
 
 ## A2. Everything iPXE fetches during a boot
 
@@ -79,7 +79,7 @@ directories**, not one.
 | Step | URL | Where it comes from |
 | --- | --- | --- |
 | 0 | `tftp://${next-server}/default.ipxe` | the embedded/autoexec script |
-| 1 | `<netbootproto>://<server><webroot>service/ipxe/boot.php` | `default.ipxe`, written by the installer |
+| 1 | `<netbootProto>://<server><webroot>service/ipxe/boot.php` | `default.ipxe`, written by the installer |
 | 2 | `${boot-url}/service/ipxe/` → `grub.exe`, `refind.conf`, `refind*.efi`, `bg.png` / `bgdark.png`, `advanced.php` | `BootMenu` |
 | 3 | the kernel (`bzImage`) and init (`init.xz`) | **relative** — iPXE resolves them against `boot.php`'s own URI, so they inherit the netboot scheme with no PHP involvement |
 | 4 | `${boot-url}/service/secureboot/MOK.der` (`imgfetch`), `mmx64.efi` / `arm64-efi/mmaa64.efi` (`chain`) | `BootMenu`'s Secure Boot entries |
@@ -149,7 +149,7 @@ stamp is deleted whenever the leaf's key is regenerated, so the two can never
 disagree.
 
 >[!note]
->This replaced a guard of `[[ ! -x $sslpubcert ]]`. Certificates are not
+>This replaced a guard of `[[ ! -x $sslPubCert ]]`. Certificates are not
 >executable, so that test was true of every certificate ever written and the leaf
 >was re-signed on **every single run**. `tests/pki-idempotence.test.sh` now runs
 >the PKI path twice and fails if anything long-lived changes.
@@ -218,8 +218,8 @@ The FOG root and everything fog-client depends on are untouched.
 
 ### The client-communication leaf (external issuer)
 
-Drop the certificate at `$sslpath/.srvpublic.crt` with its key at
-`$sslpath/.srvprivate.key`. FOG keeps both from then on and never re-issues.
+Drop the certificate at `$sslPath/.srvpublic.crt` with its key at
+`$sslPath/.srvprivate.key`. FOG keeps both from then on and never re-issues.
 
 >[!danger]
 >The two must pair. Every registered fog-client encrypts to the public half of
@@ -262,19 +262,19 @@ installer settings work.
 
 Point-in-time, against `working-1.6` as of 2026-08-17. Line numbers drift.
 
-## B1. Item 1 — does everything honour `httpproto`?
+## B1. Item 1 — does everything honour `httpProto`?
 
 **Installer: yes, with three exceptions.** Every `curl` to FOG's own web tier
-builds its URL from `$httpproto` — node existence probe (`functions.sh:480`),
+builds its URL from `$httpProto` — node existence probe (`functions.sh:480`),
 node registration (`:508`), credential update (`:532`), DB backup (`:581`), web
 tier probe (`:619`), schema deploy (`:746`), node certificate request (`:3574`).
 So do every operator-facing URL and the final "setup complete" line.
 
 | Finding | Where | Verdict |
 | --- | --- | --- |
-| `${httpproto:-http}` — the only inline scheme default left | `functions.sh:3574` | will disagree with a `https` global default |
+| `${httpProto:-http}` — the only inline scheme default left | `functions.sh:3574` | will disagree with a `https` global default |
 | No `-L` and no status check; prints `Done` unconditionally | `functions.sh:532` | every other call to that endpoint carries `-L` because a redirect swallows the POST |
-| Every FOG-server `curl` uses `-k` | `:480,508,532,581,619,746,3574` | nothing breaks on HTTPS, but nothing verifies either; `--cacert $sslcapem` is the natural companion change |
+| Every FOG-server `curl` uses `-k` | `:480,508,532,581,619,746,3574` | nothing breaks on HTTPS, but nothing verifies either; `--cacert $sslCAPem` is the natural companion change |
 | Doubled slash — `${webroot}` already ends in `/` | `:480,508,532` | same class as the GH-978 fix; message and request disagree |
 | `--netboot-proto` implemented and in longopts, absent from `usage()` | `installfog.sh:501`, `:202` | undocumented flag |
 | Help text hardcodes `http://` examples | `installfog.sh:123-124,384,400` | cosmetic, becomes misleading |
@@ -289,7 +289,7 @@ So do every operator-facing URL and the final "setup complete" line.
 DB-side source of truth for any code path without `$_SERVER`, which is every
 background daemon.
 
-Classification of the ~20 `self::$httpproto` call sites:
+Classification of the ~20 `self::$httpProto` call sites:
 
 - **Keep self-deriving (netboot):** `bootmenu.class.php:293`, `:294-301`,
   `:471-472`.
@@ -315,12 +315,17 @@ question (GH-529 leftovers).
 ## B2. Item 2 — the conditional redirect
 
 **The Apache path did not need the exclusion added — it already had it.** Both
-web servers gate on `[[ $netbootproto != "$httpproto" ]]`. Sub-question one is
+web servers gate on `[[ $netbootProto != https ]]`. Sub-question one is
 answered: no new mechanism is needed.
+
+> Corrected: this read `[[ $netbootProto != "$httpProto" ]]` when written, which
+> is what the code did then. Comparing the two is not the same test now that
+> `httpProto` is `https` on every install — with both at `http` the old form
+> added no exclusion at all, where the current one still does.
 
 **`service/ipxe/` was not the complete set** — see Part A §A2. `service/secureboot/`
 is fetched by iPXE directly and was not excluded, so on an
-`httpproto=https` / `netbootproto=http` install the Secure Boot menu entries were
+`httpProto=https` / `netbootProto=http` install the Secure Boot menu entries were
 redirected onto an HTTPS iPXE cannot validate. **Fixed on this branch.**
 
 **It can be expressed as a rule** — *every path iPXE itself fetches* — rather
@@ -334,14 +339,14 @@ branch.**
 **HSTS is the sharper problem, and it is not fixed here.**
 `add_header Strict-Transport-Security max-age=15768000` is emitted on the nginx
 `:443` server in *both* arms (`functions.sh:6046` and `:6179`) — that is, even
-when `httpproto=http`. Apache emits none.
+when `httpProto=http`. Apache emits none.
 
 >[!danger]
 >HSTS achieves client-side exactly what the redirect achieves server-side, is
 >sticky for six months, and **is not undone by turning a setting off**. Any
 >browser that has once reached the FOG server over HTTPS will refuse plain HTTP
 >to it regardless of what the vhost later says. When #1119 introduces
->`httpsRedirect`, HSTS must be tied to *that* key, not to `httpproto` — and the
+>`httpsRedirect`, HSTS must be tied to *that* key, not to `httpProto` — and the
 >existing unconditional emission needs a decision of its own, because servers in
 >the field have already sent it.
 
@@ -349,7 +354,7 @@ Smaller redirect findings: the targets hardcode literal `https://`
 (`functions.sh:6140`, `:6332`) and use `$host` / `%{HTTP_HOST}` with no port, so
 a non-443 HTTPS deployment is not expressible; Apache's `[R,L]` is a **302**
 while nginx uses **308**, which differ on POST; and `--no-vhost` (`-F`) silently
-decouples `httpproto` from what the web server enforces.
+decouples `httpProto` from what the web server enforces.
 
 ## B3. Item 3 — is anything long-lived regenerated per run?
 
@@ -360,13 +365,13 @@ copies of create-once material.
 
 This had no automated backstop, which was the actual risk. It has one now
 (`tests/pki-idempotence.test.sh`), verified by reintroducing the historic
-`[[ ! -x $sslpubcert ]]` guard and confirming the test catches it.
+`[[ ! -x $sslPubCert ]]` guard and confirming the test catches it.
 
 ## B4. Item 4 — does an external root reach the OS trust store?
 
 **Verified by reading every assignment: it did not.** This was the fix.
 
-`--ca-root` / `--web-ca-root` land in `$extcaroot` / `$webExtCARoot`.
+`--ca-root` / `--web-ca-root` land in `$extCARoot` / `$webExtCARoot`.
 `validateExternalCA` reads them and writes them into the chain file — and, by its
 own comment, deliberately never assigns `$rootCAPem`. Root resolution has no
 branch that consults either variable, and it runs *before* the external-CA branch
@@ -385,7 +390,7 @@ Four further defects in the same path, all fixed on this branch:
    which would have silently undone the fix.
 3. On a node, `writeUpdateFile` runs *before* the certificate request, so the
    chain path was never persisted; on later runs the early "already issued"
-   return left `$sslcachain` naming the node's own self-signed CA.
+   return left `$sslCAChain` naming the node's own self-signed CA.
 4. The web leaf's post-issue verification used `-CAfile $rootCAPem`, so it failed
    on **every** external-CA install and printed a warning telling the admin to
    widen `--internal-domain` and `rm -rf` the Web zone — advice unrelated to their
@@ -409,7 +414,7 @@ Four further defects in the same path, all fixed on this branch:
 >what the audit handed forward and how each was answered, not as outstanding
 >work.
 
-1. **The three `httpproto` gates.** ✅ Replaced by `_needsLocalIpxeBuild()`,
+1. **The three `httpProto` gates.** ✅ Replaced by `_needsLocalIpxeBuild()`,
    which tests `rebuildIpxeWithMyCA` alone. The release asset now downloads on
    every install, and Secure Boot binaries stage in every mode — that gate had
    meant **every `-S` install staged none at all**.
@@ -420,12 +425,12 @@ Four further defects in the same path, all fixed on this branch:
    have always emitted their `:443` vhost in both arms.
 3. **`_resolveNetbootProto` inverts under the new default.** ✅ Replaced
    outright, not tweaked. It keyed on the persisted `caCreated`, so with
-   `httpproto` defaulting to `https` every upgraded install would have resolved
-   `netbootproto=https`. It now keys only on `publicWebCert` /
+   `httpProto` defaulting to `https` every upgraded install would have resolved
+   `netbootProto=https`. It now keys only on `publicWebCert` /
    `rebuildIpxeWithMyCA`, and **reports the outcome** — it previously emitted
    nothing at all.
 4. **Fix `input.sh` alongside the default.** ✅ Its HTTPS question was removed
-   rather than repaired: it set `httpproto`, which no longer varies. The four
+   rather than repaired: it set `httpProto`, which no longer varies. The four
    `--install-mode` presets are asked once instead, with their costs shown.
 5. **Document `--netboot-proto`.** ✅ Done, along with every new flag —
    `tests/install-settings-resolution.test.sh` now asserts that each is both

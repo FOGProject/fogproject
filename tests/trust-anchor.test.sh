@@ -17,7 +17,7 @@
 #      --web-ca-root the vhost serves a chain terminating in the ADMIN's root,
 #      while $rootCAPem is still FOG's own -- validateExternalCA deliberately
 #      never reassigns it. So the store learned a root nothing was served under.
-#   2. The node path took the LAST certificate in $sslcachain. The writers of
+#   2. The node path took the LAST certificate in $sslCAChain. The writers of
 #      that file disagree on order: createWebIntermediateCA and
 #      fog-sign-node-cert write issuer-first with the root appended, while
 #      validateExternalCA writes the root FIRST. "Last certificate" therefore
@@ -109,7 +109,7 @@ newcase() {
     fogprogramdir="$WORK/case$1"
     mkdir -p "$fogprogramdir"
     rootCAPem=""
-    sslcachain=""
+    sslCAChain=""
     trustAnchorPem=""
     installtype=""
 }
@@ -121,8 +121,8 @@ echo "trust anchor:"
 # twice.
 newcase A
 rootCAPem="$WORK/fog/root.pem"
-sslcachain="$WORK/a-chain.pem"
-cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "$sslcachain"
+sslCAChain="$WORK/a-chain.pem"
+cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "$sslCAChain"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "1" "A: FOG-issued master anchors exactly one certificate"
     has_fp "$trustAnchorPem" "$FOGROOT_FP" \
@@ -136,9 +136,9 @@ fi
 # both must be present. Before the fix this anchored FOG's root alone.
 newcase B
 rootCAPem="$WORK/fog/root.pem"
-sslcachain="$WORK/b-chain.pem"
+sslCAChain="$WORK/b-chain.pem"
 # validateExternalCA's order: root FIRST, then the intermediate.
-cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "$sslcachain"
+cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "$sslCAChain"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "2" "B: external-CA master anchors two certificates"
     has_fp "$trustAnchorPem" "$EXTROOT_FP" \
@@ -160,8 +160,8 @@ fi
 # for nodes. It is the master path above that was wrong.
 newcase C
 installtype=S
-sslcachain="$WORK/c-chain.pem"
-cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "$sslcachain"
+sslCAChain="$WORK/c-chain.pem"
+cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "$sslCAChain"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "1" "C: node anchors exactly one certificate"
     has_fp "$trustAnchorPem" "$FOGROOT_FP" \
@@ -176,8 +176,8 @@ fi
 # intermediate out of it.
 newcase D
 installtype=S
-sslcachain="$WORK/d-chain.pem"
-cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "$sslcachain"
+sslCAChain="$WORK/d-chain.pem"
+cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "$sslCAChain"
 if _resolveTrustAnchor; then
     has_fp "$trustAnchorPem" "$EXTROOT_FP" \
         && ok "D: root-first chain still yields the root" \
@@ -190,8 +190,8 @@ fi
 # and it must be a clean "nothing extra to add", not a failure and not garbage.
 newcase E
 rootCAPem="$WORK/fog/root.pem"
-sslcachain="$WORK/e-chain.pem"
-cp "$WORK/fog/int.pem" "$sslcachain"
+sslCAChain="$WORK/e-chain.pem"
+cp "$WORK/fog/int.pem" "$sslCAChain"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "1" "E: rootless chain contributes nothing extra"
     has_fp "$trustAnchorPem" "$FOGINT_FP" \

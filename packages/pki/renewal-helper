@@ -86,7 +86,7 @@ elif [[ -r /etc/fog/fog.conf ]]; then
     [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
 fi
 : "${fogprogramdir:=/opt/fog}"
-: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+: "${sslPath:=${fogprogramdir}/snapins/ssl}"
 
 _reissueWeb() {
     if [[ ${acmeLeaf:-} == yes ]]; then
@@ -94,9 +94,9 @@ _reissueWeb() {
         echo "Renew it through your ACME client instead." >&2
         return 1
     fi
-    local key="${sslprivkey:-${fogprogramdir}/pki/web/leaf/.webLeaf.key}"
-    local cert="${sslpubcert:-${fogprogramdir}/pki/web/leaf/.webLeaf.pem}"
-    local cakey="${sslcakey:-}" capem="${sslcapem:-}"
+    local key="${sslPrivKey:-${fogprogramdir}/pki/web/leaf/.webLeaf.key}"
+    local cert="${sslPubCert:-${fogprogramdir}/pki/web/leaf/.webLeaf.pem}"
+    local cakey="${sslCAKey:-}" capem="${sslCAPem:-}"
     if [[ -z $cakey || -z $capem ]]; then
         echo "Cannot renew: this install hasn't resolved a web signing CA yet." >&2
         echo "Run installfog.sh at least once before using this script." >&2
@@ -108,8 +108,8 @@ _reissueWeb() {
         echo "Restore it there, then re-run this script." >&2
         return 1
     fi
-    if [[ ! -f "$sslpath/req.cnf" || ! -f "$sslpath/ca.cnf" ]]; then
-        echo "Cannot renew: ${sslpath}/req.cnf or ca.cnf is missing." >&2
+    if [[ ! -f "$sslPath/req.cnf" || ! -f "$sslPath/ca.cnf" ]]; then
+        echo "Cannot renew: ${sslPath}/req.cnf or ca.cnf is missing." >&2
         echo "Run installfog.sh once to generate them, then re-run this script." >&2
         return 1
     fi
@@ -121,11 +121,11 @@ _reissueWeb() {
     openssl genrsa -out "$key" 4096 >/dev/null 2>&1 || st=1
     echo "Issuing a new web certificate, signed by ${capem}..."
     openssl req -new -sha512 -key "$key" -out "${leafdir}/.webLeaf.csr" \
-        -config "$sslpath/req.cnf" \
+        -config "$sslPath/req.cnf" \
         -subj "/CN=${hostname:-}/O=FOG Project/OU=FOG Web UI" >/dev/null 2>&1 || st=1
     openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "$capem" -CAkey "$cakey" \
         -CAcreateserial -out "$cert" -days 1825 -extensions v3_ca \
-        -extfile "$sslpath/ca.cnf" >/dev/null 2>&1 || st=1
+        -extfile "$sslPath/ca.cnf" >/dev/null 2>&1 || st=1
     if [[ $st -ne 0 ]]; then
         echo "Failed -- see openssl's output above." >&2
         return 1
@@ -136,9 +136,9 @@ _reissueWeb() {
     # Same stamp _createWebLeaf writes, so the next installfog.sh run doesn't
     # mistake this fresh cert for one that needs re-issuing over a name-set
     # mismatch that was never there.
-    openssl md5 < "$sslpath/ca.cnf" 2>/dev/null > "${leafdir}/.webLeaf.sans"
-    if [[ -n ${sslcachain:-} && -f $sslcachain ]] && \
-        ! openssl verify -CAfile "${rootCAPem:-}" -untrusted "$sslcachain" "$cert" >/dev/null 2>&1; then
+    openssl md5 < "$sslPath/ca.cnf" 2>/dev/null > "${leafdir}/.webLeaf.sans"
+    if [[ -n ${sslCAChain:-} && -f $sslCAChain ]] && \
+        ! openssl verify -CAfile "${rootCAPem:-}" -untrusted "$sslCAChain" "$cert" >/dev/null 2>&1; then
         echo "WARNING: the new certificate does not verify against its chain." >&2
         echo "Its name set may no longer be permitted by the Web CA's nameConstraints" >&2
         echo "-- re-run installfog.sh with the current --hostname/--extra-server-name" >&2

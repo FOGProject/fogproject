@@ -4,7 +4,7 @@
 #
 #   tests/pki-idempotence.test.sh
 #
-# The web leaf's historic guard was `[[ ! -x $sslpubcert ]]`. Certificates are
+# The web leaf's historic guard was `[[ ! -x $sslPubCert ]]`. Certificates are
 # not executable, so that test was true of every certificate ever written and
 # the leaf was re-signed on EVERY installer run. It was harmless only while one
 # key did every job; the moment the signing key can be offline, or a client has
@@ -75,7 +75,7 @@ setSELinuxContext() { :; }
 # --- a self-contained install tree -------------------------------------------
 fogprogramdir="$WORK/opt/fog"
 snapindir="$WORK/opt/fog/snapins"
-sslpath="$snapindir/ssl"
+sslPath="$snapindir/ssl"
 webdirdest="$WORK/var/www/fog"
 backupPath="$WORK/backups"
 version="1.6.0-test"
@@ -87,12 +87,12 @@ certip="$ipaddress"
 # Set so _collectPkiNames does not stop to prompt for them.
 internalDomains="test.local"
 extraServerNames=""
-secureboot=1
+secureBoot=1
 recreateKeys=no
 recreateCA=no
-externalca=no
+externalCA=no
 acmeLeaf=no
-mkdir -p "$sslpath/CA" "$webdirdest" "$backupPath"
+mkdir -p "$sslPath/CA" "$webdirdest" "$backupPath"
 
 # One pass of the PKI creation path, in createSSLCA()'s own order.
 pki_pass() {
@@ -100,14 +100,14 @@ pki_pass() {
     _resolveRootCA
 
     local sanentries="IP.1 = ${ipaddress}"
-    cat > "$sslpath/ca.cnf" << EOF
+    cat > "$sslPath/ca.cnf" << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
 DNS.1 = $hostname
 EOF
-    cat > "$sslpath/req.cnf" << EOF
+    cat > "$sslPath/req.cnf" << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -123,12 +123,12 @@ $sanentries
 DNS.1 = $hostname
 EOF
 
-    [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
+    [[ -z $sslCSR ]] && sslCSR="$sslPath/fog.csr"
     _separateCommKey
-    if [[ ! -e $sslpath/.srvprivate.key || ! -e $sslcsr ]]; then
-        openssl genrsa -out "$sslpath/.srvprivate.key" 4096 >>$error_log 2>&1
-        openssl req -new -sha512 -key "$sslpath/.srvprivate.key" -out "$sslcsr" \
-            -config "$sslpath/req.cnf" >>$error_log 2>&1
+    if [[ ! -e $sslPath/.srvprivate.key || ! -e $sslCSR ]]; then
+        openssl genrsa -out "$sslPath/.srvprivate.key" 4096 >>$error_log 2>&1
+        openssl req -new -sha512 -key "$sslPath/.srvprivate.key" -out "$sslCSR" \
+            -config "$sslPath/req.cnf" >>$error_log 2>&1
     fi
     _createCommLeaf >/dev/null 2>&1
 
@@ -146,10 +146,10 @@ EOF
 # --- the artefacts a second run must not touch -------------------------------
 artefacts() {
     printf '%s\n' \
-        "$sslpath/CA/.fogCA.pem|root CA certificate" \
+        "$sslPath/CA/.fogCA.pem|root CA certificate" \
         "$fogprogramdir/pki/root/ca/.fogCA.key|root CA private key" \
-        "$sslpath/.srvprivate.key|client communication key" \
-        "$sslpath/.srvpublic.crt|client communication leaf" \
+        "$sslPath/.srvprivate.key|client communication key" \
+        "$sslPath/.srvpublic.crt|client communication leaf" \
         "$fogprogramdir/pki/web/ca/.fogWebCA.pem|web intermediate CA" \
         "$fogprogramdir/pki/web/ca/.fogWebCA.key|web intermediate CA key" \
         "$fogprogramdir/pki/web/leaf/.webLeaf.key|web leaf private key" \
@@ -241,9 +241,9 @@ if [[ -f $stamp ]]; then
     fi
     # ...and nothing above the leaf moved with it.
     for ca in \
-        "$sslpath/CA/.fogCA.pem" \
+        "$sslPath/CA/.fogCA.pem" \
         "$fogprogramdir/pki/web/ca/.fogWebCA.pem" \
-        "$sslpath/.srvpublic.crt"; do
+        "$sslPath/.srvpublic.crt"; do
         [[ -n ${BEFORE[$ca]:-} ]] || continue
         if [[ "$(sumof "$ca")" != "${BEFORE[$ca]}" ]]; then
             bad "re-issuing the leaf also changed $ca"

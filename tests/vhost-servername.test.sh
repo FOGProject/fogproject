@@ -52,7 +52,7 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=fog.example.org" \
     -keyout "$WORK/leaf.key" -out "$WORK/leaf.pem" >/dev/null 2>&1
 
 reset_env() {
-    etcconf=""; sslpubcert=""; sslfullchain=""
+    etcconf=""; sslPubCert=""; sslfullchain=""
     hostname=""; ipaddress=""; ipaddresses=""; extraServerNames=""
     vhostname=""; vhostaliases=""
     error_log="$WORK/error.log"
@@ -62,7 +62,7 @@ echo "== name first, addresses as aliases =="
 
 # A/B/C. The ordinary multi-homed server with a certificate.
 reset_env
-sslpubcert="$WORK/leaf.pem"
+sslPubCert="$WORK/leaf.pem"
 hostname="fog.example.org"
 ipaddress="10.0.0.1"; ipaddresses="10.0.0.1 10.0.0.2"
 _resolveVhostNames
@@ -79,7 +79,7 @@ check "$(printf '%s' "$vhostname" | wc -w | tr -d ' ')" "1" "E: ServerName is a 
 
 # F. Admin extras ride along.
 reset_env
-sslpubcert="$WORK/leaf.pem"
+sslPubCert="$WORK/leaf.pem"
 ipaddresses="10.0.0.1"; extraServerNames="fog.dmz.example.org images.example.org"
 _resolveVhostNames
 has "$vhostaliases" "fog.dmz.example.org"  "F: --extra-server-name reaches the aliases"

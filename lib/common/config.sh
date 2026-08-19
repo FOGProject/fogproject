@@ -71,14 +71,14 @@ fog_udpversion="20250223"
 # a fingerprint and an enrolment kit to hand out. --no-secure-boot sets this to
 # 0, and because .fogsettings is sourced before this file, that choice survives
 # an upgrade rather than being silently re-enabled.
-[[ -z $secureboot ]] && secureboot=1
+[[ -z $secureBoot ]] && secureBoot=1
 # Anchoring this server's own CA in this server's own trust store is on by
 # default: without it every HTTPS call made ON the FOG server TO the FOG server
 # fails to verify, including the ones inside FOG that have no way to be handed
 # a CA file. --no-ca-trust sets this to 0, and because .fogsettings is sourced
 # before this file, that choice survives an upgrade rather than being silently
-# re-enabled -- the same reasoning as $secureboot above.
-[[ -z $catrust ]] && catrust=1
+# re-enabled -- the same reasoning as $secureBoot above.
+[[ -z $caTrust ]] && caTrust=1
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"

@@ -293,7 +293,7 @@ case $installtype in
         ;;
 esac
 # The "would you like to enable secure HTTPS" question used to live here. It
-# set $httpproto, which is now https on every install, so it no longer mapped to
+# set $httpProto, which is now https on every install, so it no longer mapped to
 # anything an admin could decide -- and answering "no" to it used to silently
 # turn off Secure Boot staging and turn on a 25-minute iPXE rebuild, neither of
 # which it mentioned.

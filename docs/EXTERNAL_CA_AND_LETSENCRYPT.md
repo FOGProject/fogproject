@@ -79,7 +79,7 @@ The same swap does not have this problem for iPXE — see next section.
 > `codeSigning`-only cert used to Authenticode-sign the FOS kernel/initrd so
 > Secure Boot firmware trusts them. It shares nothing with `.fogCA.key`/
 > `.fogCA.pem` above — different key, different cert, generated separately,
-> stored separately (`$fogprogramdir/secureboot/` vs. `$sslpath/CA/`). Nothing
+> stored separately (`$fogprogramdir/secureboot/` vs. `$sslPath/CA/`). Nothing
 > here (`--external-ca`, a Let's Encrypt cert, or anything else in this doc)
 > touches Secure Boot signing, and nothing about Secure Boot touches the CA
 > this document is about. This split is recent — Secure Boot support was added
@@ -175,7 +175,7 @@ What the installer does with them (see `validateExternalCA()` in
    the web server, so both trust root → intermediate → leaf.
 
 The relevant values are persisted to [`.fogsettings`](https://docs.fogproject.org/install-fogsettings)
-(`externalca`, `extcacert`, `extcakey`, `extcaroot`, `sslcachain`) so re-running
+(`externalCA`, `extCACert`, `extCAKey`, `extCARoot`, `sslCAChain`) so re-running
 the installer reuses them.
 If the source files are no longer readable on a later run, the installer reuses
 the already-imported CA in `/opt/fog/pki/root/ca/`.
@@ -211,7 +211,7 @@ better.
 
 Use `acme.sh`, `certbot`, or whatever your site already runs, on your own
 schedule. Point its install/renew hook at the two paths FOG's vhost reads —
-`$sslpubcert` and `$sslprivkey` from `/opt/fog/.fogsettings` — and reload the
+`$sslPubCert` and `$sslPrivKey` from `/opt/fog/.fogsettings` — and reload the
 web server afterwards. For example, with `acme.sh`:
 
 ```bash
@@ -251,7 +251,7 @@ not match, and a web server that refuses to start. `--recreate-keys` and
 keypair anyway and a self-signed pair is the correct fallback at that point.
 
 > **This used to be a trap, and it is worth knowing what it was.**
-> `$sslprivkey` (`.srvprivate.key`) was *both* the web vhost's private key
+> `$sslPrivKey` (`.srvprivate.key`) was *both* the web vhost's private key
 > and the key `FOGBase::certDecrypt()` opens to decrypt every fog-client
 > authorization handshake. Verified on a live server: its modulus matched
 > `srvpublic.crt`, not `ca.cert.pem`. So
@@ -310,7 +310,7 @@ vhost does validate for iPXE netboot with no FOG-side change, as this doc
 claims. Getting there in practice took two settings beyond just dropping the
 cert in place:
 
-- `httpproto` in `.fogsettings` had to be set to `https`.
+- `httpProto` in `.fogsettings` had to be set to `https`.
 - `FOG_WEB_HOST` (in the FOG web UI's Settings page) had to be the server's
   FQDN, not its IP address.
 

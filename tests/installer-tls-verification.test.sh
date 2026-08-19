@@ -202,10 +202,10 @@ if printf '%s' "$helper" | grep -qE -- '--insecure|(^|[[:space:]])-[a-zA-Z]*k[a-
 else
     ok "_resolveSelfCacert hands back no insecure flag"
 fi
-if printf '%s' "$helper" | grep -q 'httpproto == https'; then
+if printf '%s' "$helper" | grep -q 'httpProto == https'; then
     ok "_resolveSelfCacert is a no-op on a plain-HTTP install"
 else
-    bad "_resolveSelfCacert does not gate on \$httpproto -- an http install would get a stray --cacert"
+    bad "_resolveSelfCacert does not gate on \$httpProto -- an http install would get a stray --cacert"
 fi
 
 # The three call sites, each pinned to the function it lives in and to the
@@ -254,9 +254,9 @@ source "$FUNCS" >/dev/null 2>&1
 
 # A plain-HTTP install must be left exactly as it was: no --cacert, and no
 # attempt to resolve an anchor that will not exist.
-httpproto=http
+httpProto=http
 rootCAPem=""
-sslcachain=""
+sslCAChain=""
 selfCacertOpts=(poison)
 _resolveSelfCacert
 if [[ ${#selfCacertOpts[@]} -eq 0 ]]; then
@@ -267,7 +267,7 @@ fi
 
 # https with nothing to anchor -- curl falls back to the system store, which is
 # the right answer on an install whose certificate came from a public CA.
-httpproto=https
+httpProto=https
 selfCacertOpts=(poison)
 _resolveSelfCacert
 if [[ ${#selfCacertOpts[@]} -eq 0 ]]; then

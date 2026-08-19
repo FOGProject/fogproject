@@ -4,7 +4,7 @@
 #
 #   tests/install-settings-resolution.test.sh
 #
-# $httpproto used to mean three unrelated things at once: "FOG uses HTTPS for
+# $httpProto used to mean three unrelated things at once: "FOG uses HTTPS for
 # its own URLs", "redirect HTTP to HTTPS", and "rebuild iPXE with the CA baked
 # in". Splitting them into httpsRedirect / publicWebCert / rebuildIpxeWithMyCA
 # is only safe if two properties hold, and neither is visible by reading the
@@ -49,14 +49,19 @@ error_log=/dev/null
 # --- the migration, replayed exactly as bin/installfog.sh performs it --------
 # persisted_httpproto / persisted_redirect stand in for .fogsettings.
 migrate() {
-    httpproto=""; httpsRedirect=""; publicWebCert=""; rebuildIpxeWithMyCA=""; netbootproto=""
-    [[ -z $httpproto ]] && httpproto="http"            # pre-source default
-    [[ -n $1 ]] && httpproto="$1"                       # .fogsettings
+    httpProto=""; httpsRedirect=""; publicWebCert=""; rebuildIpxeWithMyCA=""; netbootProto=""
+    [[ -n $1 ]] && httpProto="$1"                       # .fogsettings
     [[ -n $2 ]] && httpsRedirect="$2"
+    # Defaulted AFTER the source, not before it. installfog.sh used to seed
+    # httpProto="http" ahead of the source; it cannot any more, because a value
+    # already sitting in the camelCase name is indistinguishable, to
+    # _migrateLegacySettingNames(), from one an admin persisted under the old
+    # lower-case name -- and the persisted one would lose.
+    [[ -z $httpProto ]] && httpProto="http"
     if [[ -z $httpsRedirect ]]; then
-        [[ $httpproto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
+        [[ $httpProto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
     fi
-    httpproto="https"
+    httpProto="https"
     [[ -z $publicWebCert ]] && publicWebCert="no"
     [[ -z $rebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA="no"
 }
@@ -69,16 +74,16 @@ echo "install settings resolution:"
 # fog-client yet, so no machine has inherited trust in FOG's CA, and a forced
 # redirect would break exactly the ones that cannot fix themselves.
 migrate "" ""
-is "$httpproto|$httpsRedirect" "https|no" "fresh install: https, no redirect"
+is "$httpProto|$httpsRedirect" "https|no" "fresh install: https, no redirect"
 
 # The case that must not regress: an existing plain-HTTP server. It gains HTTPS
 # availability (443 already listened) and must not gain a redirect.
 migrate "http" ""
-is "$httpproto|$httpsRedirect" "https|no" "upgrade from http: https, still no redirect"
+is "$httpProto|$httpsRedirect" "https|no" "upgrade from http: https, still no redirect"
 
 # An existing httpproto=https is the only evidence its admin ever ran -S.
 migrate "https" ""
-is "$httpproto|$httpsRedirect" "https|yes" "upgrade from https: redirect seeded once"
+is "$httpProto|$httpsRedirect" "https|yes" "upgrade from https: redirect seeded once"
 
 # ...and having been seeded, it is persisted, so the seeding must never run
 # again. An admin who turns it off keeps it off.
@@ -92,19 +97,19 @@ is "$httpsRedirect" "yes" "third run: an admin's 'yes' survives"
 mode() { sinstallMode="$1"; _applyInstallMode; }
 
 mode standard
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "$httpProto|$netbootProto|$publicWebCert|$rebuildIpxeWithMyCA" \
    "https|http|no|no" "standard: HTTPS web, HTTP netboot, no rebuild"
 
 mode http-only
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "$httpProto|$netbootProto|$publicWebCert|$rebuildIpxeWithMyCA" \
    "http|http|no|no" "http-only: plain HTTP throughout"
 
 mode public-cert
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "$httpProto|$netbootProto|$publicWebCert|$rebuildIpxeWithMyCA" \
    "https|https|yes|no" "public-cert: HTTPS netboot with NO rebuild"
 
 mode embed-ca
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "$httpProto|$netbootProto|$publicWebCert|$rebuildIpxeWithMyCA" \
    "https|https|no|yes" "embed-ca: HTTPS netboot via a rebuild"
 
 # --- netboot transport -------------------------------------------------------
@@ -117,9 +122,9 @@ is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
 # them as one thing is how a test can pass while the behaviour is wrong.
 nb() {
     publicWebCert="$1"; rebuildIpxeWithMyCA="$2"
-    snetbootproto="$3"; netbootproto="$4"; netbootProtoForced="$5"
+    snetbootProto="$3"; netbootProto="$4"; netbootProtoForced="$5"
     _resolveNetbootProto
-    printf '%s' "$netbootproto"
+    printf '%s' "$netbootProto"
 }
 
 is "$(nb no no '')"   "http"  "netboot defaults to http"
@@ -148,13 +153,13 @@ is "$(nb no no '' https yes)"  "https" "a FORCED https survives with neither tri
 # re-run of an existing server. With httpproto now https for everyone, that
 # would have resolved netbootproto=https on every upgraded install in
 # existence -- the one configuration that cannot work behind a private CA.
-caCreated="yes"; externalca="yes"
+caCreated="yes"; externalCA="yes"
 is "$(nb no no '')" "http" "a pre-existing CA does NOT drag netboot onto https"
-caCreated=""; externalca=""
+caCreated=""; externalCA=""
 
 # --- warnings ----------------------------------------------------------------
 report() {
-    netbootproto="$1"; publicWebCert="$2"; rebuildIpxeWithMyCA="$3"; httpproto=https
+    netbootProto="$1"; publicWebCert="$2"; rebuildIpxeWithMyCA="$3"; httpProto=https
     _reportNetbootProto 2>&1
 }
 
@@ -182,7 +187,7 @@ fi
 # --- persistence -------------------------------------------------------------
 # Every key this change introduces has to survive a round trip through
 # .fogsettings, or the migration re-fires and the admin's choice is lost.
-for key in httpsRedirect publicWebCert rebuildIpxeWithMyCA netbootproto; do
+for key in httpsRedirect publicWebCert rebuildIpxeWithMyCA netbootProto; do
     if grep -qE "^[[:space:]]*.*\b${key}\b" <(sed -n '/local -a managedKeys=(/,/^    )/p' "$FUNCS"); then
         ok "${key} is a managed key"
     else

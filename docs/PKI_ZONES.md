@@ -76,10 +76,10 @@ issues day to day) — everything is a dotfile (`ls -a`):
 root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
                                    .fogCA.pem is a symlink to wherever the
                                    certificate already lived before this split.
-root/leaf/.srvprivate.key         symlink -> $sslpath/.srvprivate.key
-root/leaf/.srvpublic.crt          symlink -> $sslpath/.srvpublic.crt
+root/leaf/.srvprivate.key         symlink -> $sslPath/.srvprivate.key
+root/leaf/.srvpublic.crt          symlink -> $sslPath/.srvpublic.crt
                                    (the comm leaf's real files stay at
-                                   $sslpath -- see "Why they were separated")
+                                   $sslPath -- see "Why they were separated")
 web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate and node certificates
 web/ca/.fogWebCAchain.pem         CA + web intermediate
 web/leaf/.webLeaf.{key,pem}       what the web server actually serves
@@ -110,12 +110,12 @@ separate, web-user-writable directory for in-flight kernel-signing requests --
 unrelated key material, and deliberately not part of this tree.
 
 `.srvprivate.key`/`.srvpublic.crt` themselves stay exactly where they have
-always been, at `$sslpath` — `root/leaf/` only adds discoverability symlinks
+always been, at `$sslPath` — `root/leaf/` only adds discoverability symlinks
 to them, so nothing under `pki/` is flat while the comm keypair's real files
 never move.
 
 An install that already ran an earlier layout (flat `CA/.fogCA.*` directly
-under `$sslpath`, or the intermediate one-level-down `CA/web/.fogWebCA.*`
+under `$sslPath`, or the intermediate one-level-down `CA/web/.fogWebCA.*`
 split) migrates its key/cert material into the new tree in place on the next
 run — no re-issuing, and the old paths keep resolving via symlink where
 anything might still reference them directly.
@@ -135,7 +135,7 @@ The only endpoint-visible change is Secure Boot.
 
 ## Private key protection
 
-The CA private key used to be readable by the web user. `$sslpath` lives under
+The CA private key used to be readable by the web user. `$sslPath` lives under
 `$snapindir`, and `configureSnapins()` chowned that whole tree to
 `$username:$apacheuser` at mode 775 — so a remote code execution in the PHP
 application could read the key the entire installation trusts. It also ran
@@ -143,7 +143,7 @@ application could read the key the entire installation trusts. It also ran
 `createSSLCA` had no effect at all: they were overwritten later in the same
 install.
 
-`$sslpath` is now excluded from that recursion and the permissions are applied
+`$sslPath` is now excluded from that recursion and the permissions are applied
 afterwards, from `_hardenPkiPermissions`:
 
 | File | Mode | Why |
@@ -344,7 +344,7 @@ reference fixed canonical paths. Those paths may be symlinks, so the real
 files can live wherever you keep certificates:
 
 ```bash
-sed -i "s|^sslprivkey=.*|sslprivkey='/etc/pki/fog/server.key'|" /opt/fog/.fogsettings
+sed -i "s|^sslPrivKey=.*|sslPrivKey='/etc/pki/fog/server.key'|" /opt/fog/.fogsettings
 ./installfog.sh -Y
 ```
 
@@ -357,7 +357,7 @@ world-readable directory silently defeats the separation the `fog-sign-kernel`
 sudo helper depends on.
 
 > `.srvprivate.key` is no longer one of these relocatable pointers. It is the
-> communication key itself. If your `sslprivkey` used to point elsewhere, the
+> communication key itself. If your `sslPrivKey` used to point elsewhere, the
 > installer copies the key material into a file FOG owns and lets your own file
 > carry on as the *web* key — so an ACME renewal writing it no longer changes
 > what `certDecrypt()` reads.
@@ -419,22 +419,22 @@ acme.sh --install-cert -d fog.example.com \
     --ca-file        /opt/fog/pki/web/ca/.fogWebCAchain.pem \
     --reloadcmd      "systemctl reload httpd"     # apache2 on Ubuntu
 ```
-`--cert-file` (leaf only) maps to `sslpubcert`; `--ca-file` (intermediate
-only) maps to `sslcachain` — matching Apache's
+`--cert-file` (leaf only) maps to `sslPubCert`; `--ca-file` (intermediate
+only) maps to `sslCAChain` — matching Apache's
 `SSLCertificateFile`/`SSLCertificateChainFile` split. Don't use
-`--fullchain-file` for `sslpubcert`, or the vhost ends up listing the
+`--fullchain-file` for `sslPubCert`, or the vhost ends up listing the
 intermediate twice.
 
 **Tell FOG about it**, once, in `.fogsettings`:
 ```
 acmeLeaf=yes
-sslprivkey=/opt/fog/pki/web/leaf/.webLeaf.key
-sslpubcert=/opt/fog/pki/web/leaf/.webLeaf.pem
-sslcachain=/opt/fog/pki/web/ca/.fogWebCAchain.pem
+sslPrivKey=/opt/fog/pki/web/leaf/.webLeaf.key
+sslPubCert=/opt/fog/pki/web/leaf/.webLeaf.pem
+sslCAChain=/opt/fog/pki/web/ca/.fogWebCAchain.pem
 ```
 Reusing the exact default paths above is what makes `_resolveWebLeafPaths()`
 recognize them as already-yours and leave them alone on every later
-`installfog.sh` run; `sslcachain` gets the same treatment from
+`installfog.sh` run; `sslCAChain` gets the same treatment from
 `createWebIntermediateCA()`.
 
 **Renewal** is acme.sh's own cron entry — the `--reloadcmd` above is what
@@ -453,7 +453,7 @@ iPXE can only validate a chain ending in a **public** root, through its
 | FOG's own PKI | HTTPS once `ca.cert.der` is trusted | HTTP |
 | Your internal PKI | HTTPS once your root is trusted | HTTP |
 
-On a **fresh** install with `httpproto=https` and FOG's own PKI, netboot stays
+On a **fresh** install with `httpProto=https` and FOG's own PKI, netboot stays
 on HTTP automatically while everything else is HTTPS. That avoids the historic
 trade where enabling HTTPS meant rebuilding iPXE with the CA baked in — which
 works, and forfeits the signed Secure Boot shim, because a locally rebuilt
@@ -572,7 +572,7 @@ longer does.
 ## Still unverified
 
 - **nginx.** Every vhost change was exercised on Apache only. The managed-block
-  splice and the `netbootproto` redirect exclusion both have nginx branches
+  splice and the `netbootProto` redirect exclusion both have nginx branches
   that have never executed.
 - **Secure Boot with name constraints on hardware.** See the note above.
 - **Node certificate issuance against a real second machine.** The endpoint,

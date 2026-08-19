@@ -88,11 +88,11 @@ elif [[ -r /etc/fog/fog.conf ]]; then
     [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
 fi
 : "${fogprogramdir:=/opt/fog}"
-: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+: "${sslPath:=${fogprogramdir}/snapins/ssl}"
 
 # $rootCAKey is never persisted to .fogsettings -- installfog.sh re-derives it
 # every run -- so this falls to the canonical path, the same as fog-offline-ca-key.
-ROOT_CERT="${ROOT_CERT:-${rootCAPem:-${sslpath}/CA/.fogCA.pem}}"
+ROOT_CERT="${ROOT_CERT:-${rootCAPem:-${sslPath}/CA/.fogCA.pem}}"
 ROOT_KEY="${ROOT_KEY:-${rootCAKey:-${fogprogramdir}/pki/root/ca/.fogCA.key}}"
 OUTDIR="${OUTDIR:-/root/fog-web-cas}"
 

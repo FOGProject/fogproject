@@ -20,9 +20,9 @@ in this area:
 
 | Kind | Meaning | Examples |
 |---|---|---|
-| **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `secureboot`, `catrust`, `fwconfigure`, `fog_update_channel`, `internalSubnets`, `kernelBackupGenerations` |
-| **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `fogprogramdir`, `fog_git_path`, `packages`, `php_ver`, `netbootproto` |
-| **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `snmysqlexternal`, `dhcpengine`, `tftpAdvOpts`, `inetConnectTimeout` |
+| **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `secureBoot`, `caTrust`, `fwconfigure`, `fog_update_channel`, `internalSubnets`, `kernelBackupGenerations` |
+| **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `fogprogramdir`, `fog_git_path`, `packages`, `php_ver`, `netbootProto`, `httpProto` |
+| **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `snapinLocation`, `storageLocationCapture`, `inetConnectTimeout`, `ftppasvmin` |
 | **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `acmeLeaf`, `webCertFile`, `webKeyFile`, `httpsRedirect`, `netbootProtoForced` |
 
 The preference/record distinction is load-bearing. A preference that gets
@@ -42,7 +42,7 @@ Re-deriving every run would let a heuristic overrule an admin who cleared it,
 which is the failure mode a *record* has and a preference must not. Clearing all
 three by hand is the documented way back to FOG managing the leaf.
 
-**A record and a preference cannot share one key.** `netbootproto` was a
+**A record and a preference cannot share one key.** `netbootProto` was a
 preference, on the reasoning that an admin who forced it should not get the
 computed default back next upgrade. But the installer also *derives* it when
 nobody forced anything, and writes the result to the same key — so a derived
@@ -51,7 +51,7 @@ derived from. Reported from a live server: a run resolved `http` and persisted
 it, the admin then set `publicWebCert="yes"`, and the resolver short-circuited on
 the stale value and reported HTTP netboot as though it had just decided that.
 
-The pair now splits the two jobs. `netbootproto` is a record, re-derived every
+The pair now splits the two jobs. `netbootProto` is a record, re-derived every
 run; `netbootProtoForced` is the preference, and the only thing that makes "the
 admin forced this" distinguishable from "a previous run worked this out". When a
 key needs protecting from recomputation *and* is itself computed, it needs two
@@ -79,9 +79,9 @@ Highest first:
 applied in `bin/installfog.sh` *after* `.fogsettings` is sourced. A handler that
 writes the real variable directly is silently discarded on every upgrade, because
 the sourced file overwrites it. That exact bug has shipped at least three times —
-`-E`/`blexports`, `-s`/`-e`/`dodhcp`, and `-S`/`httpproto` (which additionally had
+`-E`/`blexports`, `-s`/`-e`/`dodhcp`, and `-S`/`httpProto` (which additionally had
 no way back until `--no-force-https` was added, since a persisted `https` means
-the `[[ -z $httpproto ]]` default can never fire again).
+the `[[ -z $httpProto ]]` default can never fire again).
 
 Repeatable flags (`--extra-server-name`, `--internal-domain`, `--internal-subnet`)
 **replace** the persisted list rather than appending, so a value can be removed
@@ -142,6 +142,49 @@ Then, unconditionally:
 - Adding a key to `managedKeys` **turns a hand-set key into a managed one**, so
   the admin's value starts being overwritten. That is a behavior change even
   though it looks like documentation.
+
+---
+
+## Renaming a key
+
+The transport and PKI keys were lower-case run-together names (`httpproto`,
+`sslpath`, `catrust`) sitting beside camelCase ones added later
+(`httpsRedirect`, `publicWebCert`, `secureBootMokCert`). They are all camelCase
+now. No aliases were kept — an alias means the file carries two spellings of one
+setting for the rest of its life, and nothing ever tells you which one is live.
+
+A rename is four edits, and missing any one of them is silent:
+
+1. **`managedKeys`** — the new name, or it is never written.
+2. **`deprecatedKeys`** — the old name, or the stale line stays in the file
+   forever alongside its replacement.
+3. **`_migrateLegacySettingNames()`** — the pair, or the admin's persisted value
+   is discarded by the write that removes the old line.
+4. **The `s`-prefixed shadow and every reader.** `.fogsettings` is sourced by
+   `bin/updatefog.sh`, `bin/restorekernel.sh`, `bin/fog-plugin-uploads.sh`,
+   `lib/common/uninstall.sh`, `utils/FOGBackup/FOGBackup.sh`,
+   `utils/reporting/report.sh` and `packages/pki/fog-mint-web-ca`, not only by
+   the installer.
+
+`tests/settings-name-migration.test.sh` pins 1–3 against each other in both
+directions, so a name added to one list and not the other fails rather than
+silently losing a value.
+
+**Where the migration runs is load-bearing.** It is called immediately after
+`.fogsettings` is sourced and *before* `doOSSpecificIncludes`, because
+`config.sh` applies `[[ -z $secureBoot ]] && secureBoot=1` and the same for
+`caTrust`. Called any later, those defaults find the new name unset and
+overwrite an admin's `--no-secure-boot` / `--no-ca-trust` with the value they
+deliberately opted out of. For the same reason `installfog.sh` no longer
+pre-seeds `httpProto`/`externalCA` before the source: a compiled default sitting
+in the new name is indistinguishable from a persisted one.
+
+**Two names that look like keys and are not.** PHP's `self::$httpproto` is a
+static property derived from the request, and `sslpath` is a storage-node
+`$databaseFields` name (`'sslpath' => 'ngmSSLPath'`) that also appears as an API
+POST field and a CSV import column. Neither is this file's key; both keep their
+spelling. `registerStorageNode()` sends `-d "sslpath=$(... $sslPath ...)"` — the
+field name on the left is the ORM's, the variable on the right is ours.
 
 ---
 

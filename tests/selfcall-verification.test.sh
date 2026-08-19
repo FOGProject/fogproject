@@ -62,9 +62,9 @@ mkleaf "served.example.org" served
 mkleaf "fogown.example.org" fogown
 
 reset_env() {
-    etcconf=""; sslpubcert=""; sslfullchain=""
+    etcconf=""; sslPubCert=""; sslfullchain=""
     hostname=""; ipaddress=""
-    acmeLeaf=""; publicWebCert=""; httpproto="https"
+    acmeLeaf=""; publicWebCert=""; httpProto="https"
     selfCacertOpts=(); trustAnchorPem=""
     # Not decoration: _resolveSelfCacert redirects to $error_log, and an unset
     # one is an ambiguous redirect that fails the whole command, so the
@@ -76,13 +76,13 @@ reset_env() {
 echo "== _servedCertName: which certificate is asked =="
 
 # A. The vhost wins over FOG's own copy. This is the case that matters: on an
-#    externally-managed install $sslpubcert still names FOG's leaf while the web
+#    externally-managed install $sslPubCert still names FOG's leaf while the web
 #    server serves somebody else's.
 reset_env
 etcconf="$WORK/apache.conf"
 printf '<VirtualHost *:443>\n    SSLCertificateFile %s\n    SSLCertificateKeyFile %s\n</VirtualHost>\n' \
     "$WORK/served.pem" "$WORK/served.key" > "$etcconf"
-sslpubcert="$WORK/fogown.pem"
+sslPubCert="$WORK/fogown.pem"
 check "$(_servedCertName)" "served.example.org" "A: reads the CN of the cert the vhost names, not FOG's own"
 
 # B. nginx spells it differently and must parse the same way.
@@ -90,7 +90,7 @@ reset_env
 etcconf="$WORK/nginx.conf"
 printf 'server {\n    ssl_certificate %s;\n    ssl_certificate_key %s;\n}\n' \
     "$WORK/served.pem" "$WORK/served.key" > "$etcconf"
-sslpubcert="$WORK/fogown.pem"
+sslPubCert="$WORK/fogown.pem"
 check "$(_servedCertName)" "served.example.org" "B: parses nginx ssl_certificate"
 
 # C. ssl_certificate_key must NOT be mistaken for the leaf. It is a key file, so
@@ -99,18 +99,18 @@ check "$(_servedCertName)" "served.example.org" "B: parses nginx ssl_certificate
 reset_env
 etcconf="$WORK/keyonly.conf"
 printf 'server {\n    ssl_certificate_key %s;\n}\n' "$WORK/served.key" > "$etcconf"
-sslpubcert="$WORK/fogown.pem"
+sslPubCert="$WORK/fogown.pem"
 check "$(_servedCertName)" "fogown.example.org" "C: ssl_certificate_key is not read as the leaf"
 
 # D. No vhost to consult -- fall back to FOG's own leaf.
 reset_env
-sslpubcert="$WORK/fogown.pem"
-check "$(_servedCertName)" "fogown.example.org" "D: falls back to \$sslpubcert"
+sslPubCert="$WORK/fogown.pem"
+check "$(_servedCertName)" "fogown.example.org" "D: falls back to \$sslPubCert"
 
 # E. No readable certificate anywhere -- fall back to \$hostname, which is what
 #    _createWebLeaf would have set that CN from anyway.
 reset_env
-sslpubcert="$WORK/does-not-exist.pem"
+sslPubCert="$WORK/does-not-exist.pem"
 hostname="fog.example.org"
 check "$(_servedCertName)" "fog.example.org" "E: falls back to \$hostname"
 
@@ -125,7 +125,7 @@ printf 'not-a-real-anchor\n' > "$WORK/anchor.pem"
 _resolveTrustAnchor() { trustAnchorPem="$WORK/anchor.pem"; return 0; }
 
 # G. Plain HTTP verifies against the system store, unchanged.
-reset_env; httpproto="http"
+reset_env; httpProto="http"
 _resolveSelfCacert
 check "${#selfCacertOpts[@]}" "0" "G: no --cacert on a plain HTTP install"
 

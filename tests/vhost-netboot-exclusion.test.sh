@@ -4,7 +4,7 @@
 #
 #   tests/vhost-netboot-exclusion.test.sh
 #
-# When $httpproto is https and $netbootproto is http, the :80 vhost redirects
+# When $httpProto is https and $netbootProto is http, the :80 vhost redirects
 # everything to HTTPS -- except the paths iPXE itself fetches, because iPXE
 # validates TLS strictly, has no --insecure, and cannot chain a private CA. A
 # path that falls through to the redirect does not fail visibly on the server;
@@ -105,11 +105,11 @@ fi
 # 4. Both exclusion sets stay behind a netbootproto guard, so an install whose
 #    netboot already runs on HTTPS is not given pointless carve-outs.
 #
-#    The guard is `!= https`, not `!= "$httpproto"`. What would catch iPXE is
+#    The guard is `!= https`, not `!= "$httpProto"`. What would catch iPXE is
 #    the REDIRECT, and the redirect is its own setting now -- comparing against
 #    httpproto stopped meaning anything once httpproto became https for
 #    everyone regardless of whether a redirect is emitted.
-want 2 'if [[ $netbootproto != https ]]; then' \
+want 2 'if [[ $netbootProto != https ]]; then' \
     "both exclusion sets are guarded on netboot not already being https"
 
 # 5. The redirect itself, and HSTS with it, are gated on httpsRedirect -- not
@@ -136,7 +136,7 @@ want 2 'add_header Strict-Transport-Security max-age=15768000;' \
 # 6. 443 is in the firewall list unconditionally: both web servers emit their
 #    :443 vhost in both arms, so the port is listening on every install.
 if grep -qF 'echo "443/tcp HTTPS (web UI, client check-in)"' "$FUNCS" && \
-   ! grep -qF '[[ $httpproto == https ]] && echo "443/tcp' "$FUNCS"; then
+   ! grep -qF '[[ $httpProto == https ]] && echo "443/tcp' "$FUNCS"; then
     ok "443/tcp is advertised on every install, not only under https"
 else
     bad "443/tcp is still gated on httpproto"

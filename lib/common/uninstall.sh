@@ -26,7 +26,7 @@
 # surviving data. That doubles as a genuinely useful "rebuild the server, keep
 # my hosts" path.
 #
-# The SSL CA deserves specific mention: it lives at $sslpath, which is under
+# The SSL CA deserves specific mention: it lives at $sslPath, which is under
 # $fogprogramdir/snapins. That means a naive `rm -rf $fogprogramdir` destroys
 # it as a side effect, and losing .fogCA.key/.fogCA.pem permanently breaks
 # every deployed fog-client and every PXE binary pinned to that CA -- there is
@@ -138,7 +138,7 @@ uninstallFOG() {
     printf '     %-42s %s\n' "database '$mysqldbname'" "$plan_db"
     printf '     %-42s %s\n' "images in $storageLocation" "$plan_images"
     printf '     %-42s %s\n' "snapins in $snapindir" "$plan_snapins"
-    printf '     %-42s %s\n' "SSL CA in $sslpath" "$plan_ssl"
+    printf '     %-42s %s\n' "SSL CA in $sslPath" "$plan_ssl"
     printf '     %-42s %s\n' "Linux account '$username'" "$plan_user"
     echo
     if [[ $plan_ssl == DELETED ]]; then
@@ -277,7 +277,7 @@ uninstallFOG() {
     fi
     if [[ $purgessl == 1 ]]; then
         dots "Removing SSL CA"
-        rm -rf "${sslpath:?}" >>$error_log 2>&1
+        rm -rf "${sslPath:?}" >>$error_log 2>&1
         errorStat $?
         # Tied to purge-ssl rather than run unconditionally: the anchor is only
         # stale once the CA it names is actually gone. A plain uninstall keeps
@@ -307,7 +307,7 @@ uninstallFOG() {
     echo
     [[ $plan_db == KEPT ]] && echo "   Database '$mysqldbname' was kept."
     [[ $plan_images == KEPT ]] && echo "   Images in $storageLocation were kept."
-    [[ $plan_ssl == KEPT ]] && echo "   The SSL CA in $sslpath was kept."
+    [[ $plan_ssl == KEPT ]] && echo "   The SSL CA in $sslPath was kept."
     echo "   Reinstalling over what remains will pick it all back up."
     echo
     echo "   Packages were not removed. Restart or reconfigure your webserver,"

@@ -84,7 +84,7 @@ elif [[ -r /etc/fog/fog.conf ]]; then
     [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
 fi
 : "${fogprogramdir:=/opt/fog}"
-: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+: "${sslPath:=${fogprogramdir}/snapins/ssl}"
 
 case "$zone" in
     root)
@@ -93,7 +93,7 @@ case "$zone" in
         # falls to the default. The certificate is deliberately not moved by
         # the pki/ split (see createSSLCA's _resolveRootCA), only the key.
         key="${rootCAKey:-${fogprogramdir}/pki/root/ca/.fogCA.key}"
-        cert="${rootCAPem:-${sslpath}/CA/.fogCA.pem}"
+        cert="${rootCAPem:-${sslPath}/CA/.fogCA.pem}"
         label="FOG Server CA"
         ;;
     secureboot)

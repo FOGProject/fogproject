@@ -50,8 +50,8 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=fog.example.org" \
     -keyout "$WORK/foreign/priv.key" -out "$WORK/foreign/fullchain.pem" >/dev/null 2>&1
 
 reset_env() {
-    etcconf=""; sslpath="$WORK/ssl"; rootCAPem="$WORK/ssl/ca.pem"; sslcachain=""
-    sslpubcert="$WORK/ssl/leaf.pem"; sslprivkey="$WORK/ssl/leaf.key"
+    etcconf=""; sslPath="$WORK/ssl"; rootCAPem="$WORK/ssl/ca.pem"; sslCAChain=""
+    sslPubCert="$WORK/ssl/leaf.pem"; sslPrivKey="$WORK/ssl/leaf.key"
     acmeLeaf=""; publicWebCert=""
     error_log="$WORK/error.log"
 }
@@ -69,21 +69,21 @@ fi
 
 # B. FOG pointed straight at an ACME client's tree.
 reset_env
-sslpubcert="/etc/letsencrypt/live/fog.example.org/fullchain.pem"
-out=$(_detectExternalCertManagement) && ok "B: fires when \$sslpubcert is under /etc/letsencrypt" \
+sslPubCert="/etc/letsencrypt/live/fog.example.org/fullchain.pem"
+out=$(_detectExternalCertManagement) && ok "B: fires when \$sslPubCert is under /etc/letsencrypt" \
     || bad "B: missed a path inside an ACME tree"
 [[ $out == *"ACME client's tree"* ]] && ok "B2: names the ACME tree as the reason" \
     || bad "B2: reason did not name the ACME tree (got '$out')"
 
-# C. The novhost=yes shape -- FOG never wrote the vhost, $sslpubcert still names
+# C. The novhost=yes shape -- FOG never wrote the vhost, $sslPubCert still names
 #    FOG's own unused leaf, and the web server serves somebody else's file.
 reset_env
 etcconf="$WORK/hand.conf"
 printf '<VirtualHost *:443>\n    SSLCertificateFile %s\n    SSLCertificateKeyFile %s\n</VirtualHost>\n' \
     "$WORK/foreign/fullchain.pem" "$WORK/foreign/priv.key" > "$etcconf"
-out=$(_detectExternalCertManagement) && ok "C: fires when the vhost serves a cert outside \$sslpath" \
-    || bad "C: missed a vhost-served cert outside \$sslpath"
-[[ $out == *"outside FOG's"* ]] && ok "C2: reason names the path and \$sslpath" \
+out=$(_detectExternalCertManagement) && ok "C: fires when the vhost serves a cert outside \$sslPath" \
+    || bad "C: missed a vhost-served cert outside \$sslPath"
+[[ $out == *"outside FOG's"* ]] && ok "C2: reason names the path and \$sslPath" \
     || bad "C2: reason did not name the path (got '$out')"
 
 # D. A foreign leaf dropped AT FOG's own path. _createCommLeaf documents that as
@@ -91,7 +91,7 @@ out=$(_detectExternalCertManagement) && ok "C: fires when the vhost serves a cer
 #    matching "FOG" in the issuer name, since a CA can be renamed.
 reset_env
 cp "$WORK/foreign/fullchain.pem" "$WORK/ssl/leaf-foreign.pem"
-sslpubcert="$WORK/ssl/leaf-foreign.pem"
+sslPubCert="$WORK/ssl/leaf-foreign.pem"
 out=$(_detectExternalCertManagement) && ok "D: fires on a leaf that does not chain to FOG's CA" \
     || bad "D: missed a foreign leaf sitting at FOG's own path"
 
@@ -122,8 +122,14 @@ check "$(_vhostCertPath)" "$WORK/foreign/fullchain.pem" "H: KeyFile listed first
 
 # I. Persisted, or FOG re-emits its own paths on the next run and points the web
 #    server at a certificate whose key is not the one on disk.
+#    Membership, not line shape: the previous form required the key to sit
+#    alone on its own line, so re-wrapping managedKeys failed a test about
+#    persistence for a reason that had nothing to do with persistence. Comment
+#    lines are dropped first, so a key merely NAMED in the rationale above the
+#    list cannot satisfy this.
 for k in webCertFile webKeyFile; do
-    if awk '/managedKeys=/,/^    \)/' "$FUNCS" | grep -qE "^\s*$k\s*$"; then
+    if awk '/managedKeys=/,/^    \)/' "$FUNCS" | grep -v '^[[:space:]]*#' \
+        | grep -qE "(^|[[:space:]])$k([[:space:]]|\$)"; then
         ok "I: $k is in managedKeys"
     else
         bad "I: $k is not persisted"

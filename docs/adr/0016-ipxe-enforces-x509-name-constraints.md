@@ -43,7 +43,7 @@ chain -- the binary boots, iPXE starts and reports `HTTPS` among its features,
 and only then cannot read the certificate it was given.
 
 Both branches were affected: `working-1.6` since 2026-08-10 and `dev-branch`
-since 2026-08-09, which bakes the same CA in whenever `httpproto` is `https`.
+since 2026-08-09, which bakes the same CA in whenever `httpProto` is `https`.
 
 ## Decision
 

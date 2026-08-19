@@ -265,10 +265,10 @@ while :; do
 			;;
         -c | --ssl-path)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                ssslpath="${2}"
-                ssslpath="${ssslpath#'/'}"
-                ssslpath="${ssslpath%'/'}"
-                ssslpath="/${ssslpath}/"
+                ssslPath="${2}"
+                ssslPath="${ssslPath#'/'}"
+                ssslPath="${ssslPath%'/'}"
+                ssslPath="/${ssslPath}/"
             else
                 echo "Error: Missing argument for --$1"
                 usage
@@ -385,12 +385,12 @@ while :; do
             shift
             ;;
         --external-ca)
-            sexternalca="yes"
+            sexternalCA="yes"
             shift
             ;;
         --ca-cert)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sextcacert="${2}"
+                sextCACert="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -400,7 +400,7 @@ while :; do
             ;;
         --ca-key)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sextcakey="${2}"
+                sextCAKey="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -410,7 +410,7 @@ while :; do
             ;;
         --ca-root)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sextcaroot="${2}"
+                sextCARoot="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -558,16 +558,16 @@ while :; do
             shift 2
             ;;
         --no-secure-boot)
-            ssecureboot=0
+            ssecureBoot=0
             shift
             ;;
         --no-ca-trust)
-            scatrust=0
+            scaTrust=0
             shift
             ;;
         --netboot-proto)
             case $2 in
-                http|https) snetbootproto="$2" ;;
+                http|https) snetbootProto="$2" ;;
                 *) echo "$1 must be http or https"; usage; exit 3 ;;
             esac
             shift 2
@@ -581,7 +581,7 @@ while :; do
                 usage
                 exit 3
             fi
-            sbootdelay="$2"
+            sbootDelay="$2"
             shift 2
             ;;
         --no-sb-name-constraints)
@@ -771,12 +771,12 @@ resolvedfoggitpath="$fog_git_path"
 [[ -z $guessdefaults ]] && guessdefaults=1
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
-# NOT the new default. httpproto is forced to https for everyone further down,
-# after .fogsettings has been sourced -- the migration there has to be able to
-# tell a PERSISTED https (the only evidence an admin ever asked for -S) from a
-# defaulted one, and it cannot if the default has already written https here.
-[[ -z $httpproto ]] && httpproto="http"
-[[ -z $externalca ]] && externalca="no"
+# httpProto and externalCA are deliberately NOT defaulted here. They used to be,
+# but a value sitting in the new camelCase name before .fogsettings is sourced
+# is indistinguishable, to _migrateLegacySettingNames(), from a value an admin
+# persisted under the old lower-case name -- so the persisted one would be
+# dropped. They are defaulted below instead, after the source and the migration
+# and before the httpsRedirect seeding that reads httpProto.
 [[ -z $mysqldbname ]] && mysqldbname="fog"
 [[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
@@ -794,6 +794,14 @@ case $doupdate in
             echo -e "\n * Found FOG Settings from previous install at: $fogprogramdir/.fogsettings\n"
             echo -n " * Performing upgrade using these settings"
             . "$fogpriorconfig"
+            # Pre-1.6 files spell the transport/PKI keys in lower case. Copy
+            # each onto its camelCase replacement HERE -- before
+            # doOSSpecificIncludes below, because config.sh defaults secureBoot
+            # and caTrust to 1 when unset, which would overwrite an admin's
+            # --no-secure-boot / --no-ca-trust with the default they opted out
+            # of. The old lines are in deprecatedKeys, so the next write drops
+            # them and the file stops carrying two spellings of one setting.
+            _migrateLegacySettingNames
             # GH-850: .fogsettings records fogprogramdir but does not control
             # it (see writeFogSettings). Re-assert before doOSSpecificIncludes,
             # which derives snapindir from it.
@@ -819,12 +827,20 @@ case $doupdate in
         echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
-# --- httpproto / httpsRedirect migration -------------------------------------
+# Defaults for the two renamed keys that need one, applied here rather than
+# before the source: see the note where the other pre-source defaults are set.
+# "http" is NOT the new default for httpProto -- it is forced to https for
+# everyone a few lines down. It is set to http so the seeding just below can
+# tell a PERSISTED https, the only evidence an admin ever asked for -S, from a
+# defaulted one.
+[[ -z $httpProto ]] && httpProto="http"
+[[ -z $externalCA ]] && externalCA="no"
+# --- httpProto / httpsRedirect migration -------------------------------------
 #
 # Runs after .fogsettings is sourced and BEFORE the flags below, so the order
 # stays: explicit flag > persisted value > migrated value.
 #
-# $httpproto used to mean three unrelated things at once -- "FOG uses HTTPS for
+# $httpProto used to mean three unrelated things at once -- "FOG uses HTTPS for
 # its own URLs", "redirect HTTP to HTTPS", and "rebuild iPXE with the CA baked
 # in". They are separate keys now. Splitting them needs one guess made once,
 # about existing servers:
@@ -840,11 +856,11 @@ esac
 # who turns the redirect off must not have it turned back on by the next
 # upgrade re-reading httpproto.
 if [[ -z $httpsRedirect ]]; then
-    [[ $httpproto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
+    [[ $httpProto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
 fi
 # Safe for everyone: 443 already listens on every install (both web servers
 # emit their :443 vhost in both arms), and no redirect follows from this.
-httpproto="https"
+httpProto="https"
 [[ -z $publicWebCert ]] && publicWebCert="no"
 [[ -z $rebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA="no"
 
@@ -869,13 +885,13 @@ _applyInstallMode
 # keys) and the ranges were accepted while DHCP configuration stayed off.
 [[ -n $sdodhcp ]] && dodhcp=$sdodhcp
 [[ -n $sbldhcp ]] && bldhcp=$sbldhcp
-[[ -n $ssslpath ]] && sslpath=$ssslpath
+[[ -n $ssslPath ]] && sslPath=$ssslPath
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
-[[ -n $sexternalca ]] && externalca=$sexternalca
-[[ -n $sextcacert ]] && extcacert=$sextcacert
-[[ -n $sextcakey ]] && extcakey=$sextcakey
-[[ -n $sextcaroot ]] && extcaroot=$sextcaroot
+[[ -n $sexternalCA ]] && externalCA=$sexternalCA
+[[ -n $sextCACert ]] && extCACert=$sextCACert
+[[ -n $sextCAKey ]] && extCAKey=$sextCAKey
+[[ -n $sextCARoot ]] && extCARoot=$sextCARoot
 [[ -n $sdocroot ]] && docroot=$sdocroot
 [[ -n $swebrootset ]] && webroot=$swebroot
 [[ -n $sbackupPath ]] && backupPath=$sbackupPath
@@ -883,16 +899,16 @@ _applyInstallMode
 [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
 [[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
 [[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
-[[ -n $ssecureboot ]] && secureboot=$ssecureboot
-[[ -n $scatrust ]] && catrust=$scatrust
+[[ -n $ssecureBoot ]] && secureBoot=$ssecureBoot
+[[ -n $scaTrust ]] && caTrust=$scaTrust
 [[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
 # persisted value. A persisted value does NOT beat the computed default any
 # more: netbootproto is re-derived every run unless netbootProtoForced records
 # that somebody actually passed --netboot-proto. It used to, and that is how a
 # value one run derived went on overriding the keys it was derived from.
-[[ -n $snetbootproto ]] && netbootproto=$snetbootproto
-[[ -n $sbootdelay ]] && bootdelay=$sbootdelay
+[[ -n $snetbootProto ]] && netbootProto=$snetbootProto
+[[ -n $sbootDelay ]] && bootDelay=$sbootDelay
 [[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
 [[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
 [[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
@@ -908,7 +924,7 @@ _applyInstallMode
 # --ca-cert always has. Saves an admin from the "I gave you the files and
 # nothing happened" failure, which produces a working install with the wrong
 # CA and no error to explain it.
-[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalca="yes"
+[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalCA="yes"
 # Deliberately NOT persisted to .fogsettings: this is a one-shot instruction
 # for a single run (revertUpdate passes it), not a preference. Persisting it
 # would make every later update silently roll the kernels back.
@@ -1075,8 +1091,8 @@ case $sendreports in
 esac
 # Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
 # it resolved rather than only what was passed.
-echo " * Web protocol: $httpproto"
-echo " * Netboot (PXE) protocol: ${netbootproto:-http (resolved during install)}"
+echo " * Web protocol: $httpProto"
+echo " * Netboot (PXE) protocol: ${netbootProto:-http (resolved during install)}"
 echo -n " * Force HTTP->HTTPS redirect: "; [[ $httpsRedirect == yes ]] && echo "Yes" || echo "No"
 echo -n " * Web certificate chains to a public root: "; [[ $publicWebCert == yes ]] && echo "Yes" || echo "No"
 echo -n " * Rebuild iPXE with your CA: "; [[ $rebuildIpxeWithMyCA == yes ]] && echo "Yes (adds 10-25 min)" || echo "No"
@@ -1200,7 +1216,7 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   ${httpproto}://${fogserver}${webroot}"
+                        echo "   ${httpProto}://${fogserver}${webroot}"
                         echo
                         echo "   You will need this, write this down!"
                         echo "   IP Address:          $ipaddress"
@@ -1344,7 +1360,7 @@ while [[ -z $blGo ]]; do
                     echo
                     echo "   This can be done by opening a web browser and going to:"
                     echo
-                    echo "   ${httpproto}://${ipaddress}${webroot}management"
+                    echo "   ${httpProto}://${ipaddress}${webroot}management"
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"

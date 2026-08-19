@@ -63,9 +63,9 @@ tftpdirdst="$WORK/dst"
 mkdir -p "$tftpdirsrc" "$tftpdirdst"
 
 ipxeVer="v2.0.0-fog.8"
-sslcachain=""
-sslcapem="$WORK/ca.pem"
-echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "$sslcapem"
+sslCAChain=""
+sslCAPem="$WORK/ca.pem"
+echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "$sslCAPem"
 
 stamp="$tftpdirdst/.fog-ipxe-build"
 
@@ -108,9 +108,9 @@ ipxeVer="v2.0.1-fog.1"
 is "$(needs)" "yes" "rebuild when the iPXE release moves"
 ipxeVer="v2.0.0-fog.8"
 
-echo "-----BEGIN CERTIFICATE----- rotated -----END CERTIFICATE-----" > "$sslcapem"
+echo "-----BEGIN CERTIFICATE----- rotated -----END CERTIFICATE-----" > "$sslCAPem"
 is "$(needs)" "yes" "rebuild when the CA bytes change"
-echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "$sslcapem"
+echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "$sslCAPem"
 
 # --- downloadipxe must not unpack over a staged build ------------------------
 locallybuilt
