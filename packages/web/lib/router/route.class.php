@@ -240,7 +240,28 @@ class Route extends FOGBase
      *
      * @var array
      */
-    public static $sensitiveAlwaysFields = [];
+    public static $sensitiveAlwaysFields = [
+        // A storage node's FTP credential. It reaches the root-running
+        // replicator's lftp invocation and the SSH helpers in
+        // Snapin/TaskQueue, so holding it is holding the node -- the same
+        // credential class as GHSA-2hqx-5ffg-w4c3.
+        //
+        // Tier 2 rather than tier 1 because nothing reads it back over the
+        // API: every consumer is server-side PHP with the object already
+        // in hand (snapin.class.php, taskqueue.class.php,
+        // snapinclient.class.php, the node edit page), and the FOS handoff
+        // in service/hostinfo.php sends the node's IP and path only. So
+        // there is no legitimate reader to carve out for, the way host
+        // ADPass has one in fog-client.
+        //
+        // Found leaking through the storage GROUP list, not the node list:
+        // the group's `masternode` column embeds the whole node object,
+        // password included, to anyone holding storagegroup.view.
+        'storagenode' => [
+            'pass',
+            'key',
+        ],
+    ];
     /**
      * Memoized union of the core tiers above and what plugins declare
      * through API_SENSITIVE_FIELDS. Null until first built.
@@ -4423,6 +4444,22 @@ class Route extends FOGBase
                     'class' => &$class
                 ]
             );
+            // Tier 2 is stripped HERE, not only in the emitter, because
+            // getter() is the one place that knows what class it is
+            // shaping regardless of what payload the result ends up
+            // nested inside. stripSensitivePayload() keys off the
+            // payload's own '_lang' stamp, so a storagenode embedded in a
+            // storagegroup row was stripped as a storagegroup -- which is
+            // to say not at all, and the node's FTP password went out in
+            // the storage group grid to anyone holding storagegroup.view.
+            // Same shape for task.host, task.image and host.inventory.
+            //
+            // Tier 2 only. Tier 1 exists precisely so a single-entity GET
+            // still carries it (fog-client reads host ADPass back to join
+            // a domain), and that carve-out is applied by the emitter,
+            // which knows whether it is emitting a list or one record.
+            // getter() does not and must not guess.
+            $data = self::stripSensitive($classname, $data, true);
             return $data;
         } catch (\Exception $e) {
             self::_sendCaught($e);

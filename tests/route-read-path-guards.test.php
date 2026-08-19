@@ -565,6 +565,74 @@ if (false !== cgiBinary()) {
 
 /*
  * ===========================================================================
+ * 4b. Nested entities are stripped as what they ARE, not as what they are
+ *     nested inside.
+ *
+ *     stripSensitivePayload() picks the classname off the payload's own
+ *     '_lang' stamp, which is the only thing a list payload carries. A
+ *     storage node embedded in a storage group row was therefore stripped
+ *     as a storagegroup -- i.e. not at all -- and the node's FTP password,
+ *     which reaches the root-running replicator's lftp call, went out in
+ *     the storage group grid to anyone holding storagegroup.view. Same
+ *     shape for task.host, task.image and host.inventory.
+ *
+ *     Closed in getter(), because that is the one place that knows what
+ *     class it is shaping whatever payload the result ends up inside.
+ *     Tier 2 only there: tier 1 exists so a single-entity GET still
+ *     carries it (fog-client reads host ADPass back to join a domain),
+ *     and only the emitter knows whether it is emitting one record or a
+ *     list. Both halves are asserted -- stripping without the carve-out
+ *     would be just as wrong, and silently breaks domain joins.
+ * ===========================================================================
+ */
+// The core declaration itself, first: every check below is meaningless
+// if the class no longer names these as secret.
+$nodeBlocked = Route::unfilterableFields('storagenode');
+$t->check(
+    'a storage node FTP credential is declared sensitive',
+    in_array('pass', $nodeBlocked, true) && in_array('key', $nodeBlocked, true)
+);
+
+// That getter() APPLIES it is a source assertion, and the comment says
+// so rather than dressing it up: getter('storagenode', ...) and
+// getter('image', ...) both run live lookups (node online state, image
+// storage groups) that this DB-free fixture cannot serve, so driving the
+// real call here is not available. The end-to-end proof is the live run
+// recorded in the commit -- storagegroup/list carrying the node's FTP
+// password before and clean after. What is worth pinning cheaply is that
+// the call is still there and is still the ALWAYS-ONLY form: passing
+// false would strip tier 1 too and silently break domain joins.
+$getterSrc = file_get_contents(
+    dirname(__DIR__) . '/packages/web/lib/router/route.class.php'
+);
+$t->check(
+    'getter() strips tier 2 before returning, so a nested entity is'
+    . ' stripped as what it is',
+    (bool)preg_match(
+        '/\$data = self::stripSensitive\(\$classname, \$data, true\);\s*\n\s*return \$data;/',
+        $getterSrc
+    )
+);
+
+// Tier 1 must NOT be dropped by the always-only pass -- that carve-out is
+// why fog-client can still read a host's ADPass back to join a domain,
+// and losing it breaks domain joins silently.
+$kept = Route::stripSensitive(
+    'host',
+    ['id' => 1, 'name' => 'probe', 'ADPass' => 'JOINPW'],
+    true
+);
+$t->check(
+    'the always-only pass leaves tier 1 alone (fog-client reads ADPass)',
+    'JOINPW' === ($kept['ADPass'] ?? null)
+);
+$t->check(
+    'the both-tiers pass does drop it, which is what a list gets',
+    !isset(Route::stripSensitive('host', ['ADPass' => 'JOINPW'])['ADPass'])
+);
+
+/*
+ * ===========================================================================
  * 5. Emitter side.
  * ===========================================================================
  */
