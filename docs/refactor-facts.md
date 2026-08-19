@@ -489,6 +489,196 @@ php -r 'try { echo sprintf("%s", new stdClass); }
 # ESCAPED: Object of class stdClass could not be converted to string
 ```
 
+### F-28 — Every access-control mechanism in the API read path can be deleted with the test suite green
+Eight single-edit mutations to `route.class.php`, full suite after each, file
+restored from a copy between runs. All eight: `72 passed, 0 failed`. Deleting
+`_applySiteScope()` from `listem()` -- the one line that stops one site's users
+seeing another site's hosts -- is among them, as is renaming `_lang`, which
+disables `stripSensitivePayload()` for every list payload. The suite pins
+symbols, not behaviour: `sensitive-fields-unfilterable.test.php` greps for the
+strings `_assertNoSensitiveFilter(`, `HTTP_BAD_REQUEST` and `'nosearch'`, and an
+inserted `return;` leaves all three in place; `site-scope-lists.test.php` tests
+`Authorization::scopedObjectIDs()` and never names `Route`. Consequence: no
+decomposition of this file may begin before a behavioural net exists.
+```
+cp packages/web/lib/router/route.class.php /tmp/route.bak
+sed -i 's|self::_applySiteScope($classname);|// removed|' packages/web/lib/router/route.class.php
+sh tests/run-all.sh | tail -1        # 72 passed, 0 failed
+cp /tmp/route.bak packages/web/lib/router/route.class.php
+```
+
+### F-29 — `Route::ids()` will SELECT any column named in the URL, secrets included
+`ids()` validates `$getField` against `$classVars['databaseFields']` and never
+against `unfilterableFields()`, and its payload carries no `_lang` stamp, so
+`stripSensitivePayload()` resolves an empty classname and returns it untouched.
+`GET /fog/host/ids/id=1/sec_tok` therefore hands a host's plaintext fog-client
+token to any caller holding `host.view`; likewise `ADPass`, `productKey`,
+`user.password`, `user.token`. The single-segment form is already closed --
+`/ids//sec_tok` parses as a *filter* and is refused 400. Only the two-segment
+form is open. Route match proved offline; the HTTP round trip was not run.
+```
+php /home/telliott/scripts/background_scripts/probe_ids_getfield_route.php
+# /fog/host/ids/id=1/sec_tok => ids params={"class":"host","whereItems":"id=1","getField":"sec_tok"}
+php -r '...' # Route::stripSensitivePayload(['data'=>[['id'=>1,'sec_tok'=>'S']]])
+#           => {"data":[{"id":1,"sec_tok":"S"}]}   -- unstamped payload, no strip
+```
+
+### F-30 — Site scope is applied to the PAGE, after the SQL LIMIT, so a scoped user's grid is empty
+`_applySiteScope()` runs after `FOGManagerController::complex()` has paged the
+result set, filters the rows it was handed, and rewrites `recordsTotal` and
+`recordsFiltered` to the size of the filtered page -- which `paginate()` then
+uses to build `nextUrl`. On the lab server a user scoped to `site1` (1 of 86
+hosts, at offset 75) gets `0 rows, recordsTotal 0, nextUrl null` on page 1, so
+DataTables renders "no matching records" and an API client following `nextUrl`
+stops. Fail-closed, so it hides rather than leaks -- but
+`SiteScope::allInScopeIDs()`'s own docblock (`sitescope.class.php:419-423`)
+tells callers not to do this, and the one core caller does.
+```
+php /home/telliott/scripts/background_scripts/probe_sitescope_pagination.php < /dev/null
+# start=0  rows=0 recordsTotal=0 nextUrl=null
+# start=75 rows=1 recordsTotal=1 nextUrl=null
+```
+
+### F-31 — Four routes answer the same question as `list` with the same permission and no site scope
+`names()`, `ids()`, `count()` and `unisearch()` never call `_applySiteScope()`.
+`API_ROUTE_ACTIONS` maps `list`, `names`, `ids`, `count` (and `indiv`, `search`,
+`active`) all to `<entity>.view`, so permission cannot tell them apart.
+`count()` reaches `listem()` but sets `$countOnly`, and `complex()` then returns
+`'data' => []` with `recordsFiltered` computed by SQL over the unscoped set --
+`_applySiteScope` early-returns on the empty `data` and the global count is
+emitted. Enumerating every host id and name on the server is one request.
+```
+grep -n '_applySiteScope(' packages/web/lib/router/route.class.php   # 2545 (listem), 2962 (search), 5656 (def)
+sed -n '118,132p' packages/web/lib/fog/authorization.class.php       # list/names/ids/count => view
+sed -n '775p' packages/web/lib/fog/fogmanagercontroller.class.php    # 'data' => $countOnly ? [] : ...
+```
+
+### F-32 — `listem()`'s plain path is flat at four queries; its `?expand` path is ~20 per row
+Measured in a copy of the live tree with a statement-counting shim in
+`PDODB::query()` and `FOGManagerController::sqlexec()`. GH-707's
+`rel()`/`primeRel()` fix is holding for the plain path and was never applied to
+the expand branch, which was written afterwards. `EXPAND_MAX_ITEMS` (2500)
+clamps the page size and its comment says it bounds memory; memory is ~25 KiB a
+row, so the clamp permits ~50,000 statements. Queries, not memory, are the
+binding constraint.
+
+| rows | plain q | expand q | expand wall |
+|---|---|---|---|
+| 1 | 4 | 30 | 10 ms |
+| 10 | 4 | 201 | 50 ms |
+| 25 | 4 | 485 | 107 ms |
+| 50 | 4 | 1008 | 325 ms |
+| 86 | 4 | -- | -- |
+```
+php /home/telliott/scripts/background_scripts/profile_route_listem.php
+```
+
+### F-33 — Three grid classes never got the GH-707 priming and one costs 36 queries a row
+Plain `listem()`, whole class, on the lab server: `storagegroup` 3 rows / 112
+queries / 284 ms; `storagenode` 4 rows / 54 queries; `imaginglog` 11 rows / 16
+queries. Against `snapintask` at 44 rows / 7 queries and
+`macaddressassociation` at 87 rows / 6. `storagegroup` re-`load()`s a shared
+`StorageGroup` per row and passes the result through a full
+`getter('storagenode')` serialization per row; `imaginglog`'s `image` column
+primes with `primeRel('Image', <image NAMES>)`, and `primeRel()` skips anything
+with `(int)$id < 1`, so that prime is a complete no-op and the formatter runs
+`->load('name')` per row.
+```
+php /home/telliott/scripts/background_scripts/profile_route_listem.php   # per-class section
+sed -n '5032p' packages/web/lib/router/route.class.php                   # (int)$id < 1 -> skip
+```
+
+### F-34 — `Route::relColumn()` is dead code, and the drift it exists to prevent has happened three times
+`relColumn()` (`route.class.php:5065`) pairs a formatter with its primer so
+that, per its own docblock, "a formatter that reaches for a relation without a
+primer" cannot happen. It has zero call sites in `packages/`,
+`packages/service/` or `fog-plugins`. `listem()` hand-rolls the same
+`prime`+`formatter` pair 22 times, and F-33 is three of those 22 having drifted.
+This is the largest safe decomposition lever in the function: 834 of its 1,103
+lines are the column table, and it collapses onto a helper that already exists.
+```
+grep -rn 'relColumn(' --include=*.php packages /home/telliott/fog-plugins | grep -v 'function relColumn'   # nothing
+R=packages/web/lib/router/route.class.php
+awk 'NR>=1512 && NR<=2614' $R | wc -l                    # 1103  listem
+awk 'NR>=1645 && NR<=2478' $R | wc -l                    #  834  the column table
+awk 'NR>=1512 && NR<=2614' $R | grep -c "'prime' =>"     #   22
+```
+
+### F-35 — `OpenAPI::document()` does not read the route table, and its coverage test compares names only
+Six reads from the route layer, all of them class lists or field maps:
+`webrootbase()`, `$validClasses`, `$validTaskingClasses`, `$validActiveTasks`,
+`serverOwnedFields()`, `sensitiveFieldMap()`, plus
+`Authorization::resolveApiPermission()`. `defineRoutes()` is named in the
+docblock and never called -- every path shape is a hand-written mirror. So a
+path, method, parameter or response-body change desynchronises silently, and
+`openapi-route-coverage.test.php` catches only route NAMES in both directions
+(changing the `/names` route's path while keeping its name leaves the suite
+green). Corollary that matters for `listem()`: the grid's own `dt` column names
+(`mainlink`, `primac_vendor`, `taskstateicon`, ...) are not in the document at
+all, so a column-table refactor cannot desync the spec -- and cannot be caught
+by it either.
+```
+grep -nE 'Route::(\$?[A-Za-z_]+)' packages/web/lib/fog/openapi.class.php
+grep -n 'Route::defineRoutes\|OpenAPI' packages/web/lib/fog/openapi.class.php | head
+```
+
+### F-36 — `listem()`'s catch relabels every failure as HTTP 406
+`route.class.php:2599-2604` calls `sendResponse(HTTP_NOT_ACCEPTABLE,
+$e->getMessage())`, discarding the code the inner failure chose. Invisible over
+plain HTTP, because `sendResponse()` exits inside the inner function and never
+returns to `listem()`. Under the ADR 0011 result-wrapper path it is not: there
+`sendResponse()` throws, `listem()` catches, and the caller gets 406 for a
+refusal the source raised as 400. Every service and client endpoint reading
+through `asValue()`/`getX()` sees one status for all failures, and a
+behavioural test written against that seam will observe 406 where the source
+says 400.
+```
+# lab: Route::asValue(function () { Route::listem('host', 'sec_tok=x', true); });
+# => RuntimeException code=406 msg={"error":"Cannot filter host on: sec_tok"}
+#    _assertNoSensitiveFilter() chose HTTP_BAD_REQUEST
+```
+
+### F-37 — `Route::sensitiveFieldMap()` memoizes after firing its own event, and `processEvent()` re-enters Route
+`HookManager::processEvent()` populates `$knownEvents` by calling
+`Route::getIds('hookevent')`, so firing ANY event re-enters `Route`. The
+sensitive-field map fires `API_SENSITIVE_FIELDS` and memoizes only after the
+event returns, so any `Route` path that consults the map arrives back with
+`$_sensitiveMap` still null and fires again -- an OOM in about forty frames.
+Until 2026-08-19 the cycle terminated at depth 2 by accident, `ids()` being the
+one function on the path that never asked for the map; adding F-29's guard
+there closed it and the process died during bootstrap with no output at all.
+`serverOwnedFields()` has the identical construction and is one call site from
+the same fate. Both now memoize the core tiers before the event and the
+augmented ones after, so a re-entrant caller gets core -- never a smaller set.
+`processEvent()` already used this exact mark-before-you-recurse pattern for
+`$knownEvents`, with a comment saying why.
+```
+# revert the pre-set in sensitiveFieldMap(), then:
+php tests/route-ids-getfield-sensitive.test.php
+# PHP Fatal error: Allowed memory size ... exhausted   (exit 255)
+```
+
+### F-38 — F-29 is closed on `working-1.6`
+`Route::ids()` now intersects `$getField` with `unfilterableFields()` before the
+existence test. Serving a request it answers 400 and names the field; off-request
+it returns no rows and logs, because `sendResponse()` exits and an exiting daemon
+is a restart loop (cf. 2d199fa4b). Legitimate fields are unaffected -- every
+in-repo `getIds()`/`ids()` call site asks for id, name, path, snapinpath, hostID,
+ip, mac, userID, usergroupID, siteID, storagegroupID, imageID, groupID, msID,
+isMaster, pending, sslpath, trustedcidrs, grantroleID, clientIgnore or
+imageIgnore, none of which is on either secret tier. Required F-37. Verified
+under both SAPIs against the lab database; `dev-branch` is untouched and its
+separate question (it has no `stripSensitive` at all) remains open.
+```
+# cgi-fcgi (request arm)
+host sec_tok => REFUSED {"error":"Cannot select host field(s): sec_tok"}
+host name    => ALLOWED ["test"]
+# cli (daemon arm)
+host sec_tok => []            host name => ["test"]
+sh tests/run-all.sh | tail -1          # 73 passed, 0 failed
+php tests/route-ids-getfield-sensitive.test.php   # ok  41 checks passed
+```
+
 ---
 
 ## How to add an entry
