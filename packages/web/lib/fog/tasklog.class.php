@@ -39,7 +39,28 @@ class TaskLog extends FOGController
         'ip' => 'ip',
         'createdTime' => 'createTime',
         'createdBy' => 'createdBy',
+        'type' => 'logType',
+        'text' => 'logText',
     );
+    /**
+     * A row recording a state transition, which is what every row was
+     * before schema 280.
+     *
+     * @var string
+     */
+    const TYPE_STATE = 'state';
+    /**
+     * A row recording that something went wrong and the task stopped.
+     *
+     * @var string
+     */
+    const TYPE_ERROR = 'error';
+    /**
+     * A row recording that something went wrong and the task carried on.
+     *
+     * @var string
+     */
+    const TYPE_WARNING = 'warning';
     /**
      * taskID is a foreign key held in a text column.
      *

@@ -3786,6 +3786,10 @@ msgstr "Pas de Site"
 msgid "No access is allowed"
 msgstr "Aucun accès n'est autorisé"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "Aucune tâche active trouvée pour Host"
+
 msgid "No activity information available for this group"
 msgstr "Aucune information sur l'activité n'est disponible pour ce groupe"
 
@@ -3891,6 +3895,9 @@ msgstr "Aucun résultat de requête, utilisez query () en premier"
 
 msgid "No query sent"
 msgstr "Aucune requête envoyée"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "Aucun résultat trouvé"

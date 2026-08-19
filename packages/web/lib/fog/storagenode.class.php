@@ -208,9 +208,16 @@ class StorageNode extends FOGController
         if (!$this->get('online')) {
             return;
         }
+        // Three lists have to agree and nothing checks that they do: this
+        // one and getfiles.php feed enumeration, logtoview.php authorises
+        // the read. Adding a directory to some of them yields a selector
+        // with no entry, or an entry that answers "Invalid Folder" -- so
+        // 'fos' (the FOS report log, its own subdirectory because the web
+        // tier writes it) goes into all three or none.
         $logpaths = array(
             '/var/log/apache2',
             '/var/log/fog',
+            '/var/log/fog/fos',
             '/var/log/httpd',
             '/var/log/nginx',
             '/var/log/php*',
