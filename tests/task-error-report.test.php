@@ -16,9 +16,8 @@
  *
  * Also pinned: the endpoint answers identically whatever happened (so it
  * cannot be used to ask whether a MAC has an active imaging task), it refuses
- * to fire an imaging event for a task that is not imaging, and it does not
- * touch the task's state -- there is no Failed state and inventing one is a
- * separate decision.
+ * to fire an imaging event for a task that is not imaging, and an error --
+ * but never a warning -- moves the task to Failed (schema 339).
  *
  * And the two destinations a report gets that are not the event: a typed
  * `taskLog` row, which is what correlates the report with the task, and
@@ -39,6 +38,18 @@ $web = $root . '/packages/web';
 
 require $web . '/commons/init.php';
 new Initiator();
+
+// Every TaskState::get*State() fires a hook so a plugin can move the number,
+// and a hook manager only exists inside a booted application. Binding a stub
+// directly is deliberate: FOGBase::_init() would drag in the database.
+$hook = new class {
+    public function processEvent($event, $data = [])
+    {
+    }
+};
+$bind = new \ReflectionProperty('FOG\FOGBase', 'HookManager');
+$bind->setAccessible(true);
+$bind->setValue(null, $hook);
 
 $fails = [];
 
@@ -132,13 +143,43 @@ if (substr_count($src, "echo '##';") !== 1) {
     $fails[] = 'the endpoint does not answer identically on every path, so the'
         . ' response says whether the MAC had an active imaging task';
 }
-// The TaskLog row carries the task's state; the TASK is what must not be
-// written. Checking for the literal set('stateID') would now match the row.
-if (false !== strpos($src, '$Task->set(')
-    || false !== strpos($src, '$Task->save(')
-) {
-    $fails[] = 'the endpoint changes the task; taskStates has no Failed and'
-        . ' choosing one is a separate decision (#1206)';
+// ------------------------------------------------------------ the state
+
+// Schema 339 gave a failed task a state of its own. Three things have to hold
+// together or the state is worse than not having it.
+
+// 1. The constant and the seeded row must agree, or a failed task points at a
+//    taskStates row that does not exist: it renders blank and cannot be
+//    filtered for.
+$failed = \FOG\TaskState::getFailedState();
+if ($failed !== 6) {
+    $fails[] = "TaskState::getFailedState() returns $failed; the schema seeds"
+        . ' tsID 6, and the two have to be the same number';
+}
+$schema = file_get_contents($web . '/commons/schema.php');
+if (!preg_match('#`taskStates`.*?VALUES.*?\(' . $failed . ",'Failed'#s", $schema)) {
+    $fails[] = "no schema step seeds taskStates row $failed as Failed, so the"
+        . ' state the endpoint writes does not exist';
+}
+
+// 2. Only the state is written. The endpoint's whole discipline is that it
+//    reports rather than decides -- writing anything else about the task
+//    would make an unauthenticated caller able to edit it.
+preg_match_all('#\$Task->set\(\s*\'([^\']+)\'#', $src, $written);
+foreach (array_unique($written[1]) as $field) {
+    if ($field !== 'stateID') {
+        $fails[] = "the endpoint writes \$Task->$field; an unauthenticated"
+            . ' report may set the task state and nothing else';
+    }
+}
+
+// 4. Guarded on the row existing. The web tree can be updated before the
+//    schema step runs, and writing a stateID with no taskStates row behind it
+//    is worse than leaving the task alone.
+if (!preg_match('#getClass\(\s*\'TaskState\'.*?isValid\(\)#s', $src)) {
+    $fails[] = 'the endpoint writes the Failed state without checking the row'
+        . ' exists, so a server updated ahead of its schema gets tasks'
+        . ' pointing at a state that is not there';
 }
 if (false === strpos($src, 'error_log(')) {
     $fails[] = 'the endpoint leaves no server-side trace of a failure';
@@ -183,6 +224,25 @@ if (false === $row || false === $imaging || $row > $imaging) {
 if (false === $warnGuard || $row > $warnGuard) {
     $fails[] = 'a warning writes no taskLog row, so the only reports FOG keeps'
         . ' are the ones that were already fatal';
+}
+
+// 3. A warning must not fail the task, and the state must be written for
+//    non-imaging tasks too -- a Memtest the host died on is just as finished
+//    as a deploy; only the notification is imaging-specific.
+$mark = strpos($src, 'self::_markFailed(');
+if (false === $mark) {
+    // Checked separately so removing the call says so, rather than reporting
+    // the two ordering failures it also produces.
+    $fails[] = 'the endpoint no longer fails the task, so a host that died'
+        . ' mid-image still shows as running and cannot be re-tasked';
+}
+if (false === $mark || false === $warnGuard || $mark < $warnGuard) {
+    $fails[] = 'a warning marks the task Failed, so a machine that carried on'
+        . ' has its task killed under it';
+}
+if (false === $mark || false === $imaging || $mark > $imaging) {
+    $fails[] = 'only imaging tasks are marked Failed, so a failed Memtest or'
+        . ' inventory task still shows as running forever';
 }
 
 // The model has to be able to hold what the endpoint writes.

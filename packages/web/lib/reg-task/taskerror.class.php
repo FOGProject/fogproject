@@ -23,25 +23,27 @@ namespace FOG;
  * only failure FOG ever heard about was a storage node problem, through
  * Blame, which re-queues rather than fails.
  *
- * A report lands in three places, none of which is the task's state:
+ * A report lands in four places:
  *
  *   a `taskLog` row, typed 'error' or 'warning', with the text in it. This
  *     is the one that is correlated with the task -- it carries taskID and
  *     the state the task was in, and it survives long after a log rotates;
  *   FOG's own log file, /var/log/fog/fos/fosreports.log, which the Log
  *     Viewer lists like any other because 'fos' is in FOGLogPaths;
+ *   the task's state, which an error moves to Failed (schema 339). A
+ *     warning never does -- a warning means FOS carried on;
  *   HOST_IMAGE_FAIL, so the notification plugins fire -- errors only, and
  *     imaging tasks only.
  *
- * Deliberately narrow in the one way that matters: it does NOT change the
- * task's state. There is no Failed state in taskStates -- the five are Queued,
- * Checked In, In-Progress, Complete, Cancelled -- and the two ways of not
- * adding one are both wrong on their own terms: reusing Cancelled loses the
- * difference between "an admin stopped this" and "this broke", and adding a
- * sixth means every place that enumerates states has to learn about it or a
- * failed task becomes invisible to it. That is a decision with UI and API
- * consequences and it is tracked separately on #1206; making the event fire
- * does not depend on taking it.
+ * The state is written for every task type, not just imaging ones: a Memtest
+ * the host died on is as finished as a deploy. Only the notification is
+ * imaging-specific. See TaskState::getFailedState() for why this is a sixth
+ * state rather than Cancelled, and why adding one did not mean editing the
+ * places that enumerate states.
+ *
+ * Apart from that one field it writes nothing about the task. The endpoint is
+ * unauthenticated -- it is matched to a host by MAC, the way every FOS
+ * endpoint is -- so what it may change has to stay a list of one.
  *
  * @category TaskError
  * @package  FOGProject
@@ -135,6 +137,11 @@ class TaskError extends FOGBase
                 // gets told that something did.
                 return;
             }
+            // The task is finished, whatever kind it was. A Memtest or an
+            // inventory task the host died on is just as over as a deploy;
+            // only the NOTIFICATION below is imaging-specific, so the state
+            // is written before that gate rather than behind it.
+            self::_markFailed($Task);
             // Same rule as TaskQueue::_notifyImagingOutcome(): HOST_IMAGE_FAIL
             // is an imaging event, and this endpoint is reachable from a wipe
             // or an inventory task too. Firing it for one of those would be
@@ -201,6 +208,28 @@ class TaskError extends FOGBase
      *
      * @return void
      */
+    /**
+     * Moves the task to the Failed state.
+     *
+     * Guarded on the row actually existing rather than assuming schema 339
+     * has run. A web tree can be updated ahead of its database -- that is the
+     * ordinary state of an install between the files landing and the admin
+     * loading a page -- and pointing a task at a taskStates row that is not
+     * there renders blank and cannot be filtered for, which is worse than
+     * leaving the task where it was for a few minutes.
+     *
+     * @param Task $Task the task the report arrived for
+     *
+     * @return void
+     */
+    private static function _markFailed($Task)
+    {
+        $failed = TaskState::getFailedState();
+        if (!self::getClass('TaskState', $failed)->isValid()) {
+            return;
+        }
+        $Task->set('stateID', $failed)->save();
+    }
     private static function _logRow($Task, $type, $text)
     {
         self::getClass('TaskLog')

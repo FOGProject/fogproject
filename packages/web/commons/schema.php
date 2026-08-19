@@ -5855,3 +5855,26 @@ $this->schema[] = [
         return true;
     },
 ];
+// 339
+$this->schema[] = [
+    // A task the host reported dead on gets a state of its own. GH-1206
+    // follow-up to step 338.
+    //
+    // Until now such a task stayed Queued or In-Progress forever: the report
+    // was recorded and announced, but the task list still said the machine
+    // was working on it, and the host could not be re-tasked because it still
+    // held an active task. Somebody had to notice and cancel it by hand.
+    //
+    // Not reusing Cancelled (5), which was the alternative. Cancelled means
+    // an administrator stopped it; losing the difference between "somebody
+    // stopped this" and "this broke" costs the operator the one fact they are
+    // looking at the task list to find.
+    //
+    // INSERT IGNORE, so a re-run converges and a server that somehow already
+    // has a row 6 keeps whatever it has rather than having it rewritten.
+    "INSERT IGNORE INTO `taskStates` "
+    . "(`tsID`,`tsName`,`tsDescription`,`tsOrder`,`tsIcon`) "
+    . "VALUES "
+    . "(6,'Failed','Host reported that the task could not be completed.',"
+    . "6,'exclamation-triangle')",
+];
