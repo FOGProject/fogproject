@@ -93,6 +93,21 @@ class TaskLog extends FOGController
     {
         parent::__construct($data);
         $this->set('ip', self::$remoteaddr);
+        // Types the row, because the column default cannot. Schema 280 gave
+        // `logType` a DEFAULT of 'state', and a default only applies when the
+        // column is left out of the INSERT -- which FOGController::save()
+        // never does: it writes every declared field, so an unset one arrives
+        // as ''. So TaskingElement::taskLog(), which has recorded task state
+        // changes since long before this column existed and sets no type,
+        // started writing untyped rows the moment the field was declared.
+        // Found on 1.6 (#1213) against a live install; the code is the same
+        // here, so the defect is too.
+        //
+        // Guarded rather than assigned, so loading an existing row and saving
+        // it cannot retype it as a state change.
+        if ('' === (string) $this->get('type')) {
+            $this->set('type', self::TYPE_STATE);
+        }
     }
     /**
      * Gets the task object.
