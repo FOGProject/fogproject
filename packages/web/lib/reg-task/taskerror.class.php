@@ -54,15 +54,43 @@ namespace FOG;
 class TaskError extends FOGBase
 {
     /**
-     * How much of the reported text is kept.
+     * How much of the report reaches a NOTIFICATION, in characters.
      *
-     * The text is written by whatever called this endpoint, and it ends up in
-     * a Slack/ntfy/pushbullet message. Bounded so a caller cannot use an
-     * admin's notification channel as a paste bin.
+     * The text is written by whatever called this endpoint, and this half of
+     * it ends up in a Slack/ntfy/pushbullet message. Bounded so a caller
+     * cannot use an admin's notification channel as a paste bin.
+     *
+     * Characters, not bytes, and deliberately: nothing downstream of here has
+     * a byte budget, and cutting a multibyte reason by bytes would silently
+     * make it a third as long for anyone not writing in ASCII.
      *
      * @var int
      */
     const MAX_REASON = 500;
+    /**
+     * How much of the report is STORED and logged, in bytes.
+     *
+     * Split from MAX_REASON because the two have opposite pressures. A push
+     * notification wants to stay short enough to read on a phone; a stored
+     * diagnostic wants the whole of what FOS had to say, and 500 characters
+     * is not a failure trace. `taskLog`.`logText` is TEXT, so the row can
+     * hold 65535 bytes and this could have been that.
+     *
+     * It is not, because of what this endpoint is: unauthenticated, matched
+     * to a host by MAC (see the class docblock). Taking the column's whole
+     * capacity would multiply what one unauthenticated request can write by
+     * 130 for no diagnostic gain -- a `fog.download` trace with its context
+     * runs to a few KB, not 64. So: generous against any real report,
+     * bounded against a caller with something else in mind.
+     *
+     * Bytes rather than characters because the limit that actually exists is
+     * the column's, and that one is in bytes: sql_mode carries
+     * STRICT_TRANS_TABLES, so an oversized value fails the INSERT rather
+     * than truncating, and the report would be lost entirely.
+     *
+     * @var int
+     */
+    const MAX_TEXT = 8192;
     /**
      * The report types a caller may send, mapped to the TaskLog type.
      *
@@ -111,7 +139,13 @@ class TaskError extends FOGBase
             $type = self::_reportedType();
             $script = self::_reported('script');
             if ('' !== $script) {
-                $text = sprintf('%s (%s)', $text, $script);
+                // Re-bounded after composing: both halves arrive already cut
+                // to MAX_TEXT, so joining them could otherwise hand the
+                // column twice what it was promised.
+                $text = self::_limit(
+                    sprintf('%s (%s)', $text, $script),
+                    self::MAX_TEXT
+                );
             }
             self::getHostItem(false);
             $Task = self::$Host->get('task');
@@ -166,7 +200,11 @@ class TaskError extends FOGBase
                         ''
                     ),
                     'TaskType' => $Task->getTaskTypeText(),
-                    'Reason' => $text
+                    // The short half. The row and the log line above keep the
+                    // whole report; a phone notification gets the opening of
+                    // it. Cut here rather than at the top so that widening
+                    // what is stored never widens what is pushed.
+                    'Reason' => mb_substr($text, 0, self::MAX_REASON)
                 ]
             );
         } catch (\Exception $e) {
@@ -304,12 +342,37 @@ class TaskError extends FOGBase
         if ('' === $clean) {
             return '';
         }
-        // mb_substr on invalid UTF-8 can return '', which would throw the
-        // report away; strlen-bound the bytes in that case instead.
-        $cut = mb_substr($clean, 0, self::MAX_REASON);
-        if ('' === $cut) {
-            $cut = substr($clean, 0, self::MAX_REASON);
+
+        return self::_limit($clean, self::MAX_TEXT);
+    }
+    /**
+     * Cuts a string to a byte budget without splitting a character.
+     *
+     * mb_strcut, not mb_substr: the budget being spent is the column's, and
+     * that is counted in bytes. mb_substr counts characters, so a cut at
+     * 8192 characters can be 24576 bytes in utf8mb3 -- three times what was
+     * promised, and under STRICT_TRANS_TABLES that is a failed INSERT and a
+     * lost report rather than a truncated one.
+     *
+     * @param string $str the string to bound
+     * @param int    $max the budget, in bytes
+     *
+     * @return string
+     */
+    private static function _limit($str, $max)
+    {
+        if (strlen($str) <= $max) {
+            return $str;
         }
+        // mb_strcut on invalid UTF-8 can return '', which would throw the
+        // report away; byte-cut it in that case instead. Never let a
+        // malformed string become an empty one -- the text is the whole
+        // point of the report.
+        $cut = mb_strcut($str, 0, $max);
+        if ('' === $cut) {
+            $cut = substr($str, 0, $max);
+        }
+
         return $cut;
     }
     /**
