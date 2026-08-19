@@ -6161,11 +6161,13 @@ promptInstallMode() {
     echo
     echo "   4) embed-ca     Rebuild iPXE with your own CA compiled in, so"
     echo "                   netboot can use HTTPS behind a private CA."
-    echo "                   CAUTION: adds 10-25 minutes to this install AND to"
-    echo "                   every future update, with no warm path. The result"
-    echo "                   is not upstream's signed binary, so each machine"
-    echo "                   needs this server's MOK enrolled BEFORE it can"
-    echo "                   netboot at all. Most sites want 1 or 3 instead."
+    echo "                   The build takes 10-25 minutes when it runs. It is"
+    echo "                   stamped, so it re-runs only when the pinned iPXE"
+    echo "                   version or your CA changes -- not every update."
+    echo "                   CAUTION: the result is not upstream's signed"
+    echo "                   binary, so each machine needs this server's MOK"
+    echo "                   enrolled BEFORE it can netboot at all."
+    echo "                   Most sites want 1 or 3 instead."
     echo
     read -p " * Choose 1-4, or press Enter for standard: " answer
     case $answer in
