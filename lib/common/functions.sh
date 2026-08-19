@@ -9319,9 +9319,11 @@ _publishSecureBootKit() {
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
     chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
-    # Guarded rather than globbed blind: an HTTPS install stages no Secure Boot
-    # binaries at all (downloadipxesecureboot skips it), so an unguarded
-    # chmod would log a "No such file" for every run on those servers.
+    # Guarded rather than globbed blind: downloadipxesecureboot() is
+    # deliberately non-fatal, so a server whose fetch failed has no Secure Boot
+    # binaries and an unguarded chmod would log "No such file" on every run.
+    # It is NOT that HTTPS installs skip the staging -- they did once, and this
+    # comment said so; every mode stages them now. See ADR 0015.
     [[ -f ${kitdir}/mmx64.efi ]] && chmod 0644 "${kitdir}/mmx64.efi" >>$error_log 2>&1
     [[ -f ${kitdir}/arm64-efi/mmaa64.efi ]] && chmod 0644 "${kitdir}/arm64-efi/mmaa64.efi" >>$error_log 2>&1
     chmod 0755 "${kitdir}/fog-enroll-mok.sh" >>$error_log 2>&1
@@ -10453,10 +10455,11 @@ _publishLocalBootFiles() {
                 [[ -z $pair ]] && continue
                 src="${pair%%|*}"
                 dst="${pair#*|}"
-                # Missing is not a failure. An HTTPS install stages no Secure
-                # Boot binaries at all -- downloadipxesecureboot() skips it --
-                # so the upstream entries are absent on those servers by design,
-                # and the archive is still worth building without them.
+                # Missing is not a failure. downloadipxesecureboot() is
+                # non-fatal, so a server whose fetch failed has no upstream
+                # entries to copy, and the archive is still worth building
+                # without them. (This used to say HTTPS installs skip the
+                # staging. They did once; every mode stages it now.)
                 [[ -f ${tftproot}/${src} ]] || continue
                 if cp -f "${tftproot}/${src}" "${staged}/${dst}" >>$error_log 2>&1; then
                     copied=$((copied + 1))
@@ -10482,10 +10485,11 @@ _publishLocalBootFiles() {
                 [[ -f ${kitdir}/${f} ]] && \
                     cp -f "${kitdir}/${f}" "${staged}/${f}" >>$error_log 2>&1
             done
-            # Only where something can read it. Nothing in an i386 archive, or
-            # in any archive on an HTTPS-only install, ever loads autoexec.ipxe
-            # -- upstream's loader is what reads it -- so shipping one there
-            # would be an inert file implying a chain that is not present.
+            # Only where something can read it. Upstream's signed loader is
+            # what reads autoexec.ipxe, so an i386 archive -- which has no
+            # loader, because upstream signs none for ia32 -- would carry an
+            # inert file implying a chain that is not present. Same on any
+            # server whose secureboot/ fetch failed.
             [[ $haveloader -eq 1 ]] && \
                 _espAutoexecScript "$variant" > "${staged}/autoexec.ipxe" 2>>$error_log
             _espKitReadme "$arch" "$variant" "$stem" "$haveloader" \

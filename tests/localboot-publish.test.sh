@@ -25,8 +25,9 @@
 #   3. Nothing unpublishable leaks in: the EMBED-less autoexec/ builds, and the
 #      BIOS artifacts (.kpxe/.usb/.iso), which are not PE images at all.
 #   4. The degraded shapes still produce something useful rather than failing:
-#      an HTTPS-only install stages no secureboot/, and a server may hold no
-#      enrolment material.
+#      a server whose secureboot/ fetch failed has none of it, and a server may
+#      hold no enrolment material. (Not "an HTTPS-only install stages no
+#      secureboot/" -- that gate is gone; every mode stages it. See ADR 0015.)
 #   5. _restampIpxeManifest keeps .fog-ipxe-manifest matching the bytes on disk
 #      after signing rewrites them. Without it _copyIpxeTree reports all 45
 #      .efi as admin-modified on the SECOND install of a Secure Boot server and

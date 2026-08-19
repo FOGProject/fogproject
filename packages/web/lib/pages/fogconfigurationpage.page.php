@@ -689,17 +689,20 @@ class FOGConfigurationPage extends FOGPage
                 . 'secureboot/arm64-efi/'
             )
         ) . '</p>';
-        // Stated rather than detected: the web request's own scheme says
-        // nothing about the install's $httpproto, so guessing here would be
-        // worse than telling the admin what to check. See
-        // downloadipxesecureboot() -- an HTTPS install skips the staging
-        // entirely, because a signed binary cannot be rebuilt to carry this
-        // server's CA without invalidating the signature.
+        // Unconditional because the staging is. downloadipxesecureboot() has
+        // no protocol gate: every install mode stages these binaries. It used
+        // to skip on any HTTPS install, under the heading "Secure Boot and
+        // HTTPS are mutually exclusive here", and this paragraph said so --
+        // which meant the page asserted the opposite of what the installer
+        // now prints ("Secure Boot binaries ARE staged on this server, in
+        // every mode"). See ADR 0015 and _reportNetbootProto().
         $steps .= '<p>' . _(
-            'Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS '
-            . 'install the installer skips these binaries, because rebuilding '
-            . 'them to trust this server\'s CA would invalidate the signature '
-            . 'that makes them bootable.'
+            'Secure Boot and HTTPS are not mutually exclusive. These binaries '
+            . 'are staged in every install mode. Netboot only needs a rebuilt '
+            . 'iPXE when this server\'s certificate comes from a private CA, '
+            . 'and FOG signs that rebuild with its own Secure Boot key -- so '
+            . 'it costs an enrollment before a client can netboot, not the '
+            . 'signed shim.'
         ) . '</p>';
         echo $this->_box(_('What to do next'), $steps);
     }
