@@ -717,6 +717,37 @@ php tests/route-read-path-guards.test.php           # ok  93 checks passed
 # and with any one of the fourteen mutations applied: exit 1
 ```
 
+### F-40 — The grid column table is pinned by a golden file that runs each primer
+
+`tests/route-column-contract.test.php` captures the column table for all 52
+valid classes by hooking `CUSTOMIZE_DT_COLUMNS` — the point a plugin receives
+it, before any row is formatted — and compares it against
+`tests/fixtures/route-column-contract.txt`. 628 columns, deterministic.
+
+Two of the three recorded fields cannot be obtained by reading the source:
+
+- The formatter's `use (...)` list, via
+  `ReflectionFunction::getStaticVariables()`. A formatter that stops closing
+  over `$tmpcolumns` or `$classname` compiles fine and renders a different
+  cell. This is the failure mode a 834-line move produces.
+- Which relation classes a column's primer warms, obtained by **calling** the
+  primer with a synthetic row and reading back `Route::$relCache`. Once the
+  pairing is behind `relColumn()` there is nothing left in the source to read.
+
+Closes DEAD-1: 19 of the 22 hand-rolled `prime`+`formatter` literals are now
+`self::relColumn(...)`, 96 lines net removed, table byte-identical. Three stay
+— two prime `MACAddress::primeVendors()` rather than `primeRel()`, and
+`scheduledtask`'s `hostLink` primes two classes off one column.
+
+If this is false, commit 3 of `docs/route-listem-plan.md` moves 834 lines of
+column definitions with nothing checking that the API surface survived.
+
+```
+php tests/route-column-contract.test.php   # ok  628 columns across 52 classes
+php tests/route-column-contract.test.php --update   # after an intended change
+sh tests/run-all.sh | tail -1              # 75 passed, 0 failed
+```
+
 ---
 
 ## How to add an entry

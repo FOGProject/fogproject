@@ -376,6 +376,21 @@ This is the single best decomposition lever in the function: 22 literal column
 definitions collapse onto a helper that already exists and is already the
 intended shape, with no new abstraction invented.
 
+**FIXED 2026-08-19** (commit 2 of the plan). 19 of the 22 converted; 96 lines
+net removed. The other three are not this shape and were left as they are:
+
+| Site | Why it stays |
+|---|---|
+| `primac_vendor`, `mac_vendor` | prime `MACAddress::primeVendors()`, not `primeRel()` — a different cache entirely. `relColumn()` would need a second primer parameter used twice, which is an abstraction invented for two call sites. |
+| `scheduledtask` → `hostLink` | primes **two** classes off one column (`Group` and `Host`, because `stGroupHostID` means either depending on `stIsGroup`). One column, two relations; `relColumn()` models one. |
+
+Gated by `tests/route-column-contract.test.php`, which captures the whole
+column table for all 52 classes at the point plugins receive it and — for the
+56 columns carrying a primer — **runs** each primer and records which classes
+it warms. Byte-identical before and after. PERF-2's three drifted pairs are
+untouched by this commit; the conversion makes them visible, it does not
+change them.
+
 ### DEAD-2 — the `?expand` clamp cannot fire for its own callers
 
 `:1547-1561`. Guarded on `isset($pass_vars)`, which is only true when

@@ -1751,16 +1751,11 @@ class Route extends FOGBase
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'groupLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'group',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'groupLink',
+                            'group',
+                            function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1771,23 +1766,18 @@ class Route extends FOGBase
                                     . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
                                     . '</a>';
                             }
-                        ];
+                        );
                         break;
                     case 'hostID':
                         $columns[] = [
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'hostLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'host',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'hostLink',
+                            'host',
+                            function ($d, $row) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1798,7 +1788,7 @@ class Route extends FOGBase
                                     . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
                                     . '</a>';
                             }
-                        ];
+                        );
                         break;
                     case 'image':
                     case 'imageID':
@@ -1806,16 +1796,11 @@ class Route extends FOGBase
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'imageLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'Image',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($classname) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'imageLink',
+                            'Image',
+                            function ($d, $row) use ($classname) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1840,23 +1825,18 @@ class Route extends FOGBase
                                 }
                                 return $imageName;
                             }
-                        ];
+                        );
                         break;
                     case 'snapinID':
                         $columns[] = [
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'snapinLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'Snapin',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'snapinLink',
+                            'Snapin',
+                            function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1867,7 +1847,7 @@ class Route extends FOGBase
                                     . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
                                     . '</a>';
                             }
-                        ];
+                        );
                         break;
                     case 'mem':
                         $columns[] = [
@@ -1886,16 +1866,11 @@ class Route extends FOGBase
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'storagegroupLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'storagegroup',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'storagegroupLink',
+                            'storagegroup',
+                            function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1906,23 +1881,18 @@ class Route extends FOGBase
                                     . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
                                     . '</a>';
                             }
-                        ];
+                        );
                         break;
                     case 'storagenodeID':
                         $columns[] = [
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'storagenodeLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'storagenode',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'storagenodeLink',
+                            'storagenode',
+                            function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1933,23 +1903,18 @@ class Route extends FOGBase
                                     . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
                                     . '</a>';
                             }
-                        ];
+                        );
                         break;
                     case 'userID':
                         $columns[] = [
                             'db' => $real,
                             'dt' => $common
                         ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'userLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'user',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
+                        $columns[] = self::relColumn(
+                            $real,
+                            'userLink',
+                            'user',
+                            function ($d, $row) use ($tmpcolumns) {
                                 if (!$d) {
                                     return self::EMPTY_CELL;
                                 }
@@ -1960,7 +1925,7 @@ class Route extends FOGBase
                                     . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
                                     . '</a>';
                             }
-                        ];
+                        );
                         break;
                     case 'regMenu':
                         $columns[] = [
@@ -2142,19 +2107,14 @@ class Route extends FOGBase
                                 ->format('Y-m-d H:i:s');
                         }
                     ];
-                    $columns[] = [
-                        'db' => 'stTaskTypeID',
-                        'dt' => 'taskTypeName',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'TaskType',
-                                array_column((array) $rows, 'stTaskTypeID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    $columns[] = self::relColumn(
+                        'stTaskTypeID',
+                        'taskTypeName',
+                        'TaskType',
+                        function ($d, $row) {
                             return self::rel('TaskType', $d)->get('name');
                         }
-                    ];
+                    );
                     $columns[] = [
                         'db' => 'stActive',
                         'dt' => 'isActive',
@@ -2164,32 +2124,22 @@ class Route extends FOGBase
                     ];
                     break;
                 case 'filedeletequeue':
-                    $columns[] = [
-                        'db' => 'fdqState',
-                        'dt' => 'taskstateicon',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'fdqState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    $columns[] = self::relColumn(
+                        'fdqState',
+                        'taskstateicon',
+                        'taskstate',
+                        function ($d, $row) {
                             return self::rel('taskstate', $d)->get('icon');
                         }
-                    ];
-                    $columns[] = [
-                        'db' => 'fdqState',
-                        'dt' => 'taskstatename',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'fdqState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    );
+                    $columns[] = self::relColumn(
+                        'fdqState',
+                        'taskstatename',
+                        'taskstate',
+                        function ($d, $row) {
                             return self::rel('taskstate', $d)->get('name');
                         }
-                    ];
+                    );
                     break;
                 case 'snapintask':
                     // Every host column below is reached through the task's
@@ -2213,26 +2163,20 @@ class Route extends FOGBase
                             ? $host
                             : null;
                     };
-                    $columns[] = [
-                        'db' => 'stJobID',
-                        'dt' => 'hostID',
-                        // Primed once for all three stJobID columns below --
-                        // they share $snapinTaskHost, so the first primer to
-                        // run fills the cache the other two read. SnapinJob
-                        // declares Host as a class relationship, so the job's
-                        // host is joined in by the same query and costs
-                        // nothing extra.
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'snapinjob',
-                                array_column((array) $rows, 'stJobID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                    // Primed once for all three stJobID columns below -- they
+                    // share $snapinTaskHost, so the first primer to run fills
+                    // the cache the other two read. SnapinJob declares Host as
+                    // a class relationship, so the job's host is joined in by
+                    // the same query and costs nothing extra.
+                    $columns[] = self::relColumn(
+                        'stJobID',
+                        'hostID',
+                        'snapinjob',
+                        function ($d, $row) use ($snapinTaskHost) {
                             $host = $snapinTaskHost($d);
                             return $host ? $host->get('id') : '';
                         }
-                    ];
+                    );
                     $columns[] = [
                         'db' => 'stJobID',
                         'dt' => 'hostname',
@@ -2257,68 +2201,43 @@ class Route extends FOGBase
                                 . '</a>';
                         }
                     ];
-                    $columns[] = [
-                        'db' => 'stState',
-                        'dt' => 'taskstateicon',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'stState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    $columns[] = self::relColumn(
+                        'stState',
+                        'taskstateicon',
+                        'taskstate',
+                        function ($d, $row) {
                             return self::rel('taskstate', $d)->get('icon');
                         }
-                    ];
-                    $columns[] = [
-                        'db' => 'stState',
-                        'dt' => 'taskstatename',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'stState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    );
+                    $columns[] = self::relColumn(
+                        'stState',
+                        'taskstatename',
+                        'taskstate',
+                        function ($d, $row) {
                             return self::rel('taskstate', $d)->get('name');
                         }
-                    ];
-                    $columns[] = [
-                        'db' => 'stSnapinID',
-                        'dt' => 'snapinID',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Snapin',
-                                array_column((array) $rows, 'stSnapinID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    );
+                    $columns[] = self::relColumn(
+                        'stSnapinID',
+                        'snapinID',
+                        'Snapin',
+                        function ($d, $row) {
                             return self::rel('Snapin', $d)->get('id');
                         }
-                    ];
-                    $columns[] = [
-                        'db' => 'stSnapinID',
-                        'dt' => 'snapinname',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Snapin',
-                                array_column((array) $rows, 'stSnapinID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    );
+                    $columns[] = self::relColumn(
+                        'stSnapinID',
+                        'snapinname',
+                        'Snapin',
+                        function ($d, $row) {
                             return self::rel('Snapin', $d)->get('name');
                         }
-                    ];
-                    $columns[] = [
-                        'db' => 'stSnapinID',
-                        'dt' => 'snapinLink',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Snapin',
-                                array_column((array) $rows, 'stSnapinID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    );
+                    $columns[] = self::relColumn(
+                        'stSnapinID',
+                        'snapinLink',
+                        'Snapin',
+                        function ($d, $row) {
                             if (!$d) {
                                 return self::EMPTY_CELL;
                             }
@@ -2329,7 +2248,7 @@ class Route extends FOGBase
                                 . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
                                 . '</a>';
                         }
-                    ];
+                    );
                     $columns[] = [
                         'db' => 'stCheckinDate',
                         'dt' => 'diff',
@@ -2385,29 +2304,19 @@ class Route extends FOGBase
                 case 'storagenode':
                     $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
                     $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
-                    $columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'clientload',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'StorageNode',
-                                array_column((array) $rows, 'ngmID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    $columns[] = self::relColumn(
+                        'ngmID',
+                        'clientload',
+                        'StorageNode',
+                        function ($d, $row) {
                             return self::rel('StorageNode', $d)->getClientLoad();
                         }
-                    ];
-                    $columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'location_url',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'StorageNode',
-                                array_column((array) $rows, 'ngmID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    );
+                    $columns[] = self::relColumn(
+                        'ngmID',
+                        'location_url',
+                        'StorageNode',
+                        function ($d, $row) {
                             $node = self::rel('StorageNode', $d);
                             return sprintf(
                                 '%s://%s/%s',
@@ -2416,7 +2325,7 @@ class Route extends FOGBase
                                 $node->get('webroot')
                             );
                         }
-                    ];
+                    );
                     /*$columns[] = [
                         'db' => 'ngmID',
                         'dt' => 'online',
@@ -2440,19 +2349,14 @@ class Route extends FOGBase
                             return \Initiator::e($d);
                         }
                     ];
-                    $columns[] = [
-                        'db' => 'utHostID',
-                        'dt' => 'hostname',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Host',
-                                array_column((array) $rows, 'utHostID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
+                    $columns[] = self::relColumn(
+                        'utHostID',
+                        'hostname',
+                        'Host',
+                        function ($d, $row) {
                             return \Initiator::e(self::rel('Host', $d)->get('name'));
                         }
-                    ];
+                    );
                     $columns[] = [
                         'db' => 'utAction',
                         'dt' => 'action',

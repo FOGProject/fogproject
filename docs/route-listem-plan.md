@@ -301,7 +301,10 @@ having no net during the one change that needs it most.
 
 ## Commit 2 — `relColumn()` adoption
 
-`VERIFIED` — `relColumn()` (`:5065`) has zero call sites anywhere:
+**DONE** — 19 of 22 converted, 96 lines net removed, column table byte-identical.
+Result at the end of this section.
+
+`VERIFIED` — `relColumn()` (`:5065`) had zero call sites anywhere:
 
 ```
 grep -rn 'relColumn(' --include=*.php packages/ /home/telliott/fog-plugins | grep -v 'function relColumn'
@@ -327,6 +330,43 @@ before and after, and require them identical. This is worth writing as a
 throwaway harness rather than a test, since it needs the live DB:
 `/home/telliott/scripts/background_scripts/profile_route_listem.php` already
 has the driving code.
+
+### Result
+
+The gate turned out not to need the live DB, and turned out to be worth
+keeping, so it is a test: `tests/route-column-contract.test.php` with a golden
+fixture, `tests/fixtures/route-column-contract.txt`, 628 lines.
+
+It captures more than the plan asked for, because rendered row keys are the
+weaker of the two available signals. Hooking `CUSTOMIZE_DT_COLUMNS` gets the
+column **table** itself — the thing plugins actually receive — before a single
+row is formatted, which sidesteps every synthetic-row fragility. Per column it
+records:
+
+| Field | Why |
+|---|---|
+| `db`, `dt`, index | the DataTables contract, in table order |
+| the formatter's `use (...)` list | read back with `ReflectionFunction::getStaticVariables()`. A formatter that stops closing over `$tmpcolumns` or `$classname` still compiles and silently renders a different cell — this is the specific way a move goes wrong quietly, and nothing else here would see it |
+| which classes the primer warms | obtained by **running** the primer against a synthetic row and reading the resulting `Route::$relCache` keys. What a primer primes cannot be read off the source once it is behind a helper, and that pairing is the entire reason `relColumn()` exists |
+
+628 columns across 52 classes, deterministic across runs, and byte-identical
+before and after the conversion. Mutation-verified in its own right — changing
+a primer's class, dropping a formatter's `use`, renaming a `dt`, deleting a
+column entry and removing a primer each turn it red.
+
+**Converted: 19.** **Left alone: 3**, none of them this shape:
+
+- `primac_vendor` and `mac_vendor` prime `MACAddress::primeVendors()`, a
+  different cache. Folding them in means a second primer parameter on
+  `relColumn()` used exactly twice — an abstraction invented to make a count
+  come out round.
+- `scheduledtask` → `hostLink` primes **two** classes off one column, because
+  `stGroupHostID` is a group id or a host id depending on `stIsGroup`.
+  `relColumn()` models one relation per column and should keep doing so.
+
+The three columns PERF-2 identifies as drifted are untouched here. The
+conversion makes the pairing visible at each call site, which is what makes
+that commit reviewable; it does not silently fix it.
 
 ---
 
