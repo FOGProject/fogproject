@@ -2813,13 +2813,34 @@ class Route extends FOGBase
                         $w = " OR `ngmHostname` LIKE :item3";
                         $params['item3'] = $like;
                 }
+                // Object scope, in the query.
+                //
+                // This is the route the search box calls, it takes an
+                // entity permission and no object scope, and its own route
+                // permission is null -- so any authenticated api user could
+                // read the id and name of every match on the server. The
+                // per-entity Authorization::can() check above is about WHICH
+                // ENTITIES may be searched, not which objects of them.
+                //
+                // PARENTHESISED, and that is the whole of the risk here: the
+                // match clause is a chain of ORs, so ANDing a boundary onto
+                // the end of it binds to the last OR arm only and every other
+                // arm keeps matching server-wide. The boundary has to wrap
+                // the disjunction, not join it.
+                $scopeWhere = self::_requestScopeWhere(
+                    $searchfor,
+                    "`{$classVars['databaseTable']}`."
+                    . "`{$classVars['databaseFields']['id']}`"
+                );
                 $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                     . "`{$classVars['databaseFields']['name']}`
                     FROM `{$classVars['databaseTable']}`
                 {$j}
-                WHERE `{$classVars['databaseFields']['id']}` LIKE :item1
+                WHERE (`{$classVars['databaseFields']['id']}` LIKE :item1
                 OR `{$classVars['databaseFields']['name']}` LIKE :item2
-                {$w}
+                {$w})"
+                . (null === $scopeWhere ? '' : " AND {$scopeWhere}")
+                . "
                 {$g}";
                 if ($limit > 0) {
                     $sql .= " LIMIT " . (int)$limit;
@@ -5019,13 +5040,28 @@ class Route extends FOGBase
                 . $classVars['databaseTable']
                 . '`';
 
+            // Object scope, in the query. This route answered server-wide
+            // to anyone holding <entity>.view -- the same permission as
+            // reading the list, which IS scoped -- so a site-scoped user
+            // could enumerate every host id and name on the server in one
+            // request.
+            //
+            // In the WHERE rather than over the results, and that is what
+            // makes it work at all here: the boundary constrains ROWS, so it
+            // is independent of which COLUMN the caller asked for. Filtering
+            // the results would need the id, and this route need not return
+            // one -- `/host/ids/id=1/name` answers with bare names.
             $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
                 false,
                 $operator,
-                $orderby
+                $orderby,
+                self::_requestScopeWhere(
+                    $classname,
+                    '`' . $classVars['databaseFields']['id'] . '`'
+                )
             );
 
             $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
@@ -5873,6 +5909,43 @@ class Route extends FOGBase
         self::$data = $payload;
     }
     /**
+     * The site boundary for a read that is SERVING A REQUEST, or null.
+     *
+     * listem() carries the boundary unconditionally, because its row filter
+     * always did. The single-purpose read routes -- names(), ids() -- cannot,
+     * and the difference is not a matter of taste: getIds() and getNames()
+     * are called from ~90 places in core and the services, and a daemon has
+     * no FOGUser. Asking the boundary about a userless caller is answered
+     * correctly and uselessly with '1=0' -- that user is in no site, so they
+     * reach nothing -- and every replicator, scheduler and multicast manager
+     * on a site-configured server would quietly stop finding its work.
+     *
+     * So the boundary applies to a request and not to a process. Same
+     * predicate ids() already uses to decide whether it may answer 400 or
+     * must return empty and log (sendResponse() exits, and a daemon that
+     * exits is a systemd restart loop), which keeps one notion of "am I
+     * serving a request" in this file rather than two.
+     *
+     * That predicate is load bearing. If PHP_SAPI ever stopped separating
+     * these two worlds, this would fail OPEN -- a request-side caller would
+     * be treated as a daemon and get no boundary. It is worth stating rather
+     * than leaving to be discovered, and it is why the boundary belongs in
+     * the query for a route that ALSO has an unauthenticated caller, instead
+     * of a blanket filter over self::$data.
+     *
+     * @param string $classname the entity being read
+     * @param string $idExpr    the object-id column, quoted
+     *
+     * @return string|null the WHERE fragment, or null for no boundary
+     */
+    private static function _requestScopeWhere($classname, $idExpr)
+    {
+        if ('cli' === PHP_SAPI) {
+            return null;
+        }
+        return Authorization::scopedObjectWhere($classname, $idExpr);
+    }
+    /**
      * Builds the sql statement.
      *
      * @return array
@@ -5883,7 +5956,8 @@ class Route extends FOGBase
         $whereItems = '',
         $retWhere = false,
         $operator = 'AND',
-        $orderby = 'name'
+        $orderby = 'name',
+        $extraWhere = null
     ) {
         try {
             if (empty($operator)) {
@@ -6017,6 +6091,23 @@ class Route extends FOGBase
             if ($retWhere) {
                 return isset($where) ? $where : '';
             }
+            // A condition the CALLER could not express as a filter -- today
+            // only the site boundary, which is a subquery. ANDed after the
+            // request's own filters so it can only ever narrow the result,
+            // never widen it, whatever the caller passed.
+            //
+            // Not folded into $whereItems: those are field => value pairs
+            // that get parameterised, and this is a fragment. Not applied
+            // inside handleWhereItems() either, because that runs for
+            // retWhere callers too and listem() already carries the boundary
+            // by a different route.
+            if (null !== $extraWhere && '' !== $extraWhere) {
+                $sql .= (
+                    count($whereItems) > 0 ?
+                    ' AND ' :
+                    ' WHERE '
+                ) . $extraWhere;
+            }
             $sql .= ' ORDER BY `'
                 . (
                     isset($classVars['databaseFields'][$orderby]) ?
@@ -6078,13 +6169,20 @@ class Route extends FOGBase
                 $whereItems = self::getsearchbody($classname);
             }
 
+            // Object scope, in the query -- see ids(). This route answered
+            // the id and name of every object of the class to any caller
+            // holding <entity>.view.
             $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
                 false,
                 $operator,
-                $orderby
+                $orderby,
+                self::_requestScopeWhere(
+                    $classname,
+                    '`' . $classVars['databaseFields']['id'] . '`'
+                )
             );
             $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {

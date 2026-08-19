@@ -72,6 +72,23 @@ association columns.
 
 ### SCOPE-1 — four routes share `<entity>.view` with `list` and apply no site scope · **high**
 
+**FIXED 2026-08-19** (commits 5 and 4). `count()` fell out of pushing the
+boundary into the query; `names()`, `ids()` and `unisearch()` now carry it in
+their own WHERE, gated on `'cli' !== PHP_SAPI` so the ~90 daemon and core
+callers of `getIds()`/`getNames()` are unaffected (DEC-2, option 1).
+
+`unisearch()`'s fragment is parenthesised: its match clause is a chain of ORs
+and `AND` binds tighter, so appending the boundary would have scoped the last
+arm alone.
+
+DEC-2 parked `ids()` with a non-`id` `getField` as unfilterable. That was true
+of post-filtering the rows and is not true of a WHERE, which constrains rows
+regardless of the column asked for — so no separate decision was needed.
+
+Verified on the lab, a user entitled to 1 of 86 hosts: all four routes answer 1
+when serving a request, and `names`/`ids`/`unisearch` still answer 86 off-request,
+which is the daemons.
+
 `_applySiteScope()` is called from `listem()` (`:2545`) and `search()`
 (`:2962`). It is not called from:
 

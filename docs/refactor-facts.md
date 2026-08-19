@@ -809,6 +809,37 @@ php /home/telliott/scripts/background_scripts/probe_scope1_routes.php < /dev/nul
 php tests/route-read-path-guards.test.php   # ok  106 checks passed
 ```
 
+### F-43 — All four SCOPE-1 routes are scoped, per request, not per process
+
+`names()`, `ids()` and `unisearch()` carry the site boundary in their WHERE;
+`count()` was already fixed by F-42. Gated on `'cli' === PHP_SAPI` — the same
+predicate `ids()` already uses — because `getIds()`/`getNames()` are called
+from ~90 places in core and the services and a daemon has no `FOGUser`, so a
+process-wide boundary would answer `'1=0'` and stop every replicator and
+scheduler on a site-configured server from finding its work.
+
+Two things worth not re-deriving:
+
+- **`ids()` was believed unfixable** for a non-`id` `getField` (DEC-2 parked
+  it). That is true of filtering the returned rows and false of a WHERE: the
+  boundary constrains ROWS, so it does not care which COLUMN was asked for.
+- **`unisearch()`'s fragment must be parenthesised.** Its match clause is a
+  chain of ORs and `AND` binds tighter, so appending the boundary scopes the
+  last arm only and leaves the rest matching server-wide. Valid SQL either
+  way, and the statement mentions the membership table either way — only the
+  parenthesisation distinguishes them, so that is what the net reads.
+
+Verified on the lab against the live database, a user entitled to 1 of 86
+hosts: all four answer 1 under `php-cgi`, and `names`/`ids`/`unisearch` still
+answer 86 under CLI, which is the daemons and is the intended half of the gate.
+
+```
+php scripts/background_scripts/probe_scope1_routes.php < /dev/null
+SCRIPT_FILENAME=.../probe_scope1_routes.php REDIRECT_STATUS=200 \
+  REQUEST_METHOD=GET php-cgi -q < /dev/null
+php tests/route-read-path-guards.test.php   # ok  108 checks passed
+```
+
 ---
 
 ## How to add an entry

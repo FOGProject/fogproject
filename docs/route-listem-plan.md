@@ -430,6 +430,9 @@ key — not part of a move.
 
 ## Commit 4 — SCOPE-1: the four unscoped routes
 
+**DONE** — all four scoped when serving a request, daemons untouched. Result at
+the end of this section.
+
 **DEC-2 answered: scope per-request, daemons unaffected.** Unblocked.
 
 `count()` first regardless of which option DEC-2 takes: it already runs through
@@ -442,6 +445,55 @@ on scoped servers only.
 on scoped servers. Unscoped servers take `scopedObjectIDs() === null` and are
 untouched — `VERIFIED` by the map §3 and by
 `tests/site-scope-lists.test.php`'s first four cases.
+
+### Result
+
+`count()` was already done by commit 5. The other three take the boundary in
+their **WHERE**, via `_requestScopeWhere()`.
+
+DEC-2 recorded that `ids()` "with a non-`id` `getField` cannot be filtered by
+row id at all" and parked it. That was true of the option being weighed —
+filtering the returned rows — and is not true of the one taken. The boundary
+constrains **rows**, so it is indifferent to which **column** was asked for:
+`/host/ids/id=1/name` returns bare names with no id to filter on, and the
+`WHERE` scopes it regardless. So `ids()` is closed on the same terms as the
+rest and needs no separate decision.
+
+**The gate is `'cli' === PHP_SAPI`, the same predicate `ids()` already uses**
+to decide whether it may answer 400 or must return empty and log. One notion of
+"am I serving a request" in the file rather than two. It is load bearing and
+the docblock says so: were PHP_SAPI to stop separating the two worlds this
+fails **open**, and that is the argument for the boundary living in the query
+of each route rather than in a blanket filter over `self::$data`.
+
+`_buildSql()` grew an `$extraWhere` parameter, ANDed after the caller's own
+filters so it can only narrow. Passed by `names()` and `ids()` explicitly and
+**not** from inside `_buildSql()`, whose third caller is `deletemass()` — a
+destructive path, outside a read-path commit, and its own decision.
+
+`unisearch()` needed the fragment **parenthesised**. Its match clause is a
+chain of ORs, and `AND` binds tighter than `OR`, so appending the boundary
+would have scoped the last arm alone and left every other arm matching
+server-wide. The SQL is valid either way and the statement mentions the
+membership table either way; only the parenthesisation tells them apart, so
+that is what the net reads.
+
+Six mutations, all caught: each of the three routes dropping the fragment,
+`_buildSql()` ignoring it, the boundary applying off-request (which would deny
+every daemon), and the unparenthesised `unisearch()`.
+
+**Verified on the lab against the live database** — a user entitled to 1 of 86
+hosts, both arms:
+
+| Route | CLI (daemon) | request |
+|---|---|---|
+| `count` | 1 | 1 |
+| `names` | **86 → 86** | 86 → **1** |
+| `ids` | **86 → 86** | 86 → **1** |
+| `unisearch` | **86 → 86** | 86 → **1** |
+
+The CLI column staying at 86 is the point, not an oversight: those are the
+daemons, and they have no user.
 
 ---
 

@@ -131,6 +131,80 @@ function runChild($case)
         return;
     }
 
+    // Whether the single-purpose read routes carry the site boundary in their
+    // SQL. Run as a child because the boundary is deliberately NOT applied
+    // off-request -- getIds()/getNames() are called from ~90 places in core
+    // and the services, a daemon has no FOGUser, and a userless caller is in
+    // no site and so reaches nothing. Applying it to a process rather than a
+    // request would stop every replicator and scheduler on a site-configured
+    // server from finding its work.
+    //
+    // The parent asserts the CLI arm, this asserts the request arm, and
+    // between them they pin the gate rather than just one side of it.
+    if ('scope-sql' === $case) {
+        $scoped = FOGCore::getClass('User')->set('id', 7)->set('name', 'scoped');
+        foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
+            FogTestHarness::setStatic($cls, 'FOGUser', $scoped);
+        }
+        siteScenario(
+            $db,
+            ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => [5]], 'members' => [2, 3]],
+            [7 => ['host.view']]
+        );
+        $carried = [];
+        foreach (['names', 'ids', 'unisearch'] as $route) {
+            $before = count($db->log);
+            Route::$data = [];
+            try {
+                if ('names' === $route) {
+                    Route::names('Host');
+                } elseif ('ids' === $route) {
+                    Route::ids('Host', [], 'name');
+                } else {
+                    Route::unisearch('x');
+                }
+            } catch (\Throwable $e) {
+                // The payload is not what is being read; the statements are.
+            }
+            Route::$data = [];
+            // Only the statements against the entity's own table count. The
+            // boundary lookup issues its own queries against the membership
+            // tables, and those mention siteHostMembers by their nature --
+            // counting them would make this pass whatever the route did.
+            $hit = false;
+            foreach (array_slice($db->log, $before) as $sql) {
+                if (false === strpos($sql, '`hosts`')) {
+                    continue;
+                }
+                if (false === strpos($sql, 'siteHostMembers')) {
+                    continue;
+                }
+                // Present is not the same as binding correctly, and for
+                // unisearch the difference is the whole defect. Its match
+                // clause is a chain of ORs, so `WHERE a OR b AND scope`
+                // binds the boundary to the last arm only -- AND is tighter
+                // than OR -- and every other arm goes on matching
+                // server-wide. The SQL is valid and the statement mentions
+                // the membership table either way, so nothing short of
+                // reading the parenthesisation can tell the two apart.
+                //
+                // names() and ids() build a WHERE with no OR in it, so there
+                // is no ambiguity to check there.
+                if ('unisearch' === $route
+                    && !preg_match('/WHERE\s*\(.*\)\s*AND\s.*siteHostMembers/s', $sql)
+                ) {
+                    continue;
+                }
+                $hit = true;
+            }
+            if ($hit) {
+                $carried[] = $route;
+            }
+        }
+        echo 'BOUNDED ' . implode(',', $carried) . "\n";
+        return;
+    }
+
     echo "UNKNOWN CASE\n";
 }
 
@@ -215,7 +289,7 @@ function child($case, $body)
         if ('' === $candidate) {
             continue;
         }
-        if (preg_match('/^(REFUSED|ALLOWED|SEARCHED|UNKNOWN CASE)/', $candidate)) {
+        if (preg_match('/^(REFUSED|ALLOWED|SEARCHED|BOUNDED|UNKNOWN CASE)/', $candidate)) {
             return $candidate;
         }
     }
@@ -989,6 +1063,77 @@ $t->check(
     count(Route::$data['data']) === 2
 );
 Route::$data = [];
+
+/*
+ * ===========================================================================
+ * 7b. The single-purpose read routes carry the boundary too -- when, and only
+ *     when, a request is being served.
+ *
+ *     names(), ids() and unisearch() answer the same question a list answers
+ *     and were not scoped at all: a site-scoped user holding <entity>.view --
+ *     the same permission as reading the list -- could enumerate every host
+ *     id and name on the server in one request. unisearch() is worse again,
+ *     because its route permission is null, so any authenticated api user
+ *     reaches it.
+ *
+ *     The boundary is in the WHERE, not over the results, and for ids() that
+ *     is the only thing that works: it constrains ROWS, so it does not care
+ *     which COLUMN was asked for, and `/host/ids/id=1/name` returns bare
+ *     names with no id to filter on.
+ *
+ *     Off-request it must NOT apply. Both arms are asserted -- the gate is
+ *     the point, not either side of it on its own.
+ * ===========================================================================
+ */
+$savedFogUser = FogTestHarness::getStatic('Authorization', 'FOGUser');
+$scopedUser2 = FOGCore::getClass('User')->set('id', 7)->set('name', 'scoped');
+foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
+    FogTestHarness::setStatic($cls, 'FOGUser', $scopedUser2);
+}
+siteScenario(
+    $db,
+    ['siteCount' => 2, 'catchAll' => [], 'userSites' => [7 => [5]], 'members' => [2, 3]],
+    [7 => ['host.view']]
+);
+$cliBounded = [];
+foreach (['names', 'ids', 'unisearch'] as $route) {
+    $before = count($db->log);
+    Route::$data = [];
+    try {
+        if ('names' === $route) {
+            Route::names('Host');
+        } elseif ('ids' === $route) {
+            Route::ids('Host', [], 'name');
+        } else {
+            Route::unisearch('x');
+        }
+    } catch (\Throwable $e) {
+        // Statements, not payload.
+    }
+    Route::$data = [];
+    foreach (array_slice($db->log, $before) as $sql) {
+        if (false !== strpos($sql, '`hosts`')
+            && false !== strpos($sql, 'siteHostMembers')
+        ) {
+            $cliBounded[] = $route;
+            break;
+        }
+    }
+}
+$t->check(
+    'off-request the read routes take NO boundary (daemons keep working)',
+    [] === $cliBounded
+);
+
+$line = child('scope-sql', '');
+$t->check(
+    "serving a request, names/ids/unisearch all carry it (got: $line)",
+    'NO CGI' === $line
+    || 'BOUNDED names,ids,unisearch' === $line
+);
+foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
+    FogTestHarness::setStatic($cls, 'FOGUser', $savedFogUser);
+}
 
 /*
  * ===========================================================================
