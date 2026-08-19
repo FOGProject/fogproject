@@ -4045,3 +4045,20 @@ $this->schema[] = array(
     . "(6,'Failed','Host reported that the task could not be completed.',"
     . "6,'exclamation-triangle')",
 );
+// 282
+$this->schema[] = array(
+    // Retype the rows that landed untyped between step 280 and the model
+    // learning to type them. Ported from 1.6 schema 340 (#1213).
+    //
+    // Step 280 gave `logType` a DEFAULT of 'state', which reads as though a
+    // writer that sets no type gets one. It does not: a column default
+    // applies only when the column is absent from the INSERT, and
+    // FOGController::save() writes every declared field -- so
+    // TaskingElement::taskLog(), which has recorded state changes since long
+    // before this column existed, has been writing '' ever since the field
+    // was declared. TaskLog::__construct() now supplies the type, and this
+    // repairs what the gap produced.
+    "UPDATE `taskLog` "
+    . "SET `logType` = 'state' "
+    . "WHERE `logType` = '' OR `logType` IS NULL",
+);

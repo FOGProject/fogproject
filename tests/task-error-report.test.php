@@ -219,6 +219,27 @@ if (false === strpos($src, 'error_log(')) {
         . ' unwritable, which is every server not yet re-installed';
 }
 
+// ------------------------------------------------------------ the typing
+
+// A column DEFAULT does not type these rows: FOGController::save() writes
+// every declared field, so a writer that sets no type stores ''. The model
+// has to supply it, or every state row written after schema 280 is untyped.
+$modelSrc = file_get_contents($web . '/lib/fog/tasklog.class.php');
+if (!preg_match(
+    '#__construct.*?get\(\'type\'\).*?set\(\'type\', self::TYPE_STATE\)#s',
+    $modelSrc
+)) {
+    $fails[] = 'TaskLog does not default its own type, so every row written by'
+        . ' a caller that sets none stores an empty string';
+}
+if (!preg_match(
+    "#UPDATE `taskLog`.*?SET `logType` = 'state'.*?WHERE `logType` = ''#s",
+    $schema
+)) {
+    $fails[] = 'no schema step retypes the rows written untyped before the'
+        . ' model was fixed';
+}
+
 // ----------------------------------------------------------- the plumbing
 
 $model = file_get_contents($web . '/lib/fog/tasklog.class.php');
