@@ -54,13 +54,16 @@ class FOGLogPaths
      * top level is added here and nowhere else -- '' is the top level itself,
      * 'plugins' is the plugin runner's, which is separate because that daemon
      * runs as the web user and rotation needs write on the directory
-     * (ADR 0010).
+     * (ADR 0010). 'fos' is where the web tier records what FOS told it, and
+     * is separate for the same reason: that writer IS the web tier, and the
+     * top level belongs to root's daemons.
      *
      * @var array
      */
     const FOG_SUBDIRS = [
         '',
         'plugins',
+        'fos',
     ];
     /**
      * The path FOG's logs are reached by in the enumeration views.

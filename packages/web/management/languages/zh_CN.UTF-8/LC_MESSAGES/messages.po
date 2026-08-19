@@ -5013,9 +5013,6 @@ msgstr "无数据返回"
 msgid "No database to work off"
 msgstr "没有数据库工作关闭"
 
-msgid "No error text supplied"
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -5127,6 +5124,9 @@ msgstr "没有查询发送"
 
 msgid "No query result, use query() first"
 msgstr "没有查询结果，使用query（）首先"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "未找到结果"
@@ -7656,9 +7656,6 @@ msgstr "加载失败： %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "任务开始"
-
-msgid "Task is not an imaging task"
-msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""

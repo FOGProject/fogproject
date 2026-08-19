@@ -41,8 +41,29 @@ class TaskLog extends FOGController
         'stateID' => 'taskStateID',
         'ip' => 'ip',
         'createdTime' => 'createTime',
-        'createdBy' => 'createdBy'
+        'createdBy' => 'createdBy',
+        'type' => 'logType',
+        'text' => 'logText'
     ];
+    /**
+     * A row recording a state transition, which is what every row was
+     * before schema 338.
+     *
+     * @var string
+     */
+    const TYPE_STATE = 'state';
+    /**
+     * A row recording that something went wrong and the task stopped.
+     *
+     * @var string
+     */
+    const TYPE_ERROR = 'error';
+    /**
+     * A row recording that something went wrong and the task carried on.
+     *
+     * @var string
+     */
+    const TYPE_WARNING = 'warning';
     /**
      * Initializes the class to set the ip from the remote.
      *

@@ -5803,3 +5803,55 @@ $this->schema[] = [
     . " entry/hard drive. (Default SANBOOT)'"
     . " WHERE `settingKey` = 'FOG_EFI_BOOT_EXIT_TYPE'",
 ];
+// 338
+$this->schema[] = [
+    // taskLog gains a type and a body, so a task can log something that is
+    // not a state change. GH-1206 follow-up.
+    //
+    // Every row in this table so far is one state transition: taskID,
+    // taskStateID, who, when, from where. There has never been anywhere to
+    // put WHAT happened, which is why FOS reporting a failure (#1207) had
+    // only the PHP error log to land in -- a file nobody correlates with a
+    // task, on a server whose operator has to know to go looking.
+    //
+    // `logType` defaults to 'state' and the ALTER backfills every existing
+    // row with it, which is what those rows are. The writer at
+    // TaskingElement::taskLog() is deliberately left alone: the default is
+    // the correct value for it, so a state row costs no extra column.
+    // 'error' and 'warning' are what FOS reports arrive as.
+    //
+    // `logText` is NULL, not '', so "no body" and "an empty body" stay
+    // distinguishable -- a state row has no body at all.
+    //
+    // A closure rather than a bare ALTER for the same reason step 336 is
+    // one: ADD COLUMN has no IF NOT EXISTS below MariaDB 10.0.2/MySQL 8.0.29,
+    // so a re-run has to converge on its own rather than error.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN ('logType','logText')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('logType', $cols)) {
+            $adds[] = "ADD `logType` VARCHAR(16) NOT NULL DEFAULT 'state'";
+        }
+        if (!in_array('logText', $cols)) {
+            $adds[] = "ADD `logText` TEXT NULL DEFAULT NULL";
+        }
+        if (count($adds) < 1) {
+            return true;
+        }
+        self::$DB->query(
+            "ALTER TABLE `taskLog` " . implode(', ', $adds)
+        );
+
+        return true;
+    },
+];

@@ -5141,9 +5141,6 @@ msgstr "No se obtuvieron datos"
 msgid "No database to work off"
 msgstr "No se obtuvieron datos"
 
-msgid "No error text supplied"
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -5254,6 +5251,9 @@ msgid "No query passed"
 msgstr "No hay valores pasados"
 
 msgid "No query result, use query() first"
+msgstr ""
+
+msgid "No report text supplied"
 msgstr ""
 
 #, fuzzy
@@ -7843,9 +7843,6 @@ msgstr "Carga ha fallado: %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "Nombre de la tarea"
-
-msgid "Task is not an imaging task"
-msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""

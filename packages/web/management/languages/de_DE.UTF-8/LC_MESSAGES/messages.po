@@ -5014,9 +5014,6 @@ msgstr "Keine Daten zum Einfügen"
 msgid "No database to work off"
 msgstr "Keine Datenbank zum Arbeiten"
 
-msgid "No error text supplied"
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -5128,6 +5125,9 @@ msgstr "Keine Abfrage übergeben"
 
 msgid "No query result, use query() first"
 msgstr "Kein Abfrageergebnis, verwenden Sie zuerst query()"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "Keine Ergebnisse gefunden"
@@ -7659,10 +7659,6 @@ msgstr "Laden fehlgeschlagen: %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "Task gestartet"
-
-#, fuzzy
-msgid "Task is not an imaging task"
-msgstr "Das Image kann während eines Tasks nicht geändert werden"
 
 msgid "Task not created as there are no associated Tasks"
 msgstr "Task wird nicht erstellt, da keine zugeordneten Tasks vorhanden sind"
@@ -10398,6 +10394,10 @@ msgstr ""
 
 #~ msgid "Successful"
 #~ msgstr "Erfolgreich"
+
+#, fuzzy
+#~ msgid "Task is not an imaging task"
+#~ msgstr "Das Image kann während eines Tasks nicht geändert werden"
 
 #, fuzzy
 #~ msgid "Task run time"

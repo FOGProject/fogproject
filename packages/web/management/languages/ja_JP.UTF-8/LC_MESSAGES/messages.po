@@ -4790,9 +4790,6 @@ msgstr "挿入するデータがありません"
 msgid "No database to work off"
 msgstr "使用するデータベースがありません"
 
-msgid "No error text supplied"
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -4900,6 +4897,9 @@ msgstr "クエリが渡されていません"
 
 msgid "No query result, use query() first"
 msgstr "クエリ結果がありません。先に query() を使用してください"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "結果が見つかりません"
@@ -7305,10 +7305,6 @@ msgstr "タスク実行に失敗しました"
 #, fuzzy
 msgid "Task finished"
 msgstr "タスク実行に失敗しました"
-
-#, fuzzy
-msgid "Task is not an imaging task"
-msgstr "タスク実行中はイメージを変更できません"
 
 #, fuzzy
 msgid "Task not created as there are no associated Tasks"
@@ -11228,6 +11224,10 @@ msgstr ""
 
 #~ msgid "Task forced to start"
 #~ msgstr "タスクを強制開始しました"
+
+#, fuzzy
+#~ msgid "Task is not an imaging task"
+#~ msgstr "タスク実行中はイメージを変更できません"
 
 #~ msgid "Tasked Successfully"
 #~ msgstr "タスクを正常に設定しました"
