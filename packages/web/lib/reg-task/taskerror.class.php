@@ -157,13 +157,16 @@ class TaskError extends FOGBase
             // deploy that dies on a bad image, and this is the half of the
             // report that carries no notification consequences.
             self::_logRow($Task, $type, $text);
+            // Flattened: _record() writes one timestamped line per report and
+            // `tail`ing this file depends on that holding. The row written
+            // just above is where the trace keeps its line breaks.
             self::_record(
                 sprintf(
                     'FOG: %s reported by host %s (task %d): %s',
                     $type,
                     self::$Host->get('name'),
                     (int) $Task->get('id'),
-                    $text
+                    self::_flatten($text)
                 )
             );
             if (TaskLog::TYPE_ERROR !== $type) {
@@ -200,11 +203,18 @@ class TaskError extends FOGBase
                         ''
                     ),
                     'TaskType' => $Task->getTaskTypeText(),
-                    // The short half. The row and the log line above keep the
-                    // whole report; a phone notification gets the opening of
-                    // it. Cut here rather than at the top so that widening
-                    // what is stored never widens what is pushed.
-                    'Reason' => mb_substr($text, 0, self::MAX_REASON)
+                    // The short, single-line half. The stored row keeps the
+                    // whole report and its line breaks; a phone notification
+                    // gets the opening of it, flattened so a caller cannot
+                    // forge a second message inside one. Cut here rather
+                    // than at the top so that widening what is stored never
+                    // widens what is pushed. Flattened BEFORE the cut, so
+                    // the 500 is spent on text rather than on whitespace.
+                    'Reason' => mb_substr(
+                        self::_flatten($text),
+                        0,
+                        self::MAX_REASON
+                    )
                 ]
             );
         } catch (\Exception $e) {
@@ -327,16 +337,30 @@ class TaskError extends FOGBase
      */
     private static function _sanitize($raw)
     {
-        // \p{C} is every Unicode control and format character, which covers
-        // CR, LF, NUL and the terminal escapes a console-facing error string
-        // can easily contain.
-        $clean = preg_replace('#\p{C}+#u', ' ', $raw);
+        // Line breaks SURVIVE here; every other control character does not.
+        // A stored report is up to MAX_TEXT bytes of trace, and 8K of trace
+        // on a single line is barely more readable than the 500 characters
+        // it replaced. The reason this guard existed -- an embedded newline
+        // lets a caller forge a second message -- is true of a chat
+        // notification and of a log file whose entries are one line each,
+        // and is not true of a database row rendered in a modal. So it moved
+        // to _flatten(), which those two destinations call and the stored
+        // row does not.
+        //
+        // Normalised first so only one line ending has to survive the class
+        // below, and so a CRLF report does not store stray carriage returns.
+        $raw = preg_replace('#\r\n?#', "\n", (string) $raw);
+        // [^\P{C}\n] is "in \p{C} but not a newline": every Unicode control
+        // and format character -- NUL, the terminal escapes a console-facing
+        // error string easily carries -- except the one being kept.
+        $clean = preg_replace('#[^\P{C}\n]+#u', ' ', $raw);
         if (null === $clean) {
             // Invalid UTF-8 makes preg_replace return null rather than throw,
-            // so fall back to the byte-wise class. Never let a malformed
-            // string become an empty one silently -- the text is the whole
-            // point of the report.
-            $clean = preg_replace('#[[:cntrl:]]+#', ' ', $raw);
+            // so fall back to an explicit byte range: the same set minus LF,
+            // written out because [[:cntrl:]] would take the newline back.
+            // Never let a malformed string become an empty one silently --
+            // the text is the whole point of the report.
+            $clean = preg_replace('#[\x00-\x09\x0B-\x1F\x7F]+#', ' ', $raw);
         }
         $clean = trim((string) $clean);
         if ('' === $clean) {
@@ -344,6 +368,35 @@ class TaskError extends FOGBase
         }
 
         return self::_limit($clean, self::MAX_TEXT);
+    }
+    /**
+     * Collapses a report onto one line.
+     *
+     * For the two destinations where a line break is a forgery risk rather
+     * than formatting: a chat notification, where it lets a caller fake a
+     * second message under an administrator's eyes, and fosreports.log,
+     * where every entry is one timestamped line and `tail` depends on that
+     * staying true.
+     *
+     * The stored row deliberately does NOT come through here -- see
+     * _sanitize(). That is the whole point of the split: the row keeps the
+     * shape of the trace, the two places a forged line would do damage do
+     * not.
+     *
+     * @param string $str the sanitized report text
+     *
+     * @return string
+     */
+    private static function _flatten($str)
+    {
+        $flat = preg_replace('#\s+#u', ' ', $str);
+        if (null === $flat) {
+            // Same invalid-UTF-8 fallback as _sanitize(): a report from a
+            // machine with the wrong locale still has to reach somebody.
+            $flat = preg_replace('#\s+#', ' ', $str);
+        }
+
+        return trim((string) $flat);
     }
     /**
      * Cuts a string to a byte budget without splitting a character.

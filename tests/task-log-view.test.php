@@ -153,6 +153,53 @@ if (false === strpos($js, "#task-log-modal")
     $fails[] = 'nothing opens the log detail modal from a row, so the markup'
         . ' is emitted and unreachable';
 }
+// Every column in this grid renders through $.escapeHtml, and the message
+// column is the one that must: DataTables writes cell content with
+// innerHTML, and this column alone is fed by taskerror.class.php -- an
+// endpoint FOS reaches without authenticating. A bare `{data: 'logtext'}`
+// with no render is a stored-XSS sink an unauthenticated caller can fill.
+// Comments stripped first: the prose above this columnDef names the very
+// thing being looked for, and would satisfy the search on its own.
+// Scoped to buildLogs() FIRST. This file builds four grids and `targets: 5`
+// occurs in more than one of them -- searching the whole file found another
+// pane's column and reported on that instead, which is a check that passes
+// while looking at the wrong thing.
+//
+// Comments stripped too: the prose above this columnDef names the very thing
+// being looked for, and would satisfy the search on its own.
+$jsBare = preg_replace('#^\s*//.*$#m', '', $js);
+preg_match('#function buildLogs\(.*?function showLogDetail\(#s', $jsBare, $lb);
+$logsFn = $lb[0] ?? '';
+$msgCol = '' === $logsFn ? false : strpos($logsFn, 'targets: 5');
+// Bounded below by the PREVIOUS `targets:`, so the window cannot reach into
+// the neighbouring columnDef. A fixed character count did: deleting the
+// render outright still passed, on column 4's escapeHtml.
+$prevCol = false === $msgCol
+    ? false
+    : strrpos(substr($logsFn, 0, $msgCol), 'targets:');
+if (false === $msgCol || false === $prevCol) {
+    $fails[] = 'buildLogs() has no column 5, so the message column this'
+        . ' checks has moved and the check no longer sees its subject';
+} elseif (false === strpos(
+    substr($logsFn, $prevCol, $msgCol - $prevCol),
+    '$.escapeHtml'
+)) {
+    $fails[] = 'the logs grid message column does not escape its data, so a'
+        . ' report from an unauthenticated caller renders as HTML in an'
+        . " administrator's browser";
+}
+// The modal is where the stored line breaks are meant to show. Bootstrap's
+// .text-wrap is `white-space: normal !important`, which overrides a <pre>
+// and collapses them -- so its absence here is load-bearing.
+if (!preg_match('#<pre class="mb-0"[^>]*white-space:pre-wrap#', $js)) {
+    $fails[] = 'the modal does not render the message with pre-wrap, so the'
+        . ' line breaks the report is now stored with are collapsed and the'
+        . ' trace reads as one paragraph';
+}
+if (preg_match('#<pre[^>]*text-wrap#', $js)) {
+    $fails[] = 'the modal still carries .text-wrap, whose'
+        . ' `white-space: normal !important` overrides the <pre>';
+}
 if (false === strpos($js, "closest('a').length")) {
     $fails[] = 'the row click does not defer to the links inside it, so'
         . ' clicking through to a host opens the modal instead';

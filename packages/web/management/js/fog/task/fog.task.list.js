@@ -488,6 +488,21 @@
         },
         {
           responsivePriority: -1,
+          // Escaped, like every other column here. DataTables writes cell
+          // content with innerHTML, so a column with no render is an HTML
+          // sink -- and this is the one column fed by taskerror.class.php,
+          // an endpoint FOS reaches without authenticating. It was the only
+          // one left bare.
+          //
+          // Flattened as well: the stored report now keeps its line breaks,
+          // which the modal renders in a <pre>. In a one-line grid cell they
+          // are only whitespace, and a preview that starts with a blank line
+          // reads as an empty column.
+          render: function(data) {
+            return $.escapeHtml(
+              String(data || '').replace(/\s+/g, ' ').trim()
+            );
+          },
           targets: 5
         }
       ],
@@ -538,7 +553,11 @@
     // rather than an empty box.
     html += '<dt class="col-sm-3">Message</dt><dd class="col-sm-9">'
       + (row.logtext ?
-        '<pre class="mb-0 text-wrap">' + $.escapeHtml(row.logtext) + '</pre>' :
+        // NOT .text-wrap: Bootstrap defines that as
+        // `white-space: normal !important`, which overrides the <pre> and
+        // collapses exactly the line breaks the report is now stored with.
+        // pre-wrap keeps them and still wraps long lines inside the modal.
+        '<pre class="mb-0" style="white-space:pre-wrap;overflow-wrap:anywhere;">' + $.escapeHtml(row.logtext) + '</pre>' :
         '<em>none</em>')
       + '</dd>';
     $dl.html(html);
