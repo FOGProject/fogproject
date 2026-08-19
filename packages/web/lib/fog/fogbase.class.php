@@ -2331,6 +2331,15 @@ abstract class FOGBase
         return TaskState::getCancelledState();
     }
     /**
+     * Get failed state id.
+     *
+     * @return int
+     */
+    public static function getFailedState()
+    {
+        return TaskState::getFailedState();
+    }
+    /**
      * Safe min() over a collection that may be empty.
      *
      * PHP 8's min()/max() throw an uncaught ValueError on an empty array

@@ -146,4 +146,35 @@ class TaskState extends FOGController
             );
         return $cancelledState;
     }
+    /**
+     * Gets the literal failed state
+     *
+     * Added at schema 281. Until then a task the host had died on stayed
+     * Queued or In-Progress forever: the report was recorded (GH-1206) but
+     * the task list still said the machine was working on it, and the host
+     * could not be re-tasked because it still held an active task.
+     *
+     * Not Cancelled, which was the alternative and is the one thing this
+     * must not be confused with -- Cancelled means an administrator stopped
+     * it. Losing the difference between "somebody stopped this" and "this
+     * broke" is exactly the distinction an operator needs at the moment
+     * they are looking at the task list.
+     *
+     * Adding a sixth state is safe here because every "is this task live"
+     * test in the tree is an ALLOWLIST -- Host::loadTask() and the task
+     * page both ask for getQueuedStates() plus getProgressState() -- so a
+     * state nobody listed is inactive by construction.
+     *
+     * @return int
+     */
+    public static function getFailedState()
+    {
+        $failedState = 6;
+        self::$HookManager
+            ->processEvent(
+                'FAILED_STATE',
+                array('failedState' => &$failedState)
+            );
+        return $failedState;
+    }
 }
