@@ -98,14 +98,14 @@ class EventManager extends FOGBase
             }
         } catch (Exception $e) {
             $string = sprintf(
-                '%s: %s: %s, $s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s',
                 _('Could not register'),
                 _('Error'),
                 $e->getMessage(),
                 _('Event'),
                 $event,
                 _('Class'),
-                $listener[0]
+                self::describeListener($listener)
             );
             self::log(
                 $string,
@@ -116,6 +116,34 @@ class EventManager extends FOGBase
             );
         }
         return $this;
+    }
+    /**
+     * Names a listener for a log line, whatever shape it arrived in.
+     *
+     * This used to be a bare `$listener[0]`, written inside the very catch
+     * that exists to swallow a bad listener. Handing register() an object that
+     * is not an array -- a closure, say -- therefore raised "Cannot use object
+     * of type X as array" from the error handler itself, which is an Error and
+     * not caught by catch (Exception). Registration runs in a hook constructor
+     * during LoadGlobals, so that escaped to the top and the whole application
+     * answered 500 with an empty body, on every entry point, until the file was
+     * deleted from disk. An error handler must not be able to fail harder than
+     * the error it is reporting.
+     *
+     * @param mixed $listener The listener as the caller supplied it.
+     *
+     * @return string
+     */
+    private static function describeListener($listener)
+    {
+        if (is_array($listener)) {
+            $first = reset($listener);
+            return is_object($first) ? get_class($first) : gettype($first);
+        }
+        if (is_object($listener)) {
+            return get_class($listener);
+        }
+        return gettype($listener);
     }
     /**
      * Notifies the system of events.
