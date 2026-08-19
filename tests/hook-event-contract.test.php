@@ -279,6 +279,32 @@ if (false === stripos($hookRefusal, 'hook')) {
         . trim($hookRefusal);
 }
 
+// F-18, third part (#1203). The inheritance itself is gone: Hook extends
+// FOGBase and takes the shared listener boilerplate from the Listener trait.
+// `instanceof Event` now answers what it always meant to.
+if ($hook instanceof \FOG\Event) {
+    $fails[] = 'Hook is still an Event, so `instanceof Event` still cannot'
+        . ' tell a hook from an event listener';
+}
+// The boilerplate that came with the parent has to still be there, or every
+// hook in every plugin loses its activation flag.
+foreach (['active', 'logLevel', 'logToFile', 'logToBrowser'] as $prop) {
+    if (!property_exists('FOG\Hook', $prop)) {
+        $fails[] = "a hook lost \$$prop when it stopped extending Event";
+    }
+}
+// And the log() a hook resolves must be the listener one, not FOGBase's.
+// The two have IDENTICAL signatures and completely different jobs -- FOGBase's
+// writes a history row -- so a hook that lost the trait would not fail, it
+// would quietly call the wrong one. hookdebugger and template both call
+// self::log(). A trait method's declaring class is the class that used it.
+$hookLog = (new \ReflectionMethod('FOG\Hook', 'log'))
+    ->getDeclaringClass()->getName();
+if ('FOG\Hook' !== $hookLog) {
+    $fails[] = 'Hook::log() resolves to ' . $hookLog . ', not the Listener'
+        . ' trait -- a hook calling self::log() now writes a history row';
+}
+
 // F-18, second half. Event::onEvent()'s default used to print the event name
 // into the response, so an event class that had not overridden it wrote text
 // into whatever output was being produced -- including a client protocol reply
@@ -287,8 +313,14 @@ if (false === stripos($hookRefusal, 'hook')) {
 if (!(new \ReflectionMethod('FOG\Event', 'onEvent'))->isPublic()) {
     $fails[] = 'Event::onEvent() is no longer the public default dispatch target';
 }
+// Invoked on an EVENT, not a hook. It used to be handed $hook, which was
+// only possible while Hook extended Event; #1203 separated them, and a
+// ReflectionMethod refuses an object that is not an instance of the class
+// declaring the method. The assertion is unchanged -- Event::onEvent()'s own
+// body must write nothing -- and reflection on the declaring class still runs
+// that body rather than CharEvent's override.
 ob_start();
-(new \ReflectionMethod('FOG\Event', 'onEvent'))->invoke($hook, 'CHAR_PRINTED', []);
+(new \ReflectionMethod('FOG\Event', 'onEvent'))->invoke($event, 'CHAR_PRINTED', []);
 $printed = ob_get_clean();
 if ('' !== $printed) {
     $fails[] = 'Event::onEvent() writes to the response by default: '

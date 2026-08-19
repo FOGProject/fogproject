@@ -101,9 +101,21 @@ name into the response.
 A `Hook` is now refused where an event listener is expected, and
 `Event::onEvent()`'s default does nothing.
 
-Making `Hook` extend `FOGBase` directly, so the two are genuine peers, is the
-honest modelling change and is **not** taken here: it changes the answer to
-`$obj instanceof Event` for every hook in existence and needs its own issue.
+**Superseded by #1203.** `Hook` extends `FOGBase` directly and the two are
+genuine peers; the boilerplate they actually share — `$name`, `$description`,
+`$active`, the three log settings, `log()` and the constructor — moved to the
+`Listener` trait, which both use. `$obj instanceof Event` now answers what it
+always meant to.
+
+The blast-radius argument that held this back was made on its own evidence
+before the change landed: zero `instanceof Event` in core outside the two
+dispatch classes, zero in `packages/service`, and zero across the 72 hooks and
+15 events in `fog-plugins`; every hook in both trees declares its own `$active`
+and calls `parent::__construct()`; and exactly two files in the estate use the
+log settings, both core and both `$active = false`. `log()` went into the trait
+rather than staying on `Event` because `FOGBase` declares a `log()` with an
+identical signature and a different job, so a hook that lost `Event`'s copy
+would not have failed — it would have quietly called that one.
 
 ### 5. `notify()` on a HookManager is an error
 

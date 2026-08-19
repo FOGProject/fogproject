@@ -355,6 +355,11 @@ third-party code only.
 ```
 
 ### F-18 — `Hook extends Event` defeats the only type check separating the two
+**Closed by #1203**: `Hook` extends `FOGBase` and both use the `Listener`
+trait, so `instanceof Event` is false for a hook. The refusal below stays as
+the specific diagnostic, and runs *before* the `instanceof Event` arm so a
+plugin author is told what they actually did. Recorded as found:
+
 `EventManager::register()` guards with `$listener instanceof Event`, which a
 `Hook` satisfies. A hook object can therefore be registered as an event
 listener, and `notify()` then calls `Event::onEvent()` — whose default body
