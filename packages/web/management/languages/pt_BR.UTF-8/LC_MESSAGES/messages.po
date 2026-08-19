@@ -1002,9 +1002,6 @@ msgstr "Opções de inicialização:"
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nome transmissão"

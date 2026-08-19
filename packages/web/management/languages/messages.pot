@@ -847,9 +847,6 @@ msgstr ""
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 msgid "Broadcast Address"
 msgstr ""
 

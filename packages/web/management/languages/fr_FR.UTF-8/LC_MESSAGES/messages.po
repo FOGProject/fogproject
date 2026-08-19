@@ -1003,9 +1003,6 @@ msgstr "Options de démarrage:"
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nom de diffusion"

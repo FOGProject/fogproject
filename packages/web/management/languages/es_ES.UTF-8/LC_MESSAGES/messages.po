@@ -1016,9 +1016,6 @@ msgstr "Opciones de arranque:"
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Nombre de host"

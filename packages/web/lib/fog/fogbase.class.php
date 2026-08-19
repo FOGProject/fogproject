@@ -2948,6 +2948,15 @@ abstract class FOGBase
         return TaskState::getCancelledState();
     }
     /**
+     * Get failed state id.
+     *
+     * @return int
+     */
+    public static function getFailedState()
+    {
+        return TaskState::getFailedState();
+    }
+    /**
      * Normalises a value to a re-indexed list of positive integer ids.
      *
      * Casts to an array, intval's every element, drops anything <= 0 (blank,

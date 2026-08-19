@@ -425,10 +425,14 @@ class TaskManagement extends FOGPage
         echo '<div class="btn-group" role="group" aria-label="'
             . _('State filter')
             . '">';
+        // 'all' rather than 'both': there are three finished states since
+        // schema 339 added Failed, so a two-way label was about to start
+        // lying. getRecentTasks() still treats any unrecognised value as
+        // all-of-them, so a page cached before this keeps working.
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
-            . ' id="recent-state-both" value="both" autocomplete="off" checked/>';
-        echo '<label class="btn btn-outline-primary" for="recent-state-both">'
-            . _('Both')
+            . ' id="recent-state-all" value="all" autocomplete="off" checked/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-all">'
+            . _('All')
             . '</label>';
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
             . ' id="recent-state-complete" value="complete" autocomplete="off"/>';
@@ -439,6 +443,11 @@ class TaskManagement extends FOGPage
             . ' id="recent-state-cancelled" value="cancelled" autocomplete="off"/>';
         echo '<label class="btn btn-outline-primary" for="recent-state-cancelled">'
             . _('Cancelled')
+            . '</label>';
+        echo '<input type="radio" class="btn-check" name="recent-state-filter"'
+            . ' id="recent-state-failed" value="failed" autocomplete="off"/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-failed">'
+            . _('Failed')
             . '</label>';
         echo '</div>';
         echo '</div>';
@@ -548,6 +557,10 @@ class TaskManagement extends FOGPage
 
         $complete = (int)self::getCompleteState();
         $cancelled = (int)self::getCancelledState();
+        // Failed has to be here or it is in no pane at all: it is not an
+        // active state, so the active pane excludes it by construction, and
+        // this is the only view of finished tasks there is.
+        $failed = (int)self::getFailedState();
         switch ($pass_vars['states'] ?? '') {
             case 'complete':
                 $states = [$complete];
@@ -555,8 +568,11 @@ class TaskManagement extends FOGPage
             case 'cancelled':
                 $states = [$cancelled];
                 break;
+            case 'failed':
+                $states = [$failed];
+                break;
             default:
-                $states = [$complete, $cancelled];
+                $states = [$complete, $cancelled, $failed];
         }
         $where = "`tasks`.`taskStateID` IN ("
             . implode(',', $states)

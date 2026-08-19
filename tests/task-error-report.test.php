@@ -173,6 +173,24 @@ foreach (array_unique($written[1]) as $field) {
     }
 }
 
+// 5. A failed task has to be visible somewhere. It is not an active state,
+//    so the active pane excludes it by construction, and Task Management's
+//    Recent pane is the only view of finished tasks there is -- if that pane
+//    does not list Failed, the state exists and nobody can see it.
+$page = file_get_contents($web . '/lib/pages/taskmanagement.page.php');
+if (false === strpos($page, 'self::getFailedState()')) {
+    $fails[] = "Task Management's Recent pane does not know about the Failed"
+        . ' state, so a failed task appears in no pane at all';
+}
+if (!preg_match('#\$states = \[\$complete, \$cancelled, \$failed\]#', $page)) {
+    $fails[] = 'the Recent pane\'s default state set leaves out Failed, so a'
+        . ' failed task is only found by picking a filter for it';
+}
+if (false === strpos($page, 'value="failed"')) {
+    $fails[] = 'the Recent pane offers no Failed filter, so failed tasks'
+        . ' cannot be listed on their own';
+}
+
 // 4. Guarded on the row existing. The web tree can be updated before the
 //    schema step runs, and writing a stateID with no taskStates row behind it
 //    is worse than leaving the task alone.

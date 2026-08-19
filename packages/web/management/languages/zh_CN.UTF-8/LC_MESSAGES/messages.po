@@ -1002,9 +1002,6 @@ msgstr "启动选项："
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "广播名称"

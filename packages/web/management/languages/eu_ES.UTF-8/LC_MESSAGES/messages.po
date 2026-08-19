@@ -998,9 +998,6 @@ msgstr "Boot-Optionen:"
 msgid "Boot files from"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 #, fuzzy
 msgid "Broadcast Address"
 msgstr "Broadcast hinzugefügt!"
