@@ -55,6 +55,13 @@
       paused: false,
       table: null,
       build: buildRecent
+    },
+    logs: {
+      id: 'logs',
+      poll: false,
+      paused: false,
+      table: null,
+      build: buildLogs
     }
   };
 
@@ -416,6 +423,81 @@
     });
   }
 
+  function buildLogs(pane) {
+    // Read-only history of taskLog, which nothing has ever displayed. Message
+    // is the wide column, so it is the one that survives a narrow viewport;
+    // the icons come from the same taskStates/taskTypes rows the other panes
+    // draw from, so a Failed row is marked the same way everywhere.
+    return $('#task-logs-table').registerTable(null, {
+      order: [
+        [0, 'desc']
+      ],
+      columns: [
+        {data: 'logtime'},
+        {data: 'hostname'},
+        {data: 'tasktypename'},
+        {data: 'taskstatename'},
+        {data: 'logtype'},
+        {data: 'logtext'},
+        {data: 'createdBy'}
+      ],
+      rowId: 'id',
+      columnDefs: [
+        {
+          responsivePriority: 0,
+          targets: 0
+        },
+        {
+          responsivePriority: 1,
+          render: function(data, type, row) {
+            if (!row.hostid) {
+              return $.escapeHtml(data || '');
+            }
+            return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + $.escapeHtml(data) + '</a>';
+          },
+          targets: 1
+        },
+        {
+          render: function(data, type, row) {
+            return $.escapeHtml(data || '')
+              + ' <i class="fa fa-' + $.escapeHtml(row.tasktypeicon || '') + '"></i> ';
+          },
+          targets: 2
+        },
+        {
+          render: function(data, type, row) {
+            return $.escapeHtml(data || '')
+              + ' <i class="fa fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i> ';
+          },
+          targets: 3
+        },
+        {
+          render: function(data) {
+            // The type is what tells an operator whether the machine stopped
+            // or carried on, so it is badged rather than left as bare text.
+            var cls = {error: 'bg-danger', warning: 'bg-warning text-dark'};
+            return '<span class="badge ' + (cls[data] || 'bg-secondary') + '">'
+              + $.escapeHtml(data || '')
+              + '</span>';
+          },
+          targets: 4
+        },
+        {
+          responsivePriority: -1,
+          targets: 5
+        }
+      ],
+      serverSide: true,
+      ajax: {
+        url: '../management/index.php?node=' + Common.node + '&sub=getTaskLogs',
+        type: 'post',
+        data: function(d) {
+          d.logtypes = $('input[name="log-type-filter"]:checked').val();
+        }
+      }
+    });
+  }
+
   // ---------------------------------------------------------------
   // PER-PANE ACTION BUTTONS (cancel / reload toggle)
   //
@@ -552,15 +634,22 @@
   }
 
   // ---------------------------------------------------------------
-  // RECENT TAB FILTERS
+  // RECENT AND LOG TAB FILTERS
 
   function reloadRecent() {
     if (panes.recent.table) {
       panes.recent.table.ajax.reload(null, true);
     }
   }
+
+  function reloadLogs() {
+    if (panes.logs.table) {
+      panes.logs.table.ajax.reload(null, true);
+    }
+  }
   $('#recent-type-filter').on('change', reloadRecent);
   $('input[name="recent-state-filter"]').on('change', reloadRecent);
+  $('input[name="log-type-filter"]').on('change', reloadLogs);
 
   // ---------------------------------------------------------------
   // RECENT TAB RE-DEPLOY (ported from the host edit tasking tab; delegated

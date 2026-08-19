@@ -2167,6 +2167,10 @@ msgstr ""
 msgid "Enter a valid %s name"
 msgstr "Please enter a valid hostname"
 
+#, fuzzy
+msgid "Entry Type"
+msgstr "Printer Type"
+
 msgid "Equipment Loan"
 msgstr "Equipment Loan"
 
@@ -4499,6 +4503,10 @@ msgstr "Log Viewer"
 msgid "Log contents."
 msgstr ""
 
+#, fuzzy
+msgid "Log entry type filter"
+msgstr "Printer update failed!"
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4530,6 +4538,9 @@ msgstr "Successful"
 
 msgid "Logout"
 msgstr "Logout"
+
+msgid "Logs"
+msgstr ""
 
 msgid "MAC"
 msgstr "MAC"
@@ -6142,6 +6153,9 @@ msgstr "Receive"
 msgid "Record not found"
 msgstr "Record not found, Error: %s"
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -7152,6 +7166,10 @@ msgstr ""
 
 msgid "State"
 msgstr "State"
+
+#, fuzzy
+msgid "State changes"
+msgstr "Save Changes"
 
 #, fuzzy
 msgid "State filter"
@@ -8849,6 +8867,9 @@ msgid "Wake On Lan"
 msgstr "Wake on lan?"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"

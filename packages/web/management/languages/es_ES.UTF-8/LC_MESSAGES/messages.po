@@ -2204,6 +2204,10 @@ msgstr ""
 msgid "Enter a valid %s name"
 msgstr "Por favor introduce un nombre de sesión"
 
+#, fuzzy
+msgid "Entry Type"
+msgstr "Tipo de impresora"
+
 msgid "Equipment Loan"
 msgstr ""
 
@@ -4610,6 +4614,10 @@ msgstr "FOG Visor de registro"
 msgid "Log contents."
 msgstr ""
 
+#, fuzzy
+msgid "Log entry type filter"
+msgstr "actualización de la impresora ha fallado!"
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4641,6 +4649,9 @@ msgid "Login successful!"
 msgstr "Exitoso"
 
 msgid "Logout"
+msgstr ""
+
+msgid "Logs"
 msgstr ""
 
 msgid "MAC"
@@ -6289,6 +6300,9 @@ msgstr "retirar"
 msgid "Record not found"
 msgstr "Registro no encontrado, error: %s"
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -7316,6 +7330,10 @@ msgstr ""
 
 msgid "State"
 msgstr "Estado"
+
+#, fuzzy
+msgid "State changes"
+msgstr "Guardar cambios"
 
 #, fuzzy
 msgid "State filter"
@@ -9036,6 +9054,9 @@ msgid "Wake On Lan"
 msgstr "¿Activación de la LAN?"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"

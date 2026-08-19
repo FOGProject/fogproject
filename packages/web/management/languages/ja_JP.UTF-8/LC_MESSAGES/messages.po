@@ -2084,6 +2084,10 @@ msgstr ""
 msgid "Enter a valid %s name"
 msgstr "有効なホスト名を入力してください"
 
+#, fuzzy
+msgid "Entry Type"
+msgstr "プリンタータイプ"
+
 msgid "Equipment Loan"
 msgstr "機器貸出"
 
@@ -4289,6 +4293,10 @@ msgstr "ログビューアー"
 msgid "Log contents."
 msgstr ""
 
+#, fuzzy
+msgid "Log entry type filter"
+msgstr "サイトの更新に失敗しました！"
+
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
@@ -4318,6 +4326,9 @@ msgstr "成功"
 
 msgid "Logout"
 msgstr "ログアウト"
+
+msgid "Logs"
+msgstr ""
 
 msgid "MAC"
 msgstr "MAC アドレス"
@@ -5887,6 +5898,9 @@ msgstr "パーセント"
 msgid "Record not found"
 msgstr "レコードが見つかりません"
 
+msgid "Recorded By"
+msgstr ""
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -6836,6 +6850,10 @@ msgstr "処理を開始しています"
 
 msgid "State"
 msgstr "状態"
+
+#, fuzzy
+msgid "State changes"
+msgstr "変更を保存"
 
 #, fuzzy
 msgid "State filter"
@@ -8465,6 +8483,9 @@ msgid "Wake On Lan"
 msgstr "Wake on LAN"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warnings"
 msgstr ""
 
 msgid "We are group ID"
