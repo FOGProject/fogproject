@@ -5012,9 +5012,6 @@ msgstr "No data returned"
 msgid "No database to work off"
 msgstr "No database to work off"
 
-msgid "No error text supplied"
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -5126,6 +5123,9 @@ msgstr "No query sent"
 
 msgid "No query result, use query() first"
 msgstr "No query result, use query() first"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "No results found"
@@ -7655,9 +7655,6 @@ msgstr "Load failed: %s"
 #, fuzzy
 msgid "Task finished"
 msgstr "Task Started"
-
-msgid "Task is not an imaging task"
-msgstr ""
 
 msgid "Task not created as there are no associated Tasks"
 msgstr ""

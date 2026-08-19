@@ -4838,9 +4838,6 @@ msgstr "Nessun dato da inserire"
 msgid "No database to work off"
 msgstr "Nessun database di lavorare off"
 
-msgid "No error text supplied"
-msgstr ""
-
 msgid "No external data to download the file from"
 msgstr ""
 
@@ -4946,6 +4943,9 @@ msgstr "Nessuna query inviata"
 
 msgid "No query result, use query() first"
 msgstr "Nessun risultato della query, utilizzare query () prima"
+
+msgid "No report text supplied"
+msgstr ""
 
 msgid "No results found"
 msgstr "nessun risultato trovato"
@@ -7376,10 +7376,6 @@ msgstr "Caricamento non riuscito"
 #, fuzzy
 msgid "Task finished"
 msgstr "Attività iniziata"
-
-#, fuzzy
-msgid "Task is not an imaging task"
-msgstr "Impossibile modificare l'immagine durante l'attività"
 
 msgid "Task not created as there are no associated Tasks"
 msgstr "Attività non creata poiché non ci sono attività associate"
@@ -10001,6 +9997,10 @@ msgstr ""
 
 #~ msgid "Successful"
 #~ msgstr "Riuscito"
+
+#, fuzzy
+#~ msgid "Task is not an imaging task"
+#~ msgstr "Impossibile modificare l'immagine durante l'attività"
 
 #, fuzzy
 #~ msgid "Task run time"

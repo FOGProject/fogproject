@@ -20,6 +20,12 @@
  * touch the task's state -- there is no Failed state and inventing one is a
  * separate decision.
  *
+ * And the two destinations a report gets that are not the event: a typed
+ * `taskLog` row, which is what correlates the report with the task, and
+ * FOG's own log file. The type matters more than it looks -- a warning is a
+ * report the machine carried on after, so treating one as an error would
+ * announce a failed deploy for a task that went on to succeed.
+ *
  * No database, no web server. The sanitizer is pure and is called directly;
  * the rest is source-level, because the constructor needs a booted FOG, a
  * host lookup and a task.
@@ -126,12 +132,99 @@ if (substr_count($src, "echo '##';") !== 1) {
     $fails[] = 'the endpoint does not answer identically on every path, so the'
         . ' response says whether the MAC had an active imaging task';
 }
-if (false !== strpos($src, "set('stateID'")) {
-    $fails[] = 'the endpoint changes the task state; taskStates has no Failed'
-        . ' and choosing one is a separate decision (#1206)';
+// The TaskLog row carries the task's state; the TASK is what must not be
+// written. Checking for the literal set('stateID') would now match the row.
+if (false !== strpos($src, '$Task->set(')
+    || false !== strpos($src, '$Task->save(')
+) {
+    $fails[] = 'the endpoint changes the task; taskStates has no Failed and'
+        . ' choosing one is a separate decision (#1206)';
 }
 if (false === strpos($src, 'error_log(')) {
     $fails[] = 'the endpoint leaves no server-side trace of a failure';
+}
+
+// ------------------------------------------------------- type, row, file
+
+$types = (new \ReflectionClass('FOG\TaskError'))->getConstant('TYPES');
+if (!is_array($types)
+    || ($types['warning'] ?? null) !== \FOG\TaskLog::TYPE_WARNING
+    || ($types['error'] ?? null) !== \FOG\TaskLog::TYPE_ERROR
+) {
+    $fails[] = 'the endpoint does not map both report types onto TaskLog types';
+}
+
+$readType = new \ReflectionMethod('FOG\TaskError', '_reportedType');
+$readType->setAccessible(true);
+// filter_input has nothing to read under CLI, so this exercises the fallback:
+// no type at all must mean error, never warning. A FOS too old to send one is
+// only ever reporting a failure.
+if ($readType->invoke(null) !== \FOG\TaskLog::TYPE_ERROR) {
+    $fails[] = 'a report with no type is not treated as an error, so an older'
+        . ' FOS reporting a real failure fires nothing';
+}
+
+// A warning must return before the notify, not fall into it.
+$warnGuard = strpos($src, 'TaskLog::TYPE_ERROR !== $type');
+$notify = strpos($src, "'HOST_IMAGE_FAIL'");
+if (false === $warnGuard || false === $notify || $warnGuard > $notify) {
+    $fails[] = 'a warning is not held back from HOST_IMAGE_FAIL, so a machine'
+        . ' that carried on announces a failed deploy';
+}
+
+// The row is written before either gate -- the imaging one included -- so a
+// failed wipe is still recorded against its task even though no event fires.
+$row = strpos($src, '_logRow(');
+$imaging = strpos($src, '$Task->isImagingTask()');
+if (false === $row || false === $imaging || $row > $imaging) {
+    $fails[] = 'the taskLog row is written only for imaging tasks, so a failed'
+        . ' wipe or inventory leaves no trace against its task';
+}
+if (false === $warnGuard || $row > $warnGuard) {
+    $fails[] = 'a warning writes no taskLog row, so the only reports FOG keeps'
+        . ' are the ones that were already fatal';
+}
+
+// The model has to be able to hold what the endpoint writes.
+$fields = (new \ReflectionClass('FOG\TaskLog'))
+    ->getDefaultProperties()['databaseFields'] ?? [];
+foreach (['type' => 'logType', 'text' => 'logText'] as $key => $column) {
+    if (($fields[$key] ?? null) !== $column) {
+        $fails[] = "TaskLog does not map $key onto $column, so the endpoint's"
+            . ' report is dropped on save';
+    }
+}
+
+// The log file goes in its own subdirectory, and that subdirectory has to be
+// one FOGLogPaths knows about or the Log Viewer can neither list nor read it
+// -- the two fail differently, which is why the class exists.
+$subdir = (new \ReflectionClass('FOG\TaskError'))->getConstant('LOG_SUBDIR');
+if (!in_array($subdir, \FOG\FOGLogPaths::FOG_SUBDIRS, true)) {
+    $fails[] = "the report log lives in '$subdir', which FOGLogPaths does not"
+        . ' list, so the Log Viewer cannot offer it';
+}
+$reachable = false;
+foreach (\FOG\FOGLogPaths::readable() as $dir) {
+    if (substr($dir, -strlen($subdir . DS)) === $subdir . DS) {
+        $reachable = true;
+    }
+}
+if (!$reachable) {
+    $fails[] = "the report log's directory is enumerable but not readable, so"
+        . ' the Log Viewer lists the file and then says Invalid Folder';
+}
+
+// The installer is what creates it, with the SELinux label: /opt/fog inherits
+// usr_t and httpd_t may read it but not write it (GH-964), so a directory
+// created without the relabel swallows every report on an enforcing host.
+$inst = file_get_contents($root . '/lib/common/functions.sh');
+if (false === strpos($inst, 'mkdir -p $servicelogs/' . $subdir)) {
+    $fails[] = 'the installer does not create the report log directory, so the'
+        . ' web tier has nowhere to write';
+}
+if (false === strpos($inst, 'setSELinuxContext "$servicelogs/' . $subdir . '" httpd_sys_rw_content_t')) {
+    $fails[] = 'the report log directory is not relabelled, so every report is'
+        . ' dropped by SELinux with nothing but an AVC to say so';
 }
 
 // The entry point has to be a real file: service/*.php are served directly,
@@ -148,5 +241,5 @@ if (count($fails) > 0) {
     exit(1);
 }
 
-echo "ok: the imaging-failure report is bounded, single-line and uniform\n";
+echo "ok: the FOS report is bounded, single-line, typed and recorded\n";
 exit(0);

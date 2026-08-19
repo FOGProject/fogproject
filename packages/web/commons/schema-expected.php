@@ -758,7 +758,7 @@ return [
             ],
         ],
         'taskLog' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `taskLog` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `taskID` int(11) NOT NULL, `taskStateID` mediumint(9) NOT NULL, `ip` varchar(15) NOT NULL, `createTime` timestamp NOT NULL DEFAULT current_timestamp(), `createdBy` varchar(30) NOT NULL, PRIMARY KEY (`id`), KEY `taskID` (`taskID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `taskLog` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `taskID` int(11) NOT NULL, `taskStateID` mediumint(9) NOT NULL, `ip` varchar(15) NOT NULL, `createTime` timestamp NOT NULL DEFAULT current_timestamp(), `createdBy` varchar(30) NOT NULL, `logType` varchar(16) NOT NULL DEFAULT \'state\', `logText` text DEFAULT NULL, PRIMARY KEY (`id`), KEY `taskID` (`taskID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'id' => 'mediumint(9) NOT NULL',
                 'taskID' => 'int(11) NOT NULL',

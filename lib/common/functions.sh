@@ -1691,6 +1691,20 @@ installFOGServices() {
     # labelling result instead of whether the directory was created -- a failed
     # mkdir or chown here would have printed OK.
     setSELinuxContext "$servicelogs/plugins" httpd_sys_rw_content_t
+    # Where the web tier records what FOS told it (fogproject#1206). Its own
+    # subdirectory for the same reason the plugin runner's is: the writer is
+    # the web user, rotation renames and unlinks, and $servicelogs itself is
+    # root's -- the eight daemons' logs live there and nothing running as the
+    # web user should be able to unlink them.
+    dots "Creating FOS report log directory"
+    mkdir -p $servicelogs/fos >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/fos >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller. The _rw_ label
+    # is not optional here: GH-964, /opt/fog inherits usr_t, httpd_t may READ
+    # usr_t but not write it, so without this the directory exists, looks
+    # right, and every report is dropped with nothing but an AVC to say so.
+    setSELinuxContext "$servicelogs/fos" httpd_sys_rw_content_t
     # servicemaster.log is where service_lib.php writes every daemon's start,
     # stop and fatal lines, and where PHP's own error_log is pointed. The
     # runner has to be able to append to it or its supervisor lines silently
