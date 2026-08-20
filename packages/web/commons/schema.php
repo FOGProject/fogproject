@@ -4171,7 +4171,15 @@ $this->schema[] = [
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateDate` `fdqCreateDate` DATETIME',
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCompletedDate` `fdqCompletedDate` DATETIME',
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateBy` `fdqCreateBy` VARCHAR(40)',
-    "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCompletedDate` DATETIME DEFAULT '0000-00-00 00:00:00'",
+    // GH-1243: NULL, not a zero date. '0000-00-00 00:00:00' is not a legal
+    // DATETIME default under MySQL 8.0's stock sql_mode (NO_ZERO_DATE,
+    // STRICT_TRANS_TABLES) -- it is error 1067, which is on neither
+    // tolerance list, so the whole schema update threw and FOG could not be
+    // installed on MySQL at all. NULL says the same thing ("not completed
+    // yet") and every supported server accepts it. Editing this historical
+    // step is safe: it has already run everywhere it was going to, and step
+    // 343 is what repairs those installs.
+    "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCompletedDate` DATETIME NULL DEFAULT NULL",
     "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCreateDate` DATETIME DEFAULT CURRENT_TIMESTAMP",
 ];
 // 289
@@ -6081,4 +6089,39 @@ $this->schema[] = [
 
         return true;
     },
+];
+// 343
+$this->schema[] = [
+    // GH-1243: repair the zero-date default on installs that already have it.
+    //
+    // `fdqCompletedDate` was declared DATETIME DEFAULT '0000-00-00 00:00:00'
+    // in step 288. That is not a legal default under MySQL 8.0's stock
+    // sql_mode -- NO_ZERO_DATE and STRICT_TRANS_TABLES are both on by
+    // default -- so the statement answers 1067, which is on neither
+    // SchemaUpdaterPage::update()'s $skiperrs nor SchemaReconciler's
+    // $_skiperrs. The whole update therefore threw before the schema version
+    // was recorded, after which DatabaseManager::establish() 308-redirects
+    // every request to ?node=schema: FOG could not be installed on MySQL at
+    // all. MariaDB's default sql_mode has never included either flag, which
+    // is why no MariaDB install ever saw it.
+    //
+    // Step 288 is edited too, so a fresh install never creates the bad
+    // default. This step is for the installs that already did.
+    //
+    // The rows are cleared BEFORE the column is altered. Nothing reads this
+    // value -- FileDeleteQueueManager only ever writes it, on cancel() and
+    // complete() -- so a zero date here means "never completed", which is
+    // what NULL says without needing a sql_mode that tolerates it. Doing it
+    // in this order also means the MODIFY never has to convert an illegal
+    // value in place, which is itself an error on a strict server.
+    //
+    // YEAR() rather than comparing against the literal '0000-00-00 00:00:00':
+    // a strict server rejects the literal in the comparison as well, so a
+    // WHERE written the obvious way would fail on exactly the servers this
+    // exists for.
+    "UPDATE `fileDeleteQueue` SET `fdqCompletedDate` = NULL "
+    . "WHERE `fdqCompletedDate` IS NOT NULL "
+    . "AND YEAR(`fdqCompletedDate`) = 0",
+    "ALTER TABLE `fileDeleteQueue` "
+    . "MODIFY COLUMN `fdqCompletedDate` DATETIME NULL DEFAULT NULL",
 ];
