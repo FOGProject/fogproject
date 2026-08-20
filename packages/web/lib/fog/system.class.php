@@ -62,8 +62,8 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.3720');
-        define('FOG_CHANNEL', 'Beta');
+        define('FOG_VERSION', '1245.0-feature.3722');
+        define('FOG_CHANNEL', 'Feature');
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php, and it must never fall BELOW that element
         // count. DatabaseManager::init() and schemaNeedsDeploy() test

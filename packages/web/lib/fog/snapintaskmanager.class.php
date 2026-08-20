@@ -66,7 +66,7 @@ class SnapinTaskManager extends FOGManagerController
             '',
             [
                 'stateID' => $cancelled,
-                'complete'=> self::formatTime('', 'Y-m-d H:i:s')
+                'complete'=> self::formatTime('now', 'Y-m-d H:i:s')
             ]
         );
         $hostTasksToCancel = [];

@@ -3090,7 +3090,7 @@ class FOGConfigurationPage extends FOGPage
         try {
             if (isset($_POST['toExport'])) {
                 $backup_name = 'fog_backup_'
-                    . self::formatTime('', 'Ymd_His');
+                    . self::formatTime('now', 'Ymd_His');
                 $tmpfile = '/tmp/' . $backup_name;
                 $data = '';
                 self::getClass('Mysqldump')->start($tmpfile);
