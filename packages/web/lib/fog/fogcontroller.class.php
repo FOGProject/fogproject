@@ -450,39 +450,32 @@ abstract class FOGController extends FOGBase
         return $this;
     }
     /**
-     * Date/time columns per table, from commons/schema-expected.php.
+     * Column types per table, from commons/schema-expected.php.
      *
      * Null until first asked for; built once per request.
      *
      * @var array|null
      */
-    private static $dateColumns = null;
+    private static $columnTypes = null;
 
     /**
-     * Is this column a DATE, DATETIME or TIMESTAMP?
+     * The declared SQL type of a column, or '' when it is not in the manifest.
      *
-     * GH-1245: save() writes '' for any unset optional field that is not a
-     * foreign key. A date column cannot hold '' -- the server either refuses
-     * it or coerces it to '0000-00-00 00:00:00', and FOG only ever sees the
-     * second because PDODB clears sql_mode on every connection.
-     *
-     * The column's TYPE is the only reliable way to tell a date column from
-     * a string one; the key's name is not, which is the lesson
-     * $databaseFieldsNotInt already exists for. commons/schema-expected.php
-     * carries per-column types and is what OpenAPI::_entitySchema() reads for
-     * the same question, so this adds no new source of truth. A missing or
-     * unreadable manifest simply leaves every column looking non-date, which
-     * is the behaviour that shipped before this change.
+     * commons/schema-expected.php carries per-column types and is what
+     * OpenAPI::_entitySchema() reads for the same question, so this adds no
+     * new source of truth. A missing or unreadable manifest returns '', which
+     * emptyValueFor() treats as "assume a string column" -- the behaviour that
+     * shipped before any of this.
      *
      * @param string $table  the database table
      * @param string $column the database column
      *
-     * @return bool
+     * @return string
      */
-    protected static function isDateColumn($table, $column)
+    protected static function columnType($table, $column)
     {
-        if (null === self::$dateColumns) {
-            self::$dateColumns = [];
+        if (null === self::$columnTypes) {
+            self::$columnTypes = [];
             $manifest = SchemaReconciler::manifest();
             $tables = isset($manifest['tables']) && is_array($manifest['tables'])
                 ? $manifest['tables']
@@ -492,13 +485,77 @@ abstract class FOGController extends FOGBase
                     continue;
                 }
                 foreach ($tDef['columns'] as $cName => $cType) {
-                    if (preg_match('/^\s*(datetime|timestamp|date)\b/i', $cType)) {
-                        self::$dateColumns[strtolower($tName)][strtolower($cName)] = true;
-                    }
+                    self::$columnTypes[strtolower($tName)][strtolower($cName)]
+                        = trim($cType);
                 }
             }
         }
-        return isset(self::$dateColumns[strtolower($table)][strtolower($column)]);
+        return self::$columnTypes[strtolower($table)][strtolower($column)] ?? '';
+    }
+
+    /**
+     * Can this column hold NULL?
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return bool
+     */
+    protected static function columnIsNullable($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        return '' !== $type && !preg_match('/\bNOT\s+NULL\b/i', $type);
+    }
+
+    /**
+     * What an unset optional field should actually be written as.
+     *
+     * GH-1245. save() used to write '' for every unset optional field whose
+     * key does not end in "id". '' is a value only a string column can hold.
+     * Everywhere else the server either refuses it under a strict sql_mode or
+     * coerces it without one, and FOG only ever saw the second, because
+     * PDODB::_connect() cleared sql_mode on every connection. So this is not
+     * new behaviour being introduced -- it is the coercion the server was
+     * already performing, written down and made legal:
+     *
+     *   date/time  ->  NULL          (was '0000-00-00 00:00:00')
+     *   integer    ->  0             (was 0, via error 1366 downgraded)
+     *   enum/set   ->  first member  (was '', the error value at index 0)
+     *   anything   ->  ''            (unchanged; '' is a real value here)
+     *
+     * The integer and enum choices deliberately match the coercion rather
+     * than the column's DEFAULT. `hosts.hostEnforce` is declared
+     * DEFAULT '1' and 73 of 86 rows on the maintainer's server hold '' --
+     * so honouring the default would silently turn enforcement ON for those
+     * hosts as a side effect of a storage fix. '' and '0' are both falsey in
+     * PHP, so the first enum member behaves as the error value already did.
+     *
+     * The column's TYPE is the only reliable way to tell these apart; the
+     * key's name is not, which is the lesson $databaseFieldsNotInt already
+     * exists for.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return mixed the value to write; null means a real SQL NULL
+     */
+    protected static function emptyValueFor($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        if ('' === $type) {
+            return '';
+        }
+        if (preg_match('/^(datetime|timestamp|date)\b/i', $type)) {
+            return null;
+        }
+        if (preg_match('/^(tiny|small|medium|big)?int\b/i', $type)) {
+            return 0;
+        }
+        if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $match)) {
+            return str_replace("''", "'", $match[2]);
+        }
+
+        return '';
     }
 
     /**
@@ -582,7 +639,24 @@ abstract class FOGController extends FOGBase
                     } else {
                         // Optional *id: allow empty -> NULL; if present, require integer >= 1
                         if ($isEmpty) {
-                            $val = null;
+                            /*
+                             * GH-1245: a null value is omitted from the
+                             * statement further down, which is right for a
+                             * nullable column -- the server stores NULL. For a
+                             * NOT NULL one it is error 1364, "field doesn't
+                             * have a default value", on any strict server;
+                             * without one the server quietly supplied 0, which
+                             * is what `hosts.hostImage` has been getting for
+                             * every host created without an image.
+                             *
+                             * So write that 0 rather than leaving the column
+                             * out and depending on the server to guess.
+                             */
+                            if (self::columnIsNullable($this->databaseTable, $column)) {
+                                $val = null;
+                            } else {
+                                $val = 0;
+                            }
                         } else {
                             $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                             if ($validated === false) {
@@ -598,15 +672,28 @@ abstract class FOGController extends FOGBase
                         if ($isRequired) {
                             throw new \Exception(self::$foglang['RequiredDB'] . ": " . $key);
                         }
-                        // GH-1245: '' is not a date. A date column holding
-                        // nothing is NULL; anything else is a string column,
-                        // where '' is a legitimate value and always was.
-                        if (self::isDateColumn($this->databaseTable, $column)) {
-                            $val = null;
-                            $writeNull = true;
-                        } else {
-                            $val = '';
-                        }
+                        // GH-1245: '' is a value only a string column can
+                        // hold. Everywhere else the server was coercing it;
+                        // emptyValueFor() writes down what to.
+                        $val = self::emptyValueFor(
+                            $this->databaseTable,
+                            $column
+                        );
+                        /*
+                         * A NULL for a column that cannot hold one means
+                         * "leave it out and let the server's DEFAULT apply".
+                         * Binding it is error 1048 -- `snapinTasks
+                         * .stCheckinDate` and `userAuths.uaExpireDate` are
+                         * NOT NULL DEFAULT current_timestamp(), which is why
+                         * step 344 left them alone, and MySQL 8 ships
+                         * explicit_defaults_for_timestamp=ON so an explicit
+                         * NULL is refused rather than turned into "now".
+                         */
+                        $writeNull = (null === $val)
+                            && self::columnIsNullable(
+                                $this->databaseTable,
+                                $column
+                            );
                     }
                 }
 

@@ -852,6 +852,70 @@ abstract class FOGBase
         $txt,
         $data
     ) {
+        /*
+         * GH-1245: logging must never depend on logging.
+         *
+         * getSetting() below issues a query. PDODB's own error handling calls
+         * debug() -- sqlerror() does, on every failed fetch -- so one failed
+         * statement used to run:
+         *
+         *   fetch() -> sqlerror() -> debug() -> _writeLog() -> getSetting()
+         *     -> query()/fetch() -> sqlerror() -> debug() -> ...
+         *
+         * unbounded, until the PHP worker died on memory. Nothing reported the
+         * original error, because the process never got back to report it.
+         *
+         * It stayed hidden because PDODB cleared sql_mode on every connection,
+         * so statements almost never failed. It was never really about
+         * sql_mode though: a locked table, a lost connection or a permission
+         * change would have done it just as well.
+         *
+         * Re-entry is dropped rather than deferred. A log line produced while
+         * writing a log line describes the logger, not the request.
+         */
+        static $inWriteLog = false;
+        if ($inWriteLog) {
+            return;
+        }
+        $inWriteLog = true;
+
+        try {
+            self::_writeLogLine(
+                $label,
+                $setting,
+                $prefix,
+                $cssClass,
+                $show,
+                $txt,
+                $data
+            );
+        } finally {
+            $inWriteLog = false;
+        }
+    }
+
+    /**
+     * The body of _writeLog(), which is only ever reached non-reentrantly.
+     *
+     * @param string $label    the level label, e.g. 'ERROR'
+     * @param string $setting  the FOG_LOG_* setting gating file output
+     * @param string $prefix   the log filename prefix, e.g. 'error_log'
+     * @param string $cssClass the css class for the printed div
+     * @param bool   $show     whether this level prints to the page
+     * @param string $txt      the string to use
+     * @param array  $data     the data if txt is a formatted string
+     *
+     * @return void
+     */
+    private static function _writeLogLine(
+        $label,
+        $setting,
+        $prefix,
+        $cssClass,
+        $show,
+        $txt,
+        $data
+    ) {
         $data = self::_setString($txt, $data);
         $date = self::niceDate();
         $string = sprintf(

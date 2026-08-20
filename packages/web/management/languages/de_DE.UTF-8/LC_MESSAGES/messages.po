@@ -731,9 +731,6 @@ msgstr ""
 msgid "All items imported successfully"
 msgstr "iPXE-Einstellungen erfolgreich aktualisiert!"
 
-msgid "All methods of binding have failed"
-msgstr "Alle Methoden der Bindung sind fehlgeschlagen"
-
 #, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
 msgstr "Bandbreite sollte numerisch und größer als 0 sein."
@@ -743,12 +740,6 @@ msgstr ""
 
 msgid "Allow API"
 msgstr ""
-
-msgid "Allows editing/creating of Task States fog currently has."
-msgstr "Ermöglicht das Bearbeiten / Erstellen von Taskstatus, die FOG zurzeit hat."
-
-msgid "Allows editing/creating of Task Types fog currently has."
-msgstr "Erlaubt das Bearbeiten/Erstellen von Task-Typen, die der FOG derzeit hat"
 
 #, fuzzy
 msgid "Already created"
@@ -1066,10 +1057,6 @@ msgid "CA Certificate Path"
 msgstr "Neuen Standort erstellen"
 
 #, fuzzy
-msgid "CA Path"
-msgstr "Pfad"
-
-#, fuzzy
 msgid "CA private key"
 msgstr "Privater Schlüssel ist fehlgeschlagen"
 
@@ -1169,10 +1156,6 @@ msgstr "Stornierter Task"
 msgid "Cancelled due to new tasking."
 msgstr "Abgebrochen aufgrund neuer Aufgabe (Task)"
 
-#, fuzzy
-msgid "Cannot bind to the LDAP server"
-msgstr "Anmeldung am LDAP-Server nicht möglich"
-
 msgid "Cannot change image when in tasking"
 msgstr "Das Image kann während eines Tasks nicht geändert werden"
 
@@ -1217,9 +1200,6 @@ msgstr "Snapin erstellen fehlgeschlagen"
 #, fuzzy
 msgid "Capone Create Success"
 msgstr "Snapin erfolgreich hinzugefügt"
-
-msgid "Capone Deploy"
-msgstr "Capone Verteilung"
 
 #, fuzzy
 msgid "Capone Management"
@@ -1298,9 +1278,6 @@ msgstr ""
 
 msgid "Channel"
 msgstr ""
-
-msgid "Channel call is invalid"
-msgstr "Kanalaufruf ist ungültig"
 
 #, fuzzy
 msgid "Channel not found"
@@ -1530,22 +1507,7 @@ msgstr "Tmp-Datei konnte nicht gelesen werden."
 msgid "Could not read snapin file"
 msgstr "Snapin-Datei konnte nicht gelesen werden."
 
-msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
-msgstr ""
-
-#, fuzzy
-msgid "Could not read the group mappings"
-msgstr "Tmp-Datei konnte nicht gelesen werden."
-
-#, fuzzy
-msgid "Could not read the recorded grants"
-msgstr "Tmp-Datei konnte nicht gelesen werden."
-
 msgid "Could not read tmp file."
-msgstr "Tmp-Datei konnte nicht gelesen werden."
-
-#, fuzzy
-msgid "Could not record the granted targets"
 msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
@@ -1555,10 +1517,6 @@ msgstr "Konnte nicht registriert werden."
 #, php-format
 msgid "Could not replace the existing %s. Is %s writable?"
 msgstr ""
-
-#, fuzzy
-msgid "Could not seed the granted targets"
-msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1885,10 +1843,6 @@ msgid "Default Width"
 msgstr "Standardbreite"
 
 #, fuzzy
-msgid "Default is disabled"
-msgstr "Standard ist deaktiviert"
-
-#, fuzzy
 msgid "Default nested group depth"
 msgstr "Datei kann zum Lesen nicht geöffnet werden"
 
@@ -1953,9 +1907,6 @@ msgstr "Download fehlgeschlagen"
 
 msgid "Deploy Method"
 msgstr "Verteilungsmethode"
-
-msgid "Depth"
-msgstr ""
 
 msgid "Description"
 msgstr "Beschreibung"
@@ -2121,10 +2072,6 @@ msgid "Edit Capone"
 msgstr "Snapins exportieren"
 
 #, fuzzy
-msgid "Edit Capone ID"
-msgstr "Snapins exportieren"
-
-#, fuzzy
 msgid "Editing Capone ID"
 msgstr "Gruppeneinstellungen Module"
 
@@ -2145,9 +2092,6 @@ msgstr ""
 #, fuzzy
 msgid "Enable Domain Joining"
 msgstr "Standort senden aktivieren"
-
-msgid "Enable Sending via Location"
-msgstr ""
 
 #, fuzzy
 msgid "Enable on all hosts"
@@ -2289,10 +2233,6 @@ msgstr "Konfiguration exportieren"
 #, fuzzy
 msgid "Export LDAP Servers"
 msgstr "LDAP-Server"
-
-#, fuzzy
-msgid "Export Locations"
-msgstr "Standorte exportieren"
 
 #, fuzzy
 msgid "Export OUs"
@@ -2633,10 +2573,6 @@ msgid "Files Deleted List"
 msgstr "Datei löschen"
 
 #, fuzzy
-msgid "Filter"
-msgstr "Filter"
-
-#, fuzzy
 msgid "Finding any images associated"
 msgstr "Suche nach zugeordneten Images"
 
@@ -2742,10 +2678,6 @@ msgstr "Funktion"
 #, fuzzy
 msgid "Function Error"
 msgstr "Funktion"
-
-#, fuzzy
-msgid "Function does not exist"
-msgstr "Methode ist nicht vorhanden"
 
 msgid "GNU General Public License"
 msgstr ""
@@ -2913,18 +2845,6 @@ msgid "Group Kernel Arguments"
 msgstr "Gruppe-Kernel Argumente"
 
 #, fuzzy
-msgid "Group Location"
-msgstr "Host Standort"
-
-#, fuzzy
-msgid "Group Location Update Success"
-msgstr "Standort erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Group Location Updated!"
-msgstr "Standort aktualisiert"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "Login-Verlauf"
 
@@ -2995,10 +2915,6 @@ msgid "Group Update Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
 
 #, fuzzy
-msgid "Group Update Location Fail"
-msgstr "Gruppe aktualisieren fehlgeschlagen"
-
-#, fuzzy
 msgid "Group Update OU Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
 
@@ -3013,10 +2929,6 @@ msgstr "Gruppe hinzugefügt!"
 #, fuzzy
 msgid "Group is not valid"
 msgstr "Gruppe ist nicht gültig"
-
-#, fuzzy
-msgid "Group membership search failed"
-msgstr "Benutzer-Update fehlgeschlagen"
 
 #, fuzzy
 msgid "Group update failed!"
@@ -3143,18 +3055,6 @@ msgstr "Startseite"
 msgid "Host"
 msgstr "Host"
 
-#, fuzzy, php-format
-msgid "Host %1$s failed imaging %2$s: %3$s"
-msgstr "Dieser Host ist bereits vorhanden."
-
-#, fuzzy, php-format
-msgid "Host %1$s finished capturing image %2$s."
-msgstr "Dieser Host ist bereits vorhanden."
-
-#, fuzzy, php-format
-msgid "Host %1$s finished deploying image %2$s."
-msgstr "Dieser Host ist bereits vorhanden."
-
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "Host erfolgreich erstellt"
@@ -3237,17 +3137,6 @@ msgstr "Host Kernel Argumente"
 msgid "Host List"
 msgstr "Hostliste"
 
-msgid "Host Location"
-msgstr "Host Standort"
-
-#, fuzzy
-msgid "Host Location Update Success"
-msgstr "Standort erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Host Location Updated!"
-msgstr "Standort aktualisiert"
-
 msgid "Host Login History"
 msgstr "Host-Login-Verlauf"
 
@@ -3304,10 +3193,6 @@ msgstr "Host Snapinverlauf"
 
 #, fuzzy
 msgid "Host Update Fail"
-msgstr "Host-Update fehlgeschlagen"
-
-#, fuzzy
-msgid "Host Update Location Fail"
 msgstr "Host-Update fehlgeschlagen"
 
 #, fuzzy
@@ -3612,22 +3497,6 @@ msgid "Image Used"
 msgstr "genutzte Images"
 
 #, fuzzy
-msgid "Image Windows Key"
-msgstr "Windows-Schlüssel importieren"
-
-#, fuzzy
-msgid "Image Windows Key Update Fail"
-msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
-
-#, fuzzy
-msgid "Image Windows Key Update Success"
-msgstr "Windows-Schlüssel erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Image Windows Key Updated!"
-msgstr "Windows-Schlüssel aktualisiert"
-
-#, fuzzy
 msgid "Image added!"
 msgstr "Image hinzugefügt"
 
@@ -3740,10 +3609,6 @@ msgid "Import Failed"
 msgstr "Image aktualisiert"
 
 #, fuzzy
-msgid "Import Locations"
-msgstr "Standorte importieren"
-
-#, fuzzy
 msgid "Import OUs"
 msgstr "Benutzer importieren"
 
@@ -3760,28 +3625,12 @@ msgid "Import Reports"
 msgstr "Berichte importieren"
 
 #, fuzzy
-msgid "Import Subnet Groups"
-msgstr "Gruppen importieren"
-
-#, fuzzy
 msgid "Import Succeeded"
 msgstr "Import erfolgreich"
 
 #, fuzzy
 msgid "Import Succeeded With Warnings"
 msgstr "Import erfolgreich"
-
-#, fuzzy
-msgid "Import Task States"
-msgstr "Taskstatus exportieren"
-
-#, fuzzy
-msgid "Import Task Types"
-msgstr "Task-Typen importieren"
-
-#, fuzzy
-msgid "Import Windows Keys"
-msgstr "Windows-Schlüssel importieren"
 
 #, fuzzy
 msgid "Import a new Plugin"
@@ -3978,10 +3827,6 @@ msgstr "Ungültige Einheit"
 msgid "Invalid Windows product key"
 msgstr "Host Produktschlüssel"
 
-#, fuzzy, php-format
-msgid "Invalid certificate verification level: %s"
-msgstr "Wählen Sie ein gültiges Abbild"
-
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
@@ -4022,9 +3867,6 @@ msgstr "Ungültiger Schlüssel wurde angefordert"
 
 msgid "Invalid key being set"
 msgstr "Ungültiger Schlüssel wurde gesetzt"
-
-msgid "Invalid method called"
-msgstr "Ungültige Methode aufgerufen"
 
 #, fuzzy
 msgid "Invalid path"
@@ -4145,9 +3987,6 @@ msgstr ""
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr "indem es die max. Bandbreiteneinstellung desjenigen Knotens"
 
-msgid "It tells the client to download snapins from"
-msgstr "Es weist den Client an, Snapins vom hostdefinierten "
-
 msgid "It will operate based on the fields the area typcially requires."
 msgstr ""
 
@@ -4193,10 +4032,6 @@ msgid "Key"
 msgstr "DMI-Schlüssel"
 
 #, fuzzy
-msgid "Key Association"
-msgstr "Site Zugehörigkeit"
-
-#, fuzzy
 msgid "Key field must be a string"
 msgstr "Schlüsselfeldname muss eine Zeichenfolge sein."
 
@@ -4220,10 +4055,6 @@ msgstr ""
 
 msgid "Kill"
 msgstr "sofort abbrechen"
-
-#, fuzzy
-msgid "LDAP"
-msgstr "OpenLDAP"
 
 #, fuzzy
 msgid "LDAP Connection  Name"
@@ -4341,10 +4172,6 @@ msgstr "LDAP-Server aktualisiert"
 msgid "LDAP Server updated!"
 msgstr "LDAP-Server aktualisiert"
 
-#, fuzzy
-msgid "LDAP Servers"
-msgstr "LDAP-Server"
-
 msgid "Language"
 msgstr "Sprache"
 
@@ -4376,9 +4203,6 @@ msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
 msgid "Leave blank to keep the current password"
-msgstr ""
-
-msgid "Level"
 msgstr ""
 
 #, fuzzy
@@ -4446,14 +4270,6 @@ msgid "List All Plugins"
 msgstr "Plugins installieren"
 
 #, fuzzy
-msgid "List All Task States"
-msgstr "Task Status"
-
-#, fuzzy
-msgid "List All Task Types"
-msgstr "Task-Typen"
-
-#, fuzzy
 msgid "List Available Plugins"
 msgstr "Installierte Plugins"
 
@@ -4481,10 +4297,6 @@ msgstr "Laden von Daten zum Feld %s"
 
 msgid "Location"
 msgstr "Ort"
-
-#, fuzzy
-msgid "Location Association"
-msgstr "Standort Zugehörigkeiten"
 
 #, fuzzy
 msgid "Location Create Fail"
@@ -4519,9 +4331,6 @@ msgstr "Standort erfolgreich aktualisiert"
 #, fuzzy
 msgid "Location added!"
 msgstr "Standort hinzugefügt"
-
-msgid "Location is a plugin that allows your FOG Server"
-msgstr "Standort ist ein Plugin, mit dem Ihr FOG-Server"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -4906,10 +4715,6 @@ msgstr "NAME"
 msgid "NOT"
 msgstr "NICHT"
 
-#, fuzzy
-msgid "NOTE"
-msgstr "HINWEIS"
-
 msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr ""
 
@@ -4942,16 +4747,9 @@ msgstr "Neuer Schlüsselname muss eine Zeichenfolge sein."
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr "Neuer Schlüsselname muss eine Zeichenfolge sein."
 
-msgid "Nested group depth cap reached, so group membership may be incomplete"
-msgstr ""
-
 #, fuzzy
 msgid "Nested group depth must be between 1 and 100"
 msgstr "Neuer Schlüsselname muss eine Zeichenfolge sein."
-
-#, fuzzy
-msgid "Nested group search failed"
-msgstr "Benutzer-Update fehlgeschlagen"
 
 msgid "Network Information"
 msgstr "Netzwerkinformationen"
@@ -5023,9 +4821,6 @@ msgstr "Kein Image angegeben"
 
 msgid "No Printer Management"
 msgstr "Keine Druckerverwaltung"
-
-msgid "No access is allowed"
-msgstr "Kein Zugriff erlaubt"
 
 #, fuzzy
 msgid "No active task found for this host"
@@ -5905,10 +5700,6 @@ msgstr ""
 msgid "Port"
 msgstr "Port"
 
-#, fuzzy
-msgid "Port is not valid ldap/ldaps port"
-msgstr "Dieser Port ist kein gültiger LDAP/LADPS Port"
-
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -6132,9 +5923,6 @@ msgstr "Drucker aktualisiert!"
 msgid "Providers"
 msgstr ""
 
-msgid "Pushbullet Accounts"
-msgstr "Pushbullet Accounts"
-
 #, fuzzy
 msgid "Pushbullet Management"
 msgstr "Client-Management"
@@ -6334,10 +6122,6 @@ msgstr ""
 #, php-format
 msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
 msgstr ""
-
-#, fuzzy
-msgid "Result"
-msgstr "Ergebnis"
 
 msgid "Resume Reload"
 msgstr ""
@@ -6583,19 +6367,8 @@ msgid "Search Base DN"
 msgstr "Suche Basis DN"
 
 #, fuzzy
-msgid "Search DN"
-msgstr "Suche DN"
-
-msgid "Search DN did not return any results"
-msgstr "Suche DN hat keine Ergebnisse zurückgegeben"
-
-#, fuzzy
 msgid "Search Key"
 msgstr "Suche"
-
-#, fuzzy
-msgid "Search Method"
-msgstr "Suchmethode"
 
 #, fuzzy
 msgid "Search Scope"
@@ -6603,9 +6376,6 @@ msgstr "Suchbereich"
 
 msgid "Search every class at once"
 msgstr ""
-
-msgid "Search results returned false"
-msgstr "Die Suche lieferte kein passendes Ergebnis"
 
 #, fuzzy
 msgid "Search settings"
@@ -6983,9 +6753,6 @@ msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""
-
-msgid "Slack Accounts"
-msgstr "Slack Accounts"
 
 #, fuzzy
 msgid "Slack Management"
@@ -7507,10 +7274,6 @@ msgid "Subnet Group updated!"
 msgstr "Gruppe aktualisiert"
 
 #, fuzzy
-msgid "Subnet Groups"
-msgstr "Gruppen exportieren"
-
-#, fuzzy
 msgid "Subnets"
 msgstr "Gruppen exportieren"
 
@@ -7661,9 +7424,6 @@ msgstr "Task Status erfolgreich aktualisiert"
 msgid "Task State Updated!"
 msgstr "Task Status aktualisiert!"
 
-msgid "Task States"
-msgstr "Task Status"
-
 msgid "Task Type"
 msgstr "Task-Typ"
 
@@ -7713,9 +7473,6 @@ msgstr "Task-Typ ist nicht gültig"
 
 msgid "Task Type is not valid"
 msgstr "Task-Typ ist nicht gültig"
-
-msgid "Task Types"
-msgstr "Task-Typen"
 
 #, fuzzy
 msgid "Task failed"
@@ -7824,12 +7581,6 @@ msgstr "Die Einstellung 'ist Masterknoten' definiert,"
 msgid "The API is disabled"
 msgstr "Standard ist deaktiviert"
 
-msgid "The CA certificate path is too long (255 characters max)"
-msgstr ""
-
-msgid "The CA certificate path must be absolute"
-msgstr ""
-
 #, fuzzy
 msgid "The CA private key is not on this server"
 msgstr "Es gibt keine Gruppen auf diesem Server."
@@ -7848,9 +7599,6 @@ msgstr "Temporäre Datei konnte nicht gelesen werden."
 #, fuzzy
 msgid "The FOG account for this identity no longer exists"
 msgstr "läuft nicht mehr"
-
-msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
-msgstr ""
 
 msgid "The ID token carries no subject"
 msgstr ""
@@ -7891,9 +7639,6 @@ msgid "The archive is larger than the %s limit."
 msgstr ""
 
 msgid "The archive must hold exactly one plugin directory."
-msgstr ""
-
-msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
 #, fuzzy
@@ -7964,9 +7709,6 @@ msgstr ""
 
 msgid "The issuer must be a full URL"
 msgstr ""
-
-msgid "The key will be assigned to registered hosts when a"
-msgstr "Der Schlüssel wird registrierten Hosts zugewiesen, wenn"
 
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
@@ -8164,9 +7906,6 @@ msgstr ""
 msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
 msgstr ""
 
-msgid "This is especially useful if you have multiple"
-msgstr "Dies ist besonders nützlich, wenn Sie mehrere Standorte "
-
 #, fuzzy
 msgid "This is not the master for this group"
 msgstr "Dies ist nicht die primäre Gruppe"
@@ -8221,10 +7960,6 @@ msgstr "IP(s) dieses Servers"
 msgid "This setting"
 msgstr "Diese Einstellung"
 
-#, fuzzy
-msgid "This setting defines sending the"
-msgstr "Diese Einstellung definiert das Senden"
-
 msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
 msgstr ""
 
@@ -8276,9 +8011,6 @@ msgstr ""
 
 msgid "This would leave no account able to administer FOG."
 msgstr ""
-
-msgid "Those images should be activated with the associated"
-msgstr "Diese Images sollten mit dem zugehörigen Schlüssel"
 
 msgid "Throughput sample."
 msgstr ""
@@ -8743,10 +8475,6 @@ msgid "User Create Success"
 msgstr "Benutzer erfolgreich erstellt"
 
 #, fuzzy
-msgid "User DN"
-msgstr "Benutzer DN"
-
-#, fuzzy
 msgid "User Group"
 msgstr "Gruppen"
 
@@ -8830,9 +8558,6 @@ msgstr "Benutzeraktualisierung erfolgreich!"
 msgid "User added!"
 msgstr "Benutzer hinzugefügt"
 
-msgid "User call is invalid"
-msgstr "Benutzeraufruf ist ungültig"
-
 #, fuzzy
 msgid "User group added!"
 msgstr "Benutzer hinzugefügt"
@@ -8845,9 +8570,6 @@ msgstr "Benutzer-Update fehlgeschlagen"
 msgid "User group updated!"
 msgstr "Benutzer aktualisiert"
 
-msgid "User matched none of the mapped groups"
-msgstr ""
-
 #, fuzzy
 msgid "User not found"
 msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
@@ -8859,10 +8581,6 @@ msgstr "Benutzer-Update fehlgeschlagen"
 #, fuzzy
 msgid "User updated!"
 msgstr "Benutzer aktualisiert"
-
-#, fuzzy
-msgid "User was not authorized by the LDAP server"
-msgstr "Der Benutzer war nicht vom LDAP-Server autorisiert"
 
 #, fuzzy
 msgid "User/Channel"
@@ -8884,15 +8602,8 @@ msgstr ""
 msgid "Username must end with a number or letter."
 msgstr ""
 
-#, fuzzy
-msgid "Username was blank"
-msgstr "Benutzername"
-
 msgid "Users"
 msgstr "Benutzer"
-
-msgid "Using the group match function"
-msgstr "Verwenden der Gruppenübereinstimmungsfunktion,"
 
 msgid "VB Script"
 msgstr ""
@@ -8959,10 +8670,6 @@ msgstr "Wir sind Knoten-ID "
 msgid "We are node name"
 msgstr "Wir sind Knotenname "
 
-#, fuzzy
-msgid "We cannot connect to LDAP server"
-msgstr "Es kann keine Verbindung zum LDAP-Server hergestellt werden."
-
 msgid "Web CA private key"
 msgstr ""
 
@@ -8985,9 +8692,6 @@ msgstr "wurde abgebrochen"
 msgid "What to do next"
 msgstr ""
 
-msgid "When the plugin is removed, the assigned key will remain"
-msgstr "Wenn das Plugin entfernt wird, verbleibt der zugewiesene"
-
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "Wo bekomme ich Hilfe?"
@@ -9004,10 +8708,6 @@ msgstr "Fenstergröße muss größer sein als 1"
 #, fuzzy
 msgid "Windows 10 Professional"
 msgstr "Windows-Schlüssel beschreibung"
-
-#, fuzzy
-msgid "Windows Key"
-msgstr "Windows Keys"
 
 #, fuzzy
 msgid "Windows Key Create Fail"
@@ -9050,15 +8750,8 @@ msgid "Windows Key updated!"
 msgstr "Windows-Schlüssel aktualisiert"
 
 #, fuzzy
-msgid "Windows Keys"
-msgstr "Windows Keys"
-
-#, fuzzy
 msgid "Windows Product key"
 msgstr "Host Produktschlüssel"
-
-msgid "Windows keys is a plugin that associates product keys"
-msgstr "Windows Keys ist ein Plugin, das Produktschlüssel für"
 
 msgid "Wipes"
 msgstr ""
@@ -9182,17 +8875,11 @@ msgstr "vor mir auf diesem Knoten"
 msgid "between"
 msgstr "zwischen"
 
-msgid "between different sites"
-msgstr "Stellen hin und her wechseln."
-
 msgid "blank for default"
 msgstr ""
 
 msgid "boot the client computers"
 msgstr "die Client Computer in den FOG"
-
-msgid "but bind password is not set"
-msgstr "aber das Anmeldekennwort ist nicht festgelegt."
 
 #, fuzzy
 msgid "but has recently failed for this host"
@@ -9234,9 +8921,6 @@ msgstr ""
 
 msgid "day"
 msgstr "Tag"
-
-msgid "deploy task occurs for it"
-msgstr "es eine Verteilungs-Task gibt."
 
 msgid "directive in php.ini"
 msgstr "Richtlinie in der php.ini"
@@ -9307,9 +8991,6 @@ msgstr "Dateigröße"
 msgid "fog-admins"
 msgstr "Domänen-Name"
 
-msgid "for Microsoft Windows to images"
-msgstr "MS Windows den Images zuordnet."
-
 #, fuzzy
 msgid "found"
 msgstr "gefunden"
@@ -9345,14 +9026,6 @@ msgstr "wurde erfolgreich zerstört"
 
 msgid "has been successfully updated"
 msgstr "wurde erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "has completed on"
-msgstr "wurde abgeschlossen"
-
-#, fuzzy
-msgid "has completed snapin tasking"
-msgstr "Ungültiges Snapin-Tasking"
 
 #, fuzzy
 msgid "has failed to destroy"
@@ -9532,10 +9205,6 @@ msgstr ""
 msgid "kernel to boot the client computers"
 msgstr "die Client Computer in den FOG"
 
-#, fuzzy
-msgid "key"
-msgstr "aktiviert werden."
-
 msgid "keys"
 msgstr ""
 
@@ -9548,9 +9217,6 @@ msgstr ""
 
 msgid "limited to 1Mbps on that node"
 msgstr "auf 1 MBit/s begrenzen, "
-
-msgid "location url based on the host that checks in"
-msgstr "der Standort-URL basierend auf dem Host, der eincheckt."
 
 msgid "logged in"
 msgstr ""
@@ -9585,9 +9251,6 @@ msgstr ""
 
 msgid "multipart/form-data, not JSON. Transport only -- no snapin row is created or touched, so this is how a caller pre-stages files to attach later. The field name must be snapinfiles[] even for a single file. Every file is validated before any transfer begins, but a failure part way through a batch leaves the earlier files in place."
 msgstr ""
-
-msgid "multiple places to get your image"
-msgstr "Orte gibt, an denen Sie Ihr Image abrufen können"
 
 #, fuzzy
 msgid "must be specified"
@@ -9747,9 +9410,6 @@ msgstr ""
 msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
-msgid "sites with clients moving back and forth"
-msgstr "mit Clients haben, die zwischen verschiedenen "
-
 #, fuzzy
 msgid "snapin"
 msgstr "Snapin"
@@ -9806,9 +9466,6 @@ msgstr "den folgenden Terminalbefehlen tun"
 #, fuzzy
 msgid "the group has no enabled master node"
 msgstr "Aktualisierung der Speichergruppe fehlgeschlagen"
-
-msgid "the host defined location where available"
-msgstr "Speicherort herunterzuladen, sofern verfügbar."
 
 msgid "the initrd (initial ramdisk) which is alongside the"
 msgstr ""
@@ -9867,9 +9524,6 @@ msgstr "um den angeforderten Kernel herunterzuladen."
 #, fuzzy
 msgid "to get the requested initrd"
 msgstr "um den angeforderten Kernel herunterzuladen."
-
-msgid "to operate in an environment where there may be"
-msgstr "in einer Umgebung arbeiten kann, in der es mehrere"
 
 msgid "to review."
 msgstr "um zu überprüfen."
@@ -9938,13 +9592,6 @@ msgstr "Windows"
 
 msgid "wipe out all of your images stored on"
 msgstr "alle Images auf sämtlichen"
-
-msgid "with status code"
-msgstr ""
-
-#, fuzzy
-msgid "with the host"
-msgstr "Schlüssel beim Host."
 
 #, fuzzy
 msgid "with this group"
@@ -10087,6 +9734,15 @@ msgstr ""
 #~ msgid "Administrator Group"
 #~ msgstr "Admingruppe"
 
+#~ msgid "All methods of binding have failed"
+#~ msgstr "Alle Methoden der Bindung sind fehlgeschlagen"
+
+#~ msgid "Allows editing/creating of Task States fog currently has."
+#~ msgstr "Ermöglicht das Bearbeiten / Erstellen von Taskstatus, die FOG zurzeit hat."
+
+#~ msgid "Allows editing/creating of Task Types fog currently has."
+#~ msgstr "Erlaubt das Bearbeiten/Erstellen von Task-Typen, die der FOG derzeit hat"
+
 #, fuzzy
 #~ msgid "An accesscontrol already exists with this name!"
 #~ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
@@ -10099,12 +9755,42 @@ msgstr ""
 #~ msgid "Bulk Changes"
 #~ msgstr "Änderungen speichern?"
 
+#, fuzzy
+#~ msgid "CA Path"
+#~ msgstr "Pfad"
+
+#, fuzzy
+#~ msgid "Cannot bind to the LDAP server"
+#~ msgstr "Anmeldung am LDAP-Server nicht möglich"
+
+#~ msgid "Capone Deploy"
+#~ msgstr "Capone Verteilung"
+
+#~ msgid "Channel call is invalid"
+#~ msgstr "Kanalaufruf ist ungültig"
+
 #~ msgid "Check that database is running"
 #~ msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
 #, fuzzy
 #~ msgid "Client Module Settings"
 #~ msgstr "Client Einstellungen"
+
+#, fuzzy
+#~ msgid "Could not read the group mappings"
+#~ msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
+#~ msgid "Could not read the recorded grants"
+#~ msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
+#~ msgid "Could not record the granted targets"
+#~ msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
+#~ msgid "Could not seed the granted targets"
+#~ msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 #~ msgid "Create New Accesscontrol"
@@ -10126,6 +9812,14 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
 
+#, fuzzy
+#~ msgid "Default is disabled"
+#~ msgstr "Standard ist deaktiviert"
+
+#, fuzzy
+#~ msgid "Edit Capone ID"
+#~ msgstr "Snapins exportieren"
+
 #~ msgid "Event and data are not set"
 #~ msgstr "Ereignis und Daten sind nicht gesetzt"
 
@@ -10142,6 +9836,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Export LDAPs"
+#~ msgstr "Standorte exportieren"
+
+#, fuzzy
+#~ msgid "Export Locations"
 #~ msgstr "Standorte exportieren"
 
 #~ msgid "Export Printers"
@@ -10188,8 +9886,28 @@ msgstr ""
 #~ msgstr "Ich bin nicht der FOG-Web-Server"
 
 #, fuzzy
+#~ msgid "Filter"
+#~ msgstr "Filter"
+
+#, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "Neustarten"
+
+#, fuzzy
+#~ msgid "Function does not exist"
+#~ msgstr "Methode ist nicht vorhanden"
+
+#, fuzzy
+#~ msgid "Group Location"
+#~ msgstr "Host Standort"
+
+#, fuzzy
+#~ msgid "Group Location Update Success"
+#~ msgstr "Standort erfolgreich aktualisiert"
+
+#, fuzzy
+#~ msgid "Group Location Updated!"
+#~ msgstr "Standort aktualisiert"
 
 #, fuzzy
 #~ msgid "Group Mappings"
@@ -10211,12 +9929,32 @@ msgstr ""
 #~ msgstr "Gruppe aktualisiert"
 
 #, fuzzy
+#~ msgid "Group Update Location Fail"
+#~ msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
 #~ msgid "Group Update Site Fail"
 #~ msgstr "Gruppe aktualisieren fehlgeschlagen"
 
 #, fuzzy
+#~ msgid "Group membership search failed"
+#~ msgstr "Benutzer-Update fehlgeschlagen"
+
+#, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "Gruppeneinstellungen Module"
+
+#, fuzzy, php-format
+#~ msgid "Host %1$s failed imaging %2$s: %3$s"
+#~ msgstr "Dieser Host ist bereits vorhanden."
+
+#, fuzzy, php-format
+#~ msgid "Host %1$s finished capturing image %2$s."
+#~ msgstr "Dieser Host ist bereits vorhanden."
+
+#, fuzzy, php-format
+#~ msgid "Host %1$s finished deploying image %2$s."
+#~ msgstr "Dieser Host ist bereits vorhanden."
 
 #, fuzzy
 #~ msgid "Host Associated"
@@ -10238,6 +9976,17 @@ msgstr ""
 #~ msgid "Host Ext Variable"
 #~ msgstr "Aktualisierung der Rolle fehlgeschlagen"
 
+#~ msgid "Host Location"
+#~ msgstr "Host Standort"
+
+#, fuzzy
+#~ msgid "Host Location Update Success"
+#~ msgstr "Standort erfolgreich aktualisiert"
+
+#, fuzzy
+#~ msgid "Host Location Updated!"
+#~ msgstr "Standort aktualisiert"
+
 #, fuzzy
 #~ msgid "Host Site"
 #~ msgstr "Hostliste"
@@ -10253,6 +10002,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "Host Snapinverlauf"
+
+#, fuzzy
+#~ msgid "Host Update Location Fail"
+#~ msgstr "Host-Update fehlgeschlagen"
 
 #, fuzzy
 #~ msgid "Host Update Site Fail"
@@ -10291,6 +10044,22 @@ msgstr ""
 #~ msgstr "Host aktualisiert!"
 
 #, fuzzy
+#~ msgid "Image Windows Key"
+#~ msgstr "Windows-Schlüssel importieren"
+
+#, fuzzy
+#~ msgid "Image Windows Key Update Fail"
+#~ msgstr "Windows-Schlüssel aktualisieren fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Image Windows Key Update Success"
+#~ msgstr "Windows-Schlüssel erfolgreich aktualisiert"
+
+#, fuzzy
+#~ msgid "Image Windows Key Updated!"
+#~ msgstr "Windows-Schlüssel aktualisiert"
+
+#, fuzzy
 #~ msgid "Import Host Exts"
 #~ msgstr "Hosts importieren"
 
@@ -10299,6 +10068,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Import LDAP Settings"
+#~ msgstr "Standorte importieren"
+
+#, fuzzy
+#~ msgid "Import Locations"
 #~ msgstr "Standorte importieren"
 
 #~ msgid "Import Printers"
@@ -10327,12 +10100,50 @@ msgstr ""
 #~ msgid "Import Storage Nodes"
 #~ msgstr "Alle Speicherknoten"
 
+#, fuzzy
+#~ msgid "Import Subnet Groups"
+#~ msgstr "Gruppen importieren"
+
+#, fuzzy
+#~ msgid "Import Task States"
+#~ msgstr "Taskstatus exportieren"
+
+#, fuzzy
+#~ msgid "Import Task Types"
+#~ msgstr "Task-Typen importieren"
+
 #~ msgid "Import Users"
 #~ msgstr "Benutzer importieren"
 
 #, fuzzy
+#~ msgid "Import Windows Keys"
+#~ msgstr "Windows-Schlüssel importieren"
+
+#, fuzzy
 #~ msgid "Invalid Type"
 #~ msgstr "Ungültiger Typ"
+
+#, fuzzy, php-format
+#~ msgid "Invalid certificate verification level: %s"
+#~ msgstr "Wählen Sie ein gültiges Abbild"
+
+#~ msgid "Invalid method called"
+#~ msgstr "Ungültige Methode aufgerufen"
+
+#~ msgid "It tells the client to download snapins from"
+#~ msgstr "Es weist den Client an, Snapins vom hostdefinierten "
+
+#, fuzzy
+#~ msgid "Key Association"
+#~ msgstr "Site Zugehörigkeit"
+
+#, fuzzy
+#~ msgid "LDAP"
+#~ msgstr "OpenLDAP"
+
+#, fuzzy
+#~ msgid "LDAP Servers"
+#~ msgstr "LDAP-Server"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -10351,11 +10162,37 @@ msgstr ""
 #~ msgstr "Alle %s auflisten"
 
 #, fuzzy
+#~ msgid "List All Task States"
+#~ msgstr "Task Status"
+
+#, fuzzy
+#~ msgid "List All Task Types"
+#~ msgstr "Task-Typen"
+
+#, fuzzy
+#~ msgid "Location Association"
+#~ msgstr "Standort Zugehörigkeiten"
+
+#~ msgid "Location is a plugin that allows your FOG Server"
+#~ msgstr "Standort ist ein Plugin, mit dem Ihr FOG-Server"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "zugeordneter Host"
 
+#, fuzzy
+#~ msgid "NOTE"
+#~ msgstr "HINWEIS"
+
+#, fuzzy
+#~ msgid "Nested group search failed"
+#~ msgstr "Benutzer-Update fehlgeschlagen"
+
 #~ msgid "No FOGPage Class found for this node"
 #~ msgstr "Keine FOGPage-Klasse für diesen Knoten gefunden"
+
+#~ msgid "No access is allowed"
+#~ msgstr "Kein Zugriff erlaubt"
 
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
@@ -10391,8 +10228,15 @@ msgstr ""
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "Bitte geben Sie einen Namen für einen Admin oder einen mobilen Lookup ein."
 
+#, fuzzy
+#~ msgid "Port is not valid ldap/ldaps port"
+#~ msgstr "Dieser Port ist kein gültiger LDAP/LADPS Port"
+
 #~ msgid "Printer Alias"
 #~ msgstr "Drucker-Alias"
+
+#~ msgid "Pushbullet Accounts"
+#~ msgstr "Pushbullet Accounts"
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
@@ -10403,6 +10247,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Remove Selected"
 #~ msgstr "Ausgewählte entfernen?"
+
+#, fuzzy
+#~ msgid "Result"
+#~ msgstr "Ergebnis"
 
 #~ msgid "Results"
 #~ msgstr "Ergebnisse"
@@ -10463,8 +10311,25 @@ msgstr ""
 #~ msgstr "Drucker-Update fehlgeschlagen!"
 
 #, fuzzy
+#~ msgid "Search DN"
+#~ msgstr "Suche DN"
+
+#~ msgid "Search DN did not return any results"
+#~ msgstr "Suche DN hat keine Ergebnisse zurückgegeben"
+
+#, fuzzy
+#~ msgid "Search Method"
+#~ msgstr "Suchmethode"
+
+#~ msgid "Search results returned false"
+#~ msgstr "Die Suche lieferte kein passendes Ergebnis"
+
+#, fuzzy
 #~ msgid "Site Association"
 #~ msgstr "Site Zugehörigkeit"
+
+#~ msgid "Slack Accounts"
+#~ msgstr "Slack Accounts"
 
 #, fuzzy
 #~ msgid "Snapin Created"
@@ -10478,8 +10343,18 @@ msgstr ""
 #~ msgid "Storage Node Associated"
 #~ msgstr "Speicherknoten erstellt"
 
+#, fuzzy
+#~ msgid "Subnet Groups"
+#~ msgstr "Gruppen exportieren"
+
 #~ msgid "Successful"
 #~ msgstr "Erfolgreich"
+
+#~ msgid "Task States"
+#~ msgstr "Task Status"
+
+#~ msgid "Task Types"
+#~ msgstr "Task-Typen"
 
 #, fuzzy
 #~ msgid "Task is not an imaging task"
@@ -10492,6 +10367,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Dieser Host ist bereits vorhanden."
+
+#~ msgid "The key will be assigned to registered hosts when a"
+#~ msgstr "Der Schlüssel wird registrierten Hosts zugewiesen, wenn"
 
 #, fuzzy
 #~ msgid "There are no "
@@ -10509,9 +10387,19 @@ msgstr ""
 #~ msgid "There are no snapins on this server"
 #~ msgstr "Es gibt keine Snapins auf diesem Server."
 
+#~ msgid "This is especially useful if you have multiple"
+#~ msgstr "Dies ist besonders nützlich, wenn Sie mehrere Standorte "
+
 #, fuzzy
 #~ msgid "This server is not a master node"
 #~ msgstr " | Dies ist nicht der Master-Knoten"
+
+#, fuzzy
+#~ msgid "This setting defines sending the"
+#~ msgstr "Diese Einstellung definiert das Senden"
+
+#~ msgid "Those images should be activated with the associated"
+#~ msgstr "Diese Images sollten mit dem zugehörigen Schlüssel"
 
 #~ msgid "Total Rows"
 #~ msgstr "Zeilen gesamt"
@@ -10535,6 +10423,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Drucker Aktualisieren/Entfernen"
+
+#, fuzzy
+#~ msgid "User DN"
+#~ msgstr "Benutzer DN"
 
 #, fuzzy
 #~ msgid "User Group Site"
@@ -10580,6 +10472,38 @@ msgstr ""
 #~ msgid "User Site Updated!"
 #~ msgstr "Site aktualisiert!"
 
+#~ msgid "User call is invalid"
+#~ msgstr "Benutzeraufruf ist ungültig"
+
+#, fuzzy
+#~ msgid "User was not authorized by the LDAP server"
+#~ msgstr "Der Benutzer war nicht vom LDAP-Server autorisiert"
+
+#, fuzzy
+#~ msgid "Username was blank"
+#~ msgstr "Benutzername"
+
+#~ msgid "Using the group match function"
+#~ msgstr "Verwenden der Gruppenübereinstimmungsfunktion,"
+
+#, fuzzy
+#~ msgid "We cannot connect to LDAP server"
+#~ msgstr "Es kann keine Verbindung zum LDAP-Server hergestellt werden."
+
+#~ msgid "When the plugin is removed, the assigned key will remain"
+#~ msgstr "Wenn das Plugin entfernt wird, verbleibt der zugewiesene"
+
+#, fuzzy
+#~ msgid "Windows Key"
+#~ msgstr "Windows Keys"
+
+#, fuzzy
+#~ msgid "Windows Keys"
+#~ msgstr "Windows Keys"
+
+#~ msgid "Windows keys is a plugin that associates product keys"
+#~ msgstr "Windows Keys ist ein Plugin, das Produktschlüssel für"
+
 #, fuzzy
 #~ msgid "You have version"
 #~ msgstr "Sie haben Version"
@@ -10595,24 +10519,67 @@ msgstr ""
 #~ msgid "before me"
 #~ msgstr "vor mir"
 
+#~ msgid "between different sites"
+#~ msgstr "Stellen hin und her wechseln."
+
 #~ msgid "but"
 #~ msgstr "aber "
+
+#~ msgid "but bind password is not set"
+#~ msgstr "aber das Anmeldekennwort ist nicht festgelegt."
 
 #, fuzzy
 #~ msgid "completed imaging"
 #~ msgstr "Abgeschlossen"
 
+#~ msgid "deploy task occurs for it"
+#~ msgstr "es eine Verteilungs-Task gibt."
+
 #~ msgid "e.g."
 #~ msgstr "z.B."
+
+#~ msgid "for Microsoft Windows to images"
+#~ msgstr "MS Windows den Images zuordnet."
+
+#, fuzzy
+#~ msgid "has completed on"
+#~ msgstr "wurde abgeschlossen"
+
+#, fuzzy
+#~ msgid "has completed snapin tasking"
+#~ msgstr "Ungültiges Snapin-Tasking"
+
+#, fuzzy
+#~ msgid "key"
+#~ msgstr "aktiviert werden."
+
+#~ msgid "location url based on the host that checks in"
+#~ msgstr "der Standort-URL basierend auf dem Host, der eincheckt."
 
 #, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "Aktive Multicast-Tasks"
 
+#~ msgid "multiple places to get your image"
+#~ msgstr "Orte gibt, an denen Sie Ihr Image abrufen können"
+
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Keine Datenbank zum"
 
+#~ msgid "sites with clients moving back and forth"
+#~ msgstr "mit Clients haben, die zwischen verschiedenen "
+
+#~ msgid "the host defined location where available"
+#~ msgstr "Speicherort herunterzuladen, sofern verfügbar."
+
+#~ msgid "to operate in an environment where there may be"
+#~ msgstr "in einer Umgebung arbeiten kann, in der es mehrere"
+
 #, fuzzy
 #~ msgid "version"
 #~ msgstr "Version"
+
+#, fuzzy
+#~ msgid "with the host"
+#~ msgstr "Schlüssel beim Host."
