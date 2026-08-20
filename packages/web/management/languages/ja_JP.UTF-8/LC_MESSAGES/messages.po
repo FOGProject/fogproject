@@ -693,6 +693,9 @@ msgstr "ホストに同じイメージが割り当てられていません"
 msgid "All items imported successfully"
 msgstr "項目を正常に削除しました！"
 
+msgid "All methods of binding have failed"
+msgstr "すべてのバインド方法に失敗しました"
+
 #, fuzzy
 msgid "All ports must be numeric, greater than 0, and less than 65536"
 msgstr "帯域幅は 0 より大きい数値で指定してください"
@@ -702,6 +705,12 @@ msgstr ""
 
 msgid "Allow API"
 msgstr ""
+
+msgid "Allows editing/creating of Task States fog currently has."
+msgstr "現在 FOG に登録されているタスク状態の編集および作成を許可します。"
+
+msgid "Allows editing/creating of Task Types fog currently has."
+msgstr "現在 FOG に登録されているタスクタイプの編集および作成を許可します。"
 
 msgid "Already created"
 msgstr "既に作成されています"
@@ -1004,6 +1013,10 @@ msgid "CA Certificate Path"
 msgstr "新しいロケーションを作成"
 
 #, fuzzy
+msgid "CA Path"
+msgstr "パス"
+
+#, fuzzy
 msgid "CA private key"
 msgstr "秘密鍵の処理に失敗しました"
 
@@ -1102,6 +1115,9 @@ msgstr "キャンセルされたタスク"
 msgid "Cancelled due to new tasking."
 msgstr "新しいタスクによりキャンセルされました。"
 
+msgid "Cannot bind to the LDAP server"
+msgstr "LDAP サーバーにバインドできません"
+
 msgid "Cannot change image when in tasking"
 msgstr "タスク実行中はイメージを変更できません"
 
@@ -1144,6 +1160,9 @@ msgstr "スナップインの作成に失敗しました"
 #, fuzzy
 msgid "Capone Create Success"
 msgstr "スナップインを作成しました"
+
+msgid "Capone Deploy"
+msgstr "Capone 展開"
 
 #, fuzzy
 msgid "Capone Management"
@@ -1221,6 +1240,9 @@ msgstr ""
 
 msgid "Channel"
 msgstr ""
+
+msgid "Channel call is invalid"
+msgstr "チャネル呼び出しが無効です"
 
 #, fuzzy
 msgid "Channel not found"
@@ -1435,7 +1457,22 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not read snapin file"
 msgstr "スナップインファイルを読み取れませんでした"
 
+msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
+msgstr ""
+
+#, fuzzy
+msgid "Could not read the group mappings"
+msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+msgid "Could not read the recorded grants"
+msgstr "一時ファイルを読み取れませんでした。"
+
 msgid "Could not read tmp file."
+msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+msgid "Could not record the granted targets"
 msgstr "一時ファイルを読み取れませんでした。"
 
 msgid "Could not register"
@@ -1444,6 +1481,10 @@ msgstr "登録できませんでした"
 #, php-format
 msgid "Could not replace the existing %s. Is %s writable?"
 msgstr ""
+
+#, fuzzy
+msgid "Could not seed the granted targets"
+msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not send data from file"
@@ -1767,6 +1808,9 @@ msgstr "既定の更新レート"
 msgid "Default Width"
 msgstr "既定の幅"
 
+msgid "Default is disabled"
+msgstr "既定では無効です"
+
 #, fuzzy
 msgid "Default nested group depth"
 msgstr "更新できません"
@@ -1829,6 +1873,9 @@ msgstr "ダウンロードに失敗しました"
 
 msgid "Deploy Method"
 msgstr "展開方法"
+
+msgid "Depth"
+msgstr ""
 
 msgid "Description"
 msgstr "説明"
@@ -1991,6 +2038,10 @@ msgid "Edit Capone"
 msgstr "ノードを編集"
 
 #, fuzzy
+msgid "Edit Capone ID"
+msgstr "ノードを編集"
+
+#, fuzzy
 msgid "Editing Capone ID"
 msgstr "ノードを編集"
 
@@ -2011,6 +2062,10 @@ msgstr ""
 #, fuzzy
 msgid "Enable Domain Joining"
 msgstr "ロケーション送信を有効化"
+
+#, fuzzy
+msgid "Enable Sending via Location"
+msgstr "スナップインロケーション"
 
 msgid "Enable on all hosts"
 msgstr ""
@@ -2148,6 +2203,9 @@ msgstr "構成をエクスポート"
 #, fuzzy
 msgid "Export LDAP Servers"
 msgstr "LDAP サーバー"
+
+msgid "Export Locations"
+msgstr "ロケーションをエクスポート"
 
 #, fuzzy
 msgid "Export OUs"
@@ -2469,6 +2527,9 @@ msgstr "ストレージノードの破棄に失敗しました"
 msgid "Files Deleted List"
 msgstr "ルールの削除に失敗しました"
 
+msgid "Filter"
+msgstr "フィルター"
+
 msgid "Finding any images associated"
 msgstr "関連付けられたイメージを検索しています"
 
@@ -2571,6 +2632,9 @@ msgstr "関数"
 #, fuzzy
 msgid "Function Error"
 msgstr "関数"
+
+msgid "Function does not exist"
+msgstr "関数が存在しません"
 
 msgid "GNU General Public License"
 msgstr "GNU General Public License"
@@ -2733,6 +2797,18 @@ msgid "Group Kernel Arguments"
 msgstr "グループカーネル引数"
 
 #, fuzzy
+msgid "Group Location"
+msgstr "グループの関連付け"
+
+#, fuzzy
+msgid "Group Location Update Success"
+msgstr "ロケーションを更新しました"
+
+#, fuzzy
+msgid "Group Location Updated!"
+msgstr "ロケーションを更新しました！"
+
+#, fuzzy
 msgid "Group Login History"
 msgstr "ログイン履歴"
 
@@ -2801,6 +2877,10 @@ msgid "Group Update Fail"
 msgstr "グループの更新に失敗しました"
 
 #, fuzzy
+msgid "Group Update Location Fail"
+msgstr "グループの更新に失敗しました"
+
+#, fuzzy
 msgid "Group Update OU Fail"
 msgstr "グループの更新に失敗しました"
 
@@ -2812,6 +2892,10 @@ msgstr "グループを追加しました！"
 
 msgid "Group is not valid"
 msgstr "グループが無効です"
+
+#, fuzzy
+msgid "Group membership search failed"
+msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Group update failed!"
 msgstr "グループの更新に失敗しました！"
@@ -2935,6 +3019,18 @@ msgstr "ホーム"
 msgid "Host"
 msgstr "ホスト"
 
+#, fuzzy, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr "このホストは既に存在します"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr "このホストは既に存在します"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr "このホストは既に存在します"
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "承認に成功しました"
@@ -3012,6 +3108,17 @@ msgstr "ホストカーネル引数"
 msgid "Host List"
 msgstr "ホスト一覧"
 
+msgid "Host Location"
+msgstr "ホスト ロケーション"
+
+#, fuzzy
+msgid "Host Location Update Success"
+msgstr "ロケーションを更新しました"
+
+#, fuzzy
+msgid "Host Location Updated!"
+msgstr "ロケーションを更新しました！"
+
 msgid "Host Login History"
 msgstr "ホストログイン履歴"
 
@@ -3065,6 +3172,10 @@ msgid "Host Snapin History"
 msgstr "ホストスナップイン履歴"
 
 msgid "Host Update Fail"
+msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+msgid "Host Update Location Fail"
 msgstr "ホストの更新に失敗しました"
 
 #, fuzzy
@@ -3357,6 +3468,22 @@ msgstr "イメージを更新しました"
 msgid "Image Used"
 msgstr "使用中のイメージ"
 
+#, fuzzy
+msgid "Image Windows Key"
+msgstr "新しい Windows キー"
+
+#, fuzzy
+msgid "Image Windows Key Update Fail"
+msgstr "Windows キーの更新に失敗しました"
+
+#, fuzzy
+msgid "Image Windows Key Update Success"
+msgstr "Windows キーの更新に成功しました"
+
+#, fuzzy
+msgid "Image Windows Key Updated!"
+msgstr "Windows キーを更新しました！"
+
 msgid "Image added!"
 msgstr "イメージを追加しました！"
 
@@ -3458,6 +3585,9 @@ msgstr "データベースをインポート"
 msgid "Import Failed"
 msgstr "インポートに失敗しました"
 
+msgid "Import Locations"
+msgstr "ロケーションをインポート"
+
 #, fuzzy
 msgid "Import OUs"
 msgstr "ユーザーをインポート"
@@ -3474,11 +3604,24 @@ msgid "Import Reports"
 msgstr "レポートをインポート"
 
 #, fuzzy
+msgid "Import Subnet Groups"
+msgstr "サブネットグループをインポート"
+
+#, fuzzy
 msgid "Import Succeeded"
 msgstr "インポートに成功しました"
 
 msgid "Import Succeeded With Warnings"
 msgstr ""
+
+msgid "Import Task States"
+msgstr "タスク状態をインポート"
+
+msgid "Import Task Types"
+msgstr "タスクタイプをインポート"
+
+msgid "Import Windows Keys"
+msgstr "Windows キーをインポート"
 
 #, fuzzy
 msgid "Import a new Plugin"
@@ -3662,6 +3805,10 @@ msgstr "無効な URL"
 msgid "Invalid Windows product key"
 msgstr "指定されたプロダクトキーが無効です"
 
+#, fuzzy, php-format
+msgid "Invalid certificate verification level: %s"
+msgstr "有効な LDAP ポートを選択してください"
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
@@ -3700,6 +3847,9 @@ msgstr "要求されたキーが無効です"
 
 msgid "Invalid key being set"
 msgstr "設定しようとしているキーが無効です"
+
+msgid "Invalid method called"
+msgstr "無効なメソッドが呼び出されました"
 
 msgid "Invalid path"
 msgstr "無効なパス"
@@ -3811,6 +3961,9 @@ msgstr "ユーザー名は 41 文字未満で指定してください"
 msgid "It operates by getting the max bandwidth setting of the node"
 msgstr "ノードの最大帯域幅設定を取得して動作します"
 
+msgid "It tells the client to download snapins from"
+msgstr "クライアントに次の場所からスナップインをダウンロードするよう指示します"
+
 #, fuzzy
 msgid "It will operate based on the fields the area typcially requires."
 msgstr "通常その領域で必要とされるフィールドに基づいて動作します"
@@ -3855,6 +4008,10 @@ msgstr "ロケーションからのカーネル/Init"
 msgid "Key"
 msgstr "キー"
 
+#, fuzzy
+msgid "Key Association"
+msgstr "ルールの関連付け"
+
 msgid "Key field must be a string"
 msgstr "キーフィールドは文字列で指定してください"
 
@@ -3876,6 +4033,10 @@ msgstr ""
 
 msgid "Kill"
 msgstr "強制終了"
+
+#, fuzzy
+msgid "LDAP"
+msgstr "OpenLDAP"
 
 #, fuzzy
 msgid "LDAP Connection  Name"
@@ -3986,6 +4147,9 @@ msgstr "LDAP サーバーを更新しました！"
 msgid "LDAP Server updated!"
 msgstr "LDAP サーバーを更新しました！"
 
+msgid "LDAP Servers"
+msgstr "LDAP サーバー"
+
 msgid "Language"
 msgstr "言語"
 
@@ -4018,6 +4182,9 @@ msgstr "各ホストの現在の値を維持する場合は、フィールドを
 #, fuzzy
 msgid "Leave blank to keep the current password"
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
+msgid "Level"
+msgstr ""
 
 msgid "Level must be an integer"
 msgstr "レベルは整数である必要があります"
@@ -4077,6 +4244,14 @@ msgid "List All Plugins"
 msgstr "プラグインをインストール"
 
 #, fuzzy
+msgid "List All Task States"
+msgstr "タスク状態"
+
+#, fuzzy
+msgid "List All Task Types"
+msgstr "タスクタイプ"
+
+#, fuzzy
 msgid "List Available Plugins"
 msgstr "インストール済みプラグイン"
 
@@ -4102,6 +4277,9 @@ msgstr "フィールドにデータを読み込んでいます"
 
 msgid "Location"
 msgstr "ロケーション"
+
+msgid "Location Association"
+msgstr "ロケーションの関連付け"
 
 msgid "Location Create Fail"
 msgstr "ロケーションの作成に失敗しました"
@@ -4131,6 +4309,9 @@ msgstr "ロケーションを更新しました"
 
 msgid "Location added!"
 msgstr "ロケーションを追加しました！"
+
+msgid "Location is a plugin that allows your FOG Server"
+msgstr "ロケーションは、FOG サーバーで利用できるプラグインです"
 
 msgid "Location update failed!"
 msgstr "ロケーションの更新に失敗しました！"
@@ -4504,6 +4685,9 @@ msgstr "名前"
 msgid "NOT"
 msgstr "NOT"
 
+msgid "NOTE"
+msgstr "注意"
+
 #, fuzzy
 msgid "NOTE: Forums are the most command fastest method of getting help with any aspect of FOG."
 msgstr "フォーラムは、最も一般的で迅速なサポートを受ける方法です"
@@ -4538,9 +4722,16 @@ msgstr "新しいキーは文字列である必要があります"
 msgid "Nested depth must be between 0 and 100, or blank to inherit"
 msgstr "ユーザー名は 41 文字未満で指定してください"
 
+msgid "Nested group depth cap reached, so group membership may be incomplete"
+msgstr ""
+
 #, fuzzy
 msgid "Nested group depth must be between 1 and 100"
 msgstr "ユーザー名は 41 文字未満で指定してください"
+
+#, fuzzy
+msgid "Nested group search failed"
+msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Network Information"
 msgstr "ネットワーク情報"
@@ -4609,6 +4800,9 @@ msgstr "イメージが指定されていません"
 
 msgid "No Printer Management"
 msgstr "プリンター管理なし"
+
+msgid "No access is allowed"
+msgstr "アクセスは許可されていません"
 
 #, fuzzy
 msgid "No active task found for this host"
@@ -5468,6 +5662,9 @@ msgstr ""
 msgid "Port"
 msgstr "ポート"
 
+msgid "Port is not valid ldap/ldaps port"
+msgstr "ポートは有効な ldap/ldaps ポートではありません"
+
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -5680,6 +5877,9 @@ msgstr "プリンターを更新しました！"
 msgid "Providers"
 msgstr ""
 
+msgid "Pushbullet Accounts"
+msgstr "Pushbullet アカウント"
+
 msgid "Pushbullet Management"
 msgstr "Pushbullet 管理"
 
@@ -5870,6 +6070,9 @@ msgstr ""
 #, php-format
 msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
 msgstr ""
+
+msgid "Result"
+msgstr "結果"
 
 msgid "Resume Reload"
 msgstr ""
@@ -6102,15 +6305,27 @@ msgstr "検索"
 msgid "Search Base DN"
 msgstr "検索ベース DN"
 
+msgid "Search DN"
+msgstr "検索 DN"
+
+msgid "Search DN did not return any results"
+msgstr "検索 DN は結果を返しませんでした"
+
 #, fuzzy
 msgid "Search Key"
 msgstr "検索"
+
+msgid "Search Method"
+msgstr "検索方法"
 
 msgid "Search Scope"
 msgstr "検索範囲"
 
 msgid "Search every class at once"
 msgstr ""
+
+msgid "Search results returned false"
+msgstr "検索結果が false を返しました"
 
 #, fuzzy
 msgid "Search settings"
@@ -6469,6 +6684,9 @@ msgstr ""
 
 msgid "Skipping, will need manual removal"
 msgstr ""
+
+msgid "Slack Accounts"
+msgstr "Slack アカウント"
 
 msgid "Slack Management"
 msgstr "Slack 管理"
@@ -6955,6 +7173,9 @@ msgstr "サブネットグループの更新に失敗しました！"
 msgid "Subnet Group updated!"
 msgstr "サブネットグループを更新しました！"
 
+msgid "Subnet Groups"
+msgstr "サブネットグループ"
+
 msgid "Subnets"
 msgstr "サブネット"
 
@@ -7093,6 +7314,9 @@ msgstr "タスク状態を更新しました"
 msgid "Task State Updated!"
 msgstr "タスク状態を更新しました！"
 
+msgid "Task States"
+msgstr "タスク状態"
+
 msgid "Task Type"
 msgstr "タスクタイプ"
 
@@ -7135,6 +7359,9 @@ msgstr "タスクタイプが無効です"
 
 msgid "Task Type is not valid"
 msgstr "タスクタイプが無効です"
+
+msgid "Task Types"
+msgstr "タスクタイプ"
 
 #, fuzzy
 msgid "Task failed"
@@ -7239,6 +7466,12 @@ msgstr "「マスターノード」設定は、どのノードを"
 msgid "The API is disabled"
 msgstr "既定では無効です"
 
+msgid "The CA certificate path is too long (255 characters max)"
+msgstr ""
+
+msgid "The CA certificate path must be absolute"
+msgstr ""
+
 #, fuzzy
 msgid "The CA private key is not on this server"
 msgstr "このサーバーにはグループがありません"
@@ -7257,6 +7490,9 @@ msgstr "強制終了できませんでした"
 #, fuzzy
 msgid "The FOG account for this identity no longer exists"
 msgstr "選択したプリンターを追加"
+
+msgid "The FOG schema update must be run before this plugin can be updated: users.uAuthSource does not exist yet."
+msgstr ""
 
 msgid "The ID token carries no subject"
 msgstr ""
@@ -7297,6 +7533,9 @@ msgid "The archive is larger than the %s limit."
 msgstr ""
 
 msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
+msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
 #, fuzzy
@@ -7365,6 +7604,9 @@ msgstr ""
 
 msgid "The issuer must be a full URL"
 msgstr ""
+
+msgid "The key will be assigned to registered hosts when a"
+msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
@@ -7559,6 +7801,9 @@ msgstr "これは一度だけ実行されるタスクであり、現在実行さ
 msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
 msgstr ""
 
+msgid "This is especially useful if you have multiple"
+msgstr "複数ある場合に特に便利です"
+
 msgid "This is not the master for this group"
 msgstr "このグループのマスターノードではありません"
 
@@ -7609,6 +7854,9 @@ msgstr "このサーバーの IP アドレス"
 
 msgid "This setting"
 msgstr "この設定"
+
+msgid "This setting defines sending the"
+msgstr "この設定では送信方法を定義します"
 
 msgid "This setting defines the number of items to display when listing/searching elements. The default value is 10."
 msgstr ""
@@ -7661,6 +7909,9 @@ msgstr ""
 
 msgid "This would leave no account able to administer FOG."
 msgstr ""
+
+msgid "Those images should be activated with the associated"
+msgstr "これらのイメージは関連付けられた"
 
 msgid "Throughput sample."
 msgstr ""
@@ -8113,6 +8364,9 @@ msgstr "ユーザーの作成に失敗しました"
 msgid "User Create Success"
 msgstr "ユーザーの作成に成功しました"
 
+msgid "User DN"
+msgstr "ユーザー DN"
+
 #, fuzzy
 msgid "User Group"
 msgstr "グループ"
@@ -8193,6 +8447,9 @@ msgstr "ユーザーの更新に成功しました"
 msgid "User added!"
 msgstr "ユーザーを追加しました！"
 
+msgid "User call is invalid"
+msgstr "無効なユーザー呼び出しです"
+
 #, fuzzy
 msgid "User group added!"
 msgstr "ユーザーを追加しました！"
@@ -8205,6 +8462,9 @@ msgstr "ユーザーの更新に失敗しました！"
 msgid "User group updated!"
 msgstr "ユーザーを更新しました！"
 
+msgid "User matched none of the mapped groups"
+msgstr ""
+
 #, fuzzy
 msgid "User not found"
 msgstr "レコードが見つかりません"
@@ -8214,6 +8474,9 @@ msgstr "ユーザーの更新に失敗しました！"
 
 msgid "User updated!"
 msgstr "ユーザーを更新しました！"
+
+msgid "User was not authorized by the LDAP server"
+msgstr "LDAP サーバーでユーザー認証に失敗しました"
 
 #, fuzzy
 msgid "User/Channel"
@@ -8237,8 +8500,15 @@ msgstr "ユーザー名は 3 文字以上で指定してください"
 msgid "Username must end with a number or letter."
 msgstr "ユーザー名は英数字またはアンダースコアで開始する必要があります"
 
+#, fuzzy
+msgid "Username was blank"
+msgstr "ユーザー名"
+
 msgid "Users"
 msgstr "ユーザー"
+
+msgid "Using the group match function"
+msgstr "グループ照合機能を使用しています"
 
 msgid "VB Script"
 msgstr ""
@@ -8299,6 +8569,9 @@ msgstr "現在のノード ID"
 msgid "We are node name"
 msgstr "現在のノード名"
 
+msgid "We cannot connect to LDAP server"
+msgstr "LDAP サーバーに接続できません"
+
 msgid "Web CA private key"
 msgstr ""
 
@@ -8321,6 +8594,9 @@ msgstr "強制終了されました"
 msgid "What to do next"
 msgstr ""
 
+msgid "When the plugin is removed, the assigned key will remain"
+msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
@@ -8337,6 +8613,9 @@ msgstr "ウィンドウサイズは 1 より大きい必要があります"
 #, fuzzy
 msgid "Windows 10 Professional"
 msgstr "Windows キー全般"
+
+msgid "Windows Key"
+msgstr "Windows キー"
 
 msgid "Windows Key Create Fail"
 msgstr "Windows キーの作成に失敗しました"
@@ -8369,9 +8648,15 @@ msgstr "Windows キーを更新しました！"
 msgid "Windows Key updated!"
 msgstr "Windows キーを更新しました！"
 
+msgid "Windows Keys"
+msgstr "Windows キー"
+
 #, fuzzy
 msgid "Windows Product key"
 msgstr "ホスト プロダクトキー"
+
+msgid "Windows keys is a plugin that associates product keys"
+msgstr "Windows キーは、プロダクトキーを関連付けるプラグインです"
 
 msgid "Wipes"
 msgstr ""
@@ -8492,12 +8777,18 @@ msgstr "このノードで自分より前"
 msgid "between"
 msgstr "～の間"
 
+msgid "between different sites"
+msgstr "異なるサイト間"
+
 #, fuzzy
 msgid "blank for default"
 msgstr "空欄の場合は既定値"
 
 msgid "boot the client computers"
 msgstr "クライアントコンピューターを起動"
+
+msgid "but bind password is not set"
+msgstr "ただし、バインドパスワードが設定されていません"
 
 msgid "but has recently failed for this host"
 msgstr "ただし、このホストでは最近失敗しています"
@@ -8531,6 +8822,9 @@ msgstr ""
 
 msgid "day"
 msgstr "日"
+
+msgid "deploy task occurs for it"
+msgstr "展開タスクが実行されたとき"
 
 msgid "directive in php.ini"
 msgstr "php.ini のディレクティブ"
@@ -8598,6 +8892,9 @@ msgstr "ファイルサイズ"
 msgid "fog-admins"
 msgstr "ドメイン名"
 
+msgid "for Microsoft Windows to images"
+msgstr "Microsoft Windows 用にイメージへ"
+
 msgid "found"
 msgstr "見つかりました"
 
@@ -8629,6 +8926,14 @@ msgstr "正常に削除されました"
 
 msgid "has been successfully updated"
 msgstr "正常に更新されました"
+
+#, fuzzy
+msgid "has completed on"
+msgstr "完了しました"
+
+#, fuzzy
+msgid "has completed snapin tasking"
+msgstr "スナップインタスクが完了しました。"
 
 msgid "has failed to destroy"
 msgstr "削除に失敗しました"
@@ -8796,6 +9101,9 @@ msgstr ""
 msgid "kernel to boot the client computers"
 msgstr "クライアントコンピューターを起動するためのカーネル"
 
+msgid "key"
+msgstr "キー"
+
 msgid "keys"
 msgstr ""
 
@@ -8809,6 +9117,9 @@ msgstr ""
 
 msgid "limited to 1Mbps on that node"
 msgstr "そのノードで 1 Mbps に制限されます"
+
+msgid "location url based on the host that checks in"
+msgstr "チェックインしたホストに基づくロケーション URL"
 
 msgid "logged in"
 msgstr "ログイン済み"
@@ -8839,6 +9150,9 @@ msgstr ""
 
 msgid "multipart/form-data, not JSON. Transport only -- no snapin row is created or touched, so this is how a caller pre-stages files to attach later. The field name must be snapinfiles[] even for a single file. Every file is validated before any transfer begins, but a failure part way through a batch leaves the earlier files in place."
 msgstr ""
+
+msgid "multiple places to get your image"
+msgstr "イメージの取得元が複数ある"
 
 msgid "must be specified"
 msgstr "指定する必要があります"
@@ -8993,6 +9307,9 @@ msgstr ""
 msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
+msgid "sites with clients moving back and forth"
+msgstr "クライアントが行き来する複数のサイト"
+
 msgid "snapin"
 msgstr "スナップイン"
 
@@ -9045,6 +9362,9 @@ msgstr "ターミナルで次のコマンドを実行してください"
 #, fuzzy
 msgid "the group has no enabled master node"
 msgstr "ストレージグループに到達可能なマスターノードがありません"
+
+msgid "the host defined location where available"
+msgstr "利用可能な場合は、ホストで定義されたロケーション"
 
 #, fuzzy
 msgid "the initrd (initial ramdisk) which is alongside the"
@@ -9099,6 +9419,9 @@ msgstr "要求されたカーネルを取得するため"
 #, fuzzy
 msgid "to get the requested initrd"
 msgstr "要求された Initrd を取得するため"
+
+msgid "to operate in an environment where there may be"
+msgstr "次のような環境でも動作できるように"
 
 msgid "to review."
 msgstr "確認してください。"
@@ -9163,6 +9486,12 @@ msgstr "ウィンドウ"
 
 msgid "wipe out all of your images stored on"
 msgstr "保存されているすべてのイメージを削除します"
+
+msgid "with status code"
+msgstr ""
+
+msgid "with the host"
+msgstr "ホストと"
 
 msgid "with this group"
 msgstr "このグループと"
@@ -9357,17 +9686,8 @@ msgstr ""
 #~ msgid "All Pending MACs approved"
 #~ msgstr "保留中のすべての MAC アドレスを承認しました"
 
-#~ msgid "All methods of binding have failed"
-#~ msgstr "すべてのバインド方法に失敗しました"
-
 #~ msgid "All snapins"
 #~ msgstr "すべてのスナップイン"
-
-#~ msgid "Allows editing/creating of Task States fog currently has."
-#~ msgstr "現在 FOG に登録されているタスク状態の編集および作成を許可します。"
-
-#~ msgid "Allows editing/creating of Task Types fog currently has."
-#~ msgstr "現在 FOG に登録されているタスクタイプの編集および作成を許可します。"
 
 #~ msgid "Although there are multiple levels already"
 #~ msgstr "既に複数のレベルがありますが"
@@ -9423,18 +9743,11 @@ msgstr ""
 #~ msgid "Boot Exit settings"
 #~ msgstr "ブート終了設定"
 
-#, fuzzy
-#~ msgid "CA Path"
-#~ msgstr "パス"
-
 #~ msgid "Cannot add Primary mac as additional mac"
 #~ msgstr "プライマリ MAC アドレスを追加 MAC アドレスとして追加できません"
 
 #~ msgid "Cannot add a pre-existing primary mac"
 #~ msgstr "既存のプライマリ MAC アドレスを追加できません"
-
-#~ msgid "Cannot bind to the LDAP server"
-#~ msgstr "LDAP サーバーにバインドできません"
 
 #~ msgid "Cannot cancel tasks this way"
 #~ msgstr "この方法ではタスクをキャンセルできません"
@@ -9447,12 +9760,6 @@ msgstr ""
 
 #~ msgid "Cannot view from browser"
 #~ msgstr "ブラウザーから表示できません"
-
-#~ msgid "Capone Deploy"
-#~ msgstr "Capone 展開"
-
-#~ msgid "Channel call is invalid"
-#~ msgstr "チャネル呼び出しが無効です"
 
 #~ msgid "Chat is also available on the forums for more realtime help"
 #~ msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"
@@ -9520,22 +9827,6 @@ msgstr ""
 #~ msgid "Conflicting path/file"
 #~ msgstr "競合するパス/ファイル"
 
-#, fuzzy
-#~ msgid "Could not read the group mappings"
-#~ msgstr "一時ファイルを読み取れませんでした。"
-
-#, fuzzy
-#~ msgid "Could not read the recorded grants"
-#~ msgstr "一時ファイルを読み取れませんでした。"
-
-#, fuzzy
-#~ msgid "Could not record the granted targets"
-#~ msgstr "一時ファイルを読み取れませんでした。"
-
-#, fuzzy
-#~ msgid "Could not seed the granted targets"
-#~ msgstr "一時ファイルを読み取れませんでした。"
-
 #~ msgid "Create New Access Control Role"
 #~ msgstr "新しいアクセス制御ロールを作成"
 
@@ -9594,9 +9885,6 @@ msgstr ""
 #~ msgid "Date of checkout"
 #~ msgstr "貸出日"
 
-#~ msgid "Default is disabled"
-#~ msgstr "既定では無効です"
-
 #~ msgid "Default log out time (in minutes)"
 #~ msgstr "既定のログアウト時間（分）"
 
@@ -9645,10 +9933,6 @@ msgstr ""
 #~ msgid "ESC is defaulted"
 #~ msgstr "ESC が既定です"
 
-#, fuzzy
-#~ msgid "Edit Capone ID"
-#~ msgstr "ノードを編集"
-
 #~ msgid "Edit Host"
 #~ msgstr "ホストを編集"
 
@@ -9666,10 +9950,6 @@ msgstr ""
 
 #~ msgid "Enable Nested Group Matching (Active Directory only)"
 #~ msgstr "ネストされたグループ照合を有効化（Active Directory のみ）"
-
-#, fuzzy
-#~ msgid "Enable Sending via Location"
-#~ msgstr "スナップインロケーション"
 
 #~ msgid "End Date"
 #~ msgstr "終了日"
@@ -9745,9 +10025,6 @@ msgstr ""
 
 #~ msgid "Export LDAPs"
 #~ msgstr "LDAP をエクスポート"
-
-#~ msgid "Export Locations"
-#~ msgstr "ロケーションをエクスポート"
 
 #~ msgid "Export PDF"
 #~ msgstr "PDF をエクスポート"
@@ -9874,9 +10151,6 @@ msgstr ""
 #~ msgid "Filesize"
 #~ msgstr "ファイルサイズ"
 
-#~ msgid "Filter"
-#~ msgstr "フィルター"
-
 #~ msgid "For example, a GPO policy to push"
 #~ msgstr "たとえば、配布するための GPO ポリシー"
 
@@ -9895,9 +10169,6 @@ msgstr ""
 #~ msgid "Full Inventory Export"
 #~ msgstr "完全なインベントリをエクスポート"
 
-#~ msgid "Function does not exist"
-#~ msgstr "関数が存在しません"
-
 #~ msgid "Generate"
 #~ msgstr "生成"
 
@@ -9909,18 +10180,6 @@ msgstr ""
 
 #~ msgid "Group FOG Client Module configuration"
 #~ msgstr "グループ FOG クライアントモジュール設定"
-
-#, fuzzy
-#~ msgid "Group Location"
-#~ msgstr "グループの関連付け"
-
-#, fuzzy
-#~ msgid "Group Location Update Success"
-#~ msgstr "ロケーションを更新しました"
-
-#, fuzzy
-#~ msgid "Group Location Updated!"
-#~ msgstr "ロケーションを更新しました！"
 
 #, fuzzy
 #~ msgid "Group Mappings"
@@ -9951,19 +10210,11 @@ msgstr ""
 #~ msgstr "サイトを更新しました！"
 
 #, fuzzy
-#~ msgid "Group Update Location Fail"
-#~ msgstr "グループの更新に失敗しました"
-
-#, fuzzy
 #~ msgid "Group Update Site Fail"
 #~ msgstr "グループの更新に失敗しました"
 
 #~ msgid "Group general"
 #~ msgstr "グループ全般"
-
-#, fuzzy
-#~ msgid "Group membership search failed"
-#~ msgstr "ユーザーの更新に失敗しました！"
 
 #~ msgid "Groups are not allowed to schedule upload tasks"
 #~ msgstr "グループではアップロードタスクをスケジュールできません"
@@ -10007,10 +10258,6 @@ msgstr ""
 #~ msgid "Home Phone"
 #~ msgstr "自宅電話番号"
 
-#, fuzzy, php-format
-#~ msgid "Host %1$s failed imaging %2$s: %3$s"
-#~ msgstr "このホストは既に存在します"
-
 #~ msgid "Host AD Domain"
 #~ msgstr "ホスト AD ドメイン"
 
@@ -10031,17 +10278,6 @@ msgstr ""
 
 #~ msgid "Host Listing Export"
 #~ msgstr "ホスト一覧をエクスポート"
-
-#~ msgid "Host Location"
-#~ msgstr "ホスト ロケーション"
-
-#, fuzzy
-#~ msgid "Host Location Update Success"
-#~ msgstr "ロケーションを更新しました"
-
-#, fuzzy
-#~ msgid "Host Location Updated!"
-#~ msgstr "ロケーションを更新しました！"
 
 #~ msgid "Host MAC"
 #~ msgstr "ホスト MAC アドレス"
@@ -10083,10 +10319,6 @@ msgstr ""
 
 #~ msgid "Host Unassociated Snapins"
 #~ msgstr "ホストに関連付けられていないスナップイン"
-
-#, fuzzy
-#~ msgid "Host Update Location Fail"
-#~ msgstr "ホストの更新に失敗しました"
 
 #, fuzzy
 #~ msgid "Host Update Site Fail"
@@ -10170,22 +10402,6 @@ msgstr ""
 #~ msgid "Image Size: ON SERVER"
 #~ msgstr "イメージサイズ: サーバー上"
 
-#, fuzzy
-#~ msgid "Image Windows Key"
-#~ msgstr "新しい Windows キー"
-
-#, fuzzy
-#~ msgid "Image Windows Key Update Fail"
-#~ msgstr "Windows キーの更新に失敗しました"
-
-#, fuzzy
-#~ msgid "Image Windows Key Update Success"
-#~ msgstr "Windows キーの更新に成功しました"
-
-#, fuzzy
-#~ msgid "Image Windows Key Updated!"
-#~ msgstr "Windows キーを更新しました！"
-
 #~ msgid "Image to DMI Mappings"
 #~ msgstr "イメージと DMI のマッピング"
 
@@ -10216,27 +10432,11 @@ msgstr ""
 #~ msgid "Import LDAPs"
 #~ msgstr "LDAP をインポート"
 
-#~ msgid "Import Locations"
-#~ msgstr "ロケーションをインポート"
-
 #~ msgid "Import Printers"
 #~ msgstr "プリンターをインポート"
 
 #~ msgid "Import Sites"
 #~ msgstr "サイトをインポート"
-
-#, fuzzy
-#~ msgid "Import Subnet Groups"
-#~ msgstr "サブネットグループをインポート"
-
-#~ msgid "Import Task States"
-#~ msgstr "タスク状態をインポート"
-
-#~ msgid "Import Task Types"
-#~ msgstr "タスクタイプをインポート"
-
-#~ msgid "Import Windows Keys"
-#~ msgstr "Windows キーをインポート"
 
 #~ msgid "Included Items"
 #~ msgstr "含まれる項目"
@@ -10274,10 +10474,6 @@ msgstr ""
 #~ msgid "Invalid Type"
 #~ msgstr "無効なタイプ"
 
-#, fuzzy, php-format
-#~ msgid "Invalid certificate verification level: %s"
-#~ msgstr "有効な LDAP ポートを選択してください"
-
 #~ msgid "Invalid data found"
 #~ msgstr "無効なデータが見つかりました"
 
@@ -10286,9 +10482,6 @@ msgstr ""
 
 #~ msgid "Invalid image assigned to host"
 #~ msgstr "ホストに割り当てられたイメージが無効です"
-
-#~ msgid "Invalid method called"
-#~ msgstr "無効なメソッドが呼び出されました"
 
 #~ msgid "Invalid numeric entry"
 #~ msgstr "無効な数値入力です"
@@ -10323,9 +10516,6 @@ msgstr ""
 #~ msgid "It is primarily geared for the smart installer methodology now"
 #~ msgstr "現在は主にスマートインストーラー方式向けに設計されています"
 
-#~ msgid "It tells the client to download snapins from"
-#~ msgstr "クライアントに次の場所からスナップインをダウンロードするよう指示します"
-
 #~ msgid "Items must be an array"
 #~ msgstr "項目は配列である必要があります"
 
@@ -10338,25 +10528,14 @@ msgstr ""
 #~ msgid "Kernel Name"
 #~ msgstr "カーネル名"
 
-#, fuzzy
-#~ msgid "Key Association"
-#~ msgstr "ルールの関連付け"
-
 #~ msgid "Key Name"
 #~ msgstr "キー名"
 
 #~ msgid "Key must be a string"
 #~ msgstr "キーは文字列で指定してください"
 
-#, fuzzy
-#~ msgid "LDAP"
-#~ msgstr "OpenLDAP"
-
 #~ msgid "LDAP General"
 #~ msgstr "LDAP 全般"
-
-#~ msgid "LDAP Servers"
-#~ msgstr "LDAP サーバー"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -10377,14 +10556,6 @@ msgstr ""
 #~ msgid "Linux"
 #~ msgstr "Linux"
 
-#, fuzzy
-#~ msgid "List All Task States"
-#~ msgstr "タスク状態"
-
-#, fuzzy
-#~ msgid "List All Task Types"
-#~ msgstr "タスクタイプ"
-
 #, php-format
 #~ msgid "List all roles"
 #~ msgstr "すべてのロールを一覧表示"
@@ -10392,14 +10563,8 @@ msgstr ""
 #~ msgid "Load MAC Vendors"
 #~ msgstr "MAC ベンダーを読み込み"
 
-#~ msgid "Location Association"
-#~ msgstr "ロケーションの関連付け"
-
 #~ msgid "Location General"
 #~ msgstr "ロケーション全般"
-
-#~ msgid "Location is a plugin that allows your FOG Server"
-#~ msgstr "ロケーションは、FOG サーバーで利用できるプラグインです"
 
 #~ msgid "Location/Deployed"
 #~ msgstr "ロケーション/展開済み"
@@ -10504,9 +10669,6 @@ msgstr ""
 #~ msgid "Must use an"
 #~ msgstr "次を使用する必要があります"
 
-#~ msgid "NOTE"
-#~ msgstr "注意"
-
 #~ msgid "NOTICE"
 #~ msgstr "通知"
 
@@ -10518,10 +10680,6 @@ msgstr ""
 
 #~ msgid "Needs action string of ask, get, or list"
 #~ msgstr "action には ask、get、list のいずれかの文字列が必要です"
-
-#, fuzzy
-#~ msgid "Nested group search failed"
-#~ msgstr "ユーザーの更新に失敗しました！"
 
 #~ msgid "New Client and Utilities"
 #~ msgstr "新しいクライアントとユーティリティ"
@@ -10582,9 +10740,6 @@ msgstr ""
 
 #~ msgid "No Site"
 #~ msgstr "サイトなし"
-
-#~ msgid "No access is allowed"
-#~ msgstr "アクセスは許可されていません"
 
 #~ msgid "No complete time recorded"
 #~ msgstr "完了時刻は記録されていません"
@@ -10822,9 +10977,6 @@ msgstr ""
 #~ msgid "Please wait until a slot is open"
 #~ msgstr "空きスロットができるまでお待ちください"
 
-#~ msgid "Port is not valid ldap/ldaps port"
-#~ msgstr "ポートは有効な ldap/ldaps ポートではありません"
-
 #~ msgid "Postfix requires an action of login, logout, or start to operate"
 #~ msgstr "Postfix を動作させるには login、logout、または start アクションが必要です"
 
@@ -10845,9 +10997,6 @@ msgstr ""
 
 #~ msgid "Printer name already exists"
 #~ msgstr "このプリンター名は既に存在します"
-
-#~ msgid "Pushbullet Accounts"
-#~ msgstr "Pushbullet アカウント"
 
 #~ msgid "Quarantine"
 #~ msgstr "隔離"
@@ -10921,9 +11070,6 @@ msgstr ""
 #~ msgid "Requires templates to process"
 #~ msgstr "処理するテンプレートが必要です"
 
-#~ msgid "Result"
-#~ msgstr "結果"
-
 #~ msgid "Results"
 #~ msgstr "結果"
 
@@ -10988,20 +11134,8 @@ msgstr ""
 #~ msgid "Schedule with shutdown"
 #~ msgstr "シャットダウンを含めてスケジュール"
 
-#~ msgid "Search DN"
-#~ msgstr "検索 DN"
-
-#~ msgid "Search DN did not return any results"
-#~ msgstr "検索 DN は結果を返しませんでした"
-
-#~ msgid "Search Method"
-#~ msgstr "検索方法"
-
 #~ msgid "Search pattern"
 #~ msgstr "検索パターン"
-
-#~ msgid "Search results returned false"
-#~ msgstr "検索結果が false を返しました"
 
 #~ msgid "Select Image"
 #~ msgstr "イメージを選択"
@@ -11071,9 +11205,6 @@ msgstr ""
 
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
-
-#~ msgid "Slack Accounts"
-#~ msgstr "Slack アカウント"
 
 #~ msgid "Snapin Args"
 #~ msgstr "スナップイン引数"
@@ -11150,9 +11281,6 @@ msgstr ""
 #~ msgid "Storage Node update failed!"
 #~ msgstr "ストレージノードの更新に失敗しました！"
 
-#~ msgid "Subnet Groups"
-#~ msgstr "サブネットグループ"
-
 #~ msgid "SubnetGroup General"
 #~ msgstr "サブネットグループ全般"
 
@@ -11177,14 +11305,8 @@ msgstr ""
 #~ msgid "Task State General"
 #~ msgstr "タスク状態全般"
 
-#~ msgid "Task States"
-#~ msgstr "タスク状態"
-
 #~ msgid "Task Type General"
 #~ msgstr "タスクタイプ全般"
-
-#~ msgid "Task Types"
-#~ msgstr "タスクタイプ"
 
 #~ msgid "Task forced to start"
 #~ msgstr "タスクを強制開始しました"
@@ -11220,9 +11342,6 @@ msgstr ""
 
 #~ msgid "The following errors occurred"
 #~ msgstr "次のエラーが発生しました"
-
-#~ msgid "The key will be assigned to registered hosts when a"
-#~ msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
 #~ msgid "The old client is what was distributed with"
 #~ msgstr "旧クライアントは次のバージョンまで配布されていました"
@@ -11261,9 +11380,6 @@ msgstr ""
 
 #~ msgid "This file will only work on Windows"
 #~ msgstr "このファイルは Windows でのみ使用できます"
-
-#~ msgid "This is especially useful if you have multiple"
-#~ msgstr "複数ある場合に特に便利です"
 
 #~ msgid "This is ipxe script commands to operate with"
 #~ msgstr "iPXE を制御するためのスクリプトコマンドです"
@@ -11326,14 +11442,8 @@ msgstr ""
 #~ msgid "This server is not a master node"
 #~ msgstr "| これはマスターノードではありません"
 
-#~ msgid "This setting defines sending the"
-#~ msgstr "この設定では送信方法を定義します"
-
 #~ msgid "This setting turns off all FOG Printer Management"
 #~ msgstr "この設定は FOG のプリンター管理機能をすべて無効にします"
-
-#~ msgid "Those images should be activated with the associated"
-#~ msgstr "これらのイメージは関連付けられた"
 
 #~ msgid "Timeout"
 #~ msgstr "タイムアウト"
@@ -11425,9 +11535,6 @@ msgstr ""
 #~ msgid "User Change Password"
 #~ msgstr "ユーザーパスワードを変更"
 
-#~ msgid "User DN"
-#~ msgstr "ユーザー DN"
-
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"
 
@@ -11469,14 +11576,8 @@ msgstr ""
 #~ msgid "User Tracking"
 #~ msgstr "ユーザー追跡"
 
-#~ msgid "User call is invalid"
-#~ msgstr "無効なユーザー呼び出しです"
-
 #~ msgid "User name"
 #~ msgstr "ユーザー名"
-
-#~ msgid "User was not authorized by the LDAP server"
-#~ msgstr "LDAP サーバーでユーザー認証に失敗しました"
 
 #~ msgid "User/Channel to post to"
 #~ msgstr "投稿先のユーザー/Channel"
@@ -11486,13 +11587,6 @@ msgstr ""
 
 #~ msgid "Username does not meet requirements"
 #~ msgstr "ユーザー名が要件を満たしていません"
-
-#, fuzzy
-#~ msgid "Username was blank"
-#~ msgstr "ユーザー名"
-
-#~ msgid "Using the group match function"
-#~ msgstr "グループ照合機能を使用しています"
 
 #~ msgid "Valid Host Colors"
 #~ msgstr "有効なホストカラー"
@@ -11524,26 +11618,11 @@ msgstr ""
 #~ msgid "Wake on lan?"
 #~ msgstr "Wake on LAN を実行しますか？"
 
-#~ msgid "We cannot connect to LDAP server"
-#~ msgstr "LDAP サーバーに接続できません"
-
 #~ msgid "Web root"
 #~ msgstr "Web ルート"
 
-#~ msgid "When the plugin is removed, the assigned key will remain"
-#~ msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
-
-#~ msgid "Windows Key"
-#~ msgstr "Windows キー"
-
 #~ msgid "Windows Key for Image"
 #~ msgstr "イメージ用 Windows キー"
-
-#~ msgid "Windows Keys"
-#~ msgstr "Windows キー"
-
-#~ msgid "Windows keys is a plugin that associates product keys"
-#~ msgstr "Windows キーは、プロダクトキーを関連付けるプラグインです"
 
 #~ msgid "Working with node"
 #~ msgstr "ノードを処理しています"
@@ -11609,12 +11688,6 @@ msgstr ""
 #~ msgid "before me"
 #~ msgstr "自分より前"
 
-#~ msgid "between different sites"
-#~ msgstr "異なるサイト間"
-
-#~ msgid "but bind password is not set"
-#~ msgstr "ただし、バインドパスワードが設定されていません"
-
 #, fuzzy
 #~ msgid "completed imaging"
 #~ msgstr "イメージ処理が完了しました。"
@@ -11634,9 +11707,6 @@ msgstr ""
 #~ msgid "deleted"
 #~ msgstr "削除済み"
 
-#~ msgid "deploy task occurs for it"
-#~ msgstr "展開タスクが実行されたとき"
-
 #~ msgid "download the module and use it on the next"
 #~ msgstr "モジュールをダウンロードし、次回以降に使用します"
 
@@ -11649,9 +11719,6 @@ msgstr ""
 #~ msgid "faster"
 #~ msgstr "高速"
 
-#~ msgid "for Microsoft Windows to images"
-#~ msgstr "Microsoft Windows 用にイメージへ"
-
 #~ msgid "for the advanced menu parameters"
 #~ msgstr "詳細メニューパラメーター用"
 
@@ -11660,14 +11727,6 @@ msgstr ""
 
 #~ msgid "has been started on port"
 #~ msgstr "次のポートで開始されました"
-
-#, fuzzy
-#~ msgid "has completed on"
-#~ msgstr "完了しました"
-
-#, fuzzy
-#~ msgid "has completed snapin tasking"
-#~ msgstr "スナップインタスクが完了しました。"
 
 #~ msgid "help with any aspect of FOG"
 #~ msgstr "FOG に関するあらゆるサポート"
@@ -11717,12 +11776,6 @@ msgstr ""
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
 
-#~ msgid "key"
-#~ msgstr "キー"
-
-#~ msgid "location url based on the host that checks in"
-#~ msgstr "チェックインしたホストに基づくロケーション URL"
-
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"
 
@@ -11741,9 +11794,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "マルチキャストタスク"
-
-#~ msgid "multiple places to get your image"
-#~ msgstr "イメージの取得元が複数ある"
 
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
@@ -11788,9 +11838,6 @@ msgstr ""
 #~ msgid "see the forums or lookup the commands and scripts available"
 #~ msgstr "フォーラムを参照するか、利用可能なコマンドやスクリプトを確認してください"
 
-#~ msgid "sites with clients moving back and forth"
-#~ msgstr "クライアントが行き来する複数のサイト"
-
 #~ msgid "successfully removed!"
 #~ msgstr "正常に削除しました！"
 
@@ -11805,9 +11852,6 @@ msgstr ""
 
 #~ msgid "the base FOG install"
 #~ msgstr "FOG の基本インストール"
-
-#~ msgid "the host defined location where available"
-#~ msgstr "利用可能な場合は、ホストで定義されたロケーション"
 
 #~ msgid "the main and the host"
 #~ msgstr "メイン設定とホスト設定"
@@ -11826,9 +11870,6 @@ msgstr ""
 
 #~ msgid "to be booted if no keys are pressed when the menu is"
 #~ msgstr "メニュー表示中にキーが押されなかった場合に起動する"
-
-#~ msgid "to operate in an environment where there may be"
-#~ msgstr "次のような環境でも動作できるように"
 
 #~ msgid "to signify if this is a user or channel to send to"
 #~ msgstr "送信先がユーザーかチャンネルかを指定します"
@@ -11853,9 +11894,6 @@ msgstr ""
 
 #~ msgid "with modules and config"
 #~ msgstr "モジュールと構成を含めて"
-
-#~ msgid "with the host"
-#~ msgstr "ホストと"
 
 #~ msgid "would you like to install it now"
 #~ msgstr "今すぐインストールしますか？"
