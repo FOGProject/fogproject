@@ -9,15 +9,15 @@
  * that only the GENERATING server understands ships as DDL that every other
  * server must execute -- and cannot.
  *
- * That is not hypothetical. MariaDB 11.4 changed the DEFAULT collation for
+ * That is not hypothetical. Recent MariaDB changed the DEFAULT collation for
  * the Unicode charsets to the UCA-14.0.0 family, so a table created there
  * without an explicit COLLATE gets utf8mb3_uca1400_ai_ci and SHOW CREATE
- * TABLE prints it back explicitly. Regenerating the manifest on an 11.4 box
- * therefore baked utf8mb3_uca1400_ai_ci into the thirteen newest tables
- * (roles, sites and the grant/member tables) while the fifty-four older ones
- * kept utf8mb3_general_ci. On any server below 11.4 -- and on every version
- * of MySQL, which has never had these collations -- the reconciler's CREATE
- * TABLE died with:
+ * TABLE prints it back explicitly. Regenerating the manifest on such a box
+ * baked utf8mb3_uca1400_ai_ci into the thirteen newest tables (roles, sites
+ * and the grant/member tables) while the fifty-four older ones kept
+ * utf8mb3_general_ci. On any server below the boundary -- and on every
+ * version of MySQL, which has never had these collations -- the reconciler's
+ * CREATE TABLE died with:
  *
  *     1273 Unknown collation: 'utf8mb3_uca1400_ai_ci'
  *
@@ -40,6 +40,23 @@
  * naming what is allowed is both shorter and complete. Adding a collation
  * here is a deliberate act that should be argued for in review, which is the
  * point.
+ *
+ * WHERE THE BOUNDARY ACTUALLY IS. It was first written down here as 11.4;
+ * that was wrong, and GH-1152 inherited the error. Measured against real
+ * servers by scripts/background_scripts/probe_schema_collation_matrix.sh,
+ * with `CREATE TABLE t (a INT) ENGINE=InnoDB DEFAULT CHARSET=utf8`:
+ *
+ *     MariaDB 10.5.29     utf8_general_ci
+ *     MariaDB 11.4.12     utf8mb3_general_ci
+ *     MariaDB 11.8.8      utf8mb3_uca1400_ai_ci   <- boundary is here
+ *     MariaDB 12.3.2      utf8mb3_uca1400_ai_ci
+ *     MySQL 8.0.46        utf8mb3_general_ci
+ *     MySQL 8.4.11        utf8mb3_general_ci
+ *
+ * The same probe confirms the other thing GH-1152 flagged as unverified:
+ * `DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci` is accepted by every
+ * one of those servers, 10.5 included, which is what makes the explicit pin
+ * below safe to require everywhere.
  *
  * Textual, not by execution, for the same reason as schema-gate.test.php:
  * commons/schema.php calls self::$DB->query() at file scope and cannot be
@@ -69,6 +86,20 @@ $portable = [
     'utf8mb4_bin',
 ];
 
+/*
+ * Only executed DDL counts, so PHP comments are skipped before anything is
+ * matched. Both checks below would otherwise trip on prose ABOUT the thing
+ * they gate -- schema.php's step 342 has to name both `utf8mb3_uca1400_ai_ci`
+ * and a bare table-level charset in order to explain what it repairs, and a
+ * gate that fires on its own documentation gets worked around rather than
+ * obeyed. A commented-out CREATE TABLE is skipped too, correctly: nothing
+ * executes it.
+ */
+function isComment($line)
+{
+    return (bool)preg_match('#^\s*(//|\*|/\*)#', $line);
+}
+
 $offenders = [];
 foreach ($files as $path) {
     if (!is_readable($path)) {
@@ -77,6 +108,9 @@ foreach ($files as $path) {
     }
     $lines = preg_split('/\r?\n/', file_get_contents($path));
     foreach ($lines as $i => $line) {
+        if (isComment($line)) {
+            continue;
+        }
         // Both spellings the files actually use: the table-level
         // `COLLATE=x` that SHOW CREATE TABLE emits, and the column-level
         // `COLLATE x` written by hand in schema.php.
@@ -117,5 +151,60 @@ if (count($offenders)) {
     exit(1);
 }
 
-echo 'ok  no non-portable collations in ' . count($files) . " schema file(s)\n";
+/*
+ * GH-1152: and every table must SAY which collation it means.
+ *
+ * The check above catches a collation that is named and unportable. This
+ * catches the opposite and quieter failure: a table that names none at all,
+ * and so silently means different things on different servers -- see the
+ * measured matrix in the docblock. A schema split that way stays invisible
+ * until a VARCHAR join crosses it and answers `Illegal mix of collations`.
+ *
+ * Anchored on `DEFAULT CHARSET`, the table-level clause, because that is the
+ * one that gets inherited. Column-level `CHARACTER SET x COLLATE y` in
+ * schema.php is already explicit by construction.
+ */
+$bare = [];
+foreach ($files as $path) {
+    $lines = preg_split('/\r?\n/', file_get_contents($path));
+    foreach ($lines as $i => $line) {
+        if (isComment($line)) {
+            continue;
+        }
+        if (!preg_match_all('/DEFAULT\s+CHARSET\s*=\s*([a-z0-9]+)([^\r\n]*)/i', $line, $m, PREG_SET_ORDER)) {
+            continue;
+        }
+        foreach ($m as $hit) {
+            if (preg_match('/^\s*COLLATE\s*=/i', $hit[2])) {
+                continue;
+            }
+            $bare[] = sprintf(
+                '%s:%d: DEFAULT CHARSET=%s with no COLLATE',
+                str_replace(dirname(__DIR__) . '/', '', $path),
+                $i + 1,
+                $hit[1]
+            );
+        }
+    }
+}
+
+if (count($bare)) {
+    fwrite(
+        STDERR,
+        'FAIL: ' . count($bare) . " table(s) inherit the server default"
+        . " collation:\n"
+        . '  ' . implode("\n  ", $bare) . "\n\n"
+        . "  A bare DEFAULT CHARSET means whatever the server it runs on says\n"
+        . "  it means, and that changed inside MariaDB's supported range. An\n"
+        . "  install upgraded across the boundary then holds some tables at\n"
+        . "  utf8mb3_general_ci and some at utf8mb3_uca1400_ai_ci, with\n"
+        . "  nothing reporting it until a VARCHAR join fails.\n\n"
+        . "  Write DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci, which\n"
+        . "  every supported server accepts -- 10.5 included, measured.\n"
+    );
+    exit(1);
+}
+
+echo 'ok  no non-portable collations, and no inherited ones, in '
+    . count($files) . " schema file(s)\n";
 exit(0);
