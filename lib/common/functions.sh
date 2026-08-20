@@ -1281,7 +1281,12 @@ interface2broadcast() {
     # second address returned two. Take the first, matching the $ipaddress /
     # $ipaddresses contract from GH-954. Empty is a legitimate answer -- a /32
     # or a point-to-point link has no broadcast -- and the caller falls back.
-    ip -4 addr show $interface | grep -oP 'brd \K\S+' | head -1
+    # awk rather than `grep -oP 'brd \K\S+'`: busybox grep has no -P at all,
+    # so on Alpine that printed grep's whole usage screen into the middle of
+    # the install and returned nothing -- the same trap as the -E/-P note in
+    # installPackages. See #863.
+    ip -4 addr show $interface \
+        | awk '{for (i = 1; i < NF; i++) if ($i == "brd") { print $(i + 1); exit }}'
 }
 subtract1fromAddress() {
     local ip=$1
@@ -1894,6 +1899,17 @@ configureFTP() {
                     service vsftpd stop >>$error_log 2>&1
                     service vsftpd start >>$error_log 2>&1
                     service vsftpd status >>$error_log 2>&1
+                    ;;
+                3)
+                    # Alpine fell through to the chkconfig arm below, which
+                    # does not exist there. FTP is not optional -- it is how
+                    # the client uploads a capture and how storage nodes
+                    # replicate -- so the step reported OK and imaging failed
+                    # later, a long way from the cause. See #863.
+                    rc-update add vsftpd default >>$error_log 2>&1
+                    rc-service vsftpd stop >>$error_log 2>&1
+                    rc-service vsftpd start >>$error_log 2>&1
+                    rc-service vsftpd status >>$error_log 2>&1
                     ;;
                 *)
                     chkconfig vsftpd on >>$error_log 2>&1
@@ -2711,6 +2727,11 @@ configureTFTPandPXE() {
                 $initdpath/xinetd stop >>$error_log 2>&1
                 $initdpath/xinetd start >>$error_log 2>&1
             elif [[ $osid -eq 3 ]]; then
+                # rc-update, not just start: without it TFTP is running when
+                # the install finishes and gone after the first reboot, so PXE
+                # stops at "PXE-E32: TFTP open timeout" on a server nobody has
+                # touched since it worked. See #863.
+                rc-update add in.tftpd default >>$error_log 2>&1
                 $initdpath/in.tftpd stop >>$error_log 2>&1
                 $initdpath/in.tftpd start >>$error_log 2>&1
             else
@@ -3642,16 +3663,21 @@ displayOSChoices() {
                 echo
                 echo "          1) Redhat Based Linux (Redhat, Alma, Rocky, CentOS, Mageia)"
                 echo "          2) Debian Based Linux (Debian, Ubuntu, Kubuntu, Edubuntu)"
-                # Alpine is listed honestly as incomplete rather than as a peer
-                # of the two above. Its package list now resolves, and MariaDB,
-                # nginx, php-fpm and TFTP all have OpenRC handling, as do FOG's
-                # own eight daemons -- packages/init.d/alpine ships them and
-                # they are installed, started and stopped by direct
-                # /etc/init.d invocation. What is missing is narrower but still
-                # real: nothing runs rc-update for those eight, so they do not
-                # survive a reboot, and vsftpd, DHCP and NFS fall through to
-                # chkconfig/service arms that do not exist on Alpine. See #863.
-                echo "          3) Alpine Linux (experimental, some services not wired for OpenRC)"
+                # An Alpine install now completes end to end, and every
+                # service it configures -- MariaDB, nginx, php-fpm, TFTP, FTP,
+                # rpcbind, NFS, Kea and FOG's own nine daemons -- is enrolled
+                # with rc-update and comes back after a reboot (#863). Before
+                # that it could not install at all: the MariaDB SERVER was
+                # never selected, and four of those services fell through to
+                # chkconfig/service arms Alpine does not have while the
+                # installer reported OK for every one of them.
+                #
+                # It keeps the experimental label on coverage, not on known
+                # breakage. Alpine is musl and BusyBox where every other
+                # supported host is glibc and GNU coreutils, which is a
+                # genuinely different failure surface, and it has been
+                # exercised on one release on one machine.
+                echo "          3) Alpine Linux (experimental)"
                 echo "          4) Arch Based Linux (Arch, Manjaro)"
                 echo
                 echo -n "  Choice: [$strSuggestedOS] "
@@ -3803,6 +3829,23 @@ enableInitScript() {
                                 ;;
                         esac
                         ;;
+                    3)
+                        # Alpine is OpenRC: neither chkconfig nor sysv-rc-conf
+                        # exists, so this case matched nothing at all. An
+                        # unmatched `case` exits 0 and the errorStat below then
+                        # printed OK -- so the install reported nine daemons as
+                        # enabled while none of them had been. They were only
+                        # ever started by hand from startInitScript, and the
+                        # server came back from a reboot serving the web UI
+                        # with no scheduler, replicator or multicast. See #863.
+                        #
+                        # The runlevel is named rather than left to default to
+                        # the current one: an install run from a rescue or
+                        # single-user shell would otherwise enrol the daemons
+                        # in a runlevel that never comes up on boot.
+                        dots "Enabling $serviceItem Service"
+                        rc-update add $serviceItem default >>$error_log 2>&1
+                        ;;
                 esac
                 ;;
         esac
@@ -3843,6 +3886,22 @@ installInitScript() {
         sed -i "s|FOGWEBUSER|${apacheuser}|g" \
             "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
     done
+    # Alpine's OpenRC scripts name FOGPHPBIN as the interpreter; resolve it to
+    # the php binary this host actually has. Alpine ships no unversioned "php"
+    # -- both the package and the executable are php8x -- so the daemons'
+    # own "#!/usr/bin/php -q" shebang cannot work there, and the systemd
+    # units' "/usr/bin/env php" would not either. Same "rewrite the INSTALLED
+    # copy, never the source" reasoning as the two substitutions above.
+    # See #863.
+    if [[ $osid -eq 3 ]]; then
+        local fogphpbin
+        fogphpbin=$(command -v "php${php_apk}" 2>/dev/null) \
+            || fogphpbin=$(command -v php 2>/dev/null)
+        for unitfile in $initdsrc/*; do
+            sed -i "s|FOGPHPBIN|${fogphpbin}|g" \
+                "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
+        done
+    fi
     # Guarded: on Alpine and other non-systemd hosts systemctl does not exist,
     # and the old `cp && systemctl daemon-reload` chain made errorStat report
     # this step as Failed purely because the reload could not run.
@@ -3901,8 +3960,17 @@ configureMySql() {
     # of them alias names rather than the real unit. The fallback is the
     # fresh-install path: the primary lookup only sees units already running, and
     # RedHat-family packages do not auto-start the DB.
-    dbunits=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
-    [[ -z $dbunits ]] && dbunits=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    # Guarded on $systemctl: these two ran unconditionally, so every Alpine
+    # install printed "systemctl: command not found" twice onto the console in
+    # the middle of the database step. Harmless in itself -- $dbservice is
+    # overwritten just below for osid 3 -- but it is the first thing an
+    # operator sees go wrong, and it goes to the terminal rather than the error
+    # log. See #863.
+    dbunits=""
+    if [[ $systemctl == yes ]]; then
+        dbunits=$(systemctl list-units | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+        [[ -z $dbunits ]] && dbunits=$(systemctl list-unit-files | grep -v bad | grep -o -e "mariadb\.service" -e "mysqld\.service" -e "mysql\.service" | tr -d '@')
+    fi
     # Preference is explicit because grep cannot express it -- `-e` order does not
     # rank matches, it just reports whichever appeared first in the input. Real
     # unit first, aliases after.
@@ -4199,6 +4267,17 @@ EOF
                     $initdpath/rpcbind start >>$error_log 2>&1
                     $initdpath/rpcbind status >>$error_log 2>&1
                     ;;
+                3)
+                    # This case had a single arm, so Alpine matched nothing and
+                    # the errorStat that follows printed OK for a step that did
+                    # not run. NFS is what FOS mounts to read an image, so the
+                    # visible symptom was a deploy failing at mount time on a
+                    # server whose install said RPCBind was started. See #863.
+                    rc-update add rpcbind default >>$error_log 2>&1
+                    rc-service rpcbind stop >>$error_log 2>&1
+                    rc-service rpcbind start >>$error_log 2>&1
+                    rc-service rpcbind status >>$error_log 2>&1
+                    ;;
             esac
         fi
         errorStat $?
@@ -4221,6 +4300,17 @@ EOF
                         sysv-rc-conf $nfsItem on >>$error_log 2>&1
                         $initdpath/nfs-kernel-server stop >>$error_log 2>&1
                         $initdpath/nfs-kernel-server start >>$error_log 2>&1
+                        ;;
+                    3)
+                        # $nfsservice is a candidate list and the loop breaks on
+                        # the first name that works; Alpine's nfs-utils-openrc
+                        # calls it "nfs", which is the last of the three. No
+                        # osid 3 arm meant no candidate ever ran. See #863.
+                        [[ ! -x $initdpath/$nfsItem ]] && continue
+                        rc-update add $nfsItem default >>$error_log 2>&1
+                        rc-service $nfsItem stop >>$error_log 2>&1
+                        rc-service $nfsItem start >>$error_log 2>&1
+                        rc-service $nfsItem status >>$error_log 2>&1
                         ;;
                 esac
             fi
@@ -7124,14 +7214,19 @@ _vhostCertPath() {
     # require whitespace immediately after the directive name, and those two
     # continue with '_' and 'K'. SSLCertificateChainFile is excluded for the
     # same reason -- it is the chain, not the leaf.
-    grep -aoiE '^[[:space:]]*(SSLCertificateFile|ssl_certificate)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
+    # -oiE, not -aoiE. busybox grep has no -a either (see getBroadcastAddress),
+    # so on Alpine both of these printed a usage screen and returned nothing --
+    # which made _servedCertName and _detectExternalCertManagement blind to the
+    # live vhost. -a only ever mattered for a config file containing a NUL, and
+    # a vhost that is not text is a broken vhost. See #863.
+    grep -oiE '^[[:space:]]*(SSLCertificateFile|ssl_certificate)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
         | awk '{print $NF}' | head -1
 }
 # The private-key path the live vhost names, or empty. Companion to
 # _vhostCertPath(); kept separate because the two directives differ per server.
 _vhostKeyPath() {
     [[ -n $etcconf && -f $etcconf ]] || return 0
-    grep -aoiE '^[[:space:]]*(SSLCertificateKeyFile|ssl_certificate_key)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
+    grep -oiE '^[[:space:]]*(SSLCertificateKeyFile|ssl_certificate_key)[[:space:]]+[^;[:space:]]+' "$etcconf" 2>/dev/null \
         | awk '{print $NF}' | head -1
 }
 # The vhost's primary name and its alias list, for both web servers.
@@ -7241,10 +7336,25 @@ _detectExternalCertManagement() {
     #    Same reasoning as _createWebLeaf()'s own check.
     leaf="$vhostcert"
     [[ -n $leaf && -f $leaf ]] || leaf="$sslpubcert"
+    #    The leaf file is passed as its own -untrusted source as well. openssl
+    #    verify reads only the FIRST certificate out of the file under test and
+    #    ignores the rest, so a fullchain -- which is what nginx must be pointed
+    #    at, and what _writeWebChainFiles produces -- was checked without the
+    #    intermediate it carries. That only mattered while $sslcachain was
+    #    empty, but $sslcachain is settled LATER in this same function and
+    #    arrives from .fogsettings, which an install that died before
+    #    writeUpdateFile never wrote. Re-running such an install therefore
+    #    reached this test with a FOG-issued fullchain and no intermediate to
+    #    check it against, concluded the admin managed the certificate, and
+    #    recorded acmeLeaf="yes" permanently -- after which FOG stops
+    #    re-issuing or re-keying its own web certificate. Found while getting
+    #    an Alpine install to complete (#863); nothing about it is Alpine
+    #    specific.
     if [[ -n $leaf && -f $leaf && -n $rootCAPem && -f $rootCAPem ]] \
         && command -v openssl >/dev/null 2>&1; then
         if ! openssl verify -trusted "$rootCAPem" \
-            ${sslcachain:+-untrusted "$sslcachain"} "$leaf" >/dev/null 2>&1; then
+            ${sslcachain:+-untrusted "$sslcachain"} -untrusted "$leaf" \
+            "$leaf" >/dev/null 2>&1; then
             echo "$leaf does not chain to this server's own CA"
             return 0
         fi
@@ -7646,7 +7756,16 @@ EOF
                         echo "    ssl_certificate ${sslfullchain:-$sslpubcert};" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
-                        echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
+                        # Zone name is FOG-specific on purpose. Alpine's stock
+                        # nginx.conf already declares `shared:SSL:2m` in the
+                        # http block, and nginx refuses to start when one zone
+                        # name is given two sizes -- so a FOG vhost using the
+                        # generic name took the whole web server down with
+                        # "the size 52428800 of shared memory zone SSL
+                        # conflicts with already declared size 2097152". See
+                        # #863. Any distro is free to ship its own "SSL" zone;
+                        # FOG should not be squatting on the obvious name.
+                        echo "    ssl_session_cache shared:FOGSSL:50m;" >> "$etcconf"
                         # HSTS follows the redirect, and only the redirect.
                         #
                         # This used to be emitted on the :443 server in BOTH
@@ -7800,7 +7919,16 @@ EOF
                         echo "    ssl_certificate ${sslfullchain:-$sslpubcert};" >> "$etcconf"
                         echo "    ssl_certificate_key $sslprivkey;" >> "$etcconf"
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
-                        echo "    ssl_session_cache shared:SSL:50m;" >> "$etcconf"
+                        # Zone name is FOG-specific on purpose. Alpine's stock
+                        # nginx.conf already declares `shared:SSL:2m` in the
+                        # http block, and nginx refuses to start when one zone
+                        # name is given two sizes -- so a FOG vhost using the
+                        # generic name took the whole web server down with
+                        # "the size 52428800 of shared memory zone SSL
+                        # conflicts with already declared size 2097152". See
+                        # #863. Any distro is free to ship its own "SSL" zone;
+                        # FOG should not be squatting on the obvious name.
+                        echo "    ssl_session_cache shared:FOGSSL:50m;" >> "$etcconf"
                         # HSTS follows the redirect, and only the redirect.
                         #
                         # This used to be emitted on the :443 server in BOTH
@@ -7867,9 +7995,17 @@ EOF
                     endManagedVhost
                     echo "Done"
                     dots "Testing nginx configuration"
+                    # Capture nginx's own status: errorStat used to read $?
+                    # from the diffconfig below it, so a vhost nginx rejected
+                    # outright was reported as "Testing nginx configuration
+                    # ... OK" and the install carried on to fail somewhere
+                    # else entirely. Found on Alpine (#863) via the shared
+                    # memory zone collision above, but the misread was never
+                    # distro-specific.
                     nginx -t >> $workingdir/error_logs/fog_error_${version}.log 2>&1
+                    local nginxtest=$?
                     diffconfig "${etcconf}"
-                    errorStat $?
+                    errorStat $nginxtest
                     # Self-referential link so /fog/fog/... resolves. $webdirdest
                     # carries a trailing slash, hence the basename.
                     linkIfAbsent $webdirdest ${webdirdest%/}/$(basename $webdirdest)
@@ -8386,7 +8522,12 @@ configureHttpd() {
                 3)
                     rc-service nginx stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     errorStat $?
-                    service php-fpm${php_ver} stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                    # Was `service php-fpm${php_ver} stop`, which is wrong
+                    # twice over on Alpine: there is no `service` command, and
+                    # $php_ver is the dotted version (8.3) while Alpine's fpm
+                    # service takes the undotted suffix. $phpfpm already holds
+                    # the right name -- php-fpm83. See #863.
+                    rc-service $phpfpm stop >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     ;;
             esac
             ;;
@@ -8425,10 +8566,23 @@ configureHttpd() {
             echo -e "# FOG Virtual Host\nListen 443\nInclude conf/extra/fog.conf" >>$httpdconf
     fi
     # Uncommenting ";extension=" lines is Arch's php.ini convention -- it builds
-    # nearly everything into the php package and ships it all disabled. Alpine
-    # enables its modules with drop-ins under conf.d instead, so these are
-    # no-ops there; osid 3 keeps them only so its behaviour is unchanged.
-    if [[ $osid -eq 3 || $osid -eq 4 ]]; then
+    # nearly everything into the php package and ships it all disabled.
+    #
+    # Alpine must NOT do this, and the claim that it was harmless there was
+    # simply wrong. Alpine enables its modules with drop-ins under
+    # /etc/php8x/conf.d, but its php.ini is the ordinary upstream one and does
+    # carry these commented lines, so uncommenting them did two things:
+    #
+    #   - turned on ftp and zip, which Alpine packages separately and FOG does
+    #     not install, giving a PHP startup warning on every single request;
+    #   - loaded mysqli and pdo_mysql from php.ini, which PHP reads BEFORE the
+    #     conf.d drop-ins and therefore before 01_mysqlnd.ini. Both then failed
+    #     to relocate ("mysqlnd_poll: symbol not found") and FOG was left with
+    #     no database driver at all.
+    #
+    # open_basedir still applies to both -- it is a plain setting, not an
+    # extension, and Alpine's php.ini carries it too. See #863.
+    if [[ $osid -eq 4 ]]; then
         sed -i 's/;extension=bcmath/extension=bcmath/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=curl/extension=curl/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=ftp/extension=ftp/g' $phpini >>$error_log 2>&1
@@ -8441,6 +8595,8 @@ configureHttpd() {
         sed -i 's/;extension=posix/extension=posix/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=sockets/extension=sockets/g' $phpini >>$error_log 2>&1
         sed -i 's/;extension=zip/extension=zip/g' $phpini >>$error_log 2>&1
+    fi
+    if [[ $osid -eq 3 || $osid -eq 4 ]]; then
         sed -i 's/^open_basedir\ =/;open_basedir\ =/g' $phpini >>$error_log 2>&1
     fi
     sed -i 's/post_max_size\ \=\ 8M/post_max_size\ \=\ 3000M/g' $phpini >>$error_log 2>&1
@@ -11585,6 +11741,18 @@ configureDHCP() {
                             /etc/init.d/$dhcpd stop >>$error_log 2>&1
                             /etc/init.d/$dhcpd start >>$error_log 2>&1
                             ;;
+                        3)
+                            # Alpine is Kea-only (see lib/alpine/config.sh), so
+                            # $dhcpd here is kea-dhcp4, not the ISC daemon this
+                            # case was written around. With no arm the step did
+                            # nothing and still reported OK -- an operator who
+                            # asked FOG to own DHCP got a server that never
+                            # answered a PXE client. See #863.
+                            rc-update add $dhcpd default >>$error_log 2>&1
+                            rc-service $dhcpd stop >>$error_log 2>&1
+                            rc-service $dhcpd start >>$error_log 2>&1
+                            rc-service $dhcpd status >>$error_log 2>&1
+                            ;;
                     esac
                     ;;
             esac
@@ -11682,14 +11850,59 @@ setupFogReporting() {
     # Pull in our reporting settings
     source $reportingdir/settings >>$error_log 2>&1
 
-    crondfile="/etc/cron.d/fog_reporting"
-    mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$error_log 2>&1
-    # Build the cron.d file
-    cat > ${crondfile} <<END_OF_REPORTING_FILE
+    # Alpine has no /etc/cron.d at all -- busybox crond reads per-user tables
+    # under /etc/crontabs -- so this wrote nothing, printed "No such file or
+    # directory" onto the install output, and still reported Done. A per-user
+    # table also has no user column, which is why the line is built twice
+    # rather than the path just being swapped. See #863.
+    if [[ $osid -eq 3 ]]; then
+        crondfile="/etc/crontabs/${user_to_run_as}"
+        mkdir -p /etc/crontabs >>$error_log 2>&1
+        mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$error_log 2>&1
+        # APPEND to that file, never replace it. On the other distros the
+        # cron.d file below is FOG's own and rewriting it whole is correct;
+        # /etc/crontabs/root is the host's, and Alpine ships it carrying
+        # busybox's run-parts entries for /etc/periodic/*. Writing it whole
+        # deletes every scheduled job the machine had.
+        #
+        # A previous FOG block is stripped first so re-running does not stack
+        # copies. spliceManagedBlock() is deliberately not reused here: its
+        # "neither marker present" branch replaces the file whole, which is
+        # right for a vhost FOG owns and wrong for this one.
+        if [[ -f "${crondfile}.${timestamp}" ]]; then
+            awk -v b="$FOG_MANAGED_BEGIN" -v e="$FOG_MANAGED_END" '
+                $0 == b { skip = 1; next }
+                $0 == e { skip = 0; next }
+                !skip
+            ' "${crondfile}.${timestamp}" > "${crondfile}" 2>>$error_log
+        else
+            : > "${crondfile}" 2>>$error_log
+        fi
+        # SHELL and PATH sit INSIDE the block, after everything the host had:
+        # a crontab applies an assignment to the lines that follow it, so
+        # putting them at the top would quietly re-point the host's own jobs.
+        {
+            echo "$FOG_MANAGED_BEGIN"
+            echo "SHELL=/bin/sh"
+            echo "PATH=${PATH}"
+            echo "${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${rreports} >> ${reporting_log} 2>&1"
+            echo "$FOG_MANAGED_END"
+        } >> "${crondfile}"
+        # And something has to read it. Alpine installs busybox crond but does
+        # not enable it, so without this the entry above is inert -- the same
+        # silently-does-nothing shape the rest of #863 is about.
+        rc-update add crond default >>$error_log 2>&1
+        rc-service crond status >/dev/null 2>&1 || rc-service crond start >>$error_log 2>&1
+    else
+        crondfile="/etc/cron.d/fog_reporting"
+        mv -fv "${crondfile}" "${crondfile}.${timestamp}" >>$error_log 2>&1
+        # Build the cron.d file
+        cat > ${crondfile} <<END_OF_REPORTING_FILE
 SHELL=/bin/bash
 PATH=${PATH}
 ${minute_of_hour} ${hour_of_day} * * ${day_of_week} ${user_to_run_as} ${rreports} >> ${reporting_log} 2>&1
 END_OF_REPORTING_FILE
+    fi
     diffconfig "${crondfile}"
     # If the reporting script exists, create a backup of it.
     mv -fv "${rreports}" "${rreports}.${timestamp}" >>$error_log 2>&1
