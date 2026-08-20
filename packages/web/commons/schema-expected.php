@@ -416,7 +416,7 @@ return [
             ],
         ],
         'nfsGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL, `ngmMemberDescription` longtext NOT NULL, `ngmIsMasterNode` char(1) NOT NULL, `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL, `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL, `ngmIsEnabled` char(1) NOT NULL, `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL, `ngmBandwidthLimit` int(20) NOT NULL, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL, `ngmInterface` varchar(25) NOT NULL DEFAULT \'enp58s0u2u4\', `ngmGraphEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `ngmWebroot` longtext NOT NULL, PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL, `ngmMemberDescription` longtext NOT NULL, `ngmIsMasterNode` char(1) NOT NULL, `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL, `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL, `ngmIsEnabled` char(1) NOT NULL, `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL, `ngmBandwidthLimit` int(20) NOT NULL, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL, `ngmInterface` varchar(25) NOT NULL DEFAULT \'\', `ngmGraphEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `ngmWebroot` longtext NOT NULL, PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ngmID' => 'int(11) NOT NULL',
                 'ngmMemberName' => 'varchar(250) NOT NULL',
@@ -437,7 +437,7 @@ return [
                 'ngmUser' => 'varchar(250) NOT NULL',
                 'ngmPass' => 'varchar(250) NOT NULL',
                 'ngmKey' => 'varchar(250) NOT NULL',
-                'ngmInterface' => 'varchar(25) NOT NULL DEFAULT \'enp58s0u2u4\'',
+                'ngmInterface' => 'varchar(25) NOT NULL DEFAULT \'\'',
                 'ngmGraphEnabled' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
                 'ngmWebroot' => 'longtext NOT NULL',
             ],
