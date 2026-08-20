@@ -450,6 +450,58 @@ abstract class FOGController extends FOGBase
         return $this;
     }
     /**
+     * Date/time columns per table, from commons/schema-expected.php.
+     *
+     * Null until first asked for; built once per request.
+     *
+     * @var array|null
+     */
+    private static $dateColumns = null;
+
+    /**
+     * Is this column a DATE, DATETIME or TIMESTAMP?
+     *
+     * GH-1245: save() writes '' for any unset optional field that is not a
+     * foreign key. A date column cannot hold '' -- the server either refuses
+     * it or coerces it to '0000-00-00 00:00:00', and FOG only ever sees the
+     * second because PDODB clears sql_mode on every connection.
+     *
+     * The column's TYPE is the only reliable way to tell a date column from
+     * a string one; the key's name is not, which is the lesson
+     * $databaseFieldsNotInt already exists for. commons/schema-expected.php
+     * carries per-column types and is what OpenAPI::_entitySchema() reads for
+     * the same question, so this adds no new source of truth. A missing or
+     * unreadable manifest simply leaves every column looking non-date, which
+     * is the behaviour that shipped before this change.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return bool
+     */
+    protected static function isDateColumn($table, $column)
+    {
+        if (null === self::$dateColumns) {
+            self::$dateColumns = [];
+            $manifest = SchemaReconciler::manifest();
+            $tables = isset($manifest['tables']) && is_array($manifest['tables'])
+                ? $manifest['tables']
+                : [];
+            foreach ($tables as $tName => $tDef) {
+                if (!isset($tDef['columns']) || !is_array($tDef['columns'])) {
+                    continue;
+                }
+                foreach ($tDef['columns'] as $cName => $cType) {
+                    if (preg_match('/^\s*(datetime|timestamp|date)\b/i', $cType)) {
+                        self::$dateColumns[strtolower($tName)][strtolower($cName)] = true;
+                    }
+                }
+            }
+        }
+        return isset(self::$dateColumns[strtolower($table)][strtolower($column)]);
+    }
+
+    /**
      * Stores data into the database.
      *
      * @return bool|object
@@ -493,6 +545,11 @@ abstract class FOGController extends FOGBase
                 $paramInsert = sprintf(':%s_insert', $column);
 
                 $val = $this->get($key);
+
+                // GH-1245: set when an empty value has to reach the database
+                // as a real SQL NULL rather than being omitted from the
+                // statement. See the null guard below the switch.
+                $writeNull = false;
 
                 // Primary key 'id': allow null/empty/0 so DB auto-increments.
                 // If it's not a valid positive int, we exclude it from INSERT/UPDATE.
@@ -541,7 +598,15 @@ abstract class FOGController extends FOGBase
                         if ($isRequired) {
                             throw new \Exception(self::$foglang['RequiredDB'] . ": " . $key);
                         }
-                        $val = '';
+                        // GH-1245: '' is not a date. A date column holding
+                        // nothing is NULL; anything else is a string column,
+                        // where '' is a legitimate value and always was.
+                        if (self::isDateColumn($this->databaseTable, $column)) {
+                            $val = null;
+                            $writeNull = true;
+                        } else {
+                            $val = '';
+                        }
                     }
                 }
 
@@ -571,7 +636,13 @@ abstract class FOGController extends FOGBase
 
                 // Don't make an entry if the value isn't set (null = truly unset).
                 // Empty string is a valid user-supplied value and must be written.
-                if ($val === null) {
+                //
+                // GH-1245: an emptied DATE column is the exception. Omitting
+                // it would leave ON DUPLICATE KEY UPDATE with nothing to say
+                // about that column, so an existing date could never be
+                // cleared -- the write would report success and change
+                // nothing. It is bound as a real NULL instead.
+                if ($val === null && !$writeNull) {
                     continue;
                 }
 
