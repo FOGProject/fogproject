@@ -38,7 +38,17 @@ if [[ -z $php_apk ]]; then
     [[ -z $php_apk ]] && php_apk="83"
 fi
 if [[ -z $packages ]]; then
-    packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 shadow syslinux tar tftp-hpa vsftpd wget xmessage xz"
+    # "mariadb-server" rather than Alpine's own name for it, which is plain
+    # "mariadb". installPackages() maps a handful of database package names
+    # onto $sqlclientlist / $sqlserverlist so that a MySQL host is not handed a
+    # MariaDB client, and bare "mariadb" is matched by the CLIENT arm -- it is
+    # the client package on Fedora. Alpine is the one distro that ships both
+    # "mariadb" (server) and "mariadb-client", so the mapping resolved this
+    # entry to mariadb-client and the SERVER was never installed at all. The
+    # install then ran all the way to "Setting up and starting MySQL" before
+    # dying on an empty datadir. Naming the server slot instead routes it
+    # through $sqlserverlist, which now ends in "mariadb". See #863.
+    packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb-server mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 shadow syslinux tar tftp-hpa vsftpd wget xmessage xz"
     # Only the extensions FOG actually uses. The old list also carried a pile
     # that either never applied here (odbc, pdo_odbc, pdo_pgsql, sqlite3,
     # pdo_sqlite, pdo_dblib, apcu, soap, gmp, bz2, zip) or cannot exist under
@@ -47,9 +57,14 @@ if [[ -z $packages ]]; then
     #
     # shadow is in the base list above because busybox provides neither
     # groupadd nor usermod, and configureUsers calls both unconditionally.
+    # ftp is in this list because FOGFTP's $data default is `FTP_BINARY`, a
+    # constant defined by ext/ftp -- so without the extension every single page
+    # dies at boot with "Undefined constant FOG\FTP_BINARY" before anything is
+    # rendered. It is compiled into the php package on Debian, RHEL and Arch,
+    # which is why nothing else here names it; Alpine splits it out. See #863.
     for _apkmod in fpm session openssl mbstring ctype iconv curl gd gettext \
         bcmath sockets pcntl posix dom simplexml xmlreader ldap mysqli pdo \
-        pdo_mysql opcache phar fileinfo; do
+        pdo_mysql opcache phar fileinfo ftp; do
         packages="$packages php${php_apk}-${_apkmod}"
     done
     unset _apkmod
@@ -60,6 +75,20 @@ if [[ -z $packages ]]; then
     # None of these were listed before. (php-fpm is the exception: php8x-fpm
     # ships its own init script, there is no php8x-fpm-openrc.)
     packages="$packages tftp-hpa-openrc vsftpd-openrc mariadb-openrc nfs-utils-openrc"
+    # ca-certificates, not ca-certificates-bundle. The minimal Alpine image
+    # carries only the bundle, which is the trusted roots and nothing else --
+    # no /usr/local/share/ca-certificates and no update-ca-certificates. FOG
+    # publishes its own CA into the system trust store so that the server can
+    # verify the certificate it just issued itself, and with no tool to do it
+    # the install failed its own reachability check with "TLS verification
+    # failed (curl 60)". See #863.
+    packages="$packages ca-certificates"
+    # linux-headers, because the installer BUILDS udpcast from source and
+    # socklib.c includes <linux/types.h>. glibc distributions ship the kernel
+    # UAPI headers with libc-dev; musl does not, so gcc alone is not enough and
+    # the build died with "fatal error: linux/types.h: No such file or
+    # directory" -- taking multicast with it. See #863.
+    packages="$packages linux-headers"
     # Alpine dropped ISC dhcp-server after 3.20: on 3.21+ the `dhcp` package
     # still resolves but ships no files at all, and dhcp-openrc is gone. Kea is
     # the only DHCP server Alpine carries now and it is present as far back as
