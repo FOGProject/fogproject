@@ -47,6 +47,25 @@
  *
  * Each database is then asserted on twice:
  *
+ * SQL_MODE, and why this test is deliberately STRICTER than FOG's runtime.
+ *
+ * PDODB::_connect() issues `SET SESSION sql_mode=''` on every connection, so
+ * every statement FOG itself runs -- the schema updater included -- executes
+ * with all server-side validation switched off. This test connects with a
+ * plain PDO and inherits whatever the server's own sql_mode is, which on
+ * stock MySQL 8.0 and stock MariaDB 10.5+ is a strict one.
+ *
+ * That gap is deliberate and worth keeping: a statement that only executes
+ * because validation was disabled is a latent dependency on FOG continuing
+ * to disable it, and this is the only place that can see such a statement.
+ *
+ * But it means a failure here is NOT automatically an outage. Check whether
+ * the statement also fails with sql_mode cleared before calling it one.
+ * GH-1243 was reported as "FOG cannot be installed on MySQL 8.0" on the
+ * strength of a failure here, and that was wrong: with sql_mode cleared, as
+ * FOG really runs, MySQL 8.0 accepts it. The DDL was still worth fixing; the
+ * severity was not what this test appeared to say. See GH-1245.
+ *
  *   (a) every statement executed. This is the GH-1147 class -- an unknown
  *       collation, or any other DDL the target server cannot run.
  *   (b) every resulting table shares one collation. This is GH-1152. On a
@@ -662,8 +681,14 @@ if ($problems) {
         STDERR,
         "FAIL: the schema did not execute cleanly on " . $server . "\n\n"
         . implode("\n", $problems) . "\n"
-        . "  A statement that fails here fails the reconcile on a real server,\n"
-        . "  which also stops the schema version being recorded -- after which\n"
+        . "  This runs under the SERVER'S OWN sql_mode. PDODB::_connect()\n"
+        . "  clears sql_mode on every FOG connection, so a failure here is a\n"
+        . "  latent dependency on that clearing rather than a guaranteed\n"
+        . "  outage -- check whether the statement also fails with\n"
+        . "  sql_mode='' before calling it one (GH-1245).\n\n"
+        . "  What IS unconditional: a statement the server cannot run at all,\n"
+        . "  such as an unknown collation, fails the reconcile, which stops\n"
+        . "  the schema version being recorded -- after which\n"
         . "  DatabaseManager::establish() 308-redirects every request to\n"
         . "  ?node=schema. See GH-1147.\n\n"
         . "  More than one collation means a varchar join across the split will\n"
