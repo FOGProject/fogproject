@@ -111,8 +111,34 @@ $classes = [
     'UserTracking',
     'OUAssociation',
 ];
+
+/*
+ * OUAssociation is the one name here that a plugin owns
+ * (lib/plugins/ou/class/ouassociation.class.php), and plugins are FETCHED by
+ * bin/fetch-plugins.sh rather than tracked -- so lib/plugins does not exist
+ * at all in a fresh clone, a fresh worktree, or on a CI runner. Failing on it
+ * there says "a class lost its path to Host" when the truth is "nobody ran
+ * fetch-plugins", which is not a regression and not actionable.
+ *
+ * A missing CORE class still fails, which is the assertion this list was
+ * written for. Only the plugin-provided ones are excused, and only when the
+ * plugin tree is genuinely absent -- if the tree IS there and the class is
+ * not, that is a real regression and still fails.
+ *
+ * This is why every fogproject pull request reported 79/2 rather than 80/1
+ * once fog-workflows GH-27 turned pipefail on: the suite had been failing in
+ * CI from the day it was added, and `run-all.sh | tee` was discarding the
+ * status. See GH-1241 for the same swallow in the schema job.
+ */
+$pluginOwned = ['OUAssociation'];
+$pluginsFetched = is_dir(dirname(__DIR__) . '/packages/web/lib/plugins');
 foreach ($classes as $class) {
     if (!class_exists($class)) {
+        if (in_array($class, $pluginOwned, true) && !$pluginsFetched) {
+            echo "  SKIP  $class is plugin-provided and lib/plugins is not"
+                . " fetched here\n";
+            continue;
+        }
         $t->check("$class exists, so its join is actually being checked", false);
         continue;
     }

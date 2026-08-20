@@ -104,7 +104,14 @@ is "$(ncerts "$fullchain")" "2" "a normal run assembles leaf + intermediate"
 sslpubcert="$fullchain"
 for _ in 1 2 3 4 5; do _writeWebChainFiles; done
 is "$(ncerts "$fullchain")" "2" "five runs against its own output stay at leaf + intermediate"
-is "$(openssl x509 -in "$fullchain" -noout -subject 2>/dev/null)" \
+# -nameopt RFC2253 pins the formatting. Without it openssl prints whatever its
+# own default is, and that is not stable across versions: 3.0.13 (ubuntu-24.04,
+# which is what the CI runner has) prints "subject=CN = fogserver" with spaces,
+# 3.5.7 prints "subject=CN=fogserver" without them. The test passed on the
+# machine it was written on and failed on the runner -- invisibly, because
+# `run-all.sh | tee` was discarding the suite's exit status until fog-workflows
+# GH-27. RFC2253 is a specified format rather than a default, so both agree.
+is "$(openssl x509 -in "$fullchain" -noout -subject -nameopt RFC2253 2>/dev/null)" \
    "subject=CN=fogserver" "the leaf is still first in the bundle"
 
 # An already-grown bundle collapses rather than needing a migration.
