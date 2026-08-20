@@ -205,6 +205,57 @@ if (count($bare)) {
     exit(1);
 }
 
-echo 'ok  no non-portable collations, and no inherited ones, in '
+/*
+ * GH-1243: and no zero dates.
+ *
+ * '0000-00-00 00:00:00' is not a legal DATE/DATETIME default under MySQL
+ * 8.0's stock sql_mode, which has NO_ZERO_DATE and STRICT_TRANS_TABLES on by
+ * default. It answers 1067, which is on neither SchemaUpdaterPage::update()'s
+ * $skiperrs nor SchemaReconciler's $_skiperrs, so the whole schema update
+ * throws, the version is never recorded, and every request 308-redirects to
+ * ?node=schema. MariaDB's default sql_mode has never carried either flag,
+ * which is why one such default sat in the tree for years and only MySQL
+ * ever objected -- the same shape as the collation checks above, where the
+ * server that would refuse it is not the server anyone was writing on.
+ *
+ * Textual for the same reason as the rest of this file. The executable
+ * version of this check is tests/schema-executes.test.php against a real
+ * mysql:8.0, which is where it was actually found -- this gate is here so it
+ * cannot come back without a database in the room.
+ */
+$zerodates = [];
+foreach ($files as $path) {
+    $lines = preg_split('/\r?\n/', file_get_contents($path));
+    foreach ($lines as $i => $line) {
+        if (isComment($line)) {
+            continue;
+        }
+        if (!preg_match('/0000-00-00/', $line)) {
+            continue;
+        }
+        $zerodates[] = sprintf(
+            '%s:%d',
+            str_replace(dirname(__DIR__) . '/', '', $path),
+            $i + 1
+        );
+    }
+}
+
+if (count($zerodates)) {
+    fwrite(
+        STDERR,
+        'FAIL: ' . count($zerodates) . " zero date(s) in checked-in schema"
+        . " DDL:\n"
+        . '  ' . implode("\n  ", $zerodates) . "\n\n"
+        . "  '0000-00-00' is rejected outright by MySQL 8.0's stock sql_mode\n"
+        . "  (NO_ZERO_DATE, STRICT_TRANS_TABLES) with error 1067, which\n"
+        . "  neither tolerance list skips -- so the schema update throws and\n"
+        . "  the install is left permanently redirecting to ?node=schema.\n\n"
+        . "  Use NULL. 'Not yet' is an absent value, not a date.\n"
+    );
+    exit(1);
+}
+
+echo 'ok  no non-portable collations, no inherited ones and no zero dates in '
     . count($files) . " schema file(s)\n";
 exit(0);

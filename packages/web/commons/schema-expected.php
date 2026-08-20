@@ -86,13 +86,13 @@ return [
             ],
         ],
         'fileDeleteQueue' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `fileDeleteQueue` ( `fdqID` int(11) NOT NULL AUTO_INCREMENT, `fdqPathName` varchar(255) NOT NULL, `fdqStorageGroupID` int(11) NOT NULL, `fdqCreateDate` datetime DEFAULT current_timestamp(), `fdqCompletedDate` datetime DEFAULT \'0000-00-00 00:00:00\', `fdqCreateBy` varchar(40) DEFAULT NULL, `fdqState` int(11) NOT NULL, `fdqPathType` varchar(255) NOT NULL, PRIMARY KEY (`fdqID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `fileDeleteQueue` ( `fdqID` int(11) NOT NULL AUTO_INCREMENT, `fdqPathName` varchar(255) NOT NULL, `fdqStorageGroupID` int(11) NOT NULL, `fdqCreateDate` datetime DEFAULT current_timestamp(), `fdqCompletedDate` datetime DEFAULT NULL, `fdqCreateBy` varchar(40) DEFAULT NULL, `fdqState` int(11) NOT NULL, `fdqPathType` varchar(255) NOT NULL, PRIMARY KEY (`fdqID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'fdqID' => 'int(11) NOT NULL',
                 'fdqPathName' => 'varchar(255) NOT NULL',
                 'fdqStorageGroupID' => 'int(11) NOT NULL',
                 'fdqCreateDate' => 'datetime DEFAULT current_timestamp()',
-                'fdqCompletedDate' => 'datetime DEFAULT \'0000-00-00 00:00:00\'',
+                'fdqCompletedDate' => 'datetime DEFAULT NULL',
                 'fdqCreateBy' => 'varchar(40) DEFAULT NULL',
                 'fdqState' => 'int(11) NOT NULL',
                 'fdqPathType' => 'varchar(255) NOT NULL',
