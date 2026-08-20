@@ -6099,11 +6099,15 @@ $this->schema[] = [
     // sql_mode -- NO_ZERO_DATE and STRICT_TRANS_TABLES are both on by
     // default -- so the statement answers 1067, which is on neither
     // SchemaUpdaterPage::update()'s $skiperrs nor SchemaReconciler's
-    // $_skiperrs. The whole update therefore threw before the schema version
-    // was recorded, after which DatabaseManager::establish() 308-redirects
-    // every request to ?node=schema: FOG could not be installed on MySQL at
-    // all. MariaDB's default sql_mode has never included either flag, which
-    // is why no MariaDB install ever saw it.
+    // $_skiperrs.
+    //
+    // That was reported as "FOG cannot be installed on MySQL 8.0" and the
+    // severity was wrong: PDODB::_connect() clears sql_mode on every
+    // connection, so the updater never meets NO_ZERO_DATE and the statement
+    // runs. What the default really was is DDL whose validity depends on FOG
+    // having switched the server's own checks off -- see step 344 and
+    // GH-1245. MariaDB's default sql_mode has never included either flag,
+    // which is why no MariaDB install would object even without that.
     //
     // Step 288 is edited too, so a fresh install never creates the bad
     // default. This step is for the installs that already did.
@@ -6124,4 +6128,89 @@ $this->schema[] = [
     . "AND YEAR(`fdqCompletedDate`) = 0",
     "ALTER TABLE `fileDeleteQueue` "
     . "MODIFY COLUMN `fdqCompletedDate` DATETIME NULL DEFAULT NULL",
+];
+// 344
+$this->schema[] = [
+    // GH-1245: "this never happened" is NULL, not a zero date.
+    //
+    // FOGController::save() writes '' for any unset optional field whose key
+    // does not end in "id". A date column cannot hold '': the server either
+    // refuses it or coerces it to '0000-00-00 00:00:00', and FOG only ever
+    // sees the second because PDODB::_connect() issues
+    // `SET SESSION sql_mode=''` on every connection. On the maintainer's own
+    // 1.6 server -- MariaDB 11.8 with STRICT_TRANS_TABLES in its own config --
+    // 83 of 86 rows carry a zero `hostLastDeploy` and 85 of 86 a zero
+    // `hostSecTime`, values that server's configuration forbids.
+    //
+    // save() now writes a real NULL for an empty date, which these columns
+    // have to be able to hold. Without this step it is worse than a no-op:
+    // an explicit NULL into a NOT NULL column errors under a strict mode and
+    // is coerced straight back to the zero date without one.
+    //
+    // Eleven columns, being every date column that is optional, not
+    // auto-filled by save()'s switch, and without a server-side default --
+    // which is exactly the set that can reach the '' arm and keep the result.
+    //
+    // Two reachable columns are deliberately left NOT NULL:
+    //
+    //   snapinTasks.stCheckinDate and userAuths.uaExpireDate both declare
+    //   DEFAULT current_timestamp(), so the server supplies a real value
+    //   rather than a zero date. uaExpireDate must stay that way: UserAuth
+    //   ::reapExpired() deletes on `uaExpireDate` < now, and NULL never
+    //   satisfies a comparison -- a nullable expiry would turn a token that
+    //   fails safe (reaped at once) into one that is never reaped at all.
+    //
+    // No historical step is edited, unlike GH-1243's step 343. `datetime NOT
+    // NULL` is legal DDL on every server, so the steps that created these
+    // columns still replay cleanly and a fresh install simply arrives here
+    // and is corrected.
+    //
+    // ALTER before UPDATE, the opposite order to 343: there the column was
+    // already nullable, here the rows cannot be set NULL until it is. YEAR()
+    // rather than the literal '0000-00-00 00:00:00' for the same reason as
+    // 343 -- a strict server rejects the literal in the comparison too.
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostLastDeploy` = NULL "
+    . "WHERE `hostLastDeploy` IS NOT NULL AND YEAR(`hostLastDeploy`) = 0",
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostSecTime` TIMESTAMP NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostSecTime` = NULL "
+    . "WHERE `hostSecTime` IS NOT NULL AND YEAR(`hostSecTime`) = 0",
+    "ALTER TABLE `images` "
+    . "MODIFY COLUMN `imageLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `images` SET `imageLastDeploy` = NULL "
+    . "WHERE `imageLastDeploy` IS NOT NULL AND YEAR(`imageLastDeploy`) = 0",
+    "ALTER TABLE `imagingLog` "
+    . "MODIFY COLUMN `ilFinishTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `imagingLog` SET `ilFinishTime` = NULL "
+    . "WHERE `ilFinishTime` IS NOT NULL AND YEAR(`ilFinishTime`) = 0",
+    "ALTER TABLE `inventory` "
+    . "MODIFY COLUMN `iDeleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `inventory` SET `iDeleteDate` = NULL "
+    . "WHERE `iDeleteDate` IS NOT NULL AND YEAR(`iDeleteDate`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msCompleteDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msCompleteDateTime` = NULL "
+    . "WHERE `msCompleteDateTime` IS NOT NULL AND YEAR(`msCompleteDateTime`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msStartDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msStartDateTime` = NULL "
+    . "WHERE `msStartDateTime` IS NOT NULL AND YEAR(`msStartDateTime`) = 0",
+    "ALTER TABLE `snapinTasks` "
+    . "MODIFY COLUMN `stCompleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `snapinTasks` SET `stCompleteDate` = NULL "
+    . "WHERE `stCompleteDate` IS NOT NULL AND YEAR(`stCompleteDate`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskCheckIn` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskCheckIn` = NULL "
+    . "WHERE `taskCheckIn` IS NOT NULL AND YEAR(`taskCheckIn`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskScheduledStartTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskScheduledStartTime` = NULL "
+    . "WHERE `taskScheduledStartTime` IS NOT NULL AND YEAR(`taskScheduledStartTime`) = 0",
+    "ALTER TABLE `userTracking` "
+    . "MODIFY COLUMN `utDate` DATE NULL DEFAULT NULL",
+    "UPDATE `userTracking` SET `utDate` = NULL "
+    . "WHERE `utDate` IS NOT NULL AND YEAR(`utDate`) = 0",
 ];
