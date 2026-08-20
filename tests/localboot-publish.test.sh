@@ -14,12 +14,17 @@
 #
 # What this pins, in rough order of how badly it fails if wrong:
 #
-#   1. FOG's own builds are in local/ with their own autoexec.ipxe, and the root
-#      autoexec.ipxe -- read by upstream's loader -- is a separate file that
-#      chains into local/. Flat, those two are one file, and a fog*.efi launched
-#      from the boot manager reads the ladder and chains itself. Every mock
-#      file's CONTENT is its own path in the tree, so provenance is checked by
-#      reading the file rather than by trusting the copy loop.
+#   1. NOTHING chains anything, and every copy of autoexec.ipxe is identical.
+#      FOG's builds are in local/, upstream's signed set in secureboot/, and each
+#      of those plus the archive root carries the same boot script. The archive
+#      used to hold a chain ladder at the root and different boot logic in
+#      local/; a chained binary resolves autoexec.ipxe by FLAT NAME through the
+#      synthetic handle efi_image_exec() installs, so it re-read the ladder and
+#      chained itself until the firmware died. Every mock file's CONTENT is its
+#      own path in the tree, so provenance is checked by reading the file rather
+#      than by trusting the copy loop.
+#   1a. The archive is packed FLAT -- no wrapper directory named after itself,
+#      which on Windows produced fog-esp-x86_64\fog-esp-x86_64\.
 #   2. The manifest is valid JSON with sums that match the bytes. It is written
 #      by hand rather than by jq (see _jsonStr) precisely so the whole feature
 #      does not vanish when a package is missing -- which puts the burden of
@@ -53,9 +58,21 @@ command -v sha256sum >/dev/null 2>&1 || { echo "SKIP: sha256sum is not installed
 # App Execution Alias that exists on PATH and then refuses to run, so a
 # presence check passes and every assertion downstream of it silently compares
 # empty strings. A test that reports a false pass is worse than one that skips.
+# Bounded with a timeout, because "refuses to run" turned out to be optimistic:
+# on Windows the python3 App Execution Alias can BLOCK rather than fail, which
+# hangs the whole suite on the first probe instead of falling through to py. A
+# test that hangs is worse than one that skips, for the same reason a false pass
+# is. `timeout` is coreutils and may be absent, so it is used only if present.
 PY=""
+_pyprobe() {
+    if command -v timeout >/dev/null 2>&1; then
+        timeout 10 "$1" -c 'print("ok")' 2>/dev/null
+    else
+        "$1" -c 'print("ok")' 2>/dev/null
+    fi
+}
 for c in python3 python py; do
-    if [[ "$("$c" -c 'print("ok")' 2>/dev/null)" == "ok" ]]; then PY="$c"; break; fi
+    if [[ "$(_pyprobe "$c")" == "ok" ]]; then PY="$c"; break; fi
 done
 [[ -n $PY ]] || { echo "SKIP: no working python interpreter found"; exit 0; }
 
@@ -217,7 +234,17 @@ else
 fi
 
 is "$(mq "$MAN" count)" "3" "three archives are published -- one per architecture"
-is "$(mq "$MAN" top schema)" "2" "the manifest declares its schema"
+# 3: archives lost their wrapper directory, so each entry lost its "root" key,
+# and the upstream Secure Boot set moved from the archive root into secureboot/.
+# Both change the paths a consumer would build, so the number had to move with
+# them.
+is "$(mq "$MAN" top schema)" "3" "the manifest declares its schema"
+if mq "$MAN" field "fog-esp-x86_64${EXT}" root >/dev/null 2>&1 \
+   && [[ -n "$(mq "$MAN" field "fog-esp-x86_64${EXT}" root 2>/dev/null)" ]]; then
+    bad "the manifest still carries a \"root\" key for a wrapper that no longer exists"
+else
+    ok "no \"root\" key, because there is no wrapper directory to strip"
+fi
 is "$(mq "$MAN" top fogVersion)" "1.6.0-test" "the manifest records the FOG version"
 is "$(mq "$MAN" top ipxeVersion)" "v2.0.0-fog.test" "the manifest records the iPXE version"
 
@@ -253,36 +280,50 @@ for pair in "fog-esp-x86_64${EXT}|ipxe.efi|refind.efi" \
     want="${rest%%|*}"; wantrefind="${rest#*|}"
     d="$WORK/x/${a%%.*}"
     rm -rf "$d"; extract "$BOOT/$a" "$d"
-    is "$(cat "$d/${a%%.*}/local/fogipxe.efi" 2>/dev/null)" "$want" \
+    is "$(cat "$d/local/fogipxe.efi" 2>/dev/null)" "$want" \
        "$a local/fogipxe.efi comes from $want"
-    is "$(cat "$d/${a%%.*}/refind/${wantrefind}" 2>/dev/null)" "$wantrefind" \
+    is "$(cat "$d/refind/${wantrefind}" 2>/dev/null)" "$wantrefind" \
        "$a carries the web tree's ${wantrefind}"
 done
 
-# One top-level directory named after the archive, so two extracted side by side
-# cannot silently overwrite each other -- they carry the same inner filenames.
-is "$(top_entries "$BOOT/fog-esp-x86_64${EXT}" | tr '\n' ' ')" "fog-esp-x86_64 " \
-   "the archive holds exactly one top-level directory, named for itself"
+# NO WRAPPER DIRECTORY. The archive's contents are its top level, so extracting
+# it gives one folder (whatever the extractor names it) rather than a folder
+# containing a folder. On Windows the wrapper produced
+# fog-esp-x86_64\fog-esp-x86_64\ and the README's "copy the contents of this
+# folder" then named the wrong one.
+tops="$(top_entries "$BOOT/fog-esp-x86_64${EXT}" | sort | tr '\n' ' ')"
+if [[ $tops == *"fog-esp-x86_64"* ]]; then
+    bad "the archive still carries a wrapper directory: $tops"
+else
+    ok "the archive is packed flat, with no wrapper directory"
+fi
 
 # --- what a full archive contains --------------------------------------------
-X="$WORK/x/fog-esp-x86_64/fog-esp-x86_64"
-for f in snponly-shimx64.efi snponly.efi ipxe-shimx64.efi ipxe.efi mmx64.efi \
+X="$WORK/x/fog-esp-x86_64"
+for f in secureboot/snponly-shimx64.efi secureboot/snponly.efi \
+         secureboot/ipxe-shimx64.efi secureboot/ipxe.efi secureboot/mmx64.efi \
+         secureboot/autoexec.ipxe \
          local/fogipxe.efi local/fogsnp.efi local/fogintel.efi \
          local/fogrealtek.efi local/fogsnponly.efi local/autoexec.ipxe \
          refind/refind.efi refind/refind.conf \
          autoexec.ipxe README.txt MANIFEST.json \
-         MOK.der PK.auth KEK.auth db.auth \
-         fog-enroll-mok.sh fog-enroll-mok.desktop; do
+         secureboot/MOK.der secureboot/PK.auth secureboot/KEK.auth \
+         secureboot/db.auth \
+         secureboot/fog-enroll-mok.sh secureboot/fog-enroll-mok.desktop; do
     [[ -f $X/$f ]] || bad "x86_64 archive is missing $f"
 done
 [[ -f $X/local/fogsnponly.efi ]] && ok "fogsnponly.efi is published (it was excluded before)"
-# The upstream set must stay at the top level: shim derives its second stage AND
-# MokManager from its OWN directory, so moving either into a subfolder breaks the
-# name rewrite it does to find them.
+# The upstream set must travel TOGETHER IN ONE DIRECTORY: shim derives its second
+# stage AND MokManager by name from its OWN directory, so splitting the pair
+# across directories breaks the rewrite it does to find them. secureboot/ is that
+# directory now; it used to be the archive root.
 for f in snponly-shimx64.efi snponly.efi ipxe-shimx64.efi ipxe.efi mmx64.efi; do
-    [[ -f $X/$f ]] || bad "upstream $f is not at the archive top level"
+    [[ -f $X/secureboot/$f ]] || bad "upstream $f is not in secureboot/"
 done
-ok "the upstream shim set stays at the top level, where shim resolves its names"
+ok "the upstream shim set travels together in secureboot/, where shim resolves its names"
+# And a script beside them, or the loader they hand to has nothing to boot with.
+[[ -f $X/secureboot/autoexec.ipxe ]] \
+    || bad "secureboot/ has no autoexec.ipxe -- upstream's loader would have no script"
 # x86_64 follows bootmenu.class.php's refind.efi-over-refind_x64.efi preference,
 # so the ESP and the PXE path agree on which binary is canonical.
 if [[ -f $X/refind/refind.efi && ! -e $X/refind/refind_x64.efi ]]; then
@@ -290,14 +331,14 @@ if [[ -f $X/refind/refind.efi && ! -e $X/refind/refind_x64.efi ]]; then
 else
     bad "x86_64 does not follow the boot menu's rEFInd preference"
 fi
-[[ -f $X/MOK.der ]] && ok "MOK.der travels with MokManager"
-[[ -f $X/db.auth ]] && ok "the Setup Mode variable updates travel too"
+[[ -f $X/secureboot/MOK.der ]] && ok "MOK.der travels in the same directory as MokManager"
+[[ -f $X/secureboot/db.auth ]] && ok "the Setup Mode variable updates travel too"
 
 # Upstream's names are the ones shim resolves to; FOG's must not take them.
-is "$(cat "$X/snponly.efi")" "secureboot/snponly.efi" \
-   "snponly.efi is UPSTREAM's copy, which is what shim's certificate vouches for"
-is "$(cat "$X/ipxe.efi")" "secureboot/ipxe.efi" \
-   "ipxe.efi is upstream's copy for the same reason"
+is "$(cat "$X/secureboot/snponly.efi")" "secureboot/snponly.efi" \
+   "secureboot/snponly.efi is UPSTREAM's copy, which is what shim's certificate vouches for"
+is "$(cat "$X/secureboot/ipxe.efi")" "secureboot/ipxe.efi" \
+   "secureboot/ipxe.efi is upstream's copy for the same reason"
 is "$(cat "$X/local/fogsnponly.efi")" "snponly.efi" \
    "FOG's snponly ships under the fog prefix in local/ instead"
 
@@ -321,40 +362,51 @@ else
     ok "nothing comes from 10secdelay/ -- it holds BIOS files only now"
 fi
 
-# --- the root ladder chains INTO local/, and never a bare sibling ------------
-is "$(grep -c '^chain local/fog' "$X/autoexec.ipxe")" "5" \
-   "the root autoexec.ipxe chains all five builds out of local/"
-is "$(grep '^chain local/fog' "$X/autoexec.ipxe" | tail -1)" \
-   "chain local/fogsnponly.efi || goto nofogbinary" \
-   "fogsnponly.efi is tried LAST -- it is the one most likely to load and find no NIC"
-is "$(grep '^chain local/fog' "$X/autoexec.ipxe" | head -1)" \
-   "chain local/fogipxe.efi || goto trysnp" \
-   "fogipxe.efi is tried first"
-# THE regression. A bare "chain fogipxe.efi" means the ladder and the binary sit
-# in one directory, so the binary reads the ladder that chains it and loops.
-if grep -qE '^chain fog[a-z]*\.efi' "$X/autoexec.ipxe"; then
-    bad "the root ladder chains a sibling fog*.efi -- that binary would chain itself"
-else
-    ok "the root ladder never chains a sibling, so nothing can chain itself"
-fi
-
-# --- local/autoexec.ipxe is FOG's real boot script ---------------------------
+# --- NOTHING IN THE ARCHIVE CHAINS ANOTHER BINARY ----------------------------
 #
-# Since fog-ipxe v2.0.0-fog.8 the fog*.efi builds carry no compiled-in script, so
-# this file is the only thing that makes them find a DHCP server at all. An
-# archive without it boots to iPXE's bare autoboot: no multi-NIC walk, no
-# proxyDHCP, no next-server prompt.
-L="$X/local/autoexec.ipxe"
-for want in 'dhcp net0' 'dhcp net1' 'dhcp net2' ':proxycheck' ':nextservercheck' \
-            ':netboot' 'default.ipxe'; do
-    grep -q -- "$want" "$L" || bad "local/autoexec.ipxe is missing \"$want\""
+# THE regression this guards, and it is worth stating precisely because the
+# archive shipped it. When iPXE chains an EFI image, the chained image resolves
+# autoexec.ipxe through the synthetic filesystem handle efi_image_exec()
+# installs, and that handle serves registered images BY FLAT NAME -- so the
+# chained binary reads whatever the CHAINING iPXE registered under that name, not
+# the file beside itself. With a chain ladder at the archive root, a chained
+# fog*.efi re-read the ladder, chained itself, and recursed until the firmware
+# ran out of pool memory. Directory separation does not help: flat-name lookup
+# ignores directories.
+#
+# So no copy of the script may contain a `chain` to a local .efi at all. A
+# `chain tftp://.../default.ipxe` is the point of the script and must stay.
+for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
+    [[ -f $X/$s ]] || continue
+    if grep -qE '^[[:space:]]*chain[^|]*\.efi' "$X/$s"; then
+        bad "$s chains a .efi -- a chained binary re-reads this script by flat name and loops"
+    fi
 done
-ok "local/autoexec.ipxe carries the full DHCP/proxyDHCP/next-server ladder"
-if grep -q '^chain ' "$X/autoexec.ipxe" && ! grep -q '^chain local/' "$L"; then
-    ok "local/autoexec.ipxe boots the network rather than chaining another binary"
-else
-    bad "local/autoexec.ipxe looks like a copy of the root ladder"
-fi
+ok "no copy of autoexec.ipxe chains a local .efi, so no chain loop is constructible"
+
+# --- every copy of the boot script is identical and complete -----------------
+#
+# Since fog-ipxe v2.0.0-fog.8 no EFI binary carries a compiled-in script, so this
+# file is the only thing that makes any of them find a DHCP server. An archive
+# whose copies differ reintroduces "which one did this machine read?" into every
+# bug report -- which is exactly how the chain loop hid.
+for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
+    [[ -f $X/$s ]] || continue
+    for want in 'dhcp net0' 'dhcp net1' 'dhcp net2' ':proxycheck' \
+                ':nextservercheck' ':netboot' 'default.ipxe'; do
+        grep -q -- "$want" "$X/$s" || bad "$s is missing \"$want\""
+    done
+done
+ok "every copy of autoexec.ipxe carries the full DHCP/proxyDHCP/next-server walk"
+L="$X/local/autoexec.ipxe"
+for s in local/autoexec.ipxe secureboot/autoexec.ipxe; do
+    [[ -f $X/$s ]] || continue
+    if cmp -s "$X/autoexec.ipxe" "$X/$s"; then
+        ok "$s is byte-identical to the root copy"
+    else
+        bad "$s differs from the root copy -- they must come from one generator"
+    fi
+done
 
 # The delay is two lines of text now, not a second set of archives. Commented
 # out by default so an admin who hits it at 2am uncomments a line instead of
@@ -371,7 +423,7 @@ fi
 bootdelay=15
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/xd"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/xd"
-LD="$WORK/xd/fog-esp-x86_64/local/autoexec.ipxe"
+LD="$WORK/xd/local/autoexec.ipxe"
 is "$(grep -c '^sleep 15' "$LD")" "1" \
    "--boot-delay 15 writes a live sleep into local/autoexec.ipxe"
 if grep -q 'FOG-BOOT-DELAY-BEGIN' "$LD" && grep -q 'FOG-BOOT-DELAY-END' "$LD"; then
@@ -379,13 +431,16 @@ if grep -q 'FOG-BOOT-DELAY-BEGIN' "$LD" && grep -q 'FOG-BOOT-DELAY-END' "$LD"; t
 else
     bad "the delay is written without the sentinels that make it replaceable"
 fi
-# The root ladder runs inside upstream's loader, which drives no NIC on an ESP,
-# so a sleep there would delay nothing.
-if grep -q 'sleep' "$WORK/xd/fog-esp-x86_64/autoexec.ipxe"; then
-    bad "the delay was written into the root ladder, where it delays nothing"
-else
-    ok "the delay goes only where DHCP actually happens"
-fi
+# EVERY copy gets it, which is the inverse of what this asserted before. The
+# delay used to be withheld from the root copy because that copy was a chain
+# ladder inside upstream's loader, where a sleep delayed nothing. The root copy
+# is FOG's boot logic now and upstream's loader does the DHCP itself, so a copy
+# without the delay is a copy that ignores --boot-delay.
+for s in autoexec.ipxe secureboot/autoexec.ipxe; do
+    [[ -f $WORK/xd/$s ]] || continue
+    is "$(grep -c '^sleep 15' "$WORK/xd/$s")" "1" \
+       "--boot-delay 15 reaches $s too"
+done
 unset bootdelay
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/x/fog-esp-x86_64"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/x/fog-esp-x86_64"
@@ -409,15 +464,22 @@ is "$badsum" "0" "every per-file sha256 in the manifest matches the extracted fi
 # basenames; left that way it would omit local/ and refind/ entirely, and the
 # checksum loop above would still pass because it walks the manifest rather than
 # the directory. An under-reporting manifest reads exactly like a correct one.
-for f in local/fogipxe.efi local/autoexec.ipxe refind/refind.efi refind/refind.conf; do
+for f in local/fogipxe.efi local/autoexec.ipxe secureboot/snponly.efi \
+         secureboot/autoexec.ipxe refind/refind.efi refind/refind.conf; do
     mq "$MAN" files "fog-esp-x86_64${EXT}" | grep -qx "$f" \
         || bad "the manifest does not list $f"
 done
 ok "the manifest names files by path relative to the archive root, subdirs included"
-is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" local/autoexec.ipxe)" "boot-script" \
-   "local/autoexec.ipxe is described as the boot script"
-is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" autoexec.ipxe)" "chain-script" \
-   "the root autoexec.ipxe is described as the chain script, not the same thing"
+# All three copies share one role now, because they are one file. The path still
+# has to be what the manifest keys on -- the basename appears three times.
+for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
+    is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" "$s")" "boot-script" \
+       "$s is described as the boot script"
+done
+is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot/snponly-shimx64.efi)" "shim" \
+   "the shim is still described as a shim from its new path"
+is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot/MOK.der)" "enrolment-cert" \
+   "MOK.der is still described as the enrolment certificate from its new path"
 is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" refind/refind.efi)" "chainloader" \
    "rEFInd is described as the local-boot chainloader"
 is "$(mq "$MAN" filesigned "fog-esp-x86_64${EXT}" refind/refind.conf)" "False" \
@@ -472,42 +534,48 @@ mk_web "$webdirdest" yes
 _publishLocalBootFiles >/dev/null
 is "$(mq "$MAN" count)" "3" "an HTTPS-only install still publishes three archives"
 rm -rf "$WORK/n"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/n"
-N="$WORK/n/fog-esp-x86_64"
-if [[ -e $N/snponly-shimx64.efi || -e $N/mmx64.efi ]]; then
+N="$WORK/n"
+if [[ -e $N/secureboot/snponly-shimx64.efi || -e $N/secureboot/mmx64.efi ]]; then
     bad "shim material appeared without a staged secureboot/"
 else
     ok "no shim material when none was staged"
 fi
 [[ -f $N/local/fogipxe.efi ]] && ok "FOG's own builds still ship without a shim"
-if [[ -e $N/autoexec.ipxe ]]; then
-    bad "the root ladder shipped with no loader that could ever read it"
+# The ROOT copy is no longer gated on a loader. It used to be a chain ladder that
+# only upstream's loader read, so withholding it made sense; it is FOG's boot
+# logic now, and it is also iPXE's volume-root fallback, so it ships always.
+if [[ -f $N/autoexec.ipxe ]]; then
+    ok "the root autoexec.ipxe ships even with no upstream loader -- it is the boot script now"
 else
-    ok "the root ladder is omitted when no loader is present to read it"
+    bad "the root autoexec.ipxe is still gated on a loader it no longer depends on"
 fi
-# But FOG's own script is NOT gated on that. The binary that reads it is the FOG
-# build, which ships here; withholding it would leave the archive unable to find
-# a DHCP server, which is the whole job.
 if [[ -f $N/local/autoexec.ipxe ]]; then
     ok "local/autoexec.ipxe ships even with no upstream loader"
 else
     bad "local/autoexec.ipxe was gated on a loader that does not read it"
 fi
-[[ -f $N/db.auth ]] && ok "the Setup Mode route survives an HTTPS-only install"
+# secureboot/ IS gated: a script beside no binary serves nobody.
+if [[ -e $N/secureboot/autoexec.ipxe ]]; then
+    bad "secureboot/autoexec.ipxe shipped with no upstream loader beside it to read it"
+else
+    ok "secureboot/autoexec.ipxe is omitted when no loader was staged"
+fi
+[[ -f $N/secureboot/db.auth ]] && ok "the Setup Mode route survives an HTTPS-only install"
 
 # --- i386 has no shim, but does have the Setup Mode route --------------------
 mk_tree "$tftpdirdst" yes
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/i"; extract "$BOOT/fog-esp-i386${EXT}" "$WORK/i"
-I="$WORK/i/fog-esp-i386"
-if [[ -e $I/snponly-shimx64.efi ]]; then
+I="$WORK/i"
+if [[ -e $I/secureboot/snponly-shimx64.efi ]]; then
     bad "an x64 shim was put in the i386 archive"
 else
     ok "the i386 archive has no shim -- upstream signs none for ia32"
 fi
-[[ -f $I/db.auth ]] && ok "the i386 archive DOES carry db.auth (the only SB route it has)"
+[[ -f $I/secureboot/db.auth ]] && ok "the i386 archive DOES carry db.auth (the only SB route it has)"
 [[ -f $I/local/fogipxe.efi ]] && ok "the i386 archive carries FOG's builds"
 if [[ -f $I/local/autoexec.ipxe ]]; then
-    ok "the i386 archive carries FOG's boot script, having no loader to read a ladder"
+    ok "the i386 archive carries FOG's boot script beside its builds"
 else
     bad "the i386 archive has FOG binaries and no script for them to read"
 fi
@@ -521,29 +589,31 @@ if grep -q 'Setup Mode' "$I/README.txt"; then
 else
     bad "the i386 README does not explain its only Secure Boot route"
 fi
-# The README must not describe a fallback chain the archive does not contain.
-# It nearly did: the ladder paragraph was unconditional, so an archive with no
-# loader -- i386, or any arch on an HTTPS-only install -- told the admin that
-# "autoexec.ipxe already tries them in that order" about a file that is not
-# there.
-if grep -q 'no chain ladder in this archive' "$I/README.txt"; then
-    ok "the i386 README says there is no fallback chain, because there is none"
-else
-    bad "the i386 README describes a ladder the archive does not contain"
-fi
-if grep -q 'already tries them in that order' "$X/README.txt"; then
-    ok "the x86_64 README does describe the ladder, because it has one"
-else
-    bad "the x86_64 README omits the fallback ladder it ships"
-fi
+# No README may promise a fallback chain, because no archive has one any more.
+# The old text told the admin "autoexec.ipxe already tries them in that order",
+# which is now false everywhere -- and was already false for an archive with no
+# loader.
+for r in "$I/README.txt" "$X/README.txt"; do
+    if grep -q 'already tries them in that order' "$r"; then
+        bad "$r promises a fallback chain that no longer exists"
+    fi
+done
+ok "no README promises a fallback chain"
+for r in "$I/README.txt" "$X/README.txt"; do
+    if grep -q 'NOTHING HERE CHAINS ANYTHING ELSE' "$r"; then
+        ok "$(basename "$(dirname "$r")")/README.txt says plainly that nothing chains"
+    else
+        bad "$r does not tell the admin that binaries are picked, not chained"
+    fi
+done
 
 # --- a server with no enrolment material at all ------------------------------
 mk_web "$webdirdest" no
 _publishLocalBootFiles >/dev/null
 is "$(mq "$MAN" count)" "3" "a server publishing no enrolment material still succeeds"
 rm -rf "$WORK/e"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/e"
-E="$WORK/e/fog-esp-x86_64"
-if [[ -e $E/MOK.der || -e $E/db.auth ]]; then
+E="$WORK/e"
+if [[ -e $E/secureboot/MOK.der || -e $E/secureboot/db.auth ]]; then
     bad "enrolment material appeared on a server that publishes none"
 else
     ok "no enrolment material when the server has none to give"
@@ -566,7 +636,7 @@ else
     ok "a missing rEFInd is not a failure"
 fi
 rm -rf "$WORK/nr"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/nr"
-NR="$WORK/nr/fog-esp-x86_64"
+NR="$WORK/nr"
 if [[ -d $NR/refind ]]; then
     bad "an empty refind/ directory was published"
 else

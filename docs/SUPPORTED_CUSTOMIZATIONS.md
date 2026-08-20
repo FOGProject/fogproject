@@ -165,11 +165,10 @@ symlink from the TFTP tree into your web root:
   fog-esp-arm64.zip
 ```
 
-One archive per architecture, and nothing else. Each holds a single top-level
-directory named after the archive — **copy its contents onto the ESP**
-(`\EFI\FOG\` is a good place), **keeping the `local\` and `refind\`
-subdirectories as they are**, and point the firmware boot manager at one of the
-entry points below.
+One archive per architecture, and nothing else. Each is packed flat, so its
+contents are its top level — **copy them onto the ESP** (`\EFI\FOG\` is a good
+place), **keeping the `local\`, `secureboot\` and `refind\` subdirectories as
+they are**, and point the firmware boot manager at one of the entry points below.
 
 >[!note]
 >Where the `zip` package is missing the installer falls back to `.tar.gz`.
@@ -182,32 +181,41 @@ for a signature. The archives are published either way — a server with no key
 publishes the same set unsigned, which is what every machine booting with Secure
 Boot **off** needs anyway.
 
-### Why there are two `autoexec.ipxe`, in two directories
+### Why `autoexec.ipxe` appears once per directory
 
 This is the one thing about the layout worth understanding before you rearrange
-it, because flattening it stops the archive booting at all.
+it, because moving a binary away from its script stops it booting.
 
-Since iPXE `v2.0.0-fog.8` none of FOG's EFI binaries has a boot script compiled
-in. They **read** one, from a file called `autoexec.ipxe` — and iPXE looks for
-that name in the directory the running binary was itself loaded from. Two
-different scripts are wanted on one ESP:
+Since iPXE `v2.0.0-fog.8` none of the EFI binaries here has a boot script compiled
+in — neither FOG's nor upstream's. They **read** one, from a file called
+`autoexec.ipxe`, and iPXE looks for that name in the directory the running binary
+was itself loaded from, falling back to the volume root. So the rule is simply:
 
-| File | Read by | What it does |
-| --- | --- | --- |
-| `autoexec.ipxe` at the top | upstream's signed loader, which shim hands off to | Chains `local\fog*.efi` in preference order. That loader drives no NIC off an ESP, so handing off is all it usefully can do. |
-| `local\autoexec.ipxe` | whichever `fog*.efi` runs | FOG's actual boot logic: the DHCP walk across `net0`/`net1`/`net2`, proxyDHCP, `next-server`, then FOG's menu. |
+| Copy | Read by |
+| --- | --- |
+| `local\autoexec.ipxe` | whichever `fog*.efi` you boot |
+| `secureboot\autoexec.ipxe` | upstream's signed loader, which shim hands off to |
+| `autoexec.ipxe` at the top | iPXE's volume-root fallback, if you unpacked the archive at the ESP root |
 
-Put both in one directory and they become one file, and a `fog*.efi` you boot
-from the firmware boot manager reads the chain ladder and chains *itself*. One
-directory apiece is the whole reason `local\` exists.
+**All three are byte-identical**, generated from one function in the installer.
+They carry FOG's boot logic: the DHCP walk across `net0`/`net1`/`net2`, proxyDHCP,
+`next-server`, then FOG's menu.
+
+That sameness is deliberate and it is a fix. There used to be two *different*
+scripts — a chain ladder at the top and the boot logic in `local\` — and the
+difference is what let the archive recurse into itself; see the warning under
+[What is inside](#what-is-inside). Identical copies mean it does not matter which
+one a machine read, which is also one fewer variable in every bug report.
 
 `refind\` is separate for the same class of reason: rEFInd reads `refind.conf`
 from its own directory, which is also where every rEFInd installation puts it.
 
 ### Changing how it boots, and the pre-DHCP delay
 
-`local\autoexec.ipxe` is a text file on the ESP. Edit it and the next boot picks
-the change up — no toolchain, no rebuild, nothing to re-download.
+`autoexec.ipxe` is a text file on the ESP. Edit it and the next boot picks the
+change up — no toolchain, no rebuild, nothing to re-download. Edit the copy in the
+same directory as the binary you boot; that is the only one it reads. If you
+switch between binaries in different directories, edit each.
 
 The 10-second delay that used to need its own archive is two lines in it. Some
 switches take several seconds to bring a port out of STP listening or out of
@@ -234,11 +242,23 @@ paths get the same delay from one option.
 
 ### What is inside
 
+The archive is packed **flat** — its contents are its top level, with no wrapper
+directory named after itself. Extracting it gives you one folder, whatever your
+extractor calls it.
+
 ```
-fog-esp-x86_64/
-  README.txt              what it is, both enrolment routes, which file to boot
-  MANIFEST.json           every file here with its sha256 and what it is for
-  autoexec.ipxe           the chain ladder — read by upstream's loader only
+autoexec.ipxe             FOG's boot script — iPXE's volume-root fallback copy
+README.txt                what it is, both enrolment routes, which file to boot
+MANIFEST.json             every file here with its sha256 and what it is for
+local/
+  autoexec.ipxe           the same script, for the binaries beside it
+  fogipxe.efi             FOG's build, all of iPXE's NIC drivers   ← start here
+  fogsnp.efi              FOG's build, firmware SNP protocol
+  fogintel.efi            FOG's build, Intel only
+  fogrealtek.efi          FOG's build, Realtek only
+  fogsnponly.efi          FOG's build, SNP bound to the load device
+secureboot/
+  autoexec.ipxe           the same script again, for the loader beside it
   snponly-shimx64.efi   ] upstream's Microsoft-signed shim and the loader it
   snponly.efi           ]  hands off to — point the boot manager at either shim
   ipxe-shimx64.efi      ]
@@ -249,16 +269,9 @@ fog-esp-x86_64/
   db.auth               ]
   fog-enroll-mok.sh     ] enrol from a booted Linux OS via mokutil
   fog-enroll-mok.desktop]
-  local/
-    autoexec.ipxe         FOG's boot script — DHCP, proxyDHCP, next-server
-    fogipxe.efi           FOG's build, all of iPXE's NIC drivers   ← start here
-    fogsnp.efi            FOG's build, firmware SNP protocol
-    fogintel.efi          FOG's build, Intel only
-    fogrealtek.efi        FOG's build, Realtek only
-    fogsnponly.efi        FOG's build, SNP bound to the load device
-  refind/
-    refind.efi            rEFInd, signed by this server — for the refind_efi exit
-    refind.conf           rEFInd's config, read from its own directory
+refind/
+  refind.efi              rEFInd, signed by this server — for the refind_efi exit
+  refind.conf             rEFInd's config, read from its own directory
 ```
 
 arm64 substitutes `snponly-shimaa64.efi`, `ipxe-shimaa64.efi` and `mmaa64.efi`,
@@ -269,47 +282,72 @@ netboot path agree on which binary is canonical.
 The `.auth` blobs and `MOK.der` are absent on a server that publishes no
 enrolment material (`--no-secureboot`, or a run where key generation failed).
 
-**Both shims are published; pick whichever your firmware gets along with.**
-`snponly-shimx64.efi` loads `snponly.efi`, `ipxe-shimx64.efi` loads `ipxe.efi`.
-Neither loader needs to drive a NIC — each only reads `autoexec.ipxe` out of the
-same folder and chains onward — so the choice is about which shim your firmware
-accepts, not about network hardware. One `autoexec.ipxe` serves both.
+**Every `autoexec.ipxe` in the archive is byte-identical.** iPXE reads its boot
+script out of the directory the running binary was loaded from, so each directory
+holding a bootable binary carries a copy; the root copy is iPXE's documented
+volume-root fallback. Edit the one beside the binary you boot — or all of them, if
+you switch between them.
+
+**Nothing in the archive chains anything else.** Whichever binary you point the
+boot manager at reads the script beside it and boots FOG directly. If it does not
+work, point the boot manager at a different one; there is no fallback chain to
+wait for, by design.
+
+>[!warning]
+>The archive root used to hold a five-deep `chain local/fog*.efi` ladder while
+>`local/` held different boot logic, and that arrangement could hang the
+>firmware. When iPXE chains an EFI image, the chained image resolves
+>`autoexec.ipxe` through the synthetic filesystem handle `efi_image_exec()`
+>installs, and that handle serves registered images **by flat name** — so the
+>chained binary re-read the root ladder instead of its own sibling, chained
+>itself, and recursed until the firmware ran out of pool memory. Separate
+>directories do not isolate the scripts, because flat-name lookup ignores
+>directories. Do not reintroduce a chain here.
 
 **Two names are not yours to choose.** shim picks its second stage by rewriting
 its own `-shim<arch>.efi` suffix to `.efi`, so `snponly-shimx64.efi` will load
 `snponly.efi` and nothing else, and it must be upstream's copy — that is what
-shim's embedded certificate vouches for. That is why the upstream set has to stay
-at the top level, and why FOG's own builds kept the `fog` prefix when they moved
-into `local\` — the names are in every bug report since the archives existed, and
-renaming them now would buy nothing.
+shim's embedded certificate vouches for. It resolves that name in its own
+directory, which is why the whole upstream set travels together in `secureboot/`.
+FOG's own builds kept the `fog` prefix when they moved into `local\` — the names
+are in every bug report since the archives existed, and renaming them now would
+buy nothing.
 
 **`mmx64.efi` is not optional, and neither is `MOK.der`.** shim launches
 MokManager from its own directory when it cannot verify the next stage, and that
 is the only way to enrol your key — shim's `MokList` is a boot-services-only
 variable, so nothing in a running OS can write it. MokManager then enrols by
-browsing the ESP for a certificate, which is what `MOK.der` is. Without both, an
-ESP that has not been enrolled yet is a dead end.
+browsing the ESP for a certificate, which is what `MOK.der` is. Both live in
+`secureboot/` beside the shim that needs them. Without them, an ESP that has not
+been enrolled yet is a dead end.
 
->[!warning]
->`ipxe.efi` in these archives is upstream's signed build, not FOG's. It does
->carry iPXE's own NIC drivers, so it looks like the one file you need — but
->booted locally off an ESP it does not load them. It works only as a chain stage
->that hands off to one of the `fog*.efi`, never as the binary that has to bring
->up the network. That is the whole reason FOG's own builds have to be here.
+>[!note]
+>**How far upstream's loader gets on its own is unsettled.** This page used to
+>state flatly that `ipxe.efi` here, though built with iPXE's own NIC drivers,
+>does not load them off an ESP and works only as a chain stage. Measured since,
+>on a VM: upstream's `snponly.efi` booted off an ESP brings up `net0` and
+>netboots FOG unaided, with the whole `local/` directory deleted. Both can be
+>true — the VM's firmware provides SNP, whereas firmware with no PXE boot option
+>at all typically provides none, and there upstream's loader would have nothing
+>to bind. That case is **untested**; no physical machine has run any of this.
+>Ship and try both, which is why FOG's own builds are still here.
 
 ### Booting it
 
 **Secure Boot off** — point the boot manager straight at `local\fogipxe.efi`.
 
-**Secure Boot on, via shim** — point the boot manager at `snponly-shimx64.efi`
-(or `ipxe-shimx64.efi`). The first time on a machine, shim cannot verify FOG's
-binary yet, so it launches MokManager: choose *Enroll key from disk* and select
-`MOK.der`. Reboot, and it boots from then on.
+**Secure Boot on, via shim** — point the boot manager at
+`secureboot\snponly-shimx64.efi` (or `secureboot\ipxe-shimx64.efi`). The first
+time on a machine, shim cannot verify FOG's binary yet, so it launches
+MokManager: choose *Enroll key from disk* and select `MOK.der` from that same
+`secureboot\` folder. Reboot, and it boots from then on.
 
 **Secure Boot on, via firmware Setup Mode** — put the machine into Setup Mode in
-its firmware and enrol `PK.auth`, `KEK.auth` and `db.auth`. Firmware then
-verifies FOG's signed binaries directly, so you can point the boot manager at
-`local\fogipxe.efi` with no shim and no MokManager at all.
+its firmware and enrol `secureboot\PK.auth`, `secureboot\KEK.auth` and
+`secureboot\db.auth`. Firmware then verifies FOG's signed binaries directly, so
+you can point the boot manager at `local\fogipxe.efi` with no shim and no
+MokManager at all — one image loaded and verified instead of three, which is the
+shortest route this archive offers.
 
 **Back out to the locally installed OS** — the default exit type
 (`FOG_EFI_BOOT_EXIT_TYPE`, `sanboot`) hands straight back to firmware and needs
@@ -327,9 +365,8 @@ it.
 
 ### If `fogipxe.efi` does not bring up your network
 
-Try `local\fogsnp.efi`, then `local\fogintel.efi` or `local\fogrealtek.efi`, then
-`local\fogsnponly.efi`. The top-level `autoexec.ipxe` already tries them in that
-order, where there is an upstream loader to read it.
+Point the boot manager at a different binary. Try `local\fogsnp.efi`, then
+`local\fogintel.efi` or `local\fogrealtek.efi`, then `local\fogsnponly.efi`.
 
 `fogsnponly.efi` is last on purpose: it binds only the device iPXE was loaded
 from, and booted off an ESP that device is the disk, so it usually finds no NIC.
@@ -338,19 +375,24 @@ the network, and there is hardware where it works — but it is the least likely
 of the five to be the answer here.
 
 >[!important]
->`autoexec.ipxe`'s fallbacks tell you **which files you copied**, not which
->driver works. They fire only when a binary is missing or fails verification.
->Once one loads and runs, control never comes back — a variant that starts but
->finds no NIC stops at its own prompt rather than falling through to the next.
->If `fogipxe.efi` doesn't drive your NIC, point the boot manager at another one;
->the script won't do it for you.
+>**Nothing tries them for you.** There is no fallback chain in the archive: each
+>binary reads the script beside it and boots, and if it comes up with no NIC it
+>stops at its own prompt. Selecting the next one is a boot-manager action.
+>
+>That is not a missing feature. A chain ladder shipped here once and could
+>recurse into itself and hang the firmware — see the warning further up.
 
 >[!note]
->An `i386` archive, and any archive on a server that staged no `secureboot/` tree,
->has **no** top-level `autoexec.ipxe` — there is no upstream loader in it to read
->one, and shipping an inert second script would only be something to confuse with
->the one that does the work. `local\autoexec.ipxe` is always there: the binary
->that reads it is FOG's own.
+>No prescribed order beyond the list above, because it genuinely varies. Two
+>machines tested during this work disagreed about which build drove their NIC,
+>one reporting SNP and the other NII. Start with `fogipxe.efi` on firmware that
+>has no PXE boot option — such firmware usually provides no SNP either, so a
+>binary needing one is no use to it — and work down otherwise.
+
+>[!note]
+>`secureboot\autoexec.ipxe` is present only where an upstream loader was staged:
+>a script beside no binary serves nobody. The root and `local\` copies are always
+>there.
 
 ### `manifest.json`
 
@@ -359,13 +401,13 @@ guessing filenames:
 
 ```json
 {
-  "schema": 2,
+  "schema": 3,
   "generated": "2026-08-19T14:02:11Z",
   "fogVersion": "1.6.0-beta.123",
   "ipxeVersion": "v2.0.0-fog.8",
   "archives": [
     { "path": "fog-esp-x86_64.zip", "arch": "x86_64",
-      "root": "fog-esp-x86_64", "size": 6812345, "sha256": "…",
+      "size": 6812345, "sha256": "…",
       "contents": [ { "name": "local/fogipxe.efi", "size": 1012345, "sha256": "…",
                       "role": "fog-ipxe", "origin": "fog", "fogSigned": true,
                       "note": "FOG's build with all of iPXE's own NIC drivers…" } ] }
@@ -377,10 +419,14 @@ guessing filenames:
 }
 ```
 
-`schema` is `2`. Schema 1 had a `variant` field on each archive, for the `-10sec`
+`schema` is `3`. Schema 1 had a `variant` field on each archive, for the `-10sec`
 set that no longer exists, and named every file by bare basename; `contents[].name`
-is now the path **relative to the archive root**, so `local/` and `refind/` files
-are named as such.
+is the path **relative to the archive root**, so `local/`, `secureboot/` and
+`refind/` files are named as such. Schema 2 carried a `root` key naming the
+wrapper directory inside each archive — that wrapper is gone, so the key is gone
+with it, and the upstream Secure Boot set moved from the archive root into
+`secureboot/`. If you script against this, both changes affect the paths you
+build; the absence of `root` is the signal that there is nothing to strip.
 
 Paths are relative to the manifest's own URL, so it resolves under whatever
 hostname and webroot you reached it by. Every `sha256` is of the bytes as
