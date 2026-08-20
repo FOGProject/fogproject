@@ -20,4 +20,18 @@ on:
 
 jobs:
   suite:
+    # Named because the job KEY is what GitHub puts in the middle of a called
+    # workflow's check name, so an unnamed `suite:` rendered every check as
+    # "Tests / suite / tests (PHP 7.4)". Every job in the reusable workflow is
+    # named already; this was the one link in the chain that was not.
+    #
+    # `fogproject` rather than something generic because fog-workflows hosts
+    # fog-plugins-tests.yml alongside fogproject-tests.yml, so which project's
+    # suite is running is the useful thing for this segment to say.
+    #
+    # This DOES change the reported check name (suite / ... -> fogproject /
+    # ...). Safe here only because working-1.6 currently has no branch
+    # protection and no ruleset requiring status checks -- both verified, not
+    # assumed. If required checks are ever added, register the new names.
+    name: fogproject
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-tests.yml@main
