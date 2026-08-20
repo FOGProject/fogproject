@@ -183,6 +183,58 @@ if ($reachable < 200) {
 }
 
 // ---------------------------------------------------------------
+// A table the manifest does not describe is asked about, not guessed at.
+//
+// schema-expected.php describes core's tables and nothing else, so every
+// plugin column used to come back '' -- which is the exact bug this file
+// exists to prevent, reintroduced one layer down. Invisible while PDODB
+// cleared sql_mode; with the clear gone the server refuses the write, so
+// saving an LDAP server without a port is error 1366. On the maintainer's own
+// install that is 18 tables, 16 enum/set and 44 integer columns.
+// ---------------------------------------------------------------
+$controllerSrc = evStripComments(
+    file_get_contents($web . '/lib/fog/fogcontroller.class.php')
+);
+$squashed = preg_replace('#\s+#', '', $controllerSrc);
+
+$checks++;
+if (strpos($squashed, 'if(!isset(self::$columnTypes[$t])){self::_loadPluginColumnTypes($t);}') === false) {
+    $failures[] = 'FOGController::columnType() no longer falls back to the '
+        . 'server catalog for a table the manifest does not describe, so '
+        . "every plugin column answers '' again -- GH-1245's own bug, one "
+        . 'layer down';
+}
+
+$checks++;
+if (strpos($squashed, 'information_schema') === false) {
+    $failures[] = 'FOGController no longer reads information_schema at all';
+}
+
+// The rebuilt definition has to carry NOT NULL, or columnIsNullable() -- which
+// greps the manifest's definition strings for it -- reads every plugin column
+// as nullable and binds a NULL the server refuses.
+$checks++;
+// The needle is whitespace-squashed, so ' NOT NULL' reads as 'NOTNULL'.
+if (strpos($squashed, "==='NO'?'NOTNULL':''") === false) {
+    $failures[] = '_loadPluginColumnTypes() no longer appends NOT NULL to the '
+        . 'definition it builds, so columnIsNullable() reads every plugin '
+        . 'column as nullable';
+}
+
+// Cached before the query, so a table that does not exist is asked about once
+// rather than on every field of every save.
+$checks++;
+$at = strpos($squashed, 'staticfunction_loadPluginColumnTypes($table){');
+$body = false === $at ? '' : substr($squashed, $at, 400);
+$seed = false === $at ? false : strpos($body, 'self::$columnTypes[$table]=[];');
+$query = false === $at ? false : strpos($body, 'self::$DB->query(');
+if (false === $seed || false === $query || $seed > $query) {
+    $failures[] = '_loadPluginColumnTypes() no longer seeds its cache entry '
+        . 'before querying, so a table that does not exist is looked up again '
+        . 'for every field of every save';
+}
+
+// ---------------------------------------------------------------
 // The clear does not come back.
 // ---------------------------------------------------------------
 $checks++;
