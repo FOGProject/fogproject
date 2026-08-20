@@ -560,6 +560,115 @@ class Route extends FOGBase
         return is_array($ids) ? array_values($ids) : null;
     }
     /**
+     * The object boundary as a SQL fragment, or null when none applies.
+     *
+     * Tried BEFORE _scopeIDs(). A boundary expressed as SQL costs one
+     * expression whatever the fleet size, where an id list costs a lookup of
+     * every object the user may see, materialised into PHP, on every request
+     * -- and then has to be spliced into a query or compared against every
+     * row. On a server with thousands of hosts that is the whole cost of the
+     * feature.
+     *
+     * THE RETURN IS A TRI-STATE, and it is NOT the same tri-state as
+     * _scopeIDs():
+     *
+     *   null              no answer -- fall through to the id list
+     *   '<sql>'           narrow with this expression
+     *   '1=0' (or similar) a real answer meaning "nothing"
+     *
+     * There is deliberately no empty-string state. An empty fragment is
+     * indistinguishable from silence, so it is read as silence: a listener
+     * that means "you may see nothing" must say so in SQL, and '1=0' is how.
+     * If '' were treated as deny-all, a listener that returned '' by accident
+     * would deny; if it were treated as a boundary, it would ALSO produce
+     * `WHERE ()`, which is a syntax error. Reading it as no-answer is the
+     * only option that fails towards the existing id-list path rather than
+     * towards either a broken query or a silent policy change.
+     *
+     * $idExpr is the caller's own id column, already quoted and qualified, so
+     * a listener can write `EXISTS (... WHERE assoc.hostID = <idExpr>)` and
+     * not have to know the table name or guess at ambiguity in a joined
+     * query.
+     *
+     * Inert in core: nothing here knows what a site is.
+     *
+     * @param string $classname The class being read.
+     * @param string $idExpr    The object-id column, quoted and qualified.
+     *
+     * @return string|null
+     */
+    private static function _scopeWhere($classname, $idExpr)
+    {
+        $where = null;
+        self::$HookManager
+            ->processEvent(
+                'API_SCOPE_WHERE',
+                array(
+                    'classname' => &$classname,
+                    'idExpr' => &$idExpr,
+                    'where' => &$where
+                )
+            );
+        if (!is_string($where)) {
+            return null;
+        }
+        $where = trim($where);
+        return '' === $where ? null : $where;
+    }
+    /**
+     * The boundary fragment for a class, with the id expression worked out.
+     *
+     * Every caller needs the same `\`table\`.\`idcol\`` expression, and
+     * every caller getting it right separately is the sort of duplication
+     * that stays correct until one of them is edited.
+     *
+     * @param string $classname The class being read.
+     *
+     * @return string|null
+     */
+    private static function _scopeWhereFor($classname)
+    {
+        $classVars = self::getClass($classname, '', true);
+        if (!isset($classVars['databaseTable'], $classVars['databaseFields']['id'])) {
+            return null;
+        }
+        return self::_scopeWhere(
+            $classname,
+            sprintf(
+                '`%s`.`%s`',
+                $classVars['databaseTable'],
+                $classVars['databaseFields']['id']
+            )
+        );
+    }
+    /**
+     * ANDs a boundary fragment onto a WHERE clause _buildWhere() produced.
+     *
+     * _buildWhere() returns either '' or a complete ' WHERE ...' whose own
+     * terms are joined with AND, so appending is safe without parentheses
+     * around what is already there -- but they are added anyway, because
+     * "the other function only ever emits AND" is a property a later edit
+     * can remove without anything here noticing.
+     *
+     * @param string $where The clause so far, '' or ' WHERE ...'.
+     * @param string $frag  The boundary fragment.
+     *
+     * @return string
+     */
+    private static function _andScopeWhere($where, $frag)
+    {
+        if (null === $frag || '' === (string)$frag) {
+            return $where;
+        }
+        $where = (string)$where;
+        if ('' === trim($where)) {
+            return ' WHERE (' . $frag . ')';
+        }
+        return ' WHERE ('
+            . preg_replace('#^\s*WHERE\s+#i', '', trim($where))
+            . ') AND (' . $frag . ')';
+    }
+    /**
      * Narrows a filter set to the ids the acting user may see.
      *
      * Folded into the WHERE rather than applied to the rows afterwards, so
@@ -613,13 +722,76 @@ class Route extends FOGBase
         if ($id < 1) {
             return;
         }
-        $scope = self::_scopeIDs(strtolower((string)$class));
+        $classname = strtolower((string)$class);
+        // The fragment answers this as a bounded existence check -- one row
+        // at most, and the id list is never materialised. It is also the SAME
+        // expression the list routes narrow with, which is the property that
+        // matters: a 403 that disagreed with what the list showed would be
+        // two statements of who may see what, and the second one to be edited
+        // would make the boundary decorative.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        if (null !== $scopeWhere) {
+            if (self::_objectInScopeWhere($classname, $id, $scopeWhere)) {
+                return;
+            }
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_FORBIDDEN
+            );
+            return;
+        }
+        $scope = self::_scopeIDs($classname);
         if (null === $scope || in_array($id, $scope, true)) {
             return;
         }
         self::sendResponse(
             HTTPResponseCodes::HTTP_FORBIDDEN
         );
+    }
+    /**
+     * Does this one object satisfy the boundary fragment?
+     *
+     * Deliberately not `SELECT ... LIMIT 1` over the scoped set followed by a
+     * comparison -- the id is bound as a parameter and the database answers
+     * yes or no, so the cost does not move with how many objects the user can
+     * see.
+     *
+     * A query that cannot run answers NO. That is the safe direction here:
+     * this decides whether to serve a single object, and refusing one the
+     * user was entitled to is a visible, reportable failure, where serving
+     * one they were not is silent.
+     *
+     * @param string $classname The class the route is acting on.
+     * @param int    $id        The target object id.
+     * @param string $frag      The boundary fragment.
+     *
+     * @return bool
+     */
+    private static function _objectInScopeWhere($classname, $id, $frag)
+    {
+        $classVars = self::getClass($classname, '', true);
+        if (!isset($classVars['databaseTable'], $classVars['databaseFields']['id'])) {
+            return false;
+        }
+        $sql = sprintf(
+            'SELECT `%s`.`%s` FROM `%s` WHERE `%s`.`%s` = :scope_id'
+            . ' AND (%s) LIMIT 1',
+            $classVars['databaseTable'],
+            $classVars['databaseFields']['id'],
+            $classVars['databaseTable'],
+            $classVars['databaseTable'],
+            $classVars['databaseFields']['id'],
+            $frag
+        );
+        $rows = self::$DB
+            ->query($sql, array(), array('scope_id' => (int)$id))
+            ->fetch()
+            ->get();
+        // is_array(), not count((array)$rows). PDODB::get() answers a query
+        // that matched nothing with `false`, and `count((array)false)` is 1 --
+        // so the obvious test reads "no such row" as "in scope" and the gate
+        // allows everything it was built to refuse. It reported allowed for
+        // an object outside the boundary until a behavioural test drove it.
+        return is_array($rows) && count($rows) > 0;
     }
     /**
      * Test token information.
@@ -747,10 +919,18 @@ class Route extends FOGBase
             $find,
             self::getsearchbody($classname)
         );
-        // Object boundary. Applied to the rows rather than the query
-        // because this route has no LIMIT -- every match is built and
-        // returned -- so filtering here is exact and keeps 'count' honest.
-        $scope = self::_scopeIDs($classname);
+        // Object boundary, preferring SQL.
+        //
+        // A fragment is pushed into the query, so the rows the boundary
+        // excludes are never built at all. Nothing answering the fragment
+        // event falls through to the id list, which is applied to the rows
+        // instead -- unchanged, because a third-party plugin that only knows
+        // API_SCOPE_IDS has to keep working exactly as it did.
+        //
+        // Either way 'count' stays honest: it counts what is emitted, and
+        // this route has no LIMIT, so every match is built and returned.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        $scope = null === $scopeWhere ? self::_scopeIDs($classname) : null;
         switch ($classname) {
             case 'plugin':
                 self::$data['count_active'] = 0;
@@ -776,7 +956,20 @@ class Route extends FOGBase
                 }
                 break;
             default:
-                foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
+                $found = $classman->find(
+                    $find,
+                    'AND',
+                    $sortby,
+                    'ASC',
+                    '=',
+                    false,
+                    false,
+                    false,
+                    true,
+                    'array_unique',
+                    (string)$scopeWhere
+                );
+                foreach ((array)$found as &$class) {
                     $test = stripos(
                         $class->get('name'),
                         '_api_'
@@ -844,8 +1037,11 @@ class Route extends FOGBase
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        $scope = self::_scopeIDs($classname);
-        foreach ($classman->search($item, true) as &$class) {
+        // Same two-path boundary as listem(): SQL when a listener supplies
+        // it, the id list when none does.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        $scope = null === $scopeWhere ? self::_scopeIDs($classname) : null;
+        foreach ($classman->search($item, true, (string)$scopeWhere) as &$class) {
             if (false != stripos($class->get('name'), '_api_')) {
                 continue;
             }
@@ -2225,7 +2421,13 @@ class Route extends FOGBase
         );
 
         $whereItems = self::handleWhereItems($whereItems, $class);
-        $whereItems = self::_scopeWhereItems($classname, $whereItems);
+        // Object boundary. The fragment is preferred and the id list is the
+        // fallback; only one of the two is ever applied, so a boundary is
+        // never counted twice and never half-applied.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        if (null === $scopeWhere) {
+            $whereItems = self::_scopeWhereItems($classname, $whereItems);
+        }
 
         $sql = 'SELECT `'
             . $classVars['databaseFields']['id']
@@ -2235,7 +2437,10 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql .= self::_buildWhere($classVars, $whereItems, $params);
+        $sql .= self::_andScopeWhere(
+            self::_buildWhere($classVars, $whereItems, $params),
+            $scopeWhere
+        );
         $sql .= ' ORDER BY `'
             . (
                 $classVars['databaseFields']['name'] ?:
@@ -2314,7 +2519,11 @@ class Route extends FOGBase
             }
         }
 
-        $whereItems = self::_scopeWhereItems($classname, $whereItems);
+        // Object boundary; see names() for why only one of the two applies.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        if (null === $scopeWhere) {
+            $whereItems = self::_scopeWhereItems($classname, $whereItems);
+        }
 
         $sql = 'SELECT `'
             . $classVars['databaseFields'][$getField]
@@ -2322,7 +2531,10 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql .= self::_buildWhere($classVars, $whereItems, $params);
+        $sql .= self::_andScopeWhere(
+            self::_buildWhere($classVars, $whereItems, $params),
+            $scopeWhere
+        );
         $sql .= ' ORDER BY `'
             . (
                 (isset($classVars['databaseFields']['name']) && $classVars['databaseFields']['name']) ?

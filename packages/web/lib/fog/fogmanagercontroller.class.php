@@ -151,6 +151,7 @@ abstract class FOGManagerController extends FOGBase
      * @param mixed  $idField       what fields to get
      * @param bool   $onecompare    second where uses AND
      * @param string $filter        array function for filter
+     * @param string $scopeWhere    an object-boundary SQL fragment to AND on
      *
      * @return array
      */
@@ -164,7 +165,8 @@ abstract class FOGManagerController extends FOGBase
         $not = false,
         $idField = false,
         $onecompare = true,
-        $filter = 'array_unique'
+        $filter = 'array_unique',
+        $scopeWhere = ''
     ) {
         // Fail safe defaults
         if (empty($findWhere)) {
@@ -349,6 +351,64 @@ abstract class FOGManagerController extends FOGBase
         $idFields = array_filter($idFields);
         $idField = $idFields;
         unset($idFields);
+        $whereClause = (
+            count($whereArray) > 0 ?
+            sprintf(
+                ' WHERE %s%s',
+                implode(" $whereOperator ", (array) $whereArray),
+                (
+                    $isEnabled ?
+                    sprintf(' AND %s', $isEnabled) :
+                    ''
+                )
+            ) :
+            (
+                $isEnabled ?
+                sprintf(' WHERE %s', $isEnabled) :
+                ''
+            )
+        );
+        $andClause = (
+            count($whereArrayAnd) > 0 ?
+            (
+                count($whereArray) > 0 ?
+                sprintf(
+                    'AND %s',
+                    implode(" $whereOperator ", (array) $whereArrayAnd)
+                ) :
+                sprintf(
+                    ' WHERE %s',
+                    implode(" $whereOperator ", (array) $whereArrayAnd)
+                )
+            ) :
+            ''
+        );
+        // The object boundary, when the caller was given one to apply.
+        //
+        // Two properties this has to hold that the obvious splice does not.
+        // It is ANDed on LAST, after everything the caller asked for, with
+        // the caller's own terms parenthesised: $whereOperator is a parameter
+        // and 'OR' is a value it takes, so a term merged in beside the
+        // caller's could be satisfied INSTEAD of the boundary rather than as
+        // well as it. And it is joined with a literal ' AND ', never through
+        // $whereOperator, for the same reason. An OR that can reach outside
+        // the boundary is not a boundary.
+        //
+        // Empty means no boundary, which is every caller that does not pass
+        // this argument. A caller that means "you may see nothing" passes a
+        // fragment saying so, such as '1=0' -- NOT an empty string, which
+        // reads here as unrestricted and would hand back the whole table.
+        $scopeWhere = trim((string)$scopeWhere);
+        if ('' !== $scopeWhere) {
+            $inner = trim($whereClause . ' ' . $andClause);
+            $inner = preg_replace('#^WHERE\s+#i', '', $inner);
+            $whereClause = (
+                '' === $inner ?
+                sprintf(' WHERE %s', $scopeWhere) :
+                sprintf(' WHERE (%s) AND (%s)', $inner, $scopeWhere)
+            );
+            $andClause = '';
+        }
         $query = sprintf(
             $this->loadQueryTemplate,
             (
@@ -358,38 +418,8 @@ abstract class FOGManagerController extends FOGBase
             ),
             $this->databaseTable,
             $join,
-            (
-                count($whereArray) > 0 ?
-                sprintf(
-                    ' WHERE %s%s',
-                    implode(" $whereOperator ", (array) $whereArray),
-                    (
-                        $isEnabled ?
-                        sprintf(' AND %s', $isEnabled) :
-                        ''
-                    )
-                ) :
-                (
-                    $isEnabled ?
-                    sprintf(' WHERE %s', $isEnabled) :
-                    ''
-                )
-            ),
-            (
-                count($whereArrayAnd) > 0 ?
-                (
-                    count($whereArray) > 0 ?
-                    sprintf(
-                        'AND %s',
-                        implode(" $whereOperator ", (array) $whereArrayAnd)
-                    ) :
-                    sprintf(
-                        ' WHERE %s',
-                        implode(" $whereOperator ", (array) $whereArrayAnd)
-                    )
-                ) :
-                ''
-            ),
+            $whereClause,
+            $andClause,
             $groupBy,
             $orderBy
         );
@@ -1002,7 +1032,7 @@ abstract class FOGManagerController extends FOGBase
      *
      * @return mixe
      */
-    public function search($keyword = '', $returnObjects = false)
+    public function search($keyword = '', $returnObjects = false, $scopeWhere = '')
     {
         $keyword = trim($keyword);
         if (!$keyword) {
@@ -1030,7 +1060,19 @@ abstract class FOGManagerController extends FOGBase
             )
         );
         if (empty($keyword) || $keyword === '%') {
-            return $this->find();
+            return $this->find(
+                array(),
+                'AND',
+                'name',
+                'ASC',
+                '=',
+                false,
+                false,
+                false,
+                true,
+                'array_unique',
+                $scopeWhere
+            );
         }
         $keyword = preg_replace(
             '#[%\+\s\+]#',
@@ -1330,7 +1372,19 @@ abstract class FOGManagerController extends FOGBase
             array('id' => $itemIDs)
         );
         if ($returnObjects) {
-            return $this->find(array('id' => $itemIDs));
+            return $this->find(
+                array('id' => $itemIDs),
+                'AND',
+                'name',
+                'ASC',
+                '=',
+                false,
+                false,
+                false,
+                true,
+                'array_unique',
+                $scopeWhere
+            );
         }
 
         return $itemIDs;

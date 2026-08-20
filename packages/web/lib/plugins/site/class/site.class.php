@@ -367,10 +367,46 @@ class Site extends FOGController
      */
     public static function hostIDsForSites($siteIDs)
     {
-        return (array)self::getSubObjectIDs(
-            'SiteHostAssociation',
-            array('siteID' => (array)$siteIDs),
-            'hostID'
+        $siteIDs = array_filter(
+            array_map('intval', array_values((array)$siteIDs))
+        );
+        if (count($siteIDs) < 1) {
+            return array();
+        }
+        // Read directly rather than through getSubObjectIDs().
+        //
+        // SiteHostAssociation declares a class relationship to Host, and
+        // find() walks those relationships to build the joins -- including
+        // Host's own MACAddressAssociation relationship, which carries the
+        // filter array('primary' => 1). buildQuery() puts that in the WHERE
+        // as `hostMAC`.`hmPrimary` = '1', which turns a LEFT OUTER JOIN into
+        // an inner one and DROPS every host with no primary MAC row.
+        //
+        // The effect was silent and it under-returned: a site-restricted user
+        // did not see hosts in their own site that had no primary MAC. In the
+        // lab, 95 of 1000. It is not a disclosure -- nobody saw anything they
+        // should not -- but it is wrong, and it made the SQL boundary in
+        // scopedObjectWhere() disagree with this one, which is worse: which
+        // hosts you could see depended on which of the two answered.
+        //
+        // A plain membership lookup has no business joining Host at all. The
+        // table and column names are the same ones scopedObjectWhere() writes
+        // and are justified there.
+        $rows = self::$DB
+            ->query(
+                sprintf(
+                    'SELECT DISTINCT `siteHostAssoc`.`shaHostID`'
+                    . ' FROM `siteHostAssoc`'
+                    . ' WHERE `siteHostAssoc`.`shaSiteID` IN (%s)',
+                    implode(',', $siteIDs)
+                )
+            )
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+            ->get('shaHostID');
+        return array_values(
+            array_unique(
+                array_map('intval', (array)$rows)
+            )
         );
     }
     /**
@@ -416,25 +452,145 @@ class Site extends FOGController
      *
      * @return array|null
      */
-    public static function scopedObjectIDs($classname, $userID)
+    /**
+     * Per-request memo of _boundedSiteIDs(), keyed by user id.
+     *
+     * Core consults the SQL fragment first and falls back to the id list, so
+     * on a server where only one of the two is answered -- which is every
+     * server, since the fragment always wins here -- an UNRESTRICTED user
+     * pays for the restriction lookup TWICE per read: once for the fragment
+     * that declines, once for the id list that declines. Measured at 2 -> 3
+     * statements for an administrator on `names(host)` before this existed,
+     * which is a cost the boundary imposes on exactly the people it does not
+     * apply to.
+     *
+     * Deliberately NOT a memo on userIsRestricted() or userSiteIDs(). Those
+     * are public and the management pages call them directly, including on
+     * requests that have just written the rows they read; a memo there would
+     * serve a stale answer to the page that changed it. Scoped to this
+     * private ladder, the only callers are the two read-side entry points,
+     * neither of which writes.
+     *
+     * @var array
+     */
+    private static $_boundedSites = array();
+    /**
+     * The same boundary as scopedObjectIDs(), expressed as SQL.
+     *
+     * THE RETURN IS A TRI-STATE, and it is not the id list's:
+     *
+     *   null      no boundary applies -- the caller must fall back
+     *   '<sql>'   narrow with this expression
+     *   '1=0'     a real answer meaning "nothing"
+     *
+     * There is no empty-string state, because the caller reads '' as "no
+     * listener answered" -- see Route::_scopeWhere(). Deny-all therefore has
+     * to be said in SQL, and '1=0' is how it is said here.
+     *
+     * Why a fragment at all: scopedObjectIDs() answers by reading every
+     * object the user may see into PHP, on every request, and the caller then
+     * either splices thousands of ids into an IN list or compares each row
+     * against them. This costs one expression whatever the fleet size. The
+     * membership rule is still stated once -- the two functions share the
+     * ladder below and differ only in what they return -- so the API and the
+     * management pages cannot drift into two different answers.
+     *
+     * Nothing here interpolates user input. $idExpr is built by the caller
+     * from the model's own $databaseFields, and $userID is cast to int; there
+     * is no path from a request parameter into this string. A future edit
+     * that wants to inline anything else needs a parameter, not a cast.
+     *
+     * @param string $classname The class being listed or fetched.
+     * @param string $idExpr    The object-id column, quoted and qualified.
+     * @param int    $userID    The acting user.
+     *
+     * @return string|null
+     */
+    public static function scopedObjectWhere($classname, $idExpr, $userID)
+    {
+        $siteIDs = self::_boundedSiteIDs($classname, $userID);
+        if (null === $siteIDs) {
+            return null;
+        }
+        if (count($siteIDs) < 1) {
+            return '1=0';
+        }
+        $sites = implode(
+            ',',
+            array_map('intval', array_values($siteIDs))
+        );
+        $hostsInSites = sprintf(
+            'SELECT `siteHostAssoc`.`shaHostID` FROM `siteHostAssoc`'
+            . ' WHERE `siteHostAssoc`.`shaSiteID` IN (%s)',
+            $sites
+        );
+        if ('group' === strtolower((string)$classname)) {
+            // A group is in scope when it holds at least one host that is.
+            // Same rule as groupIDsForSites(), which is the point.
+            return sprintf(
+                'EXISTS (SELECT 1 FROM `groupMembers`'
+                . ' WHERE `groupMembers`.`gmGroupID` = %s'
+                . ' AND `groupMembers`.`gmHostID` IN (%s))',
+                $idExpr,
+                $hostsInSites
+            );
+        }
+        return sprintf(
+            'EXISTS (SELECT 1 FROM `siteHostAssoc`'
+            . ' WHERE `siteHostAssoc`.`shaHostID` = %s'
+            . ' AND `siteHostAssoc`.`shaSiteID` IN (%s))',
+            $idExpr,
+            $sites
+        );
+    }
+    /**
+     * The sites bounding this user for this class, or null for no boundary.
+     *
+     * The shared front half of scopedObjectIDs() and scopedObjectWhere():
+     * everything up to the membership lookup itself. Two copies of this
+     * ladder would be two chances to answer "is this user bounded?"
+     * differently, in the one place where the two answers must agree.
+     *
+     * Returns an EMPTY ARRAY for a restricted user belonging to no site --
+     * a real answer meaning "nothing" -- and null when no boundary applies.
+     *
+     * @param string $classname The class being listed or fetched.
+     * @param int    $userID    The acting user.
+     *
+     * @return array|null
+     */
+    private static function _boundedSiteIDs($classname, $userID)
     {
         $classname = strtolower((string)$classname);
         // Only what the plugin actually associates. Everything else --
         // images, snapins, storage nodes, the association tables -- has no
-        // site boundary to apply, and returning an id list for one would
-        // narrow lookups the plugin knows nothing about.
+        // site boundary to apply, and narrowing one the plugin knows nothing
+        // about would break lookups rather than protect anything.
         if (!in_array($classname, array('host', 'group'), true)) {
             return null;
         }
         $userID = (int)$userID;
-        if (!self::userIsRestricted($userID)) {
+        if (array_key_exists($userID, self::$_boundedSites)) {
+            return self::$_boundedSites[$userID];
+        }
+        self::$_boundedSites[$userID] = self::userIsRestricted($userID)
+            ? self::userSiteIDs($userID)
+            : null;
+        return self::$_boundedSites[$userID];
+    }
+    public static function scopedObjectIDs($classname, $userID)
+    {
+        // Same ladder as scopedObjectWhere(), deliberately: these two answer
+        // the same question in two shapes, and a server where they disagree
+        // has a boundary that depends on which route you came in through.
+        $siteIDs = self::_boundedSiteIDs($classname, $userID);
+        if (null === $siteIDs) {
             return null;
         }
-        $siteIDs = self::userSiteIDs($userID);
         if (count($siteIDs) < 1) {
             return array();
         }
-        return 'group' === $classname
+        return 'group' === strtolower((string)$classname)
             ? self::groupIDsForSites($siteIDs)
             : self::hostIDsForSites($siteIDs);
     }

@@ -88,6 +88,13 @@ class AddSiteAPI extends Hook
                     $this,
                     'scopeIDs'
                 )
+            )
+            ->register(
+                'API_SCOPE_WHERE',
+                array(
+                    $this,
+                    'scopeWhere'
+                )
             );
     }
     /**
@@ -242,6 +249,52 @@ class AddSiteAPI extends Hook
                 array_map('intval', (array)$scope)
             )
         );
+    }
+    /**
+     * The same boundary as scopeIDs(), as a SQL fragment.
+     *
+     * Answered in preference to the id list, and the reason is cost: scopeIDs()
+     * reads every host the user may see into PHP on every request, which on a
+     * server with thousands of them is the whole expense of the feature. A
+     * fragment is one expression whatever the fleet size.
+     *
+     * Both handlers stay registered. Core tries this one and falls back to the
+     * id list when nothing answers, so a third-party plugin that knows only
+     * API_SCOPE_IDS keeps bounding reads exactly as it did.
+     *
+     * Sets $arguments['where'] only when a boundary applies. Left alone it
+     * stays null, which is the caller's "nobody answered" value. Note this
+     * tri-state is NOT the id list's: an empty string is read as silence, so
+     * "you may see nothing" is the literal fragment '1=0'. See
+     * Site::scopedObjectWhere().
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function scopeWhere($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        // No acting user means no boundary to apply -- the service daemons
+        // and the status endpoints reach Route::ids()/names() with nobody
+        // logged in, and narrowing those to a site would break imaging
+        // rather than protect anything. Same guard as scopeIDs(), and it has
+        // to be here too: this handler is consulted FIRST, so a boundary it
+        // emitted would apply before the id list was ever asked.
+        if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return;
+        }
+        $where = Site::scopedObjectWhere(
+            $arguments['classname'],
+            $arguments['idExpr'],
+            self::$FOGUser->get('id')
+        );
+        if (null === $where) {
+            return;
+        }
+        $arguments['where'] = $where;
     }
     /**
      * This function changes the getter to enact on this particular item.
