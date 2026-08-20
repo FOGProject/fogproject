@@ -902,6 +902,10 @@ msgstr "Controllare che database è in esecuzione"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "Nessun FOGPage Classe trovato per questo nodo"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
@@ -1824,6 +1828,9 @@ msgstr "Percorso FTP"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "La connessione FTP non è riuscita"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 #, fuzzy
 msgid "Fail to destroy"
@@ -6825,6 +6832,10 @@ msgstr "per i parametri di menu avanzati"
 
 msgid "for the menu background"
 msgstr "per il menu di sfondo"
+
+#, fuzzy
+msgid "for user"
+msgstr "Crea utente?"
 
 msgid "found"
 msgstr "trovato"

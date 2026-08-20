@@ -561,13 +561,36 @@ abstract class FOGService extends FOGBase
                 try {
                     self::$FOGFTP->connect();
                 } catch (Exception $e) {
-                    self::outall(
-                        sprintf(
-                            ' * Error: %s %s',
-                            _('Cannot connect to'),
-                            $StorageNode->name
-                        )
-                    );
+                    // A refused login used to be reported as "Cannot connect",
+                    // which points at the network when the cause is nearly
+                    // always a stale password for this node. Each master keeps
+                    // its own copy of every peer's credential and nothing syncs
+                    // them, so say which of the two actually failed.
+                    if (self::$FOGFTP->lastFailure() === 'login') {
+                        self::outall(
+                            sprintf(
+                                ' * Error: %s %s %s %s',
+                                _('FTP login rejected by'),
+                                $StorageNode->name,
+                                _('for user'),
+                                $StorageNode->user
+                            )
+                        );
+                        self::outall(
+                            sprintf(
+                                ' | %s',
+                                _('Check the password stored for this node')
+                            )
+                        );
+                    } else {
+                        self::outall(
+                            sprintf(
+                                ' * Error: %s %s',
+                                _('Cannot connect to'),
+                                $StorageNode->name
+                            )
+                        );
+                    }
                     continue;
                 }
                 $nodename = $StorageNode->name;
