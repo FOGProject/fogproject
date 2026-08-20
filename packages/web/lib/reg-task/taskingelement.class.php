@@ -311,12 +311,15 @@ abstract class TaskingElement extends FOGBase
                 'imaginglog',
                 [
                     'hostID' => self::$Host->get('id'),
-                    'finish' => '0000-00-00 00:00:00'
+                    // GH-1245: an unfinished log has no finish time. Reads
+                    // as `ilFinishTime IS NULL` -- see
+                    // FOGManagerController::distinct().
+                    'finish' => null
                 ]
             );
             return self::getClass('ImagingLog')
                 ->set('hostID', self::$Host->get('id'))
-                ->set('start', self::formatTime('', 'Y-m-d H:i:s'))
+                ->set('start', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->set('image', $this->Image->get('name'))
                 ->set('type', $_REQUEST['type'])
                 ->set('createdBy', $this->Task->get('createdBy'))
@@ -325,7 +328,9 @@ abstract class TaskingElement extends FOGBase
         $find = [
             'hostID' => self::$Host->get('id'),
             'image' => $this->Image->get('name'),
-            'finish' => '0000-00-00 00:00:00',
+            // GH-1245: as above -- the row this is looking for is the one
+            // that has not finished.
+            'finish' => null,
         ];
         $ilID = Route::getIds(
             'imaginglog',
@@ -333,7 +338,7 @@ abstract class TaskingElement extends FOGBase
         );
         $ilID = self::maxId($ilID);
         return self::getClass('ImagingLog', $ilID)
-            ->set('finish', self::formatTime('', 'Y-m-d H:i:s'))
+            ->set('finish', self::formatTime('now', 'Y-m-d H:i:s'))
             ->save();
     }
 }

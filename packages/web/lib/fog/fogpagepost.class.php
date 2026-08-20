@@ -446,9 +446,22 @@ trait FOGPagePost
         // Schedule Delayed/Cron checks.
         switch ($scheduleType) {
             case 'single':
-                $scheduleDeployTime = self::niceDate(
-                    filter_input(INPUT_POST, 'scheduleSingleTime')
-                );
+                $scheduleSingleTime = filter_input(INPUT_POST, 'scheduleSingleTime');
+                /*
+                 * GH-1245: reject the missing time instead of scheduling now.
+                 *
+                 * niceDate() used to read an absent or empty value as the
+                 * current time, so a single schedule with no time silently
+                 * became "run immediately". It now reads empty as "no value",
+                 * which would trip the past-time check below with a message
+                 * that does not describe what happened.
+                 */
+                if (null === $scheduleSingleTime
+                    || '' === trim((string) $scheduleSingleTime)
+                ) {
+                    throw new \Exception(_('A scheduled time is required'));
+                }
+                $scheduleDeployTime = self::niceDate($scheduleSingleTime);
                 if ($scheduleDeployTime < self::niceDate()) {
                     throw new \Exception(_('Scheduled time is in the past'));
                 }

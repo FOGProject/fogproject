@@ -1026,7 +1026,10 @@ abstract class FOGManagerController extends FOGBase
         $updateVals = [];
         foreach ((array) $insertData as $field => &$value) {
             $field = trim($field);
-            $value = trim($value);
+            // GH-1245: null is a value to write, not a string to trim.
+            // trim(null) is '' -- and a PHP 8.1 deprecation -- which would
+            // put the zero date back into a column being cleared.
+            $value = (null === $value) ? null : trim($value);
             $updateKey = sprintf(
                 ':update_%s',
                 $field
@@ -1333,6 +1336,19 @@ abstract class FOGManagerController extends FOGBase
                             $this->databaseTable,
                             $this->databaseFields[$field],
                             implode(',', $inKeys)
+                        );
+                    } elseif (null === $value) {
+                        // GH-1245: a null filter asks for rows where the
+                        // column holds nothing. Bound as a placeholder it
+                        // becomes `col = NULL`, which is never true, so the
+                        // query silently returns nothing -- and it now has
+                        // callers, because the date columns that used to
+                        // carry '0000-00-00 00:00:00' as their "not yet"
+                        // sentinel hold NULL from schema step 344 on.
+                        $whereArray[] = sprintf(
+                            '`%s`.`%s` IS NULL',
+                            $this->databaseTable,
+                            $this->databaseFields[$field]
                         );
                     } else {
                         if (is_array($value)) {

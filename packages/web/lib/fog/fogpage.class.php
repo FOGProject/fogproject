@@ -2252,7 +2252,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     $keys = [
                         'FOG_TFTP_FTP_PASSWORD',
@@ -2600,7 +2600,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     $keys = [
                         'FOG_TFTP_FTP_PASSWORD',
@@ -3198,7 +3198,8 @@ abstract class FOGPage extends FOGBase
                     // Reset must leave nothing behind that authorize() would
                     // still accept, grace token included.
                     'prev_sec_tok' => '',
-                    'sec_time' => '0000-00-00 00:00:00'
+                    // GH-1245: no expiry, not an expiry in the year zero.
+                    'sec_time' => null
                 ]
             );
         $this->jsonSend(HTTPResponseCodes::HTTP_ACCEPTED, json_encode(

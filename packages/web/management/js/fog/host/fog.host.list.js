@@ -141,7 +141,14 @@
             },
             {
                 render: function (data, type, row) {
-                    return (data === '0000-00-00 00:00:00') ? '' : data;
+                    // GH-1245: "never deployed" is NULL from schema step 344
+                    // on, and was the zero date before it. Both spellings
+                    // reach here on an upgraded server until the rows are
+                    // rewritten, so both have to blank the cell.
+                    if (!data || String(data).indexOf('0000-00-00') === 0) {
+                        return '';
+                    }
+                    return data;
                 },
                 targets: 3
             }

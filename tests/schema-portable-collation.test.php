@@ -211,12 +211,15 @@ if (count($bare)) {
  * '0000-00-00 00:00:00' is not a legal DATE/DATETIME default under MySQL
  * 8.0's stock sql_mode, which has NO_ZERO_DATE and STRICT_TRANS_TABLES on by
  * default. It answers 1067, which is on neither SchemaUpdaterPage::update()'s
- * $skiperrs nor SchemaReconciler's $_skiperrs, so the whole schema update
- * throws, the version is never recorded, and every request 308-redirects to
- * ?node=schema. MariaDB's default sql_mode has never carried either flag,
- * which is why one such default sat in the tree for years and only MySQL
- * ever objected -- the same shape as the collation checks above, where the
- * server that would refuse it is not the server anyone was writing on.
+ * $skiperrs nor SchemaReconciler's $_skiperrs.
+ *
+ * FOG does not hit that today, because PDODB::_connect() issues
+ * `SET SESSION sql_mode=''` on every connection and a cleared sql_mode
+ * accepts the zero date on every server. So this gate is not guarding an
+ * outage -- it guards against writing DDL whose validity depends on FOG
+ * having switched the server's own checks off. That dependency is real and
+ * undocumented (GH-1245); DDL that stands up without it is simply better
+ * DDL, and NULL says what the zero date was standing in for anyway.
  *
  * Textual for the same reason as the rest of this file. The executable
  * version of this check is tests/schema-executes.test.php against a real
@@ -247,10 +250,11 @@ if (count($zerodates)) {
         'FAIL: ' . count($zerodates) . " zero date(s) in checked-in schema"
         . " DDL:\n"
         . '  ' . implode("\n  ", $zerodates) . "\n\n"
-        . "  '0000-00-00' is rejected outright by MySQL 8.0's stock sql_mode\n"
+        . "  '0000-00-00' is rejected by MySQL 8.0's stock sql_mode\n"
         . "  (NO_ZERO_DATE, STRICT_TRANS_TABLES) with error 1067, which\n"
-        . "  neither tolerance list skips -- so the schema update throws and\n"
-        . "  the install is left permanently redirecting to ?node=schema.\n\n"
+        . "  neither tolerance list skips. FOG survives it only because\n"
+        . "  PDODB clears sql_mode on every connection -- so this is DDL that\n"
+        . "  depends on the server's own checks being off. See GH-1245.\n\n"
         . "  Use NULL. 'Not yet' is an absent value, not a date.\n"
     );
     exit(1);

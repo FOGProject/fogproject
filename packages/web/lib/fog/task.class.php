@@ -201,7 +201,8 @@ class Task extends TaskType
         $curtime = self::niceDate();
         $this->set('stateID', self::getQueuedState())
              ->set('checkInTime', $curtime->format('Y-m-d H:i:s'))
-             ->set('scheduledStartTime', '0000-00-00 00:00:00');
+             // GH-1245: requeuing clears the scheduled start; NULL says so.
+             ->set('scheduledStartTime', null);
         if (!$this->save()) {
             throw new \Exception(_('Failed to update task'));
         }
