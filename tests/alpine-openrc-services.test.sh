@@ -350,6 +350,16 @@ check "$(grep -h '^respawn_max=' "$INITD"/* | sort -u)" "respawn_max=0" \
 check "$(grep -l '^command_background' "$INITD"/* 2>/dev/null | wc -l | tr -d ' ')" "0" \
       "V4. no script mixes command_background with a supervisor"
 
+# W. The mode bit. installInitScript uses `cp -f`, which preserves the source's
+#    permissions, and OpenRC will not run a non-executable init script. This
+#    repo sets core.fileMode=false, so a chmod made locally is invisible to git
+#    and a file that went in 644 stays 644 for everyone who clones -- which is
+#    how FOGFileDeleter shipped unexecutable while working fine on the box it
+#    was written on.
+notexec="$(cd "$INITD/../../.." && git ls-files -s packages/init.d/alpine \
+    | awk '$1 != "100755" { print $4 }')"
+check "$notexec" "" "W. every init script is committed executable"
+
 echo
 echo "  $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 ]] || exit 1

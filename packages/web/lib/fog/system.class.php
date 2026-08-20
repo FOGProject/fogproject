@@ -62,7 +62,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '863.0-feature.3701');
+        define('FOG_VERSION', '863.0-feature.3702');
         define('FOG_CHANNEL', 'Feature');
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php, and it must never fall BELOW that element
