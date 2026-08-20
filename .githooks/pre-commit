@@ -75,6 +75,26 @@ schemaCheck() {
         'bin/schema-reference-1.5.php')
     [ -n "$touched" ] || return 0
 
+    # Branches without a manifest have nothing to keep in step.
+    #
+    # core.hooksPath is an absolute path, so every linked worktree runs the
+    # MAIN worktree's copy of this hook whatever branch it has checked out --
+    # and dev-branch carries neither bin/schema-manifest.php nor
+    # commons/schema-expected.php, because SchemaReconciler is 1.6-only. So a
+    # schema commit there ran a 1.6 gate against a 1.5 tree and aborted on
+    # "Could not open input file", which reads as a broken hook rather than a
+    # branch that was never in scope.
+    #
+    # This is NOT the fail-open the php check below refuses to be. That one
+    # is "the manifest exists and I cannot check it"; this is "there is no
+    # manifest, so nothing can be stale". Both files are required, so a tree
+    # that has the manifest but has lost the generator still fails closed
+    # further down.
+    if [ ! -f "$project_dir/bin/schema-manifest.php" ] \
+        || [ ! -f "$project_dir/packages/web/commons/schema-expected.php" ]; then
+        return 0
+    fi
+
     # FAILS CLOSED, unlike every other check in this hook.
     #
     # This used to be `command -v php || return 0` at the top of the function,
