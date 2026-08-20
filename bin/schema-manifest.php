@@ -228,6 +228,45 @@ if ($cmd === 'generate') {
             $def = preg_replace('/\s*AUTO_INCREMENT\b/i', '', $m[2]);
             $cols[$m[1]] = trim($def);
         }
+        // Refuse to emit a table whose two blocks disagree.
+        //
+        // They are derived from one $raw and so cannot normally differ, but
+        // they are derived by DIFFERENT means -- the create is $raw with its
+        // whitespace collapsed, the columns are $raw parsed a line at a time
+        // -- and only the columns parse can fail quietly. If a server ever
+        // prints SHOW CREATE TABLE in a shape that regex does not match,
+        // $cols comes out empty, every `columns` block ships empty, and
+        // SchemaReconciler silently loses its ability to add a missing
+        // column to ANY table: plan() pass 3 skips a table whose `columns`
+        // is empty. That is the failure taskLog had alone in 407be1a53,
+        // multiplied by the whole schema, and nothing downstream would say
+        // so -- the manifest would still be valid PHP and the create
+        // strings would still execute on a fresh install.
+        //
+        // Names only. The definitions legitimately differ: the create keeps
+        // AUTO_INCREMENT and the column definitions drop it. Comparing the
+        // two blocks properly is tests/schema-manifest-consistent.test.php's
+        // job, and it works on the committed file, which is where the
+        // hand-edits that actually drifted happen.
+        if (!count($cols)) {
+            fwrite(
+                STDERR,
+                "Refusing to write: parsed no columns for `$table`.\n"
+                . "SHOW CREATE TABLE output was not in the expected shape.\n"
+            );
+            exit(1);
+        }
+        foreach (array_keys($cols) as $name) {
+            if (false !== strpos($create, '`' . $name . '`')) {
+                continue;
+            }
+            fwrite(
+                STDERR,
+                "Refusing to write: `$table`.`$name` was parsed as a column"
+                . " but does not appear in the CREATE statement.\n"
+            );
+            exit(1);
+        }
         $tables[$table] = ['create' => $create, 'columns' => $cols];
     }
 

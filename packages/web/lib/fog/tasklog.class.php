@@ -33,6 +33,19 @@ class TaskLog extends FOGController
     /**
      * The task log fields and common names.
      *
+     * hostID/hostName/taskTypeName are a copy of who the report was about,
+     * kept because the row outlives what it points at. taskLog reaches host
+     * and task type through `tasks`; nothing deletes taskLog rows, but
+     * Route::deletemass('host') cascades to `task` and taskLog is in no
+     * cascade -- so deleting a host destroys its tasks and leaves the
+     * reports with nothing to join to, losing the host name at the same
+     * moment the host row that could supply it goes. Host name is the first
+     * thing anyone searches a failure by, so schema 341 stores it here.
+     *
+     * Only the FOS report endpoint fills them. A state row leaves them
+     * empty: it is an annotation on a task and means nothing without it,
+     * and TaskingElement::taskLog() runs on every transition.
+     *
      * @var array
      */
     protected $databaseFields = [
@@ -43,7 +56,10 @@ class TaskLog extends FOGController
         'createdTime' => 'createTime',
         'createdBy' => 'createdBy',
         'type' => 'logType',
-        'text' => 'logText'
+        'text' => 'logText',
+        'hostID' => 'logHostID',
+        'hostName' => 'logHostName',
+        'taskTypeName' => 'logTaskTypeName'
     ];
     /**
      * A row recording a state transition, which is what every row was

@@ -540,6 +540,10 @@ tasklog	5	createTime	createdTime	f	-
 tasklog	6	createdBy	createdBy	-	-
 tasklog	7	logType	type	-	-
 tasklog	8	logText	text	-	-
+tasklog	9	logHostID	hostID	-	-
+tasklog	10	logHostID	hostLink	f	host
+tasklog	11	logHostName	hostName	-	-
+tasklog	12	logTaskTypeName	taskTypeName	-	-
 taskstate	0	tsID	id	-	-
 taskstate	1	tsID	DT_RowId	f	-
 taskstate	2	tsName	name	-	-

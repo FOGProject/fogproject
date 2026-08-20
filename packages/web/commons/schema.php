@@ -5899,3 +5899,104 @@ $this->schema[] = [
     . "SET `logType` = 'state' "
     . "WHERE `logType` = '' OR `logType` IS NULL",
 ];
+// 341
+$this->schema[] = [
+    // A report keeps enough identity to be read after its task is gone.
+    //
+    // taskLog stores no host and no task type of its own; Task Management's
+    // log pane reaches all three through LEFT OUTER JOINs against `tasks`.
+    // Nothing deletes taskLog rows, so a report's TEXT survives forever --
+    // but Route::deletemass('host') cascades to `task`, and taskLog is in no
+    // cascade at all, so deleting a host destroys its tasks and leaves the
+    // reports behind with NULL where the host name was. On the install this
+    // was written against, 9 of 56 rows were already orphaned that way.
+    //
+    // Host name is the first thing anyone searches a failure by, and it is
+    // the field that cannot be recovered afterwards -- by the time the join
+    // fails, the host row is gone too. The point of GH-1206 is that a failure
+    // message is findable later instead of arriving as a phone photo of a
+    // wrapped console, and a foreign key to a routinely-deleted row cannot
+    // deliver that.
+    //
+    // The alternative was to block deleting a task that has reports, which
+    // inverts the dependency -- a diagnostic artifact would then constrain
+    // operational cleanup, and to be consistent it would have to block HOST
+    // deletion too, since that is the path that actually removes tasks.
+    // Refusing to delete a host because it once failed to image is a worse
+    // product than losing a host name.
+    //
+    // The state a row records is NOT copied: taskLog already stores
+    // taskStateID itself, so the taskStates join survives the task. Neither
+    // is the image, which this view has never shown.
+    //
+    // Nullable/empty and written only by the FOS report endpoint. 53 of those
+    // 56 rows are state transitions written by TaskingElement::taskLog() on
+    // every transition; they are meaningless without their task anyway, and
+    // making that path do three extra lookups per transition buys nothing.
+    // Same reasoning that gave logText no value on a state row in step 338.
+    //
+    // Two column shapes on purpose, and they follow what the writer can
+    // actually produce. FOGController::save() omits an unset OPTIONAL column
+    // whose key ends in "id" -- so logHostID gets its DEFAULT of NULL -- but
+    // for every other key an unset value is written as '', never NULL (the
+    // trap step 340 had to repair for logType, and the reason
+    // TaskLog::__construct() types its own rows). Declaring logHostName NOT
+    // NULL DEFAULT '' says what the ORM will really store rather than
+    // describing a NULL the writer cannot produce.
+    //
+    // A closure rather than a bare ALTER for the same reason steps 336 and
+    // 338 are: ADD COLUMN has no IF NOT EXISTS below MariaDB 10.0.2/MySQL
+    // 8.0.29, so a re-run has to converge on its own rather than error.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN "
+            . "('logHostID','logHostName','logTaskTypeName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('logHostID', $cols)) {
+            $adds[] = "ADD `logHostID` INT(11) NULL DEFAULT NULL";
+        }
+        if (!in_array('logHostName', $cols)) {
+            // varchar(16) matches hosts.hostName, which is capped at the
+            // NetBIOS limit and cannot outgrow this copy.
+            $adds[] = "ADD `logHostName` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('logTaskTypeName', $cols)) {
+            // varchar(30) matches taskTypes.ttName.
+            $adds[] = "ADD `logTaskTypeName` VARCHAR(30) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` " . implode(', ', $adds)
+            );
+        }
+
+        // Backfill the reports whose task is still there, so the history is
+        // not split between rows that know their host and rows that do not.
+        // Restricted to report rows and to rows not already filled, so a
+        // re-run is a no-op and a later hand-correction is not overwritten.
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "LEFT JOIN `hosts` "
+            . "ON `hosts`.`hostID` = `tasks`.`taskHostID` "
+            . "LEFT JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "SET `taskLog`.`logHostID` = `tasks`.`taskHostID`, "
+            . "`taskLog`.`logHostName` = COALESCE(`hosts`.`hostName`, ''), "
+            . "`taskLog`.`logTaskTypeName` = COALESCE(`taskTypes`.`ttName`, '') "
+            . "WHERE `taskLog`.`logType` <> '" . TaskLog::TYPE_STATE . "' "
+            . "AND `taskLog`.`logHostID` IS NULL"
+        );
+
+        return true;
+    },
+];

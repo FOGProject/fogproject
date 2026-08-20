@@ -280,12 +280,21 @@ class TaskError extends FOGBase
     }
     private static function _logRow($Task, $type, $text)
     {
+        // Host and task type are copied onto the row, not left to the join.
+        // Route::deletemass('host') cascades to `task`, taskLog is in no
+        // cascade, so the report outlives everything it points at -- and by
+        // the time the join fails the host row is gone too, which makes this
+        // the last moment the name can be recorded at all. See TaskLog's
+        // $databaseFields and schema step 341.
         self::getClass('TaskLog')
             ->set('taskID', $Task->get('id'))
             ->set('stateID', $Task->get('stateID'))
             ->set('createdBy', 'fos')
             ->set('type', $type)
             ->set('text', $text)
+            ->set('hostID', self::$Host->get('id'))
+            ->set('hostName', self::$Host->get('name'))
+            ->set('taskTypeName', $Task->getTaskTypeText())
             ->save();
     }
     /**
