@@ -375,7 +375,14 @@ foreach ($steps as $updates) {
             continue;
         }
         if (is_string($update)) {
-            if (preg_match('/^\s*(CREATE|ALTER|DROP)/i', $update)) {
+            // RENAME is DDL and it is load-bearing. schema.php performs the
+            // table-rebuild dance three times -- groupMembers, globalSettings
+            // and users -- as CREATE `x_new` / INSERT / DROP `x` / RENAME
+            // `x_new` TO `x`. Omitting RENAME executed the DROP and not the
+            // rename, so all three tables vanished mid-replay and every later
+            // ALTER against them failed 1146. That was 8 of the 12 failures
+            // this test was reporting, and none of them were the schema's.
+            if (preg_match('/^\s*(CREATE|ALTER|DROP|RENAME)/i', $update)) {
                 $stepDdl[] = $update;
             }
             continue;
@@ -412,6 +419,87 @@ if (!$stepDdl || !$manifestDdl) {
     exit(1);
 }
 
+
+/**
+ * The "this is already how we want it" error codes, read from the production
+ * code that defines them.
+ *
+ * Both real paths tolerate a set of errors that mean the target state is
+ * already reached: SchemaUpdaterPage::update() has a local $skiperrs, and
+ * SchemaReconciler has a private static $_skiperrs whose docblock says it
+ * "mirrors the updater's own tolerance list". Replaying decades of migrations
+ * against a schema whose step 0 has since been updated to the end state HITS
+ * those codes by design -- `ALTER TABLE groups ADD COLUMN groupInit` is 1060
+ * on a fresh database because step 0 now creates the column outright.
+ *
+ * They are PARSED rather than copied. A hardcoded third copy would be one
+ * more thing to drift, and drift is what this whole test exists to catch; a
+ * copy that fell behind would make the test either reject valid schemas or
+ * accept broken ones, silently, and the test would be the last place anyone
+ * looked. Failing loudly when the list cannot be found is deliberate for the
+ * same reason -- a tolerance list that quietly reads as empty turns every
+ * fresh-install replay red, and one that quietly reads as everything turns
+ * this test into decoration.
+ *
+ * @param string $file    file to read
+ * @param string $varname variable name, without the sigil
+ *
+ * @return array list of integer error codes
+ */
+function fogParseSkipErrs($file, $varname)
+{
+    if (!is_readable($file)) {
+        fwrite(STDERR, "FAIL: cannot read $file to learn the tolerated errors.\n");
+        exit(1);
+    }
+    $src = file_get_contents($file);
+    if (!preg_match('/\$' . preg_quote($varname, '/') . '\s*=\s*\[(.*?)\]\s*;/s', $src, $m)) {
+        fwrite(
+            STDERR,
+            "FAIL: no \$$varname list found in $file.\n"
+            . "  This test mirrors the tolerance the real updater applies; if\n"
+            . "  that list moved or was renamed, point this at the new one --\n"
+            . "  do not hardcode a copy here.\n"
+        );
+        exit(1);
+    }
+    preg_match_all('/\b(\d{4})\b/', $m[1], $codes);
+    $out = array_map('intval', $codes[1]);
+    if (!$out) {
+        fwrite(STDERR, "FAIL: \$$varname in $file parsed as empty.\n");
+        exit(1);
+    }
+    sort($out);
+    return $out;
+}
+
+$updaterSkip = fogParseSkipErrs(
+    $root . '/lib/pages/schemaupdaterpage.page.php',
+    'skiperrs'
+);
+$reconcilerSkip = fogParseSkipErrs(
+    $root . '/lib/fog/schemareconciler.class.php',
+    '_skiperrs'
+);
+
+// The reconciler's docblock claims it mirrors the updater's list. Two hand-kept
+// copies of one constant is exactly the drift this test is for, so the claim is
+// checked rather than trusted -- and it is checked HERE, where a database is
+// already in hand, rather than being someone's job to remember.
+if ($updaterSkip !== $reconcilerSkip) {
+    fwrite(
+        STDERR,
+        "FAIL: the two tolerance lists have drifted apart.\n"
+        . '  SchemaUpdaterPage::update()  $skiperrs:  ' . implode(', ', $updaterSkip) . "\n"
+        . '  SchemaReconciler            $_skiperrs:  ' . implode(', ', $reconcilerSkip) . "\n\n"
+        . "  SchemaReconciler's docblock says it mirrors the updater's list.\n"
+        . "  One of the two paths now tolerates something the other does not,\n"
+        . "  so the same statement can succeed on a fresh install and fail a\n"
+        . "  reconcile, or the reverse.\n"
+    );
+    exit(1);
+}
+
 try {
     $pdo = new \PDO($dsn, $user, $pass, [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 } catch (\PDOException $e) {
@@ -444,10 +532,11 @@ try {
  * @param \PDO   $pdo        open connection
  * @param string $database   scratch database name, dropped and recreated
  * @param array  $statements statements to execute in order
+ * @param array  $tolerated  MySQL error numbers that mean "already so"
  *
  * @return array list of ['sql' => string, 'error' => string] for each failure
  */
-function fogRunInto($pdo, $database, array $statements)
+function fogRunInto($pdo, $database, array $statements, array $tolerated = [])
 {
     $pdo->exec(sprintf('DROP DATABASE IF EXISTS `%s`', $database));
     $pdo->exec(sprintf('CREATE DATABASE `%s`', $database));
@@ -465,6 +554,12 @@ function fogRunInto($pdo, $database, array $statements)
         try {
             $pdo->exec($sql);
         } catch (\PDOException $e) {
+            // The driver-specific code, not the SQLSTATE: $skiperrs is a list
+            // of MySQL error numbers, and errorInfo[1] is where PDO puts them.
+            $code = isset($e->errorInfo[1]) ? (int)$e->errorInfo[1] : 0;
+            if (in_array($code, $tolerated, true)) {
+                continue;
+            }
             $failures[] = [
                 'sql' => preg_replace('/\s+/', ' ', substr($sql, 0, 220)),
                 'error' => $e->getMessage(),
@@ -500,11 +595,25 @@ function fogCollations($pdo, $database)
 $problems = [];
 $report = [];
 
+// Each pass carries the tolerance its own real path applies. They are equal
+// today -- checked above -- but they are read separately so that if one path
+// ever legitimately diverges, each half of this test still models the path it
+// is named after rather than whichever list happened to be picked.
 foreach ([
-    ['label' => 'schema.php steps (fresh install path)', 'db' => $stepDb, 'sql' => $stepDdl],
-    ['label' => 'schema-expected.php (reconciler path)', 'db' => $manifestDb, 'sql' => $manifestDdl],
+    [
+        'label' => 'schema.php steps (fresh install path)',
+        'db' => $stepDb,
+        'sql' => $stepDdl,
+        'skip' => $updaterSkip,
+    ],
+    [
+        'label' => 'schema-expected.php (reconciler path)',
+        'db' => $manifestDb,
+        'sql' => $manifestDdl,
+        'skip' => $reconcilerSkip,
+    ],
 ] as $pass) {
-    $failures = fogRunInto($pdo, $pass['db'], $pass['sql']);
+    $failures = fogRunInto($pdo, $pass['db'], $pass['sql'], $pass['skip']);
     $collations = fogCollations($pdo, $pass['db']);
 
     $report[] = sprintf(
