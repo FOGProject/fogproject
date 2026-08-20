@@ -490,7 +490,68 @@ abstract class FOGController extends FOGBase
                 }
             }
         }
-        return self::$columnTypes[strtolower($table)][strtolower($column)] ?? '';
+        $t = strtolower($table);
+        if (!isset(self::$columnTypes[$t])) {
+            self::_loadPluginColumnTypes($t);
+        }
+        return self::$columnTypes[$t][strtolower($column)] ?? '';
+    }
+
+    /**
+     * Loads one table's columns from the server's own catalog.
+     *
+     * commons/schema-expected.php describes core's 67 tables and nothing
+     * else, so a plugin's table is not in it -- and GH-1245's first cut
+     * therefore answered '' for every plugin column, which is precisely the
+     * bug it set out to fix. That was invisible while PDODB cleared sql_mode;
+     * with the clear gone the server refuses the write instead of coercing
+     * it, so saving an LDAP server without a port is error 1366 rather than a
+     * silently stored 0. On the maintainer's own 1.6 install that is 18
+     * tables, 16 enum/set and 44 integer columns.
+     *
+     * Not solved by adding plugin tables to the manifest: the manifest is
+     * generated from core's schema and the reconciler uses it to decide what
+     * to CREATE, so a plugin table listed there would be created for
+     * everyone whether the plugin is installed or not.
+     *
+     * Asked once per table per request, and only for a table the manifest
+     * does not cover -- core never gets here. An empty result is cached too,
+     * so a table that genuinely does not exist is asked about once and then
+     * behaves exactly as it did before this method existed.
+     *
+     * The definition is rebuilt as "<type> NOT NULL" rather than returned
+     * raw, so columnIsNullable() reads it with the same regex it applies to
+     * the manifest's strings and there is only one notion of "nullable".
+     *
+     * @param string $table the table, already lowercased
+     *
+     * @return void
+     */
+    private static function _loadPluginColumnTypes($table)
+    {
+        self::$columnTypes[$table] = [];
+        try {
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty`, "
+                . "`IS_NULLABLE` AS `n` FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table",
+                [],
+                [':table' => $table]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        } catch (\Exception $e) {
+            // A catalog FOG cannot read leaves every column looking unknown,
+            // which is the behaviour that shipped before GH-1245 rather than
+            // a broken one.
+            return;
+        }
+        foreach ((array) $rows as $row) {
+            if (!isset($row['c'], $row['ty'])) {
+                continue;
+            }
+            self::$columnTypes[$table][strtolower($row['c'])] = trim($row['ty'])
+                . (isset($row['n']) && strtoupper($row['n']) === 'NO' ? ' NOT NULL' : '');
+        }
     }
 
     /**
