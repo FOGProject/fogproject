@@ -873,6 +873,10 @@ msgstr "检查数据库运行状态"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "在FOGPage类中找不到此节点"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
@@ -1770,6 +1774,9 @@ msgstr "FTP路径"
 
 msgid "FTP connection failed"
 msgstr "FTP连接失败"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 msgid "Fail to destroy"
 msgstr "未能摧毁"
@@ -6646,6 +6653,10 @@ msgstr "用于高级菜单参数"
 
 msgid "for the menu background"
 msgstr "用于菜单背景"
+
+#, fuzzy
+msgid "for user"
+msgstr "创建用户?"
 
 msgid "found"
 msgstr "找到"

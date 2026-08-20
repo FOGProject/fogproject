@@ -1001,6 +1001,10 @@ msgstr "Check that database is running"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "No FOGPage Class found for this node"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
@@ -2016,6 +2020,9 @@ msgstr "FTP Path"
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "FTP Connection failed"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 #, fuzzy
 msgid "Fail to destroy"
@@ -7558,6 +7565,10 @@ msgstr ""
 
 msgid "for the menu background"
 msgstr ""
+
+#, fuzzy
+msgid "for user"
+msgstr "Create User"
 
 #, fuzzy
 msgid "found"

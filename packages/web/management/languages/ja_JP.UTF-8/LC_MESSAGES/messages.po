@@ -863,6 +863,10 @@ msgstr "データベースが稼働していることを確認してください
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "このノードの FOGPage クラスが見つかりません"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
@@ -1760,6 +1764,9 @@ msgstr "FTP パス"
 
 msgid "FTP connection failed"
 msgstr "FTP 接続に失敗しました"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 msgid "Fail to destroy"
 msgstr "破棄に失敗しました"
@@ -6618,6 +6625,10 @@ msgstr "詳細メニューパラメーター用"
 
 msgid "for the menu background"
 msgstr "メニュー背景用"
+
+#, fuzzy
+msgid "for user"
+msgstr "ユーザーを作成しますか？"
 
 msgid "found"
 msgstr "見つかりました"

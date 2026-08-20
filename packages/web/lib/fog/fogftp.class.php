@@ -66,6 +66,17 @@ class FOGFTP extends FOGGetSet
      */
     private $_currentLoginHash;
     /**
+     * Which stage of connect() failed, if one did.
+     *
+     * Either 'connect' (the socket never came up) or 'login' (the server
+     * answered and refused the credentials). connect() throws the same generic
+     * exception for both, so without this the caller cannot tell a network
+     * problem from a wrong password -- and every caller guessed "network".
+     *
+     * @var string
+     */
+    private $_lastFailure = '';
+    /**
      * Destroy the ftp object
      *
      * @return void
@@ -168,6 +179,7 @@ class FOGFTP extends FOGGetSet
         $autologin = true,
         $connectmethod = 'ftp_connect'
     ) {
+        $this->_lastFailure = '';
         try {
             $this->_currentConnectionHash = password_hash(
                 print_r($this->data, 1),
@@ -214,20 +226,32 @@ class FOGFTP extends FOGGetSet
                     $timeout = $this->get('timeout');
                 }
             }
+            $this->_lastFailure = 'connect';
             $this->_link = $connectmethod($host, $port, $timeout);
             if ($this->_link === false) {
                 trigger_error(_('FTP connection failed'), E_USER_NOTICE);
                 $this->ftperror($this->data);
             }
             if ($autologin) {
+                $this->_lastFailure = 'login';
                 $this->login();
                 $this->pasv($this->get('passive'));
             }
+            $this->_lastFailure = '';
         } catch (Exception $e) {
             throw new Exception($e->getMessage());
         }
         $this->_lastConnectionHash = $this->_currentConnectionHash;
         return $this;
+    }
+    /**
+     * Which stage of the last connect() failed.
+     *
+     * @return string 'connect', 'login', or '' when the last attempt succeeded
+     */
+    public function lastFailure()
+    {
+        return $this->_lastFailure;
     }
     /**
      * Deletes the item passed

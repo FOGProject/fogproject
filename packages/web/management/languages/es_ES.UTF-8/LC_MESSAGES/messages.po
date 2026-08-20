@@ -990,6 +990,9 @@ msgstr "Campo obligatorio está vacio"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the password stored for this node"
+msgstr ""
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
@@ -1997,6 +2000,9 @@ msgstr ""
 #, fuzzy
 msgid "FTP connection failed"
 msgstr "No disponible"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 #, fuzzy
 msgid "Fail to destroy"
@@ -7515,6 +7521,10 @@ msgstr "Menú %s"
 #, fuzzy
 msgid "for the menu background"
 msgstr "Menú principal"
+
+#, fuzzy
+msgid "for user"
+msgstr "Usuario"
 
 #, fuzzy
 msgid "found"
