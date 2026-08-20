@@ -4160,3 +4160,131 @@ $this->schema[] = array(
         return true;
     },
 );
+// 284
+$this->schema[] = array(
+    // GH-1245: "this never happened" is NULL, not a zero date.
+    //
+    // FOGController::save() writes '' for any unset optional field whose key
+    // does not end in "id". A date column cannot hold '': the server either
+    // refuses it or coerces it to '0000-00-00 00:00:00', and FOG only ever
+    // sees the second because PDODB::_connect() has issued
+    // `SET SESSION sql_mode=''` on every connection since 13661edb (May 2016).
+    // That clear is removed in the same change as this step, so from here the
+    // server's own checks apply and '' into a date column is an error.
+    //
+    // save() now writes a real NULL for an empty date, which these columns
+    // have to be able to hold. Without this step it is worse than a no-op:
+    // an explicit NULL into a NOT NULL column errors under a strict mode and
+    // is coerced straight back to the zero date without one.
+    //
+    // Eleven columns, being every date column that is optional, not
+    // auto-filled by save()'s switch, and without a server-side default --
+    // which is exactly the set that can reach the '' arm and keep the result.
+    // The list was derived from a replay of this branch's own schema.php into
+    // an empty server, not from reading the file: nine years of ALTERs mean
+    // the CREATE TABLE a column first appeared in is not its current type.
+    // See scripts/background_scripts/replay_15_schema_1245.sh.
+    //
+    // Two reachable columns are deliberately left NOT NULL. snapinTasks
+    // .stCheckinDate and userTracking.utDateTime both declare
+    // DEFAULT current_timestamp(), so the server supplies a real value rather
+    // than a zero date; save() omits them and that default applies.
+    //
+    // No historical step is edited. `DATETIME NOT NULL` is legal DDL on every
+    // server, so the steps that created these columns still replay cleanly and
+    // a fresh install simply arrives here and is corrected.
+    //
+    // ALTER before UPDATE: the rows cannot be set NULL until the column can
+    // hold it. YEAR() rather than the literal '0000-00-00 00:00:00', because a
+    // strict server rejects that literal in the comparison too.
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostLastDeploy` = NULL "
+    . "WHERE `hostLastDeploy` IS NOT NULL AND YEAR(`hostLastDeploy`) = 0",
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostSecTime` TIMESTAMP NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostSecTime` = NULL "
+    . "WHERE `hostSecTime` IS NOT NULL AND YEAR(`hostSecTime`) = 0",
+    "ALTER TABLE `images` "
+    . "MODIFY COLUMN `imageLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `images` SET `imageLastDeploy` = NULL "
+    . "WHERE `imageLastDeploy` IS NOT NULL AND YEAR(`imageLastDeploy`) = 0",
+    "ALTER TABLE `imagingLog` "
+    . "MODIFY COLUMN `ilFinishTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `imagingLog` SET `ilFinishTime` = NULL "
+    . "WHERE `ilFinishTime` IS NOT NULL AND YEAR(`ilFinishTime`) = 0",
+    "ALTER TABLE `inventory` "
+    . "MODIFY COLUMN `iDeleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `inventory` SET `iDeleteDate` = NULL "
+    . "WHERE `iDeleteDate` IS NOT NULL AND YEAR(`iDeleteDate`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msStartDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msStartDateTime` = NULL "
+    . "WHERE `msStartDateTime` IS NOT NULL AND YEAR(`msStartDateTime`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msCompleteDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msCompleteDateTime` = NULL "
+    . "WHERE `msCompleteDateTime` IS NOT NULL AND YEAR(`msCompleteDateTime`) = 0",
+    "ALTER TABLE `snapinTasks` "
+    . "MODIFY COLUMN `stCompleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `snapinTasks` SET `stCompleteDate` = NULL "
+    . "WHERE `stCompleteDate` IS NOT NULL AND YEAR(`stCompleteDate`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskCheckIn` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskCheckIn` = NULL "
+    . "WHERE `taskCheckIn` IS NOT NULL AND YEAR(`taskCheckIn`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskScheduledStartTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskScheduledStartTime` = NULL "
+    . "WHERE `taskScheduledStartTime` IS NOT NULL AND YEAR(`taskScheduledStartTime`) = 0",
+    "ALTER TABLE `userTracking` "
+    . "MODIFY COLUMN `utDate` DATE NULL DEFAULT NULL",
+    "UPDATE `userTracking` SET `utDate` = NULL "
+    . "WHERE `utDate` IS NOT NULL AND YEAR(`utDate`) = 0",
+);
+// 285
+$this->schema[] = array(
+    // GH-1245: repair the ENUM error value.
+    //
+    // save() wrote '' for every unset optional field whose key does not end
+    // in "id". Into an ENUM that is not a member, so the server stored the
+    // special error value at index 0 -- which reads back as '' and is illegal
+    // to write under any strict sql_mode. FOG never saw the error because
+    // PDODB::_connect() cleared sql_mode on every connection.
+    //
+    // Each column lands on its FIRST member, which is what save() now writes
+    // for an empty value and what MySQL uses as a NOT NULL enum's implicit
+    // default. Deliberately not the column's declared DEFAULT: `hostEnforce`
+    // declares DEFAULT '1', so honouring it here would silently turn
+    // enforcement ON for every host holding the error value, as a side effect
+    // of a storage repair. '' and '0' are both falsey in PHP, so every
+    // consumer sees what it saw before.
+    //
+    // Every enum column in the schema, not only the ones a model can leave
+    // empty today: the error value is illegal wherever it got in, and a
+    // column that stops being written by one path may still hold it.
+    "UPDATE `hostMAC` SET `hmPrimary` = '0' WHERE `hmPrimary` = ''",
+    "UPDATE `hostMAC` SET `hmPending` = '0' WHERE `hmPending` = ''",
+    "UPDATE `hostMAC` SET `hmIgnoreClient` = '0' WHERE `hmIgnoreClient` = ''",
+    "UPDATE `hostMAC` SET `hmIgnoreImaging` = '0' WHERE `hmIgnoreImaging` = ''",
+    "UPDATE `hosts` SET `hostPending` = '0' WHERE `hostPending` = ''",
+    "UPDATE `hosts` SET `hostEnforce` = '0' WHERE `hostEnforce` = ''",
+    "UPDATE `imageGroupAssoc` SET `igaPrimary` = '0' WHERE `igaPrimary` = ''",
+    "UPDATE `images` SET `imageEnabled` = '0' WHERE `imageEnabled` = ''",
+    "UPDATE `images` SET `imageReplicate` = '0' WHERE `imageReplicate` = ''",
+    "UPDATE `nfsGroupMembers` SET `ngmGraphEnabled` = '0' WHERE `ngmGraphEnabled` = ''",
+    "UPDATE `powerManagement` SET `pmAction` = 'shutdown' WHERE `pmAction` = ''",
+    "UPDATE `powerManagement` SET `pmOndemand` = '0' WHERE `pmOndemand` = ''",
+    "UPDATE `pxeMenu` SET `pxeHotKeyEnable` = '0' WHERE `pxeHotKeyEnable` = ''",
+    "UPDATE `snapinGroupAssoc` SET `sgaPrimary` = '0' WHERE `sgaPrimary` = ''",
+    "UPDATE `snapins` SET `sEnabled` = '0' WHERE `sEnabled` = ''",
+    "UPDATE `snapins` SET `sReplicate` = '0' WHERE `sReplicate` = ''",
+    "UPDATE `snapins` SET `sShutdown` = '0' WHERE `sShutdown` = ''",
+    "UPDATE `snapins` SET `sHideLog` = '0' WHERE `sHideLog` = ''",
+    "UPDATE `snapins` SET `sPackType` = '0' WHERE `sPackType` = ''",
+    "UPDATE `tasks` SET `taskWOL` = '0' WHERE `taskWOL` = ''",
+    "UPDATE `taskTypes` SET `ttType` = 'fog' WHERE `ttType` = ''",
+    "UPDATE `taskTypes` SET `ttIsAdvanced` = '0' WHERE `ttIsAdvanced` = ''",
+    "UPDATE `taskTypes` SET `ttIsAccess` = 'both' WHERE `ttIsAccess` = ''",
+    "UPDATE `users` SET `uAllowAPI` = '0' WHERE `uAllowAPI` = ''",
+);

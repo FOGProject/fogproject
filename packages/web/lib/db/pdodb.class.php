@@ -291,7 +291,29 @@ class PDODB extends DatabaseManager
                     self::redirect('../management/index.php?node=schema');
                 }
             }
-            self::query("SET SESSION sql_mode=''");
+            /*
+             * GH-1245: no `SET SESSION sql_mode=''` here.
+             *
+             * That line arrived in 13661edb (May 2016) as "try to set sql_mode
+             * to non-strict which should allow 5.7 mysql to operate", and it
+             * shipped with a TARGETED mode commented out one line above it --
+             * one that kept STRICT_TRANS_TABLES. So even then the intent was
+             * not to disable validation; the blanket clear was the fallback.
+             *
+             * It stayed for nine years and meant every statement FOG issued
+             * ran with the server's checks off: truncations, out-of-range
+             * numerics and invalid enum members were all silently coerced and
+             * reported only as warnings nothing reads. That is how a zero
+             * `hostLastDeploy` came to sit on servers whose own configuration
+             * forbids one, and how the ENUM error value got into 24 columns.
+             *
+             * What actually needed fixing was FOGController::save(), which
+             * wrote '' for every unset optional field regardless of the
+             * column's type. emptyValueFor() now writes the value the server
+             * was coercing to anyway, so nothing here depends on the checks
+             * being off. Schema steps 284 and 285 repair the rows that were
+             * written while they were.
+             */
         } catch (PDOException $e) {
             if ($dbexists) {
                 self::$_link = false;

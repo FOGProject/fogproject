@@ -1211,6 +1211,31 @@ abstract class FOGBase
      */
     public static function niceDate($date = 'now', $utc = false)
     {
+        /*
+         * GH-1245: an empty value means "this never happened", not "now".
+         *
+         * new DateTime('') and new DateTime(null) both return the CURRENT
+         * time, so a date column holding no value renders as a real
+         * timestamp. That has stayed hidden because FOGController::save()
+         * writes '' into date columns and PDODB clears sql_mode on every
+         * connection, so the server coerces it to '0000-00-00 00:00:00' --
+         * and THAT parses to year -0001, which validDate() rejects and
+         * formatTime() renders as "No Data". The empty case is only reached
+         * by the columns that are already nullable, where it is wrong today.
+         *
+         * Mapping empty onto the same zero date makes the two spellings of
+         * "no value" render identically, which is also what lets the columns
+         * move to NULL without the display changing -- FOGController::get()
+         * hands back null for a NULL column.
+         *
+         * Callers that genuinely want the current time pass 'now', which is
+         * this method's own default. The ten call sites in this branch that
+         * relied on '' meaning now were changed to say 'now' in the same
+         * commit.
+         */
+        if (null === $date || (is_string($date) && '' === trim($date))) {
+            $date = '0000-00-00 00:00:00';
+        }
         if ($utc || empty(self::$TimeZone)) {
             $tz = new DateTimeZone('UTC');
         } else {

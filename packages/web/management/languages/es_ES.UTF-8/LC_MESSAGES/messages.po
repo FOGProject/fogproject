@@ -207,6 +207,10 @@ msgid "A rule already exists with this name"
 msgstr "Ya existe una regla con este nombre."
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "%s es obligatorio"
+
+#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "¡Ya existe un rol con este nombre!"
 

@@ -210,6 +210,10 @@ msgid "A rule already exists with this name"
 msgstr "An image already exists with this name!"
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "An image name is required!"
+
+#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "An image already exists with this name!"
 
