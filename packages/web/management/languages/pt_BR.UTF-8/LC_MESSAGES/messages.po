@@ -311,6 +311,10 @@ msgid "A role with this name already exists!"
 msgstr "Um nome de host com esse nome já existe."
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "Um nome de imagem é necessário!"
+
+#, fuzzy
 msgid "A selected role no longer exists"
 msgstr " não existe mais"
 

@@ -311,6 +311,10 @@ msgid "A role with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "图像名是必需的！"
+
+#, fuzzy
 msgid "A selected role no longer exists"
 msgstr "不复存在"
 
