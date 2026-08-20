@@ -60,7 +60,13 @@ class UserTrack extends FOGClient
         $user = strtolower(
             $_REQUEST['user']
         );
-        if (isset($_REQUEST['date'])) {
+        // GH-1245: an empty date= is not a supplied date. niceDate() now reads
+        // empty as "no value" rather than "now", so the client sending the
+        // parameter with nothing in it has to fall to the same branch as not
+        // sending it at all -- otherwise the row records the zero date.
+        if (isset($_REQUEST['date'])
+            && '' !== trim((string) $_REQUEST['date'])
+        ) {
             $tmpDate = self::niceDate($_REQUEST['date']);
         } else {
             $tmpDate = self::niceDate();

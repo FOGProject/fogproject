@@ -2252,7 +2252,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     $keys = [
                         'FOG_TFTP_FTP_PASSWORD',
@@ -2600,7 +2600,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     $keys = [
                         'FOG_TFTP_FTP_PASSWORD',

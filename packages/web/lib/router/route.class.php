@@ -1511,7 +1511,7 @@ class Route extends FOGBase
         }
         $backup_name = sprintf(
             'fog_backup_%s.sql',
-            self::formatTime('', 'Ymd_His')
+            self::formatTime('now', 'Ymd_His')
         );
         self::getClass('Schema')->exportdb($backup_name);
         exit;
