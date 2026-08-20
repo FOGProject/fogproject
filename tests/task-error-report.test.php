@@ -339,11 +339,56 @@ if (!preg_match(
 // ----------------------------------------------------------- the plumbing
 
 $model = file_get_contents($web . '/lib/fog/tasklog.class.php');
-foreach (array('type' => 'logType', 'text' => 'logText') as $key => $column) {
+$columns = array(
+    'type' => 'logType',
+    'text' => 'logText',
+    'hostID' => 'logHostID',
+    'hostName' => 'logHostName',
+    'taskTypeName' => 'logTaskTypeName',
+);
+foreach ($columns as $key => $column) {
     if (false === strpos($model, "'$key' => '$column'")) {
         $fails[] = "TaskLog does not map $key onto $column, so the endpoint's"
             . ' report is dropped on save';
     }
+}
+
+// ---------------------------------------------------------- the retention
+
+// The row outlives what it points at. Host::destroy() destroys the host's
+// tasks and taskLog is in no cascade, so a report whose host is deleted keeps
+// its text and loses the name it would be searched by -- and this branch has
+// no log pane, so the REST API is the only reader and cannot recover it from
+// anywhere. Ported from 1.6 (GH-1236); the reader half has nothing to port.
+foreach (array(
+    'hostID' => "set('hostID', self::\$Host->get('id'))",
+    'hostName' => "set('hostName', self::\$Host->get('name'))",
+    'taskTypeName' => "set('taskTypeName', \$Task->getTaskTypeText())",
+) as $field => $needle) {
+    if (false === strpos($src, $needle)) {
+        $fails[] = "the endpoint does not store $field on the report, so the"
+            . ' row loses it the moment its task is deleted';
+    }
+}
+// The columns have to exist before anything can be written to them, and a
+// declared field that has no column takes the whole INSERT down -- which is
+// silent here, because save() swallows it and _logRow ignores the return.
+if (!preg_match(
+    "#ADD `logHostID` INT\(11\).*?ADD `logHostName` VARCHAR\(16\)"
+    . ".*?ADD `logTaskTypeName` VARCHAR\(30\)#s",
+    $schema
+)) {
+    $fails[] = 'no schema step adds the report identity columns, so every'
+        . ' report insert fails with 1054 and is dropped without a trace';
+}
+// Existing reports whose task survived must not be left as the only rows
+// that cannot answer the question.
+if (!preg_match(
+    "#UPDATE `taskLog` .*?SET `taskLog`\.`logHostID`#s",
+    $schema
+)) {
+    $fails[] = 'the schema step adds the columns but does not backfill the'
+        . ' reports whose task is still there';
 }
 
 // The log directory has to appear in all three lists or the Log Viewer fails
