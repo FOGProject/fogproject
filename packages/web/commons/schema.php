@@ -6214,3 +6214,55 @@ $this->schema[] = [
     "UPDATE `userTracking` SET `utDate` = NULL "
     . "WHERE `utDate` IS NOT NULL AND YEAR(`utDate`) = 0",
 ];
+// 345
+$this->schema[] = [
+    // GH-1245: repair the ENUM error value.
+    //
+    // FOGController::save() wrote '' for every unset optional field whose key
+    // does not end in "id". Into an ENUM that is not a member, so the server
+    // stored the special error value at index 0 -- which reads back as '' and
+    // is illegal to write under any strict sql_mode. FOG never saw the error
+    // because PDODB::_connect() cleared sql_mode on every connection.
+    //
+    // It is not rare. On the maintainer's own 1.6 server: 83 of 87 hostMAC
+    // rows in each of three columns, 73 of 86 `hostEnforce`, 85 of 86
+    // `hostPending`, every `sShutdown`.
+    //
+    // Each column lands on its FIRST member, which is what save() now writes
+    // for an empty value and what MySQL uses as a NOT NULL enum's implicit
+    // default. Deliberately not the column's declared DEFAULT: `hostEnforce`
+    // declares DEFAULT '1', so honouring it here would silently turn
+    // enforcement ON for 73 hosts as a side effect of a storage repair. '' and
+    // '0' are both falsey in PHP, so every consumer sees what it saw before.
+    //
+    // Every enum column in the schema, not only the ones a model can leave
+    // empty today: the error value is illegal wherever it got in, and a
+    // column that stops being written by one path may still hold it.
+    "UPDATE `hostMAC` SET `hmIgnoreClient` = '0' WHERE `hmIgnoreClient` = ''",
+    "UPDATE `hostMAC` SET `hmIgnoreImaging` = '0' WHERE `hmIgnoreImaging` = ''",
+    "UPDATE `hostMAC` SET `hmPending` = '0' WHERE `hmPending` = ''",
+    "UPDATE `hostMAC` SET `hmPrimary` = '0' WHERE `hmPrimary` = ''",
+    "UPDATE `hosts` SET `hostEnforce` = '0' WHERE `hostEnforce` = ''",
+    "UPDATE `hosts` SET `hostPending` = '0' WHERE `hostPending` = ''",
+    "UPDATE `imageGroupAssoc` SET `igaPrimary` = '0' WHERE `igaPrimary` = ''",
+    "UPDATE `images` SET `imageEnabled` = '0' WHERE `imageEnabled` = ''",
+    "UPDATE `images` SET `imageReplicate` = '0' WHERE `imageReplicate` = ''",
+    "UPDATE `multicastSessions` SET `msShutdown` = '0' WHERE `msShutdown` = ''",
+    "UPDATE `nfsGroupMembers` SET `ngmGraphEnabled` = '0' WHERE `ngmGraphEnabled` = ''",
+    "UPDATE `powerManagement` SET `pmAction` = 'shutdown' WHERE `pmAction` = ''",
+    "UPDATE `powerManagement` SET `pmOndemand` = '0' WHERE `pmOndemand` = ''",
+    "UPDATE `pxeMenu` SET `pxeHotKeyEnable` = '0' WHERE `pxeHotKeyEnable` = ''",
+    "UPDATE `snapinGroupAssoc` SET `sgaPrimary` = '0' WHERE `sgaPrimary` = ''",
+    "UPDATE `snapinJobs` SET `sjAbortOnFail` = '0' WHERE `sjAbortOnFail` = ''",
+    "UPDATE `snapins` SET `sEnabled` = '0' WHERE `sEnabled` = ''",
+    "UPDATE `snapins` SET `sHideLog` = '0' WHERE `sHideLog` = ''",
+    "UPDATE `snapins` SET `sPackType` = '0' WHERE `sPackType` = ''",
+    "UPDATE `snapins` SET `sReplicate` = '0' WHERE `sReplicate` = ''",
+    "UPDATE `snapins` SET `sShutdown` = '0' WHERE `sShutdown` = ''",
+    "UPDATE `taskTypes` SET `ttIsAccess` = 'both' WHERE `ttIsAccess` = ''",
+    "UPDATE `taskTypes` SET `ttIsAdvanced` = '0' WHERE `ttIsAdvanced` = ''",
+    "UPDATE `taskTypes` SET `ttType` = 'fog' WHERE `ttType` = ''",
+    "UPDATE `tasks` SET `taskBypassBitlocker` = '0' WHERE `taskBypassBitlocker` = ''",
+    "UPDATE `tasks` SET `taskWOL` = '0' WHERE `taskWOL` = ''",
+    "UPDATE `users` SET `uAllowAPI` = '0' WHERE `uAllowAPI` = ''",
+];
