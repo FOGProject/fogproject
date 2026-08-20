@@ -308,6 +308,10 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A role with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "Se requiere un nombre de imagen!"
+
 msgid "A selected role no longer exists"
 msgstr ""
 

@@ -258,6 +258,9 @@ msgstr ""
 msgid "A role with this name already exists!"
 msgstr ""
 
+msgid "A scheduled time is required"
+msgstr ""
+
 msgid "A selected role no longer exists"
 msgstr ""
 
