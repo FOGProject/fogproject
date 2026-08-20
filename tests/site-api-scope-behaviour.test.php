@@ -464,15 +464,25 @@ if (null !== $dbSkip) {
      * Asserted against the database rather than against the other function,
      * so it cannot pass by both being wrong in the same way.
      */
-    [$maclessSite, $maclessHosts] = scopeHarnessMaclessFixture($real);
-    $got = Site::hostIDsForSites([$maclessSite]);
-    sort($got);
-    check(
-        'hostIDsForSites() returns hosts that have no primary MAC',
-        array_map('intval', (array)$got) === $maclessHosts,
-        $failures,
-        $checks
-    );
+    //
+    // `site` and `siteHostAssoc` come from the site plugin, not from
+    // commons/schema.php, so a database built by replaying the schema alone
+    // does not have them. Say so rather than reporting a missing table as a
+    // boundary defect.
+    if (!scopeHarnessHasTable($real, 'site')) {
+        echo "SKIP (macless-site arm): the site plugin's tables are not"
+            . " installed in this database\n";
+    } else {
+        [$maclessSite, $maclessHosts] = scopeHarnessMaclessFixture($real);
+        $got = Site::hostIDsForSites([$maclessSite]);
+        sort($got);
+        check(
+            'hostIDsForSites() returns hosts that have no primary MAC',
+            array_map('intval', (array)$got) === $maclessHosts,
+            $failures,
+            $checks
+        );
+    }
     // And the fragment agrees, which is the property that actually matters.
     $frag = Site::scopedObjectWhere(
         'host',

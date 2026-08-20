@@ -55,7 +55,11 @@ class UserTrack extends FOGClient implements FOGClientSend
         $user = strtolower(
             $_REQUEST['user']
         );
-        if (isset($_REQUEST['date'])) {
+        // GH-1245: an empty date parameter means the client did not send
+        // one, so fall back to now. niceDate() used to do that itself for ''
+        // and no longer does -- it now reads empty as "no value", which here
+        // would stamp every login with the year zero.
+        if (isset($_REQUEST['date']) && '' !== trim((string) $_REQUEST['date'])) {
             $tmpDate = self::niceDate($_REQUEST['date']);
         } else {
             $tmpDate = self::niceDate();
@@ -109,8 +113,11 @@ class UserTrack extends FOGClient implements FOGClientSend
             base64_decode($_REQUEST['user'])
         );
         unset($tmpDate);
-        if (isset($_REQUEST['date'])) {
-            $date = base64_decode($_REQUEST['date']);
+        // GH-1245: as above, and base64_decode('') is '' too.
+        $date = isset($_REQUEST['date'])
+            ? base64_decode($_REQUEST['date'])
+            : '';
+        if ('' !== trim((string) $date)) {
             $tmpDate = self::niceDate($date);
         } else {
             $tmpDate = self::niceDate();

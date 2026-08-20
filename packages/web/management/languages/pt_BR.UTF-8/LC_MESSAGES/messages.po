@@ -183,6 +183,10 @@ msgstr "Uma função (role) já existe com este nome!"
 msgid "A rule already exists with this name"
 msgstr "Uma regra já existe com este nome."
 
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "Um nome de usuário é obrigatório!"
+
 msgid "A site already exists with this name!"
 msgstr "Um site já existe com este nome!"
 

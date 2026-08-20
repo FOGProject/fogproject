@@ -1643,9 +1643,23 @@ abstract class FOGPage extends FOGBase
             /**
              * Schedule delayed/cron checks.
              */
-            $scheduleDeployTime = self::niceDate(
-                filter_input(INPUT_POST, 'scheduleSingleTime')
-            );
+            $scheduleSingleTime = filter_input(INPUT_POST, 'scheduleSingleTime');
+            /*
+             * GH-1245: reject the missing time instead of scheduling now.
+             *
+             * niceDate() used to read an absent or empty value as the current
+             * time, so a single schedule with no time silently became "run
+             * immediately". It now reads empty as "no value", which would
+             * trip the past-time check below with a message that does not
+             * describe what happened.
+             */
+            if ('single' === $scheduleType
+                && (null === $scheduleSingleTime
+                || '' === trim((string) $scheduleSingleTime))
+            ) {
+                throw new Exception(_('A scheduled time is required'));
+            }
+            $scheduleDeployTime = self::niceDate($scheduleSingleTime);
             switch ($scheduleType) {
                 case 'single':
                     if ($scheduleDeployTime < self::niceDate()) {
@@ -2768,7 +2782,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     list(
                         $tftpPass,
@@ -3073,7 +3087,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     list(
                         $tftpPass,
@@ -3719,7 +3733,8 @@ abstract class FOGPage extends FOGBase
                     // Reset must leave nothing behind that authorize() would
                     // still accept, grace token included.
                     'prev_sec_tok' => '',
-                    'sec_time' => '0000-00-00 00:00:00'
+                    // GH-1245: no expiry, not an expiry in the year zero.
+                    'sec_time' => null
                 )
             );
     }

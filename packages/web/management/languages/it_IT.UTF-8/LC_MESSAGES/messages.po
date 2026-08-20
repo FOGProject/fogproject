@@ -191,6 +191,10 @@ msgid "A rule already exists with this name"
 msgstr "Esiste già un ruolo con questo nome!"
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "È richiesto un nome utente!"
+
+#, fuzzy
 msgid "A site already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
 

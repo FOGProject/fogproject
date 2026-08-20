@@ -202,6 +202,110 @@ function scopeHarnessBoot($web, $state = 'none')
 }
 
 /**
+ * Whether a table exists in the database under test.
+ *
+ * The site tables are created by the site plugin, not by commons/schema.php,
+ * so a database built by replaying the schema alone does not have them and a
+ * fixture that needs them has nothing to say.
+ *
+ * @param object $db    the connection to ask
+ * @param string $table the table name
+ *
+ * @return bool
+ */
+function scopeHarnessHasTable($db, $table)
+{
+    $rows = $db->query(
+        "SELECT `TABLE_NAME` AS `t` FROM `information_schema`.`TABLES` "
+        . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '" . $table . "'"
+    )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+    return count((array) $rows) > 0;
+}
+
+/**
+ * Inserts a fixture row, filling in every column the server insists on.
+ *
+ * GH-1245. These fixtures used to hand-write an INSERT naming only the
+ * columns the test cared about, which worked because PDODB cleared sql_mode
+ * on every connection -- the server silently supplied its implicit default
+ * for the rest. It no longer does, so an INSERT that omits a NOT NULL column
+ * with no DEFAULT is error 1364 and the whole fixture collapses with nothing
+ * useful said.
+ *
+ * Reading the missing columns from information_schema rather than listing
+ * them here: `hosts` alone has twenty-one of them, and a list in a test file
+ * goes stale the first time somebody adds a column. The value chosen per type
+ * is the same rule FOGController::emptyValueFor() follows.
+ *
+ * @param object $db     the connection to insert through
+ * @param string $table  the table to insert into
+ * @param array  $values column => value, the ones the test actually cares about
+ *
+ * @return int the new row's id
+ */
+function scopeHarnessInsert($db, $table, array $values)
+{
+    static $cache = array();
+    if (!isset($cache[$table])) {
+        $cache[$table] = array();
+        $rows = $db->query(
+            "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty`, "
+            . "`IS_NULLABLE` AS `n`, `COLUMN_DEFAULT` AS `d`, `EXTRA` AS `e` "
+            . "FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = '" . $table . "'"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array) $rows as $row) {
+            $cache[$table][$row['c']] = $row;
+        }
+    }
+
+    foreach ($cache[$table] as $name => $info) {
+        if (array_key_exists($name, $values)) {
+            continue;
+        }
+        if (strtoupper($info['n']) === 'YES'
+            || null !== $info['d']
+            || false !== stripos($info['e'], 'auto_increment')
+        ) {
+            continue;
+        }
+        $type = $info['ty'];
+        if (preg_match('#^(datetime|timestamp|date)#i', $type)) {
+            // NOT NULL with no default: there is nothing else it can be.
+            $values[$name] = date('Y-m-d H:i:s');
+        } elseif (preg_match('#^(tiny|small|medium|big)?int#i', $type)) {
+            $values[$name] = 0;
+        } elseif (preg_match("#^(enum|set)\s*\(\s*'((?:[^']|'')*)'#i", $type, $m)) {
+            $values[$name] = str_replace("''", "'", $m[2]);
+        } else {
+            $values[$name] = '';
+        }
+    }
+
+    $cols = array();
+    $phs = array();
+    $params = array();
+    foreach ($values as $name => $value) {
+        $cols[] = '`' . $name . '`';
+        $phs[] = ':' . $name;
+        $params[$name] = $value;
+    }
+    $db->query(
+        sprintf(
+            'INSERT INTO `%s` (%s) VALUES (%s)',
+            $table,
+            implode(',', $cols),
+            implode(',', $phs)
+        ),
+        array(),
+        $params
+    );
+
+    return (int) $db->insertId();
+}
+
+/**
  * Why the database arm cannot run, or null when it can.
  *
  * Also defines the DATABASE_* constants when it returns null, reading them
@@ -212,6 +316,47 @@ function scopeHarnessBoot($web, $state = 'none')
  */
 function scopeHarnessDbReason()
 {
+    /*
+     * FOG_TEST_DSN points the database arm at a scratch server instead of a
+     * local install, which is the only way to run it against a schema this
+     * tree's own commons/schema.php built -- a developer's 1.5 install is
+     * usually a few steps behind, and CI has no install at all.
+     *
+     *   FOG_TEST_DSN='mysql:host=127.0.0.1;port=13313;dbname=fog15' \
+     *   FOG_TEST_USER=root FOG_TEST_PASS= php tests/<name>.test.php
+     *
+     * scripts/background_scripts/replay_15_schema_1245.sh builds exactly such
+     * a database.
+     */
+    $dsn = getenv('FOG_TEST_DSN');
+    if (false !== $dsn && '' !== $dsn) {
+        $parts = array();
+        foreach (explode(';', substr($dsn, strpos($dsn, ':') + 1)) as $bit) {
+            if (false === strpos($bit, '=')) {
+                continue;
+            }
+            list($k, $v) = explode('=', $bit, 2);
+            $parts[trim($k)] = trim($v);
+        }
+        $host = isset($parts['host']) ? $parts['host'] : '127.0.0.1';
+        if (isset($parts['port'])) {
+            $host .= ':' . $parts['port'];
+        }
+        $vals = array(
+            'DATABASE_TYPE' => 'mysql',
+            'DATABASE_HOST' => $host,
+            'DATABASE_NAME' => isset($parts['dbname']) ? $parts['dbname'] : 'fog',
+            'DATABASE_USERNAME' => (string) getenv('FOG_TEST_USER'),
+            'DATABASE_PASSWORD' => (string) getenv('FOG_TEST_PASS'),
+        );
+        foreach ($vals as $k => $v) {
+            if (!defined($k)) {
+                define($k, $v);
+            }
+        }
+        return scopeHarnessSchemaReason($vals);
+    }
+
     foreach (glob('/var/www/html/fog-1.5*/lib/fog/config.class.php') ?: array() as $cfg) {
         $src = @file_get_contents($cfg);
         if (false === $src) {
@@ -235,10 +380,76 @@ function scopeHarnessDbReason()
                 define($k, $v);
             }
         }
-        return null;
+        return scopeHarnessSchemaReason($vals);
     }
     return 'no 1.5 install found under /var/www/html to read a database'
         . ' configuration from';
+}
+
+/**
+ * Why that database is too old to test against, or null when it is current.
+ *
+ * These tests boot the ORM directly, which skips the gate every real request
+ * goes through: DatabaseManager::establish() redirects to the schema updater
+ * whenever the installed schema is behind FOG_SCHEMA, so nothing can reach a
+ * write path against a stale database in the field. The harness can, and
+ * since GH-1245 that difference is visible -- save() writes a real NULL for
+ * an empty date, which is an error until schema step 284 has made those
+ * columns nullable, and PDODB no longer clears sql_mode so the server says
+ * so rather than coercing it.
+ *
+ * Skipping rather than failing: a developer's install being a few steps
+ * behind is not a defect in the code under test, and reporting it as one
+ * sends people looking in the wrong place.
+ *
+ * @param array $vals the DATABASE_* values read from the install's config
+ *
+ * @return string|null
+ */
+function scopeHarnessSchemaReason($vals)
+{
+    $sysFile = dirname(dirname(__DIR__)) . '/packages/web/lib/fog/system.class.php';
+    if (!preg_match(
+        "/define\('FOG_SCHEMA',\s*(\d+)\)/",
+        (string) @file_get_contents($sysFile),
+        $m
+    )) {
+        return null;
+    }
+    $want = (int) $m[1];
+
+    $host = isset($vals['DATABASE_HOST']) ? $vals['DATABASE_HOST'] : '127.0.0.1';
+    $port = 3306;
+    if (false !== strpos($host, ':')) {
+        list($host, $port) = explode(':', $host, 2);
+    }
+    try {
+        $pdo = new PDO(
+            sprintf(
+                'mysql:host=%s;port=%d;dbname=%s',
+                $host,
+                (int) $port,
+                isset($vals['DATABASE_NAME']) ? $vals['DATABASE_NAME'] : 'fog'
+            ),
+            isset($vals['DATABASE_USERNAME']) ? $vals['DATABASE_USERNAME'] : '',
+            isset($vals['DATABASE_PASSWORD']) ? $vals['DATABASE_PASSWORD'] : '',
+            array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
+        );
+        $have = (int) $pdo->query('SELECT MAX(`vValue`) FROM `schemaVersion`')
+            ->fetchColumn();
+    } catch (Exception $e) {
+        return 'cannot read the schema version from the 1.5 install: '
+            . $e->getMessage();
+    }
+    if ($have < $want) {
+        return sprintf(
+            'the 1.5 install is at schema %d and this tree needs %d -- run '
+            . 'the schema updater on it first',
+            $have,
+            $want
+        );
+    }
+    return null;
 }
 
 /**
@@ -275,22 +486,24 @@ function scopeHarnessMaclessFixture($db)
             );
         }
     );
-    $db->query(
-        "INSERT INTO `site` (`sName`,`sDesc`) VALUES ('" . $mark . "','fixture')"
+    $siteID = scopeHarnessInsert(
+        $db,
+        'site',
+        array('sName' => $mark, 'sDesc' => 'fixture')
     );
-    $siteID = (int)$db->insertId();
     $hostIDs = array();
     foreach (array('a', 'b') as $n) {
-        $db->query(
-            "INSERT INTO `hosts` (`hostName`,`hostIP`,`hostUseAD`)"
-            . " VALUES ('" . $mark . $n . "','','0')"
+        $hostIDs[] = scopeHarnessInsert(
+            $db,
+            'hosts',
+            array('hostName' => $mark . $n, 'hostIP' => '', 'hostUseAD' => '0')
         );
-        $hostIDs[] = (int)$db->insertId();
     }
     foreach ($hostIDs as $hid) {
-        $db->query(
-            "INSERT INTO `siteHostAssoc` (`shaName`,`shaSiteID`,`shaHostID`)"
-            . " VALUES ('', " . $siteID . ", " . $hid . ")"
+        scopeHarnessInsert(
+            $db,
+            'siteHostAssoc',
+            array('shaName' => '', 'shaSiteID' => $siteID, 'shaHostID' => $hid)
         );
     }
     return array($siteID, $hostIDs);
@@ -333,11 +546,14 @@ function scopeHarnessFixture($db)
     );
     $ids = array();
     foreach (array(1, 2, 3) as $n) {
-        $db->query(
-            "INSERT INTO `groups` (`groupName`,`groupDesc`)"
-            . " VALUES ('" . $mark . $n . "','api scope characterization')"
+        $ids[] = scopeHarnessInsert(
+            $db,
+            'groups',
+            array(
+                'groupName' => $mark . $n,
+                'groupDesc' => 'api scope characterization',
+            )
         );
-        $ids[] = (int)$db->insertId();
     }
     return $ids;
 }

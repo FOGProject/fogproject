@@ -162,6 +162,9 @@ msgstr ""
 msgid "A rule already exists with this name"
 msgstr ""
 
+msgid "A scheduled time is required"
+msgstr ""
+
 msgid "A site already exists with this name!"
 msgstr ""
 

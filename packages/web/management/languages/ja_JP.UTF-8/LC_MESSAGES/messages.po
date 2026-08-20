@@ -175,6 +175,10 @@ msgstr "この名前のロールは既に存在します！"
 msgid "A rule already exists with this name"
 msgstr "この名前のルールは既に存在します"
 
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "ユーザー名は必須です！"
+
 msgid "A site already exists with this name!"
 msgstr "この名前のサイトは既に存在します！"
 

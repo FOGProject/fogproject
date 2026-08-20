@@ -128,22 +128,35 @@ register_shutdown_function(
     }
 );
 
+// scopeHarnessInsert() fills in every NOT NULL column with no DEFAULT.
+// GH-1245: PDODB no longer clears sql_mode, so an INSERT that names only the
+// columns a test cares about is error 1364 rather than silently completed.
 $mkHost = function ($suffix) use ($db, $mark) {
-    $db->query(
-        "INSERT INTO `hosts` (`hostName`,`hostIP`,`hostUseAD`)"
-        . " VALUES ('" . $mark . $suffix . "','','0')"
+    return scopeHarnessInsert(
+        $db,
+        'hosts',
+        array(
+            'hostName' => $mark . $suffix,
+            'hostIP' => '',
+            'hostUseAD' => '0',
+        )
     );
-    return (int)$db->insertId();
 };
 $mkMac = function ($hostID, $primary, $pending = '0', $nth = 0) use ($db) {
     // A locally-administered address, so it can never collide with real
     // hardware if this fixture ever outlives a crashed run. $nth keeps a
     // host's second MAC distinct from its first; hmMAC is unique.
     $mac = sprintf('02:%02x:%02x:%02x:%02x:%02x', $nth & 255, ($hostID >> 24) & 255, ($hostID >> 16) & 255, ($hostID >> 8) & 255, $hostID & 255);
-    $db->query(
-        "INSERT INTO `hostMAC` (`hmHostID`,`hmMAC`,`hmDesc`,`hmPrimary`,`hmPending`)"
-        . " VALUES (" . (int)$hostID . ",'" . $mac . "','fixture','" . $primary
-        . "','" . $pending . "')"
+    scopeHarnessInsert(
+        $db,
+        'hostMAC',
+        array(
+            'hmHostID' => (int) $hostID,
+            'hmMAC' => $mac,
+            'hmDesc' => 'fixture',
+            'hmPrimary' => $primary,
+            'hmPending' => $pending,
+        )
     );
 };
 
@@ -207,13 +220,18 @@ foreach ($hosts as $label => $id) {
  *    it is driven for real rather than reasoned about.
  */
 foreach ($hosts as $label => $id) {
-    $db->query(
-        "INSERT INTO `tasks` (`taskName`,`taskCreateTime`,`taskCheckIn`,"
-        . "`taskHostID`,`taskStateID`,`taskTypeID`,`taskCreateBy`,`taskNFSGroupID`,"
-        . "`taskNFSMemberID`,`taskImageID`,`taskPCT`,`taskBPM`,`taskTimeElapsed`,"
-        . "`taskTimeRemaining`,`taskDataCopied`,`taskDataTotal`,`taskPercentText`)"
-        . " VALUES ('fixture',NOW(),NOW()," . (int)$id . ",1,1,'fixture',0,0,0,"
-        . "'','','','','','','')"
+    scopeHarnessInsert(
+        $db,
+        'tasks',
+        array(
+            'taskName' => 'fixture',
+            'taskCreateTime' => date('Y-m-d H:i:s'),
+            'taskCheckIn' => date('Y-m-d H:i:s'),
+            'taskHostID' => (int) $id,
+            'taskStateID' => 1,
+            'taskTypeID' => 1,
+            'taskCreateBy' => 'fixture',
+        )
     );
 }
 foreach ($hosts as $label => $id) {

@@ -2973,7 +2973,13 @@ class HostManagementPage extends FOGPage
         foreach ((array)$Logs as &$Log) {
             $start = $Log->start;
             $finish = $Log->finish;
-            if ($Log->finish === '0000-00-00 00:00:00') {
+            // GH-1245: an unfinished log now holds NULL rather than the
+            // zero date. Both spellings still mean "not finished", and rows
+            // written before schema step 284 keep the old one.
+            if (null === $Log->finish
+                || '' === $Log->finish
+                || $Log->finish === '0000-00-00 00:00:00'
+            ) {
                 $finish = $start;
             }
             if (!self::validDate($start)
@@ -3129,7 +3135,12 @@ class HostManagementPage extends FOGPage
         foreach ((array)$SnapinTasks as &$SnapinTask) {
             $Snapin = $SnapinTask->snapin;
             $start = self::niceDate($SnapinTask->checkin);
-            if ($SnapinTask->complete === '0000-00-00 00:00:00') {
+            // GH-1245: as above -- an incomplete snapin task holds NULL
+            // from schema step 284 on, the zero date before it.
+            if (null === $SnapinTask->complete
+                || '' === $SnapinTask->complete
+                || $SnapinTask->complete === '0000-00-00 00:00:00'
+            ) {
                 $end = $start;
             } else {
                 $end = self::niceDate($SnapinTask->complete);
