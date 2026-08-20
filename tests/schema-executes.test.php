@@ -387,8 +387,13 @@ foreach ($steps as $updates) {
 }
 
 $manifest = include $manifestFile;
+// ['tables'], not the top level: the manifest is ['renames' => …,
+// 'tables' => …], so walking it directly finds no 'create' anywhere and
+// collects nothing. This half of the file had therefore never run -- with a
+// DSN set it failed on the "expected both to be non-empty" guard below, and
+// the guard was doing its job; nobody had a DSN.
 $manifestDdl = [];
-foreach ((array)$manifest as $table => $spec) {
+foreach ((array)($manifest['tables'] ?? []) as $table => $spec) {
     if (!empty($spec['create'])) {
         $manifestDdl[] = $spec['create'];
     }
@@ -415,6 +420,23 @@ try {
 }
 
 $server = $pdo->getAttribute(\PDO::ATTR_SERVER_VERSION);
+
+// This test needs to build two scratch databases from nothing, so it needs a
+// user that may CREATE DATABASE -- which a FOG service account deliberately
+// is not: fogmaster holds ALL PRIVILEGES on its own database and nothing
+// above it. Probed once here rather than letting the first CREATE throw an
+// uncaught PDOException mid-run, which reads as a broken test rather than an
+// unsuitable account. Same shape as the no-DSN skip above.
+try {
+    $pdo->exec(sprintf('CREATE DATABASE IF NOT EXISTS `%s`', $stepDb));
+    $pdo->exec(sprintf('DROP DATABASE IF EXISTS `%s`', $stepDb));
+} catch (\PDOException $e) {
+    printf(
+        "SKIP  %s may not CREATE DATABASE; schema execution not checked\n",
+        false === $user ? 'root' : $user
+    );
+    exit(0);
+}
 
 /**
  * Run a list of statements into a freshly created database.
