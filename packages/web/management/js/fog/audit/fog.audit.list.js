@@ -8,6 +8,13 @@
  * No timer, for the same reason as the activity viewer -- an audit trail is
  * something you go and read, and a self-rescheduling poll outlives the page
  * it was started on (ADR 0012). The toolbar's Refresh is the reload.
+ *
+ * NO rowGroup. Grouping by date read well, but registerTable() auto-pages any
+ * table that uses it -- Scroller's virtual row-height math cannot reconcile
+ * injected group-header rows -- and that silently opted these two out of the
+ * infinite scroll every other list has. These are the tables that want the
+ * scroller most: nothing paged them down and they grow for the life of the
+ * install. The date is on every row already.
  */
 (function($) {
   var $table = $('#audit-table');
@@ -73,11 +80,6 @@
     order: [
       [0, 'desc']
     ],
-    rowGroup: {
-      dataSrc: function(row) {
-        return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
-      }
-    },
     buttons: reportButtons,
     columns: [
       escaped('createdTime'),

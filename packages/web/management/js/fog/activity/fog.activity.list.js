@@ -6,6 +6,13 @@
  * something you go and read, not something that has to arrive while you watch
  * it, and a self-rescheduling poll on a page like this outlives the page it
  * was started on (ADR 0012). The Refresh button in the toolbar is the reload.
+ *
+ * NO rowGroup. Grouping by date read well, but registerTable() auto-pages any
+ * table that uses it -- Scroller's virtual row-height math cannot reconcile
+ * injected group-header rows -- and that silently opted these two out of the
+ * infinite scroll every other list has. These are the tables that want the
+ * scroller most: nothing paged them down and they grow for the life of the
+ * install. The date is on every row already.
  */
 (function($) {
   var $table = $('#activity-table'),
@@ -40,11 +47,6 @@
     order: [
       [1, 'desc']
     ],
-    rowGroup: {
-      dataSrc: function(row) {
-        return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
-      }
-    },
     buttons: reportButtons,
     columns: [
       escaped('createdBy'),
