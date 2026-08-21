@@ -485,6 +485,14 @@ msgstr "Attività in corso"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "Attivo"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "Aggiungere"
 
@@ -635,6 +643,10 @@ msgstr "Aggiunta chiave"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "MAC aggiuntivi"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "Gruppo amministrativo"
 
 #, fuzzy
 msgid "Administrator"
@@ -2611,6 +2623,9 @@ msgstr ""
 
 msgid "Friendly Name"
 msgstr "Nome amichevole"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -4701,6 +4716,9 @@ msgstr "Nessun compito attivo trovato per Host"
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No activity recorded yet"
+msgstr ""
+
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "Nessun file è stato caricato"
@@ -5822,6 +5840,9 @@ msgstr "Ricevere"
 msgid "Recent"
 msgstr "Ricevere"
 
+msgid "Recent Activity"
+msgstr ""
+
 msgid "Record not found"
 msgstr "Record non trovato"
 
@@ -6733,6 +6754,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr "Quindi, se stai cercando di trasmettere al nodo remoto A"
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -8376,6 +8400,9 @@ msgstr "Versione"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Gestione della posizione"
@@ -8422,6 +8449,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "settimanalmente"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8432,11 +8462,17 @@ msgstr "è stato cancellato"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "Dove ottenere aiuto"
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."

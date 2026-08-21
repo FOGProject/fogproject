@@ -422,6 +422,12 @@ msgstr ""
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+msgid "Activity"
+msgstr ""
+
+msgid "Activity entry"
+msgstr ""
+
 msgid "Add"
 msgstr ""
 
@@ -547,6 +553,9 @@ msgid "Adding Key"
 msgstr ""
 
 msgid "Additional Icon Elements"
+msgstr ""
+
+msgid "Administrative actions"
 msgstr ""
 
 msgid "Administrator"
@@ -2287,6 +2296,9 @@ msgid "FreeIPA"
 msgstr ""
 
 msgid "Friendly Name"
+msgstr ""
+
+msgid "From"
 msgstr ""
 
 msgid "Full History"
@@ -4116,6 +4128,9 @@ msgstr ""
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No activity recorded yet"
+msgstr ""
+
 msgid "No archive was uploaded."
 msgstr ""
 
@@ -5104,6 +5119,9 @@ msgstr ""
 msgid "Recent"
 msgstr ""
 
+msgid "Recent Activity"
+msgstr ""
+
 msgid "Record not found"
 msgstr ""
 
@@ -5907,6 +5925,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -7365,6 +7386,9 @@ msgstr ""
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 msgid "WOL Broadcast Management"
 msgstr ""
 
@@ -7410,6 +7434,9 @@ msgstr ""
 msgid "Weekly"
 msgstr ""
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -7419,10 +7446,16 @@ msgstr ""
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."

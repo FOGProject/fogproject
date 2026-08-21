@@ -499,6 +499,14 @@ msgstr "Active Tasks"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "Active"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "Add"
 
@@ -661,6 +669,10 @@ msgstr "Adding Key"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "Additional MACs"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "Modify Group"
 
 #, fuzzy
 msgid "Administrator"
@@ -2691,6 +2703,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "Kernel Name"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -4863,6 +4878,9 @@ msgstr "No Active Task found for Host"
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No activity recorded yet"
+msgstr ""
+
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "No file was uploaded"
@@ -6019,6 +6037,9 @@ msgstr "Receive"
 msgid "Recent"
 msgstr "Receive"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "Record not found, Error: %s"
@@ -6969,6 +6990,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -8669,6 +8693,9 @@ msgstr "Version"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Location Management"
@@ -8720,6 +8747,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "Weekly"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8730,10 +8760,16 @@ msgstr "has been successfully updated"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."

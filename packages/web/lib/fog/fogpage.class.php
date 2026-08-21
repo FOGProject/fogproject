@@ -513,6 +513,17 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Reports'],
                 'fa fa-file-text'
             ],
+            // Beside Reports, because that is what people will look for it
+            // under -- but a node of its own, not a report. The `report`
+            // permission node covers history, imaginglog and usertracking
+            // together, so one report.view grant reads every administrative
+            // action and every named person's login; the activity viewer
+            // gets its own gate precisely so it does not inherit that one.
+            // See docs/adr/0023.
+            'activity' => [
+                _('Activity'),
+                'fa fa-history'
+            ],
             'service' => [
                 self::$foglang['ClientSettings'],
                 'fa fa-cogs'
@@ -1392,8 +1403,14 @@ abstract class FOGPage extends FOGBase
             if ($sub == 'list') {
                 // Tasks are cancelled per-pane, never deleted; the tabbed
                 // task page hits sub=list via the no-sub default, so keep
-                // the delete actionbox off it.
-                if ($node != 'plugin' && $node != 'task') {
+                // the delete actionbox off it. Activity is a read-only view
+                // of the event logs -- ?node=activity&sub=list resolves to
+                // index() like any unknown sub does, and without this it
+                // would draw a "Delete selected" no page there implements.
+                if ($node != 'plugin'
+                    && $node != 'task'
+                    && $node != 'activity'
+                ) {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),

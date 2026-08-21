@@ -499,6 +499,14 @@ msgstr "Tarefas ativas"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "Ativo"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "Adicionar"
 
@@ -661,6 +669,10 @@ msgstr "adicionando Key"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "MACs adicionais"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "modificar Grupo"
 
 #, fuzzy
 msgid "Administrator"
@@ -2692,6 +2704,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "Nome Kernel"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -4864,6 +4879,9 @@ msgstr "Nenhuma tarefa ativa encontrada para o Host"
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No activity recorded yet"
+msgstr ""
+
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "Nenhum arquivo foi transferido"
@@ -6020,6 +6038,9 @@ msgstr "Receber"
 msgid "Recent"
 msgstr "Receber"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "Registro não encontrado, erro: %s"
@@ -6970,6 +6991,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -8670,6 +8694,9 @@ msgstr "Versão"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Gestão local"
@@ -8721,6 +8748,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "Semanal"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8731,10 +8761,16 @@ msgstr "foi atualizado com sucesso"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."

@@ -499,6 +499,14 @@ msgstr "活动任务"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "活性"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "活动目录"
+
 msgid "Add"
 msgstr "加"
 
@@ -661,6 +669,10 @@ msgstr "添加关键"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "附加的MAC"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "修改组"
 
 #, fuzzy
 msgid "Administrator"
@@ -2692,6 +2704,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "内核名称"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -4864,6 +4879,9 @@ msgstr "发现主机没有活动任务"
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No activity recorded yet"
+msgstr ""
+
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "没有文件被上传"
@@ -6020,6 +6038,9 @@ msgstr "接收"
 msgid "Recent"
 msgstr "接收"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
@@ -6970,6 +6991,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -8670,6 +8694,9 @@ msgstr "版"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "位置管理"
@@ -8721,6 +8748,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "每周"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8731,10 +8761,16 @@ msgstr "已成功更新"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."

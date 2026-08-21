@@ -327,6 +327,13 @@ class Authorization extends FOGBase
             'service' => ['view', 'edit'],
             'settings' => ['view', 'edit'],
             'report' => ['view', 'create'],
+            // The activity viewer. A node of its own rather than an alias
+            // onto 'report': aliasing would hand every existing report.view
+            // holder the log viewer as a side effect of an upgrade, which is
+            // a widening nobody asked for. New node, nobody holds it, only
+            // '*' works until an administrator grants it -- deny by default,
+            // the same stance the rest of this registry takes.
+            'activity' => ['view'],
             'plugin' => ['view', 'edit', 'install']
         ];
     }

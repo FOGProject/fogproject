@@ -61,6 +61,15 @@ class DashboardPage extends FOGPage
      */
     private static $_groupOpts;
     /**
+     * How many history rows the Recent Activity card shows.
+     *
+     * Interpolated straight into the LIMIT, so it is a class constant and
+     * never a request value.
+     *
+     * @var int
+     */
+    const RECENT_ACTIVITY = 10;
+    /**
      * The node to display page for.
      *
      * @var string
@@ -485,6 +494,76 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+        // Recent activity.
+        //
+        // Rendered here, server side, from one bounded query -- NOT a widget
+        // with a timer. Activity is something you go and read; nothing about
+        // it has to arrive while you are looking at the page, and a poll on
+        // this page would be a self-rescheduling one that outlives it
+        // (ADR 0012). It costs one query on a page that already runs several,
+        // and zero requests thereafter. See docs/adr/0023.
+        //
+        // Gated on the viewer's own permission rather than on `report`: the
+        // card is a window onto ?node=activity, so anyone who cannot open
+        // that page must not read its rows from the dashboard instead.
+        if (Authorization::can('activity.view')) {
+            // Bound in the QUERY. These tables have nothing ageing them out
+            // and grow for the life of the install, so "fetch and show ten"
+            // is not the same thing as "fetch ten".
+            $recent = self::$DB->query(
+                "SELECT `hUser`, `hTime`, `hText`, `hIP`
+                   FROM `history`
+                  ORDER BY `hTime` DESC
+                  LIMIT " . self::RECENT_ACTIVITY
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            echo '<div class="col-12">';
+            echo '<div class="card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
+            echo _('Recent Activity');
+            echo '</h4>';
+            echo '<div class="card-tools float-end">';
+            echo '<a class="ajax-page-link" '
+                . 'href="../management/index.php?node=activity">';
+            echo _('View all');
+            echo '</a>';
+            echo '</div>';
+            echo '</div>';
+            echo '<div class="card-body p-0">';
+            if (count((array)$recent) < 1) {
+                echo '<p class="p-3 mb-0">' . _('No activity recorded yet')
+                    . '</p>';
+            } else {
+                echo '<div class="table-responsive">';
+                echo '<table class="table table-striped mb-0">';
+                echo '<thead><tr>'
+                    . '<th>' . _('Who') . '</th>'
+                    . '<th>' . _('When') . '</th>'
+                    . '<th>' . _('What') . '</th>'
+                    . '<th>' . _('From') . '</th>'
+                    . '</tr></thead><tbody>';
+                foreach ((array)$recent as $row) {
+                    // hText is assembled by FOGBase::logHistory() and
+                    // interpolates object names, which are writable from
+                    // surfaces that need no login. Escaped, like every other
+                    // cell here.
+                    printf(
+                        '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
+                        \Initiator::e($row['hUser']),
+                        \Initiator::e($row['hTime']),
+                        \Initiator::e($row['hText']),
+                        \Initiator::e($row['hIP'])
+                    );
+                }
+                echo '</tbody></table>';
+                echo '</div>';
+            }
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+            unset($recent);
+        }
         echo '</div>';
     }
     /**

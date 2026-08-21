@@ -470,6 +470,14 @@ msgstr "実行中のタスク"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "有効"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "追加"
 
@@ -618,6 +626,10 @@ msgstr "キーを追加中"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "追加のアイコン要素"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "ホスト登録"
 
 msgid "Administrator"
 msgstr ""
@@ -2584,6 +2596,9 @@ msgstr "空き"
 
 msgid "Friendly Name"
 msgstr "表示名"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -4653,6 +4668,10 @@ msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
 #, fuzzy
+msgid "No activity recorded yet"
+msgstr "完了時刻は記録されていません"
+
+#, fuzzy
 msgid "No archive was uploaded."
 msgstr "ファイルはアップロードされませんでした"
 
@@ -5776,6 +5795,9 @@ msgstr "受信"
 msgid "Recent"
 msgstr "パーセント"
 
+msgid "Recent Activity"
+msgstr ""
+
 msgid "Record not found"
 msgstr "レコードが見つかりません"
 
@@ -6671,6 +6693,9 @@ msgstr "そのため、リモートノード A に送信しようとしている
 #, fuzzy
 msgid "Some nice description, should be short."
 msgstr "説明は必須です"
+
+msgid "Source"
+msgstr ""
 
 msgid "Space variable must be boolean"
 msgstr "Space 変数はブール値である必要があります"
@@ -8308,6 +8333,9 @@ msgstr "バージョン"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 msgid "WOL Broadcast Management"
 msgstr "WOL ブロードキャスト管理"
 
@@ -8353,6 +8381,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "週単位"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8363,11 +8394,17 @@ msgstr "強制終了されました"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -10642,9 +10679,6 @@ msgstr ""
 
 #~ msgid "No access is allowed"
 #~ msgstr "アクセスは許可されていません"
-
-#~ msgid "No complete time recorded"
-#~ msgstr "完了時刻は記録されていません"
 
 #~ msgid "No connection available"
 #~ msgstr "利用可能な接続がありません"

@@ -495,6 +495,14 @@ msgstr "Aktive Tasks"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "Aktiv"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "Hinzufügen"
 
@@ -657,6 +665,10 @@ msgstr "Schlüssel hinzufügen"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "zusätzliche MACs haben"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "Admingruppe"
 
 #, fuzzy
 msgid "Administrator"
@@ -2690,6 +2702,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "nutzerfreundlicher Name"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -4864,6 +4879,9 @@ msgstr "Keinen aktiven Task gefunden für Host"
 msgid "No activity information available for this group"
 msgstr ""
 
+msgid "No activity recorded yet"
+msgstr ""
+
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "Keine Datei wurde hochgeladen"
@@ -6020,6 +6038,9 @@ msgstr "Erhalten"
 msgid "Recent"
 msgstr "Erhalten"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
@@ -6970,6 +6991,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr "Wenn Sie also versuchen, an den entfernten Knoten A zu senden,"
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -8673,6 +8697,9 @@ msgstr "Version"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Standortverwaltung"
@@ -8724,6 +8751,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "Wöchentlich"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8734,11 +8764,17 @@ msgstr "wurde abgebrochen"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "Wo bekomme ich Hilfe?"
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
