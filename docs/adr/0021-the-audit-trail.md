@@ -416,6 +416,17 @@ capability, and it belongs in `FOGPluginRunner`, the existing non-root
 periodic daemon (ADR 0010), rather than a new one. Adding the setting requires
 bumping `FOG_SCHEMA` in the same step or the insert is silently skipped.
 
+**The sweep is generic, not `auditLog`-specific** (amended per ADR 0023).
+Three tables need ageing out and they arrived from three directions:
+`auditLog` here, `history` and `userTracking` in ADR 0023, and `imagingLog`
+in ADR 0022 — which defers to this mechanism explicitly. So what
+`FOGPluginRunner` walks is a **retention registry** of table → setting name →
+date column, core-registered and extensible by a plugin through a hook, the
+same shape as the permission registry. `FOG_AUDIT_RETENTION_DAYS` becomes the
+first entry rather than the only one, and a fourth table is a registry entry
+instead of a second sweep. Building it per-table would produce three sweeps
+ageing three tables with three bugs.
+
 ### 10. Shrinking the audit trail is itself audited, and refused if it cannot be
 
 HARD constraint, taken literally. Retention changes, manual purges and
