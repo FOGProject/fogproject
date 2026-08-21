@@ -4671,11 +4671,25 @@ class Route extends FOGBase
      *
      *   $arguments['always']['ldap'][] = 'bindPwd';
      *
+     * A third bucket, 'exempt', carries the opposite declaration: a friendly
+     * key that matches Redaction::CREDENTIAL_PATTERN and is NOT a credential.
+     * Without it a plugin could only ever say "this is a secret", so a name
+     * like capone's 'key' -- a DMI string to match an image on, submitted in
+     * the clear by the unauthenticated capone endpoint -- had nowhere to be
+     * classified. Core's own answers live in Redaction::$patternExempt and
+     * seed this bucket; a plugin appends to it the same way:
+     *
+     *   $arguments['exempt']['capone'][] = 'key';
+     *
+     * It rides this event rather than one of its own because it is read by
+     * the same call, and because a second event would fire every listener
+     * twice for one question.
+     *
      * Memoized per request: the tiers are read on every serialized object,
      * so firing the event each time would put a hook pass in the middle of
      * every list payload's inner loop.
      *
-     * @return array ['fields' => tier-1 map, 'always' => tier-2 map]
+     * @return array ['fields' => tier-1, 'always' => tier-2, 'exempt' => map]
      */
     public static function sensitiveFieldMap()
     {
@@ -4684,6 +4698,7 @@ class Route extends FOGBase
         }
         $fields = self::$sensitiveFields;
         $always = self::$sensitiveAlwaysFields;
+        $exempt = Redaction::$patternExempt;
         // Memoized with the CORE tiers BEFORE the event fires, and again with
         // the plugin-augmented ones after. The pre-set is what makes this
         // re-entrant, and it has to be: HookManager::processEvent() populates
@@ -4707,18 +4722,21 @@ class Route extends FOGBase
         // Same shape, same fix, in serverOwnedFields() below.
         self::$_sensitiveMap = [
             'fields' => (array)$fields,
-            'always' => (array)$always
+            'always' => (array)$always,
+            'exempt' => (array)$exempt
         ];
         self::$HookManager->processEvent(
             'API_SENSITIVE_FIELDS',
             [
                 'fields' => &$fields,
-                'always' => &$always
+                'always' => &$always,
+                'exempt' => &$exempt
             ]
         );
         return self::$_sensitiveMap = [
             'fields' => (array)$fields,
-            'always' => (array)$always
+            'always' => (array)$always,
+            'exempt' => (array)$exempt
         ];
     }
     /**

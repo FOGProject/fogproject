@@ -44,7 +44,11 @@ namespace FOG;
  *      Route::SENSITIVE_SETTING_PATTERN, which exists so a credential
  *      setting added later is masked by default instead of leaking until
  *      somebody remembers. A field that matches and is NOT a credential goes
- *      on $patternExempt -- an explicit, reviewable act.
+ *      on $patternExempt -- an explicit, reviewable act. A plugin's model
+ *      declares its exemptions through the 'exempt' bucket of
+ *      API_SENSITIVE_FIELDS, so core names no plugin here; read them through
+ *      isPatternExempt(), never the property, for the same reason layer 2
+ *      gives below.
  *   2. Route's own registry, for credentials the pattern misses. host's
  *      sec_tok and prev_sec_tok are the live examples: "tok" is not "token".
  *      Read through Route::sensitiveFieldMap(), never the properties, or
@@ -89,6 +93,13 @@ class Redaction extends FOGBase
      * Per class, not per key name: `hotkey` being harmless on a PXE menu says
      * nothing about a field of that name appearing on some other model later.
      *
+     * CORE classes only. A plugin's models are not named here and must not
+     * be: this list is checked against the tree, and the bundled plugins are
+     * a fetched artifact that a fresh clone or a CI runner does not have, so
+     * an entry for one would fail the moment the tree is absent. Plugins
+     * declare through the 'exempt' bucket of API_SENSITIVE_FIELDS instead --
+     * see Route::sensitiveFieldMap().
+     *
      * Every entry is checked against the tree by
      * tests/audit-redaction-coverage.test.php, so an exemption cannot outlive
      * the column it was written for and silently cover a future one.
@@ -116,11 +127,20 @@ class Redaction extends FOGBase
         ],
     ];
     /**
-     * Cached per-class union of both Route tiers plus the exempt list.
+     * Cached per-class union of both Route tiers.
      *
      * @var array|null
      */
     private static $_map = null;
+    /**
+     * Cached per-class exemptions, core's and every plugin's.
+     *
+     * Separate from $_map because the two answer opposite questions and
+     * isSensitive() has to be able to let the registry beat the exemption.
+     *
+     * @var array|null
+     */
+    private static $_exemptMap = null;
     /**
      * Normalizes a class name to the key Route's registries use.
      *
@@ -136,6 +156,64 @@ class Redaction extends FOGBase
         return strtolower(trim(self::shortName($class)));
     }
     /**
+     * Builds both per-class maps once: the sensitive union and the exemptions.
+     *
+     * One method rather than two because both come out of a single
+     * sensitiveFieldMap() call, and that call fires a hook event.
+     *
+     * @return void
+     */
+    private static function _load()
+    {
+        if (null !== self::$_map) {
+            return;
+        }
+        // sensitiveFieldMap() fires API_SENSITIVE_FIELDS, and processEvent()
+        // reaches Route::getIds('hookevent') -- so it needs a booted FOG with
+        // a database. Outside one (CI, the test harness) read the core lists
+        // directly.
+        //
+        // This is the same degradation Route itself performs: it pre-memoizes
+        // with the core tiers BEFORE firing the event, so a re-entrant caller
+        // also sees core-only. A caller can therefore miss a PLUGIN-declared
+        // field, never a core one -- and anything credential-shaped is still
+        // caught by CREDENTIAL_PATTERN, which is the whole reason the pattern
+        // is the first layer.
+        //
+        // The exemptions degrade the safe way round for the same reason: a
+        // plugin exemption that is missed leaves a field redacted that did
+        // not need to be, which costs an audit row a value it could have
+        // kept. The opposite mistake would hand out a secret.
+        //
+        // Not a try/catch around a maybe-API: the condition is a fact about
+        // whether FOG is booted, tested directly.
+        $map = self::$HookManager instanceof HookManager
+            ? Route::sensitiveFieldMap()
+            : [
+                'fields' => Route::$sensitiveFields,
+                'always' => Route::$sensitiveAlwaysFields,
+                'exempt' => self::$patternExempt
+            ];
+        $merged = [];
+        foreach (['fields', 'always'] as $tier) {
+            foreach ((array)($map[$tier] ?? []) as $cls => $keys) {
+                $cls = self::_key($cls);
+                foreach ((array)$keys as $key) {
+                    $merged[$cls][strtolower($key)] = true;
+                }
+            }
+        }
+        self::$_map = $merged;
+        $exempt = [];
+        foreach ((array)($map['exempt'] ?? []) as $cls => $keys) {
+            $cls = self::_key($cls);
+            foreach ((array)$keys as $key) {
+                $exempt[$cls][strtolower($key)] = true;
+            }
+        }
+        self::$_exemptMap = $exempt;
+    }
+    /**
      * The declared-sensitive keys for a class, both tiers unioned.
      *
      * @param mixed $class object or class name
@@ -144,38 +222,7 @@ class Redaction extends FOGBase
      */
     public static function declaredFor($class)
     {
-        if (null === self::$_map) {
-            // sensitiveFieldMap() fires API_SENSITIVE_FIELDS, and
-            // processEvent() reaches Route::getIds('hookevent') -- so it
-            // needs a booted FOG with a database. Outside one (CI, the test
-            // harness) read the core tiers directly.
-            //
-            // This is the same degradation Route itself performs: it
-            // pre-memoizes with the core tiers BEFORE firing the event, so a
-            // re-entrant caller also sees core-only. A caller can therefore
-            // miss a PLUGIN-declared field, never a core one -- and anything
-            // credential-shaped is still caught by CREDENTIAL_PATTERN below,
-            // which is the whole reason the pattern is the first layer.
-            //
-            // Not a try/catch around a maybe-API: the condition is a fact
-            // about whether FOG is booted, tested directly.
-            $map = self::$HookManager instanceof HookManager
-                ? Route::sensitiveFieldMap()
-                : [
-                    'fields' => Route::$sensitiveFields,
-                    'always' => Route::$sensitiveAlwaysFields
-                ];
-            $merged = [];
-            foreach (['fields', 'always'] as $tier) {
-                foreach ((array)($map[$tier] ?? []) as $cls => $keys) {
-                    $cls = self::_key($cls);
-                    foreach ((array)$keys as $key) {
-                        $merged[$cls][strtolower($key)] = true;
-                    }
-                }
-            }
-            self::$_map = $merged;
-        }
+        self::_load();
 
         return array_keys(self::$_map[self::_key($class)] ?? []);
     }
@@ -189,12 +236,10 @@ class Redaction extends FOGBase
      */
     public static function isPatternExempt($class, $field)
     {
-        $exempt = array_map(
-            'strtolower',
-            (array)(self::$patternExempt[self::_key($class)] ?? [])
-        );
+        self::_load();
+        $exempt = self::$_exemptMap[self::_key($class)] ?? [];
 
-        return in_array(strtolower((string)$field), $exempt, true);
+        return isset($exempt[strtolower((string)$field)]);
     }
     /**
      * Must this field's value be withheld?

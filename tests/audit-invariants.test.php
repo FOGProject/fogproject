@@ -312,6 +312,83 @@ if (false !== strpos($progress, 'Audit::record')) {
         . 'TaskQueue::checkIn() and checkout() already record.';
 }
 
+/*
+ * 6. The exemption seam is wired end to end.
+ *
+ * A plugin can only classify its own pattern-matching columns if the
+ * 'exempt' bucket actually reaches Redaction, and every link in that chain
+ * fails silently: a missing seed leaves core's own exemptions out of the
+ * map, a missing event argument means no plugin can ever append, and
+ * isPatternExempt() reading the raw property instead of the built map
+ * ignores every plugin declaration while still answering plausibly for core.
+ * That is the same mistake as 58483d6 -- reading the property rather than
+ * the accessor -- one class along.
+ */
+$route = (string) @file_get_contents(
+    $root . '/packages/web/lib/router/route.class.php'
+);
+$redaction = (string) @file_get_contents(
+    $root . '/packages/web/lib/fog/redaction.class.php'
+);
+$map = '';
+if (preg_match(
+    '#public static function sensitiveFieldMap\(\).*?
+    \}#s',
+    $route,
+    $m
+)) {
+    $map = $m[0];
+}
+$checks++;
+if ('' === $map) {
+    $failures[] = 'could not locate Route::sensitiveFieldMap(); this test '
+        . 'cannot check what it cannot find';
+} else {
+    $checks++;
+    if (false === strpos($map, 'Redaction::$patternExempt')) {
+        $failures[] = "Route::sensitiveFieldMap() no longer seeds the "
+            . "'exempt' bucket from Redaction::\$patternExempt, so core's own "
+            . 'exemptions are absent from the map every caller reads and '
+            . 'hotkey, keysequence and passreset are redacted again.';
+    }
+    $checks++;
+    if (false === strpos($map, "'exempt' => &\$exempt")) {
+        $failures[] = "Route::sensitiveFieldMap() does not pass 'exempt' by "
+            . 'reference to API_SENSITIVE_FIELDS, so a plugin has no way to '
+            . 'classify a column of its own that matches the pattern and is '
+            . 'not a credential. Core cannot hold that answer for it: the '
+            . 'bundled plugins are a fetched artifact.';
+    }
+}
+$exemptFn = '';
+if (preg_match(
+    '#public static function isPatternExempt\(.*?
+    \}#s',
+    $redaction,
+    $m
+)) {
+    $exemptFn = $m[0];
+}
+$checks++;
+if ('' === $exemptFn) {
+    $failures[] = 'could not locate Redaction::isPatternExempt(); this test '
+        . 'cannot check what it cannot find';
+} else {
+    $checks++;
+    if (false !== strpos($exemptFn, 'self::$patternExempt')) {
+        $failures[] = 'Redaction::isPatternExempt() reads $patternExempt '
+            . 'directly instead of the map built from Route, so every '
+            . 'plugin-declared exemption is silently ignored -- the same '
+            . 'read-the-property mistake as 58483d6.';
+    }
+    $checks++;
+    if (false === strpos($exemptFn, '_load()')) {
+        $failures[] = 'Redaction::isPatternExempt() no longer builds the '
+            . 'exempt map before reading it, so the answer depends on '
+            . 'whether some other call happened to build it first.';
+    }
+}
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {

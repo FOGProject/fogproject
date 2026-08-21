@@ -37,11 +37,20 @@
  * whatever the ORM saves. userauth is the live difference: it is not a route
  * class, and `userauth.password` is the remember-me validator hash.
  *
- * Plugin models are checked too, and a plugin may satisfy (1) by declaring
- * the field through the API_SENSITIVE_FIELDS hook, which is the only way it
- * can. That declaration is read from the plugin's own source: the hook cannot
+ * Plugin models are checked too, and a plugin satisfies (1) through the
+ * API_SENSITIVE_FIELDS hook in either direction: the 'always'/'fields'
+ * buckets for a credential, the 'exempt' bucket for a key that matches the
+ * pattern and is not one. Core cannot hold the answer for a plugin -- the
+ * bundled plugins are a fetched artifact (ADR 0009), so a core entry naming
+ * one would fail (2) or (3) on any tree that has not fetched them, which
+ * includes a fresh clone and CI.
+ *
+ * Those declarations are read from the plugin's own source: the hook cannot
  * be fired here, because processEvent() reaches Route::getIds('hookevent')
- * and there is no database.
+ * and there is no database. A plugin exemption is held to (3) exactly as a
+ * core one is -- when the tree is present it is parsed, and its model is
+ * parsed from the same tree, so there is no case where one is checked and
+ * the other is missing.
  *
  * DB-free: models are parsed from source, the registries are public statics
  * on a class that loads standalone.
@@ -140,32 +149,53 @@ function models($webroot)
 }
 
 /**
- * Fields a plugin declares through the API_SENSITIVE_FIELDS hook.
+ * What a plugin declares through the API_SENSITIVE_FIELDS hook, by bucket.
  *
  * Read from source because the hook cannot be fired without a database.
- * Matches the shape every declaring hook uses:
- *   $arguments['always'][$this->node][] = 'clientSecret';
+ * Matches the shapes a declaring hook uses:
+ *
+ *   $arguments['always'][$this->node][] = 'bindPwd';
+ *   $arguments['fields'][$this->node][] = 'key';
+ *   $arguments['exempt']['windowskeyassociation'][] = 'windowskeyID';
+ *
+ * $this->node resolves to the plugin's directory name, which is what the
+ * node is at runtime.
+ *
+ * CLASS-AWARE, and that is load-bearing in both directions. An exemption
+ * turns redaction OFF, so which model it applies to has to be pinned. And a
+ * class-agnostic reading of the sensitive side is just as wrong the other
+ * way: once the windowskey plugin declared its product key, a bare field
+ * name of 'key' counted as classified on EVERY model, which silently
+ * satisfied capone.key -- a field that is not a credential and had not been
+ * classified at all. A declaration says something about one model.
  *
  * @param string $webroot path to packages/web
  *
- * @return array lowercased field names, class-agnostic
+ * @return array ['sensitive' => map, 'exempt' => map], class => [key => true]
  */
 function pluginDeclared($webroot)
 {
-    $out = [];
+    $out = ['sensitive' => [], 'exempt' => []];
     foreach ((array) glob($webroot . '/lib/plugins/*/hooks/*.php') as $file) {
         $src = (string) file_get_contents($file);
         if (false === strpos($src, 'API_SENSITIVE_FIELDS')) {
             continue;
         }
-        if (preg_match_all(
-            '#\[\s*[\'"](?:fields|always)[\'"]\s*\][^;]*?[\'"](\w+)[\'"]\s*;#',
+        $node = basename(dirname(dirname($file)));
+        if (!preg_match_all(
+            '#\[\s*[\'"](fields|always|exempt)[\'"]\s*\]\s*\[\s*'
+            . '(?:\$this->node|[\'"](\w+)[\'"])\s*\]\s*\[\s*\]\s*'
+            . '=\s*[\'"](\w+)[\'"]\s*;#',
             $src,
-            $m
+            $m,
+            PREG_SET_ORDER
         )) {
-            foreach ($m[1] as $field) {
-                $out[strtolower($field)] = true;
-            }
+            continue;
+        }
+        foreach ($m as $hit) {
+            $bucket = 'exempt' === $hit[1] ? 'exempt' : 'sensitive';
+            $class = '' === $hit[2] ? $node : $hit[2];
+            $out[$bucket][strtolower($class)][strtolower($hit[3])] = true;
         }
     }
 
@@ -186,7 +216,10 @@ $declaredPlugin = pluginDeclared($webroot);
 
 // Route's core tiers, read directly rather than through sensitiveFieldMap():
 // that accessor fires a hook, which reaches Route::getIds('hookevent'), and
-// there is no database here. The plugin half is covered by pluginDeclared().
+// there is no database here. The plugin half comes from source instead, and
+// is merged in so that (2) holds it to the same staleness check: a plugin
+// declaration naming a column its own model does not have is the same
+// disarmed guard as a core one.
 $registry = [];
 foreach ([Route::$sensitiveFields, Route::$sensitiveAlwaysFields] as $tier) {
     foreach ((array) $tier as $class => $keys) {
@@ -195,11 +228,24 @@ foreach ([Route::$sensitiveFields, Route::$sensitiveAlwaysFields] as $tier) {
         }
     }
 }
+foreach ($declaredPlugin['sensitive'] as $class => $keys) {
+    foreach (array_keys($keys) as $key) {
+        $registry[$class][$key] = true;
+    }
+}
 
+// Core's list and every plugin's, in one map: both are exemptions, both are
+// checked for staleness by (3), and isPatternExempt() unions them the same
+// way at runtime.
 $exempt = [];
 foreach ((array) Redaction::$patternExempt as $class => $keys) {
     foreach ((array) $keys as $key) {
         $exempt[strtolower($class)][strtolower($key)] = true;
+    }
+}
+foreach ($declaredPlugin['exempt'] as $class => $keys) {
+    foreach (array_keys($keys) as $key) {
+        $exempt[$class][$key] = true;
     }
 }
 
@@ -217,17 +263,16 @@ foreach ($models as $class => $keys) {
         }
         $matched++;
         $checks++;
-        if (isset($registry[$class][$key])
-            || isset($exempt[$class][$key])
-            || isset($declaredPlugin[$key])
-        ) {
+        if (isset($registry[$class][$key]) || isset($exempt[$class][$key])) {
             continue;
         }
         $failures[] = "$class.$key matches CREDENTIAL_PATTERN and is "
-            . 'classified nowhere. Add it to Route::$sensitiveAlwaysFields '
-            . 'if it is a credential, or to Redaction::$patternExempt if it '
-            . 'is not. It is redacted either way at runtime; this is asking '
-            . 'for the decision to be written down.';
+            . 'classified nowhere. A core model: Route::$sensitiveAlwaysFields '
+            . 'if it is a credential, Redaction::$patternExempt if it is not. '
+            . "A plugin's: the 'always' or 'exempt' bucket of that plugin's "
+            . 'API_SENSITIVE_FIELDS hook, never core. It is redacted either '
+            . 'way at runtime; this is asking for the decision to be written '
+            . 'down.';
     }
 }
 
