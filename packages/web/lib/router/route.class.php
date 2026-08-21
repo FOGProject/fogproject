@@ -1259,6 +1259,18 @@ class Route extends FOGBase
         );
         $passtoken = trim($passtoken);
         if (!hash_equals((string)self::$_token, (string)$passtoken)) {
+            // Before sendResponse(), which exits. The presented token is
+            // NOT recorded -- a rejected credential is still a credential,
+            // and #1261/#1262 was exactly this mistake in the SQL fault log.
+            Audit::record(
+                [
+                    'type' => Audit::TOKEN_REJECTED,
+                    'outcome' => Audit::DENIED,
+                    'subjectType' => 'system',
+                    'authSource' => 'api-token',
+                    'renderable' => 1
+                ]
+            );
             self::sendResponse(
                 HTTPResponseCodes::HTTP_FORBIDDEN
             );
@@ -1354,6 +1366,28 @@ class Route extends FOGBase
             self::$FOGUser = $pwtoken;
             return;
         }
+        // A user token was PRESENTED and did not work. Falling through to
+        // basic auth is correct -- a client may send neither, or both --
+        // but the rejection is a fact, and until now it left no trace at
+        // all. Only recorded when something was actually presented: an
+        // empty header is not an attempt.
+        if ('' !== $usertoken) {
+            Audit::record(
+                [
+                    'type' => Audit::TOKEN_REJECTED,
+                    'outcome' => Audit::DENIED,
+                    'subjectType' => 'user',
+                    // The token is a credential and is not written down. If
+                    // it resolved to an account at all, that account's name
+                    // is the fact worth keeping; if it did not, there is
+                    // nothing to say beyond "a token was refused".
+                    'subjectID' => (int)$pwtoken->get('id'),
+                    'subjectLabel' => (string)$pwtoken->get('name'),
+                    'authSource' => 'user-token',
+                    'renderable' => 1
+                ]
+            );
+        }
         list($authUser, $authPass) = self::_basicAuthCredentials();
         $auth = self::$FOGUser->passwordValidate(
             $authUser,
@@ -1374,6 +1408,22 @@ class Route extends FOGBase
         // fills in id, name and type on the object it was called against.
         $apiUser = self::getClass('User', (int)self::$FOGUser->get('id'));
         if (!$apiUser->isValid() || !$apiUser->get('api')) {
+            // A correct password for an account that may not use the API.
+            // Distinct from a bad credential and worth telling apart: this
+            // one says somebody's real credential is being used somewhere
+            // it is not meant to be.
+            Audit::record(
+                [
+                    'type' => Audit::API_DENIED,
+                    'outcome' => Audit::DENIED,
+                    'subjectType' => 'user',
+                    'subjectID' => (int)$apiUser->get('id'),
+                    'subjectLabel' => (string)$authUser,
+                    'createdBy' => (string)$authUser,
+                    'authSource' => 'basic',
+                    'renderable' => 1
+                ]
+            );
             self::sendResponse(
                 HTTPResponseCodes::HTTP_UNAUTHORIZED
             );

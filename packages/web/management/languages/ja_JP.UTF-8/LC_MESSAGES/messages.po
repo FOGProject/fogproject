@@ -886,6 +886,9 @@ msgstr "ping を試行しています"
 msgid "Attempting to ping host"
 msgstr "ping を試行しています"
 
+msgid "Audit row was not stored"
+msgstr ""
+
 msgid "Authenticated but not permitted."
 msgstr ""
 
@@ -8962,6 +8965,9 @@ msgid "no reason was reported"
 msgstr ""
 
 msgid "no response from server"
+msgstr ""
+
+msgid "no row id after save"
 msgstr ""
 
 msgid "node is the distributor of the images"

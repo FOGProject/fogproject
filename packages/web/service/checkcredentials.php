@@ -121,6 +121,25 @@ try {
         throw new \Exception('#!il');
     }
     $clearAttempts();
+    // A credential proved with no session behind it. passwordValidate()
+    // records the refusals, including this endpoint's, but it cannot record
+    // the acceptances: it is also the funnel for the web login form, where
+    // establishSession() is what says a login happened. Here nothing
+    // establishes anything, so this is the only place the success exists.
+    //
+    // ADR 0021 Context 1 counts this endpoint as one of the four login paths
+    // FOG's own login files never covered.
+    Audit::record(
+        [
+            'type' => Audit::LOGIN,
+            'outcome' => Audit::ALLOWED,
+            'subjectType' => 'user',
+            'subjectLabel' => $username,
+            'createdBy' => $username,
+            'authSource' => 'ipxe',
+            'renderable' => 1
+        ]
+    );
     echo '#!ok';
 } catch (\Exception $e) {
     if ($e->getMessage() !== '#!il') {

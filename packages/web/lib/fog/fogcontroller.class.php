@@ -654,6 +654,27 @@ abstract class FOGController extends FOGBase
     }
 
     /**
+     * Is this model one of the tables that RECORDS what happened?
+     *
+     * A log table must not log its own writes. save() and destroy() call
+     * logHistory() on success and on failure, so without this a History row
+     * would write a History row -- and, since ADR 0021, an auditLog row would
+     * write a History row for every audited action, doubling the volume of
+     * the table the audit trail exists to replace.
+     *
+     * Was four separate `!$this instanceof History` checks. Named, because
+     * the reason is a property of the class and not an accident of which
+     * classes happened to be excluded.
+     *
+     * @return bool
+     */
+    private function _isLogTable()
+    {
+        return $this instanceof History
+            || $this instanceof AuditLog
+            || $this instanceof AuditChange;
+    }
+    /**
      * Stores data into the database.
      *
      * @return bool|object
@@ -898,7 +919,7 @@ abstract class FOGController extends FOGBase
                 }
             }
 
-            if (!$this instanceof History && !$this instanceof Plugin) {
+            if (!$this->_isLogTable() && !$this instanceof Plugin) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
@@ -921,7 +942,7 @@ abstract class FOGController extends FOGBase
                 self::logHistory($msg);
             }
         } catch (\Exception $e) {
-            if (!$this instanceof History) {
+            if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s. %s: %s',
@@ -1352,7 +1373,7 @@ abstract class FOGController extends FOGBase
             if (self::$DB->error) {
                 throw new \Exception((string) self::$DB->error);
             }
-            if (!$this instanceof History) {
+            if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
@@ -1375,7 +1396,7 @@ abstract class FOGController extends FOGBase
                 self::logHistory($msg);
             }
         } catch (\Exception $e) {
-            if (!$this instanceof History) {
+            if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s. %s: %s',
