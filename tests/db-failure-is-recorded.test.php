@@ -323,6 +323,29 @@ if ('the original cause' !== $realDb->error) {
         . 'the symptom instead of the cause';
 }
 
+// find() is the manager's bulk read and the busiest one in the class. Driven
+// on its own because its check sits after its own fetch chain, and a
+// position that is never exercised is a position that is not pinned.
+$db->rejectFetch = false;
+$db->rejectReads = true;
+$before = fogLogContents();
+$manager->find(array('id' => 1), 'AND', 'hostName');
+if (fogLogContents() === $before) {
+    $failures[] = 'a rejected find() left no record -- it answers an empty '
+        . 'set, which every caller reads as "there are none" rather than '
+        . '"the question was never asked"';
+}
+// ...and the same read failing at the FETCH rather than the query.
+$db->rejectReads = false;
+$db->rejectFetch = true;
+$before = fogLogContents();
+$manager->find(array('id' => 1), 'AND', 'hostName');
+if (fogLogContents() === $before) {
+    $failures[] = 'a find() that ran but could not be FETCHED left no record';
+}
+$db->rejectFetch = false;
+$db->rejectReads = true;
+
 // ---------------------------------------------------------------------
 // 5. ...and load()'s ORDINARY control flow must stay quiet.
 //
