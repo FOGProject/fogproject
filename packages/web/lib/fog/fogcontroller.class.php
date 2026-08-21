@@ -928,6 +928,7 @@ abstract class FOGController extends FOGBase
                 array(),
                 $queryArray
             );
+            $vals = self::$DB->fetch()->get();
             /*
              * A rejected SELECT is swallowed the same way a rejected INSERT
              * is -- see save(). fetch()->get() then hands back nothing, and
@@ -935,6 +936,13 @@ abstract class FOGController extends FOGBase
              * row that genuinely holds no data. That is the read half of the
              * same defect: not a wrong answer anybody can see, a plausible
              * empty one.
+             *
+             * AFTER the fetch, not between it and the query, so that ONE
+             * check covers both halves of the read. fetch() records its own
+             * failure on ->error and never clears one, and query() always
+             * sets ->error immediately before -- so a fetch that failed
+             * because the query did still reports the query's message here,
+             * not "No query result, use query() first".
              *
              * Recorded HERE rather than in the catch below, and that split is
              * the point. This catch also handles the method's ORDINARY
@@ -945,7 +953,7 @@ abstract class FOGController extends FOGBase
              *
              * Throwing after logging costs nothing and buys the debug line
              * below: setQuery() merges (fastmerge, never clears), so skipping
-             * it with no rows to merge leaves the object exactly as it was.
+             * it with nothing to merge leaves the object exactly as it was.
              * load() still returns $this either way -- `new Host(42)` must
              * not become fatal because a read failed.
              */
@@ -966,7 +974,6 @@ abstract class FOGController extends FOGBase
                 );
                 throw new Exception((string) self::$DB->error);
             }
-            $vals = self::$DB->fetch()->get();
             $this->setQuery($vals);
         } catch (Exception $e) {
             $str = sprintf(

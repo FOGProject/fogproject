@@ -620,8 +620,10 @@ abstract class FOGManagerController extends FOGBase
         );
 
         self::$DB->query($query, array(), $countVals);
+        $total = self::$DB->fetch()->get('total');
         // A rejected count answers 0, which reads as "there are none" rather
-        // than "nobody asked". Contract unchanged; the fault line is the fix.
+        // than "nobody asked". After the fetch, so one check covers both
+        // halves. Contract unchanged; the fault line is the fix.
         if (self::$DB->error) {
             self::logFault(
                 sprintf(
@@ -636,7 +638,7 @@ abstract class FOGManagerController extends FOGBase
             );
         }
 
-        return (int)self::$DB->fetch()->get('total');
+        return (int)$total;
     }
     /**
      * Inserts data in mass to the database.
@@ -1149,7 +1151,11 @@ abstract class FOGManagerController extends FOGBase
         );
 
         self::$DB->query($query, array(), $existVals);
+        $total = self::$DB->fetch()->get('total');
         /*
+         * After the fetch, so one check covers both halves of the read --
+         * fetch() records its own failure on ->error and never clears one.
+         *
          * A rejected read here answers "no, it does not exist", which is the
          * most expensive wrong answer this class can give: callers use
          * exists() to decide whether to CREATE, so an unreadable database
@@ -1174,7 +1180,7 @@ abstract class FOGManagerController extends FOGBase
             );
         }
 
-        return (bool)self::$DB->fetch()->get('total') > 0;
+        return (bool)$total > 0;
     }
     /**
      * Search for items passed to keyword.
@@ -1655,7 +1661,9 @@ abstract class FOGManagerController extends FOGBase
         );
 
         self::$DB->query($query, array(), $countVals);
-        // Same as exists(): a rejected distinct count answers 0.
+        $total = self::$DB->fetch()->get('total');
+        // Same as exists(): a rejected distinct count answers 0. After the
+        // fetch, so one check covers both halves.
         if (self::$DB->error) {
             self::logFault(
                 sprintf(
@@ -1670,7 +1678,7 @@ abstract class FOGManagerController extends FOGBase
             );
         }
 
-        return (int)self::$DB->fetch()->get('total');
+        return (int)$total;
     }
     /**
      * Uninstalls the table.

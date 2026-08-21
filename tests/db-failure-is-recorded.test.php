@@ -100,6 +100,25 @@ class FogRejectingDb extends ScopeFakeDB
         return parent::query($sql, $a, $p);
     }
 
+    /**
+     * @var bool let SELECTs through but fail the FETCH, the way PDODB does
+     *           when the statement ran and reading the rows did not.
+     */
+    public $rejectFetch = false;
+
+    public function fetch($m = null, $t = '', $p = array())
+    {
+        if ($this->rejectFetch) {
+            // What PDODB::fetch() does: result false, message onto ->error
+            // if nothing is there already, no exception.
+            if (!$this->error) {
+                $this->error = self::REJECTION;
+            }
+            return $this;
+        }
+        return parent::fetch($m, $t, $p);
+    }
+
     public function insertId()
     {
         return 0;
@@ -254,6 +273,54 @@ if (fogLogContents() === $before) {
     $failures[] = 'a rejected existence check left no record -- it answers '
         . '"does not exist" for a read that never ran, and callers create on '
         . 'the strength of that';
+}
+
+// A fetch that fails after the QUERY succeeded is the case that was
+// invisible even to the check above: PDODB::fetch() built an error message
+// and dropped it on the floor, so the read came back empty with ->error
+// still false. The check sits after the fetch precisely so this lands.
+$db->rejectReads = false;
+$db->rejectFetch = true;
+$before = fogLogContents();
+$fetchReader = new TaskLog(0);
+$fetchReader->set('id', 9090)->load('id');
+if (fogLogContents() === $before) {
+    $failures[] = 'a SELECT that ran but could not be FETCHED left no record '
+        . '-- the caller sees an empty result and cannot tell it from "no '
+        . 'rows", which is the same defect one layer down';
+}
+$db->rejectFetch = false;
+$db->rejectReads = true;
+
+// ...and the REAL PDODB::fetch(), driven directly.
+//
+// The fake above models a fetch() that behaves; it cannot prove the real one
+// does. Pinning a symbol's USE rather than its DEFINITION is how a gate
+// passes the mutation that guts the definition, so this drives the actual
+// method: with no query result to read, fetch() raises internally, catches,
+// and must leave the message on ->error rather than dropping it.
+$realDb = (new ReflectionClass('PDODB'))->newInstanceWithoutConstructor();
+$qr = new ReflectionProperty('PDODB', '_queryResult');
+$qr->setAccessible(true);
+$qr->setValue(null, null);
+$realDb->error = false;
+$realDb->fetch();
+if (!$realDb->error) {
+    $failures[] = 'PDODB::fetch() failed and left ->error false -- it builds '
+        . 'the message and drops it, so every caller sees an empty result set '
+        . 'with nothing to distinguish it from "no rows"';
+}
+// ...and it must not overwrite a cause already recorded. query() runs
+// immediately before every fetch(), so when a fetch fails BECAUSE the query
+// did, the query's message is the one worth keeping -- not "No query result,
+// use query() first", which is the symptom.
+$qr->setValue(null, null);
+$realDb->error = 'the original cause';
+$realDb->fetch();
+if ('the original cause' !== $realDb->error) {
+    $failures[] = 'PDODB::fetch() overwrote an error already on ->error with '
+        . 'its own, so a read that failed because the QUERY failed reports '
+        . 'the symptom instead of the cause';
 }
 
 // ---------------------------------------------------------------------

@@ -556,6 +556,28 @@ class PDODB extends DatabaseManager
                 $this->sqlerror()
             );
             self::$_result = false;
+            /*
+             * $msg used to be built here and dropped on the floor: a failed
+             * fetch set no ->error, logged nothing, and left $_result false
+             * -- so get() answered an empty set and the caller could not tell
+             * "the read failed" from "there are no rows". That is the same
+             * defect FOGController::save() and load() were carrying, one
+             * layer down, and it is why those checks alone were not enough.
+             *
+             * Only ever ADDS a failure, never overwrites one. query() owns
+             * clearing ->error -- it runs immediately before every fetch()
+             * and always sets it to false or to a message -- so when a fetch
+             * fails BECAUSE the query did ("No query result, use query()
+             * first"), the guard keeps the original cause rather than
+             * replacing it with the symptom.
+             *
+             * Not logged from here. The callers know which class and table
+             * they were reading, and this does not; a line naming neither is
+             * worse than the caller's, and two lines per failure is noise.
+             */
+            if (!$this->error) {
+                $this->error = $msg;
+            }
 
             if (self::$throwOnQueryError) {
                 throw $e;
