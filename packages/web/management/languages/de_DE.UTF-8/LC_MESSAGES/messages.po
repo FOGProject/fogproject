@@ -973,7 +973,7 @@ msgstr "Standard Logout-Zeit (in Minuten)"
 msgid "Automatic Secure Boot enrolment is not available on this server"
 msgstr "Es gibt keine Images auf diesem Server."
 
-msgid "Automatic enrolment (Setup Mode)"
+msgid "Automatic enrolment (Setup/Custom Mode)"
 msgstr ""
 
 msgid "BIOS Date"
@@ -6894,7 +6894,7 @@ msgstr "Einstellungen erfolgreich gespeichert!"
 msgid "Settings update failed!"
 msgstr "Update der Einstellungen fehlgeschlagen"
 
-msgid "Setup Mode is the state a machine is in when its platform key has been cleared, and it is the only state in which these databases can be written. Turning Secure Boot OFF is not the same thing and does not help: a machine with Secure Boot disabled still has a platform key, and still refuses the write. Look for \"Erase all Secure Boot settings\", \"Clear Secure Boot keys\" or \"Custom mode\" in the firmware."
+msgid "Setup Mode -- shown as \"Custom\" or \"Custom mode\" in most firmware menus -- is the state a machine is in when its platform key has been cleared, and it is the only state in which these databases can be written. Turning Secure Boot OFF is not the same thing and does not help: a machine with Secure Boot disabled still has a platform key, and still refuses the write. Look for \"Custom mode\", \"Erase all Secure Boot settings\" or \"Clear Secure Boot keys\" in the firmware."
 msgstr ""
 
 #, fuzzy
@@ -9082,7 +9082,7 @@ msgstr "Wöchentlich"
 msgid "What"
 msgstr ""
 
-msgid "What Setup Mode means"
+msgid "What Setup Mode means (firmware usually calls it \"Custom\")"
 msgstr ""
 
 #, fuzzy
