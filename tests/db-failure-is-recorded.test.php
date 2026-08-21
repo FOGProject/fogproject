@@ -91,6 +91,13 @@ class FogWriteRejectingDb extends FogFakeDb
             $this->error = self::REJECTION;
             return $this;
         }
+        // Reset FIRST, the way the real PDODB::query() does: it sets
+        // ->error to false at the end of every successful statement. Without
+        // this the fake leaves an error set from a previous rejected query,
+        // and every later assertion passes on that stale value rather than on
+        // what it meant to test -- which is precisely how the check-position
+        // mutations survived the first time round.
+        $this->error = false;
         $isCatalog = false !== stripos($sql, 'information_schema');
         if (preg_match('/^\s*SELECT\b/i', $sql)
             // The catalog lookup is switched separately: leaving it alone
@@ -103,6 +110,25 @@ class FogWriteRejectingDb extends FogFakeDb
             return $this;
         }
         return parent::query($sql, $a, $params);
+    }
+
+    /**
+     * @var bool let SELECTs through but fail the FETCH, the way PDODB does
+     *           when the statement ran and reading the rows did not.
+     */
+    public $rejectFetch = false;
+
+    public function fetch($mode = null, $type = '')
+    {
+        if ($this->rejectFetch) {
+            // What PDODB::fetch() does: result false, message onto ->error
+            // if nothing is there already, no exception.
+            if (!$this->error) {
+                $this->error = self::REJECTION;
+            }
+            return $this;
+        }
+        return parent::fetch($mode, $type);
     }
 
     public function insertId()
@@ -280,6 +306,64 @@ if (fogLogContents() === $before) {
 }
 $db->rejectCatalog = false;
 $db->rejectReads = true;
+
+// A fetch that fails after the QUERY succeeded is the case the first cut of
+// this fix missed entirely: PDODB::fetch() built an error message and
+// dropped it on the floor, so the read came back empty with ->error still
+// false. The checks sit after the fetch precisely so this lands.
+$db->rejectReads = false;
+$db->rejectFetch = true;
+$before = fogLogContents();
+$fetchReader = FOGCore::getClass('TaskLog');
+$fetchReader->set('id', 9090)->load('id');
+if (fogLogContents() === $before) {
+    $failures[] = 'a SELECT that ran but could not be FETCHED left no record '
+        . '-- the caller sees an empty result and cannot tell it from "no '
+        . 'rows", which is the same defect one layer down';
+}
+// loadMany() has its own fetch, with its own arguments, so it needs its own
+// assertion -- driving load() alone leaves the bulk read's check position
+// unpinned.
+$before = fogLogContents();
+FOGCore::getClass('TaskLog')->loadMany([4, 5, 6], 'id');
+if (fogLogContents() === $before) {
+    $failures[] = 'a bulk SELECT that ran but could not be FETCHED left no '
+        . 'record -- the caller reads the empty set as "none of those ids '
+        . 'exist"';
+}
+$db->rejectFetch = false;
+$db->rejectReads = true;
+
+// ...and the REAL PDODB::fetch(), driven directly.
+//
+// The fake above models a fetch() that behaves; it cannot prove the real one
+// does. Pinning a symbol's USE rather than its DEFINITION is how a gate
+// passes the mutation that guts the definition, so this drives the actual
+// method: with no query result to read, fetch() raises internally, catches,
+// and must leave the message on ->error rather than dropping it.
+$realDb = (new \ReflectionClass('FOG\PDODB'))->newInstanceWithoutConstructor();
+$qr = new \ReflectionProperty('FOG\PDODB', '_queryResult');
+$qr->setAccessible(true);
+$qr->setValue(null, null);
+$realDb->error = false;
+$realDb->fetch();
+if (!$realDb->error) {
+    $failures[] = 'PDODB::fetch() failed and left ->error false -- it builds '
+        . 'the message and drops it, so every caller sees an empty result set '
+        . 'with nothing to distinguish it from "no rows"';
+}
+// ...and it must not overwrite a cause already recorded. query() runs
+// immediately before every fetch(), so when a fetch fails BECAUSE the query
+// did, the query's message is the one worth keeping -- not "No query result,
+// use query() first", which is the symptom.
+$qr->setValue(null, null);
+$realDb->error = 'the original cause';
+$realDb->fetch();
+if ('the original cause' !== $realDb->error) {
+    $failures[] = 'PDODB::fetch() overwrote an error already on ->error with '
+        . 'its own, so a read that failed because the QUERY failed reports '
+        . 'the symptom instead of the cause';
+}
 
 // ---------------------------------------------------------------------
 // 5. ...and load()'s ORDINARY control flow must stay quiet.

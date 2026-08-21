@@ -1309,7 +1309,11 @@ abstract class FOGManagerController extends FOGBase
         );
 
         self::$DB->query($query, [], $existVals);
+        $total = self::$DB->fetch()->get('total');
         /*
+         * After the fetch, so one check covers both halves of the read --
+         * fetch() records its own failure on ->error and never clears one.
+         *
          * A rejected read here answers "no, it does not exist", which is the
          * most expensive wrong answer this class can give: callers use
          * exists() to decide whether to CREATE, so an unreadable database
@@ -1334,7 +1338,7 @@ abstract class FOGManagerController extends FOGBase
             );
         }
 
-        return (bool)self::$DB->fetch()->get('total') > 0;
+        return (bool)$total > 0;
     }
     /**
      * Returns the distinct (all matching).
@@ -1454,8 +1458,10 @@ abstract class FOGManagerController extends FOGBase
         );
 
         self::$DB->query($query, [], $countVals);
+        $total = self::$DB->fetch()->get('total');
         // Same as exists(): a rejected count answers 0, which reads as "there
-        // are none" rather than "nobody asked". Contract unchanged.
+        // are none" rather than "nobody asked". After the fetch, so one check
+        // covers both halves. Contract unchanged.
         if (self::$DB->error) {
             self::logFault(
                 sprintf(
@@ -1470,7 +1476,7 @@ abstract class FOGManagerController extends FOGBase
             );
         }
 
-        return (int)self::$DB->fetch()->get('total');
+        return (int)$total;
     }
     /**
      * Uninstalls the table.

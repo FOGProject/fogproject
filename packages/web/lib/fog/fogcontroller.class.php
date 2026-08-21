@@ -1054,6 +1054,7 @@ abstract class FOGController extends FOGBase
                 [],
                 $queryArray
             );
+            $vals = self::$DB->fetch()->get();
             /*
              * A rejected SELECT is swallowed the same way a rejected INSERT
              * is -- see save(). fetch()->get() then hands back nothing, and
@@ -1061,6 +1062,13 @@ abstract class FOGController extends FOGBase
              * row that genuinely holds no data. That is the read half of the
              * same defect: not a wrong answer anybody can see, a plausible
              * empty one.
+             *
+             * AFTER the fetch, not between it and the query, so that ONE
+             * check covers both halves of the read. fetch() records its own
+             * failure on ->error and never clears one, and query() always
+             * sets ->error immediately before -- so a fetch that failed
+             * because the query did still reports the query's message here,
+             * not "No query result, use query() first".
              *
              * Recorded HERE rather than in the catch below, and that split is
              * the point. This catch also handles the method's ORDINARY
@@ -1092,7 +1100,6 @@ abstract class FOGController extends FOGBase
                 );
                 throw new \Exception((string) self::$DB->error);
             }
-            $vals = self::$DB->fetch()->get();
             $this->setQuery($vals);
         } catch (\Exception $e) {
             $str = sprintf(
@@ -1183,9 +1190,13 @@ abstract class FOGController extends FOGBase
                 )
             );
             self::$DB->query($query, [], $queryArray);
-            // Same as load()'s, and it matters more here: a rejected bulk
-            // read returns an EMPTY set, and the caller reads that as "none
-            // of those ids exist" rather than "the question was not asked".
+            $rows = self::$DB
+                ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+                ->get();
+            // Same as load()'s, after the fetch for the same reason: a
+            // rejected bulk read returns an EMPTY set, and the caller reads
+            // that as "none of those ids exist" rather than "the question
+            // was not asked".
             if (self::$DB->error) {
                 self::logFault(
                     sprintf(
@@ -1205,9 +1216,6 @@ abstract class FOGController extends FOGBase
                 );
                 throw new \Exception((string) self::$DB->error);
             }
-            $rows = self::$DB
-                ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
-                ->get();
             // class-name consumer: fed straight back to getClass(), which
             // resolves a namespaced name and a global one alike.
             $classname = get_class($this);
