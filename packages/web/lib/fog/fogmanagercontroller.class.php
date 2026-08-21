@@ -965,6 +965,13 @@ abstract class FOGManagerController extends FOGBase
                 implode(',', $dups)
             );
             self::$DB->query($query, [], $insertVals);
+            // Same swallowed-error seam as FOGController::save(): without
+            // this the loop went on to report affectedRows for a batch the
+            // server rejected. Throws rather than returning a count, because
+            // the caller's two return values describe a write that happened.
+            if (self::$DB->error) {
+                throw new \Exception((string) self::$DB->error);
+            }
             if ($ind === 0) {
                 $insertID = (int) self::$DB->insertId();
             }
@@ -1127,7 +1134,34 @@ abstract class FOGManagerController extends FOGBase
             (array) $findVals
         );
 
-        return (bool) self::$DB->query($query, [], $queryVals);
+        self::$DB->query($query, [], $queryVals);
+        /*
+         * `(bool) self::$DB->query(...)` was ALWAYS true: query() returns
+         * $this, and an object casts to true whatever the server said. So
+         * this reported success for every rejected mass update -- including
+         * the API's bulk edit, which is update()'s busiest caller.
+         *
+         * Faulted here rather than thrown: this method has no catch and its
+         * callers expect a bool, so throwing would turn a silently-failed
+         * bulk edit into an uncaught 500. False is the honest answer they
+         * were already written to read.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Mass update failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error
+                )
+            );
+
+            return false;
+        }
+
+        return true;
     }
     /**
      * Builds a select box/option box from the elements.
@@ -1274,10 +1308,33 @@ abstract class FOGManagerController extends FOGBase
             ':id'
         );
 
-        return (bool)self::$DB
-            ->query($query, [], $existVals)
-            ->fetch()
-            ->get('total') > 0;
+        self::$DB->query($query, [], $existVals);
+        /*
+         * A rejected read here answers "no, it does not exist", which is the
+         * most expensive wrong answer this class can give: callers use
+         * exists() to decide whether to CREATE, so an unreadable database
+         * turns into a duplicate rather than an error.
+         *
+         * The contract is left alone -- callers expect a bool and there is no
+         * catch here -- so the fault line is the whole of the fix. Making
+         * this throw is a real change to a read contract and belongs in its
+         * own decision, not smuggled into a logging fix.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Existence check failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error,
+                    _('answering "does not exist" for a read that never ran')
+                )
+            );
+        }
+
+        return (bool)self::$DB->fetch()->get('total') > 0;
     }
     /**
      * Returns the distinct (all matching).
@@ -1396,10 +1453,24 @@ abstract class FOGManagerController extends FOGBase
             )
         );
 
-        return (int)self::$DB
-            ->query($query, [], $countVals)
-            ->fetch()
-            ->get('total');
+        self::$DB->query($query, [], $countVals);
+        // Same as exists(): a rejected count answers 0, which reads as "there
+        // are none" rather than "nobody asked". Contract unchanged.
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Count failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error,
+                    _('answering 0 for a read that never ran')
+                )
+            );
+        }
+
+        return (int)self::$DB->fetch()->get('total');
     }
     /**
      * Uninstalls the table.
@@ -1409,7 +1480,26 @@ abstract class FOGManagerController extends FOGBase
     public function uninstall()
     {
         $sql = Schema::dropTable($this->tablename);
-        return self::$DB->query($sql);
+        self::$DB->query($sql);
+        // Declared @return bool and returned the PDODB object, which is
+        // truthy however the DROP went. A plugin uninstall that left its
+        // table in place reported success.
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Table uninstall failed'),
+                    _('Table'),
+                    $this->tablename,
+                    _('Error'),
+                    self::$DB->error
+                )
+            );
+
+            return false;
+        }
+
+        return true;
     }
     /**
      * Gets the columns for this item.
