@@ -2663,7 +2663,10 @@ class HostManagement extends FOGPage
         $hdfirm = $Inv->get('hdfirmware');
         $hdser = $Inv->get('hdserial');
         $caseman = $Inv->get('caseman');
-        $casever = $Inv->get('caseversion');
+        // 'casever', not 'caseversion'. Inventory declares the key as
+        // casever; get() returns false for a key the model does not have,
+        // so the Chassis Version input has rendered empty for every host.
+        $casever = $Inv->get('casever');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
         $gpuvendors = $Inv->get('gpuvendors');
