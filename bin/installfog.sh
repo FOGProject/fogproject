@@ -788,6 +788,14 @@ fi
 displayBanner
 echo -e "   Version: $version Installer/Updater\n"
 checkSELinux
+# Whether this machine has EVER had FOG installed, captured before anything
+# writes .fogsettings. ADR 0023 Decision 7 applies a bounded retention default
+# to new installs and never to upgrades, and this is the only signal that can
+# tell them apart -- $doupdate says whether an upgrade was ATTEMPTED, which is
+# a different question and is 0 for --no-upgrade on a server that has been
+# running for years.
+priorInstall=0
+[[ -f $fogpriorconfig ]] && priorInstall=1
 case $doupdate in
     1)
         if [[ -f $fogpriorconfig ]]; then
@@ -1329,6 +1337,7 @@ while [[ -z $blGo ]]; do
                     installUtilities
                     updateStorageNodeCredentials
                     recordGitUpdateSettings
+                    applyNewInstallDefaults
                     # Beside recordGitUpdateSettings because it is the same kind
                     # of write -- a record, not a control -- and this is the
                     # earliest point where both halves it needs are in place: the

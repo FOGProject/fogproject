@@ -219,6 +219,7 @@ class DashboardPage extends FOGPage
             );
             self::displayAlert($title, $pluginPend, 'warning', true, true);
         }
+        self::_userTrackingRetentionNotice();
         $SystemUptime = self::$FOGCore->systemUptime();
         $fields = [
             _('Web Server') => filter_input(
@@ -865,6 +866,60 @@ class DashboardPage extends FOGPage
         }
         unset($ids, $urls, $datas);
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($versions));
+    }
+    /**
+     * Tells an upgrading admin that host login records are kept forever.
+     *
+     * ADR 0023 Decision 7. A new install gets a bounded window from the
+     * installer; an upgrade deliberately does NOT, because silently deleting
+     * records the administrator never chose to hold OR to delete is wrong --
+     * some of them are legally required to retain it, and a privacy control
+     * that destroys evidence someone must keep is not a privacy win. What the
+     * decision asks for instead is that the choice be visible and
+     * unavoidable, which is this.
+     *
+     * Three conditions, and each one removes a way of being noise:
+     *
+     * - Only to a holder of `audit.manage`. That is the permission the
+     *   retention settings are gated on (ADR 0021 Decision 9), so anyone else
+     *   cannot act on the notice and cannot even see the field it points at.
+     * - Only while the window is 0. Choosing a window silences it, including
+     *   choosing 0 deliberately later -- but a fresh 0 on an upgrade is the
+     *   state nobody chose.
+     * - Only when the table actually holds rows. A server that has never
+     *   recorded a login has no privacy question to answer yet.
+     *
+     * Dismissible and recurring, the same as the pending-host notice above:
+     * it is meant to keep asking until somebody decides.
+     *
+     * @return void
+     */
+    private static function _userTrackingRetentionNotice()
+    {
+        if (!Authorization::can('audit.manage')) {
+            return;
+        }
+        if ((int) self::getSetting('FOG_USERTRACKING_RETENTION_DAYS') > 0) {
+            return;
+        }
+        if (Route::getCount('usertracking') < 1) {
+            return;
+        }
+        self::displayAlert(
+            _('Host login records are kept forever'),
+            sprintf(
+                '%s <a href="?node=about&sub=settings"><b>%s</b></a> %s',
+                _('This server records which person signed in to which '
+                    . 'machine, and when, and no retention window is set. '
+                    . 'Click'),
+                _('here'),
+                _('to choose one under Logging Settings, or to confirm that '
+                    . 'keeping them is what you want.')
+            ),
+            'warning',
+            true,
+            true
+        );
     }
 }
 

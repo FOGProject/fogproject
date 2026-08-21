@@ -3390,6 +3390,9 @@ msgstr "Host ist nicht gültig"
 msgid "Host is not valid!"
 msgstr "Host ist nicht gültig"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 #, fuzzy
 msgid "Host name"
 msgstr "Hostname"
@@ -4624,14 +4627,6 @@ msgstr "Login-Verlauf"
 #, fuzzy
 msgid "Login Success"
 msgstr "Standort erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Login accepted"
-msgstr "Laden fehlgeschlagen: %s"
-
-#, fuzzy
-msgid "Login failed"
-msgstr "Laden fehlgeschlagen: %s"
 
 #, fuzzy
 msgid "Login successful!"
@@ -8318,6 +8313,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr "IP(s) dieses Servers"
 
@@ -9680,9 +9678,6 @@ msgstr "auf 1 MBit/s begrenzen, "
 msgid "location url based on the host that checks in"
 msgstr "der Standort-URL basierend auf dem Host, der eincheckt."
 
-msgid "logged in"
-msgstr ""
-
 #, fuzzy
 msgid "logout"
 msgstr "Logout"
@@ -9987,6 +9982,9 @@ msgstr "auf alle Knoten in der Gruppe."
 msgid "to apply the update."
 msgstr "Drucker aktualisiert!"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Dies ist nicht die primäre Gruppe"
@@ -10042,10 +10040,6 @@ msgstr "Benutzer konnte sich nicht anmelden"
 
 msgid "user successfully logged in"
 msgstr "Benutzer erfolgreich angemeldet"
-
-#, fuzzy
-msgid "username"
-msgstr "Benutzername"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10482,6 +10476,14 @@ msgstr ""
 #~ msgstr "Alle %s auflisten"
 
 #, fuzzy
+#~ msgid "Login accepted"
+#~ msgstr "Laden fehlgeschlagen: %s"
+
+#, fuzzy
+#~ msgid "Login failed"
+#~ msgstr "Laden fehlgeschlagen: %s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "zugeordneter Host"
 
@@ -10740,6 +10742,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Keine Datenbank zum"
+
+#, fuzzy
+#~ msgid "username"
+#~ msgstr "Benutzername"
 
 #, fuzzy
 #~ msgid "version"

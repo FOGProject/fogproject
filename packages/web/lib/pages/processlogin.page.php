@@ -110,21 +110,6 @@ class ProcessLogin extends FOGPage
                     'username' => $uname
                 ]
             );
-            error_log(
-                sprintf(
-                    "[%s] - %s - %s - %s - %s: %s %s\n",
-                    FOGService::getDateTime(),
-                    filter_input(INPUT_SERVER, 'REMOTE_ADDR'),
-                    filter_input(INPUT_SERVER, 'HTTP_USER_AGENT'),
-                    _('Login accepted'),
-                    _('username'),
-                    $uname,
-                    _('logged in')
-                ),
-                3,
-                BASEPATH . 'fog_login_accepted.log'
-            );
-            chmod(BASEPATH . 'fog_login_accepted.log', 0200);
         } catch (\Exception $e) {
             $code = HTTPResponseCodes::HTTP_FORBIDDEN;
             $msg = json_encode(
@@ -133,21 +118,6 @@ class ProcessLogin extends FOGPage
                     'title' => _('Login Failed')
                 ]
             );
-            error_log(
-                sprintf(
-                    "[%s] - %s - %s - %s - %s: %s %s\n",
-                    FOGService::getDateTime(),
-                    filter_input(INPUT_SERVER, 'REMOTE_ADDR'),
-                    filter_input(INPUT_SERVER, 'HTTP_USER_AGENT'),
-                    _('Login failed'),
-                    _('username'),
-                    $uname,
-                    $e->getMessage()
-                ),
-                3,
-                BASEPATH . 'fog_login_failed.log'
-            );
-            chmod(BASEPATH . 'fog_login_failed.log', 0200);
         }
         self::jsonSend($code, $msg);
     }

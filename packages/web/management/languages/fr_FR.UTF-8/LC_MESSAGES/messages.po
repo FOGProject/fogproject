@@ -3393,6 +3393,9 @@ msgstr "Host est pas valide"
 msgid "Host is not valid!"
 msgstr "Host est pas valide"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 #, fuzzy
 msgid "Host name"
 msgstr "Hostname"
@@ -4623,14 +4626,6 @@ msgstr "Historique de connexion"
 #, fuzzy
 msgid "Login Success"
 msgstr "Installation / Mise à jour réussie!"
-
-#, fuzzy
-msgid "Login accepted"
-msgstr "Échec du chargement: %s"
-
-#, fuzzy
-msgid "Login failed"
-msgstr "Échec du chargement: %s"
 
 #, fuzzy
 msgid "Login successful!"
@@ -8314,6 +8309,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr ""
 
@@ -9674,9 +9672,6 @@ msgstr ""
 msgid "location url based on the host that checks in"
 msgstr ""
 
-msgid "logged in"
-msgstr ""
-
 #, fuzzy
 msgid "logout"
 msgstr "Se déconnecter"
@@ -9980,6 +9975,9 @@ msgstr "Supprimer tous les hôtes au sein du groupe"
 msgid "to apply the update."
 msgstr "Imprimante mis à jour!"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr " | Cela ne veut pas le groupe principal"
@@ -10035,10 +10033,6 @@ msgstr "l'utilisateur n'a pas réussi à se connecter"
 
 msgid "user successfully logged in"
 msgstr "utilisateur connecté avec succès dans"
-
-#, fuzzy
-msgid "username"
-msgstr "Nom d'utilisateur"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10466,6 +10460,14 @@ msgstr ""
 #~ msgstr "Lister tous les %s"
 
 #, fuzzy
+#~ msgid "Login accepted"
+#~ msgstr "Échec du chargement: %s"
+
+#, fuzzy
+#~ msgid "Login failed"
+#~ msgstr "Échec du chargement: %s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "Aucun noeud associé"
 
@@ -10707,6 +10709,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Aucune base de données de travailler hors"
+
+#, fuzzy
+#~ msgid "username"
+#~ msgstr "Nom d'utilisateur"
 
 #, fuzzy
 #~ msgid "version"

@@ -3288,6 +3288,9 @@ msgstr "Host non è valido"
 msgid "Host is not valid!"
 msgstr "Host non è valido"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 #, fuzzy
 msgid "Host name"
 msgstr "Nome host"
@@ -4455,14 +4458,6 @@ msgstr "Accesso Storia"
 #, fuzzy
 msgid "Login Success"
 msgstr "Modifica posizione riuscita"
-
-#, fuzzy
-msgid "Login accepted"
-msgstr "Caricamento non riuscito"
-
-#, fuzzy
-msgid "Login failed"
-msgstr "Caricamento non riuscito"
 
 #, fuzzy
 msgid "Login successful!"
@@ -8023,6 +8018,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr "IP di questo server"
 
@@ -9324,9 +9322,6 @@ msgstr "limitata a 1Mbps su quel nodo"
 msgid "location url based on the host that checks in"
 msgstr "Url di posizione basata sull'host che controlla e"
 
-msgid "logged in"
-msgstr ""
-
 msgid "logout"
 msgstr "disconnettersi"
 
@@ -9614,6 +9609,9 @@ msgstr "a tutti i nodi del gruppo"
 msgid "to apply the update."
 msgstr "aggiornato stampante!"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "Questo non è il gruppo primario"
@@ -9666,10 +9664,6 @@ msgstr "utente non connesso"
 
 msgid "user successfully logged in"
 msgstr "utente connesso con successo"
-
-#, fuzzy
-msgid "username"
-msgstr "Nome utente"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10092,6 +10086,14 @@ msgstr ""
 #~ msgstr "Elencare tutti %s"
 
 #, fuzzy
+#~ msgid "Login accepted"
+#~ msgstr "Caricamento non riuscito"
+
+#, fuzzy
+#~ msgid "Login failed"
+#~ msgstr "Caricamento non riuscito"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "Host associato"
 
@@ -10335,6 +10337,10 @@ msgstr ""
 
 #~ msgid "no database to"
 #~ msgstr "Nessun database a"
+
+#, fuzzy
+#~ msgid "username"
+#~ msgstr "Nome utente"
 
 #~ msgid "version"
 #~ msgstr "versione"

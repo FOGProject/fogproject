@@ -3462,6 +3462,9 @@ msgstr "tipo de tarea no es válida"
 msgid "Host is not valid!"
 msgstr "tipo de tarea no es válida"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 #, fuzzy
 msgid "Host name"
 msgstr "nombre de host"
@@ -4732,14 +4735,6 @@ msgstr ""
 #, fuzzy
 msgid "Login Success"
 msgstr "actualización de servicio no pudo"
-
-#, fuzzy
-msgid "Login accepted"
-msgstr "Carga ha fallado: %s"
-
-#, fuzzy
-msgid "Login failed"
-msgstr "Carga ha fallado: %s"
 
 #, fuzzy
 msgid "Login successful!"
@@ -8499,6 +8494,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr ""
 
@@ -9860,9 +9858,6 @@ msgstr ""
 msgid "location url based on the host that checks in"
 msgstr ""
 
-msgid "logged in"
-msgstr ""
-
 msgid "logout"
 msgstr ""
 
@@ -10163,6 +10158,9 @@ msgstr "Borrar todos los hosts dentro del grupo"
 msgid "to apply the update."
 msgstr "Impresora actualiza!"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 msgid "to clear the field on every host in this group."
 msgstr ""
 
@@ -10217,10 +10215,6 @@ msgstr "el usuario no pudo iniciar sesión"
 
 msgid "user successfully logged in"
 msgstr "el usuario ha iniciado sesión con éxito en"
-
-#, fuzzy
-msgid "username"
-msgstr "Nombre de usuario"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10647,6 +10641,14 @@ msgstr ""
 #~ msgstr "Versión del sistema"
 
 #, fuzzy
+#~ msgid "Login accepted"
+#~ msgstr "Carga ha fallado: %s"
+
+#, fuzzy
+#~ msgid "Login failed"
+#~ msgstr "Carga ha fallado: %s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "No nodo asociado"
 
@@ -10880,6 +10882,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "MulticastTask"
+
+#, fuzzy
+#~ msgid "username"
+#~ msgstr "Nombre de usuario"
 
 #, fuzzy
 #~ msgid "version"

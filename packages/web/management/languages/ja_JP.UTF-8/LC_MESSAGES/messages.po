@@ -3256,6 +3256,9 @@ msgstr "ホストが無効です"
 msgid "Host is not valid!"
 msgstr "ホストが無効です"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 msgid "Host name"
 msgstr "ホスト名"
 
@@ -4411,12 +4414,6 @@ msgstr "ログイン履歴"
 #, fuzzy
 msgid "Login Success"
 msgstr "ロケーションを作成しました"
-
-msgid "Login accepted"
-msgstr "ログインが承認されました"
-
-msgid "Login failed"
-msgstr "ログインに失敗しました"
 
 #, fuzzy
 msgid "Login successful!"
@@ -7953,6 +7950,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr "このサーバーの IP アドレス"
 
@@ -9250,9 +9250,6 @@ msgstr "そのノードで 1 Mbps に制限されます"
 msgid "location url based on the host that checks in"
 msgstr "チェックインしたホストに基づくロケーション URL"
 
-msgid "logged in"
-msgstr "ログイン済み"
-
 msgid "logout"
 msgstr "ログアウト"
 
@@ -9542,6 +9539,9 @@ msgstr "グループ内のすべてのノードへ"
 msgid "to apply the update."
 msgstr "更新に失敗しました"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 msgid "to clear the field on every host in this group."
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
@@ -9592,9 +9592,6 @@ msgstr "ユーザーのログインに失敗しました"
 
 msgid "user successfully logged in"
 msgstr "ユーザーが正常にログインしました"
-
-msgid "username"
-msgstr "ユーザー名"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10700,6 +10697,12 @@ msgstr ""
 
 #~ msgid "Login Users"
 #~ msgstr "ログインユーザー"
+
+#~ msgid "Login accepted"
+#~ msgstr "ログインが承認されました"
+
+#~ msgid "Login failed"
+#~ msgstr "ログインに失敗しました"
 
 #~ msgid "Login time"
 #~ msgstr "ログイン時刻"
@@ -11899,6 +11902,9 @@ msgstr ""
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
 
+#~ msgid "logged in"
+#~ msgstr "ログイン済み"
+
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"
 
@@ -12005,6 +12011,9 @@ msgstr ""
 
 #~ msgid "understood"
 #~ msgstr "了解しました"
+
+#~ msgid "username"
+#~ msgstr "ユーザー名"
 
 #~ msgid "version"
 #~ msgstr "バージョン"

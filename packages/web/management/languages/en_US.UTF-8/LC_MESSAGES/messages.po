@@ -3391,6 +3391,9 @@ msgstr "Host is not valid"
 msgid "Host is not valid!"
 msgstr "Host is not valid"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 #, fuzzy
 msgid "Host name"
 msgstr "Hostname"
@@ -4621,14 +4624,6 @@ msgstr "Login History"
 #, fuzzy
 msgid "Login Success"
 msgstr "Install / Update Successful!"
-
-#, fuzzy
-msgid "Login accepted"
-msgstr "Load failed: %s"
-
-#, fuzzy
-msgid "Login failed"
-msgstr "Load failed: %s"
 
 #, fuzzy
 msgid "Login successful!"
@@ -8312,6 +8307,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr ""
 
@@ -9672,9 +9670,6 @@ msgstr ""
 msgid "location url based on the host that checks in"
 msgstr ""
 
-msgid "logged in"
-msgstr ""
-
 #, fuzzy
 msgid "logout"
 msgstr "Logout"
@@ -9978,6 +9973,9 @@ msgstr "Delete all hosts within group"
 msgid "to apply the update."
 msgstr "Printer updated!"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr " | This is not the primary group"
@@ -10033,10 +10031,6 @@ msgstr "user failed to login"
 
 msgid "user successfully logged in"
 msgstr "user successfully logged in"
-
-#, fuzzy
-msgid "username"
-msgstr "Username"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10460,6 +10454,14 @@ msgstr ""
 #~ msgstr "List All %s"
 
 #, fuzzy
+#~ msgid "Login accepted"
+#~ msgstr "Load failed: %s"
+
+#, fuzzy
+#~ msgid "Login failed"
+#~ msgstr "Load failed: %s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "No node associated"
 
@@ -10701,6 +10703,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "No database to work off"
+
+#, fuzzy
+#~ msgid "username"
+#~ msgstr "Username"
 
 #, fuzzy
 #~ msgid "version"
