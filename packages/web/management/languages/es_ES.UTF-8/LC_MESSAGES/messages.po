@@ -945,6 +945,13 @@ msgstr ""
 msgid "Attempting to ping host"
 msgstr ""
 
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "Directorio Activo"
+
 msgid "Audit row was not stored"
 msgstr ""
 
@@ -5492,6 +5499,9 @@ msgstr "Otro Etiqueta 1"
 msgid "Other Tag #2"
 msgstr "Otros Tag 2"
 
+msgid "Outcome"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -7464,6 +7474,10 @@ msgstr ""
 #, fuzzy
 msgid "String must be a string"
 msgstr "Evento debe ser una cadena"
+
+#, fuzzy
+msgid "Subject"
+msgstr "Objeto"
 
 #, fuzzy
 msgid "Subnet Group -> Group Relationship"

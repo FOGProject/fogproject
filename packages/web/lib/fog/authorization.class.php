@@ -369,6 +369,16 @@ class Authorization extends FOGBase
             // '*' works until an administrator grants it -- deny by default,
             // the same stance the rest of this registry takes.
             'activity' => ['view'],
+            // The audit trail. `manage` is separate from `view` because the
+            // two are different powers: reading who did what, and changing
+            // how long that record is kept. ADR 0021 Decision 9 rejected
+            // gating retention on `settings.edit` -- SIX page nodes map onto
+            // that one permission (about, apidocs, hookevent, notifyevent,
+            // oui, setting), so "may shorten the audit window" and "may edit
+            // the OUI table" would have been the same grant. Grant `view`
+            // narrowly: an audit row necessarily discloses attempted
+            // usernames.
+            'audit' => ['view', 'manage'],
             'plugin' => ['view', 'edit', 'install']
         ];
     }

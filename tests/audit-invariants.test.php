@@ -207,6 +207,25 @@ foreach (['History', 'AuditLog', 'AuditChange'] as $cls) {
 }
 
 /*
+ * 4b. The permission node stays its own, with both actions.
+ *
+ * ADR 0021 Decision 9. `settings.edit` was the obvious place to gate
+ * retention and it is not a gate: six page nodes map onto that one
+ * permission, so it would have made "may shorten the audit window" and "may
+ * edit the OUI table" the same grant.
+ */
+$authz = (string) @file_get_contents(
+    $root . '/packages/web/lib/fog/authorization.class.php'
+);
+$checks++;
+if (false === strpos($authz, "'audit' => ['view', 'manage']")) {
+    $failures[] = "coreRegistry() no longer declares 'audit' => "
+        . "['view', 'manage']. Retention and reading the trail are different "
+        . 'powers, and neither belongs on settings.edit (ADR 0021 '
+        . 'Decision 9).';
+}
+
+/*
  * 5. The machine paths carry headers, and the polling paths do not.
  *
  * ADR 0021 Decision 4: service/ and reg-task/ contain zero Authorization::

@@ -902,6 +902,13 @@ msgstr "Il tentativo di ping"
 msgid "Attempting to ping host"
 msgstr "Il tentativo di ping"
 
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "Active Directory"
+
 msgid "Audit row was not stored"
 msgstr ""
 
@@ -5182,6 +5189,9 @@ msgstr "Altro Tag # 1"
 msgid "Other Tag #2"
 msgstr "Altro Tag # 2"
 
+msgid "Outcome"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -7036,6 +7046,10 @@ msgstr ""
 
 msgid "String must be a string"
 msgstr "Stringa deve essere una stringa"
+
+#, fuzzy
+msgid "Subject"
+msgstr "oggetto"
 
 #, fuzzy
 msgid "Subnet Group -> Group Relationship"

@@ -524,6 +524,15 @@ abstract class FOGPage extends FOGBase
                 _('Activity'),
                 'fa fa-history'
             ],
+            // Next to Activity, and a different page on purpose. Activity is
+            // the operational narrative; this is the record of who was
+            // allowed to do what, refusals included, and it discloses
+            // attempted usernames -- so it has its own node and is hidden
+            // from anyone not granted it. See docs/adr/0021.
+            'audit' => [
+                _('Audit Log'),
+                'fa fa-shield'
+            ],
             'service' => [
                 self::$foglang['ClientSettings'],
                 'fa fa-cogs'
@@ -1403,14 +1412,18 @@ abstract class FOGPage extends FOGBase
             if ($sub == 'list') {
                 // Tasks are cancelled per-pane, never deleted; the tabbed
                 // task page hits sub=list via the no-sub default, so keep
-                // the delete actionbox off it. Activity is a read-only view
-                // of the event logs -- ?node=activity&sub=list resolves to
-                // index() like any unknown sub does, and without this it
-                // would draw a "Delete selected" no page there implements.
-                if ($node != 'plugin'
-                    && $node != 'task'
-                    && $node != 'activity'
-                ) {
+                // the delete actionbox off it. Activity and the audit log
+                // are read-only views of the event logs -- ?node=X&sub=list
+                // resolves to index() like any unknown sub does, and without
+                // this they would draw a "Delete selected" neither page
+                // implements. For the audit log there is nothing to
+                // implement it WITH: auditlog and auditchange have no delete
+                // route anywhere in FOG (ADR 0021 Decision 8).
+                if (!in_array(
+                    $node,
+                    ['plugin', 'task', 'activity', 'audit'],
+                    true
+                )) {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),

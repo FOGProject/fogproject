@@ -933,6 +933,13 @@ msgstr "尝试ping"
 msgid "Attempting to ping host"
 msgstr "尝试ping"
 
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "活动目录"
+
 msgid "Audit row was not stored"
 msgstr ""
 
@@ -5363,6 +5370,9 @@ msgstr "其他标签＃1"
 msgid "Other Tag #2"
 msgstr "其他标签＃2"
 
+msgid "Outcome"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -7289,6 +7299,10 @@ msgstr ""
 #, fuzzy
 msgid "String must be a string"
 msgstr "事件必须是字符串"
+
+#, fuzzy
+msgid "Subject"
+msgstr "目的"
 
 #, fuzzy
 msgid "Subnet Group -> Group Relationship"

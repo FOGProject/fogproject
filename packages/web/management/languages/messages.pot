@@ -781,6 +781,12 @@ msgstr ""
 msgid "Attempting to ping host"
 msgstr ""
 
+msgid "Audit Log"
+msgstr ""
+
+msgid "Audit entry"
+msgstr ""
+
 msgid "Audit row was not stored"
 msgstr ""
 
@@ -4550,6 +4556,9 @@ msgstr ""
 msgid "Other Tag #2"
 msgstr ""
 
+msgid "Outcome"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -6174,6 +6183,9 @@ msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
 msgid "String must be a string"
+msgstr ""
+
+msgid "Subject"
 msgstr ""
 
 msgid "Subnet Group -> Group Relationship"

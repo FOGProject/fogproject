@@ -886,6 +886,13 @@ msgstr "ping を試行しています"
 msgid "Attempting to ping host"
 msgstr "ping を試行しています"
 
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "Active Directory"
+
 msgid "Audit row was not stored"
 msgstr ""
 
@@ -5139,6 +5146,9 @@ msgstr "その他タグ #1"
 msgid "Other Tag #2"
 msgstr "その他タグ #2"
 
+msgid "Outcome"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -6972,6 +6982,10 @@ msgstr ""
 
 msgid "String must be a string"
 msgstr "String は文字列で指定してください"
+
+#, fuzzy
+msgid "Subject"
+msgstr "オブジェクト"
 
 #, fuzzy
 msgid "Subnet Group -> Group Relationship"
