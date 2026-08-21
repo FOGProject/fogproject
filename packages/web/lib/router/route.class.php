@@ -261,6 +261,18 @@ class Route extends FOGBase
             'pass',
             'key',
         ],
+        // The remember-me validator hash. userauth is not in $validClasses,
+        // so no route emits it and this changes no API behaviour -- it is
+        // here because the registry is now read by the audit trail as well
+        // as the emitter (ADR 0021 Decision 6), and a credential column that
+        // no route happens to expose is still a credential column.
+        //
+        // uaSelectorHash is deliberately absent: the selector is the LOOKUP
+        // half of the pair and is not secret by design. Withholding it would
+        // suggest it is.
+        'userauth' => [
+            'password',
+        ],
     ];
     /**
      * Memoized union of the core tiers above and what plugins declare
