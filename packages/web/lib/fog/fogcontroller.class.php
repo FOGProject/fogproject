@@ -437,6 +437,37 @@ abstract class FOGController extends FOGBase
             )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
         } catch (Exception $e) {
             $rows = array();
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Error'),
+                    $e->getMessage(),
+                    _('every column will be treated as untyped')
+                )
+            );
+        }
+        /*
+         * The degradation is deliberate, the SILENCE was not. PDODB swallows
+         * a rejected statement, so this never reached the catch above on a
+         * real error -- it cached an empty type map and every column went
+         * back to being untyped, which is exactly the bug this method exists
+         * to prevent, reappearing with nothing said.
+         *
+         * Behaviour is unchanged: still an empty map. Only now it is written
+         * down.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Error'),
+                    self::$DB->error,
+                    _('every column will be treated as untyped')
+                )
+            );
+            $rows = array();
         }
         foreach ((array)$rows as $row) {
             if (!isset($row['t'], $row['c'], $row['ty'])) {
@@ -707,6 +738,31 @@ abstract class FOGController extends FOGBase
             self::info($msg);
 
             self::$DB->query($query, [], $queryArray);
+            /*
+             * PDODB swallows a rejected statement, so ASK it.
+             *
+             * PDO runs in ERRMODE_EXCEPTION, but PDODB::query() catches the
+             * PDOException, records the message on ->error and returns
+             * normally; it rethrows only when $throwOnQueryError is true,
+             * which nothing sets and which must not be set globally -- it
+             * would turn every already-tolerated failure across the codebase
+             * into an uncaught 500 at once.
+             *
+             * So without this check the catch below never runs on a real SQL
+             * error. For a NEW row that was survivable by accident: insertId()
+             * comes back 0 and the "no valid ID was assigned" throw further
+             * down catches it. For an EXISTING row -- every progress update,
+             * every task state change, every inventory write against a known
+             * host -- there was nothing to catch on, so save() went on to log
+             * the SUCCESS message and return $this. `if (!$obj->save())` was
+             * not merely unrecorded on those paths, it was answered "fine".
+             *
+             * Truthy rather than `false !== ...`: PDODB declares $error with
+             * no default, so it is null until the first statement runs.
+             */
+            if (self::$DB->error) {
+                throw new Exception((string) self::$DB->error);
+            }
             $lastInsertID = self::$DB->insertId();
 
             // Force ID correctness: if we still don't have a valid ID, this wasn't created properly.
@@ -774,14 +830,26 @@ abstract class FOGController extends FOGBase
             }
 
             $msg = sprintf(
-                '%s: %s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Database save failed'),
+                _('Class'),
+                get_class($this),
+                _('Table'),
+                $this->databaseTable,
                 _('ID'),
                 $this->get('id'),
                 _('Error'),
                 $e->getMessage()
             );
             self::debug($msg);
+            /*
+             * The line that actually gets written. debug() on this branch
+             * writes to no file at all and returns immediately on a service
+             * or ajax request, and logHistory() needs somebody signed in --
+             * neither is true on the paths that generate most of these.
+             * See FOGBase::logFault().
+             */
+            self::logFault($msg);
 
             return false;
         }
@@ -861,6 +929,51 @@ abstract class FOGController extends FOGBase
                 $queryArray
             );
             $vals = self::$DB->fetch()->get();
+            /*
+             * A rejected SELECT is swallowed the same way a rejected INSERT
+             * is -- see save(). fetch()->get() then hands back nothing, and
+             * an object that could not be read is indistinguishable from a
+             * row that genuinely holds no data. That is the read half of the
+             * same defect: not a wrong answer anybody can see, a plausible
+             * empty one.
+             *
+             * AFTER the fetch, not between it and the query, so that ONE
+             * check covers both halves of the read. fetch() records its own
+             * failure on ->error and never clears one, and query() always
+             * sets ->error immediately before -- so a fetch that failed
+             * because the query did still reports the query's message here,
+             * not "No query result, use query() first".
+             *
+             * Recorded HERE rather than in the catch below, and that split is
+             * the point. This catch also handles the method's ORDINARY
+             * control flow -- "Operation field not set" fires on every
+             * `new Host()` built without an id, which is constant traffic --
+             * so faulting the whole catch would bury the one line that
+             * matters under thousands that do not.
+             *
+             * Throwing after logging costs nothing and buys the debug line
+             * below: setQuery() merges (fastmerge, never clears), so skipping
+             * it with nothing to merge leaves the object exactly as it was.
+             * load() still returns $this either way -- `new Host(42)` must
+             * not become fatal because a read failed.
+             */
+            if (self::$DB->error) {
+                self::logFault(
+                    sprintf(
+                        '%s: %s: %s, %s: %s, %s: %s, %s: %s',
+                        _('Database load failed'),
+                        _('Class'),
+                        get_class($this),
+                        _('Table'),
+                        $this->databaseTable,
+                        _('Key'),
+                        $key,
+                        _('Error'),
+                        self::$DB->error
+                    )
+                );
+                throw new Exception((string) self::$DB->error);
+            }
             $this->setQuery($vals);
         } catch (Exception $e) {
             $str = sprintf(
@@ -958,6 +1071,13 @@ abstract class FOGController extends FOGBase
                 (array) $val
             );
             self::$DB->query($query, array(), $queryArray);
+            // Same reason as save()'s, above: a rejected DELETE is swallowed
+            // by PDODB, so destroy() reported success for a row still there.
+            // A DELETE matching nothing is not an error and does not land
+            // here -- only a statement the server actually rejected does.
+            if (self::$DB->error) {
+                throw new Exception((string) self::$DB->error);
+            }
             if (!$this instanceof History) {
                 if ($this->get('name')) {
                     $msg = sprintf(
@@ -1008,14 +1128,26 @@ abstract class FOGController extends FOGBase
                 self::logHistory($msg);
             }
             $msg = sprintf(
-                '%s: %s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Destroy failed'),
+                _('Class'),
+                get_class($this),
+                _('Table'),
+                $this->databaseTable,
                 _('ID'),
                 $this->get('id'),
                 _('Error'),
                 $e->getMessage()
             );
             self::debug($msg);
+            /*
+             * The line that actually gets written. debug() on this branch
+             * writes to no file at all and returns immediately on a service
+             * or ajax request, and logHistory() needs somebody signed in --
+             * neither is true on the paths that generate most of these.
+             * See FOGBase::logFault().
+             */
+            self::logFault($msg);
 
             return false;
         }

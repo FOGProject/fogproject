@@ -1091,6 +1091,9 @@ msgstr "CPU Version"
 msgid "Clients"
 msgstr "Clients"
 
+msgid "Column type lookup failed"
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "Snapin Command"
@@ -1178,6 +1181,10 @@ msgstr "Could not read tmp file."
 #, fuzzy
 msgid "Could not register"
 msgstr "Could not create printer"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "Load failed: %s"
 
 msgid "Create"
 msgstr "Create"
@@ -1359,6 +1366,10 @@ msgstr "Database changes reverted"
 #, fuzzy
 msgid "Database imported and added successfully!"
 msgstr "Database Imported and added successfully"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "Database update failed"
 
 #, fuzzy
 msgid "Database not available"
@@ -1770,6 +1781,10 @@ msgstr "Event must be a string"
 
 msgid "Every configured multicast port is already in use"
 msgstr ""
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "Private key failed"
 
 msgid "Exists item must be boolean"
 msgstr ""
@@ -2210,6 +2225,10 @@ msgstr "filesize"
 #, fuzzy
 msgid "Filter"
 msgstr "File"
+
+#, fuzzy
+msgid "Find failed"
+msgstr "Load failed: %s"
 
 #, fuzzy
 msgid "Finding any images associated"
@@ -3958,6 +3977,14 @@ msgstr "Management Password"
 
 msgid "Management Username"
 msgstr "Management Username"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "Destroy failed: %s"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "User update failed"
 
 msgid "Master Node"
 msgstr "Master Node"
@@ -6296,8 +6323,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "Enabled"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "No database table defined for this class"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "Database update failed"
 
 #, fuzzy
 msgid "Tag Name"
@@ -7403,6 +7438,15 @@ msgstr ""
 msgid "and the location of the file on that"
 msgstr ""
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
 
@@ -7531,6 +7575,9 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
+msgstr ""
+
+msgid "every column will be treated as untyped"
 msgstr ""
 
 #, fuzzy

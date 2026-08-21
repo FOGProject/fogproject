@@ -74,8 +74,13 @@ function vals($reverse, $HookManager, $lines, $file)
     $folders = array(
         '/var/log/fog/',
         '/var/log/fog/fos/',
+        // FOGBase::logFault()'s, both spellings. This list is matched
+        // ANCHORED and EXACT against a requested file's dirname, so the
+        // trailing separator is not decoration.
+        '/var/log/fog/faults/',
         '/opt/fog/log/',
         '/opt/fog/log/fos/',
+        '/opt/fog/log/faults/',
         '/var/log/httpd/',
         '/var/log/apache2/',
         '/var/log/nginx/',

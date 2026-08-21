@@ -768,6 +768,175 @@ abstract class FOGBase
         printf('<div class="debug debug-error">%s</div>', $string);
     }
     /**
+     * FOG's log directory.
+     *
+     * 1.5 has no FOG_LOG_DIR constant -- every service spells this path out
+     * -- so this one does too, matching TaskError::LOG_DIR and the
+     * installer's $servicelogs default. FOG_LOG_DIR is still preferred when
+     * something HAS defined it, which costs nothing, keeps this method the
+     * same shape as the 1.6 original it was ported from, and is what lets a
+     * test point it somewhere writable.
+     *
+     * @var string
+     */
+    const FAULT_LOG_DIR = '/opt/fog/log';
+    /**
+     * The subdirectory of that directory fault lines are written to.
+     *
+     * Its own subdirectory rather than the top level, for the reason
+     * TaskError gives for the FOS report log: rotation renames and unlinks,
+     * and the top level is root's -- the eight daemons' logs live there and
+     * nothing running as the web user should be able to remove them.
+     *
+     * @var string
+     */
+    const FAULT_LOG_SUBDIR = 'faults';
+    /**
+     * How big a fault log may get before one old copy is kept, in bytes.
+     *
+     * A literal, NOT the SERVICE_LOG_SIZE setting the daemons rotate on, and
+     * that is the whole point: getSetting() issues a query, and the thing
+     * being reported here is a query that just failed.
+     *
+     * @var int
+     */
+    const FAULT_LOG_MAX = 10485760;
+    /**
+     * Records that something FOG needed to write or read did not happen.
+     *
+     * The failure sink of last resort, and deliberately the only logger here
+     * that asks nobody's permission to run.
+     *
+     * WHY THIS EXISTS AT ALL. FOGController::save(), destroy() and load()
+     * recorded a failure by calling logHistory(), which returns without doing
+     * anything unless self::$FOGUser is a valid User. Nothing on a machine
+     * -facing path ever sets one -- packages/web/service/, lib/reg-task/ and
+     * the daemons are matched to a HOST by MAC or token, and the daemons have
+     * no request at all -- so on every one of those paths the failure branch
+     * ran and wrote nowhere.
+     *
+     * debug() was not a second chance. On this branch it writes to no file at
+     * ALL -- it printf()s into the page and returns immediately when
+     * self::$service or self::$ajax is set, which on a machine endpoint is
+     * always. So a failed write on a service path had literally no possible
+     * output. (1.6's debug() at least reaches a file, behind a globalSetting
+     * that ships off.)
+     *
+     * WHY A FILE AND NOT A TABLE. logHistory() writes a row, so it shares its
+     * failure mode with the thing it is reporting on: a lost connection, a
+     * locked table or a full disk takes out the report along with the write.
+     * A sink for a failed database operation cannot itself be a database
+     * write. That -- not the user gate -- is the structural reason this is
+     * not simply logHistory() with the gate widened. The user gate is correct
+     * where it is: `history` is the audit trail, "who did what", and nobody
+     * did this.
+     *
+     * IT MUST NOT call getSetting(), for the path or the rotation size or
+     * anything else: getSetting() issues a query, and a logger that queries
+     * in order to report a failed query is the recursion that has already
+     * cost this project a silently dying worker. FAULT_LOG_MAX is a literal
+     * for exactly that reason.
+     *
+     * error_log() is the fallback, not the destination, and it is
+     * load-bearing rather than tidiness. The directory is the installer's, so
+     * a server whose web tree has been updated but which has not been
+     * re-installed has nowhere to write yet -- and PHP's own channel is
+     * already pointed somewhere useful in both tiers.
+     *
+     * @param string $message what did not happen, and why
+     *
+     * @return void
+     */
+    public static function logFault($message)
+    {
+        // Nothing here can re-enter through the database; this covers the one
+        // real case, which is logFault() failing on its own file write.
+        static $inFault = false;
+        if ($inFault) {
+            return;
+        }
+        $inFault = true;
+
+        try {
+            // One line per fault, so `tail -f` stays readable and a
+            // multi-line PDO message -- they carry the SQL, the parameters
+            // and a debugDumpParams() block -- cannot be mistaken for
+            // several faults.
+            $flat = preg_replace('#\s+#', ' ', (string) $message);
+            // Never let a message become an empty one. preg_replace returns
+            // null when it gives up, and a (string) cast of that is '', which
+            // the guard below would then throw away -- losing the one record
+            // this method exists to keep.
+            $line = trim(null === $flat ? (string) $message : $flat);
+            if ('' === $line) {
+                return;
+            }
+            $stamped = sprintf(
+                '[%s] %s%s',
+                date('Y-m-d H:i:s'),
+                $line,
+                PHP_EOL
+            );
+            $file = self::_faultLogPath();
+            if ('' !== $file) {
+                self::_rotateFaultLog($file);
+                if (false !== @file_put_contents($file, $stamped, FILE_APPEND)) {
+                    return;
+                }
+            }
+            error_log($line);
+        } finally {
+            $inFault = false;
+        }
+    }
+    /**
+     * The fault log's path, or '' if there is nowhere to write.
+     *
+     * Split by SAPI, into faults-web.log and faults-service.log. This is the
+     * one FOG log directory written by BOTH tiers -- the web user, and root
+     * for the daemons -- and a single shared file would be owned by whichever
+     * wrote first. A root-owned file appears the moment any daemon hits a
+     * failed write, and from then on every web-tier fault would fall silently
+     * to error_log(). Silently diverting to a worse destination is the exact
+     * failure this whole path exists to end, so the two writers get two files.
+     *
+     * The directory is never created here. It is the installer's, which gives
+     * it to the web user with the right SELinux label (GH-964: /opt/fog
+     * inherits usr_t and httpd_t may read it but not write it, so an
+     * unlabelled mkdir would produce a directory that looks right and
+     * silently swallows every write on an enforcing host).
+     *
+     * @return string
+     */
+    private static function _faultLogPath()
+    {
+        $base = defined('FOG_LOG_DIR') ? FOG_LOG_DIR : self::FAULT_LOG_DIR;
+        $dir = rtrim($base, DS) . DS . self::FAULT_LOG_SUBDIR;
+        if (!is_dir($dir) || !is_writable($dir)) {
+            return '';
+        }
+
+        return $dir . DS . sprintf(
+            'faults-%s.log',
+            'cli' === PHP_SAPI ? 'service' : 'web'
+        );
+    }
+    /**
+     * Keeps one old copy once the fault log passes FAULT_LOG_MAX.
+     *
+     * @param string $file the fault log
+     *
+     * @return void
+     */
+    private static function _rotateFaultLog($file)
+    {
+        $size = @filesize($file);
+        if (false === $size || $size < self::FAULT_LOG_MAX) {
+            return;
+        }
+        @rename($file, $file . '.1');
+    }
+    /**
      * Prints info.
      *
      * @param string $txt  the string to use

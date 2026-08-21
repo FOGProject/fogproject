@@ -902,6 +902,21 @@ installFOGServices() {
     # without this the directory exists, looks right, and every report is
     # dropped with nothing but an AVC to say so.
     setSELinuxContext "$servicelogs/fos" httpd_sys_rw_content_t
+    # Where FOGBase::logFault() records database operations that did not
+    # happen. Its own subdirectory for the same reason the one above has its.
+    #
+    # Unlike that one, BOTH tiers write here -- the web user, and root for the
+    # daemons -- so logFault() writes faults-web.log and faults-service.log
+    # rather than one shared file, whose owner would be whichever tier hit a
+    # failure first. The directory is the web user's; root writes into it
+    # regardless of mode.
+    dots "Creating FOG fault log directory"
+    mkdir -p $servicelogs/faults >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/faults >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller, and the _rw_
+    # label is as load-bearing here as it is for fos above (GH-964).
+    setSELinuxContext "$servicelogs/faults" httpd_sys_rw_content_t
 }
 configureUDPCast() {
     dots "Setting up UDPCast"

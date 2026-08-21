@@ -955,6 +955,9 @@ msgstr "CPU版本"
 msgid "Clients"
 msgstr "客户端"
 
+msgid "Column type lookup failed"
+msgstr ""
+
 msgid "Command"
 msgstr "命令"
 
@@ -1029,6 +1032,10 @@ msgstr "无法读取临时文件"
 
 msgid "Could not register"
 msgstr "无法注册"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "加载失败"
 
 msgid "Create"
 msgstr "创建"
@@ -1180,6 +1187,10 @@ msgstr "数据库更改已还原!"
 
 msgid "Database imported and added successfully!"
 msgstr "数据库已导入成功!"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "数据库保存失败"
 
 msgid "Database not available"
 msgstr "数据库不可达"
@@ -1549,6 +1560,10 @@ msgstr "事件必须是字符串"
 
 msgid "Every configured multicast port is already in use"
 msgstr ""
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "私钥失效"
 
 msgid "Exists item must be boolean"
 msgstr "现存物品必须是布尔值"
@@ -1945,6 +1960,10 @@ msgstr "文件大小"
 
 msgid "Filter"
 msgstr "文件"
+
+#, fuzzy
+msgid "Find failed"
+msgstr "加载失败"
 
 msgid "Finding any images associated"
 msgstr "找到关联镜像"
@@ -3480,6 +3499,14 @@ msgstr "管理密码"
 
 msgid "Management Username"
 msgstr "管理用户名"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "销毁失败"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "用户更新失败!"
 
 msgid "Master Node"
 msgstr "主节点"
@@ -5538,8 +5565,16 @@ msgstr "TCP / IP端口打印机"
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "启用"
+
 msgid "Table not defined for this class"
 msgstr "该类定义没有数据库表"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "数据库保存失败"
 
 #, fuzzy
 msgid "Tag Name"
@@ -6507,6 +6542,15 @@ msgstr "以及 Green 的相应模块"
 msgid "and the location of the file on that"
 msgstr "以及该文件在那里的位置"
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr "因为 FOG 将尝试连接到互联网"
 
@@ -6623,6 +6667,9 @@ msgstr "已经选中或上传"
 
 msgid "either because you have updated"
 msgstr "要么是因为你已经更新了"
+
+msgid "every column will be treated as untyped"
+msgstr ""
 
 msgid "failed to execute, image file: "
 msgstr "执行失败，镜像文件："

@@ -945,6 +945,9 @@ msgstr "クライアントバージョン"
 msgid "Clients"
 msgstr "クライアント"
 
+msgid "Column type lookup failed"
+msgstr ""
+
 msgid "Command"
 msgstr "コマンド"
 
@@ -1019,6 +1022,10 @@ msgstr "一時ファイルを読み取れませんでした。"
 
 msgid "Could not register"
 msgstr "登録できませんでした"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "ログインに失敗しました"
 
 msgid "Create"
 msgstr "作成"
@@ -1170,6 +1177,10 @@ msgstr "データベースの変更を元に戻しました！"
 
 msgid "Database imported and added successfully!"
 msgstr "データベースを正常にインポートして追加しました！"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "データベースの保存に失敗しました"
 
 msgid "Database not available"
 msgstr "データベースを利用できません"
@@ -1539,6 +1550,10 @@ msgstr "イベントは文字列で指定してください"
 
 msgid "Every configured multicast port is already in use"
 msgstr ""
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "秘密鍵の処理に失敗しました"
 
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
@@ -1932,6 +1947,10 @@ msgstr "ファイルサイズ"
 
 msgid "Filter"
 msgstr "フィルター"
+
+#, fuzzy
+msgid "Find failed"
+msgstr "ログインに失敗しました"
 
 msgid "Finding any images associated"
 msgstr "関連付けられたイメージを検索しています"
@@ -3460,6 +3479,14 @@ msgstr "管理パスワード"
 
 msgid "Management Username"
 msgstr "管理ユーザー名"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "解除に失敗しました"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Master Node"
 msgstr "マスターノード"
@@ -5511,8 +5538,16 @@ msgstr "TCP/IP ポートプリンター"
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "有効"
+
 msgid "Table not defined for this class"
 msgstr "このクラスにテーブルが定義されていません"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "データベースの保存に失敗しました"
 
 #, fuzzy
 msgid "Tag Name"
@@ -6479,6 +6514,15 @@ msgstr "および Green FOG の同等機能を持つモジュール"
 msgid "and the location of the file on that"
 msgstr "および、その上のファイルの保存場所"
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr "FOG がインターネットへ接続を試みるため"
 
@@ -6595,6 +6639,9 @@ msgstr "既に選択済み、またはアップロード済み"
 
 msgid "either because you have updated"
 msgstr "更新したため、または"
+
+msgid "every column will be treated as untyped"
+msgstr ""
 
 msgid "failed to execute, image file: "
 msgstr "実行に失敗しました。イメージファイル: "
