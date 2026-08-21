@@ -10809,7 +10809,7 @@ _espFileNote() {
         refind/*.efi)
             echo "rEFInd, signed by this server. A boot manager that finds and boots whatever OS is installed locally. Not needed by the default exit type (sanboot hands straight back to firmware), but it is what the refind_efi exit type chainloads, and it is here so an ESP assembled from this archive carries every route off FOG rather than only the configured one." ;;
         */MOK.der)
-            echo "This server's certificate in DER form, and it does TWO jobs. MokManager enrols it, which makes the shim routes work. It is also the certificate to put in db -- adding it to db alone, with no PK and no KEK, is enough to boot FOG's binaries directly with no shim at all (confirmed). It is the intermediate that FOG's signatures carry via sbsign --addcert, so this one certificate covers every FOG binary and the signing leaf can rotate without re-enrolling." ;;
+            echo "This server's certificate in DER form, and it does TWO jobs. MokManager enrols it, which makes the shim routes work. It is also the certificate to put in db, which is what lets FOG's binaries boot directly with no shim -- and when you enrol through the FIRMWARE's own tool, or a hypervisor setting, db on its own is enough because that write is unauthenticated. Enrolling from a running OS instead (FOG's task, a Linux tool, PowerShell) is a User Mode write that must be authenticated by a KEK-signed update, so that route needs the full PK/KEK/db set. It is the intermediate that FOG's signatures carry via sbsign --addcert, so this one certificate covers every FOG binary and the signing leaf can rotate without re-enrolling." ;;
         */PK.auth|*/KEK.auth|*/db.auth)
             echo "Signed EFI variable update, for FOG's unattended enrolment task, which writes all of them from a client in Setup/Custom Mode. NOT what a firmware menu or a hypervisor wants -- those take a plain DER certificate, so use MOK.der there. Replacing db with this keeps Microsoft's CAs and so still boots Windows, but appending MOK.der to the existing db is the lower-risk operation." ;;
         */fog-enroll-mok.sh|*/fog-enroll-mok.desktop)
@@ -11161,10 +11161,24 @@ ESPNOMOK
 fi)
 
   As the db certificate, for booting with no shim at all:
-      Put MOK.der in db. DB ALONE IS ENOUGH -- you do not need PK or KEK. db is
-      what firmware checks to verify a boot image; PK and KEK only control who
-      may change db. Confirmed working: MOK.der added to db, then FOG's signed
-      binary booted directly with no shim.
+      Put MOK.der in db. db is what firmware checks to verify a boot image; PK
+      and KEK only control who may CHANGE db.
+
+      HOW MANY VARIABLES YOU NEED DEPENDS ON WHO DOES THE WRITE:
+
+        Firmware's own tool, or a hypervisor setting, with the platform in
+        Setup/Custom Mode -- db ALONE is enough. That write is unauthenticated,
+        so nothing has to vouch for it. Confirmed: MOK.der added to db by itself,
+        then FOG's signed binary booted directly with no shim.
+
+        From a running OS -- FOG's enrolment task, a Linux tool, PowerShell's
+        Secure Boot cmdlets -- expect to need PK, KEK and db together. In User
+        Mode a db write must be authenticated by a KEK-signed update, and the
+        machine only trusts FOG's KEK if FOG's PK is enrolled too. That is what
+        the .auth files are for.
+
+      Not every firmware has been tested either way. If yours behaves
+      differently, please say so on the FOG forums or in the issue tracker.
 
       MOK.der is the intermediate, and FOG's signatures carry it inside them, so
       this one certificate covers every binary here and the signing key can be
