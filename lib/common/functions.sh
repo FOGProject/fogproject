@@ -913,6 +913,13 @@ installFOGServices() {
     dots "Creating FOG fault log directory"
     mkdir -p $servicelogs/faults >>$error_log 2>&1
     chown ${apacheuser}:${apacheuser} $servicelogs/faults >>$error_log 2>&1
+    # 0750, not the 0755 the other log directories carry. A fault line names
+    # the class, the table and the shape of the statement that failed, which
+    # is more than any local account needs; #1261 already cut the bound
+    # values out of it, and this stops the rest being world-readable. The web
+    # user owns the directory and root ignores the mode, so both writers are
+    # unaffected.
+    chmod 0750 $servicelogs/faults >>$error_log 2>&1
     errorStat $?
     # Outside the dots/errorStat pair, like every other caller, and the _rw_
     # label is as load-bearing here as it is for fos above (GH-964).
