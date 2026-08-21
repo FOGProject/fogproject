@@ -1481,6 +1481,20 @@ abstract class FOGController extends FOGBase
                     );
                 }
                 self::logHistory($msg);
+                // ADR 0021 Decision 7: a delete writes a header carrying
+                // subjectType/subjectID/subjectLabel and NO auditChange rows.
+                // The header is the only record a delete leaves, so without
+                // this it says that somebody exercised host.delete and not
+                // which host -- and the row is gone, so nothing can recover
+                // it afterwards. Identified here rather than at the gate
+                // because this is where the label is still in hand, and it
+                // reads the same two fields the history line above does so
+                // the two cannot disagree.
+                Audit::identify(
+                    strtolower(self::shortName($this)),
+                    (int)$this->get('id'),
+                    (string)$this->get('name')
+                );
             }
         } catch (\Exception $e) {
             if (!$this->_isLogTable()) {

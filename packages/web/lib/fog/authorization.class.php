@@ -772,12 +772,21 @@ class Authorization extends FOGBase
     public static function requirePagePermission($node, $sub)
     {
         $perm = self::resolvePagePermission($node, $sub);
+        // The API arm below has always passed the id its route carried; this
+        // one passed nothing, so every page-surface header recorded
+        // subjectID 0 -- "somebody exercised host.delete", with no way to
+        // tell which host, on the one surface most page mutations use.
+        // Scalar only: a mass operation posts id[] and (int) on an array is
+        // 1, which would name an object that was never touched. A bulk
+        // action is left at 0, which is at least honest.
+        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT)
+            ?: filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
         if (self::can($perm)) {
-            self::_auditGate($perm, Audit::ALLOWED, 'page', $node);
+            self::_auditGate($perm, Audit::ALLOWED, 'page', $node, (int)$id);
             return;
         }
         // BEFORE the response below, all three arms of which exit.
-        self::_auditGate($perm, Audit::DENIED, 'page', $node);
+        self::_auditGate($perm, Audit::DENIED, 'page', $node, (int)$id);
         if (self::$ajax) {
             http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
             header('Content-Type: application/json');

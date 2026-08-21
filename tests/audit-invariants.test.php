@@ -389,6 +389,56 @@ if ('' === $exemptFn) {
     }
 }
 
+/*
+ * 7. A delete header names what it destroyed.
+ *
+ * ADR 0021 Decision 7 is two halves, and section 1 above only pins the half
+ * that withholds: no auditChange rows on a delete. The other half is that
+ * the header carries subjectType/subjectID/subjectLabel -- and it has to,
+ * because with no change rows the header is the ONLY record a delete leaves
+ * and the row it describes is gone. Shipped without this, every UI delete
+ * recorded "somebody exercised host.delete" against subjectID 0.
+ */
+$checks++;
+if (null === $destroy) {
+    $failures[] = 'could not locate FOGController::destroy(); this test '
+        . 'cannot check what it cannot find';
+} else {
+    $checks++;
+    if (false === strpos($destroy, 'Audit::identify(')) {
+        $failures[] = 'FOGController::destroy() does not identify what it '
+            . 'destroyed, so the delete header records subjectID 0 and the '
+            . 'object it names is already gone (ADR 0021 Decision 7).';
+    }
+}
+$page = '';
+if (preg_match(
+    '#public static function requirePagePermission\(.*?
+    \}#s',
+    (string) @file_get_contents(
+        $root . '/packages/web/lib/fog/authorization.class.php'
+    ),
+    $m
+)) {
+    $page = $m[0];
+}
+$checks++;
+if ('' === $page) {
+    $failures[] = 'could not locate Authorization::requirePagePermission(); '
+        . 'this test cannot check what it cannot find';
+} else {
+    $checks++;
+    if (!preg_match(
+        '#_auditGate\(\$perm, Audit::ALLOWED, .page., \$node, #',
+        $page
+    )) {
+        $failures[] = 'Authorization::requirePagePermission() records a page '
+            . 'header without the object id. The API arm has always passed '
+            . 'one; without it every page-surface mutation is audited '
+            . 'against subjectID 0.';
+    }
+}
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {
