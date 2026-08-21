@@ -6266,3 +6266,141 @@ $this->schema[] = [
     "UPDATE `tasks` SET `taskWOL` = '0' WHERE `taskWOL` = ''",
     "UPDATE `users` SET `uAllowAPI` = '0' WHERE `uAllowAPI` = ''",
 ];
+// 346
+$this->schema[] = [
+    // ADR 0021: the audit trail. Two tables, header and detail.
+    //
+    // Inert at this step. Nothing writes either table and neither is in
+    // Route::$validClasses, so this ships as storage and a setting and
+    // changes no behaviour anywhere. The writers arrive in later merges.
+    //
+    // Every column is named explicitly rather than derived, because a
+    // schema step that does not name its columns has broken the
+    // installer's grant probe twice already (steps 336 and 338): the probe
+    // reads the step to decide what privileges it needs, fails to work it
+    // out, and demands a database root password on a server whose grants
+    // are fine.
+    //
+    // WHY THERE IS NO UNIQUE KEY. `history` carries UNIQUE (hText, hTime)
+    // and it is the reason that table cannot be trusted -- two identical
+    // actions in the same second collapse into one row, silently, through
+    // save()'s INSERT ... ON DUPLICATE KEY UPDATE. An audit trail that
+    // discards a row because it resembles its neighbour is not one. The
+    // volume argument that key was invented for is answered by retention
+    // (FOG_AUDIT_RETENTION_DAYS below) and by not auditing reads at all.
+    //
+    // DATETIME rather than TIMESTAMP, with a server-side default: TIMESTAMP
+    // stops at 2038 and this table is meant to be the long record, and a
+    // column that fills itself cannot record the zero date that empty
+    // writes used to produce across this schema (GH-1243, step 344).
+    "CREATE TABLE IF NOT EXISTS `auditLog` ("
+    . "`alID` INT NOT NULL AUTO_INCREMENT,"
+    . "`alCreatedTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+    // The actor. 'fog' for a machine-originated write, which is what
+    // FOGController::save()'s createdBy auto-fill already produces when no
+    // user is valid -- the same convention, not a new one.
+    . "`alCreatedBy` VARCHAR(255) NOT NULL DEFAULT '',"
+    // 45 characters holds an IPv6 address with an IPv4 tail. `history`
+    // uses 50 for the same value; this is the size that is actually right.
+    . "`alIP` VARCHAR(45) NOT NULL DEFAULT '',"
+    // How the REQUEST authenticated, not how the account is configured.
+    // FOG already draws that distinction and documents it:
+    // User::sessionAuthSource() is about the request, users.uAuthSource
+    // about the account, and the two genuinely differ. An audit row is a
+    // fact about a request. Machine paths record the credential kind here
+    // -- host-token, node, anonymous -- which is the only actor-like fact
+    // they hold.
+    . "`alAuthSource` VARCHAR(64) NOT NULL DEFAULT '',"
+    // ADR 0020's frame: what kind of event, and what it was about.
+    . "`alType` VARCHAR(64) NOT NULL DEFAULT '',"
+    . "`alSubjectType` VARCHAR(64) NOT NULL DEFAULT '',"
+    . "`alSubjectID` INT NOT NULL DEFAULT 0,"
+    // Denormalized on purpose. The subject may be deleted -- most often BY
+    // the action being recorded -- and an audit row that can only say
+    // "host 41" about a host that no longer exists has lost the fact worth
+    // keeping. Same reasoning as taskLog's denormalized host name.
+    . "`alSubjectLabel` VARCHAR(255) NOT NULL DEFAULT '',"
+    // The permission string that was consulted. EMPTY IS MEANINGFUL: it
+    // says no authorization ran, which is what every machine path does, so
+    // a query for '' is a query for FOG's whole unauthenticated write
+    // surface.
+    . "`alPermission` VARCHAR(128) NOT NULL DEFAULT '',"
+    // 'unknown' is first deliberately. FOGController::save() writes the
+    // first ENUM member for an unset value, so whichever member leads is
+    // what an incomplete row claims -- and an audit row must not claim
+    // 'allowed' because a writer forgot to set the field (GH-1245).
+    . "`alOutcome` ENUM('unknown','allowed','denied','failed','partial') "
+    . "NOT NULL DEFAULT 'unknown',"
+    // One request, one id, however many rows it produces. Request-scoped
+    // static state on the PHP side; see ADR 0021 Decision 3.
+    . "`alCorrelationID` VARCHAR(32) NOT NULL DEFAULT '',"
+    // How many rows the statement touched. The only outcome a bulk
+    // UPDATE ... WHERE can report, and the reason a 400-host group edit is
+    // one header rather than 400.
+    . "`alAffectedCount` INT NOT NULL DEFAULT 0,"
+    // The activity-feed projection (ADR 0021 Decision 1). A flag here is
+    // what replaced the third table the original proposal wanted: the feed
+    // is these rows filtered, and its prose is built at READ time in the
+    // reader's locale from alType and the subject columns, never written
+    // as a translated string.
+    . "`alRenderable` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,"
+    // Untranslated machine detail -- a failure reason, a rejected
+    // username. NOT a rendered sentence: a sentence written here is
+    // written in the locale of whoever triggered it, which is the defect
+    // ADR 0020 exists to undo.
+    . "`alText` LONGTEXT NOT NULL,"
+    . "PRIMARY KEY (`alID`),"
+    . "KEY `alCreatedTime` (`alCreatedTime`),"
+    . "KEY `alCreatedBy` (`alCreatedBy`),"
+    . "KEY `alCorrelationID` (`alCorrelationID`),"
+    . "KEY `alOutcome` (`alOutcome`),"
+    . "KEY `alSubject` (`alSubjectType`,`alSubjectID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // One row per changed field.
+    //
+    // Deliberately NOT a foreign key. FOG declares none anywhere, and one
+    // here would make the retention sweep's DELETE order load bearing --
+    // exactly the kind of thing that fails on a restore onto a server with
+    // different settings, in a way that looks nothing like its cause.
+    //
+    // acSubjectType/acSubjectID repeat the header's because one header can
+    // cover many objects: an iterating path that saves 40 hosts writes one
+    // header and change rows for each host that landed. Without these,
+    // those rows could not say which host they belonged to.
+    "CREATE TABLE IF NOT EXISTS `auditChange` ("
+    . "`acID` INT NOT NULL AUTO_INCREMENT,"
+    . "`acAuditID` INT NOT NULL,"
+    . "`acSubjectType` VARCHAR(64) NOT NULL DEFAULT '',"
+    . "`acSubjectID` INT NOT NULL DEFAULT 0,"
+    . "`acField` VARCHAR(128) NOT NULL DEFAULT '',"
+    // NULL, not ''. A field that was genuinely empty before and a field
+    // whose value is withheld are different facts, and acRedacted is what
+    // separates them: a redacted row carries the field name, redacted = 1,
+    // and NULL in both value columns. Not a masked string, not a length,
+    // not a hash -- anything derived from a credential is a disclosure
+    // with extra steps.
+    . "`acOldValue` LONGTEXT NULL DEFAULT NULL,"
+    . "`acNewValue` LONGTEXT NULL DEFAULT NULL,"
+    . "`acRedacted` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,"
+    . "PRIMARY KEY (`acID`),"
+    . "KEY `acAuditID` (`acAuditID`),"
+    . "KEY `acSubject` (`acSubjectType`,`acSubjectID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // 0 = keep forever, which is the only safe default for an upgrade: an
+    // admin who has never been asked has not consented to their audit
+    // history being deleted. The sweep that reads this arrives with the
+    // retention registry (ADR 0021 Decision 9, amended by ADR 0023); this
+    // is the first entry in that registry rather than the only one.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_AUDIT_RETENTION_DAYS','How many days of audit trail to keep. "
+    . "0 keeps everything forever, which is the default. Set a number of "
+    . "days and a periodic sweep deletes audit rows older than that. "
+    . "Shortening this window is itself recorded in the audit trail before "
+    . "it takes effect.','0','Logging Settings')",
+];

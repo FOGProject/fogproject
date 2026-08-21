@@ -61,6 +61,39 @@ return [
         ],
     ],
     'tables' => [
+        'auditChange' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `auditChange` ( `acID` int(11) NOT NULL AUTO_INCREMENT, `acAuditID` int(11) NOT NULL, `acSubjectType` varchar(64) NOT NULL DEFAULT \'\', `acSubjectID` int(11) NOT NULL DEFAULT 0, `acField` varchar(128) NOT NULL DEFAULT \'\', `acOldValue` longtext DEFAULT NULL, `acNewValue` longtext DEFAULT NULL, `acRedacted` tinyint(1) unsigned NOT NULL DEFAULT 0, PRIMARY KEY (`acID`), KEY `acAuditID` (`acAuditID`), KEY `acSubject` (`acSubjectType`,`acSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'acID' => 'int(11) NOT NULL',
+                'acAuditID' => 'int(11) NOT NULL',
+                'acSubjectType' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'acSubjectID' => 'int(11) NOT NULL DEFAULT 0',
+                'acField' => 'varchar(128) NOT NULL DEFAULT \'\'',
+                'acOldValue' => 'longtext DEFAULT NULL',
+                'acNewValue' => 'longtext DEFAULT NULL',
+                'acRedacted' => 'tinyint(1) unsigned NOT NULL DEFAULT 0',
+            ],
+        ],
+        'auditLog' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `auditLog` ( `alID` int(11) NOT NULL AUTO_INCREMENT, `alCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `alCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `alIP` varchar(45) NOT NULL DEFAULT \'\', `alAuthSource` varchar(64) NOT NULL DEFAULT \'\', `alType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectID` int(11) NOT NULL DEFAULT 0, `alSubjectLabel` varchar(255) NOT NULL DEFAULT \'\', `alPermission` varchar(128) NOT NULL DEFAULT \'\', `alOutcome` enum(\'unknown\',\'allowed\',\'denied\',\'failed\',\'partial\') NOT NULL DEFAULT \'unknown\', `alCorrelationID` varchar(32) NOT NULL DEFAULT \'\', `alAffectedCount` int(11) NOT NULL DEFAULT 0, `alRenderable` tinyint(1) unsigned NOT NULL DEFAULT 1, `alText` longtext NOT NULL, PRIMARY KEY (`alID`), KEY `alCreatedTime` (`alCreatedTime`), KEY `alCreatedBy` (`alCreatedBy`), KEY `alCorrelationID` (`alCorrelationID`), KEY `alOutcome` (`alOutcome`), KEY `alSubject` (`alSubjectType`,`alSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'alID' => 'int(11) NOT NULL',
+                'alCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'alCreatedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'alIP' => 'varchar(45) NOT NULL DEFAULT \'\'',
+                'alAuthSource' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'alType' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'alSubjectType' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'alSubjectID' => 'int(11) NOT NULL DEFAULT 0',
+                'alSubjectLabel' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'alPermission' => 'varchar(128) NOT NULL DEFAULT \'\'',
+                'alOutcome' => 'enum(\'unknown\',\'allowed\',\'denied\',\'failed\',\'partial\') NOT NULL DEFAULT \'unknown\'',
+                'alCorrelationID' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'alAffectedCount' => 'int(11) NOT NULL DEFAULT 0',
+                'alRenderable' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
+                'alText' => 'longtext NOT NULL',
+            ],
+        ],
         'clientUpdates' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `clientUpdates` ( `cuID` int(11) NOT NULL AUTO_INCREMENT, `cuName` varchar(200) NOT NULL, `cuMD5` varchar(100) NOT NULL, `cuType` varchar(30) NOT NULL, `cuFile` longblob NOT NULL, PRIMARY KEY (`cuID`), KEY `new_index` (`cuName`), KEY `new_index1` (`cuType`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
