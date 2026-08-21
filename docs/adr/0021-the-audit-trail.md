@@ -2,7 +2,28 @@
 
 ## Status
 
-proposed
+accepted -- merges 1 to 8 implemented on `working-1.6`
+
+Merge 9 is deliberately outstanding: it retires the two flat login files and
+drops `functions.sh:8973-8976`, and its stated condition is that merge 3 has
+shipped **in a release** first. Those files are the only record of a login on
+every server that has not yet upgraded, so they stay on disk until the table
+that replaces them has actually reached one.
+
+Two things landed differently from the text below and the text has not been
+rewritten to hide it:
+
+- Decision 4 expected the machine paths to record `authSource` as
+  `host-token`, `node` or `anonymous`. All six record `anonymous`, because
+  that is what is true: FOS's task and registration endpoints identify a host
+  by the MAC in the request and check no credential at all. Only
+  `service/hostinfo.php` verifies a host token, and it makes no state change
+  worth a row.
+- Decision 9's retention sweep shipped as the generic registry ADR 0023
+  amended it to, covering `history`, `userTracking` and `imagingLog` as well
+  as `auditLog` -- so ADR 0023's merge 6 landed with merge 8 here rather than
+  separately. ADR 0023's merge 7 (a bounded default for new installs, and the
+  upgrade notice) is now unblocked and is still outstanding.
 
 ## Context
 
