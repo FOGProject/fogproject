@@ -1079,6 +1079,9 @@ msgstr "Versión"
 msgid "Clients"
 msgstr "Nodo Almacenamiento Clientes Max"
 
+msgid "Column type lookup failed"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -1162,6 +1165,10 @@ msgstr ""
 #, fuzzy
 msgid "Could not register"
 msgstr "No se puede encontrar el nodo de almacenamiento:"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "Error al cargar"
 
 msgid "Create"
 msgstr "Crear"
@@ -1335,6 +1342,10 @@ msgstr "Guardar Cambios"
 
 msgid "Database imported and added successfully!"
 msgstr ""
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "Fallo al actualizar la base de datos"
 
 #, fuzzy
 msgid "Database not available"
@@ -1737,6 +1748,9 @@ msgid "Event must be a string"
 msgstr ""
 
 msgid "Every configured multicast port is already in use"
+msgstr ""
+
+msgid "Existence check failed"
 msgstr ""
 
 msgid "Exists item must be boolean"
@@ -2194,6 +2208,10 @@ msgstr ""
 
 msgid "Filter"
 msgstr ""
+
+#, fuzzy
+msgid "Find failed"
+msgstr "Error al cargar"
 
 msgid "Finding any images associated"
 msgstr ""
@@ -3961,6 +3979,14 @@ msgstr "Gestión"
 #, fuzzy
 msgid "Management Username"
 msgstr "Usuario"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "Error al eliminar"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "Fallo al actualizar"
 
 #, fuzzy
 msgid "Master Node"
@@ -6294,8 +6320,16 @@ msgstr ""
 msgid "TX"
 msgstr ""
 
+#, fuzzy
+msgid "Table"
+msgstr "Habilitado"
+
 msgid "Table not defined for this class"
 msgstr ""
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "Fallo al actualizar la base de datos"
 
 #, fuzzy
 msgid "Tag Name"
@@ -7355,6 +7389,15 @@ msgstr ""
 msgid "and the location of the file on that"
 msgstr ""
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
 
@@ -7486,6 +7529,9 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
+msgstr ""
+
+msgid "every column will be treated as untyped"
 msgstr ""
 
 #, fuzzy

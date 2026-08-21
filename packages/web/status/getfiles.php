@@ -45,6 +45,11 @@ $validPaths = [
     '/var/log/apache2',
     '/var/log/fog',
     '/var/log/fog/fos',
+    // FOGBase::logFault()'s. 1.6 keeps this list in one place
+    // (FOGLogPaths); on this branch it is spelled out in three, so a new
+    // log directory has to be added to all three or it is enumerated but
+    // not readable, or neither.
+    '/var/log/fog/faults',
     '/var/log/httpd',
     '/var/log/nginx',
     '/var/log/php*'

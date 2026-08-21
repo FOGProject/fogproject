@@ -218,6 +218,7 @@ class StorageNode extends FOGController
             '/var/log/apache2',
             '/var/log/fog',
             '/var/log/fog/fos',
+            '/var/log/fog/faults',
             '/var/log/httpd',
             '/var/log/nginx',
             '/var/log/php*',

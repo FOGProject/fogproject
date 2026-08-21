@@ -956,6 +956,9 @@ msgstr "Version Client"
 msgid "Clients"
 msgstr "Clients"
 
+msgid "Column type lookup failed"
+msgstr ""
+
 msgid "Command"
 msgstr "Commande"
 
@@ -1030,6 +1033,10 @@ msgstr "Impossible de lire le fichier tmp."
 
 msgid "Could not register"
 msgstr "Impossible d'enregistrer"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "La connexion a échoué"
 
 msgid "Create"
 msgstr "Créer"
@@ -1181,6 +1188,10 @@ msgstr "Les modifications de la base de données ont été rétablies !"
 
 msgid "Database imported and added successfully!"
 msgstr "Base de données importée et ajoutée avec succès !"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "La sauvegarde de la base de données a échoué"
 
 msgid "Database not available"
 msgstr "Base de données non disponible"
@@ -1556,6 +1567,10 @@ msgstr "Événement doit être une chaîne de caractères"
 
 msgid "Every configured multicast port is already in use"
 msgstr ""
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "La clé privée a échoué"
 
 msgid "Exists item must be boolean"
 msgstr "L'élément Exists doit être booléen"
@@ -1953,6 +1968,10 @@ msgstr "Taille du fichier"
 
 msgid "Filter"
 msgstr "Filtrer"
+
+#, fuzzy
+msgid "Find failed"
+msgstr "La connexion a échoué"
 
 msgid "Finding any images associated"
 msgstr "Trouver les images associées"
@@ -3498,6 +3517,14 @@ msgstr "Gestion des mots de passe"
 
 msgid "Management Username"
 msgstr "Gestion des identifiants"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "Échec de la destruction"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "La mise à jour de l'utilisateur a échoué !"
 
 msgid "Master Node"
 msgstr "Nœud maître"
@@ -5565,8 +5592,16 @@ msgstr "Imprimante Port TCP / IP"
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "Activé"
+
 msgid "Table not defined for this class"
 msgstr "Tableau non défini pour cette classe"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "La sauvegarde de la base de données a échoué"
 
 #, fuzzy
 msgid "Tag Name"
@@ -6542,6 +6577,15 @@ msgstr "et le module équivalent à ce que faisait FOG"
 msgid "and the location of the file on that"
 msgstr "et l'emplacement du fichier sur ce"
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr "car FOG va essayer de sortir sur internet"
 
@@ -6661,6 +6705,9 @@ msgstr "soit déjà sélectionné ou téléchargé"
 
 msgid "either because you have updated"
 msgstr "soit parce que vous avez mis à jour"
+
+msgid "every column will be treated as untyped"
+msgstr ""
 
 msgid "failed to execute, image file: "
 msgstr "n'a pas réussi à s'exécuter, fichier image : "

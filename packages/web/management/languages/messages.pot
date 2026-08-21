@@ -930,6 +930,9 @@ msgstr ""
 msgid "Clients"
 msgstr ""
 
+msgid "Column type lookup failed"
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -1003,6 +1006,9 @@ msgid "Could not read tmp file."
 msgstr ""
 
 msgid "Could not register"
+msgstr ""
+
+msgid "Count failed"
 msgstr ""
 
 msgid "Create"
@@ -1154,6 +1160,9 @@ msgid "Database changes reverted!"
 msgstr ""
 
 msgid "Database imported and added successfully!"
+msgstr ""
+
+msgid "Database load failed"
 msgstr ""
 
 msgid "Database not available"
@@ -1520,6 +1529,9 @@ msgid "Event must be a string"
 msgstr ""
 
 msgid "Every configured multicast port is already in use"
+msgstr ""
+
+msgid "Existence check failed"
 msgstr ""
 
 msgid "Exists item must be boolean"
@@ -1913,6 +1925,9 @@ msgid "Filesize"
 msgstr ""
 
 msgid "Filter"
+msgstr ""
+
+msgid "Find failed"
 msgstr ""
 
 msgid "Finding any images associated"
@@ -3433,6 +3448,12 @@ msgid "Management Password"
 msgstr ""
 
 msgid "Management Username"
+msgstr ""
+
+msgid "Mass destroy failed"
+msgstr ""
+
+msgid "Mass update failed"
 msgstr ""
 
 msgid "Master Node"
@@ -5482,7 +5503,13 @@ msgstr ""
 msgid "TX"
 msgstr ""
 
+msgid "Table"
+msgstr ""
+
 msgid "Table not defined for this class"
+msgstr ""
+
+msgid "Table uninstall failed"
 msgstr ""
 
 msgid "Tag Name"
@@ -6445,6 +6472,15 @@ msgstr ""
 msgid "and the location of the file on that"
 msgstr ""
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
 
@@ -6560,6 +6596,9 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
+msgstr ""
+
+msgid "every column will be treated as untyped"
 msgstr ""
 
 msgid "failed to execute, image file: "
