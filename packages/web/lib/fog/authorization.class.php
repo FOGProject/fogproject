@@ -314,6 +314,19 @@ class Authorization extends FOGBase
             return self::$_registry;
         }
         $registry = self::coreRegistry();
+        // Memoized with the CORE registry BEFORE the event fires, and again
+        // with the plugin-augmented one after. can() now consults this on
+        // every call, and processEvent() reaches Route::getIds('hookevent'),
+        // so firing the event can re-enter anything that asks a permission
+        // question -- which without the pre-set would arrive here with
+        // $_registry still null and fire the event again, forever. Same
+        // construction, and the same reasoning, as
+        // Route::sensitiveFieldMap(). A re-entrant caller sees the core
+        // registry, never a smaller one, so it can only miss a PLUGIN node
+        // for the duration of that one nested call -- and a node missing
+        // from the registry is left alone by can()'s check rather than
+        // denied.
+        self::$_registry = $registry;
         self::$HookManager->processEvent(
             'PERMISSION_REGISTRY_DATA',
             ['registry' => &$registry]
@@ -350,10 +363,23 @@ class Authorization extends FOGBase
             'storagenode' => ['view', 'create', 'edit', 'delete'],
             'storagegroup' => ['view', 'create', 'edit', 'delete'],
             'ipxe' => ['view', 'create', 'edit', 'delete'],
-            'task' => ['view', 'task'],
+            // create/edit/delete are here because they are REACHABLE, not
+            // because anything new was opened up. Eleven classes map onto
+            // this node -- task, tasklog, taskstate, tasktype, snapinjob,
+            // snapintask, scheduledtask, multicastsession and friends -- and
+            // the generic CRUD routes have always answered for all of them.
+            // Undeclared, they could be performed only by a holder of '*'
+            // and granted to nobody, because assertCanGrant() refuses a
+            // permission the registry cannot name. Declaring them takes
+            // nothing away and makes them delegable.
+            'task' => ['view', 'create', 'edit', 'delete', 'task'],
             'service' => ['view', 'edit'],
-            'settings' => ['view', 'edit'],
-            'report' => ['view', 'create'],
+            // Same reason: hookevent, notifyevent, oui and setting all map
+            // here and all four take create/join/delete.
+            'settings' => ['view', 'create', 'edit', 'delete'],
+            // history and imaginglog are the two report-entity classes that
+            // are also writable tables.
+            'report' => ['view', 'create', 'edit', 'delete'],
             // User tracking is a movement log for named people, not a
             // report about equipment, and it is split out of `report` for
             // that reason alone (ADR 0023). Everything that reads it -- the
@@ -379,7 +405,12 @@ class Authorization extends FOGBase
             // narrowly: an audit row necessarily discloses attempted
             // usernames.
             'audit' => ['view', 'manage'],
-            'plugin' => ['view', 'edit', 'install']
+            // `install` is uploading an archive -- new executable code on
+            // the server, deliberately its own permission (ADR 0009).
+            // create/delete are the plugin ROW, which is how one is switched
+            // on and off; they were routable and undeclared, which had the
+            // effect of making the lesser power the harder one to grant.
+            'plugin' => ['view', 'create', 'edit', 'delete', 'install']
         ];
     }
     /**
@@ -487,13 +518,48 @@ class Authorization extends FOGBase
         if (null === $perm || '' === $perm) {
             return true;
         }
+        $node = strstr($perm, '.', true);
+        // A permission naming an action its node does not declare is not a
+        // permission. It used to be answered TRUE for a holder of '*', which
+        // is how "Create New Audit" reached the sidebar: audit declares
+        // ['view', 'manage'], the menu builder asked can('audit.create'),
+        // and an administrator was waved through to a sub the page does not
+        // implement. Nobody else could ever have satisfied it -- the string
+        // is ungrantable, because assertCanGrant() checks this same registry
+        // -- so the old answer made '*' mean "yes" rather than "holds every
+        // permission there is".
+        //
+        // Checked BEFORE '*' deliberately, and it is the only check that
+        // runs ahead of it.
+        //
+        // A node absent from the registry is left alone rather than denied.
+        // That is not laxity: resolvePagePermission() and
+        // resolveApiPermission() already answer 'unmapped.<node>' for
+        // anything unclaimed, which is ungrantable by construction and
+        // therefore already administrator-only. Denying here as well would
+        // lock a plugin page out of its own author's hands.
+        //
+        // tests/permission-actions-declared.test.php holds the other end:
+        // every routable operation must resolve to a declared action, so a
+        // new class or route cannot quietly become administrator-only again.
+        if (false !== $node) {
+            $registry = self::registry();
+            if (isset($registry[$node])
+                && !in_array(
+                    substr($perm, strlen($node) + 1),
+                    (array)$registry[$node],
+                    true
+                )
+            ) {
+                return false;
+            }
+        }
         $perms = self::getPermissions($userID);
         if (in_array('*', $perms, true)
             || in_array($perm, $perms, true)
         ) {
             return true;
         }
-        $node = strstr($perm, '.', true);
         return false !== $node
             && in_array("{$node}.*", $perms, true);
     }

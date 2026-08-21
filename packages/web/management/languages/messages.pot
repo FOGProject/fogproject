@@ -2867,6 +2867,9 @@ msgstr ""
 msgid "Host is not valid!"
 msgstr ""
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 msgid "Host name"
 msgstr ""
 
@@ -3900,12 +3903,6 @@ msgid "Login History"
 msgstr ""
 
 msgid "Login Success"
-msgstr ""
-
-msgid "Login accepted"
-msgstr ""
-
-msgid "Login failed"
 msgstr ""
 
 msgid "Login successful!"
@@ -7059,6 +7056,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr ""
 
@@ -8230,9 +8230,6 @@ msgstr ""
 msgid "location url based on the host that checks in"
 msgstr ""
 
-msgid "logged in"
-msgstr ""
-
 msgid "logout"
 msgstr ""
 
@@ -8507,6 +8504,9 @@ msgstr ""
 msgid "to apply the update."
 msgstr ""
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 msgid "to clear the field on every host in this group."
 msgstr ""
 
@@ -8553,9 +8553,6 @@ msgid "user failed to login"
 msgstr ""
 
 msgid "user successfully logged in"
-msgstr ""
-
-msgid "username"
 msgstr ""
 
 msgid "value is not in the required range"

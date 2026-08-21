@@ -132,7 +132,8 @@ class User extends FOGController
      * through validatePw(), the iPXE menu and service/checkcredentials.php
      * call this directly, and authenticateOnly() does too. Auditing at any
      * of those would cover a quarter of them, which is exactly the gap ADR
-     * 0021 records for the existing fog_login_failed.log.
+     * 0021 recorded for fog_login_failed.log -- a file written only by the
+     * web form, and retired in merge 9 once this covered all four.
      *
      * NO REASON IS RECORDED, and that is a decision rather than an
      * omission. The reasons available here are "no such account", "wrong

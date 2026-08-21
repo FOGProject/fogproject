@@ -4,10 +4,20 @@
 
 accepted
 
-Items 1-4 of the sequencing table below are implemented on `working-1.6`.
-Item 1 (the `report` node split) was signed off separately, because it
-narrows an existing grant: a role holding `report.view` loses user tracking
-on deploy and is re-granted deliberately. Items 5-7 remain gated as stated.
+Items 1-4, 6 and 7 of the sequencing table below are implemented on
+`working-1.6`. Item 1 (the `report` node split) was signed off separately,
+because it narrows an existing grant: a role holding `report.view` loses user
+tracking on deploy and is re-granted deliberately. Item 6 landed with ADR
+0021's merge 8 rather than separately, since the sweep it needed was the same
+sweep. Item 5 remains gated on ADR 0020 phases 2-4.
+
+Item 7 is bounded to genuinely new installs, and the test of "new" is the
+installer's own: `applyNewInstallDefaults()` runs only when no `.fogsettings`
+existed before the run *and* `userTracking` is empty, so an upgrade -- and a
+reinstall over live data -- both fall through untouched. An existing install
+with no window set gets the dashboard notice instead of a silent deletion,
+because some administrators are required to retain these records and the
+decision of how long is theirs to make.
 
 ## Context
 

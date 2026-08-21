@@ -2,13 +2,18 @@
 
 ## Status
 
-accepted -- merges 1 to 8 implemented on `working-1.6`
+accepted -- merges 1 to 9 implemented on `working-1.6`
 
-Merge 9 is deliberately outstanding: it retires the two flat login files and
-drops `functions.sh:8973-8976`, and its stated condition is that merge 3 has
-shipped **in a release** first. Those files are the only record of a login on
-every server that has not yet upgraded, so they stay on disk until the table
-that replaces them has actually reached one.
+Merge 9 shipped ahead of its stated condition, which was that merge 3 had
+shipped **in a release** first. No 1.6 release exists yet, and the maintainer
+took the call to retire the files now rather than hold the branch on a release
+that has no date. What the condition was protecting -- an upgraded server
+losing the only record it has of a login -- is protected instead by leaving
+any existing `fog_login_accepted.log` / `fog_login_failed.log` on disk
+untouched: the installer no longer creates them and nothing writes to them,
+but nothing deletes them either. A server that upgrades keeps its history as
+a flat file it can still read, and everything from the upgrade onward is in
+`auditLog`.
 
 Two things landed differently from the text below and the text has not been
 rewritten to hide it:
@@ -23,7 +28,7 @@ rewritten to hide it:
   amended it to, covering `history`, `userTracking` and `imagingLog` as well
   as `auditLog` -- so ADR 0023's merge 6 landed with merge 8 here rather than
   separately. ADR 0023's merge 7 (a bounded default for new installs, and the
-  upgrade notice) is now unblocked and is still outstanding.
+  upgrade notice) shipped alongside merge 9 here.
 
 ## Context
 

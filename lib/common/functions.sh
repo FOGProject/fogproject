@@ -560,6 +560,40 @@ updateStorageNodeCredentials() {
 # .fogsettings stays the source of truth, and the next installfog.sh/
 # updatefog.sh run overwrites whatever an admin may have hand-edited here
 # through the generic Settings tab.
+# ADR 0023 Decision 7: a bounded retention default is applied to NEW installs
+# and never silently to an upgrade.
+#
+# It lives here rather than in commons/schema.php because a schema step cannot
+# tell the two apart -- it runs identically on both -- which is what step 347's
+# own comment says. The installer can: .fogsettings either existed before this
+# run or it did not.
+#
+# Two conditions, not one. $priorInstall alone would still fire on a re-install
+# over a database that has been collecting login records for years, which is
+# exactly the "nasty surprise" the decision rules out: the administrator never
+# chose to hold this data OR to delete it, and some of them are legally
+# required to retain it. An empty userTracking table is the second half, and
+# together they mean nothing can be deleted by this default that anybody had.
+#
+# The UPDATE is conditioned on the current value being '0' as well, so a
+# re-run cannot walk over a window an admin has since chosen.
+#
+# 365 days is a judgement, not a derived figure: long enough to answer "who was
+# on this machine last year", short enough that the table does not grow without
+# bound, and a round number to reason about. Upgrades stay at 0 and get a
+# dashboard notice instead -- see DashboardPage::_userTrackingRetentionNotice().
+applyNewInstallDefaults() {
+    [[ $priorInstall -eq 1 ]] && return 0
+    local trackedRows
+    trackedRows=$(mysql $sqloptionsuser --password="${snmysqlpass}" \
+        --skip-column-names --batch \
+        --execute="SELECT COUNT(*) FROM userTracking" $mysqldbname 2>>$error_log)
+    [[ -z $trackedRows ]] && return 0
+    [[ $trackedRows -ne 0 ]] && return 0
+    dots "Setting the new-install retention window for host login records"
+    mysql $sqloptionsuser --password="${snmysqlpass}" --execute="UPDATE globalSettings SET settingValue='365' WHERE settingKey='FOG_USERTRACKING_RETENTION_DAYS' AND settingValue='0'" $mysqldbname >>$error_log 2>&1
+    errorStat $?
+}
 recordGitUpdateSettings() {
     dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"$fog_git_path\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"$fog_git_path\"" $mysqldbname >>$error_log 2>&1
@@ -8992,10 +9026,13 @@ die();
     chmod +rx $apacheerrlog
     chmod +rx $apacheacclog
     chown -R ${apacheuser}:${apacheuser} $webdirdest
-    touch $webdirdest/fog_login_accepted.log
-    touch $webdirdest/fog_login_failed.log
-    chown ${apacheuser}:${apacheuser} $webdirdest/fog_login_*.log
-    chmod 0200 $webdirdest/fog_login_*.log
+    # fog_login_accepted.log and fog_login_failed.log are no longer created or
+    # written (ADR 0021 merge 9). auditLog records both outcomes, for every
+    # entry point rather than just the web form, and it is queryable.
+    #
+    # Existing files are deliberately left where they are: they are the only
+    # record of a login from before the upgrade, and deleting somebody's
+    # history as a side effect of an install is not this script's call.
     errorStat $?
     [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
     [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/

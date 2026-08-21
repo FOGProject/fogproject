@@ -485,6 +485,47 @@ class Route extends FOGBase
         'task'
     ];
     /**
+     * Classes the API serves for reading only.
+     *
+     * Listed here rather than removed from $validClasses, because the read
+     * side is legitimate and used: the Hosts And Users report and the Login
+     * History tabs on host and group both go through usertracking.view.
+     *
+     * usertracking is here because coreRegistry() says, in as many words,
+     * that the node has no `create` -- rows come from the fog-client's own
+     * endpoint, which is node `client` and permission-exempt, so nothing
+     * legitimate POSTs one. The generic CRUD routes offered create, join,
+     * update and delete on it anyway, on movement records for named people,
+     * reachable by any holder of '*'. Nothing in FOG called them; they
+     * existed because the route map expanded over every class without asking
+     * whether each one should be writable.
+     *
+     * An unmatched route is a 404, not a 403, and that is the honest answer:
+     * the operation does not exist rather than being withheld.
+     *
+     * OpenAPI::_paths() reads this too, so the document stops advertising
+     * the four verbs in the same commit that stops answering them.
+     *
+     * @var array
+     */
+    public static $readOnlyClasses = [
+        'usertracking'
+    ];
+    /**
+     * $validClasses minus the read-only ones, for the write routes.
+     *
+     * @return array
+     */
+    public static function writableClasses()
+    {
+        return array_values(
+            array_diff(
+                (array)self::$validClasses,
+                (array)self::$readOnlyClasses
+            )
+        );
+    }
+    /**
      * Initialize element.
      *
      * @return void
@@ -1032,6 +1073,12 @@ class Route extends FOGBase
             '/[%s:class]',
             implode('|', self::$validActiveTasks)
         );
+        // The four write verbs below expand over this, not $expanded: see
+        // $readOnlyClasses.
+        $expandedw = sprintf(
+            '/[%s:class]',
+            implode('|', self::writableClasses())
+        );
         self::$router->map(
             'HEAD|GET',
             '/system/[status|info]',
@@ -1060,7 +1107,7 @@ class Route extends FOGBase
             'unisearch'
         )->map(
             'PUT|POST',
-            "{$expanded}/join",
+            "{$expandedw}/join",
             [__CLASS__, 'joining'],
             'join'
         )->get(
@@ -1116,7 +1163,7 @@ class Route extends FOGBase
             [__CLASS__, 'logfiles'],
             'logfiles'
         )->put(
-            "{$expanded}/[i:id]/[update|edit]?",
+            "{$expandedw}/[i:id]/[update|edit]?",
             [__CLASS__, 'edit'],
             'update'
         )->post(
@@ -1132,7 +1179,7 @@ class Route extends FOGBase
             [__CLASS__, 'uploadSnapinFiles'],
             'uploadSnapinFiles'
         )->post(
-            "{$expanded}/[create|new]?",
+            "{$expandedw}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
         )->get(
@@ -1152,7 +1199,7 @@ class Route extends FOGBase
             [__CLASS__, 'cancel'],
             'cancel'
         )->delete(
-            "{$expanded}/[i:id]/[delete|remove]?",
+            "{$expandedw}/[i:id]/[delete|remove]?",
             [__CLASS__, 'delete'],
             'delete'
         );

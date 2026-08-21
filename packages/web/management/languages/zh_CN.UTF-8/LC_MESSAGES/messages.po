@@ -3392,6 +3392,9 @@ msgstr "主机是无效的"
 msgid "Host is not valid!"
 msgstr "主机是无效的"
 
+msgid "Host login records are kept forever"
+msgstr ""
+
 #, fuzzy
 msgid "Host name"
 msgstr "主机名"
@@ -4622,14 +4625,6 @@ msgstr "登录历史记录"
 #, fuzzy
 msgid "Login Success"
 msgstr "安装/升级成功！"
-
-#, fuzzy
-msgid "Login accepted"
-msgstr "加载失败： %s"
-
-#, fuzzy
-msgid "Login failed"
-msgstr "加载失败： %s"
 
 #, fuzzy
 msgid "Login successful!"
@@ -8313,6 +8308,9 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
+msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
 msgid "This servers ip(s)"
 msgstr ""
 
@@ -9673,9 +9671,6 @@ msgstr ""
 msgid "location url based on the host that checks in"
 msgstr ""
 
-msgid "logged in"
-msgstr ""
-
 #, fuzzy
 msgid "logout"
 msgstr "登出"
@@ -9979,6 +9974,9 @@ msgstr "删除组内的所有主机"
 msgid "to apply the update."
 msgstr "打印机更新！"
 
+msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
+msgstr ""
+
 #, fuzzy
 msgid "to clear the field on every host in this group."
 msgstr "|这不是主要组"
@@ -10034,10 +10032,6 @@ msgstr "用户登录失败"
 
 msgid "user successfully logged in"
 msgstr "用户成功登录"
-
-#, fuzzy
-msgid "username"
-msgstr "用户名"
 
 msgid "value is not in the required range"
 msgstr ""
@@ -10465,6 +10459,14 @@ msgstr ""
 #~ msgstr "列表中的所有%s"
 
 #, fuzzy
+#~ msgid "Login accepted"
+#~ msgstr "加载失败： %s"
+
+#, fuzzy
+#~ msgid "Login failed"
+#~ msgstr "加载失败： %s"
+
+#, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
 
@@ -10706,6 +10708,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
+
+#, fuzzy
+#~ msgid "username"
+#~ msgstr "用户名"
 
 #, fuzzy
 #~ msgid "version"

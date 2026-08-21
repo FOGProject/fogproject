@@ -840,6 +840,15 @@ class OpenAPI extends FOGBase
     {
         $ref = '#/components/schemas/' . self::schemaName($class);
         $paths = [];
+        // Route::$readOnlyClasses keeps the four write verbs off some
+        // classes, so the document has to drop the same four or it
+        // advertises operations that answer 404. Generated from the same
+        // list the router expands, not a second copy of it.
+        $writable = in_array(
+            $class,
+            array_map('strtolower', (array)Route::writableClasses()),
+            true
+        );
 
         $paths['/' . $class] = [
             'get' => self::_op(
@@ -851,7 +860,9 @@ class OpenAPI extends FOGBase
                 self::_listResponse($ref),
                 self::_listParameters()
             ),
-            'post' => self::_op(
+        ];
+        if ($writable) {
+            $paths['/' . $class]['post'] = self::_op(
                 $class,
                 'create',
                 sprintf(_('Create a %s'), $class),
@@ -859,8 +870,8 @@ class OpenAPI extends FOGBase
                 self::_entityResponse($ref, _('The created object.')),
                 [],
                 self::_entityBody($ref)
-            )
-        ];
+            );
+        }
 
         $paths['/' . $class . '/{id}'] = [
             'parameters' => [self::_idParameter()],
@@ -871,7 +882,9 @@ class OpenAPI extends FOGBase
                 _('Fields withheld from list responses are returned here.'),
                 self::_entityResponse($ref)
             ),
-            'put' => self::_op(
+        ];
+        if ($writable) {
+            $paths['/' . $class . '/{id}']['put'] = self::_op(
                 $class,
                 'update',
                 sprintf(_('Update a %s'), $class),
@@ -880,15 +893,15 @@ class OpenAPI extends FOGBase
                 self::_entityResponse($ref),
                 [],
                 self::_entityBody($ref)
-            ),
-            'delete' => self::_op(
+            );
+            $paths['/' . $class . '/{id}']['delete'] = self::_op(
                 $class,
                 'delete',
                 sprintf(_('Delete a %s'), $class),
                 _('Also reachable as /delete and /remove.'),
                 self::_messageResponse()
-            )
-        ];
+            );
+        }
 
         $paths['/' . $class . '/search/{item}'] = [
             'parameters' => [
@@ -958,17 +971,19 @@ class OpenAPI extends FOGBase
             )
         ];
 
-        $paths['/' . $class . '/join'] = [
-            'put' => self::_op(
-                $class,
-                'join',
-                sprintf(_('Create or update a %s by natural key'), $class),
-                _('Upserts against the association keys rather than an id.'),
-                self::_entityResponse($ref),
-                [],
-                self::_entityBody($ref)
-            )
-        ];
+        if ($writable) {
+            $paths['/' . $class . '/join'] = [
+                'put' => self::_op(
+                    $class,
+                    'join',
+                    sprintf(_('Create or update a %s by natural key'), $class),
+                    _('Upserts against the association keys rather than an id.'),
+                    self::_entityResponse($ref),
+                    [],
+                    self::_entityBody($ref)
+                )
+            ];
+        }
 
         if (in_array($class, $active, true)) {
             $paths['/' . $class . '/current'] = [
