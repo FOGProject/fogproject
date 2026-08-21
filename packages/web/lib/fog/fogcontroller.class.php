@@ -654,6 +654,82 @@ abstract class FOGController extends FOGBase
     }
 
     /**
+     * The row as it was READ, before anything set() touched it.
+     *
+     * Empty until load() fills it, and empty forever on an object that was
+     * built and saved without being read -- which is correct: there was no
+     * "before", and the diff against an empty snapshot reads as a create.
+     *
+     * Filled from data FOG has already paid for. load() SELECTs every column
+     * in one query, so this is an array copy of what is already in memory --
+     * measured at -0.0058 ms/op against a 0.79 ms object load, which is to
+     * say inside the noise. The alternative, re-reading the row before the
+     * write, measured +17.6% per edited object and could not be made
+     * consistent anyway: there are no transactions anywhere in packages/web
+     * or packages/service, so the re-read is of a row that may already have
+     * moved. See ADR 0021's Measurements section.
+     *
+     * @var array
+     */
+    protected $original = [];
+    /**
+     * Writes the auditChange rows for this save.
+     *
+     * Attaches to the header the authorization gate wrote for this request.
+     * NO HEADER MEANS NO CHANGE ROWS, on purpose: a change row with nothing
+     * saying who was allowed to make it is half a record, and the paths with
+     * no gate -- service/, reg-task/, the daemons -- get headers of their own
+     * in a later merge rather than orphaned detail now.
+     *
+     * The diff is restricted to keys this object actually set. A save writes
+     * every column it can resolve, so diffing the whole row would report
+     * every field of every object as changed-from-null on any path that did
+     * not load first.
+     *
+     * Values are NOT filtered here. Redaction decides, inside Audit, because
+     * a caller that decides for itself is exactly how a credential ends up in
+     * a log -- twice in one week, in two subsystems (ADR 0021 Context 4).
+     *
+     * @return void
+     */
+    private function _auditChanges()
+    {
+        $audit = Audit::current();
+        if (!$audit || $this->_isLogTable()) {
+            return;
+        }
+        $diff = [];
+        foreach (array_keys((array)$this->dirty) as $key) {
+            // Columns only. additionalFields and the objects built by
+            // databaseFieldClassRelationships are not storage, and an object
+            // has no meaningful before/after to write down.
+            if (!isset($this->databaseFields[$key])) {
+                continue;
+            }
+            $old = $this->original[$key] ?? null;
+            $new = $this->data[$key] ?? null;
+            if (is_object($old) || is_array($old)
+                || is_object($new) || is_array($new)
+            ) {
+                continue;
+            }
+            // Cast both, so null and '' are the same non-change: set() is
+            // called with either spelling all over the tree and neither is a
+            // fact worth a row.
+            if ((string)$old === (string)$new) {
+                continue;
+            }
+            $diff[$key] = [$old, $new];
+        }
+        if (count($diff) < 1) {
+            return;
+        }
+        Audit::changes($audit, $this, (int)$this->get('id'), $diff);
+        // This state is now the state of record. Without it a second save in
+        // the same request re-reports the first save's changes.
+        $this->original = $this->data;
+    }
+    /**
      * Is this model one of the tables that RECORDS what happened?
      *
      * A log table must not log its own writes. save() and destroy() call
@@ -941,6 +1017,9 @@ abstract class FOGController extends FOGBase
                 }
                 self::logHistory($msg);
             }
+            // After the row is known to have stored, and after its id
+            // exists: a change row pointing at subject 0 is worse than none.
+            $this->_auditChanges();
         } catch (\Exception $e) {
             if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
@@ -1122,6 +1201,14 @@ abstract class FOGController extends FOGBase
                 throw new \Exception((string) self::$DB->error);
             }
             $this->setQuery($vals);
+            // The audit "before", taken here because here is where the row
+            // exists in memory for free. FIRST read only: loadItem() calls
+            // load() again for a lazily-fetched key, and refreshing the
+            // snapshot then would fold changes already made into the
+            // baseline and report them as no change at all.
+            if (count($this->original) < 1) {
+                $this->original = $this->data;
+            }
         } catch (\Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
