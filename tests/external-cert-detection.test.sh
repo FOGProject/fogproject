@@ -139,6 +139,57 @@ else
     ok "J: detection never prompts"
 fi
 
+echo "== a FOG fullchain is not mistaken for somebody else's certificate =="
+
+# K. The shape that made an Alpine install unusable (#863), and which is not
+#    Alpine specific at all.
+#
+#    nginx has no separate chain directive, so what the vhost names -- and what
+#    _writeWebChainFiles produces -- is a FULLCHAIN: the leaf plus the Web CA
+#    intermediate that signed it. `openssl verify` reads only the FIRST
+#    certificate out of the file under test and ignores the rest, so signal 3
+#    checked the leaf with no intermediate to check it against unless
+#    $sslcachain happened to be set.
+#
+#    $sslcachain is settled LATER in createSSLCA and otherwise arrives from
+#    .fogsettings -- which an install that died before writeUpdateFile never
+#    wrote. Re-running such an install therefore reached this test with FOG's
+#    own fullchain and no chain variable, concluded the admin managed the
+#    certificate, and recorded acmeLeaf="yes" permanently. From then on FOG
+#    stops re-issuing and re-keying its own web certificate, silently.
+mkdir -p "$WORK/zoned"
+openssl req -newkey rsa:2048 -nodes -subj "/CN=FOG Web CA" \
+    -keyout "$WORK/zoned/int.key" -out "$WORK/zoned/int.csr" >/dev/null 2>&1
+printf 'basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n' \
+    > "$WORK/zoned/int.ext"
+openssl x509 -req -in "$WORK/zoned/int.csr" -CA "$WORK/ssl/ca.pem" -CAkey "$WORK/ssl/ca.key" \
+    -days 1 -extfile "$WORK/zoned/int.ext" -out "$WORK/zoned/int.pem" >/dev/null 2>&1
+openssl req -newkey rsa:2048 -nodes -subj "/CN=fog.example.org" \
+    -keyout "$WORK/zoned/leaf.key" -out "$WORK/zoned/leaf.csr" >/dev/null 2>&1
+openssl x509 -req -in "$WORK/zoned/leaf.csr" -CA "$WORK/zoned/int.pem" \
+    -CAkey "$WORK/zoned/int.key" -days 1 -out "$WORK/zoned/leaf.pem" >/dev/null 2>&1
+cat "$WORK/zoned/leaf.pem" "$WORK/zoned/int.pem" > "$WORK/zoned/fullchain.pem"
+
+reset_env
+sslpubcert="$WORK/zoned/fullchain.pem"
+sslcachain=""
+if _detectExternalCertManagement >/dev/null; then
+    bad "K: fired on FOG's own fullchain when \$sslcachain was empty"
+else
+    ok "K: a FOG-issued fullchain verifies using the chain it carries"
+fi
+
+# K2. And the intermediate really is load-bearing -- if the leaf alone were
+#     enough, K would pass for the wrong reason and pin nothing.
+reset_env
+sslpubcert="$WORK/zoned/leaf.pem"
+sslcachain=""
+if _detectExternalCertManagement >/dev/null; then
+    ok "K2: the bare leaf alone genuinely does not chain (K is a real test)"
+else
+    bad "K2: the bare leaf verified without its intermediate; K proves nothing"
+fi
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0

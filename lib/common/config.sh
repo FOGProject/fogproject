@@ -82,7 +82,12 @@ fog_udpversion="20250223"
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
-[[ -z $sqlserverlist ]] && sqlserverlist="mariadb-galera-server mariadb-server MariaDB-Galera-server MariaDB-server mysql-server"
+# "mariadb" is last deliberately. It is the SERVER package name on Alpine,
+# but on Fedora/RHEL it is the CLIENT -- which is why it also appears in
+# $sqlclientlist above. Every other distro here carries one of the earlier,
+# unambiguous *-server names, so pkgFirstAvailable settles on that one and
+# never reaches this entry; Alpine, which has none of them, does. See #863.
+[[ -z $sqlserverlist ]] && sqlserverlist="mariadb-galera-server mariadb-server MariaDB-Galera-server MariaDB-server mysql-server mariadb"
 command -v systemctl >>$error_log 2>&1
 exitcode=$?
 grep systemd /proc/1/comm >>$error_log 2>&1

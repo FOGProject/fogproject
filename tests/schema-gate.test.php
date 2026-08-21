@@ -41,11 +41,23 @@
  * a coarse gate and is allowed to run ahead of the count; only falling
  * behind breaks anything.
  *
- * The label would be a leaky proxy on its own -- an element appended with no
- * label at all would not raise the highest label, so the gate would still
- * look covered while the element stranded. So the second check below refuses
- * an unlabelled append. Together they close it: you cannot append without
- * labelling, and you cannot label above FOG_SCHEMA.
+ * The label would be a leaky proxy on its own, and it leaks in BOTH
+ * directions, so there are two structural checks below rather than one:
+ *
+ *   - An element appended with no label does not raise the highest label, so
+ *     the gate would look covered while the element stranded above it.
+ *   - A LABEL WITH NO ELEMENT raises the count without adding a step, which
+ *     puts FOG_SCHEMA permanently above the real array length. That is worse
+ *     than stranding a step: `mySchema < FOG_SCHEMA` can then never be
+ *     satisfied, so the updater has nothing left to apply and every page on
+ *     the server redirects to it forever. It is trivially easy to do -- write
+ *     the label, append the statements, and forget the `];` that closes the
+ *     step before it, and the new statements silently join the PREVIOUS step
+ *     while the label counts as a new one. That is exactly what happened
+ *     with `// 347` on 2026-08-21, and it broke three lab servers.
+ *
+ * Together they close it: you cannot append without labelling, and you cannot
+ * label without appending.
  *
  * Counting the array for real was tried and rejected. commons/schema.php can
  * be included against a stubbed $this and a fake DB, but it also wants ~35
@@ -57,6 +69,11 @@
  * Usage: php tests/schema-gate.test.php
  * Exit status 0 = pass, 1 = fail.
  */
+
+/**
+ * Labels below this name appends the text cannot see. See the check below.
+ */
+const HISTORICAL_SHAPES = 80;
 
 $root = dirname(__DIR__) . '/packages/web';
 $schemaFile = $root . '/commons/schema.php';
@@ -125,6 +142,58 @@ foreach ($lines as $i => $line) {
         $unlabelled[] = $i + 1;
     }
     $seenLabel = false;
+}
+
+/*
+ * No labels without appends. Every `// N` above HISTORICAL_SHAPES must be
+ * followed by a top-level `$this->schema[] =` before the next label.
+ *
+ * Bounded to the modern half of the file because three labels below it name
+ * appends the text cannot see, and all three are shapes that have not been
+ * used since index 80 and will not be again: `// 29`'s append is inside an
+ * `if`, `// 45 - 79 setup`'s is inside a foreach that writes 35 elements
+ * from one line, and `// 79` assigns by index rather than appending. Failing
+ * those three would teach the next person that this test is noise, which is
+ * how a guard stops guarding.
+ */
+$pendingLabel = null;
+$pendingLine = 0;
+$emptyLabels = [];
+foreach ($lines as $i => $line) {
+    if (preg_match('/^\/\/ (\d+)(?:\D.*)?$/', $line, $m)) {
+        if (null !== $pendingLabel
+            && (int)$pendingLabel >= HISTORICAL_SHAPES
+        ) {
+            $emptyLabels[] = $pendingLabel . ' (line ' . ($pendingLine + 1) . ')';
+        }
+        $pendingLabel = $m[1];
+        $pendingLine = $i;
+        continue;
+    }
+    if (preg_match('/^\$this->schema\[\] *=/', $line)) {
+        $pendingLabel = null;
+    }
+}
+if (null !== $pendingLabel && (int)$pendingLabel >= HISTORICAL_SHAPES) {
+    $emptyLabels[] = $pendingLabel . ' (line ' . ($pendingLine + 1) . ')';
+}
+
+if (count($emptyLabels)) {
+    fwrite(
+        STDERR,
+        'FAIL: ' . count($emptyLabels) . " step label(s) in commons/schema.php\n"
+        . "  are followed by no `\$this->schema[] =` append: "
+        . implode(', ', $emptyLabels) . ".\n"
+        . "  The label raises the step count that FOG_SCHEMA is checked\n"
+        . "  against, but no element exists, so FOG_SCHEMA ends up ABOVE\n"
+        . "  count(\$this->schema). `mySchema < FOG_SCHEMA` can then never\n"
+        . "  be satisfied: the updater has nothing left to apply and every\n"
+        . "  page on the server redirects to it, permanently.\n"
+        . "  The usual cause is a missing `];` closing the step before --\n"
+        . "  the new statements silently join the previous element while\n"
+        . "  the label counts as a new one.\n"
+    );
+    exit(1);
 }
 
 if (count($unlabelled)) {

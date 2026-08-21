@@ -295,7 +295,31 @@ class PDODB extends DatabaseManager
                     self::redirect('../management/index.php?node=schema');
                 }
             }
-            self::query("SET SESSION sql_mode=''");
+            /*
+             * GH-1245: no `SET SESSION sql_mode=''` here.
+             *
+             * That line arrived in 13661edb (May 2016) as "try to set sql_mode
+             * to non-strict which should allow 5.7 mysql to operate", and it
+             * shipped with a TARGETED mode commented out one line above it --
+             * one that kept STRICT_TRANS_TABLES. So even then the intent was
+             * not to disable validation; the blanket clear was the fallback.
+             *
+             * It stayed for nine years and meant every statement FOG issued
+             * ran with the server's checks off: truncations, out-of-range
+             * numerics and invalid enum members were all silently coerced and
+             * reported only as warnings nothing reads. That is how 83 of 86
+             * hosts on the maintainer's own server came to hold a zero
+             * `hostLastDeploy` on a MariaDB configured with
+             * STRICT_TRANS_TABLES, and how the ENUM error value got into 27
+             * columns.
+             *
+             * What actually needed fixing was FOGController::save(), which
+             * wrote '' for every unset optional field regardless of the
+             * column's type. emptyValueFor() now writes the value the server
+             * was coercing to anyway, so nothing here depends on the checks
+             * being off. Schema steps 344 and 345 repair the rows that were
+             * written while they were.
+             */
         } catch (\PDOException $e) {
             if ($dbexists) {
                 self::$_link = false;
@@ -538,6 +562,30 @@ class PDODB extends DatabaseManager
                 $this->sqlerror()
             );
             self::$_result = false;
+            /*
+             * $msg used to be built here and dropped on the floor: a failed
+             * fetch set no ->error, logged nothing, and left $_result false
+             * -- so get() answered an empty set and the caller could not tell
+             * "the read failed" from "there are no rows". That is the same
+             * defect GH-1257 fixed in FOGController::save() and load(), one
+             * layer down, and it is why those checks alone were not enough:
+             * they sat between query() and fetch(), covering a rejected
+             * STATEMENT and missing a rejected READ of its rows.
+             *
+             * Only ever ADDS a failure, never overwrites one. query() owns
+             * clearing ->error -- it runs immediately before every fetch()
+             * and always sets it to false or to a message -- so when a fetch
+             * fails BECAUSE the query did ("No query result, use query()
+             * first"), the guard keeps the original cause rather than
+             * replacing it with the symptom.
+             *
+             * Not logged from here. The callers know which class and table
+             * they were reading, and this does not; a line naming neither is
+             * worse than the caller's, and two lines per failure is noise.
+             */
+            if (!$this->error) {
+                $this->error = $msg;
+            }
 
             if (self::$throwOnQueryError) {
                 throw $e;

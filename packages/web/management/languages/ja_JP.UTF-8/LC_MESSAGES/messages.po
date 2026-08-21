@@ -290,6 +290,10 @@ msgid "A role with this name already exists!"
 msgstr "その名前のホストは既に存在します"
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "名前は必須です！"
+
+#, fuzzy
 msgid "A selected role no longer exists"
 msgstr "選択したプリンターを追加"
 
@@ -466,6 +470,14 @@ msgstr "実行中のタスク"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "有効"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "追加"
 
@@ -614,6 +626,10 @@ msgstr "キーを追加中"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "追加のアイコン要素"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "ホスト登録"
 
 msgid "Administrator"
 msgstr ""
@@ -879,6 +895,16 @@ msgstr "ping を試行しています"
 msgid "Attempting to ping host"
 msgstr "ping を試行しています"
 
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "Active Directory"
+
+msgid "Audit row was not stored"
+msgstr ""
+
 msgid "Authenticated but not permitted."
 msgstr ""
 
@@ -1137,6 +1163,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr "自身がグループマネージャーか確認しています"
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"
@@ -1183,6 +1213,10 @@ msgstr "スナップインを更新しました！"
 msgid "Capture"
 msgstr "キャプチャ"
 
+#, fuzzy
+msgid "Capture Complete"
+msgstr "エクスポートが完了しました"
+
 msgid "Captured"
 msgstr "キャプチャ済み"
 
@@ -1223,6 +1257,9 @@ msgstr "新しいロケーションを作成"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Changing a retention window requires the audit manage permission"
+msgstr ""
+
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
@@ -1256,6 +1293,10 @@ msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
+
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "このノードの FOGPage クラスが見つかりません"
 
 msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
@@ -1331,6 +1372,10 @@ msgstr ""
 
 msgid "Close"
 msgstr ""
+
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "タスクタイプの更新に失敗しました"
 
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
@@ -1497,6 +1542,10 @@ msgstr "CPU 数"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "CPU 数"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "ログインに失敗しました"
 
 msgid "Create"
 msgstr "作成"
@@ -1732,8 +1781,16 @@ msgid "Database Update Failed"
 msgstr "データベースの更新に失敗しました"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "データベースの保存に失敗しました"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "データベースを利用できません"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "データベースの保存に失敗しました"
 
 msgid "Database save failed"
 msgstr "データベースの保存に失敗しました"
@@ -1854,6 +1911,10 @@ msgstr "リモートファイルを削除しています"
 
 msgid "Deploy"
 msgstr "展開"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "ダウンロードに失敗しました"
 
 msgid "Deploy Method"
 msgstr "展開方法"
@@ -2157,6 +2218,10 @@ msgstr ""
 msgid "Every file was uploaded."
 msgstr "ファイルはアップロードされませんでした"
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "秘密鍵の処理に失敗しました"
+
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
 
@@ -2287,6 +2352,9 @@ msgstr "FTP 接続に失敗しました"
 
 msgid "FTP Path"
 msgstr "FTP パス"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 msgid "Failed"
 msgstr "失敗しました"
@@ -2602,6 +2670,9 @@ msgstr "空き"
 
 msgid "Friendly Name"
 msgstr "表示名"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -3002,6 +3073,18 @@ msgstr "ホーム"
 
 msgid "Host"
 msgstr "ホスト"
+
+#, fuzzy, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr "このホストは既に存在します"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr "このホストは既に存在します"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr "このホストは既に存在します"
 
 #, fuzzy
 msgid "Host Approval Success"
@@ -3509,6 +3592,10 @@ msgid "Imaging Duration"
 msgstr "イメージ処理時間"
 
 #, fuzzy
+msgid "Imaging Failed"
+msgstr "イメージ処理に失敗しました。"
+
+#, fuzzy
 msgid "Imaging History"
 msgstr "ホストイメージ履歴"
 
@@ -3828,6 +3915,10 @@ msgstr "無効なパス"
 
 msgid "Invalid product key supplied"
 msgstr "指定されたプロダクトキーが無効です"
+
+#, fuzzy
+msgid "Invalid retention identifier"
+msgstr "無効なスナップイン"
 
 msgid "Invalid scheduling type"
 msgstr "無効なスケジュールタイプです"
@@ -4422,6 +4513,10 @@ msgstr "選択したイメージを追加"
 msgid "Mark selected pending"
 msgstr "選択したスナップインを追加"
 
+#, fuzzy
+msgid "Mass update failed"
+msgstr "ホストの更新に失敗しました"
+
 msgid "Master Node"
 msgstr "マスターノード"
 
@@ -4782,6 +4877,10 @@ msgstr "このホストの実行中タスクは見つかりません"
 
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
+
+#, fuzzy
+msgid "No activity recorded yet"
+msgstr "完了時刻は記録されていません"
 
 #, fuzzy
 msgid "No archive was uploaded."
@@ -5247,6 +5346,9 @@ msgstr "その他タグ #1"
 
 msgid "Other Tag #2"
 msgstr "その他タグ #2"
+
+msgid "Outcome"
+msgstr ""
 
 msgid "PLUGIN OPTIONS"
 msgstr ""
@@ -5913,6 +6015,9 @@ msgstr "受信"
 msgid "Recent"
 msgstr "パーセント"
 
+msgid "Recent Activity"
+msgstr ""
+
 msgid "Record not found"
 msgstr "レコードが見つかりません"
 
@@ -5931,6 +6036,9 @@ msgstr ""
 #, fuzzy
 msgid "Refresh the settings cache"
 msgstr "FOG 設定"
+
+msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
 
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
@@ -6019,6 +6127,9 @@ msgstr "レポート管理"
 msgid "Reports"
 msgstr "レポート"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr "必須のデータベースフィールドが空です"
 
@@ -6044,6 +6155,16 @@ msgstr "結果"
 
 msgid "Resume Reload"
 msgstr ""
+
+msgid "Retention refused, audit row would not store"
+msgstr ""
+
+msgid "Retention removed rows from"
+msgstr ""
+
+#, fuzzy
+msgid "Retention sweep failed"
+msgstr "削除に失敗しました"
 
 msgid "Return Code"
 msgstr "戻りコード"
@@ -6143,7 +6264,7 @@ msgstr ""
 msgid "Rows in this page."
 msgstr "このイメージを含むノード"
 
-msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
 #, fuzzy
@@ -6824,6 +6945,9 @@ msgstr "そのため、リモートノード A に送信しようとしている
 msgid "Some nice description, should be short."
 msgstr "説明は必須です"
 
+msgid "Source"
+msgstr ""
+
 msgid "Space variable must be boolean"
 msgstr "Space 変数はブール値である必要があります"
 
@@ -7098,6 +7222,10 @@ msgid "String must be a string"
 msgstr "String は文字列で指定してください"
 
 #, fuzzy
+msgid "Subject"
+msgstr "オブジェクト"
+
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
 msgstr "グループの説明"
 
@@ -7221,8 +7349,16 @@ msgstr ""
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "有効"
+
 msgid "Table not defined for this class"
 msgstr "このクラスにテーブルが定義されていません"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "プラグインのインストールに失敗しました"
 
 #, fuzzy
 msgid "Tag Name"
@@ -7732,6 +7868,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "このホストは既に存在します"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "このホストは既に存在します"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -7934,7 +8082,7 @@ msgstr "合計ディスク容量"
 msgid "Total Memory"
 msgstr "合計メモリ"
 
-msgid "Total rows in the table, unfiltered."
+msgid "Total rows the caller may see, unfiltered. For a site-restricted user this is the total within their sites, not the server total."
 msgstr ""
 
 msgid "Transmit"
@@ -8492,6 +8640,9 @@ msgstr "バージョン"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 msgid "WOL Broadcast Management"
 msgstr "WOL ブロードキャスト管理"
 
@@ -8540,6 +8691,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "週単位"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8550,6 +8704,9 @@ msgstr "強制終了されました"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
 
@@ -8558,6 +8715,9 @@ msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -8689,6 +8849,10 @@ msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
 #, fuzzy
+msgid "an unnamed image"
+msgstr "無効なイメージ"
+
+#, fuzzy
 msgid "and below"
 msgstr "サブツリー以下"
 
@@ -8707,6 +8871,12 @@ msgstr "そしてマスターに設定します"
 #, fuzzy
 msgid "and the FOG client."
 msgstr "旧クライアント上"
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr "FOG がインターネットへ接続を試みるため"
@@ -8756,10 +8926,6 @@ msgstr "クライアント"
 
 msgid "clients"
 msgstr "クライアント"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "イメージ処理が完了しました。"
 
 msgid "confirm"
 msgstr ""
@@ -8817,6 +8983,9 @@ msgstr "有効"
 msgid "error"
 msgstr "エラー"
 
+msgid "every column on this table will be treated as untyped"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -8850,6 +9019,10 @@ msgstr "ドメイン名"
 
 msgid "for Microsoft Windows to images"
 msgstr "Microsoft Windows 用にイメージへ"
+
+#, fuzzy
+msgid "for user"
+msgstr "ユーザーを作成しますか？"
 
 msgid "found"
 msgstr "見つかりました"
@@ -8985,10 +9158,6 @@ msgstr "イメージ"
 
 msgid "images to a storage group"
 msgstr "イメージをストレージグループへ"
-
-#, fuzzy
-msgid "imaging failed"
-msgstr "イメージ処理に失敗しました。"
 
 #, fuzzy
 msgid "in"
@@ -9140,7 +9309,13 @@ msgstr ""
 msgid "no reason given"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "no response from server"
+msgstr ""
+
+msgid "no row id after save"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -9799,9 +9974,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "関連付けられたノードがありません"
-
-#~ msgid "Create user?"
-#~ msgstr "ユーザーを作成しますか？"
 
 #~ msgid "Cross platform"
 #~ msgstr "クロスプラットフォーム"
@@ -10689,17 +10861,11 @@ msgstr ""
 #~ msgid "New User"
 #~ msgstr "新しいユーザー"
 
-#~ msgid "No FOGPage Class found for this node"
-#~ msgstr "このノードの FOGPage クラスが見つかりません"
-
 #~ msgid "No Menu"
 #~ msgstr "メニューなし"
 
 #~ msgid "No Site"
 #~ msgstr "サイトなし"
-
-#~ msgid "No complete time recorded"
-#~ msgstr "完了時刻は記録されていません"
 
 #~ msgid "No connection available"
 #~ msgstr "利用可能な接続がありません"
@@ -11644,6 +11810,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "自分より前"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "イメージ処理が完了しました。"
 
 #~ msgid "config files that run on the client computers."
 #~ msgstr "クライアントコンピューター上で実行される設定ファイル。"

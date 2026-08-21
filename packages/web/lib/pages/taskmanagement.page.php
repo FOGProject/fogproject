@@ -564,6 +564,73 @@ class TaskManagement extends FOGPage
         );
     }
     /**
+     * The derived table every task-log query reads from.
+     *
+     * The row's own copy of the host and task type wins; the joins
+     * through `tasks` are the fallback for rows written before schema
+     * 341, and for state rows, which never carry one.
+     *
+     * That order is deliberate and not just a null-check: a report is a
+     * historical record, so the name the host had WHEN IT FAILED is the
+     * answer, not the name it has been renamed to since.
+     *
+     * The state a row records needs none of this -- taskLog stores
+     * taskStateID itself, so that join survives its task.
+     *
+     * `logHostID` still comes from the `hosts` join, because the grid
+     * links the name with it and a link to a deleted host is worse than
+     * no link. Resolving the join through the STORED id first is what
+     * keeps that link working once the task is gone but the host is not.
+     *
+     * `reportType` resolves the stored type name back to its icon;
+     * taskTypes.ttName is UNIQUE, so it matches at most one row.
+     *
+     * Its own method so tests/tasklog-report-retention.test.php can run the
+     * real statement rather than a copy of it that drifts.
+     *
+     * @return string a FROM clause with one %s for the derived table alias
+     */
+    private static function _logQueryFrom()
+    {
+        return "FROM (
+            SELECT `taskLog`.`id` AS `id`,
+                `taskLog`.`createTime` AS `logTime`,
+                `taskLog`.`createdBy` AS `logBy`,
+                `taskLog`.`logType` AS `logType`,
+                `taskLog`.`logText` AS `logText`,
+                `taskLog`.`taskID` AS `logTaskID`,
+                `taskStates`.`tsName` AS `logStateName`,
+                `taskStates`.`tsIcon` AS `logStateIcon`,
+                COALESCE(
+                    NULLIF(`taskLog`.`logTaskTypeName`, ''),
+                    `taskTypes`.`ttName`
+                ) AS `logTypeName`,
+                COALESCE(
+                    `reportType`.`ttIcon`,
+                    `taskTypes`.`ttIcon`
+                ) AS `logTypeIcon`,
+                `hosts`.`hostID` AS `logHostID`,
+                COALESCE(
+                    NULLIF(`taskLog`.`logHostName`, ''),
+                    `hosts`.`hostName`
+                ) AS `logHostName`
+            FROM `taskLog`
+            LEFT OUTER JOIN `taskStates`
+            ON `taskLog`.`taskStateID` = `taskStates`.`tsID`
+            LEFT OUTER JOIN `tasks`
+            ON `taskLog`.`taskID` = `tasks`.`taskID`
+            LEFT OUTER JOIN `taskTypes`
+            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
+            LEFT OUTER JOIN `taskTypes` AS `reportType`
+            ON `reportType`.`ttName` = NULLIF(`taskLog`.`logTaskTypeName`, '')
+            LEFT OUTER JOIN `hosts`
+            ON `hosts`.`hostID` = COALESCE(
+                `taskLog`.`logHostID`,
+                `tasks`.`taskHostID`
+            )
+        ) AS `%s`";
+    }
+    /**
      * Get the task log entries.
      *
      * Read through a derived table because taskLog and tasks both have
@@ -605,29 +672,7 @@ class TaskManagement extends FOGPage
             $where = "`logType` IN ('" . implode("','", $types) . "')";
         }
 
-        $from = "FROM (
-            SELECT `taskLog`.`id` AS `id`,
-                `taskLog`.`createTime` AS `logTime`,
-                `taskLog`.`createdBy` AS `logBy`,
-                `taskLog`.`logType` AS `logType`,
-                `taskLog`.`logText` AS `logText`,
-                `taskLog`.`taskID` AS `logTaskID`,
-                `taskStates`.`tsName` AS `logStateName`,
-                `taskStates`.`tsIcon` AS `logStateIcon`,
-                `taskTypes`.`ttName` AS `logTypeName`,
-                `taskTypes`.`ttIcon` AS `logTypeIcon`,
-                `hosts`.`hostID` AS `logHostID`,
-                `hosts`.`hostName` AS `logHostName`
-            FROM `taskLog`
-            LEFT OUTER JOIN `taskStates`
-            ON `taskLog`.`taskStateID` = `taskStates`.`tsID`
-            LEFT OUTER JOIN `tasks`
-            ON `taskLog`.`taskID` = `tasks`.`taskID`
-            LEFT OUTER JOIN `taskTypes`
-            ON `tasks`.`taskTypeID` = `taskTypes`.`ttID`
-            LEFT OUTER JOIN `hosts`
-            ON `tasks`.`taskHostID` = `hosts`.`hostID`
-        ) AS `%s`";
+        $from = self::_logQueryFrom();
         $logsSqlStr = "SELECT `%s` $from %s %s %s";
         $logsFilterStr = "SELECT COUNT(`%s`) $from %s";
         $logsTotalStr = "SELECT COUNT(`%s`) $from";

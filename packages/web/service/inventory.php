@@ -35,6 +35,19 @@ try {
     if (!FOGCore::$Host->isValid()) {
         throw new \Exception(_('Invalid Host'));
     }
+    // Before the fields are set, so the auditChange rows carry what moved.
+    // On a re-inventory that is the whole point: a swapped disk, a changed
+    // serial or a machine that came back as different hardware is exactly
+    // the kind of thing this endpoint is asked about after the fact, and
+    // the inventory row itself only ever holds the latest answer.
+    Audit::record([
+        'type' => 'host.inventory',
+        'authSource' => Audit::SOURCE_ANONYMOUS,
+        'subjectType' => 'host',
+        'subjectID' => (int)FOGCore::$Host->get('id'),
+        'subjectLabel' => (string)FOGCore::$Host->get('name'),
+        'renderable' => 1
+    ]);
     $Inventory = FOGCore::$Host->get('inventory');
     if (!$Inventory instanceof Inventory
         || !$Inventory->isValid()
@@ -127,6 +140,7 @@ try {
             ->set('hdserial', $hdserial);
     }
     if (!$Inventory->save()) {
+        Audit::markOutcome(Audit::FAILED);
         throw new \Exception(
             _('Failed to create inventory for this host')
         );

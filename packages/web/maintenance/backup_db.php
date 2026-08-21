@@ -35,7 +35,7 @@ if ($_remoteIp !== '127.0.0.1'
 unset($_remoteIp, $_serverIp);
 
 $backup_name = 'fog_backup_'
-    . FOGCore::formatTime('', 'Ymd_His');
+    . FOGCore::formatTime('now', 'Ymd_His');
 $tmpfile = '/tmp/' . $backup_name;
 $data = '';
 FOGCore::getClass('Mysqldump')->start($tmpfile);

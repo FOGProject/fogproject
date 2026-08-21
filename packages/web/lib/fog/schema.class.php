@@ -199,7 +199,7 @@ class Schema extends FOGController
         if (!$backup_name) {
             $backup_name = sprintf(
                 'fog_backup_%s.sql',
-                self::formatTime('', 'Ymd_His')
+                self::formatTime('now', 'Ymd_His')
             );
         }
         $dump = self::getClass('Mysqldump');

@@ -729,9 +729,11 @@ class OpenAPI extends FOGBase
      * Field meanings that are not obvious from the name, and that a client
      * gets wrong at its peril:
      *
-     * - recordsFiltered is the true filtered total, but the site plugin
-     *   rewrites it to the post-scoping count for site-restricted users, so
-     *   it is a floor rather than a total for those callers.
+     * - recordsFiltered and recordsTotal are computed over the rows the
+     *   CALLER may see. A site-restricted user's counts describe their own
+     *   scope, not the server's contents. Both are real totals for them --
+     *   they used to be a page-sized floor, because the boundary was applied
+     *   to the rows after the database had already chosen the page.
      * - truncated is set only when the server imposed its own MAX_ROWS cap,
      *   which never happens once a caller sends explicit start/length.
      *
@@ -753,14 +755,18 @@ class OpenAPI extends FOGBase
                 'draw' => ['type' => 'integer'],
                 'recordsTotal' => [
                     'type' => 'integer',
-                    'description' => _('Total rows in the table, unfiltered.')
+                    'description' => _(
+                        'Total rows the caller may see, unfiltered. For a '
+                        . 'site-restricted user this is the total within their '
+                        . 'sites, not the server total.'
+                    )
                 ],
                 'recordsFiltered' => [
                     'type' => 'integer',
                     'description' => _(
-                        'Rows matching the filter. Rewritten to the post-scoping '
-                        . 'count for site-restricted users, so treat it as a floor '
-                        . 'rather than a total.'
+                        'Rows matching the filter, within what the caller may '
+                        . 'see. A real total, including for site-restricted '
+                        . 'users.'
                     )
                 ],
                 'recordsReturned' => [

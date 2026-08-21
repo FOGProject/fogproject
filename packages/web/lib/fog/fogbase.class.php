@@ -852,6 +852,70 @@ abstract class FOGBase
         $txt,
         $data
     ) {
+        /*
+         * GH-1245: logging must never depend on logging.
+         *
+         * getSetting() below issues a query. PDODB's own error handling calls
+         * debug() -- sqlerror() does, on every failed fetch -- so one failed
+         * statement used to run:
+         *
+         *   fetch() -> sqlerror() -> debug() -> _writeLog() -> getSetting()
+         *     -> query()/fetch() -> sqlerror() -> debug() -> ...
+         *
+         * unbounded, until the PHP worker died on memory. Nothing reported the
+         * original error, because the process never got back to report it.
+         *
+         * It stayed hidden because PDODB cleared sql_mode on every connection,
+         * so statements almost never failed. It was never really about
+         * sql_mode though: a locked table, a lost connection or a permission
+         * change would have done it just as well.
+         *
+         * Re-entry is dropped rather than deferred. A log line produced while
+         * writing a log line describes the logger, not the request.
+         */
+        static $inWriteLog = false;
+        if ($inWriteLog) {
+            return;
+        }
+        $inWriteLog = true;
+
+        try {
+            self::_writeLogLine(
+                $label,
+                $setting,
+                $prefix,
+                $cssClass,
+                $show,
+                $txt,
+                $data
+            );
+        } finally {
+            $inWriteLog = false;
+        }
+    }
+
+    /**
+     * The body of _writeLog(), which is only ever reached non-reentrantly.
+     *
+     * @param string $label    the level label, e.g. 'ERROR'
+     * @param string $setting  the FOG_LOG_* setting gating file output
+     * @param string $prefix   the log filename prefix, e.g. 'error_log'
+     * @param string $cssClass the css class for the printed div
+     * @param bool   $show     whether this level prints to the page
+     * @param string $txt      the string to use
+     * @param array  $data     the data if txt is a formatted string
+     *
+     * @return void
+     */
+    private static function _writeLogLine(
+        $label,
+        $setting,
+        $prefix,
+        $cssClass,
+        $show,
+        $txt,
+        $data
+    ) {
         $data = self::_setString($txt, $data);
         $date = self::niceDate();
         $string = sprintf(
@@ -897,6 +961,227 @@ abstract class FOGBase
             $txt,
             $data
         );
+    }
+    /**
+     * The subdirectory of FOG's log directory that fault lines are written to.
+     *
+     * Its own subdirectory rather than the top level, for the reason ADR 0010
+     * gives for the plugin runner's and TaskError's: rotation renames and
+     * unlinks, and the top level is root's -- the eight daemons' logs live
+     * there and nothing running as the web user should be able to remove
+     * them.
+     *
+     * @var string
+     */
+    const FAULT_LOG_SUBDIR = 'faults';
+    /**
+     * How big a fault log may get before one old copy is kept, in bytes.
+     *
+     * A literal, NOT the SERVICE_LOG_SIZE setting the daemons and
+     * TaskError::_rotate() use, and that is the whole point: getSetting()
+     * issues a query, and the thing being reported here is a query that just
+     * failed. See logFault()'s docblock.
+     *
+     * One generation rather than the daemons' five. This file gains a line
+     * per failed write; on a healthy server it never gets a line at all.
+     *
+     * @var int
+     */
+    const FAULT_LOG_MAX = 10485760;
+    /**
+     * How long a single fault line may get, in bytes, before it is cut.
+     *
+     * A backstop, not the main defence: logFault() drops PDODB's debug tail
+     * outright (see there). This catches what has no tail to drop -- a
+     * driver message that is itself enormous, or a caller that built its
+     * own. One fault stays one readable line either way.
+     *
+     * @var int
+     */
+    const FAULT_LINE_MAX = 2048;
+    /**
+     * Records that something FOG needed to write did not get written.
+     *
+     * The failure sink of last resort, and deliberately the only logger here
+     * that asks nobody's permission to run.
+     *
+     * WHY THIS EXISTS AT ALL. FOGController::save() and destroy() recorded a
+     * failed write by calling logHistory(), which returns without doing
+     * anything unless self::$FOGUser is a valid User. Nothing on a machine
+     * -facing path ever sets one -- packages/web/service/, lib/reg-task/ and
+     * the eight daemons are matched to a HOST by MAC or token, and the
+     * daemons have no request at all -- so on every one of those paths the
+     * failure branch ran and wrote nowhere. debug() and error() were no
+     * better: both only reach a file when FOG_LOG_DEBUG / FOG_LOG_ERROR are
+     * non-zero, and schema step 280 ships them at '0'. The framework
+     * recorded failures for humans and discarded them for machines.
+     *
+     * WHY A FILE AND NOT A TABLE. logHistory() writes a row, so it shares its
+     * failure mode with the thing it is reporting on: a lost connection, a
+     * locked table or a full disk takes out the report along with the write.
+     * A sink for a failed database write cannot itself be a database write.
+     * That -- not the user gate -- is the structural reason this is not
+     * simply logHistory() with the gate widened. The user gate is correct
+     * where it is: `history` is the audit trail, "who did what", and nobody
+     * did this.
+     *
+     * THREE THINGS IT MUST NOT DO, each earned:
+     *
+     *   No getSetting(), for the path or the rotation size or anything else.
+     *     getSetting() issues a query. PDODB's error handling calls debug(),
+     *     and GH-1245 has the transcript of what that costs: fetch() ->
+     *     sqlerror() -> debug() -> getSetting() -> query() -> sqlerror() ->
+     *     ... until the worker died with nothing reported. FAULT_LOG_MAX is
+     *     a literal for exactly this reason.
+     *
+     *   Not routed through _writeLog(). Its re-entry guard DROPS the line
+     *     rather than deferring it, which is right for a debug line and
+     *     fatal here: a save that failed while a log line was being written
+     *     would be the one report thrown away.
+     *
+     *   Never gated on a setting. An operator turning FOG_LOG_DEBUG off is
+     *     saying "stop telling me what is working", not "stop telling me
+     *     what broke".
+     *
+     * error_log() is the fallback, not the destination, and it is
+     * load-bearing rather than tidiness. The directory is the installer's,
+     * so a server whose web tree has been updated but which has not been
+     * re-installed has nowhere to write yet -- and PHP's own channel is
+     * already pointed somewhere useful in both tiers: service_lib.php sets
+     * error_log to servicemaster.log for the daemons, and the web tier's
+     * php-fpm log is one FOGLogPaths::readable() already offers the Log
+     * Viewer.
+     *
+     * IF THE LOG-TABLE / AUDIT / SPAN ADRs LAND: this gains a second
+     * destination, a best-effort row written AFTER the file line and never
+     * instead of it. The file write stays whatever else arrives, because at
+     * the moment this is called the database is the untrusted party. One
+     * function to change; do not tidy the file away.
+     *
+     * @param string $message what did not get written, and why
+     *
+     * @return void
+     */
+    public static function logFault($message)
+    {
+        // Same shape as _writeLog()'s guard and for the same reason, except
+        // that nothing here can re-enter through the database. It covers the
+        // one real case: logFault() failing on its own file write.
+        static $inFault = false;
+        if ($inFault) {
+            return;
+        }
+        $inFault = true;
+
+        try {
+            /*
+             * Drop PDODB's debug tail BEFORE anything else looks at the
+             * message. Its error text always appends
+             * "\nSQL: ...\nParams: ...\nErrorInfo: ...\nDebug: ..."
+             * (pdodb.class.php, both sqlerror() formats), and the Params and
+             * Debug sections print every BOUND VALUE of the statement that
+             * failed. On `users` that is the password hash, on `hosts` the
+             * client security token, on `nfsGroupMembers` the storage node's
+             * FTP password -- the credential GHSA-2hqx turns into root.
+             *
+             * That was survivable while this text only ever reached
+             * logHistory(), which is user-gated and so dropped it on exactly
+             * the machine paths that fail most, and debug(), which ships
+             * off. It is NOT survivable in a file written unconditionally on
+             * every failed write, and readable by any local account. What an
+             * operator actually needs is the part before the tail: the
+             * driver, the SQLSTATE and the message.
+             */
+            $raw = (string) $message;
+            foreach (array("\nSQL: ", "\nParams: ", "\nErrorInfo: ", "\nDebug: ") as $marker) {
+                $tail = strpos($raw, $marker);
+                if (false !== $tail) {
+                    $raw = substr($raw, 0, $tail);
+                }
+            }
+            // One line per fault, so `tail -f` on this file is readable and
+            // a multi-line message cannot be mistaken for several faults.
+            $flat = preg_replace('#\s+#', ' ', $raw);
+            // Never let a message become an empty one. preg_replace returns
+            // null when it gives up, and a (string) cast of that is '', which
+            // the guard below would then throw away -- losing the one record
+            // this method exists to keep. The pattern carries no /u, so it
+            // works bytewise and invalid UTF-8 cannot trip it; this covers
+            // whatever else might.
+            $line = trim(null === $flat ? $raw : $flat);
+            if ('' === $line) {
+                return;
+            }
+            if (strlen($line) > self::FAULT_LINE_MAX) {
+                $line = substr($line, 0, self::FAULT_LINE_MAX) . ' [truncated]';
+            }
+            $stamped = sprintf(
+                '[%s] %s%s',
+                self::niceDate()->format('Y-m-d H:i:s'),
+                $line,
+                PHP_EOL
+            );
+            $file = self::_faultLogPath();
+            if ('' !== $file) {
+                self::_rotateFaultLog($file);
+                if (false !== @file_put_contents($file, $stamped, FILE_APPEND)) {
+                    return;
+                }
+            }
+            error_log($line);
+        } finally {
+            $inFault = false;
+        }
+    }
+    /**
+     * The fault log's path, or '' if there is nowhere to write.
+     *
+     * Split by SAPI, into faults-web.log and faults-service.log. This is the
+     * one FOG log directory written by BOTH tiers -- the web user, and root
+     * for the eight daemons -- and a single shared file would be owned by
+     * whichever wrote first. A root-owned file appears the moment any daemon
+     * hits a failed write, and from then on every web-tier fault would fall
+     * silently to error_log(). Silently diverting to a worse destination is
+     * the exact failure this whole path exists to end, so the two writers get
+     * two files instead.
+     *
+     * The directory is never created here. It is the installer's, which gives
+     * it to the web user with the right SELinux label (GH-964: /opt/fog
+     * inherits usr_t and httpd_t may read it but not write it, so an
+     * unlabelled mkdir would produce a directory that looks right and
+     * silently swallows every write on an enforcing host).
+     *
+     * @return string
+     */
+    private static function _faultLogPath()
+    {
+        if (!defined('FOG_LOG_DIR')) {
+            return '';
+        }
+        $dir = rtrim(FOG_LOG_DIR, DS) . DS . self::FAULT_LOG_SUBDIR;
+        if (!is_dir($dir) || !is_writable($dir)) {
+            return '';
+        }
+
+        return $dir . DS . sprintf(
+            'faults-%s.log',
+            'cli' === PHP_SAPI ? 'service' : 'web'
+        );
+    }
+    /**
+     * Keeps one old copy once the fault log passes FAULT_LOG_MAX.
+     *
+     * @param string $file the fault log
+     *
+     * @return void
+     */
+    private static function _rotateFaultLog($file)
+    {
+        $size = @filesize($file);
+        if (false === $size || $size < self::FAULT_LOG_MAX) {
+            return;
+        }
+        @rename($file, $file . '.1');
     }
     /**
      * Prints debug.
@@ -1333,6 +1618,31 @@ abstract class FOGBase
      */
     public static function niceDate($date = 'now', $utc = false)
     {
+        /*
+         * GH-1245: an empty value means "this never happened", not "now".
+         *
+         * new \DateTime('') and new \DateTime(null) both return the CURRENT
+         * time, so a date column holding no value renders as a real
+         * timestamp. That has stayed hidden because FOGController::save()
+         * writes '' into date columns and PDODB clears sql_mode on every
+         * connection, so the server coerces it to '0000-00-00 00:00:00' --
+         * and THAT parses to year -0001, which validDate() rejects and
+         * formatTime() renders as "No Data". The empty case is only reached
+         * by the columns that are already nullable, where it is wrong today:
+         * a NULL tasks.stateChangedTime currently shows the current time in
+         * the task grid.
+         *
+         * Mapping empty onto the same zero date makes the two spellings of
+         * "no value" render identically, which is also what lets the columns
+         * move to NULL without the display changing -- FOGController::get()
+         * hands back '' for a NULL column, because isset() is false for null.
+         *
+         * Callers that genuinely want the current time pass 'now', which is
+         * this method's own default.
+         */
+        if (null === $date || (is_string($date) && '' === trim($date))) {
+            $date = '0000-00-00 00:00:00';
+        }
         //we could optionally just catch 'No Data' or any !validDate dates and change them to now
         // if ($date !== 'now' && (!self::validDate($date))) {
         //      $date = 'now';
@@ -3590,7 +3900,65 @@ abstract class FOGBase
             if (class_exists($className, false)) {
                 continue;
             }
-            self::getClass($className);
+            // The file list is a TTL-cached snapshot (Initiator::
+            // classFileList), so it is ALLOWED to be stale -- that is the
+            // documented design, and forgetClassFileList() exists because of
+            // it. This was the one consumer that treated staleness as fatal:
+            // a file named by the cache and since removed produced an
+            // include_once warning and then an uncaught ReflectionException
+            // out of getClass(), which is a bodyless 500 on every page of the
+            // site for the rest of the TTL.
+            //
+            // Not hypothetical. An install swaps the whole of lib/plugins for
+            // a new pinned release; if that release drops a hook -- ldap lost
+            // addldapapi.hook.php in fog-plugins v1.6.11 -- every request in
+            // the remaining TTL window dies in LoadGlobals, and the installer
+            // reports "Checking web server serves FOG ... Failed!" with an
+            // empty body. It then heals itself, which is why it reads as a
+            // flaky install rather than a bug.
+            //
+            // Skipped and logged rather than swallowed: a listener that does
+            // not load is a feature that silently stops happening, so it has
+            // to leave a trace.
+            //
+            // error_log(), not self::error(). _writeLog() is gated on
+            // `self::$mySchema >= FOG_SCHEMA` and on a globalSettings lookup,
+            // and this runs inside LoadGlobals during an install -- which is
+            // to say it would be silently dropped in exactly the situation it
+            // exists to report. The PHP error log is also where the fatal
+            // this replaces showed up, so both lines land in one place for
+            // whoever is reading. Precedent: authorization.class.php,
+            // hostmanager.class.php.
+            if (!is_file($file)) {
+                error_log(
+                    sprintf(
+                        'FOG startClassFromFiles: %s is in the cached class'
+                        . ' file list but no longer exists; skipping %s.'
+                        . ' Harmless if a plugin was just updated -- the list'
+                        . ' refreshes on its own.',
+                        $file,
+                        $className
+                    )
+                );
+                continue;
+            }
+            // Second guard, different cause: the file is present but does not
+            // declare the class its name promises. Same consequence if it
+            // throws here -- the whole boot dies -- and the same reasoning
+            // applies, so it is reported rather than fatal.
+            try {
+                self::getClass($className);
+            } catch (\ReflectionException $e) {
+                error_log(
+                    sprintf(
+                        'FOG startClassFromFiles: %s does not declare %s'
+                        . ' (%s); skipping it.',
+                        $file,
+                        $className,
+                        $e->getMessage()
+                    )
+                );
+            }
             unset($file);
         }
     }

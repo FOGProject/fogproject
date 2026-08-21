@@ -450,6 +450,307 @@ abstract class FOGController extends FOGBase
         return $this;
     }
     /**
+     * Column types per table, from commons/schema-expected.php.
+     *
+     * Null until first asked for; built once per request.
+     *
+     * @var array|null
+     */
+    private static $columnTypes = null;
+
+    /**
+     * The declared SQL type of a column, or '' when it is not in the manifest.
+     *
+     * commons/schema-expected.php carries per-column types and is what
+     * OpenAPI::_entitySchema() reads for the same question, so this adds no
+     * new source of truth. A missing or unreadable manifest returns '', which
+     * emptyValueFor() treats as "assume a string column" -- the behaviour that
+     * shipped before any of this.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return string
+     */
+    protected static function columnType($table, $column)
+    {
+        if (null === self::$columnTypes) {
+            self::$columnTypes = [];
+            $manifest = SchemaReconciler::manifest();
+            $tables = isset($manifest['tables']) && is_array($manifest['tables'])
+                ? $manifest['tables']
+                : [];
+            foreach ($tables as $tName => $tDef) {
+                if (!isset($tDef['columns']) || !is_array($tDef['columns'])) {
+                    continue;
+                }
+                foreach ($tDef['columns'] as $cName => $cType) {
+                    self::$columnTypes[strtolower($tName)][strtolower($cName)]
+                        = trim($cType);
+                }
+            }
+        }
+        $t = strtolower($table);
+        if (!isset(self::$columnTypes[$t])) {
+            self::_loadPluginColumnTypes($t);
+        }
+        return self::$columnTypes[$t][strtolower($column)] ?? '';
+    }
+
+    /**
+     * Loads one table's columns from the server's own catalog.
+     *
+     * commons/schema-expected.php describes core's 67 tables and nothing
+     * else, so a plugin's table is not in it -- and GH-1245's first cut
+     * therefore answered '' for every plugin column, which is precisely the
+     * bug it set out to fix. That was invisible while PDODB cleared sql_mode;
+     * with the clear gone the server refuses the write instead of coercing
+     * it, so saving an LDAP server without a port is error 1366 rather than a
+     * silently stored 0. On the maintainer's own 1.6 install that is 18
+     * tables, 16 enum/set and 44 integer columns.
+     *
+     * Not solved by adding plugin tables to the manifest: the manifest is
+     * generated from core's schema and the reconciler uses it to decide what
+     * to CREATE, so a plugin table listed there would be created for
+     * everyone whether the plugin is installed or not.
+     *
+     * Asked once per table per request, and only for a table the manifest
+     * does not cover -- core never gets here. An empty result is cached too,
+     * so a table that genuinely does not exist is asked about once and then
+     * behaves exactly as it did before this method existed.
+     *
+     * The definition is rebuilt as "<type> NOT NULL" rather than returned
+     * raw, so columnIsNullable() reads it with the same regex it applies to
+     * the manifest's strings and there is only one notion of "nullable".
+     *
+     * @param string $table the table, already lowercased
+     *
+     * @return void
+     */
+    private static function _loadPluginColumnTypes($table)
+    {
+        self::$columnTypes[$table] = [];
+        try {
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty`, "
+                . "`IS_NULLABLE` AS `n` FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table",
+                [],
+                [':table' => $table]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        } catch (\Exception $e) {
+            // A catalog FOG cannot read leaves every column looking unknown,
+            // which is the behaviour that shipped before GH-1245 rather than
+            // a broken one.
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Column type lookup failed'),
+                    _('Table'),
+                    $table,
+                    _('Error'),
+                    $e->getMessage()
+                )
+            );
+            return;
+        }
+        /*
+         * The degradation is deliberate, the SILENCE was not. PDODB swallows
+         * a rejected statement, so this never reached the catch above on a
+         * real error -- it cached an empty type map and every column on the
+         * table went back to being untyped, which is exactly the GH-1245 bug
+         * this method exists to prevent, reappearing with nothing said.
+         *
+         * Behaviour is unchanged: still an empty map, still asked once per
+         * table per request. Only now it is written down.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Table'),
+                    $table,
+                    _('Error'),
+                    self::$DB->error,
+                    _('every column on this table will be treated as untyped')
+                )
+            );
+            return;
+        }
+        foreach ((array) $rows as $row) {
+            if (!isset($row['c'], $row['ty'])) {
+                continue;
+            }
+            self::$columnTypes[$table][strtolower($row['c'])] = trim($row['ty'])
+                . (isset($row['n']) && strtoupper($row['n']) === 'NO' ? ' NOT NULL' : '');
+        }
+    }
+
+    /**
+     * Can this column hold NULL?
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return bool
+     */
+    protected static function columnIsNullable($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        return '' !== $type && !preg_match('/\bNOT\s+NULL\b/i', $type);
+    }
+
+    /**
+     * What an unset optional field should actually be written as.
+     *
+     * GH-1245. save() used to write '' for every unset optional field whose
+     * key does not end in "id". '' is a value only a string column can hold.
+     * Everywhere else the server either refuses it under a strict sql_mode or
+     * coerces it without one, and FOG only ever saw the second, because
+     * PDODB::_connect() cleared sql_mode on every connection. So this is not
+     * new behaviour being introduced -- it is the coercion the server was
+     * already performing, written down and made legal:
+     *
+     *   date/time  ->  NULL          (was '0000-00-00 00:00:00')
+     *   integer    ->  0             (was 0, via error 1366 downgraded)
+     *   enum/set   ->  first member  (was '', the error value at index 0)
+     *   anything   ->  ''            (unchanged; '' is a real value here)
+     *
+     * The integer and enum choices deliberately match the coercion rather
+     * than the column's DEFAULT. `hosts.hostEnforce` is declared
+     * DEFAULT '1' and 73 of 86 rows on the maintainer's server hold '' --
+     * so honouring the default would silently turn enforcement ON for those
+     * hosts as a side effect of a storage fix. '' and '0' are both falsey in
+     * PHP, so the first enum member behaves as the error value already did.
+     *
+     * The column's TYPE is the only reliable way to tell these apart; the
+     * key's name is not, which is the lesson $databaseFieldsNotInt already
+     * exists for.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return mixed the value to write; null means a real SQL NULL
+     */
+    protected static function emptyValueFor($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        if ('' === $type) {
+            return '';
+        }
+        if (preg_match('/^(datetime|timestamp|date)\b/i', $type)) {
+            return null;
+        }
+        if (preg_match('/^(tiny|small|medium|big)?int\b/i', $type)) {
+            return 0;
+        }
+        if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $match)) {
+            return str_replace("''", "'", $match[2]);
+        }
+
+        return '';
+    }
+
+    /**
+     * The row as it was READ, before anything set() touched it.
+     *
+     * Empty until load() fills it, and empty forever on an object that was
+     * built and saved without being read -- which is correct: there was no
+     * "before", and the diff against an empty snapshot reads as a create.
+     *
+     * Filled from data FOG has already paid for. load() SELECTs every column
+     * in one query, so this is an array copy of what is already in memory --
+     * measured at -0.0058 ms/op against a 0.79 ms object load, which is to
+     * say inside the noise. The alternative, re-reading the row before the
+     * write, measured +17.6% per edited object and could not be made
+     * consistent anyway: there are no transactions anywhere in packages/web
+     * or packages/service, so the re-read is of a row that may already have
+     * moved. See ADR 0021's Measurements section.
+     *
+     * @var array
+     */
+    protected $original = [];
+    /**
+     * Writes the auditChange rows for this save.
+     *
+     * Attaches to the header the authorization gate wrote for this request.
+     * NO HEADER MEANS NO CHANGE ROWS, on purpose: a change row with nothing
+     * saying who was allowed to make it is half a record, and the paths with
+     * no gate -- service/, reg-task/, the daemons -- get headers of their own
+     * in a later merge rather than orphaned detail now.
+     *
+     * The diff is restricted to keys this object actually set. A save writes
+     * every column it can resolve, so diffing the whole row would report
+     * every field of every object as changed-from-null on any path that did
+     * not load first.
+     *
+     * Values are NOT filtered here. Redaction decides, inside Audit, because
+     * a caller that decides for itself is exactly how a credential ends up in
+     * a log -- twice in one week, in two subsystems (ADR 0021 Context 4).
+     *
+     * @return void
+     */
+    private function _auditChanges()
+    {
+        $audit = Audit::current();
+        if (!$audit || $this->_isLogTable()) {
+            return;
+        }
+        $diff = [];
+        foreach (array_keys((array)$this->dirty) as $key) {
+            // Columns only. additionalFields and the objects built by
+            // databaseFieldClassRelationships are not storage, and an object
+            // has no meaningful before/after to write down.
+            if (!isset($this->databaseFields[$key])) {
+                continue;
+            }
+            $old = $this->original[$key] ?? null;
+            $new = $this->data[$key] ?? null;
+            if (is_object($old) || is_array($old)
+                || is_object($new) || is_array($new)
+            ) {
+                continue;
+            }
+            // Cast both, so null and '' are the same non-change: set() is
+            // called with either spelling all over the tree and neither is a
+            // fact worth a row.
+            if ((string)$old === (string)$new) {
+                continue;
+            }
+            $diff[$key] = [$old, $new];
+        }
+        if (count($diff) < 1) {
+            return;
+        }
+        Audit::changes($audit, $this, (int)$this->get('id'), $diff);
+        // This state is now the state of record. Without it a second save in
+        // the same request re-reports the first save's changes.
+        $this->original = $this->data;
+    }
+    /**
+     * Is this model one of the tables that RECORDS what happened?
+     *
+     * A log table must not log its own writes. save() and destroy() call
+     * logHistory() on success and on failure, so without this a History row
+     * would write a History row -- and, since ADR 0021, an auditLog row would
+     * write a History row for every audited action, doubling the volume of
+     * the table the audit trail exists to replace.
+     *
+     * Was four separate `!$this instanceof History` checks. Named, because
+     * the reason is a property of the class and not an accident of which
+     * classes happened to be excluded.
+     *
+     * @return bool
+     */
+    private function _isLogTable()
+    {
+        return $this instanceof History
+            || $this instanceof AuditLog
+            || $this instanceof AuditChange;
+    }
+    /**
      * Stores data into the database.
      *
      * @return bool|object
@@ -494,6 +795,11 @@ abstract class FOGController extends FOGBase
 
                 $val = $this->get($key);
 
+                // GH-1245: set when an empty value has to reach the database
+                // as a real SQL NULL rather than being omitted from the
+                // statement. See the null guard below the switch.
+                $writeNull = false;
+
                 // Primary key 'id': allow null/empty/0 so DB auto-increments.
                 // If it's not a valid positive int, we exclude it from INSERT/UPDATE.
                 if (strtolower($key) === 'id') {
@@ -525,7 +831,24 @@ abstract class FOGController extends FOGBase
                     } else {
                         // Optional *id: allow empty -> NULL; if present, require integer >= 1
                         if ($isEmpty) {
-                            $val = null;
+                            /*
+                             * GH-1245: a null value is omitted from the
+                             * statement further down, which is right for a
+                             * nullable column -- the server stores NULL. For a
+                             * NOT NULL one it is error 1364, "field doesn't
+                             * have a default value", on any strict server;
+                             * without one the server quietly supplied 0, which
+                             * is what `hosts.hostImage` has been getting for
+                             * every host created without an image.
+                             *
+                             * So write that 0 rather than leaving the column
+                             * out and depending on the server to guess.
+                             */
+                            if (self::columnIsNullable($this->databaseTable, $column)) {
+                                $val = null;
+                            } else {
+                                $val = 0;
+                            }
                         } else {
                             $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                             if ($validated === false) {
@@ -541,7 +864,28 @@ abstract class FOGController extends FOGBase
                         if ($isRequired) {
                             throw new \Exception(self::$foglang['RequiredDB'] . ": " . $key);
                         }
-                        $val = '';
+                        // GH-1245: '' is a value only a string column can
+                        // hold. Everywhere else the server was coercing it;
+                        // emptyValueFor() writes down what to.
+                        $val = self::emptyValueFor(
+                            $this->databaseTable,
+                            $column
+                        );
+                        /*
+                         * A NULL for a column that cannot hold one means
+                         * "leave it out and let the server's DEFAULT apply".
+                         * Binding it is error 1048 -- `snapinTasks
+                         * .stCheckinDate` and `userAuths.uaExpireDate` are
+                         * NOT NULL DEFAULT current_timestamp(), which is why
+                         * step 344 left them alone, and MySQL 8 ships
+                         * explicit_defaults_for_timestamp=ON so an explicit
+                         * NULL is refused rather than turned into "now".
+                         */
+                        $writeNull = (null === $val)
+                            && self::columnIsNullable(
+                                $this->databaseTable,
+                                $column
+                            );
                     }
                 }
 
@@ -571,7 +915,13 @@ abstract class FOGController extends FOGBase
 
                 // Don't make an entry if the value isn't set (null = truly unset).
                 // Empty string is a valid user-supplied value and must be written.
-                if ($val === null) {
+                //
+                // GH-1245: an emptied DATE column is the exception. Omitting
+                // it would leave ON DUPLICATE KEY UPDATE with nothing to say
+                // about that column, so an existing date could never be
+                // cleared -- the write would report success and change
+                // nothing. It is bound as a real NULL instead.
+                if ($val === null && !$writeNull) {
                     continue;
                 }
 
@@ -602,6 +952,33 @@ abstract class FOGController extends FOGBase
             self::info($msg);
 
             self::$DB->query($query, [], $queryArray);
+            /*
+             * PDODB swallows a rejected statement, so ASK it.
+             *
+             * PDO runs in ERRMODE_EXCEPTION, but PDODB::query() catches the
+             * PDOException, records the message on ->error and returns
+             * normally; it rethrows only when $throwOnQueryError is true,
+             * which nothing sets and which must not be set globally -- it
+             * would turn every already-tolerated failure across the codebase
+             * into an uncaught 500 at once.
+             *
+             * So without this check the catch below never runs on a real SQL
+             * error. For a NEW row that was survivable by accident: insertId()
+             * comes back 0 and the "no valid ID was assigned" throw further
+             * down catches it. For an EXISTING row -- every progress update,
+             * every task state change, every inventory write against a known
+             * host -- there was nothing to catch on, so save() went on to log
+             * the SUCCESS message and return $this. `if (!$obj->save())` was
+             * not merely unrecorded on those paths, it was answered "fine".
+             *
+             * Truthy rather than `false !== ...`: PDODB declares $error with
+             * no default, so it is null until the first statement runs, and
+             * Schema::_processSchema()'s `false !== ->error` idiom would fire
+             * on that. Truthy reads both spellings of "no error" the same way.
+             */
+            if (self::$DB->error) {
+                throw new \Exception((string) self::$DB->error);
+            }
             $lastInsertID = self::$DB->insertId();
 
             // Force ID correctness: if we still don't have a valid ID, this wasn't created properly.
@@ -618,7 +995,7 @@ abstract class FOGController extends FOGBase
                 }
             }
 
-            if (!$this instanceof History && !$this instanceof Plugin) {
+            if (!$this->_isLogTable() && !$this instanceof Plugin) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
@@ -640,8 +1017,11 @@ abstract class FOGController extends FOGBase
                 }
                 self::logHistory($msg);
             }
+            // After the row is known to have stored, and after its id
+            // exists: a change row pointing at subject 0 is worse than none.
+            $this->_auditChanges();
         } catch (\Exception $e) {
-            if (!$this instanceof History) {
+            if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s. %s: %s',
@@ -669,14 +1049,33 @@ abstract class FOGController extends FOGBase
             }
 
             $msg = sprintf(
-                '%s: %s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Database save failed'),
+                _('Class'),
+                self::shortName($this),
+                _('Table'),
+                $this->databaseTable,
                 _('ID'),
                 $this->get('id'),
                 _('Error'),
                 $e->getMessage()
             );
             self::debug($msg);
+            /*
+             * The line that actually gets written. debug() above needs
+             * FOG_LOG_DEBUG turned on, and logHistory() needs somebody signed
+             * in -- neither is true on the paths that generate most of these,
+             * which is the whole of packages/web/service/, lib/reg-task/ and
+             * the eight daemons. See FOGBase::logFault().
+             *
+             * Written LAST, after the history row has been attempted rather
+             * than before, so the fault line names the failure that started
+             * this and any second failure logging it produces gets its own
+             * line rather than replacing that one. Which class and table
+             * carry it are in the message because the reader of this file has
+             * only the message: there is no row to join back to.
+             */
+            self::logFault($msg);
 
             return false;
         }
@@ -756,7 +1155,60 @@ abstract class FOGController extends FOGBase
                 $queryArray
             );
             $vals = self::$DB->fetch()->get();
+            /*
+             * A rejected SELECT is swallowed the same way a rejected INSERT
+             * is -- see save(). fetch()->get() then hands back nothing, and
+             * an object that could not be read is indistinguishable from a
+             * row that genuinely holds no data. That is the read half of the
+             * same defect: not a wrong answer anybody can see, a plausible
+             * empty one.
+             *
+             * AFTER the fetch, not between it and the query, so that ONE
+             * check covers both halves of the read. fetch() records its own
+             * failure on ->error and never clears one, and query() always
+             * sets ->error immediately before -- so a fetch that failed
+             * because the query did still reports the query's message here,
+             * not "No query result, use query() first".
+             *
+             * Recorded HERE rather than in the catch below, and that split is
+             * the point. This catch also handles the method's ORDINARY
+             * control flow -- "Operation field not set" fires on every
+             * `new Host()` built without an id, which is constant traffic --
+             * so faulting the whole catch would bury the one line that
+             * matters under thousands that do not.
+             *
+             * Throwing after logging costs nothing and buys the debug line
+             * below: setQuery() merges (fastmerge, never clears), so skipping
+             * it with no rows to merge leaves the object exactly as it was.
+             * load() still returns $this either way -- `new Host(42)` must
+             * not become fatal because a read failed.
+             */
+            if (self::$DB->error) {
+                self::logFault(
+                    sprintf(
+                        '%s: %s: %s, %s: %s, %s: %s, %s: %s',
+                        _('Database load failed'),
+                        _('Class'),
+                        self::shortName($this),
+                        _('Table'),
+                        $this->databaseTable,
+                        _('Key'),
+                        $key,
+                        _('Error'),
+                        self::$DB->error
+                    )
+                );
+                throw new \Exception((string) self::$DB->error);
+            }
             $this->setQuery($vals);
+            // The audit "before", taken here because here is where the row
+            // exists in memory for free. FIRST read only: loadItem() calls
+            // load() again for a lazily-fetched key, and refreshing the
+            // snapshot then would fold changes already made into the
+            // baseline and report them as no change at all.
+            if (count($this->original) < 1) {
+                $this->original = $this->data;
+            }
         } catch (\Exception $e) {
             $str = sprintf(
                 '%s: %s: %s, %s: %s',
@@ -845,10 +1297,33 @@ abstract class FOGController extends FOGBase
                     ''
                 )
             );
+            self::$DB->query($query, [], $queryArray);
             $rows = self::$DB
-                ->query($query, [], $queryArray)
                 ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
                 ->get();
+            // Same as load()'s, after the fetch for the same reason: a
+            // rejected bulk read returns an EMPTY set, and the caller reads
+            // that as "none of those ids exist" rather than "the question
+            // was not asked".
+            if (self::$DB->error) {
+                self::logFault(
+                    sprintf(
+                        '%s: %s: %s, %s: %s, %s: %s, %s: %d, %s: %s',
+                        _('Database bulk load failed'),
+                        _('Class'),
+                        self::shortName($this),
+                        _('Table'),
+                        $this->databaseTable,
+                        _('Key'),
+                        $key,
+                        _('Requested'),
+                        count($vals),
+                        _('Error'),
+                        self::$DB->error
+                    )
+                );
+                throw new \Exception((string) self::$DB->error);
+            }
             // class-name consumer: fed straight back to getClass(), which
             // resolves a namespaced name and a global one alike.
             $classname = get_class($this);
@@ -978,7 +1453,14 @@ abstract class FOGController extends FOGBase
                 (array) $val
             );
             self::$DB->query($query, [], $queryArray);
-            if (!$this instanceof History) {
+            // Same reason as save()'s, above: a rejected DELETE is swallowed
+            // by PDODB, so destroy() reported success for a row still there.
+            // A DELETE matching nothing is not an error and does not land
+            // here -- only a statement the server actually rejected does.
+            if (self::$DB->error) {
+                throw new \Exception((string) self::$DB->error);
+            }
+            if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s.',
@@ -999,9 +1481,23 @@ abstract class FOGController extends FOGBase
                     );
                 }
                 self::logHistory($msg);
+                // ADR 0021 Decision 7: a delete writes a header carrying
+                // subjectType/subjectID/subjectLabel and NO auditChange rows.
+                // The header is the only record a delete leaves, so without
+                // this it says that somebody exercised host.delete and not
+                // which host -- and the row is gone, so nothing can recover
+                // it afterwards. Identified here rather than at the gate
+                // because this is where the label is still in hand, and it
+                // reads the same two fields the history line above does so
+                // the two cannot disagree.
+                Audit::identify(
+                    strtolower(self::shortName($this)),
+                    (int)$this->get('id'),
+                    (string)$this->get('name')
+                );
             }
         } catch (\Exception $e) {
-            if (!$this instanceof History) {
+            if (!$this->_isLogTable()) {
                 if ($this->get('name')) {
                     $msg = sprintf(
                         '%s %s: %s %s: %s %s. %s: %s',
@@ -1028,14 +1524,20 @@ abstract class FOGController extends FOGBase
                 self::logHistory($msg);
             }
             $msg = sprintf(
-                '%s: %s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Destroy failed'),
+                _('Class'),
+                self::shortName($this),
+                _('Table'),
+                $this->databaseTable,
                 _('ID'),
                 $this->get('id'),
                 _('Error'),
                 $e->getMessage()
             );
             self::debug($msg);
+            // Same sink as save()'s, for the same reason.
+            self::logFault($msg);
 
             return false;
         }

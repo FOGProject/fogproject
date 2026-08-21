@@ -308,6 +308,10 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A role with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "Se requiere un nombre de imagen!"
+
 msgid "A selected role no longer exists"
 msgstr ""
 
@@ -503,6 +507,14 @@ msgstr "Activo"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "Activo"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Directorio Activo"
+
 msgid "Add"
 msgstr "Añadir"
 
@@ -667,6 +679,10 @@ msgstr "añadiendo una clave"
 
 msgid "Additional Icon Elements"
 msgstr ""
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "modificar Grupo"
 
 #, fuzzy
 msgid "Administrator"
@@ -936,6 +952,16 @@ msgid "Attempting to ping"
 msgstr ""
 
 msgid "Attempting to ping host"
+msgstr ""
+
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "Directorio Activo"
+
+msgid "Audit row was not stored"
 msgstr ""
 
 msgid "Authenticated but not permitted."
@@ -1213,6 +1239,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr ""
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "No se puede establecer taskings de pendiente o elementos no válidos"
@@ -1262,6 +1292,10 @@ msgid "Capture"
 msgstr "Creado"
 
 #, fuzzy
+msgid "Capture Complete"
+msgstr "impresora iPrint"
+
+#, fuzzy
 msgid "Captured"
 msgstr "Creado"
 
@@ -1300,6 +1334,9 @@ msgstr "Crear nuevo grupo"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Changing a retention window requires the audit manage permission"
+msgstr ""
+
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
@@ -1332,6 +1369,9 @@ msgid "Check %s over before installing it."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid "Check the password stored for this node"
 msgstr ""
 
 msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
@@ -1416,6 +1456,10 @@ msgstr ""
 
 msgid "Close"
 msgstr ""
+
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "actualización Valoración falló"
 
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
@@ -1593,6 +1637,10 @@ msgstr "Contador de la CPU"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "Contador de la CPU"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "Carga ha fallado: %s"
 
 msgid "Create"
 msgstr "Crear"
@@ -1831,8 +1879,16 @@ msgid "Database Update Failed"
 msgstr "actualización de la base no"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "actualización de la base no"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "No se dispone de hash"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "actualización de la base no"
 
 #, fuzzy
 msgid "Database save failed"
@@ -1964,6 +2020,10 @@ msgstr "Menú Error de creación"
 #, fuzzy
 msgid "Deploy"
 msgstr "última Desplegado"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "Descarga fracasó"
 
 #, fuzzy
 msgid "Deploy Method"
@@ -2282,6 +2342,10 @@ msgstr ""
 msgid "Every file was uploaded."
 msgstr "Ningún archivo fue subido"
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "clave privada fracasó"
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -2426,6 +2490,9 @@ msgstr "Añadir fallidos SNAPin!"
 #, fuzzy
 msgid "FTP Path"
 msgstr "Camino"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 msgid "Failed"
 msgstr "Ha fallado"
@@ -2767,6 +2834,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "Nombre del núcleo"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -3186,6 +3256,18 @@ msgstr "nombre de host"
 
 msgid "Host"
 msgstr "Anfitrión"
+
+#, fuzzy, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr "Impresora ya existe"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr "Impresora ya existe"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr "Impresora ya existe"
 
 #, fuzzy
 msgid "Host Approval Success"
@@ -3742,6 +3824,10 @@ msgid "Imaging Duration"
 msgstr "Transferencia de imágenes Entrar"
 
 #, fuzzy
+msgid "Imaging Failed"
+msgstr "Carga ha fallado: %s"
+
+#, fuzzy
 msgid "Imaging History"
 msgstr "Lista de host"
 
@@ -4097,6 +4183,10 @@ msgstr "host no válido"
 #, fuzzy
 msgid "Invalid product key supplied"
 msgstr "unidad no válida pasó"
+
+#, fuzzy
+msgid "Invalid retention identifier"
+msgstr "tarea no válido"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4756,6 +4846,10 @@ msgid "Mark selected pending"
 msgstr "retirar"
 
 #, fuzzy
+msgid "Mass update failed"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
 msgid "Master Node"
 msgstr "nodo de almacenamiento"
 
@@ -5128,6 +5222,9 @@ msgid "No active tasks to cancel for this group"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No activity recorded yet"
 msgstr ""
 
 #, fuzzy
@@ -5616,6 +5713,9 @@ msgstr "Otro Etiqueta 1"
 #, fuzzy
 msgid "Other Tag #2"
 msgstr "Otros Tag 2"
+
+msgid "Outcome"
+msgstr ""
 
 msgid "PLUGIN OPTIONS"
 msgstr ""
@@ -6314,6 +6414,9 @@ msgstr "retirar"
 msgid "Recent"
 msgstr "retirar"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "Registro no encontrado, error: %s"
@@ -6334,6 +6437,9 @@ msgstr "Estado del servicio"
 #, fuzzy
 msgid "Refresh the settings cache"
 msgstr "Estado del servicio"
+
+msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
 
 #, fuzzy
 msgid "Registered Hosts"
@@ -6431,6 +6537,9 @@ msgstr "Gestión de usuarios"
 msgid "Reports"
 msgstr "Reiniciar"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr ""
 
@@ -6457,6 +6566,16 @@ msgstr "resultados"
 
 msgid "Resume Reload"
 msgstr ""
+
+msgid "Retention refused, audit row would not store"
+msgstr ""
+
+msgid "Retention removed rows from"
+msgstr ""
+
+#, fuzzy
+msgid "Retention sweep failed"
+msgstr "Remoto"
 
 #, fuzzy
 msgid "Return Code"
@@ -6566,7 +6685,7 @@ msgstr ""
 msgid "Rows in this page."
 msgstr "No se pudo encontrar ningún nodos que contienen esta imagen"
 
-msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
 #, fuzzy
@@ -7105,8 +7224,9 @@ msgstr ""
 msgid "Skipping, will need manual removal"
 msgstr ""
 
+#, fuzzy
 msgid "Slack Accounts"
-msgstr ""
+msgstr "Añadir nueva cuenta de usuario"
 
 #, fuzzy
 msgid "Slack Management"
@@ -7300,6 +7420,9 @@ msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
 msgid "Some nice description, should be short."
+msgstr ""
+
+msgid "Source"
 msgstr ""
 
 msgid "Space variable must be boolean"
@@ -7611,6 +7734,10 @@ msgid "String must be a string"
 msgstr "Evento debe ser una cadena"
 
 #, fuzzy
+msgid "Subject"
+msgstr "Objeto"
+
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
 msgstr "Descripción del Grupo"
 
@@ -7740,8 +7867,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "habilitado"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "No hay ninguna tabla de base de datos definida para esta clase"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "No se ha podido destruir"
 
 #, fuzzy
 msgid "Tag Name"
@@ -8279,6 +8414,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Impresora ya existe"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Impresora ya existe"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8479,7 +8626,7 @@ msgstr "El espacio total del disco"
 msgid "Total Memory"
 msgstr "Memoria total"
 
-msgid "Total rows in the table, unfiltered."
+msgid "Total rows the caller may see, unfiltered. For a site-restricted user this is the total within their sites, not the server total."
 msgstr ""
 
 msgid "Transmit"
@@ -9059,6 +9206,9 @@ msgstr "Versión"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Sin administración de la impresora"
@@ -9113,6 +9263,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "Semanal"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -9123,6 +9276,9 @@ msgstr "se ha actualizado correctamente"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -9130,6 +9286,9 @@ msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -9273,6 +9432,10 @@ msgstr " hace"
 msgid "all current storage nodes"
 msgstr "nodo de almacenamiento no válido"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "carpeta no válida"
+
 msgid "and below"
 msgstr ""
 
@@ -9290,6 +9453,12 @@ msgid "and set it to master"
 msgstr ""
 
 msgid "and the FOG client."
+msgstr ""
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -9344,10 +9513,6 @@ msgstr "Clientela"
 #, fuzzy
 msgid "clients"
 msgstr "Clientela"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "suprimido"
 
 #, fuzzy
 msgid "confirm"
@@ -9411,6 +9576,9 @@ msgstr "habilitado"
 msgid "error"
 msgstr "Error"
 
+msgid "every column on this table will be treated as untyped"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -9445,6 +9613,9 @@ msgid "fog-admins"
 msgstr "Nombre de dominio"
 
 msgid "for Microsoft Windows to images"
+msgstr ""
+
+msgid "for user"
 msgstr ""
 
 #, fuzzy
@@ -9595,10 +9766,6 @@ msgstr "Imagen"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Grupo de almacenamiento primaria"
-
-#, fuzzy
-msgid "imaging failed"
-msgstr "Carga ha fallado: %s"
 
 #, fuzzy
 msgid "in"
@@ -9756,7 +9923,13 @@ msgstr ""
 msgid "no reason given"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "no response from server"
+msgstr ""
+
+msgid "no row id after save"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -10699,6 +10872,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "before me"
 #~ msgstr "Nombre del núcleo"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "suprimido"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

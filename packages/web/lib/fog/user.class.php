@@ -124,6 +124,61 @@ class User extends FOGController
      *
      * @return bool
      */
+    /**
+     * Records a refused credential.
+     *
+     * Here rather than in validatePw() or loginPost() because this is the
+     * one funnel every password check reaches: the web login form goes
+     * through validatePw(), the iPXE menu and service/checkcredentials.php
+     * call this directly, and authenticateOnly() does too. Auditing at any
+     * of those would cover a quarter of them, which is exactly the gap ADR
+     * 0021 records for the existing fog_login_failed.log.
+     *
+     * NO REASON IS RECORDED, and that is a decision rather than an
+     * omission. The reasons available here are "no such account", "wrong
+     * password", "account is external and nothing vouched for it" and
+     * "wrong user type" -- and writing which one it was into a readable log
+     * is user enumeration with an audit badge. The username, the address,
+     * the time and the fact of refusal are the facts worth keeping.
+     *
+     * The subject is the ATTEMPTED name, and subjectID stays 0 unless the
+     * account resolved: an id here would assert that the attempt named a
+     * real account, which is the same disclosure.
+     *
+     * @param string $username the name that was attempted
+     * @param object $tmpUser  the account it resolved to, if any
+     *
+     * @return void
+     */
+    private static function _auditLoginFailure($username, $tmpUser = null)
+    {
+        // No name presented is not a failed attempt, it is no attempt.
+        // Route::_testAuth() calls passwordValidate() with whatever basic
+        // auth produced, which is a pair of empty strings on every API
+        // request that carries no Authorization header at all -- and those
+        // are ordinary traffic, not credential guesses. Recording them would
+        // bury the real ones.
+        if ('' === trim((string)$username)) {
+            return;
+        }
+        Audit::record(
+            [
+                'type' => Audit::LOGIN_FAILED,
+                'outcome' => Audit::DENIED,
+                'subjectType' => 'user',
+                'subjectID' => 0,
+                'subjectLabel' => (string)$username,
+                // The actor IS the attempted name. Falling back to the
+                // machine actor here would record every failed login as
+                // something FOG did to itself.
+                'createdBy' => (string)$username,
+                'authSource' => $tmpUser instanceof User
+                    ? (string)$tmpUser->get('authsource')
+                    : '',
+                'renderable' => 1
+            ]
+        );
+    }
     public function passwordValidate(
         $username,
         $password,
@@ -173,6 +228,7 @@ class User extends FOGController
         // LDAP plugin's own isLdapType() guard, which never fired because
         // USER_TYPE_HOOK rewrote the type it tested one block earlier.
         if ($isExternal && true !== $authenticated) {
+            self::_auditLoginFailure($username, $tmpUser);
             return false;
         }
         if (!$isExternal
@@ -211,6 +267,7 @@ class User extends FOGController
             || !$typeIsValid
             || !$passValid
         ) {
+            self::_auditLoginFailure($username, $tmpUser);
             return false;
         }
         $this
@@ -367,6 +424,23 @@ class User extends FOGController
         }
         $_SESSION['FOG_USER'] = $this->get('id');
         $_SESSION['FOG_AUTH_SOURCE'] = $source;
+        // Every successful session is made here -- the password form through
+        // validatePw(), OIDC through the plugin, any future provider the
+        // same way -- so this is the one call that records a login for all
+        // of them. AFTER the stamp above, so Audit reads the source this
+        // session was actually made with rather than the one it replaced.
+        Audit::record(
+            [
+                'type' => Audit::LOGIN,
+                'outcome' => Audit::ALLOWED,
+                'subjectType' => 'user',
+                'subjectID' => (int)$this->get('id'),
+                'subjectLabel' => (string)$this->get('name'),
+                'createdBy' => (string)$this->get('name'),
+                'authSource' => $source,
+                'renderable' => 1
+            ]
+        );
         self::log(
             sprintf(
                 '%s %s (%s).',
@@ -620,6 +694,20 @@ class User extends FOGController
                 'USER_LOGGING_OUT',
                 ['redirect' => &$redirect]
             );
+        // BEFORE the identity is cleared below. set('id', 0) three lines
+        // down empties the object, so a record written after it says a
+        // nameless nobody logged out.
+        Audit::record(
+            [
+                'type' => Audit::LOGOUT,
+                'outcome' => Audit::ALLOWED,
+                'subjectType' => 'user',
+                'subjectID' => (int)$this->get('id'),
+                'subjectLabel' => (string)$this->get('name'),
+                'createdBy' => (string)$this->get('name'),
+                'renderable' => 1
+            ]
+        );
         // Clear all the cookies
         self::clearAuthCookie();
 

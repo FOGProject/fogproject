@@ -414,6 +414,97 @@ class SiteScope extends FOGBase
         return isset(self::$_nodes[$node]) || 'task' === $node;
     }
     /**
+     * The membership SELECT behind allInScopeIDs(), as SQL.
+     *
+     * Factored out so the id list and the WHERE fragment are built by ONE
+     * piece of code. Two copies of a membership rule in two dialects is the
+     * failure this codebase already documents elsewhere: when they drift
+     * nothing fails, the boundary simply stops matching in one of the two
+     * places. So allInScopeIDs() runs this, and inScopeWhere() embeds it.
+     *
+     * @param string $node   the node (host|user|group|usergroup|task)
+     * @param int    $userID the acting user id
+     *
+     * @return string|null the SELECT, or null when there is nothing to
+     *                     select -- an unscoped node, or a user in no site.
+     *                     Both are "this user reaches no object THROUGH
+     *                     SITES"; what that means is the caller's to decide,
+     *                     and the two callers decide differently.
+     */
+    private static function _inScopeSelect($node, $userID)
+    {
+        $node = strtolower(trim((string)$node));
+        if (!self::isScopedNode($node)) {
+            return null;
+        }
+        $siteIDs = self::userSiteIDs($userID);
+        if (empty($siteIDs)) {
+            return null;
+        }
+        if ('task' === $node) {
+            // Tasks have no membership table of their own; they inherit
+            // the site of the host they run against. Done as one join
+            // rather than by resolving each task, because this feeds a
+            // list and a per-row lookup here is the grid query storm.
+            return sprintf(
+                'SELECT DISTINCT `taskID` AS `oid` FROM `tasks` '
+                . 'WHERE `taskHostID` IN ('
+                . 'SELECT `shmHostID` FROM `siteHostMembers` '
+                . 'WHERE `shmSiteID` IN (%s))',
+                implode(',', $siteIDs)
+            );
+        }
+        list($table, $siteCol, $objCol) = self::$_nodes[$node];
+        return sprintf(
+            'SELECT DISTINCT `%s` AS `oid` FROM `%s` WHERE `%s` IN (%s)',
+            $objCol,
+            $table,
+            $siteCol,
+            implode(',', $siteIDs)
+        );
+    }
+    /**
+     * The site boundary as a WHERE fragment, for pushing into a query.
+     *
+     * allInScopeIDs() fetches the ids so a caller can filter rows it has
+     * already selected. That is the wrong shape for a paginated list: the
+     * LIMIT is applied by the database before any filtering happens, so a
+     * page can come back empty while later pages hold every row the user may
+     * see, and the counts describe objects they may not. This returns the
+     * same boundary as SQL instead, to be ANDed into the query itself.
+     *
+     * A subquery rather than the id list, deliberately. An IN list of a large
+     * site's hosts is a long literal to build, send and re-send on every
+     * count; the subquery is one expression whatever the fleet size, and it
+     * costs one round trip fewer because the ids are never fetched.
+     *
+     * THE RETURN IS TRI-STATE AND THE FALSY VALUE IS THE PERMISSIVE ONE, ON
+     * PURPOSE. `null` means no boundary applies -- and it is the ONLY falsy
+     * value this can return. A user who reaches nothing gets the string
+     * '1=0', which is truthy, so a caller writing the natural
+     * `if (!$where) { skip }` skips only the case where skipping is correct.
+     * Returning '' for deny-all would make that same line show every row on
+     * the server, which is the null-vs-[] trap this project has already been
+     * bitten by.
+     *
+     * @param string $node   the node (host|user|group|usergroup|task)
+     * @param string $idExpr the column holding the object id, quoted and
+     *                       table-qualified by the caller -- these queries
+     *                       carry joins and an unqualified name can be
+     *                       ambiguous
+     * @param int    $userID the acting user id
+     *
+     * @return string the WHERE fragment; '1=0' when the user reaches nothing
+     */
+    public static function inScopeWhere($node, $idExpr, $userID)
+    {
+        $select = self::_inScopeSelect($node, $userID);
+        if (null === $select) {
+            return '1=0';
+        }
+        return sprintf('%s IN (%s)', $idExpr, $select);
+    }
+    /**
      * Every object id of a node that lies in the user's sites.
      *
      * The list counterpart of inScope(). Callers use it to push the
@@ -436,31 +527,9 @@ class SiteScope extends FOGBase
         if (!self::isScopedNode($node)) {
             return [];
         }
-        $siteIDs = self::userSiteIDs($userID);
-        if (empty($siteIDs)) {
+        $sql = self::_inScopeSelect($node, $userID);
+        if (null === $sql) {
             return [];
-        }
-        if ('task' === $node) {
-            // Tasks have no membership table of their own; they inherit
-            // the site of the host they run against. Done as one join
-            // rather than by resolving each task, because this feeds a
-            // list and a per-row lookup here is the grid query storm.
-            $sql = sprintf(
-                'SELECT DISTINCT `taskID` AS `oid` FROM `tasks` '
-                . 'WHERE `taskHostID` IN ('
-                . 'SELECT `shmHostID` FROM `siteHostMembers` '
-                . 'WHERE `shmSiteID` IN (%s))',
-                implode(',', $siteIDs)
-            );
-        } else {
-            list($table, $siteCol, $objCol) = self::$_nodes[$node];
-            $sql = sprintf(
-                'SELECT DISTINCT `%s` AS `oid` FROM `%s` WHERE `%s` IN (%s)',
-                $objCol,
-                $table,
-                $siteCol,
-                implode(',', $siteIDs)
-            );
         }
         $ids = [];
         try {

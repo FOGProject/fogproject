@@ -30,8 +30,26 @@ namespace FOG;
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-abstract class Hook extends Event
+abstract class Hook extends FOGBase
 {
+    /*
+     * NOT `extends Event`. A hook exists to change something in flight and is
+     * dispatched by HookManager::processEvent(), which calls a method the
+     * listener named and hands it a payload by reference; an event exists to
+     * be told something happened and is dispatched by EventManager::notify(),
+     * which calls a fixed onEvent() and discards the result. Neither is a kind
+     * of the other, and while the inheritance stood, `instanceof Event` -- the
+     * one type check separating them -- said they were. See #1203 and
+     * docs/adr/0017-hook-dispatch-contract.md.
+     *
+     * The boilerplate the two genuinely share ($name, $active, the log
+     * settings, log() itself) comes from the Listener trait, so nothing a hook
+     * relied on went away with the parent. What did go away is run() and
+     * onEvent(): both are the EVENT dispatch surface, both were empty, and no
+     * hook in core or in fog-plugins calls either.
+     */
+    use Listener;
+
     /**
      * Function enables reportTypes
      * to allow plugins, and all hooks really, to tie into

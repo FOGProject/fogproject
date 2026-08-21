@@ -312,6 +312,10 @@ msgid "A role with this name already exists!"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "Un nom de l'image est nécessaire!"
+
+#, fuzzy
 msgid "A selected role no longer exists"
 msgstr " n'existe plus"
 
@@ -496,6 +500,14 @@ msgstr "Tâches actives"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "actif"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "Active Directory"
+
 msgid "Add"
 msgstr "Ajouter"
 
@@ -658,6 +670,10 @@ msgstr "Ajout clé"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "MACs supplémentaires"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "Modifier Groupe"
 
 #, fuzzy
 msgid "Administrator"
@@ -926,6 +942,16 @@ msgstr "Tenter de faire un ping"
 #, fuzzy
 msgid "Attempting to ping host"
 msgstr "Tenter de faire un ping"
+
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "Active Directory"
+
+msgid "Audit row was not stored"
+msgstr ""
 
 msgid "Authenticated but not permitted."
 msgstr ""
@@ -1198,6 +1224,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr ""
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossible de définir les affectations en cours ou éléments non valides"
@@ -1246,6 +1276,10 @@ msgid "Capture"
 msgstr "Créer"
 
 #, fuzzy
+msgid "Capture Complete"
+msgstr "Achevée"
+
+#, fuzzy
 msgid "Captured"
 msgstr "Créé"
 
@@ -1285,6 +1319,9 @@ msgstr "Créer un nouveau %s"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Changing a retention window requires the audit manage permission"
+msgstr ""
+
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
@@ -1318,6 +1355,10 @@ msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
+
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "Non FOGPage Classe trouvé pour ce noeud"
 
 msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
@@ -1398,6 +1439,10 @@ msgstr ""
 
 msgid "Close"
 msgstr ""
+
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "mise à jour de l'utilisateur a échoué"
 
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
@@ -1575,6 +1620,10 @@ msgstr "Nombre de CPU"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "Nombre de CPU"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "Échec du chargement: %s"
 
 msgid "Create"
 msgstr "Créer"
@@ -1811,8 +1860,16 @@ msgid "Database Update Failed"
 msgstr "Mise à jour de base de données a échoué"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "mise à jour de base de données a échoué"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "Pas de hachage disponible"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "mise à jour de base de données a échoué"
 
 #, fuzzy
 msgid "Database save failed"
@@ -1938,6 +1995,10 @@ msgstr "Menu create a échoué"
 
 msgid "Deploy"
 msgstr "Déployer"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "Échec du téléchargement"
 
 msgid "Deploy Method"
 msgstr "Déployer Méthode"
@@ -2245,6 +2306,10 @@ msgstr ""
 msgid "Every file was uploaded."
 msgstr "Aucun fichier a été téléchargé"
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "La clé privée a échoué"
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -2383,6 +2448,9 @@ msgstr "Connexion FTP a échoué"
 
 msgid "FTP Path"
 msgstr "Chemin FTP"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 msgid "Failed"
 msgstr "Échoué"
@@ -2714,6 +2782,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "Nom Kernel"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -3129,6 +3200,18 @@ msgstr "Accueil"
 
 msgid "Host"
 msgstr "Hôte"
+
+#, fuzzy, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr "Imprimante existe déjà"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr "Imprimante existe déjà"
 
 #, fuzzy
 msgid "Host Approval Success"
@@ -3662,6 +3745,10 @@ msgid "Imaging Duration"
 msgstr "Imaging Log"
 
 #, fuzzy
+msgid "Imaging Failed"
+msgstr "Échec du chargement: %s"
+
+#, fuzzy
 msgid "Imaging History"
 msgstr "Hôte Histoire Imaging"
 
@@ -4008,6 +4095,10 @@ msgstr "hôte non valide"
 #, fuzzy
 msgid "Invalid product key supplied"
 msgstr "jeton non valide transmis"
+
+#, fuzzy
+msgid "Invalid retention identifier"
+msgstr "Invalid Snapin Tasking"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4640,6 +4731,10 @@ msgstr "Approuver hôtes sélectionnés"
 msgid "Mark selected pending"
 msgstr "Approuver hôtes sélectionnés"
 
+#, fuzzy
+msgid "Mass update failed"
+msgstr "mise à jour de l'utilisateur a échoué"
+
 msgid "Master Node"
 msgstr "Node Master"
 
@@ -5004,6 +5099,9 @@ msgid "No active tasks to cancel for this group"
 msgstr "Aucune tâche active trouvée pour Host"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No activity recorded yet"
 msgstr ""
 
 #, fuzzy
@@ -5483,6 +5581,9 @@ msgstr "Autre Tag # 1"
 
 msgid "Other Tag #2"
 msgstr "Autre Tag # 2"
+
+msgid "Outcome"
+msgstr ""
 
 msgid "PLUGIN OPTIONS"
 msgstr ""
@@ -6169,6 +6270,9 @@ msgstr "Recevoir"
 msgid "Recent"
 msgstr "Recevoir"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "Enregistrement non trouvé, Erreur: %s"
@@ -6189,6 +6293,9 @@ msgstr "État du service"
 #, fuzzy
 msgid "Refresh the settings cache"
 msgstr "État du service"
+
+msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
 
 msgid "Registered Hosts"
 msgstr "hôtes inscrits"
@@ -6282,6 +6389,9 @@ msgstr "Rapport de gestion"
 msgid "Reports"
 msgstr "Rapports"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr "champ de base de données requis est vide"
 
@@ -6309,6 +6419,16 @@ msgstr "Résultats"
 
 msgid "Resume Reload"
 msgstr ""
+
+msgid "Retention refused, audit row would not store"
+msgstr ""
+
+msgid "Retention removed rows from"
+msgstr ""
+
+#, fuzzy
+msgid "Retention sweep failed"
+msgstr "supprimé"
 
 msgid "Return Code"
 msgstr "code de retour"
@@ -6417,7 +6537,7 @@ msgstr ""
 msgid "Rows in this page."
 msgstr "Impossible de trouver des noeuds contenant cette image"
 
-msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
 #, fuzzy
@@ -7139,6 +7259,9 @@ msgstr ""
 msgid "Some nice description, should be short."
 msgstr ""
 
+msgid "Source"
+msgstr ""
+
 msgid "Space variable must be boolean"
 msgstr ""
 
@@ -7431,6 +7554,10 @@ msgid "String must be a string"
 msgstr "Événement doit être une chaîne"
 
 #, fuzzy
+msgid "Subject"
+msgstr "Objet"
+
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
 msgstr "Description du groupe"
 
@@ -7560,8 +7687,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "Activée"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "Pas de table de base de données défini pour cette classe"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "Échec de connexion"
 
 #, fuzzy
 msgid "Tag Name"
@@ -8092,6 +8227,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "Imprimante existe déjà"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "Imprimante existe déjà"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8300,7 +8447,7 @@ msgstr "Espace disque total"
 msgid "Total Memory"
 msgstr "Mémoire totale"
 
-msgid "Total rows in the table, unfiltered."
+msgid "Total rows the caller may see, unfiltered. For a site-restricted user this is the total within their sites, not the server total."
 msgstr ""
 
 msgid "Transmit"
@@ -8874,6 +9021,9 @@ msgstr "Version"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Gestion de localisation"
@@ -8929,6 +9079,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "Hebdomadaire"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8939,6 +9092,9 @@ msgstr "a été mis à jour avec succès"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -8946,6 +9102,9 @@ msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -9089,6 +9248,10 @@ msgstr " depuis"
 msgid "all current storage nodes"
 msgstr "nœud de stockage non valide"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Invalid image"
+
 msgid "and below"
 msgstr ""
 
@@ -9106,6 +9269,12 @@ msgid "and set it to master"
 msgstr ""
 
 msgid "and the FOG client."
+msgstr ""
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -9160,10 +9329,6 @@ msgstr "Client"
 #, fuzzy
 msgid "clients"
 msgstr "Client"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "Terminé"
 
 #, fuzzy
 msgid "confirm"
@@ -9227,6 +9392,9 @@ msgstr "Activée"
 msgid "error"
 msgstr "Erreur"
 
+msgid "every column on this table will be treated as untyped"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -9260,6 +9428,9 @@ msgid "fog-admins"
 msgstr "Nom de domaine"
 
 msgid "for Microsoft Windows to images"
+msgstr ""
+
+msgid "for user"
 msgstr ""
 
 #, fuzzy
@@ -9408,10 +9579,6 @@ msgstr "Images"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Groupe de stockage primaire"
-
-#, fuzzy
-msgid "imaging failed"
-msgstr "Échec du chargement: %s"
 
 #, fuzzy
 msgid "in"
@@ -9571,7 +9738,13 @@ msgstr ""
 msgid "no reason given"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "no response from server"
+msgstr ""
+
+msgid "no row id after save"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -10296,9 +10469,6 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "Aucun noeud associé"
 
-#~ msgid "No FOGPage Class found for this node"
-#~ msgstr "Non FOGPage Classe trouvé pour ce noeud"
-
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
 #~ msgstr "Plugins installés"
@@ -10525,6 +10695,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "avant moi"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "Terminé"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

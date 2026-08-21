@@ -258,6 +258,9 @@ msgstr ""
 msgid "A role with this name already exists!"
 msgstr ""
 
+msgid "A scheduled time is required"
+msgstr ""
+
 msgid "A selected role no longer exists"
 msgstr ""
 
@@ -419,6 +422,12 @@ msgstr ""
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+msgid "Activity"
+msgstr ""
+
+msgid "Activity entry"
+msgstr ""
+
 msgid "Add"
 msgstr ""
 
@@ -544,6 +553,9 @@ msgid "Adding Key"
 msgstr ""
 
 msgid "Additional Icon Elements"
+msgstr ""
+
+msgid "Administrative actions"
 msgstr ""
 
 msgid "Administrator"
@@ -776,6 +788,15 @@ msgid "Attempting to ping"
 msgstr ""
 
 msgid "Attempting to ping host"
+msgstr ""
+
+msgid "Audit Log"
+msgstr ""
+
+msgid "Audit entry"
+msgstr ""
+
+msgid "Audit row was not stored"
 msgstr ""
 
 msgid "Authenticated but not permitted."
@@ -1014,6 +1035,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr ""
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 msgid "Cannot task pending hosts"
 msgstr ""
 
@@ -1050,6 +1075,9 @@ msgstr ""
 msgid "Capture"
 msgstr ""
 
+msgid "Capture Complete"
+msgstr ""
+
 msgid "Captured"
 msgstr ""
 
@@ -1083,6 +1111,9 @@ msgstr ""
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Changing a retention window requires the audit manage permission"
+msgstr ""
+
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
@@ -1112,6 +1143,9 @@ msgid "Check %s over before installing it."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
+msgstr ""
+
+msgid "Check the password stored for this node"
 msgstr ""
 
 msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
@@ -1184,6 +1218,9 @@ msgid "Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure B
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Column type lookup failed"
 msgstr ""
 
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
@@ -1330,6 +1367,9 @@ msgstr ""
 
 #, php-format
 msgid "Count %s"
+msgstr ""
+
+msgid "Count failed"
 msgstr ""
 
 msgid "Create"
@@ -1527,7 +1567,13 @@ msgstr ""
 msgid "Database Update Failed"
 msgstr ""
 
+msgid "Database bulk load failed"
+msgstr ""
+
 msgid "Database connection unavailable."
+msgstr ""
+
+msgid "Database load failed"
 msgstr ""
 
 msgid "Database save failed"
@@ -1634,6 +1680,9 @@ msgid "Deleting remote file"
 msgstr ""
 
 msgid "Deploy"
+msgstr ""
+
+msgid "Deploy Complete"
 msgstr ""
 
 msgid "Deploy Method"
@@ -1904,6 +1953,9 @@ msgstr ""
 msgid "Every file was uploaded."
 msgstr ""
 
+msgid "Existence check failed"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -2023,6 +2075,9 @@ msgid "FTP Connection Failed"
 msgstr ""
 
 msgid "FTP Path"
+msgstr ""
+
+msgid "FTP login rejected by"
 msgstr ""
 
 msgid "Failed"
@@ -2307,6 +2362,9 @@ msgid "FreeIPA"
 msgstr ""
 
 msgid "Friendly Name"
+msgstr ""
+
+msgid "From"
 msgstr ""
 
 msgid "Full History"
@@ -2648,6 +2706,18 @@ msgid "Home"
 msgstr ""
 
 msgid "Host"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr ""
+
+#, php-format
+msgid "Host %1$s finished deploying image %2$s."
 msgstr ""
 
 msgid "Host Approval Success"
@@ -3099,6 +3169,9 @@ msgstr ""
 msgid "Imaging Duration"
 msgstr ""
 
+msgid "Imaging Failed"
+msgstr ""
+
 msgid "Imaging History"
 msgstr ""
 
@@ -3387,6 +3460,9 @@ msgid "Invalid pathtype"
 msgstr ""
 
 msgid "Invalid product key supplied"
+msgstr ""
+
+msgid "Invalid retention identifier"
 msgstr ""
 
 msgid "Invalid scheduling type"
@@ -3916,6 +3992,9 @@ msgstr ""
 msgid "Mark selected pending"
 msgstr ""
 
+msgid "Mass update failed"
+msgstr ""
+
 msgid "Master Node"
 msgstr ""
 
@@ -4231,6 +4310,9 @@ msgid "No active tasks to cancel for this group"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No activity recorded yet"
 msgstr ""
 
 msgid "No archive was uploaded."
@@ -4647,6 +4729,9 @@ msgid "Other Tag #1"
 msgstr ""
 
 msgid "Other Tag #2"
+msgstr ""
+
+msgid "Outcome"
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
@@ -5227,6 +5312,9 @@ msgstr ""
 msgid "Recent"
 msgstr ""
 
+msgid "Recent Activity"
+msgstr ""
+
 msgid "Record not found"
 msgstr ""
 
@@ -5243,6 +5331,9 @@ msgid "Refresh Settings Cache"
 msgstr ""
 
 msgid "Refresh the settings cache"
+msgstr ""
+
+msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
 msgstr ""
 
 msgid "Registered Hosts"
@@ -5325,6 +5416,9 @@ msgstr ""
 msgid "Reports"
 msgstr ""
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr ""
 
@@ -5348,6 +5442,15 @@ msgid "Result"
 msgstr ""
 
 msgid "Resume Reload"
+msgstr ""
+
+msgid "Retention refused, audit row would not store"
+msgstr ""
+
+msgid "Retention removed rows from"
+msgstr ""
+
+msgid "Retention sweep failed"
 msgstr ""
 
 msgid "Return Code"
@@ -5440,7 +5543,7 @@ msgstr ""
 msgid "Rows in this page."
 msgstr ""
 
-msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
 msgid "Run With arguments."
@@ -6047,6 +6150,9 @@ msgstr ""
 msgid "Some nice description, should be short."
 msgstr ""
 
+msgid "Source"
+msgstr ""
+
 msgid "Space variable must be boolean"
 msgstr ""
 
@@ -6290,6 +6396,9 @@ msgstr ""
 msgid "String must be a string"
 msgstr ""
 
+msgid "Subject"
+msgstr ""
+
 msgid "Subnet Group -> Group Relationship"
 msgstr ""
 
@@ -6399,7 +6508,13 @@ msgstr ""
 msgid "TX"
 msgstr ""
 
+msgid "Table"
+msgstr ""
+
 msgid "Table not defined for this class"
+msgstr ""
+
+msgid "Table uninstall failed"
 msgstr ""
 
 msgid "Tag Name"
@@ -6861,6 +6976,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr ""
 
+#, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -7052,7 +7179,7 @@ msgstr ""
 msgid "Total Memory"
 msgstr ""
 
-msgid "Total rows in the table, unfiltered."
+msgid "Total rows the caller may see, unfiltered. For a site-restricted user this is the total within their sites, not the server total."
 msgstr ""
 
 msgid "Transmit"
@@ -7536,6 +7663,9 @@ msgstr ""
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 msgid "WOL Broadcast Management"
 msgstr ""
 
@@ -7584,6 +7714,9 @@ msgstr ""
 msgid "Weekly"
 msgstr ""
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -7593,6 +7726,9 @@ msgstr ""
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -7600,6 +7736,9 @@ msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -7723,6 +7862,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
+msgid "an unnamed image"
+msgstr ""
+
 msgid "and below"
 msgstr ""
 
@@ -7739,6 +7881,12 @@ msgid "and set it to master"
 msgstr ""
 
 msgid "and the FOG client."
+msgstr ""
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -7787,9 +7935,6 @@ msgid "client"
 msgstr ""
 
 msgid "clients"
-msgstr ""
-
-msgid "completed imaging"
 msgstr ""
 
 msgid "confirm"
@@ -7843,6 +7988,9 @@ msgstr ""
 msgid "error"
 msgstr ""
 
+msgid "every column on this table will be treated as untyped"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -7872,6 +8020,9 @@ msgid "fog-admins"
 msgstr ""
 
 msgid "for Microsoft Windows to images"
+msgstr ""
+
+msgid "for user"
 msgstr ""
 
 msgid "found"
@@ -7992,9 +8143,6 @@ msgid "images"
 msgstr ""
 
 msgid "images to a storage group"
-msgstr ""
-
-msgid "imaging failed"
 msgstr ""
 
 msgid "in"
@@ -8141,7 +8289,13 @@ msgstr ""
 msgid "no reason given"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "no response from server"
+msgstr ""
+
+msgid "no row id after save"
 msgstr ""
 
 msgid "node is the distributor of the images"

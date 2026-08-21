@@ -48,7 +48,7 @@ $this->schema[] = [
     . 'UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),'
     . 'KEY `new_index` (`gmHostID`),'
     . 'KEY `new_index1` (`gmGroupID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `groups` ('
     . '`groupID` INT(11) NOT NULL auto_increment,'
     . '`groupName` VARCHAR(50) NOT NULL,'
@@ -58,7 +58,7 @@ $this->schema[] = [
     . '`groupBuilding` INT(11) NOT NULL,'
     . 'PRIMARY KEY (`groupID`),'
     . 'KEY `new_index` (`groupName`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `history` ('
     . '`hID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`hText` LONGTEXT NOT NULL,'
@@ -66,7 +66,7 @@ $this->schema[] = [
     . '`hTime` DATETIME NOT NULL,'
     . '`hIP` VARCHAR(50) NOT NULL,'
     . 'PRIMARY KEY (`hID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `hosts` ('
     . '`hostID` int(11) NOT NULL auto_increment,'
     . '`hostName` varchar(16) NOT NULL,'
@@ -83,7 +83,7 @@ $this->schema[] = [
     . 'KEY `new_index1` (`hostIP`),'
     . 'KEY `new_index2` (`hostMAC`),'
     . 'KEY `new_index3` (`hostOS`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `images` ('
     . '`imageID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`imageName` VARCHAR(40) NOT NULL,'
@@ -96,19 +96,19 @@ $this->schema[] = [
     . 'PRIMARY KEY  (`imageID`),'
     . 'KEY `new_index` (`imageName`),'
     . 'KEY `new_index1` (`imageBuilding`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `schemaVersion` ('
     . '`vID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`vValue` INT(11) NOT NULL,'
     . 'PRIMARY KEY  (`vID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `supportedOS` ('
     . '`osID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,'
     . '`osName` VARCHAR(150) NOT NULL,'
     . '`osValue` int(10) unsigned NOT NULL,'
     . 'PRIMARY KEY  (`osID`),'
     . 'KEY `new_index` (`osValue`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE  `tasks` ('
     . '`taskID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`taskName` VARCHAR(250) NOT NULL,'
@@ -127,7 +127,7 @@ $this->schema[] = [
     . 'KEY `new_index2` (`taskState`),'
     . 'KEY `new_index3` (`taskForce`),'
     . 'KEY `new_index4` (`taskType`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `users` ('
     . '`uId` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`uName` VARCHAR(40) NOT NULL,'
@@ -137,7 +137,7 @@ $this->schema[] = [
     . 'PRIMARY KEY (`uId`),'
     . 'KEY `new_index` (`uName`),'
     . 'KEY `new_index1` (`uPass`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `users` VALUES ('','fog', MD5('password'), NOW(), '')",
     "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Windows XP', '1')",
     "INSERT IGNORE INTO `schemaVersion` VALUES ('', '1')"
@@ -167,14 +167,14 @@ $this->schema[] = [
     . 'PRIMARY KEY  (`saID`),'
     . 'KEY `new_index` (`saHostID`),'
     . 'KEY `new_index1` (`saSnapinID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `snapinJobs` ('
     . '`sjID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`sjHostID` INT(11) NOT NULL,'
     . '`sjCreateTime` DATETIME NOT NULL,'
     . 'PRIMARY KEY (`sjID`),'
     . 'KEY `new_index` (`sjHostID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `snapinTasks` ('
     . '`stID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`stJobID` INT(11) NOT NULL,'
@@ -186,7 +186,7 @@ $this->schema[] = [
     . 'KEY `new_index` (`stJobID`),'
     . 'KEY `new_index1` (`stState`),'
     . 'KEY `new_index2` (`stSnapinID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `snapins` ('
     . '`sID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`sName` VARCHAR(200) NOT NULL,'
@@ -201,7 +201,7 @@ $this->schema[] = [
     . '`sAnon3` VARCHAR(45) NOT NULL,'
     . 'PRIMARY KEY (`sID`),'
     . 'KEY `new_index` (`sName`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` SET vValue='3'",
 ];
 // 4
@@ -224,7 +224,7 @@ $this->schema[] = [
     . '`msAnon4` VARCHAR(250) NOT NULL,'
     . '`msAnon5` VARCHAR(250) NOT NULL,'
     . 'PRIMARY KEY (`msID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `multicastSessionsAssoc` ('
     . '`msaID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`msID` INT(11) NOT NULL,'
@@ -232,7 +232,7 @@ $this->schema[] = [
     . 'PRIMARY KEY  (`msaID`),'
     . 'KEY `new_index` (`msID`),'
     . 'KEY `new_index1` (`tID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` set vValue='4'",
 ];
 // 5
@@ -259,7 +259,7 @@ $this->schema[] = [
     . 'PRIMARY KEY (`vID`),'
     . 'INDEX `new_index` (`vHostMAC`),'
     . 'INDEX `new_index2`(`vDateTime`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` SET `vValue`='6'",
 ];
 // 8
@@ -278,7 +278,7 @@ $this->schema[] = [
     . 'INDEX `new_index1` (`utUserName`),'
     . 'INDEX `new_index2` (`utAction`),'
     . 'INDEX `new_index3` (`utDateTime`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'ALTER TABLE `hosts`'
     . 'CHANGE `hostAnon1` `hostPrinterLevel` VARCHAR(2)'
     . 'CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL',
@@ -297,7 +297,7 @@ $this->schema[] = [
     . 'PRIMARY KEY (`pID`),'
     . 'INDEX `new_index1`(`pModel`),'
     . 'INDEX `new_index2`(`pAlias`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `printerAssoc` ('
     . '`paID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`paHostID` INTEGER NOT NULL,'
@@ -311,7 +311,7 @@ $this->schema[] = [
     . 'PRIMARY KEY (`paID`),'
     . 'INDEX `new_index1` (`paHostID`),'
     . 'INDEX `new_index2` (`paPrinterID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `inventory` ('
     . '`iID` INT(11) NOT NULL AUTO_INCREMENT,'
     . '`iHostID` INT(11) NOT NULL,'
@@ -345,7 +345,7 @@ $this->schema[] = [
     . '`iCaseserial` VARCHAR(250) NOT NULL,'
     . '`iCaseasset` VARCHAR(250) NOT NULL,'
     . 'PRIMARY KEY (`iID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `clientUpdates` ('
     . '`cuID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`cuName` VARCHAR(200) NOT NULL,'
@@ -355,7 +355,7 @@ $this->schema[] = [
     . 'PRIMARY KEY (`cuID`),'
     . 'INDEX `new_index` (`cuName`),'
     . 'INDEX `new_index1`(`cuType`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` SET vValue='7'",
 ];
 // 8
@@ -377,7 +377,7 @@ $this->schema[] = [
     . '`settingCategory` VARCHAR(254) NOT NULL,'
     . 'PRIMARY KEY (`settingID`),'
     . 'INDEX `new_index` (`settingKey`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'INSERT IGNORE INTO `globalSettings`'
     . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
     . 'VALUES'
@@ -534,12 +534,12 @@ $this->schema[] = [
     . 'PRIMARY KEY (`msID`),'
     . 'INDEX `new_index`(`msHostID`),'
     . 'INDEX `new_index2`(`msModuleID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `dirCleaner` ('
     . '`dcID` INTEGER  NOT NULL AUTO_INCREMENT,'
     . '`dcPath` longtext  NOT NULL,'
     . 'PRIMARY KEY (`dcID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'INSERT IGNORE INTO `globalSettings`'
     . '(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)'
     . 'VALUES'
@@ -555,7 +555,7 @@ $this->schema[] = [
     . '`ucID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`ucName` VARCHAR(254) NOT NULL,'
     . 'PRIMARY KEY (`ucID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `userCleanup` (`ucName`)"
     . 'VALUES'
     . "('admin'),"
@@ -612,14 +612,14 @@ $this->schema[] = [
     . '`hssOther2` INTEGER NOT NULL,'
     . 'PRIMARY KEY (`hssID`),'
     . 'INDEX `new_index`(`hssHostID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `hostAutoLogOut` ('
     . '`haloID` INTEGER  NOT NULL AUTO_INCREMENT,'
     . '`haloHostID` INTEGER  NOT NULL,'
     . '`haloTime` VARCHAR(10) NOT NULL,'
     . 'PRIMARY KEY (`haloID`),'
     . 'INDEX `new_index`(`haloHostID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     'CREATE TABLE `greenFog` ('
     . '`gfID` INTEGER NOT NULL AUTO_INCREMENT,'
     . '`gfHostID` INTEGER NOT NULL,'
@@ -629,7 +629,7 @@ $this->schema[] = [
     . '`gfDays` varchar(25) NOT NULL,'
     . 'PRIMARY KEY (`gfID`),'
     . 'INDEX `new_index`(`gfHostID`)'
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -648,7 +648,7 @@ $this->schema[] = [
     . "INDEX `new_index`(`alUserName`),"
     . "INDEX `new_index2`(`alHostID`),"
     . "INDEX `new_index3`(`alDateTime`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "UPDATE `schemaVersion` set vValue = '9'",
 ];
 // 10
@@ -661,7 +661,7 @@ $this->schema[] = [
     . "`ilImageName` VARCHAR(64) NOT NULL,"
     . "PRIMARY KEY (`ilID`),"
     . "INDEX `new_index`(`ilHostID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
@@ -764,7 +764,7 @@ $this->schema[] = [
     . "INDEX `new_index1`(`pState`),"
     . "INDEX `new_index2`(`pInstalled`),"
     . "INDEX `new_index3`(`pVersion`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "ALTER TABLE `hosts` CHANGE `hostAnon3` `hostKernel` VARCHAR(250) "
     . "CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,"
     . "CHANGE `hostAnon4` `hostDevice` VARCHAR(250) CHARACTER "
@@ -785,7 +785,7 @@ $this->schema[] = [
     . "`ngName` varchar(250) NOT NULL,"
     . "`ngDesc` longtext NOT NULL,"
     . "PRIMARY KEY (`ngID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "CREATE TABLE `nfsGroupMembers` ("
     . "`ngmID` integer NOT NULL AUTO_INCREMENT,"
     . "`ngmMemberName` varchar(250) NOT NULL,"
@@ -804,7 +804,7 @@ $this->schema[] = [
     . "INDEX `new_index2`(`ngmIsMasterNode`),"
     . "INDEX `new_index3`(`ngmGroupID`),"
     . "INDEX `new_index4`(`ngmIsEnabled`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "ALTER TABLE `images` ADD COLUMN `imageNFSGroupID` integer "
     . "NOT NULL AFTER `imageDD`,"
     . "ADD INDEX `new_index3`(`imageNFSGroupID`)",
@@ -829,7 +829,7 @@ $this->schema[] = [
     . "INDEX `new_index1`(`nfTaskID`),"
     . "INDEX `new_index2`(`nfHostID`),"
     . "INDEX `new_index3`(`nfGroupID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "ALTER TABLE `nfsFailures` MODIFY COLUMN `nfDateTime` datetime NOT NULL,"
     . "ADD INDEX `new_index4`(`nfDateTime`)",
     "ALTER TABLE `multicastSessions` CHANGE `msAnon2` `msNFSGroupID` integer "
@@ -919,7 +919,7 @@ $this->schema[] = [
     . "`stDateTime` BIGINT UNSIGNED NOT NULL DEFAULT 0,"
     . "`stActive` varchar(2) NOT NULL DEFAULT 1,"
     . "PRIMARY KEY (`stID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
     . "VALUES "
@@ -954,14 +954,14 @@ $this->schema[] = [
     . "PRIMARY KEY (`hmID`),"
     . "INDEX `idxHostID`(`hmHostID`),"
     . "INDEX `idxMac`(`hmMAC`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "CREATE TABLE `oui` ("
     . "`ouiID` int(11) NOT NULL AUTO_INCREMENT,"
     . "`ouiMACPrefix` varchar(8) NOT NULL,"
     . "`ouiMan` varchar(254) NOT NULL,"
     . "PRIMARY KEY (`ouiID`),"
     . "KEY `idxMac` (`ouiMACPrefix`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -994,7 +994,7 @@ $this->schema[] = [
     . "PRIMARY KEY (`pmID`),"
     . "INDEX `idx_mc`(`pmAddress`),"
     . "INDEX `idx_host`(`pmHostID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -1053,7 +1053,7 @@ $this->schema[] = [
     . "`osName` varchar(30) NOT NULL,"
     . "`osDescription` text NOT NULL,"
     . "PRIMARY KEY (`osID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `os` "
     . "(`osID`, `osName`, `osDescription`) "
     . "VALUES "
@@ -1116,7 +1116,7 @@ $this->schema[] = [
     . "`imageTypeID` mediumint(9) NOT NULL auto_increment,"
     . "`imageTypeName` varchar(100) NOT NULL,"
     . "PRIMARY KEY  (`imageTypeID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `imageTypes` "
     . "(`imageTypeID`, `imageTypeName`) "
     . "VALUES "
@@ -1188,7 +1188,7 @@ $this->schema[] = [
     . "`tsDescription` text NOT NULL,"
     . "`tsOrder` tinyint(4) NOT NULL DEFAULT '0',"
     . "PRIMARY KEY (`tsID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `taskStates` "
     . "(`tsID`, `tsName`, `tsDescription`, `tsOrder`) VALUES "
     . "(1,'Queued','Task has been created and FOG is "
@@ -1221,7 +1221,7 @@ $this->schema[] = [
     . "`ttIsAdvanced` enum('0','1') NOT NULL DEFAULT '0',"
     . "`ttIsAccess` enum('both','host','group') NOT NULL DEFAULT 'both',"
     . "PRIMARY KEY (`ttID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `taskTypes` "
     . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,"
     . "`ttKernelTemplate`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
@@ -1443,7 +1443,7 @@ $this->schema[] = [
     . "`name` varchar(50) NOT NULL, `short_name` "
     . "varchar(30) NOT NULL, `description` text "
     . "NOT NULL, PRIMARY KEY (`id`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `modules` "
     . "(`id`, `name`, `short_name`, `description`) "
     . "VALUES "
@@ -1544,7 +1544,7 @@ $this->schema[] = [
     . "`createTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,"
     . "`createdBy` VARCHAR(30) NOT NULL,"
     . "PRIMARY KEY (`id`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
 ];
 // 38
 $this->schema[] = [
@@ -1588,7 +1588,7 @@ $this->schema[] = [
     . "`ksValue` varchar(25) NOT NULL,"
     . "`ksAscii` varchar(25) NOT NULL,"
     . "PRIMARY KEY (`ksID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
 ];
 $keySequences = [
     'CTRL + A' => '0x01',
@@ -1949,7 +1949,7 @@ $this->schema[] = [
     . "`imagePartitionTypeName` varchar(100) NOT NULL,"
     . "`imagePartitionTypeValue` varchar(10) NOT NULL,"
     . "PRIMARY KEY  (`imagePartitionTypeID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `imagePartitionTypes` "
     . "(`imagePartitionTypeID`, `imagePartitionTypeName`,"
     . "`imagePartitionTypeValue`)"
@@ -1984,7 +1984,7 @@ $this->schema[] = [
     . "`pxeArgs` varchar(250) NULL,"
     . "`pxeDefault` INT DEFAULT 0 NOT NULL,"
     . "PRIMARY KEY (`pxeID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `pxeMenu` "
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
     . "VALUES "
@@ -2144,7 +2144,7 @@ $this->schema[] = [
     . "`ipxeSuccess` VARCHAR(2) NOT NULL,"
     . "`ipxeFailure` VARCHAR(2) NOT NULL,"
     . "PRIMARY KEY (`ipxeID`)"
-    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+    . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
     "INSERT IGNORE INTO `globalSettings` "
     . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
     . "VALUES "
@@ -2196,7 +2196,7 @@ $this->schema[] = self::fastmerge(
         . "`igaStorageGroupID` mediumint(9) NOT NULL,"
         . "`igaPrimary` ENUM('0','1') NOT NULL,"
         . "PRIMARY KEY (`igaID`)"
-        . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
         "INSERT IGNORE INTO `imageGroupAssoc` "
         . "(`igaImageID`,`igaStorageGroupID`) "
         . "SELECT `imageID`,`imageNFSGroupID` FROM "
@@ -2256,7 +2256,7 @@ $this->schema[] = self::fastmerge(
         . "`sgaStorageGroupID` mediumint(9) NOT NULL,"
         . "`sgaPrimary` ENUM('0','1') NOT NULL,"
         . "PRIMARY KEY (`sgaID`)"
-        . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC',
+        . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
         "INSERT IGNORE INTO `snapinGroupAssoc` "
         . "(`sgaSnapinID`,`sgaStorageGroupID`) "
         . "SELECT `sID`,`snapinNFSGroupID` FROM `snapins` "
@@ -3176,7 +3176,7 @@ $this->schema[] = [
     . "UNIQUE KEY `gmGroupID` (`gmHostID`,`gmGroupID`),"
     . "KEY `new_index` (`gmHostID`),"
     . "KEY `new_index1` (`gmGroupID`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `groupMembers_new` SELECT * FROM `groupMembers`",
     "DROP TABLE `groupMembers`",
     "RENAME TABLE `groupMembers_new` TO `groupMembers`",
@@ -3203,7 +3203,7 @@ $this->schema[] = [
     . "UNIQUE INDEX `cron` "
     . "(`pmHostID`,`pmMin`,`pmHour`,`pmDom`,"
     . "`pmMonth`,`pmDow`,`pmAction`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `modules` "
     . "(`id`, `name`, `short_name`, `description`) "
     . "VALUES "
@@ -3279,7 +3279,7 @@ $this->schema[] = [
         `settingCategory` LONGTEXT NOT NULL,
         PRIMARY KEY(`settingID`),
 UNIQUE INDEX `settingKey` (`settingKey`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `globalSettings_new` SELECT * FROM `globalSettings`",
     "DROP TABLE `globalSettings`",
     "RENAME TABLE `globalSettings_new` TO `globalSettings`",
@@ -3397,7 +3397,7 @@ $this->schema[] = [
     . "`uType` INT NOT NULL,"
     . "PRIMARY KEY(`uId`),"
     . "UNIQUE INDEX `name` (`uName`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `users_new` SELECT * FROM `users`",
     "DROP TABLE `users`",
     "RENAME TABLE `users_new` TO `users`",
@@ -3659,13 +3659,13 @@ $this->schema[] = [
     . "`heName` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`heID`),"
     . "UNIQUE INDEX `name` (`heName`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "CREATE TABLE `notifyEvents` ("
     . "`neID` INT NOT NULL AUTO_INCREMENT,"
     . "`neName` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`neID`),"
     . "UNIQUE INDEX `name` (`neName`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 255
 $this->schema[] = [
@@ -3815,7 +3815,7 @@ $this->schema[] = [
     . "`dkName` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`dkID`),"
     . "UNIQUE INDEX `name` (`dkName`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
 ];
 // 270
@@ -4044,7 +4044,7 @@ $this->schema[] = [
     . "`uaSelectorHash` VARCHAR(255) NOT NULL,"
     . "`uaPasswordHash` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`uaID`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 278 is #268 in 1.5.8
 $this->schema[] = [
@@ -4127,7 +4127,7 @@ $this->schema[] = [
     . "`dkName` VARCHAR(255) NOT NULL,"
     . "PRIMARY KEY(`dkID`),"
     . "UNIQUE INDEX `name` (`dkName`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES ('$dmiStrings')"
 ];
 // 284
@@ -4162,7 +4162,7 @@ $this->schema[] = [
     . '`fqdCompletedDate` DATETIME NOT NULL,'
     . '`fqdCreateBy` VARCHAR(40) NOT NULL,'
     . "PRIMARY KEY(`fdqID`)"
-    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC"
+    . ") ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC"
 ];
 // 288
 $this->schema[] = [
@@ -4171,7 +4171,15 @@ $this->schema[] = [
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateDate` `fdqCreateDate` DATETIME',
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCompletedDate` `fdqCompletedDate` DATETIME',
     'ALTER TABLE `fileDeleteQueue` CHANGE COLUMN `fqdCreateBy` `fdqCreateBy` VARCHAR(40)',
-    "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCompletedDate` DATETIME DEFAULT '0000-00-00 00:00:00'",
+    // GH-1243: NULL, not a zero date. '0000-00-00 00:00:00' is not a legal
+    // DATETIME default under MySQL 8.0's stock sql_mode (NO_ZERO_DATE,
+    // STRICT_TRANS_TABLES) -- it is error 1067, which is on neither
+    // tolerance list, so the whole schema update threw and FOG could not be
+    // installed on MySQL at all. NULL says the same thing ("not completed
+    // yet") and every supported server accepts it. Editing this historical
+    // step is safe: it has already run everywhere it was going to, and step
+    // 343 is what repairs those installs.
+    "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCompletedDate` DATETIME NULL DEFAULT NULL",
     "ALTER TABLE `fileDeleteQueue` MODIFY COLUMN `fdqCreateDate` DATETIME DEFAULT CURRENT_TIMESTAMP",
 ];
 // 289
@@ -4336,7 +4344,7 @@ $this->schema[] = [
     . "`rCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
     . "PRIMARY KEY (`rID`),"
     . "UNIQUE KEY `rName` (`rName`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 303
 $this->schema[] = [
@@ -4353,7 +4361,7 @@ $this->schema[] = [
     . "`ruaUserID` INT NOT NULL,"
     . "PRIMARY KEY (`ruaID`),"
     . "UNIQUE KEY `ruaRoleUser` (`ruaRoleID`,`ruaUserID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     function () {
         $indexes = self::$DB->query(
             "SELECT `INDEX_NAME` AS `iname`, "
@@ -4420,7 +4428,7 @@ $this->schema[] = [
     . "`rpName` VARCHAR(64) NOT NULL,"
     . "PRIMARY KEY (`rpID`),"
     . "UNIQUE KEY `rpRolePerm` (`rpRoleID`,`rpName`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 305
 $this->schema[] = [
@@ -4504,7 +4512,7 @@ $this->schema[] = [
     . "`ugCreatedTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,"
     . "PRIMARY KEY (`ugID`),"
     . "UNIQUE KEY `ugName` (`ugName`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 309
 $this->schema[] = [
@@ -4518,7 +4526,7 @@ $this->schema[] = [
     . "`ugmUserID` INT NOT NULL,"
     . "PRIMARY KEY (`ugmID`),"
     . "UNIQUE KEY `ugmGroupUser` (`ugmGroupID`,`ugmUserID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 310
 $this->schema[] = [
@@ -4532,7 +4540,7 @@ $this->schema[] = [
     . "`rugRoleID` INT NOT NULL,"
     . "PRIMARY KEY (`rugID`),"
     . "UNIQUE KEY `rugGroupRole` (`rugGroupID`,`rugRoleID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 311
 $this->schema[] = [
@@ -5205,7 +5213,7 @@ $this->schema[] = [
     . "UNIQUE KEY `siteName` (`siteName`),"
     . "UNIQUE KEY `siteCatchAll` (`siteCatchAll`),"
     . "CONSTRAINT `siteCatchAllIsOneOrNull` CHECK (`siteCatchAll` = 1)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     // The four membership tables. Same shape as userGroupMembers (step
     // 309): composite unique so a thing is in a site at most once, and a
     // defaulted Name column so assocSetter's batch inserts survive strict
@@ -5223,7 +5231,7 @@ $this->schema[] = [
     . "PRIMARY KEY (`shmID`),"
     . "UNIQUE KEY `shmSiteHost` (`shmSiteID`,`shmHostID`),"
     . "KEY `shmHostID` (`shmHostID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "CREATE TABLE IF NOT EXISTS `siteUserMembers` ("
     . "`sumID` INT NOT NULL AUTO_INCREMENT,"
     . "`sumName` VARCHAR(60) NOT NULL DEFAULT '',"
@@ -5232,7 +5240,7 @@ $this->schema[] = [
     . "PRIMARY KEY (`sumID`),"
     . "UNIQUE KEY `sumSiteUser` (`sumSiteID`,`sumUserID`),"
     . "KEY `sumUserID` (`sumUserID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "CREATE TABLE IF NOT EXISTS `siteGroupMembers` ("
     . "`sgmID` INT NOT NULL AUTO_INCREMENT,"
     . "`sgmName` VARCHAR(60) NOT NULL DEFAULT '',"
@@ -5241,7 +5249,7 @@ $this->schema[] = [
     . "PRIMARY KEY (`sgmID`),"
     . "UNIQUE KEY `sgmSiteGroup` (`sgmSiteID`,`sgmGroupID`),"
     . "KEY `sgmGroupID` (`sgmGroupID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     "CREATE TABLE IF NOT EXISTS `siteUserGroupMembers` ("
     . "`sugmID` INT NOT NULL AUTO_INCREMENT,"
     . "`sugmName` VARCHAR(60) NOT NULL DEFAULT '',"
@@ -5250,7 +5258,7 @@ $this->schema[] = [
     . "PRIMARY KEY (`sugmID`),"
     . "UNIQUE KEY `sugmSiteUserGroup` (`sugmSiteID`,`sugmUserGroupID`),"
     . "KEY `sugmUserGroupID` (`sugmUserGroupID`)"
-    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC",
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
 // 332
 $this->schema[] = [
@@ -5898,4 +5906,550 @@ $this->schema[] = [
     "UPDATE `taskLog` "
     . "SET `logType` = 'state' "
     . "WHERE `logType` = '' OR `logType` IS NULL",
+];
+// 341
+$this->schema[] = [
+    // A report keeps enough identity to be read after its task is gone.
+    //
+    // taskLog stores no host and no task type of its own; Task Management's
+    // log pane reaches all three through LEFT OUTER JOINs against `tasks`.
+    // Nothing deletes taskLog rows, so a report's TEXT survives forever --
+    // but Route::deletemass('host') cascades to `task`, and taskLog is in no
+    // cascade at all, so deleting a host destroys its tasks and leaves the
+    // reports behind with NULL where the host name was. On the install this
+    // was written against, 9 of 56 rows were already orphaned that way.
+    //
+    // Host name is the first thing anyone searches a failure by, and it is
+    // the field that cannot be recovered afterwards -- by the time the join
+    // fails, the host row is gone too. The point of GH-1206 is that a failure
+    // message is findable later instead of arriving as a phone photo of a
+    // wrapped console, and a foreign key to a routinely-deleted row cannot
+    // deliver that.
+    //
+    // The alternative was to block deleting a task that has reports, which
+    // inverts the dependency -- a diagnostic artifact would then constrain
+    // operational cleanup, and to be consistent it would have to block HOST
+    // deletion too, since that is the path that actually removes tasks.
+    // Refusing to delete a host because it once failed to image is a worse
+    // product than losing a host name.
+    //
+    // The state a row records is NOT copied: taskLog already stores
+    // taskStateID itself, so the taskStates join survives the task. Neither
+    // is the image, which this view has never shown.
+    //
+    // Nullable/empty and written only by the FOS report endpoint. 53 of those
+    // 56 rows are state transitions written by TaskingElement::taskLog() on
+    // every transition; they are meaningless without their task anyway, and
+    // making that path do three extra lookups per transition buys nothing.
+    // Same reasoning that gave logText no value on a state row in step 338.
+    //
+    // Two column shapes on purpose, and they follow what the writer can
+    // actually produce. FOGController::save() omits an unset OPTIONAL column
+    // whose key ends in "id" -- so logHostID gets its DEFAULT of NULL -- but
+    // for every other key an unset value is written as '', never NULL (the
+    // trap step 340 had to repair for logType, and the reason
+    // TaskLog::__construct() types its own rows). Declaring logHostName NOT
+    // NULL DEFAULT '' says what the ORM will really store rather than
+    // describing a NULL the writer cannot produce.
+    //
+    // A closure rather than a bare ALTER for the same reason steps 336 and
+    // 338 are: ADD COLUMN has no IF NOT EXISTS below MariaDB 10.0.2/MySQL
+    // 8.0.29, so a re-run has to converge on its own rather than error.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN "
+            . "('logHostID','logHostName','logTaskTypeName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('logHostID', $cols)) {
+            $adds[] = "ADD `logHostID` INT(11) NULL DEFAULT NULL";
+        }
+        if (!in_array('logHostName', $cols)) {
+            // varchar(16) matches hosts.hostName, which is capped at the
+            // NetBIOS limit and cannot outgrow this copy.
+            $adds[] = "ADD `logHostName` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('logTaskTypeName', $cols)) {
+            // varchar(30) matches taskTypes.ttName.
+            $adds[] = "ADD `logTaskTypeName` VARCHAR(30) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` " . implode(', ', $adds)
+            );
+        }
+
+        // Backfill the reports whose task is still there, so the history is
+        // not split between rows that know their host and rows that do not.
+        // Restricted to report rows and to rows not already filled, so a
+        // re-run is a no-op and a later hand-correction is not overwritten.
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "LEFT JOIN `hosts` "
+            . "ON `hosts`.`hostID` = `tasks`.`taskHostID` "
+            . "LEFT JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "SET `taskLog`.`logHostID` = `tasks`.`taskHostID`, "
+            . "`taskLog`.`logHostName` = COALESCE(`hosts`.`hostName`, ''), "
+            . "`taskLog`.`logTaskTypeName` = COALESCE(`taskTypes`.`ttName`, '') "
+            . "WHERE `taskLog`.`logType` <> '" . TaskLog::TYPE_STATE . "' "
+            . "AND `taskLog`.`logHostID` IS NULL"
+        );
+
+        return true;
+    },
+];
+// 342
+$this->schema[] = [
+    // GH-1152: de-split a schema whose tables no longer share one collation.
+    //
+    // Step 0 now pins `DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci` on
+    // every CREATE TABLE, which fixes fresh installs. It cannot fix an
+    // existing one -- step 0 already ran there -- and the existing install is
+    // the only case that can split in the first place.
+    //
+    // How the split happens: a bare `DEFAULT CHARSET=utf8` inherits whatever
+    // the server's default collation for that charset is, and MariaDB changed
+    // that between 11.4 and 11.8. Measured, rather than inferred (see
+    // scripts/background_scripts/probe_schema_collation_matrix.sh):
+    //
+    //   MariaDB 10.5.29   bare -> utf8_general_ci
+    //   MariaDB 11.4.12   bare -> utf8mb3_general_ci
+    //   MariaDB 11.8.8    bare -> utf8mb3_uca1400_ai_ci   <- boundary
+    //   MariaDB 12.3.2    bare -> utf8mb3_uca1400_ai_ci
+    //   MySQL 8.0.46/8.4  bare -> utf8mb3_general_ci
+    //
+    // Upgrading a server does not rewrite existing tables. So on a box taken
+    // across that boundary, every table that already existed keeps
+    // utf8mb3_general_ci and every table created afterwards comes out
+    // utf8mb3_uca1400_ai_ci -- and nothing reports it. It stays silent until
+    // a VARCHAR join crosses the boundary, at which point it is `Illegal mix
+    // of collations`. Most of FOG's joins are int-keyed and would never show
+    // it, which is exactly why this needs repairing rather than waiting for.
+    //
+    // CONVERT TO rather than `ALTER TABLE ... DEFAULT CHARACTER SET`: the
+    // latter changes only the default for columns added later and leaves
+    // every existing column on the old collation, which is the half that
+    // actually produces the error. The schema declares no utf8mb4 column
+    // anywhere, so nothing is narrowed by converting to utf8mb3, and the one
+    // LONGBLOB is a binary type that CONVERT TO a nonbinary charset does not
+    // touch.
+    //
+    // Scoped to tables that are actually wrong, so on the overwhelming
+    // majority of installs -- anything at or below the boundary -- this step
+    // executes no ALTER at all and costs one information_schema read. That
+    // matters: CONVERT TO rebuilds the table, and `hosts`, `tasks` and
+    // `taskLog` are not small on a real site.
+    function () {
+        // Both spellings of the same collation. 10.5 reports it as
+        // utf8_general_ci and 11.4+/MySQL as utf8mb3_general_ci, and a table
+        // is correct under either name -- comparing against one spelling
+        // would rebuild every table on one whole family of servers.
+        $okay = "('utf8_general_ci','utf8mb3_general_ci')";
+
+        // Tables whose own default is wrong, UNION tables carrying a column
+        // that is wrong. The second half is not redundant: a column takes the
+        // table default at creation, so the two normally agree, but a
+        // hand-edited or hand-repaired schema can carry one without the
+        // other, and a step that converges only on the tidy case is not a
+        // repair.
+        $rows = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_TYPE` = 'BASE TABLE' "
+            . "AND `TABLE_COLLATION` IS NOT NULL "
+            . "AND `TABLE_COLLATION` NOT IN $okay "
+            . "UNION "
+            . "SELECT DISTINCT `TABLE_NAME` AS `t` "
+            . "FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `COLLATION_NAME` IS NOT NULL "
+            . "AND `COLLATION_NAME` NOT IN $okay"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+        foreach ((array)$rows as $row) {
+            if (empty($row['t'])) {
+                continue;
+            }
+            self::$DB->query(
+                "ALTER TABLE `" . $row['t'] . "` "
+                . "CONVERT TO CHARACTER SET utf8mb3 "
+                . "COLLATE utf8mb3_general_ci"
+            );
+        }
+
+        return true;
+    },
+];
+// 343
+$this->schema[] = [
+    // GH-1243: repair the zero-date default on installs that already have it.
+    //
+    // `fdqCompletedDate` was declared DATETIME DEFAULT '0000-00-00 00:00:00'
+    // in step 288. That is not a legal default under MySQL 8.0's stock
+    // sql_mode -- NO_ZERO_DATE and STRICT_TRANS_TABLES are both on by
+    // default -- so the statement answers 1067, which is on neither
+    // SchemaUpdaterPage::update()'s $skiperrs nor SchemaReconciler's
+    // $_skiperrs.
+    //
+    // That was reported as "FOG cannot be installed on MySQL 8.0" and the
+    // severity was wrong: PDODB::_connect() clears sql_mode on every
+    // connection, so the updater never meets NO_ZERO_DATE and the statement
+    // runs. What the default really was is DDL whose validity depends on FOG
+    // having switched the server's own checks off -- see step 344 and
+    // GH-1245. MariaDB's default sql_mode has never included either flag,
+    // which is why no MariaDB install would object even without that.
+    //
+    // Step 288 is edited too, so a fresh install never creates the bad
+    // default. This step is for the installs that already did.
+    //
+    // The rows are cleared BEFORE the column is altered. Nothing reads this
+    // value -- FileDeleteQueueManager only ever writes it, on cancel() and
+    // complete() -- so a zero date here means "never completed", which is
+    // what NULL says without needing a sql_mode that tolerates it. Doing it
+    // in this order also means the MODIFY never has to convert an illegal
+    // value in place, which is itself an error on a strict server.
+    //
+    // YEAR() rather than comparing against the literal '0000-00-00 00:00:00':
+    // a strict server rejects the literal in the comparison as well, so a
+    // WHERE written the obvious way would fail on exactly the servers this
+    // exists for.
+    "UPDATE `fileDeleteQueue` SET `fdqCompletedDate` = NULL "
+    . "WHERE `fdqCompletedDate` IS NOT NULL "
+    . "AND YEAR(`fdqCompletedDate`) = 0",
+    "ALTER TABLE `fileDeleteQueue` "
+    . "MODIFY COLUMN `fdqCompletedDate` DATETIME NULL DEFAULT NULL",
+];
+// 344
+$this->schema[] = [
+    // GH-1245: "this never happened" is NULL, not a zero date.
+    //
+    // FOGController::save() writes '' for any unset optional field whose key
+    // does not end in "id". A date column cannot hold '': the server either
+    // refuses it or coerces it to '0000-00-00 00:00:00', and FOG only ever
+    // sees the second because PDODB::_connect() issues
+    // `SET SESSION sql_mode=''` on every connection. On the maintainer's own
+    // 1.6 server -- MariaDB 11.8 with STRICT_TRANS_TABLES in its own config --
+    // 83 of 86 rows carry a zero `hostLastDeploy` and 85 of 86 a zero
+    // `hostSecTime`, values that server's configuration forbids.
+    //
+    // save() now writes a real NULL for an empty date, which these columns
+    // have to be able to hold. Without this step it is worse than a no-op:
+    // an explicit NULL into a NOT NULL column errors under a strict mode and
+    // is coerced straight back to the zero date without one.
+    //
+    // Eleven columns, being every date column that is optional, not
+    // auto-filled by save()'s switch, and without a server-side default --
+    // which is exactly the set that can reach the '' arm and keep the result.
+    //
+    // Two reachable columns are deliberately left NOT NULL:
+    //
+    //   snapinTasks.stCheckinDate and userAuths.uaExpireDate both declare
+    //   DEFAULT current_timestamp(), so the server supplies a real value
+    //   rather than a zero date. uaExpireDate must stay that way: UserAuth
+    //   ::reapExpired() deletes on `uaExpireDate` < now, and NULL never
+    //   satisfies a comparison -- a nullable expiry would turn a token that
+    //   fails safe (reaped at once) into one that is never reaped at all.
+    //
+    // No historical step is edited, unlike GH-1243's step 343. `datetime NOT
+    // NULL` is legal DDL on every server, so the steps that created these
+    // columns still replay cleanly and a fresh install simply arrives here
+    // and is corrected.
+    //
+    // ALTER before UPDATE, the opposite order to 343: there the column was
+    // already nullable, here the rows cannot be set NULL until it is. YEAR()
+    // rather than the literal '0000-00-00 00:00:00' for the same reason as
+    // 343 -- a strict server rejects the literal in the comparison too.
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostLastDeploy` = NULL "
+    . "WHERE `hostLastDeploy` IS NOT NULL AND YEAR(`hostLastDeploy`) = 0",
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostSecTime` TIMESTAMP NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostSecTime` = NULL "
+    . "WHERE `hostSecTime` IS NOT NULL AND YEAR(`hostSecTime`) = 0",
+    "ALTER TABLE `images` "
+    . "MODIFY COLUMN `imageLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `images` SET `imageLastDeploy` = NULL "
+    . "WHERE `imageLastDeploy` IS NOT NULL AND YEAR(`imageLastDeploy`) = 0",
+    "ALTER TABLE `imagingLog` "
+    . "MODIFY COLUMN `ilFinishTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `imagingLog` SET `ilFinishTime` = NULL "
+    . "WHERE `ilFinishTime` IS NOT NULL AND YEAR(`ilFinishTime`) = 0",
+    "ALTER TABLE `inventory` "
+    . "MODIFY COLUMN `iDeleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `inventory` SET `iDeleteDate` = NULL "
+    . "WHERE `iDeleteDate` IS NOT NULL AND YEAR(`iDeleteDate`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msCompleteDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msCompleteDateTime` = NULL "
+    . "WHERE `msCompleteDateTime` IS NOT NULL AND YEAR(`msCompleteDateTime`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msStartDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msStartDateTime` = NULL "
+    . "WHERE `msStartDateTime` IS NOT NULL AND YEAR(`msStartDateTime`) = 0",
+    "ALTER TABLE `snapinTasks` "
+    . "MODIFY COLUMN `stCompleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `snapinTasks` SET `stCompleteDate` = NULL "
+    . "WHERE `stCompleteDate` IS NOT NULL AND YEAR(`stCompleteDate`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskCheckIn` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskCheckIn` = NULL "
+    . "WHERE `taskCheckIn` IS NOT NULL AND YEAR(`taskCheckIn`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskScheduledStartTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskScheduledStartTime` = NULL "
+    . "WHERE `taskScheduledStartTime` IS NOT NULL AND YEAR(`taskScheduledStartTime`) = 0",
+    "ALTER TABLE `userTracking` "
+    . "MODIFY COLUMN `utDate` DATE NULL DEFAULT NULL",
+    "UPDATE `userTracking` SET `utDate` = NULL "
+    . "WHERE `utDate` IS NOT NULL AND YEAR(`utDate`) = 0",
+];
+// 345
+$this->schema[] = [
+    // GH-1245: repair the ENUM error value.
+    //
+    // FOGController::save() wrote '' for every unset optional field whose key
+    // does not end in "id". Into an ENUM that is not a member, so the server
+    // stored the special error value at index 0 -- which reads back as '' and
+    // is illegal to write under any strict sql_mode. FOG never saw the error
+    // because PDODB::_connect() cleared sql_mode on every connection.
+    //
+    // It is not rare. On the maintainer's own 1.6 server: 83 of 87 hostMAC
+    // rows in each of three columns, 73 of 86 `hostEnforce`, 85 of 86
+    // `hostPending`, every `sShutdown`.
+    //
+    // Each column lands on its FIRST member, which is what save() now writes
+    // for an empty value and what MySQL uses as a NOT NULL enum's implicit
+    // default. Deliberately not the column's declared DEFAULT: `hostEnforce`
+    // declares DEFAULT '1', so honouring it here would silently turn
+    // enforcement ON for 73 hosts as a side effect of a storage repair. '' and
+    // '0' are both falsey in PHP, so every consumer sees what it saw before.
+    //
+    // Every enum column in the schema, not only the ones a model can leave
+    // empty today: the error value is illegal wherever it got in, and a
+    // column that stops being written by one path may still hold it.
+    "UPDATE `hostMAC` SET `hmIgnoreClient` = '0' WHERE `hmIgnoreClient` = ''",
+    "UPDATE `hostMAC` SET `hmIgnoreImaging` = '0' WHERE `hmIgnoreImaging` = ''",
+    "UPDATE `hostMAC` SET `hmPending` = '0' WHERE `hmPending` = ''",
+    "UPDATE `hostMAC` SET `hmPrimary` = '0' WHERE `hmPrimary` = ''",
+    "UPDATE `hosts` SET `hostEnforce` = '0' WHERE `hostEnforce` = ''",
+    "UPDATE `hosts` SET `hostPending` = '0' WHERE `hostPending` = ''",
+    "UPDATE `imageGroupAssoc` SET `igaPrimary` = '0' WHERE `igaPrimary` = ''",
+    "UPDATE `images` SET `imageEnabled` = '0' WHERE `imageEnabled` = ''",
+    "UPDATE `images` SET `imageReplicate` = '0' WHERE `imageReplicate` = ''",
+    "UPDATE `multicastSessions` SET `msShutdown` = '0' WHERE `msShutdown` = ''",
+    "UPDATE `nfsGroupMembers` SET `ngmGraphEnabled` = '0' WHERE `ngmGraphEnabled` = ''",
+    "UPDATE `powerManagement` SET `pmAction` = 'shutdown' WHERE `pmAction` = ''",
+    "UPDATE `powerManagement` SET `pmOndemand` = '0' WHERE `pmOndemand` = ''",
+    "UPDATE `pxeMenu` SET `pxeHotKeyEnable` = '0' WHERE `pxeHotKeyEnable` = ''",
+    "UPDATE `snapinGroupAssoc` SET `sgaPrimary` = '0' WHERE `sgaPrimary` = ''",
+    "UPDATE `snapinJobs` SET `sjAbortOnFail` = '0' WHERE `sjAbortOnFail` = ''",
+    "UPDATE `snapins` SET `sEnabled` = '0' WHERE `sEnabled` = ''",
+    "UPDATE `snapins` SET `sHideLog` = '0' WHERE `sHideLog` = ''",
+    "UPDATE `snapins` SET `sPackType` = '0' WHERE `sPackType` = ''",
+    "UPDATE `snapins` SET `sReplicate` = '0' WHERE `sReplicate` = ''",
+    "UPDATE `snapins` SET `sShutdown` = '0' WHERE `sShutdown` = ''",
+    "UPDATE `taskTypes` SET `ttIsAccess` = 'both' WHERE `ttIsAccess` = ''",
+    "UPDATE `taskTypes` SET `ttIsAdvanced` = '0' WHERE `ttIsAdvanced` = ''",
+    "UPDATE `taskTypes` SET `ttType` = 'fog' WHERE `ttType` = ''",
+    "UPDATE `tasks` SET `taskBypassBitlocker` = '0' WHERE `taskBypassBitlocker` = ''",
+    "UPDATE `tasks` SET `taskWOL` = '0' WHERE `taskWOL` = ''",
+    "UPDATE `users` SET `uAllowAPI` = '0' WHERE `uAllowAPI` = ''",
+];
+// 346
+$this->schema[] = [
+    // ADR 0021: the audit trail. Two tables, header and detail.
+    //
+    // Inert at this step. Nothing writes either table and neither is in
+    // Route::$validClasses, so this ships as storage and a setting and
+    // changes no behaviour anywhere. The writers arrive in later merges.
+    //
+    // Every column is named explicitly rather than derived, because a
+    // schema step that does not name its columns has broken the
+    // installer's grant probe twice already (steps 336 and 338): the probe
+    // reads the step to decide what privileges it needs, fails to work it
+    // out, and demands a database root password on a server whose grants
+    // are fine.
+    //
+    // WHY THERE IS NO UNIQUE KEY. `history` carries UNIQUE (hText, hTime)
+    // and it is the reason that table cannot be trusted -- two identical
+    // actions in the same second collapse into one row, silently, through
+    // save()'s INSERT ... ON DUPLICATE KEY UPDATE. An audit trail that
+    // discards a row because it resembles its neighbour is not one. The
+    // volume argument that key was invented for is answered by retention
+    // (FOG_AUDIT_RETENTION_DAYS below) and by not auditing reads at all.
+    //
+    // DATETIME rather than TIMESTAMP, with a server-side default: TIMESTAMP
+    // stops at 2038 and this table is meant to be the long record, and a
+    // column that fills itself cannot record the zero date that empty
+    // writes used to produce across this schema (GH-1243, step 344).
+    "CREATE TABLE IF NOT EXISTS `auditLog` ("
+    . "`alID` INT NOT NULL AUTO_INCREMENT,"
+    . "`alCreatedTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+    // The actor. 'fog' for a machine-originated write, which is what
+    // FOGController::save()'s createdBy auto-fill already produces when no
+    // user is valid -- the same convention, not a new one.
+    . "`alCreatedBy` VARCHAR(255) NOT NULL DEFAULT '',"
+    // 45 characters holds an IPv6 address with an IPv4 tail. `history`
+    // uses 50 for the same value; this is the size that is actually right.
+    . "`alIP` VARCHAR(45) NOT NULL DEFAULT '',"
+    // How the REQUEST authenticated, not how the account is configured.
+    // FOG already draws that distinction and documents it:
+    // User::sessionAuthSource() is about the request, users.uAuthSource
+    // about the account, and the two genuinely differ. An audit row is a
+    // fact about a request. Machine paths record the credential kind here
+    // -- host-token, node, anonymous -- which is the only actor-like fact
+    // they hold.
+    . "`alAuthSource` VARCHAR(64) NOT NULL DEFAULT '',"
+    // ADR 0020's frame: what kind of event, and what it was about.
+    . "`alType` VARCHAR(64) NOT NULL DEFAULT '',"
+    . "`alSubjectType` VARCHAR(64) NOT NULL DEFAULT '',"
+    . "`alSubjectID` INT NOT NULL DEFAULT 0,"
+    // Denormalized on purpose. The subject may be deleted -- most often BY
+    // the action being recorded -- and an audit row that can only say
+    // "host 41" about a host that no longer exists has lost the fact worth
+    // keeping. Same reasoning as taskLog's denormalized host name.
+    . "`alSubjectLabel` VARCHAR(255) NOT NULL DEFAULT '',"
+    // The permission string that was consulted. EMPTY IS MEANINGFUL: it
+    // says no authorization ran, which is what every machine path does, so
+    // a query for '' is a query for FOG's whole unauthenticated write
+    // surface.
+    . "`alPermission` VARCHAR(128) NOT NULL DEFAULT '',"
+    // 'unknown' is first deliberately. FOGController::save() writes the
+    // first ENUM member for an unset value, so whichever member leads is
+    // what an incomplete row claims -- and an audit row must not claim
+    // 'allowed' because a writer forgot to set the field (GH-1245).
+    . "`alOutcome` ENUM('unknown','allowed','denied','failed','partial') "
+    . "NOT NULL DEFAULT 'unknown',"
+    // One request, one id, however many rows it produces. Request-scoped
+    // static state on the PHP side; see ADR 0021 Decision 3.
+    . "`alCorrelationID` VARCHAR(32) NOT NULL DEFAULT '',"
+    // How many rows the statement touched. The only outcome a bulk
+    // UPDATE ... WHERE can report, and the reason a 400-host group edit is
+    // one header rather than 400.
+    . "`alAffectedCount` INT NOT NULL DEFAULT 0,"
+    // The activity-feed projection (ADR 0021 Decision 1). A flag here is
+    // what replaced the third table the original proposal wanted: the feed
+    // is these rows filtered, and its prose is built at READ time in the
+    // reader's locale from alType and the subject columns, never written
+    // as a translated string.
+    . "`alRenderable` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,"
+    // Untranslated machine detail -- a failure reason, a rejected
+    // username. NOT a rendered sentence: a sentence written here is
+    // written in the locale of whoever triggered it, which is the defect
+    // ADR 0020 exists to undo.
+    . "`alText` LONGTEXT NOT NULL,"
+    . "PRIMARY KEY (`alID`),"
+    . "KEY `alCreatedTime` (`alCreatedTime`),"
+    . "KEY `alCreatedBy` (`alCreatedBy`),"
+    . "KEY `alCorrelationID` (`alCorrelationID`),"
+    . "KEY `alOutcome` (`alOutcome`),"
+    . "KEY `alSubject` (`alSubjectType`,`alSubjectID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // One row per changed field.
+    //
+    // Deliberately NOT a foreign key. FOG declares none anywhere, and one
+    // here would make the retention sweep's DELETE order load bearing --
+    // exactly the kind of thing that fails on a restore onto a server with
+    // different settings, in a way that looks nothing like its cause.
+    //
+    // acSubjectType/acSubjectID repeat the header's because one header can
+    // cover many objects: an iterating path that saves 40 hosts writes one
+    // header and change rows for each host that landed. Without these,
+    // those rows could not say which host they belonged to.
+    "CREATE TABLE IF NOT EXISTS `auditChange` ("
+    . "`acID` INT NOT NULL AUTO_INCREMENT,"
+    . "`acAuditID` INT NOT NULL,"
+    . "`acSubjectType` VARCHAR(64) NOT NULL DEFAULT '',"
+    . "`acSubjectID` INT NOT NULL DEFAULT 0,"
+    . "`acField` VARCHAR(128) NOT NULL DEFAULT '',"
+    // Nullable, but ACREDACTED IS THE RECORD, not the NULL. A redacted row
+    // carries the field name, redacted = 1, and no value -- not a masked
+    // string, not a length, not a hash, because anything derived from a
+    // credential is a disclosure with extra steps.
+    //
+    // These columns were declared expecting a redacted row to hold NULL and
+    // they hold '' instead, verified against a live server. That is not a
+    // bug in either layer: FOGController::save()'s GH-1245 policy writes
+    // emptyValueFor(), which for a text column is '' -- correct in general,
+    // since '' is a real value a text column can hold. Fighting it for one
+    // table would mean a special case in the ORM. So the flag is what
+    // separates "withheld" from "was empty", and it cannot disagree with
+    // the values: Redaction::values() returns all three together.
+    //
+    // The columns stay NULL-able so a future direct writer can express the
+    // distinction, and because it costs nothing.
+    . "`acOldValue` LONGTEXT NULL DEFAULT NULL,"
+    . "`acNewValue` LONGTEXT NULL DEFAULT NULL,"
+    . "`acRedacted` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,"
+    . "PRIMARY KEY (`acID`),"
+    . "KEY `acAuditID` (`acAuditID`),"
+    . "KEY `acSubject` (`acSubjectType`,`acSubjectID`)"
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // 0 = keep forever, which is the only safe default for an upgrade: an
+    // admin who has never been asked has not consented to their audit
+    // history being deleted. The sweep that reads this arrives with the
+    // retention registry (ADR 0021 Decision 9, amended by ADR 0023); this
+    // is the first entry in that registry rather than the only one.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_AUDIT_RETENTION_DAYS','How many days of audit trail to keep. "
+    . "0 keeps everything forever, which is the default. Set a number of "
+    . "days and a periodic sweep deletes audit rows older than that. "
+    . "Shortening this window is itself recorded in the audit trail before "
+    . "it takes effect.','0','Logging Settings')",
+];
+// 347
+$this->schema[] = [
+    // The other three tables the retention registry ages out. They arrived
+    // from three ADRs -- history and userTracking from 0023, imagingLog from
+    // 0022, which defers to 0021's mechanism explicitly -- and they are one
+    // step because they are one feature: four settings read by one sweep.
+    //
+    // ALL DEFAULT TO 0, KEEP FOREVER, ON EVERY INSTALL AND EVERY UPGRADE.
+    // ADR 0023 Decision 7 wanted new installs to default to a bounded window
+    // and upgrades to keep everything; a schema step cannot tell the two
+    // apart, so it does the safe half here and the new-install default is
+    // the installer's to apply. Deleting on upgrade would be wrong for a
+    // specific reason: the administrator never chose to hold this data OR to
+    // delete it, and some of them are legally required to retain it.
+    //
+    // userTracking is called out in its own words because it is the one that
+    // is about PEOPLE -- which named person signed in to which machine, and
+    // when -- rather than about equipment.
+    //
+    // Columns named, per the note on step 346: a step that does not name
+    // them has broken the installer's grant probe twice.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_HISTORY_RETENTION_DAYS','How many days of administrative "
+    . "history to keep. 0 keeps everything forever, which is the default. "
+    . "Shortening this window is recorded in the audit trail before it "
+    . "takes effect.','0','Logging Settings'),"
+    . "('FOG_USERTRACKING_RETENTION_DAYS','How many days of host login "
+    . "records to keep. These name the person who signed in to each machine "
+    . "and when, so a shorter window here is a privacy control as much as a "
+    . "storage one. 0 keeps everything forever, which is the default on new "
+    . "installs and upgrades alike. Shortening this window is recorded in "
+    . "the audit trail before it takes effect.','0','Logging Settings'),"
+    . "('FOG_IMAGINGLOG_RETENTION_DAYS','How many days of imaging history "
+    . "to keep, measured from when each task started. 0 keeps everything "
+    . "forever, which is the default. Shortening this window is recorded in "
+    . "the audit trail before it takes effect.','0','Logging Settings')",
 ];

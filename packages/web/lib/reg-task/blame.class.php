@@ -52,6 +52,18 @@ class Blame extends TaskingElement
                 ->set('hostID', self::$Host->get('id'))
                 ->save();
         }
+        // FOS could not read the image from the node it was sent to. The
+        // node is blamed above and the task goes back in the queue for a
+        // different one -- a state transition nobody asked for and, until
+        // now, nothing recorded outside the nodeFailure row.
+        Audit::record([
+            'type' => 'task.blamed',
+            'authSource' => Audit::SOURCE_ANONYMOUS,
+            'subjectType' => 'task',
+            'subjectID' => (int)$this->Task->get('id'),
+            'subjectLabel' => (string)self::$Host->get('name'),
+            'renderable' => 1
+        ]);
         $this->Task->set('stateID', self::getQueuedState());
         if ($this->Task->save()) {
             echo '##';

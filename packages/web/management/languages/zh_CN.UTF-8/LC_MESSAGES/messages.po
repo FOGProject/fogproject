@@ -311,6 +311,10 @@ msgid "A role with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
+msgid "A scheduled time is required"
+msgstr "图像名是必需的！"
+
+#, fuzzy
 msgid "A selected role no longer exists"
 msgstr "不复存在"
 
@@ -495,6 +499,14 @@ msgstr "活动任务"
 msgid "Active at 5 minutes or more"
 msgstr ""
 
+#, fuzzy
+msgid "Activity"
+msgstr "活性"
+
+#, fuzzy
+msgid "Activity entry"
+msgstr "活动目录"
+
 msgid "Add"
 msgstr "加"
 
@@ -657,6 +669,10 @@ msgstr "添加关键"
 #, fuzzy
 msgid "Additional Icon Elements"
 msgstr "附加的MAC"
+
+#, fuzzy
+msgid "Administrative actions"
+msgstr "修改组"
 
 #, fuzzy
 msgid "Administrator"
@@ -925,6 +941,16 @@ msgstr "尝试ping"
 #, fuzzy
 msgid "Attempting to ping host"
 msgstr "尝试ping"
+
+msgid "Audit Log"
+msgstr ""
+
+#, fuzzy
+msgid "Audit entry"
+msgstr "活动目录"
+
+msgid "Audit row was not stored"
+msgstr ""
 
 msgid "Authenticated but not permitted."
 msgstr ""
@@ -1197,6 +1223,10 @@ msgstr ""
 msgid "Cannot notify from the hook manager"
 msgstr ""
 
+#, php-format
+msgid "Cannot select %s field(s): %s"
+msgstr ""
+
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "无法设置taskings未决的或无效的项目"
@@ -1245,6 +1275,10 @@ msgid "Capture"
 msgstr "创建"
 
 #, fuzzy
+msgid "Capture Complete"
+msgstr "完成"
+
+#, fuzzy
 msgid "Captured"
 msgstr "创建"
 
@@ -1284,6 +1318,9 @@ msgstr "新建%s"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Changing a retention window requires the audit manage permission"
+msgstr ""
+
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
@@ -1317,6 +1354,10 @@ msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
+
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "没有FOGPage类中找到此节点"
 
 msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
@@ -1397,6 +1438,10 @@ msgstr ""
 
 msgid "Close"
 msgstr ""
+
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "用户更新失败"
 
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
@@ -1574,6 +1619,10 @@ msgstr "CPU计数"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "CPU计数"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "加载失败： %s"
 
 msgid "Create"
 msgstr "创建"
@@ -1810,8 +1859,16 @@ msgid "Database Update Failed"
 msgstr "数据库更新失败"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "数据库更新失败"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "没有可用的散列"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "数据库更新失败"
 
 #, fuzzy
 msgid "Database save failed"
@@ -1937,6 +1994,10 @@ msgstr "菜单创建失败"
 
 msgid "Deploy"
 msgstr "部署"
+
+#, fuzzy
+msgid "Deploy Complete"
+msgstr "下载失败"
 
 msgid "Deploy Method"
 msgstr "部署方法"
@@ -2244,6 +2305,10 @@ msgstr ""
 msgid "Every file was uploaded."
 msgstr "没有文件被上传"
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "私钥失败"
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -2382,6 +2447,9 @@ msgstr "FTP连接失败"
 
 msgid "FTP Path"
 msgstr "FTP路径"
+
+msgid "FTP login rejected by"
+msgstr ""
 
 msgid "Failed"
 msgstr "失败"
@@ -2713,6 +2781,9 @@ msgstr ""
 #, fuzzy
 msgid "Friendly Name"
 msgstr "内核名称"
+
+msgid "From"
+msgstr ""
 
 #, fuzzy
 msgid "Full History"
@@ -3128,6 +3199,18 @@ msgstr "家"
 
 msgid "Host"
 msgstr "主办"
+
+#, fuzzy, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr "打印机已经存在"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished capturing image %2$s."
+msgstr "打印机已经存在"
+
+#, fuzzy, php-format
+msgid "Host %1$s finished deploying image %2$s."
+msgstr "打印机已经存在"
 
 #, fuzzy
 msgid "Host Approval Success"
@@ -3661,6 +3744,10 @@ msgid "Imaging Duration"
 msgstr "成像测井"
 
 #, fuzzy
+msgid "Imaging Failed"
+msgstr "加载失败： %s"
+
+#, fuzzy
 msgid "Imaging History"
 msgstr "主持人成像历史"
 
@@ -4007,6 +4094,10 @@ msgstr "无效的主机"
 #, fuzzy
 msgid "Invalid product key supplied"
 msgstr "无效的令牌传递"
+
+#, fuzzy
+msgid "Invalid retention identifier"
+msgstr "无效的管理单元任务处理"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -4639,6 +4730,10 @@ msgstr "批准选定主机"
 msgid "Mark selected pending"
 msgstr "批准选定主机"
 
+#, fuzzy
+msgid "Mass update failed"
+msgstr "用户更新失败"
+
 msgid "Master Node"
 msgstr "主节点"
 
@@ -5003,6 +5098,9 @@ msgid "No active tasks to cancel for this group"
 msgstr "发现主机没有活动任务"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No activity recorded yet"
 msgstr ""
 
 #, fuzzy
@@ -5482,6 +5580,9 @@ msgstr "其他标签＃1"
 
 msgid "Other Tag #2"
 msgstr "其他标签＃2"
+
+msgid "Outcome"
+msgstr ""
 
 msgid "PLUGIN OPTIONS"
 msgstr ""
@@ -6168,6 +6269,9 @@ msgstr "接收"
 msgid "Recent"
 msgstr "接收"
 
+msgid "Recent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
@@ -6188,6 +6292,9 @@ msgstr "服务状态"
 #, fuzzy
 msgid "Refresh the settings cache"
 msgstr "服务状态"
+
+msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
 
 msgid "Registered Hosts"
 msgstr "注册主机"
@@ -6281,6 +6388,9 @@ msgstr "报告管理"
 msgid "Reports"
 msgstr "报告"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr "所需的数据库字段为空"
 
@@ -6308,6 +6418,16 @@ msgstr "结果"
 
 msgid "Resume Reload"
 msgstr ""
+
+msgid "Retention refused, audit row would not store"
+msgstr ""
+
+msgid "Retention removed rows from"
+msgstr ""
+
+#, fuzzy
+msgid "Retention sweep failed"
+msgstr "去除"
 
 msgid "Return Code"
 msgstr "返回代码"
@@ -6416,7 +6536,7 @@ msgstr ""
 msgid "Rows in this page."
 msgstr "找不到包含该图像的任何节点"
 
-msgid "Rows matching the filter. Rewritten to the post-scoping count for site-restricted users, so treat it as a floor rather than a total."
+msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
 #, fuzzy
@@ -7138,6 +7258,9 @@ msgstr ""
 msgid "Some nice description, should be short."
 msgstr ""
 
+msgid "Source"
+msgstr ""
+
 msgid "Space variable must be boolean"
 msgstr ""
 
@@ -7430,6 +7553,10 @@ msgid "String must be a string"
 msgstr "事件必须是字符串"
 
 #, fuzzy
+msgid "Subject"
+msgstr "目的"
+
+#, fuzzy
 msgid "Subnet Group -> Group Relationship"
 msgstr "团体简介"
 
@@ -7559,8 +7686,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "启用"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "该类定义没有数据库表"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "连接失败"
 
 #, fuzzy
 msgid "Tag Name"
@@ -8091,6 +8226,18 @@ msgstr ""
 msgid "This host already exists"
 msgstr "打印机已经存在"
 
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
+msgstr "打印机已经存在"
+
+#, php-format
+msgid "This host has finished capturing image %s."
+msgstr ""
+
+#, php-format
+msgid "This host has finished deploying image %s."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8299,7 +8446,7 @@ msgstr "总磁盘空间"
 msgid "Total Memory"
 msgstr "总内存"
 
-msgid "Total rows in the table, unfiltered."
+msgid "Total rows the caller may see, unfiltered. For a site-restricted user this is the total within their sites, not the server total."
 msgstr ""
 
 msgid "Transmit"
@@ -8873,6 +9020,9 @@ msgstr "版"
 msgid "View"
 msgstr ""
 
+msgid "View all"
+msgstr ""
+
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "位置管理"
@@ -8928,6 +9078,9 @@ msgstr ""
 msgid "Weekly"
 msgstr "每周"
 
+msgid "What"
+msgstr ""
+
 msgid "What Setup Mode means"
 msgstr ""
 
@@ -8938,6 +9091,9 @@ msgstr "已成功更新"
 msgid "What to do next"
 msgstr ""
 
+msgid "When"
+msgstr ""
+
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
@@ -8945,6 +9101,9 @@ msgid "Where to get help and guides"
 msgstr ""
 
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgstr ""
+
+msgid "Who"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -9088,6 +9247,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "无效的存储节点"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "图片无效"
+
 msgid "and below"
 msgstr ""
 
@@ -9105,6 +9268,12 @@ msgid "and set it to master"
 msgstr ""
 
 msgid "and the FOG client."
+msgstr ""
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -9159,10 +9328,6 @@ msgstr "客户"
 #, fuzzy
 msgid "clients"
 msgstr "客户"
-
-#, fuzzy
-msgid "completed imaging"
-msgstr "完成"
 
 #, fuzzy
 msgid "confirm"
@@ -9226,6 +9391,9 @@ msgstr "启用"
 msgid "error"
 msgstr "错误"
 
+msgid "every column on this table will be treated as untyped"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
 msgstr ""
@@ -9259,6 +9427,9 @@ msgid "fog-admins"
 msgstr "域名"
 
 msgid "for Microsoft Windows to images"
+msgstr ""
+
+msgid "for user"
 msgstr ""
 
 #, fuzzy
@@ -9407,10 +9578,6 @@ msgstr "图片"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "主存储组"
-
-#, fuzzy
-msgid "imaging failed"
-msgstr "加载失败： %s"
 
 #, fuzzy
 msgid "in"
@@ -9570,7 +9737,13 @@ msgstr ""
 msgid "no reason given"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "no response from server"
+msgstr ""
+
+msgid "no row id after save"
 msgstr ""
 
 msgid "node is the distributor of the images"
@@ -10295,9 +10468,6 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
 
-#~ msgid "No FOGPage Class found for this node"
-#~ msgstr "没有FOGPage类中找到此节点"
-
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
 #~ msgstr "已安装的插件"
@@ -10524,6 +10694,10 @@ msgstr ""
 
 #~ msgid "before me"
 #~ msgstr "我面前"
+
+#, fuzzy
+#~ msgid "completed imaging"
+#~ msgstr "完成"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

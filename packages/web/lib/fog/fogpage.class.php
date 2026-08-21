@@ -513,6 +513,26 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Reports'],
                 'fa fa-file-text'
             ],
+            // Beside Reports, because that is what people will look for it
+            // under -- but a node of its own, not a report. The `report`
+            // permission node covers history, imaginglog and usertracking
+            // together, so one report.view grant reads every administrative
+            // action and every named person's login; the activity viewer
+            // gets its own gate precisely so it does not inherit that one.
+            // See docs/adr/0023.
+            'activity' => [
+                _('Activity'),
+                'fa fa-history'
+            ],
+            // Next to Activity, and a different page on purpose. Activity is
+            // the operational narrative; this is the record of who was
+            // allowed to do what, refusals included, and it discloses
+            // attempted usernames -- so it has its own node and is hidden
+            // from anyone not granted it. See docs/adr/0021.
+            'audit' => [
+                _('Audit Log'),
+                'fa fa-shield'
+            ],
             'service' => [
                 self::$foglang['ClientSettings'],
                 'fa fa-cogs'
@@ -939,6 +959,32 @@ abstract class FOGPage extends FOGBase
                 'refNode' => &$refNode
             ]
         );
+
+        // A node the registry knows, that declares no `create` action, has
+        // nothing to create -- so it must not advertise one.
+        //
+        // The permission filter below CANNOT catch this, which is the whole
+        // reason this block exists separately. A '*' holder passes every
+        // permission string handed to can(), including one naming an action
+        // the node never declared, so `activity.create` and `audit.create`
+        // both sailed through and put "Create New Activity" and "Create New
+        // Audit" in the sidebar of two read-only log viewers. `sub=add`
+        // there resolves to index() like any unknown sub, so the link did
+        // not even go where it said.
+        //
+        // Derived from the registry rather than added to the hand-kept case
+        // list above, because that list is where this went wrong: it already
+        // carries home, client, schema, service, hwinfo and apidocs for
+        // exactly this reason, and the next read-only node would have been
+        // the seventh thing somebody had to remember. A node absent from the
+        // registry is left alone -- that is a plugin page nothing has
+        // claimed, and its menu is not ours to trim.
+        $registry = Authorization::registry();
+        if (isset($registry[$node])
+            && !in_array('create', (array) $registry[$node], true)
+        ) {
+            unset($menu['add'], $menu['import']);
+        }
 
         // Drop sub-menu links the user lacks permission for (add/import ->
         // create, multicast -> task, etc.). Presentation only -- dispatch
@@ -1392,8 +1438,18 @@ abstract class FOGPage extends FOGBase
             if ($sub == 'list') {
                 // Tasks are cancelled per-pane, never deleted; the tabbed
                 // task page hits sub=list via the no-sub default, so keep
-                // the delete actionbox off it.
-                if ($node != 'plugin' && $node != 'task') {
+                // the delete actionbox off it. Activity and the audit log
+                // are read-only views of the event logs -- ?node=X&sub=list
+                // resolves to index() like any unknown sub does, and without
+                // this they would draw a "Delete selected" neither page
+                // implements. For the audit log there is nothing to
+                // implement it WITH: auditlog and auditchange have no delete
+                // route anywhere in FOG (ADR 0021 Decision 8).
+                if (!in_array(
+                    $node,
+                    ['plugin', 'task', 'activity', 'audit'],
+                    true
+                )) {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),
@@ -2252,7 +2308,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     $keys = [
                         'FOG_TFTP_FTP_PASSWORD',
@@ -2600,7 +2656,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     $keys = [
                         'FOG_TFTP_FTP_PASSWORD',
@@ -3198,7 +3254,8 @@ abstract class FOGPage extends FOGBase
                     // Reset must leave nothing behind that authorize() would
                     // still accept, grace token included.
                     'prev_sec_tok' => '',
-                    'sec_time' => '0000-00-00 00:00:00'
+                    // GH-1245: no expiry, not an expiry in the year zero.
+                    'sec_time' => null
                 ]
             );
         $this->jsonSend(HTTPResponseCodes::HTTP_ACCEPTED, json_encode(

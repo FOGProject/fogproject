@@ -1,0 +1,883 @@
+# Plan: `Route::listem()` and the route layer
+
+**Baseline:** `working-1.6` at `47ddae8b8`, tree green (`sh tests/run-all.sh` →
+`72 passed, 0 failed`).
+**Reads with:** `docs/route-listem-access-control-map.md` (the map) and
+`docs/route-listem-defects.md` (the findings). This document is the sequence.
+
+Every claim is tagged `VERIFIED` (a command in this document proves it),
+`INFERRED` (follows from verified facts but is not itself run) or `UNKNOWN`.
+
+The tree is green after every commit. `sh tests/run-all.sh` is the gate and is
+stated per commit rather than repeated.
+
+---
+
+## The shape of the answer, up front
+
+`listem()` is not one function that needs splitting. It is **one 1,103-line
+`switch` statement wearing a 60-line function around it**:
+
+`VERIFIED` — of the 1,103 lines between `:1512` and `:2614`, the per-field
+column loop (`:1645-1981`, 337 lines) and the extra-columns `switch
+($classname)` (`:1982-2478`, 497 lines) account for **834**. The actual
+pipeline is the remaining **269**.
+
+```
+R=packages/web/lib/router/route.class.php
+awk 'NR>=1512 && NR<=2614' $R | wc -l    # 1103  (listem)
+awk 'NR>=1645 && NR<=1981' $R | wc -l    #  337  (per-field column loop)
+awk 'NR>=1982 && NR<=2478' $R | wc -l    #  497  (extra-columns switch)
+awk 'NR>=1512 && NR<=2614' $R | grep -c "'prime' =>"   # 22
+```
+
+That changes the recommendation. Extracting "request parsing" and "query
+building" from the pipeline buys ~260 lines of readability and touches every
+guard in the map. Extracting the **column table** buys ~840 lines, touches no
+guard, and has a helper already written for it that is currently dead code
+(`relColumn()`, `:5065`, zero call sites). Do the cheap, safe, large one first.
+
+---
+
+## What `listem()` actually does — the enumeration
+
+Your expectation was "several functions wearing a trenchcoat: request parsing,
+permission resolution, scope filtering, query building, joining, pagination,
+sorting, search, field selection, result shaping." Mostly right. Corrections:
+
+| Responsibility | Where | Separable? |
+|---|---|---|
+| request parsing (body + `?length`/`?start` fold-in) | `:1523-1543` | yes, cleanly |
+| expand-clamp | `:1545-1561` | yes — and it is broken (DEAD-2) |
+| filter normalisation **and refusal** | `:1567-1581` | yes, but this is guard #1 and #2 |
+| **permission resolution** | *not here* | already extracted — `runMatches()` `:1191` |
+| column removal (secrets) | `:1614-1633` | yes, but this is guard #3 |
+| **column table** | `:1645-2478` | **yes, trivially — 834 of 1,103 lines, zero guards** |
+| search suppression | `:2508-2515` | yes, but this is guard #4 |
+| query building / joining / sorting / pagination / search | *not here* | already extracted — `_buildSql()` `:5788` + `FOGManagerController::complex()` |
+| **scope filtering** | `:2545-2547` | yes, but this is guards #5 and #6, and both are defective |
+| result shaping (`_lang`, expand enrichment, `paginate()`) | `:2550-2597` | yes, but `_lang` is load-bearing for guard #7 |
+
+Two things are **not** entangled, contrary to expectation: query building is
+already a separate function, and permission resolution never lived here.
+
+One thing genuinely is entangled and must not be separated: **`self::$data` is
+static and every helper on the path writes to it.** `getIds()` leaves it an
+empty string; `rel()`/`primeRel()`/`scopedObjectIDs()` all issue queries that
+can reach it. `listem()` copes by snapshotting into a local (`$payload`,
+`$listData`) at `:5670` and `:2569`, and the comment at `:2562-2568` records why.
+Any extraction that passes `self::$data` between new methods instead of
+returning a value re-opens that. **Return values, never the static.**
+
+---
+
+## Commit 0 — SEC-1, out of band · **DONE**
+
+> **Landed.** `ids()` refuses a `$getField` in `unfilterableFields()` -- 400
+> when serving a request, no rows plus a log line off-request so a daemon
+> cannot be exited by it. Landing it forced REENTRANCY-1 (see the defect list):
+> `sensitiveFieldMap()` memoized *after* firing its own event, and
+> `HookManager::processEvent()` calls `Route::getIds()`, so the new guard closed
+> a cycle that had been one call site away from an OOM since the map was
+> written. Both maps now memoize before the event.
+>
+> Suite 72 -> 73. New file `tests/route-ids-getfield-sensitive.test.php`, 41
+> checks, mutation-verified both ways: removing the guard fails 20 checks;
+> reverting the memo order exits 255 with an OOM.
+
+Not part of this sequence. `Route::ids()` returns `host.sec_tok`,
+`host.ADPass`, `user.password` and `user.token` in plaintext to any caller
+holding `<entity>.view`. It is a one-line fix in a function nothing else in
+this plan touches, and it should not wait behind a refactor.
+
+`VERIFIED` — the router delivers the field:
+
+```
+php /home/telliott/scripts/background_scripts/probe_ids_getfield_route.php
+# /fog/host/ids/id=1/sec_tok  => ids  params={"class":"host","whereItems":"id=1","getField":"sec_tok"}
+```
+
+`VERIFIED` — the emitter does not save it:
+
+```
+Route::stripSensitivePayload(['data' => [['id'=>1,'sec_tok'=>'SECRET']]])
+# => {"data":[{"id":1,"sec_tok":"SECRET"}]}     (no _lang stamp, no strip)
+```
+
+**Blast radius:** `ids()` only. `getIds()`'s in-repo callers ask for `id`,
+`name` and association columns; none asks for a field in
+`unfilterableFields()`. `UNKNOWN` — whether any third-party script does.
+
+**Alternative rejected:** stamping `_lang` onto `ids()`'s payload so the
+emitter strips it. That changes `ids()`'s response shape (a bare array becomes
+an envelope) for every caller, to fix a validation gap. Refuse at the input,
+where the same class of check already lives.
+
+---
+
+## Commit 1 — build the net. This is the first commit and it is not optional.
+
+**DONE** — `tests/lib/fog-test-harness.php` and
+`tests/route-read-path-guards.test.php`, 93 checks. Results at the bottom of
+this section. What follows is the finding that motivated it, kept as written.
+
+`VERIFIED` — the net did not exist. Eight mutations, full suite each time,
+file restored from a scratchpad copy between runs (never `git checkout --`):
+
+| Mutation to `route.class.php` | Suite |
+|---|---|
+| delete `_applySiteScope($classname)` from `listem()` | 72 passed, 0 failed |
+| `_assertNoSensitiveFilter()` → `return;` | 72 passed, 0 failed |
+| `unfilterableFields($classname)` → `[]` | 72 passed, 0 failed |
+| comment out `stripSensitivePayload()` in `printer()` | 72 passed, 0 failed |
+| `_applySettingValueScope()` → `return;` | 72 passed, 0 failed |
+| rename `_lang` → `_language` | 72 passed, 0 failed |
+| rename envelope key `recordsReturned` | 72 passed, 0 failed |
+| change the `/names` route path | 72 passed, 0 failed |
+
+Reproduce:
+
+```
+cp packages/web/lib/router/route.class.php /tmp/route.bak
+sed -i 's|self::_applySiteScope($classname);|// removed|' packages/web/lib/router/route.class.php
+sh tests/run-all.sh | tail -1
+cp /tmp/route.bak packages/web/lib/router/route.class.php
+```
+
+Why every one of these passes: the existing route tests pin *symbols*, not
+*behaviour*. `sensitive-fields-unfilterable.test.php` greps for the strings
+`_assertNoSensitiveFilter(`, `HTTP_BAD_REQUEST` and `'nosearch'`; inserting
+`return;` above the `HTTP_BAD_REQUEST` line leaves all three present.
+`site-scope-lists.test.php` exercises `Authorization::scopedObjectIDs()`
+thoroughly and never mentions `Route`. `listem-envelope.test.php` is a
+caller-side lint. `openapi-route-coverage.test.php` compares route **names**
+only.
+
+### The seams the net can use — all three `VERIFIED`, none needs a database
+
+1. **Refusals are catchable.** `Route::asValue()` (`:5269`) raises
+   `$_rethrowDepth`, which turns `sendResponse()`'s `exit` into a
+   `RuntimeException` (ADR 0011). So a test can assert "this filter is refused"
+   without the process ending:
+   ```
+   Route::asValue(function () { Route::listem('host', 'sec_tok=x', true); });
+   # RuntimeException code=406 msg={"error":"Cannot filter host on: sec_tok"}
+   ```
+   Note the 406, not the 400 the source chose — that is DEC-5, now **answered:
+   re-raise the inner code**. It is not yet implemented, because a half-applied
+   status policy is worse than either and it wants one sweep. Until that sweep,
+   write these assertions to the observed 406 and reference DEC-5 — including
+   for commit 0's new refusal, which has the same catch above it.
+
+2. **Stripping is a pure function.** `stripSensitivePayload()` and
+   `stripSensitive()` are public static and take a payload:
+   ```
+   Route::stripSensitivePayload(['_lang'=>'host','data'=>[['id'=>1,'sec_tok'=>'S']]])
+   # => {"_lang":"host","data":[{"id":1}]}
+   ```
+
+3. **Scope filtering is reachable by reflection with a hand-built payload.**
+   `_applySiteScope` is private static and reads `Route::$data`; both are
+   reachable via `ReflectionMethod`/`ReflectionProperty`. `site-scope-lists
+   .test.php` already builds a `FakeDB` and swaps `FOGBase::$DB` and
+   `Authorization::$_permCache` to drive `scopedObjectIDs()` DB-free — the same
+   fixture drives `_applySiteScope`.
+
+### What the net asserts
+
+`tests/route-read-path-guards.test.php`, one new file, following the suite's
+existing conventions (standalone, exit 0/1, no framework, no DB):
+
+1. a URL filter on each tier-1 and tier-2 sensitive field of `host` and `user`
+   is refused, and the refusal names the field;
+2. the same through the JSON search body (`getsearchbody`);
+3. `stripSensitivePayload` removes both tiers from a `_lang`-stamped list
+   payload, and only tier 2 from an unstamped single-entity payload;
+4. an unstamped payload is returned **unchanged** — pinning today's behaviour
+   so SEC-1's fix is understood as an input-side fix, not an emitter change;
+5. `_applySiteScope` with `scopedObjectIDs` → `null` leaves the payload
+   byte-identical (`===`), with `[]` empties it, with `[a,b]` keeps exactly
+   those rows — the `null`-vs-`[]` distinction asserted by identity;
+6. `_applySettingValueScope` drops a sensitive setting matched only on `value`,
+   keeps it when matched on `name`, and does nothing with no search term;
+7. `unfilterableFields('host')` covers every entry of both tiers plus anything
+   `API_SENSITIVE_FIELDS` declared;
+8. the envelope carries `draw`, `recordsTotal`, `recordsFiltered`, `truncated`,
+   `data`, `_lang`, `recordsReturned` and the four page URLs — pinned as a
+   literal key list, because that list is the API contract (ADR 0011) and
+   nothing pins it today;
+9. `listem()` calls `_applySiteScope` — a source-level assertion, kept
+   **alongside** the behavioural ones and not instead of them, because a
+   decomposition can preserve the behaviour of a method nobody calls.
+
+**Each assertion must be mutation-verified as it is written.** The mutation
+table above is the acceptance criterion: re-run all eight with the net in
+place and every one must fail. A net that does not turn that table red has not
+been built, whatever its assertion count says.
+
+### Result
+
+Met. All eight turn the net red, and building it surfaced six more mutations
+worth pinning, so the table stands at fourteen. Each run: restore
+`route.class.php` from a scratchpad copy, apply one mutation, run the net,
+restore. Baseline green and the file back at its starting md5 at the end.
+
+| # | Mutation to `route.class.php` | Net |
+|---|---|---|
+| — | *(baseline, unmutated)* | **green** |
+| M1a | delete `_applySiteScope($classname)` from `listem()` | red |
+| M1b | delete `_applySiteScope($classname)` from `search()` | red |
+| M2 | `_assertNoSensitiveFilter()` → `return;` | red |
+| M3 | `unfilterableFields($classname)` → `[]` (no `nosearch`) | red |
+| M4 | comment out `stripSensitivePayload()` in `printer()` | red |
+| M5 | `_applySettingValueScope()` → `return;` | red |
+| M6 | rename the `_lang` stamp | red |
+| M7 | rename envelope key `recordsReturned` | red |
+| M8 | `null === $scopeIDs` → `!$scopeIDs` (deny-all becomes allow-all) | red |
+| M9 | `isset($allowed[$id])` → `true` (scope filter keeps every row) | red |
+| M10 | `!$alwaysOnly` → `false` in `stripSensitive()` | red |
+| M11 | delete the `_assertNoSensitiveFilter()` call from `_assertFilterKeys()` | red |
+| M12 | delete the `_assertNoSensitiveFilter()` call from `getsearchbody()` | red |
+| M13 | `$valid` stops subtracting `unfilterableFields()` | red |
+
+Three of the six additions are the ones a reader would assume were already
+covered, and each cost an assertion that would not otherwise have been written:
+
+- **M11.** Deleting the dedicated sensitive-filter guard still refuses the
+  request — the unknown-key arm underneath it computes its valid-key list by
+  subtracting the same blocked list, so a blocked field is also an "unknown"
+  one. "Was it refused?" cannot see the real guard go. The arms are
+  distinguished structurally: the unknown-key arm answers with a `valid` list
+  of alternatives, the sensitive arm with `error` alone. **M13** is the other
+  half — the subtraction is deliberate (`_assertFilterKeys()` says so in a
+  comment) and nothing tested it; alone it is harmless because the dedicated
+  guard fires first, but it is the layer that would be left holding the line
+  if M11 ever shipped.
+- **M1b.** `search()` applies the boundary a second time, *after*
+  `API_MASSDATA_MAPPING`. Every section-6 assertion stays green without it,
+  because `listem()` already scoped. The only thing it protects is rows a
+  plugin **added** in between — and hooks get `data` by reference precisely so
+  they can. Section 6b registers a hook that appends an out-of-scope row and
+  asserts it never reaches the wire. This is the line a decomposition drops on
+  the grounds that `listem()` already did it.
+- **M4.** Pinning `stripSensitivePayload()`'s behaviour does not pin the
+  emitter's **call** to it — the exact failure mode this file exists to
+  prevent, reproduced while writing the file that prevents it. Closed by
+  driving `printer()` itself through `asValue()` and asserting on the wire
+  bytes.
+
+Reproduce any row:
+
+```
+SP=/tmp/route-net            # anywhere outside the repo
+cp packages/web/lib/router/route.class.php $SP/route.baseline.php
+# ...apply one mutation...
+php tests/route-read-path-guards.test.php   # want exit 1
+cp $SP/route.baseline.php packages/web/lib/router/route.class.php
+```
+
+### Two facts that made it possible, both worth not breaking
+
+- `DatabaseManager::getLink()` is `self::$DB->link()`. `complex()` prepares its
+  statements on that raw handle rather than going through `FOGBase::$DB`, so a
+  fake installed on the static `$DB` still reaches the row query, the filter
+  count **and** the total count. That single dereference is why `listem()` can
+  be asserted end to end with no database. Tidying `getLink()` into a private
+  connection would take the net with it.
+- The CLI SAPI does not populate `php://input`, whatever stdin points at, so
+  the two guards that read the request **body** are unreachable from an
+  ordinary test process. Those cases run as `php-cgi` children
+  (`SCRIPT_FILENAME` + `REDIRECT_STATUS` + `REQUEST_METHOD=POST` +
+  `CONTENT_LENGTH`), which has the side benefit of exercising the
+  request-serving arm of every `PHP_SAPI`-gated guard rather than the daemon
+  arm.
+
+**Blast radius:** none. New files only.
+**Alternative rejected:** waiting to write tests until after the extraction, on
+the grounds that the extraction gives better seams. That is the argument for
+having no net during the one change that needs it most.
+
+---
+
+## Commit 2 — `relColumn()` adoption
+
+**DONE** — 19 of 22 converted, 96 lines net removed, column table byte-identical.
+Result at the end of this section.
+
+`VERIFIED` — `relColumn()` (`:5065`) had zero call sites anywhere:
+
+```
+grep -rn 'relColumn(' --include=*.php packages/ /home/telliott/fog-plugins | grep -v 'function relColumn'
+```
+
+Its docblock says it exists so "a formatter that reaches for a relation without
+a primer" cannot happen. `listem()` hand-rolls that pair 22 times and three
+have drifted (PERF-2).
+
+Convert all 22 `['db'=>…, 'dt'=>…, 'prime'=>fn, 'formatter'=>fn]` literals to
+`self::relColumn(…)`. Mechanical; ~300 lines removed; **no guard touched** —
+none of the 22 is in the map.
+
+**Blast radius:** the grid column table for every class. The `prime` closures
+become identical by construction, which is the point. `CUSTOMIZE_DT_COLUMNS`
+receives the same `$columns` array shape it does today (`relColumn` returns the
+same four keys), so no plugin sees a change. `INFERRED`, and commit 1's
+assertion 8 plus a per-class column-name diff should prove it — see the gate
+below.
+
+**Gate:** capture `array_keys($row)` for one row of each of the 55 classes
+before and after, and require them identical. This is worth writing as a
+throwaway harness rather than a test, since it needs the live DB:
+`/home/telliott/scripts/background_scripts/profile_route_listem.php` already
+has the driving code.
+
+### Result
+
+The gate turned out not to need the live DB, and turned out to be worth
+keeping, so it is a test: `tests/route-column-contract.test.php` with a golden
+fixture, `tests/fixtures/route-column-contract.txt`, 628 lines.
+
+It captures more than the plan asked for, because rendered row keys are the
+weaker of the two available signals. Hooking `CUSTOMIZE_DT_COLUMNS` gets the
+column **table** itself — the thing plugins actually receive — before a single
+row is formatted, which sidesteps every synthetic-row fragility. Per column it
+records:
+
+| Field | Why |
+|---|---|
+| `db`, `dt`, index | the DataTables contract, in table order |
+| the formatter's `use (...)` list | read back with `ReflectionFunction::getStaticVariables()`. A formatter that stops closing over `$tmpcolumns` or `$classname` still compiles and silently renders a different cell — this is the specific way a move goes wrong quietly, and nothing else here would see it |
+| which classes the primer warms | obtained by **running** the primer against a synthetic row and reading the resulting `Route::$relCache` keys. What a primer primes cannot be read off the source once it is behind a helper, and that pairing is the entire reason `relColumn()` exists |
+
+628 columns across 52 classes, deterministic across runs, and byte-identical
+before and after the conversion. Mutation-verified in its own right — changing
+a primer's class, dropping a formatter's `use`, renaming a `dt`, deleting a
+column entry and removing a primer each turn it red.
+
+**Converted: 19.** **Left alone: 3**, none of them this shape:
+
+- `primac_vendor` and `mac_vendor` prime `MACAddress::primeVendors()`, a
+  different cache. Folding them in means a second primer parameter on
+  `relColumn()` used exactly twice — an abstraction invented to make a count
+  come out round.
+- `scheduledtask` → `hostLink` primes **two** classes off one column, because
+  `stGroupHostID` is a group id or a host id depending on `stIsGroup`.
+  `relColumn()` models one relation per column and should keep doing so.
+
+The three columns PERF-2 identifies as drifted are untouched here. The
+conversion makes the pairing visible at each call site, which is what makes
+that commit reviewable; it does not silently fix it.
+
+---
+
+## Commit 3 — extract the column table
+
+**DONE** — `listem()` is **256 lines**, down from 1,103. 739 lines moved
+verbatim. Result at the end of this section.
+
+`VERIFIED` (from the line counts above) — this was 834 of 1,103 lines.
+
+Move the per-field loop and the extra-columns `switch` into
+`_gridColumns($classname, $tmpcolumns, $classman)`, returning `$columns`. `listem()` keeps the two hook
+fires (`API_REMOVE_COLUMNS` before, `CUSTOMIZE_DT_COLUMNS` after) so the hook
+surface does not move, and keeps the `nosearch` pass — that one *is* a guard
+and stays where the map says it is.
+
+After this commit `listem()` is ~260 lines and can be read.
+
+**Blast radius:** as commit 2. Same gate.
+**Alternative rejected:** one method per class (`_hostColumns()`,
+`_taskColumns()`, …). 20-plus new methods, each called from exactly one place,
+to replace a `switch` that is already a dispatch on one variable. That is
+abstraction for its own sake and the CLAUDE.md rule forbids it.
+
+### Result
+
+`_gridColumns($classname, $tmpcolumns, &$tableID)`. 739 lines moved, and
+"verbatim" is checked rather than claimed: the moved body is byte-identical to
+the original region, line for line, modulo the one indent level. The column
+table is byte-identical for all 52 classes.
+
+`listem()` keeps every hook fire and every guard exactly where the map says
+they are — `arrayRemove` and `API_REMOVE_COLUMNS` before the call,
+`CUSTOMIZE_DT_COLUMNS` and the `nosearch` pass after it. Nothing in
+`docs/route-listem-access-control-map.md` moved.
+
+**One thing the gate could not see, and the net now can.** `$tableID` is
+learned while walking the column table and handed to `complex()`, which
+interpolates it into both count statements. It now crosses a function
+boundary, and nothing tested it: dropping the assignment left the column
+contract green (the table is identical either way), the whole suite green, and
+produced `SELECT COUNT(``) FROM `hosts`` — no `recordsTotal`, no
+`recordsFiltered`, on every list in the product.
+
+Section 9 of the net closes it. The first version of that assertion did **not**
+catch the mutation: it searched the statement for `hostID`, which also appears
+in two JOIN clauses of the same query, so it was true either way. It now parses
+the `COUNT(...)` argument. Worth recording because it is the second time in
+this work that a substring search over SQL passed for the wrong reason — the
+first was the `ids()` test, which grepped for friendly field names that
+happened to be substrings of the real columns.
+
+**Observed, not fixed:** `complex()` recovers the key from the column table
+only `if ($primaryKey == 'id')`, and an unset `$tableID` is `null`, which does
+not match. So a plugin that removed the `id` column on `API_REMOVE_COLUMNS`
+would produce that same `COUNT(``)`. Pre-existing, unreachable without such a
+plugin, and fixing it is a decision about what a list should do with no primary
+key — not part of a move.
+
+---
+
+## Commit 4 — SCOPE-1: the four unscoped routes
+
+**DONE** — all four scoped when serving a request, daemons untouched. Result at
+the end of this section.
+
+**DEC-2 answered: scope per-request, daemons unaffected.** Unblocked.
+
+`count()` first regardless of which option DEC-2 takes: it already runs through
+`listem()`, so the fix is to compute the scoped count rather than to add a new
+enforcement point. `INFERRED` — the cheapest correct form is to stop
+short-circuiting `data` when a scope applies, which trades GH-707's saving back
+on scoped servers only.
+
+**Blast radius:** every list page's row counter and every `getCount()` caller,
+on scoped servers. Unscoped servers take `scopedObjectIDs() === null` and are
+untouched — `VERIFIED` by the map §3 and by
+`tests/site-scope-lists.test.php`'s first four cases.
+
+### Result
+
+`count()` was already done by commit 5. The other three take the boundary in
+their **WHERE**, via `_requestScopeWhere()`.
+
+DEC-2 recorded that `ids()` "with a non-`id` `getField` cannot be filtered by
+row id at all" and parked it. That was true of the option being weighed —
+filtering the returned rows — and is not true of the one taken. The boundary
+constrains **rows**, so it is indifferent to which **column** was asked for:
+`/host/ids/id=1/name` returns bare names with no id to filter on, and the
+`WHERE` scopes it regardless. So `ids()` is closed on the same terms as the
+rest and needs no separate decision.
+
+**The gate is `'cli' === PHP_SAPI`, the same predicate `ids()` already uses**
+to decide whether it may answer 400 or must return empty and log. One notion of
+"am I serving a request" in the file rather than two. It is load bearing and
+the docblock says so: were PHP_SAPI to stop separating the two worlds this
+fails **open**, and that is the argument for the boundary living in the query
+of each route rather than in a blanket filter over `self::$data`.
+
+`_buildSql()` grew an `$extraWhere` parameter, ANDed after the caller's own
+filters so it can only narrow. Passed by `names()` and `ids()` explicitly and
+**not** from inside `_buildSql()`, whose third caller is `deletemass()` — a
+destructive path, outside a read-path commit, and its own decision.
+
+`unisearch()` needed the fragment **parenthesised**. Its match clause is a
+chain of ORs, and `AND` binds tighter than `OR`, so appending the boundary
+would have scoped the last arm alone and left every other arm matching
+server-wide. The SQL is valid either way and the statement mentions the
+membership table either way; only the parenthesisation tells them apart, so
+that is what the net reads.
+
+Six mutations, all caught: each of the three routes dropping the fragment,
+`_buildSql()` ignoring it, the boundary applying off-request (which would deny
+every daemon), and the unparenthesised `unisearch()`.
+
+**Verified on the lab against the live database** — a user entitled to 1 of 86
+hosts, both arms:
+
+| Route | CLI (daemon) | request |
+|---|---|---|
+| `count` | 1 | 1 |
+| `names` | **86 → 86** | 86 → **1** |
+| `ids` | **86 → 86** | 86 → **1** |
+| `unisearch` | **86 → 86** | 86 → **1** |
+
+The CLI column staying at 86 is the point, not an oversight: those are the
+daemons, and they have no user.
+
+---
+
+## Commit 5 — SCOPE-2: push the boundary into the query
+
+**DONE** — and it fixed `count()` (a quarter of SCOPE-1) with no code of its
+own. Result at the end of this section.
+
+`VERIFIED` end to end:
+
+```
+php /home/telliott/scripts/background_scripts/probe_sitescope_pagination.php < /dev/null
+# page 1 of a site1-scoped user's 86-host list: 0 rows, recordsTotal 0, nextUrl null
+# the one host they may see is at offset 75
+```
+
+Pass the scope ids into `complex()` as `$whereAll` — the parameter is already
+there (`fogmanagercontroller.class.php:685,713-718`), already ANDed into both
+the row query and the filter count, and already feeds `$whereAllSql` into the
+total count. That is what it was built for; nothing new is invented.
+
+`_applySiteScope`'s row loop then becomes a **defence in depth** assertion
+rather than the enforcement — keep it, and have it log if it ever removes a row
+the SQL should already have excluded.
+
+**DEC-1 answered: `recordsTotal` becomes the total in-scope count**, so the
+envelope describes the payload. Unscoped servers are untouched.
+
+**Blast radius:** scoped servers only, and it is the difference between the
+grid working and not. `UNKNOWN` — whether the id list can exceed MySQL's
+`max_allowed_packet` as an `IN (…)` on a large fleet; a site with 50,000 hosts
+produces a very long literal. Worth measuring before this commit, and it may
+argue for a subquery against `siteHostMembers` instead of an id list — which
+`SiteScope::allInScopeIDs()` already builds as SQL for the `task` case
+(`sitescope.class.php:443-455`) and could expose.
+
+### Result
+
+The `UNKNOWN` did not need measuring, because the subquery it pointed at is
+strictly better and costs nothing: one expression whatever the fleet size, and
+one round trip fewer, since the ids are never fetched. So the boundary is
+`<idcol> IN (SELECT …)`, and the packet-size question does not arise.
+
+`SiteScope::_inScopeSelect()` builds that SELECT; `allInScopeIDs()` runs it and
+`inScopeWhere()` embeds it, so the membership rule exists **once**. Two copies
+in two dialects is the failure this codebase already documents in
+`unisearch()`'s setting comment — when they drift nothing fails, the boundary
+simply stops matching in one of the two places.
+
+`Authorization::scopedObjectWhere()` is the twin of `scopedObjectIDs()`, and
+the ladder deciding *whether* a boundary applies is shared between them
+(`_boundedUserID()`) rather than restated.
+
+**The tri-state is safe by construction.** `null` — the only falsy value the
+function can return — means no boundary. A user who reaches nothing gets
+`'1=0'`, which is truthy, so a caller writing the natural
+`if (!$where) { skip }` skips only when skipping is correct. Returning `''`
+there would make that same line show every row on the server.
+
+`_applySiteScope()` stays as the fail-closed backstop and now logs when it
+removes anything, because since the boundary moved into the query it should
+have nothing to remove on the `listem()` path. It legitimately still does on
+`search()`, which runs it after `API_MASSDATA_MAPPING` — a plugin appending an
+out-of-scope row is exactly what that second call is for, and an administrator
+should be able to find out it happened.
+
+**Verified against the live lab database**, same probe as the finding:
+
+```
+# before                          # after
+start rows recordsTotal           start rows recordsTotal
+0     0    0                      0     1    1
+75    1    1                      25    0    0
+```
+
+Five mutations, all caught by the net: not passing the fragment to `complex()`;
+returning `''` for deny-all; collapsing the deny into no-boundary on either
+`scopedObjectWhere()` **or** `scopedObjectIDs()`; and inverting the fragment to
+`NOT IN`. That last one matters because every assertion phrased as "the
+statement mentions `siteHostMembers`" is true of `NOT IN` too — it is pinned by
+reading the fragment's shape instead.
+
+**It also fixed `count()`**, one of SCOPE-1's four routes, with no code of its
+own: `recordsFiltered` is computed by SQL, and the SQL now carries the
+boundary. Measured on the lab — a user entitled to 1 of 86 hosts:
+
+| Route | Before | After |
+|---|---|---|
+| `count` | 86 | **1** |
+| `names` | 86 | 86 |
+| `ids` | 86 | 86 |
+| `unisearch` | 86 | 86 |
+
+The other three are commit 4.
+
+---
+
+## Commit 6 — PERF-1: prime the `?expand` branch
+
+**DONE** — marginal cost per row 20 → 7 statements, payload byte-identical.
+Result at the end of this section.
+
+`VERIFIED`, measured:
+
+| rows | plain queries | `?expand=all` queries | expand wall |
+|---|---|---|---|
+| 1 | 4 | 30 | 10 ms |
+| 10 | 4 | 201 | 50 ms |
+| 25 | 4 | 485 | 107 ms |
+| 50 | 4 | 1008 | 325 ms |
+
+`php /home/telliott/scripts/background_scripts/profile_route_listem.php`
+
+The plain path is flat at 4 queries from 1 to 86 rows. The expand loop
+(`:2560-2593`) resolves per row with no priming, so `EXPAND_MAX_ITEMS` = 2500
+allows ~50,000 statements. The clamp's own comment says it bounds *memory*;
+memory is ~25 KiB/row, so 2500 rows is ~62 MiB and is not the binding
+constraint.
+
+Fix: `loadMany()` the page's ids once before the loop, as `primeRel()` already
+does, and have `expandRelations()` read from `$relCache`.
+
+**Blast radius:** `?expand` responses only. The response *shape* does not
+change — the same relations are inlined, resolved from a cache instead of one
+at a time.
+**Alternative rejected:** lowering `EXPAND_MAX_ITEMS`. It caps the damage
+without fixing it and silently truncates pages that work today.
+
+### Result
+
+Two per-row loads became two primed ones, both with `primeRel()`/`rel()` — the
+pair GH-707 introduced and this branch never used. The outer one resolves the
+page's own objects; the inner one, in `expandRelations()`, resolves each
+expanded collection's members, and that is the larger half: a host expanded
+with its macs, snapins and modules resolves every one of them there.
+
+Measured on the lab against the live database, `?expand=all` on `host`:
+
+| page | before | after |
+|---|---|---|
+| 1 | 49 | 49 |
+| 10 | 264 | 149 |
+| 25 | 549 | 239 |
+| 50 | 1024 | 389 |
+
+Marginal cost: **~20 statements/row → ~7**. The payload is byte-identical at
+every page size, compared as sorted JSON
+(`background_scripts/compare_expand_payload.php`).
+
+Not flat, and it is worth saying why rather than implying the job is finished:
+what remains is `$class->get($rel['field'])` on each row, which lazily loads
+through `FOGController` and is not reachable from here. The per-row *object*
+loads are gone; the per-row *relation* accessor is not.
+
+Pinned in the net as a **marginal** cost — the slope between two page sizes,
+not an absolute count. The intercept is a property of the fixture; the slope is
+the defect. Reverting the commit takes the net red.
+
+Two measurement traps, both hit while doing this and both now written into the
+probe so the next person does not:
+
+- `listem()`'s third argument is `$inputoverride`, a **bool** meaning "there is
+  no `php://input` body". Passing a `pass_vars` array there is merely truthy,
+  skips the branch that folds `?length`/`?start` in, and silently returns the
+  whole table — so the first run of the probe reported the same query count for
+  every page size it was asked for.
+- `parseExpand()` runs at the top of `listem()`, so `QUERY_STRING` has to be
+  set before the call, not after.
+
+---
+
+## Commit 7 — PERF-2: the three unprimed classes
+
+**DONE, and it found a bug rather than a slowness.** The premise below — that
+these three want `relColumn()` — does not survive measurement. Result at the
+end of this section.
+
+`VERIFIED`, plain `listem()`, marginal queries per row:
+
+| class | rows | queries | q/row | wall |
+|---|---|---|---|---|
+| `storagegroup` | 3 | 112 | 36.3 | 284 ms |
+| `storagenode` | 4 | 54 | 12.8 | 12 ms |
+| `imaginglog` | 11 | 16 | 1.2 | 13 ms |
+| `snapintask` | 44 | 7 | 0.09 | 28 ms |
+| `macaddressassociation` | 87 | 6 | 0.03 | 32 ms |
+
+Three classes never got GH-707's treatment. `storagegroup` costs 284 ms for
+three rows. Fix each with `relColumn()`, which commit 2 has already made the
+house shape. Includes DEC-3 (the shared `StorageGroup` object threaded between
+two formatters by column order).
+
+**Blast radius:** the storage group, storage node and imaging log grids.
+Formatter output is unchanged; only where the object comes from changes.
+
+### Result
+
+Re-measured after commits 2, 3 and 6 — unchanged, so the cost is where it was:
+
+| class | rows | q/row |
+|---|---|---|
+| `storagegroup` | 3 | 36.0 |
+| `storagenode` | 4 | 12.5 |
+| `imaginglog` | 11 | 1.09 |
+
+**None of it is rel-shaped, and `relColumn()` is the wrong tool for all three.**
+The cost is inside model methods that each run their own queries:
+
+- `storagegroup` → `getMasterStorageNode()`, which walks the group's nodes and
+  probes each.
+- `storagenode` → `getClientLoad()` → `getUsedSlotCount()` +
+  `getQueuedSlotCount()`, which count tasks per node. These are the nested
+  `listem()` calls F-45 found.
+- `imaginglog` → the image is resolved **by name**
+  (`getClass('Image')->set('name', $d)->load('name')`), and `primeRel()` keys
+  on id, so no primer can serve it.
+
+Batching any of those means changing `StorageNode`/`StorageGroup`, not the
+column table. That is a different commit against a different file and it is not
+this one.
+
+**What this commit does instead is fix a wrong answer.** DEC-3 described the
+shared `StorageGroup` object as an ordering accident that "changes no output".
+Measuring it showed otherwise: `set('id', …)->load()` on an object that has
+already loaded a different group does not clear the previous group's resolved
+relations, so from the second row onwards both columns answered about the
+**first** group — as shipped, not only if reordered.
+
+On the lab, three groups whose real members are `[1]`, `[3,2]` and `[]` all
+reported `enablednodes [1]` and `DefaultMember` as master. After:
+
+```
+id  name        enablednodes  masternode
+1   default     [1]           DefaultMember
+6   something   []            (empty)
+2   testgroup   [3,2]         redhat
+```
+
+which matches `nfsGroupMembers` read directly. The old answer was a real node
+name, which is why it never looked wrong.
+
+Priming was tried first and rejected on evidence: `loadMany()` through
+`primeRel()` leaves a group in a state `getMasterStorageNode()` answers
+differently on, which trades one wrong answer for another. The fix is a per-id
+memo holding a **fresh** object — the `$snapinTaskHost` pattern already in this
+file — keeping the exact `load()` path.
+
+Query count is 107 → 113 for three groups, and that is the fix costing what the
+bug was avoiding: it is now doing the per-group work it was skipping.
+
+The contract test catches a revert, because the formatters' `use (...)` list is
+part of what it pins: `f:StorageGroup` became `f:groupFor`.
+
+---
+
+## Commit 8 — extract the pipeline phases
+
+Only now, and only if commits 1–7 have left something worth extracting. After
+commit 3, `listem()` is ~260 lines: parse request → normalise filters →
+build columns → query → hooks → scope → shape. Each phase is a private method
+returning a value.
+
+**Every guard in the map is in this commit's diff.** It is the one that needs
+the net, and by here the net has been mutation-verified twice.
+
+**Alternative rejected — and this is your constraint, restated so a later
+reader does not re-litigate it:** splitting `route.class.php` into several
+files. If the end state wants that, it is the commit after this one, never
+before. A 6,470-line move hides behaviour changes inside apparent relocations.
+
+---
+
+## `openapi.class.php` coupling
+
+`VERIFIED` — the document reads exactly six things from the route layer:
+
+```
+grep -nE 'Route::(\$?[A-Za-z_]+)' packages/web/lib/fog/openapi.class.php
+# :295  Route::webrootbase()
+# :397  Route::$validClasses
+# :619  Route::serverOwnedFields()
+# :713  Route::sensitiveFieldMap()
+# :799  Route::$validTaskingClasses
+# :800  Route::$validActiveTasks
+# :1104 Authorization::resolveApiPermission()
+```
+
+The important consequence: **it does not read the route table.** `defineRoutes()`
+is named in its docblock but never called; the path shapes in `_paths()`,
+`_classPaths()` and `_fixedPaths()` are hand-written mirrors. So a change to a
+path pattern, a method, a parameter or a response body desynchronises silently.
+`openapi-route-coverage.test.php` catches only route **names**, in both
+directions — `VERIFIED` by mutation: changing the `/names` route's *path* while
+keeping its name leaves the suite green.
+
+For this plan that cuts a favourable way: **nothing in `listem()` is described
+by the document at all.** `_entitySchema()` reflects `$databaseFields`, so the
+grid's own `dt` columns — `mainlink`, `imagename`, `primac`, `primac_vendor`,
+`hostLink`, `taskstateicon`, `diff`, `members`, `hostcount` — are undocumented
+today. Commits 2, 3 and 7 therefore cannot desync a spec that never described
+them.
+
+They also cannot be caught by it. Those names *are* the contract that
+`fog.host.list.js` and every DataTables binding depend on, and the comment at
+`:2010-2018` records a case where renaming one to something tidier would have
+left a column silently blank. That is why commit 2's gate is a before/after
+`array_keys()` diff and not a spec check.
+
+Commits 4 and 5 do touch the document's inputs indirectly — if DEC-1 changes
+what `recordsTotal` means, the prose on the list operation in `_classPaths()`
+must change in the same commit. Per CLAUDE.md's standing rule, if a commit here
+touches `route.class.php` and not `openapi.class.php`, say in the message why
+not.
+
+---
+
+## Does this warrant an ADR?
+
+Your instinct is right and I would split it in two.
+
+**The decomposition: no ADR.** Commits 2, 3, 7 and 8 change no guarantee, no
+response shape and no extension point. An ADR recording "we made a long
+function shorter" is documentation of an activity, not of a decision, and it
+would dilute a directory whose value is that every entry is load-bearing.
+
+**The scope guarantee: yes, an ADR, and it should be written before commit 4.**
+Commits 4 and 5 answer a question `docs/adr/` does not currently contain:
+*what does the route layer promise about object scope, and on which routes?*
+Today the answer is an accident — `list` and `search` are scoped because
+somebody added a line to two functions, and `names`/`ids`/`count`/`unisearch`
+are not because nobody added it to four more. The permission table maps all
+seven to the same `<entity>.view`, so there is no principle anywhere that says
+which routes are inside the boundary.
+
+That is exactly the "shared resource, today's sole user is a snapshot" shape:
+the next route added to `defineRoutes()` will be scoped or not depending on
+whether its author remembered, and nothing will tell them. The ADR's job is to
+make the boundary a property of the route layer — every route resolving to
+`<entity>.view` is scoped, enforced in one place — rather than a habit.
+
+It should also record DEC-1, because "what `recordsTotal` counts on a scoped
+server" is a promise to API consumers, and the reason `_applySiteScope` was
+originally written as a post-filter rather than a query filter (`UNKNOWN` — the
+code carries no comment saying, and `SiteScope`'s docblock argues against it,
+so this may simply have been an oversight rather than a decision).
+
+---
+
+## Which claim in this plan, if false, would hurt most?
+
+**That `_applySiteScope`'s post-filter is fail-closed — that it can only ever
+remove rows a user should not see, never leave one in.**
+
+Everything else in this plan is arranged around that. It is why SCOPE-2 is
+rated a *functional* defect and not a disclosure, why commit 5 is sequenced
+sixth instead of first, and why I was willing to keep the row loop as a defence
+in depth rather than treating it as the hole.
+
+It rests on one line, `:5676`:
+
+```php
+$id = (int)(is_array($row) ? ($row['id'] ?? 0) : ($row->id ?? 0));
+if (isset($allowed[$id])) { $kept[] = $row; }
+```
+
+A row whose `id` key is missing, or is not the object id the scope list is
+about, casts to `0`, misses `$allowed`, and is dropped. That is the safe
+direction. But the filter is only as correct as the assumption that **`$row['id']`
+is the id `scopedObjectIDs($node)` enumerated** — and `listem()`'s own column
+table is what puts `id` in the row. `:1642-1657` sets it from `$tmpcolumns['id']`
+for every class, so today it holds. Commits 2 and 3 rewrite exactly that code.
+
+If a class ever emits an `id` that is not its own primary key — a join column, a
+plugin column added through `CUSTOMIZE_DT_COLUMNS` with `'dt' => 'id'`, or a
+future class whose `$databaseFields` has no `id` at all — then the filter stops
+being a filter. It does not throw. It does not warn. It keeps or drops rows
+against the wrong list, and on a site-scoped server that is one customer's users
+seeing another site's hosts, with a list that looks entirely fine.
+
+`INFERRED`, not `VERIFIED`: I have confirmed the current column table always
+emits the primary key as `id`, and that none of the six bundled plugins
+listening on `CUSTOMIZE_DT_COLUMNS` adds a column with `'dt' => 'id'`
+(`grep -rn "'dt'\s*=>\s*'id'" /home/telliott/fog-plugins` → nothing). I have not confirmed that no third-party plugin does, and
+`CUSTOMIZE_DT_COLUMNS` hands `&$columns` to anything installed. Commit 1 should
+assert this directly — `_applySiteScope` against a payload whose `id` is absent,
+and against one whose `id` has been overwritten — because it is the assumption
+the rest of the plan is standing on.

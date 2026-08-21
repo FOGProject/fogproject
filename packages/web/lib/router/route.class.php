@@ -240,7 +240,40 @@ class Route extends FOGBase
      *
      * @var array
      */
-    public static $sensitiveAlwaysFields = [];
+    public static $sensitiveAlwaysFields = [
+        // A storage node's FTP credential. It reaches the root-running
+        // replicator's lftp invocation and the SSH helpers in
+        // Snapin/TaskQueue, so holding it is holding the node -- the same
+        // credential class as GHSA-2hqx-5ffg-w4c3.
+        //
+        // Tier 2 rather than tier 1 because nothing reads it back over the
+        // API: every consumer is server-side PHP with the object already
+        // in hand (snapin.class.php, taskqueue.class.php,
+        // snapinclient.class.php, the node edit page), and the FOS handoff
+        // in service/hostinfo.php sends the node's IP and path only. So
+        // there is no legitimate reader to carve out for, the way host
+        // ADPass has one in fog-client.
+        //
+        // Found leaking through the storage GROUP list, not the node list:
+        // the group's `masternode` column embeds the whole node object,
+        // password included, to anyone holding storagegroup.view.
+        'storagenode' => [
+            'pass',
+            'key',
+        ],
+        // The remember-me validator hash. userauth is not in $validClasses,
+        // so no route emits it and this changes no API behaviour -- it is
+        // here because the registry is now read by the audit trail as well
+        // as the emitter (ADR 0021 Decision 6), and a credential column that
+        // no route happens to expose is still a credential column.
+        //
+        // uaSelectorHash is deliberately absent: the selector is the LOOKUP
+        // half of the pair and is not secret by design. Withholding it would
+        // suggest it is.
+        'userauth' => [
+            'password',
+        ],
+    ];
     /**
      * Memoized union of the core tiers above and what plugins declare
      * through API_SENSITIVE_FIELDS. Null until first built.
@@ -1193,7 +1226,12 @@ class Route extends FOGBase
                 Authorization::resolveApiPermission(
                     self::$matches['name'] ?? '',
                     self::$matches['params']['class'] ?? ''
-                )
+                ),
+                // The class and id the route addressed, so the audit header
+                // says WHAT was acted on and not only which permission was
+                // consulted. Resolution itself is unchanged.
+                self::$matches['params']['class'] ?? '',
+                self::$matches['params']['id'] ?? 0
             );
             // Object-scope boundary (optional, plugin-enforced): a per-object
             // REST call carries the target id; confirm it is within the acting
@@ -1226,6 +1264,18 @@ class Route extends FOGBase
         );
         $passtoken = trim($passtoken);
         if (!hash_equals((string)self::$_token, (string)$passtoken)) {
+            // Before sendResponse(), which exits. The presented token is
+            // NOT recorded -- a rejected credential is still a credential,
+            // and #1261/#1262 was exactly this mistake in the SQL fault log.
+            Audit::record(
+                [
+                    'type' => Audit::TOKEN_REJECTED,
+                    'outcome' => Audit::DENIED,
+                    'subjectType' => 'system',
+                    'authSource' => 'api-token',
+                    'renderable' => 1
+                ]
+            );
             self::sendResponse(
                 HTTPResponseCodes::HTTP_FORBIDDEN
             );
@@ -1321,6 +1371,28 @@ class Route extends FOGBase
             self::$FOGUser = $pwtoken;
             return;
         }
+        // A user token was PRESENTED and did not work. Falling through to
+        // basic auth is correct -- a client may send neither, or both --
+        // but the rejection is a fact, and until now it left no trace at
+        // all. Only recorded when something was actually presented: an
+        // empty header is not an attempt.
+        if ('' !== $usertoken) {
+            Audit::record(
+                [
+                    'type' => Audit::TOKEN_REJECTED,
+                    'outcome' => Audit::DENIED,
+                    'subjectType' => 'user',
+                    // The token is a credential and is not written down. If
+                    // it resolved to an account at all, that account's name
+                    // is the fact worth keeping; if it did not, there is
+                    // nothing to say beyond "a token was refused".
+                    'subjectID' => (int)$pwtoken->get('id'),
+                    'subjectLabel' => (string)$pwtoken->get('name'),
+                    'authSource' => 'user-token',
+                    'renderable' => 1
+                ]
+            );
+        }
         list($authUser, $authPass) = self::_basicAuthCredentials();
         $auth = self::$FOGUser->passwordValidate(
             $authUser,
@@ -1341,6 +1413,22 @@ class Route extends FOGBase
         // fills in id, name and type on the object it was called against.
         $apiUser = self::getClass('User', (int)self::$FOGUser->get('id'));
         if (!$apiUser->isValid() || !$apiUser->get('api')) {
+            // A correct password for an account that may not use the API.
+            // Distinct from a bad credential and worth telling apart: this
+            // one says somebody's real credential is being used somewhere
+            // it is not meant to be.
+            Audit::record(
+                [
+                    'type' => Audit::API_DENIED,
+                    'outcome' => Audit::DENIED,
+                    'subjectType' => 'user',
+                    'subjectID' => (int)$apiUser->get('id'),
+                    'subjectLabel' => (string)$authUser,
+                    'createdBy' => (string)$authUser,
+                    'authSource' => 'basic',
+                    'renderable' => 1
+                ]
+            );
             self::sendResponse(
                 HTTPResponseCodes::HTTP_UNAUTHORIZED
             );
@@ -1384,9 +1472,63 @@ class Route extends FOGBase
                 (int)$code
             );
         }
+        // The gate could only say the action was ALLOWED. Whether it then
+        // worked is known here, and "allowed, and it failed" is a different
+        // fact from "allowed" -- particularly to somebody reading the trail
+        // to find out why a change did not stick (ADR 0021 merge 4).
+        //
+        // 401 and 403 are excluded because they are already recorded, as
+        // denials, by the gate and by the token tests. Re-marking them would
+        // overwrite the row that says somebody was turned away with one that
+        // says something went wrong. markOutcome() refuses that anyway; this
+        // is the same rule stated where a reader will look for it.
+        if ((int)$code >= 400
+            && !in_array(
+                (int)$code,
+                [
+                    HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                    HTTPResponseCodes::HTTP_FORBIDDEN
+                ],
+                true
+            )
+        ) {
+            Audit::markOutcome(Audit::FAILED);
+        }
         HTTPResponseCodes::breakHead(
             $code,
             $msg
+        );
+    }
+    /**
+     * Ends the response for an exception caught in a route handler.
+     *
+     * DEC-5. Every one of these catches used to answer HTTP 406 and discard
+     * the code the inner failure chose. Over plain HTTP that was invisible:
+     * the inner sendResponse() exits inside breakHead(), so the wire status
+     * was whatever that inner call picked and the catch never ran. Under a
+     * getX()/asValue() result wrapper it is not -- there sendResponse()
+     * throws rather than exiting (see above), the catch below it does run,
+     * and a caller reading through the wrapper saw 406 for a refusal the
+     * source raised as 400.
+     *
+     * So re-raise the inner code when it is one, and keep 406 for everything
+     * else. "Is one" means 400-599 and nothing wider: a PDOException carries
+     * a SQLSTATE ('42S22'), which casts to a plausible-looking 42, and a
+     * hand-thrown Exception defaults to 0.
+     *
+     * @param \Exception $e The caught exception.
+     *
+     * @return void
+     */
+    private static function _sendCaught(\Exception $e)
+    {
+        $code = (int)$e->getCode();
+        if ($code < 400 || $code > 599) {
+            $code = HTTPResponseCodes::HTTP_NOT_ACCEPTABLE;
+        }
+        self::sendResponse(
+            $code,
+            $e->getMessage()
         );
     }
     /**
@@ -1458,7 +1600,7 @@ class Route extends FOGBase
         }
         $backup_name = sprintf(
             'fog_backup_%s.sql',
-            self::formatTime('', 'Ymd_His')
+            self::formatTime('now', 'Ymd_His')
         );
         self::getClass('Schema')->exportdb($backup_name);
         exit;
@@ -1580,7 +1722,7 @@ class Route extends FOGBase
                 $whereItems = self::getsearchbody($class);
             }
 
-            self::$data = $columns = [];
+            self::$data = [];
             // Fresh per grid -- see $relCache and rel().
             self::$relCache = [];
             $classname = strtolower($class);
@@ -1635,847 +1777,16 @@ class Route extends FOGBase
                         ],
                         $tmpcolumns
                     );
+                    break;
             }
             self::$HookManager->processEvent(
                 'API_REMOVE_COLUMNS',
                 ['tmpcolumns' => &$tmpcolumns]
             );
 
-            // Setup our columns to return
-            foreach ((array)$tmpcolumns as $common => &$real) {
-                switch ($common) {
-                    case 'id':
-                        $tableID = $real;
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'DT_RowId',
-                            'formatter' => function ($d, $row) {
-                                return 'row_'.$d;
-                            }
-                        ];
-                        break;
-                    case 'name':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'mainlink',
-                            // `Name - (id)`, via the shared sink. This grid used to
-                            // emit `(id) - Name` while every association tab emitted
-                            // the other order; entityLink() settles it on the name
-                            // first, so the two agree. The pxemenuoptions -> ipxe
-                            // remap stays here: it is a quirk of how this class is
-                            // named versus its node, not something a link formatter
-                            // should know about.
-                            'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
-                                return self::entityLink(
-                                    ($classname == 'pxemenuoptions' ? 'ipxe' : $classname),
-                                    $row[$tmpcolumns['id']],
-                                    $d
-                                );
-                            }
-                        ];
-                        break;
-                    case 'start':
-                    case 'finish':
-                    case 'failureTime':
-                    case 'completetime':
-                    case 'starttime':
-                    case 'sec_time':
-                    case 'checkInTime':
-                    case 'scheduledStartTime':
-                    case 'deployed':
-                    case 'datetime':
-                    case 'createdTime':
-                    case 'completedTime':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                if (self::validDate($d)) {
-                                    return self::niceDate($d)->format('Y-m-d H:i:s');
-                                }
-                                return self::EMPTY_CELL;
-                            }
-                        ];
-                        break;
-                    case 'pingstatus':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'pingstatuscode',
-                            'formatter' => function ($d, $row) {
-                                return (int)$d;
-                            }
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'pingstatustext',
-                            'formatter' => function ($d, $row) {
-                                return socket_strerror((int)$d);
-                            }
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                // hostPingCode: NULL/'' = never pinged,
-                                // 0 = online, any non-zero errno = unreachable.
-                                // Only "online" is worth an attention color;
-                                // an unreachable host is the normal resting
-                                // state for a managed host, so keep it neutral
-                                // and surface the specific reason as the text.
-                                if ($d === null || $d === '') {
-                                    return '<span class="badge bg-secondary">'
-                                        . _('Not pinged')
-                                        . '</span>';
-                                }
-                                if ((int)$d === 0) {
-                                    return '<span class="badge bg-success">'
-                                        . _('Online')
-                                        . '</span>';
-                                }
-                                return '<span class="badge bg-secondary">'
-                                    . _(socket_strerror((int)$d))
-                                    . '</span>';
-                            }
-                        ];
-                        break;
-                    case 'groupID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'groupLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'group',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=group&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
-                                    . '</a>';
-                            }
-                        ];
-                        break;
-                    case 'hostID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'hostLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'host',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=host&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
-                                    . '</a>';
-                            }
-                        ];
-                        break;
-                    case 'image':
-                    case 'imageID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'imageLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'Image',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($classname) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                switch ($classname) {
-                                    case 'imaginglog':
-                                        $image = self::getClass('Image')
-                                            ->set('name', $d)
-                                            ->load('name');
-                                        $imageName = $d;
-                                        break;
-                                    default:
-                                        $image = self::rel('Image', $d);
-                                        $imageName = $image->get('name');
-                                }
-                                if ($image->isValid()) {
-                                    return '<a href="../management/index.php?node=image&'
-                                        . 'sub=edit&id='
-                                        . $d
-                                        . '">'
-                                        . '(' . $d . ') - ' . $imageName
-                                        . '</a>';
-                                }
-                                return $imageName;
-                            }
-                        ];
-                        break;
-                    case 'snapinID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'snapinLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'Snapin',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=snapin&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
-                                    . '</a>';
-                            }
-                        ];
-                        break;
-                    case 'mem':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return Inventory::getMemory($d);
-                            }
-                        ];
-                        break;
-                    case 'storagegroupID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'storagegroupLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'storagegroup',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=storagegroup&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
-                                    . '</a>';
-                            }
-                        ];
-                        break;
-                    case 'storagenodeID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'storagenodeLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'storagenode',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=storagenode&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
-                                    . '</a>';
-                            }
-                        ];
-                        break;
-                    case 'userID':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => 'userLink',
-                            'prime' => function ($rows) use ($real) {
-                                self::primeRel(
-                                    'user',
-                                    array_column((array) $rows, $real)
-                                );
-                            },
-                            'formatter' => function ($d, $row) use ($tmpcolumns) {
-                                if (!$d) {
-                                    return self::EMPTY_CELL;
-                                }
-                                return '<a href="../management/index.php?node=user&'
-                                    . 'sub=edit&id='
-                                    . $d
-                                    . '">'
-                                    . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
-                                    . '</a>';
-                            }
-                        ];
-                        break;
-                    case 'regMenu':
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common,
-                            'formatter' => function ($d, $row) {
-                                return PXEMenuOptionsManager::regText($d);
-                            }
-                        ];
-                        break;
-                    default:
-                        $columns[] = [
-                            'db' => $real,
-                            'dt' => $common
-                        ];
-                }
-                unset($real);
-            }
-            // Any extra columns not in the db fields.
-            switch ($classname) {
-                case 'host':
-                    $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
-                    $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
-                    // Vendor name for the primary MAC; rides along in the JSON
-                    // and is rendered as a tooltip icon client-side. Not a
-                    // visible column and never reaches the CSV export path.
-                    $columns[] = [
-                        'db' => 'hmMAC',
-                        'dt' => 'primac_vendor',
-                        'prime' => function ($rows) {
-                            MACAddress::primeVendors(
-                                array_column((array) $rows, 'hmMAC')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return MACAddress::getVendor($d);
-                        }
-                    ];
-                    break;
-                case 'macaddressassociation':
-                    // Vendor name for each MAC row (additional + pending MACs).
-                    $columns[] = [
-                        'db' => 'hmMAC',
-                        'dt' => 'mac_vendor',
-                        'prime' => function ($rows) {
-                            MACAddress::primeVendors(
-                                array_column((array) $rows, 'hmMAC')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return MACAddress::getVendor($d);
-                        }
-                    ];
-                    break;
-                case 'group':
-                    $columns[] = [
-                        'db' => 'gmMembers',
-                        'dt' => 'members',
-                        'removeFromQuery' => true
-                    ];
-                    break;
-                case 'site':
-                    // The four member counts Site::$sqlQueryStr computes.
-                    // removeFromQuery because they are aggregates of the
-                    // JOINs, not columns of `sites` -- selecting them again
-                    // by name would be an unknown-column error.
-                    //
-                    // The dt names are the plugin's, unchanged: they are
-                    // the DataTables field names fog.site.list.js binds to,
-                    // and a tidier spelling here would leave every column
-                    // rendering empty with nothing to say why.
-                    $columns[] = [
-                        'db' => 'shmMembers',
-                        'dt' => 'hostcount',
-                        'removeFromQuery' => true
-                    ];
-                    $columns[] = [
-                        'db' => 'sumMembers',
-                        'dt' => 'usercount',
-                        'removeFromQuery' => true
-                    ];
-                    $columns[] = [
-                        'db' => 'sgmMembers',
-                        'dt' => 'groupcount',
-                        'removeFromQuery' => true
-                    ];
-                    $columns[] = [
-                        'db' => 'sugmMembers',
-                        'dt' => 'usergroupcount',
-                        'removeFromQuery' => true
-                    ];
-                    break;
-                case 'inventory':
-                    $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
-                    $columns[] = [
-                        'db' => 'hostID',
-                        'dt' => 'hostLink',
-                        'formatter' => function ($d, $row) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            // Aisle 019: this column is an intentional anchor, so
-                            // the Inventory Report cannot neutralise it with
-                            // DataTables render.text() the way it now does for the
-                            // other columns -- escape the host name here instead.
-                            // Mirrors the 'mainlink' formatter above.
-                            return '<a href="../management/index.php?node=host&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . \Initiator::e($row['hostName'])
-                                . '</a>';
-                        }
-                    ];
-                    break;
-                case 'scheduledtask':
-                    $columns[] = [
-                        'db' => 'stGroupHostID',
-                        'dt' => 'hostLink',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Group',
-                                array_column((array) $rows, 'stGroupHostID')
-                            );
-                            self::primeRel(
-                                'Host',
-                                array_column((array) $rows, 'stGroupHostID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            $linkName = $row['stIsGroup'] ? 'group' : 'host';
-                            $capName = $row['stIsGroup'] ? 'Group' : 'Host';
-                            $itemName = self::rel($capName, $d)->get('name');
-                            return sprintf(
-                                '<a href="../management/index.php?node=%s&sub=edit&id=%s">%s: (%s) - %s</a>',
-                                $linkName,
-                                $d,
-                                _($capName),
-                                $d,
-                                $itemName
-                            );
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stType',
-                        'dt' => 'type',
-                        'formatter' => function ($d, $row) {
-                            $type = strtolower($d);
-                            switch ($type) {
-                                case 'c':
-                                    return _('Cron');
-                                default:
-                                    return _('Delayed');
-                            }
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stID',
-                        'dt' => 'starttime',
-                        'formatter' => function ($d, $row) {
-                            $type = strtolower($row['stType']);
-                            switch ($type) {
-                                case 'c':
-                                    $cronstr = sprintf(
-                                        '%s %s %s %s %s',
-                                        $row['stMinute'],
-                                        $row['stHour'],
-                                        $row['stDOM'],
-                                        $row['stMonth'],
-                                        $row['stDOW']
-                                    );
-                                    $date = FOGCron::parse($cronstr);
-                                    break;
-                                default:
-                                    $date = $row['stDateTime'];
-                            }
-                            return self::niceDate()
-                                ->setTimestamp($date)
-                                ->format('Y-m-d H:i:s');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stTaskTypeID',
-                        'dt' => 'taskTypeName',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'TaskType',
-                                array_column((array) $rows, 'stTaskTypeID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('TaskType', $d)->get('name');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stActive',
-                        'dt' => 'isActive',
-                        'formatter' => function ($d, $row) {
-                            return $d <= 0 ? _('No') : _('Yes');
-                        }
-                    ];
-                    break;
-                case 'filedeletequeue':
-                    $columns[] = [
-                        'db' => 'fdqState',
-                        'dt' => 'taskstateicon',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'fdqState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('icon');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'fdqState',
-                        'dt' => 'taskstatename',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'fdqState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('name');
-                        }
-                    ];
-                    break;
-                case 'snapintask':
-                    // Every host column below is reached through the task's
-                    // job. When that job is not there -- deleted, or a stJobID
-                    // of 0 for a task that never had one -- get('host')
-                    // returns a STRING, and calling get() on it is a fatal,
-                    // not an empty cell. One such row took the entire snapin
-                    // task list down with "Call to a member function get() on
-                    // string". Resolve once, defensively, and let a row that
-                    // cannot name its host render blank instead of killing the
-                    // page for every other row.
-                    //
-                    // Schema step 318 sweeps the rows themselves; this is what
-                    // stops the next one being fatal.
-                    //
-                    // Refs https://github.com/FOGProject/fogproject/issues/895
-                    $snapinTaskHost = function ($jobID) {
-                        $host = self::rel('snapinjob', $jobID)
-                            ->get('host');
-                        return is_object($host) && $host->isValid()
-                            ? $host
-                            : null;
-                    };
-                    $columns[] = [
-                        'db' => 'stJobID',
-                        'dt' => 'hostID',
-                        // Primed once for all three stJobID columns below --
-                        // they share $snapinTaskHost, so the first primer to
-                        // run fills the cache the other two read. SnapinJob
-                        // declares Host as a class relationship, so the job's
-                        // host is joined in by the same query and costs
-                        // nothing extra.
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'snapinjob',
-                                array_column((array) $rows, 'stJobID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
-                            $host = $snapinTaskHost($d);
-                            return $host ? $host->get('id') : '';
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stJobID',
-                        'dt' => 'hostname',
-                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
-                            $host = $snapinTaskHost($d);
-                            return $host ? $host->get('name') : '';
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stJobID',
-                        'dt' => 'hostLink',
-                        'formatter' => function ($d, $row) use ($snapinTaskHost) {
-                            $tmphost = $snapinTaskHost($d);
-                            if (!$tmphost) {
-                                return '';
-                            }
-                            return '<a href="../management/index.php?node=host&'
-                                . 'sub=edit&id='
-                                . $tmphost->get('id')
-                                . '">'
-                                . '(' . $tmphost->get('id') . ') - ' . $tmphost->get('name')
-                                . '</a>';
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stState',
-                        'dt' => 'taskstateicon',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'stState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('icon');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stState',
-                        'dt' => 'taskstatename',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'taskstate',
-                                array_column((array) $rows, 'stState')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('taskstate', $d)->get('name');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stSnapinID',
-                        'dt' => 'snapinID',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Snapin',
-                                array_column((array) $rows, 'stSnapinID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('Snapin', $d)->get('id');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stSnapinID',
-                        'dt' => 'snapinname',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Snapin',
-                                array_column((array) $rows, 'stSnapinID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('Snapin', $d)->get('name');
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stSnapinID',
-                        'dt' => 'snapinLink',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Snapin',
-                                array_column((array) $rows, 'stSnapinID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=snapin&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
-                                . '</a>';
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'stCheckinDate',
-                        'dt' => 'diff',
-                        'formatter' => function ($d, $row) {
-                            $start = $d;
-                            $end = $row['stCompleteDate'];
-                            return self::diff($start, $end);
-                        }
-                    ];
-                    break;
-                case 'imaginglog':
-                    $columns[] = [
-                        'db' => 'ilStartTime',
-                        'dt' => 'diff',
-                        'formatter' => function ($d, $row) {
-                            $start = $d;
-                            $end = $row['ilFinishTime'];
-                            return self::diff($start, $end);
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'hostName',
-                        'dt' => 'hostname',
-                    ];
-                    break;
-                case 'storagegroup':
-                    $StorageGroup = new StorageGroup();
-                    $columns[] = [
-                        'dt' => 'enablednodes',
-                        'formatter' => function ($d, $row) use (&$StorageGroup) {
-                            return $StorageGroup->set('id', $row['ngID'])
-                                ->load()
-                                ->get('enablednodes');
-                        }
-                    ];
-                    $columns[] = [
-                        'dt' => 'masternode',
-                        'formatter' => function ($d, $row) use (&$StorageGroup) {
-                            try {
-                                $sn = $StorageGroup->getMasterStorageNode();
-                            } catch (\Exception $e) {
-                                $sn = new StorageNode();
-                            }
-                            return self::getter('storagenode', $sn);
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'totalclients',
-                        'dt' => 'totalclients',
-                        'removeFromQuery' => true
-                    ];
-                    break;
-                case 'storagenode':
-                    $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
-                    $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
-                    $columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'clientload',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'StorageNode',
-                                array_column((array) $rows, 'ngmID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return self::rel('StorageNode', $d)->getClientLoad();
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'location_url',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'StorageNode',
-                                array_column((array) $rows, 'ngmID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            $node = self::rel('StorageNode', $d);
-                            return sprintf(
-                                '%s://%s/%s',
-                                self::$httpproto,
-                                $node->get('ip'),
-                                $node->get('webroot')
-                            );
-                        }
-                    ];
-                    /*$columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'online',
-                        'formatter' => function ($d, $row) {
-                            return self::getClass('StorageNode', $d)->get('online');
-                        }
-                    ];*/
-                    /*$columns[] = [
-                        'db' => 'ngmID',
-                        'dt' => 'logfiles',
-                        'formatter' => function ($d, $row) {
-                            return self::getClass('StorageNode', $d)->get('logfiles');
-                        }
-                    ];*/
-                    break;
-                case 'usertracking':
-                    $columns[] = [
-                        'db' => 'utUserName',
-                        'dt' => 'username',
-                        'formatter' => function ($d, $row) {
-                            return \Initiator::e($d);
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'utHostID',
-                        'dt' => 'hostname',
-                        'prime' => function ($rows) {
-                            self::primeRel(
-                                'Host',
-                                array_column((array) $rows, 'utHostID')
-                            );
-                        },
-                        'formatter' => function ($d, $row) {
-                            return \Initiator::e(self::rel('Host', $d)->get('name'));
-                        }
-                    ];
-                    $columns[] = [
-                        'db' => 'utAction',
-                        'dt' => 'action',
-                        'formatter' => function ($d, $row) {
-                            switch ($d) {
-                                case '0':
-                                    return _('Logout');
-                                case '1':
-                                    return _('Login');
-                                case '99':
-                                    return _('Service Start');
-                            }
-                        }
-                    ];
-                    break;
-                case 'plugin':
-                    $columns[] = [
-                        'dt' => 'hash',
-                        'formatter' => function ($d, $row) {
-                            return md5($row['pName']);
-                        }
-                    ];
-            }
+            // The column table itself: see _gridColumns(). $tableID comes
+            // back by reference because a class need not have an id column.
+            $columns = self::_gridColumns($classname, $tmpcolumns, $tableID);
             self::$HookManager->processEvent(
                 'CUSTOMIZE_DT_COLUMNS',
                 [
@@ -2514,6 +1825,31 @@ class Route extends FOGBase
                 }
             }
 
+            // The site boundary goes into the QUERY, not onto the rows.
+            //
+            // _applySiteScope() below still runs and still filters, but it
+            // cannot be the enforcement on a paginated list: complex()
+            // applies the LIMIT, so the database chooses the page before any
+            // row filtering happens. A user scoped to one site of a 90-host
+            // server therefore got an EMPTY first page -- their host was at
+            // offset 75 -- with recordsTotal 0 and nextUrl null, so the grid
+            // said "no records" while the rows existed two pages further on.
+            // The counts have the same problem in the other direction:
+            // computed by SQL over the unscoped set, they described objects
+            // the user may not see.
+            //
+            // $whereAll is the parameter for this and already existed: it is
+            // ANDed into the row query and the filter count, and appended to
+            // the total count, which is exactly the three places the boundary
+            // has to hold. Passed as a subquery rather than an id list so it
+            // costs one expression whatever the fleet size.
+            //
+            // Qualified with the table name because these queries carry joins
+            // and a bare id column can be ambiguous.
+            $scopeWhere = Authorization::scopedObjectWhere(
+                $classname,
+                sprintf('`%s`.`%s`', $table, $tableID)
+            );
             self::$data = FOGManagerController::complex(
                 isset($pass_vars) ? $pass_vars : '',
                 $table,
@@ -2523,7 +1859,7 @@ class Route extends FOGBase
                 $fltrstr,
                 $ttlstr,
                 $where,
-                null,
+                $scopeWhere,
                 $orderby,
                 self::$countOnly
             );
@@ -2560,6 +1896,17 @@ class Route extends FOGBase
                 // loop is immune to that clobbering, then restore it.
                 $listData = self::$data;
                 $rows = $listData['data'];
+                // One query for the page's objects instead of one per row.
+                // Same treatment the grid columns got for GH-707 -- rel() and
+                // primeRel() exist for exactly this and the expand branch
+                // never used them, so ?expand cost ~20 statements per row
+                // where the plain path is flat at 4 for the whole page.
+                //
+                // rel() falls back to a load for anything the prime missed,
+                // and caches an empty object carrying the id for an id with
+                // no record -- which is the state a failed load() leaves
+                // behind, so the isValid() test below behaves as it did.
+                self::primeRel($class, array_column($rows, 'id'));
                 foreach ($rows as $i => $row) {
                     if (!is_array($row)) {
                         continue;
@@ -2568,7 +1915,7 @@ class Route extends FOGBase
                     if ($rid < 1) {
                         continue;
                     }
-                    $robj = self::getClass($class, $rid);
+                    $robj = self::rel($class, $rid);
                     if (!$robj->isValid()) {
                         continue;
                     }
@@ -2591,11 +1938,826 @@ class Route extends FOGBase
             }
             self::paginate(isset($pass_vars) ? $pass_vars : []);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
+    }
+    /**
+     * Builds the DataTables column table for one class.
+     *
+     * This is the bulk of listem() by line count and none of it is policy: it
+     * maps each of the manager's columns onto one or more output columns, and
+     * then adds the per-class extras that have no database field behind them.
+     * Every access-control decision listem() makes happens either before this
+     * runs (arrayRemove, API_REMOVE_COLUMNS) or after it (CUSTOMIZE_DT_COLUMNS,
+     * the nosearch pass, the row filters, the emitter), and all of those stay
+     * where they are -- see docs/route-listem-access-control-map.md, which is
+     * written against those positions.
+     *
+     * Moved out verbatim. The column table it produces is pinned line for line
+     * by tests/route-column-contract.test.php, including each formatter's
+     * `use (...)` list and what each primer actually primes, so "verbatim" is
+     * checked rather than asserted.
+     *
+     * @param string $classname  The lowercased class being listed.
+     * @param array  $tmpcolumns The manager's columns, already filtered by
+     *                           arrayRemove() and API_REMOVE_COLUMNS.
+     * @param mixed  $tableID    Out. The database column holding the primary
+     *                           key, which listem() needs for its DT_RowId and
+     *                           for the DataTables request. Set only if the
+     *                           class still has an `id` column -- a plugin can
+     *                           remove it on API_REMOVE_COLUMNS -- so it is
+     *                           passed by reference rather than returned, and
+     *                           left alone when there is nothing to say.
+     *
+     * @return array The column definitions.
+     */
+    private static function _gridColumns($classname, $tmpcolumns, &$tableID)
+    {
+        $columns = [];
+        // Setup our columns to return
+        foreach ((array)$tmpcolumns as $common => &$real) {
+            switch ($common) {
+                case 'id':
+                    $tableID = $real;
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'DT_RowId',
+                        'formatter' => function ($d, $row) {
+                            return 'row_'.$d;
+                        }
+                    ];
+                    break;
+                case 'name':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'mainlink',
+                        // `Name - (id)`, via the shared sink. This grid used to
+                        // emit `(id) - Name` while every association tab emitted
+                        // the other order; entityLink() settles it on the name
+                        // first, so the two agree. The pxemenuoptions -> ipxe
+                        // remap stays here: it is a quirk of how this class is
+                        // named versus its node, not something a link formatter
+                        // should know about.
+                        'formatter' => function ($d, $row) use ($classname, $tmpcolumns) {
+                            return self::entityLink(
+                                ($classname == 'pxemenuoptions' ? 'ipxe' : $classname),
+                                $row[$tmpcolumns['id']],
+                                $d
+                            );
+                        }
+                    ];
+                    break;
+                case 'start':
+                case 'finish':
+                case 'failureTime':
+                case 'completetime':
+                case 'starttime':
+                case 'sec_time':
+                case 'checkInTime':
+                case 'scheduledStartTime':
+                case 'deployed':
+                case 'datetime':
+                case 'createdTime':
+                case 'completedTime':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            if (self::validDate($d)) {
+                                return self::niceDate($d)->format('Y-m-d H:i:s');
+                            }
+                            return self::EMPTY_CELL;
+                        }
+                    ];
+                    break;
+                case 'pingstatus':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'pingstatuscode',
+                        'formatter' => function ($d, $row) {
+                            return (int)$d;
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'pingstatustext',
+                        'formatter' => function ($d, $row) {
+                            return socket_strerror((int)$d);
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            // hostPingCode: NULL/'' = never pinged,
+                            // 0 = online, any non-zero errno = unreachable.
+                            // Only "online" is worth an attention color;
+                            // an unreachable host is the normal resting
+                            // state for a managed host, so keep it neutral
+                            // and surface the specific reason as the text.
+                            if ($d === null || $d === '') {
+                                return '<span class="badge bg-secondary">'
+                                    . _('Not pinged')
+                                    . '</span>';
+                            }
+                            if ((int)$d === 0) {
+                                return '<span class="badge bg-success">'
+                                    . _('Online')
+                                    . '</span>';
+                            }
+                            return '<span class="badge bg-secondary">'
+                                . _(socket_strerror((int)$d))
+                                . '</span>';
+                        }
+                    ];
+                    break;
+                case 'groupID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'groupLink',
+                        'group',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=group&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'hostID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'hostLink',
+                        'host',
+                        function ($d, $row) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=host&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'image':
+                case 'imageID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'imageLink',
+                        'Image',
+                        function ($d, $row) use ($classname) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            switch ($classname) {
+                                case 'imaginglog':
+                                    $image = self::getClass('Image')
+                                        ->set('name', $d)
+                                        ->load('name');
+                                    $imageName = $d;
+                                    break;
+                                default:
+                                    $image = self::rel('Image', $d);
+                                    $imageName = $image->get('name');
+                            }
+                            if ($image->isValid()) {
+                                return '<a href="../management/index.php?node=image&'
+                                    . 'sub=edit&id='
+                                    . $d
+                                    . '">'
+                                    . '(' . $d . ') - ' . $imageName
+                                    . '</a>';
+                            }
+                            return $imageName;
+                        }
+                    );
+                    break;
+                case 'snapinID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'snapinLink',
+                        'Snapin',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=snapin&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'mem':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return Inventory::getMemory($d);
+                        }
+                    ];
+                    break;
+                case 'storagegroupID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'storagegroupLink',
+                        'storagegroup',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=storagegroup&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'storagenodeID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'storagenodeLink',
+                        'storagenode',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=storagenode&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'userID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    $columns[] = self::relColumn(
+                        $real,
+                        'userLink',
+                        'user',
+                        function ($d, $row) use ($tmpcolumns) {
+                            if (!$d) {
+                                return self::EMPTY_CELL;
+                            }
+                            return '<a href="../management/index.php?node=user&'
+                                . 'sub=edit&id='
+                                . $d
+                                . '">'
+                                . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
+                                . '</a>';
+                        }
+                    );
+                    break;
+                case 'regMenu':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            return PXEMenuOptionsManager::regText($d);
+                        }
+                    ];
+                    break;
+                default:
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+            }
+            unset($real);
+        }
+        // Any extra columns not in the db fields.
+        switch ($classname) {
+            case 'host':
+                $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
+                $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
+                // Vendor name for the primary MAC; rides along in the JSON
+                // and is rendered as a tooltip icon client-side. Not a
+                // visible column and never reaches the CSV export path.
+                $columns[] = [
+                    'db' => 'hmMAC',
+                    'dt' => 'primac_vendor',
+                    'prime' => function ($rows) {
+                        MACAddress::primeVendors(
+                            array_column((array) $rows, 'hmMAC')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        return MACAddress::getVendor($d);
+                    }
+                ];
+                break;
+            case 'macaddressassociation':
+                // Vendor name for each MAC row (additional + pending MACs).
+                $columns[] = [
+                    'db' => 'hmMAC',
+                    'dt' => 'mac_vendor',
+                    'prime' => function ($rows) {
+                        MACAddress::primeVendors(
+                            array_column((array) $rows, 'hmMAC')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        return MACAddress::getVendor($d);
+                    }
+                ];
+                break;
+            case 'group':
+                $columns[] = [
+                    'db' => 'gmMembers',
+                    'dt' => 'members',
+                    'removeFromQuery' => true
+                ];
+                break;
+            case 'site':
+                // The four member counts Site::$sqlQueryStr computes.
+                // removeFromQuery because they are aggregates of the
+                // JOINs, not columns of `sites` -- selecting them again
+                // by name would be an unknown-column error.
+                //
+                // The dt names are the plugin's, unchanged: they are
+                // the DataTables field names fog.site.list.js binds to,
+                // and a tidier spelling here would leave every column
+                // rendering empty with nothing to say why.
+                $columns[] = [
+                    'db' => 'shmMembers',
+                    'dt' => 'hostcount',
+                    'removeFromQuery' => true
+                ];
+                $columns[] = [
+                    'db' => 'sumMembers',
+                    'dt' => 'usercount',
+                    'removeFromQuery' => true
+                ];
+                $columns[] = [
+                    'db' => 'sgmMembers',
+                    'dt' => 'groupcount',
+                    'removeFromQuery' => true
+                ];
+                $columns[] = [
+                    'db' => 'sugmMembers',
+                    'dt' => 'usergroupcount',
+                    'removeFromQuery' => true
+                ];
+                break;
+            case 'inventory':
+                $columns[] = ['db' => 'hostName', 'dt' => 'hostname'];
+                $columns[] = [
+                    'db' => 'hostID',
+                    'dt' => 'hostLink',
+                    'formatter' => function ($d, $row) {
+                        if (!$d) {
+                            return self::EMPTY_CELL;
+                        }
+                        // Aisle 019: this column is an intentional anchor, so
+                        // the Inventory Report cannot neutralise it with
+                        // DataTables render.text() the way it now does for the
+                        // other columns -- escape the host name here instead.
+                        // Mirrors the 'mainlink' formatter above.
+                        return '<a href="../management/index.php?node=host&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . '(' . $d . ') - ' . \Initiator::e($row['hostName'])
+                            . '</a>';
+                    }
+                ];
+                break;
+            case 'scheduledtask':
+                $columns[] = [
+                    'db' => 'stGroupHostID',
+                    'dt' => 'hostLink',
+                    'prime' => function ($rows) {
+                        self::primeRel(
+                            'Group',
+                            array_column((array) $rows, 'stGroupHostID')
+                        );
+                        self::primeRel(
+                            'Host',
+                            array_column((array) $rows, 'stGroupHostID')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        $linkName = $row['stIsGroup'] ? 'group' : 'host';
+                        $capName = $row['stIsGroup'] ? 'Group' : 'Host';
+                        $itemName = self::rel($capName, $d)->get('name');
+                        return sprintf(
+                            '<a href="../management/index.php?node=%s&sub=edit&id=%s">%s: (%s) - %s</a>',
+                            $linkName,
+                            $d,
+                            _($capName),
+                            $d,
+                            $itemName
+                        );
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'stType',
+                    'dt' => 'type',
+                    'formatter' => function ($d, $row) {
+                        $type = strtolower($d);
+                        switch ($type) {
+                            case 'c':
+                                return _('Cron');
+                            default:
+                                return _('Delayed');
+                        }
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'stID',
+                    'dt' => 'starttime',
+                    'formatter' => function ($d, $row) {
+                        $type = strtolower($row['stType']);
+                        switch ($type) {
+                            case 'c':
+                                $cronstr = sprintf(
+                                    '%s %s %s %s %s',
+                                    $row['stMinute'],
+                                    $row['stHour'],
+                                    $row['stDOM'],
+                                    $row['stMonth'],
+                                    $row['stDOW']
+                                );
+                                $date = FOGCron::parse($cronstr);
+                                break;
+                            default:
+                                $date = $row['stDateTime'];
+                        }
+                        return self::niceDate()
+                            ->setTimestamp($date)
+                            ->format('Y-m-d H:i:s');
+                    }
+                ];
+                $columns[] = self::relColumn(
+                    'stTaskTypeID',
+                    'taskTypeName',
+                    'TaskType',
+                    function ($d, $row) {
+                        return self::rel('TaskType', $d)->get('name');
+                    }
+                );
+                $columns[] = [
+                    'db' => 'stActive',
+                    'dt' => 'isActive',
+                    'formatter' => function ($d, $row) {
+                        return $d <= 0 ? _('No') : _('Yes');
+                    }
+                ];
+                break;
+            case 'filedeletequeue':
+                $columns[] = self::relColumn(
+                    'fdqState',
+                    'taskstateicon',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('icon');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'fdqState',
+                    'taskstatename',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('name');
+                    }
+                );
+                break;
+            case 'snapintask':
+                // Every host column below is reached through the task's
+                // job. When that job is not there -- deleted, or a stJobID
+                // of 0 for a task that never had one -- get('host')
+                // returns a STRING, and calling get() on it is a fatal,
+                // not an empty cell. One such row took the entire snapin
+                // task list down with "Call to a member function get() on
+                // string". Resolve once, defensively, and let a row that
+                // cannot name its host render blank instead of killing the
+                // page for every other row.
+                //
+                // Schema step 318 sweeps the rows themselves; this is what
+                // stops the next one being fatal.
+                //
+                // Refs https://github.com/FOGProject/fogproject/issues/895
+                $snapinTaskHost = function ($jobID) {
+                    $host = self::rel('snapinjob', $jobID)
+                        ->get('host');
+                    return is_object($host) && $host->isValid()
+                        ? $host
+                        : null;
+                };
+                // Primed once for all three stJobID columns below -- they
+                // share $snapinTaskHost, so the first primer to run fills
+                // the cache the other two read. SnapinJob declares Host as
+                // a class relationship, so the job's host is joined in by
+                // the same query and costs nothing extra.
+                $columns[] = self::relColumn(
+                    'stJobID',
+                    'hostID',
+                    'snapinjob',
+                    function ($d, $row) use ($snapinTaskHost) {
+                        $host = $snapinTaskHost($d);
+                        return $host ? $host->get('id') : '';
+                    }
+                );
+                $columns[] = [
+                    'db' => 'stJobID',
+                    'dt' => 'hostname',
+                    'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                        $host = $snapinTaskHost($d);
+                        return $host ? $host->get('name') : '';
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'stJobID',
+                    'dt' => 'hostLink',
+                    'formatter' => function ($d, $row) use ($snapinTaskHost) {
+                        $tmphost = $snapinTaskHost($d);
+                        if (!$tmphost) {
+                            return '';
+                        }
+                        return '<a href="../management/index.php?node=host&'
+                            . 'sub=edit&id='
+                            . $tmphost->get('id')
+                            . '">'
+                            . '(' . $tmphost->get('id') . ') - ' . $tmphost->get('name')
+                            . '</a>';
+                    }
+                ];
+                $columns[] = self::relColumn(
+                    'stState',
+                    'taskstateicon',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('icon');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stState',
+                    'taskstatename',
+                    'taskstate',
+                    function ($d, $row) {
+                        return self::rel('taskstate', $d)->get('name');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stSnapinID',
+                    'snapinID',
+                    'Snapin',
+                    function ($d, $row) {
+                        return self::rel('Snapin', $d)->get('id');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stSnapinID',
+                    'snapinname',
+                    'Snapin',
+                    function ($d, $row) {
+                        return self::rel('Snapin', $d)->get('name');
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'stSnapinID',
+                    'snapinLink',
+                    'Snapin',
+                    function ($d, $row) {
+                        if (!$d) {
+                            return self::EMPTY_CELL;
+                        }
+                        return '<a href="../management/index.php?node=snapin&'
+                            . 'sub=edit&id='
+                            . $d
+                            . '">'
+                            . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
+                            . '</a>';
+                    }
+                );
+                $columns[] = [
+                    'db' => 'stCheckinDate',
+                    'dt' => 'diff',
+                    'formatter' => function ($d, $row) {
+                        $start = $d;
+                        $end = $row['stCompleteDate'];
+                        return self::diff($start, $end);
+                    }
+                ];
+                break;
+            case 'imaginglog':
+                $columns[] = [
+                    'db' => 'ilStartTime',
+                    'dt' => 'diff',
+                    'formatter' => function ($d, $row) {
+                        $start = $d;
+                        $end = $row['ilFinishTime'];
+                        return self::diff($start, $end);
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'hostName',
+                    'dt' => 'hostname',
+                ];
+                break;
+            case 'storagegroup':
+                // Each formatter resolves the row's OWN group.
+                //
+                // They used to share one `new StorageGroup()` threaded
+                // between them by reference: the enablednodes formatter did
+                // ->set('id', $row['ngID'])->load(), and the masternode
+                // formatter then called getMasterStorageNode() on whatever
+                // that had left behind.
+                //
+                // That was not merely an ordering dependency. set()/load() on
+                // an object that has already loaded a DIFFERENT group does
+                // not clear what it resolved for the previous one, so from
+                // the second row onwards both columns answered about the
+                // FIRST group. On the lab, three groups whose real members
+                // are [1], [3,2] and [] all reported enablednodes [1] and
+                // DefaultMember as their master node. The wrong answer is a
+                // real node name, so the grid looked right.
+                //
+                // Memoized per group id -- the $snapinTaskHost pattern a few
+                // cases above -- with a fresh object per id, so each group is
+                // loaded once and answers about itself. Same load() call as
+                // before, deliberately: loadMany() through primeRel() leaves
+                // a group in a state getMasterStorageNode() answers
+                // differently on, so priming here would trade one wrong
+                // answer for another.
+                $storageGroups = [];
+                $groupFor = function ($id) use (&$storageGroups) {
+                    $id = (int) $id;
+                    if (!isset($storageGroups[$id])) {
+                        $storageGroups[$id] = self::getClass('StorageGroup')
+                            ->set('id', $id)
+                            ->load();
+                    }
+                    return $storageGroups[$id];
+                };
+                $columns[] = [
+                    'dt' => 'enablednodes',
+                    'formatter' => function ($d, $row) use ($groupFor) {
+                        return $groupFor($row['ngID'])->get('enablednodes');
+                    }
+                ];
+                $columns[] = [
+                    'dt' => 'masternode',
+                    'formatter' => function ($d, $row) use ($groupFor) {
+                        try {
+                            $sn = $groupFor($row['ngID'])
+                                ->getMasterStorageNode();
+                        } catch (\Exception $e) {
+                            $sn = new StorageNode();
+                        }
+                        return self::getter('storagenode', $sn);
+                    }
+                ];
+                $columns[] = [
+                    'db' => 'totalclients',
+                    'dt' => 'totalclients',
+                    'removeFromQuery' => true
+                ];
+                break;
+            case 'storagenode':
+                $columns[] = ['db' => 'ngID', 'dt' => 'storagegroupID'];
+                $columns[] = ['db' => 'ngName', 'dt' => 'storagegroupName'];
+                $columns[] = self::relColumn(
+                    'ngmID',
+                    'clientload',
+                    'StorageNode',
+                    function ($d, $row) {
+                        return self::rel('StorageNode', $d)->getClientLoad();
+                    }
+                );
+                $columns[] = self::relColumn(
+                    'ngmID',
+                    'location_url',
+                    'StorageNode',
+                    function ($d, $row) {
+                        $node = self::rel('StorageNode', $d);
+                        return sprintf(
+                            '%s://%s/%s',
+                            self::$httpproto,
+                            $node->get('ip'),
+                            $node->get('webroot')
+                        );
+                    }
+                );
+                /*$columns[] = [
+                    'db' => 'ngmID',
+                    'dt' => 'online',
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('StorageNode', $d)->get('online');
+                    }
+                ];*/
+                /*$columns[] = [
+                    'db' => 'ngmID',
+                    'dt' => 'logfiles',
+                    'formatter' => function ($d, $row) {
+                        return self::getClass('StorageNode', $d)->get('logfiles');
+                    }
+                ];*/
+                break;
+            case 'usertracking':
+                $columns[] = [
+                    'db' => 'utUserName',
+                    'dt' => 'username',
+                    'formatter' => function ($d, $row) {
+                        return \Initiator::e($d);
+                    }
+                ];
+                $columns[] = self::relColumn(
+                    'utHostID',
+                    'hostname',
+                    'Host',
+                    function ($d, $row) {
+                        return \Initiator::e(self::rel('Host', $d)->get('name'));
+                    }
+                );
+                $columns[] = [
+                    'db' => 'utAction',
+                    'dt' => 'action',
+                    'formatter' => function ($d, $row) {
+                        switch ((string) $d) {
+                            case '0':
+                                return _('Logout');
+                            case '1':
+                                return _('Login');
+                            case '99':
+                                return _('Service Start');
+                        }
+                        // A code this does not know renders as itself, not as
+                        // an empty cell. utAction has no lookup table and no
+                        // constants -- its three values are these literals and
+                        // nothing constrains the column to them, so an
+                        // unrecognised one is a real possibility (a plugin
+                        // writing its own, or the '' that save() wrote into
+                        // every unset column before GH-1245). Falling out of
+                        // the switch returned null, so the row still listed
+                        // with a blank Action and nothing said why.
+                        return '' === (string) $d
+                            ? _('Unknown')
+                            : \Initiator::e($d);
+                    }
+                ];
+                break;
+            case 'plugin':
+                $columns[] = [
+                    'dt' => 'hash',
+                    'formatter' => function ($d, $row) {
+                        return md5($row['pName']);
+                    }
+                ];
+        }
+        return $columns;
     }
     /**
      * Annotates a list envelope with pagination metadata so a client can see
@@ -2708,10 +2870,7 @@ class Route extends FOGBase
             }
             self::$data = ['total' => self::$data['recordsFiltered']];
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -2846,13 +3005,34 @@ class Route extends FOGBase
                         $w = " OR `ngmHostname` LIKE :item3";
                         $params['item3'] = $like;
                 }
+                // Object scope, in the query.
+                //
+                // This is the route the search box calls, it takes an
+                // entity permission and no object scope, and its own route
+                // permission is null -- so any authenticated api user could
+                // read the id and name of every match on the server. The
+                // per-entity Authorization::can() check above is about WHICH
+                // ENTITIES may be searched, not which objects of them.
+                //
+                // PARENTHESISED, and that is the whole of the risk here: the
+                // match clause is a chain of ORs, so ANDing a boundary onto
+                // the end of it binds to the last OR arm only and every other
+                // arm keeps matching server-wide. The boundary has to wrap
+                // the disjunction, not join it.
+                $scopeWhere = self::_requestScopeWhere(
+                    $searchfor,
+                    "`{$classVars['databaseTable']}`."
+                    . "`{$classVars['databaseFields']['id']}`"
+                );
                 $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
                     . "`{$classVars['databaseFields']['name']}`
                     FROM `{$classVars['databaseTable']}`
                 {$j}
-                WHERE `{$classVars['databaseFields']['id']}` LIKE :item1
+                WHERE (`{$classVars['databaseFields']['id']}` LIKE :item1
                 OR `{$classVars['databaseFields']['name']}` LIKE :item2
-                {$w}
+                {$w})"
+                . (null === $scopeWhere ? '' : " AND {$scopeWhere}")
+                . "
                 {$g}";
                 if ($limit > 0) {
                     $sql .= " LIMIT " . (int)$limit;
@@ -2920,10 +3100,7 @@ class Route extends FOGBase
             );
             self::$data = $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -2961,10 +3138,7 @@ class Route extends FOGBase
             );
             self::_applySiteScope($classname);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3013,10 +3187,7 @@ class Route extends FOGBase
                 ]
             );
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3281,10 +3452,7 @@ class Route extends FOGBase
             }
             self::indiv($classname, $id);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3514,10 +3682,7 @@ class Route extends FOGBase
             }
             self::indiv($classname, $id);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3778,10 +3943,7 @@ class Route extends FOGBase
                     }
             }
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3847,10 +4009,7 @@ class Route extends FOGBase
             // caught internally-built filters -- see expandSearchWildcards).
             return self::expandSearchWildcards($find);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3884,10 +4043,7 @@ class Route extends FOGBase
             }
             self::listem($class, $find);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -3922,10 +4078,7 @@ class Route extends FOGBase
             // instead of a bare row delete that orphaned every association.
             return self::deletemass($class, $whereItems);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -4392,12 +4545,25 @@ class Route extends FOGBase
                     'class' => &$class
                 ]
             );
+            // Tier 2 is stripped HERE, not only in the emitter, because
+            // getter() is the one place that knows what class it is
+            // shaping regardless of what payload the result ends up
+            // nested inside. stripSensitivePayload() keys off the
+            // payload's own '_lang' stamp, so a storagenode embedded in a
+            // storagegroup row was stripped as a storagegroup -- which is
+            // to say not at all, and the node's FTP password went out in
+            // the storage group grid to anyone holding storagegroup.view.
+            // Same shape for task.host, task.image and host.inventory.
+            //
+            // Tier 2 only. Tier 1 exists precisely so a single-entity GET
+            // still carries it (fog-client reads host ADPass back to join
+            // a domain), and that carve-out is applied by the emitter,
+            // which knows whether it is emitting a list or one record.
+            // getter() does not and must not guess.
+            $data = self::stripSensitive($classname, $data, true);
             return $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         } finally {
             self::$getterDepth--;
         }
@@ -4505,11 +4671,25 @@ class Route extends FOGBase
      *
      *   $arguments['always']['ldap'][] = 'bindPwd';
      *
+     * A third bucket, 'exempt', carries the opposite declaration: a friendly
+     * key that matches Redaction::CREDENTIAL_PATTERN and is NOT a credential.
+     * Without it a plugin could only ever say "this is a secret", so a name
+     * like capone's 'key' -- a DMI string to match an image on, submitted in
+     * the clear by the unauthenticated capone endpoint -- had nowhere to be
+     * classified. Core's own answers live in Redaction::$patternExempt and
+     * seed this bucket; a plugin appends to it the same way:
+     *
+     *   $arguments['exempt']['capone'][] = 'key';
+     *
+     * It rides this event rather than one of its own because it is read by
+     * the same call, and because a second event would fire every listener
+     * twice for one question.
+     *
      * Memoized per request: the tiers are read on every serialized object,
      * so firing the event each time would put a hook pass in the middle of
      * every list payload's inner loop.
      *
-     * @return array ['fields' => tier-1 map, 'always' => tier-2 map]
+     * @return array ['fields' => tier-1, 'always' => tier-2, 'exempt' => map]
      */
     public static function sensitiveFieldMap()
     {
@@ -4518,16 +4698,45 @@ class Route extends FOGBase
         }
         $fields = self::$sensitiveFields;
         $always = self::$sensitiveAlwaysFields;
+        $exempt = Redaction::$patternExempt;
+        // Memoized with the CORE tiers BEFORE the event fires, and again with
+        // the plugin-augmented ones after. The pre-set is what makes this
+        // re-entrant, and it has to be: HookManager::processEvent() populates
+        // its $knownEvents list by calling Route::getIds('hookevent'), so
+        // firing ANY event can re-enter Route -- and any Route path that
+        // consults this map then arrives here with $_sensitiveMap still null
+        // and fires the event again, forever. That is not hypothetical; it is
+        // an OOM in ~40 frames, and today only the accident that ids() never
+        // asked for the map keeps the cycle finite:
+        //
+        //   sensitiveFieldMap -> processEvent -> getIds -> ids
+        //     -> unfilterableFields -> sensitiveFieldMap -> ...
+        //
+        // A re-entrant caller sees the core tiers, never a smaller set, so it
+        // can only ever miss a PLUGIN-declared field for the duration of that
+        // one nested call -- and the only re-entrant caller is the hookevent
+        // name lookup, whose class declares no secrets at all. Losing a
+        // plugin field for that is the safe side of the trade; the unsafe
+        // side is the process dying.
+        //
+        // Same shape, same fix, in serverOwnedFields() below.
+        self::$_sensitiveMap = [
+            'fields' => (array)$fields,
+            'always' => (array)$always,
+            'exempt' => (array)$exempt
+        ];
         self::$HookManager->processEvent(
             'API_SENSITIVE_FIELDS',
             [
                 'fields' => &$fields,
-                'always' => &$always
+                'always' => &$always,
+                'exempt' => &$exempt
             ]
         );
         return self::$_sensitiveMap = [
             'fields' => (array)$fields,
-            'always' => (array)$always
+            'always' => (array)$always,
+            'exempt' => (array)$exempt
         ];
     }
     /**
@@ -4541,6 +4750,11 @@ class Route extends FOGBase
     {
         if (null === self::$_serverOwnedMap) {
             $fields = self::$serverOwnedFields;
+            // Pre-set before the event, then again after -- see the long note
+            // in sensitiveFieldMap(). Not currently reachable re-entrantly
+            // (no path from processEvent() consults this map), but it is the
+            // same construction one call site away from the same OOM.
+            self::$_serverOwnedMap = (array)$fields;
             self::$HookManager->processEvent(
                 'API_SERVER_OWNED_FIELDS',
                 ['fields' => &$fields]
@@ -4763,8 +4977,13 @@ class Route extends FOGBase
                 $truncated = true;
             }
             $items = [];
+            // As above: the whole collection in one query rather than one per
+            // member. This is the inner half of the cost -- a host expanded
+            // with its macs, snapins and modules resolves every one of them
+            // here.
+            self::primeRel($rel['class'], $ids);
             foreach ($ids as $rid) {
-                $robj = self::getClass($rel['class'], $rid);
+                $robj = self::rel($rel['class'], $rid);
                 if (!$robj->isValid()) {
                     continue;
                 }
@@ -4912,6 +5131,75 @@ class Route extends FOGBase
             // columns together read them in one query rather than one query
             // per row. Refs GH-707.
             $getFields = (array)$getField;
+            // A field the emitter would strip must not be SELECTable either.
+            //
+            // getField is request-supplied -- it is the last segment of
+            // "/ids/id=1/name" -- and it names a column outright, so the only
+            // check standing between a caller and any column of any class in
+            // $validClasses was the databaseFields test below. That test says
+            // the column exists, not that the caller may read it, and
+            // stripSensitivePayload() cannot make up the difference: this
+            // route answers with a bare array of scalars carrying no '_lang'
+            // stamp, so the emitter resolves an empty classname and returns
+            // the payload untouched. GET /host/ids/id=1/sec_tok therefore
+            // handed a host's plaintext fog-client token -- and ADPass,
+            // productKey, user.password, user.token -- to any caller holding
+            // <entity>.view, the same permission as reading the list.
+            //
+            // Refused rather than dropped, matching _assertNoSensitiveFilter()
+            // exactly: silently substituting a different column would answer a
+            // question the caller did not ask. Same list, read the same way,
+            // so a plugin's own declared secret is covered by construction.
+            //
+            // Deliberately before the existence test, so a sensitive field is
+            // named as forbidden rather than as valid-but-refused, and so the
+            // 'valid' hint below cannot advertise it.
+            //
+            // Gated on SAPI for the same reason the unknown-field branch
+            // below is: sendResponse() exits, and a daemon that exits is a
+            // systemd restart loop (cf. 2d199fa4b). Both arms refuse -- what
+            // differs is how. Serving a request answers 400. Off-request the
+            // call returns an EMPTY result and logs, which is fail-closed
+            // without ending the process; falling through the way the
+            // unknown-field branch does would hand the secret back, and that
+            // is the one outcome this must not have.
+            //
+            // No in-repo caller is affected. Every getIds()/ids() call site
+            // was checked and the fields asked for are id, name, path,
+            // snapinpath, hostID, ip, mac, userID, usergroupID, siteID,
+            // storagegroupID, imageID, groupID, msID, isMaster, pending,
+            // sslpath, trustedcidrs, grantroleID, clientIgnore, imageIgnore.
+            //   grep -rn 'getIds(' --include=*.php packages/ /path/to/fog-plugins
+            $blocked = array_intersect(
+                $getFields,
+                self::unfilterableFields($classname)
+            );
+            if (count($blocked) > 0) {
+                if ('cli' === PHP_SAPI) {
+                    self::error(
+                        sprintf(
+                            'Route::ids: refusing sensitive field(s) for %s: %s.'
+                            . ' Returning no rows.',
+                            $classname,
+                            implode(', ', $blocked)
+                        )
+                    );
+                    self::$data = [];
+                    return;
+                }
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        [
+                            'error' => sprintf(
+                                _('Cannot select %s field(s): %s'),
+                                $classname,
+                                implode(', ', $blocked)
+                            )
+                        ]
+                    )
+                );
+            }
             foreach ($getFields as $field) {
                 if (isset($classVars['databaseFields'][$field])) {
                     continue;
@@ -4953,13 +5241,28 @@ class Route extends FOGBase
                 . $classVars['databaseTable']
                 . '`';
 
+            // Object scope, in the query. This route answered server-wide
+            // to anyone holding <entity>.view -- the same permission as
+            // reading the list, which IS scoped -- so a site-scoped user
+            // could enumerate every host id and name on the server in one
+            // request.
+            //
+            // In the WHERE rather than over the results, and that is what
+            // makes it work at all here: the boundary constrains ROWS, so it
+            // is independent of which COLUMN the caller asked for. Filtering
+            // the results would need the id, and this route need not return
+            // one -- `/host/ids/id=1/name` answers with bare names.
             $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
                 false,
                 $operator,
-                $orderby
+                $orderby,
+                self::_requestScopeWhere(
+                    $classname,
+                    '`' . $classVars['databaseFields']['id'] . '`'
+                )
             );
 
             $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
@@ -4977,10 +5280,7 @@ class Route extends FOGBase
             }
             self::$data = $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -5605,10 +5905,7 @@ class Route extends FOGBase
 
             return self::$DB->query($sqlResult['sql'], [], $sqlResult['params']);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         } finally {
             // max() because the guard above can throw before the increment.
             self::$_deleteDepth = max(0, self::$_deleteDepth - 1);
@@ -5687,6 +5984,32 @@ class Route extends FOGBase
             self::$data = $payload;
             return;
         }
+        // Reaching here means this filter REMOVED something, which since the
+        // boundary moved into the query should not happen on the listem()
+        // path -- the database was told to exclude those rows before it chose
+        // the page. Removing them is still correct and this stays as the
+        // fail-closed backstop; what is worth knowing is that the two
+        // disagreed.
+        //
+        // Not every removal is a fault. search() runs this a second time
+        // AFTER API_MASSDATA_MAPPING, and hooks receive `data` by reference,
+        // so a plugin appending an out-of-scope row lands here by design --
+        // which is also something an administrator should be able to find out
+        // about.
+        //
+        // One line per list rather than per row, and through error() rather
+        // than error_log(): a diagnostic for someone already looking, not a
+        // condition to shout about on a server that is working.
+        self::error(
+            sprintf(
+                'Route::_applySiteScope: removed %d of %d %s row(s) the query'
+                . ' should already have excluded. Either the boundary did not'
+                . ' reach the SQL, or something added rows after it ran.',
+                count($payload['data']) - count($kept),
+                count($payload['data']),
+                $node
+            )
+        );
         $payload['data'] = array_values($kept);
         $payload['recordsFiltered'] = count($kept);
         $payload['recordsTotal'] = count($kept);
@@ -5781,6 +6104,43 @@ class Route extends FOGBase
         self::$data = $payload;
     }
     /**
+     * The site boundary for a read that is SERVING A REQUEST, or null.
+     *
+     * listem() carries the boundary unconditionally, because its row filter
+     * always did. The single-purpose read routes -- names(), ids() -- cannot,
+     * and the difference is not a matter of taste: getIds() and getNames()
+     * are called from ~90 places in core and the services, and a daemon has
+     * no FOGUser. Asking the boundary about a userless caller is answered
+     * correctly and uselessly with '1=0' -- that user is in no site, so they
+     * reach nothing -- and every replicator, scheduler and multicast manager
+     * on a site-configured server would quietly stop finding its work.
+     *
+     * So the boundary applies to a request and not to a process. Same
+     * predicate ids() already uses to decide whether it may answer 400 or
+     * must return empty and log (sendResponse() exits, and a daemon that
+     * exits is a systemd restart loop), which keeps one notion of "am I
+     * serving a request" in this file rather than two.
+     *
+     * That predicate is load bearing. If PHP_SAPI ever stopped separating
+     * these two worlds, this would fail OPEN -- a request-side caller would
+     * be treated as a daemon and get no boundary. It is worth stating rather
+     * than leaving to be discovered, and it is why the boundary belongs in
+     * the query for a route that ALSO has an unauthenticated caller, instead
+     * of a blanket filter over self::$data.
+     *
+     * @param string $classname the entity being read
+     * @param string $idExpr    the object-id column, quoted
+     *
+     * @return string|null the WHERE fragment, or null for no boundary
+     */
+    private static function _requestScopeWhere($classname, $idExpr)
+    {
+        if ('cli' === PHP_SAPI) {
+            return null;
+        }
+        return Authorization::scopedObjectWhere($classname, $idExpr);
+    }
+    /**
      * Builds the sql statement.
      *
      * @return array
@@ -5791,7 +6151,8 @@ class Route extends FOGBase
         $whereItems = '',
         $retWhere = false,
         $operator = 'AND',
-        $orderby = 'name'
+        $orderby = 'name',
+        $extraWhere = null
     ) {
         try {
             if (empty($operator)) {
@@ -5925,6 +6286,23 @@ class Route extends FOGBase
             if ($retWhere) {
                 return isset($where) ? $where : '';
             }
+            // A condition the CALLER could not express as a filter -- today
+            // only the site boundary, which is a subquery. ANDed after the
+            // request's own filters so it can only ever narrow the result,
+            // never widen it, whatever the caller passed.
+            //
+            // Not folded into $whereItems: those are field => value pairs
+            // that get parameterised, and this is a fragment. Not applied
+            // inside handleWhereItems() either, because that runs for
+            // retWhere callers too and listem() already carries the boundary
+            // by a different route.
+            if (null !== $extraWhere && '' !== $extraWhere) {
+                $sql .= (
+                    count($whereItems) > 0 ?
+                    ' AND ' :
+                    ' WHERE '
+                ) . $extraWhere;
+            }
             $sql .= ' ORDER BY `'
                 . (
                     isset($classVars['databaseFields'][$orderby]) ?
@@ -5935,10 +6313,7 @@ class Route extends FOGBase
 
             return ['sql' => $sql, 'params' => $params];
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -5986,13 +6361,20 @@ class Route extends FOGBase
                 $whereItems = self::getsearchbody($classname);
             }
 
+            // Object scope, in the query -- see ids(). This route answered
+            // the id and name of every object of the class to any caller
+            // holding <entity>.view.
             $sqlResult = self::_buildSql(
                 $sql,
                 $classVars,
                 $whereItems,
                 false,
                 $operator,
-                $orderby
+                $orderby,
+                self::_requestScopeWhere(
+                    $classname,
+                    '`' . $classVars['databaseFields']['id'] . '`'
+                )
             );
             $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ($vals as &$val) {
@@ -6005,10 +6387,7 @@ class Route extends FOGBase
 
             self::$data = $data;
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**
@@ -6189,10 +6568,7 @@ class Route extends FOGBase
             }
             self::sendResponse($code);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_ACCEPTABLE,
-                $e->getMessage()
-            );
+            self::_sendCaught($e);
         }
     }
     /**

@@ -69,6 +69,30 @@ if (count($searchPages) < 10) {
     exit(1);
 }
 
+/**
+ * Does the page class owning this node declare its own index()?
+ *
+ * Read from source for the same reason $searchPages is: the harness must run
+ * with no database and no generated config.class.php.
+ *
+ * @param string $webroot path to packages/web
+ * @param string $node    the page node
+ *
+ * @return bool
+ */
+function self_serves_index($webroot, $node)
+{
+    foreach (glob($webroot . '/lib/pages/*.page.php') as $page) {
+        $src = file_get_contents($page);
+        if (!preg_match('/public \$node\s*=\s*\'' . $node . '\';/', $src)) {
+            continue;
+        }
+        return (bool) preg_match('/function index\s*\(/', $src);
+    }
+
+    return false;
+}
+
 foreach (glob($jsRoot . '/*', GLOB_ONLYDIR) as $dir) {
     $node = basename($dir);
     $listJs = $dir . '/fog.' . $node . '.list.js';
@@ -85,7 +109,21 @@ foreach (glob($jsRoot . '/*', GLOB_ONLYDIR) as $dir) {
         continue;
     }
     $checks++;
-    if (!in_array($node, $searchPages, true)) {
+    // A page that overrides index() cannot reach the base stub, so it is not
+    // at risk of the failure this test exists to catch, and $searchPages is
+    // not free to join: the property is ALSO the universal-search list, and
+    // Route::unisearch() calls getClass() on every entry. A node whose page
+    // serves its own grid has no model of that name, so listing it there
+    // would trade a rendering bug for a search one.
+    //
+    // The live example is 'activity': ActivityManagement::index() renders the
+    // card itself and ActivityManagement::getList() serves the rows, because
+    // the source filter picks which class to list -- which is the whole point
+    // of that page (ADR 0023) and is not something the base branch's single
+    // $childClass can express.
+    if (!in_array($node, $searchPages, true)
+        && !self_serves_index($webroot, $node)
+    ) {
         $failures[] = "$node registers a list page but is not in "
             . '$searchPages, so its page renders "Index page of: ..." '
             . 'instead of the grid';

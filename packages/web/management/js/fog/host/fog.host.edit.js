@@ -1206,7 +1206,11 @@
     // HISTORY TABS
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
-    var hostHistoryLoginTable = $('#host-login-history-table').registerTable(null, {
+    // Absent for a user without usertracking.view -- the tab is not
+    // rendered at all (ADR 0023), so there is nothing to register.
+    var $hostLoginHist = $('#host-login-history-table');
+    var hostHistoryLoginTable = !$hostLoginHist.length ? null :
+      $hostLoginHist.registerTable(null, {
         columns: [
             {data: 'createdTime'},
             {data: 'action'},
@@ -1303,7 +1307,9 @@
         hostModulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();
         // History
-        hostHistoryLoginTable.search(Common.search).draw();
+        if (hostHistoryLoginTable) {
+          hostHistoryLoginTable.search(Common.search).draw();
+        }
         hostHistoryImageTable.search(Common.search).draw();
         hostHistorySnapinTable.search(Common.search).draw();
     }

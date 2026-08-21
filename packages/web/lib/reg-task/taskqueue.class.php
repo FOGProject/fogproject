@@ -241,10 +241,23 @@ class TaskQueue extends TaskingElement
                     throw new \Exception(_('Failed to update/create image log'));
                 }
             }
+            // Here rather than at the top of the method: a host waiting in
+            // the queue calls checkIn() on every poll and throws above, so a
+            // header written on entry would record one row per poll for the
+            // whole wait. This is the point the task actually starts.
+            Audit::record([
+                'type' => 'task.start',
+                'authSource' => Audit::SOURCE_ANONYMOUS,
+                'subjectType' => 'task',
+                'subjectID' => (int)$this->Task->get('id'),
+                'subjectLabel' => (string)self::$Host->get('name'),
+                'renderable' => 1
+            ]);
             $this->Task
                 ->set('stateID', self::getProgressState())
                 ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'));
             if (!$this->Task->save()) {
+                Audit::markOutcome(Audit::FAILED);
                 throw new \Exception(_('Failed to update Task'));
             }
             if (!$this->taskLog()) {
@@ -519,6 +532,14 @@ class TaskQueue extends TaskingElement
             die('##');
         }
         try {
+            Audit::record([
+                'type' => 'task.complete',
+                'authSource' => Audit::SOURCE_ANONYMOUS,
+                'subjectType' => 'task',
+                'subjectID' => (int)$this->Task->get('id'),
+                'subjectLabel' => (string)self::$Host->get('name'),
+                'renderable' => 1
+            ]);
             if ($this->Task->isMulticast()) {
                 $MCTask = self::getClass('MulticastSessionAssociation')
                     ->set(
@@ -599,6 +620,7 @@ class TaskQueue extends TaskingElement
             // update, the task save, the task log or the imaging log failed.
             // The task is left short of Complete and FOS is told, but until
             // now nobody watching notifications was. See #1202.
+            Audit::markOutcome(Audit::FAILED);
             $this->_notifyImagingOutcome($e->getMessage());
             echo $e->getMessage();
         }

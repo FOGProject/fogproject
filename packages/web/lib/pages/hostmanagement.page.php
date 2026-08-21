@@ -2663,7 +2663,10 @@ class HostManagement extends FOGPage
         $hdfirm = $Inv->get('hdfirmware');
         $hdser = $Inv->get('hdserial');
         $caseman = $Inv->get('caseman');
-        $casever = $Inv->get('caseversion');
+        // 'casever', not 'caseversion'. Inventory declares the key as
+        // casever; get() returns false for a key the model does not have,
+        // so the Chassis Version input has rendered empty for every host.
+        $casever = $Inv->get('casever');
         $caseser = $Inv->get('caseserial');
         $caseast = $Inv->get('caseasset');
         $gpuvendors = $Inv->get('gpuvendors');
@@ -3494,17 +3497,27 @@ class HostManagement extends FOGPage
         ];
 
         // History Items
+        //
+        // Login History is a movement log for named people and is gated on
+        // usertracking.view, not on host.view like the rest of this page
+        // (ADR 0023). The tab is dropped rather than shown-and-denied: its
+        // grid would fetch and get a denial, which reads as a broken page.
+        // getLoginHist has the matching SUB_OVERRIDE, so the endpoint is
+        // closed whether or not the tab is drawn.
+        $historyTabs = [];
+        if (Authorization::can('usertracking.view')) {
+            $historyTabs[] = [
+                'name' => _('Login History'),
+                'id' => 'host-login-history',
+                'generator' => function () {
+                    $this->hostLoginHistory();
+                }
+            ];
+        }
         $tabData[] = [
             'tabs' => [
                 'name' => _('History Items'),
-                'tabData' => [
-                    [
-                        'name' => _('Login History'),
-                        'id' => 'host-login-history',
-                        'generator' => function () {
-                            $this->hostLoginHistory();
-                        }
-                    ],
+                'tabData' => array_merge($historyTabs, [
                     [
                         'name' => _('Imaging History'),
                         'id' => 'host-image-history',
@@ -3519,7 +3532,7 @@ class HostManagement extends FOGPage
                             $this->hostSnapinHistory();
                         }
                     ],
-                ]
+                ])
             ]
         ];
         // Site

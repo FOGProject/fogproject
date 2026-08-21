@@ -95,6 +95,17 @@ class Registration extends FOGBase
                 _('Created by FOG Reg on'),
                 self::formatTime('now', 'F j, Y, g:i a')
             );
+            // The header goes in BEFORE the host is created, so the
+            // create's own auditChange rows have something to attach to --
+            // a registration is the one machine path where the whole
+            // starting configuration of a new object is worth reading back.
+            // identify() fills in the id and name once the INSERT returns.
+            Audit::record([
+                'type' => 'host.register',
+                'authSource' => Audit::SOURCE_ANONYMOUS,
+                'subjectType' => 'host',
+                'renderable' => 1
+            ]);
             if (isset($_POST['advanced'])) {
                 $this->_fullReg();
             } else {
@@ -249,11 +260,21 @@ class Registration extends FOGBase
                     $productKey
                 );
             if (!self::$Host->save()) {
+                // The header is already written, so say it did not take.
+                // "A registration was attempted and failed" is invisible
+                // today, and it is the shape of both a misconfiguration and
+                // a probe.
+                Audit::markOutcome(Audit::FAILED);
                 throw new \Exception(
                     _('Failed to create Host!')
                 );
             }
             self::$Host->load();
+            Audit::identify(
+                'host',
+                (int)self::$Host->get('id'),
+                (string)self::$Host->get('name')
+            );
             self::$HookManager->processEvent(
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
@@ -453,11 +474,21 @@ class Registration extends FOGBase
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
+                // The header is already written, so say it did not take.
+                // "A registration was attempted and failed" is invisible
+                // today, and it is the shape of both a misconfiguration and
+                // a probe.
+                Audit::markOutcome(Audit::FAILED);
                 throw new \Exception(
                     _('Failed to create Host!')
                 );
             }
             self::$Host->load();
+            Audit::identify(
+                'host',
+                (int)self::$Host->get('id'),
+                (string)self::$Host->get('name')
+            );
             self::$HookManager->processEvent(
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
@@ -500,11 +531,21 @@ class Registration extends FOGBase
                 self::$Host->set('productKey', $productKey);
             }
             if (!self::$Host->save()) {
+                // The header is already written, so say it did not take.
+                // "A registration was attempted and failed" is invisible
+                // today, and it is the shape of both a misconfiguration and
+                // a probe.
+                Audit::markOutcome(Audit::FAILED);
                 throw new \Exception(
                     _('Failed to create Host!')
                 );
             }
             self::$Host->load();
+            Audit::identify(
+                'host',
+                (int)self::$Host->get('id'),
+                (string)self::$Host->get('name')
+            );
             self::$HookManager->processEvent(
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
