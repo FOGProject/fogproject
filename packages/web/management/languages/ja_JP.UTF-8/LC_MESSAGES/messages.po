@@ -1238,6 +1238,9 @@ msgstr "新しいロケーションを作成"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Changing a retention window requires the audit manage permission"
+msgstr ""
+
 msgid "Changing this setting takes effect after you reload the page. A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required."
 msgstr ""
 
@@ -3763,6 +3766,10 @@ msgstr "無効なパス"
 msgid "Invalid product key supplied"
 msgstr "指定されたプロダクトキーが無効です"
 
+#, fuzzy
+msgid "Invalid retention identifier"
+msgstr "無効なスナップイン"
+
 msgid "Invalid scheduling type"
 msgstr "無効なスケジュールタイプです"
 
@@ -5830,6 +5837,9 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr "FOG 設定"
 
+msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
+
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
 
@@ -5942,6 +5952,16 @@ msgstr ""
 
 msgid "Resume Reload"
 msgstr ""
+
+msgid "Retention refused, audit row would not store"
+msgstr ""
+
+msgid "Retention removed rows from"
+msgstr ""
+
+#, fuzzy
+msgid "Retention sweep failed"
+msgstr "削除に失敗しました"
 
 msgid "Return Code"
 msgstr "戻りコード"

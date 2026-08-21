@@ -6403,4 +6403,41 @@ $this->schema[] = [
     . "days and a periodic sweep deletes audit rows older than that. "
     . "Shortening this window is itself recorded in the audit trail before "
     . "it takes effect.','0','Logging Settings')",
+// 347
+    // The other three tables the retention registry ages out. They arrived
+    // from three ADRs -- history and userTracking from 0023, imagingLog from
+    // 0022, which defers to 0021's mechanism explicitly -- and they are one
+    // step because they are one feature: four settings read by one sweep.
+    //
+    // ALL DEFAULT TO 0, KEEP FOREVER, ON EVERY INSTALL AND EVERY UPGRADE.
+    // ADR 0023 Decision 7 wanted new installs to default to a bounded window
+    // and upgrades to keep everything; a schema step cannot tell the two
+    // apart, so it does the safe half here and the new-install default is
+    // the installer's to apply. Deleting on upgrade would be wrong for a
+    // specific reason: the administrator never chose to hold this data OR to
+    // delete it, and some of them are legally required to retain it.
+    //
+    // userTracking is called out in its own words because it is the one that
+    // is about PEOPLE -- which named person signed in to which machine, and
+    // when -- rather than about equipment.
+    //
+    // Columns named, per the note on step 346: a step that does not name
+    // them has broken the installer's grant probe twice.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_HISTORY_RETENTION_DAYS','How many days of administrative "
+    . "history to keep. 0 keeps everything forever, which is the default. "
+    . "Shortening this window is recorded in the audit trail before it "
+    . "takes effect.','0','Logging Settings'),"
+    . "('FOG_USERTRACKING_RETENTION_DAYS','How many days of host login "
+    . "records to keep. These name the person who signed in to each machine "
+    . "and when, so a shorter window here is a privacy control as much as a "
+    . "storage one. 0 keeps everything forever, which is the default on new "
+    . "installs and upgrades alike. Shortening this window is recorded in "
+    . "the audit trail before it takes effect.','0','Logging Settings'),"
+    . "('FOG_IMAGINGLOG_RETENTION_DAYS','How many days of imaging history "
+    . "to keep, measured from when each task started. 0 keeps everything "
+    . "forever, which is the default. Shortening this window is recorded in "
+    . "the audit trail before it takes effect.','0','Logging Settings')",
 ];

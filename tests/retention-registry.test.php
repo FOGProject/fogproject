@@ -1,0 +1,317 @@
+<?php
+/**
+ * The retention registry describes tables that exist, and 0 means forever.
+ *
+ * Retention deletes rows nothing else deletes, so both halves of this are
+ * failures nobody would see:
+ *
+ *   - A REGISTRY ENTRY NAMING A COLUMN THAT IS NOT THERE. The sweep composes
+ *     its SQL from the entry, so a typo produces an error inside a daemon's
+ *     hourly cycle and the table never ages out. Every core entry is checked
+ *     against commons/schema-expected.php, which is generated from the real
+ *     schema. Plugin entries cannot be: the manifest holds core's 67 tables
+ *     and nothing a plugin ships.
+ *   - A SETTING KEY WITH NO SCHEMA STEP. getSetting() on an absent key
+ *     returns '', which casts to 0, which means keep forever -- so the sweep
+ *     reads "disabled" and does nothing at all, on every install, silently.
+ *     That is the same failure mode as forgetting the FOG_SCHEMA bump and it
+ *     looks identical from outside: retention configured, retention not
+ *     happening.
+ *
+ * And the arithmetic, which is the part that inverts quietly: 0 means KEEP
+ * FOREVER, so it is larger than any number of days. A plain integer
+ * comparison gets "forever, now delete after a year" backwards, calls the
+ * sharpest shrink there is a growth, and lets it through without the audit
+ * row that ADR 0021 Decision 10 requires before it.
+ *
+ * Mostly DB-free: Initiator registers the autoloader, Retention::registry()
+ * skips its hook when there is no HookManager, and isShrink()/_ident() are
+ * pure. The sweep's own ordering is checked textually, because running it
+ * would need a database and rows to destroy.
+ *
+ * Usage: php tests/retention-registry.test.php
+ * Exit status 0 = pass, 1 = fail.
+ */
+
+$root = dirname(__DIR__);
+$webroot = $root . '/packages/web';
+$init = $webroot . '/commons/init.php';
+if (!is_readable($init)) {
+    fwrite(STDERR, "FAIL: cannot read $init\n");
+    exit(1);
+}
+
+$tmp = sys_get_temp_dir() . '/fog-retention-test-' . getmypid();
+@mkdir($tmp . '/cache', 0700, true);
+@mkdir($tmp . '/log', 0700, true);
+register_shutdown_function(
+    function () use ($tmp) {
+        if (!is_dir($tmp)) {
+            return;
+        }
+        $it = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($tmp, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($it as $f) {
+            $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+        }
+        @rmdir($tmp);
+    }
+);
+
+if (!defined('FOG_CACHE_DIR')) {
+    define('FOG_CACHE_DIR', $tmp . '/cache');
+}
+if (!defined('FOG_LOG_DIR')) {
+    define('FOG_LOG_DIR', $tmp . '/log');
+}
+if (!defined('FOG_PLUGIN_DIR')) {
+    define('FOG_PLUGIN_DIR', $tmp . '/plugins');
+}
+
+require_once $init;
+new Initiator();
+
+$failures = [];
+$checks = 0;
+
+function check($label, $cond, array &$failures, &$checks)
+{
+    $checks++;
+    if (!$cond) {
+        $failures[] = $label;
+    }
+}
+
+if (!class_exists('Retention', true)) {
+    fwrite(STDERR, "FAIL: Retention did not resolve\n");
+    exit(1);
+}
+
+$core = Retention::coreRegistry();
+check(
+    'coreRegistry() lists the four tables ADR 0021 and 0023 name',
+    count($core) === 4,
+    $failures,
+    $checks
+);
+
+/*
+ * 1. Every core entry names a real table, a real date column and a real id.
+ */
+$manifest = include $webroot . '/commons/schema-expected.php';
+$tables = $manifest['tables'] ?? [];
+$byLower = [];
+foreach ($tables as $name => $def) {
+    $byLower[strtolower($name)] = $def;
+}
+
+foreach ($core as $table => $entry) {
+    $def = $byLower[strtolower($table)] ?? null;
+    check(
+        "retention table `$table` is in the schema manifest",
+        null !== $def,
+        $failures,
+        $checks
+    );
+    if (null === $def) {
+        continue;
+    }
+    $columns = array_map('strtolower', array_keys($def['columns'] ?? []));
+    foreach (['date', 'id'] as $which) {
+        $col = $entry[$which] ?? '';
+        check(
+            "`$table`.`$col` ($which column) exists",
+            in_array(strtolower($col), $columns, true),
+            $failures,
+            $checks
+        );
+    }
+    foreach ((array)($entry['children'] ?? []) as $child) {
+        $cdef = $byLower[strtolower($child['table'])] ?? null;
+        check(
+            "child table `{$child['table']}` is in the schema manifest",
+            null !== $cdef,
+            $failures,
+            $checks
+        );
+        if (null === $cdef) {
+            continue;
+        }
+        $ccols = array_map('strtolower', array_keys($cdef['columns'] ?? []));
+        check(
+            "`{$child['table']}`.`{$child['key']}` exists",
+            in_array(strtolower($child['key']), $ccols, true),
+            $failures,
+            $checks
+        );
+    }
+}
+
+/*
+ * 2. Every setting key has a schema step that inserts it.
+ */
+$schemaSrc = (string) file_get_contents($webroot . '/commons/schema.php');
+foreach ($core as $table => $entry) {
+    $key = $entry['setting'] ?? '';
+    check(
+        "setting $key is inserted by commons/schema.php",
+        '' !== $key && false !== strpos($schemaSrc, "'" . $key . "'"),
+        $failures,
+        $checks
+    );
+}
+
+/*
+ * 3. The arithmetic. 0 is forever, and forever is the largest window.
+ */
+$shrinks = [
+    // [old, new, isShrink]
+    [0, 365, true],    // forever -> a year. The sharpest shrink there is.
+    [365, 0, false],   // a year -> forever. Growth.
+    [365, 30, true],   // shorter.
+    [30, 365, false],  // longer.
+    [30, 30, false],   // unchanged.
+    [0, 0, false],     // unchanged.
+    ['0', '30', true], // the settings page hands these over as strings.
+    ['30', '0', false],
+];
+foreach ($shrinks as $case) {
+    list($old, $new, $want) = $case;
+    $got = Retention::isShrink($old, $new);
+    check(
+        sprintf(
+            'isShrink(%s, %s) is %s',
+            var_export($old, true),
+            var_export($new, true),
+            $want ? 'true' : 'false'
+        ),
+        $got === $want,
+        $failures,
+        $checks
+    );
+}
+
+/*
+ * 4. Identifiers are validated, not interpolated on trust. The registry is
+ *    extensible by a plugin hook, and a table name is not bindable.
+ */
+$ident = new \ReflectionMethod('FOG\\Retention', '_ident');
+$ident->setAccessible(true);
+$bad = ['audit`Log', 'auditLog; DROP TABLE hosts', 'audit Log', '', 'a-b'];
+foreach ($bad as $name) {
+    $threw = false;
+    try {
+        $ident->invoke(null, $name);
+    } catch (\Exception $e) {
+        $threw = true;
+    }
+    check(
+        '_ident() rejects ' . var_export($name, true),
+        $threw,
+        $failures,
+        $checks
+    );
+}
+check(
+    '_ident() accepts a plain identifier',
+    $ident->invoke(null, 'auditLog') === 'auditLog',
+    $failures,
+    $checks
+);
+
+/*
+ * 5. The refusal, textually: the audit row is written BEFORE the delete and
+ *    a table whose row did not store is skipped rather than swept.
+ */
+$src = (string) file_get_contents($webroot . '/lib/fog/retention.class.php');
+// Scoped to sweep()'s own body. Searching the whole file compares the FIRST
+// Audit::record() in it -- which belongs to permitSettingChange() and is
+// declared earlier -- against the delete, so the ordering would read as
+// correct however sweep() was written.
+$sweepStart = strpos($src, 'public static function sweep()');
+$sweepEnd = $sweepStart === false
+    ? false
+    : strpos($src, "\n    /**", $sweepStart);
+$sweep = ($sweepStart === false || $sweepEnd === false)
+    ? ''
+    : substr($src, $sweepStart, $sweepEnd - $sweepStart);
+$recordPos = strpos($sweep, 'Audit::record(');
+$deletePos = strpos($sweep, 'self::_delete(');
+check(
+    'sweep() records the audit row before it deletes',
+    '' !== $sweep
+    && false !== $recordPos
+    && false !== $deletePos
+    && $recordPos < $deletePos,
+    $failures,
+    $checks
+);
+check(
+    'sweep() skips a table whose audit row did not store',
+    false !== strpos($src, 'if (!$audit) {'),
+    $failures,
+    $checks
+);
+check(
+    'permitSettingChange() refuses an unrecorded shrink',
+    false !== strpos($src, 'if ($shrink && !$stored) {'),
+    $failures,
+    $checks
+);
+
+/*
+ * 6. The settings page gates the windows on audit.manage, both ways: the
+ *    field is not rendered without it and a post is refused without it.
+ */
+$page = (string) file_get_contents(
+    $webroot . '/lib/pages/fogconfigurationpage.page.php'
+);
+check(
+    'the settings page hides retention windows without audit.manage',
+    false !== strpos($page, 'Retention::settingKeys()')
+    && false !== strpos($page, "Authorization::can('audit.manage')"),
+    $failures,
+    $checks
+);
+check(
+    'the settings page runs a retention post through permitSettingChange()',
+    false !== strpos($page, 'Retention::permitSettingChange('),
+    $failures,
+    $checks
+);
+
+/*
+ * 7. The sweep has a caller. A registry and no daemon is a setting that
+ *    silently does nothing.
+ */
+$runner = (string) file_get_contents(
+    $webroot . '/lib/service/pluginrunner.class.php'
+);
+check(
+    'FOGPluginRunner calls Retention::sweep()',
+    false !== strpos($runner, 'Retention::sweep()'),
+    $failures,
+    $checks
+);
+// Both halves. The wrapper existing proves nothing if serviceRun() stopped
+// calling it -- the sweep would be dead code and every configured window
+// would silently do nothing.
+check(
+    'serviceRun() invokes the retention sweep',
+    false !== strpos($runner, '$this->_retentionSweep();'),
+    $failures,
+    $checks
+);
+
+if (count($failures)) {
+    fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
+    foreach ($failures as $f) {
+        fwrite(STDERR, "  - $f\n");
+    }
+    exit(1);
+}
+
+echo "ok  $checks checks passed\n";
+exit(0);

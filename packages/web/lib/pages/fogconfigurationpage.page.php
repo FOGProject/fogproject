@@ -2249,6 +2249,30 @@ class FOGConfigurationPage extends FOGPage
                             self::setSetting('FOG_CLIENT_BANNER_SHA', $hash);
                         }
                 }
+                // ADR 0021 Decision 10, and the HARD constraint behind it:
+                // anything that reduces the record must first be written to
+                // the record, and if that write cannot happen the reduction
+                // does not either. `settings.edit` is not the gate for this
+                // -- SIX page nodes map onto that one permission -- so a
+                // retention window also needs `audit.manage`, which is why
+                // the field is not rendered without it either.
+                if (Retention::isRetentionSetting($name)) {
+                    if (!Authorization::can('audit.manage')) {
+                        throw new \Exception(
+                            _('Changing a retention window requires the '
+                            . 'audit manage permission')
+                        );
+                    }
+                    if (!Retention::permitSettingChange($name, $val, $set)) {
+                        $serverFault = true;
+                        throw new \Exception(
+                            _('Refused: the change to this retention window '
+                            . 'could not be recorded in the audit log, and '
+                            . 'shortening a window that cannot be recorded '
+                            . 'is exactly what the audit log is for')
+                        );
+                    }
+                }
                 $items[] = [$id, $name, $set];
                 unset($Setting);
             }
@@ -2470,8 +2494,21 @@ class FOGConfigurationPage extends FOGPage
             ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
 
+        // Hidden rather than shown-and-refused: a field that posts back an
+        // error is a worse boundary than one that is not there, and the
+        // category counts below are built from this same list so a hidden
+        // field must not be counted either. See ADR 0021 Decision 9 for why
+        // `settings.edit` is not the gate for these.
+        $mayManageAudit = Authorization::can('audit.manage');
+        $retentionKeys = Retention::settingKeys();
+
         $byCat = [];
         foreach ((array) $rows as $row) {
+            if (!$mayManageAudit
+                && in_array($row['settingKey'], $retentionKeys, true)
+            ) {
+                continue;
+            }
             $cat = trim((string) $row['settingCategory']);
             if ($cat === '') {
                 $cat = _('Uncategorized');
