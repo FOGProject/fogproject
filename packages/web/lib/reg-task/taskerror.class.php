@@ -174,6 +174,20 @@ class TaskError extends FOGBase
                 // gets told that something did.
                 return;
             }
+            // Only an error gets a header: a warning means FOS carried on
+            // and returned above, and the task's state is unchanged, so
+            // there is nothing here an audit trail is for. The outcome is
+            // the default ALLOWED -- it describes whether THIS action was
+            // permitted and carried out, and recording a failure is an
+            // action that succeeded. That the task failed is in the type.
+            Audit::record([
+                'type' => 'task.failed',
+                'authSource' => Audit::SOURCE_ANONYMOUS,
+                'subjectType' => 'task',
+                'subjectID' => (int)$Task->get('id'),
+                'subjectLabel' => (string)self::$Host->get('name'),
+                'renderable' => 1
+            ]);
             // The task is finished, whatever kind it was. A Memtest or an
             // inventory task the host died on is just as over as a deploy;
             // only the NOTIFICATION below is imaging-specific, so the state

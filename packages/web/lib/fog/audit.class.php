@@ -88,6 +88,18 @@ class Audit extends FOGBase
      */
     const MACHINE_ACTOR = 'fog';
     /**
+     * The authSource for a write no credential was presented for.
+     *
+     * FOS's task and registration endpoints identify a host by the MAC in
+     * the request and nothing else -- FOGBase::getHostItem() reads the mac,
+     * normalizes it and looks the host up; there is no token check on that
+     * path. So "anonymous" is the accurate word, not a placeholder, and
+     * together with the empty `permission` these rows carry it makes FOG's
+     * whole unauthenticated write surface a two-column query (ADR 0021
+     * Decision 4).
+     */
+    const SOURCE_ANONYMOUS = 'anonymous';
+    /**
      * This request's correlation id, or null before one was needed.
      *
      * @var string|null
@@ -199,6 +211,42 @@ class Audit extends FOGBase
     public static function current()
     {
         return self::$_current;
+    }
+    /**
+     * Names the subject on a header written before the subject existed.
+     *
+     * Registration is the case this exists for: the interesting fact is that
+     * a host was created, and the id it was created with does not exist
+     * until the INSERT returns. Recording the header first is what lets the
+     * create's own auditChange rows attach to it; this fills in the two
+     * fields that could not be known then.
+     *
+     * Same standing as markOutcome(): it revises a row written moments
+     * earlier in the same request, before anybody could have read it, and it
+     * cannot reach an older one.
+     *
+     * @param string $subjectType lowercased class name
+     * @param int    $subjectID   the id the insert produced
+     * @param string $subjectLabel a name that stays readable after a delete
+     *
+     * @return void
+     */
+    public static function identify($subjectType, $subjectID, $subjectLabel = '')
+    {
+        if (!self::$_current instanceof AuditLog
+            || !self::$_current->isValid()
+        ) {
+            return;
+        }
+        try {
+            self::$_current
+                ->set('subjectType', strtolower((string)$subjectType))
+                ->set('subjectID', (int)$subjectID)
+                ->set('subjectLabel', (string)$subjectLabel)
+                ->save();
+        } catch (\Exception $e) {
+            self::_writeFailed((string)$e->getMessage());
+        }
     }
     /**
      * Revises this request's header now the outcome is known.

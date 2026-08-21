@@ -206,6 +206,56 @@ foreach (['History', 'AuditLog', 'AuditChange'] as $cls) {
     }
 }
 
+/*
+ * 5. The machine paths carry headers, and the polling paths do not.
+ *
+ * ADR 0021 Decision 4: service/ and reg-task/ contain zero Authorization::
+ * calls, so there is no gate to hang a header on -- and a host registering
+ * itself or a task reporting failure is exactly what an audit trail is for.
+ * They write their own, with the empty `permission` every record() default
+ * produces, which is the signal that says "this write bypassed
+ * authorization".
+ */
+$machinePaths = [
+    'packages/web/lib/reg-task/registration.class.php' => 'host.register',
+    'packages/web/lib/reg-task/taskqueue.class.php' => 'task.start',
+    'packages/web/lib/reg-task/taskerror.class.php' => 'task.failed',
+    'packages/web/lib/reg-task/blame.class.php' => 'task.blamed',
+    'packages/web/service/inventory.php' => 'host.inventory',
+];
+foreach ($machinePaths as $path => $type) {
+    $src = (string) @file_get_contents($root . '/' . $path);
+    $checks++;
+    if (false === strpos($src, "'type' => '$type'")) {
+        $failures[] = "$path no longer records a '$type' header. That path "
+            . 'writes state no gate saw, so nothing else records it at all.';
+    }
+    $checks++;
+    if (false === strpos($src, 'Audit::SOURCE_ANONYMOUS')) {
+        $failures[] = "$path records a header without SOURCE_ANONYMOUS. "
+            . 'These endpoints identify a host by the MAC in the request and '
+            . 'check no credential, so anything else overstates what FOG '
+            . 'knows about who made the write.';
+    }
+}
+
+/*
+ * The volume decision, stated as a test because it is otherwise invisible:
+ * progress.php is called every few seconds by every imaging host for the
+ * whole length of a task. A header there is not a stricter audit trail, it
+ * is a table that grows faster than the images do.
+ */
+$checks++;
+$progress = (string) @file_get_contents(
+    $root . '/packages/web/service/progress.php'
+);
+if (false !== strpos($progress, 'Audit::record')) {
+    $failures[] = 'service/progress.php writes an audit header. FOS calls it '
+        . 'every few seconds per imaging host for the length of the task; the '
+        . 'auditable events are the start and the finish, which '
+        . 'TaskQueue::checkIn() and checkout() already record.';
+}
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {
