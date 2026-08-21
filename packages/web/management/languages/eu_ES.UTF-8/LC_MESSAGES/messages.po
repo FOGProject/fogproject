@@ -1411,6 +1411,10 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "Task-Typ aktualisieren fehlgeschlagen"
+
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
@@ -1587,6 +1591,10 @@ msgstr "CPU-Anzahl"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "CPU-Anzahl"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "Laden fehlgeschlagen: %s"
 
 msgid "Create"
 msgstr "Erstellen"
@@ -1823,8 +1831,16 @@ msgid "Database Update Failed"
 msgstr "Datenbankupdate fehlgeschlagen"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "Datenbankspeicherung fehlgeschlagen"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "Pfad ist nicht verfügbar"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "Datenbankspeicherung fehlgeschlagen"
 
 #, fuzzy
 msgid "Database save failed"
@@ -2261,6 +2277,10 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "Keine Datei wurde hochgeladen"
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "Privater Schlüssel ist fehlgeschlagen"
 
 msgid "Exists item must be boolean"
 msgstr "Bestehendes Objekt muss boolean sein"
@@ -4680,6 +4700,10 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "Mark selected pending"
 msgstr "Ausgewählten MAcs freigeben"
 
+#, fuzzy
+msgid "Mass update failed"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
 msgid "Master Node"
 msgstr "Master-Knoten"
 
@@ -6322,6 +6346,9 @@ msgstr "Berichteverwaltung"
 msgid "Reports"
 msgstr "Berichte"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr "Erforderliches Datenbankfeld ist leer"
 
@@ -7602,8 +7629,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "Aktiviert"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "Keine Datenbank-Tabelle für diese Klasse definiert"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "Verbindung nicht möglich"
 
 #, fuzzy
 msgid "Tag Name"
@@ -9168,6 +9203,12 @@ msgstr "und diesen als Master einstellen,"
 msgid "and the FOG client."
 msgstr "auf dem veralteten Client."
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr "da der FOG versuchen wird, mit dem Internet zu verbinden, "
 
@@ -9282,6 +9323,9 @@ msgstr "Aktiviert"
 #, fuzzy
 msgid "error"
 msgstr "Fehler"
+
+msgid "every column on this table will be treated as untyped"
+msgstr ""
 
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"

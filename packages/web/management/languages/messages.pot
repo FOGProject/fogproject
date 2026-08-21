@@ -1199,6 +1199,9 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+msgid "Column type lookup failed"
+msgstr ""
+
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
@@ -1343,6 +1346,9 @@ msgstr ""
 
 #, php-format
 msgid "Count %s"
+msgstr ""
+
+msgid "Count failed"
 msgstr ""
 
 msgid "Create"
@@ -1540,7 +1546,13 @@ msgstr ""
 msgid "Database Update Failed"
 msgstr ""
 
+msgid "Database bulk load failed"
+msgstr ""
+
 msgid "Database connection unavailable."
+msgstr ""
+
+msgid "Database load failed"
 msgstr ""
 
 msgid "Database save failed"
@@ -1918,6 +1930,9 @@ msgid "Every configured multicast port is already in use"
 msgstr ""
 
 msgid "Every file was uploaded."
+msgstr ""
+
+msgid "Existence check failed"
 msgstr ""
 
 msgid "Exists item must be boolean"
@@ -3950,6 +3965,9 @@ msgstr ""
 msgid "Mark selected pending"
 msgstr ""
 
+msgid "Mass update failed"
+msgstr ""
+
 msgid "Master Node"
 msgstr ""
 
@@ -5359,6 +5377,9 @@ msgstr ""
 msgid "Reports"
 msgstr ""
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr ""
 
@@ -6433,7 +6454,13 @@ msgstr ""
 msgid "TX"
 msgstr ""
 
+msgid "Table"
+msgstr ""
+
 msgid "Table not defined for this class"
+msgstr ""
+
+msgid "Table uninstall failed"
 msgstr ""
 
 msgid "Tag Name"
@@ -7790,6 +7817,12 @@ msgstr ""
 msgid "and the FOG client."
 msgstr ""
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
 
@@ -7887,6 +7920,9 @@ msgid "enabled (all)"
 msgstr ""
 
 msgid "error"
+msgstr ""
+
+msgid "every column on this table will be treated as untyped"
 msgstr ""
 
 #, php-format

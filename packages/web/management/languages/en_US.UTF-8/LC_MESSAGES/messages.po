@@ -1413,6 +1413,10 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "User update failed"
+
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
@@ -1589,6 +1593,10 @@ msgstr "CPU Count"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "CPU Count"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "Load failed: %s"
 
 msgid "Create"
 msgstr "Create"
@@ -1825,8 +1833,16 @@ msgid "Database Update Failed"
 msgstr "Database Update Failed"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "Database update failed"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "No hash available"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "Database update failed"
 
 #, fuzzy
 msgid "Database save failed"
@@ -2262,6 +2278,10 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "No file was uploaded"
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "Private key failed"
 
 msgid "Exists item must be boolean"
 msgstr ""
@@ -4677,6 +4697,10 @@ msgstr "Approve selected Hosts"
 msgid "Mark selected pending"
 msgstr "Approve selected Hosts"
 
+#, fuzzy
+msgid "Mass update failed"
+msgstr "User update failed"
+
 msgid "Master Node"
 msgstr "Master Node"
 
@@ -6319,6 +6343,9 @@ msgstr "Report Management"
 msgid "Reports"
 msgstr "Reports"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr "Required database field is empty"
 
@@ -7597,8 +7624,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "Enabled"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "No database table defined for this class"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "Failed to connect"
 
 #, fuzzy
 msgid "Tag Name"
@@ -9161,6 +9196,12 @@ msgstr ""
 msgid "and the FOG client."
 msgstr ""
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
 
@@ -9275,6 +9316,9 @@ msgstr "Enabled"
 #, fuzzy
 msgid "error"
 msgstr "Error"
+
+msgid "every column on this table will be treated as untyped"
+msgstr ""
 
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"

@@ -1348,6 +1348,10 @@ msgstr ""
 msgid "Close"
 msgstr ""
 
+#, fuzzy
+msgid "Column type lookup failed"
+msgstr "タスクタイプの更新に失敗しました"
+
 msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
@@ -1513,6 +1517,10 @@ msgstr "CPU 数"
 #, fuzzy, php-format
 msgid "Count %s"
 msgstr "CPU 数"
+
+#, fuzzy
+msgid "Count failed"
+msgstr "ログインに失敗しました"
 
 msgid "Create"
 msgstr "作成"
@@ -1748,8 +1756,16 @@ msgid "Database Update Failed"
 msgstr "データベースの更新に失敗しました"
 
 #, fuzzy
+msgid "Database bulk load failed"
+msgstr "データベースの保存に失敗しました"
+
+#, fuzzy
 msgid "Database connection unavailable."
 msgstr "データベースを利用できません"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "データベースの保存に失敗しました"
 
 msgid "Database save failed"
 msgstr "データベースの保存に失敗しました"
@@ -2176,6 +2192,10 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
+msgid "Existence check failed"
+msgstr "秘密鍵の処理に失敗しました"
 
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
@@ -4461,6 +4481,10 @@ msgstr "選択したイメージを追加"
 msgid "Mark selected pending"
 msgstr "選択したスナップインを追加"
 
+#, fuzzy
+msgid "Mass update failed"
+msgstr "ホストの更新に失敗しました"
+
 msgid "Master Node"
 msgstr "マスターノード"
 
@@ -6058,6 +6082,9 @@ msgstr "レポート管理"
 msgid "Reports"
 msgstr "レポート"
 
+msgid "Requested"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr "必須のデータベースフィールドが空です"
 
@@ -7260,8 +7287,16 @@ msgstr ""
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "有効"
+
 msgid "Table not defined for this class"
 msgstr "このクラスにテーブルが定義されていません"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "プラグインのインストールに失敗しました"
 
 #, fuzzy
 msgid "Tag Name"
@@ -8763,6 +8798,12 @@ msgstr "そしてマスターに設定します"
 msgid "and the FOG client."
 msgstr "旧クライアント上"
 
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
 msgid "as FOG will attempt to go out to the internet"
 msgstr "FOG がインターネットへ接続を試みるため"
 
@@ -8867,6 +8908,9 @@ msgstr "有効"
 #, fuzzy
 msgid "error"
 msgstr "エラー"
+
+msgid "every column on this table will be treated as untyped"
+msgstr ""
 
 #, php-format
 msgid "exited abnormally with code %d; cancelling task"
