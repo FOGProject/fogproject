@@ -2637,7 +2637,7 @@ class Route extends FOGBase
                     'db' => 'utAction',
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
-                        switch ($d) {
+                        switch ((string) $d) {
                             case '0':
                                 return _('Logout');
                             case '1':
@@ -2645,6 +2645,18 @@ class Route extends FOGBase
                             case '99':
                                 return _('Service Start');
                         }
+                        // A code this does not know renders as itself, not as
+                        // an empty cell. utAction has no lookup table and no
+                        // constants -- its three values are these literals and
+                        // nothing constrains the column to them, so an
+                        // unrecognised one is a real possibility (a plugin
+                        // writing its own, or the '' that save() wrote into
+                        // every unset column before GH-1245). Falling out of
+                        // the switch returned null, so the row still listed
+                        // with a blank Action and nothing said why.
+                        return '' === (string) $d
+                            ? _('Unknown')
+                            : \Initiator::e($d);
                     }
                 ];
                 break;

@@ -95,7 +95,19 @@ class UserTrack extends FOGClient
             ->set('hostID', self::$Host->get('id'))
             ->set('username', $user)
             ->set('action', $this->actions[$action])
-            ->set('datetime', $tmpDate->format('Y-m-d H:i:s'))
+            // 'createdTime', not 'datetime'. UserTracking maps utDateTime to
+            // the friendly key createdTime, and set() resolves a key against
+            // databaseFields/databaseFieldsFlipped/additionalFields only --
+            // 'datetime' is in none of them, so set() threw "Invalid key
+            // being set" and caught its own exception into debug(), which is
+            // silent at the default log level.
+            //
+            // The row still saved, because save() fills an unset createdTime
+            // with 'now'. So a client supplying date= got that date in
+            // utDate and the server's clock in utDateTime -- one row, two
+            // dates, whenever the two differ (a queued or offline login
+            // reported late, which is the only reason the parameter exists).
+            ->set('createdTime', $tmpDate->format('Y-m-d H:i:s'))
             ->set('date', $tmpDate->format('Y-m-d'))
             ->save();
         return ['' => ''];
