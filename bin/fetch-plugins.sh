@@ -52,10 +52,43 @@ say() { [[ $quiet -eq 1 ]] || echo "$@"; }
 # The stamp is written only by this script, so its absence means "someone else
 # put this here" and its contents answer "which release".
 stamp="$dest/.fog-plugins-version"
+manifest="$dest/.fog-plugins-manifest"
+
+# The stamp answers "which release"; the manifest answers "is that release
+# still all here". Both questions have to be asked, because this tree is
+# gitignored on working-1.6 and TRACKED on dev-branch and stable -- so
+# checking out either of those and coming back deletes every plugin file whose
+# path the two branches share, and leaves the stamp behind saying the release
+# is present. Seen on a 1.6 server: 85 of 278 files gone, including every
+# class/ directory, while the plugins table still said installed. The hooks
+# went on registering and host deletion died with
+# `Class "locationassociation" does not exist` -- a fatal raised in core, by a
+# plugin, with nothing anywhere naming the real cause.
+#
+# Presence, not content, deliberately. Deletion is the failure that actually
+# happens; a re-fetch triggered by a CHANGED file would silently discard
+# someone's local edit to a plugin. A tree carrying no manifest counts as
+# incomplete, so installs already damaged by this heal on the next run, and
+# nothing is removed before a replacement has been downloaded and checksummed
+# -- a re-fetch that cannot reach the network leaves the existing tree exactly
+# as it found it.
+intact() {
+    local path
+    [[ -f $manifest ]] || return 1
+    while IFS= read -r path; do
+        [[ -z $path ]] && continue
+        [[ -e "$dest/$path" ]] || return 1
+    done < "$manifest"
+    return 0
+}
+
 if [[ $force -eq 0 && -d $dest ]]; then
     if [[ -f $stamp ]] && [[ "$(<"$stamp")" == "$pluginsVer" ]]; then
-        say "Plugins already at $pluginsVer"
-        exit 0
+        if intact; then
+            say "Plugins already at $pluginsVer"
+            exit 0
+        fi
+        say "Plugins at $pluginsVer are incomplete; refetching"
     fi
     if [[ ! -f $stamp ]] && [[ -n "$(ls -A "$dest" 2>/dev/null)" ]]; then
         say "Plugins pre-placed by hand; leaving them alone"
@@ -112,6 +145,10 @@ if ! tar -xzf "$tmp/$tarball" -C "$staging"; then
     exit 1
 fi
 echo "$pluginsVer" > "$staging/.fog-plugins-version"
+# Built in $tmp and moved in, so the manifest cannot end up listing itself.
+(cd "$staging" && find . -type f | sed 's|^\./||' | grep -v '^\.fog-plugins-') \
+    | sort > "$tmp/manifest"
+mv "$tmp/manifest" "$staging/.fog-plugins-manifest"
 rm -rf "$dest"
 mkdir -p "$(dirname "$dest")"
 mv "$staging" "$dest"
