@@ -6403,7 +6403,9 @@ $this->schema[] = [
     . "days and a periodic sweep deletes audit rows older than that. "
     . "Shortening this window is itself recorded in the audit trail before "
     . "it takes effect.','0','Logging Settings')",
+];
 // 347
+$this->schema[] = [
     // The other three tables the retention registry ages out. They arrived
     // from three ADRs -- history and userTracking from 0023, imagingLog from
     // 0022, which defers to 0021's mechanism explicitly -- and they are one
