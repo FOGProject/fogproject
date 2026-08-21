@@ -391,6 +391,60 @@ if (!glob($faultDir . DIRECTORY_SEPARATOR . '*.log')) {
         . 'fallback';
 }
 
+// ---------------------------------------------------------------------
+// A fault line must not carry the failed statement's BOUND VALUES.
+// PDODB's error text appends "\nSQL: ...\nParams: ...\nDebug: ...", and
+// Params/Debug print every bound value -- on `users` the password hash, on
+// `hosts` the client token, on `nfsGroupMembers` the storage node's FTP
+// password. Harmless while it only reached the user-gated logHistory() and
+// the off-by-default debug(); writing it to a file on every failure turned a
+// debugging aid into a credential leak.
+//
+// Driven through the REAL FOGBase::logFault() so this pins that method's
+// DEFINITION -- gutting the redaction has to fail here.
+// ---------------------------------------------------------------------
+$secret = 'sup3rs3cr3t-ftp-p4ssw0rd';
+$before = strlen(fogLogContents());
+FOGBase::logFault(
+    'Database save failed: Class: StorageNode, Table: nfsGroupMembers, '
+    . "ID: 1, Error: Failed to query: SQLSTATE[23000]: Integrity "
+    . "constraint violation\nSQL: INSERT INTO `nfsGroupMembers` "
+    . "(`ngmPass`) VALUES (:ngmPass_insert)\nParams: Array ( "
+    . "[:ngmPass_insert] => $secret )\nErrorInfo: Array ( )\nDebug: SQL: "
+    . "[1] INSERT INTO `nfsGroupMembers` Params: 1 Key: Name: [13] "
+    . ":ngmPass_insert $secret"
+);
+$after = fogLogContents();
+
+if (strlen($after) <= $before) {
+    $failures[] = 'logFault() recorded nothing for a PDODB-shaped message';
+}
+if (false !== strpos($after, $secret)) {
+    $failures[] = 'the fault log contains the failed statement\'s bound '
+        . 'value -- a storage node password reached a file on disk';
+}
+$needles = array('StorageNode', 'nfsGroupMembers', 'Integrity constraint violation');
+foreach ($needles as $needle) {
+    if (false === strpos($after, $needle)) {
+        $failures[] = "redaction removed the cause too: '$needle' is not in "
+            . 'the fault line, leaving an operator nothing to act on';
+    }
+}
+
+// ---------------------------------------------------------------------
+// The length backstop, for a message carrying no tail to cut.
+// ---------------------------------------------------------------------
+$before = strlen(fogLogContents());
+FOGBase::logFault('LONGFAULT ' . str_repeat('x', 10000));
+$added = substr(fogLogContents(), $before);
+if (strlen($added) > FOGBase::FAULT_LINE_MAX + 128) {
+    $failures[] = 'a fault line of ' . strlen($added) . ' bytes was written; '
+        . 'FAULT_LINE_MAX is ' . FOGBase::FAULT_LINE_MAX;
+}
+if (false === strpos($added, '[truncated]')) {
+    $failures[] = 'an over-long fault line was cut without saying so';
+}
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . "):\n");
     foreach ($failures as $f) {

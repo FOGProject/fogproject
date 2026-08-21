@@ -802,6 +802,17 @@ abstract class FOGBase
      */
     const FAULT_LOG_MAX = 10485760;
     /**
+     * How long a single fault line may get, in bytes, before it is cut.
+     *
+     * A backstop, not the main defence: logFault() drops PDODB's debug tail
+     * outright (see there). This catches what has no tail to drop -- a
+     * driver message that is itself enormous, or a caller that built its
+     * own. One fault stays one readable line either way.
+     *
+     * @var int
+     */
+    const FAULT_LINE_MAX = 2048;
+    /**
      * Records that something FOG needed to write or read did not happen.
      *
      * The failure sink of last resort, and deliberately the only logger here
@@ -858,18 +869,44 @@ abstract class FOGBase
         $inFault = true;
 
         try {
+            /*
+             * Drop PDODB's debug tail BEFORE anything else looks at the
+             * message. Its error text always appends
+             * "\nSQL: ...\nParams: ...\nErrorInfo: ...\nDebug: ..."
+             * (pdodb.class.php, both sqlerror() formats), and the Params and
+             * Debug sections print every BOUND VALUE of the statement that
+             * failed. On `users` that is the password hash, on `hosts` the
+             * client security token, on `nfsGroupMembers` the storage node's
+             * FTP password -- the credential GHSA-2hqx turns into root.
+             *
+             * That was survivable while this text only ever reached
+             * logHistory(), which is user-gated and so dropped it on exactly
+             * the machine paths that fail most, and debug(), which ships
+             * off. It is NOT survivable in a file written unconditionally on
+             * every failed write, and readable by any local account. What an
+             * operator actually needs is the part before the tail: the
+             * driver, the SQLSTATE and the message.
+             */
+            $raw = (string) $message;
+            foreach (array("\nSQL: ", "\nParams: ", "\nErrorInfo: ", "\nDebug: ") as $marker) {
+                $tail = strpos($raw, $marker);
+                if (false !== $tail) {
+                    $raw = substr($raw, 0, $tail);
+                }
+            }
             // One line per fault, so `tail -f` stays readable and a
-            // multi-line PDO message -- they carry the SQL, the parameters
-            // and a debugDumpParams() block -- cannot be mistaken for
-            // several faults.
-            $flat = preg_replace('#\s+#', ' ', (string) $message);
+            // multi-line message cannot be mistaken for several faults.
+            $flat = preg_replace('#\s+#', ' ', $raw);
             // Never let a message become an empty one. preg_replace returns
             // null when it gives up, and a (string) cast of that is '', which
             // the guard below would then throw away -- losing the one record
             // this method exists to keep.
-            $line = trim(null === $flat ? (string) $message : $flat);
+            $line = trim(null === $flat ? $raw : $flat);
             if ('' === $line) {
                 return;
+            }
+            if (strlen($line) > self::FAULT_LINE_MAX) {
+                $line = substr($line, 0, self::FAULT_LINE_MAX) . ' [truncated]';
             }
             $stamped = sprintf(
                 '[%s] %s%s',
