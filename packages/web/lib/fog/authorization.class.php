@@ -646,6 +646,110 @@ class Authorization extends FOGBase
         return $isPost ? 'edit' : 'view';
     }
     /**
+     * Records a guard refusing an operation.
+     *
+     * The three assert* guards below are not permission checks -- they are
+     * the standing invariants that stop FOG being locked out of itself and
+     * stop a role granting a permission that does not exist. A refusal
+     * throws, the caller turns it into an error message, and until now
+     * nothing anywhere recorded that somebody tried.
+     *
+     * These are the rows most worth having (ADR 0021 merge 5): an attempt to
+     * delete the last administrator is either a mistake worth knowing about
+     * or an attack, and neither leaves any other trace.
+     *
+     * The reason IS recorded here, unlike a failed login. There is no
+     * enumeration risk in "this would leave no administrator" -- the caller
+     * is already authenticated and is being told the reason on screen.
+     * Untranslated, because alText is machine detail; the sentence a person
+     * reads is the exception's, built in their own locale.
+     *
+     * @param string $type    the event type
+     * @param string $why     untranslated machine detail
+     * @param string $subject the class involved, if any
+     * @param array  $ids     the rows involved, if any
+     *
+     * @return void
+     */
+    private static function _auditRefusal(
+        $type,
+        $why,
+        $subject = '',
+        $ids = []
+    ) {
+        Audit::record(
+            [
+                'type' => $type,
+                'outcome' => Audit::DENIED,
+                'subjectType' => $subject,
+                // One id means one subject; several mean the count is the
+                // fact, and the ids belong in the change rows a refused
+                // operation never gets to write.
+                'subjectID' => 1 === count((array)$ids)
+                    ? (int)reset($ids)
+                    : 0,
+                'affectedCount' => count((array)$ids),
+                'text' => (string)$why,
+                'renderable' => 1
+            ]
+        );
+    }
+    /**
+     * Writes the audit header for one authorization decision.
+     *
+     * THIS is the audit seam, and the reason it is not FOGController::save()
+     * is worth keeping next to the code (ADR 0021 Decision 2). save() audits
+     * by side effect rather than by intent: a denial never reaches it,
+     * because the save never happens; one UI action is a dozen save() calls
+     * across associations, so "the admin edited a host" becomes fourteen
+     * rows with no way to tell they were one operation; and forty call sites
+     * use FOGManagerController::update(), which writes bulk SQL and never
+     * builds an object at all.
+     *
+     * WHAT IS NOT RECORDED, and why each is deliberate:
+     *
+     * - An ALLOWED read. Decision 12 keeps read auditing out of scope: it is
+     *   a different feature with a different volume profile, and it is what
+     *   turned `history` into the firehose that UNIQUE (hText, hTime) was
+     *   invented to survive. A DENIED read IS recorded -- somebody being
+     *   turned away from something is the row most worth having.
+     * - A node with no permission at all ($perm null: home, client, schema,
+     *   login). There was no decision to record.
+     *
+     * @param string $perm    the resolved permission, or null
+     * @param string $outcome Audit::ALLOWED or Audit::DENIED
+     * @param string $surface 'page' or 'api'
+     * @param string $subject the node or class the request addressed
+     * @param int    $id      the object id, when the route carries one
+     *
+     * @return void
+     */
+    private static function _auditGate(
+        $perm,
+        $outcome,
+        $surface,
+        $subject,
+        $id = 0
+    ) {
+        if (null === $perm || '' === (string)$perm) {
+            return;
+        }
+        $action = (string)substr((string)$perm, (int)strrpos((string)$perm, '.') + 1);
+        if (Audit::ALLOWED === $outcome && 'view' === $action) {
+            return;
+        }
+        Audit::record(
+            [
+                'type' => 'access.' . $surface,
+                'outcome' => $outcome,
+                'permission' => (string)$perm,
+                'subjectType' => strtolower((string)$subject),
+                'subjectID' => (int)$id,
+                'renderable' => 1
+            ]
+        );
+    }
+    /**
      * Enforce the permission for a management page request. Returns
      * silently when allowed; otherwise responds 403 JSON (AJAX) or
      * queues a flash message and redirects home (full page), and exits.
@@ -659,8 +763,11 @@ class Authorization extends FOGBase
     {
         $perm = self::resolvePagePermission($node, $sub);
         if (self::can($perm)) {
+            self::_auditGate($perm, Audit::ALLOWED, 'page', $node);
             return;
         }
+        // BEFORE the response below, all three arms of which exit.
+        self::_auditGate($perm, Audit::DENIED, 'page', $node);
         if (self::$ajax) {
             http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
             header('Content-Type: application/json');
@@ -898,11 +1005,13 @@ class Authorization extends FOGBase
      *
      * @return void
      */
-    public static function requireApiPermission($perm)
+    public static function requireApiPermission($perm, $class = '', $id = 0)
     {
         if (self::can($perm)) {
+            self::_auditGate($perm, Audit::ALLOWED, 'api', $class, $id);
             return;
         }
+        self::_auditGate($perm, Audit::DENIED, 'api', $class, $id);
         Route::sendResponse(
             HTTPResponseCodes::HTTP_FORBIDDEN,
             _('You do not have permission to perform this action.')
@@ -1501,6 +1610,11 @@ class Authorization extends FOGBase
         if (self::localAdminExists($changes)) {
             return;
         }
+        self::_auditRefusal(
+            'guard.lastlocaladmin',
+            'no account would be able to administer FOG without its '
+            . 'identity provider'
+        );
         throw new \Exception(
             _(
                 'This would leave no account able to administer FOG without '
@@ -1602,6 +1716,12 @@ class Authorization extends FOGBase
         if (self::adminExistsGiven($changes)) {
             return;
         }
+        self::_auditRefusal(
+            'guard.lastadmin',
+            'no account would be able to administer FOG',
+            strtolower((string)$classname),
+            $ids
+        );
         throw new \Exception(
             _('This would leave no account able to administer FOG.')
         );
@@ -1671,6 +1791,11 @@ class Authorization extends FOGBase
         }
         if ('*' === $permName) {
             if (!self::can('*')) {
+                self::_auditRefusal(
+                    'guard.grant',
+                    'only an administrator may grant full access',
+                    'rolepermission'
+                );
                 throw new \Exception(
                     _('Only an administrator may grant full access.')
                 );
@@ -1686,6 +1811,11 @@ class Authorization extends FOGBase
             }
         }
         if (!in_array($permName, $valid, true)) {
+            self::_auditRefusal(
+                'guard.grant',
+                'unknown permission: ' . $permName,
+                'rolepermission'
+            );
             throw new \Exception(
                 sprintf(
                     '%s: %s',

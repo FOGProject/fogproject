@@ -94,6 +94,12 @@ class Audit extends FOGBase
      */
     private static $_correlationID = null;
     /**
+     * The header this request wrote at its authorization gate, if any.
+     *
+     * @var object|null
+     */
+    private static $_current = null;
+    /**
      * The id shared by every audit row this request produces.
      *
      * Generated on first use rather than at boot: most requests audit
@@ -177,7 +183,59 @@ class Audit extends FOGBase
             return false;
         }
 
+        self::$_current = $audit;
+
         return $audit;
+    }
+    /**
+     * The header this request wrote at its authorization gate.
+     *
+     * Merge 6 hangs change rows off it: the model layer knows WHAT changed
+     * and nothing about who was allowed to do it, so it reads the header
+     * from here rather than being handed one through forty call sites.
+     *
+     * @return object|null
+     */
+    public static function current()
+    {
+        return self::$_current;
+    }
+    /**
+     * Revises this request's header now the outcome is known.
+     *
+     * The gate can only say "this was allowed". Whether it then WORKED is
+     * known later, at the response -- and "allowed, and it failed" is a
+     * different fact from "allowed", particularly when someone is reading
+     * the trail to find out why a change did not stick.
+     *
+     * This is the one UPDATE the audit trail performs on itself, and it is
+     * not in tension with append-only: it revises a row written moments
+     * earlier in the same request, before anybody could have read it. There
+     * is no path here that revises an OLDER row, and none that lowers a
+     * denial to anything else.
+     *
+     * @param string $outcome one of the outcome constants
+     *
+     * @return void
+     */
+    public static function markOutcome($outcome)
+    {
+        if (!self::$_current instanceof AuditLog
+            || !self::$_current->isValid()
+        ) {
+            return;
+        }
+        // A denial is final. Nothing that happens afterwards can turn
+        // "refused" into "failed", and letting it would lose the only row
+        // that says somebody was turned away.
+        if (self::DENIED === self::$_current->get('outcome')) {
+            return;
+        }
+        try {
+            self::$_current->set('outcome', (string)$outcome)->save();
+        } catch (\Exception $e) {
+            self::_writeFailed((string)$e->getMessage());
+        }
     }
     /**
      * Records the change rows for one subject.

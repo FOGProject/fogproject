@@ -1226,7 +1226,12 @@ class Route extends FOGBase
                 Authorization::resolveApiPermission(
                     self::$matches['name'] ?? '',
                     self::$matches['params']['class'] ?? ''
-                )
+                ),
+                // The class and id the route addressed, so the audit header
+                // says WHAT was acted on and not only which permission was
+                // consulted. Resolution itself is unchanged.
+                self::$matches['params']['class'] ?? '',
+                self::$matches['params']['id'] ?? 0
             );
             // Object-scope boundary (optional, plugin-enforced): a per-object
             // REST call carries the target id; confirm it is within the acting
@@ -1466,6 +1471,28 @@ class Route extends FOGBase
                 is_string($msg) && $msg !== '' ? $msg : (string)$code,
                 (int)$code
             );
+        }
+        // The gate could only say the action was ALLOWED. Whether it then
+        // worked is known here, and "allowed, and it failed" is a different
+        // fact from "allowed" -- particularly to somebody reading the trail
+        // to find out why a change did not stick (ADR 0021 merge 4).
+        //
+        // 401 and 403 are excluded because they are already recorded, as
+        // denials, by the gate and by the token tests. Re-marking them would
+        // overwrite the row that says somebody was turned away with one that
+        // says something went wrong. markOutcome() refuses that anyway; this
+        // is the same rule stated where a reader will look for it.
+        if ((int)$code >= 400
+            && !in_array(
+                (int)$code,
+                [
+                    HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                    HTTPResponseCodes::HTTP_FORBIDDEN
+                ],
+                true
+            )
+        ) {
+            Audit::markOutcome(Audit::FAILED);
         }
         HTTPResponseCodes::breakHead(
             $code,
