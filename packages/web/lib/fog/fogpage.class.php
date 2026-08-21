@@ -960,6 +960,32 @@ abstract class FOGPage extends FOGBase
             ]
         );
 
+        // A node the registry knows, that declares no `create` action, has
+        // nothing to create -- so it must not advertise one.
+        //
+        // The permission filter below CANNOT catch this, which is the whole
+        // reason this block exists separately. A '*' holder passes every
+        // permission string handed to can(), including one naming an action
+        // the node never declared, so `activity.create` and `audit.create`
+        // both sailed through and put "Create New Activity" and "Create New
+        // Audit" in the sidebar of two read-only log viewers. `sub=add`
+        // there resolves to index() like any unknown sub, so the link did
+        // not even go where it said.
+        //
+        // Derived from the registry rather than added to the hand-kept case
+        // list above, because that list is where this went wrong: it already
+        // carries home, client, schema, service, hwinfo and apidocs for
+        // exactly this reason, and the next read-only node would have been
+        // the seventh thing somebody had to remember. A node absent from the
+        // registry is left alone -- that is a plugin page nothing has
+        // claimed, and its menu is not ours to trim.
+        $registry = Authorization::registry();
+        if (isset($registry[$node])
+            && !in_array('create', (array) $registry[$node], true)
+        ) {
+            unset($menu['add'], $menu['import']);
+        }
+
         // Drop sub-menu links the user lacks permission for (add/import ->
         // create, multicast -> task, etc.). Presentation only -- dispatch
         // enforcement lives in FOGPageManager::render().

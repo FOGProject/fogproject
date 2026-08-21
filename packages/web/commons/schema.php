@@ -6373,12 +6373,22 @@ $this->schema[] = [
     . "`acSubjectType` VARCHAR(64) NOT NULL DEFAULT '',"
     . "`acSubjectID` INT NOT NULL DEFAULT 0,"
     . "`acField` VARCHAR(128) NOT NULL DEFAULT '',"
-    // NULL, not ''. A field that was genuinely empty before and a field
-    // whose value is withheld are different facts, and acRedacted is what
-    // separates them: a redacted row carries the field name, redacted = 1,
-    // and NULL in both value columns. Not a masked string, not a length,
-    // not a hash -- anything derived from a credential is a disclosure
-    // with extra steps.
+    // Nullable, but ACREDACTED IS THE RECORD, not the NULL. A redacted row
+    // carries the field name, redacted = 1, and no value -- not a masked
+    // string, not a length, not a hash, because anything derived from a
+    // credential is a disclosure with extra steps.
+    //
+    // These columns were declared expecting a redacted row to hold NULL and
+    // they hold '' instead, verified against a live server. That is not a
+    // bug in either layer: FOGController::save()'s GH-1245 policy writes
+    // emptyValueFor(), which for a text column is '' -- correct in general,
+    // since '' is a real value a text column can hold. Fighting it for one
+    // table would mean a special case in the ORM. So the flag is what
+    // separates "withheld" from "was empty", and it cannot disagree with
+    // the values: Redaction::values() returns all three together.
+    //
+    // The columns stay NULL-able so a future direct writer can express the
+    // distinction, and because it costs nothing.
     . "`acOldValue` LONGTEXT NULL DEFAULT NULL,"
     . "`acNewValue` LONGTEXT NULL DEFAULT NULL,"
     . "`acRedacted` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,"

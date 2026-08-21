@@ -226,6 +226,43 @@ if (false === strpos($authz, "'audit' => ['view', 'manage']")) {
 }
 
 /*
+ * 4c. A read-only node does not advertise a create link.
+ *
+ * _buildSubMenuItems() defaults EVERY node to a list/add pair, and the
+ * permission filter that would otherwise drop `add` cannot: a '*' holder
+ * passes every permission string handed to can(), including one naming an
+ * action the node never declared. So `audit.create` sailed through and put
+ * "Create New Audit" in the sidebar of a table that has no write route at
+ * all -- and `sub=add` there resolves to index(), so the link did not go
+ * where it said either.
+ *
+ * The fix must stay derived from the registry. The alternative is the
+ * hand-kept case list in that switch, which already carries six nodes for
+ * this reason and is where the omission happened.
+ */
+$fogpage = (string) @file_get_contents(
+    $root . '/packages/web/lib/fog/fogpage.class.php'
+);
+$checks++;
+if (false === strpos($fogpage, "unset(\$menu['add'], \$menu['import']);")
+    || false === strpos($fogpage, 'Authorization::registry();')
+) {
+    $failures[] = '_buildSubMenuItems() no longer drops the create link for '
+        . 'a registry node that declares no `create` action, so every '
+        . 'read-only page advertises "Create New <node>" again.';
+}
+$checks++;
+if (preg_match(
+    "#case '(?:audit|activity)':#",
+    $fogpage
+)) {
+    $failures[] = 'fogpage.class.php special-cases audit or activity by name '
+        . 'in the sub-menu switch. That is the hand-kept list the registry '
+        . 'guard exists to replace -- the next read-only node would be the '
+        . 'seventh thing somebody had to remember to add.';
+}
+
+/*
  * 5. The machine paths carry headers, and the polling paths do not.
  *
  * ADR 0021 Decision 4: service/ and reg-task/ contain zero Authorization::

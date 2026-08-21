@@ -135,13 +135,17 @@
     $.each(rows, function(i, c) {
       var from, to;
       if (c.redacted) {
-        // Both values are NULL in the database, not masked here. What is
-        // withheld is withheld at write time -- see Redaction::values().
+        // Nothing is masked here. What is withheld was withheld at write
+        // time -- see Redaction::values() -- and the flag, not the value,
+        // is the record of it.
         from = to = '<em>redacted</em>';
       } else {
-        from = c.oldValue === null ? '<em>empty</em>'
+        // null and '' alike: the ORM writes '' for an empty text column
+        // (GH-1245), so both spellings reach the browser and both mean the
+        // field held nothing.
+        from = (c.oldValue === null || c.oldValue === '') ? '<em>empty</em>'
           : $.escapeHtml(String(c.oldValue));
-        to = c.newValue === null ? '<em>empty</em>'
+        to = (c.newValue === null || c.newValue === '') ? '<em>empty</em>'
           : $.escapeHtml(String(c.newValue));
       }
       html += '<tr><td>' + $.escapeHtml(c.field || '') + '</td>'

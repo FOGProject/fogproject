@@ -224,10 +224,16 @@ class Redaction extends FOGBase
     /**
      * The pair of values an auditChange row may record for this field.
      *
-     * Redacted means NULL in both columns and `redacted = 1`. Not a masked
-     * string, not a length, not a hash: the fact worth keeping is "this
-     * column changed", and anything derived from the value is a disclosure
-     * with extra steps.
+     * Redacted means no value in either column and `redacted = 1`. Not a
+     * masked string, not a length, not a hash: the fact worth keeping is
+     * "this column changed", and anything derived from the value is a
+     * disclosure with extra steps.
+     *
+     * The nulls returned here reach the database as '' rather than NULL --
+     * FOGController::save() writes emptyValueFor() for an empty optional
+     * field, which is '' on a text column (GH-1245). So `redacted` is the
+     * authoritative signal and the value columns are not; the two cannot
+     * disagree, because this method decides all three at once.
      *
      * @param mixed  $class object or class name
      * @param string $field friendly key
