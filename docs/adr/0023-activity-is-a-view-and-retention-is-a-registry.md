@@ -2,7 +2,12 @@
 
 ## Status
 
-proposed
+accepted
+
+Items 1-4 of the sequencing table below are implemented on `working-1.6`.
+Item 1 (the `report` node split) was signed off separately, because it
+narrows an existing grant: a role holding `report.view` loses user tracking
+on deploy and is re-granted deliberately. Items 5-7 remain gated as stated.
 
 ## Context
 

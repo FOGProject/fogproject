@@ -62,6 +62,25 @@ class Authorization extends FOGBase
         'apidocs' => 'settings'
     ];
     /**
+     * Report class => registry node, for reports whose data is not
+     * "a report" in the permission sense.
+     *
+     * Every report is one page node (`report`) selected by a base64 `f`
+     * parameter, so without this they necessarily share one gate -- which
+     * is how a helpdesk grant for an imaging report also handed over a
+     * movement log for every named employee (ADR 0023).
+     *
+     * Keys are the decoded report name, lowercased and underscored, which
+     * is what FOGPageManager::loadPageClasses() turns `f` into. A report
+     * absent from here keeps the `report` node, so an uploaded custom
+     * report behaves exactly as it always has.
+     *
+     * @var array
+     */
+    const REPORT_NODES = [
+        'hosts_and_users' => 'usertracking'
+    ];
+    /**
      * Exact sub overrides that the naming conventions would misresolve.
      * Shape: node => [sub => permission]. A permission is either a full
      * permission string or ['GET' => perm, 'POST' => perm] when the same
@@ -78,7 +97,15 @@ class Authorization extends FOGBase
             'activescheduleddels' => ['GET' => 'task.view', 'POST' => 'task.task']
         ],
         'host' => [
-            'savegroup' => 'group.create'
+            'savegroup' => 'group.create',
+            // The Login History tab. _subToAction() reads the 'get' prefix
+            // and answers host.view, which is the grant nearly every
+            // operator holds -- so per-host login records for named people
+            // sat behind it. The tab itself is hidden to match.
+            'getloginhist' => 'usertracking.view'
+        ],
+        'group' => [
+            'getloginhist' => 'usertracking.view'
         ],
         // Uploading a plugin archive introduces new executable code to the
         // server; activating one that is already on disk does not. Without
@@ -224,7 +251,7 @@ class Authorization extends FOGBase
         'usergroup' => 'usergroup',
         'usergroupmember' => 'usergroup',
         'roleusergroupassociation' => 'usergroup',
-        'usertracking' => 'report'
+        'usertracking' => 'usertracking'
     ];
     /**
      * Per-user permission cache for this request.
@@ -327,6 +354,14 @@ class Authorization extends FOGBase
             'service' => ['view', 'edit'],
             'settings' => ['view', 'edit'],
             'report' => ['view', 'create'],
+            // User tracking is a movement log for named people, not a
+            // report about equipment, and it is split out of `report` for
+            // that reason alone (ADR 0023). Everything that reads it -- the
+            // Hosts And Users report, the Login History tabs on host and
+            // group, the REST class -- resolves here. No `create`: rows come
+            // from the fog-client's own endpoint, which is node `client` and
+            // permission-exempt, so nothing legitimate POSTs one.
+            'usertracking' => ['view'],
             // The activity viewer. A node of its own rather than an alias
             // onto 'report': aliasing would hand every existing report.view
             // holder the log viewer as a side effect of an upgrade, which is
@@ -473,6 +508,9 @@ class Authorization extends FOGBase
         if (null === $isPost) {
             $isPost = 'POST' === ($_SERVER['REQUEST_METHOD'] ?? '');
         }
+        // Kept before the lowercasing below: the report selector is base64
+        // and base64 is case-sensitive.
+        $rawSub = (string)$sub;
         $node = strtolower(trim((string)$node));
         $sub = strtolower(trim((string)$sub));
         $globals = self::GLOBAL_SUB_OVERRIDES;
@@ -485,6 +523,9 @@ class Authorization extends FOGBase
         $aliases = self::NODE_ALIASES;
         if (isset($aliases[$node])) {
             $node = $aliases[$node];
+        }
+        if ('report' === $node) {
+            $node = self::_reportNode($rawSub);
         }
         $registry = self::registry();
         if (!isset($registry[$node])) {
@@ -532,6 +573,42 @@ class Authorization extends FOGBase
             return $override;
         }
         return "{$node}." . self::_subToAction($sub, $isPost);
+    }
+    /**
+     * Which registry node gates the report this request selected.
+     *
+     * `f` arrives two ways and both have to work: in the query string for a
+     * real request (`?node=report&sub=file&f=...`, and the report grids
+     * append it to their AJAX URL too), and folded into the sub itself for
+     * the sidebar, which builds keys of the form `file&f=<base64>` and asks
+     * for a permission per entry so it can hide the ones the user lacks.
+     *
+     * @param string $rawSub the sub exactly as passed, before lowercasing
+     *
+     * @return string the registry node, 'report' when nothing maps
+     */
+    private static function _reportNode($rawSub)
+    {
+        $f = '';
+        if (preg_match('#(?:^|[?&])f=([A-Za-z0-9+/=]+)#', $rawSub, $m)) {
+            $f = $m[1];
+        }
+        if ('' === $f) {
+            $f = (string)filter_input(INPUT_GET, 'f');
+        }
+        if ('' === $f) {
+            return 'report';
+        }
+        // Strict decode: a value that is not base64 at all selects no
+        // report, and must not be allowed to resolve to one by accident.
+        $name = base64_decode($f, true);
+        if (false === $name) {
+            return 'report';
+        }
+        $name = str_replace(' ', '_', strtolower(trim($name)));
+        $map = self::REPORT_NODES;
+
+        return $map[$name] ?? 'report';
     }
     /**
      * Map a base sub name to an action by naming convention.

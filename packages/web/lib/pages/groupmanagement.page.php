@@ -2528,17 +2528,24 @@ class GroupManagement extends FOGPage
         ];
 
         // History Items
+        //
+        // Login History is gated on usertracking.view rather than group.view
+        // -- the group form of the same split the host page carries. See
+        // ADR 0023 and the note there.
+        $historyTabs = [];
+        if (Authorization::can('usertracking.view')) {
+            $historyTabs[] = [
+                'name' => _('Login History'),
+                'id' => 'group-login-history',
+                'generator' => function () {
+                    $this->groupLoginHistory();
+                }
+            ];
+        }
         $tabData[] = [
             'tabs' => [
                 'name' => _('History Items'),
-                'tabData' => [
-                    [
-                        'name' => _('Login History'),
-                        'id' => 'group-login-history',
-                        'generator' => function () {
-                            $this->groupLoginHistory();
-                        }
-                    ],
+                'tabData' => array_merge($historyTabs, [
                     [
                         'name' => _('Imaging History'),
                         'id' => 'group-imaging-history',
@@ -2553,7 +2560,7 @@ class GroupManagement extends FOGPage
                             $this->groupSnapinHistory();
                         }
                     ]
-                ]
+                ])
             ]
         ];
         // Site

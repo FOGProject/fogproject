@@ -99,9 +99,14 @@ class ActivityManagement extends FOGPage
     /**
      * Presents the activity list.
      *
+     * Variadic to match FOGPage::index(...$args) -- PHP rejects the
+     * declaration outright otherwise, so the class does not load at all.
+     *
+     * @param mixed ...$args unused, present for signature compatibility
+     *
      * @return void
      */
-    public function index()
+    public function index(...$args)
     {
         $this->title = _('Activity');
 

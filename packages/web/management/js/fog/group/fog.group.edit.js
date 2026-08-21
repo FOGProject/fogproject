@@ -911,7 +911,10 @@
     // HISTORY TABS
     // ---------------------------------------------------------------
     // LOGIN HISTORY TAB
-    var groupHistoryLoginTable = $('#group-login-history-table').registerTable(null, {
+    // Absent for a user without usertracking.view -- see the host page.
+    var $groupLoginHist = $('#group-login-history-table');
+    var groupHistoryLoginTable = !$groupLoginHist.length ? null :
+      $groupLoginHist.registerTable(null, {
         columns: [
             {data: 'hostLink'},
             {data: 'createdTime'},
@@ -999,7 +1002,9 @@
         // FOG Client
         groupModulesTable.search(Common.search).draw();
         // History
-        groupHistoryLoginTable.search(Common.search).draw();
+        if (groupHistoryLoginTable) {
+          groupHistoryLoginTable.search(Common.search).draw();
+        }
         groupHistoryImageTable.search(Common.search).draw();
         groupHistorySnapinTable.search(Common.search).draw();
     }
