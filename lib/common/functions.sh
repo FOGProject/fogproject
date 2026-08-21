@@ -1162,8 +1162,17 @@ updateDB() {
             fi
         fi
     fi
-    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-    cat >../tmp/fog-db-grant-fogstorage-access.sql <<EOF
+    # Same scratch directory as everything else. This one does not cd, so the
+    # old code failed differently -- the heredoc write failed, then mysql was
+    # handed a missing file -- but from the same cause, and with the mkdir error
+    # discarded just the same.
+    local sqltmp=""
+    if ! sqltmp="$(_installerTmpDir)"; then
+        echo "Failed"
+        echo " * Could not prepare the installer's scratch directory."
+        return 1
+    fi
+    cat >"${sqltmp}/fog-db-grant-fogstorage-access.sql" <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 GRANT SELECT ON $mysqldbname.* TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON $mysqldbname.hosts TO 'fogstorage'@'%' ;
@@ -1180,7 +1189,7 @@ GRANT INSERT,UPDATE ON $mysqldbname.imagingLog TO 'fogstorage'@'%' ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-    mysql $sqloptionsroot --password="${snmysqlrootpass}" <../tmp/fog-db-grant-fogstorage-access.sql >>$error_log 2>&1
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" <"${sqltmp}/fog-db-grant-fogstorage-access.sql" >>$error_log 2>&1
     errorStat $?
 }
 validip() {
@@ -1877,12 +1886,27 @@ installFOGServices() {
 }
 configureUDPCast() {
     dots "Setting up UDPCast"
-    cur=$(pwd)
-    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-    cd ../tmp
-    rm -rf $udpcastout
-    tar xzf $udpcastsrc >>$error_log 2>&1
-    cd $udpcastout
+    local cur="$(pwd)" udptmp=""
+    # Same scratch directory, same reasons -- see _installerTmpDir(). This one
+    # would fail in exactly the way downloadfiles() did, just further down the
+    # install, and its mkdir error was going to /dev/null too.
+    if ! udptmp="$(_installerTmpDir)"; then
+        echo "Failed"
+        echo " * Could not prepare the installer's scratch directory."
+        return 1
+    fi
+    cd "$udptmp" || { echo "Failed"; return 1; }
+    rm -rf "$udpcastout"
+    tar xzf "$udpcastsrc" >>$error_log 2>&1
+    # Guarded because everything after it -- configure, make, make install --
+    # would otherwise run in the scratch directory instead of the unpacked
+    # source, each failing separately and none of them saying why.
+    if ! cd "$udpcastout"; then
+        echo "Failed"
+        echo " * ${udpcastsrc} did not unpack to ${udpcastout}. See ${error_log}."
+        cd "$cur"
+        return 1
+    fi
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
     if [[ $? -eq 0 ]]; then
         # Bounded, and the retry count cut right down. wget defaults to
@@ -1915,7 +1939,7 @@ configureUDPCast() {
             ln -sf "/usr/sbin/udp-sender" "/usr/local/sbin/udp-sender"
         fi
     fi
-    cd $cur
+    cd "$cur"
 }
 configureFTP() {
     dots "Setting up and starting VSFTP Server"
@@ -2075,9 +2099,13 @@ fetchipxeasset() {
     local tarball="$1"
     local dest="$2"
     local url="${ipxeurl}/${ipxeVer}/${tarball}"
-    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >>$error_log 2>&1
-    local cwd=$(pwd)
-    cd ../tmp/
+    # This one already logged its mkdir error, so it was the least broken of the
+    # three -- but it was still resolving ../tmp/ against the ambient cwd. Routed
+    # through the same helper so there is one definition of where scratch space is.
+    local tmpdir=""
+    tmpdir="$(_installerTmpDir)" || return 1
+    local cwd="$(pwd)"
+    cd "$tmpdir" || return 1
     local checksum=1
     local cnt=0
     # Ten rounds of two timeout-less curls is the most expensive stall in the
@@ -4220,8 +4248,15 @@ configureMySql() {
             read
         fi
     fi
-    [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-    cat >../tmp/fog-db-and-user-setup.sql <<EOF
+    # As above: no cd here, so the old failure was a heredoc write into a missing
+    # directory followed by mysql being handed a file that was never created.
+    local sqltmp=""
+    if ! sqltmp="$(_installerTmpDir)"; then
+        echo "Failed"
+        echo " * Could not prepare the installer's scratch directory."
+        return 1
+    fi
+    cat >"${sqltmp}/fog-db-and-user-setup.sql" <<EOF
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ANSI' ;
 DELETE FROM mysql.user WHERE User='' ;
 DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1') ;
@@ -4257,7 +4292,7 @@ DROP PROCEDURE IF EXISTS $mysqldbname.create_user_if_not_exists ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
-    mysql $sqloptionsroot --password="${snmysqlrootpass}" <../tmp/fog-db-and-user-setup.sql >>$error_log 2>&1
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" <"${sqltmp}/fog-db-and-user-setup.sql" >>$error_log 2>&1
     errorStat $?
 }
 configureFOGService() {
@@ -9039,8 +9074,49 @@ die();
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
     chown -R ${username}:${apacheuser} "$webdirdest/service/ipxe"
 }
+# The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
+# reason on stderr.
+#
+# Callers used to write this inline as
+#
+#     [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+#     cd ../tmp/
+#
+# which has three faults that compound into a bad failure. "../tmp/" resolves
+# against whatever the ambient cwd happens to be; the mkdir error goes to
+# /dev/null, so the one message explaining a failure is destroyed at the moment
+# it occurs; and the cd is unguarded, so execution CONTINUES in the wrong
+# directory. Because the copy step that follows was also relative, a failed cd
+# downloaded 60-80MB of kernels into bin/ and then copied them from there -- the
+# install "succeeded", left untracked binaries in the source tree, and reported
+# only a bare "cd: ../tmp/: No such file or directory" that nothing could act on.
+#
+# Anchored on $workingdir, which installfog.sh captures with pwd before anything
+# has a chance to move, so this is correct regardless of who cd'd where.
+#
+# The not-a-directory case is called out separately because it is the one that
+# does NOT clear on a re-run: mkdir -p refuses when the path exists as a file or
+# a dangling symlink, so every subsequent attempt fails the same way, and the
+# generic message sends people looking for a permissions problem they do not have.
+_installerTmpDir() {
+    local d="${workingdir%/}/../tmp"
+    if [[ -e $d && ! -d $d ]]; then
+        echo "ERROR: ${d} exists but is not a directory." >&2
+        echo "       Remove or rename it -- the installer needs it as scratch space." >&2
+        return 1
+    fi
+    if ! mkdir -p "$d" 2>>$error_log; then
+        echo "ERROR: could not create ${d}" >&2
+        echo "       See ${error_log} for the reason." >&2
+        return 1
+    fi
+    ( cd "$d" 2>/dev/null && pwd ) || {
+        echo "ERROR: ${d} exists but could not be entered." >&2
+        return 1
+    }
+}
 downloadfiles() {
-    local copypath=""
+    local copypath="" tmpdir=""
     dots "Downloading kernel, init and fog-client binaries"
     clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
@@ -9054,9 +9130,23 @@ downloadfiles() {
     build_version=$(echo -e $fileversion | sed -n 's/.*Buildroot \([0-9.]*\).*/\1/p')
     fosLatestURL="https://github.com/FOGProject/fos/releases/latest/download"
     fogclientURL="https://github.com/FOGProject/fog-client/releases/download"
-    [[ ! -d ../tmp/  ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-    cwd=$(pwd)
-    cd ../tmp/
+    # Fail here, loudly, rather than downloading into the source tree. The old
+    # code carried on after a failed cd and the install appeared to succeed.
+    if ! tmpdir="$(_installerTmpDir)"; then
+        echo "Failed"
+        echo " * Could not prepare the installer's scratch directory."
+        exit 1
+    fi
+    # Every cp below goes through $copypath, so the copy step no longer depends
+    # on the cwd either -- belt as well as braces. copypath was already the hook
+    # for this and had only ever been the empty string.
+    copypath="${tmpdir}/"
+    local cwd="$(pwd)"
+    if ! cd "$tmpdir"; then
+        echo "Failed"
+        echo " * Could not enter ${tmpdir}."
+        exit 1
+    fi
     if [[ $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
         urls=( "${fosURL}/${version}/init.xz" "${fosURL}/${version}/init_32.xz" "${fosURL}/${version}/bzImage" "${fosURL}/${version}/bzImage32" "${fogclientURL}/${clientVer}/FOGService.msi" "${fogclientURL}/${clientVer}/SmartInstaller.exe" )
         urls+=( "${fosURL}/${version}/arm_init.cpio.gz" "${fosURL}/${version}/arm_Image" )
@@ -9135,7 +9225,7 @@ downloadfiles() {
     _stampFogSum ${webdirdest}/service/ipxe/arm_init.cpio.gz
     cp -vf ${copypath}FOGService.msi ${copypath}SmartInstaller.exe ${webdirdest}/client/ >>$error_log 2>&1
     errorStat $?
-    cd $cwd
+    cd "$cwd"
     _ensureSecureBootKeys
     _ensureSecureBootPlatformKeys
     _resignKernels
