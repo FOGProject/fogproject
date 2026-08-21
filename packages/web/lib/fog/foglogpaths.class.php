@@ -58,12 +58,19 @@ class FOGLogPaths
      * is separate for the same reason: that writer IS the web tier, and the
      * top level belongs to root's daemons.
      *
+     * 'faults' is FOGBase::logFault()'s -- every database write FOG could not
+     * complete. It is the one entry here written by BOTH tiers, which is why
+     * that method splits its output into faults-web.log and
+     * faults-service.log rather than sharing a file whose owner would be
+     * whichever wrote first.
+     *
      * @var array
      */
     const FOG_SUBDIRS = [
         '',
         'plugins',
         'fos',
+        'faults',
     ];
     /**
      * The path FOG's logs are reached by in the enumeration views.
