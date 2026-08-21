@@ -570,7 +570,7 @@ class FOGConfigurationPage extends FOGPage
                 'The manual enrolment steps below are unaffected.'
             ) . '</p>';
             echo $this->_box(
-                _('Automatic enrolment (Setup Mode)'),
+                _('Automatic enrolment (Setup/Custom Mode)'),
                 $auto,
                 ['color' => 'warning']
             );
@@ -584,15 +584,22 @@ class FOGConfigurationPage extends FOGPage
                 ),
                 _('The task finishes on the client with nobody at the keyboard')
             ) . '</p>';
-            $auto .= '<p><strong>' . _('What Setup Mode means') . '</strong></p>';
+            $auto .= '<p><strong>'
+                . _('What Setup Mode means (firmware usually calls it "Custom")')
+                . '</strong></p>';
+            // Named both ways deliberately. "Setup Mode" is the UEFI spec's term
+            // and the one the SetupMode variable uses, but Dell, HP, Lenovo and
+            // AMI menus almost all label it "Custom" -- so an admin searching
+            // their own firmware for "Setup Mode" does not find it.
             $auto .= '<p>' . _(
-                'Setup Mode is the state a machine is in when its platform key '
-                . 'has been cleared, and it is the only state in which these '
-                . 'databases can be written. Turning Secure Boot OFF is not the '
-                . 'same thing and does not help: a machine with Secure Boot '
-                . 'disabled still has a platform key, and still refuses the '
-                . 'write. Look for "Erase all Secure Boot settings", "Clear '
-                . 'Secure Boot keys" or "Custom mode" in the firmware.'
+                'Setup Mode -- shown as "Custom" or "Custom mode" in most '
+                . 'firmware menus -- is the state a machine is in when its '
+                . 'platform key has been cleared, and it is the only state in '
+                . 'which these databases can be written. Turning Secure Boot OFF '
+                . 'is not the same thing and does not help: a machine with Secure '
+                . 'Boot disabled still has a platform key, and still refuses the '
+                . 'write. Look for "Custom mode", "Erase all Secure Boot '
+                . 'settings" or "Clear Secure Boot keys" in the firmware.'
             ) . '</p>';
             $auto .= '<p>' . _(
                 'That is one visit to the firmware screen per machine, once, '
@@ -614,7 +621,7 @@ class FOGConfigurationPage extends FOGPage
                 . 'steps below for those.'
             ) . '</p>';
             echo $this->_box(
-                _('Automatic enrolment (Setup Mode)'),
+                _('Automatic enrolment (Setup/Custom Mode)'),
                 $auto,
                 ['color' => 'success']
             );

@@ -15,16 +15,25 @@
 # What this pins, in rough order of how badly it fails if wrong:
 #
 #   1. NOTHING chains anything, and every copy of autoexec.ipxe is identical.
-#      FOG's builds are in local/, upstream's signed set in secureboot/, and each
-#      of those plus the archive root carries the same boot script. The archive
-#      used to hold a chain ladder at the root and different boot logic in
-#      local/; a chained binary resolves autoexec.ipxe by FLAT NAME through the
-#      synthetic handle efi_image_exec() installs, so it re-read the ladder and
-#      chained itself until the firmware died. Every mock file's CONTENT is its
-#      own path in the tree, so provenance is checked by reading the file rather
-#      than by trusting the copy loop.
+#      One folder per route -- fog-ipxe/, secureboot-upstream/, secureboot-fog/
+#      and the -customca/ pair -- each with its own copy of the same script, plus
+#      one at the archive root. The archive used to hold a chain ladder at the
+#      root and different boot logic in a subfolder; a chained binary resolves
+#      autoexec.ipxe by FLAT NAME through the synthetic handle efi_image_exec()
+#      installs, so it re-read the ladder and chained itself until the firmware
+#      died. Every mock file's CONTENT is its own path in the tree, so provenance
+#      is checked by reading the file rather than by trusting the copy loop.
 #   1a. The archive is packed FLAT -- no wrapper directory named after itself,
 #      which on Windows produced fog-esp-x86_64\fog-esp-x86_64\.
+#   1b. secureboot-fog/ carries FOG's build under BOTH ipxe.efi and snponly.efi,
+#      because a locally booted shim asks for whichever name it can derive and
+#      falls back to ipxe.efi when firmware will not report its own filename
+#      (ipxe/ipxe#1684). Checked by CONTENT: those files wear upstream names and
+#      must contain FOG's bytes.
+#   1c. Which tree feeds which folder flips on stock/ existing. stock/ is the
+#      PUBLISHED set snapshotted before a --rebuild-ipxe-with-my-ca build, so
+#      when it exists the tree ROOT is the CA-embedded one. Getting that backwards
+#      silently ships the wrong binaries in both folders.
 #   2. The manifest is valid JSON with sums that match the bytes. It is written
 #      by hand rather than by jq (see _jsonStr) precisely so the whole feature
 #      does not vanish when a package is missing -- which puts the burden of
@@ -145,8 +154,13 @@ mq() { "$PY" "$WORK/mq.py" "$@" | tr -d '\015'; }
 
 # Every mock file's content IS its path in the tree, so a copy landing in the
 # wrong archive is caught by reading it rather than inferred from a size.
+# $3 = yes puts a stock/ tree in place, which is how the installer records that
+# --rebuild-ipxe-with-my-ca ran: _preserveStockIpxe() snapshots the PUBLISHED set
+# into stock/ before the build, and buildipxe.sh then builds into the tree ROOT.
+# So with stock/ present the root is the CA-embedded set and stock/ is generic --
+# the opposite of the intuitive reading, and the thing to get right.
 mk_tree() {
-    local root="$1" withsb="$2" d n
+    local root="$1" withsb="$2" withstock="${3:-no}" d n
     rm -rf "$root"
     # autoexec/ is retired (_retireStaleEfiPaths removes it) and 10secdelay/ no
     # longer holds EFI files. Both are fabricated anyway, as negative controls:
@@ -169,6 +183,14 @@ mk_tree() {
         done
         for n in snponly.efi snponly-shimaa64.efi ipxe.efi ipxe-shimaa64.efi mmaa64.efi; do
             printf '%s' "secureboot/arm64-efi/${n}" > "${root}/secureboot/arm64-efi/${n}"
+        done
+    fi
+    if [[ $withstock == yes ]]; then
+        for d in "stock/" "stock/i386-efi/" "stock/arm64-efi/"; do
+            mkdir -p "${root}/${d}"
+            for n in ipxe snp snponly intel realtek; do
+                printf '%s' "${d}${n}.efi" > "${root}/${d}${n}.efi"
+            done
         done
     fi
 }
@@ -235,7 +257,7 @@ fi
 
 is "$(mq "$MAN" count)" "3" "three archives are published -- one per architecture"
 # 3: archives lost their wrapper directory, so each entry lost its "root" key,
-# and the upstream Secure Boot set moved from the archive root into secureboot/.
+# and the upstream Secure Boot set moved from the archive root into secureboot-upstream/.
 # Both change the paths a consumer would build, so the number had to move with
 # them.
 is "$(mq "$MAN" top schema)" "3" "the manifest declares its schema"
@@ -280,8 +302,8 @@ for pair in "fog-esp-x86_64${EXT}|ipxe.efi|refind.efi" \
     want="${rest%%|*}"; wantrefind="${rest#*|}"
     d="$WORK/x/${a%%.*}"
     rm -rf "$d"; extract "$BOOT/$a" "$d"
-    is "$(cat "$d/local/fogipxe.efi" 2>/dev/null)" "$want" \
-       "$a local/fogipxe.efi comes from $want"
+    is "$(cat "$d/fog-ipxe/fogipxe.efi" 2>/dev/null)" "$want" \
+       "$a fog-ipxe/fogipxe.efi comes from $want"
     is "$(cat "$d/refind/${wantrefind}" 2>/dev/null)" "$wantrefind" \
        "$a carries the web tree's ${wantrefind}"
 done
@@ -300,30 +322,30 @@ fi
 
 # --- what a full archive contains --------------------------------------------
 X="$WORK/x/fog-esp-x86_64"
-for f in secureboot/snponly-shimx64.efi secureboot/snponly.efi \
-         secureboot/ipxe-shimx64.efi secureboot/ipxe.efi secureboot/mmx64.efi \
-         secureboot/autoexec.ipxe \
-         local/fogipxe.efi local/fogsnp.efi local/fogintel.efi \
-         local/fogrealtek.efi local/fogsnponly.efi local/autoexec.ipxe \
+for f in secureboot-upstream/snponly-shimx64.efi secureboot-upstream/snponly.efi \
+         secureboot-upstream/ipxe-shimx64.efi secureboot-upstream/ipxe.efi secureboot-upstream/mmx64.efi \
+         secureboot-upstream/autoexec.ipxe \
+         fog-ipxe/fogipxe.efi fog-ipxe/fogsnp.efi fog-ipxe/fogintel.efi \
+         fog-ipxe/fogrealtek.efi fog-ipxe/fogsnponly.efi fog-ipxe/autoexec.ipxe \
          refind/refind.efi refind/refind.conf \
          autoexec.ipxe README.txt MANIFEST.json \
-         secureboot/MOK.der secureboot/PK.auth secureboot/KEK.auth \
-         secureboot/db.auth \
-         secureboot/fog-enroll-mok.sh secureboot/fog-enroll-mok.desktop; do
+         secureboot-upstream/MOK.der secureboot-upstream/PK.auth secureboot-upstream/KEK.auth \
+         secureboot-upstream/db.auth \
+         secureboot-upstream/fog-enroll-mok.sh secureboot-upstream/fog-enroll-mok.desktop; do
     [[ -f $X/$f ]] || bad "x86_64 archive is missing $f"
 done
-[[ -f $X/local/fogsnponly.efi ]] && ok "fogsnponly.efi is published (it was excluded before)"
+[[ -f $X/fog-ipxe/fogsnponly.efi ]] && ok "fogsnponly.efi is published (it was excluded before)"
 # The upstream set must travel TOGETHER IN ONE DIRECTORY: shim derives its second
 # stage AND MokManager by name from its OWN directory, so splitting the pair
-# across directories breaks the rewrite it does to find them. secureboot/ is that
+# across directories breaks the rewrite it does to find them. secureboot-upstream/ is that
 # directory now; it used to be the archive root.
 for f in snponly-shimx64.efi snponly.efi ipxe-shimx64.efi ipxe.efi mmx64.efi; do
-    [[ -f $X/secureboot/$f ]] || bad "upstream $f is not in secureboot/"
+    [[ -f $X/secureboot-upstream/$f ]] || bad "upstream $f is not in secureboot-upstream/"
 done
-ok "the upstream shim set travels together in secureboot/, where shim resolves its names"
+ok "the upstream shim set travels together in secureboot-upstream/, where shim resolves its names"
 # And a script beside them, or the loader they hand to has nothing to boot with.
-[[ -f $X/secureboot/autoexec.ipxe ]] \
-    || bad "secureboot/ has no autoexec.ipxe -- upstream's loader would have no script"
+[[ -f $X/secureboot-upstream/autoexec.ipxe ]] \
+    || bad "secureboot-upstream/ has no autoexec.ipxe -- upstream's loader would have no script"
 # x86_64 follows bootmenu.class.php's refind.efi-over-refind_x64.efi preference,
 # so the ESP and the PXE path agree on which binary is canonical.
 if [[ -f $X/refind/refind.efi && ! -e $X/refind/refind_x64.efi ]]; then
@@ -331,16 +353,32 @@ if [[ -f $X/refind/refind.efi && ! -e $X/refind/refind_x64.efi ]]; then
 else
     bad "x86_64 does not follow the boot menu's rEFInd preference"
 fi
-[[ -f $X/secureboot/MOK.der ]] && ok "MOK.der travels in the same directory as MokManager"
-[[ -f $X/secureboot/db.auth ]] && ok "the Setup Mode variable updates travel too"
+[[ -f $X/secureboot-upstream/MOK.der ]] && ok "MOK.der travels in the same directory as MokManager"
+[[ -f $X/secureboot-upstream/db.auth ]] && ok "the Setup Mode variable updates travel too"
 
 # Upstream's names are the ones shim resolves to; FOG's must not take them.
-is "$(cat "$X/secureboot/snponly.efi")" "secureboot/snponly.efi" \
-   "secureboot/snponly.efi is UPSTREAM's copy, which is what shim's certificate vouches for"
-is "$(cat "$X/secureboot/ipxe.efi")" "secureboot/ipxe.efi" \
-   "secureboot/ipxe.efi is upstream's copy for the same reason"
-is "$(cat "$X/local/fogsnponly.efi")" "snponly.efi" \
-   "FOG's snponly ships under the fog prefix in local/ instead"
+# Expected values are the mock's CONTENT, which is its path in the TFTP tree --
+# so these prove provenance, not just presence. secureboot/ on the right-hand
+# side is the source tree; secureboot-upstream/ on the left is the archive.
+is "$(cat "$X/secureboot-upstream/snponly.efi")" "secureboot/snponly.efi" \
+   "secureboot-upstream/snponly.efi is UPSTREAM's copy, which is what shim's certificate vouches for"
+is "$(cat "$X/secureboot-upstream/ipxe.efi")" "secureboot/ipxe.efi" \
+   "secureboot-upstream/ipxe.efi is upstream's copy for the same reason"
+# THE ONE THAT MATTERS MOST in the new layout: secureboot-fog/ wears upstream's
+# filenames but must contain FOG's build. Reading the content is the only way to
+# tell, and getting this wrong would ship an archive whose "FOG build" folder is
+# actually upstream's loader -- which would fail on exactly the hardware the
+# folder exists for.
+is "$(cat "$X/secureboot-fog/ipxe.efi")" "ipxe.efi" \
+   "secureboot-fog/ipxe.efi is FOG's build, not upstream's, despite the name"
+is "$(cat "$X/secureboot-fog/snponly.efi")" "ipxe.efi" \
+   "secureboot-fog/snponly.efi is the SAME FOG build under the second name shim may ask for"
+is "$(cat "$X/secureboot-fog/snponly-shimx64.efi")" "secureboot/snponly-shimx64.efi" \
+   "secureboot-fog/ still carries upstream's real shims"
+[[ -f $X/secureboot-fog/mmx64.efi && -f $X/secureboot-fog/MOK.der ]] \
+    && ok "secureboot-fog/ carries MokManager and MOK.der, so enrolment is possible from it"
+is "$(cat "$X/fog-ipxe/fogsnponly.efi")" "snponly.efi" \
+   "FOG's snponly ships under the fog prefix in fog-ipxe/ instead"
 
 # Nothing unpublishable leaked in.
 for junk in undionly.kkpxe ipxe.usb ipxe.iso ipxe.lkrn; do
@@ -348,7 +386,7 @@ for junk in undionly.kkpxe ipxe.usb ipxe.iso ipxe.lkrn; do
 done
 ok "no BIOS artifact (.kpxe/.usb/.iso/.lkrn) is published"
 # Every .efi at any depth, not just "$X"/*.efi -- the FOG builds moved into
-# local/ and a top-level-only glob would stop covering the ones most likely to
+# fog-ipxe/ and a top-level-only glob would stop covering the ones most likely to
 # have come from the wrong place.
 leaked() { find "$X" -name '*.efi' -type f -exec grep -l "$1" {} + 2>/dev/null; }
 if [[ -n "$(leaked 'autoexec/')" ]]; then
@@ -376,7 +414,7 @@ fi
 #
 # So no copy of the script may contain a `chain` to a local .efi at all. A
 # `chain tftp://.../default.ipxe` is the point of the script and must stay.
-for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
+for s in autoexec.ipxe fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     [[ -f $X/$s ]] || continue
     if grep -qE '^[[:space:]]*chain[^|]*\.efi' "$X/$s"; then
         bad "$s chains a .efi -- a chained binary re-reads this script by flat name and loops"
@@ -390,7 +428,7 @@ ok "no copy of autoexec.ipxe chains a local .efi, so no chain loop is constructi
 # file is the only thing that makes any of them find a DHCP server. An archive
 # whose copies differ reintroduces "which one did this machine read?" into every
 # bug report -- which is exactly how the chain loop hid.
-for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
+for s in autoexec.ipxe fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     [[ -f $X/$s ]] || continue
     for want in 'dhcp net0' 'dhcp net1' 'dhcp net2' ':proxycheck' \
                 ':nextservercheck' ':netboot' 'default.ipxe'; do
@@ -398,8 +436,8 @@ for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
     done
 done
 ok "every copy of autoexec.ipxe carries the full DHCP/proxyDHCP/next-server walk"
-L="$X/local/autoexec.ipxe"
-for s in local/autoexec.ipxe secureboot/autoexec.ipxe; do
+L="$X/fog-ipxe/autoexec.ipxe"
+for s in fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     [[ -f $X/$s ]] || continue
     if cmp -s "$X/autoexec.ipxe" "$X/$s"; then
         ok "$s is byte-identical to the root copy"
@@ -423,9 +461,9 @@ fi
 bootdelay=15
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/xd"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/xd"
-LD="$WORK/xd/local/autoexec.ipxe"
+LD="$WORK/xd/fog-ipxe/autoexec.ipxe"
 is "$(grep -c '^sleep 15' "$LD")" "1" \
-   "--boot-delay 15 writes a live sleep into local/autoexec.ipxe"
+   "--boot-delay 15 writes a live sleep into fog-ipxe/autoexec.ipxe"
 if grep -q 'FOG-BOOT-DELAY-BEGIN' "$LD" && grep -q 'FOG-BOOT-DELAY-END' "$LD"; then
     ok "the delay is bracketed by the same sentinels _applyBootDelay uses"
 else
@@ -436,7 +474,7 @@ fi
 # ladder inside upstream's loader, where a sleep delayed nothing. The root copy
 # is FOG's boot logic now and upstream's loader does the DHCP itself, so a copy
 # without the delay is a copy that ignores --boot-delay.
-for s in autoexec.ipxe secureboot/autoexec.ipxe; do
+for s in autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     [[ -f $WORK/xd/$s ]] || continue
     is "$(grep -c '^sleep 15' "$WORK/xd/$s")" "1" \
        "--boot-delay 15 reaches $s too"
@@ -461,24 +499,24 @@ is "$badsum" "0" "every per-file sha256 in the manifest matches the extracted fi
 
 # The manifest has to name the subdirectories, and this is the assertion that
 # proves it does. _espKitContentsJson used a -maxdepth 1 walk and stored bare
-# basenames; left that way it would omit local/ and refind/ entirely, and the
+# basenames; left that way it would omit fog-ipxe/ and refind/ entirely, and the
 # checksum loop above would still pass because it walks the manifest rather than
 # the directory. An under-reporting manifest reads exactly like a correct one.
-for f in local/fogipxe.efi local/autoexec.ipxe secureboot/snponly.efi \
-         secureboot/autoexec.ipxe refind/refind.efi refind/refind.conf; do
+for f in fog-ipxe/fogipxe.efi fog-ipxe/autoexec.ipxe secureboot-upstream/snponly.efi \
+         secureboot-upstream/autoexec.ipxe refind/refind.efi refind/refind.conf; do
     mq "$MAN" files "fog-esp-x86_64${EXT}" | grep -qx "$f" \
         || bad "the manifest does not list $f"
 done
 ok "the manifest names files by path relative to the archive root, subdirs included"
 # All three copies share one role now, because they are one file. The path still
 # has to be what the manifest keys on -- the basename appears three times.
-for s in autoexec.ipxe local/autoexec.ipxe secureboot/autoexec.ipxe; do
+for s in autoexec.ipxe fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" "$s")" "boot-script" \
        "$s is described as the boot script"
 done
-is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot/snponly-shimx64.efi)" "shim" \
+is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot-upstream/snponly-shimx64.efi)" "shim" \
    "the shim is still described as a shim from its new path"
-is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot/MOK.der)" "enrolment-cert" \
+is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot-upstream/MOK.der)" "enrolment-cert" \
    "MOK.der is still described as the enrolment certificate from its new path"
 is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" refind/refind.efi)" "chainloader" \
    "rEFInd is described as the local-boot chainloader"
@@ -510,7 +548,7 @@ is "$("$PY" -c 'import json,sys;print(" ".join(sorted(f["name"] for f in json.lo
 
 # The notes are what replaced curation-by-omission; an empty one for the file
 # that used to be excluded would put the advice nowhere.
-if [[ -n "$(mq "$MAN" filenote "fog-esp-x86_64${EXT}" local/fogsnponly.efi)" ]]; then
+if [[ -n "$(mq "$MAN" filenote "fog-esp-x86_64${EXT}" fog-ipxe/fogsnponly.efi)" ]]; then
     ok "fogsnponly.efi carries the caveat that used to be an exclusion"
 else
     bad "fogsnponly.efi is published with no explanation of when it fails"
@@ -528,19 +566,19 @@ else
     ok "no kernel is copied into an archive (60-80MB not moved)"
 fi
 
-# --- HTTPS-only install: nothing stages secureboot/ --------------------------
+# --- HTTPS-only install: nothing stages secureboot-upstream/ --------------------------
 mk_tree "$tftpdirdst" no
 mk_web "$webdirdest" yes
 _publishLocalBootFiles >/dev/null
 is "$(mq "$MAN" count)" "3" "an HTTPS-only install still publishes three archives"
 rm -rf "$WORK/n"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/n"
 N="$WORK/n"
-if [[ -e $N/secureboot/snponly-shimx64.efi || -e $N/secureboot/mmx64.efi ]]; then
-    bad "shim material appeared without a staged secureboot/"
+if [[ -e $N/secureboot-upstream/snponly-shimx64.efi || -e $N/secureboot-upstream/mmx64.efi ]]; then
+    bad "shim material appeared without a staged secureboot-upstream/"
 else
     ok "no shim material when none was staged"
 fi
-[[ -f $N/local/fogipxe.efi ]] && ok "FOG's own builds still ship without a shim"
+[[ -f $N/fog-ipxe/fogipxe.efi ]] && ok "FOG's own builds still ship without a shim"
 # The ROOT copy is no longer gated on a loader. It used to be a chain ladder that
 # only upstream's loader read, so withholding it made sense; it is FOG's boot
 # logic now, and it is also iPXE's volume-root fallback, so it ships always.
@@ -549,32 +587,32 @@ if [[ -f $N/autoexec.ipxe ]]; then
 else
     bad "the root autoexec.ipxe is still gated on a loader it no longer depends on"
 fi
-if [[ -f $N/local/autoexec.ipxe ]]; then
-    ok "local/autoexec.ipxe ships even with no upstream loader"
+if [[ -f $N/fog-ipxe/autoexec.ipxe ]]; then
+    ok "fog-ipxe/autoexec.ipxe ships even with no upstream loader"
 else
-    bad "local/autoexec.ipxe was gated on a loader that does not read it"
+    bad "fog-ipxe/autoexec.ipxe was gated on a loader that does not read it"
 fi
-# secureboot/ IS gated: a script beside no binary serves nobody.
-if [[ -e $N/secureboot/autoexec.ipxe ]]; then
-    bad "secureboot/autoexec.ipxe shipped with no upstream loader beside it to read it"
+# secureboot-upstream/ IS gated: a script beside no binary serves nobody.
+if [[ -e $N/secureboot-upstream/autoexec.ipxe ]]; then
+    bad "secureboot-upstream/autoexec.ipxe shipped with no upstream loader beside it to read it"
 else
-    ok "secureboot/autoexec.ipxe is omitted when no loader was staged"
+    ok "secureboot-upstream/autoexec.ipxe is omitted when no loader was staged"
 fi
-[[ -f $N/secureboot/db.auth ]] && ok "the Setup Mode route survives an HTTPS-only install"
+[[ -f $N/secureboot-upstream/db.auth ]] && ok "the Setup Mode route survives an HTTPS-only install"
 
 # --- i386 has no shim, but does have the Setup Mode route --------------------
 mk_tree "$tftpdirdst" yes
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/i"; extract "$BOOT/fog-esp-i386${EXT}" "$WORK/i"
 I="$WORK/i"
-if [[ -e $I/secureboot/snponly-shimx64.efi ]]; then
+if [[ -e $I/secureboot-upstream/snponly-shimx64.efi ]]; then
     bad "an x64 shim was put in the i386 archive"
 else
     ok "the i386 archive has no shim -- upstream signs none for ia32"
 fi
-[[ -f $I/secureboot/db.auth ]] && ok "the i386 archive DOES carry db.auth (the only SB route it has)"
-[[ -f $I/local/fogipxe.efi ]] && ok "the i386 archive carries FOG's builds"
-if [[ -f $I/local/autoexec.ipxe ]]; then
+[[ -f $I/secureboot-upstream/db.auth ]] && ok "the i386 archive DOES carry db.auth (the only SB route it has)"
+[[ -f $I/fog-ipxe/fogipxe.efi ]] && ok "the i386 archive carries FOG's builds"
+if [[ -f $I/fog-ipxe/autoexec.ipxe ]]; then
     ok "the i386 archive carries FOG's boot script beside its builds"
 else
     bad "the i386 archive has FOG binaries and no script for them to read"
@@ -584,8 +622,11 @@ if [[ -e $I/refind/refind_x64.efi || -e $I/refind/refind.efi ]]; then
 else
     ok "the i386 archive gets refind_ia32.efi, not an x64 build"
 fi
-if grep -q 'Setup Mode' "$I/README.txt"; then
-    ok "the i386 README names the Setup Mode route"
+# db is the ONLY Secure Boot route on i386 -- no Microsoft-signed shim exists for
+# ia32, so there is no MOK route to fall back on. The README has to say so rather
+# than leaving an admin to discover that MokManager is absent.
+if grep -q 'in db' "$I/README.txt" && grep -qi 'no shim' "$I/README.txt"; then
+    ok "the i386 README names db as its route and says the shim route is absent"
 else
     bad "the i386 README does not explain its only Secure Boot route"
 fi
@@ -607,18 +648,62 @@ for r in "$I/README.txt" "$X/README.txt"; do
     fi
 done
 
+# --- a server that rebuilt iPXE with its own CA ------------------------------
+#
+# stock/ present means the TREE ROOT is CA-embedded and stock/ is the generic set.
+# Getting that backwards would silently ship the wrong binaries in both folders --
+# and it nearly did: the first cut tested "is the CA dir non-empty", which is
+# false on x86_64 because FOG's x86_64 builds live at the tree root with an EMPTY
+# path prefix. The custom-CA folders then never appeared on the one architecture
+# that matters most. Hence the content checks below rather than presence checks.
+mk_tree "$tftpdirdst" yes yes
+mk_web "$webdirdest" yes
+_publishLocalBootFiles >/dev/null
+rm -rf "$WORK/ca"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/ca"
+C="$WORK/ca"
+is "$(cat "$C/fog-ipxe/fogipxe.efi" 2>/dev/null)" "stock/ipxe.efi" \
+   "fog-ipxe/ takes the GENERIC build from stock/ when a CA rebuild happened"
+is "$(cat "$C/fog-ipxe-customca/fogipxe.efi" 2>/dev/null)" "ipxe.efi" \
+   "fog-ipxe-customca/ takes the CA-EMBEDDED build from the tree root"
+is "$(cat "$C/secureboot-fog/ipxe.efi" 2>/dev/null)" "stock/ipxe.efi" \
+   "secureboot-fog/ stands the generic build in as the shim's second stage"
+is "$(cat "$C/secureboot-fog-customca/ipxe.efi" 2>/dev/null)" "ipxe.efi" \
+   "secureboot-fog-customca/ stands the CA-embedded build in instead"
+is "$(cat "$C/secureboot-fog-customca/snponly.efi" 2>/dev/null)" "ipxe.efi" \
+   "and under the second name too, so either shim resolves"
+for d in fog-ipxe fog-ipxe-customca secureboot-upstream secureboot-fog \
+         secureboot-fog-customca; do
+    [[ -f $C/$d/autoexec.ipxe ]] || bad "$d/ has no autoexec.ipxe"
+    cmp -s "$C/autoexec.ipxe" "$C/$d/autoexec.ipxe" \
+        || bad "$d/autoexec.ipxe differs from the root copy"
+done
+ok "all five folders carry the same boot script"
+[[ -f $C/secureboot-fog-customca/MOK.der ]] \
+    && ok "MOK.der reaches the CA-embedded shim folder too, so it can be enrolled from there"
+# Back to the no-rebuild shape, or every later assertion inherits stock/.
+mk_tree "$tftpdirdst" yes
+_publishLocalBootFiles >/dev/null
+rm -rf "$WORK/nostock"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/nostock"
+if [[ -e $WORK/nostock/fog-ipxe-customca || -e $WORK/nostock/secureboot-fog-customca ]]; then
+    bad "custom-CA folders appeared on a server that never rebuilt iPXE"
+else
+    ok "no custom-CA folders without a rebuild"
+fi
+is "$(cat "$WORK/nostock/fog-ipxe/fogipxe.efi" 2>/dev/null)" "ipxe.efi" \
+   "without a rebuild fog-ipxe/ takes the tree root, which is then the generic set"
+
 # --- a server with no enrolment material at all ------------------------------
 mk_web "$webdirdest" no
 _publishLocalBootFiles >/dev/null
 is "$(mq "$MAN" count)" "3" "a server publishing no enrolment material still succeeds"
 rm -rf "$WORK/e"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/e"
 E="$WORK/e"
-if [[ -e $E/secureboot/MOK.der || -e $E/secureboot/db.auth ]]; then
+if [[ -e $E/secureboot-upstream/MOK.der || -e $E/secureboot-upstream/db.auth ]]; then
     bad "enrolment material appeared on a server that publishes none"
 else
     ok "no enrolment material when the server has none to give"
 fi
-[[ -f $E/local/fogipxe.efi ]] && ok "the boot binaries ship regardless"
+[[ -f $E/fog-ipxe/fogipxe.efi ]] && ok "the boot binaries ship regardless"
 
 # --- a server with no rEFInd at all ------------------------------------------
 #
@@ -642,7 +727,7 @@ if [[ -d $NR/refind ]]; then
 else
     ok "no refind/ directory when there is no rEFInd to put in it"
 fi
-[[ -f $NR/local/fogipxe.efi ]] && ok "the boot binaries ship without rEFInd"
+[[ -f $NR/fog-ipxe/fogipxe.efi ]] && ok "the boot binaries ship without rEFInd"
 if grep -q 'BOOTING THE LOCAL OS AGAIN' "$NR/README.txt"; then
     bad "the README describes a rEFInd the archive does not contain"
 else
@@ -664,11 +749,11 @@ mk_tree "$tftpdirdst" yes
 mk_web "$webdirdest" yes
 _publishLocalBootFiles >/dev/null
 first_files="$(mq "$MAN" files "fog-esp-x86_64${EXT}" | tr '\n' ' ')"
-first_sum="$(mq "$MAN" filesum "fog-esp-x86_64${EXT}" local/fogipxe.efi)"
+first_sum="$(mq "$MAN" filesum "fog-esp-x86_64${EXT}" fog-ipxe/fogipxe.efi)"
 _publishLocalBootFiles >/dev/null
 is "$(mq "$MAN" files "fog-esp-x86_64${EXT}" | tr '\n' ' ')" "$first_files" \
    "a re-run publishes the same file list"
-is "$(mq "$MAN" filesum "fog-esp-x86_64${EXT}" local/fogipxe.efi)" "$first_sum" \
+is "$(mq "$MAN" filesum "fog-esp-x86_64${EXT}" fog-ipxe/fogipxe.efi)" "$first_sum" \
    "a re-run publishes the same bytes"
 
 # --- .fog-ipxe-manifest survives signing -------------------------------------
