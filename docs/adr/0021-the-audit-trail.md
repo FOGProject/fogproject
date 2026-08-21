@@ -107,6 +107,21 @@ pattern plus a short explicit list, "so a credential setting added later is
 masked by default instead of silently leaking until someone remembers to add
 it", plus a false-positive list so `FOG_USER_MINPASSLENGTH` stays readable.
 
+And it is not a one-off. Two days after `58483d6`, PRs **#1261/#1262** fixed a
+second instance of the same class from the other direction: the SQL fault log
+— the failure sink added by #1257/#1258 so machine-path write failures stopped
+going unrecorded — wrote the failed statement's **bound values** into a 0755
+file, passwords and tokens included. A logging mechanism built *that week*,
+specifically to record failures, leaked credentials on its first outing.
+
+Two independent incidents in one week, in two subsystems, neither of which had
+a redaction step at all until it was found. That is the evidence for Decision
+6 defaulting closed rather than enumerating: an opt-in registry is exactly what
+both of these had, and both were forgotten. It is also a direct warning for
+this ADR, because an audit trail is a third mechanism whose entire job is to
+write down what happened — the same shape, at greater volume, with a longer
+retention.
+
 ## Measurements
 
 The prompt asked for the before/after capture cost to be measured rather than
