@@ -59,7 +59,8 @@ class TaskLog extends FOGController
         'text' => 'logText',
         'hostID' => 'logHostID',
         'hostName' => 'logHostName',
-        'taskTypeName' => 'logTaskTypeName'
+        'taskTypeName' => 'logTaskTypeName',
+        'imageName' => 'logImageName'
     ];
     /**
      * A row recording a state transition, which is what every row was

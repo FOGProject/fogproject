@@ -31,7 +31,7 @@ namespace FOG;
  *
  * Deliberately NOT a ReportManagement subclass, though History_Report shows
  * the same rows. Reports inherit the `report` permission node, and that node
- * is the problem this page sits next to: history, imaginglog and usertracking
+ * is the problem this page sits next to: history and usertracking
  * all resolve to `report` (Authorization::API_CLASS_ENTITIES), so a single
  * report.view grant reads every administrative action, every image ever
  * deployed, and every named person's login and logout. Its own node is what

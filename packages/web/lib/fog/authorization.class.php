@@ -212,7 +212,6 @@ class Authorization extends FOGBase
         'imageassociation' => 'image',
         'imagepartitiontype' => 'image',
         'imagetype' => 'image',
-        'imaginglog' => 'report',
         'inventory' => 'host',
         'ipxe' => 'ipxe',
         'keysequence' => 'ipxe',
@@ -377,8 +376,8 @@ class Authorization extends FOGBase
             // Same reason: hookevent, notifyevent, oui and setting all map
             // here and all four take create/join/delete.
             'settings' => ['view', 'create', 'edit', 'delete'],
-            // history and imaginglog are the two report-entity classes that
-            // are also writable tables.
+            // history is the one report-entity class that is also a
+            // writable table.
             'report' => ['view', 'create', 'edit', 'delete'],
             // User tracking is a movement log for named people, not a
             // report about equipment, and it is split out of `report` for

@@ -122,18 +122,6 @@ imagetype	1	imageTypeID	DT_RowId	f	-
 imagetype	2	imageTypeName	name	-	-
 imagetype	3	imageTypeName	mainlink	f:classname,tmpcolumns	-
 imagetype	4	imageTypeValue	type	-	-
-imaginglog	0	ilID	id	-	-
-imaginglog	1	ilID	DT_RowId	f	-
-imaginglog	2	ilHostID	hostID	-	-
-imaginglog	3	ilHostID	hostLink	f	host
-imaginglog	4	ilStartTime	start	f	-
-imaginglog	5	ilFinishTime	finish	f	-
-imaginglog	6	ilImageName	image	-	-
-imaginglog	7	ilImageName	imageLink	f:classname	image
-imaginglog	8	ilType	type	-	-
-imaginglog	9	ilCreatedBy	createdBy	-	-
-imaginglog	10	ilStartTime	diff	f	-
-imaginglog	11	hostName	hostname	-	-
 inventory	0	iID	id	-	-
 inventory	1	iID	DT_RowId	f	-
 inventory	2	iHostID	hostID	-	-
@@ -544,6 +532,8 @@ tasklog	9	logHostID	hostID	-	-
 tasklog	10	logHostID	hostLink	f	host
 tasklog	11	logHostName	hostName	-	-
 tasklog	12	logTaskTypeName	taskTypeName	-	-
+tasklog	13	logImageName	imageName	-	-
+tasklog	14	taskStateID	statename	f:taskStates	-
 taskstate	0	tsID	id	-	-
 taskstate	1	tsID	DT_RowId	f	-
 taskstate	2	tsName	name	-	-

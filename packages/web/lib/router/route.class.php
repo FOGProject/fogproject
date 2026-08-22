@@ -404,7 +404,6 @@ class Route extends FOGBase
         'imageassociation',
         'imagepartitiontype',
         'imagetype',
-        'imaginglog',
         'inventory',
         'ipxe',
         'keysequence',
@@ -2184,17 +2183,13 @@ class Route extends FOGBase
                             if (!$d) {
                                 return self::EMPTY_CELL;
                             }
-                            switch ($classname) {
-                                case 'imaginglog':
-                                    $image = self::getClass('Image')
-                                        ->set('name', $d)
-                                        ->load('name');
-                                    $imageName = $d;
-                                    break;
-                                default:
-                                    $image = self::rel('Image', $d);
-                                    $imageName = $image->get('name');
-                            }
+                            // imaginglog stored the image NAME in this
+                            // column and needed a lookup by name; it is gone
+                            // (ADR 0022), and every remaining class stores an
+                            // id. taskLog's own image name is a separate key
+                            // and does not come through here.
+                            $image = self::rel('Image', $d);
+                            $imageName = $image->get('name');
                             if ($image->isValid()) {
                                 return '<a href="../management/index.php?node=image&'
                                     . 'sub=edit&id='
@@ -2639,19 +2634,26 @@ class Route extends FOGBase
                     }
                 ];
                 break;
-            case 'imaginglog':
+            case 'tasklog':
+                // The host and group imaging-history tabs read this class
+                // since imagingLog was retired (ADR 0022 decision 3), and a
+                // raw taskStateID is not something to put on a page.
+                //
+                // Resolved per id and memoized, the $storageGroups pattern
+                // below: a row's state is one of a handful of values, so the
+                // whole grid costs at most that many lookups.
+                $taskStates = [];
                 $columns[] = [
-                    'db' => 'ilStartTime',
-                    'dt' => 'diff',
-                    'formatter' => function ($d, $row) {
-                        $start = $d;
-                        $end = $row['ilFinishTime'];
-                        return self::diff($start, $end);
+                    'db' => 'taskStateID',
+                    'dt' => 'statename',
+                    'formatter' => function ($d) use (&$taskStates) {
+                        $id = (int)$d;
+                        if (!isset($taskStates[$id])) {
+                            $taskStates[$id] = self::getClass('TaskState', $id)
+                                ->get('name');
+                        }
+                        return $taskStates[$id] ?: self::EMPTY_CELL;
                     }
-                ];
-                $columns[] = [
-                    'db' => 'hostName',
-                    'dt' => 'hostname',
                 ];
                 break;
             case 'storagegroup':
@@ -4421,24 +4423,6 @@ class Route extends FOGBase
                         ['hash' => md5($class->get('name'))]
                     );
                     break;
-                case 'imaginglog':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'host' => self::getter(
-                                'host',
-                                $class->get('host')
-                            ),
-                            'image' => (
-                                ($class->get('images') instanceof Image
-                                    && $class->get('images')->isValid())
-                                ? $class->get('images')->get()
-                                : $class->get('image')
-                            )
-                        ]
-                    );
-                    unset($data['images']);
-                    break;
                 case 'snapintask':
                     // Same trap as the snapin task LIST (see the snapintask
                     // case in the column setup above): a task whose job is
@@ -5724,7 +5708,6 @@ class Route extends FOGBase
                     $findWhere = ['hostID' => $itemIDs];
                     $removeItems = [
                         'nodefailure' => $findWhere,
-                        'imaginglog' => $findWhere,
                         'snapintask' => $snapinjobIDs,
                         'snapinjob' => $findWhere,
                         'task' => $findWhere,

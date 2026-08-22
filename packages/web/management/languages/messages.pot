@@ -1865,12 +1865,6 @@ msgstr ""
 msgid "Encryption Data Reset"
 msgstr ""
 
-msgid "End"
-msgstr ""
-
-msgid "End Time"
-msgstr ""
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2181,16 +2175,10 @@ msgstr ""
 msgid "Failed to update host"
 msgstr ""
 
-msgid "Failed to update imaging log"
-msgstr ""
-
 msgid "Failed to update task"
 msgstr ""
 
 msgid "Failed to update task log"
-msgstr ""
-
-msgid "Failed to update/create image log"
 msgstr ""
 
 msgid "Failed to update/create task log"
@@ -2509,9 +2497,6 @@ msgstr ""
 msgid "Group Image Association"
 msgstr ""
 
-msgid "Group Image History"
-msgstr ""
-
 msgid "Group Init"
 msgstr ""
 
@@ -2582,6 +2567,9 @@ msgid "Group Snapin Assignment"
 msgstr ""
 
 msgid "Group Snapin History"
+msgstr ""
+
+msgid "Group Task History"
 msgstr ""
 
 msgid "Group Update Fail"
@@ -2765,9 +2753,6 @@ msgstr ""
 msgid "Host Image"
 msgstr ""
 
-msgid "Host Image History"
-msgstr ""
-
 msgid "Host Init"
 msgstr ""
 
@@ -2838,6 +2823,9 @@ msgid "Host Snapin Associations"
 msgstr ""
 
 msgid "Host Snapin History"
+msgstr ""
+
+msgid "Host Task History"
 msgstr ""
 
 msgid "Host Update Fail"
@@ -6157,9 +6145,6 @@ msgid "Space variable must be boolean"
 msgstr ""
 
 msgid "Specified download URL not allowed!"
-msgstr ""
-
-msgid "Start"
 msgstr ""
 
 msgid "Start Download Fail"

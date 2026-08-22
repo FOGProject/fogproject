@@ -292,7 +292,7 @@ abstract class FOGManagerController extends FOGBase
         // FOG_VIEW_DEFAULT_SCREEN. It used to mean no LIMIT at all, so the row
         // query fetched the entire table into PHP in one fetchAll(). That is
         // survivable on an entity grid -- hosts, images, snapins are counted in
-        // hundreds -- but userTracking, imagingLog and the other append-only
+        // hundreds -- but userTracking, taskLog and the other append-only
         // logs are not bounded by anything: a host's Login History tab on a
         // long-lived server asks for every login and logout ever recorded
         // against it. At around 100k rows that exhausts PHP's memory_limit

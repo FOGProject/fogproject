@@ -2144,12 +2144,6 @@ msgstr "Aggiorna la stampante predefinita"
 msgid "Encryption Data Reset"
 msgstr ""
 
-msgid "End"
-msgstr "Fine"
-
-msgid "End Time"
-msgstr "Fine del tempo"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2496,17 +2490,11 @@ msgstr "Impossibile aggiornare Task"
 msgid "Failed to update host"
 msgstr "Impossibile aggiornare l'host"
 
-msgid "Failed to update imaging log"
-msgstr "Impossibile aggiornare il registro di imaging"
-
 msgid "Failed to update task"
 msgstr "Impossibile aggiornare compito"
 
 msgid "Failed to update task log"
 msgstr "Impossibile aggiornare il registro attività"
-
-msgid "Failed to update/create image log"
-msgstr "Impossibile aggiornare / creare log immagine"
 
 msgid "Failed to update/create task log"
 msgstr "Impossibile aggiornare / creare registro dell'attività"
@@ -2867,10 +2855,6 @@ msgid "Group Image Association"
 msgstr "Associazione immagine"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "Storia immagine"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "Gruppo Snapins"
 
@@ -2956,6 +2940,10 @@ msgstr "Storia Snapin Host"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "Storia Snapin"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "Storia immagine"
 
 msgid "Group Update Fail"
 msgstr "Aggiornamento gruppo non riuscito"
@@ -3171,10 +3159,6 @@ msgstr "Host Init"
 msgid "Host Image"
 msgstr "immagine host"
 
-#, fuzzy
-msgid "Host Image History"
-msgstr "Storia immagine"
-
 msgid "Host Init"
 msgstr "Host Init"
 
@@ -3257,6 +3241,10 @@ msgstr "Host associato"
 
 msgid "Host Snapin History"
 msgstr "Storia Snapin Host"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "Storia immagine"
 
 msgid "Host Update Fail"
 msgstr "Aggiornamento Host completato"
@@ -7014,9 +7002,6 @@ msgstr "La variabile spazio deve essere boolean"
 msgid "Specified download URL not allowed!"
 msgstr ""
 
-msgid "Start"
-msgstr "Inizio"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "Scaricamento fallito"
@@ -9872,6 +9857,12 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Percorso non disponibile"
 
+#~ msgid "End"
+#~ msgstr "Fine"
+
+#~ msgid "End Time"
+#~ msgstr "Fine del tempo"
+
 #~ msgid "Event and data are not set"
 #~ msgstr "Event e data non sono impostati"
 
@@ -9927,6 +9918,12 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "Impossibile creare Session"
+
+#~ msgid "Failed to update imaging log"
+#~ msgstr "Impossibile aggiornare il registro di imaging"
+
+#~ msgid "Failed to update/create image log"
+#~ msgstr "Impossibile aggiornare / creare log immagine"
 
 #, fuzzy
 #~ msgid "Files do not match on server"
@@ -10209,6 +10206,9 @@ msgstr ""
 
 #~ msgid "Snapin Pack File"
 #~ msgstr "Snapin Pack File"
+
+#~ msgid "Start"
+#~ msgstr "Inizio"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

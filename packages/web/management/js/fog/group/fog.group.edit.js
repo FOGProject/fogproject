@@ -944,11 +944,10 @@
         columns: [
             {data: 'hostLink'},
             {data: 'createdBy'},
-            {data: 'start'},
-            {data: 'finish'},
-            {data: 'diff'},
-            {data: 'imageLink'},
-            {data: 'type'}
+            {data: 'createdTime'},
+            {data: 'statename'},
+            {data: 'taskTypeName'},
+            {data: 'imageName'}
         ],
         rowId: 'id',
         rowGroup: {
