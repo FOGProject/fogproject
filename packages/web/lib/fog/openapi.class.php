@@ -1038,8 +1038,8 @@ class OpenAPI extends FOGBase
         if ($writable) {
             // Route::joining() does two unrelated things depending on the
             // method, and the document described neither of them correctly:
-            // it called PUT an upsert against the natural key, which is what
-            // POST does, and it left POST out entirely.
+            // it called PUT an update-or-insert keyed on the name, which is
+            // what POST does, and it left POST out entirely.
             //
             // The cost of getting this one wrong is higher than for most
             // operations. A caller who believes the old summary sends an
@@ -1053,10 +1053,10 @@ class OpenAPI extends FOGBase
                     _('Applies one set of field values to every object named '
                         . 'in ids. Fields left out of the body keep their '
                         . 'current value on each object, so this edits rather '
-                        . 'than replaces. Not an upsert and not keyed on '
-                        . 'anything but the ids given: a body with no ids '
-                        . 'matches nothing and succeeds without changing '
-                        . 'anything.'),
+                        . 'than replaces. It never creates anything, and it '
+                        . 'matches on nothing but the ids given: a body with '
+                        . 'no ids matches nothing and succeeds without '
+                        . 'changing anything.'),
                     self::_acceptedResponse(),
                     [],
                     self::_bulkEditBody($ref)
@@ -1072,9 +1072,13 @@ class OpenAPI extends FOGBase
                     sprintf(_('Get or create %s by name'), $class),
                     _('Takes a list of names and returns an id for each: the '
                         . 'existing object where the name is already taken, a '
-                        . 'newly created one otherwise. This is the upsert '
-                        . 'against a natural key, and it exists only on group '
-                        . '-- every other class answers 400.'),
+                        . 'newly created one otherwise. That pattern is often '
+                        . 'called an upsert -- update or insert -- and because '
+                        . 'the object may not exist yet it matches on the name '
+                        . 'rather than on an id. Safe to send repeatedly: the '
+                        . 'same names give the same ids back and no duplicates '
+                        . 'are made. Group only; every other class answers '
+                        . '400.'),
                     self::_idsResponse(),
                     [],
                     self::_namesBody(),
