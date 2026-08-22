@@ -718,6 +718,12 @@ msgstr ""
 msgid "Applications"
 msgstr ""
 
+msgid "Applied. No body is returned."
+msgstr ""
+
+msgid "Applies one set of field values to every object named in ids. Fields left out of the body keep their current value on each object, so this edits rather than replaces. It never creates anything, and it matches on nothing but the ids given: a body with no ids matches nothing and succeeds without changing anything."
+msgstr ""
+
 msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
 msgstr ""
 
@@ -902,6 +908,10 @@ msgid "Browse"
 msgstr ""
 
 msgid "Buildroot Version"
+msgstr ""
+
+#, php-format
+msgid "Bulk edit %s"
 msgstr ""
 
 msgid "Bulk load failed"
@@ -1489,10 +1499,6 @@ msgid "Create new Session Task"
 msgstr ""
 
 msgid "Create new tasking"
-msgstr ""
-
-#, php-format
-msgid "Create or update a %s by natural key"
 msgstr ""
 
 msgid "Create task form fail"
@@ -2399,6 +2405,10 @@ msgstr ""
 
 #, php-format
 msgid "Get one %s by id"
+msgstr ""
+
+#, php-format
+msgid "Get or create %s by name"
 msgstr ""
 
 msgid "Getting image size for"
@@ -4196,6 +4206,9 @@ msgstr ""
 msgid "Name. Must be unique."
 msgstr ""
 
+msgid "Names to resolve. Each is created if no object already has it."
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr ""
 
@@ -4619,6 +4632,9 @@ msgid "On reboot we will try to find a new node"
 msgstr ""
 
 msgid "One IP or CIDR range per line (or comma separated)"
+msgstr ""
+
+msgid "One id per name, in the order given."
 msgstr ""
 
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
@@ -6511,6 +6527,9 @@ msgstr ""
 msgid "Tag Name"
 msgstr ""
 
+msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
+msgstr ""
+
 msgid "Task"
 msgstr ""
 
@@ -6841,6 +6860,9 @@ msgid "The node trying to be used is currently"
 msgstr ""
 
 msgid "The object."
+msgstr ""
+
+msgid "The objects to apply these values to. An empty or absent list matches nothing and edits nothing."
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
@@ -7424,9 +7446,6 @@ msgid "Upload snapin files to a storage group"
 msgstr ""
 
 msgid "Uploaded file too large."
-msgstr ""
-
-msgid "Upserts against the association keys rather than an id."
 msgstr ""
 
 msgid "Uptime"

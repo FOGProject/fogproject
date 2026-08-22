@@ -809,6 +809,12 @@ msgstr ""
 msgid "Applications"
 msgstr "アプリケーション"
 
+msgid "Applied. No body is returned."
+msgstr ""
+
+msgid "Applies one set of field values to every object named in ids. Fields left out of the body keep their current value on each object, so this edits rather than replaces. It never creates anything, and it matches on nothing but the ids given: a body with no ids matches nothing and succeeds without changing anything."
+msgstr ""
+
 msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
 msgstr ""
 
@@ -1015,6 +1021,10 @@ msgstr "参照"
 #, fuzzy
 msgid "Buildroot Version"
 msgstr "MB バージョン"
+
+#, php-format
+msgid "Bulk edit %s"
+msgstr ""
 
 #, fuzzy
 msgid "Bulk load failed"
@@ -1695,10 +1705,6 @@ msgstr "現在のセッション"
 #, fuzzy
 msgid "Create new tasking"
 msgstr "新しいスナップインを作成"
-
-#, php-format
-msgid "Create or update a %s by natural key"
-msgstr ""
 
 #, fuzzy
 msgid "Create task form fail"
@@ -2707,6 +2713,10 @@ msgstr "汎用 LDAP"
 
 #, php-format
 msgid "Get one %s by id"
+msgstr ""
+
+#, php-format
+msgid "Get or create %s by name"
 msgstr ""
 
 msgid "Getting image size for"
@@ -4750,6 +4760,9 @@ msgstr "名前"
 msgid "Name. Must be unique."
 msgstr "Diff パラメーターは数値で指定してください"
 
+msgid "Names to resolve. Each is created if no object already has it."
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr "削除するテーブル名が必要です"
 
@@ -5225,6 +5238,10 @@ msgstr "再起動後、新しいノードの検出を試みます"
 
 msgid "One IP or CIDR range per line (or comma separated)"
 msgstr ""
+
+#, fuzzy
+msgid "One id per name, in the order given."
+msgstr "リクエストにはファイル名が必要です"
 
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr "\"snapinfiles[]\" マルチパートフィールドを使用して、1 つ以上のファイルをアップロードする必要があります"
@@ -7356,6 +7373,9 @@ msgstr "プラグインのインストールに失敗しました"
 msgid "Tag Name"
 msgstr "タスク名"
 
+msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
+msgstr ""
+
 msgid "Task"
 msgstr "タスク"
 
@@ -7724,6 +7744,9 @@ msgstr "使用しようとしているノードは現在"
 #, fuzzy
 msgid "The object."
 msgstr "オブジェクト"
+
+msgid "The objects to apply these values to. An empty or absent list matches nothing and edits nothing."
+msgstr ""
 
 #, fuzzy
 msgid "The path requested is already in use by another image!"
@@ -8370,9 +8393,6 @@ msgstr "スナップインをストレージグループへ"
 #, fuzzy
 msgid "Uploaded file too large."
 msgstr "ファイルをアップロード"
-
-msgid "Upserts against the association keys rather than an id."
-msgstr ""
 
 msgid "Uptime"
 msgstr "稼働時間"
@@ -12058,9 +12078,6 @@ msgstr ""
 
 #~ msgid "version"
 #~ msgstr "バージョン"
-
-#~ msgid "we need a file name in the request"
-#~ msgstr "リクエストにはファイル名が必要です"
 
 #~ msgid "where to download the snapin"
 #~ msgstr "スナップインのダウンロード元"

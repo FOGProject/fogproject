@@ -850,6 +850,12 @@ msgstr ""
 msgid "Applications"
 msgstr "Anwendungen"
 
+msgid "Applied. No body is returned."
+msgstr ""
+
+msgid "Applies one set of field values to every object named in ids. Fields left out of the body keep their current value on each object, so this edits rather than replaces. It never creates anything, and it matches on nothing but the ids given: a body with no ids matches nothing and succeeds without changing anything."
+msgstr ""
+
 msgid "Applies to LDAP servers that have group matching disabled. On those servers FOG cannot tell an administrator from any other account, so every user who can authenticate against the directory receives this role."
 msgstr ""
 
@@ -1068,6 +1074,10 @@ msgstr "browse"
 #, fuzzy
 msgid "Buildroot Version"
 msgstr "Client-Version"
+
+#, php-format
+msgid "Bulk edit %s"
+msgstr ""
 
 #, fuzzy
 msgid "Bulk load failed"
@@ -1772,10 +1782,6 @@ msgstr "Neues Snapin erstellen"
 #, fuzzy
 msgid "Create new tasking"
 msgstr "Neues Snapin erstellen"
-
-#, php-format
-msgid "Create or update a %s by natural key"
-msgstr ""
 
 #, fuzzy
 msgid "Create task form fail"
@@ -2819,6 +2825,10 @@ msgstr "Generic LDAP"
 
 #, php-format
 msgid "Get one %s by id"
+msgstr ""
+
+#, php-format
+msgid "Get or create %s by name"
 msgstr ""
 
 msgid "Getting image size for"
@@ -4967,6 +4977,9 @@ msgstr "Name"
 msgid "Name. Must be unique."
 msgstr "Diff Parameter muss numerisch sein"
 
+msgid "Names to resolve. Each is created if no object already has it."
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr "Der Name der zu entfernenden Tabelle wird benötigt."
 
@@ -5456,6 +5469,9 @@ msgid "On reboot we will try to find a new node"
 msgstr "Beim Neustart versuchen wir, automatisch"
 
 msgid "One IP or CIDR range per line (or comma separated)"
+msgstr ""
+
+msgid "One id per name, in the order given."
 msgstr ""
 
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
@@ -7692,6 +7708,9 @@ msgstr "Verbindung nicht möglich"
 msgid "Tag Name"
 msgstr "Task-Name"
 
+msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
+msgstr ""
+
 msgid "Task"
 msgstr "Task"
 
@@ -8079,6 +8098,9 @@ msgstr "Der zu verwendende Knoten ist derzeit"
 #, fuzzy
 msgid "The object."
 msgstr "Objekt"
+
+msgid "The objects to apply these values to. An empty or absent list matches nothing and edits nothing."
+msgstr ""
 
 msgid "The path requested is already in use by another image!"
 msgstr ""
@@ -8740,9 +8762,6 @@ msgid "Upload snapin files to a storage group"
 msgstr "Snapins einer Speichergruppe zu"
 
 msgid "Uploaded file too large."
-msgstr ""
-
-msgid "Upserts against the association keys rather than an id."
 msgstr ""
 
 msgid "Uptime"
