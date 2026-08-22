@@ -5214,7 +5214,8 @@ class Route extends FOGBase
             // was checked and the fields asked for are id, name, path,
             // snapinpath, hostID, ip, mac, userID, usergroupID, siteID,
             // storagegroupID, imageID, groupID, msID, isMaster, pending,
-            // sslpath, trustedcidrs, grantroleID, clientIgnore, imageIgnore.
+            // sslpath, trustedcidrs, grantroleID, clientIgnore, imageIgnore,
+            // lastcheckin.
             //   grep -rn 'getIds(' --include=*.php packages/ /path/to/fog-plugins
             $blocked = array_intersect(
                 $getFields,

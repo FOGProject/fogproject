@@ -161,6 +161,46 @@ class PingHosts extends FOGService
                     )
                 )
             );
+            // Do not ping a host that has already told us it is alive.
+            //
+            // A client check-in is a BETTER liveness signal than the ping:
+            // it proves the machine is up AND that the agent works, where
+            // the ping only proves something answered a TCP port. It also
+            // costs nothing here -- no lookup, no socket -- and
+            // FOGClient::__construct() has already set that host's
+            // pingstatus to 0, so skipping it changes nothing anyone can
+            // see on screen. It only stops the pinger spending a DNS
+            // lookup re-deriving a fact it was handed a minute ago.
+            //
+            // The window is this service's own sleep interval, which is the
+            // only self-consistent choice: "did we hear from it since the
+            // last time I ran?". FOG_CLIENT_CHECKIN_TIME defaults to 60s
+            // against a 300s cycle, so a client-managed host checks in
+            // about five times per cycle and is skipped every time.
+            //
+            // What is left is hosts with no client or a broken one, which is
+            // exactly the set the ping is actually for.
+            //
+            // getIds() answers [] rather than raising if the read fails, so
+            // a failure here skips nothing and every host gets pinged --
+            // which is the old behaviour, and the safe direction to fail in.
+            $cutoff = self::niceDate()
+                ->modify(sprintf('-%d seconds', (int)static::$zzz))
+                ->format('Y-m-d H:i:s');
+            $skip = [];
+            $checkins = Route::getIds(
+                'host',
+                [],
+                ['id', 'lastcheckin']
+            );
+            foreach ((array)$checkins as $row) {
+                $when = isset($row['lastcheckin']) ? $row['lastcheckin'] : '';
+                // String compare: both sides are 'Y-m-d H:i:s', which sorts
+                // lexicographically, so this needs no date parsing per host.
+                if ($when && self::validDate($when) && $when > $cutoff) {
+                    $skip[(int)$row['id']] = true;
+                }
+            }
             // Resolution is still one blocking gethostbyname() per host, and
             // with the connects batched it is now the DOMINANT cost of a
             // cycle -- not a rounding error. A name that resolves is cheap; a
@@ -182,9 +222,23 @@ class PingHosts extends FOGService
             // written by nothing at all today.
             $targets = [];
             $names = [];
+            $skipped = 0;
             foreach ($hosts as $host) {
+                if (isset($skip[(int)$host->id])) {
+                    $skipped++;
+                    continue;
+                }
                 $names[$host->id] = $host->name;
                 $targets[$host->id] = self::resolveHostname($host->name);
+            }
+            if ($skipped > 0) {
+                self::outall(
+                    sprintf(
+                        ' * %s: %d',
+                        _('Skipped, checked in since the last cycle'),
+                        $skipped
+                    )
+                );
             }
             $started = microtime(true);
             // Static call, like Route::names() above: getClass() is the
@@ -248,12 +302,14 @@ class PingHosts extends FOGService
             $online = count($byCode[0] ?? []);
             self::outall(
                 sprintf(
-                    ' * %s: %d %s, %d %s (%.2fs)',
+                    ' * %s: %d %s, %d %s, %d %s (%.2fs)',
                     _('Ping cycle complete'),
                     $online,
                     _('online'),
-                    $hostCount - $online,
+                    count($results) - $online,
                     _('not reachable'),
+                    $skipped,
+                    _('skipped'),
                     $elapsed
                 )
             );
