@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted -- phases 0, 1, 2 and 3 of the Migration section are implemented on
+accepted -- phases 0 to 4 of the Migration section are implemented on
 `working-1.6`
 
 Phases 0 and 1 are the ones the ADR marks as worth doing whatever happens to
@@ -54,8 +54,55 @@ endpoint. `tests/event-frame-writers.test.php` pins the halves CI can see
 without a database -- the field maps, the constants, and that every call site
 passes a type.
 
-Phases 4 and 5 -- readers, then the backfill and the index drop -- are **not**
-started. Phase 4 is what gates ADR 0023's item 5.
+Phase 4 switches the readers. `history` gains a `summary` output column built
+at render from the row's type and subject, so a row reads in the language of
+whoever is looking rather than whoever triggered it; the activity viewer and
+the legacy History Report both display it. `userTracking` and `taskLog` render
+the host name from their stored copy when the host is gone, which is what
+phase 2 added the column for -- `Route::deletemass('host')` leaves both
+tables' rows in place and the grid resolved the name live, so a deleted host's
+rows rendered a blank name forever. The live name still wins where the host
+exists, so a rename shows immediately.
+
+Three choices inside phase 4 worth stating, because each has a plausible
+alternative that reads as equivalent and is not:
+
+- **`summary` is a NEW output column; `info` is untouched.** `info` is `hText`
+  and keeps returning the stored string, so anything reading the REST list is
+  unaffected, the search filter still matches real column text, and a legacy
+  row's prose is still reachable beside the summary in the detail pane.
+  Rewriting `info`'s meaning underneath its consumers would have been a
+  smaller diff and a worse change. `summary` is neither orderable nor
+  searchable, because there is nothing in the database to sort or match it
+  against.
+- **Failure rows do not try to carry the error text.** The error exists only
+  inside the prose, so the sentence says what happened and `info` says why.
+  The activity viewer's detail pane shows the stored line whenever it differs
+  from the summary, which is exactly the failure rows and nothing else.
+- **Legacy rows are not parsed.** A row with no type, a `TYPE_LOG` row, a row
+  with no subject id and a type nothing recognises all fall back to the stored
+  prose verbatim. See "The old `history` rows" below for why parsing them was
+  rejected.
+
+**What phase 4 does NOT do, and no phase assigns.** Decision 5 also says the
+writers should stop assembling *translated* prose. They still translate at
+write time, so `hText` remains a locale-stamped string. Phase 4 makes that
+stop mattering for anything a person reads -- the sentence on screen is built
+from the frame -- but the stored column is unchanged. That is deliberate here:
+emptying or changing `hText` breaks every existing reader of it, including the
+fallback this phase depends on and the REST field, and phase 5's `hText` to
+`TEXT` conversion presumes the column still carries prose. It is a separate
+change with its own risk, and it is not a prerequisite for ADR 0023's item 5.
+
+`tests/event-frame-readers.test.php` drives the real formatters against
+synthetic rows: every type renders a distinguishable sentence, all four
+fallback shapes return the stored prose verbatim, and the host name comes from
+the live record where one exists and the stored copy where it does not.
+Mutation-verified against three edits -- blanking the fallback, letting the
+stored copy win over the live name, and giving two types the same sentence.
+
+Phase 5 -- the backfill and the index drop -- is **not** started. ADR 0023's
+item 5 is now unblocked.
 
 One coverage note worth keeping visible: `tests/schema-executes.test.php`
 deliberately skips closure steps, so CI's schema replay does **not** exercise

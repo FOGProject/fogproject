@@ -9,7 +9,8 @@ Items 1-4, 6 and 7 of the sequencing table below are implemented on
 because it narrows an existing grant: a role holding `report.view` loses user
 tracking on deploy and is re-granted deliberately. Item 6 landed with ADR
 0021's merge 8 rather than separately, since the sweep it needed was the same
-sweep. Item 5 remains gated on ADR 0020 phases 2-4.
+sweep. Item 5 was gated on ADR 0020 phases 2-4, which are now implemented,
+so it is unblocked and not yet started.
 
 Item 7 is bounded to genuinely new installs, and the test of "new" is the
 installer's own: `applyNewInstallDefaults()` runs only when no `.fogsettings`

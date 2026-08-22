@@ -55,7 +55,10 @@
           columns: [
             {data: 'createdBy'},
             {data: 'createdTime'},
-            {data: 'info'},
+            // ADR 0020 phase 4: the server-built sentence, in the reader's
+            // language, falling back to the stored prose (`info`) for rows
+            // written before phase 3.
+            {data: 'summary'},
             {data: 'ip'}
           ],
           rowId: 'id',

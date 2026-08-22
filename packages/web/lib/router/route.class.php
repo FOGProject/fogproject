@@ -2166,15 +2166,19 @@ class Route extends FOGBase
                         $real,
                         'hostLink',
                         'host',
-                        function ($d, $row) {
+                        function ($d, $row) use ($classname) {
                             if (!$d) {
                                 return self::EMPTY_CELL;
                             }
+                            // ADR 0020 phase 4: the stored name answers when
+                            // the host is gone, so a deleted host's rows do
+                            // not all render "(41) - " forever.
                             return '<a href="../management/index.php?node=host&'
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
+                                . '(' . $d . ') - '
+                                . self::_hostLabel($d, $row, $classname)
                                 . '</a>';
                         },
                         self::_hostNameOrder($classname)
@@ -2770,6 +2774,33 @@ class Route extends FOGBase
                     }
                 ];*/
                 break;
+            case 'history':
+                // ADR 0020 phase 4: the readable line, built at RENDER from
+                // the structured columns phase 3 fills, so a row reads in
+                // the language of whoever is looking at it rather than the
+                // language of whoever triggered it.
+                //
+                // A separate output column rather than a new formatter on
+                // `info`: `info` is `hText` and stays exactly what it was,
+                // so anything reading the REST list keeps getting the stored
+                // string, the search filter keeps matching real column text,
+                // and a legacy row's prose is still reachable beside the
+                // summary in the detail pane. "Readers switch" is what this
+                // phase is; rewriting a field's meaning underneath its
+                // consumers is not.
+                //
+                // Not orderable and not searchable, because it is not a
+                // column: there is nothing in the database to ORDER BY or
+                // LIKE against. `info` and `subjectLabel` are both still
+                // real columns and both still searchable, which is where a
+                // search for a message or an object name lands.
+                $columns[] = [
+                    'dt' => 'summary',
+                    'formatter' => function ($d, $row) {
+                        return \Initiator::e(self::_historySummary($row));
+                    }
+                ];
+                break;
             case 'usertracking':
                 $columns[] = [
                     'db' => 'utUserName',
@@ -2782,8 +2813,10 @@ class Route extends FOGBase
                     'utHostID',
                     'hostname',
                     'Host',
-                    function ($d, $row) {
-                        return \Initiator::e(self::rel('Host', $d)->get('name'));
+                    function ($d, $row) use ($classname) {
+                        return \Initiator::e(
+                            self::_hostLabel($d, $row, $classname)
+                        );
                     }
                 );
                 $columns[] = [
@@ -5436,6 +5469,131 @@ class Route extends FOGBase
             $column['order'] = $order;
         }
         return $column;
+    }
+    /**
+     * One history row as a sentence, in the READER's language.
+     *
+     * ADR 0020 phase 4. `history` stored its prose pre-translated at write
+     * time -- `sprintf('%s %s: %s ...', _('ID'), ...)` -- so a row written
+     * by a German-speaking operator read as German to everyone afterwards,
+     * and the same field label had two spellings in one English install
+     * because two of the four writers used `_('NAME')` and two `_('Name')`.
+     * Phase 3 gave the row a machine-readable type and subject; this turns
+     * those back into a sentence at the moment somebody reads it.
+     *
+     * Falls back to the stored prose whenever the frame cannot answer:
+     *
+     *   - a row written before phase 3, which has no type. Those are NOT
+     *     backfilled -- the prose is only parseable in the locale it was
+     *     written in, so a parser would produce a table that is complete on
+     *     English installs and partial elsewhere. The ADR takes the clean
+     *     boundary instead.
+     *   - a TYPE_LOG row, which has no subject: FOGBase::log() takes a
+     *     string and has no object in hand.
+     *   - a type this does not recognise, which is what a plugin writing
+     *     its own code looks like.
+     *
+     * The failure types deliberately do not try to carry the error text.
+     * That detail exists only inside the prose, so the sentence says what
+     * happened and `info` -- still returned beside this -- says why.
+     *
+     * The subject's class is NOT translated. It is an identifier, it is
+     * what the prose has always shown, and it is not in any message
+     * catalogue.
+     *
+     * @param array $row The raw database row.
+     *
+     * @return string
+     */
+    private static function _historySummary($row)
+    {
+        $type = isset($row['hType']) ? (string)$row['hType'] : '';
+        $label = isset($row['hSubjectLabel']) ? (string)$row['hSubjectLabel'] : '';
+        $id = isset($row['hSubjectID']) ? $row['hSubjectID'] : null;
+        $class = isset($row['hSubjectType']) ? (string)$row['hSubjectType'] : '';
+        $text = isset($row['hText']) ? (string)$row['hText'] : '';
+        if ('' === $type || '' === $class || null === $id) {
+            return $text;
+        }
+        $class = ucfirst($class);
+        // Each arm spells its whole msgid out. A format string built from a
+        // variable never reaches the catalogue -- xgettext reads source, not
+        // runtime -- so the sentence has to be a literal per case.
+        if ('' !== $label) {
+            switch ($type) {
+                case History::TYPE_UPDATE:
+                    return sprintf(_('%1$s "%2$s" (ID %3$s) was saved'), $class, $label, $id);
+                case History::TYPE_UPDATE_FAILED:
+                    return sprintf(_('%1$s "%2$s" (ID %3$s) failed to save'), $class, $label, $id);
+                case History::TYPE_DELETE:
+                    return sprintf(_('%1$s "%2$s" (ID %3$s) was deleted'), $class, $label, $id);
+                case History::TYPE_DELETE_FAILED:
+                    return sprintf(_('%1$s "%2$s" (ID %3$s) failed to delete'), $class, $label, $id);
+            }
+            return $text;
+        }
+        // Plenty of objects have no name -- an association row, a task log.
+        // The prose has always dropped the name clause for those rather
+        // than printing an empty one.
+        switch ($type) {
+            case History::TYPE_UPDATE:
+                return sprintf(_('%1$s (ID %2$s) was saved'), $class, $id);
+            case History::TYPE_UPDATE_FAILED:
+                return sprintf(_('%1$s (ID %2$s) failed to save'), $class, $id);
+            case History::TYPE_DELETE:
+                return sprintf(_('%1$s (ID %2$s) was deleted'), $class, $id);
+            case History::TYPE_DELETE_FAILED:
+                return sprintf(_('%1$s (ID %2$s) failed to delete'), $class, $id);
+        }
+        return $text;
+    }
+    /**
+     * The row column holding a denormalized copy of the host's name.
+     *
+     * ADR 0020 phase 4, and the reason phase 2 added the column at all: a
+     * grid that resolves the host name live from an id renders a blank cell
+     * forever once the host is deleted, and `Route::deletemass('host')`
+     * leaves both of these tables' rows in place. The row survives and
+     * becomes unreadable, which is the worst of both policies.
+     *
+     * The live name is still preferred where the host exists, so a renamed
+     * host reads as its current name; the stored copy answers only when
+     * there is nothing left to look up.
+     *
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return string|null The row key, or null if the class has no copy.
+     */
+    private static function _hostNameColumn($classname)
+    {
+        switch ($classname) {
+            case 'tasklog':
+                return 'logHostName';
+            case 'usertracking':
+                return 'utHostName';
+        }
+        return null;
+    }
+    /**
+     * The host's name for a grid row: live if it still exists, else stored.
+     *
+     * @param mixed  $id        The host id from the row.
+     * @param array  $row       The raw database row.
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return string
+     */
+    private static function _hostLabel($id, $row, $classname)
+    {
+        $name = $id ? (string)self::rel('host', $id)->get('name') : '';
+        if ('' !== $name) {
+            return $name;
+        }
+        $key = self::_hostNameColumn($classname);
+        if (null !== $key && isset($row[$key])) {
+            return (string)$row[$key];
+        }
+        return $name;
     }
     /**
      * The SQL to sort a class's host column by host NAME rather than id.

@@ -26,7 +26,7 @@ group	12	gmMembers	members	-	-
 groupassociation	0	gmID	id	-	-
 groupassociation	1	gmID	DT_RowId	f	-
 groupassociation	2	gmHostID	hostID	-	-
-groupassociation	3	gmHostID	hostLink	f	host
+groupassociation	3	gmHostID	hostLink	f:classname	host
 groupassociation	4	gmGroupID	groupID	-	-
 groupassociation	5	gmGroupID	groupLink	f:tmpcolumns	group
 history	0	hID	id	-	-
@@ -39,6 +39,7 @@ history	6	hType	type	-	-
 history	7	hSubjectType	subjectType	-	-
 history	8	hSubjectID	subjectID	-	-
 history	9	hSubjectLabel	subjectLabel	-	-
+history	10	-	summary	f	-
 hookevent	0	heID	id	-	-
 hookevent	1	heID	DT_RowId	f	-
 hookevent	2	heName	name	-	-
@@ -78,12 +79,12 @@ host	31	hmMAC	primac_vendor	f	(none)
 hostautologout	0	haloID	id	-	-
 hostautologout	1	haloID	DT_RowId	f	-
 hostautologout	2	haloHostID	hostID	-	-
-hostautologout	3	haloHostID	hostLink	f	host
+hostautologout	3	haloHostID	hostLink	f:classname	host
 hostautologout	4	haloTime	time	-	-
 hostscreensetting	0	hssID	id	-	-
 hostscreensetting	1	hssID	DT_RowId	f	-
 hostscreensetting	2	hssHostID	hostID	-	-
-hostscreensetting	3	hssHostID	hostLink	f	host
+hostscreensetting	3	hssHostID	hostLink	f:classname	host
 hostscreensetting	4	hssWidth	width	-	-
 hostscreensetting	5	hssHeight	height	-	-
 hostscreensetting	6	hssRefresh	refresh	-	-
@@ -131,7 +132,7 @@ imagetype	4	imageTypeValue	type	-	-
 inventory	0	iID	id	-	-
 inventory	1	iID	DT_RowId	f	-
 inventory	2	iHostID	hostID	-	-
-inventory	3	iHostID	hostLink	f	host
+inventory	3	iHostID	hostLink	f:classname	host
 inventory	4	iPrimaryUser	primaryUser	-	-
 inventory	5	iOtherTag	other1	-	-
 inventory	6	iOtherTag1	other2	-	-
@@ -184,7 +185,7 @@ keysequence	4	ksAscii	ascii	-	-
 macaddressassociation	0	hmID	id	-	-
 macaddressassociation	1	hmID	DT_RowId	f	-
 macaddressassociation	2	hmHostID	hostID	-	-
-macaddressassociation	3	hmHostID	hostLink	f	host
+macaddressassociation	3	hmHostID	hostLink	f:classname	host
 macaddressassociation	4	hmMAC	mac	-	-
 macaddressassociation	5	hmDesc	description	-	-
 macaddressassociation	6	hmPending	pending	-	-
@@ -202,7 +203,7 @@ module	6	default	isDefault	-	-
 moduleassociation	0	msID	id	-	-
 moduleassociation	1	msID	DT_RowId	f	-
 moduleassociation	2	msHostID	hostID	-	-
-moduleassociation	3	msHostID	hostLink	f	host
+moduleassociation	3	msHostID	hostLink	f:classname	host
 moduleassociation	4	msModuleID	moduleID	-	-
 moduleassociation	5	msState	state	-	-
 multicastsession	0	msID	id	-	-
@@ -239,7 +240,7 @@ nodefailure	2	nfNodeID	storagenodeID	-	-
 nodefailure	3	nfNodeID	storagenodeLink	f:tmpcolumns	storagenode
 nodefailure	4	nfTaskID	taskID	-	-
 nodefailure	5	nfHostID	hostID	-	-
-nodefailure	6	nfHostID	hostLink	f	host
+nodefailure	6	nfHostID	hostLink	f:classname	host
 nodefailure	7	nfGroupID	storagegroupID	-	-
 nodefailure	8	nfGroupID	storagegroupLink	f:tmpcolumns	storagegroup
 nodefailure	9	nfDateTime	failureTime	f	-
@@ -274,7 +275,7 @@ plugin	13	-	hash	f	-
 powermanagement	0	pmID	id	-	-
 powermanagement	1	pmID	DT_RowId	f	-
 powermanagement	2	pmHostID	hostID	-	-
-powermanagement	3	pmHostID	hostLink	f	host
+powermanagement	3	pmHostID	hostLink	f:classname	host
 powermanagement	4	pmMin	min	-	-
 powermanagement	5	pmHour	hour	-	-
 powermanagement	6	pmDom	dom	-	-
@@ -300,7 +301,7 @@ printer	14	pAnon5	pAnon5	-	-
 printerassociation	0	paID	id	-	-
 printerassociation	1	paID	DT_RowId	f	-
 printerassociation	2	paHostID	hostID	-	-
-printerassociation	3	paHostID	hostLink	f	host
+printerassociation	3	paHostID	hostLink	f:classname	host
 printerassociation	4	paPrinterID	printerID	-	-
 printerassociation	5	paIsDefault	isDefault	-	-
 printerassociation	6	paAnon1	anon1	-	-
@@ -358,7 +359,7 @@ scheduledtask	10	stMonth	month	-	-
 scheduledtask	11	stDOW	dayOfWeek	-	-
 scheduledtask	12	stIsGroup	isGroupTask	-	-
 scheduledtask	13	stGroupHostID	hostID	-	-
-scheduledtask	14	stGroupHostID	hostLink	f	host
+scheduledtask	14	stGroupHostID	hostLink	f:classname	host
 scheduledtask	15	stShutDown	shutdown	-	-
 scheduledtask	16	stOther1	other1	-	-
 scheduledtask	17	stOther2	other2	-	-
@@ -415,7 +416,7 @@ snapin	21	sAnon3	anon3	-	-
 snapinassociation	0	saID	id	-	-
 snapinassociation	1	saID	DT_RowId	f	-
 snapinassociation	2	saHostID	hostID	-	-
-snapinassociation	3	saHostID	hostLink	f	host
+snapinassociation	3	saHostID	hostLink	f:classname	host
 snapinassociation	4	saSnapinID	snapinID	-	-
 snapinassociation	5	saSnapinID	snapinLink	f:tmpcolumns	snapin
 snapinassociation	6	saSequence	sequence	-	-
@@ -429,7 +430,7 @@ snapingroupassociation	6	sgaPrimary	primary	-	-
 snapinjob	0	sjID	id	-	-
 snapinjob	1	sjID	DT_RowId	f	-
 snapinjob	2	sjHostID	hostID	-	-
-snapinjob	3	sjHostID	hostLink	f	host
+snapinjob	3	sjHostID	hostLink	f:classname	host
 snapinjob	4	sjStateID	stateID	-	-
 snapinjob	5	sjAbortOnFail	abortOnFail	-	-
 snapinjob	6	sjCreateTime	createdTime	f	-
@@ -497,7 +498,7 @@ task	2	taskName	name	-	-
 task	3	taskName	mainlink	f:classname,tmpcolumns	-
 task	4	taskCheckIn	checkInTime	f	-
 task	5	taskHostID	hostID	-	-
-task	6	taskHostID	hostLink	f	host
+task	6	taskHostID	hostLink	f:classname	host
 task	7	taskStateID	stateID	-	-
 task	8	taskCreateTime	createdTime	f	-
 task	9	taskCreateBy	createdBy	-	-
@@ -535,7 +536,7 @@ tasklog	6	createdBy	createdBy	-	-
 tasklog	7	logType	type	-	-
 tasklog	8	logText	text	-	-
 tasklog	9	logHostID	hostID	-	-
-tasklog	10	logHostID	hostLink	f	host
+tasklog	10	logHostID	hostLink	f:classname	host
 tasklog	11	logHostName	hostName	-	-
 tasklog	12	logTaskTypeName	taskTypeName	-	-
 tasklog	13	logImageName	imageName	-	-
@@ -586,7 +587,7 @@ usergroupmember	6	ugmUserID	userLink	f:tmpcolumns	user
 usertracking	0	utID	id	-	-
 usertracking	1	utID	DT_RowId	f	-
 usertracking	2	utHostID	hostID	-	-
-usertracking	3	utHostID	hostLink	f	host
+usertracking	3	utHostID	hostLink	f:classname	host
 usertracking	4	utUserName	username	-	-
 usertracking	5	utAction	action	-	-
 usertracking	6	utDateTime	createdTime	f	-
@@ -597,5 +598,5 @@ usertracking	10	utCreatedBy	createdBy	-	-
 usertracking	11	utIP	ip	-	-
 usertracking	12	utHostName	subjectLabel	-	-
 usertracking	13	utUserName	username	f	-
-usertracking	14	utHostID	hostname	f	host
+usertracking	14	utHostID	hostname	f:classname	host
 usertracking	15	utAction	action	f	-

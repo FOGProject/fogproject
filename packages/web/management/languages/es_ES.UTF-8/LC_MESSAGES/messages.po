@@ -54,6 +54,38 @@ msgid " | Unable to find image path"
 msgstr "No se ha podido destruir nodo de almacenamiento"
 
 #, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) failed to delete"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) failed to save"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) was deleted"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) was saved"
+msgstr ""
+
+#, php-format
+msgid "%1$s (ID %2$s) failed to delete"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s (ID %2$s) failed to save"
+msgstr "no ha logrado ahorrar"
+
+#, php-format
+msgid "%1$s (ID %2$s) was deleted"
+msgstr ""
+
+#, php-format
+msgid "%1$s (ID %2$s) was saved"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 

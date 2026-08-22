@@ -51,7 +51,12 @@
     columns: [
       escaped('createdBy'),
       escaped('createdTime'),
-      escaped('info'),
+      // ADR 0020 phase 4: `summary` is the sentence the server builds at
+      // render from the row's type and subject, in the reader's language.
+      // It falls back to `info` -- the stored, writer-language prose -- for
+      // a row written before phase 3. Both are in the payload; the modal
+      // shows the raw one beside this.
+      escaped('summary'),
       escaped('ip')
     ],
     rowId: 'id',
@@ -87,13 +92,21 @@
         + '<dd class="col-sm-9">' + pair[1] + '</dd>';
     });
     html += '<dt class="col-sm-3">What</dt><dd class="col-sm-9">'
-      + (row.info ?
-        // NOT .text-wrap: Bootstrap defines that as
-        // `white-space: normal !important`, which overrides the <pre>.
+      + (row.summary ?
         '<pre class="mb-0" style="white-space:pre-wrap;overflow-wrap:anywhere;">'
-        + $.escapeHtml(row.info) + '</pre>' :
+        + $.escapeHtml(row.summary) + '</pre>' :
         '<em>none</em>')
       + '</dd>';
+    // The stored line, shown only when it says something the sentence does
+    // not: on a legacy row the two are identical, and on a failure row the
+    // error text lives here and nowhere else.
+    if (row.info && row.info !== row.summary) {
+      // NOT .text-wrap: Bootstrap defines that as
+      // `white-space: normal !important`, which overrides the <pre>.
+      html += '<dt class="col-sm-3">Logged</dt><dd class="col-sm-9">'
+        + '<pre class="mb-0" style="white-space:pre-wrap;overflow-wrap:anywhere;">'
+        + $.escapeHtml(row.info) + '</pre></dd>';
+    }
     $('#activity-detail').html(html);
     $('#activity-modal').modal('show');
   }
