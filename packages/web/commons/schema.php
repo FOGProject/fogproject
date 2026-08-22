@@ -4288,3 +4288,288 @@ $this->schema[] = array(
     "UPDATE `taskTypes` SET `ttIsAccess` = 'both' WHERE `ttIsAccess` = ''",
     "UPDATE `users` SET `uAllowAPI` = '0' WHERE `uAllowAPI` = ''",
 );
+
+// 286
+$this->schema[] = array(
+    // GH-1245, the third instalment: make the schema SAY which columns are
+    // optional, instead of leaving it to be inferred.
+    //
+    // A column declared NOT NULL with no DEFAULT is only mandatory if
+    // something enforces it. Under a non-strict sql_mode the server does not
+    // -- it downgrades the error to a warning and substitutes an implicit
+    // zero value -- so for the nine years PDODB cleared sql_mode, the
+    // declaration was a comment rather than a constraint. Removing the clear
+    // turned every one of those columns into a real constraint at once, which
+    // is how saving FOG settings started failing with error 1364.
+    //
+    // For the TEXT columns it was never even a decision: MySQL could not
+    // attach a DEFAULT to a TEXT or BLOB column until 8.0.13, MariaDB until
+    // 10.2.1. `longtext NOT NULL` was the only phrasing the schema language
+    // offered, so those columns are mandatory by accident of syntax.
+    //
+    // WHICH COLUMNS. Not a judgement call: FOG already states its intent in
+    // each model's $databaseFieldsRequired, and this is that statement made
+    // true in the database. Of the 312 core columns that are NOT NULL, carry
+    // no DEFAULT and are not AUTO_INCREMENT, 97 stay exactly as they are --
+    // the ones the models declare required, plus every column whose name ends
+    // in ID, because an INSERT that forgets the row it hangs off should fail
+    // rather than make a silent orphan. The 215 below are the rest.
+    //
+    // WHY THIS CANNOT BREAK A WORKING WRITE. An INSERT that names the column
+    // is unaffected; a default applies only to an omitted column. An INSERT
+    // that omits it currently FAILS outright on a strict server, so there is
+    // no working behaviour to change. On a non-strict server it currently
+    // gets the server's implicit coercion -- and the defaults chosen here are
+    // exactly that coercion ('' for text, 0 for integers, the first member
+    // for an enum), which is the same rule save() applies for an empty value.
+    // So both kinds of server end up where they already were, with the
+    // difference that the schema now says so.
+    //
+    // users.uCreateDate is the one column given a live default rather than a
+    // zero: a user record created without a date wants now, and writing a
+    // zero date is the GH-1245 bug in a different costume. Existing rows are
+    // untouched either way -- a DEFAULT never rewrites stored data.
+    //
+    // PLUGIN TABLES ARE DELIBERATELY ABSENT. A plugin's table is not built
+    // here: it is built by Schema::createTable() when the plugin installs,
+    // with every column NOT NULL and no defaults at all, and install() calls
+    // uninstall() first -- which DROPS the table. An ALTER applied here would
+    // therefore be erased by the next plugin install, so it would be false
+    // comfort rather than a fix. The runtime paths still cover those tables:
+    // save() writes an empty value explicitly and insertBatch() backfills the
+    // columns the caller omitted.
+    function () {
+        $optional = array(
+            'clientUpdates' => array(
+                'cuMD5', 'cuType'
+            ),
+            'globalSettings' => array(
+                'settingCategory', 'settingDesc', 'settingValue'
+            ),
+            'greenFog' => array(
+                'gfAction', 'gfDays', 'gfHour', 'gfMin'
+            ),
+            'groups' => array(
+                'groupBuilding', 'groupCreateBy', 'groupDesc',
+                'groupKernel', 'groupKernelArgs', 'groupPrimaryDisk'
+            ),
+            'history' => array(
+                'hIP', 'hText', 'hUser'
+            ),
+            'hostMAC' => array(
+                'hmDesc', 'hmIgnoreClient', 'hmIgnoreImaging',
+                'hmPending', 'hmPrimary'
+            ),
+            'hosts' => array(
+                'hostADDomain', 'hostADOU', 'hostADPass',
+                'hostADPassLegacy', 'hostADUser', 'hostBuilding',
+                'hostCreateBy', 'hostDesc', 'hostDevice', 'hostImage',
+                'hostIP', 'hostKernel', 'hostKernelArgs',
+                'hostPending', 'hostPrinterLevel', 'hostPubKey',
+                'hostSecToken', 'hostSecTokenPrev', 'hostUseAD'
+            ),
+            'hostScreenSettings' => array(
+                'hssHeight', 'hssOrientation', 'hssOther1',
+                'hssOther2', 'hssRefresh', 'hssWidth'
+            ),
+            'imageGroupAssoc' => array(
+                'igaPrimary'
+            ),
+            'images' => array(
+                'imageBuilding', 'imageCreateBy', 'imageDesc',
+                'imageMagnetUri', 'imageProtect', 'imageSize'
+            ),
+            'imagingLog' => array(
+                'ilCreatedBy', 'ilType'
+            ),
+            'inventory' => array(
+                'iBiosdate', 'iBiosvendor', 'iBiosversion',
+                'iCaseasset', 'iCaseman', 'iCaseserial', 'iCasever',
+                'iCpucurrent', 'iCpuman', 'iCpumax', 'iCpuversion',
+                'iGpuproducts', 'iGpuvendors', 'iHdfirmware',
+                'iHdmodel', 'iHdserial', 'iMbasset', 'iMbman',
+                'iMbproductname', 'iMbserial', 'iMbversion', 'iMem',
+                'iOtherTag', 'iOtherTag1', 'iPrimaryUser', 'iSysman',
+                'iSysproduct', 'iSysserial', 'iSystype', 'iSysversion'
+            ),
+            'ipxeTable' => array(
+                'ipxeFailure', 'ipxeFilename', 'ipxeMAC',
+                'ipxeManufacturer', 'ipxeProduct', 'ipxeSuccess',
+                'ipxeVersion'
+            ),
+            'modules' => array(
+                'description'
+            ),
+            'moduleStatusByHost' => array(
+                'msState'
+            ),
+            'multicastSessions' => array(
+                'msAnon3', 'msAnon4', 'msAnon5', 'msBasePort',
+                'msClients', 'msImage', 'msInterface', 'msIsDD',
+                'msLogPath', 'msName', 'msPercent', 'msSessClients',
+                'msState'
+            ),
+            'nfsGroupMembers' => array(
+                'ngmBandwidthLimit', 'ngmIsEnabled', 'ngmIsMasterNode',
+                'ngmKey', 'ngmMaxClients', 'ngmMemberDescription',
+                'ngmMemberName', 'ngmSnapinPath', 'ngmSSLPath',
+                'ngmWebroot'
+            ),
+            'nfsGroups' => array(
+                'ngDesc'
+            ),
+            'os' => array(
+                'osDescription'
+            ),
+            'plugins' => array(
+                'pAnon1', 'pAnon2', 'pAnon3', 'pAnon4', 'pAnon5',
+                'pInstalled', 'pState', 'pVersion'
+            ),
+            'powerManagement' => array(
+                'pmDom', 'pmDow', 'pmHour', 'pmMin', 'pmMonth',
+                'pmOndemand'
+            ),
+            'printerAssoc' => array(
+                'paAnon1', 'paAnon2', 'paAnon3', 'paAnon4', 'paAnon5',
+                'paIsDefault'
+            ),
+            'printers' => array(
+                'pAnon2', 'pAnon3', 'pAnon4', 'pAnon5', 'pConfig',
+                'pConfigFile', 'pDefFile', 'pIP', 'pModel', 'pPort'
+            ),
+            'pxeMenu' => array(
+                'pxeDesc', 'pxeHotKeyEnable', 'pxeKeySequence',
+                'pxeParams'
+            ),
+            'scheduledTasks' => array(
+                'stDesc', 'stDOM', 'stDOW', 'stHour', 'stMinute',
+                'stMonth', 'stName', 'stOther1', 'stOther2',
+                'stOther3', 'stOther4', 'stOther5', 'stShutDown'
+            ),
+            'schemaVersion' => array(
+                'vValue'
+            ),
+            'snapinGroupAssoc' => array(
+                'sgaPrimary'
+            ),
+            'snapins' => array(
+                'sAnon3', 'sArgs', 'sCreator', 'sDesc',
+                'snapinProtect', 'sReboot', 'sRunWith', 'sRunWithArgs'
+            ),
+            'snapinTasks' => array(
+                'stReturnCode', 'stReturnDetails', 'stState'
+            ),
+            'supportedOS' => array(
+                'osName', 'osValue'
+            ),
+            'taskLog' => array(
+                'createdBy', 'ip'
+            ),
+            'tasks' => array(
+                'taskBPM', 'taskCreateBy', 'taskDataCopied',
+                'taskDataTotal', 'taskForce', 'taskIsDebug',
+                'taskNFSFailures', 'taskPassreset', 'taskPCT',
+                'taskPercentText', 'taskShutdown', 'taskTimeElapsed',
+                'taskTimeRemaining', 'taskWOL'
+            ),
+            'taskStates' => array(
+                'tsDescription', 'tsIcon'
+            ),
+            'taskTypes' => array(
+                'ttDescription', 'ttInitrd', 'ttKernel', 'ttKernelArgs'
+            ),
+            'users' => array(
+                'uAPIToken', 'uCreateBy', 'uCreateDate', 'uDisplay',
+                'uType'
+            ),
+            'userTracking' => array(
+                'utAction', 'utAnon3', 'utDesc'
+            ),
+            'virus' => array(
+                'vAnon2', 'vMode'
+            ),
+        );
+
+        // MySQL and MariaDB spell a TEXT/BLOB default differently: MariaDB
+        // takes the literal, MySQL requires it parenthesised as an
+        // expression and rejects it outright below 8.0.13.
+        $version = (string)self::$DB->query('SELECT VERSION() AS `v`')
+            ->fetch()->get('v');
+        $maria = false !== stripos($version, 'mariadb');
+        $lobDefaults = $maria;
+        if (!$maria) {
+            preg_match('/^(\d+)\.(\d+)\.(\d+)/', $version, $m);
+            $lobDefaults = count($m) === 4
+                && (int)$m[1] * 10000 + (int)$m[2] * 100 + (int)$m[3]
+                    >= 80013;
+        }
+
+        foreach ($optional as $table => $columns) {
+            // Only columns that are actually still missing a default, so a
+            // re-run is a read and nothing else. A table that does not exist
+            // on this install returns nothing and is skipped rather than
+            // erroring.
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table "
+                . "AND `IS_NULLABLE` = 'NO' "
+                . "AND `COLUMN_DEFAULT` IS NULL "
+                . "AND `EXTRA` NOT LIKE '%auto_increment%'",
+                array(),
+                array(':table' => strtolower($table))
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            $want = array_map('strtolower', $columns);
+            foreach ((array)$rows as $row) {
+                if (!isset($row['c'], $row['ty'])
+                    || !in_array(strtolower($row['c']), $want, true)
+                ) {
+                    continue;
+                }
+                $type = trim($row['ty']);
+                $lob = (bool)preg_match(
+                    '/^(tiny|medium|long)?(text|blob)\b/i',
+                    $type
+                );
+                if ($lob && !$lobDefaults) {
+                    // Nothing sensible to do on MySQL below 8.0.13, and
+                    // nothing broken by skipping: insertBatch() backfills
+                    // the column and save() writes it explicitly.
+                    continue;
+                }
+                if (preg_match('/^datetime\b/i', $type)) {
+                    $default = 'current_timestamp()';
+                } elseif (preg_match(
+                    '/^(tiny|small|medium|big)?int\b/i',
+                    $type
+                )) {
+                    $default = '0';
+                } elseif (preg_match(
+                    "/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i",
+                    $type,
+                    $member
+                )) {
+                    $default = "'" . $member[2] . "'";
+                } elseif ($lob) {
+                    $default = $maria ? "''" : "('')";
+                } else {
+                    $default = "''";
+                }
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` %s NOT NULL '
+                        . 'DEFAULT %s',
+                        $table,
+                        $row['c'],
+                        $type,
+                        $default
+                    )
+                );
+            }
+        }
+
+        return true;
+    },
+);
