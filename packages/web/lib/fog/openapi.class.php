@@ -972,17 +972,51 @@ class OpenAPI extends FOGBase
         ];
 
         if ($writable) {
+            // Route::joining() does two unrelated things depending on the
+            // method, and the document described neither of them correctly:
+            // it called PUT an upsert against the natural key, which is what
+            // POST does, and it left POST out entirely.
+            //
+            // The cost of getting this one wrong is higher than for most
+            // operations. A caller who believes the old summary sends an
+            // object without ids, gets a 202 back, and nothing happens --
+            // success on the wire and no effect on the server.
             $paths['/' . $class . '/join'] = [
                 'put' => self::_op(
                     $class,
                     'join',
-                    sprintf(_('Create or update a %s by natural key'), $class),
-                    _('Upserts against the association keys rather than an id.'),
-                    self::_entityResponse($ref),
+                    sprintf(_('Bulk edit %s'), $class),
+                    _('Applies one set of field values to every object named '
+                        . 'in ids. Fields left out of the body keep their '
+                        . 'current value on each object, so this edits rather '
+                        . 'than replaces. Not an upsert and not keyed on '
+                        . 'anything but the ids given: a body with no ids '
+                        . 'matches nothing and succeeds without changing '
+                        . 'anything.'),
+                    self::_acceptedResponse(),
                     [],
-                    self::_entityBody($ref)
+                    self::_bulkEditBody($ref)
                 )
             ];
+            // POST is group only. Route::joining() answers 400 for every other
+            // class, so advertising it on all of them would send callers at an
+            // endpoint that refuses them.
+            if ('group' === $class) {
+                $paths['/' . $class . '/join']['post'] = self::_op(
+                    $class,
+                    'join',
+                    sprintf(_('Get or create %s by name'), $class),
+                    _('Takes a list of names and returns an id for each: the '
+                        . 'existing object where the name is already taken, a '
+                        . 'newly created one otherwise. This is the upsert '
+                        . 'against a natural key, and it exists only on group '
+                        . '-- every other class answers 400.'),
+                    self::_idsResponse(),
+                    [],
+                    self::_namesBody(),
+                    'joinByName' . ucfirst($class)
+                );
+            }
         }
 
         if (in_array($class, $active, true)) {
@@ -1083,13 +1117,22 @@ class OpenAPI extends FOGBase
         $desc,
         array $responses,
         array $parameters = [],
-        array $body = []
+        array $body = [],
+        $operationId = ''
     ) {
+        // operationId is derived from the route name, which is right until one
+        // router route serves two different operations. PUT|POST /{class}/join
+        // is registered once, under one name, but the two methods do unrelated
+        // things -- so both would derive the same operationId, and an
+        // operationId has to be unique across the document. The override lets
+        // the pair keep the one route name the router and the permission
+        // lookup know while still being addressable apart.
+        $operationId = ('' !== $operationId)
+            ? $operationId
+            : ('' === $class ? $routeName : $routeName . ucfirst($class));
         $op = [
             'tags' => ['' === $class ? 'system' : $class],
-            'operationId' => '' === $class
-                ? $routeName
-                : $routeName . ucfirst($class),
+            'operationId' => $operationId,
             'summary' => $summary,
             'responses' => $responses + self::_errorResponses()
         ];
@@ -1241,6 +1284,113 @@ class OpenAPI extends FOGBase
             'required' => true,
             'content' => [
                 'application/json' => ['schema' => ['$ref' => $ref]]
+            ]
+        ];
+    }
+
+    /**
+     * The body PUT /{class}/join takes.
+     *
+     * The entity schema plus the ids to apply it to. allOf rather than a
+     * copied property list, so the field set cannot drift from the class's
+     * own schema.
+     *
+     * @param string $ref The entity schema reference.
+     *
+     * @return array
+     */
+    private static function _bulkEditBody($ref)
+    {
+        return [
+            'required' => true,
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'allOf' => [
+                            ['$ref' => $ref],
+                            [
+                                'type' => 'object',
+                                'required' => ['ids'],
+                                'properties' => [
+                                    'ids' => [
+                                        'type' => 'array',
+                                        'items' => ['type' => 'integer'],
+                                        'description' => _('The objects to '
+                                            . 'apply these values to. An '
+                                            . 'empty or absent list matches '
+                                            . 'nothing and edits nothing.')
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * The body POST /group/join takes.
+     *
+     * @return array
+     */
+    private static function _namesBody()
+    {
+        return [
+            'required' => true,
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'required' => ['names'],
+                        'properties' => [
+                            'names' => [
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                                'description' => _('Names to resolve. Each is '
+                                    . 'created if no object already has it.')
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * A write that is applied without echoing anything back.
+     *
+     * Route::joining()'s PUT branch sets HTTP_ACCEPTED and emits no body.
+     * Saying 200 with an entity here would have a generated client wait for
+     * an object that never arrives.
+     *
+     * @return array
+     */
+    private static function _acceptedResponse()
+    {
+        return [
+            '202' => ['description' => _('Applied. No body is returned.')]
+        ];
+    }
+
+    /**
+     * An array of ids.
+     *
+     * @return array
+     */
+    private static function _idsResponse()
+    {
+        return [
+            '201' => [
+                'description' => _('One id per name, in the order given.'),
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'integer']
+                        ]
+                    ]
+                ]
             ]
         ];
     }
