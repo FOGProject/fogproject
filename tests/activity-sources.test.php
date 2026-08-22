@@ -27,9 +27,11 @@
  *    already sits.
  *
  *    `history` deliberately declares none, which is what it has had since
- *    the page shipped. That is pinned here as a VALUE, not assumed: if it
- *    ever gains one, this test says so, because doing that takes the page
- *    away from an activity.view holder who has it today.
+ *    the page shipped, and requiring `report.view` for it was put to the
+ *    maintainer and declined (2026-08-22). That is pinned here as a VALUE,
+ *    not assumed: if it ever gains one, this test says so, because doing
+ *    that takes the page away from an activity.view holder who has it
+ *    today.
  *
  * DB-free. The source table and its gating are pure functions of the class
  * and the permission cache, and the column tables come from the same column
@@ -242,9 +244,9 @@ $t->check(
 // than incidental: it is the only thing keeping "this user may read no
 // source" unreachable. `_requestedSource()` guards it -- $keys[0] on an
 // empty array is an undefined index that then becomes a class name -- but
-// the guard is the safety net, not the design. Gating `history` too is a
-// live question in _allSources()' docblock, and the day somebody answers
-// it yes, this is the check that says the empty path has just gone live.
+// the guard is the safety net, not the design. Gating `history` too was
+// considered and declined, so this is the check that fires if somebody
+// later does it anyway: the empty path would have just gone live.
 grant([]);
 $bare = (array)activity('_sources');
 $t->check(

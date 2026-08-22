@@ -26,13 +26,17 @@ source may declare an extra permission, and `userTracking` requires
 widening or a narrowing: each keeps the boundary that table already had.
 
 `history` declares none, which is what it has had since the page shipped.
-Requiring `report.view` for it as well is defensible and is deliberately NOT
-done, because it would take the page away from an `activity.view` holder who
-has it today -- a narrowing, and narrowings get signed off rather than
-slipped in beside a feature. It is also the single null that keeps "this user
-may read no source" unreachable, so `tests/activity-sources.test.php` pins it
-as a value: answering that question yes fails a test rather than reaching an
-undefined index that becomes a class name.
+Requiring `report.view` for it as well was put to the maintainer when item 5
+landed and **declined** (2026-08-22): `history` is the only source an
+`activity.view`-only role can read, so the requirement would silently empty
+the page for that role on upgrade, and `activity` exists as a node of its own
+precisely so this page carries its own grant. This is settled rather than
+pending.
+
+It is also the single null that keeps "this user may read no source"
+unreachable, so `tests/activity-sources.test.php` pins it as a value: making
+that change anyway fails a test rather than reaching an undefined index that
+becomes a class name.
 
 Item 7 is bounded to genuinely new installs, and the test of "new" is the
 installer's own: `applyNewInstallDefaults()` runs only when no `.fogsettings`

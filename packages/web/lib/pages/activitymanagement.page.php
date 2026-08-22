@@ -80,10 +80,11 @@ class ActivityManagement extends FOGPage
      *
      * `history` carries null, which keeps it exactly as it has been since
      * the page shipped -- `activity.view` alone. Requiring `report.view`
-     * for it as well would be defensible and is deliberately NOT done here,
-     * because it would take the page away from an activity.view holder who
-     * has it today. That is a narrowing, and narrowings get signed off
-     * rather than slipped in beside a feature.
+     * for it as well was put to the maintainer when item 5 landed and
+     * DECLINED (2026-08-22): it is the only source an activity.view-only
+     * role can read, so adding the requirement would silently empty the
+     * page for them on upgrade, and `activity` exists as a node of its own
+     * precisely so this page has its own grant. Settled, not pending.
      *
      * @return array
      */
@@ -137,10 +138,10 @@ class ActivityManagement extends FOGPage
      *
      * That state is UNREACHABLE today, and deliberately so: `history` is
      * ungated, so every holder of the page has at least one source. The
-     * guard is here because the thing that makes it unreachable is a single
-     * null in _allSources() which there is an open question about changing.
-     * tests/activity-sources.test.php pins the invariant, so answering that
-     * question yes fails a test rather than producing a fatal.
+     * guard stays because what makes it unreachable is a single null in
+     * _allSources() -- one edit away, by anyone who has not read why it is
+     * null. tests/activity-sources.test.php pins the invariant, so making
+     * that edit fails a test rather than producing a fatal.
      *
      * @return string
      */
