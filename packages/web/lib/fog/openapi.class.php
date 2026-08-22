@@ -657,6 +657,7 @@ class OpenAPI extends FOGBase
                     . 'but a request that would change it is refused.'
                 );
             }
+            $schema = self::_applyModelConstraint($class, $property, $schema);
             $properties[$property] = $schema;
         }
         $out = [
@@ -690,6 +691,69 @@ class OpenAPI extends FOGBase
             );
         }
         return $out;
+    }
+
+    /**
+     * Constraints the model enforces that the column type does not carry.
+     *
+     * Every other property here is derived, which is the point of this class.
+     * These cannot be: they live in a model's own save() rather than in the
+     * column definition, so commons/schema-expected.php has no idea they
+     * exist and a document built from it alone overstates what the server
+     * accepts.
+     *
+     * The gap is not academic. hostName is varchar(16), so the derived schema
+     * says maxLength 16 -- but Host::save() calls isHostnameSafe() first,
+     * which is /^[\w!@#$%^()\-\'{}\.~]{1,15}$/, and a 16 character name is
+     * refused. The refusal surfaces as a 406 through _sendCaught(), so a
+     * client generated from the document sends something the document said
+     * was fine and gets an error that names no field.
+     *
+     * Deliberately a short, hand-kept list rather than an attempt to infer
+     * these. Inferring them would mean reading arbitrary PHP in save(); the
+     * honest thing is to name the ones we know and let the rest be described
+     * by their column, which is what the rest of this class already does.
+     *
+     * Keyed lowercase on class then property.
+     *
+     * @param string $class    The lowercase route class name.
+     * @param string $property The model property name.
+     * @param array  $schema   The schema derived so far.
+     *
+     * @return array
+     */
+    private static function _applyModelConstraint($class, $property, array $schema)
+    {
+        $constraints = [
+            'host' => [
+                'name' => [
+                    'maxLength' => 15,
+                    'pattern' => '^[A-Za-z0-9_!@#$%^()\\-\'{}.~]{1,15}$',
+                    'description' => 'Enforced by Host::isHostnameSafe(), which is '
+                        . 'stricter than the column: at most 15 characters, and only '
+                        . 'letters, digits, underscore and ! @ # $ % ^ ( ) - \' { } . ~ '
+                        . 'A name that fails this is refused by Host::save() with a 406.'
+                ]
+            ]
+        ];
+
+        $c = strtolower($class);
+        $p = strtolower($property);
+        if (!isset($constraints[$c][$p])) {
+            return $schema;
+        }
+        foreach ($constraints[$c][$p] as $key => $value) {
+            if ('description' === $key) {
+                // Keep whatever the sensitive/server-owned passes already said
+                // rather than replacing it; both are worth knowing.
+                $schema[$key] = isset($schema[$key])
+                    ? $schema[$key] . ' ' . _($value)
+                    : _($value);
+                continue;
+            }
+            $schema[$key] = $value;
+        }
+        return $schema;
     }
 
     /**
