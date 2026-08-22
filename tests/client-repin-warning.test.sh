@@ -112,7 +112,9 @@ CNF
     if [[ $recreateKeys == yes || $recreateCA == yes || ! -e $sslpath/.srvprivate.key || ! -e $sslcsr ]]; then
         if [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
             openssl genrsa -out "$sslpath/.srvprivate.key" 4096 >>$error_log 2>&1
-            _discardOrphanedCommLeaf
+            if [[ $recreateKeys == yes || $recreateCA == yes ]]; then
+                _discardOrphanedCommLeaf
+            fi
         fi
         openssl req -new -sha512 -key "$sslpath/.srvprivate.key" -out "$sslcsr" \
             -config "$sslpath/req.cnf" >>$error_log 2>&1
@@ -230,6 +232,26 @@ if [[ $out == *"MUST BE REINSTALLED OR RE-PINNED"* ]]; then
     bad "the run after -K warned again -- the warning does not clear"
 else
     ok "the run after -K is silent again"
+fi
+
+# --- 5. a MISSING key is damage, not intent: keep the certificate ------------
+# The genrsa branch also fires on `! -e .srvprivate.key`, with no flag passed at
+# all -- a bad restore or a lost disk. There the surviving certificate is the
+# admin's way back (put the old key next to it and the server is whole), so it
+# must NOT be deleted. _createCommLeaf()'s own mismatch warning covers this.
+mkdir -p "$backupPath/fog_web_${version}.BACKUP/management/other/ssl"
+cp -f "$webdirdest/management/other/ssl/srvpublic.crt" \
+      "$backupPath/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
+rm -rf "$webdirdest"
+
+kept_fp=$(fp "$sslpath/.srvpublic.crt")
+rm -f "$sslpath/.srvprivate.key"
+out=$(comm_pass)
+
+if [[ -f $sslpath/.srvpublic.crt && "$(fp "$sslpath/.srvpublic.crt")" == "$kept_fp" ]]; then
+    ok "a missing key does NOT delete the surviving certificate"
+else
+    bad "a missing key deleted the certificate -- the admin's route back (restore the old key) is gone"
 fi
 
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"

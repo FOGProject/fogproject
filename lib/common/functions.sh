@@ -6789,8 +6789,10 @@ _createCommLeaf() {
 # A comm leaf is only ever valid over the key it was minted from. Drop one that
 # has just been orphaned, so _createCommLeaf() issues a replacement below.
 #
-# Called from the one path that orphans it: regenerating .srvprivate.key under
-# -K/--recreate-keys or -C/--recreate-CA. _createCommLeaf() keeps whatever is
+# Called from the one path that orphans it DELIBERATELY: regenerating
+# .srvprivate.key under -K/--recreate-keys or -C/--recreate-CA. The caller gates
+# on those flags -- see there for why a merely-absent key must not reach this.
+# _createCommLeaf() keeps whatever is
 # already at .srvpublic.crt -- deliberately, that is how a leaf issued outside
 # FOG survives -- so without this the run republishes a certificate whose public
 # half pairs with a key this server has just thrown away. That is not "clients
@@ -7713,7 +7715,17 @@ EOF
         # part of the wire framing, not a tunable.
         if [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
             openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$error_log 2>&1
-            _discardOrphanedCommLeaf
+            # Only under the flags that ASKED for a new key. This branch also
+            # fires when .srvprivate.key is merely ABSENT -- a bad restore, a
+            # lost disk -- and that is damage, not intent. There, the surviving
+            # certificate is the admin's way back: put the old key alongside it
+            # and the server is whole again. Deleting it takes that away and
+            # silently converts a recoverable accident into a mandatory re-pin
+            # of every client. _createCommLeaf()'s mismatch warning covers that
+            # case instead, which is the right answer for it.
+            if [[ $recreateKeys == yes || $recreateCA == yes ]]; then
+                _discardOrphanedCommLeaf
+            fi
         fi
         # No heredoc: req.cnf is prompt = no, so every DN value comes from the
         # config and openssl reads nothing from stdin. Feeding it a line here
