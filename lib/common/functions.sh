@@ -6786,6 +6786,98 @@ _createCommLeaf() {
     chmod 0644 "$commLeafPem" >>$error_log 2>&1
     errorStat $st
 }
+# A comm leaf is only ever valid over the key it was minted from. Drop one that
+# has just been orphaned, so _createCommLeaf() issues a replacement below.
+#
+# Called from the one path that orphans it DELIBERATELY: regenerating
+# .srvprivate.key under -K/--recreate-keys or -C/--recreate-CA. The caller gates
+# on those flags -- see there for why a merely-absent key must not reach this.
+# _createCommLeaf() keeps whatever is
+# already at .srvpublic.crt -- deliberately, that is how a leaf issued outside
+# FOG survives -- so without this the run republishes a certificate whose public
+# half pairs with a key this server has just thrown away. That is not "clients
+# must re-pin", it is "nothing can authenticate, and no re-pin fixes it".
+#
+# Left alone when the root private key is off this server: there would be
+# nothing to sign the replacement with, and _createCommLeaf() already prints
+# where to restore the key. A stale certificate is recoverable -- put the old
+# key back -- where no certificate at all is not.
+_discardOrphanedCommLeaf() {
+    local cert="$sslpath/.srvpublic.crt" key="$sslpath/.srvprivate.key"
+    [[ -f $cert && -f $key && ${rootCAKeyOffline:-0} -ne 1 ]] || return 0
+    local certmod keymod
+    certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null | openssl md5 2>/dev/null)
+    keymod=$(openssl rsa -noout -modulus -in "$key" 2>/dev/null | openssl md5 2>/dev/null)
+    # Unreadable either way is not a mismatch. _createCommLeaf() reports that
+    # case rather than acting on it, and deleting on a failed read would turn a
+    # bad openssl invocation into a destroyed certificate.
+    [[ -n $certmod && -n $keymod && $certmod != "$keymod" ]] || return 0
+    rm -f "$cert" >>$error_log 2>&1
+}
+# Warn -- loudly, and then keep going -- when this run changes the certificate
+# every registered fog-client is already encrypting to.
+#
+# validateExternalCA() established the shape: detect a real break, print a boxed
+# warning, proceed rather than block. This generalises it to the one file where
+# the break is completely silent. $webdirdest/management/other/ssl/srvpublic.crt
+# is what fog-client fetched as the server's encryption certificate, and
+# FOGBase::certDecrypt() opens the private half of it on every handshake.
+# Replacing that keypair -- which -K/--recreate-keys and -C/--recreate-CA both
+# do -- invalidates every registered client at once, and the only symptom is
+# hosts failing to authorize some time later with nothing on the server, in any
+# log, naming the install run that caused it.
+#
+# Warn, never refuse. An admin who passed -K asked for a new key and may have a
+# very good reason (a suspected compromise is the obvious one). The job here is
+# only to make sure they hear the cost now instead of from the helpdesk queue.
+#
+# Compared by fingerprint, not by "did we run genrsa": re-issuing a certificate
+# over the SAME key is not a break -- the client encrypts to the public key and
+# never validates this certificate -- and an ordinary upgrade, which republishes
+# the byte-identical file, has to stay silent or the warning stops meaning
+# anything.
+_warnClientRepin() {
+    local newcert="${commLeafPem:-$sslpath/.srvpublic.crt}"
+    [[ -f $newcert ]] || return 0
+    # configureHttpd rm -rf's $webdirdest before createSSLCA runs, so the live
+    # copy is usually already gone -- but it backs the tree up first. Same two
+    # locations _createCommLeaf() adopts from, checked in the same order.
+    local deployed oldfp newfp
+    for deployed in \
+        "$webdirdest/management/other/ssl/srvpublic.crt" \
+        "${backupPath}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"; do
+        [[ -f $deployed ]] && break
+        deployed=""
+    done
+    # Nothing has ever been published from this server, so there is no client
+    # out there holding the old public key. A first install must be silent.
+    [[ -n $deployed ]] || return 0
+    oldfp=$(openssl x509 -noout -fingerprint -sha256 -in "$deployed" 2>/dev/null)
+    newfp=$(openssl x509 -noout -fingerprint -sha256 -in "$newcert" 2>/dev/null)
+    # An unreadable copy is not evidence of a change; do not cry wolf over it.
+    [[ -n $oldfp && -n $newfp ]] || return 0
+    [[ $oldfp == "$newfp" ]] && return 0
+    echo
+    echo "  ###################################################################"
+    echo "  # WARNING: the client communication certificate has CHANGED.      #"
+    echo "  #                                                                 #"
+    echo "  # EVERY REGISTERED fog-client MUST BE REINSTALLED OR RE-PINNED.   #"
+    echo "  #                                                                 #"
+    echo "  # Every client registered against this server encrypts to the key #"
+    echo "  # in the PREVIOUS certificate, and this server no longer holds    #"
+    echo "  # that key. None of those clients can authenticate until the      #"
+    echo "  # fog-client installer is re-run on them, or they are otherwise   #"
+    echo "  # re-pinned to the certificate published by this install.         #"
+    echo "  #                                                                 #"
+    echo "  # Until then hosts simply stop checking in, and it surfaces as a  #"
+    echo "  # failed authorization per host -- nothing points back here.      #"
+    echo "  ###################################################################"
+    echo "    previous: $deployed"
+    echo "              ${oldfp#*=}"
+    echo "    new:      $newcert"
+    echo "              ${newfp#*=}"
+    echo
+}
 # Make .srvprivate.key a file FOG owns outright.
 #
 # An admin who relocated $sslprivkey has $sslpath/.srvprivate.key as a symlink
@@ -7621,8 +7713,20 @@ EOF
         # 4096 to match what certDecrypt() expects: it chunks the ciphertext by
         # modulus size (openssl_pkey_get_details -> bits/8), so the key size is
         # part of the wire framing, not a tunable.
-        [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]] && \
+        if [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
             openssl genrsa -out $sslpath/.srvprivate.key 4096 >>$error_log 2>&1
+            # Only under the flags that ASKED for a new key. This branch also
+            # fires when .srvprivate.key is merely ABSENT -- a bad restore, a
+            # lost disk -- and that is damage, not intent. There, the surviving
+            # certificate is the admin's way back: put the old key alongside it
+            # and the server is whole again. Deleting it takes that away and
+            # silently converts a recoverable accident into a mandatory re-pin
+            # of every client. _createCommLeaf()'s mismatch warning covers that
+            # case instead, which is the right answer for it.
+            if [[ $recreateKeys == yes || $recreateCA == yes ]]; then
+                _discardOrphanedCommLeaf
+            fi
+        fi
         # No heredoc: req.cnf is prompt = no, so every DN value comes from the
         # config and openssl reads nothing from stdin. Feeding it a line here
         # would be dead input, and it was the mismatch between that one line and
@@ -7631,6 +7735,11 @@ EOF
         errorStat $?
     fi
     _createCommLeaf
+    # Before the publish below overwrites the deployed copy this compares
+    # against. Placed after _createCommLeaf rather than beside the genrsa so it
+    # sees the certificate this run will actually hand out, whether that was
+    # re-issued, adopted, or left exactly as it was.
+    _warnClientRepin
 
     # Discoverability symlinks only -- the comm leaf's real files stay at
     # $sslpath (see _createCommLeaf's own comment for why). This just gives
