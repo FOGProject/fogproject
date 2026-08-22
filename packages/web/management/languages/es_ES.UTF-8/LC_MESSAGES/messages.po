@@ -2243,14 +2243,6 @@ msgstr "Actualizar impresora"
 msgid "Encryption Data Reset"
 msgstr ""
 
-#, fuzzy
-msgid "End"
-msgstr "habilitado"
-
-#, fuzzy
-msgid "End Time"
-msgstr "Hora"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2623,20 +2615,12 @@ msgid "Failed to update host"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
-msgid "Failed to update imaging log"
-msgstr "No se pudo crear Complemento de empleo"
-
-#, fuzzy
 msgid "Failed to update task"
 msgstr "No se pudo crear la tarea"
 
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "No se pudo crear la tarea"
-
-#, fuzzy
-msgid "Failed to update/create image log"
-msgstr "No se pudo crear Complemento de empleo"
 
 #, fuzzy
 msgid "Failed to update/create task log"
@@ -3010,10 +2994,6 @@ msgid "Group Image Association"
 msgstr "Asociación para la imagen"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "replicador de imagen"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "snapins"
 
@@ -3102,6 +3082,10 @@ msgstr "Camino snapin"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "Camino snapin"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "Group Update Fail"
@@ -3330,10 +3314,6 @@ msgid "Host Image"
 msgstr "nombre de host"
 
 #, fuzzy
-msgid "Host Image History"
-msgstr "replicador de imagen"
-
-#, fuzzy
 msgid "Host Init"
 msgstr "ID de host"
 
@@ -3427,6 +3407,10 @@ msgstr "No nodo asociado"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Camino snapin"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "Host Update Fail"
@@ -3829,10 +3813,6 @@ msgstr "Transferencia de imágenes Entrar"
 #, fuzzy
 msgid "Imaging Failed"
 msgstr "Carga ha fallado: %s"
-
-#, fuzzy
-msgid "Imaging History"
-msgstr "Lista de host"
 
 #, fuzzy
 msgid "Imaging Log"
@@ -6535,6 +6515,10 @@ msgstr "Reiniciar"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "actualización Valoración falló"
+
 msgid "Required database field is empty"
 msgstr ""
 
@@ -7426,9 +7410,6 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
-msgid "Start"
-msgstr "comienzo"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "Descarga fracasó"
@@ -7888,6 +7869,10 @@ msgstr "creado por el usuario"
 #, fuzzy
 msgid "Task Cancel Success"
 msgstr "creado por el usuario"
+
+#, fuzzy
+msgid "Task History"
+msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "Task ID"
@@ -10425,6 +10410,14 @@ msgstr ""
 #~ msgstr "No se dispone de hash"
 
 #, fuzzy
+#~ msgid "End"
+#~ msgstr "habilitado"
+
+#, fuzzy
+#~ msgid "End Time"
+#~ msgstr "Hora"
+
+#, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Editar anfitrión"
 
@@ -10483,6 +10476,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "No se pudo crear Sesión"
+
+#, fuzzy
+#~ msgid "Failed to update imaging log"
+#~ msgstr "No se pudo crear Complemento de empleo"
+
+#, fuzzy
+#~ msgid "Failed to update/create image log"
+#~ msgstr "No se pudo crear Complemento de empleo"
 
 #, fuzzy
 #~ msgid "Force Reboot"
@@ -10583,6 +10584,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "el usuario actualiza"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Lista de host"
 
 #, fuzzy
 #~ msgid "Import Host Exts"
@@ -10756,6 +10761,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "Nombre snapin"
+
+#~ msgid "Start"
+#~ msgstr "comienzo"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

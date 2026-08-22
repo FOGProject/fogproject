@@ -3333,21 +3333,19 @@ class HostManagement extends FOGPage
         $this->renderHistoryTab(
             [
                 _('Engineer'),
-                _('Start'),
-                _('End'),
-                _('Duration'),
-                _('Image'),
-                _('Type')
+                _('Time'),
+                _('State'),
+                _('Task Type'),
+                _('Image')
             ],
             [
                 [],
                 [],
                 [],
                 [],
-                [],
                 []
             ],
-            _('Host Image History'),
+            _('Host Task History'),
             'host-image-history-table'
         );
     }
@@ -3519,7 +3517,11 @@ class HostManagement extends FOGPage
                 'name' => _('History Items'),
                 'tabData' => array_merge($historyTabs, [
                     [
-                        'name' => _('Imaging History'),
+                        // Reads taskLog since imagingLog was retired, so it
+                        // is every task's states, not only imaging runs
+                        // (ADR 0022 decision 3). The card inside says the
+                        // same thing.
+                        'name' => _('Task History'),
                         'id' => 'host-image-history',
                         'generator' => function () {
                             $this->hostImageHistory();
@@ -4487,7 +4489,11 @@ class HostManagement extends FOGPage
      */
     public function getImageHist()
     {
-        $this->renderHistoryData($this->obj->get('id'), 'imaginglog');
+        // taskLog since imagingLog was retired (ADR 0022 decision 3). The
+        // tab shows more than it used to: every state a task passed through,
+        // failures included, where imagingLog only ever held runs that had
+        // been started and the last one to start at that.
+        $this->renderHistoryData($this->obj->get('id'), 'tasklog');
     }
     /**
      * Get the snapin history for this host.

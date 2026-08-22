@@ -2210,12 +2210,6 @@ msgstr "更新打印机"
 msgid "Encryption Data Reset"
 msgstr ""
 
-msgid "End"
-msgstr "结束"
-
-msgid "End Time"
-msgstr "时间结束"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2571,19 +2565,12 @@ msgstr "无法更新任务"
 msgid "Failed to update host"
 msgstr "无法更新"
 
-#, fuzzy
-msgid "Failed to update imaging log"
-msgstr "无法更新/创建图像日志"
-
 msgid "Failed to update task"
 msgstr "无法更新任务"
 
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "无法更新任务"
-
-msgid "Failed to update/create image log"
-msgstr "无法更新/创建图像日志"
 
 msgid "Failed to update/create task log"
 msgstr "无法更新/创建任务日志"
@@ -2956,10 +2943,6 @@ msgid "Group Image Association"
 msgstr "图像协会"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "历史形象"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "出口Snapins"
 
@@ -3047,6 +3030,10 @@ msgstr "历史管理单元"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "历史管理单元"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "历史形象"
 
 #, fuzzy
 msgid "Group Update Fail"
@@ -3270,10 +3257,6 @@ msgid "Host Image"
 msgstr "主机图片"
 
 #, fuzzy
-msgid "Host Image History"
-msgstr "历史形象"
-
-#, fuzzy
 msgid "Host Init"
 msgstr "主机列表"
 
@@ -3358,6 +3341,10 @@ msgstr "无关联的节点"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "历史管理单元"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "历史形象"
 
 #, fuzzy
 msgid "Host Update Fail"
@@ -3749,10 +3736,6 @@ msgstr "成像测井"
 #, fuzzy
 msgid "Imaging Failed"
 msgstr "加载失败： %s"
-
-#, fuzzy
-msgid "Imaging History"
-msgstr "主持人成像历史"
 
 msgid "Imaging Log"
 msgstr "成像测井"
@@ -6386,6 +6369,10 @@ msgstr "报告"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "用户更新失败"
+
 msgid "Required database field is empty"
 msgstr "所需的数据库字段为空"
 
@@ -7262,9 +7249,6 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
-msgid "Start"
-msgstr "开始"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "下载失败"
@@ -7706,6 +7690,10 @@ msgstr "用户创建"
 #, fuzzy
 msgid "Task Cancel Success"
 msgstr "用户创建"
+
+#, fuzzy
+msgid "Task History"
+msgstr "历史形象"
 
 #, fuzzy
 msgid "Task ID"
@@ -10240,6 +10228,12 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "没有可用的散列"
 
+#~ msgid "End"
+#~ msgstr "结束"
+
+#~ msgid "End Time"
+#~ msgstr "时间结束"
+
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "主机出口"
@@ -10293,6 +10287,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "无法创建会话"
+
+#, fuzzy
+#~ msgid "Failed to update imaging log"
+#~ msgstr "无法更新/创建图像日志"
+
+#~ msgid "Failed to update/create image log"
+#~ msgstr "无法更新/创建图像日志"
 
 #, fuzzy
 #~ msgid "Files do not match on server"
@@ -10397,6 +10398,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "用户更新"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "主持人成像历史"
 
 #, fuzzy
 #~ msgid "Import Host Exts"
@@ -10579,6 +10584,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "文件管理单元"
+
+#~ msgid "Start"
+#~ msgstr "开始"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

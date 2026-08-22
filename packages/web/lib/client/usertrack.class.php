@@ -36,9 +36,9 @@ class UserTrack extends FOGClient
      * @var array
      */
     protected $actions = [
-        'login' => 1,
-        'start' => 99,
-        'logout' => 0
+        'login' => UserTracking::ACTION_LOGIN,
+        'start' => UserTracking::ACTION_SERVICE_START,
+        'logout' => UserTracking::ACTION_LOGOUT
     ];
 
     /**

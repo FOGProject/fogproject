@@ -91,8 +91,16 @@ if (!class_exists('Retention', true)) {
 
 $core = Retention::coreRegistry();
 check(
-    'coreRegistry() lists the four tables ADR 0021 and 0023 name',
-    count($core) === 4,
+    'coreRegistry() lists the three tables ADR 0021 and 0023 name',
+    count($core) === 3,
+    $failures,
+    $checks
+);
+// Was four. imagingLog was retired by ADR 0022 decision 3 -- taskLog carries
+// the image name now -- so its entry went with the table.
+check(
+    'the retired imagingLog is not still registered',
+    !isset($core['imagingLog']),
     $failures,
     $checks
 );

@@ -2,7 +2,18 @@
 
 ## Status
 
-proposed
+accepted, with Decisions 3 and 5 **superseded during review**
+
+Both concerned `imagingLog`, and grilling them established that the table
+should not be repaired -- it should be retired. `taskLog` is written at the
+same two moments, for the same tasks, in the same methods, and already carries
+everything `imagingLog` does except the image name. Adding one denormalized
+column to `taskLog` therefore removes the *reason* for Decision 3 rather than
+implementing it. The replacement is Decision 3 (rewritten) below.
+
+Decisions 1, 2, 4 and 6 stand as written; they are about the five work-item
+tables and the read path, and nothing here touches them. Decision 4's
+`ActivityWindow` now unions **five** tables rather than six.
 
 ## Context
 
@@ -172,39 +183,92 @@ the timestamps loses duration, and `taskStateChangedTime` — which the prompt
 correctly identifies as a partial one-slot span — cannot substitute, because it
 is overwritten by every transition and so records only the last one.
 
-### 3. `imagingLog` stops using `finish IS NULL` as state, and stops deleting
+### 3. `imagingLog` is retired; `taskLog` gains the image name
 
-The three fixes, in dependency order. Each is independently shippable and none
-requires the other two to be useful.
+**This supersedes the original Decision 3**, which proposed giving `imagingLog`
+an explicit close key, removing its delete, and deriving a state for it. That
+was the right fix to the wrong object.
 
-**a. Give it an explicit close key.** Store `ilTaskID` so
-`TaskingElement::imageLog(false)` finds its row by the task that opened it,
-not by `finish IS NULL` + `maxId()`. This is what removes the *reason* for the
-delete.
+**The two logs record the same events, in the same place.** Verified in
+`packages/web/lib/reg-task/taskqueue.class.php`:
 
-**b. Then remove the delete.** Once the close is unambiguous, a second open row
-is no longer a problem, and an image that died halfway is allowed to persist as
-what it is: a row with a start, no finish, and a task that is no longer
-running. This is the single highest-value change in the ADR — it converts
-"FOG has no record of imaging failures" into "FOG has one".
+```
+:240   imageLog(true)     <- checkin
+:263   taskLog()          <- same method, 23 lines later
+:608   taskLog()          <- complete
+:612   imageLog(false)    <- same method, 4 lines later
+```
 
-**c. Give it a state, or give it a reason.** With (b) done, `ilFinishTime IS
-NULL` still cannot separate "running now" from "died". Two options and the
-recommendation is the second:
+Both are guarded on `$this->imagingTask`. Nothing in `packages/service/`
+writes either one. So `imagingLog` is a parallel record of events `taskLog` is
+already recording, and it holds exactly one fact `taskLog` does not: the image
+name.
 
-- Add `ilState` speaking `taskStates`, making it the sixth table in the shared
-  vocabulary. Consistent, and it makes the union query in Decision 4 uniform.
-- **Derive it.** `imagingLog` already stores the host; with (a) it stores the
-  task. "Running" is *this row's task is still in a progress state*; anything
-  else with a NULL finish died. No new column, no second source of truth to
-  drift, and it keeps `imagingLog` free of lifecycle state it does not own.
+`taskLog` already carries the rest, denormalized so it survives deletion:
+`logHostID`/`logHostName` (schema 341), `taskStateID`, `createTime`,
+`createdBy`, `ip`, `logTaskTypeName`. **So the whole of the original Decision 3
+dissolves:**
 
-The derivation is preferred because `imagingLog`'s whole value is being the
-record that outlives the task — and a derived state is only available while
-the task exists. That is not a contradiction, it is the honest boundary: while
-the task lives, FOG can say why the row is open; afterwards it can only say it
-never closed. Storing a state would let it claim more than it knows at the
-moment the task is deleted.
+| original decision | with `logImageName` on `taskLog` |
+|---|---|
+| 3a: an explicit close key, so the close is unambiguous | unnecessary -- `taskLog` rows are keyed by task |
+| 3b: remove the delete, so failed runs persist | unnecessary -- nothing deletes `taskLog` rows |
+| 3c: derive a state, since `finish IS NULL` cannot separate running from dead | moot -- `taskStateID` is a real state column |
+
+3a and this decision want the same thing from opposite ends: denormalize one
+field to link two records. Only this direction lets a table be deleted.
+
+**Correction to the original 3b.** It claimed to convert "FOG has no record of
+imaging failures" into "FOG has one". That claim was wrong when it was written.
+`taskLog` already types its rows (`TaskLog::TYPE_ERROR`) and already records
+failures -- measured on a live install: 3 `logType='error'` rows alongside 53
+`logType='state'`. The FOS failure-reporting work had already delivered it.
+
+**What `imagingLog` was thought to be for, it is not.** "When was this image
+last captured / last deployed" is answered by dedicated columns --
+`images.imageDateTime`, `images.imageLastDeploy`, `hosts.hostLastDeploy` -- not
+by this table and not by `taskLog`, which has no image column at all. Nor could
+`taskLog` reach one by joining: the only route is
+`taskLog.taskID -> tasks.taskImageID -> images.imageName`, and on the install
+this was measured against **9 of 56 `taskLog` rows already have no surviving
+task**. That is the same failure that made schema 341 denormalize the host
+name, and it is why the new column stores the name rather than an id.
+
+**The work:**
+
+- `taskLog` gains `logImageName`, denormalized, written at the same two
+  moments `imageLog()` was called.
+- `logTaskTypeName` starts being written on `logType='state'` rows too. Schema
+  341 deliberately excluded them, so capture-versus-deploy is currently absent
+  from exactly the rows a per-event count would read.
+- The dashboard's images-per-day chart reads `taskLog` instead. It becomes
+  `COUNT(DISTINCT taskID)` with a state filter, not `COUNT(*)`: `imagingLog`
+  is one row per event, `taskLog` one per transition.
+- `imagingLog` goes entirely -- table, model, manager, report, REST class,
+  permission mapping, retention entry and activity-viewer source.
+- Existing rows are **dropped, not migrated**. Backfilling them into `taskLog`
+  needs a task id `imagingLog` does not store, which is precisely the defect
+  the original 3a existed to add. Building that in order to throw the table
+  away afterwards is work for nothing. The cost is the history on installs
+  that have it, and the images-per-day chart reading empty for the window
+  predating the change.
+
+**The REST class is removed outright, with no compatibility shim.** `imaginglog`
+is in `Route::$validClasses`, so `/api/imaginglog` exists today. No 1.6 release
+has ever shipped (see ADR 0021's status), so there is no released 1.6 API
+contract to break, and a view over a table that no longer exists is a permanent
+cost paid against a promise never made. Consumers tracking `working-1.6` builds
+get a 404 with no deprecation window; that is the accepted cost. FogApi
+hardcodes the 1.6 class list rather than reading `system/openapi`, so its copy
+needs syncing by hand.
+
+**One live defect found while establishing the above, and fixed with this
+work.** On deploy completion FOG sets `hosts.hostLastDeploy`
+(`taskqueue.class.php:576-579`) but **nothing anywhere sets
+`images.imageLastDeploy`** -- the `Image` model maps `'deployed' =>
+'imageLastDeploy'` and no code writes it. Measured: 3 of 29 images carry a
+value. It matters more once `imagingLog` is gone, because that column is what
+someone reaches for to answer "when did this image last go out".
 
 ### 4. "Everything that ran in the last hour" is one read path, not one table
 
@@ -223,28 +287,24 @@ index on `taskCheckIn` but none of the six has one on its start column, so a
 window query is a scan per table today. Add the indexes with the helper, not
 before.
 
-### 5. `imagingLog` adopts ADR 0020's frame; it does not extend a base class
+### 5. Superseded: there is no `imagingLog` left to give a frame to
 
-ADR 0020 decided against a shared base class in favour of a record contract, so
-there is no class here to extend and spans sit **beside** that decision rather
-than under it. If 0020 is later revisited and grows an `EventController`,
-`imagingLog` is a candidate and the five work-item tables are not.
+**The original Decision 5** had `imagingLog` take ADR 0020's frame names and
+declare a retain-denormalized deletion policy, adding `ilHostName` so a row
+outlived its host.
 
-`imagingLog` is already most of the way to 0020's frame under other names:
-`ilCreatedBy` is `createdBy`, `ilImageName` and `ilType` are subject
-information, `ilHostID` is `subjectID`. It should take the frame's names and,
-per 0020 Decision 4, declare its deletion policy explicitly — which means
-answering the question 0020 left open for it.
+Decision 3 above retires the table, so all of that lands on `taskLog` instead
+-- where it is **already true**. Schema 341 gave `taskLog` `logHostID` and
+`logHostName` for exactly the reason the original Decision 5 wanted `ilHostName`,
+and nothing deletes `taskLog` rows, which is retain-denormalized by
+construction rather than by declaration.
 
-**This ADR answers it: `imagingLog` should be retain-denormalized, not
-cascade.** It is currently deleted on host delete, which is indefensible
-alongside Decision 3b: there is no point retaining failed imaging runs if
-deleting the host erases them anyway, and "which hosts fail to image" is a
-fleet-level question whose answer must outlive any individual host. It needs
-`ilHostName` for the same reason schema 341 gave `taskLog` `logHostName`.
+What survives from it is one sentence, and it is about the other five tables:
+the work-item tables keep cascading on host delete. A queue row for a deleted
+host is not history, it is stale work.
 
-The five work-item tables keep cascading. A queue row for a deleted host is
-not history, it is stale work.
+ADR 0020's open question about `imagingLog`'s deletion policy is answered by
+the table ceasing to exist.
 
 ### 6. Naming: these are work items, and the word "span" is reserved
 
@@ -271,20 +331,27 @@ name for the second thing and should keep using it.
   look, not worth bundling.
 - **`msAnon5`.** Another dead `anonN` column, same family as `utAnon3` and
   `sAnon3` (ADR 0020). Leave it.
-- **Retention.** None of these six is pruned by anything, and after Decision 3b
-  `imagingLog` grows faster than it does today. That is the audit ADR's
-  retention mechanism (ADR 0021 Decision 9) applied to a different table, and
-  it should reuse it rather than invent a second sweep.
+- **Retention.** None of these five is pruned by anything. That is the audit
+  ADR's retention mechanism (ADR 0021 Decision 9) applied to different tables,
+  and it should reuse it rather than invent a second sweep. `imagingLog`'s own
+  entry in the registry goes with the table; `taskLog` inherits the question,
+  and it grows faster than `imagingLog` ever did.
 
 ## Consequences
 
-- FOG gains a record of imaging failures, which it does not have today.
-- `imagingLog` grows: rows that used to be deleted on the next attempt now
-  persist. On a host in a failure loop that is one row per attempt. See
-  retention, above.
+- One fewer table, and one fewer REST class, model, manager, report,
+  permission mapping and retention entry with it.
+- FOG keeps its record of imaging failures. It already had one, in `taskLog`;
+  what changes is that the record now names the image.
+- `/api/imaginglog` returns 404. No 1.6 release shipped it, and FogApi's
+  hardcoded class list needs syncing by hand.
+- Existing `imagingLog` rows are lost, and the dashboard's images-per-day chart
+  reads empty for the window predating the change.
+- The dashboard chart counts distinct tasks rather than rows, because `taskLog`
+  is per-transition. That query is worth writing carefully.
+- `images.imageLastDeploy` starts being populated, having never been written.
 - One new class (`ActivityWindow`) and a small number of indexes; no table is
-  merged, no vocabulary is renamed, and no writer changes except
-  `TaskingElement::imageLog()`.
+  merged and no vocabulary is renamed.
 - The state/timestamp redundancy stays, now with a stated invariant and a test
   rather than as an accident.
 - Anyone adding a seventh work-item table is expected to speak `taskStates`.
@@ -295,22 +362,24 @@ name for the second thing and should keep using it.
 
 **ADR 0020 (event log shape).** This ADR consumes 0020's frame for
 `imagingLog` only, and resolves the deletion-policy question 0020 explicitly
-left open for it (Decision 5). It does not touch `history`, `userTracking` or
-`taskLog`. If 0020's Decision 1 is revisited toward a base class, Decision 5
-here is where spans re-enter that conversation.
+left open for it -- by retiring the table (Decision 5). It does touch
+`taskLog`, which gains `logImageName`; it does not touch `history` or
+`userTracking`. With `imagingLog` gone there is no span table left, so nothing
+here re-enters 0020's base-class conversation.
 
 **ADR 0021 (audit trail).** 0021 already states that a span is not an audit
 record, and this ADR agrees from the other side: a completed image is an
 outcome, and the auditable event is the task that started it, audited at
 `host.task`. Two seams meet here and neither should duplicate the other —
-`imagingLog` records *what happened to the machine*, `auditLog` records *who
-asked for it*. `ilTaskID` from Decision 3a is what lets a reader join the two
-without either table knowing about the other.
+`taskLog` records *what happened to the machine*, `auditLog` records *who
+asked for it*. The task id both already carry is what lets a reader join them
+without either table knowing about the other; that it is already there, on
+`taskLog`, is part of why the separate span table was not worth keeping.
 
 0021 handed this ADR one open question: which of the `packages/web/service/`
 endpoints deserve a machine-provenance audit header, given that those
 endpoints are the writers of these tables. **The answer is the state
-transitions, not the checkins.** `TaskingElement`'s task-state writes and
-`imageLog()`'s open and close are events a person would want to see; the
-per-poll checkin traffic is a heartbeat and would swamp the table. That is the
+transitions, not the checkins.** `TaskingElement`'s task-state writes are
+events a person would want to see; the per-poll checkin traffic is a heartbeat
+and would swamp the table. That is the
 same line Decision 2 draws between state and timestamp, applied to volume.

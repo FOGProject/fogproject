@@ -42,9 +42,15 @@ class TaskLog extends FOGController
      * moment the host row that could supply it goes. Host name is the first
      * thing anyone searches a failure by, so schema 341 stores it here.
      *
-     * Only the FOS report endpoint fills them. A state row leaves them
-     * empty: it is an annotation on a task and means nothing without it,
-     * and TaskingElement::taskLog() runs on every transition.
+     * imageName joined them under ADR 0022 decision 3, when imagingLog was
+     * retired and this row became the whole record of an imaging run. It is
+     * only set for an imaging task; every other task type leaves it empty,
+     * and the dashboard chart counts rows where it is not.
+     *
+     * All four are written on every transition, not just on the FOS report
+     * rows -- schema 341 backfilled only the report rows, which left
+     * capture-versus-deploy absent from exactly the rows a per-event count
+     * reads. See TaskingElement::taskLog().
      *
      * @var array
      */
@@ -59,8 +65,57 @@ class TaskLog extends FOGController
         'text' => 'logText',
         'hostID' => 'logHostID',
         'hostName' => 'logHostName',
-        'taskTypeName' => 'logTaskTypeName'
+        'taskTypeName' => 'logTaskTypeName',
+        'imageName' => 'logImageName'
     ];
+    /**
+     * The grid list query, with the host joined in.
+     *
+     * The default template carries no join, so a grid can only ORDER BY the
+     * listed table's own columns. That is fine for everything this class
+     * shows except one thing: the group page's Task History tab groups its
+     * rows by host, and RowGroup only groups correctly when the grouped
+     * column is also the primary sort -- so the group order is whatever the
+     * sort key is. Sorting on `logHostID` puts the hosts in id order, which
+     * is the order they were created in and means nothing to a reader.
+     *
+     * `logHostName` cannot stand in for the join. It is a denormalized copy
+     * taken at write time, so a host renamed midway through its history has
+     * two different values against one id, and ordering on it would split
+     * that host into two runs with the group header repeated. The joined
+     * name is a function of the id alone, which is what grouping needs.
+     *
+     * LEFT OUTER so a row whose host has since been deleted is still listed
+     * -- keeping those rows readable is why the name is denormalized at all.
+     *
+     * @var string
+     */
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `taskLog`.`logHostID` = `hosts`.`hostID`
+        %s
+        %s
+        %s";
+    /**
+     * The sql filter string, carrying the same join as the query.
+     *
+     * @var string
+     */
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `taskLog`.`logHostID` = `hosts`.`hostID`
+        %s";
+    /**
+     * The sql total string, carrying the same join as the query.
+     *
+     * @var string
+     */
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `taskLog`.`logHostID` = `hosts`.`hostID`";
     /**
      * A row recording a state transition, which is what every row was
      * before schema 338.

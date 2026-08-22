@@ -4565,6 +4565,311 @@ abstract class FOGBase
             === (ord($subnetBin[$fullBytes]) & ord($mask));
     }
     /**
+     * Column types per table, from commons/schema-expected.php.
+     *
+     * Lives on FOGBase rather than FOGController because the two write
+     * paths that need it are SIBLINGS, not parent and child:
+     * FOGController::save() writes one row, FOGManagerController::
+     * insertBatch() writes many, and both extend FOGBase directly. It
+     * started on FOGController because save() was its only caller, and
+     * the cost of leaving it there was that GH-1245's fix reached one of
+     * the two paths -- which is how a strict server came to reject saving
+     * settings and tasking a group's snapins while saving a host worked.
+     *
+     * Null until first asked for; built once per request.
+     *
+     * @var array|null
+     */
+    private static $columnTypes = null;
+
+    /**
+     * The declared SQL type of a column, or '' when it is not in the manifest.
+     *
+     * commons/schema-expected.php carries per-column types and is what
+     * OpenAPI::_entitySchema() reads for the same question, so this adds no
+     * new source of truth. A missing or unreadable manifest returns '', which
+     * emptyValueFor() treats as "assume a string column" -- the behaviour that
+     * shipped before any of this.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return string
+     */
+    protected static function columnType($table, $column)
+    {
+        if (null === self::$columnTypes) {
+            self::$columnTypes = [];
+            $manifest = SchemaReconciler::manifest();
+            $tables = isset($manifest['tables']) && is_array($manifest['tables'])
+                ? $manifest['tables']
+                : [];
+            foreach ($tables as $tName => $tDef) {
+                if (!isset($tDef['columns']) || !is_array($tDef['columns'])) {
+                    continue;
+                }
+                foreach ($tDef['columns'] as $cName => $cType) {
+                    self::$columnTypes[strtolower($tName)][strtolower($cName)]
+                        = trim($cType);
+                }
+            }
+        }
+        $t = strtolower($table);
+        if (!isset(self::$columnTypes[$t])) {
+            self::_loadPluginColumnTypes($t);
+        }
+        return self::$columnTypes[$t][strtolower($column)] ?? '';
+    }
+
+    /**
+     * Loads one table's columns from the server's own catalog.
+     *
+     * commons/schema-expected.php describes core's 67 tables and nothing
+     * else, so a plugin's table is not in it -- and GH-1245's first cut
+     * therefore answered '' for every plugin column, which is precisely the
+     * bug it set out to fix. That was invisible while PDODB cleared sql_mode;
+     * with the clear gone the server refuses the write instead of coercing
+     * it, so saving an LDAP server without a port is error 1366 rather than a
+     * silently stored 0. On the maintainer's own 1.6 install that is 18
+     * tables, 16 enum/set and 44 integer columns.
+     *
+     * Not solved by adding plugin tables to the manifest: the manifest is
+     * generated from core's schema and the reconciler uses it to decide what
+     * to CREATE, so a plugin table listed there would be created for
+     * everyone whether the plugin is installed or not.
+     *
+     * Asked once per table per request, and only for a table the manifest
+     * does not cover -- core never gets here. An empty result is cached too,
+     * so a table that genuinely does not exist is asked about once and then
+     * behaves exactly as it did before this method existed.
+     *
+     * The definition is rebuilt as "<type> NOT NULL" rather than returned
+     * raw, so columnIsNullable() reads it with the same regex it applies to
+     * the manifest's strings and there is only one notion of "nullable".
+     *
+     * @param string $table the table, already lowercased
+     *
+     * @return void
+     */
+    private static function _loadPluginColumnTypes($table)
+    {
+        self::$columnTypes[$table] = [];
+        try {
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty`, "
+                . "`IS_NULLABLE` AS `n` FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table",
+                [],
+                [':table' => $table]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        } catch (\Exception $e) {
+            // A catalog FOG cannot read leaves every column looking unknown,
+            // which is the behaviour that shipped before GH-1245 rather than
+            // a broken one.
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Column type lookup failed'),
+                    _('Table'),
+                    $table,
+                    _('Error'),
+                    $e->getMessage()
+                )
+            );
+            return;
+        }
+        /*
+         * The degradation is deliberate, the SILENCE was not. PDODB swallows
+         * a rejected statement, so this never reached the catch above on a
+         * real error -- it cached an empty type map and every column on the
+         * table went back to being untyped, which is exactly the GH-1245 bug
+         * this method exists to prevent, reappearing with nothing said.
+         *
+         * Behaviour is unchanged: still an empty map, still asked once per
+         * table per request. Only now it is written down.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Table'),
+                    $table,
+                    _('Error'),
+                    self::$DB->error,
+                    _('every column on this table will be treated as untyped')
+                )
+            );
+            return;
+        }
+        foreach ((array) $rows as $row) {
+            if (!isset($row['c'], $row['ty'])) {
+                continue;
+            }
+            self::$columnTypes[$table][strtolower($row['c'])] = trim($row['ty'])
+                . (isset($row['n']) && strtoupper($row['n']) === 'NO' ? ' NOT NULL' : '');
+        }
+    }
+
+    /**
+     * Can this column hold NULL?
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return bool
+     */
+    protected static function columnIsNullable($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        return '' !== $type && !preg_match('/\bNOT\s+NULL\b/i', $type);
+    }
+
+    /**
+     * What an unset optional field should actually be written as.
+     *
+     * GH-1245. save() used to write '' for every unset optional field whose
+     * key does not end in "id". '' is a value only a string column can hold.
+     * Everywhere else the server either refuses it under a strict sql_mode or
+     * coerces it without one, and FOG only ever saw the second, because
+     * PDODB::_connect() cleared sql_mode on every connection. So this is not
+     * new behaviour being introduced -- it is the coercion the server was
+     * already performing, written down and made legal:
+     *
+     *   date/time  ->  NULL          (was '0000-00-00 00:00:00')
+     *   integer    ->  0             (was 0, via error 1366 downgraded)
+     *   enum/set   ->  first member  (was '', the error value at index 0)
+     *   anything   ->  ''            (unchanged; '' is a real value here)
+     *
+     * The integer and enum choices deliberately match the coercion rather
+     * than the column's DEFAULT. `hosts.hostEnforce` is declared
+     * DEFAULT '1' and 73 of 86 rows on the maintainer's server hold '' --
+     * so honouring the default would silently turn enforcement ON for those
+     * hosts as a side effect of a storage fix. '' and '0' are both falsey in
+     * PHP, so the first enum member behaves as the error value already did.
+     *
+     * The column's TYPE is the only reliable way to tell these apart; the
+     * key's name is not, which is the lesson $databaseFieldsNotInt already
+     * exists for.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return mixed the value to write; null means a real SQL NULL
+     */
+    protected static function emptyValueFor($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        if ('' === $type) {
+            return '';
+        }
+        if (preg_match('/^(datetime|timestamp|date)\b/i', $type)) {
+            return null;
+        }
+        if (preg_match('/^(tiny|small|medium|big)?int\b/i', $type)) {
+            return 0;
+        }
+        if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $match)) {
+            return str_replace("''", "'", $match[2]);
+        }
+
+        return '';
+    }
+
+    /**
+     * Columns per table that an INSERT must name, built on demand.
+     *
+     * @var array
+     */
+    private static $requiredColumns = [];
+
+    /**
+     * Columns this table will not accept an INSERT without.
+     *
+     * A column is on this list when it is NOT NULL, carries no DEFAULT, and
+     * is not AUTO_INCREMENT. Under a strict sql_mode, omitting one of those
+     * from an INSERT is error 1364 -- "Field 'x' doesn't have a default
+     * value" -- and the row is rejected outright. Without a strict mode the
+     * server invents a zero value instead and says nothing, which is what FOG
+     * saw for nine years because PDODB cleared sql_mode on every connection.
+     *
+     * Read from the server's catalog rather than commons/schema-expected.php,
+     * for two reasons the manifest cannot cover. It describes core's tables
+     * only, so a plugin's table would answer "nothing is required" -- the
+     * same blind spot _loadPluginColumnTypes() exists for. And its per-column
+     * strings drop AUTO_INCREMENT, so `stID` reads as a plain NOT NULL int
+     * with no default and would be filled with 0, writing over the primary
+     * key the server was about to generate.
+     *
+     * Asked once per table per request. A lookup that fails returns nothing,
+     * which leaves the caller building exactly the statement it built before
+     * this method existed -- the degradation is "no worse than before", not
+     * "silently write something else".
+     *
+     * @param string $table the database table
+     *
+     * @return array column name (lowercased) => declared SQL type
+     */
+    protected static function columnsRequiringValue($table)
+    {
+        $t = strtolower((string) $table);
+        if (isset(self::$requiredColumns[$t])) {
+            return self::$requiredColumns[$t];
+        }
+        self::$requiredColumns[$t] = [];
+        try {
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table "
+                . "AND `IS_NULLABLE` = 'NO' "
+                . "AND `COLUMN_DEFAULT` IS NULL "
+                . "AND `EXTRA` NOT LIKE '%auto_increment%'",
+                [],
+                [':table' => $t]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        } catch (\Exception $e) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Required column lookup failed'),
+                    _('Table'),
+                    $t,
+                    _('Error'),
+                    $e->getMessage()
+                )
+            );
+            return self::$requiredColumns[$t];
+        }
+        // PDODB swallows a rejected statement, so a real error arrives here
+        // as an empty result rather than an exception. Same trap, and same
+        // handling, as _loadPluginColumnTypes().
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Required column lookup failed'),
+                    _('Table'),
+                    $t,
+                    _('Error'),
+                    self::$DB->error
+                )
+            );
+            return self::$requiredColumns[$t];
+        }
+        foreach ((array) $rows as $row) {
+            if (!isset($row['c'])) {
+                continue;
+            }
+            self::$requiredColumns[$t][strtolower($row['c'])]
+                = trim((string) ($row['ty'] ?? ''));
+        }
+        return self::$requiredColumns[$t];
+    }
+
+    /**
      * Output var_dump for logging
      *
      * @param object $object The item to var_dump

@@ -922,6 +922,21 @@
             {data: 'username'},
             {data: 'description'}
         ],
+        // Host first, because RowGroup only groups correctly when the
+        // grouped column is the primary sort -- otherwise a host's rows
+        // scatter and its group header repeats. Then createdTime
+        // descending, so newest is at the top WITHIN each host, which is
+        // what the three host-page tabs already do.
+        //
+        // Column 0 is hostLink. Sorting it ascending puts the hosts in
+        // alphabetical order, not id order: the model joins `hosts` into
+        // its list query and Route::_hostNameOrder() sorts the column on
+        // the joined name. All of that is server-side -- these grids are
+        // serverSide:true, so DataTables sorts nothing itself.
+        order: [
+            [0, 'asc'],
+            [1, 'desc']
+        ],
         rowId: 'id',
         rowGroup: {
             dataSrc: 'hostLink'
@@ -944,11 +959,25 @@
         columns: [
             {data: 'hostLink'},
             {data: 'createdBy'},
-            {data: 'start'},
-            {data: 'finish'},
-            {data: 'diff'},
-            {data: 'imageLink'},
-            {data: 'type'}
+            {data: 'createdTime'},
+            {data: 'statename'},
+            {data: 'taskTypeName'},
+            {data: 'imageName'}
+        ],
+        // Host first, because RowGroup only groups correctly when the
+        // grouped column is the primary sort -- otherwise a host's rows
+        // scatter and its group header repeats. Then createdTime
+        // descending, so newest is at the top WITHIN each host, which is
+        // what the three host-page tabs already do.
+        //
+        // Column 0 is hostLink. Sorting it ascending puts the hosts in
+        // alphabetical order, not id order: the model joins `hosts` into
+        // its list query and Route::_hostNameOrder() sorts the column on
+        // the joined name. All of that is server-side -- these grids are
+        // serverSide:true, so DataTables sorts nothing itself.
+        order: [
+            [0, 'asc'],
+            [2, 'desc']
         ],
         rowId: 'id',
         rowGroup: {
@@ -976,6 +1005,21 @@
             {data: 'complete'},
             {data: 'diff'},
             {data: 'return'}
+        ],
+        // Host first, because RowGroup only groups correctly when the
+        // grouped column is the primary sort -- otherwise a host's rows
+        // scatter and its group header repeats. Then checkin
+        // descending, so newest is at the top WITHIN each host, which is
+        // what the three host-page tabs already do.
+        //
+        // Column 0 is hostLink. Sorting it ascending puts the hosts in
+        // alphabetical order, not id order: the model joins `hosts` into
+        // its list query and Route::_hostNameOrder() sorts the column on
+        // the joined name. All of that is server-side -- these grids are
+        // serverSide:true, so DataTables sorts nothing itself.
+        order: [
+            [0, 'asc'],
+            [2, 'desc']
         ],
         rowId: 'id',
         rowGroup: {

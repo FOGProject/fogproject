@@ -6453,3 +6453,551 @@ $this->schema[] = [
     . "forever, which is the default. Shortening this window is recorded in "
     . "the audit trail before it takes effect.','0','Logging Settings')",
 ];
+
+// 348
+$this->schema[] = [
+    // GH-1245, the third instalment: make the schema SAY which columns are
+    // optional, instead of leaving it to be inferred.
+    //
+    // A column declared NOT NULL with no DEFAULT is only mandatory if
+    // something enforces it. Under a non-strict sql_mode the server does not
+    // -- it downgrades the error to a warning and substitutes an implicit
+    // zero value -- so for the nine years PDODB cleared sql_mode, the
+    // declaration was a comment rather than a constraint. Removing the clear
+    // turned every one of those columns into a real constraint at once, which
+    // is how saving FOG settings started failing with error 1364.
+    //
+    // For the TEXT columns it was never even a decision: MySQL could not
+    // attach a DEFAULT to a TEXT or BLOB column until 8.0.13, MariaDB until
+    // 10.2.1. `longtext NOT NULL` was the only phrasing the schema language
+    // offered, so those columns are mandatory by accident of syntax. FOG's
+    // schema still shows it -- 53 optional longtext columns, not one of them
+    // carrying a default.
+    //
+    // WHICH COLUMNS. Not a judgement call: FOG already states its intent in
+    // each model's $databaseFieldsRequired, and this is that statement made
+    // true in the database. Of the 417 columns that are NOT NULL, carry no
+    // DEFAULT and are not AUTO_INCREMENT, 163 stay exactly as they are --
+    // 148 the models declare required, plus 15 foreign keys they had not
+    // declared but where an INSERT that forgets the key SHOULD fail. The 254
+    // below are the rest.
+    //
+    // WHY THIS CANNOT BREAK A WORKING WRITE. An INSERT that names the column
+    // is unaffected; a default applies only to an omitted column. An INSERT
+    // that omits it currently FAILS outright on a strict server, so there is
+    // no working behaviour to change. On a non-strict server it currently
+    // gets the server's implicit coercion -- and the defaults chosen here are
+    // exactly that coercion ('' for text, 0 for integers, the first member
+    // for an enum), which is the same rule FOGBase::emptyValueFor() applies.
+    // So both kinds of server end up where they already were, with the
+    // difference that the schema now says so.
+    //
+    // users.uCreateDate is the one column given a live default rather than a
+    // zero: a user record created without a date wants now, and writing a
+    // zero date is the GH-1245 bug in a different costume. Existing rows are
+    // untouched either way -- a DEFAULT never rewrites stored data.
+    function () {
+        $optional = [
+            'auditLog' => [
+                'alText'
+            ],
+            'clientUpdates' => [
+                'cuFile', 'cuMD5', 'cuName', 'cuType'
+            ],
+            'dirCleaner' => [
+                'dcPath'
+            ],
+            'fileDeleteQueue' => [
+                'fdqState'
+            ],
+            'globalSettings' => [
+                'settingCategory', 'settingDesc', 'settingValue'
+            ],
+            'greenFog' => [
+                'gfAction', 'gfDays', 'gfHour', 'gfMin'
+            ],
+            'groups' => [
+                'groupBuilding', 'groupCreateBy', 'groupDesc',
+                'groupInit', 'groupKernel', 'groupKernelArgs',
+                'groupPrimaryDisk'
+            ],
+            'history' => [
+                'hIP', 'hText', 'hUser'
+            ],
+            'hostMAC' => [
+                'hmDesc', 'hmIgnoreClient', 'hmIgnoreImaging',
+                'hmPending', 'hmPrimary'
+            ],
+            'hosts' => [
+                'hostADDomain', 'hostADOU', 'hostADPass',
+                'hostADPassLegacy', 'hostADUser', 'hostBuilding',
+                'hostCreateBy', 'hostDesc', 'hostDevice', 'hostIP',
+                'hostImage', 'hostKernel', 'hostKernelArgs',
+                'hostPending', 'hostPrinterLevel', 'hostPubKey',
+                'hostSecToken', 'hostSecTokenPrev', 'hostUseAD'
+            ],
+            'hostScreenSettings' => [
+                'hssHeight', 'hssOrientation', 'hssOther1', 'hssOther2',
+                'hssRefresh', 'hssWidth'
+            ],
+            'imageGroupAssoc' => [
+                'igaPrimary'
+            ],
+            'images' => [
+                'imageBuilding', 'imageCreateBy', 'imageDesc',
+                'imageMagnetUri', 'imageProtect', 'imageSize'
+            ],
+            'imagingLog' => [
+                'ilCreatedBy', 'ilType'
+            ],
+            'inventory' => [
+                'iBiosdate', 'iBiosvendor', 'iBiosversion', 'iCaseasset',
+                'iCaseman', 'iCaseserial', 'iCasever', 'iCpucurrent',
+                'iCpuman', 'iCpumax', 'iCpuversion', 'iGpuproducts',
+                'iGpuvendors', 'iHdfirmware', 'iHdmodel', 'iHdserial',
+                'iMbasset', 'iMbman', 'iMbproductname', 'iMbserial',
+                'iMbversion', 'iMem', 'iOtherTag', 'iOtherTag1',
+                'iPrimaryUser', 'iSysman', 'iSysproduct', 'iSysserial',
+                'iSystemUUID', 'iSystype', 'iSysversion'
+            ],
+            'ipxeTable' => [
+                'ipxeFailure', 'ipxeFilename', 'ipxeMAC',
+                'ipxeManufacturer', 'ipxeProduct', 'ipxeSuccess',
+                'ipxeVersion'
+            ],
+            'LDAPServers' => [
+                'lsAdminGroup', 'lsBindDN', 'lsBindPwd', 'lsCreatedBy',
+                'lsDesc', 'lsDisplayNameAttr', 'lsDisplayNameEnabled',
+                'lsIsLDAPs', 'lsUserFilter', 'lsUserGroup'
+            ],
+            'location' => [
+                'lCreatedBy', 'lDesc', 'lStorageNodeProto',
+                'lTftpEnabled'
+            ],
+            'modules' => [
+                'description'
+            ],
+            'moduleStatusByHost' => [
+                'msState'
+            ],
+            'multicastSessions' => [
+                'msAnon5', 'msBasePort', 'msClients', 'msImage',
+                'msInterface', 'msIsDD', 'msLogPath', 'msMaxwait',
+                'msName', 'msPercent', 'msSessClients', 'msState'
+            ],
+            'nfsGroupMembers' => [
+                'ngmBandwidthLimit', 'ngmIsEnabled', 'ngmIsMasterNode',
+                'ngmKey', 'ngmMaxClients', 'ngmMemberDescription',
+                'ngmMemberName', 'ngmSSLPath', 'ngmSnapinPath',
+                'ngmWebroot'
+            ],
+            'nfsGroups' => [
+                'ngDesc'
+            ],
+            'ntfy' => [
+                'nCredentials'
+            ],
+            'OIDCProviders' => [
+                'opClientSecret', 'opCreatedBy', 'opDesc'
+            ],
+            'os' => [
+                'osDescription'
+            ],
+            'ou' => [
+                'ouCreatedBy', 'ouDesc'
+            ],
+            'plugins' => [
+                'pAnon5', 'pDescription', 'pIcon', 'pInstalled',
+                'pLocation', 'pRunfile', 'pState', 'pVersion'
+            ],
+            'powerManagement' => [
+                'pmDom', 'pmDow', 'pmHour', 'pmMin', 'pmMonth',
+                'pmOndemand'
+            ],
+            'printerAssoc' => [
+                'paAnon1', 'paAnon2', 'paAnon3', 'paAnon4', 'paAnon5',
+                'paIsDefault'
+            ],
+            'printers' => [
+                'pAnon2', 'pAnon3', 'pAnon4', 'pAnon5', 'pConfig',
+                'pConfigFile', 'pDefFile', 'pIP', 'pModel', 'pPort'
+            ],
+            'pxeMenu' => [
+                'pxeDesc', 'pxeHotKeyEnable', 'pxeKeySequence',
+                'pxeParams'
+            ],
+            'roles' => [
+                'rCreatedBy', 'rDesc'
+            ],
+            'scheduledTasks' => [
+                'stDOM', 'stDOW', 'stDesc', 'stHour', 'stMinute',
+                'stMonth', 'stName', 'stOther1', 'stOther2', 'stOther3',
+                'stOther4', 'stOther5', 'stShutDown'
+            ],
+            'schemaVersion' => [
+                'vValue'
+            ],
+            'sites' => [
+                'siteDesc'
+            ],
+            'snapinGroupAssoc' => [
+                'sgaPrimary'
+            ],
+            'snapins' => [
+                'sAnon3', 'sArgs', 'sCreator', 'sDesc', 'sReboot',
+                'sRunWith', 'sRunWithArgs', 'snapinProtect'
+            ],
+            'snapinTasks' => [
+                'stReturnCode', 'stReturnDetails', 'stState'
+            ],
+            'supportedOS' => [
+                'osName', 'osValue'
+            ],
+            'taskLog' => [
+                'createdBy', 'ip'
+            ],
+            'tasks' => [
+                'taskBPM', 'taskCreateBy', 'taskDataCopied',
+                'taskDataTotal', 'taskForce', 'taskIsDebug',
+                'taskNFSFailures', 'taskName', 'taskPCT', 'taskPassreset',
+                'taskPercentText', 'taskShutdown', 'taskTimeElapsed',
+                'taskTimeRemaining', 'taskWOL'
+            ],
+            'taskStates' => [
+                'tsDescription', 'tsIcon'
+            ],
+            'taskTypes' => [
+                'ttDescription', 'ttInitrd', 'ttKernel', 'ttKernelArgs'
+            ],
+            'userAuths' => [
+                'uaPasswordHash', 'uaSelectorHash'
+            ],
+            'userCleanup' => [
+                'ucName'
+            ],
+            'userGroups' => [
+                'ugCreatedBy', 'ugDesc'
+            ],
+            'users' => [
+                'uAPIToken', 'uCreateDate', 'uDisplay', 'uType'
+            ],
+            'userTracking' => [
+                'utAction', 'utAnon3', 'utDesc'
+            ],
+            'virus' => [
+                'vAnon2', 'vHostMAC', 'vMode', 'vName', 'vOrigFile'
+            ],
+            'windowsKeys' => [
+                'wkCreatedBy', 'wkDesc'
+            ],
+        ];
+
+        // MySQL and MariaDB spell a TEXT/BLOB default differently: MariaDB
+        // takes the literal, MySQL requires it parenthesised as an
+        // expression and rejects it outright below 8.0.13. Getting this
+        // wrong is not subtle -- the ALTER is refused and the step fails --
+        // but it is only visible on the server you are not developing on,
+        // which is what CI's mysql:8.0 job is for.
+        $version = (string) self::$DB->query('SELECT VERSION() AS `v`')
+            ->fetch()->get('v');
+        $maria = false !== stripos($version, 'mariadb');
+        $lobDefaults = $maria;
+        if (!$maria) {
+            preg_match('/^(\d+)\.(\d+)\.(\d+)/', $version, $m);
+            $lobDefaults = count($m) === 4
+                && (int) $m[1] * 10000 + (int) $m[2] * 100 + (int) $m[3]
+                    >= 80013;
+        }
+
+        foreach ($optional as $table => $columns) {
+            // Only columns that are actually still missing a default, so a
+            // re-run is a read and nothing else. A table that does not exist
+            // -- a plugin's, on an install that never had it -- returns
+            // nothing and is skipped rather than erroring.
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table "
+                . "AND `IS_NULLABLE` = 'NO' "
+                . "AND `COLUMN_DEFAULT` IS NULL "
+                . "AND `EXTRA` NOT LIKE '%auto_increment%'",
+                [],
+                [':table' => strtolower($table)]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            $want = array_map('strtolower', $columns);
+            foreach ((array) $rows as $row) {
+                if (!isset($row['c'], $row['ty'])
+                    || !in_array(strtolower($row['c']), $want, true)
+                ) {
+                    continue;
+                }
+                $type = trim($row['ty']);
+                $lob = (bool) preg_match(
+                    '/^(tiny|medium|long)?(text|blob)\b/i',
+                    $type
+                );
+                if ($lob && !$lobDefaults) {
+                    // Nothing sensible to do on MySQL below 8.0.13, and
+                    // nothing broken by skipping: insertBatch() backfills
+                    // the column and save() writes it explicitly.
+                    continue;
+                }
+                if (preg_match('/^datetime\b/i', $type)) {
+                    $default = 'current_timestamp()';
+                } elseif (preg_match(
+                    '/^(tiny|small|medium|big)?int\b/i',
+                    $type
+                )) {
+                    $default = '0';
+                } elseif (preg_match(
+                    "/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i",
+                    $type,
+                    $member
+                )) {
+                    $default = "'" . $member[2] . "'";
+                } elseif ($lob) {
+                    $default = $maria ? "''" : "('')";
+                } else {
+                    $default = "''";
+                }
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` %s NOT NULL '
+                        . 'DEFAULT %s',
+                        $table,
+                        $row['c'],
+                        $type,
+                        $default
+                    )
+                );
+            }
+        }
+
+        return true;
+    },
+];
+
+// 349
+$this->schema[] = [
+    // ADR 0020 phase 2, userTracking half: add the frame columns, write
+    // nothing to them.
+    //
+    // `userTracking` records a login or logout on a host. Three of the six
+    // frame keys have no column at all today, so a row cannot say who in FOG
+    // is responsible, where it arrived from, or which host it was about once
+    // that host is deleted.
+    //
+    // utCreatedBy -- the FOG identity, matching taskLog.createdBy's width.
+    // This is NOT utUserName. utUserName is the endpoint's OS account, which
+    // is the subject of the event, not its actor; ADR 0020 decision 3 calls
+    // that the load-bearing correction and the reason to add a column rather
+    // than reinterpret the one that is there. save() auto-fills createdBy
+    // once the model maps it, which is phase 3, not this step.
+    //
+    // utIP -- the origin address. The estate has two widths for this frame
+    // key, taskLog.ip varchar(15) and history.hIP varchar(50). Taking the
+    // wider one deliberately: 15 characters cannot hold an IPv6 address, and
+    // a new column has no reason to inherit that.
+    //
+    // utHostName -- the denormalized subject label. varchar(16) matches
+    // hosts.hostName, which is capped at the NetBIOS limit and cannot
+    // outgrow this copy. Same shape and same reason as logHostName in step
+    // 341: Route::deletemass('host') removes the host, and a login history
+    // that survives with a dangling id and no name is not a history.
+    //
+    // Every column is nullable or DEFAULT '', nothing writes to them, and no
+    // reader knows they exist. An install that stops here behaves exactly as
+    // it did before -- this is the reversible half of the ADR's DDL.
+    //
+    // A closure rather than a bare ALTER for the same reason steps 336, 338
+    // and 341 are: ADD COLUMN has no IF NOT EXISTS below MariaDB 10.0.2 /
+    // MySQL 8.0.29, so a re-run has to converge on its own rather than
+    // error. Every column is named in the probe, because steps 336 and 338
+    // broke the installer's grant check by not naming them (GH-336, GH-338).
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'userTracking' "
+            . "AND `COLUMN_NAME` IN ('utCreatedBy','utIP','utHostName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('utCreatedBy', $cols)) {
+            $adds[] = "ADD `utCreatedBy` VARCHAR(30) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('utIP', $cols)) {
+            $adds[] = "ADD `utIP` VARCHAR(50) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('utHostName', $cols)) {
+            $adds[] = "ADD `utHostName` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `userTracking` " . implode(', ', $adds)
+            );
+        }
+
+        return true;
+    },
+];
+
+// 350
+$this->schema[] = [
+    // ADR 0020 phase 2, history half: give `history` a subject and a type,
+    // write nothing to them.
+    //
+    // `history` is the outlier of the three event tables, and its defect is
+    // structural rather than cosmetic: it has no subject at all. The entity a
+    // row is about exists only inside hText, which is assembled from gettext
+    // calls at write time -- so the record of what happened is stored in
+    // whatever language the server was set to when it happened, and nothing
+    // can query it.
+    //
+    // hType -- what kind of event, as a stable machine code, matching
+    // taskLog.logType's width. DEFAULT '' is deliberate and is the whole
+    // rollout: an empty hType marks a row written before this ADR, and that
+    // is exactly what phase 4's readers key their prose fallback on. Step 338
+    // gave logType a DEFAULT of 'state', which reads as though a real value
+    // was recorded when none was, and step 340 had to repair it. Do not give
+    // this column a plausible-looking default.
+    //
+    // hSubjectType -- the subject's class name. `history` needs this and
+    // taskLog/userTracking do not: they are always about a Host and can say
+    // so as a constant, while `history` is about anything (ADR 0020
+    // decision 2).
+    //
+    // hSubjectID -- the subject's id, nullable. FOGController::save() omits
+    // an unset OPTIONAL column whose friendly key ends in "id", so it takes
+    // the DEFAULT; for every other key an unset value is written as '',
+    // never NULL. Declaring this one NULL DEFAULT NULL and the rest NOT NULL
+    // DEFAULT '' says what the ORM will really store, rather than describing
+    // a value the writer cannot produce. Same split, same reason, as step
+    // 341.
+    //
+    // hSubjectLabel -- the denormalized label, so the row still names its
+    // subject after the subject is deleted. varchar(200) because unlike
+    // taskLog and userTracking this table's subject is not always a host:
+    // it is sized to the widest name column a subject can have
+    // (snapins.sName varchar(200)), not to hosts.hostName varchar(16).
+    //
+    // Additive and inert, exactly as step 349. Dropping history's
+    // UNIQUE (hText, hTime) and widening hText belong to phase 5, a full
+    // release cycle after the readers switch, and are deliberately not here.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'history' "
+            . "AND `COLUMN_NAME` IN "
+            . "('hType','hSubjectType','hSubjectID','hSubjectLabel')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('hType', $cols)) {
+            $adds[] = "ADD `hType` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('hSubjectType', $cols)) {
+            $adds[] = "ADD `hSubjectType` VARCHAR(64) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('hSubjectID', $cols)) {
+            $adds[] = "ADD `hSubjectID` INT(11) NULL DEFAULT NULL";
+        }
+        if (!in_array('hSubjectLabel', $cols)) {
+            $adds[] = "ADD `hSubjectLabel` VARCHAR(200) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `history` " . implode(', ', $adds)
+            );
+        }
+
+        return true;
+    },
+];
+
+// 351
+$this->schema[] = [
+    // ADR 0022 decision 3: taskLog carries the image name, so imagingLog can
+    // go.
+    //
+    // The two logs have always recorded the same events. TaskQueue calls
+    // imageLog() and taskLog() in the same methods, on the same checkin and
+    // the same completion, behind the same $imagingTask guard
+    // (taskqueue.class.php:240/263 and :608/612), and nothing in
+    // packages/service writes either. imagingLog held exactly one fact
+    // taskLog did not: which image ran.
+    //
+    // Stored as a NAME rather than an id, for the reason schema 341 gave
+    // logHostName the same treatment. The only route from a taskLog row to
+    // its image is taskID -> tasks.taskImageID -> images.imageName, and both
+    // hops break: Route::deletemass('host') cascades to tasks, and images get
+    // deleted too. On the install this was written against, 9 of 56 taskLog
+    // rows already had no surviving task.
+    //
+    // varchar(40) matches images.imageName, which is the widest value this
+    // can ever copy. imagingLog's own ilImageName was varchar(64) -- wider
+    // than its source and so wider than it needed to be.
+    //
+    // Guarded closure, same as 336/338/341/349/350: ADD COLUMN has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and every column is
+    // named in the probe so the installer's grant check still passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN ('logImageName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('logImageName', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` "
+                . "ADD `logImageName` VARCHAR(40) NOT NULL DEFAULT ''"
+            );
+        }
+
+        return true;
+    },
+];
+
+// 352
+$this->schema[] = [
+    // ADR 0022 decision 3, second half: imagingLog is retired.
+    //
+    // Step 351 gave taskLog the one column that made this table distinct.
+    // Everything else it held, taskLog already had and in a more durable
+    // form -- host id AND denormalized host name (341), a real state column,
+    // createTime, createdBy, ip -- and nothing deletes taskLog rows, where
+    // imagingLog deleted its own unfinished rows on the next attempt.
+    //
+    // The rows are NOT migrated. Backfilling them into taskLog needs a task
+    // id imagingLog never stored; adding one purely to move rows out of a
+    // table being dropped is work for nothing. The cost, accepted
+    // deliberately: installs lose whatever imaging history they hold, and the
+    // dashboard's images-per-day chart reads empty for the window predating
+    // this step.
+    //
+    // The REST class goes with it and no shim replaces it. /api/imaginglog
+    // 404s from here. No 1.6 release has ever shipped, so there is no
+    // released API contract to break -- see ADR 0021's status. FogApi keeps
+    // its own hardcoded copy of the class list rather than reading
+    // system/openapi, so its copy needs syncing by hand.
+    Schema::dropTable('imagingLog'),
+];

@@ -1169,16 +1169,40 @@ class FOGConfigurationPage extends FOGPage
                     }
                 }
                 unset($val);
-                $items[] = [$id, $name, $set];
+                $items[] = [
+                    $id,
+                    $name,
+                    $set,
+                    trim((string) $Service->description),
+                    trim((string) $Service->category)
+                ];
                 unset($Service);
                 unset($val);
             }
             if (count($items) > 0) {
                 $SettingMan = new SettingManager();
+                /*
+                 * settingDesc and settingCategory are named even though this
+                 * saver never changes them, and the values are the ones just
+                 * read back. globalSettings declares both longtext NOT NULL
+                 * with no DEFAULT -- a longtext could not carry one on the
+                 * MySQL versions FOG supports -- so an INSERT that leaves
+                 * them out is error 1364 on a strict server, which is what
+                 * saving any setting became once GH-1245 stopped PDODB
+                 * clearing sql_mode.
+                 *
+                 * insertBatch() now backfills a column like this on its own,
+                 * so this is belt and braces rather than the fix. It is worth
+                 * having anyway: the backfill can only supply '', and if a
+                 * setting row is ever genuinely absent this writes the real
+                 * description and category instead of blanking them.
+                 */
                 $insert_fields = [
                     'id',
                     'name',
-                    'value'
+                    'value',
+                    'description',
+                    'category'
                 ];
                 if (!$SettingMan->insertBatch($insert_fields, $items)) {
                     $serverFault = true;
@@ -2280,15 +2304,39 @@ class FOGConfigurationPage extends FOGPage
                         );
                     }
                 }
-                $items[] = [$id, $name, $set];
+                $items[] = [
+                    $id,
+                    $name,
+                    $set,
+                    trim((string) $Setting->description),
+                    trim((string) $Setting->category)
+                ];
                 unset($Setting);
             }
             if (count($items) > 0) {
                 $SettingMan = self::getClass('SettingManager');
+                /*
+                 * settingDesc and settingCategory are named even though this
+                 * saver never changes them, and the values are the ones just
+                 * read back. globalSettings declares both longtext NOT NULL
+                 * with no DEFAULT -- a longtext could not carry one on the
+                 * MySQL versions FOG supports -- so an INSERT that leaves
+                 * them out is error 1364 on a strict server, which is what
+                 * saving any setting became once GH-1245 stopped PDODB
+                 * clearing sql_mode.
+                 *
+                 * insertBatch() now backfills a column like this on its own,
+                 * so this is belt and braces rather than the fix. It is worth
+                 * having anyway: the backfill can only supply '', and if a
+                 * setting row is ever genuinely absent this writes the real
+                 * description and category instead of blanking them.
+                 */
                 $insert_fields = [
                     'id',
                     'name',
-                    'value'
+                    'value',
+                    'description',
+                    'category'
                 ];
                 if (!$SettingMan->insertBatch($insert_fields, $items)) {
                     $serverFault = true;

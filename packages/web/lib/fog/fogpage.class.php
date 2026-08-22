@@ -515,10 +515,9 @@ abstract class FOGPage extends FOGBase
             ],
             // Beside Reports, because that is what people will look for it
             // under -- but a node of its own, not a report. The `report`
-            // permission node covers history, imaginglog and usertracking
-            // together, so one report.view grant reads every administrative
-            // action and every named person's login; the activity viewer
-            // gets its own gate precisely so it does not inherit that one.
+            // permission node covers history, so one report.view grant
+            // reads every administrative action; the activity viewer gets
+            // its own gate precisely so it does not inherit that one.
             // See docs/adr/0023.
             'activity' => [
                 _('Activity'),

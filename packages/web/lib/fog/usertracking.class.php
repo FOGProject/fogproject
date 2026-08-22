@@ -46,6 +46,78 @@ class UserTracking extends FOGController
         'anon3' => 'utAnon3'
     ];
     /**
+     * The grid list query, with the host joined in.
+     *
+     * Same reason as TaskLog's, which carries the full explanation: the
+     * group page's Login History tab groups by host, RowGroup needs the
+     * grouped column to be the primary sort, and sorting on `utHostID` puts
+     * the hosts in id order rather than alphabetically.
+     *
+     * This class has no denormalized host name to fall back on -- schema 349
+     * added `utHostName` for ADR 0020's six-part record shape, but nothing
+     * writes it yet -- so the join is the only source of the name here.
+     *
+     * LEFT OUTER so a row whose host has since been deleted is still listed.
+     *
+     * @var string
+     */
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `userTracking`.`utHostID` = `hosts`.`hostID`
+        %s
+        %s
+        %s";
+    /**
+     * The sql filter string, carrying the same join as the query.
+     *
+     * @var string
+     */
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `userTracking`.`utHostID` = `hosts`.`hostID`
+        %s";
+    /**
+     * The sql total string, carrying the same join as the query.
+     *
+     * @var string
+     */
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `userTracking`.`utHostID` = `hosts`.`hostID`";
+    /**
+     * The person signed out of the host.
+     *
+     * These three are every value `utAction` has ever held. The column is an
+     * int with no lookup table and no constraint, and the codes were written
+     * as bare literals in the two places that care -- the client endpoint's
+     * action map and the list formatter -- so nothing connected them and
+     * nothing said what 99 meant. ADR 0020 Decision 2 requires an event's
+     * `type` to be a stable machine code declared as class constants; this is
+     * that, for the one event table that had none.
+     *
+     * The values themselves cannot change: rows carrying them exist on every
+     * install and the fog-client posts the names that map to them.
+     *
+     * @var int
+     */
+    const ACTION_LOGOUT = 0;
+    /**
+     * The person signed in to the host.
+     *
+     * @var int
+     */
+    const ACTION_LOGIN = 1;
+    /**
+     * The fog-client service started on the host. Not a person at all, which
+     * is why the Login History tabs show it as its own kind of row.
+     *
+     * @var int
+     */
+    const ACTION_SERVICE_START = 99;
+    /**
      * DatabaseFieldsRequired
      *
      * @var array

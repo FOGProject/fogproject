@@ -292,7 +292,7 @@ abstract class FOGManagerController extends FOGBase
         // FOG_VIEW_DEFAULT_SCREEN. It used to mean no LIMIT at all, so the row
         // query fetched the entire table into PHP in one fetchAll(). That is
         // survivable on an entity grid -- hosts, images, snapins are counted in
-        // hundreds -- but userTracking, imagingLog and the other append-only
+        // hundreds -- but userTracking, taskLog and the other append-only
         // logs are not bounded by anything: a host's Login History tab on a
         // long-lived server asks for every login and logout ever recorded
         // against it. At around 100k rows that exhausts PHP's memory_limit
@@ -930,11 +930,51 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($key);
         }
+        /*
+         * GH-1245 again, on the other write path.
+         *
+         * A caller names the columns it has a value for, which is not the
+         * same set as the columns the server will accept an INSERT without.
+         * Under a strict sql_mode a NOT NULL column with no DEFAULT that the
+         * statement does not name is error 1364 and the whole batch is
+         * rejected; without one the server invents a zero value and says
+         * nothing. PDODB cleared sql_mode until GH-1245, so every such call
+         * site had been relying on the second behaviour without knowing it --
+         * saving FOG settings omits settingDesc and settingCategory, and
+         * tasking a group's snapins omits stReturnCode and stReturnDetails.
+         *
+         * So write the coercion down instead of relying on it, exactly as
+         * FOGController::save() now does for a single row. The values come
+         * from the same emptyValueFor(), which is why it moved to FOGBase.
+         *
+         * They are deliberately NOT added to the ON DUPLICATE KEY UPDATE
+         * list: this fills a column the caller had nothing to say about, so
+         * on a row that already exists the stored value must stand. Filling
+         * settingDesc into the update list would blank the description of
+         * every setting on the page the moment anyone pressed save.
+         */
+        $fillKeys = [];
+        $fillVals = [];
+        foreach ((array) self::columnsRequiringValue(
+            $table ?: $this->databaseTable
+        ) as $column => $type) {
+            if (in_array(strtolower($column), array_map('strtolower', $keys), true)) {
+                continue;
+            }
+            $bind = sprintf('_fill_%d', count($fillKeys));
+            $keys[] = $column;
+            $fillKeys[] = sprintf(':%s', $bind);
+            $fillVals[$bind] = self::emptyValueFor(
+                $table ?: $this->databaseTable,
+                $column
+            );
+        }
         $affectedRows = 0;
         $vals = [];
-        $insertVals = [];
+        $insertVals = $fillVals;
         $values = array_chunk($values, 500);
         foreach ((array) $values as $ind => &$v) {
+            $insertVals = $fillVals;
             foreach ((array) $v as $index => &$value) {
                 $insertKeys = [];
                 foreach ((array) $value as $i => &$val) {
@@ -951,7 +991,10 @@ abstract class FOGManagerController extends FOGBase
                     $insertVals[$key] = $val;
                     unset($val);
                 }
-                $vals[] = sprintf('(%s)', implode(',', (array) $insertKeys));
+                $vals[] = sprintf(
+                    '(%s)',
+                    implode(',', array_merge((array) $insertKeys, $fillKeys))
+                );
                 unset($value);
             }
             if (count($vals ?: []) < 1) {
@@ -1477,6 +1520,118 @@ abstract class FOGManagerController extends FOGBase
         }
 
         return (int)$total;
+    }
+    /**
+     * Builds the CREATE TABLE for this manager's table, with a default on
+     * every column that is optional.
+     *
+     * GH-1245. Schema::createTable() emits `NOT NULL` with no DEFAULT for
+     * almost everything a caller does not spell out, which is the same defect
+     * schema step 348 repairs on an existing install -- except that the step
+     * can only repair a table that is already there. A plugin's createSql()
+     * runs as step 0 of its own schema(), so a plugin installed AFTER the
+     * migration gets a table built the old way: every optional column
+     * mandatory, and under the server's own sql_mode any INSERT omitting one
+     * fails with error 1364.
+     *
+     * WHICH COLUMNS KEEP THEIR TEETH. Not a judgement call, and not a list
+     * kept by hand -- FOG already states it, and this class already holds the
+     * statement: $databaseFieldsRequired, resolved up the model's inheritance
+     * chain by the constructor. Three kinds of column are left bare:
+     *
+     *   - the primary key and the auto-increment column;
+     *   - anything the model declares required;
+     *   - anything whose name ends in ID, because an INSERT that forgets the
+     *     row it hangs off should fail rather than make a silent orphan.
+     *     Deliberately not gated on an integer type: a foreign key stored as
+     *     text is no less a foreign key.
+     *
+     * That is deliberately the SAME rule schema step 348 applies, so a table
+     * a plugin creates and a table the step migrated say the same thing. Two
+     * installs of the same FOG should not have two different schemas.
+     *
+     * A default the caller passed explicitly always wins; this only fills in
+     * where there was nothing.
+     *
+     * The signature mirrors Schema::createTable() exactly so a call site
+     * changes by one token.
+     *
+     * @param string $name    What are we calling the table?
+     * @param bool   $exists  If not exists?
+     * @param array  $fields  The fields and names.
+     * @param array  $types   The types for the fields.
+     * @param array  $nulls   Which fields to have null or not.
+     * @param array  $default Default values for field(s).
+     * @param array  $unique  The unique fields.
+     * @param string $engine  The db engine for the table.
+     * @param string $charset The charset to use for the table.
+     * @param string $prime   The primary field, if one.
+     * @param string $autoin  The auto increment field.
+     *
+     * @return string
+     */
+    public function createTableSql(
+        $name,
+        $exists,
+        $fields,
+        $types,
+        $nulls,
+        $default,
+        $unique,
+        $engine = 'InnoDB',
+        $charset = 'utf8',
+        $prime = '',
+        $autoin = ''
+    ) {
+        $keep = [];
+        foreach ((array)$this->databaseFieldsRequired as $friendly) {
+            if (isset($this->databaseFields[$friendly])) {
+                $keep[strtolower($this->databaseFields[$friendly])] = true;
+            }
+        }
+        if ($prime) {
+            $keep[strtolower($prime)] = true;
+        }
+        if ($autoin) {
+            $keep[strtolower($autoin)] = true;
+        }
+        foreach ((array)$fields as $i => $field) {
+            $notNull = isset($nulls[$i]) && $nulls[$i] === false;
+            $hasDefault = isset($default[$i])
+                && false !== $default[$i]
+                && null !== $default[$i]
+                && '' !== $default[$i];
+            if (!$notNull
+                || $hasDefault
+                || isset($keep[strtolower($field)])
+                || preg_match('/ID$/', $field)
+            ) {
+                continue;
+            }
+            $fill = Schema::emptyDefaultFor($types[$i]);
+            if (null === $fill) {
+                // A TEXT or BLOB column on a server too old to carry a
+                // default for one. Nothing to do and nothing broken by
+                // leaving it: save() writes the column explicitly and
+                // insertBatch() backfills it.
+                continue;
+            }
+            $default[$i] = $fill;
+        }
+
+        return Schema::createTable(
+            $name,
+            $exists,
+            $fields,
+            $types,
+            $nulls,
+            $default,
+            $unique,
+            $engine,
+            $charset,
+            $prime,
+            $autoin
+        );
     }
     /**
      * Uninstalls the table.

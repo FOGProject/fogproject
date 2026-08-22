@@ -2365,11 +2365,10 @@ class GroupManagement extends FOGPage
             [
                 _('Host Name'),
                 _('Engineer'),
-                _('Start'),
-                _('End'),
-                _('Duration'),
-                _('Image'),
-                _('Type')
+                _('Time'),
+                _('State'),
+                _('Task Type'),
+                _('Image')
             ],
             [
                 [],
@@ -2377,10 +2376,9 @@ class GroupManagement extends FOGPage
                 [],
                 [],
                 [],
-                [],
                 []
             ],
-            _('Group Image History'),
+            _('Group Task History'),
             'group-image-history-table'
         );
     }
@@ -2547,7 +2545,11 @@ class GroupManagement extends FOGPage
                 'name' => _('History Items'),
                 'tabData' => array_merge($historyTabs, [
                     [
-                        'name' => _('Imaging History'),
+                        // Reads taskLog since imagingLog was retired, so it
+                        // is every task's states, not only imaging runs
+                        // (ADR 0022 decision 3). The card inside says the
+                        // same thing.
+                        'name' => _('Task History'),
                         'id' => 'group-imaging-history',
                         'generator' => function () {
                             $this->groupImageHistory();
@@ -3607,7 +3609,9 @@ class GroupManagement extends FOGPage
      */
     public function getImageHist()
     {
-        $this->renderHistoryData($this->obj->get('hosts'), 'imaginglog');
+        // taskLog since imagingLog was retired -- see the host page's
+        // equivalent and ADR 0022 decision 3.
+        $this->renderHistoryData($this->obj->get('hosts'), 'tasklog');
     }
     /**
      * Gets the snapin history for hosts in this group.

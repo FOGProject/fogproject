@@ -2,7 +2,37 @@
 
 ## Status
 
-proposed
+accepted -- phases 0, 1 and 2 of the Migration section are implemented on
+`working-1.6`
+
+Phases 0 and 1 are the ones the ADR marks as worth doing whatever happens to
+the rest, and neither touches the database or changes behaviour: phase 0 was two
+live defects found while writing this (`UserTrack::json()` setting a key no
+model declares, and the list formatter falling out of its switch into a blank
+cell), and phase 1 writes the convention down -- the six frame keys are
+documented on `FOGController` beside `createdBy`/`createdTime`, and
+`userTracking`'s three `utAction` codes are class constants that its two
+readers now share instead of each spelling the same literals.
+
+Phase 2 is schema steps 349 (`userTracking`: `utCreatedBy`, `utIP`,
+`utHostName`) and 350 (`history`: `hType`, `hSubjectType`, `hSubjectID`,
+`hSubjectLabel`), one step per table, each a guarded closure in the style of
+steps 336/338/341. The columns exist and nothing writes to them: no model maps
+them, so a row saved through the ORM leaves every one at its default. That was
+tested rather than assumed, against a copy of a real database -- 2,256
+`history` rows and the full `userTracking` table survived the ALTER, a re-run
+of both steps was a no-op, and a write through each model left all seven
+columns untouched.
+
+Phases 3 to 5 -- writers, then readers, then the backfill and the index drop
+-- are **not** started. Phase 4 is what gates ADR 0023's item 5.
+
+One coverage note worth keeping visible: `tests/schema-executes.test.php`
+deliberately skips closure steps, so CI's schema replay does **not** exercise
+349 or 350. Real installs do run them; only the harness does not. The
+end-state guarantee for those two steps therefore rests on
+`commons/schema-expected.php` -- amended by hand here, and confirmed column by
+column against a database that had actually run them.
 
 ## Context
 

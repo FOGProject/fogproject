@@ -404,7 +404,6 @@ class Route extends FOGBase
         'imageassociation',
         'imagepartitiontype',
         'imagetype',
-        'imaginglog',
         'inventory',
         'ipxe',
         'keysequence',
@@ -2167,7 +2166,8 @@ class Route extends FOGBase
                                 . '">'
                                 . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
                                 . '</a>';
-                        }
+                        },
+                        self::_hostNameOrder($classname)
                     );
                     break;
                 case 'image':
@@ -2184,17 +2184,13 @@ class Route extends FOGBase
                             if (!$d) {
                                 return self::EMPTY_CELL;
                             }
-                            switch ($classname) {
-                                case 'imaginglog':
-                                    $image = self::getClass('Image')
-                                        ->set('name', $d)
-                                        ->load('name');
-                                    $imageName = $d;
-                                    break;
-                                default:
-                                    $image = self::rel('Image', $d);
-                                    $imageName = $image->get('name');
-                            }
+                            // imaginglog stored the image NAME in this
+                            // column and needed a lookup by name; it is gone
+                            // (ADR 0022), and every remaining class stores an
+                            // id. taskLog's own image name is a separate key
+                            // and does not come through here.
+                            $image = self::rel('Image', $d);
+                            $imageName = $image->get('name');
                             if ($image->isValid()) {
                                 return '<a href="../management/index.php?node=image&'
                                     . 'sub=edit&id='
@@ -2568,6 +2564,10 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => 'stJobID',
                     'dt' => 'hostLink',
+                    // Sorted by host name, not by stJobID: the group page's
+                    // Snapin History tab groups on this column, so the sort
+                    // key decides the order the hosts appear in.
+                    'order' => self::_hostNameOrder($classname),
                     'formatter' => function ($d, $row) use ($snapinTaskHost) {
                         $tmphost = $snapinTaskHost($d);
                         if (!$tmphost) {
@@ -2639,19 +2639,26 @@ class Route extends FOGBase
                     }
                 ];
                 break;
-            case 'imaginglog':
+            case 'tasklog':
+                // The host and group imaging-history tabs read this class
+                // since imagingLog was retired (ADR 0022 decision 3), and a
+                // raw taskStateID is not something to put on a page.
+                //
+                // Resolved per id and memoized, the $storageGroups pattern
+                // below: a row's state is one of a handful of values, so the
+                // whole grid costs at most that many lookups.
+                $taskStates = [];
                 $columns[] = [
-                    'db' => 'ilStartTime',
-                    'dt' => 'diff',
-                    'formatter' => function ($d, $row) {
-                        $start = $d;
-                        $end = $row['ilFinishTime'];
-                        return self::diff($start, $end);
+                    'db' => 'taskStateID',
+                    'dt' => 'statename',
+                    'formatter' => function ($d) use (&$taskStates) {
+                        $id = (int)$d;
+                        if (!isset($taskStates[$id])) {
+                            $taskStates[$id] = self::getClass('TaskState', $id)
+                                ->get('name');
+                        }
+                        return $taskStates[$id] ?: self::EMPTY_CELL;
                     }
-                ];
-                $columns[] = [
-                    'db' => 'hostName',
-                    'dt' => 'hostname',
                 ];
                 break;
             case 'storagegroup':
@@ -2774,22 +2781,22 @@ class Route extends FOGBase
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
                         switch ((string) $d) {
-                            case '0':
+                            case (string) UserTracking::ACTION_LOGOUT:
                                 return _('Logout');
-                            case '1':
+                            case (string) UserTracking::ACTION_LOGIN:
                                 return _('Login');
-                            case '99':
+                            case (string) UserTracking::ACTION_SERVICE_START:
                                 return _('Service Start');
                         }
                         // A code this does not know renders as itself, not as
-                        // an empty cell. utAction has no lookup table and no
-                        // constants -- its three values are these literals and
-                        // nothing constrains the column to them, so an
-                        // unrecognised one is a real possibility (a plugin
-                        // writing its own, or the '' that save() wrote into
-                        // every unset column before GH-1245). Falling out of
-                        // the switch returned null, so the row still listed
-                        // with a blank Action and nothing said why.
+                        // an empty cell. utAction has no lookup table and
+                        // nothing constrains the column to the three codes
+                        // UserTracking declares, so an unrecognised one is a
+                        // real possibility (a plugin writing its own, or the
+                        // '' that save() wrote into every unset column before
+                        // GH-1245). Falling out of the switch returned null,
+                        // so the row still listed with a blank Action and
+                        // nothing said why.
                         return '' === (string) $d
                             ? _('Unknown')
                             : \Initiator::e($d);
@@ -4421,24 +4428,6 @@ class Route extends FOGBase
                         ['hash' => md5($class->get('name'))]
                     );
                     break;
-                case 'imaginglog':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'host' => self::getter(
-                                'host',
-                                $class->get('host')
-                            ),
-                            'image' => (
-                                ($class->get('images') instanceof Image
-                                    && $class->get('images')->isValid())
-                                ? $class->get('images')->get()
-                                : $class->get('image')
-                            )
-                        ]
-                    );
-                    unset($data['images']);
-                    break;
                 case 'snapintask':
                     // Same trap as the snapin task LIST (see the snapintask
                     // case in the column setup above): a task whose job is
@@ -5406,12 +5395,22 @@ class Route extends FOGBase
      * @param string   $dt        The output name for the column.
      * @param string   $relclass  The class the ids refer to.
      * @param callable $formatter The per-row formatter.
+     * @param string   $order     Optional SQL to sort this column by, for
+     *                            the case where sorting by the id sorts by
+     *                            something the reader cannot see. Only ever
+     *                            set from code in this file; see
+     *                            FOGManagerController::orderRef().
      *
      * @return array The column definition.
      */
-    protected static function relColumn($real, $dt, $relclass, $formatter)
-    {
-        return [
+    protected static function relColumn(
+        $real,
+        $dt,
+        $relclass,
+        $formatter,
+        $order = null
+    ) {
+        $column = [
             'db' => $real,
             'dt' => $dt,
             'prime' => function ($rows) use ($real, $relclass) {
@@ -5422,6 +5421,54 @@ class Route extends FOGBase
             },
             'formatter' => $formatter
         ];
+        if (null !== $order) {
+            $column['order'] = $order;
+        }
+        return $column;
+    }
+    /**
+     * The SQL to sort a class's host column by host NAME rather than id.
+     *
+     * Only available to the classes whose model declares a join to `hosts`
+     * in its list query -- TaskLog, UserTracking and SnapinTask, which are
+     * the three the group page's history tabs list. Every other class using
+     * the generic hostID column keeps ordering by the raw id, because the
+     * name is not in its query and naming it would be an unknown column.
+     *
+     * Why it is a CONCAT rather than just the name: these grids group their
+     * rows by host, and RowGroup repeats a group header whenever a group's
+     * rows are not contiguous. Two hosts sharing a name would interleave on
+     * the name alone, so the id follows it as a tie-break. The separator is
+     * a space, which sorts below every alphanumeric, so "ab 9" still comes
+     * before "abc 1" -- the name remains the primary key of the sort.
+     *
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return string|null The ORDER BY expression, or null if unavailable.
+     */
+    private static function _hostNameOrder($classname)
+    {
+        switch ($classname) {
+            case 'tasklog':
+                $id = '`taskLog`.`logHostID`';
+                break;
+            case 'usertracking':
+                $id = '`userTracking`.`utHostID`';
+                break;
+            case 'snapintask':
+                // Reached through the job, so it is null when the job is gone.
+                $id = '`snapinJobs`.`sjHostID`';
+                break;
+            default:
+                return null;
+        }
+        // The id is COALESCEd too, and not for tidiness: CONCAT returns NULL
+        // if any argument is NULL, so a row with no host id -- taskLog wrote
+        // none on a state row before ADR 0022, and 53 such rows exist on the
+        // development server -- would get a NULL key. Those rows all render
+        // an empty host cell and belong in one group, which is what a shared
+        // non-NULL key gives them.
+        return "CONCAT(COALESCE(`hosts`.`hostName`, ''), ' ', COALESCE({$id}, 0))";
     }
     /**
      * Returns the matching ids directly as a PHP array.
@@ -5724,7 +5771,6 @@ class Route extends FOGBase
                     $findWhere = ['hostID' => $itemIDs];
                     $removeItems = [
                         'nodefailure' => $findWhere,
-                        'imaginglog' => $findWhere,
                         'snapintask' => $snapinjobIDs,
                         'snapinjob' => $findWhere,
                         'task' => $findWhere,

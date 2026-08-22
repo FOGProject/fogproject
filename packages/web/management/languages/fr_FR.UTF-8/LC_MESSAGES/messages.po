@@ -2211,12 +2211,6 @@ msgstr "Mise à jour de l'imprimante"
 msgid "Encryption Data Reset"
 msgstr ""
 
-msgid "End"
-msgstr "Fin"
-
-msgid "End Time"
-msgstr "Heure de fin"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2572,19 +2566,12 @@ msgstr "Impossible de mettre à jour la tâche"
 msgid "Failed to update host"
 msgstr "Impossible de mettre à jour"
 
-#, fuzzy
-msgid "Failed to update imaging log"
-msgstr "Impossible de mettre à jour / créer une image journal"
-
 msgid "Failed to update task"
 msgstr "Impossible de mettre à jour la tâche"
 
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Impossible de mettre à jour la tâche"
-
-msgid "Failed to update/create image log"
-msgstr "Impossible de mettre à jour / créer une image journal"
 
 msgid "Failed to update/create task log"
 msgstr "Impossible de mettre à jour / créer journal des tâches"
@@ -2957,10 +2944,6 @@ msgid "Group Image Association"
 msgstr "Association Image"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "Histoire de l'image"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "Export SnapIns"
 
@@ -3048,6 +3031,10 @@ msgstr "snapin Histoire"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "snapin Histoire"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "Histoire de l'image"
 
 #, fuzzy
 msgid "Group Update Fail"
@@ -3271,10 +3258,6 @@ msgid "Host Image"
 msgstr "image hôte"
 
 #, fuzzy
-msgid "Host Image History"
-msgstr "Histoire de l'image"
-
-#, fuzzy
 msgid "Host Init"
 msgstr "Liste des hôtes"
 
@@ -3359,6 +3342,10 @@ msgstr "Aucun noeud associé"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "snapin Histoire"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "Histoire de l'image"
 
 #, fuzzy
 msgid "Host Update Fail"
@@ -3750,10 +3737,6 @@ msgstr "Imaging Log"
 #, fuzzy
 msgid "Imaging Failed"
 msgstr "Échec du chargement: %s"
-
-#, fuzzy
-msgid "Imaging History"
-msgstr "Hôte Histoire Imaging"
 
 msgid "Imaging Log"
 msgstr "Imaging Log"
@@ -6387,6 +6370,10 @@ msgstr "Rapports"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "mise à jour de l'utilisateur a échoué"
+
 msgid "Required database field is empty"
 msgstr "champ de base de données requis est vide"
 
@@ -7263,9 +7250,6 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
-msgid "Start"
-msgstr "Démarrer"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "Échec du téléchargement"
@@ -7707,6 +7691,10 @@ msgstr "utilisateur créé"
 #, fuzzy
 msgid "Task Cancel Success"
 msgstr "utilisateur créé"
+
+#, fuzzy
+msgid "Task History"
+msgstr "Histoire de l'image"
 
 #, fuzzy
 msgid "Task ID"
@@ -10241,6 +10229,12 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pas de hachage disponible"
 
+#~ msgid "End"
+#~ msgstr "Fin"
+
+#~ msgid "End Time"
+#~ msgstr "Heure de fin"
+
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Les hôtes à l'exportation"
@@ -10294,6 +10288,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "Échec de la création Session"
+
+#, fuzzy
+#~ msgid "Failed to update imaging log"
+#~ msgstr "Impossible de mettre à jour / créer une image journal"
+
+#~ msgid "Failed to update/create image log"
+#~ msgstr "Impossible de mettre à jour / créer une image journal"
 
 #, fuzzy
 #~ msgid "Files do not match on server"
@@ -10398,6 +10399,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "mis à jour l'utilisateur"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Hôte Histoire Imaging"
 
 #, fuzzy
 #~ msgid "Import Host Exts"
@@ -10580,6 +10585,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "snapin fichier"
+
+#~ msgid "Start"
+#~ msgstr "Démarrer"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

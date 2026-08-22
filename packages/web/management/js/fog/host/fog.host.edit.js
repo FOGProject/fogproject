@@ -1236,13 +1236,15 @@
     // ---------------------------------------------------------------
     // IMAGE HISTORY TAB
     var hostHistoryImageTable = $('#host-image-history-table').registerTable(null, {
+        // taskLog since imagingLog was retired (ADR 0022 decision 3).
+        // statename is added by Route's tasklog column case; the rest are
+        // the model's own keys.
         columns: [
             {data: 'createdBy'},
-            {data: 'start'},
-            {data: 'finish'},
-            {data: 'diff'},
-            {data: 'imageLink'},
-            {data: 'type'}
+            {data: 'createdTime'},
+            {data: 'statename'},
+            {data: 'taskTypeName'},
+            {data: 'imageName'}
         ],
         order: [
             [1, 'desc']

@@ -2209,12 +2209,6 @@ msgstr "Update Printer"
 msgid "Encryption Data Reset"
 msgstr ""
 
-msgid "End"
-msgstr "End"
-
-msgid "End Time"
-msgstr "End Time"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2570,19 +2564,12 @@ msgstr "Failed to update Task"
 msgid "Failed to update host"
 msgstr "Failed to update"
 
-#, fuzzy
-msgid "Failed to update imaging log"
-msgstr "Failed to update/create image log"
-
 msgid "Failed to update task"
 msgstr "Failed to update task"
 
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Failed to update task"
-
-msgid "Failed to update/create image log"
-msgstr "Failed to update/create image log"
 
 msgid "Failed to update/create task log"
 msgstr "Failed to update/create task log"
@@ -2955,10 +2942,6 @@ msgid "Group Image Association"
 msgstr "Image Association"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "Image History"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "Export Snapins"
 
@@ -3046,6 +3029,10 @@ msgstr "Snapin History"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "Snapin History"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "Image History"
 
 #, fuzzy
 msgid "Group Update Fail"
@@ -3269,10 +3256,6 @@ msgid "Host Image"
 msgstr "Host Image"
 
 #, fuzzy
-msgid "Host Image History"
-msgstr "Image History"
-
-#, fuzzy
 msgid "Host Init"
 msgstr "Host List"
 
@@ -3357,6 +3340,10 @@ msgstr "No node associated"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Snapin History"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "Image History"
 
 #, fuzzy
 msgid "Host Update Fail"
@@ -3748,10 +3735,6 @@ msgstr "Imaging Log"
 #, fuzzy
 msgid "Imaging Failed"
 msgstr "Load failed: %s"
-
-#, fuzzy
-msgid "Imaging History"
-msgstr "Host Imaging History"
 
 msgid "Imaging Log"
 msgstr "Imaging Log"
@@ -6385,6 +6368,10 @@ msgstr "Reports"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "User update failed"
+
 msgid "Required database field is empty"
 msgstr "Required database field is empty"
 
@@ -7261,9 +7248,6 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
-msgid "Start"
-msgstr "Start"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "Download Failed"
@@ -7705,6 +7689,10 @@ msgstr "User created"
 #, fuzzy
 msgid "Task Cancel Success"
 msgstr "User created"
+
+#, fuzzy
+msgid "Task History"
+msgstr "Image History"
 
 #, fuzzy
 msgid "Task ID"
@@ -10239,6 +10227,12 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "No hash available"
 
+#~ msgid "End"
+#~ msgstr "End"
+
+#~ msgid "End Time"
+#~ msgstr "End Time"
+
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Export Hosts"
@@ -10292,6 +10286,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "Failed to create Session"
+
+#, fuzzy
+#~ msgid "Failed to update imaging log"
+#~ msgstr "Failed to update/create image log"
+
+#~ msgid "Failed to update/create image log"
+#~ msgstr "Failed to update/create image log"
 
 #, fuzzy
 #~ msgid "Files do not match on server"
@@ -10392,6 +10393,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "User updated"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Host Imaging History"
 
 #, fuzzy
 #~ msgid "Import Host Exts"
@@ -10574,6 +10579,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "Snapin File"
+
+#~ msgid "Start"
+#~ msgstr "Start"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

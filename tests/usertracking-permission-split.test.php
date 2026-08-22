@@ -221,6 +221,88 @@ foreach ($tabPages as $page => $tabId) {
     );
 }
 
+/*
+ * ADR 0020 phase 1: `utAction`'s codes are class constants, and the two
+ * places that care read them from there.
+ *
+ * The column is an int with no lookup table and no constraint, so the only
+ * thing tying the client endpoint's action map to the list formatter is that
+ * both happened to spell the same three literals. That is not a link -- a
+ * fourth code added on one side and not the other produces rows the grid
+ * renders as a bare number, which is exactly the failure the default arm in
+ * the formatter was added to make visible. The constants ARE the link, so
+ * they only stay one if nothing goes back to a literal.
+ */
+$model = (string) file_get_contents(
+    "$root/packages/web/lib/fog/usertracking.class.php"
+);
+$consts = [
+    'ACTION_LOGOUT' => '0',
+    'ACTION_LOGIN' => '1',
+    'ACTION_SERVICE_START' => '99'
+];
+foreach ($consts as $name => $value) {
+    check(
+        "UserTracking declares $name = $value",
+        1 === preg_match(
+            '/const\s+' . $name . '\s*=\s*' . $value . '\s*;/',
+            $model
+        ),
+        $failures,
+        $checks
+    );
+}
+
+$client = (string) file_get_contents(
+    "$root/packages/web/lib/client/usertrack.class.php"
+);
+preg_match('/\$actions\s*=\s*\[(.*?)\]/s', $client, $m);
+$map = isset($m[1]) ? $m[1] : '';
+check(
+    'the client endpoint maps its action names through the constants',
+    '' !== $map
+    && false !== strpos($map, 'UserTracking::ACTION_LOGIN')
+    && false !== strpos($map, 'UserTracking::ACTION_SERVICE_START')
+    && false !== strpos($map, 'UserTracking::ACTION_LOGOUT'),
+    $failures,
+    $checks
+);
+check(
+    'and holds no bare action literal of its own',
+    '' !== $map && 0 === preg_match('/=>\s*\d+/', $map),
+    $failures,
+    $checks
+);
+
+$route = (string) file_get_contents(
+    "$root/packages/web/lib/router/route.class.php"
+);
+preg_match(
+    "/'db'\s*=>\s*'utAction'.*?\n(\s*)\];/s",
+    $route,
+    $m
+);
+$fmt = isset($m[0]) ? $m[0] : '';
+check(
+    "the list formatter's switch reads the same constants",
+    '' !== $fmt
+    && 3 === preg_match_all('/UserTracking::ACTION_/', $fmt),
+    $failures,
+    $checks
+);
+check(
+    'and no longer compares against quoted literals',
+    '' !== $fmt && 0 === preg_match("/case\s*'\d+'\s*:/", $fmt),
+    $failures,
+    $checks
+);
+check(
+    'while keeping the default arm that renders an unknown code',
+    '' !== $fmt && false !== strpos($fmt, "_('Unknown')"),
+    $failures,
+    $checks
+);
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {

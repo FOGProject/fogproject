@@ -2210,12 +2210,6 @@ msgstr "Atualizar impressora"
 msgid "Encryption Data Reset"
 msgstr ""
 
-msgid "End"
-msgstr "Fim"
-
-msgid "End Time"
-msgstr "Fim do tempo"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2571,19 +2565,12 @@ msgstr "Falha ao atualizar Task"
 msgid "Failed to update host"
 msgstr "Falha ao atualizar"
 
-#, fuzzy
-msgid "Failed to update imaging log"
-msgstr "Falha ao atualizar / criar o registo de imagem"
-
 msgid "Failed to update task"
 msgstr "Falha ao atualizar tarefa"
 
 #, fuzzy
 msgid "Failed to update task log"
 msgstr "Falha ao atualizar tarefa"
-
-msgid "Failed to update/create image log"
-msgstr "Falha ao atualizar / criar o registo de imagem"
 
 msgid "Failed to update/create task log"
 msgstr "Falha ao atualizar / criar log tarefa"
@@ -2956,10 +2943,6 @@ msgid "Group Image Association"
 msgstr "Associação imagem"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "História imagem"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "exportação Snapins"
 
@@ -3047,6 +3030,10 @@ msgstr "História Snapin"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "História Snapin"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "História imagem"
 
 #, fuzzy
 msgid "Group Update Fail"
@@ -3270,10 +3257,6 @@ msgid "Host Image"
 msgstr "Image Host"
 
 #, fuzzy
-msgid "Host Image History"
-msgstr "História imagem"
-
-#, fuzzy
 msgid "Host Init"
 msgstr "Lista de Host"
 
@@ -3358,6 +3341,10 @@ msgstr "No nó associado"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "História Snapin"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "História imagem"
 
 #, fuzzy
 msgid "Host Update Fail"
@@ -3749,10 +3736,6 @@ msgstr "imagiologia Log"
 #, fuzzy
 msgid "Imaging Failed"
 msgstr "Carga falhou: %s"
-
-#, fuzzy
-msgid "Imaging History"
-msgstr "Hospedar História Imagiologia"
 
 msgid "Imaging Log"
 msgstr "imagiologia Log"
@@ -6386,6 +6369,10 @@ msgstr "Relatórios"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "atualização do utilizador falhou"
+
 msgid "Required database field is empty"
 msgstr "campo de banco de dados necessário está vazio"
 
@@ -7262,9 +7249,6 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
-msgid "Start"
-msgstr "Começar"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "Falha no download"
@@ -7706,6 +7690,10 @@ msgstr "usuário criado"
 #, fuzzy
 msgid "Task Cancel Success"
 msgstr "usuário criado"
+
+#, fuzzy
+msgid "Task History"
+msgstr "História imagem"
 
 #, fuzzy
 msgid "Task ID"
@@ -10240,6 +10228,12 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Nenhum de hash disponíveis"
 
+#~ msgid "End"
+#~ msgstr "Fim"
+
+#~ msgid "End Time"
+#~ msgstr "Fim do tempo"
+
 #, fuzzy
 #~ msgid "Export Host Exts"
 #~ msgstr "Hosts de exportação"
@@ -10293,6 +10287,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Failed to refresh check-in time"
 #~ msgstr "Falha ao criar sessão"
+
+#, fuzzy
+#~ msgid "Failed to update imaging log"
+#~ msgstr "Falha ao atualizar / criar o registo de imagem"
+
+#~ msgid "Failed to update/create image log"
+#~ msgstr "Falha ao atualizar / criar o registo de imagem"
 
 #, fuzzy
 #~ msgid "Files do not match on server"
@@ -10397,6 +10398,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "usuário atualizada"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Hospedar História Imagiologia"
 
 #, fuzzy
 #~ msgid "Import Host Exts"
@@ -10579,6 +10584,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "Arquivo Snapin"
+
+#~ msgid "Start"
+#~ msgstr "Começar"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"
