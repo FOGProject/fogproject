@@ -90,17 +90,25 @@ class HostManagement extends FOGPage
             true,
             'efiBootTypeExit'
         );
+        // Every header carries the DataTables `data` key of the column
+        // behind it. fog.host.list.js builds its column list from these
+        // rather than hardcoding one, because Ping Status below is
+        // conditional on FOG_HOST_LOOKUP: with that setting off the table
+        // had one fewer <th> than the JS had columns, and DataTables raises
+        // "Incorrect column count" and never draws the grid. Deriving the
+        // list from the header row means a conditional column takes its
+        // entry with it and the two cannot fall out of step.
         $this->headerData = [
             _('Host'),
             _('Primary MAC')
         ];
         $this->attributes = [
-            [],
-            []
+            ['data-col' => 'mainlink'],
+            ['data-col' => 'primac']
         ];
         if (self::$fogpingactive) {
             $this->headerData[] = _('Ping Status');
-            $this->attributes[] = [];
+            $this->attributes[] = ['data-col' => 'pingstatus'];
         }
         array_push(
             $this->headerData,
@@ -118,11 +126,11 @@ class HostManagement extends FOGPage
         );
         array_push(
             $this->attributes,
-            [],
-            [],
-            [],
-            [],
-            []
+            ['data-col' => 'lastping'],
+            ['data-col' => 'lastcheckin'],
+            ['data-col' => 'deployed'],
+            ['data-col' => 'imageLink'],
+            ['data-col' => 'description']
         );
     }
     /**

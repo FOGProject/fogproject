@@ -111,54 +111,84 @@
         });
     }
 
-    var table = $('#dataTable').registerTable(onSelect, {
-        order: [
-            [0, 'asc']
-        ],
-        columns: [
-            {data: 'mainlink'},
-            {data: 'primac'},
-            {data: 'pingstatus'},
-            // The two halves of "last seen": lastping is the ping service
-            // reaching the machine, lastcheckin is the FOG client reaching
-            // us. Both arrive already formatted (or as an em dash for
-            // never), so neither needs a render here.
-            {data: 'lastping'},
-            {data: 'lastcheckin'},
-            {data: 'deployed'},
-            {data: 'imageLink'},
-            {data: 'description'}
-        ],
-        rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                targets: 0
-            },
-            {
-                responsivePriority: 0,
-                render: function (data, type, row) {
-                    if (type !== 'display') {
-                        return data;
-                    }
-                    return (data || '') + macVendorIcon(row.primac_vendor);
-                },
-                targets: 1
-            },
-            {
-                render: function (data, type, row) {
-                    // GH-1245: "never deployed" is NULL from schema step 344
-                    // on, and was the zero date before it. Both spellings
-                    // reach here on an upgraded server until the rows are
-                    // rewritten, so both have to blank the cell.
-                    if (!data || String(data).indexOf('0000-00-00') === 0) {
-                        return '';
-                    }
-                    return data;
-                },
-                targets: 5
+    // Build the column list from the header row instead of hardcoding it.
+    //
+    // The Ping Status header is conditional on FOG_HOST_LOOKUP server-side
+    // (HostManagement::index()), so a fixed list here had one more column
+    // than the table had <th> whenever that setting was off. DataTables
+    // compares the two and raises "Incorrect column count", which kills the
+    // whole grid rather than one cell -- and nothing on the page says why.
+    // Each <th> carries its data key in data-col, so the two now cannot
+    // drift, and any column added or gated server-side needs no change here.
+    //
+    // colIndex maps a key to its position, because columnDefs addresses
+    // columns by index and those indexes move whenever a column is added or
+    // gated. That was the other half of the same bug.
+    var columns = [],
+        colIndex = {};
+    $('#dataTable thead th').each(function() {
+        var key = $(this).attr('data-col');
+        if (!key) {
+            // Keep the counts equal no matter what: an untagged header costs
+            // one blank cell, where skipping it would resurrect the
+            // column-count mismatch this whole block exists to prevent.
+            if (window.console && console.warn) {
+                console.warn('FOG: host list header with no data-col', this);
             }
+            columns.push({data: null, defaultContent: ''});
+            return;
+        }
+        colIndex[key] = columns.length;
+        columns.push({data: key});
+    });
+
+    var columnDefs = [];
+    if ('mainlink' in colIndex) {
+        columnDefs.push({
+            responsivePriority: -1,
+            targets: colIndex.mainlink
+        });
+    }
+    if ('primac' in colIndex) {
+        columnDefs.push({
+            responsivePriority: 0,
+            render: function (data, type, row) {
+                if (type !== 'display') {
+                    return data;
+                }
+                return (data || '') + macVendorIcon(row.primac_vendor);
+            },
+            targets: colIndex.primac
+        });
+    }
+    if ('deployed' in colIndex) {
+        columnDefs.push({
+            render: function (data, type, row) {
+                // GH-1245: "never deployed" is NULL from schema step 344 on,
+                // and was the zero date before it. Both spellings reach here
+                // on an upgraded server until the rows are rewritten, so both
+                // have to blank the cell.
+                if (!data || String(data).indexOf('0000-00-00') === 0) {
+                    return '';
+                }
+                return data;
+            },
+            targets: colIndex.deployed
+        });
+    }
+
+    var table = $('#dataTable').registerTable(onSelect, {
+        // Sort on the host name. Named rather than numbered for the same
+        // reason columnDefs is: the position moves when a column is added
+        // or gated, and a stale index silently sorts the wrong column.
+        order: [
+            [('mainlink' in colIndex ? colIndex.mainlink : 0), 'asc']
         ],
+        // lastping/lastcheckin need no render: both arrive already formatted
+        // by the server, or as an em dash when the host has never been seen.
+        columns: columns,
+        rowId: 'id',
+        columnDefs: columnDefs,
         processing: true,
         serverSide: true,
         ajax: {
