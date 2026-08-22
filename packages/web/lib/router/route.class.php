@@ -2166,7 +2166,8 @@ class Route extends FOGBase
                                 . '">'
                                 . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
                                 . '</a>';
-                        }
+                        },
+                        self::_hostNameOrder($classname)
                     );
                     break;
                 case 'image':
@@ -2563,6 +2564,10 @@ class Route extends FOGBase
                 $columns[] = [
                     'db' => 'stJobID',
                     'dt' => 'hostLink',
+                    // Sorted by host name, not by stJobID: the group page's
+                    // Snapin History tab groups on this column, so the sort
+                    // key decides the order the hosts appear in.
+                    'order' => self::_hostNameOrder($classname),
                     'formatter' => function ($d, $row) use ($snapinTaskHost) {
                         $tmphost = $snapinTaskHost($d);
                         if (!$tmphost) {
@@ -5390,12 +5395,22 @@ class Route extends FOGBase
      * @param string   $dt        The output name for the column.
      * @param string   $relclass  The class the ids refer to.
      * @param callable $formatter The per-row formatter.
+     * @param string   $order     Optional SQL to sort this column by, for
+     *                            the case where sorting by the id sorts by
+     *                            something the reader cannot see. Only ever
+     *                            set from code in this file; see
+     *                            FOGManagerController::orderRef().
      *
      * @return array The column definition.
      */
-    protected static function relColumn($real, $dt, $relclass, $formatter)
-    {
-        return [
+    protected static function relColumn(
+        $real,
+        $dt,
+        $relclass,
+        $formatter,
+        $order = null
+    ) {
+        $column = [
             'db' => $real,
             'dt' => $dt,
             'prime' => function ($rows) use ($real, $relclass) {
@@ -5406,6 +5421,54 @@ class Route extends FOGBase
             },
             'formatter' => $formatter
         ];
+        if (null !== $order) {
+            $column['order'] = $order;
+        }
+        return $column;
+    }
+    /**
+     * The SQL to sort a class's host column by host NAME rather than id.
+     *
+     * Only available to the classes whose model declares a join to `hosts`
+     * in its list query -- TaskLog, UserTracking and SnapinTask, which are
+     * the three the group page's history tabs list. Every other class using
+     * the generic hostID column keeps ordering by the raw id, because the
+     * name is not in its query and naming it would be an unknown column.
+     *
+     * Why it is a CONCAT rather than just the name: these grids group their
+     * rows by host, and RowGroup repeats a group header whenever a group's
+     * rows are not contiguous. Two hosts sharing a name would interleave on
+     * the name alone, so the id follows it as a tie-break. The separator is
+     * a space, which sorts below every alphanumeric, so "ab 9" still comes
+     * before "abc 1" -- the name remains the primary key of the sort.
+     *
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return string|null The ORDER BY expression, or null if unavailable.
+     */
+    private static function _hostNameOrder($classname)
+    {
+        switch ($classname) {
+            case 'tasklog':
+                $id = '`taskLog`.`logHostID`';
+                break;
+            case 'usertracking':
+                $id = '`userTracking`.`utHostID`';
+                break;
+            case 'snapintask':
+                // Reached through the job, so it is null when the job is gone.
+                $id = '`snapinJobs`.`sjHostID`';
+                break;
+            default:
+                return null;
+        }
+        // The id is COALESCEd too, and not for tidiness: CONCAT returns NULL
+        // if any argument is NULL, so a row with no host id -- taskLog wrote
+        // none on a state row before ADR 0022, and 53 such rows exist on the
+        // development server -- would get a NULL key. Those rows all render
+        // an empty host cell and belong in one group, which is what a shared
+        // non-NULL key gives them.
+        return "CONCAT(COALESCE(`hosts`.`hostName`, ''), ' ', COALESCE({$id}, 0))";
     }
     /**
      * Returns the matching ids directly as a PHP array.

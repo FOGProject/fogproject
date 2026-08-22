@@ -928,10 +928,11 @@
         // descending, so newest is at the top WITHIN each host, which is
         // what the three host-page tabs already do.
         //
-        // Column 0 is hostLink, whose db is the host id, so groups come
-        // out in id order rather than alphabetically. Ordering these by
-        // host NAME is a bigger change: only tasklog has a real hostName
-        // column: usertracking and snapintask derive theirs from an id.
+        // Column 0 is hostLink. Sorting it ascending puts the hosts in
+        // alphabetical order, not id order: the model joins `hosts` into
+        // its list query and Route::_hostNameOrder() sorts the column on
+        // the joined name. All of that is server-side -- these grids are
+        // serverSide:true, so DataTables sorts nothing itself.
         order: [
             [0, 'asc'],
             [1, 'desc']
@@ -969,10 +970,11 @@
         // descending, so newest is at the top WITHIN each host, which is
         // what the three host-page tabs already do.
         //
-        // Column 0 is hostLink, whose db is the host id, so groups come
-        // out in id order rather than alphabetically. Ordering these by
-        // host NAME is a bigger change: only tasklog has a real hostName
-        // column: usertracking and snapintask derive theirs from an id.
+        // Column 0 is hostLink. Sorting it ascending puts the hosts in
+        // alphabetical order, not id order: the model joins `hosts` into
+        // its list query and Route::_hostNameOrder() sorts the column on
+        // the joined name. All of that is server-side -- these grids are
+        // serverSide:true, so DataTables sorts nothing itself.
         order: [
             [0, 'asc'],
             [2, 'desc']
@@ -1010,10 +1012,11 @@
         // descending, so newest is at the top WITHIN each host, which is
         // what the three host-page tabs already do.
         //
-        // Column 0 is hostLink, whose db is the host id, so groups come
-        // out in id order rather than alphabetically. Ordering these by
-        // host NAME is a bigger change: only tasklog has a real hostName
-        // column: usertracking and snapintask derive theirs from an id.
+        // Column 0 is hostLink. Sorting it ascending puts the hosts in
+        // alphabetical order, not id order: the model joins `hosts` into
+        // its list query and Route::_hostNameOrder() sorts the column on
+        // the joined name. All of that is server-side -- these grids are
+        // serverSide:true, so DataTables sorts nothing itself.
         order: [
             [0, 'asc'],
             [2, 'desc']

@@ -46,6 +46,48 @@ class UserTracking extends FOGController
         'anon3' => 'utAnon3'
     ];
     /**
+     * The grid list query, with the host joined in.
+     *
+     * Same reason as TaskLog's, which carries the full explanation: the
+     * group page's Login History tab groups by host, RowGroup needs the
+     * grouped column to be the primary sort, and sorting on `utHostID` puts
+     * the hosts in id order rather than alphabetically.
+     *
+     * This class has no denormalized host name to fall back on -- schema 349
+     * added `utHostName` for ADR 0020's six-part record shape, but nothing
+     * writes it yet -- so the join is the only source of the name here.
+     *
+     * LEFT OUTER so a row whose host has since been deleted is still listed.
+     *
+     * @var string
+     */
+    protected $sqlQueryStr = "SELECT `%s`
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `userTracking`.`utHostID` = `hosts`.`hostID`
+        %s
+        %s
+        %s";
+    /**
+     * The sql filter string, carrying the same join as the query.
+     *
+     * @var string
+     */
+    protected $sqlFilterStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `userTracking`.`utHostID` = `hosts`.`hostID`
+        %s";
+    /**
+     * The sql total string, carrying the same join as the query.
+     *
+     * @var string
+     */
+    protected $sqlTotalStr = "SELECT COUNT(`%s`)
+        FROM `%s`
+        LEFT OUTER JOIN `hosts`
+        ON `userTracking`.`utHostID` = `hosts`.`hostID`";
+    /**
      * The person signed out of the host.
      *
      * These three are every value `utAction` has ever held. The column is an
