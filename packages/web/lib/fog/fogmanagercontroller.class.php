@@ -669,11 +669,52 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($key);
         }
+        /*
+         * GH-1245 again, on the other write path.
+         *
+         * A caller names the columns it has a value for, which is not the
+         * same set as the columns the server will accept an INSERT without.
+         * Under a strict sql_mode a NOT NULL column with no DEFAULT that the
+         * statement does not name is error 1364 and the whole batch is
+         * rejected; without one the server invents a zero value and says
+         * nothing. PDODB cleared sql_mode until GH-1245, so every such call
+         * site had been relying on the second behaviour without knowing it --
+         * saving FOG settings omits settingDesc and settingCategory, and
+         * tasking a group's snapins omits stReturnCode and stReturnDetails.
+         *
+         * So write the coercion down instead of relying on it, exactly as
+         * FOGController::save() now does for a single row. The values come
+         * from the same emptyValueFor(), which is why it moved to FOGBase.
+         *
+         * They are deliberately NOT added to the ON DUPLICATE KEY UPDATE
+         * list: this fills a column the caller had nothing to say about, so
+         * on a row that already exists the stored value must stand. Filling
+         * settingDesc into the update list would blank the description of
+         * every setting on the page the moment anyone pressed save.
+         */
+        $fillKeys = array();
+        $fillVals = array();
+        $named = array_map('strtolower', $keys);
+        foreach ((array) self::columnsRequiringValue(
+            $this->databaseTable
+        ) as $column => $type) {
+            if (in_array(strtolower($column), $named, true)) {
+                continue;
+            }
+            $bind = sprintf('_fill_%d', count($fillKeys));
+            $keys[] = $column;
+            $fillKeys[] = sprintf(':%s', $bind);
+            $fillVals[$bind] = self::emptyValueFor(
+                $this->databaseTable,
+                $column
+            );
+        }
         $affectedRows = 0;
         $vals = array();
-        $insertVals = array();
+        $insertVals = $fillVals;
         $values = array_chunk($values, 500);
         foreach ((array) $values as $ind => &$v) {
+            $insertVals = $fillVals;
             foreach ((array) $v as $index => &$value) {
                 $insertKeys = array();
                 foreach ((array) $value as $i => &$val) {
@@ -690,7 +731,10 @@ abstract class FOGManagerController extends FOGBase
                     $insertVals[$key] = $val;
                     unset($val);
                 }
-                $vals[] = sprintf('(%s)', implode(',', (array) $insertKeys));
+                $vals[] = sprintf(
+                    '(%s)',
+                    implode(',', array_merge((array) $insertKeys, $fillKeys))
+                );
                 unset($value);
             }
             if (count($vals) < 1) {
