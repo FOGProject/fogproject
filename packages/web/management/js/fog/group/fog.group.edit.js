@@ -922,6 +922,20 @@
             {data: 'username'},
             {data: 'description'}
         ],
+        // Host first, because RowGroup only groups correctly when the
+        // grouped column is the primary sort -- otherwise a host's rows
+        // scatter and its group header repeats. Then createdTime
+        // descending, so newest is at the top WITHIN each host, which is
+        // what the three host-page tabs already do.
+        //
+        // Column 0 is hostLink, whose db is the host id, so groups come
+        // out in id order rather than alphabetically. Ordering these by
+        // host NAME is a bigger change: only tasklog has a real hostName
+        // column: usertracking and snapintask derive theirs from an id.
+        order: [
+            [0, 'asc'],
+            [1, 'desc']
+        ],
         rowId: 'id',
         rowGroup: {
             dataSrc: 'hostLink'
@@ -949,6 +963,20 @@
             {data: 'taskTypeName'},
             {data: 'imageName'}
         ],
+        // Host first, because RowGroup only groups correctly when the
+        // grouped column is the primary sort -- otherwise a host's rows
+        // scatter and its group header repeats. Then createdTime
+        // descending, so newest is at the top WITHIN each host, which is
+        // what the three host-page tabs already do.
+        //
+        // Column 0 is hostLink, whose db is the host id, so groups come
+        // out in id order rather than alphabetically. Ordering these by
+        // host NAME is a bigger change: only tasklog has a real hostName
+        // column: usertracking and snapintask derive theirs from an id.
+        order: [
+            [0, 'asc'],
+            [2, 'desc']
+        ],
         rowId: 'id',
         rowGroup: {
             dataSrc: 'hostLink'
@@ -975,6 +1003,20 @@
             {data: 'complete'},
             {data: 'diff'},
             {data: 'return'}
+        ],
+        // Host first, because RowGroup only groups correctly when the
+        // grouped column is the primary sort -- otherwise a host's rows
+        // scatter and its group header repeats. Then checkin
+        // descending, so newest is at the top WITHIN each host, which is
+        // what the three host-page tabs already do.
+        //
+        // Column 0 is hostLink, whose db is the host id, so groups come
+        // out in id order rather than alphabetically. Ordering these by
+        // host NAME is a bigger change: only tasklog has a real hostName
+        // column: usertracking and snapintask derive theirs from an id.
+        order: [
+            [0, 'asc'],
+            [2, 'desc']
         ],
         rowId: 'id',
         rowGroup: {
