@@ -35,7 +35,7 @@ class ExampleManager extends FOGManagerController
          * This is commented out so we don't actually
          * create anything.
          *
-         * $sql = Schema::createTable(
+         * $sql = $this->createTableSql(
          *     'example',
          *     true,
          *     array(
