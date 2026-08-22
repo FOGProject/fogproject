@@ -71,10 +71,27 @@ abstract class FOGClient extends FOGBase
                 self::$Host = new Host(0);
             }
             if (self::$Host->isValid()) {
+                // The client just spoke to us, so by definition the host is
+                // up -- hence the pingstatus reset, which predates this.
+                //
+                // hostLastCheckin rides the SAME update rather than getting
+                // one of its own: this constructor runs on every module
+                // request, so a second statement here would double the write
+                // rate of the busiest query in the client protocol for a
+                // value the first statement can carry for free.
+                //
+                // Deliberately NOT also stamping lastping. This says the
+                // agent is alive and can reach the server, which is a
+                // different fact from "FOGPingHosts could open a socket to
+                // it", and keeping the two apart is the entire point of
+                // having two columns (schema step 353).
                 self::getClass('HostManager')->update(
                     ['id' => self::$Host->get('id')],
                     '',
-                    ['pingstatus' => 0]
+                    [
+                        'pingstatus' => 0,
+                        'lastcheckin' => self::niceDate()->format('Y-m-d H:i:s')
+                    ]
                 );
             }
             $moduleid = filter_input(INPUT_POST, 'moduleid');

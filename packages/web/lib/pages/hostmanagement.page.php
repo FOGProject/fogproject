@@ -104,12 +104,22 @@ class HostManagement extends FOGPage
         }
         array_push(
             $this->headerData,
+            // The two halves of "when was this host last seen" (schema step
+            // 353). Neither is gated on FOG_HOST_LOOKUP above: that setting
+            // governs the live ping status cell, while these are the record
+            // of when the host was last actually reached -- and a check-in
+            // is the FOG client talking to us, which has nothing to do with
+            // host lookup at all.
+            _('Last Ping'),
+            _('Last Check-In'),
             _('Imaged'),
             _('Assigned Image'),
             _('Description')
         );
         array_push(
             $this->attributes,
+            [],
+            [],
             [],
             [],
             []
@@ -127,23 +137,24 @@ class HostManagement extends FOGPage
         }
         $this->title = _('All Pending Hosts');
 
-        // Remove unnecessary elements.
-        unset(
-            $this->headerData[2],
-            $this->headerData[3],
-            $this->headerData[4],
-            $this->attributes[2],
-            $this->attributes[3],
-            $this->attributes[4]
-        );
-
-        // Reorder the arrays
-        $this->headerData = array_values(
-            $this->headerData
-        );
-        $this->attributes = array_values(
-            $this->attributes
-        );
+        // The pending grid is its own three-column table (see
+        // fog.host.pending.js), so state it rather than deriving it from the
+        // main list by index. It used to unset positions 2, 3 and 4 -- which
+        // silently assumed FOG_HOST_LOOKUP was on, because with it off those
+        // positions are Imaged/Assigned Image/Description and the wrong three
+        // headers were dropped. Adding any column to index() moved them
+        // again. DataTables raises "Incorrect column count" for a header with
+        // no column behind it, so this has to agree with the JS exactly.
+        $this->headerData = [
+            _('Host'),
+            _('Primary MAC'),
+            _('Description')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            []
+        ];
 
         $buttons = self::makeButton(
             'approve',
@@ -1051,6 +1062,27 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Renders a "last seen" timestamp for display.
+     *
+     * NULL means the event has never happened, which is a different fact
+     * from "it happened at the zero date" -- so it gets its own word rather
+     * than an empty box the reader has to interpret. validDate() also
+     * catches the 0000-00-00 spelling, which a column added at step 353
+     * cannot hold but which a hand-edited database still can.
+     *
+     * @param string|null $value The stored datetime, or null.
+     *
+     * @return string
+     */
+    private static function _lastSeenText($value)
+    {
+        if (!$value || !self::validDate($value)) {
+            return _('Never');
+        }
+
+        return self::niceDate($value)->format('Y-m-d H:i:s');
+    }
+    /**
      * Displays the host general tab.
      *
      * @return void
@@ -1104,6 +1136,12 @@ class HostManagement extends FOGPage
         );
         $enforce = (int)filter_input(INPUT_POST, 'enforce')
             ?: $this->obj->get('enforce');
+        // Server-owned, never posted back -- see the disabled inputs below.
+        // Deliberately NOT read from INPUT_POST like every other value here:
+        // these two are written by the ping service and by the client
+        // check-in, so the object is the only source that can be right.
+        $lastPing = self::_lastSeenText($this->obj->get('lastping'));
+        $lastCheckin = self::_lastSeenText($this->obj->get('lastcheckin'));
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -1219,7 +1257,50 @@ class HostManagement extends FOGPage
                 $labelClass,
                 'efiBootTypeExit',
                 _('Host EFI Exit Type')
-            ) => $this->exitEfi
+            ) => $this->exitEfi,
+            // The two halves of "when was this host last seen" (schema step
+            // 353). Both are disabled rather than merely readonly: a disabled
+            // input is not submitted at all, so nothing server-owned can ride
+            // back in on this form's POST even if a future hook were to start
+            // mass-assigning it. A readonly input still posts its value.
+            self::makeLabel(
+                $labelClass,
+                'lastping',
+                _('Last Successful Ping')
+            ) => self::makeInput(
+                'form-control hostlastping-input',
+                'lastping',
+                '',
+                'text',
+                'lastping',
+                $lastPing,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'lastcheckin',
+                _('Last Client Check-In')
+            ) => self::makeInput(
+                'form-control hostlastcheckin-input',
+                'lastcheckin',
+                '',
+                'text',
+                'lastcheckin',
+                $lastCheckin,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
+            )
         ];
 
         $buttons = self::makeButton(

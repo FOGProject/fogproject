@@ -69,6 +69,13 @@ class Host extends FOGController
         'prev_sec_tok' => 'hostSecTokenPrev',
         'sec_time' => 'hostSecTime',
         'pingstatus' => 'hostPingCode',
+        // The two halves of "when was this host last seen". lastping is
+        // written by FOGPingHosts on a successful connect; lastcheckin by
+        // FOGClient on every client request. Kept apart on purpose -- see
+        // schema step 353. "Last seen" is MAX(the two) and is derived where
+        // it is displayed, never stored.
+        'lastping' => 'hostLastPing',
+        'lastcheckin' => 'hostLastCheckin',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',

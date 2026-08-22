@@ -119,6 +119,12 @@
             {data: 'mainlink'},
             {data: 'primac'},
             {data: 'pingstatus'},
+            // The two halves of "last seen": lastping is the ping service
+            // reaching the machine, lastcheckin is the FOG client reaching
+            // us. Both arrive already formatted (or as an em dash for
+            // never), so neither needs a render here.
+            {data: 'lastping'},
+            {data: 'lastcheckin'},
             {data: 'deployed'},
             {data: 'imageLink'},
             {data: 'description'}
@@ -150,7 +156,7 @@
                     }
                     return data;
                 },
-                targets: 3
+                targets: 5
             }
         ],
         processing: true,
