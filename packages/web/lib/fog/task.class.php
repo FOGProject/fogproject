@@ -313,7 +313,19 @@ class Task extends TaskType
         $curState = $this->get('stateID');
 
         // Timings
-        $checkInTime = $this->get('checkInTime');
+        //
+        // `?? ''` is load bearing, not defensive. GH-1245 made taskCheckIn
+        // nullable (schema 284) and taught save() to write a real SQL NULL
+        // for an emptied date, so a task that has never checked in now reads
+        // back NULL where it used to read '0000-00-00 00:00:00'. This
+        // branch's FOGController::get() returns null for an unset key --
+        // working-1.6's returns '' -- and isExpired()/isAlmostExpired()
+        // declare `string`, which rejects null outright rather than coercing
+        // it. Without this the very first check-in of every task is an
+        // uncaught TypeError: a 500 with no body, which FOS reports only as
+        // "failed to check in". Matches the guard already on the other two
+        // call sites.
+        $checkInTime = $this->get('checkInTime') ?? '';
         $curTime = self::niceDate();
 
         $almost = $this->isAlmostExpired($checkInTime); // expiring in 30 seconds or less
