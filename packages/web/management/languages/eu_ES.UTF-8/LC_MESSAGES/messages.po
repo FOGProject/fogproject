@@ -6388,6 +6388,10 @@ msgstr "Berichte"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "Task-Typ aktualisieren fehlgeschlagen"
+
 msgid "Required database field is empty"
 msgstr "Erforderliches Datenbankfeld ist leer"
 

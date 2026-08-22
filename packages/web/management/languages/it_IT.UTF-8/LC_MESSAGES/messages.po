@@ -6171,6 +6171,10 @@ msgstr "Rapporti"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "Aggiornamento tipo attività fallita"
+
 msgid "Required database field is empty"
 msgstr "campo del database richiesto è vuoto"
 

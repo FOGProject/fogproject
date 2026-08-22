@@ -5416,6 +5416,9 @@ msgstr ""
 msgid "Requested"
 msgstr ""
 
+msgid "Required column lookup failed"
+msgstr ""
+
 msgid "Required database field is empty"
 msgstr ""
 

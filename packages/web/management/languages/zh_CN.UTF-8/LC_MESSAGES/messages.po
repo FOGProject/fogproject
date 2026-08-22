@@ -6386,6 +6386,10 @@ msgstr "报告"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "用户更新失败"
+
 msgid "Required database field is empty"
 msgstr "所需的数据库字段为空"
 

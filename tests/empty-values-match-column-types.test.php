@@ -192,14 +192,21 @@ if ($reachable < 200) {
 // saving an LDAP server without a port is error 1366. On the maintainer's own
 // install that is 18 tables, 16 enum/set and 44 integer columns.
 // ---------------------------------------------------------------
+//
+// The seam moved to FOGBase when insertBatch() needed it too: FOGController
+// and FOGManagerController are siblings, so a helper only one of them can
+// reach is a helper the other write path silently does without. That is not
+// hypothetical -- it is why a strict server rejected saving FOG settings and
+// tasking a group's snapins while saving a host was fine. Everything below is
+// unchanged in substance; only the file it is read from moved.
 $controllerSrc = evStripComments(
-    file_get_contents($web . '/lib/fog/fogcontroller.class.php')
+    file_get_contents($web . '/lib/fog/fogbase.class.php')
 );
 $squashed = preg_replace('#\s+#', '', $controllerSrc);
 
 $checks++;
 if (strpos($squashed, 'if(!isset(self::$columnTypes[$t])){self::_loadPluginColumnTypes($t);}') === false) {
-    $failures[] = 'FOGController::columnType() no longer falls back to the '
+    $failures[] = 'FOGBase::columnType() no longer falls back to the '
         . 'server catalog for a table the manifest does not describe, so '
         . "every plugin column answers '' again -- GH-1245's own bug, one "
         . 'layer down';
@@ -207,7 +214,7 @@ if (strpos($squashed, 'if(!isset(self::$columnTypes[$t])){self::_loadPluginColum
 
 $checks++;
 if (strpos($squashed, 'information_schema') === false) {
-    $failures[] = 'FOGController no longer reads information_schema at all';
+    $failures[] = 'FOGBase no longer reads information_schema at all';
 }
 
 // The rebuilt definition has to carry NOT NULL, or columnIsNullable() -- which

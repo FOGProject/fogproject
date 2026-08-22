@@ -6127,6 +6127,10 @@ msgstr "レポート"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "タスクタイプの更新に失敗しました"
+
 msgid "Required database field is empty"
 msgstr "必須のデータベースフィールドが空です"
 

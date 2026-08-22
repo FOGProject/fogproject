@@ -6385,6 +6385,10 @@ msgstr "Reports"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "User update failed"
+
 msgid "Required database field is empty"
 msgstr "Required database field is empty"
 

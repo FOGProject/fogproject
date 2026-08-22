@@ -6535,6 +6535,10 @@ msgstr "Reiniciar"
 msgid "Requested"
 msgstr ""
 
+#, fuzzy
+msgid "Required column lookup failed"
+msgstr "actualización Valoración falló"
+
 msgid "Required database field is empty"
 msgstr ""
 
