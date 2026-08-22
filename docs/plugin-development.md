@@ -796,6 +796,83 @@ just-provisioned account has no id before then.
 
 ---
 
+## 8a. Object scope — narrowing *which* objects a user reaches
+
+Permissions (§4.5) say what a user may **do**. Object scope says which objects
+they may do it **to**. Core owns the seam; sites are core's own answer to it,
+and your plugin can add its own boundary on any dimension you like — a
+department, a customer, a tenant.
+
+**Two halves, and you almost always want both.** A single-object check that
+holds while the list is unfiltered is not a boundary: the user is refused the
+host edit page and shown every host on the way to it, names, MACs and all.
+
+| Event | Asked | Answer by setting |
+|---|---|---|
+| `OBJECT_SCOPE_CHECK` | may this user reach object `id` of `node`? | `$arguments['allowed'] = false` |
+| `API_SCOPE_WHERE` | bound a list, as SQL | `$arguments['where'] = '<fragment>'` |
+| `API_SCOPE_IDS` | bound a list, as ids | `$arguments['ids'] = [1, 2, …]` |
+
+```php
+public function scopeWhere($arguments)
+{
+    if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+        return;
+    }
+    // No acting user means no boundary. The service daemons and the boot
+    // endpoints reach the read routes with nobody logged in, and narrowing
+    // those to a department would break imaging rather than protect anything.
+    if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+        return;
+    }
+    if ('host' !== $arguments['classname']) {
+        return;
+    }
+    // $idExpr is the caller's own id column, already quoted and qualified,
+    // so you need not know the table name or worry about ambiguity in a join.
+    $arguments['where'] = sprintf(
+        'EXISTS (SELECT 1 FROM `deptHosts` WHERE `dhHostID` = %s '
+        . 'AND `dhDeptID` IN (%s))',
+        $arguments['idExpr'],
+        implode(',', array_map('intval', $this->deptIDsFor(self::$FOGUser)))
+    );
+}
+```
+
+**Prefer `API_SCOPE_WHERE`.** It costs one expression whatever the fleet size.
+`API_SCOPE_IDS` reads every object the user may see into PHP on every request,
+and is only consulted when nothing answered the fragment event. Register both
+if you like — the fragment wins and the id list is not even asked for.
+
+**Mind the tri-states. They are not the same tri-state.**
+
+| | means "no boundary" | means "you may see nothing" |
+|---|---|---|
+| `API_SCOPE_WHERE` | leave `where` as `null` — **`''` is read as silence** | the literal fragment `'1=0'` |
+| `API_SCOPE_IDS` | leave `ids` as `null` | `[]` |
+
+The trap both ways round is that "unbounded" and "entitled to nothing" are both
+falsy. `if (!$ids)` is true for `null` *and* `[]`, so a listener or a caller
+written that way shows every object on the server to the one user entitled to
+none. Say `'1=0'`, never `''`.
+
+**What you cannot do.** Composition is deny-wins: core ANDs your fragment onto
+its own and intersects your id list with its own, so you can only ever
+**narrow**. You cannot grant a user an object core denies them — otherwise any
+plugin could hand out another site's hosts by answering an event. A global `*`
+holder is exempt from your boundary exactly as they are from core's.
+
+**Don't read through `getIds()`/`getNames()` inside a listener** to compute your
+boundary. Those are scoped reads, so they arrive back at your own listener; core
+guards the re-entry and answers the nested read with its own boundary alone, but
+you will get an answer you did not expect. Query your tables directly, as the
+example above does.
+
+Full reasoning, including why the events kept their `API_` prefix now that they
+fire for page routes too: `docs/adr/0006-site-object-scope-boundary.md`.
+
+---
+
 ## 9. Common hook events
 
 | Event | Purpose |
@@ -808,6 +885,8 @@ just-provisioned account has no id before then.
 | `PERMISSION_REGISTRY_DATA` | register the node and its actions — **required**, see §4.5 |
 | `API_VALID_CLASSES` | expose the node over the REST API (name classes after your permission node — see §4.5) |
 | `API_SENSITIVE_FIELDS` | keep credential columns out of API and boot-endpoint output — see §8 |
+| `OBJECT_SCOPE_CHECK` | deny **one** object the acting user would otherwise reach — see §8a |
+| `API_SCOPE_WHERE` / `API_SCOPE_IDS` | bound a **list** to the objects the acting user may see — see §8a |
 | `API_SERVER_OWNED_FIELDS` | refuse API writes to columns your own code maintains — see §8 |
 | `<NODE>_ADD_FIELDS` / `_GENERAL_FIELDS` | let others extend your forms |
 | `<NODE>_ADD_POST` / `_EDIT_POST` / `_ADD_SUCCESS` / `_ADD_FAIL` | extension points around your saves |
