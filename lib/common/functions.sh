@@ -4840,11 +4840,17 @@ configureHttpd() {
     fi
     errorStat $?
     dots "Backing up old data"
+    # Whether either branch below actually copied anything. Both can be false:
+    # $webdirdest may not exist at all, and $priorwebdir is only set when
+    # ${docroot}fog was a symlink this run removed. See the report at the end
+    # of this step for why that has to be said out loud.
+    webbackedup=""
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         rm -rf $backupPath/fog_web_${version}.BACKUP >>$error_log 2>&1
     fi
     if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >>$error_log 2>&1
+        webbackedup=1
         rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
         rm -rf "$webdirdest" >>$error_log 2>&1
     elif [[ -n $priorwebdir && -d $priorwebdir ]]; then
@@ -4854,6 +4860,7 @@ configureHttpd() {
         # being left behind before this fix -- backing it up is the gain here,
         # and deleting it would be a new behaviour nobody asked for.
         cp -RT "$priorwebdir" "${backupPath}/fog_web_${version}.BACKUP" >>$error_log 2>&1
+        webbackedup=1
         rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
     fi
     if [[ $osid -eq 2 ]]; then
@@ -4877,7 +4884,21 @@ configureHttpd() {
     if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
         linkIfAbsent "${webdirdest%/}" "${docroot%/}/${webrootbare}"
     fi
-    errorStat $?
+    # This step printed "OK" whether or not a fog_web_<ver>.BACKUP was written.
+    # errorStat is reached forty lines after the copy and reports the status of
+    # the link work above it, so an install that found nothing to preserve
+    # still told the admin their web root had been backed up. It is reachable
+    # on any server whose webroot is moved aside between installs -- the tree
+    # is neither at $webdirdest nor behind a symlink this run removed, so both
+    # branches are skipped -- and the only trace was the absence of a directory
+    # nobody looks for until they need it.
+    webbackupstat=$?
+    errorStat $webbackupstat skip
+    if [[ -n $webbackedup ]]; then
+        echo "OK"
+    else
+        echo "Skipped"
+    fi
     if [[ $copybackold -gt 0 ]]; then
         if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
             dots "Copying back old web folder as is";
