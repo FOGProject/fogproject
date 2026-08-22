@@ -2674,6 +2674,83 @@ class Route extends FOGBase
                         return $taskStates[$id] ?: self::EMPTY_CELL;
                     }
                 ];
+                // ADR 0023 item 5: the one-line "what happened" the activity
+                // viewer shows, in the same output column every source uses.
+                $columns[] = [
+                    'dt' => 'summary',
+                    'formatter' => function ($d, $row) use (
+                        &$taskStates,
+                        $classname
+                    ) {
+                        // An error or warning row already IS a sentence
+                        // somebody wrote for a person to read (the FOS report
+                        // endpoint's message), so it is used as it stands.
+                        // Only a state row has to be assembled.
+                        $text = isset($row['logText']) ? (string)$row['logText'] : '';
+                        if ('' !== $text) {
+                            return \Initiator::e($text);
+                        }
+                        $host = self::_hostLabel(
+                            isset($row['logHostID']) ? $row['logHostID'] : 0,
+                            $row,
+                            $classname
+                        );
+                        $what = isset($row['logTaskTypeName'])
+                            ? (string)$row['logTaskTypeName']
+                            : '';
+                        $image = isset($row['logImageName'])
+                            ? (string)$row['logImageName']
+                            : '';
+                        $stateId = isset($row['taskStateID'])
+                            ? (int)$row['taskStateID']
+                            : 0;
+                        if (!isset($taskStates[$stateId])) {
+                            $taskStates[$stateId] = self::getClass(
+                                'TaskState',
+                                $stateId
+                            )->get('name');
+                        }
+                        // An unresolvable state renders as a word, not as
+                        // nothing. The `statename` column can afford an
+                        // EMPTY_CELL because it sits beside other columns;
+                        // this one IS the activity viewer's only content
+                        // column for this source, so an empty string here is
+                        // a row that renders and says nothing at all. Same
+                        // stance as _userTrackingAction()'s unknown arm.
+                        $state = (string)$taskStates[$stateId];
+                        if ('' === $state) {
+                            $state = _('Unknown');
+                        }
+                        if ('' === $what) {
+                            // Nothing to say beyond the state. Rows written
+                            // before schema 341 backfilled the type name are
+                            // the case, and there is no way to recover it.
+                            return \Initiator::e($state);
+                        }
+                        // Spelled out per shape rather than assembled from
+                        // fragments: a format string built from a variable
+                        // never reaches the catalogue.
+                        if ('' !== $image && '' !== $host) {
+                            return \Initiator::e(
+                                sprintf(
+                                    _('%1$s of %2$s on %3$s: %4$s'),
+                                    $what,
+                                    $image,
+                                    $host,
+                                    $state
+                                )
+                            );
+                        }
+                        if ('' !== $host) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s on %2$s: %3$s'), $what, $host, $state)
+                            );
+                        }
+                        return \Initiator::e(
+                            sprintf(_('%1$s: %2$s'), $what, $state)
+                        );
+                    }
+                ];
                 break;
             case 'storagegroup':
                 // Each formatter resolves the row's OWN group.
@@ -2823,26 +2900,50 @@ class Route extends FOGBase
                     'db' => 'utAction',
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
-                        switch ((string) $d) {
-                            case (string) UserTracking::ACTION_LOGOUT:
-                                return _('Logout');
-                            case (string) UserTracking::ACTION_LOGIN:
-                                return _('Login');
-                            case (string) UserTracking::ACTION_SERVICE_START:
-                                return _('Service Start');
+                        // Escaped here rather than in the helper: an
+                        // unrecognised code renders as itself, and the
+                        // summary below escapes the whole sentence once.
+                        return \Initiator::e(self::_userTrackingAction($d));
+                    }
+                ];
+                // ADR 0023 item 5: the one-line "what happened" the activity
+                // viewer shows, in the same output column every source uses.
+                $columns[] = [
+                    'dt' => 'summary',
+                    'formatter' => function ($d, $row) use ($classname) {
+                        $who = isset($row['utUserName'])
+                            ? (string)$row['utUserName']
+                            : '';
+                        $host = self::_hostLabel(
+                            isset($row['utHostID']) ? $row['utHostID'] : 0,
+                            $row,
+                            $classname
+                        );
+                        $action = self::_userTrackingAction(
+                            isset($row['utAction']) ? $row['utAction'] : ''
+                        );
+                        // Both halves are optional in practice: a service
+                        // start has no person, and a row whose host was
+                        // deleted before phase 3 has no name to fall back
+                        // on. Each msgid is spelled out because a format
+                        // string built from a variable never reaches the
+                        // catalogue.
+                        if ('' !== $who && '' !== $host) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s: %2$s on %3$s'), $action, $who, $host)
+                            );
                         }
-                        // A code this does not know renders as itself, not as
-                        // an empty cell. utAction has no lookup table and
-                        // nothing constrains the column to the three codes
-                        // UserTracking declares, so an unrecognised one is a
-                        // real possibility (a plugin writing its own, or the
-                        // '' that save() wrote into every unset column before
-                        // GH-1245). Falling out of the switch returned null,
-                        // so the row still listed with a blank Action and
-                        // nothing said why.
-                        return '' === (string) $d
-                            ? _('Unknown')
-                            : \Initiator::e($d);
+                        if ('' !== $host) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s on %2$s'), $action, $host)
+                            );
+                        }
+                        if ('' !== $who) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s: %2$s'), $action, $who)
+                            );
+                        }
+                        return \Initiator::e($action);
                     }
                 ];
                 break;
@@ -5469,6 +5570,35 @@ class Route extends FOGBase
             $column['order'] = $order;
         }
         return $column;
+    }
+    /**
+     * A userTracking action code as its label.
+     *
+     * Shared by the grid's own Action column and by the activity viewer's
+     * summary, so the two can never disagree about what a code means.
+     *
+     * @param mixed $code The stored utAction value.
+     *
+     * @return string
+     */
+    private static function _userTrackingAction($code)
+    {
+        switch ((string) $code) {
+            case (string) UserTracking::ACTION_LOGOUT:
+                return _('Logout');
+            case (string) UserTracking::ACTION_LOGIN:
+                return _('Login');
+            case (string) UserTracking::ACTION_SERVICE_START:
+                return _('Service Start');
+        }
+        // A code this does not know renders as itself, not as an empty
+        // cell. utAction has no lookup table and nothing constrains the
+        // column to the three codes UserTracking declares, so an
+        // unrecognised one is a real possibility (a plugin writing its own,
+        // or the '' that save() wrote into every unset column before
+        // GH-1245). Falling out of the switch returned null, so the row
+        // still listed with a blank Action and nothing said why.
+        return '' === (string) $code ? _('Unknown') : (string) $code;
     }
     /**
      * One history row as a sentence, in the READER's language.

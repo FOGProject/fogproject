@@ -277,14 +277,40 @@ check(
 $route = (string) file_get_contents(
     "$root/packages/web/lib/router/route.class.php"
 );
+// The switch moved out of the column definition into
+// Route::_userTrackingAction() when ADR 0023 item 5 gave the activity
+// viewer a summary column that has to say the same thing about the same
+// code -- two copies of the mapping is exactly the drift this file exists
+// to stop. Read the helper, and separately check that the grid column
+// still delegates to it rather than growing its own copy back.
 preg_match(
-    "/'db'\s*=>\s*'utAction'.*?\n(\s*)\];/s",
+    '/private static function _userTrackingAction\(.*?\n    \}/s',
     $route,
     $m
 );
 $fmt = isset($m[0]) ? $m[0] : '';
 check(
-    "the list formatter's switch reads the same constants",
+    'the action mapping lives in one helper',
+    '' !== $fmt,
+    $failures,
+    $checks
+);
+preg_match(
+    "/'db'\s*=>\s*'utAction'.*?\n(\s*)\];/s",
+    $route,
+    $mCol
+);
+$col = isset($mCol[0]) ? $mCol[0] : '';
+check(
+    'the grid column delegates to it instead of mapping codes itself',
+    '' !== $col
+    && false !== strpos($col, '_userTrackingAction(')
+    && 0 === preg_match('/UserTracking::ACTION_/', $col),
+    $failures,
+    $checks
+);
+check(
+    "the mapping reads the same constants",
     '' !== $fmt
     && 3 === preg_match_all('/UserTracking::ACTION_/', $fmt),
     $failures,

@@ -79,6 +79,26 @@ msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
 #, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr "このホストは既に存在します"
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -2159,6 +2179,9 @@ msgstr "既定で有効"
 #, fuzzy
 msgid "Encryption Data Reset"
 msgstr "暗号化データをリセット"
+
+msgid "Endpoint logins"
+msgstr ""
 
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
@@ -7516,6 +7539,10 @@ msgid "Task Types"
 msgstr "タスクタイプ"
 
 #, fuzzy
+msgid "Task activity"
+msgstr "有効"
+
+#, fuzzy
 msgid "Task failed"
 msgstr "タスク実行に失敗しました"
 
@@ -8864,6 +8891,10 @@ msgstr "少なくとも 1 つのグループを関連付ける必要がありま
 
 msgid "You do not have permission to perform this action."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to read any activity source."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 msgid "You may use _, ., -, or a space between."
 msgstr ""

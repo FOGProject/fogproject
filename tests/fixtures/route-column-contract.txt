@@ -541,6 +541,7 @@ tasklog	11	logHostName	hostName	-	-
 tasklog	12	logTaskTypeName	taskTypeName	-	-
 tasklog	13	logImageName	imageName	-	-
 tasklog	14	taskStateID	statename	f:taskStates	-
+tasklog	15	-	summary	f:classname,taskStates	-
 taskstate	0	tsID	id	-	-
 taskstate	1	tsID	DT_RowId	f	-
 taskstate	2	tsName	name	-	-
@@ -600,3 +601,4 @@ usertracking	12	utHostName	subjectLabel	-	-
 usertracking	13	utUserName	username	f	-
 usertracking	14	utHostID	hostname	f:classname	host
 usertracking	15	utAction	action	f	-
+usertracking	16	-	summary	f:classname	-

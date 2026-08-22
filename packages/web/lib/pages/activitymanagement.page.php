@@ -24,10 +24,15 @@ namespace FOG;
  * activity-specific page: an activity-specific page gets rebuilt the moment
  * the second source arrives. See docs/adr/0023.
  *
- * Today the filter offers one value. The column set is the commitment; the
- * number of sources is not. As ADR 0020's phases land, userTracking and
- * taskLog become additional entries in _sources() and nothing else here
- * changes.
+ * The filter offers three: administrative actions (`history`), endpoint
+ * logins (`userTracking`) and task activity (`taskLog`). The last two
+ * arrived with ADR 0023 item 5 once ADR 0020's phases 2 to 4 had given
+ * their tables the frame, and the promise held -- they are entries in
+ * _allSources() and a `summary` column apiece, with nothing else on this
+ * page changed. The column set is the commitment; the number of sources
+ * is not.
+ *
+ * A source is offered only to somebody who may read it. See _allSources().
  *
  * Deliberately NOT a ReportManagement subclass, though History_Report shows
  * the same rows. Reports inherit the `report` permission node, and that node
@@ -52,33 +57,99 @@ class ActivityManagement extends FOGPage
      */
     public $node = 'activity';
     /**
-     * Sources this viewer can read, as filter value => [label, api class].
+     * Every source this viewer knows, before any permission is applied.
+     *
+     * value => [label, api class, extra permission or null].
      *
      * A method rather than a property so the labels can be wrapped in _().
      * xgettext extracts from the literal call site only -- _($someVariable)
      * builds its msgid at runtime, finds nothing in the catalog and returns
      * the string untranslated, silently and forever.
      *
+     * THE THIRD ELEMENT IS THE ACCESS-CONTROL SEAM and the reason ADR 0023
+     * item 5 is not just three lines added to an array.
+     *
+     * `getList` resolves to `activity.view` by naming convention, so without
+     * this every source would be readable by anyone holding the page. For
+     * `userTracking` that is precisely the grant ADR 0023 item 1 closed:
+     * the permission registry says of the `usertracking` node that
+     * "everything that reads it -- the Hosts And Users report, the Login
+     * History tabs on host and group, the REST class -- resolves here", and
+     * this viewer is a new reader of it. `taskLog` resolves to `task` for
+     * the same reason: Task Management's log pane is gated there today.
+     *
+     * `history` carries null, which keeps it exactly as it has been since
+     * the page shipped -- `activity.view` alone. Requiring `report.view`
+     * for it as well would be defensible and is deliberately NOT done here,
+     * because it would take the page away from an activity.view holder who
+     * has it today. That is a narrowing, and narrowings get signed off
+     * rather than slipped in beside a feature.
+     *
+     * @return array
+     */
+    private static function _allSources()
+    {
+        return [
+            'history' => [_('Administrative actions'), 'history', null],
+            'usertracking' => [
+                _('Endpoint logins'),
+                'usertracking',
+                'usertracking.view'
+            ],
+            'tasklog' => [_('Task activity'), 'tasklog', 'task.view'],
+        ];
+    }
+    /**
+     * The sources the signed-in user may actually read.
+     *
+     * Filtered rather than denied: a source the user cannot read is not
+     * offered, so the grid never draws and then fetches a denial. Same
+     * shape as the Login History tabs, which are hidden for the same
+     * reason.
+     *
      * @return array
      */
     private static function _sources()
     {
-        return [
-            'history' => [_('Administrative actions'), 'history'],
-        ];
+        $sources = [];
+        foreach (self::_allSources() as $key => $meta) {
+            if (null !== $meta[2] && !Authorization::can($meta[2])) {
+                continue;
+            }
+            $sources[$key] = $meta;
+        }
+
+        return $sources;
     }
     /**
      * The source key the request asked for, validated against the whitelist.
      *
      * Never the raw parameter: it reaches Route::listem() as a class name, so
      * an unrecognized value falls back to the default rather than being
-     * passed through.
+     * passed through. The whitelist is the PERMITTED set, not the known set,
+     * so `?source=usertracking` from somebody without the grant falls back
+     * to a source they do hold rather than reaching listem().
+     *
+     * Returns '' when the user may read none of them, which index() renders
+     * as a message and getList() answers as an empty result. It cannot be
+     * $keys[0] on an empty array -- that is an undefined index, and on this
+     * page it would be an undefined index that then became a class name.
+     *
+     * That state is UNREACHABLE today, and deliberately so: `history` is
+     * ungated, so every holder of the page has at least one source. The
+     * guard is here because the thing that makes it unreachable is a single
+     * null in _allSources() which there is an open question about changing.
+     * tests/activity-sources.test.php pins the invariant, so answering that
+     * question yes fails a test rather than producing a fatal.
      *
      * @return string
      */
     private static function _requestedSource()
     {
         $keys = array_keys(self::_sources());
+        if (count($keys) < 1) {
+            return '';
+        }
         $want = (string) filter_input(INPUT_GET, 'source');
         if (in_array($want, $keys, true)) {
             return $want;
@@ -157,7 +228,17 @@ class ActivityManagement extends FOGPage
         echo '</div>';
         echo '</div>';
 
-        $this->render(12, 'activity-table');
+        if ('' === $source) {
+            // Holding activity.view without holding any source's own node is
+            // a real state -- `activity` is a node of its own and grants
+            // nothing else -- and an empty select above an empty grid reads
+            // as a broken page rather than as a permissions answer.
+            echo '<div class="alert alert-info mb-0">';
+            echo _('You do not have permission to read any activity source.');
+            echo '</div>';
+        } else {
+            $this->render(12, 'activity-table');
+        }
 
         echo '</div>';
         echo '</div>';
@@ -205,6 +286,21 @@ class ActivityManagement extends FOGPage
         $sources = self::_sources();
         $source = self::_requestedSource();
         header('Content-type: application/json');
+        if ('' === $source) {
+            // Nothing readable. An empty DataTables envelope rather than a
+            // denial: the page above already said why, and a 403 here would
+            // surface as a grid error on a page that is behaving correctly.
+            http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+            echo json_encode(
+                [
+                    'draw' => (int) filter_input(INPUT_POST, 'draw'),
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => []
+                ]
+            );
+            exit;
+        }
         Route::listem($sources[$source][1]);
         http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
         echo Route::getData();

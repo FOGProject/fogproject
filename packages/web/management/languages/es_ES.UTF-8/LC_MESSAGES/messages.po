@@ -86,6 +86,26 @@ msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
 #, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr "Impresora ya existe"
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -2276,6 +2296,9 @@ msgid "Enabled by Default"
 msgstr "Actualizar impresora"
 
 msgid "Encryption Data Reset"
+msgstr ""
+
+msgid "Endpoint logins"
 msgstr ""
 
 msgid "Enforce Hostname | AD Join Reboots"
@@ -8047,6 +8070,10 @@ msgid "Task Types"
 msgstr "Tipo de tarea"
 
 #, fuzzy
+msgid "Task activity"
+msgstr "Activo"
+
+#, fuzzy
 msgid "Task failed"
 msgstr "Carga ha fallado: %s"
 
@@ -9437,6 +9464,9 @@ msgid "You do not have permission to change site grants."
 msgstr ""
 
 msgid "You do not have permission to perform this action."
+msgstr ""
+
+msgid "You do not have permission to read any activity source."
 msgstr ""
 
 msgid "You may use _, ., -, or a space between."
