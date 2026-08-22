@@ -6778,3 +6778,152 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 349
+$this->schema[] = [
+    // ADR 0020 phase 2, userTracking half: add the frame columns, write
+    // nothing to them.
+    //
+    // `userTracking` records a login or logout on a host. Three of the six
+    // frame keys have no column at all today, so a row cannot say who in FOG
+    // is responsible, where it arrived from, or which host it was about once
+    // that host is deleted.
+    //
+    // utCreatedBy -- the FOG identity, matching taskLog.createdBy's width.
+    // This is NOT utUserName. utUserName is the endpoint's OS account, which
+    // is the subject of the event, not its actor; ADR 0020 decision 3 calls
+    // that the load-bearing correction and the reason to add a column rather
+    // than reinterpret the one that is there. save() auto-fills createdBy
+    // once the model maps it, which is phase 3, not this step.
+    //
+    // utIP -- the origin address. The estate has two widths for this frame
+    // key, taskLog.ip varchar(15) and history.hIP varchar(50). Taking the
+    // wider one deliberately: 15 characters cannot hold an IPv6 address, and
+    // a new column has no reason to inherit that.
+    //
+    // utHostName -- the denormalized subject label. varchar(16) matches
+    // hosts.hostName, which is capped at the NetBIOS limit and cannot
+    // outgrow this copy. Same shape and same reason as logHostName in step
+    // 341: Route::deletemass('host') removes the host, and a login history
+    // that survives with a dangling id and no name is not a history.
+    //
+    // Every column is nullable or DEFAULT '', nothing writes to them, and no
+    // reader knows they exist. An install that stops here behaves exactly as
+    // it did before -- this is the reversible half of the ADR's DDL.
+    //
+    // A closure rather than a bare ALTER for the same reason steps 336, 338
+    // and 341 are: ADD COLUMN has no IF NOT EXISTS below MariaDB 10.0.2 /
+    // MySQL 8.0.29, so a re-run has to converge on its own rather than
+    // error. Every column is named in the probe, because steps 336 and 338
+    // broke the installer's grant check by not naming them (GH-336, GH-338).
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'userTracking' "
+            . "AND `COLUMN_NAME` IN ('utCreatedBy','utIP','utHostName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('utCreatedBy', $cols)) {
+            $adds[] = "ADD `utCreatedBy` VARCHAR(30) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('utIP', $cols)) {
+            $adds[] = "ADD `utIP` VARCHAR(50) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('utHostName', $cols)) {
+            $adds[] = "ADD `utHostName` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `userTracking` " . implode(', ', $adds)
+            );
+        }
+
+        return true;
+    },
+];
+
+// 350
+$this->schema[] = [
+    // ADR 0020 phase 2, history half: give `history` a subject and a type,
+    // write nothing to them.
+    //
+    // `history` is the outlier of the three event tables, and its defect is
+    // structural rather than cosmetic: it has no subject at all. The entity a
+    // row is about exists only inside hText, which is assembled from gettext
+    // calls at write time -- so the record of what happened is stored in
+    // whatever language the server was set to when it happened, and nothing
+    // can query it.
+    //
+    // hType -- what kind of event, as a stable machine code, matching
+    // taskLog.logType's width. DEFAULT '' is deliberate and is the whole
+    // rollout: an empty hType marks a row written before this ADR, and that
+    // is exactly what phase 4's readers key their prose fallback on. Step 338
+    // gave logType a DEFAULT of 'state', which reads as though a real value
+    // was recorded when none was, and step 340 had to repair it. Do not give
+    // this column a plausible-looking default.
+    //
+    // hSubjectType -- the subject's class name. `history` needs this and
+    // taskLog/userTracking do not: they are always about a Host and can say
+    // so as a constant, while `history` is about anything (ADR 0020
+    // decision 2).
+    //
+    // hSubjectID -- the subject's id, nullable. FOGController::save() omits
+    // an unset OPTIONAL column whose friendly key ends in "id", so it takes
+    // the DEFAULT; for every other key an unset value is written as '',
+    // never NULL. Declaring this one NULL DEFAULT NULL and the rest NOT NULL
+    // DEFAULT '' says what the ORM will really store, rather than describing
+    // a value the writer cannot produce. Same split, same reason, as step
+    // 341.
+    //
+    // hSubjectLabel -- the denormalized label, so the row still names its
+    // subject after the subject is deleted. varchar(200) because unlike
+    // taskLog and userTracking this table's subject is not always a host:
+    // it is sized to the widest name column a subject can have
+    // (snapins.sName varchar(200)), not to hosts.hostName varchar(16).
+    //
+    // Additive and inert, exactly as step 349. Dropping history's
+    // UNIQUE (hText, hTime) and widening hText belong to phase 5, a full
+    // release cycle after the readers switch, and are deliberately not here.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'history' "
+            . "AND `COLUMN_NAME` IN "
+            . "('hType','hSubjectType','hSubjectID','hSubjectLabel')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = [];
+        if (!in_array('hType', $cols)) {
+            $adds[] = "ADD `hType` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('hSubjectType', $cols)) {
+            $adds[] = "ADD `hSubjectType` VARCHAR(64) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('hSubjectID', $cols)) {
+            $adds[] = "ADD `hSubjectID` INT(11) NULL DEFAULT NULL";
+        }
+        if (!in_array('hSubjectLabel', $cols)) {
+            $adds[] = "ADD `hSubjectLabel` VARCHAR(200) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `history` " . implode(', ', $adds)
+            );
+        }
+
+        return true;
+    },
+];
