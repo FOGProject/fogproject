@@ -65,7 +65,7 @@ class PushbulletManager extends FOGManagerController
             'pID',
             'pToken'
         );
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             $fields,

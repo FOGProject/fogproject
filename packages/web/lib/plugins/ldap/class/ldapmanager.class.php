@@ -39,7 +39,7 @@ class LDAPManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

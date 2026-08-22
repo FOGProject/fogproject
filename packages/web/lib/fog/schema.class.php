@@ -285,6 +285,124 @@ class Schema extends FOGController
         return $string;
     }
     /**
+     * Renders a caller's default as an SQL literal.
+     *
+     * GH-1245. What callers pass is a VALUE, not SQL -- every one of the
+     * thirty defaults in the tree is a literal like '0' or
+     * '0000-00-00 00:00:00'. The one exception is CURRENT_TIMESTAMP, which is
+     * an expression and must go in bare. Emitting them all raw put an
+     * unquoted 0 against an ENUM -- where 0 is an INDEX, and index 0 is the
+     * error value -- and an unquoted zero date against a TIMESTAMP. The
+     * server refuses both, so a plugin install would have died on its own
+     * CREATE TABLE.
+     *
+     * It never showed because the truthiness test in createTable() dropped
+     * every '0' before it could reach the server. Fixing that test is what
+     * made these visible; they were wrong the whole time.
+     *
+     * Quoting is skipped for a value that is already quoted, for a
+     * parenthesised expression -- which is how MySQL 8.0.13+ requires a
+     * TEXT/BLOB default to be written -- and for the small set of bare SQL
+     * expressions FOG actually uses.
+     *
+     * @param string $value the default as the caller wrote it
+     *
+     * @return string
+     */
+    public static function defaultLiteral($value)
+    {
+        $value = (string)$value;
+        $trim = trim($value);
+        if (preg_match("/^'.*'$/s", $trim)
+            || preg_match('/^\(.*\)$/s', $trim)
+            || preg_match(
+                '/^(CURRENT_TIMESTAMP(\(\))?|NOW\(\)|NULL)$/i',
+                $trim
+            )
+        ) {
+            return $value;
+        }
+
+        return sprintf("'%s'", str_replace("'", "''", $value));
+    }
+    /**
+     * The DEFAULT an optional NOT NULL column of this type should carry.
+     *
+     * GH-1245. A column declared NOT NULL with no DEFAULT is only mandatory
+     * if something enforces it, and for nine years nothing did: PDODB cleared
+     * sql_mode on every connection, so the server downgraded the error to a
+     * warning and substituted an implicit zero. What is returned here IS that
+     * implicit zero, written down -- the same rule schema step 286 applies to
+     * an existing install and FOGBase::emptyValueFor() applies to a write. So
+     * a table created here and a table migrated by the step end up saying the
+     * same thing, which is the point: two installs of the same FOG should not
+     * have two different schemas.
+     *
+     * @param string $type the column type, as handed to createTable()
+     *
+     * @return string|null the SQL literal, or null if this server cannot
+     *                     carry a default for this type at all
+     */
+    public static function emptyDefaultFor($type)
+    {
+        $type = trim((string)$type);
+        $lob = (bool)preg_match(
+            '/^(tiny|medium|long)?(text|blob)\b/i',
+            $type
+        );
+        if ($lob) {
+            // MySQL could not attach a DEFAULT to a TEXT or BLOB column
+            // until 8.0.13 and still requires it parenthesised as an
+            // expression; MariaDB has taken the plain literal since 10.2.1.
+            // Below that there is nothing to do and nothing broken by
+            // skipping: save() writes the column explicitly and
+            // insertBatch() backfills it.
+            static $lobStyle = null;
+            if (null === $lobStyle) {
+                $version = (string)self::$DB
+                    ->query('SELECT VERSION() AS `v`')
+                    ->fetch()
+                    ->get('v');
+                if (false !== stripos($version, 'mariadb')) {
+                    $lobStyle = 'literal';
+                } else {
+                    preg_match('/^(\d+)\.(\d+)\.(\d+)/', $version, $m);
+                    $lobStyle = count($m) === 4
+                        && (int)$m[1] * 10000
+                            + (int)$m[2] * 100
+                            + (int)$m[3] >= 80013
+                        ? 'expression'
+                        : 'none';
+                }
+            }
+            if ($lobStyle === 'none') {
+                return null;
+            }
+
+            return $lobStyle === 'expression' ? "('')" : "''";
+        }
+        // These match the type as a CALLER WROTE IT, which is not the same
+        // vocabulary information_schema reports. Schema step 286 does the
+        // same job reading COLUMN_TYPE, where an integer is always 'int(11)'
+        // or 'bigint(20)'; here the tree says 'INTEGER' 120 times, plus
+        // BOOLEAN and TIMESTAMP. A rule copied across without widening it
+        // silently gives every integer column a default of '' -- so the two
+        // are deliberately not identical.
+        if (preg_match('/^(datetime|timestamp)\b/i', $type)) {
+            return 'current_timestamp()';
+        }
+        if (preg_match('/^(tiny|small|medium|big)?int(eger)?\b/i', $type)
+            || preg_match('/^bool(ean)?\b/i', $type)
+        ) {
+            return '0';
+        }
+        if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $member)) {
+            return "'" . $member[2] . "'";
+        }
+
+        return "''";
+    }
+    /**
      * SQL create table syntax
      *
      * @param string $name    What are we calling the table?
@@ -349,10 +467,21 @@ class Schema extends FOGController
                     ''
                 ),
                 (
-                    $default[$i] ?
+                    // Truthiness dropped a DEFAULT of '0' on the floor: '0'
+                    // is falsey in PHP, so a caller asking for DEFAULT '0'
+                    // -- an enum's first member, a boolean-ish flag -- got a
+                    // bare NOT NULL column instead. That is GH-1245's defect
+                    // inflicted by the builder itself, and it was live: the
+                    // LDAP plugin lost three defaults this way and FOG's own
+                    // host, snapin, MAC and scheduled-task tables lost ten
+                    // more between them.
+                    isset($default[$i])
+                    && false !== $default[$i]
+                    && null !== $default[$i]
+                    && '' !== $default[$i] ?
                     sprintf(
                         ' DEFAULT %s',
-                        $default[$i]
+                        self::defaultLiteral($default[$i])
                     ) :
                     ''
                 ),

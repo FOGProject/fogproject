@@ -40,7 +40,7 @@ class AccessControlRuleManager extends FOGManagerController
          * create anything.
          */
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(
