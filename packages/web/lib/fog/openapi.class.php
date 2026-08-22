@@ -657,6 +657,7 @@ class OpenAPI extends FOGBase
                     . 'but a request that would change it is refused.'
                 );
             }
+            $schema = self::_applyModelConstraint($class, $property, $schema);
             $properties[$property] = $schema;
         }
         $out = [
@@ -690,6 +691,69 @@ class OpenAPI extends FOGBase
             );
         }
         return $out;
+    }
+
+    /**
+     * Constraints the model enforces that the column type does not carry.
+     *
+     * Every other property here is derived, which is the point of this class.
+     * These cannot be: they live in a model's own save() rather than in the
+     * column definition, so commons/schema-expected.php has no idea they
+     * exist and a document built from it alone overstates what the server
+     * accepts.
+     *
+     * The gap is not academic. hostName is varchar(16), so the derived schema
+     * says maxLength 16 -- but Host::save() calls isHostnameSafe() first,
+     * which is /^[\w!@#$%^()\-\'{}\.~]{1,15}$/, and a 16 character name is
+     * refused. The refusal surfaces as a 406 through _sendCaught(), so a
+     * client generated from the document sends something the document said
+     * was fine and gets an error that names no field.
+     *
+     * Deliberately a short, hand-kept list rather than an attempt to infer
+     * these. Inferring them would mean reading arbitrary PHP in save(); the
+     * honest thing is to name the ones we know and let the rest be described
+     * by their column, which is what the rest of this class already does.
+     *
+     * Keyed lowercase on class then property.
+     *
+     * @param string $class    The lowercase route class name.
+     * @param string $property The model property name.
+     * @param array  $schema   The schema derived so far.
+     *
+     * @return array
+     */
+    private static function _applyModelConstraint($class, $property, array $schema)
+    {
+        $constraints = [
+            'host' => [
+                'name' => [
+                    'maxLength' => 15,
+                    'pattern' => '^[A-Za-z0-9_!@#$%^()\\-\'{}.~]{1,15}$',
+                    'description' => 'Enforced by Host::isHostnameSafe(), which is '
+                        . 'stricter than the column: at most 15 characters, and only '
+                        . 'letters, digits, underscore and ! @ # $ % ^ ( ) - \' { } . ~ '
+                        . 'A name that fails this is refused by Host::save() with a 406.'
+                ]
+            ]
+        ];
+
+        $c = strtolower($class);
+        $p = strtolower($property);
+        if (!isset($constraints[$c][$p])) {
+            return $schema;
+        }
+        foreach ($constraints[$c][$p] as $key => $value) {
+            if ('description' === $key) {
+                // Keep whatever the sensitive/server-owned passes already said
+                // rather than replacing it; both are worth knowing.
+                $schema[$key] = isset($schema[$key])
+                    ? $schema[$key] . ' ' . _($value)
+                    : _($value);
+                continue;
+            }
+            $schema[$key] = $value;
+        }
+        return $schema;
     }
 
     /**
@@ -972,17 +1036,55 @@ class OpenAPI extends FOGBase
         ];
 
         if ($writable) {
+            // Route::joining() does two unrelated things depending on the
+            // method, and the document described neither of them correctly:
+            // it called PUT an update-or-insert keyed on the name, which is
+            // what POST does, and it left POST out entirely.
+            //
+            // The cost of getting this one wrong is higher than for most
+            // operations. A caller who believes the old summary sends an
+            // object without ids, gets a 202 back, and nothing happens --
+            // success on the wire and no effect on the server.
             $paths['/' . $class . '/join'] = [
                 'put' => self::_op(
                     $class,
                     'join',
-                    sprintf(_('Create or update a %s by natural key'), $class),
-                    _('Upserts against the association keys rather than an id.'),
-                    self::_entityResponse($ref),
+                    sprintf(_('Bulk edit %s'), $class),
+                    _('Applies one set of field values to every object named '
+                        . 'in ids. Fields left out of the body keep their '
+                        . 'current value on each object, so this edits rather '
+                        . 'than replaces. It never creates anything, and it '
+                        . 'matches on nothing but the ids given: a body with '
+                        . 'no ids matches nothing and succeeds without '
+                        . 'changing anything.'),
+                    self::_acceptedResponse(),
                     [],
-                    self::_entityBody($ref)
+                    self::_bulkEditBody($ref)
                 )
             ];
+            // POST is group only. Route::joining() answers 400 for every other
+            // class, so advertising it on all of them would send callers at an
+            // endpoint that refuses them.
+            if ('group' === $class) {
+                $paths['/' . $class . '/join']['post'] = self::_op(
+                    $class,
+                    'join',
+                    sprintf(_('Get or create %s by name'), $class),
+                    _('Takes a list of names and returns an id for each: the '
+                        . 'existing object where the name is already taken, a '
+                        . 'newly created one otherwise. That pattern is often '
+                        . 'called an upsert -- update or insert -- and because '
+                        . 'the object may not exist yet it matches on the name '
+                        . 'rather than on an id. Safe to send repeatedly: the '
+                        . 'same names give the same ids back and no duplicates '
+                        . 'are made. Group only; every other class answers '
+                        . '400.'),
+                    self::_idsResponse(),
+                    [],
+                    self::_namesBody(),
+                    'joinByName' . ucfirst($class)
+                );
+            }
         }
 
         if (in_array($class, $active, true)) {
@@ -1083,13 +1185,22 @@ class OpenAPI extends FOGBase
         $desc,
         array $responses,
         array $parameters = [],
-        array $body = []
+        array $body = [],
+        $operationId = ''
     ) {
+        // operationId is derived from the route name, which is right until one
+        // router route serves two different operations. PUT|POST /{class}/join
+        // is registered once, under one name, but the two methods do unrelated
+        // things -- so both would derive the same operationId, and an
+        // operationId has to be unique across the document. The override lets
+        // the pair keep the one route name the router and the permission
+        // lookup know while still being addressable apart.
+        $operationId = ('' !== $operationId)
+            ? $operationId
+            : ('' === $class ? $routeName : $routeName . ucfirst($class));
         $op = [
             'tags' => ['' === $class ? 'system' : $class],
-            'operationId' => '' === $class
-                ? $routeName
-                : $routeName . ucfirst($class),
+            'operationId' => $operationId,
             'summary' => $summary,
             'responses' => $responses + self::_errorResponses()
         ];
@@ -1241,6 +1352,113 @@ class OpenAPI extends FOGBase
             'required' => true,
             'content' => [
                 'application/json' => ['schema' => ['$ref' => $ref]]
+            ]
+        ];
+    }
+
+    /**
+     * The body PUT /{class}/join takes.
+     *
+     * The entity schema plus the ids to apply it to. allOf rather than a
+     * copied property list, so the field set cannot drift from the class's
+     * own schema.
+     *
+     * @param string $ref The entity schema reference.
+     *
+     * @return array
+     */
+    private static function _bulkEditBody($ref)
+    {
+        return [
+            'required' => true,
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'allOf' => [
+                            ['$ref' => $ref],
+                            [
+                                'type' => 'object',
+                                'required' => ['ids'],
+                                'properties' => [
+                                    'ids' => [
+                                        'type' => 'array',
+                                        'items' => ['type' => 'integer'],
+                                        'description' => _('The objects to '
+                                            . 'apply these values to. An '
+                                            . 'empty or absent list matches '
+                                            . 'nothing and edits nothing.')
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * The body POST /group/join takes.
+     *
+     * @return array
+     */
+    private static function _namesBody()
+    {
+        return [
+            'required' => true,
+            'content' => [
+                'application/json' => [
+                    'schema' => [
+                        'type' => 'object',
+                        'required' => ['names'],
+                        'properties' => [
+                            'names' => [
+                                'type' => 'array',
+                                'items' => ['type' => 'string'],
+                                'description' => _('Names to resolve. Each is '
+                                    . 'created if no object already has it.')
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * A write that is applied without echoing anything back.
+     *
+     * Route::joining()'s PUT branch sets HTTP_ACCEPTED and emits no body.
+     * Saying 200 with an entity here would have a generated client wait for
+     * an object that never arrives.
+     *
+     * @return array
+     */
+    private static function _acceptedResponse()
+    {
+        return [
+            '202' => ['description' => _('Applied. No body is returned.')]
+        ];
+    }
+
+    /**
+     * An array of ids.
+     *
+     * @return array
+     */
+    private static function _idsResponse()
+    {
+        return [
+            '201' => [
+                'description' => _('One id per name, in the order given.'),
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            'type' => 'array',
+                            'items' => ['type' => 'integer']
+                        ]
+                    ]
+                ]
             ]
         ];
     }
