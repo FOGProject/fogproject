@@ -3737,10 +3737,6 @@ msgstr "成像测井"
 msgid "Imaging Failed"
 msgstr "加载失败： %s"
 
-#, fuzzy
-msgid "Imaging History"
-msgstr "主持人成像历史"
-
 msgid "Imaging Log"
 msgstr "成像测井"
 
@@ -7696,6 +7692,10 @@ msgid "Task Cancel Success"
 msgstr "用户创建"
 
 #, fuzzy
+msgid "Task History"
+msgstr "历史形象"
+
+#, fuzzy
 msgid "Task ID"
 msgstr "任务"
 
@@ -10398,6 +10398,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "用户更新"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "主持人成像历史"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

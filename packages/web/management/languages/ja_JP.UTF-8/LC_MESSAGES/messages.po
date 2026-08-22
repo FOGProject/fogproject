@@ -3586,10 +3586,6 @@ msgstr "イメージ処理時間"
 msgid "Imaging Failed"
 msgstr "イメージ処理に失敗しました。"
 
-#, fuzzy
-msgid "Imaging History"
-msgstr "ホストイメージ履歴"
-
 msgid "Imaging Log"
 msgstr "イメージログ"
 
@@ -7361,6 +7357,10 @@ msgstr "タスクタイプの作成に失敗しました"
 msgid "Task Cancel Success"
 msgstr "タスクタイプを作成しました"
 
+#, fuzzy
+msgid "Task History"
+msgstr "ホストイメージ履歴"
+
 msgid "Task ID"
 msgstr "タスク ID"
 
@@ -10534,6 +10534,10 @@ msgstr ""
 
 #~ msgid "Imaged From"
 #~ msgstr "イメージ処理元"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "ホストイメージ履歴"
 
 #~ msgid "Import Accesscontrols"
 #~ msgstr "アクセス制御をインポート"

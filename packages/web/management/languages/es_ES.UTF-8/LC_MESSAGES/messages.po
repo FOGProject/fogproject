@@ -3815,10 +3815,6 @@ msgid "Imaging Failed"
 msgstr "Carga ha fallado: %s"
 
 #, fuzzy
-msgid "Imaging History"
-msgstr "Lista de host"
-
-#, fuzzy
 msgid "Imaging Log"
 msgstr "Transferencia de imágenes Entrar"
 
@@ -7875,6 +7871,10 @@ msgid "Task Cancel Success"
 msgstr "creado por el usuario"
 
 #, fuzzy
+msgid "Task History"
+msgstr "replicador de imagen"
+
+#, fuzzy
 msgid "Task ID"
 msgstr "Tareas"
 
@@ -10584,6 +10584,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "el usuario actualiza"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Lista de host"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

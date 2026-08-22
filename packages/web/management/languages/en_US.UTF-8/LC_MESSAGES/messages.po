@@ -3736,10 +3736,6 @@ msgstr "Imaging Log"
 msgid "Imaging Failed"
 msgstr "Load failed: %s"
 
-#, fuzzy
-msgid "Imaging History"
-msgstr "Host Imaging History"
-
 msgid "Imaging Log"
 msgstr "Imaging Log"
 
@@ -7695,6 +7691,10 @@ msgid "Task Cancel Success"
 msgstr "User created"
 
 #, fuzzy
+msgid "Task History"
+msgstr "Image History"
+
+#, fuzzy
 msgid "Task ID"
 msgstr "Task"
 
@@ -10393,6 +10393,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "User updated"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Host Imaging History"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

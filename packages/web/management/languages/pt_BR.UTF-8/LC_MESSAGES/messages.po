@@ -3737,10 +3737,6 @@ msgstr "imagiologia Log"
 msgid "Imaging Failed"
 msgstr "Carga falhou: %s"
 
-#, fuzzy
-msgid "Imaging History"
-msgstr "Hospedar História Imagiologia"
-
 msgid "Imaging Log"
 msgstr "imagiologia Log"
 
@@ -7696,6 +7692,10 @@ msgid "Task Cancel Success"
 msgstr "usuário criado"
 
 #, fuzzy
+msgid "Task History"
+msgstr "História imagem"
+
+#, fuzzy
 msgid "Task ID"
 msgstr "Tarefa"
 
@@ -10398,6 +10398,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "usuário atualizada"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Hospedar História Imagiologia"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

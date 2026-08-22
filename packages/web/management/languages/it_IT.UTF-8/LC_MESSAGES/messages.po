@@ -3620,10 +3620,6 @@ msgstr "Imaging Log"
 msgid "Imaging Failed"
 msgstr "Caricamento non riuscito"
 
-#, fuzzy
-msgid "Imaging History"
-msgstr "Host Imaging Storia"
-
 msgid "Imaging Log"
 msgstr "Imaging Log"
 
@@ -7427,6 +7423,10 @@ msgid "Task Cancel Success"
 msgstr "Aggiunta tipo attività riuscita"
 
 #, fuzzy
+msgid "Task History"
+msgstr "Storia immagine"
+
+#, fuzzy
 msgid "Task ID"
 msgstr "Compito"
 
@@ -10028,6 +10028,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "Host aggiornato!"
+
+#, fuzzy
+#~ msgid "Imaging History"
+#~ msgstr "Host Imaging Storia"
 
 #, fuzzy
 #~ msgid "Import Host Exts"

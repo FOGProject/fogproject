@@ -3163,9 +3163,6 @@ msgstr ""
 msgid "Imaging Failed"
 msgstr ""
 
-msgid "Imaging History"
-msgstr ""
-
 msgid "Imaging Log"
 msgstr ""
 
@@ -6512,6 +6509,9 @@ msgid "Task Cancel Fail"
 msgstr ""
 
 msgid "Task Cancel Success"
+msgstr ""
+
+msgid "Task History"
 msgstr ""
 
 msgid "Task ID"

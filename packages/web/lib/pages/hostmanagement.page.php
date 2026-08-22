@@ -3517,7 +3517,11 @@ class HostManagement extends FOGPage
                 'name' => _('History Items'),
                 'tabData' => array_merge($historyTabs, [
                     [
-                        'name' => _('Imaging History'),
+                        // Reads taskLog since imagingLog was retired, so it
+                        // is every task's states, not only imaging runs
+                        // (ADR 0022 decision 3). The card inside says the
+                        // same thing.
+                        'name' => _('Task History'),
                         'id' => 'host-image-history',
                         'generator' => function () {
                             $this->hostImageHistory();
