@@ -1,8 +1,30 @@
 # The access-control map of `Route::listem()` and the API read path
 
-**Status:** reference. Written to outlive the decomposition it was written for.
+**Status:** reference, and **partly superseded — read this box first.**
 **Baseline:** `working-1.6` at `47ddae8b8`. Every line number is from
 `packages/web/lib/router/route.class.php` unless stated otherwise.
+
+> **Superseded as of 2026-08-22.** Three things this document describes as
+> open have since been built, so the line numbers below have drifted and two
+> of the defects it names no longer exist. Do not "fix" them.
+>
+> - **SCOPE-1 — `names`, `ids`, `count` and `unisearch` are unscoped.**
+>   Fixed. All four now carry `Route::_requestScopeWhere()`, which gates on
+>   `'cli' === PHP_SAPI` so the daemons keep finding their work. ADR 0019.
+> - **SCOPE-2 — the boundary runs after the SQL `LIMIT`.** Fixed. It is a
+>   subquery ANDed into the row query and both counts, passed into
+>   `FOGManagerController::complex()`. `_applySiteScope()` survives as a
+>   backstop over `listem()` and `search()`, which is what §3 below still
+>   correctly describes. ADR 0019.
+> - **"`requireApiObjectScope` is inert on every list route" (§0).** Still
+>   true of that call, and no longer the whole story: `objectInScope()` now
+>   also answers the same plugin boundary the lists are narrowed with, so a
+>   single-object route and a list route cannot disagree. ADR 0006's
+>   list-half amendment.
+>
+> What this document still gets right, and is worth reading for, is §6: the
+> catalogue of single-line deletions that remove a control without failing a
+> test, and why `tests/route-read-path-guards.test.php` exists.
 
 This document answers one question: **which lines in the read path remove or
 mask a row or a column, and what happens if one of them stops running.**

@@ -148,3 +148,78 @@ answers unable to disagree.
 - Nothing changes on upgrade day. Both tables start empty, three of the four
   arms return nothing, and `userSiteIDs()` answers exactly what it answered
   before until an administrator creates a grant.
+
+## Amendment — the seam has a LIST half, and it kept its 1.5 names
+
+Sites moving into core (ADR 0019) rebuilt the list boundary as SQL owned by
+`Authorization`. The plugin seam did not come with it. What was left on 1.6
+was a seam with one half:
+
+| | 1.5 / `dev-branch` | 1.6 before this amendment |
+|---|---|---|
+| Deny one object | `OBJECT_SCOPE_CHECK` | `OBJECT_SCOPE_CHECK` |
+| Bound a list | `API_SCOPE_WHERE`, `API_SCOPE_IDS` | **nothing** |
+
+`OBJECT_SCOPE_CHECK` is only ever consulted about a single id, so a plugin on
+1.6 could veto `GET /host/5` and had no way at all to narrow `GET /host/list`.
+A plugin that scoped lists on 1.5 therefore stopped scoping them on upgrade —
+no error, nothing logged, and it fails **open**, which is the direction that
+matters.
+
+### Decision
+
+`Authorization` fires both events and composes their answers with its own.
+
+- **The names keep their `API_` prefix even though they now fire for page
+  routes too.** They are a compatibility contract: a 1.5 plugin registers those
+  exact strings, and a tidier name would leave every one of them inert, which
+  is the whole failure being fixed. Same for the payload keys — `classname`,
+  `idExpr`, `where`, `ids`.
+- **In `Authorization`, not in `Route`.** `scopedObjectWhere()` and
+  `scopedObjectIDs()` are the single funnel every list path already goes
+  through — `listem()`, `names()`, `ids()`, `unisearch()`, and the management
+  page list. One seam covers all of them, where `dev-branch` needed the call
+  repeated in five handlers.
+- **Composition is narrowing-only, in both dialects.** Fragments are ANDed with
+  each side parenthesised; id lists are intersected. Either side may narrow,
+  neither may widen — the same deny-wins rule `OBJECT_SCOPE_CHECK` already
+  has, and for the same reason: otherwise a plugin hands out another site's
+  hosts by answering an event.
+- **The `*` exemption is shared; core's other short circuits are not.** A
+  global `*` holder bypasses a plugin boundary exactly as they bypass core's,
+  because the single-object and list paths have to agree about who is scoped.
+  "The node is not site-scoped", "no sites exist" and "the user is in the
+  catch-all" are statements about *sites*, say nothing about whatever
+  dimension a plugin scopes on, and so do not suppress it.
+- **An id-list answer becomes SQL rather than a post-filter.** ADR 0019's whole
+  argument applies to a plugin's boundary as much as to core's: a boundary
+  applied to rows the database has already `LIMIT`ed empties pages while later
+  pages still hold rows the caller may see. `dev-branch` filters rows because
+  its `listem()` has no `LIMIT`; 1.6's does.
+- **`objectInScope()` answers the same boundary the lists do**, evaluating the
+  fragment as a bounded existence check. Otherwise a plugin hides an object
+  from every list and core still serves it through `GET /<class>/<id>` — two
+  statements of who may see what, and the one nobody looks at stays wrong.
+
+### Consequences
+
+- **Stock installs are untouched.** With no listener registered both events are
+  inert and every fragment and id list is byte-identical to before.
+- **Dispatch is guarded against re-entry**, and that is not theoretical.
+  `HookManager::processEvent()` primes its known-event cache with
+  `Route::getIds('hookevent')` — a scoped read, which arrives straight back at
+  the event — and assigns the cache only *after* that call returns, so the
+  recursion has no floor. It exhausts memory rather than erroring, so it
+  presents as a hung request. A listener that computes its own boundary by
+  reading through `getIds()`/`getNames()`, which is the obvious way to write
+  one, does the same thing one level further out. A nested read is answered
+  with core's boundary alone; the outer call still applies the plugin's, and
+  a boundary only ever narrows, so the inner answer is never wider than core
+  allows.
+- **A null `HookManager` is a real state on this path.** `objectInScope()` has
+  always dereferenced it unguarded, but the list helpers are reached from
+  `listem()` and from ~90 `getIds()`/`getNames()` call sites, including boots
+  that never build one. They check.
+- `tests/plugin-list-scope-events.test.php` pins it, and every assertion in it
+  was verified by mutation — eight single-line edits to the composition, each
+  of which turns the file red.

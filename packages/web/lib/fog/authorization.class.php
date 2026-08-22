@@ -260,6 +260,20 @@ class Authorization extends FOGBase
      */
     private static $_permCache = [];
     /**
+     * Per-node [table, idColumn] cache for the plugin object-scope check.
+     * node => [table, idCol], or node => null when the node has no model.
+     *
+     * @var array
+     */
+    private static $_scopeClassVars = [];
+    /**
+     * Reentrancy guard for the plugin object-scope events. True while one
+     * is being dispatched; see _pluginScopeApplies().
+     *
+     * @var bool
+     */
+    private static $_inPluginScope = false;
+    /**
      * Memoized permission registry.
      *
      * @var array|null
@@ -1193,6 +1207,16 @@ class Authorization extends FOGBase
         if ($allowed && !SiteScope::inScope($node, $id, (int)$userID)) {
             $allowed = false;
         }
+        // The boundary the LIST routes carry, asked about this one object.
+        // A plugin that narrows lists through API_SCOPE_WHERE/API_SCOPE_IDS
+        // would otherwise hide an object from every list and still serve it
+        // through GET /<class>/<id> -- two statements of who may see what,
+        // and the one nobody looks at is the one that stays wrong.
+        if ($allowed
+            && !self::_objectPassesPluginScope($node, $id, (int)$userID)
+        ) {
+            $allowed = false;
+        }
         return (bool)$allowed;
     }
     /**
@@ -1211,6 +1235,9 @@ class Authorization extends FOGBase
      * catch-all site -- the same short circuits objectInScope() applies,
      * so single objects and lists cannot disagree about who is scoped.
      *
+     * A plugin's own boundary is composed in afterwards, by INTERSECTION:
+     * either side may narrow, neither may widen. See _pluginScopeIDs().
+     *
      * @param string   $node   the node being listed
      * @param int|null $userID acting user (defaults to current user)
      *
@@ -1218,11 +1245,22 @@ class Authorization extends FOGBase
      */
     public static function scopedObjectIDs($node, $userID = null)
     {
-        $userID = self::_boundedUserID($node, $userID);
-        if (null === $userID) {
-            return null;
-        }
-        return SiteScope::allInScopeIDs($node, $userID);
+        // Core's own answer. _boundedUserID() returns null for every reason
+        // CORE has not to narrow -- '*' holder, unscoped node, no sites,
+        // catch-all member -- and all but the first of those are statements
+        // about SITES, so none of them may suppress a plugin's boundary on
+        // some other dimension. The '*' exemption is shared, and lives in
+        // _pluginScopeApplies() so both sides state it once.
+        $bounded = self::_boundedUserID($node, $userID);
+        $coreIDs = (
+            null === $bounded ?
+            null :
+            SiteScope::allInScopeIDs($node, $bounded)
+        );
+        return self::_composeScopeIDs(
+            $coreIDs,
+            self::_pluginScopeIDs($node, $userID)
+        );
     }
     /**
      * The same boundary as scopedObjectIDs(), as a SQL WHERE fragment.
@@ -1243,6 +1281,9 @@ class Authorization extends FOGBase
      * scopedObjectIDs() rather than restated here, and the membership rule
      * itself is shared inside SiteScope. Neither can drift from the other.
      *
+     * A plugin's own boundary is composed in afterwards with AND: either
+     * side may narrow, neither may widen. See _pluginScopeWhere().
+     *
      * @param string   $node   the node being listed
      * @param string   $idExpr the object-id column, quoted and qualified
      * @param int|null $userID the acting user (defaults to current)
@@ -1251,11 +1292,43 @@ class Authorization extends FOGBase
      */
     public static function scopedObjectWhere($node, $idExpr, $userID = null)
     {
-        $userID = self::_boundedUserID($node, $userID);
-        if (null === $userID) {
-            return null;
+        // See scopedObjectIDs() for why core's short circuits are not the
+        // plugin's.
+        $bounded = self::_boundedUserID($node, $userID);
+        $coreWhere = (
+            null === $bounded ?
+            null :
+            SiteScope::inScopeWhere($node, $idExpr, $bounded)
+        );
+        $pluginWhere = self::_pluginScopeWhere($node, $idExpr, $userID);
+        if (null === $pluginWhere) {
+            // A listener that knows only API_SCOPE_IDS still bounds this
+            // QUERY. The ids are turned into an IN () here rather than
+            // handed back for the caller to filter rows with, because a
+            // boundary applied to rows the database has already LIMITed
+            // empties pages while later pages still hold rows the caller
+            // may see, and leaves the counts describing objects they may
+            // not -- ADR 0019, and the defect that ADR was written for.
+            //
+            // Safe to interpolate: _pluginScopeIDs() has already put every
+            // element through intval.
+            $pluginIDs = self::_pluginScopeIDs($node, $userID);
+            if (null !== $pluginIDs) {
+                $pluginWhere = (
+                    count($pluginIDs) ?
+                    sprintf(
+                        '%s IN (%s)',
+                        $idExpr,
+                        implode(',', $pluginIDs)
+                    ) :
+                    // Deny-all as SQL, never ''. An empty fragment reads as
+                    // silence one level up and would show every row on the
+                    // server -- the tri-state trap SiteScope documents.
+                    '1=0'
+                );
+            }
         }
-        return SiteScope::inScopeWhere($node, $idExpr, $userID);
+        return self::_andScopeFragment($coreWhere, $pluginWhere);
     }
     /**
      * Does a site boundary apply, and to whom?
@@ -1296,6 +1369,348 @@ class Authorization extends FOGBase
             return null;
         }
         return $userID;
+    }
+    /**
+     * Does a PLUGIN-supplied object boundary apply to this caller at all?
+     *
+     * One rule, and it is the one objectInScope() already makes structural
+     * for core's own boundary: a global '*' holder is never narrowed.
+     * Stated here rather than left to each listener because the
+     * single-object and list paths have to agree -- an administrator who
+     * reached an object through GET /host/5 but could not see it in the
+     * list would be looking at two different statements of who may see
+     * what.
+     *
+     * Every OTHER reason core declines to narrow -- the node is not
+     * site-scoped, no sites exist, the user is in a catch-all site -- is a
+     * fact about SITES and says nothing about whatever dimension a plugin
+     * scopes on, so none of them appears here.
+     *
+     * @param int|null $userID the acting user (defaults to current)
+     *
+     * @return bool
+     */
+    private static function _pluginScopeApplies($userID = null)
+    {
+        // No hook manager, no listeners, and nothing to ask. LoadGlobals
+        // builds it, so this is null on the paths that run before or
+        // without a full boot -- the schema updater and the CLI harnesses.
+        // objectInScope() has always dereferenced it unguarded; these two
+        // are reached from listem() and from ~90 getIds()/getNames() call
+        // sites, so they cannot.
+        if (!self::$HookManager) {
+            return false;
+        }
+        // Asking a plugin for a boundary must not recurse into asking a
+        // plugin for a boundary. Two ways in, and neither is theoretical:
+        //
+        //   - HookManager::processEvent() primes its known-event cache with
+        //     Route::getIds('hookevent'), which is a scoped read, which
+        //     arrives back here. The cache is assigned AFTER that call
+        //     returns, so on re-entry the guard is still null and the
+        //     recursion has no floor -- it exhausts memory rather than
+        //     erroring, which is why it looks like a hung request.
+        //   - A listener that computes its own boundary by reading through
+        //     getIds()/getNames() -- the obvious way to write one -- does
+        //     the same thing one level further out.
+        //
+        // The nested read is answered with CORE's boundary alone. That is
+        // the safe direction: the outer call still applies the plugin's,
+        // and a boundary is only ever a narrowing, so the inner read is
+        // wider than the caller's answer and never wider than core allows.
+        if (self::$_inPluginScope) {
+            return false;
+        }
+        return !self::_isUnrestricted($userID);
+    }
+    /**
+     * A plugin's object boundary for a list, as a SQL fragment, or null.
+     *
+     * The list-side counterpart of OBJECT_SCOPE_CHECK, and the reason it
+     * exists: OBJECT_SCOPE_CHECK is only ever consulted about ONE object,
+     * so a plugin can veto `GET /host/5` and has no way at all to bound
+     * `GET /host/list`. On 1.5 the same plugin could, through this event
+     * and API_SCOPE_IDS. Firing them here means a plugin written against
+     * 1.5 keeps bounding lists after the upgrade instead of silently
+     * ceasing to -- and silently ceasing to would fail OPEN, which is the
+     * direction that matters.
+     *
+     * The name keeps its API_ prefix even though this now fires for page
+     * routes as well. It is a compatibility contract: a 1.5 plugin
+     * registers THIS string, and a tidier name would leave every one of
+     * them inert, which is the whole failure being fixed.
+     *
+     * THE RETURN IS A TRI-STATE, and it is not the id list's:
+     *
+     *   null      nobody answered -- fall through to API_SCOPE_IDS
+     *   '<sql>'   narrow with this expression
+     *   '1=0'     a real answer meaning "you may see nothing"
+     *
+     * There is deliberately no empty-string state. An empty fragment is
+     * indistinguishable from silence, so it is READ as silence: a listener
+     * meaning "nothing" must say so in SQL. Treating '' as deny-all would
+     * make an accidental '' deny; treating it as a boundary would emit
+     * `WHERE ()`, a syntax error. Reading it as no-answer is the only
+     * option that fails towards the id-list path rather than towards
+     * either a broken query or a silent policy change.
+     *
+     * $idExpr is the caller's own id column, already quoted and qualified,
+     * so a listener can write `EXISTS (... WHERE assoc.hostID = <idExpr>)`
+     * without knowing the table name or guessing at ambiguity in a join.
+     *
+     * Inert with no listener registered, which is every stock install.
+     *
+     * @param string   $node   the node being listed
+     * @param string   $idExpr the object-id column, quoted and qualified
+     * @param int|null $userID the acting user (defaults to current)
+     *
+     * @return string|null the fragment, or null for no answer
+     */
+    private static function _pluginScopeWhere($node, $idExpr, $userID = null)
+    {
+        if (!self::_pluginScopeApplies($userID)) {
+            return null;
+        }
+        // 'classname' and not 'node': the payload key is part of the
+        // contract a 1.5 plugin was written against.
+        $classname = strtolower(trim((string)$node));
+        $where = null;
+        self::$_inPluginScope = true;
+        try {
+            self::$HookManager->processEvent(
+                'API_SCOPE_WHERE',
+                [
+                    'classname' => &$classname,
+                    'idExpr' => &$idExpr,
+                    'where' => &$where
+                ]
+            );
+        } finally {
+            // finally, not a trailing assignment: a listener that throws
+            // would otherwise leave the guard set for the rest of the
+            // request and silently disable every plugin boundary after it.
+            self::$_inPluginScope = false;
+        }
+        if (!is_string($where)) {
+            return null;
+        }
+        $where = trim($where);
+        return '' === $where ? null : $where;
+    }
+    /**
+     * A plugin's object boundary for a list, as ids, or null.
+     *
+     * Consulted only when nothing answered API_SCOPE_WHERE. A fragment
+     * costs one expression whatever the fleet size; an id list costs a
+     * lookup of every object the caller may see, materialised into PHP, on
+     * every request. Both are supported because a plugin written before
+     * the fragment event existed knows only this one.
+     *
+     * THE RETURN IS A TRI-STATE and it is NOT the fragment's:
+     *
+     *   null        no boundary -- leave the list alone
+     *   array(...)  narrow to exactly these ids
+     *   array()     a real answer meaning "nothing"
+     *
+     * null is the ONLY value meaning unbounded. `if (!$ids)` is true for
+     * both null and array(), so a caller written that way shows every
+     * object to the one caller entitled to none. Test `null ===`.
+     *
+     * Every element is put through intval here, once, so the callers may
+     * interpolate the result into SQL.
+     *
+     * @param string   $node   the node being listed
+     * @param int|null $userID the acting user (defaults to current)
+     *
+     * @return array|null ids to narrow to, or null for no boundary
+     */
+    private static function _pluginScopeIDs($node, $userID = null)
+    {
+        if (!self::_pluginScopeApplies($userID)) {
+            return null;
+        }
+        $classname = strtolower(trim((string)$node));
+        $ids = null;
+        self::$_inPluginScope = true;
+        try {
+            self::$HookManager->processEvent(
+                'API_SCOPE_IDS',
+                [
+                    'classname' => &$classname,
+                    'ids' => &$ids
+                ]
+            );
+        } finally {
+            self::$_inPluginScope = false;
+        }
+        return (
+            is_array($ids) ?
+            array_values(array_map('intval', $ids)) :
+            null
+        );
+    }
+    /**
+     * ANDs core's boundary fragment together with a plugin's.
+     *
+     * Deny-wins by construction: each side can only ever remove rows the
+     * other allowed. Both are parenthesised because a fragment is written
+     * by someone else and may contain OR -- `a OR b AND c` would bind the
+     * boundary to one arm and leave the rest matching server-wide, which is
+     * the same mistake unisearch() carries a comment about.
+     *
+     * @param string|null $core   core's fragment, or null
+     * @param string|null $plugin the plugin's fragment, or null
+     *
+     * @return string|null the combined fragment, or null when neither
+     *                     side answered
+     */
+    private static function _andScopeFragment($core, $plugin)
+    {
+        if (null === $core) {
+            return $plugin;
+        }
+        if (null === $plugin) {
+            return $core;
+        }
+        return sprintf('(%s) AND (%s)', $core, $plugin);
+    }
+    /**
+     * Intersects core's id boundary with a plugin's.
+     *
+     * The id-list twin of _andScopeFragment(), with the same property: an
+     * intersection can only shrink. An empty result is passed on as an
+     * empty ARRAY and not as null -- that is a real deny-all, and the two
+     * are the trap this file documents in three other places.
+     *
+     * @param array|null $core   core's ids, or null for no boundary
+     * @param array|null $plugin the plugin's ids, or null
+     *
+     * @return array|null the combined ids, or null when neither answered
+     */
+    private static function _composeScopeIDs($core, $plugin)
+    {
+        if (null === $core) {
+            return $plugin;
+        }
+        if (null === $plugin) {
+            return $core;
+        }
+        return array_values(
+            array_intersect(array_map('intval', $core), $plugin)
+        );
+    }
+    /**
+     * Does ONE object satisfy the plugin boundary the lists are narrowed
+     * with?
+     *
+     * Keeps `GET /<class>/<id>` and `GET /<class>/list` telling the same
+     * story. The fragment is preferred and evaluated as a bounded existence
+     * check -- one row at most, the id bound as a parameter, and the
+     * plugin's id list never materialised.
+     *
+     * Allows when there is nothing to evaluate. A node with no model class,
+     * or a model with no table, is not something a query can be built
+     * against; a plugin that wants to deny such an object still has
+     * OBJECT_SCOPE_CHECK, which is the event written for exactly that
+     * decision and is fired first.
+     *
+     * @param string   $node   the node being checked
+     * @param int      $id     the target object id
+     * @param int|null $userID the acting user (defaults to current)
+     *
+     * @return bool
+     */
+    private static function _objectPassesPluginScope($node, $id, $userID = null)
+    {
+        if (!self::_pluginScopeApplies($userID)) {
+            return true;
+        }
+        $vars = self::_scopeClassVars($node);
+        if (null === $vars) {
+            return true;
+        }
+        list($table, $idCol) = $vars;
+        $frag = self::_pluginScopeWhere(
+            $node,
+            sprintf('`%s`.`%s`', $table, $idCol),
+            $userID
+        );
+        if (null !== $frag) {
+            return self::_objectSatisfies($table, $idCol, $id, $frag);
+        }
+        $ids = self::_pluginScopeIDs($node, $userID);
+        if (null === $ids) {
+            return true;
+        }
+        return in_array((int)$id, $ids, true);
+    }
+    /**
+     * The table and id column behind a node, or null when there is none.
+     *
+     * Memoised per node. objectInScope() is called once per id on a mass
+     * operation, and reflecting a class' default properties for each of
+     * several hundred ids is the shape the grid query-storm bugs had.
+     *
+     * @param string $node the node
+     *
+     * @return array|null [table, idColumn], or null
+     */
+    private static function _scopeClassVars($node)
+    {
+        $node = strtolower(trim((string)$node));
+        if (array_key_exists($node, self::$_scopeClassVars)) {
+            return self::$_scopeClassVars[$node];
+        }
+        $vars = null;
+        if (class_exists(__NAMESPACE__ . '\\' . $node, true)) {
+            $props = self::getClass($node, '', true);
+            if (!empty($props['databaseTable'])
+                && !empty($props['databaseFields']['id'])
+            ) {
+                $vars = [
+                    $props['databaseTable'],
+                    $props['databaseFields']['id']
+                ];
+            }
+        }
+        self::$_scopeClassVars[$node] = $vars;
+        return $vars;
+    }
+    /**
+     * Is there a row with this id that also satisfies the fragment?
+     *
+     * A query that cannot run answers NO, and that is the safe direction
+     * here: this decides whether to serve a single object, so refusing one
+     * the caller was entitled to is a visible, reportable failure, where
+     * serving one they were not is silent.
+     *
+     * @param string $table the model's table
+     * @param string $idCol the model's id column
+     * @param int    $id    the target object id
+     * @param string $frag  the boundary fragment
+     *
+     * @return bool
+     */
+    private static function _objectSatisfies($table, $idCol, $id, $frag)
+    {
+        $sql = sprintf(
+            'SELECT COUNT(*) AS `cnt` FROM `%s` '
+            . 'WHERE `%s`.`%s` = :oid AND (%s)',
+            $table,
+            $table,
+            $idCol,
+            $frag
+        );
+        try {
+            $res = self::$DB->query($sql, [], ['oid' => (int)$id]);
+            if (false !== $res->error) {
+                return false;
+            }
+            $row = $res->fetch(\PDO::FETCH_ASSOC)->get();
+        } catch (\Exception $e) {
+            return false;
+        }
+        return is_array($row) && isset($row['cnt']) && (int)$row['cnt'] > 0;
     }
     /**
      * Enforce object scope for a management page request. Allowed →
