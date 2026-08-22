@@ -6453,3 +6453,328 @@ $this->schema[] = [
     . "forever, which is the default. Shortening this window is recorded in "
     . "the audit trail before it takes effect.','0','Logging Settings')",
 ];
+
+// 348
+$this->schema[] = [
+    // GH-1245, the third instalment: make the schema SAY which columns are
+    // optional, instead of leaving it to be inferred.
+    //
+    // A column declared NOT NULL with no DEFAULT is only mandatory if
+    // something enforces it. Under a non-strict sql_mode the server does not
+    // -- it downgrades the error to a warning and substitutes an implicit
+    // zero value -- so for the nine years PDODB cleared sql_mode, the
+    // declaration was a comment rather than a constraint. Removing the clear
+    // turned every one of those columns into a real constraint at once, which
+    // is how saving FOG settings started failing with error 1364.
+    //
+    // For the TEXT columns it was never even a decision: MySQL could not
+    // attach a DEFAULT to a TEXT or BLOB column until 8.0.13, MariaDB until
+    // 10.2.1. `longtext NOT NULL` was the only phrasing the schema language
+    // offered, so those columns are mandatory by accident of syntax. FOG's
+    // schema still shows it -- 53 optional longtext columns, not one of them
+    // carrying a default.
+    //
+    // WHICH COLUMNS. Not a judgement call: FOG already states its intent in
+    // each model's $databaseFieldsRequired, and this is that statement made
+    // true in the database. Of the 417 columns that are NOT NULL, carry no
+    // DEFAULT and are not AUTO_INCREMENT, 163 stay exactly as they are --
+    // 148 the models declare required, plus 15 foreign keys they had not
+    // declared but where an INSERT that forgets the key SHOULD fail. The 254
+    // below are the rest.
+    //
+    // WHY THIS CANNOT BREAK A WORKING WRITE. An INSERT that names the column
+    // is unaffected; a default applies only to an omitted column. An INSERT
+    // that omits it currently FAILS outright on a strict server, so there is
+    // no working behaviour to change. On a non-strict server it currently
+    // gets the server's implicit coercion -- and the defaults chosen here are
+    // exactly that coercion ('' for text, 0 for integers, the first member
+    // for an enum), which is the same rule FOGBase::emptyValueFor() applies.
+    // So both kinds of server end up where they already were, with the
+    // difference that the schema now says so.
+    //
+    // users.uCreateDate is the one column given a live default rather than a
+    // zero: a user record created without a date wants now, and writing a
+    // zero date is the GH-1245 bug in a different costume. Existing rows are
+    // untouched either way -- a DEFAULT never rewrites stored data.
+    function () {
+        $optional = [
+            'auditLog' => [
+                'alText'
+            ],
+            'clientUpdates' => [
+                'cuFile', 'cuMD5', 'cuName', 'cuType'
+            ],
+            'dirCleaner' => [
+                'dcPath'
+            ],
+            'fileDeleteQueue' => [
+                'fdqState'
+            ],
+            'globalSettings' => [
+                'settingCategory', 'settingDesc', 'settingValue'
+            ],
+            'greenFog' => [
+                'gfAction', 'gfDays', 'gfHour', 'gfMin'
+            ],
+            'groups' => [
+                'groupBuilding', 'groupCreateBy', 'groupDesc',
+                'groupInit', 'groupKernel', 'groupKernelArgs',
+                'groupPrimaryDisk'
+            ],
+            'history' => [
+                'hIP', 'hText', 'hUser'
+            ],
+            'hostMAC' => [
+                'hmDesc', 'hmIgnoreClient', 'hmIgnoreImaging',
+                'hmPending', 'hmPrimary'
+            ],
+            'hosts' => [
+                'hostADDomain', 'hostADOU', 'hostADPass',
+                'hostADPassLegacy', 'hostADUser', 'hostBuilding',
+                'hostCreateBy', 'hostDesc', 'hostDevice', 'hostIP',
+                'hostImage', 'hostKernel', 'hostKernelArgs',
+                'hostPending', 'hostPrinterLevel', 'hostPubKey',
+                'hostSecToken', 'hostSecTokenPrev', 'hostUseAD'
+            ],
+            'hostScreenSettings' => [
+                'hssHeight', 'hssOrientation', 'hssOther1', 'hssOther2',
+                'hssRefresh', 'hssWidth'
+            ],
+            'imageGroupAssoc' => [
+                'igaPrimary'
+            ],
+            'images' => [
+                'imageBuilding', 'imageCreateBy', 'imageDesc',
+                'imageMagnetUri', 'imageProtect', 'imageSize'
+            ],
+            'imagingLog' => [
+                'ilCreatedBy', 'ilType'
+            ],
+            'inventory' => [
+                'iBiosdate', 'iBiosvendor', 'iBiosversion', 'iCaseasset',
+                'iCaseman', 'iCaseserial', 'iCasever', 'iCpucurrent',
+                'iCpuman', 'iCpumax', 'iCpuversion', 'iGpuproducts',
+                'iGpuvendors', 'iHdfirmware', 'iHdmodel', 'iHdserial',
+                'iMbasset', 'iMbman', 'iMbproductname', 'iMbserial',
+                'iMbversion', 'iMem', 'iOtherTag', 'iOtherTag1',
+                'iPrimaryUser', 'iSysman', 'iSysproduct', 'iSysserial',
+                'iSystemUUID', 'iSystype', 'iSysversion'
+            ],
+            'ipxeTable' => [
+                'ipxeFailure', 'ipxeFilename', 'ipxeMAC',
+                'ipxeManufacturer', 'ipxeProduct', 'ipxeSuccess',
+                'ipxeVersion'
+            ],
+            'LDAPServers' => [
+                'lsAdminGroup', 'lsBindDN', 'lsBindPwd', 'lsCreatedBy',
+                'lsDesc', 'lsDisplayNameAttr', 'lsDisplayNameEnabled',
+                'lsIsLDAPs', 'lsUserFilter', 'lsUserGroup'
+            ],
+            'location' => [
+                'lCreatedBy', 'lDesc', 'lStorageNodeProto',
+                'lTftpEnabled'
+            ],
+            'modules' => [
+                'description'
+            ],
+            'moduleStatusByHost' => [
+                'msState'
+            ],
+            'multicastSessions' => [
+                'msAnon5', 'msBasePort', 'msClients', 'msImage',
+                'msInterface', 'msIsDD', 'msLogPath', 'msMaxwait',
+                'msName', 'msPercent', 'msSessClients', 'msState'
+            ],
+            'nfsGroupMembers' => [
+                'ngmBandwidthLimit', 'ngmIsEnabled', 'ngmIsMasterNode',
+                'ngmKey', 'ngmMaxClients', 'ngmMemberDescription',
+                'ngmMemberName', 'ngmSSLPath', 'ngmSnapinPath',
+                'ngmWebroot'
+            ],
+            'nfsGroups' => [
+                'ngDesc'
+            ],
+            'ntfy' => [
+                'nCredentials'
+            ],
+            'OIDCProviders' => [
+                'opClientSecret', 'opCreatedBy', 'opDesc'
+            ],
+            'os' => [
+                'osDescription'
+            ],
+            'ou' => [
+                'ouCreatedBy', 'ouDesc'
+            ],
+            'plugins' => [
+                'pAnon5', 'pDescription', 'pIcon', 'pInstalled',
+                'pLocation', 'pRunfile', 'pState', 'pVersion'
+            ],
+            'powerManagement' => [
+                'pmDom', 'pmDow', 'pmHour', 'pmMin', 'pmMonth',
+                'pmOndemand'
+            ],
+            'printerAssoc' => [
+                'paAnon1', 'paAnon2', 'paAnon3', 'paAnon4', 'paAnon5',
+                'paIsDefault'
+            ],
+            'printers' => [
+                'pAnon2', 'pAnon3', 'pAnon4', 'pAnon5', 'pConfig',
+                'pConfigFile', 'pDefFile', 'pIP', 'pModel', 'pPort'
+            ],
+            'pxeMenu' => [
+                'pxeDesc', 'pxeHotKeyEnable', 'pxeKeySequence',
+                'pxeParams'
+            ],
+            'roles' => [
+                'rCreatedBy', 'rDesc'
+            ],
+            'scheduledTasks' => [
+                'stDOM', 'stDOW', 'stDesc', 'stHour', 'stMinute',
+                'stMonth', 'stName', 'stOther1', 'stOther2', 'stOther3',
+                'stOther4', 'stOther5', 'stShutDown'
+            ],
+            'schemaVersion' => [
+                'vValue'
+            ],
+            'sites' => [
+                'siteDesc'
+            ],
+            'snapinGroupAssoc' => [
+                'sgaPrimary'
+            ],
+            'snapins' => [
+                'sAnon3', 'sArgs', 'sCreator', 'sDesc', 'sReboot',
+                'sRunWith', 'sRunWithArgs', 'snapinProtect'
+            ],
+            'snapinTasks' => [
+                'stReturnCode', 'stReturnDetails', 'stState'
+            ],
+            'supportedOS' => [
+                'osName', 'osValue'
+            ],
+            'taskLog' => [
+                'createdBy', 'ip'
+            ],
+            'tasks' => [
+                'taskBPM', 'taskCreateBy', 'taskDataCopied',
+                'taskDataTotal', 'taskForce', 'taskIsDebug',
+                'taskNFSFailures', 'taskName', 'taskPCT', 'taskPassreset',
+                'taskPercentText', 'taskShutdown', 'taskTimeElapsed',
+                'taskTimeRemaining', 'taskWOL'
+            ],
+            'taskStates' => [
+                'tsDescription', 'tsIcon'
+            ],
+            'taskTypes' => [
+                'ttDescription', 'ttInitrd', 'ttKernel', 'ttKernelArgs'
+            ],
+            'userAuths' => [
+                'uaPasswordHash', 'uaSelectorHash'
+            ],
+            'userCleanup' => [
+                'ucName'
+            ],
+            'userGroups' => [
+                'ugCreatedBy', 'ugDesc'
+            ],
+            'users' => [
+                'uAPIToken', 'uCreateDate', 'uDisplay', 'uType'
+            ],
+            'userTracking' => [
+                'utAction', 'utAnon3', 'utDesc'
+            ],
+            'virus' => [
+                'vAnon2', 'vHostMAC', 'vMode', 'vName', 'vOrigFile'
+            ],
+            'windowsKeys' => [
+                'wkCreatedBy', 'wkDesc'
+            ],
+        ];
+
+        // MySQL and MariaDB spell a TEXT/BLOB default differently: MariaDB
+        // takes the literal, MySQL requires it parenthesised as an
+        // expression and rejects it outright below 8.0.13. Getting this
+        // wrong is not subtle -- the ALTER is refused and the step fails --
+        // but it is only visible on the server you are not developing on,
+        // which is what CI's mysql:8.0 job is for.
+        $version = (string) self::$DB->query('SELECT VERSION() AS `v`')
+            ->fetch()->get('v');
+        $maria = false !== stripos($version, 'mariadb');
+        $lobDefaults = $maria;
+        if (!$maria) {
+            preg_match('/^(\d+)\.(\d+)\.(\d+)/', $version, $m);
+            $lobDefaults = count($m) === 4
+                && (int) $m[1] * 10000 + (int) $m[2] * 100 + (int) $m[3]
+                    >= 80013;
+        }
+
+        foreach ($optional as $table => $columns) {
+            // Only columns that are actually still missing a default, so a
+            // re-run is a read and nothing else. A table that does not exist
+            // -- a plugin's, on an install that never had it -- returns
+            // nothing and is skipped rather than erroring.
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table "
+                . "AND `IS_NULLABLE` = 'NO' "
+                . "AND `COLUMN_DEFAULT` IS NULL "
+                . "AND `EXTRA` NOT LIKE '%auto_increment%'",
+                [],
+                [':table' => strtolower($table)]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            $want = array_map('strtolower', $columns);
+            foreach ((array) $rows as $row) {
+                if (!isset($row['c'], $row['ty'])
+                    || !in_array(strtolower($row['c']), $want, true)
+                ) {
+                    continue;
+                }
+                $type = trim($row['ty']);
+                $lob = (bool) preg_match(
+                    '/^(tiny|medium|long)?(text|blob)\b/i',
+                    $type
+                );
+                if ($lob && !$lobDefaults) {
+                    // Nothing sensible to do on MySQL below 8.0.13, and
+                    // nothing broken by skipping: insertBatch() backfills
+                    // the column and save() writes it explicitly.
+                    continue;
+                }
+                if (preg_match('/^datetime\b/i', $type)) {
+                    $default = 'current_timestamp()';
+                } elseif (preg_match(
+                    '/^(tiny|small|medium|big)?int\b/i',
+                    $type
+                )) {
+                    $default = '0';
+                } elseif (preg_match(
+                    "/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i",
+                    $type,
+                    $member
+                )) {
+                    $default = "'" . $member[2] . "'";
+                } elseif ($lob) {
+                    $default = $maria ? "''" : "('')";
+                } else {
+                    $default = "''";
+                }
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` %s NOT NULL '
+                        . 'DEFAULT %s',
+                        $table,
+                        $row['c'],
+                        $type,
+                        $default
+                    )
+                );
+            }
+        }
+
+        return true;
+    },
+];
