@@ -7001,3 +7001,89 @@ $this->schema[] = [
     // system/openapi, so its copy needs syncing by hand.
     Schema::dropTable('imagingLog'),
 ];
+
+// 353
+$this->schema[] = [
+    // Two "last seen" facts about a host, deliberately kept apart.
+    //
+    // hostLastPing   -- FOGPingHosts got a successful connect back.
+    //                   "The machine is powered on and reachable."
+    // hostLastCheckin -- the FOG client made a request.
+    //                   "The agent is installed, running, and can reach us."
+    //
+    // They are NOT collapsed into a single hostLastSeen. The rollup is
+    // MAX(the two) and can be derived in the view any time; the pair cannot
+    // be recovered from the rollup. The case that costs support time is
+    // exactly the disagreement -- a host that pings fine but stopped
+    // checking in has a broken client, and one column erases that.
+    //
+    // Both NULL-able with a NULL default, never NOT NULL. A NOT NULL
+    // DATETIME takes the zero date as its implicit default, and
+    // FOGController::save() writing '' into it (the GH-1243/GH-1245 family)
+    // turns "never seen" into 0000-00-00, which the display layer then has
+    // to special-case forever. NULL means never, and validDate() already
+    // renders that as an empty cell.
+    //
+    // No index on either. Both are write-hot -- hostLastCheckin takes a
+    // write on every client module request -- and the only read that would
+    // use one is an ORDER BY on the host grid, which is a filesort over a
+    // table measured in thousands of rows. Index maintenance on every
+    // check-in to save a filesort on a page view is the wrong trade.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351: ADD COLUMN has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and every column is
+    // named in the probe so the installer's grant check still passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN ('hostLastPing', 'hostLastCheckin')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostLastPing', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostLastPing` DATETIME NULL DEFAULT NULL"
+            );
+        }
+        if (!in_array('hostLastCheckin', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostLastCheckin` DATETIME NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+    // The ping is not ICMP and never has been: Ping::execute() opens a TCP
+    // connection and reports the errno. Port 445 and a 2 second timeout were
+    // hardcoded, which made "is this host up?" mean "does this host accept
+    // SMB?" -- permanently false for Linux hosts, for Windows with file
+    // sharing off, and for anything behind a host firewall. Now that a
+    // timestamp is being derived from the answer that guess had to become
+    // an administrator's choice.
+    //
+    // The defaults are exactly the old hardcoded values, so an upgrade
+    // changes nothing until someone edits them.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('PINGHOSTPORT','The TCP port FOGPingHosts connects to when testing "
+    . "whether a host is up. This is a TCP connect, not an ICMP echo, so the "
+    . "port has to be one the host actually listens on. 445 (SMB) is the "
+    . "historical default and suits a Windows estate; 22 is the usual choice "
+    . "for Linux hosts.','445','Ping Host Settings'), "
+    . "('PINGHOSTTIMEOUT','How many seconds to wait for a host to answer "
+    . "before recording it as unreachable. Hosts are now tested in parallel, "
+    . "so this is roughly the length of a whole ping cycle rather than a cost "
+    . "paid per host.','2','Ping Host Settings')",
+];

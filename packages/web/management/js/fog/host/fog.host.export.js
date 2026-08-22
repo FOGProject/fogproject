@@ -26,6 +26,8 @@
         {data: 'sec_tok', visible: false},
         {data: 'sec_time', visible: false},
         {data: 'pingstatus', visible: false},
+        {data: 'lastping', visible: false},
+        {data: 'lastcheckin', visible: false},
         {data: 'biosexit', visible: false},
         {data: 'efiexit', visible: false},
         {data: 'enforce', visible: false},

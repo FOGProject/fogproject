@@ -2073,6 +2073,16 @@ class Route extends FOGBase
                 case 'datetime':
                 case 'createdTime':
                 case 'completedTime':
+                    // The two halves of "when was this host last seen" (schema
+                    // step 353). They are plain datetimes here on purpose: no
+                    // combined column is emitted, because a DataTables column
+                    // has exactly one `db` binding, so a "last seen" cell
+                    // formatted from both would sort and search on whichever
+                    // one it was bound to and silently disagree with what it
+                    // displays. Two honest columns beat one that lies when you
+                    // click its header.
+                case 'lastping':
+                case 'lastcheckin':
                     $columns[] = [
                         'db' => $real,
                         'dt' => $common,
@@ -5204,7 +5214,8 @@ class Route extends FOGBase
             // was checked and the fields asked for are id, name, path,
             // snapinpath, hostID, ip, mac, userID, usergroupID, siteID,
             // storagegroupID, imageID, groupID, msID, isMaster, pending,
-            // sslpath, trustedcidrs, grantroleID, clientIgnore, imageIgnore.
+            // sslpath, trustedcidrs, grantroleID, clientIgnore, imageIgnore,
+            // lastcheckin.
             //   grep -rn 'getIds(' --include=*.php packages/ /path/to/fog-plugins
             $blocked = array_intersect(
                 $getFields,
