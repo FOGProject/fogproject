@@ -309,7 +309,8 @@ either companion ADR. 6 and 7 are gated, deliberately.
   per table.
 - The dashboard gains a card and no new timer.
 - A `report.view` holder stops getting a movement log for named employees as a
-  side effect — pending Decision 1's signoff.
+  side effect. Signed off and shipped as item 1; a role holding `report.view`
+  loses user tracking on deploy and is re-granted deliberately.
 - Retention is one mechanism for four tables rather than four mechanisms.
 - Upgraded servers keep every existing `userTracking` row until an
   administrator decides otherwise, and are told that they hold them.
