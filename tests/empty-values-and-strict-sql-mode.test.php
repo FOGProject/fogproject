@@ -111,7 +111,15 @@ evCheck(
 // ---------------------------------------------------------------
 // 2. save() asks emptyValueFor() what an empty field becomes.
 // ---------------------------------------------------------------
-$controller = evStrip($web . '/lib/fog/fogcontroller.class.php');
+//
+// save() still asks the question; the seam that answers it moved to FOGBase
+// when insertBatch() needed it too. FOGController and FOGManagerController
+// are siblings, so a helper only one of them can reach is a helper the other
+// write path silently does without -- which is why a strict server rejected
+// saving FOG settings while saving a host was fine. Both files are read
+// here, so a check does not care which one a given piece lives in.
+$controller = evStrip($web . '/lib/fog/fogcontroller.class.php')
+    . evStrip($web . '/lib/fog/fogbase.class.php');
 $squashed = preg_replace('#\s+#', '', $controller);
 
 evCheck(
@@ -128,7 +136,7 @@ evCheck(
 // under a strict mode and silently coerces without one -- the whole bug.
 // ---------------------------------------------------------------
 $at = strpos($squashed, 'staticfunctionemptyValueFor($table,$column)');
-evCheck($at !== false, 'FOGController::emptyValueFor() is gone');
+evCheck($at !== false, 'emptyValueFor() is gone');
 $body = false === $at ? '' : substr($squashed, $at, 900);
 
 foreach (array(

@@ -3360,6 +3360,242 @@ abstract class FOGBase
         }
     }
     /**
+     * Column type and nullability per table, read once per request.
+     *
+     * Lives on FOGBase rather than FOGController because the two write
+     * paths that need it are SIBLINGS, not parent and child:
+     * FOGController::save() writes one row, FOGManagerController::
+     * insertBatch() writes many, and both extend FOGBase directly. It
+     * started on FOGController because save() was its only caller, and
+     * the cost of leaving it there was that GH-1245's fix reached one of
+     * the two paths -- which is how a strict server came to reject saving
+     * FOG settings while saving a host worked fine.
+     *
+     * Null until first asked for.
+     *
+     * @var array|null
+     */
+    private static $columnTypes = null;
+
+    /**
+     * Loads the column map from the server's own catalog.
+     *
+     * Read from information_schema rather than from a committed manifest:
+     * this branch has no commons/schema-expected.php and no SchemaReconciler,
+     * so the database itself is the only description of the current schema
+     * there is. One query per request, and only if something actually asks --
+     * a save that supplies every field never gets here.
+     *
+     * A failure leaves the map empty, which makes emptyValueFor() answer ''
+     * for everything. That is exactly the behaviour that shipped before this
+     * change, so a server that will not answer the catalog query degrades to
+     * the old code path rather than to a broken one.
+     *
+     * @return void
+     */
+    private static function _loadColumnTypes()
+    {
+        self::$columnTypes = array();
+        try {
+            $rows = self::$DB->query(
+                "SELECT `TABLE_NAME` AS `t`, `COLUMN_NAME` AS `c`, "
+                . "`COLUMN_TYPE` AS `ty`, `IS_NULLABLE` AS `n`, "
+                . "`COLUMN_DEFAULT` AS `d`, `EXTRA` AS `e` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE()"
+            )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        } catch (Exception $e) {
+            $rows = array();
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Error'),
+                    $e->getMessage(),
+                    _('every column will be treated as untyped')
+                )
+            );
+        }
+        /*
+         * The degradation is deliberate, the SILENCE was not. PDODB swallows
+         * a rejected statement, so this never reached the catch above on a
+         * real error -- it cached an empty type map and every column went
+         * back to being untyped, which is exactly the bug this method exists
+         * to prevent, reappearing with nothing said.
+         *
+         * Behaviour is unchanged: still an empty map. Only now it is written
+         * down.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Error'),
+                    self::$DB->error,
+                    _('every column will be treated as untyped')
+                )
+            );
+            $rows = array();
+        }
+        foreach ((array)$rows as $row) {
+            if (!isset($row['t'], $row['c'], $row['ty'])) {
+                continue;
+            }
+            $nullable = isset($row['n']) && strtoupper($row['n']) === 'YES';
+            $auto = isset($row['e'])
+                && false !== stripos($row['e'], 'auto_increment');
+            self::$columnTypes[strtolower($row['t'])][strtolower($row['c'])] = array(
+                'type' => trim($row['ty']),
+                'nullable' => $nullable,
+                /*
+                 * "An INSERT must name this column or the server rejects the
+                 * row." True when it is NOT NULL, carries no DEFAULT, and is
+                 * not AUTO_INCREMENT -- see columnsRequiringValue() below for
+                 * why all three parts matter. Carried here rather than asked
+                 * for separately because this query already visits every
+                 * column of every table exactly once.
+                 */
+                'required' => !$nullable
+                    && !$auto
+                    && (!isset($row['d']) || null === $row['d']),
+            );
+        }
+    }
+
+    /**
+     * The declared SQL type of a column, or '' when it is not known.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return string
+     */
+    protected static function columnType($table, $column)
+    {
+        if (null === self::$columnTypes) {
+            self::_loadColumnTypes();
+        }
+        $t = strtolower($table);
+        $c = strtolower($column);
+        return isset(self::$columnTypes[$t][$c])
+            ? self::$columnTypes[$t][$c]['type']
+            : '';
+    }
+
+    /**
+     * Can this column hold NULL?
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return bool
+     */
+    protected static function columnIsNullable($table, $column)
+    {
+        if (null === self::$columnTypes) {
+            self::_loadColumnTypes();
+        }
+        $t = strtolower($table);
+        $c = strtolower($column);
+        return isset(self::$columnTypes[$t][$c])
+            && self::$columnTypes[$t][$c]['nullable'];
+    }
+
+    /**
+     * What an unset optional field should actually be written as.
+     *
+     * GH-1245. save() used to write '' for every unset optional field whose
+     * key does not end in "id". '' is a value only a string column can hold.
+     * Everywhere else the server either refuses it under a strict sql_mode or
+     * coerces it without one, and FOG only ever saw the second, because
+     * PDODB::_connect() cleared sql_mode on every connection. So this is not
+     * new behaviour being introduced -- it is the coercion the server was
+     * already performing, written down and made legal:
+     *
+     *   date/time  ->  NULL          (was '0000-00-00 00:00:00')
+     *   integer    ->  0             (was 0, via error 1366 downgraded)
+     *   enum/set   ->  first member  (was '', the error value at index 0)
+     *   anything   ->  ''            (unchanged; '' is a real value here)
+     *
+     * The integer and enum choices deliberately match the coercion rather
+     * than the column's DEFAULT. `hosts.hostEnforce` is declared
+     * DEFAULT '1' and rows across the field hold '' -- so honouring the
+     * default would silently turn enforcement ON for those hosts as a side
+     * effect of a storage fix. '' and '0' are both falsey in PHP, so the
+     * first enum member behaves as the error value already did.
+     *
+     * The column's TYPE is the only reliable way to tell these apart; the
+     * key's name is not, which is the lesson $databaseFieldsNotInt already
+     * exists for.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return mixed the value to write; null means a real SQL NULL
+     */
+    protected static function emptyValueFor($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        if ('' === $type) {
+            return '';
+        }
+        if (preg_match('/^(datetime|timestamp|date)\b/i', $type)) {
+            return null;
+        }
+        if (preg_match('/^(tiny|small|medium|big)?int\b/i', $type)) {
+            return 0;
+        }
+        if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $match)) {
+            return str_replace("''", "'", $match[2]);
+        }
+
+        return '';
+    }
+    /**
+     * Columns this table will not accept an INSERT without.
+     *
+     * A column qualifies when it is NOT NULL, carries no DEFAULT, and is not
+     * AUTO_INCREMENT. Under a strict sql_mode, omitting one of those from an
+     * INSERT is error 1364 -- "Field 'x' doesn't have a default value" -- and
+     * the row is rejected outright. Without a strict mode the server invents
+     * a zero value and says nothing, which is what FOG saw for nine years
+     * because PDODB cleared sql_mode on every connection.
+     *
+     * All three parts matter. NOT NULL alone is not enough: a column with a
+     * DEFAULT is happily omitted, and filling it would override the default
+     * the schema chose. Nor is "NOT NULL and no DEFAULT" enough: that also
+     * describes an AUTO_INCREMENT primary key, and filling `stID` with 0
+     * would write over the value the server was about to generate.
+     *
+     * Answered from the map _loadColumnTypes() already builds, so this costs
+     * no extra query. A catalog that could not be read leaves the map empty,
+     * which reports nothing required -- the caller then builds exactly the
+     * statement it built before this existed, rather than a different one.
+     *
+     * @param string $table the database table
+     *
+     * @return array column name (lowercased) => declared SQL type
+     */
+    protected static function columnsRequiringValue($table)
+    {
+        if (null === self::$columnTypes) {
+            self::_loadColumnTypes();
+        }
+        $t = strtolower((string)$table);
+        $out = array();
+        if (!isset(self::$columnTypes[$t])) {
+            return $out;
+        }
+        foreach (self::$columnTypes[$t] as $column => $meta) {
+            if (!empty($meta['required'])) {
+                $out[$column] = isset($meta['type']) ? $meta['type'] : '';
+            }
+        }
+        return $out;
+    }
+
+    /**
      * Output var_dump for logging
      *
      * @param object $object The item to var_dump

@@ -3479,16 +3479,44 @@ class FOGConfigurationPage extends FOGPage
                         }
                         break;
                 }
-                $items[] = array($key, $name, $set);
+                $items[] = array(
+                    $key,
+                    $name,
+                    $set,
+                    trim((string)$Service->description),
+                    trim((string)$Service->category)
+                );
                 unset($Service, $index);
             }
             if (count($items) > 0) {
+                /*
+                 * settingDesc and settingCategory are named even though this
+                 * saver never changes them, and the values are the ones just
+                 * read back. globalSettings declares both longtext NOT NULL
+                 * with no DEFAULT -- a longtext could not carry one on the
+                 * MySQL versions FOG supports -- so an INSERT that leaves
+                 * them out is error 1364 on a strict server, which is what
+                 * saving any setting became once GH-1245 stopped PDODB
+                 * clearing sql_mode.
+                 *
+                 * insertBatch() now backfills a column like this on its own,
+                 * so this is belt and braces rather than the fix. It is worth
+                 * having anyway: the backfill can only supply '', and if a
+                 * setting row is ever genuinely absent this writes the real
+                 * description and category instead of blanking them.
+                 *
+                 * The iPXE saver above cannot do the same -- it works from a
+                 * name/value map and never loads the row -- so that one is
+                 * left to the backfill.
+                 */
                 self::getClass('ServiceManager')
                     ->insertBatch(
                         array(
                             'id',
                             'name',
-                            'value'
+                            'value',
+                            'description',
+                            'category'
                         ),
                         $items
                     );
