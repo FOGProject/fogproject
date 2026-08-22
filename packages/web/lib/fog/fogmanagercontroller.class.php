@@ -1522,6 +1522,118 @@ abstract class FOGManagerController extends FOGBase
         return (int)$total;
     }
     /**
+     * Builds the CREATE TABLE for this manager's table, with a default on
+     * every column that is optional.
+     *
+     * GH-1245. Schema::createTable() emits `NOT NULL` with no DEFAULT for
+     * almost everything a caller does not spell out, which is the same defect
+     * schema step 348 repairs on an existing install -- except that the step
+     * can only repair a table that is already there. A plugin's createSql()
+     * runs as step 0 of its own schema(), so a plugin installed AFTER the
+     * migration gets a table built the old way: every optional column
+     * mandatory, and under the server's own sql_mode any INSERT omitting one
+     * fails with error 1364.
+     *
+     * WHICH COLUMNS KEEP THEIR TEETH. Not a judgement call, and not a list
+     * kept by hand -- FOG already states it, and this class already holds the
+     * statement: $databaseFieldsRequired, resolved up the model's inheritance
+     * chain by the constructor. Three kinds of column are left bare:
+     *
+     *   - the primary key and the auto-increment column;
+     *   - anything the model declares required;
+     *   - anything whose name ends in ID, because an INSERT that forgets the
+     *     row it hangs off should fail rather than make a silent orphan.
+     *     Deliberately not gated on an integer type: a foreign key stored as
+     *     text is no less a foreign key.
+     *
+     * That is deliberately the SAME rule schema step 348 applies, so a table
+     * a plugin creates and a table the step migrated say the same thing. Two
+     * installs of the same FOG should not have two different schemas.
+     *
+     * A default the caller passed explicitly always wins; this only fills in
+     * where there was nothing.
+     *
+     * The signature mirrors Schema::createTable() exactly so a call site
+     * changes by one token.
+     *
+     * @param string $name    What are we calling the table?
+     * @param bool   $exists  If not exists?
+     * @param array  $fields  The fields and names.
+     * @param array  $types   The types for the fields.
+     * @param array  $nulls   Which fields to have null or not.
+     * @param array  $default Default values for field(s).
+     * @param array  $unique  The unique fields.
+     * @param string $engine  The db engine for the table.
+     * @param string $charset The charset to use for the table.
+     * @param string $prime   The primary field, if one.
+     * @param string $autoin  The auto increment field.
+     *
+     * @return string
+     */
+    public function createTableSql(
+        $name,
+        $exists,
+        $fields,
+        $types,
+        $nulls,
+        $default,
+        $unique,
+        $engine = 'InnoDB',
+        $charset = 'utf8',
+        $prime = '',
+        $autoin = ''
+    ) {
+        $keep = [];
+        foreach ((array)$this->databaseFieldsRequired as $friendly) {
+            if (isset($this->databaseFields[$friendly])) {
+                $keep[strtolower($this->databaseFields[$friendly])] = true;
+            }
+        }
+        if ($prime) {
+            $keep[strtolower($prime)] = true;
+        }
+        if ($autoin) {
+            $keep[strtolower($autoin)] = true;
+        }
+        foreach ((array)$fields as $i => $field) {
+            $notNull = isset($nulls[$i]) && $nulls[$i] === false;
+            $hasDefault = isset($default[$i])
+                && false !== $default[$i]
+                && null !== $default[$i]
+                && '' !== $default[$i];
+            if (!$notNull
+                || $hasDefault
+                || isset($keep[strtolower($field)])
+                || preg_match('/ID$/', $field)
+            ) {
+                continue;
+            }
+            $fill = Schema::emptyDefaultFor($types[$i]);
+            if (null === $fill) {
+                // A TEXT or BLOB column on a server too old to carry a
+                // default for one. Nothing to do and nothing broken by
+                // leaving it: save() writes the column explicitly and
+                // insertBatch() backfills it.
+                continue;
+            }
+            $default[$i] = $fill;
+        }
+
+        return Schema::createTable(
+            $name,
+            $exists,
+            $fields,
+            $types,
+            $nulls,
+            $default,
+            $unique,
+            $engine,
+            $charset,
+            $prime,
+            $autoin
+        );
+    }
+    /**
      * Uninstalls the table.
      *
      * @return bool
