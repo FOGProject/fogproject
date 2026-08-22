@@ -72,28 +72,6 @@ if ('' === $webroot || !file_exists($webroot . '/commons/base.inc.php')) {
 require_once $webroot . '/commons/base.inc.php';
 
 /**
- * FOGBase::$DB is protected, so reach it from inside a subclass.
- *
- * @category VerifyPluginInstall
- * @package  FOGProject
- * @author   Tom Elliott <tommygunsster@gmail.com>
- * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
- * @link     https://fogproject.org
- */
-class VerifyPluginInstallDb extends \FOG\FOGBase
-{
-    /**
-     * The shared PDODB.
-     *
-     * @return object
-     */
-    public static function db()
-    {
-        return self::$DB;
-    }
-}
-
-/**
  * Reports one check.
  *
  * Output goes to STDERR because commons/base.inc.php starts an output buffer
@@ -194,23 +172,32 @@ if ($ddl === $sql) {
 }
 
 $fail = 0;
-$db   = VerifyPluginInstallDb::db();
+
+// A plain PDO rather than FOGBase::$DB, which is protected and would need a
+// subclass declared here -- and a class declared in bin/ breaks the tree-wide
+// checks in tests/all-classes-load.test.php and its two siblings, which
+// require every declared class to sit in a file named after it. Booting the
+// tree above is what defines these constants.
+$db = new \PDO(
+    sprintf('mysql:host=%s;dbname=%s', DATABASE_HOST, DATABASE_NAME),
+    DATABASE_USERNAME,
+    DATABASE_PASSWORD
+);
+$db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 try {
-    $db->query(sprintf('DROP TABLE IF EXISTS `%s`', $scratch));
-    $db->query($ddl);
+    $db->exec(sprintf('DROP TABLE IF EXISTS `%s`', $scratch));
+    $db->exec($ddl);
     vpiSay(sprintf('run 1: `%s` created', $scratch));
 
-    $db->query(vpiInsertFor($sql, $scratch));
-    $before = (int)$db->query(sprintf('SELECT COUNT(*) AS c FROM `%s`', $scratch))
-        ->fetch()
-        ->get('c');
+    $db->exec(vpiInsertFor($sql, $scratch));
+    $before = (int)$db->query(sprintf('SELECT COUNT(*) FROM `%s`', $scratch))
+        ->fetchColumn();
     vpiSay(sprintf('row inserted, count = %d', $before));
 
     // Exactly what a second plugin install now runs.
-    $db->query($ddl);
-    $after = (int)$db->query(sprintf('SELECT COUNT(*) AS c FROM `%s`', $scratch))
-        ->fetch()
-        ->get('c');
+    $db->exec($ddl);
+    $after = (int)$db->query(sprintf('SELECT COUNT(*) FROM `%s`', $scratch))
+        ->fetchColumn();
     vpiSay(sprintf('run 2 (re-install): count = %d', $after));
 
     if (1 === $before && 1 === $after) {
@@ -219,10 +206,10 @@ try {
         vpiSay(sprintf('FAIL: row count went %d -> %d', $before, $after));
         $fail = 1;
     }
-} catch (Exception $e) {
+} catch (\Exception $e) {
     vpiSay('FAIL: ' . $e->getMessage());
     $fail = 1;
 }
-$db->query(sprintf('DROP TABLE IF EXISTS `%s`', $scratch));
+$db->exec(sprintf('DROP TABLE IF EXISTS `%s`', $scratch));
 vpiSay('scratch table dropped');
 exit($fail);
