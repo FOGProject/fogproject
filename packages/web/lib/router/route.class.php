@@ -2774,22 +2774,22 @@ class Route extends FOGBase
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
                         switch ((string) $d) {
-                            case '0':
+                            case (string) UserTracking::ACTION_LOGOUT:
                                 return _('Logout');
-                            case '1':
+                            case (string) UserTracking::ACTION_LOGIN:
                                 return _('Login');
-                            case '99':
+                            case (string) UserTracking::ACTION_SERVICE_START:
                                 return _('Service Start');
                         }
                         // A code this does not know renders as itself, not as
-                        // an empty cell. utAction has no lookup table and no
-                        // constants -- its three values are these literals and
-                        // nothing constrains the column to them, so an
-                        // unrecognised one is a real possibility (a plugin
-                        // writing its own, or the '' that save() wrote into
-                        // every unset column before GH-1245). Falling out of
-                        // the switch returned null, so the row still listed
-                        // with a blank Action and nothing said why.
+                        // an empty cell. utAction has no lookup table and
+                        // nothing constrains the column to the three codes
+                        // UserTracking declares, so an unrecognised one is a
+                        // real possibility (a plugin writing its own, or the
+                        // '' that save() wrote into every unset column before
+                        // GH-1245). Falling out of the switch returned null,
+                        // so the row still listed with a blank Action and
+                        // nothing said why.
                         return '' === (string) $d
                             ? _('Unknown')
                             : \Initiator::e($d);

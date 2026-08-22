@@ -2,7 +2,20 @@
 
 ## Status
 
-proposed
+proposed -- phases 0 and 1 of the Migration section are implemented on
+`working-1.6`
+
+Those two are the ones the ADR marks as worth doing whatever happens to the
+rest, and neither touches the database or changes behaviour: phase 0 was two
+live defects found while writing this (`UserTrack::json()` setting a key no
+model declares, and the list formatter falling out of its switch into a blank
+cell), and phase 1 writes the convention down -- the six frame keys are
+documented on `FOGController` beside `createdBy`/`createdTime`, and
+`userTracking`'s three `utAction` codes are class constants that its two
+readers now share instead of each spelling the same literals.
+
+Phases 2 to 5 add columns and are **not** started. They need this ADR
+accepted first, and they are what gates ADR 0023's item 5.
 
 ## Context
 

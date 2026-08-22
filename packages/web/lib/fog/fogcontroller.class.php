@@ -94,6 +94,35 @@ abstract class FOGController extends FOGBase
     /**
      * Fields to ignore.
      *
+     * These two are the first half of the event-record frame (ADR 0020
+     * Decision 2). Any model that records *an event that happened* -- rather
+     * than a thing that exists -- uses the same six friendly keys, so that a
+     * reader of one such table can read the others without learning a second
+     * vocabulary. They are friendly keys, not column names: each model maps
+     * them onto whatever its own columns are called.
+     *
+     * | key            | meaning                                            |
+     * |----------------|----------------------------------------------------|
+     * | `createdTime`  | when it happened; filled by save()                 |
+     * | `createdBy`    | the FOG identity responsible -- an operator, an API |
+     * |                | user, or 'fog' for the server itself. Filled by     |
+     * |                | save(). NEVER an endpoint's OS account.            |
+     * | `ip`           | the address the event arrived from                 |
+     * | `type`         | what kind of event, as a stable machine code --     |
+     * |                | class constants, NEVER translated at write time     |
+     * | `subjectID` /  | what it is about: the id, plus a denormalized label |
+     * | `subjectLabel` | that stays readable after the id is deleted         |
+     * | `text`         | detail for a human, untranslated at write time      |
+     *
+     * `subjectType` joins them only where the subject is not always the same
+     * class: `history` is about anything and needs it; `taskLog` and
+     * `userTracking` are always about a Host and do not.
+     *
+     * `TaskLog` is the worked example -- it maps all six. The rule the frame
+     * exists to prevent is the one `userTracking` got wrong: `utUserName` is
+     * the *subject* of the event, not its actor, and `createdBy` is 'fog'
+     * (ADR 0020 Decision 3).
+     *
      * @var array
      */
     protected $databaseFieldsToIgnore = [
