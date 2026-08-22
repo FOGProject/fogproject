@@ -106,7 +106,15 @@ $classes = [
     'Task',
     'SnapinJob',
     'SnapinTask',
-    'ImagingLog',
+    // ImagingLog was here until ADR 0022 decision 3 retired the table, and
+    // nothing replaces it. TaskLog is the class that took over recording an
+    // imaging run, but it declares NO relationship to Host at all -- it
+    // reaches a host through the id it stores, not through a join -- so it
+    // does not belong on this list. That is deliberate rather than an
+    // oversight: giving TaskLog a Host relationship would pull Host's
+    // filtered hostMAC join, and the `primary => 1` predicate with it, into
+    // every taskLog query. That is the exact defect this file exists to
+    // catch, so the fix for it must not create a new instance of it.
     'NodeFailure',
     'UserTracking',
     'OUAssociation',

@@ -18,7 +18,8 @@ namespace FOG;
  *
  * ONE MECHANISM, NOT FOUR. Four tables need ageing out and they arrived from
  * three directions -- `auditLog` from ADR 0021, `history` and `userTracking`
- * from ADR 0023, `imagingLog` from ADR 0022, which defers here explicitly.
+ * from ADR 0023. ADR 0022 deferred `imagingLog` here and then retired the
+ * table instead; `taskLog` inherits the question and grows faster.
  * Built per-table that would be four sweeps ageing four tables with four
  * bugs, so what exists is a registry of table => setting => date column and
  * one sweep that walks it. A fifth table is a registry entry.
@@ -77,11 +78,11 @@ class Retention extends FOGBase
     /**
      * The tables core itself ages out.
      *
-     * `date` is the column the window is measured against, and the choice
-     * matters on one of them: imagingLog is aged by ilStartTime rather than
-     * ilFinishTime because a task that never finished has no finish time,
-     * and ageing by a column that can be empty would keep those rows forever
-     * -- which is exactly the set somebody is most likely to be looking for.
+     * `date` is the column the window is measured against. Pick one that is
+     * always written: ageing by a column that can be empty keeps those rows
+     * forever, and an unfinished run is exactly the set somebody is most
+     * likely to be looking for. (`imagingLog` was the entry that made this
+     * worth saying, and it is retired -- ADR 0022 decision 3.)
      *
      * `children` are rows in another table that point at these and are in no
      * foreign key, so nothing else would remove them. auditChange is the only
@@ -110,11 +111,6 @@ class Retention extends FOGBase
                 'setting' => 'FOG_USERTRACKING_RETENTION_DAYS',
                 'date' => 'utDateTime',
                 'id' => 'utID',
-            ],
-            'imagingLog' => [
-                'setting' => 'FOG_IMAGINGLOG_RETENTION_DAYS',
-                'date' => 'ilStartTime',
-                'id' => 'ilID',
             ],
         ];
     }

@@ -316,18 +316,6 @@ return [
                 'imageTypeValue' => 'varchar(10) NOT NULL',
             ],
         ],
-        'imagingLog' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `imagingLog` ( `ilID` int(11) NOT NULL AUTO_INCREMENT, `ilHostID` int(11) NOT NULL, `ilStartTime` datetime NOT NULL, `ilFinishTime` datetime DEFAULT NULL, `ilImageName` varchar(64) NOT NULL, `ilType` varchar(64) NOT NULL DEFAULT \'\', `ilCreatedBy` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`ilID`), KEY `new_index` (`ilHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'ilID' => 'int(11) NOT NULL',
-                'ilHostID' => 'int(11) NOT NULL',
-                'ilStartTime' => 'datetime NOT NULL',
-                'ilFinishTime' => 'datetime DEFAULT NULL',
-                'ilImageName' => 'varchar(64) NOT NULL',
-                'ilType' => 'varchar(64) NOT NULL DEFAULT \'\'',
-                'ilCreatedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
-            ],
-        ],
         'inventory' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `inventory` ( `iID` int(11) NOT NULL AUTO_INCREMENT, `iHostID` int(11) NOT NULL, `iPrimaryUser` varchar(50) NOT NULL DEFAULT \'\', `iOtherTag` varchar(50) NOT NULL DEFAULT \'\', `iOtherTag1` varchar(50) NOT NULL DEFAULT \'\', `iCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `iDeleteDate` datetime DEFAULT NULL, `iSysman` varchar(250) NOT NULL DEFAULT \'\', `iSysproduct` varchar(250) NOT NULL DEFAULT \'\', `iSysversion` varchar(250) NOT NULL DEFAULT \'\', `iSysserial` varchar(250) NOT NULL DEFAULT \'\', `iSystype` varchar(250) NOT NULL DEFAULT \'\', `iBiosversion` varchar(250) NOT NULL DEFAULT \'\', `iBiosvendor` varchar(250) NOT NULL DEFAULT \'\', `iBiosdate` varchar(250) NOT NULL DEFAULT \'\', `iMbman` varchar(250) NOT NULL DEFAULT \'\', `iMbproductname` varchar(250) NOT NULL DEFAULT \'\', `iMbversion` varchar(250) NOT NULL DEFAULT \'\', `iMbserial` varchar(250) NOT NULL DEFAULT \'\', `iMbasset` varchar(250) NOT NULL DEFAULT \'\', `iCpuman` varchar(250) NOT NULL DEFAULT \'\', `iCpuversion` varchar(250) NOT NULL DEFAULT \'\', `iCpucurrent` varchar(250) NOT NULL DEFAULT \'\', `iCpumax` varchar(250) NOT NULL DEFAULT \'\', `iMem` varchar(250) NOT NULL DEFAULT \'\', `iHdmodel` varchar(250) NOT NULL DEFAULT \'\', `iHdfirmware` varchar(250) NOT NULL DEFAULT \'\', `iHdserial` varchar(250) NOT NULL DEFAULT \'\', `iCaseman` varchar(250) NOT NULL DEFAULT \'\', `iCasever` varchar(250) NOT NULL DEFAULT \'\', `iCaseserial` varchar(250) NOT NULL DEFAULT \'\', `iCaseasset` varchar(250) NOT NULL DEFAULT \'\', `iSystemUUID` varchar(255) NOT NULL DEFAULT \'\', `iGpuvendors` varchar(255) NOT NULL DEFAULT \'\', `iGpuproducts` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`iID`), UNIQUE KEY `iHostID_2` (`iHostID`), KEY `iHostID` (`iHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -795,7 +783,7 @@ return [
             ],
         ],
         'taskLog' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `taskLog` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `taskID` int(11) NOT NULL, `taskStateID` mediumint(9) NOT NULL, `ip` varchar(15) NOT NULL DEFAULT \'\', `createTime` timestamp NOT NULL DEFAULT current_timestamp(), `createdBy` varchar(30) NOT NULL DEFAULT \'\', `logType` varchar(16) NOT NULL DEFAULT \'state\', `logText` text DEFAULT NULL, `logHostID` int(11) DEFAULT NULL, `logHostName` varchar(16) NOT NULL DEFAULT \'\', `logTaskTypeName` varchar(30) NOT NULL DEFAULT \'\', PRIMARY KEY (`id`), KEY `taskID` (`taskID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `taskLog` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `taskID` int(11) NOT NULL, `taskStateID` mediumint(9) NOT NULL, `ip` varchar(15) NOT NULL DEFAULT \'\', `createTime` timestamp NOT NULL DEFAULT current_timestamp(), `createdBy` varchar(30) NOT NULL DEFAULT \'\', `logType` varchar(16) NOT NULL DEFAULT \'state\', `logText` text DEFAULT NULL, `logHostID` int(11) DEFAULT NULL, `logHostName` varchar(16) NOT NULL DEFAULT \'\', `logTaskTypeName` varchar(30) NOT NULL DEFAULT \'\', `logImageName` varchar(40) NOT NULL DEFAULT \'\', PRIMARY KEY (`id`), KEY `taskID` (`taskID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'id' => 'mediumint(9) NOT NULL',
                 'taskID' => 'int(11) NOT NULL',
@@ -808,6 +796,7 @@ return [
                 'logHostID' => 'int(11) DEFAULT NULL',
                 'logHostName' => 'varchar(16) NOT NULL DEFAULT \'\'',
                 'logTaskTypeName' => 'varchar(30) NOT NULL DEFAULT \'\'',
+                'logImageName' => 'varchar(40) NOT NULL DEFAULT \'\'',
             ],
         ],
         'tasks' => [

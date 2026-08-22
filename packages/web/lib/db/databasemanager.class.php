@@ -379,7 +379,7 @@ class DatabaseManager extends FOGCore
         }
         /*
          * ALTER TABLE ... ENGINE=InnoDB rebuilds the whole table, and on a
-         * large imagingLog or hosts that legitimately runs for minutes with
+         * large taskLog or hosts that legitimately runs for minutes with
          * the server sending nothing back. PDODB puts a 300s ceiling on reads
          * so a wedged MySQL cannot hang a worker forever (#944) -- that
          * ceiling is right for a request and wrong here, where tripping it

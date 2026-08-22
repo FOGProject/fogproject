@@ -69,7 +69,6 @@ class ReportManagement extends FOGPage
         _('History Report');
         _('Host List');
         _('Hosts And Users');
-        _('Imaging Log');
         _('Inventory Report');
         _('Pending Mac List');
         _('Product Keys');

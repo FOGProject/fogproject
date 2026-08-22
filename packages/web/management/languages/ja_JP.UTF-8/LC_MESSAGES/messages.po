@@ -2126,12 +2126,6 @@ msgstr "既定で有効"
 msgid "Encryption Data Reset"
 msgstr "暗号化データをリセット"
 
-msgid "End"
-msgstr "終了"
-
-msgid "End Time"
-msgstr "終了時刻"
-
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2473,17 +2467,11 @@ msgstr "タスクの更新に失敗しました"
 msgid "Failed to update host"
 msgstr "ホストの更新に失敗しました"
 
-msgid "Failed to update imaging log"
-msgstr "イメージ処理ログの更新に失敗しました"
-
 msgid "Failed to update task"
 msgstr "タスクの更新に失敗しました"
 
 msgid "Failed to update task log"
 msgstr "タスクログの更新に失敗しました"
-
-msgid "Failed to update/create image log"
-msgstr "イメージログの更新または作成に失敗しました"
 
 msgid "Failed to update/create task log"
 msgstr "タスクログの更新または作成に失敗しました"
@@ -2838,10 +2826,6 @@ msgid "Group Image Association"
 msgstr "グループイメージの関連付け"
 
 #, fuzzy
-msgid "Group Image History"
-msgstr "イメージ履歴"
-
-#, fuzzy
 msgid "Group Init"
 msgstr "グループ スナップイン"
 
@@ -2927,6 +2911,10 @@ msgstr "グループ スナップイン"
 #, fuzzy
 msgid "Group Snapin History"
 msgstr "スナップイン履歴"
+
+#, fuzzy
+msgid "Group Task History"
+msgstr "イメージ履歴"
 
 msgid "Group Update Fail"
 msgstr "グループの更新に失敗しました"
@@ -3140,10 +3128,6 @@ msgstr "ホスト ID"
 msgid "Host Image"
 msgstr "ホストイメージ"
 
-#, fuzzy
-msgid "Host Image History"
-msgstr "ホストイメージ履歴"
-
 msgid "Host Init"
 msgstr "ホスト Init"
 
@@ -3225,6 +3209,10 @@ msgstr "スナップインロケーション"
 
 msgid "Host Snapin History"
 msgstr "ホストスナップイン履歴"
+
+#, fuzzy
+msgid "Host Task History"
+msgstr "ホストイメージ履歴"
 
 msgid "Host Update Fail"
 msgstr "ホストの更新に失敗しました"
@@ -6955,9 +6943,6 @@ msgstr "Space 変数はブール値である必要があります"
 msgid "Specified download URL not allowed!"
 msgstr "指定されたダウンロード URL は許可されていません！"
 
-msgid "Start"
-msgstr "開始"
-
 #, fuzzy
 msgid "Start Download Fail"
 msgstr "ダウンロードに失敗しました"
@@ -10081,8 +10066,14 @@ msgstr ""
 #~ msgid "Enable Nested Group Matching (Active Directory only)"
 #~ msgstr "ネストされたグループ照合を有効化（Active Directory のみ）"
 
+#~ msgid "End"
+#~ msgstr "終了"
+
 #~ msgid "End Date"
 #~ msgstr "終了日"
+
+#~ msgid "End Time"
+#~ msgstr "終了時刻"
 
 #~ msgid "Enter a group name to search for"
 #~ msgstr "検索するグループ名を入力してください"
@@ -10263,6 +10254,12 @@ msgstr ""
 
 #~ msgid "Failed to start tasking type"
 #~ msgstr "タスクタイプの開始に失敗しました"
+
+#~ msgid "Failed to update imaging log"
+#~ msgstr "イメージ処理ログの更新に失敗しました"
+
+#~ msgid "Failed to update/create image log"
+#~ msgstr "イメージログの更新または作成に失敗しました"
 
 #, php-format
 #~ msgid "Failed to upload \"%s\" to Master Node"
@@ -11386,6 +11383,9 @@ msgstr ""
 
 #~ msgid "Somebody will be able to help in some form"
 #~ msgstr "何らかの形で誰かがサポートできるはずです"
+
+#~ msgid "Start"
+#~ msgstr "開始"
 
 #~ msgid "Start Date"
 #~ msgstr "開始日"

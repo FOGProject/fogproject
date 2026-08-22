@@ -237,9 +237,6 @@ class TaskQueue extends TaskingElement
                 }
                 $this->Task
                     ->set('storagenodeID', $this->StorageNode->get('id'));
-                if (!$this->imageLog(true)) {
-                    throw new \Exception(_('Failed to update/create image log'));
-                }
             }
             // Here rather than at the top of the method: a host waiting in
             // the queue calls checkIn() on every poll and throws above, so a
@@ -574,8 +571,24 @@ class TaskQueue extends TaskingElement
                 'tokenlock' => self::$Host->get('tokenlock')
             ];
             if ($this->Task->isDeploy()) {
-                self::$Host->set('deployed', self::niceDate()->format('Y-m-d H:i:s'));
+                $deployedAt = self::niceDate()->format('Y-m-d H:i:s');
+                self::$Host->set('deployed', $deployedAt);
                 $updateFields['deployed'] = self::$Host->get('deployed');
+                // images.imageLastDeploy had a field mapping on the Image
+                // model and no writer anywhere -- measured at 3 of 29 images
+                // carrying a value on a live install. It matters more now
+                // that imagingLog is gone (ADR 0022 decision 3), because it
+                // is the column a reader reaches for to answer "when did
+                // this image last go out". Written beside the host's own
+                // last-deploy stamp, from the same moment.
+                if ($this->imagingTask
+                    && $this->Image
+                    && $this->Image->isValid()
+                ) {
+                    $this->Image
+                        ->set('deployed', $deployedAt)
+                        ->save();
+                }
                 $this->_email();
             } elseif ($this->Task->isCapture()) {
                 $this->_moveUpload();
@@ -607,11 +620,6 @@ class TaskQueue extends TaskingElement
             );
             if (!$this->taskLog()) {
                 throw new \Exception(_('Failed to update task log'));
-            }
-            if ($this->imagingTask) {
-                if (!$this->imageLog(false)) {
-                    throw new \Exception(_('Failed to update imaging log'));
-                }
             }
             $this->_notifyImagingOutcome();
             echo '##';

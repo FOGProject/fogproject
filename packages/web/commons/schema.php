@@ -6927,3 +6927,77 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 351
+$this->schema[] = [
+    // ADR 0022 decision 3: taskLog carries the image name, so imagingLog can
+    // go.
+    //
+    // The two logs have always recorded the same events. TaskQueue calls
+    // imageLog() and taskLog() in the same methods, on the same checkin and
+    // the same completion, behind the same $imagingTask guard
+    // (taskqueue.class.php:240/263 and :608/612), and nothing in
+    // packages/service writes either. imagingLog held exactly one fact
+    // taskLog did not: which image ran.
+    //
+    // Stored as a NAME rather than an id, for the reason schema 341 gave
+    // logHostName the same treatment. The only route from a taskLog row to
+    // its image is taskID -> tasks.taskImageID -> images.imageName, and both
+    // hops break: Route::deletemass('host') cascades to tasks, and images get
+    // deleted too. On the install this was written against, 9 of 56 taskLog
+    // rows already had no surviving task.
+    //
+    // varchar(40) matches images.imageName, which is the widest value this
+    // can ever copy. imagingLog's own ilImageName was varchar(64) -- wider
+    // than its source and so wider than it needed to be.
+    //
+    // Guarded closure, same as 336/338/341/349/350: ADD COLUMN has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and every column is
+    // named in the probe so the installer's grant check still passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN ('logImageName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('logImageName', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` "
+                . "ADD `logImageName` VARCHAR(40) NOT NULL DEFAULT ''"
+            );
+        }
+
+        return true;
+    },
+];
+
+// 352
+$this->schema[] = [
+    // ADR 0022 decision 3, second half: imagingLog is retired.
+    //
+    // Step 351 gave taskLog the one column that made this table distinct.
+    // Everything else it held, taskLog already had and in a more durable
+    // form -- host id AND denormalized host name (341), a real state column,
+    // createTime, createdBy, ip -- and nothing deletes taskLog rows, where
+    // imagingLog deleted its own unfinished rows on the next attempt.
+    //
+    // The rows are NOT migrated. Backfilling them into taskLog needs a task
+    // id imagingLog never stored; adding one purely to move rows out of a
+    // table being dropped is work for nothing. The cost, accepted
+    // deliberately: installs lose whatever imaging history they hold, and the
+    // dashboard's images-per-day chart reads empty for the window predating
+    // this step.
+    //
+    // The REST class goes with it and no shim replaces it. /api/imaginglog
+    // 404s from here. No 1.6 release has ever shipped, so there is no
+    // released API contract to break -- see ADR 0021's status. FogApi keeps
+    // its own hardcoded copy of the class list rather than reading
+    // system/openapi, so its copy needs syncing by hand.
+    Schema::dropTable('imagingLog'),
+];

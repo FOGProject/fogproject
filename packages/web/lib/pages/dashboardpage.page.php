@@ -680,11 +680,23 @@ class DashboardPage extends FOGPage
             ->setTime(23, 59, 59);
         // One grouped query instead of a COUNT per day (was up to 365 queries
         // for the "1 Year" view). Images are counted by the day they started.
+        //
+        // Reads taskLog since imagingLog was retired (ADR 0022 decision 3),
+        // and the shape changes with it: imagingLog held one row per imaging
+        // run, taskLog holds one per state transition. So this counts
+        // DISTINCT tasks, not rows, or a task that moved through three states
+        // in a day would be three images.
+        //
+        // `logImageName <> ''` is what makes a row an imaging one -- it is
+        // written only for tasks carrying an image (TaskingElement::taskLog())
+        // -- and it is why the filter is on that column rather than on a task
+        // type name that a site can rename.
         $rows = self::$DB->query(
-            "SELECT DATE(`ilStartTime`) AS `d`, COUNT(`ilID`) AS `c`
-               FROM `imagingLog`
-              WHERE `ilStartTime` BETWEEN :start AND :end
-              GROUP BY DATE(`ilStartTime`)",
+            "SELECT DATE(`createTime`) AS `d`, COUNT(DISTINCT `taskID`) AS `c`
+               FROM `taskLog`
+              WHERE `createTime` BETWEEN :start AND :end
+                AND `logImageName` <> ''
+              GROUP BY DATE(`createTime`)",
             [],
             [
                 ':start' => $start->format('Y-m-d H:i:s'),

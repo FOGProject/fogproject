@@ -155,49 +155,6 @@
           }
         });
       break;
-      // Imaging Log
-    case 'imaging log':
-      var imagingLogTable = $('#imaginglog-table'),
-        table = imagingLogTable.registerTable(null, {
-          order: [
-            [2, 'desc'],
-            [0, 'asc']
-          ],
-          buttons: reportButtons,
-          columns: [
-            {data: 'hostLink'},
-            {data: 'start'},
-            {data: 'finish'},
-            {data: 'diff'},
-            {data: 'imageLink'},
-            {data: 'type'},
-            {data: 'hostname'}
-          ],
-          columnDefs: [
-            {
-              orderData: [6],
-              targets: [0]
-            },
-            {
-              targets: [6],
-              visible: false,
-              searchable: false
-            }
-          ],
-          rowGroup: {
-            dataSrc: 'hostLink'
-          },
-          rowId: 'id',
-          processing: true,
-          serverSide: true,
-          select: false,
-          ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f,
-            type: 'post'
-          }
-        });
-      break;
       // Inventory Report
     case 'inventory report':
       var inventoryTable = $('#inventory-table'),
