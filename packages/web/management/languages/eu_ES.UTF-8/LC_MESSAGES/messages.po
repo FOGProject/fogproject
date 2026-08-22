@@ -934,10 +934,6 @@ msgstr "Versuche, durchzuführen"
 msgid "Attempting to ping"
 msgstr "Versuche, anzupingen"
 
-#, fuzzy
-msgid "Attempting to ping host"
-msgstr "Versuche, anzupingen"
-
 msgid "Audit Log"
 msgstr ""
 
@@ -3466,9 +3462,6 @@ msgstr "IP-Adresse"
 msgid "IP Passed is incorrect"
 msgstr "IP ist inkorrekt"
 
-msgid "IP of host appears to be"
-msgstr ""
-
 msgid "Icon"
 msgstr "Symbol"
 
@@ -4401,8 +4394,21 @@ msgstr "Zuletzt hochgeladen"
 msgid "Last Check In"
 msgstr ""
 
+msgid "Last Check-In"
+msgstr ""
+
+msgid "Last Client Check-In"
+msgstr ""
+
 msgid "Last Deployed"
 msgstr "Zuletzt verteilt"
+
+msgid "Last Ping"
+msgstr ""
+
+#, fuzzy
+msgid "Last Successful Ping"
+msgstr "Erfolgreich"
 
 msgid "Last flush"
 msgstr ""
@@ -5008,6 +5014,9 @@ msgstr "Netzwerk-Drucker"
 #, fuzzy
 msgid "Network interface name."
 msgstr "Netzwerk-Installer"
+
+msgid "Never"
+msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
@@ -5691,10 +5700,6 @@ msgid "Pending..."
 msgstr "Ausstehend..."
 
 #, fuzzy
-msgid "Performing ping"
-msgstr "Versuche, anzupingen"
-
-#, fuzzy
 msgid "Permission denied"
 msgstr "Sitzungsname"
 
@@ -5712,8 +5717,9 @@ msgstr "Hosts anpingen"
 msgid "Ping Status"
 msgstr "Status"
 
-msgid "Ping completed with status"
-msgstr ""
+#, fuzzy
+msgid "Ping cycle complete"
+msgstr "wurde abgeschlossen"
 
 msgid "Please Select an option"
 msgstr "Bitte wählen Sie eine Option"
@@ -7035,6 +7041,9 @@ msgstr ""
 msgid "Skipped unknown association type \"%s\""
 msgstr ""
 
+msgid "Skipped, checked in since the last cycle"
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Es gibt nichts zu replizieren"
@@ -7950,6 +7959,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -9755,6 +9767,10 @@ msgid "not found on this node"
 msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
+msgid "not reachable"
+msgstr "Nicht verfügbar"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack Accounts"
 
@@ -9777,6 +9793,9 @@ msgid "off means an account must already exist"
 msgstr "Dieser Host ist bereits vorhanden."
 
 msgid "old"
+msgstr ""
+
+msgid "online"
 msgstr ""
 
 msgid "or"
@@ -9863,6 +9882,9 @@ msgstr ""
 
 msgid "sites with clients moving back and forth"
 msgstr "mit Clients haben, die zwischen verschiedenen "
+
+msgid "skipped"
+msgstr ""
 
 #, fuzzy
 msgid "snapin"
@@ -10209,6 +10231,10 @@ msgstr ""
 #~ msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
 #, fuzzy
+#~ msgid "Attempting to ping host"
+#~ msgstr "Versuche, anzupingen"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Änderungen speichern?"
 
@@ -10523,6 +10549,10 @@ msgstr ""
 #~ msgstr "Pause"
 
 #, fuzzy
+#~ msgid "Performing ping"
+#~ msgstr "Versuche, anzupingen"
+
+#, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "Bitte geben Sie einen Namen für einen Admin oder einen mobilen Lookup ein."
 
@@ -10615,9 +10645,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "Speicherknoten erstellt"
-
-#~ msgid "Successful"
-#~ msgstr "Erfolgreich"
 
 #, fuzzy
 #~ msgid "Task is not an imaging task"

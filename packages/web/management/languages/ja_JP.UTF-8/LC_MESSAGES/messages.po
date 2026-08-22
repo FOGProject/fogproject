@@ -891,10 +891,6 @@ msgstr "実行を試行しています"
 msgid "Attempting to ping"
 msgstr "ping を試行しています"
 
-#, fuzzy
-msgid "Attempting to ping host"
-msgstr "ping を試行しています"
-
 msgid "Audit Log"
 msgstr ""
 
@@ -3330,10 +3326,6 @@ msgstr "IP アドレス"
 msgid "IP Passed is incorrect"
 msgstr "指定された IP アドレスが正しくありません"
 
-#, fuzzy
-msgid "IP of host appears to be"
-msgstr "このノードはオンラインではないようです"
-
 msgid "Icon"
 msgstr "アイコン"
 
@@ -4206,8 +4198,23 @@ msgstr "最終キャプチャ"
 msgid "Last Check In"
 msgstr "タスクチェックイン日"
 
+#, fuzzy
+msgid "Last Check-In"
+msgstr "タスクチェックイン日"
+
+#, fuzzy
+msgid "Last Client Check-In"
+msgstr "タスクチェックイン日"
+
 msgid "Last Deployed"
 msgstr "最終展開"
+
+msgid "Last Ping"
+msgstr ""
+
+#, fuzzy
+msgid "Last Successful Ping"
+msgstr "タスクを正常に設定しました"
 
 msgid "Last flush"
 msgstr ""
@@ -4790,6 +4797,9 @@ msgstr "ネットワークプリンター"
 #, fuzzy
 msgid "Network interface name."
 msgstr "ネットワークインストーラー"
+
+msgid "Never"
+msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
@@ -5452,10 +5462,6 @@ msgid "Pending..."
 msgstr "保留中..."
 
 #, fuzzy
-msgid "Performing ping"
-msgstr "ping を試行しています"
-
-#, fuzzy
 msgid "Permission denied"
 msgstr "アクセス拒否"
 
@@ -5474,8 +5480,9 @@ msgstr "ホストへ ping"
 msgid "Ping Status"
 msgstr "状態"
 
-msgid "Ping completed with status"
-msgstr ""
+#, fuzzy
+msgid "Ping cycle complete"
+msgstr "完了しました"
 
 msgid "Please Select an option"
 msgstr "オプションを選択してください"
@@ -6739,6 +6746,9 @@ msgstr ""
 msgid "Skipped unknown association type \"%s\""
 msgstr ""
 
+msgid "Skipped, checked in since the last cycle"
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "レプリケーションする項目はありません"
@@ -7595,6 +7605,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -9321,6 +9334,10 @@ msgid "not found on this node"
 msgstr "このノード上に見つかりません"
 
 #, fuzzy
+msgid "not reachable"
+msgstr "利用不可"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack アカウント"
 
@@ -9343,6 +9360,10 @@ msgstr "このホストは既に存在します"
 
 msgid "old"
 msgstr ""
+
+#, fuzzy
+msgid "online"
+msgstr "キューに登録されました:"
 
 msgid "or"
 msgstr "または"
@@ -9427,6 +9448,9 @@ msgstr ""
 
 msgid "sites with clients moving back and forth"
 msgstr "クライアントが行き来する複数のサイト"
+
+msgid "skipped"
+msgstr ""
 
 msgid "snapin"
 msgstr "スナップイン"
@@ -9848,6 +9872,10 @@ msgstr ""
 
 #~ msgid "Associates the files on nodes"
 #~ msgstr "ノード上のファイルを関連付けます"
+
+#, fuzzy
+#~ msgid "Attempting to ping host"
+#~ msgstr "ping を試行しています"
 
 #~ msgid "Available Snapins"
 #~ msgstr "利用可能なスナップイン"
@@ -10487,6 +10515,10 @@ msgstr ""
 #~ msgid "ID Must be set to edit"
 #~ msgstr "編集するには ID を指定する必要があります"
 
+#, fuzzy
+#~ msgid "IP of host appears to be"
+#~ msgstr "このノードはオンラインではないようです"
+
 #~ msgid "If a new module is published the client will"
 #~ msgstr "新しいモジュールが公開されると、クライアントは"
 
@@ -11048,6 +11080,10 @@ msgstr ""
 #~ msgid "Perform search"
 #~ msgstr "検索を実行"
 
+#, fuzzy
+#~ msgid "Performing ping"
+#~ msgstr "ping を試行しています"
+
 #~ msgid "Personal Information"
 #~ msgstr "個人情報"
 
@@ -11448,9 +11484,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Task is not an imaging task"
 #~ msgstr "タスク実行中はイメージを変更できません"
-
-#~ msgid "Tasked Successfully"
-#~ msgstr "タスクを正常に設定しました"
 
 #~ msgid "Tasked successfully, click active tasks to view in line."
 #~ msgstr "タスクを正常に設定しました。キューを表示するには実行中のタスクをクリックしてください。"

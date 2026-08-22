@@ -939,10 +939,6 @@ msgstr "Tenter de faire un ping"
 msgid "Attempting to ping"
 msgstr "Tenter de faire un ping"
 
-#, fuzzy
-msgid "Attempting to ping host"
-msgstr "Tenter de faire un ping"
-
 msgid "Audit Log"
 msgstr ""
 
@@ -3469,9 +3465,6 @@ msgstr "Adresse IP"
 msgid "IP Passed is incorrect"
 msgstr "IP Passé est incorrect"
 
-msgid "IP of host appears to be"
-msgstr ""
-
 msgid "Icon"
 msgstr "Icône"
 
@@ -4401,8 +4394,21 @@ msgstr "hôte Créé"
 msgid "Last Check In"
 msgstr ""
 
+msgid "Last Check-In"
+msgstr ""
+
+msgid "Last Client Check-In"
+msgstr ""
+
 msgid "Last Deployed"
 msgstr "Dernière Déployé"
+
+msgid "Last Ping"
+msgstr ""
+
+#, fuzzy
+msgid "Last Successful Ping"
+msgstr "Réussi"
 
 msgid "Last flush"
 msgstr ""
@@ -5007,6 +5013,9 @@ msgstr "Imprimante réseau"
 #, fuzzy
 msgid "Network interface name."
 msgstr "Imprimante réseau"
+
+msgid "Never"
+msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
@@ -5690,10 +5699,6 @@ msgid "Pending..."
 msgstr "En attendant..."
 
 #, fuzzy
-msgid "Performing ping"
-msgstr "Tenter de faire un ping"
-
-#, fuzzy
 msgid "Permission denied"
 msgstr "Nom de session"
 
@@ -5711,8 +5716,9 @@ msgstr "hôtes Ping"
 msgid "Ping Status"
 msgstr "statut"
 
-msgid "Ping completed with status"
-msgstr ""
+#, fuzzy
+msgid "Ping cycle complete"
+msgstr "a été détruit"
 
 msgid "Please Select an option"
 msgstr "Veuillez sélectionner une option"
@@ -7034,6 +7040,9 @@ msgstr ""
 msgid "Skipped unknown association type \"%s\""
 msgstr ""
 
+msgid "Skipped, checked in since the last cycle"
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Il n'y a rien à répliquer"
@@ -7947,6 +7956,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -9749,6 +9761,10 @@ msgid "not found on this node"
 msgstr "Image not found sur le noeud"
 
 #, fuzzy
+msgid "not reachable"
+msgstr "Indisponible"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "Comptes Slack"
 
@@ -9771,6 +9787,9 @@ msgid "off means an account must already exist"
 msgstr "Imprimante existe déjà"
 
 msgid "old"
+msgstr ""
+
+msgid "online"
 msgstr ""
 
 msgid "or"
@@ -9855,6 +9874,9 @@ msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
 msgid "sites with clients moving back and forth"
+msgstr ""
+
+msgid "skipped"
 msgstr ""
 
 #, fuzzy
@@ -10199,6 +10221,10 @@ msgstr ""
 #~ msgstr "Un nom d'hôte avec ce nom existe déjà."
 
 #, fuzzy
+#~ msgid "Attempting to ping host"
+#~ msgstr "Tenter de faire un ping"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Sauvegarder les modifications"
 
@@ -10503,6 +10529,10 @@ msgstr ""
 #~ msgstr "Utilisateur"
 
 #, fuzzy
+#~ msgid "Performing ping"
+#~ msgstr "Tenter de faire un ping"
+
+#, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "S'il vous plaît entrer un nom pour cet emplacement."
 
@@ -10592,9 +10622,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "Nœud de stockage Créé"
-
-#~ msgid "Successful"
-#~ msgstr "Réussi"
 
 #, fuzzy
 #~ msgid "Task run time"

@@ -787,9 +787,6 @@ msgstr ""
 msgid "Attempting to ping"
 msgstr ""
 
-msgid "Attempting to ping host"
-msgstr ""
-
 msgid "Audit Log"
 msgstr ""
 
@@ -2933,9 +2930,6 @@ msgstr ""
 msgid "IP Passed is incorrect"
 msgstr ""
 
-msgid "IP of host appears to be"
-msgstr ""
-
 msgid "Icon"
 msgstr ""
 
@@ -3714,7 +3708,19 @@ msgstr ""
 msgid "Last Check In"
 msgstr ""
 
+msgid "Last Check-In"
+msgstr ""
+
+msgid "Last Client Check-In"
+msgstr ""
+
 msgid "Last Deployed"
+msgstr ""
+
+msgid "Last Ping"
+msgstr ""
+
+msgid "Last Successful Ping"
 msgstr ""
 
 msgid "Last flush"
@@ -4227,6 +4233,9 @@ msgid "Network Printer"
 msgstr ""
 
 msgid "Network interface name."
+msgstr ""
+
+msgid "Never"
 msgstr ""
 
 msgid "Never - do not verify (insecure)"
@@ -4824,9 +4833,6 @@ msgstr ""
 msgid "Pending..."
 msgstr ""
 
-msgid "Performing ping"
-msgstr ""
-
 msgid "Permission denied"
 msgstr ""
 
@@ -4842,7 +4848,7 @@ msgstr ""
 msgid "Ping Status"
 msgstr ""
 
-msgid "Ping completed with status"
+msgid "Ping cycle complete"
 msgstr ""
 
 msgid "Please Select an option"
@@ -5958,6 +5964,9 @@ msgstr ""
 msgid "Skipped unknown association type \"%s\""
 msgstr ""
 
+msgid "Skipped, checked in since the last cycle"
+msgstr ""
+
 msgid "Skipping as there is nothing to do"
 msgstr ""
 
@@ -6720,6 +6729,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -8298,6 +8310,9 @@ msgstr ""
 msgid "not found on this node"
 msgstr ""
 
+msgid "not reachable"
+msgstr ""
+
 msgid "ntfy Accounts"
 msgstr ""
 
@@ -8317,6 +8332,9 @@ msgid "off means an account must already exist"
 msgstr ""
 
 msgid "old"
+msgstr ""
+
+msgid "online"
 msgstr ""
 
 msgid "or"
@@ -8396,6 +8414,9 @@ msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
 msgid "sites with clients moving back and forth"
+msgstr ""
+
+msgid "skipped"
 msgstr ""
 
 msgid "snapin"

@@ -951,9 +951,6 @@ msgstr ""
 msgid "Attempting to ping"
 msgstr ""
 
-msgid "Attempting to ping host"
-msgstr ""
-
 msgid "Audit Log"
 msgstr ""
 
@@ -3537,9 +3534,6 @@ msgstr "Dirección IP ha cambiado"
 msgid "IP Passed is incorrect"
 msgstr "Pasado IP es incorrecta"
 
-msgid "IP of host appears to be"
-msgstr ""
-
 #, fuzzy
 msgid "Icon"
 msgstr "En "
@@ -4498,8 +4492,21 @@ msgstr "Creado"
 msgid "Last Check In"
 msgstr ""
 
+msgid "Last Check-In"
+msgstr ""
+
+msgid "Last Client Check-In"
+msgstr ""
+
 msgid "Last Deployed"
 msgstr "última Desplegado"
+
+msgid "Last Ping"
+msgstr ""
+
+#, fuzzy
+msgid "Last Successful Ping"
+msgstr "Exitoso"
 
 msgid "Last flush"
 msgstr ""
@@ -5126,6 +5133,9 @@ msgstr "impresora de red"
 #, fuzzy
 msgid "Network interface name."
 msgstr "impresora de red"
+
+msgid "Never"
+msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
@@ -5822,9 +5832,6 @@ msgstr "macs pendientes"
 msgid "Pending..."
 msgstr "macs pendientes"
 
-msgid "Performing ping"
-msgstr ""
-
 #, fuzzy
 msgid "Permission denied"
 msgstr "Nombre de sesión"
@@ -5843,8 +5850,9 @@ msgstr "Los anfitriones de ping"
 msgid "Ping Status"
 msgstr "Estado"
 
-msgid "Ping completed with status"
-msgstr ""
+#, fuzzy
+msgid "Ping cycle complete"
+msgstr "Deben estar cifrados"
 
 msgid "Please Select an option"
 msgstr "Por favor seleccione una opción"
@@ -7184,6 +7192,9 @@ msgstr ""
 msgid "Skipped unknown association type \"%s\""
 msgstr ""
 
+msgid "Skipped, checked in since the last cycle"
+msgstr ""
+
 msgid "Skipping as there is nothing to do"
 msgstr ""
 
@@ -8128,6 +8139,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -9930,6 +9944,10 @@ msgstr "No se encontró Clase FOGPage para este nodo"
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
+#, fuzzy
+msgid "not reachable"
+msgstr "No disponible"
+
 msgid "ntfy Accounts"
 msgstr ""
 
@@ -9952,6 +9970,9 @@ msgid "off means an account must already exist"
 msgstr "Impresora ya existe"
 
 msgid "old"
+msgstr ""
+
+msgid "online"
 msgstr ""
 
 #, fuzzy
@@ -10036,6 +10057,9 @@ msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
 msgid "sites with clients moving back and forth"
+msgstr ""
+
+msgid "skipped"
 msgstr ""
 
 #, fuzzy
@@ -10768,9 +10792,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "nodo de almacenamiento"
-
-#~ msgid "Successful"
-#~ msgstr "Exitoso"
 
 #, fuzzy
 #~ msgid "Task run time"

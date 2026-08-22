@@ -938,10 +938,6 @@ msgstr "尝试ping"
 msgid "Attempting to ping"
 msgstr "尝试ping"
 
-#, fuzzy
-msgid "Attempting to ping host"
-msgstr "尝试ping"
-
 msgid "Audit Log"
 msgstr ""
 
@@ -3468,9 +3464,6 @@ msgstr "IP地址"
 msgid "IP Passed is incorrect"
 msgstr "IP传递是不正确"
 
-msgid "IP of host appears to be"
-msgstr ""
-
 msgid "Icon"
 msgstr "图标"
 
@@ -4400,8 +4393,21 @@ msgstr "主机创建"
 msgid "Last Check In"
 msgstr ""
 
+msgid "Last Check-In"
+msgstr ""
+
+msgid "Last Client Check-In"
+msgstr ""
+
 msgid "Last Deployed"
 msgstr "最后部署"
+
+msgid "Last Ping"
+msgstr ""
+
+#, fuzzy
+msgid "Last Successful Ping"
+msgstr "成功"
 
 msgid "Last flush"
 msgstr ""
@@ -5006,6 +5012,9 @@ msgstr "网络打印机"
 #, fuzzy
 msgid "Network interface name."
 msgstr "网络打印机"
+
+msgid "Never"
+msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
@@ -5689,10 +5698,6 @@ msgid "Pending..."
 msgstr "待..."
 
 #, fuzzy
-msgid "Performing ping"
-msgstr "尝试ping"
-
-#, fuzzy
 msgid "Permission denied"
 msgstr "会话名称"
 
@@ -5710,8 +5715,9 @@ msgstr "平主机"
 msgid "Ping Status"
 msgstr "状态"
 
-msgid "Ping completed with status"
-msgstr ""
+#, fuzzy
+msgid "Ping cycle complete"
+msgstr "已被破坏"
 
 msgid "Please Select an option"
 msgstr "请选择一个选项"
@@ -7033,6 +7039,9 @@ msgstr ""
 msgid "Skipped unknown association type \"%s\""
 msgstr ""
 
+msgid "Skipped, checked in since the last cycle"
+msgstr ""
+
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "没有什么可以复制"
@@ -7946,6 +7955,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The archive contains a link."
@@ -9748,6 +9760,10 @@ msgid "not found on this node"
 msgstr "图片没有节点发现"
 
 #, fuzzy
+msgid "not reachable"
+msgstr "不可用"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "斯莱克账户"
 
@@ -9770,6 +9786,9 @@ msgid "off means an account must already exist"
 msgstr "打印机已经存在"
 
 msgid "old"
+msgstr ""
+
+msgid "online"
 msgstr ""
 
 msgid "or"
@@ -9854,6 +9873,9 @@ msgid "signing out of FOG also signs out of this provider"
 msgstr ""
 
 msgid "sites with clients moving back and forth"
+msgstr ""
+
+msgid "skipped"
 msgstr ""
 
 #, fuzzy
@@ -10198,6 +10220,10 @@ msgstr ""
 #~ msgstr "使用此名称的主机名已经存在。"
 
 #, fuzzy
+#~ msgid "Attempting to ping host"
+#~ msgstr "尝试ping"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "保存更改"
 
@@ -10502,6 +10528,10 @@ msgstr ""
 #~ msgstr "用户"
 
 #, fuzzy
+#~ msgid "Performing ping"
+#~ msgstr "尝试ping"
+
+#, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "这个位置输入名称。"
 
@@ -10591,9 +10621,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "存储节点创建"
-
-#~ msgid "Successful"
-#~ msgstr "成功"
 
 #, fuzzy
 #~ msgid "Task run time"
