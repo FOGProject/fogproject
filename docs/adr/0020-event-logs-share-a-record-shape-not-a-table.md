@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted -- phases 0, 1 and 2 of the Migration section are implemented on
+accepted -- phases 0, 1, 2 and 3 of the Migration section are implemented on
 `working-1.6`
 
 Phases 0 and 1 are the ones the ADR marks as worth doing whatever happens to
@@ -24,8 +24,38 @@ tested rather than assumed, against a copy of a real database -- 2,256
 of both steps was a no-op, and a write through each model left all seven
 columns untouched.
 
-Phases 3 to 5 -- writers, then readers, then the backfill and the index drop
--- are **not** started. Phase 4 is what gates ADR 0023's item 5.
+Phase 3 maps the seven columns onto the frame's friendly keys and fills them:
+`History` gains `type`/`subjectType`/`subjectID`/`subjectLabel` and five
+`TYPE_` constants, `UserTracking` gains `createdBy`/`ip`/`subjectLabel`, and
+`FOGBase::logHistory()` takes an optional frame that its five callers pass --
+four in `FOGController` (save and destroy, success and failure) and one in
+`FOGBase::log()`. **No reader changed**, which is the phase boundary: a row
+written now carries the prose *and* the structure, so a revert is a code
+revert.
+
+Two details worth keeping visible because they are invisible from anywhere but
+the row:
+
+- `userTracking`'s actor is filled by `save()`'s auto-fill and by no writer.
+  Mapping the column to the key `createdBy` is the entire mechanism, which is
+  Decision 3 -- `UserTrack::json()` deliberately does not set it, so a
+  fog-client row records `'fog'` rather than whichever operator happened to be
+  signed in.
+- An absent frame key is left unset rather than defaulted, so
+  `history.hSubjectID` stays NULL on a subjectless row. Writing 0 there is a
+  real id pointing at nothing, and the table has no foreign key to catch it.
+
+Proven against a lab copy at schema 353 rather than asserted, the same way
+phase 2's inertness was: a real `Host` save wrote `hType='update'` with the
+class, id and name as its subject and the prose unchanged beside it;
+`FOGBase::log()` wrote `hType='log'` with `hSubjectID` NULL; and
+`UserTrack::json()` filled `utIP` and `utHostName` from the real client
+endpoint. `tests/event-frame-writers.test.php` pins the halves CI can see
+without a database -- the field maps, the constants, and that every call site
+passes a type.
+
+Phases 4 and 5 -- readers, then the backfill and the index drop -- are **not**
+started. Phase 4 is what gates ADR 0023's item 5.
 
 One coverage note worth keeping visible: `tests/schema-executes.test.php`
 deliberately skips closure steps, so CI's schema replay does **not** exercise
@@ -345,11 +375,26 @@ fixed states it as a constant rather than storing it on every row.
 Everything else is domain payload and stays as it is: `userTracking.utDate`,
 `taskLog.taskID`/`taskStateID`/`logTaskTypeName`.
 
-### 3. `utUserName` maps to `subjectLabel`, not to `createdBy`
+### 3. `utUserName` is not the actor; `createdBy` is, and it is `'fog'`
 
 Its `createdBy` is `'fog'`, which `save()` already produces for free. This is
 the load-bearing correction in this ADR and the reason to write it down before
 touching any table.
+
+**Corrected while implementing phase 3.** This decision was headed
+"`utUserName` maps to `subjectLabel`", which contradicts both the frame table
+in Decision 2 and Decision 4 below. `userTracking`'s subject is the **host** —
+`utHostID` is its `subjectID` and always has been, and the `subjectLabel`
+Decision 4 requires is the denormalized host name, which is why phase 2 added
+`utHostName` at `varchar(16)` to match `hosts.hostName` rather than something
+sized for an account. `utUserName` is domain payload under the friendly key
+`username`, exactly as it was.
+
+The point the heading was making survives intact and is the one that matters:
+`utUserName` is what the row is *about*, not who caused it, so it must never
+become `createdBy`. Naming `subjectLabel` as its destination was the error —
+it would have put an endpoint OS account in the column the deletion policy
+relies on, and left the host name with nowhere to go.
 
 ### 4. Deletion policy is declared per table, in the model
 

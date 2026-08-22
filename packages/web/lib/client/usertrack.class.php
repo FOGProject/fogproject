@@ -109,6 +109,16 @@ class UserTrack extends FOGClient
             // reported late, which is the only reason the parameter exists).
             ->set('createdTime', $tmpDate->format('Y-m-d H:i:s'))
             ->set('date', $tmpDate->format('Y-m-d'))
+            // ADR 0020 phase 3. createdBy is not set here on purpose:
+            // save() fills it with 'fog' because no operator is signed in
+            // on a fog-client request, and 'fog' is the correct actor for
+            // this row. The person in utUserName is the endpoint's OS
+            // account, which is what the event is ABOUT.
+            ->set('ip', self::$remoteaddr)
+            // The denormalized host name, so the row stays readable after
+            // its host is deleted -- deletemass('host') leaves these rows
+            // behind and the grid resolves the name from the id live.
+            ->set('subjectLabel', self::$Host->get('name'))
             ->save();
         return ['' => ''];
     }

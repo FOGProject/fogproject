@@ -2702,16 +2702,37 @@ abstract class FOGBase
         if ($curlog >= $level) {
             echo $txt;
         }
-        self::logHistory($txt);
+        // No subject: log() takes a string and has no object in hand. The
+        // type still says which writer produced the row, which is what
+        // separates the debug firehose from a model's own history line.
+        self::logHistory($txt, ['type' => History::TYPE_LOG]);
     }
     /**
      * Log to history table.
      *
+     * ADR 0020 phase 3: a row now carries the structured frame beside the
+     * prose, not instead of it. The prose is unchanged and every reader
+     * still reads it -- readers switch in phase 4, which is the release
+     * where the discontinuity becomes visible. Until then a caller that
+     * passes no frame writes exactly the row it wrote before.
+     *
+     * The frame is passed as an array rather than four parameters because
+     * three of the five call sites have a subject and two do not, and a
+     * positional list of four optional arguments at five call sites is how
+     * the wrong value ends up in the wrong column silently.
+     *
+     * Unset frame keys are left unset rather than defaulted: save() skips a
+     * null and lets the column's own DEFAULT apply, which is what keeps
+     * `hSubjectID` NULL on a subjectless row instead of writing 0 -- a real
+     * id that points at nothing.
+     *
      * @param string $string the string to store
+     * @param array  $frame  optional 'type', 'subjectType', 'subjectID' and
+     *                       'subjectLabel'; see History's TYPE_ constants
      *
      * @return void
      */
-    protected static function logHistory($string)
+    protected static function logHistory($string, array $frame = [])
     {
         if (!is_string($string)) {
             throw new \Exception(_('String must be a string'));
@@ -2730,10 +2751,16 @@ abstract class FOGBase
             return;
         }
         if (self::$DB) {
-            self::getClass('History')
+            $History = self::getClass('History')
                 ->set('info', $string)
-                ->set('ip', self::$remoteaddr)
-                ->save();
+                ->set('ip', self::$remoteaddr);
+            foreach (['type', 'subjectType', 'subjectID', 'subjectLabel'] as $k) {
+                if (!array_key_exists($k, $frame)) {
+                    continue;
+                }
+                $History->set($k, $frame[$k]);
+            }
+            $History->save();
         }
     }
     /**

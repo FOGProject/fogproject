@@ -43,7 +43,26 @@ class UserTracking extends FOGController
         'createdTime' => 'utDateTime',
         'description' => 'utDesc',
         'date' => 'utDate',
-        'anon3' => 'utAnon3'
+        'anon3' => 'utAnon3',
+        // ADR 0020 phase 3. The frame's actor, origin and subject label,
+        // added to the table by schema 349 and filled from here on.
+        //
+        // createdBy is deliberately NOT set by any writer: save() fills it
+        // with the signed-in operator or the literal 'fog', and 'fog' is
+        // the right answer for every row in this table. The fog-client is
+        // what causes a userTracking row; the person named in utUserName
+        // logged into the ENDPOINT and is not a FOG identity at all, which
+        // is ADR 0020 decision 3 and the reason the two are separate
+        // columns rather than one. Mapping the key is the whole change.
+        'createdBy' => 'utCreatedBy',
+        'ip' => 'utIP',
+        // The subject is the host -- utHostID is subjectID and always has
+        // been. This is schema 341's denormalized label generalized to this
+        // table: Route::deletemass('host') leaves userTracking rows in
+        // place, and until now they rendered a blank host name forever
+        // afterwards because the grid resolved the name live from an id
+        // that no longer pointed anywhere.
+        'subjectLabel' => 'utHostName'
     ];
     /**
      * The grid list query, with the host joined in.
@@ -53,9 +72,11 @@ class UserTracking extends FOGController
      * grouped column to be the primary sort, and sorting on `utHostID` puts
      * the hosts in id order rather than alphabetically.
      *
-     * This class has no denormalized host name to fall back on -- schema 349
-     * added `utHostName` for ADR 0020's six-part record shape, but nothing
-     * writes it yet -- so the join is the only source of the name here.
+     * `utHostName` cannot stand in for the join, for the same reason
+     * TaskLog's `logHostName` cannot: it is a copy taken at write time, so
+     * a host renamed midway through its history has two values against one
+     * id and would be split into two groups. It is also empty on every row
+     * written before ADR 0020 phase 3.
      *
      * LEFT OUTER so a row whose host has since been deleted is still listed.
      *

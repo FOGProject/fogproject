@@ -841,7 +841,21 @@ abstract class FOGController extends FOGBase
                         _('has been successfully updated')
                     );
                 }
-                self::logHistory($msg);
+                // ADR 0020 phase 3: the frame beside the prose. The
+                // subject is this object -- its class, its id and its name
+                // -- and it is read here rather than at the writer because
+                // this is where all three are in hand. Same two fields the
+                // sentence above uses, so the row and its prose cannot
+                // disagree.
+                self::logHistory(
+                    $msg,
+                    [
+                        'type' => History::TYPE_UPDATE,
+                        'subjectType' => strtolower(self::shortName($this)),
+                        'subjectID' => (int)$this->get('id'),
+                        'subjectLabel' => (string)$this->get('name')
+                    ]
+                );
             }
             // After the row is known to have stored, and after its id
             // exists: a change row pointing at subject 0 is worse than none.
@@ -871,7 +885,21 @@ abstract class FOGController extends FOGBase
                         $e->getMessage()
                     );
                 }
-                self::logHistory($msg);
+                // ADR 0020 phase 3: the frame beside the prose. The
+                // subject is this object -- its class, its id and its name
+                // -- and it is read here rather than at the writer because
+                // this is where all three are in hand. Same two fields the
+                // sentence above uses, so the row and its prose cannot
+                // disagree.
+                self::logHistory(
+                    $msg,
+                    [
+                        'type' => History::TYPE_UPDATE_FAILED,
+                        'subjectType' => strtolower(self::shortName($this)),
+                        'subjectID' => (int)$this->get('id'),
+                        'subjectLabel' => (string)$this->get('name')
+                    ]
+                );
             }
 
             $msg = sprintf(
@@ -1306,7 +1334,21 @@ abstract class FOGController extends FOGBase
                         _('has been successfully destroyed')
                     );
                 }
-                self::logHistory($msg);
+                // ADR 0020 phase 3: the frame beside the prose. The
+                // subject is this object -- its class, its id and its name
+                // -- and it is read here rather than at the writer because
+                // this is where all three are in hand. Same two fields the
+                // sentence above uses, so the row and its prose cannot
+                // disagree.
+                self::logHistory(
+                    $msg,
+                    [
+                        'type' => History::TYPE_DELETE,
+                        'subjectType' => strtolower(self::shortName($this)),
+                        'subjectID' => (int)$this->get('id'),
+                        'subjectLabel' => (string)$this->get('name')
+                    ]
+                );
                 // ADR 0021 Decision 7: a delete writes a header carrying
                 // subjectType/subjectID/subjectLabel and NO auditChange rows.
                 // The header is the only record a delete leaves, so without
@@ -1347,7 +1389,21 @@ abstract class FOGController extends FOGBase
                         $e->getMessage()
                     );
                 }
-                self::logHistory($msg);
+                // ADR 0020 phase 3: the frame beside the prose. The
+                // subject is this object -- its class, its id and its name
+                // -- and it is read here rather than at the writer because
+                // this is where all three are in hand. Same two fields the
+                // sentence above uses, so the row and its prose cannot
+                // disagree.
+                self::logHistory(
+                    $msg,
+                    [
+                        'type' => History::TYPE_DELETE_FAILED,
+                        'subjectType' => strtolower(self::shortName($this)),
+                        'subjectID' => (int)$this->get('id'),
+                        'subjectLabel' => (string)$this->get('name')
+                    ]
+                );
             }
             $msg = sprintf(
                 '%s: %s: %s, %s: %s, %s: %s, %s: %s',

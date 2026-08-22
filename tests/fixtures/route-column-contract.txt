@@ -35,6 +35,10 @@ history	2	hText	info	-	-
 history	3	hUser	createdBy	-	-
 history	4	hTime	createdTime	f	-
 history	5	hIP	ip	-	-
+history	6	hType	type	-	-
+history	7	hSubjectType	subjectType	-	-
+history	8	hSubjectID	subjectID	-	-
+history	9	hSubjectLabel	subjectLabel	-	-
 hookevent	0	heID	id	-	-
 hookevent	1	heID	DT_RowId	f	-
 hookevent	2	heName	name	-	-
@@ -589,6 +593,9 @@ usertracking	6	utDateTime	createdTime	f	-
 usertracking	7	utDesc	description	-	-
 usertracking	8	utDate	date	-	-
 usertracking	9	utAnon3	anon3	-	-
-usertracking	10	utUserName	username	f	-
-usertracking	11	utHostID	hostname	f	host
-usertracking	12	utAction	action	f	-
+usertracking	10	utCreatedBy	createdBy	-	-
+usertracking	11	utIP	ip	-	-
+usertracking	12	utHostName	subjectLabel	-	-
+usertracking	13	utUserName	username	f	-
+usertracking	14	utHostID	hostname	f	host
+usertracking	15	utAction	action	f	-
