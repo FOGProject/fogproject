@@ -924,6 +924,31 @@ installFOGServices() {
     # Outside the dots/errorStat pair, like every other caller, and the _rw_
     # label is as load-bearing here as it is for fos above (GH-964).
     setSELinuxContext "$servicelogs/faults" httpd_sys_rw_content_t
+    # FOG's own PHP session store (FOG_SESSION_DIR in commons/init.php, which
+    # points session.save_path here at runtime). FOG used to share the distro's
+    # session directory, where session.gc_maxlifetime is 1440 -- 24 minutes on
+    # every distro we support -- so PHP reaped the session file long before
+    # FOG_INACTIVITY_TIMEOUT said to, and the user was silently bounced to the
+    # login page. gc_maxlifetime applies to the whole save_path, so FOG cannot
+    # raise it without imposing its retention on every other PHP application on
+    # the box. Hence a private directory.
+    dots "Creating FOG session directory"
+    mkdir -p $fogprogramdir/sessions >>$error_log 2>&1
+    # 0700 and owned by the pool user -- stricter than the 0750 above, because
+    # a session file IS an authentication token: anything that can read this
+    # directory can resume an admin session, and unlike the fault log there is
+    # no second writer to accommodate. Safe as a single-owner directory because
+    # the php-fpm pool is pinned to $apacheuser further down this same install
+    # (the `user = ${apacheuser}` rewrite in the pool file), which is the same
+    # variable used here.
+    chown ${apacheuser}:${apacheuser} $fogprogramdir/sessions >>$error_log 2>&1
+    chmod 0700 $fogprogramdir/sessions >>$error_log 2>&1
+    errorStat $?
+    # Same GH-964 reasoning as the fault log above: /opt/fog inherits usr_t and
+    # httpd_t may read but not write it. Unlabelled, PHP cannot write a session
+    # file on an enforcing host -- which does not degrade, it means nobody can
+    # log in at all, with only an AVC denial to say so.
+    setSELinuxContext "$fogprogramdir/sessions" httpd_sys_rw_content_t
 }
 configureUDPCast() {
     dots "Setting up UDPCast"

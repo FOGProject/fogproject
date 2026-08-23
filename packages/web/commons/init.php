@@ -78,6 +78,21 @@ class Initiator
         if (is_readable($fogPaths)) {
             require_once $fogPaths;
         }
+        // _configureSessionStorage() needs the base path below, and it has to
+        // run before session_start() at the end of this constructor -- which is
+        // long before System::__construct applies its own /opt/fog fallback. So
+        // apply the identical fallback here, guarded, and System then defers to
+        // it: both sites use if (!defined(...)), so whichever runs first wins
+        // and they cannot disagree.
+        if (!defined('FOG_BASE_DIR')) {
+            define('FOG_BASE_DIR', '/opt/fog');
+        }
+        // FOG's own PHP session store. Created 0700 by the installer and
+        // pointed at by _configureSessionStorage() below; see that method for
+        // why FOG stops sharing the distro's session directory.
+        if (!defined('FOG_SESSION_DIR')) {
+            define('FOG_SESSION_DIR', FOG_BASE_DIR . DS . 'sessions');
+        }
 
         $regext = '#^.*\.(report|event|class|hook|page)\.php$#';
         $paths = new RegexIterator(
@@ -92,6 +107,8 @@ class Initiator
         set_include_path(implode(PATH_SEPARATOR, $allpaths) . PATH_SEPARATOR . get_include_path());
         spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php');
         spl_autoload_register();
+
+        self::_configureSessionStorage();
 
         /*
          * Start a session only when there is one to resume or something has
@@ -122,6 +139,122 @@ class Initiator
             && ($hasSession || defined('FOG_WANTS_SESSION'))
         ) {
             session_start();
+        }
+    }
+
+    /**
+     * Point PHP's session store at FOG's own directory and give it a lifetime
+     * that matches FOG's own session policy.
+     *
+     * WHY THIS EXISTS
+     *
+     * FOG offers FOG_ALWAYS_LOGGED_IN and FOG_INACTIVITY_TIMEOUT ("Between 1
+     * and 24 by hours") and enforces them itself in User::_isLoggedIn(). But
+     * PHP deletes the session FILE out from under that on its own schedule,
+     * and the stock session.gc_maxlifetime is 1440 seconds -- 24 minutes.
+     * Verified identical on Fedora 44, Rocky 9.8, Rocky 10.2 and Ubuntu 26.04.
+     *
+     * So on every supported distro, any FOG idle policy longer than 24 minutes
+     * was a lie: the collector reaped the file, session.use_strict_mode
+     * (set above) then refused the browser's now-orphaned cookie and issued a
+     * fresh empty session, and the user was bounced to the login page. Silently
+     * -- the "You were logged out due to inactivity" toast comes from FOG's own
+     * inactivity branch, which had not fired and, with FOG_ALWAYS_LOGGED_IN on,
+     * cannot fire at all. Absence of that toast is the tell that PHP did it.
+     *
+     * WHY A PRIVATE DIRECTORY AND NOT JUST A LONGER LIFETIME
+     *
+     * gc_maxlifetime is a property of the save_path, not of the application:
+     * PHP's collector scans the whole directory. Raising it while sharing the
+     * distro's session directory imposes FOG's retention on every other PHP
+     * application on the box. Taking our own directory makes the setting mean
+     * what it says and confines the blast radius to FOG.
+     *
+     * It also fixes the ownership problem the installer works around today.
+     * Session files ARE authentication tokens, so this directory is 0700 and
+     * owned by the pool user -- deliberately NOT the sticky 1777 that
+     * FOG_CACHE_DIR uses, because world-readable session files would let any
+     * local account steal an admin session.
+     *
+     * WHY THE COLLECTOR SETTINGS COME WITH IT
+     *
+     * Owning the path means owning its garbage collection, and this is the
+     * trap: Debian and Ubuntu ship session.gc_probability = 0 and clean up
+     * from cron instead, via /usr/lib/php/sessionclean. That script discovers
+     * what to clean by running `php -c <sapi>/php.ini` and reading
+     * session.save_path out of the INI -- so a path set at runtime here is
+     * invisible to it. With PHP's in-process collector disabled and the cron
+     * job looking elsewhere, nothing would ever clean this directory and
+     * expired session files would accumulate forever. Re-enabling the
+     * in-process collector is what makes the directory self-maintaining on
+     * every distro. (Confirmed on Ubuntu 26.04: gc_probability = 0, timer
+     * phpsessionclean.timer present.)
+     *
+     * 86400 is the ceiling of FOG_INACTIVITY_TIMEOUT's own documented range,
+     * chosen so PHP can never contradict whatever policy is set in the UI.
+     * FOG_INACTIVITY_TIMEOUT stays the authority on when a user is logged out;
+     * this is only the floor that stops PHP pre-empting it.
+     *
+     * @return void
+     */
+    private static function _configureSessionStorage(): void
+    {
+        // Nothing to do once a session is running -- these are all read at
+        // session_start() and ini_set() on them would silently do nothing.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return;
+        }
+        // Created by the installer, but created here too so an install whose
+        // installer predates this still gets a working private store rather
+        // than falling back and keeping the 24-minute bug. 0700 before any
+        // session file can land in it, never afterwards.
+        if (!is_dir(FOG_SESSION_DIR)) {
+            @mkdir(FOG_SESSION_DIR, 0700, true);
+        }
+        // A directory we cannot write is worse than the shared one: every
+        // session_start() would fail and nobody could log in at all. Fall back
+        // to PHP's configured path, which is exactly today's behaviour, and say
+        // why -- a silent fallback here would look identical to the bug being
+        // fixed.
+        if (!is_dir(FOG_SESSION_DIR) || !is_writable(FOG_SESSION_DIR)) {
+            error_log(
+                sprintf(
+                    'FOG: session directory %s is missing or not writable by %s;'
+                    . ' falling back to the system session store, where PHP will'
+                    . ' expire sessions after session.gc_maxlifetime (%ss)'
+                    . ' regardless of FOG_INACTIVITY_TIMEOUT.',
+                    FOG_SESSION_DIR,
+                    (get_current_user() ?: 'the web user'),
+                    ini_get('session.gc_maxlifetime')
+                )
+            );
+            return;
+        }
+        ini_set('session.save_path', FOG_SESSION_DIR);
+        ini_set('session.gc_maxlifetime', '86400');
+        // See the docblock: Debian/Ubuntu disable the in-process collector.
+        // These are PHP's own upstream defaults, restored for our path.
+        ini_set('session.gc_probability', '1');
+        ini_set('session.gc_divisor', '1000');
+        // ini_set() on session.* returns false and changes nothing once output
+        // has been flushed, and a pool declaring session.save_path with
+        // php_admin_value rather than php_value makes it unsettable outright.
+        // Either way PHP keeps the system store and its 24-minute lifetime --
+        // which is the bug this method exists to fix, so it must not pass
+        // unremarked. Read the value back rather than trusting the return.
+        if (ini_get('session.save_path') !== FOG_SESSION_DIR) {
+            error_log(
+                sprintf(
+                    'FOG: could not point session.save_path at %s (it is still'
+                    . ' %s). A php_admin_value in the php-fpm pool, or output'
+                    . ' already flushed this request, will do this. Sessions'
+                    . ' will expire after %ss regardless of'
+                    . ' FOG_INACTIVITY_TIMEOUT.',
+                    FOG_SESSION_DIR,
+                    (ini_get('session.save_path') ?: 'the system default'),
+                    ini_get('session.gc_maxlifetime')
+                )
+            );
         }
     }
 
