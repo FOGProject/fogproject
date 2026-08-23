@@ -1279,6 +1279,9 @@ msgstr ""
 msgid "Cannot filter %s on: %s"
 msgstr ""
 
+msgid "Cannot filter setting ids on: value"
+msgstr ""
+
 msgid "Cannot notify from the hook manager"
 msgstr ""
 
@@ -4509,6 +4512,9 @@ msgstr ""
 msgid "Leave blank to keep the current password"
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level"
 msgstr ""
 
@@ -5387,6 +5393,9 @@ msgstr ""
 msgid "Node"
 msgstr "Nœud"
 
+msgid "Node API Signing Key"
+msgstr ""
+
 msgid "Node Offline"
 msgstr ""
 
@@ -5590,6 +5599,9 @@ msgstr "Vous êtes seulement autorisé à attribuer"
 #, fuzzy
 msgid "Only an administrator may grant full access."
 msgstr "Modifier Groupe"
+
+msgid "Only for a peer running its own FOG database. Set that peer FOG_NODE_API_KEY global setting to the same value, or it cannot verify requests this server signs."
+msgstr ""
 
 msgid "Only snapins shared by every host in the group can be ordered here. Saving sets this order on each host (shared snapins run first, in this order; any host-specific snapins run after). Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
