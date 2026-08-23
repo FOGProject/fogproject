@@ -162,10 +162,10 @@ case ${FOG_install_type} in
             fi
             case ${DHCP_enabled} in
                 [Nn]|[Nn][Oo]|"")
-                    DHCP_enabled=0
+                    DHCP_enabled="no"
                     ;;
                 [Yy]|[Yy][Ee][Ss])
-                    DHCP_enabled=1
+                    DHCP_enabled="yes"
                     ;;
                 *)
                     # Cleared so the loop re-prompts. Before the read targeted
@@ -177,7 +177,7 @@ case ${FOG_install_type} in
                     ;;
             esac
         done
-        if [[ ${DHCP_enabled} -eq 1 ]]; then
+        if [[ ${DHCP_enabled} == yes ]]; then
             while [[ -z ${DHCP_router} ]]; do
                 if [[ -z $autoaccept ]]; then
                     echo
@@ -261,10 +261,10 @@ case ${FOG_install_type} in
             fi
             case ${FOG_install_lang} in
                 [Nn]|[Nn][Oo]|"")
-                    FOG_install_lang=0
+                    FOG_install_lang="no"
                     ;;
                 [Yy]|[Yy][Ee][Ss])
-                    FOG_install_lang=1
+                    FOG_install_lang="yes"
                     ;;
                 *)
                     # See the DHCP_enabled loop above: cleared so an

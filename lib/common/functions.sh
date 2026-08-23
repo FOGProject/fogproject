@@ -645,7 +645,7 @@ backupDB() {
     # External Unprivileged Database Implementation
     # Skip database backup for external databases
     # ---------------------------------------------------------
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         echo " * Skipping database backup (External Database Mode)"
         return 0
     fi
@@ -908,7 +908,7 @@ checkWebTier() {
 # hold, table not created yet). Callers must treat empty as "unknown" and never
 # as zero.
 schemaVersionInDB() {
-    [[ "${DB_external}" == "1" ]] && return 0
+    [[ ${DB_external} == yes ]] && return 0
     [[ -z $sqloptionsuser ]] && return 0
     mysql $sqloptionsuser --password="${DB_password}" -N -B --execute="SELECT vValue FROM \`${DB_name}\`.\`schemaVersion\` WHERE vID=1" 2>/dev/null | tail -1
 }
@@ -918,7 +918,7 @@ schemaVersionInDB() {
 # an established install, and guessing "established" would leave a genuinely
 # fresh install with no way to bootstrap. Callers show both instructions.
 fogUserCount() {
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         [[ -z ${DB_host} || -z ${DB_user} ]] && return 0
         mysql --host="${DB_host}" --user="${DB_user}" --password="${DB_password}" $mysqlsslopt -N -B --execute="SELECT COUNT(*) FROM \`${DB_name}\`.\`users\`" 2>/dev/null | tail -1
         return 0
@@ -1101,7 +1101,7 @@ updateDB() {
     # External Unprivileged Database Implementation
     # Bypass DB user management (fogstorage) requiring root GRANT
     # ---------------------------------------------------------
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         echo " * Skipping fogstorage DB user management (External Database Mode)"
         # Return cleanly, skipping the GRANT/ALTER commands below
         return 0
@@ -1536,7 +1536,7 @@ listPackages() {
         done
         FOG_packages=$(echo $newpackagelist)
     fi
-    if [[ ${DHCP_enabled} == 0 ]]; then
+    if [[ ${DHCP_enabled} != yes ]]; then
         [[ -z $newpackagelist ]] && newpackagelist=""
         for z in ${FOG_packages}; do
             [[ -$z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
@@ -1556,7 +1556,7 @@ listPackages() {
     case ${FOG_os_id} in
         1)
             FOG_packages="${FOG_packages} php-bcmath bc"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
                 for i in fr de eu es pt zh en ja; do
                     FOG_packages="${FOG_packages} glibc-langpack-${i}"
@@ -1581,9 +1581,9 @@ listPackages() {
             FOG_packages="${FOG_packages// xinetd/}"
             FOG_packages="${FOG_packages// php-gettext/}"
             FOG_packages="${FOG_packages// php-php-gettext/}"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
-                if [[ ${FOG_install_lang} -eq 1 ]]; then
+                if [[ ${FOG_install_lang} == yes ]]; then
                     for i in fr de eu es pt zh-hans en ja; do
                         FOG_packages="${FOG_packages} language-pack-${i}"
                     done
@@ -2884,7 +2884,7 @@ resolveDHCPEngine() {
     # doOSSpecificIncludes before we ever get here). Must run after repo setup
     # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
     [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
-    [[ ${DHCP_enabled} -eq 1 ]] || return 0
+    [[ ${DHCP_enabled} == yes ]] || return 0
     local iscpkg="$dhcpname"
     [[ -n $iscpkg && ${FOG_packages} == *"$iscpkg"* ]] || return 0
     # Honor an explicit/persisted choice; an existing install is never switched.
@@ -2995,7 +2995,7 @@ pkgFirstInstalled() {
     return 1
 }
 installPackages() {
-    [[ ${FOG_install_lang} -eq 1 ]] && FOG_packages="${FOG_packages} gettext"
+    [[ ${FOG_install_lang} == yes ]] && FOG_packages="${FOG_packages} gettext"
     FOG_packages="${FOG_packages} jq"
     FOG_packages="${FOG_packages} unzip"
     FOG_packages="${FOG_packages} attr"
@@ -3034,7 +3034,7 @@ installPackages() {
     case ${FOG_os_id} in
         1)
             FOG_packages="${FOG_packages} php-bcmath bc"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
                 for i in fr de eu es pt zh en ja; do
                     FOG_packages="${FOG_packages} glibc-langpack-${i}";
@@ -3088,12 +3088,12 @@ installPackages() {
             FOG_packages="${FOG_packages// php-php-gettext/}"
             FOG_packages="${FOG_packages} php-bcmath bc"
             FOG_packages="${FOG_packages} php-ssh2"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
             fi
             case $linuxReleaseName_lower in
                 *ubuntu*|*mint*)
-                    if [[ ${FOG_install_lang} -eq 1 ]]; then
+                    if [[ ${FOG_install_lang} == yes ]]; then
                         for i in fr de eu es pt zh-hans en ja; do
                             FOG_packages="${FOG_packages} language-pack-${i}";
                         done
@@ -3623,7 +3623,7 @@ _firewallPortList() {
     # 443 is listening on every install whatever httpproto says. Gating this on
     # httpproto told admins to leave closed a port their server was serving on.
     echo "443/tcp HTTPS (web UI, client check-in)"
-    [[ ${BOOT_external_tftp_server} != 1 ]] && echo "69/udp TFTP (PXE boot)"
+    [[ ${BOOT_external_tftp_server} != yes ]] && echo "69/udp TFTP (PXE boot)"
     echo "21/tcp FTP (image/snapin replication, node operations)"
     # Passive data. vsftpd is pinned to this range by configureFTP() for
     # exactly this reason -- see the comment there.
@@ -3640,7 +3640,7 @@ _firewallPortList() {
     # random per boot and could not be firewalled at all.
     echo "20048/tcp NFS mountd"
     echo "20048/udp NFS mountd"
-    [[ ${DHCP_enabled} -eq 1 ]] && echo "67/udp DHCP (FOG is your DHCP server)"
+    [[ ${DHCP_enabled} == yes ]] && echo "67/udp DHCP (FOG is your DHCP server)"
     # udpcast multicast. UDPCAST_STARTINGPORT is the base and each concurrent
     # session consumes two ports, so the window is base .. base + 2*sessions.
     echo "${mcastportmin}-${mcastportmax}/udp Multicast (udpcast)"
@@ -3656,8 +3656,8 @@ _configureFirewalld() {
     local svc
     for svc in http tftp ftp nfs mountd rpc-bind dhcp; do
         case $svc in
-            tftp)     [[ ${BOOT_external_tftp_server} == 1 ]] && continue ;;
-            dhcp)     [[ ${DHCP_enabled} -ne 1 ]] && continue ;;
+            tftp)     [[ ${BOOT_external_tftp_server} == yes ]] && continue ;;
+            dhcp)     [[ ${DHCP_enabled} != yes ]] && continue ;;
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
@@ -3683,7 +3683,7 @@ _configureUfw() {
     # loaded -- ufw's stock before.rules already accepts RELATED,ESTABLISHED,
     # so the helper is the only missing piece. Persisted, because a reboot
     # without it breaks PXE and nothing says why.
-    if [[ ${BOOT_external_tftp_server} != 1 ]]; then
+    if [[ ${BOOT_external_tftp_server} != yes ]]; then
         echo "nf_conntrack_tftp" > /etc/modules-load.d/fog-conntrack.conf 2>>$error_log
         modprobe nf_conntrack_tftp >>$error_log 2>&1 || true
     fi
@@ -3717,7 +3717,7 @@ _reportIptables() {
         port="${p%/*}"
         echo " *   iptables -I INPUT -p $proto --dport ${port/-/:} -j ACCEPT"
     done < <(_firewallPortList)
-    if [[ ${BOOT_external_tftp_server} != 1 ]]; then
+    if [[ ${BOOT_external_tftp_server} != yes ]]; then
         echo " * TFTP also needs the conntrack helper, or PXE transfers stall:"
         echo " *   modprobe nf_conntrack_tftp"
     fi
@@ -4011,7 +4011,7 @@ configureMySql() {
     # ---------------------------------------------------------
     # External Unprivileged Database Implementation
     # ---------------------------------------------------------
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         dots "Verifying external database connection"
 
         # Test connection and ensure the database exists and is accessible.
@@ -4335,7 +4335,7 @@ EOF
     fi
     errorStat $?
     dots "Setting up exports file"
-    if [[ ${STORAGE_rebuild_nfs_exports} != 1 ]]; then
+    if [[ ${STORAGE_rebuild_nfs_exports} != yes ]]; then
         echo "Skipped"
         if [[ -f "$nfsconfig" ]] && grep -q "no_root_squash" "$nfsconfig"; then
             echo
@@ -5511,10 +5511,65 @@ configureStorage() {
 clearScreen() {
     clear
 }
+# One boolean encoding for .fogsettings: yes / no.
+#
+# Before this there were three, and the flag layer mixed them inside a single
+# variable -- sDHCP_enabled was assigned "Y" and then 1 on the very next line,
+# and sBOOT_external_tftp_server was assigned the string "true", which nothing
+# tested for. The keys divided up as yes/no (three keys), 1/0 (seven) and Y/N
+# (one), so which literal a test had to use was a per-key fact nobody could
+# carry, and getting it wrong is silent: `[[ $x == 0 ]]` against "N" is simply
+# false, and `[[ "N" -eq 1 ]]` evaluates "N" as an arithmetic expression --
+# an unset variable named N, so zero -- rather than erroring. That pair is
+# exactly how DHCP_enabled="N" satisfied neither the enabled test nor the
+# disabled one (GH-1120 follow-up).
+#
+# Anything a human might reasonably have typed maps in, so hand-edited files
+# keep working; anything else is left ALONE rather than guessed at, because
+# silently turning a typo into "no" is how a deliberate setting disappears.
+# Empty stays empty -- callers distinguish "unset" from "no" (see the
+# `[[ -z ${DHCP_enabled} ]]` prompt loops), and collapsing that here would make
+# every prompt stop firing.
+_normalizeBool() {
+    case "${1,,}" in
+        yes|y|1|true|on|enabled)   echo "yes" ;;
+        no|n|0|false|off|disabled) echo "no" ;;
+        *)                         echo "$1" ;;
+    esac
+}
+# The keys _normalizeBool applies to, and the only ones it may.
+#
+# FOG_installed is deliberately absent: settingLine() writes it unquoted and
+# numeric to preserve the historical file format, bin/updatefog.sh reads it, and
+# it records install STATE rather than a preference. SVC_firewall_control
+# (configure/disable/skip) and FOG_install_type (N/S) are absent because they
+# are not booleans at all -- folding either to yes/no would destroy an answer.
+_booleanSettingKeys() {
+    echo BOOT_external_tftp_server BOOT_rebuild_ipxe_with_my_ca \
+         BOOT_url_proto_forced DB_external DHCP_enabled FOG_copy_back_old \
+         FOG_install_lang FOG_send_reports PKI_sb_enabled \
+         PKI_web_cert_publicly_trusted STORAGE_rebuild_nfs_exports \
+         WEB_https_redirect
+}
+# Normalize in place, every run.
+#
+# NOT a one-shot migration keyed on a version marker: .fogsettings is a file
+# admins edit, so an old encoding can arrive at any time, not just on the
+# upgrade that renamed things. Running every time makes this idempotent and
+# self-repairing, and means writeUpdateFile() only ever sees yes/no -- so the
+# migration stays a copy rather than becoming a translation.
+_normalizeBooleanSettings() {
+    local key
+    for key in $(_booleanSettingKeys); do
+        [[ -n ${!key} ]] || continue
+        printf -v "$key" '%s' "$(_normalizeBool "${!key}")"
+    done
+}
 writeUpdateFile() {
     PKI_client_cert_dir="${PKI_client_cert_dir//\/$}"
     tmpDte=$(date +%c)
-    [[ -z ${FOG_copy_back_old} || ${FOG_copy_back_old} -lt 1 ]] && FOG_copy_back_old=0
+    _normalizeBooleanSettings
+    [[ -z ${FOG_copy_back_old} ]] && FOG_copy_back_old="no"
 
     # GH-632: this assumed $fogprogramdir already existed. On a pristine system
     # it does not -- nothing creates it until `mkdir -p $fogprogramdir/cache`
@@ -5976,7 +6031,7 @@ writeUpdateFile() {
         # No file, or a file with no recognizable header: write from scratch.
         # Fresh files default an empty DB_external to 0 (historical behavior;
         # the in-place upgrade path leaves it as-is).
-        DB_external="${DB_external:-0}"
+        DB_external="${DB_external:-no}"
         emitFogSettings "" > "$fogprogramdir/.fogsettings"
     fi
     # This file holds two cleartext passwords -- ${SVC_password} (the ${SVC_user}
@@ -9214,7 +9269,7 @@ configureHttpd() {
     else
         echo "Skipped"
     fi
-    if [[ ${FOG_copy_back_old} -gt 0 ]]; then
+    if [[ ${FOG_copy_back_old} == yes ]]; then
         if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
             dots "Copying back old web folder as is";
             cp -Rf ${DB_backup_path}/fog_web_${version}.BACKUP/* $webdirdest/
@@ -9280,7 +9335,7 @@ configureHttpd() {
     for i in $(find ${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$error_log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$error_log 2>&1
     done
-    if [[ ${FOG_install_lang} -eq 1 ]]; then
+    if [[ ${FOG_install_lang} == yes ]]; then
         dots "Creating the language binaries"
         langpath="${webdirdest}/management/languages"
         languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}' 2>>$error_log)
@@ -10021,7 +10076,7 @@ _ensureSecureBootKeys() {
         # absent and the notice would only send an admin looking for a 404. The
         # keys are still minted and the binaries still signed -- see the top of
         # this function -- there is simply nothing to enrol them with yet.
-        if [[ -f $key && -f $cert && ${PKI_sb_enabled:-1} != 0 ]]; then
+        if [[ -f $key && -f $cert && ${PKI_sb_enabled:-yes} == yes ]]; then
             echo
             echo "  ###################################################################"
             echo "  # NOTICE: this server's Secure Boot trust has moved from a self-  #"
@@ -10145,7 +10200,7 @@ _ensureSecureBootPlatformKeys() {
     # (see _ensureSecureBootKeys); enrolment material is not. Blanked rather
     # than merely skipped so _publishSecureBootAuthVars takes its "no platform
     # keys" branch and clears any blobs a previous, non-opted-out run left.
-    [[ ${PKI_sb_enabled:-1} == 0 ]] && return 0
+    [[ ${PKI_sb_enabled:-yes} != yes ]] && return 0
     # No signing key means the whole feature is opted out; there is nothing for
     # a platform key to authorise.
     [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]] && return 0
@@ -10228,7 +10283,7 @@ _publishSecureBootKit() {
     # this file existing (bootmenu.class.php:2089). The binaries are still
     # signed -- see _ensureSecureBootKeys for why signing is not part of what
     # the flag turns off.
-    if [[ -z ${PKI_sb_ca_cert} || ${PKI_sb_enabled:-1} == 0 ]]; then
+    if [[ -z ${PKI_sb_ca_cert} || ${PKI_sb_enabled:-yes} != yes ]]; then
         rm -rf "$kitdir" >>$error_log 2>&1
         return 0
     fi
@@ -12501,12 +12556,12 @@ $(_keaSecureBootClassCommented)"
     fi
 }
 configureDHCP() {
-    if [[ ${DHCP_enabled} -eq 1 && ${DHCP_engine} == kea ]]; then
+    if [[ ${DHCP_enabled} == yes && ${DHCP_engine} == kea ]]; then
         dots "Setting up and starting DHCP Server (Kea)"
     else
         case $linuxReleaseName_lower in
             *debian*)
-                if [[ ${DHCP_enabled} -eq 1 ]]; then
+                if [[ ${DHCP_enabled} == yes ]]; then
                     dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
                     sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"${NET_interface}\"/g" /etc/default/isc-dhcp-server
                 else
@@ -12519,7 +12574,7 @@ configureDHCP() {
         esac
     fi
     case ${DHCP_enabled} in
-        1)
+        yes)
             # GH-954: one line per address, so a second address on the NIC
             # made this multi-line and every consumer below it wrong.
             serverip=$(ip -4 -o addr show ${NET_interface} | awk -F'([ /])+' '/global/ {print $4}' | head -1)
@@ -12775,7 +12830,7 @@ diffconfig() {
     fi
 }
 setupFogReporting() {
-    [[ ${FOG_send_reports} == "N" ]] && return
+    [[ ${FOG_send_reports} != yes ]] && return
     local reportingdir="$fogprogramdir/reporting"
     local rreports="$reportingdir/report.sh"
     dots "Setting up FOG External Reporting"

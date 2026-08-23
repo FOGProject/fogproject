@@ -184,7 +184,10 @@ is "${PKI_sb_codesign_key}"           "/opt/fog/pki/secureboot/.fogSB.key" "PKI_
 is "${FOG_program_dir}"               "$fogprogramdir"   "FOG_program_dir records the LIVE path, not the stale line"
 
 # The merges: two old keys, one answer.
-is "${DHCP_enabled}"  "1"        "DHCP_enabled takes bldhcp's encoding, not dodhcp's"
+# Whichever of the two the seed reads, it copies the value verbatim -- the seed
+# block is a copy, never a translation. Normalizing the ENCODING to yes/no is a
+# separate step (_normalizeBooleanSettings), asserted on the written file below.
+is "${DHCP_enabled}"  "1"        "DHCP_enabled takes bldhcp's value, not dodhcp's"
 is "${DHCP_router}"   "10.0.0.1" "DHCP_router takes the clean value"
 is "${PKI_web_ca_cert}"   "/opt/fog/pki/web/ca/.fogWebCA.pem"  "PKI_web_ca_cert comes from FOG's own canonical path"
 is "${PKI_web_vhost_cert}" "/opt/fog/pki/web/leaf/.webLeaf.pem" "PKI_web_vhost_cert comes from sslpubcert when no external leaf was recorded"
@@ -245,6 +248,39 @@ grep -qx "NET_hostname='fog.example.org'" "$NEW" \
 grep -qx "FOG_installed=1" "$NEW" \
     && ok "FOG_installed stays unquoted and numeric, as the format has always been" \
     || bad "FOG_installed was quoted"
+
+# Booleans land in ONE encoding, whatever the old file used. The fixture above
+# deliberately supplies all three: installlang='1', sendreports='Y',
+# httpsRedirect='yes'. Asserted on the written file rather than on the seed
+# block, because the seed only copies -- normalization is what converts.
+for pair in "FOG_install_lang=yes:installlang='1'" \
+            "FOG_send_reports=yes:sendreports='Y'" \
+            "DB_external=no:snmysqlexternal='0'" \
+            "PKI_sb_enabled=yes:secureboot='1'" \
+            "DHCP_enabled=yes:bldhcp='1'" \
+            "WEB_https_redirect=yes:httpsRedirect='yes'" \
+            "PKI_web_cert_publicly_trusted=no:publicWebCert='no'" \
+            "BOOT_url_proto_forced=no:netbootProtoForced='no'"; do
+    want="${pair%%:*}"; from="${pair#*:}"
+    grep -qx "${want%%=*}='${want#*=}'" "$NEW" \
+        && ok "${want} (from ${from})" \
+        || bad "${want} not written (from ${from}); got: $(grep -E "^${want%%=*}=" "$NEW" || echo MISSING)"
+done
+
+# And nothing else slipped through in an old encoding. Reads the real key list
+# out of functions.sh so a key added to it later is covered without editing this.
+badbool=""
+while read -r k; do
+    [[ -z $k ]] && continue
+    line=$(grep -E "^${k}=" "$NEW") || continue
+    case "$line" in
+        "$k='yes'"|"$k='no'"|"$k=''") ;;
+        *) badbool="$badbool [$line]" ;;
+    esac
+done < <(sed -n '/^_booleanSettingKeys()/,/^}/p' "$FUNCS" \
+    | sed -e 's/^ *echo //' -e 's/\\$//' -e '/^_booleanSettingKeys/d' -e '/^}/d' \
+    | tr -s ' \n' '\n\n' | grep -vE '^$')
+is "$badbool" "" "every boolean key was written as yes/no (or empty)"
 
 # What an upgrade must not eat. Hand-set keys work ONLY because the merge keeps
 # lines it does not manage; a plain fresh write would silently drop all of this.
