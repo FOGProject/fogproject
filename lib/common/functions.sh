@@ -3753,6 +3753,18 @@ EOF
     chmod 0644 "${outdir}/${certfile}" >>$error_log 2>&1
     return $st
 }
+# Did $rootCAPem actually issue $sslcapem?
+#
+# The one question that separates a FOG-generated Web CA from one imported with
+# --web-ca-cert, which no comparison of PATHS can answer -- the import lands on
+# the same canonical filenames the generator uses. See the call site in
+# createWebIntermediateCA for what regenerating the chain from the wrong root
+# costs.
+_rootIssuedWebCA() {
+    [[ -n $rootCAPem && -s $rootCAPem ]] || return 1
+    [[ -n $sslcapem && -s $sslcapem ]] || return 1
+    openssl verify -trusted "$rootCAPem" "$sslcapem" >/dev/null 2>&1
+}
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
 # this zone has zero endpoint impact -- browsers just need the root trusted,
 # and fog-client already trusts it, because the root is what it pins.
@@ -3794,8 +3806,29 @@ $(_nameConstraints)" "FOG Web UI"
     # sslprivkey/sslpubcert.
     if [[ -z $sslcachain || $sslcachain == "${cadir}/.fogWebCAchain.pem" || $sslcachain == "$rootCAPem" ]]; then
         sslcachain="${cadir}/.fogWebCAchain.pem"
-        cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
-        chmod 0644 "$sslcachain" >>$error_log 2>&1
+        # The root appended has to be the one that actually ISSUED $sslcapem,
+        # and the path guard above cannot tell. Under
+        # --web-ca-cert/--web-ca-key/--web-ca-root the Web CA was issued by
+        # ANOTHER server's root, validateExternalCA imports to this exact
+        # canonical path, and it deliberately leaves $rootCAPem pointing at
+        # THIS server's own root (see the comment there -- fog-client pins
+        # $rootCAPem, so it must not move). Every path test therefore says
+        # "FOG-managed default, safe to regenerate", and the cat then replaces
+        # the imported root with one that does not sign the intermediate above
+        # it.
+        #
+        # Nothing complains at the time; the file is only read on later runs.
+        # Checked as a property, not a path, because the import and the
+        # generator write the same filename and no path test can separate
+        # them.
+        #
+        # The -s fallback keeps a fresh install working when there is no chain
+        # on disk yet: a chain built from the wrong root is still better than
+        # no chain at all, and that is the pre-existing behaviour.
+        if _rootIssuedWebCA || [[ ! -s $sslcachain ]]; then
+            cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
+            chmod 0644 "$sslcachain" >>$error_log 2>&1
+        fi
     fi
 }
 # The client communication certificate: the public half of the keypair
