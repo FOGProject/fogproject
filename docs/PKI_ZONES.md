@@ -76,10 +76,14 @@ issues day to day) — everything is a dotfile (`ls -a`):
 root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
                                    .fogCA.pem is a symlink to wherever the
                                    certificate already lived before this split.
-root/leaf/.srvprivate.key         symlink -> $PKI_client_cert_dir/.srvprivate.key
-root/leaf/.srvpublic.crt          symlink -> $PKI_client_cert_dir/.srvpublic.crt
-                                   (the comm leaf's real files stay at
-                                   $PKI_client_cert_dir -- see "Why they were separated")
+client/leaf/.srvprivate.key       the client communication keypair, which every
+client/leaf/.srvpublic.crt         registered fog-client pins. The REAL files.
+                                   0640 root:$apacheuser, in a 0710 directory --
+                                   the web tier has to read the key on every
+                                   handshake, so this is the one leaf/ that is
+                                   not 0700 root:root.
+                                   $PKI_client_cert_dir/.srvprivate.key and
+                                   .srvpublic.crt are symlinks to these.
 web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate and node certificates
 web/ca/.fogWebCAchain.pem         CA + web intermediate
 web/leaf/.webLeaf.{key,pem}       what the web server actually serves
@@ -109,10 +113,31 @@ done (safe to remove by hand). `$fogprogramdir/secureboot-staging` is a
 separate, web-user-writable directory for in-flight kernel-signing requests --
 unrelated key material, and deliberately not part of this tree.
 
-`.srvprivate.key`/`.srvpublic.crt` themselves stay exactly where they have
-always been, at `$PKI_client_cert_dir` — `root/leaf/` only adds discoverability symlinks
-to them, so nothing under `pki/` is flat while the comm keypair's real files
-never move.
+`.srvprivate.key`/`.srvpublic.crt` used to live directly at
+`$PKI_client_cert_dir` — i.e. `$snapindir/ssl`, the same directory an admin edits
+to change snapin SSL and the directory the snapin replicator walks. So "change
+the snapin certificates" and "replace the one keypair every registered client
+pins" were the same operation on the same directory, and the second is invisible
+until hosts stop checking in.
+
+They now live in their own zone at `pki/client/leaf/`, with a **symlink per file**
+left at the historic names. Per file rather than a directory symlink on purpose:
+symlinking `$snapindir/ssl` itself would put snapin uploads straight back beside
+the keypair. The names have to keep resolving because `FOGBase::_decryptCheck()`
+builds `<sslpath>/.srvprivate.key` with the filename hardcoded, taking the
+directory from the storage-node database record rather than from `.fogsettings`.
+
+Only the keypair moved. `req.cnf` and `ca.cnf` are read by the web leaf's own
+issuance and by `packages/pki/renewal-helper`; `fog.csr` is replicated to storage
+nodes by `SnapinReplicator`; `dhparam.pem` is named in the emitted nginx config;
+and the legacy `CA/` tree is read by the web UI to report offline-key state. Each
+is a contract with something outside the installer, so relocating them is its own
+change.
+
+`pki/root/leaf/` held discoverability symlinks to the keypair while it lived in
+the snapin directory. It is retired — a second set of links pointing at the first
+had nothing reading either — and removed on upgrade if it holds nothing but those
+links.
 
 An install that already ran an earlier layout (flat `CA/.fogCA.*` directly
 under `$PKI_client_cert_dir`, or the intermediate one-level-down `CA/web/.fogWebCA.*`
@@ -126,7 +151,7 @@ anything might still reference them directly.
 |---|---|
 | `pki/root/ca/.fogCA.pem` | **unchanged**, byte for byte |
 | `ca.cert.der` | **unchanged** — no client re-pins |
-| `.srvprivate.key` | **unchanged** — client authentication is unaffected |
+| `.srvprivate.key` | **same bytes** — moved into `pki/client/leaf/`, with a symlink left at the old path. Client authentication is unaffected |
 | `srvpublic.crt` | the same certificate, adopted rather than re-issued |
 | the web certificate | **new**, issued by the Web CA, on its own keypair |
 | the Secure Boot MOK | **new** — see below, this one needs action |

@@ -185,11 +185,16 @@ because something preserves what it does not manage.
 
 ## Deliberately not done
 
-- **Boolean encoding and polarity normalisation.** Five encodings remain. Fixing
-  them changes *values*, not names, and would have made the migration a
-  translation rather than a copy — including for `BOOT_external_tftp_server`,
-  which keeps `noTftpBuild`'s polarity precisely so the value carries across
-  untouched and still reads correctly against the firewall behaviour.
+- **Boolean encoding and polarity normalisation.** Deferred here, and the
+  encoding half has since been done — see
+  [ADR 0025](0025-one-boolean-encoding-normalised-on-load.md). The reasoning
+  below is what it had to answer: fixing encodings changes *values*, not names,
+  and would have made this migration a translation rather than a copy.
+  0025 resolves that by normalising on **load** every run rather than rewriting
+  once, which leaves the migration a copy. **Polarity is still not done** —
+  `BOOT_external_tftp_server` keeps `noTftpBuild`'s polarity precisely so the
+  value carries across untouched and still reads correctly against the firewall
+  behaviour.
 - **`FOG_update_channel`'s values.** `branchToChannel()` produces
   `stable`/`staging`/`dev` while `FOG_CHANNEL` is stamped
   `Patches`/`Beta`/`Release Candidate`/`Feature`. Reconciling them touches
