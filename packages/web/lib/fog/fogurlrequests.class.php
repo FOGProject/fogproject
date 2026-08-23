@@ -553,7 +553,28 @@ class FOGURLRequests extends FOGBase
          * reason to send it to a node, and not a reason to send it anywhere
          * else.
          */
-        if ($isFogHost && !isset($options[CURLOPT_COOKIE])) {
+        /*
+         * Only when there is actually a session to forward. session_id() is ''
+         * in any caller that never started one -- every CLI daemon, and any API
+         * request authenticated by token rather than cookie -- and the header
+         * was still being sent, as the bare "PHPSESSID=".
+         *
+         * An empty value is not nothing. isset($_COOKIE[session_name()]) is
+         * TRUE for it, so the receiving end's "resume a session only if one was
+         * presented" gate in commons/init.php opened, session_start() ran, and
+         * session.use_strict_mode -- having no id to resume -- minted a brand
+         * new empty session. Initiator::language() then wrote FOG_LANG into it
+         * and nothing ever read it again: an 18-byte file per request, left for
+         * gc.
+         *
+         * Sending nothing is also the honest signal. The request is
+         * unauthenticated either way -- getfiles.php answers 401 to both -- but
+         * an absent cookie says so without minting a session to prove it.
+         */
+        if ($isFogHost
+            && !isset($options[CURLOPT_COOKIE])
+            && session_id() !== ''
+        ) {
             $options[CURLOPT_COOKIE] = session_name() . '=' . session_id();
         }
         /*
