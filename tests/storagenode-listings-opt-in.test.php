@@ -52,6 +52,7 @@ foreach (['parseExpand', 'wantsExpand'] as $name) {
     $methods[$name] = $m[0];
 }
 
+
 if (count($fails) > 0) {
     fwrite(STDERR, 'FAIL: ' . count($fails) . " problem(s):\n");
     foreach ($fails as $f) {
@@ -175,6 +176,29 @@ $openapi = (string)file_get_contents(
 if (!preg_match('#case \'storagenode\':.*?expand=all#s', $openapi)) {
     $fails[] = 'OpenAPI no longer records that storagenode images and'
         . ' snapinfiles are expand-only';
+}
+
+/*
+ * 5. And when a caller does ask for them, images must resolve. getImages()
+ *    maps the node's directory basenames to image ids, and it looked them
+ *    up against the 'storagenode' class -- whose own `path` is the share
+ *    root, /images, on every node FOG has ever installed. The lookup could
+ *    not match, so this field came back [] whatever the node returned,
+ *    which is indistinguishable from the auth failure this test's subject
+ *    was fixing. dev-branch still carries the original
+ *    getSubObjectIDs('Image', ...); the class name was lost when the call
+ *    moved to Route::getIds().
+ */
+$storagenode = (string)file_get_contents(
+    'packages/web/lib/fog/storagenode.class.php'
+);
+if (preg_match('/function getImages\(\).*?\n    \}/s', $storagenode, $m)) {
+    if (!preg_match("/getIds\(\s*'image'/", $m[0])) {
+        $fails[] = 'StorageNode::getImages() does not resolve basenames'
+            . ' against the image class; the field will always be empty';
+    }
+} else {
+    $fails[] = 'StorageNode::getImages() not found';
 }
 
 if (count($fails) > 0) {
