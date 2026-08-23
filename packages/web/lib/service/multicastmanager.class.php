@@ -174,20 +174,7 @@ class MulticastManager extends FOGService
      */
     private function _isSenderAlive($pid)
     {
-        $pid = (int)$pid;
-        if ($pid < 1) {
-            return false;
-        }
-        $cmdline = @file_get_contents(
-            sprintf('/proc/%d/cmdline', $pid)
-        );
-        if (!$cmdline) {
-            return false;
-        }
-        return strpos(
-            str_replace("\0", ' ', $cmdline),
-            basename(UDPSENDERPATH)
-        ) !== false;
+        return $this->isPidAlive($pid, basename(UDPSENDERPATH));
     }
     /**
      * Reconciles udp-senders this node owns but no longer tracks.
@@ -740,7 +727,10 @@ class MulticastManager extends FOGService
                 // Both loops re-clear the sender reference after the session
                 // is closed out. Every task reaching them has already been
                 // through killTask(), so clearSenderRef() has zeroed
-                // senderpid and sendernode -- but cancel() and complete()
+                // senderpid and sendernode -- unless the sender survived the
+                // kill, in which case it refuses and the reference stays put
+                // for the reconciler. On the normal path cancel() and
+                // complete()
                 // finish with save() on a session object loaded back when the
                 // task was constructed, which still holds the pre-kill pid,
                 // and FOGController::save() writes every field it holds. The
