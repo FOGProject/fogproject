@@ -381,12 +381,23 @@ abstract class FOGService extends FOGBase
         };
         $itemType = $master ? 'group' : 'node';
         $groupID = $myStorageGroupID;
+        if ($master) {
+            // Resolve the groups BEFORE $find is built. Between 2018 and
+            // this fix the assignment sat inside the second `if ($master)`
+            // below, after $find had already copied $groupID by value -- so
+            // it was a dead write and master->master replication searched
+            // the replicator's OWN group. A group has one master, the loop
+            // below then skips it as self, and the count check reported
+            // "There are no members to sync to" on every cycle of every
+            // install. Group->Nodes was never affected: it wants exactly
+            // this group and does not enter the branch.
+            $groupID = $Obj->get('storagegroups');
+        }
         $find = [
             'isEnabled' => [1],
             'storagegroupID' => $groupID
         ];
         if ($master) {
-            $groupID = $Obj->get('storagegroups');
             $find['isMaster'] = [1];
         }
         // getItem(), not indiv(): the two throws below are what this method
@@ -453,8 +464,23 @@ abstract class FOGService extends FOGBase
             if ($StorageNode->id == $myStorageNodeID) {
                 continue;
             }
+            // Take the FTP credential off the LIST row, before the re-fetch
+            // below replaces the object. The two wrappers disagree about
+            // secrets: getList() hands back what listem() built and the
+            // emitter strips them on the way out to HTTP, so an internal
+            // caller still sees them; getItem() goes through getter(), which
+            // strips tier-2 fields -- storagenode pass and key -- at the
+            // source, so what it returns has no password in it at all.
+            // Reading pass off the re-fetched object left
+            // self::$FOGFTP->password empty and every replication login was
+            // refused, reported as a stale password for the node when the
+            // stored one was correct all along.
+            $nodeUser = $StorageNode->user;
+            $nodePass = $StorageNode->pass;
             // getItem(), not indiv(): a node that vanished between the list
             // and the fetch used to exit the daemon child here. Refs #907.
+            // Still the right call -- `online` is computed by getter() and is
+            // not carried on a list row, so this is where it comes from.
             $StorageNode = Route::getItem('storagenode', $StorageNode->id);
             if (!$StorageNode) {
                 continue;
@@ -507,8 +533,8 @@ abstract class FOGService extends FOGBase
                 );
                 continue;
             }
-            $username = self::$FOGFTP->username = $StorageNode->user;
-            $password = self::$FOGFTP->password = $StorageNode->pass;
+            $username = self::$FOGFTP->username = $nodeUser;
+            $password = self::$FOGFTP->password = $nodePass;
             $ip = self::$FOGFTP->host = $StorageNode->ip;
             $sizeurl = sprintf(
                 '%s://%s/fog/status/getsize.php',
@@ -558,6 +584,20 @@ abstract class FOGService extends FOGBase
             $limit = $limitset;
             unset($limitset, $remItem, $includeFile);
             $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}";
+            // Both lists are reset per NODE, not per item. Neither branch
+            // below assigns unconditionally -- the remote one only fires
+            // when the file is already there, and the local one writes
+            // index 0 -- so without this they carry the previous node's
+            // listing into the next node's comparison, and on the very
+            // first replication of a file $remotefilescheck is never
+            // assigned at all. natcasesort() then gets null, which under
+            // PHP 8 stops the transfer dead before a single byte moves:
+            // the daemon's last log line is the item name and nothing
+            // says why. dev-branch resets $remotefilescheck here for the
+            // same reason; the 2018 rework of this method (49c1c87a9)
+            // dropped it on this line.
+            $localfilescheck = [];
+            $remotefilescheck = [];
             if (is_file($myAdd)) {
                 $remItem = dirname("{$removeDir}{$removeFile}");
                 $path = $remItem;
@@ -1198,6 +1238,20 @@ abstract class FOGService extends FOGBase
      */
     public function cleanupProcList()
     {
+        // Iterated over key SNAPSHOTS, with every read and write going to
+        // $this->procRef / $this->procPipes by full path.
+        //
+        // The obvious form -- foreach ((array)$this->procRef as &$x) -- does
+        // not work: casting produces a TEMPORARY, so &$x binds into the copy
+        // and every unset() through it is silently discarded. A finished
+        // transfer then stays in the list forever, and since housekeeping
+        // runs every 100ms the daemon re-reports it about ten times a
+        // second for the life of the process, filling the log while
+        // proc_close() is called again and again on the same handle. The
+        // casts were added for PHP 8 null safety and are still wanted;
+        // array_keys() gives that plus a stable iteration order that is
+        // safe to unset from.
+        //
         // count() on a missing key is a TypeError under PHP 8, not a
         // warning -- an uncaught one, in a daemon, so the replicator would
         // die outright and the unit would simply stop syncing. empty() is
@@ -1205,39 +1259,36 @@ abstract class FOGService extends FOGBase
         // and an entry holding nothing both want the key dropped. The two
         // structures are kept in step by startTasking() and killTasking(),
         // but nothing enforces that, and this is not the place to find out.
-        foreach ((array)$this->procRef as $item => &$itemTypes) {
-            foreach ((array)$itemTypes as $image => &$images) {
-                foreach ((array)$images as $i => &$ref) {
-                    if (!$this->isRunning($images[$i])) {
-                        self::outall(
-                            ' | '
-                            . _('Sync finished - ')
-                            . print_r($images[$i], true)
-                        );
-                        foreach (
-                            (array)($this->procPipes[$item][$image][$i] ?? [])
-                            as &$pipe
-                        ) {
-                            if (is_resource($pipe)) {
-                                fclose($pipe);
-                            }
-                            unset($pipe);
-                        }
-                        unset($this->procPipes[$item][$image][$i]);
-                        if (is_resource($images[$i])) {
-                            proc_close($images[$i]);
-                        }
-                        unset($images[$i]);
+        foreach (array_keys((array)$this->procRef) as $item) {
+            foreach (array_keys((array)$this->procRef[$item]) as $image) {
+                foreach (array_keys((array)$this->procRef[$item][$image]) as $i) {
+                    $proc = $this->procRef[$item][$image][$i];
+                    if ($this->isRunning($proc)) {
+                        continue;
                     }
-                    unset($ref);
+                    self::outall(
+                        ' | '
+                        . _('Sync finished - ')
+                        . print_r($proc, true)
+                    );
+                    $pipes = (array)($this->procPipes[$item][$image][$i] ?? []);
+                    foreach (array_keys($pipes) as $j) {
+                        if (is_resource($pipes[$j])) {
+                            fclose($pipes[$j]);
+                        }
+                    }
+                    unset($this->procPipes[$item][$image][$i]);
+                    if (is_resource($proc)) {
+                        proc_close($proc);
+                    }
+                    unset($this->procRef[$item][$image][$i]);
                 }
-                if (empty($itemTypes[$image])) {
-                    unset($itemTypes[$image]);
+                if (empty($this->procRef[$item][$image])) {
+                    unset($this->procRef[$item][$image]);
                 }
                 if (empty($this->procPipes[$item][$image])) {
                     unset($this->procPipes[$item][$image]);
                 }
-                unset($images);
             }
             if (empty($this->procRef[$item])) {
                 unset($this->procRef[$item]);
@@ -1245,7 +1296,6 @@ abstract class FOGService extends FOGBase
             if (empty($this->procPipes[$item])) {
                 unset($this->procPipes[$item]);
             }
-            unset($itemTypes);
         }
     }
 }
