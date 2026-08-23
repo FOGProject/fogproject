@@ -2113,12 +2113,28 @@ class Route extends FOGBase
                         'db' => $real,
                         'dt' => $common,
                         'formatter' => function ($d, $row) {
-                            // hostPingCode: NULL/'' = never pinged,
-                            // 0 = online, any non-zero errno = unreachable.
-                            // Only "online" is worth an attention color;
-                            // an unreachable host is the normal resting
-                            // state for a managed host, so keep it neutral
-                            // and surface the specific reason as the text.
+                            // hostPingCode is FOUR states, not two, and the
+                            // third is the one this column used to get
+                            // wrong:
+                            //
+                            //   NULL/''       never pinged
+                            //   0             up, and the port answered
+                            //   ECONNREFUSED  UP -- the host's own kernel
+                            //                 sent a RST; nothing is
+                            //                 listening on the port
+                            //   anything else not reachable
+                            //
+                            // Ping::isAlive() owns which errnos mean the
+                            // host answered, shared with the service that
+                            // stamps hostLastPing, so the badge and the
+                            // timestamp cannot disagree.
+                            //
+                            // Refused gets its own colour rather than
+                            // borrowing success: the machine is up, which
+                            // is what was asked, but "the port is shut" is
+                            // the fact behind every "why is my Linux host
+                            // green now" question and is worth reading off
+                            // the grid.
                             if ($d === null || $d === '') {
                                 return '<span class="badge bg-secondary">'
                                     . _('Not pinged')
@@ -2127,6 +2143,11 @@ class Route extends FOGBase
                             if ((int)$d === 0) {
                                 return '<span class="badge bg-success">'
                                     . _('Online')
+                                    . '</span>';
+                            }
+                            if (Ping::isAlive($d)) {
+                                return '<span class="badge bg-info">'
+                                    . _('Up, port closed')
                                     . '</span>';
                             }
                             return '<span class="badge bg-secondary">'

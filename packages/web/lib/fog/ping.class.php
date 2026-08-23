@@ -123,6 +123,54 @@ class Ping
         );
     }
     /**
+     * Does this result prove the host was ALIVE, whatever the port did?
+     *
+     * The distinction the whole ping rests on, and it is not "did the
+     * connection succeed". This is a TCP connect to ONE port, so a
+     * successful connection proves the host is up AND running a service
+     * there -- two facts, of which only the first is being asked about.
+     *
+     * ECONNREFUSED is the second way to learn the first fact. The host's own
+     * kernel answered with a TCP RST, which it can only do if it is powered
+     * on, on the network, and routable from here. Nothing was listening on
+     * the port; the MACHINE is up. Recording that as "unreachable" is
+     * exactly the report that made a Linux host on port 445, or a Windows
+     * host on port 22, permanently look switched off.
+     *
+     * Everything else stays not-alive, and each for a reason:
+     *
+     *   ETIMEDOUT      nothing came back. Off, or a firewall DROPping rather
+     *                  than rejecting. Genuinely unknown, so not alive.
+     *   EHOSTUNREACH   a ROUTER said so, not the host.
+     *   ENETUNREACH    no route at all.
+     *   ENXIO          the name did not resolve, so nothing was contacted.
+     *
+     * The one false positive to know about: a middlebox configured to REJECT
+     * on a host's behalf sends the same RST, so "alive" would mean "the
+     * firewall in front of it is alive". A firewall that DROPs -- the common
+     * default -- still times out and is still reported correctly. That is a
+     * better trade than the alternative, which mislabels every correctly
+     * functioning host that happens not to run the chosen service.
+     *
+     * Single-sourced deliberately. The service decides whether to stamp
+     * hostLastPing with this, and the host grid decides how to draw the
+     * badge with it; two copies of "is this alive" would drift, and the
+     * failure when they do is silent -- a grid that says up next to a
+     * timestamp that never advances.
+     *
+     * @param int|string|null $code the stored hostPingCode
+     *
+     * @return bool
+     */
+    public static function isAlive($code)
+    {
+        if ($code === null || $code === '') {
+            return false;
+        }
+
+        return 0 === (int)$code || SOCKET_ECONNREFUSED === (int)$code;
+    }
+    /**
      * Test many hosts at once and return each one's errno.
      *
      * execute() above tests exactly one host and blocks for up to $timeout
