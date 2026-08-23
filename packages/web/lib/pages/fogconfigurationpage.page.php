@@ -2567,6 +2567,14 @@ class FOGConfigurationPage extends FOGPage
             ) {
                 continue;
             }
+            // Never shown, to anyone. FOG generates and consumes this
+            // key itself (FOGBase::nodeApiKey(), inherited here); there is
+            // no value an admin could usefully type, and printing a shared
+            // secret into a form field is a leak with no upside. Rotation
+            // is deleting the row -- the next request regenerates one.
+            if ($row['settingKey'] === self::NODE_API_KEY_SETTING) {
+                continue;
+            }
             $cat = trim((string) $row['settingCategory']);
             if ($cat === '') {
                 $cat = _('Uncategorized');

@@ -724,8 +724,41 @@ class OpenAPI extends FOGBase
                 ),
                 implode(', ', $additional)
             );
+            $note = self::_additionalFieldsNote($class);
+            if ('' !== $note) {
+                $out['description'] .= ' ' . $note;
+            }
         }
         return $out;
+    }
+    /**
+     * What the generic additionalFields sentence above cannot know.
+     *
+     * "Responses MAY carry" is derived from the model and is true as far as
+     * it goes, but for a class whose computed fields are opt-in it says
+     * nothing about how to ask for them -- and a client generated from this
+     * document would look for a field that is simply not in the payload.
+     *
+     * Deliberately a short hand-kept list, for the same reason
+     * _applyModelConstraint() is one: the condition lives in Route::getter(),
+     * not in anything schema-expected.php or the model can be read for.
+     *
+     * @param string $class The lowercase route class name.
+     *
+     * @return string A sentence to append, or '' for nothing to add.
+     */
+    private static function _additionalFieldsNote($class)
+    {
+        switch (strtolower((string)$class)) {
+            case 'storagenode':
+                return _(
+                    'images and snapinfiles are opt-in: each is an outbound '
+                    . 'request to the node itself, so they are returned only '
+                    . 'for expand=images, expand=snapinfiles or expand=all. '
+                    . 'logfiles is not returned by this route at all.'
+                );
+        }
+        return '';
     }
 
     /**

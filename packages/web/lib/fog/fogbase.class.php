@@ -4409,6 +4409,204 @@ abstract class FOGBase
             || (self::schemaNeedsDeploy() && self::installTokenParam());
     }
     /**
+     * The globalSettings key holding the shared node-signing secret.
+     *
+     * Deliberately NOT a config.class.php constant like
+     * FOG_SCHEMA_INSTALL_TOKEN: every storage node's installer generates its
+     * own config.class.php with its own random values, so a constant would
+     * differ on every machine and never verify. globalSettings is the one
+     * store master and node genuinely share -- functions.sh points a node's
+     * DATABASE_HOST at the master (see `[[ -z ${DB_host} ]] &&
+     * DB_host="$snmysqlhost"`), so a row written once is readable everywhere
+     * with nothing to distribute.
+     *
+     * @var string
+     */
+    const NODE_API_KEY_SETTING = 'FOG_NODE_API_KEY';
+    /**
+     * How far, in seconds, a signed request's timestamp may be from ours.
+     *
+     * This is the property service/nodecert.php does NOT have: its HMAC
+     * covers only the payload, so a captured request is replayable forever.
+     * Node traffic runs with CURLOPT_SSL_VERIFYPEER off (NODE_TLS_OPTIONS in
+     * FOGURLRequests -- a node's certificate is self-signed and there is no
+     * chain to check), so a capture is a realistic thing to defend against.
+     *
+     * Five minutes rather than something tighter because master and node
+     * clocks are not disciplined to each other by anything FOG installs, and
+     * the failure mode of too-tight is a node that silently serves nothing.
+     * It bounds replay to the same method on the same path -- for the reads
+     * this authenticates, that is a re-read of a directory listing.
+     *
+     * @var int
+     */
+    const NODE_SIGNATURE_WINDOW = 300;
+    /**
+     * The shared secret FOG's own components sign inter-node requests with,
+     * created on first use if it is not there yet.
+     *
+     * Purpose-scoped on purpose. The obvious existing secret to reuse was
+     * FOG_STORAGENODE_MYSQLPASS, which is what service/nodecert.php signs
+     * with -- but that password is direct database access. Leaking it during
+     * transport hands an attacker the whole schema; leaking this hands them
+     * the ability to list directories on a node, which is all it authorises.
+     *
+     * INSERT IGNORE rather than setSetting(), for two reasons. setSetting()
+     * is an UPDATE through SettingManager and does nothing at all when the
+     * row is absent, which is exactly the case being healed here. And the
+     * UNIQUE KEY on settingKey makes the INSERT the arbiter when two
+     * processes race -- both then re-read and agree, instead of the loser
+     * signing with a key the verifier has already replaced.
+     *
+     * @return string The key, or '' if one could not be established.
+     */
+    public static function nodeApiKey()
+    {
+        $key = trim((string) self::getSetting(self::NODE_API_KEY_SETTING));
+        if ($key !== '') {
+            return $key;
+        }
+        try {
+            $candidate = bin2hex(random_bytes(32));
+        } catch (\Exception $e) {
+            // No CSPRNG means no key. Returning '' leaves callers
+            // unauthenticated, which is the safe direction: an unsigned
+            // request is refused, a weakly signed one would not be.
+            return '';
+        }
+        self::$DB->query(
+            sprintf(
+                "INSERT IGNORE INTO `globalSettings` (`settingKey`, "
+                . "`settingDesc`, `settingValue`, `settingCategory`) "
+                . "VALUES (%s, %s, %s, %s)",
+                self::$DB->escape(self::NODE_API_KEY_SETTING),
+                self::$DB->escape(
+                    'Shared secret FOG signs its own server-to-server '
+                    . 'requests with. Generated automatically; there is '
+                    . 'nothing to set here, and the FOG Configuration page '
+                    . 'does not show it. Delete the row to rotate the key -- '
+                    . 'every component reads it from this table, so the next '
+                    . 'request regenerates one and they agree again.'
+                ),
+                self::$DB->escape($candidate),
+                self::$DB->escape('FOG Storage Nodes')
+            )
+        );
+        // Re-read rather than trusting $candidate: on a race the INSERT was
+        // ignored and the row holds the other process's value. No cache
+        // flush is needed -- getSetting() never caches a key it did not
+        // find, so this reads the row that just landed.
+        return trim((string) self::getSetting(self::NODE_API_KEY_SETTING));
+    }
+    /**
+     * The exact bytes both ends run through hash_hmac().
+     *
+     * Method and path are in the signed material so a captured signature
+     * cannot be lifted onto a different request -- a GET of a directory
+     * listing must not become a POST of anything. The timestamp is in it so
+     * it cannot be adjusted to widen the window it was issued for.
+     *
+     * @param string $method    The HTTP method, upper case.
+     * @param string $uri       Path plus query string, exactly as sent.
+     * @param string $timestamp Unix seconds, as a decimal string.
+     *
+     * @return string
+     */
+    private static function _nodeSignaturePayload($method, $uri, $timestamp)
+    {
+        return $timestamp . "\n" . $method . "\n" . $uri;
+    }
+    /**
+     * Headers proving a request came from this FOG installation.
+     *
+     * Header-only, for the reason installTokenHeader() already sets out: a
+     * header cannot be set by a cross-site form, a link or an <img>, and it
+     * never lands in browser history, a bookmark, a Referer or an access
+     * log. A query parameter would put a long-lived shared secret in every
+     * one of those.
+     *
+     * The signature covers path-and-query rather than the whole URL, so the
+     * http -> https redirect FOG's own vhost issues does not invalidate it.
+     *
+     * @param string $url    The URL about to be requested.
+     * @param string $method The HTTP method that will be used.
+     *
+     * @return array Header lines, or an empty array when unavailable.
+     */
+    public static function nodeSignatureHeaders($url, $method = 'GET')
+    {
+        $key = self::nodeApiKey();
+        if ($key === '') {
+            return [];
+        }
+        $parts = parse_url((string) $url);
+        if ($parts === false) {
+            return [];
+        }
+        $uri = ($parts['path'] ?? '/');
+        if (isset($parts['query']) && $parts['query'] !== '') {
+            $uri .= '?' . $parts['query'];
+        }
+        $timestamp = (string) time();
+        $signature = hash_hmac(
+            'sha256',
+            self::_nodeSignaturePayload(
+                strtoupper((string) $method),
+                $uri,
+                $timestamp
+            ),
+            $key
+        );
+        return [
+            'X-Fog-Node-Timestamp: ' . $timestamp,
+            'X-Fog-Node-Signature: ' . $signature
+        ];
+    }
+    /**
+     * Is this request signed by a FOG component that holds the node key?
+     *
+     * Authentication, not authorisation: it says the caller is part of this
+     * installation, and nothing about what it may do. Endpoints accepting it
+     * must still be ones a node is entitled to reach -- the same split
+     * service/nodecert.php makes when it checks the HMAC and then separately
+     * matches the source IP against a registered node.
+     *
+     * getSetting() rather than nodeApiKey() deliberately: verification must
+     * never mint a key. If no key exists there is nothing this request can
+     * have signed with, and the answer is no.
+     *
+     * @return bool
+     */
+    public static function validNodeSignature()
+    {
+        $timestamp = $_SERVER['HTTP_X_FOG_NODE_TIMESTAMP'] ?? null;
+        $signature = $_SERVER['HTTP_X_FOG_NODE_SIGNATURE'] ?? null;
+        if (!is_string($timestamp)
+            || !is_string($signature)
+            || $signature === ''
+            || !ctype_digit($timestamp)
+        ) {
+            return false;
+        }
+        if (abs(time() - (int) $timestamp) > self::NODE_SIGNATURE_WINDOW) {
+            return false;
+        }
+        $key = trim((string) self::getSetting(self::NODE_API_KEY_SETTING));
+        if ($key === '') {
+            return false;
+        }
+        $expected = hash_hmac(
+            'sha256',
+            self::_nodeSignaturePayload(
+                strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')),
+                (string) ($_SERVER['REQUEST_URI'] ?? ''),
+                $timestamp
+            ),
+            $key
+        );
+        return hash_equals($expected, $signature);
+    }
+    /**
      * Is the current session a FOG administrator?
      *
      * Deliberately not is_authorized(), which is true for any valid user --

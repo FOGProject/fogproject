@@ -374,6 +374,12 @@ class Route extends FOGBase
      */
     public static $sensitiveSettings = [
         'FOG_STORAGENODE_MYSQLPASS',
+        // FOGBase::NODE_API_KEY_SETTING, as a literal: a class constant here
+        // would autoload FOGCore while Route's own class body is still being
+        // built. SENSITIVE_SETTING_PATTERN does not cover it -- adding KEY to
+        // that pattern would mask unrelated settings -- and it is a shared
+        // HMAC secret, so it must not be readable over REST.
+        'FOG_NODE_API_KEY',
     ];
     /**
      * Settings the pattern catches that are not credentials.
@@ -3604,11 +3610,16 @@ class Route extends FOGBase
                 );
             }
             self::$data = [];
+            // Before getter(), not after: getter() now asks wantsExpand()
+            // whether to build storagenode's images/snapinfiles, and reading
+            // that before it is parsed answers "no" on every request. Nothing
+            // else in getter() consults expansion state, and expandRelations()
+            // below is unaffected by the move.
+            self::parseExpand();
             self::$data = self::getter(
                 $classname,
                 $class
             );
-            self::parseExpand();
             self::$data = self::expandRelations(
                 $classname,
                 $class,
@@ -4766,22 +4777,48 @@ class Route extends FOGBase
                     );
                     break;
                 case 'storagenode':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'online' => $class->get('online'),
-                            //'logfiles' => $class->get('logfiles'),
-                            'snapinfiles' => $class->get('snapinfiles'),
-                            'images' => $class->get('images'),
-                            'storagegroup' => $class->get('storagegroup')->get(),
-                            'location_url' => sprintf(
-                                '%s://%s/%s',
-                                self::$httpproto,
-                                $class->get('ip'),
-                                $class->get('webroot')
-                            )
-                        ]
-                    );
+                    $extra = [
+                        'online' => $class->get('online'),
+                        //'logfiles' => $class->get('logfiles'),
+                        'storagegroup' => $class->get('storagegroup')->get(),
+                        'location_url' => sprintf(
+                            '%s://%s/%s',
+                            self::$httpproto,
+                            $class->get('ip'),
+                            $class->get('webroot')
+                        )
+                    ];
+                    /*
+                     * images/snapinfiles/logfiles are not columns. Each one
+                     * is an outbound HTTP GET to status/getfiles.php on that
+                     * node, so serialising a node used to cost two round
+                     * trips to a machine that may be down -- paid by every
+                     * caller, including ones that never look at the answer.
+                     * FOGMulticastManager re-reads its master nodes every
+                     * MULTICASTSLEEPTIME (10s), and the storagegroup grid
+                     * serialises a master node per row.
+                     *
+                     * logfiles was already commented out for exactly this
+                     * cost, which is the tell that the other two should have
+                     * been opt-in rather than deleted a third time. Left
+                     * commented as it was; making it an expand token is a
+                     * separate decision from stopping the fan-out.
+                     *
+                     * images and snapinfiles are still reachable, by
+                     * ?expand=images,snapinfiles or ?expand=all. Callers that
+                     * want the objects rather than the payload are unaffected:
+                     * the UI reads them off StorageNode itself
+                     * ($StorageNode->get('snapinfiles') in
+                     * snapinmanagement.page.php), which never went through
+                     * this serializer.
+                     */
+                    if (self::wantsExpand('images')) {
+                        $extra['images'] = $class->get('images');
+                    }
+                    if (self::wantsExpand('snapinfiles')) {
+                        $extra['snapinfiles'] = $class->get('snapinfiles');
+                    }
+                    $data = FOGCore::fastmerge($class->get(), $extra);
                     break;
                 case 'storagegroup':
                     $data = FOGCore::fastmerge(
