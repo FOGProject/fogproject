@@ -2720,6 +2720,17 @@ class FOGConfigurationPage extends FOGPage
         $Services = $Services->services;
         $divTab = false;
         foreach ((array)$Services as &$Service) {
+            // Never shown, to anyone. FOG generates and consumes this key
+            // itself (FOGBase::nodeApiKey(), inherited here); there is no
+            // value an admin could usefully type, and printing a shared
+            // secret into a form field is a leak with no upside -- support
+            // threads are full of screenshots of this page. Rotation is
+            // deleting the row; the next request regenerates one. Skipped
+            // before $curcat is read so it cannot open a panel of its own.
+            if ($Service->name === self::NODE_API_KEY_SETTING) {
+                unset($Service);
+                continue;
+            }
             $curcat = $Service->category;
             if (!$divTab) {
                 $divTab = preg_replace(
@@ -3410,6 +3421,18 @@ class FOGConfigurationPage extends FOGPage
                         }
                         break;
                     case 'FOG_CLIENT_BANNER_SHA':
+                        continue 2;
+                    case self::NODE_API_KEY_SETTING:
+                        /*
+                         * This saver walks every setting rather than the
+                         * posted ones, and $set falls back to 0 for anything
+                         * absent from $_POST. The node key is deliberately
+                         * not rendered, so saving any panel in its category
+                         * would replace a working shared secret with the
+                         * string "0" -- and both ends would then agree on
+                         * "0", so nothing would look broken until someone
+                         * guessed it. Same shape as the banner SHA above.
+                         */
                         continue 2;
                     case 'FOG_CLIENT_BANNER_IMAGE':
                         $banner = filter_input(INPUT_POST, 'banner');
