@@ -267,7 +267,18 @@ class PingHosts extends FOGService
                         (
                             $code === 0 ?
                             _('online') :
-                            socket_strerror($code)
+                            // Say both halves for a refused connection: the
+                            // errno alone reads as a failure in the log, and
+                            // it is the one failure that is really a success.
+                            (
+                                Ping::isAlive($code) ?
+                                sprintf(
+                                    '%s (%s)',
+                                    _('up, port closed'),
+                                    socket_strerror($code)
+                                ) :
+                                socket_strerror($code)
+                            )
                         )
                     )
                 );
@@ -275,13 +286,20 @@ class PingHosts extends FOGService
             $seen = self::niceDate()->format('Y-m-d H:i:s');
             foreach ($byCode as $code => $ids) {
                 $update = ['pingstatus' => $code];
-                // lastping records "this host answered", so only a
-                // successful connect writes it. A failure must leave the
-                // previous value alone -- overwriting it with the time of
-                // the failed attempt would make a host that has been off for
-                // a month indistinguishable from one that answered a minute
-                // ago, which is the whole reason the column exists.
-                if ($code === 0) {
+                // lastping records "this host answered", so only a result
+                // that PROVES the host answered writes it -- which is not
+                // the same as a successful connection. A refused connection
+                // is a TCP RST from the host's own kernel, so the machine is
+                // demonstrably up and merely has nothing listening on the
+                // port. Ping::isAlive() owns that judgement for both this
+                // and the host grid; see its docblock for the full list.
+                //
+                // A failure must leave the previous value alone --
+                // overwriting it with the time of the failed attempt would
+                // make a host that has been off for a month indistinguishable
+                // from one that answered a minute ago, which is the whole
+                // reason the column exists.
+                if (Ping::isAlive($code)) {
                     $update['lastping'] = $seen;
                 }
                 // Chunked so a large fleet cannot build an IN () list past
@@ -299,14 +317,21 @@ class PingHosts extends FOGService
                         );
                 }
             }
-            $online = count($byCode[0] ?? []);
+            // Counted by "was the host alive", not by "was the port open",
+            // so the summary agrees with what got a lastping stamp above.
+            $alive = 0;
+            foreach ($byCode as $code => $ids) {
+                if (Ping::isAlive($code)) {
+                    $alive += count($ids);
+                }
+            }
             self::outall(
                 sprintf(
                     ' * %s: %d %s, %d %s, %d %s (%.2fs)',
                     _('Ping cycle complete'),
-                    $online,
-                    _('online'),
-                    count($results) - $online,
+                    $alive,
+                    _('up'),
+                    count($results) - $alive,
                     _('not reachable'),
                     $skipped,
                     _('skipped'),
