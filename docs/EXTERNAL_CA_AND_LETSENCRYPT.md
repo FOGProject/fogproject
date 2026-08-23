@@ -204,6 +204,30 @@ also given.
 If the source files are no longer readable on a later run, the installer reuses
 the already-imported CA in `/opt/fog/pki/root/ca/`.
 
+### Storage nodes are issued from it too
+
+An imported Web CA issues certificates to storage nodes, exactly as FOG's own
+would. Each node generates its own keypair and its own CSR locally and sends
+only the CSR to the master, which signs it with whatever `PKI_web_ca_cert` names
+— your intermediate included. The node's private key never leaves the node.
+
+This was broken until recently, and the failure was worth naming: the signing
+helper verified each freshly issued node certificate against `PKI_root_ca_cert`,
+which is FOG's own root and is *not* replaced by an external **web** CA (it is
+what fog-client pins). Your intermediate was never signed by it, so no chain
+could be built and every node request was refused — with a message blaming the
+CA's name constraints, which sent people looking in the wrong place entirely.
+
+The helper now anchors on `pki/web/ca/.trustAnchor.pem`, which carries FOG's root
+*and* your root where you supplied one, and hands the node
+`PKI_web_trust_chain` — your intermediate plus your root — rather than appending
+FOG's root to a chain it does not anchor. See
+[PKI_ZONES.md](PKI_ZONES.md#storage-node-certificates).
+
+>[!note]
+>If you supplied a root FOG already trusts, `PKI_web_external_root_cert` stays
+>empty and the anchor holds one certificate. Nothing else changes.
+
 ---
 
 ## Recommended: internal ACME CA (step-ca)
