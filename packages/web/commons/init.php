@@ -199,7 +199,22 @@ class Initiator
          * reg-task, lib/client or lib/service, and setMessage() already
          * returns early when no session is active (fogbase.class.php).
          */
-        $hasSession = isset($_COOKIE[session_name()]);
+        /*
+         * An EMPTY cookie value is not a session to resume. isset() is true for
+         * "PHPSESSID=", so the gate opened for it, session.use_strict_mode found
+         * no id to resume, and PHP minted a fresh empty session -- exactly the
+         * per-request throwaway this gate exists to prevent, just arriving
+         * through a header instead of through the unconditional session_start()
+         * it replaced.
+         *
+         * FOGURLRequests was sending precisely that from every session-less
+         * caller (fixed at source there too, but the check belongs here: this is
+         * the chokepoint all 62 entry points reach, and a sender is easy to
+         * reintroduce). Browsers are unaffected -- a real session presents a
+         * non-empty id -- and a browser holding an emptied cookie now gets the
+         * same treatment as one holding none, which is the correct answer.
+         */
+        $hasSession = ($_COOKIE[session_name()] ?? '') !== '';
         if (session_status() !== PHP_SESSION_ACTIVE
             && ($hasSession || defined('FOG_WANTS_SESSION'))
         ) {
