@@ -5481,9 +5481,6 @@ msgstr ""
 msgid "Replicating"
 msgstr ""
 
-msgid "Replicating ssl less private key"
-msgstr ""
-
 msgid "Replication Bandwidth"
 msgstr ""
 

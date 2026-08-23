@@ -6239,9 +6239,6 @@ msgstr "Impossibile aggiornare compito"
 msgid "Replicating"
 msgstr "Replicando"
 
-msgid "Replicating ssl less private key"
-msgstr "Replica ssl senza chiave privata"
-
 msgid "Replication Bandwidth"
 msgstr "Larghezza di banda replica"
 
@@ -10315,6 +10312,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Remove Selected"
 #~ msgstr "Rimuovi i selezionati"
+
+#~ msgid "Replicating ssl less private key"
+#~ msgstr "Replica ssl senza chiave privata"
 
 #~ msgid "Results"
 #~ msgstr "risultati"

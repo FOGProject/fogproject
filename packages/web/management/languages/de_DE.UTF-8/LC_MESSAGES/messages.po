@@ -6453,9 +6453,6 @@ msgstr "Fehler beim Aktualisieren des Tasks"
 msgid "Replicating"
 msgstr "Replizieren"
 
-msgid "Replicating ssl less private key"
-msgstr "Replizieren von SSL-freiem privatem Schlüssel"
-
 msgid "Replication Bandwidth"
 msgstr "Replikationsbandbreite"
 
@@ -10704,6 +10701,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Remove Selected"
 #~ msgstr "Ausgewählte entfernen?"
+
+#~ msgid "Replicating ssl less private key"
+#~ msgstr "Replizieren von SSL-freiem privatem Schlüssel"
 
 #~ msgid "Results"
 #~ msgstr "Ergebnisse"

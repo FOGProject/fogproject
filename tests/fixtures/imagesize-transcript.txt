@@ -1,0 +1,45 @@
+=== ImageSize :: globally disabled ===
+log=/var/log/fogcustom/fogimagesize.log dev=/dev/tty3 zzz=3600
+   *  * Image size is globally disabled
+  [serviceRun end]
+
+=== ImageSize :: storage group has gone ===
+log=/var/log/fogcustom/fogimagesize.log dev=/dev/tty3 zzz=3600
+   * Skipping, no such storage group: 3
+   * Completed.
+  [serviceRun end]
+
+=== ImageSize :: nothing primary to this group ===
+log=/var/log/fogcustom/fogimagesize.log dev=/dev/tty3 zzz=3600
+   * Starting Image Size Service.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Finding any images associated with this group as its primary group
+  [getIds imageassociation field=imageID find={"primary":1,"storagegroupID":3}]
+  [getIds image field=- find={"id":[],"isEnabled":1}]
+   * No images associated with this group as master.
+   * Completed.
+  [serviceRun end]
+
+=== ImageSize :: one file present, one missing ===
+log=/var/log/fogcustom/fogimagesize.log dev=/dev/tty3 zzz=3600
+   * Starting Image Size Service.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Finding any images associated with this group as its primary group
+  [getIds imageassociation field=imageID find={"primary":1,"storagegroupID":3}]
+  [getIds image field=- find={"id":[11,22],"isEnabled":1}]
+   * Found 2 images to update size values as needed.
+  [getList image]
+   * Trying image size for: item11, ID: 11
+   * Getting image size for: item11.
+   | Size: 3
+  [set Image#11 srvsize=3]
+  [save Image#11]
+   * Trying image size for: item22, ID: 22
+  | item22: Path is unavailable
+  [set Image#22 srvsize=0]
+  [save Image#22]
+   * Completed.
+  [serviceRun end]
+

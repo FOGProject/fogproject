@@ -6198,9 +6198,6 @@ msgstr ""
 msgid "Replicating"
 msgstr "レプリケーション中"
 
-msgid "Replicating ssl less private key"
-msgstr ""
-
 msgid "Replication Bandwidth"
 msgstr "レプリケーション帯域幅"
 

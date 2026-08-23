@@ -10,11 +10,18 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-
 namespace FOG;
 
 /**
  * Image size service for images.
+ *
+ * The walk lives in FOGItemScanner, shared with SnapinHash. All that is here
+ * is what genuinely differs: the table, and what to record about the file.
+ *
+ * The messages are literal _() calls rather than something the base builds
+ * from a noun, and that is deliberate: gettext extracts msgids from the
+ * source text, so _("Trying $noun size for") would never translate and would
+ * never appear in the .pot -- silently, forever.
  *
  * @category ImageSize
  * @package  FOGProject
@@ -22,14 +29,8 @@ namespace FOG;
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ImageSize extends FOGService
+class ImageSize extends FOGItemScanner
 {
-    /**
-     * Is the service globally enabled.
-     *
-     * @var int
-     */
-    private static $_sizeOn = 0;
     /**
      * Where to get the services sleeptime
      *
@@ -37,240 +38,70 @@ class ImageSize extends FOGService
      */
     public static $sleeptime = 'IMAGESIZESLEEPTIME';
     /**
-     * Initializes the ImageSize Class
+     * Everything that differs from the other scanner.
+     *
+     * @return array
+     */
+    protected function descriptor()
+    {
+        return [
+            'prefix' => 'IMAGESIZE',
+            'log' => 'fogimagesize.log',
+            'dev' => '/dev/tty3',
+            'zzz' => 3600,
+            'route' => 'image',
+            'assocRoute' => 'imageassociation',
+            'assocField' => 'imageID',
+            'model' => 'Image',
+            'nodePathField' => 'path',
+            'itemFileField' => 'path',
+            'msg' => [
+                'disabled' => _(' * Image size is globally disabled'),
+                'starting' => _('Starting Image Size Service'),
+                'finding' => _('Finding any images associated'),
+                'none' => _('No images associated with this group as master'),
+                'plural' => _('images'),
+                'singular' => _('image'),
+                'tail' => _('to update size values as needed'),
+                'trying' => _('Trying image size for'),
+                'getting' => _('Getting image size for')
+            ]
+        ];
+    }
+    /**
+     * Records the size of the image file.
+     *
+     * @param object $item     The image row.
+     * @param string $filepath The file.
      *
      * @return void
      */
-    public function __construct()
+    protected function updateItem($item, $filepath)
     {
-        parent::__construct();
-        $imagesizekeys = [
-            'IMAGESIZEDEVICEOUTPUT',
-            'IMAGESIZELOGFILENAME',
-            self::$sleeptime
-        ];
-        list(
-            $dev,
-            $log,
-            $zzz
-        ) = self::getSetting($imagesizekeys);
-        static::$log = sprintf(
-            '%s%s',
-            (
-                self::$logpath ?
-                self::$logpath :
-                FOG_LOG_DIR . DS
-            ),
-            (
-                $log ?
-                $log :
-                'fogimagesize.log'
+        $size = self::getFilesize($filepath);
+        self::outall(
+            sprintf(
+                ' | %s: %s',
+                _('Size'),
+                $size
             )
         );
-        // GH-497: the log used to be deleted here on every start, which threw
-        // away the run that led up to a restart -- exactly the one worth
-        // reading -- and made `tail -f` useless across a service restart. The
-        // file is now appended to, and wlog() rotates it on size instead.
-        static::$dev = (
-            $dev ?
-            $dev :
-            '/dev/tty3'
-        );
-        static::$zzz = (
-            $zzz ?
-            $zzz :
-            3600
-        );
+        self::getClass($this->modelClass(), $item->id)
+            ->set('srvsize', $size)
+            ->save();
     }
     /**
-     * This is what almost all services have available
-     * but is specific to this service
+     * Records that the image file is not there.
+     *
+     * @param object $item The image row.
      *
      * @return void
      */
-    private function _commonOutput()
+    protected function clearItem($item)
     {
-        try {
-            self::$_sizeOn = self::getSetting('IMAGESIZEGLOBALENABLED');
-            self::$_sizeOn = self::getSetting('IMAGESIZEGLOBALENABLED');
-            if (self::$_sizeOn < 1) {
-                throw new \Exception(_(' * Image size is globally disabled'));
-            }
-            foreach ($this->checkIfNodeMaster() as $StorageNode) {
-                $myStorageGroupID = $StorageNode->storagegroupID;
-                $myStorageNodeID = $StorageNode->id;
-                // getItem(), not indiv(): a miss answers with null here
-                // rather than exiting the daemon child outright. Refs #907.
-                $StorageGroup = Route::getItem(
-                    'storagegroup',
-                    $myStorageGroupID
-                );
-                if (!$StorageGroup) {
-                    self::outall(
-                        sprintf(
-                            ' * %s: %d',
-                            _('Skipping, no such storage group'),
-                            $myStorageGroupID
-                        )
-                    );
-                    continue;
-                }
-                self::outall(
-                    sprintf(
-                        ' * %s.',
-                        _('Starting Image Size Service')
-                    )
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s: %d. %s: %s',
-                        _('We are group ID'),
-                        $StorageGroup->id,
-                        _('We are group name'),
-                        $StorageGroup->name
-                    )
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s: %d. %s: %s',
-                        _('We are node ID'),
-                        $StorageNode->id,
-                        _('We are node name'),
-                        $StorageNode->name
-                    )
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s %s %s',
-                        _('Finding any images associated'),
-                        _('with this group'),
-                        _('as its primary group')
-                    )
-                );
-                $find = [
-                    'primary' => 1,
-                    'storagegroupID' => $myStorageGroupID
-                ];
-                $imageIDs = Route::getIds(
-                    'imageassociation',
-                    $find,
-                    'imageID'
-                );
-                $find = [
-                    'id' => $imageIDs,
-                    'isEnabled' => 1
-                ];
-                $imageIDs = Route::getIds(
-                    'image',
-                    $find
-                );
-                $ImageCount = count($imageIDs ?: []);
-                if ($ImageCount < 1) {
-                    self::outall(
-                        sprintf(
-                            ' * %s.',
-                            _('No images associated with this group as master')
-                        )
-                    );
-                    continue;
-                }
-                self::outall(
-                    sprintf(
-                        ' * %s %d %s %s.',
-                        _('Found'),
-                        $ImageCount,
-                        (
-                            $ImageCount != 1 ?
-                            _('images') :
-                            _('image')
-                        ),
-                        _('to update size values as needed')
-                    )
-                );
-                $Images = Route::getList(
-                    'image',
-                    ['id' => $imageIDs]
-                );
-                foreach ($Images as $Image) {
-                    self::outall(
-                        sprintf(
-                            ' * %s: %s, %s: %d',
-                            _('Trying image size for'),
-                            $Image->name,
-                            _('ID'),
-                            $Image->id
-                        )
-                    );
-                    $path = sprintf(
-                        '/%s',
-                        trim($StorageNode->path, '/')
-                    );
-                    $file = basename($Image->path);
-                    $filepath = sprintf(
-                        '%s/%s',
-                        $path,
-                        $file
-                    );
-                    if (!file_exists($filepath) || !is_readable($filepath)) {
-                        self::outall(
-                            sprintf(
-                                '| %s: %s',
-                                $Image->name,
-                                _('Path is unavailable')
-                            )
-                        );
-                        self::getClass('Image', $Image->id)
-                            ->set('srvsize', 0)
-                            ->save();
-                        continue;
-                    }
-                    self::outall(
-                        sprintf(
-                            ' * %s: %s.',
-                            _('Getting image size for'),
-                            $Image->name
-                        )
-                    );
-                    $size = self::getFilesize($filepath);
-                    unset($path, $file);
-                    self::outall(
-                        sprintf(
-                            ' | %s: %s',
-                            _('Size'),
-                            $size
-                        )
-                    );
-                    self::getClass('Image', $Image->id)
-                        ->set('srvsize', $size)
-                        ->save();
-                    unset($url, $response, $size);
-                }
-            }
-            self::outall(
-                sprintf(
-                    ' * %s.',
-                    _('Completed')
-                )
-            );
-            unset($StorageNodes);
-        } catch (\Exception $e) {
-            self::outall(
-                sprintf(
-                    ' * %s',
-                    _($e->getMessage())
-                )
-            );
-        }
-    }
-    /**
-     * This is runs the service
-     *
-     * @return void
-     */
-    public function serviceRun()
-    {
-        $this->_commonOutput();
-        parent::serviceRun();
+        self::getClass($this->modelClass(), $item->id)
+            ->set('srvsize', 0)
+            ->save();
     }
 }
 

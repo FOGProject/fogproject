@@ -6453,9 +6453,6 @@ msgstr "Impossible de mettre à jour la tâche"
 msgid "Replicating"
 msgstr "Reproduire?"
 
-msgid "Replicating ssl less private key"
-msgstr ""
-
 msgid "Replication Bandwidth"
 msgstr "Bande passante de réplication"
 

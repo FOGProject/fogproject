@@ -1,0 +1,84 @@
+=== ImageReplicator :: globally disabled ===
+log=/var/log/fogcustom/fogreplicator.log dev=/dev/tty1 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+   *  * Image replication is globally disabled
+  [serviceRun end]
+
+=== ImageReplicator :: storage group has gone ===
+log=/var/log/fogcustom/fogreplicator.log dev=/dev/tty1 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Skipping, no such storage group: 3
+  [serviceRun end]
+
+=== ImageReplicator :: nothing enabled to replicate ===
+log=/var/log/fogcustom/fogreplicator.log dev=/dev/tty1 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Image Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group image replication.
+  [getIds image field=- find={"isEnabled":[1],"toReplicate":[1]}]
+   | There are no images available!.
+  [serviceRun end]
+
+=== ImageReplicator :: enabled but nothing associated ===
+log=/var/log/fogcustom/fogreplicator.log dev=/dev/tty1 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Image Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group image replication.
+  [getIds image field=- find={"isEnabled":[1],"toReplicate":[1]}]
+  [getCount imageassociation find={"storagegroupID":3,"imageID":[11,22]}]
+   | There is nothing to replicate.
+   | Please physically associate images to a storage group.
+  [serviceRun end]
+
+=== ImageReplicator :: two items, one primary to this group ===
+log=/var/log/fogcustom/fogreplicator.log dev=/dev/tty1 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Image Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group image replication.
+  [getIds image field=- find={"isEnabled":[1],"toReplicate":[1]}]
+  [getCount imageassociation find={"storagegroupID":3,"imageID":[11,22]}]
+  [getIds imageassociation field=imageID find={"storagegroupID":3,"imageID":[11,22]}]
+  [getList image]
+   | Replicating postdownloadscripts
+  [replicateItems group=3 node=7 item=FOG\Image#0 primary=no path=postdownloadscripts]
+   | Replicating postinitscripts
+  [replicateItems group=3 node=7 item=FOG\Image#0 primary=no path=dev/postinitscripts]
+  [replicateItems group=3 node=7 item=FOG\Image#11 primary=yes path=-]
+   | Not syncing Image: item22
+   | This is not the primary group.
+   * Attempting to perform Group -> Nodes image replication.
+  [replicateItems group=3 node=7 item=FOG\Image#11 primary=no path=-]
+  [replicateItems group=3 node=7 item=FOG\Image#22 primary=no path=-]
+  [serviceRun end]
+
+=== ImageReplicator :: log path and console device configured ===
+log=/var/log/fogcustom/custom-name.log dev=/dev/tty9 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Image Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group image replication.
+  [getIds image field=- find={"isEnabled":[1],"toReplicate":[1]}]
+  [getCount imageassociation find={"storagegroupID":3,"imageID":[11]}]
+  [getIds imageassociation field=imageID find={"storagegroupID":3,"imageID":[11]}]
+  [getList image]
+   | Replicating postdownloadscripts
+  [replicateItems group=3 node=7 item=FOG\Image#0 primary=no path=postdownloadscripts]
+   | Replicating postinitscripts
+  [replicateItems group=3 node=7 item=FOG\Image#0 primary=no path=dev/postinitscripts]
+  [replicateItems group=3 node=7 item=FOG\Image#11 primary=yes path=-]
+   * Attempting to perform Group -> Nodes image replication.
+  [replicateItems group=3 node=7 item=FOG\Image#11 primary=no path=-]
+  [serviceRun end]
+

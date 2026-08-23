@@ -1,0 +1,80 @@
+=== SnapinReplicator :: globally disabled ===
+log=/var/log/fogcustom/fogsnapinrep.log dev=/dev/tty4 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+   *  * Snapin replication is globally disabled
+  [serviceRun end]
+
+=== SnapinReplicator :: storage group has gone ===
+log=/var/log/fogcustom/fogsnapinrep.log dev=/dev/tty4 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Skipping, no such storage group: 3
+  [serviceRun end]
+
+=== SnapinReplicator :: nothing enabled to replicate ===
+log=/var/log/fogcustom/fogsnapinrep.log dev=/dev/tty4 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Snapin Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group snapin replication.
+  [getIds snapin field=- find={"isEnabled":[1],"toReplicate":[1]}]
+   | There are no snapins available!.
+  [serviceRun end]
+
+=== SnapinReplicator :: enabled but nothing associated ===
+log=/var/log/fogcustom/fogsnapinrep.log dev=/dev/tty4 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Snapin Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group snapin replication.
+  [getIds snapin field=- find={"isEnabled":[1],"toReplicate":[1]}]
+  [getCount snapingroupassociation find={"storagegroupID":3,"snapinID":[11,22]}]
+   | There is nothing to replicate.
+   | Please physically associate snapins to a storage group.
+  [serviceRun end]
+
+=== SnapinReplicator :: two items, one primary to this group ===
+log=/var/log/fogcustom/fogsnapinrep.log dev=/dev/tty4 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Snapin Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group snapin replication.
+  [getIds snapin field=- find={"isEnabled":[1],"toReplicate":[1]}]
+  [getCount snapingroupassociation find={"storagegroupID":3,"snapinID":[11,22]}]
+  [getIds snapingroupassociation field=snapinID find={"storagegroupID":3,"snapinID":[11,22]}]
+  [getList snapin]
+   | Replicating CA
+  [replicateItems group=3 node=7 item=FOG\Snapin#0 primary=no path=ssl/CA]
+  [replicateItems group=3 node=7 item=FOG\Snapin#11 primary=yes path=-]
+   | Not syncing Snapin: item22
+   | This is not the primary group.
+   * Attempting to perform Group -> Nodes snapin replication.
+  [replicateItems group=3 node=7 item=FOG\Snapin#11 primary=no path=-]
+  [replicateItems group=3 node=7 item=FOG\Snapin#22 primary=no path=-]
+  [serviceRun end]
+
+=== SnapinReplicator :: log path and console device configured ===
+log=/var/log/fogcustom/custom-name.log dev=/dev/tty9 zzz=600
+  [wlog groupmanager.log]  * Checking if I am the group manager.
+  [wlog groupmanager.log]  * I am the group manager
+   * Starting Snapin Replication.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Attempting to perform Group -> Group snapin replication.
+  [getIds snapin field=- find={"isEnabled":[1],"toReplicate":[1]}]
+  [getCount snapingroupassociation find={"storagegroupID":3,"snapinID":[11]}]
+  [getIds snapingroupassociation field=snapinID find={"storagegroupID":3,"snapinID":[11]}]
+  [getList snapin]
+   | Replicating CA
+  [replicateItems group=3 node=7 item=FOG\Snapin#0 primary=no path=ssl/CA]
+  [replicateItems group=3 node=7 item=FOG\Snapin#11 primary=yes path=-]
+   * Attempting to perform Group -> Nodes snapin replication.
+  [replicateItems group=3 node=7 item=FOG\Snapin#11 primary=no path=-]
+  [serviceRun end]
+

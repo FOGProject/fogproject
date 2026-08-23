@@ -6452,9 +6452,6 @@ msgstr "无法更新任务"
 msgid "Replicating"
 msgstr "复制？"
 
-msgid "Replicating ssl less private key"
-msgstr ""
-
 msgid "Replication Bandwidth"
 msgstr "复制带宽"
 

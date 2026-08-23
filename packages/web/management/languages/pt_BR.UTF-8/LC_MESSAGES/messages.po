@@ -6452,9 +6452,6 @@ msgstr "Falha ao atualizar tarefa"
 msgid "Replicating"
 msgstr "Replicar?"
 
-msgid "Replicating ssl less private key"
-msgstr ""
-
 msgid "Replication Bandwidth"
 msgstr "Bandwidth Replication"
 

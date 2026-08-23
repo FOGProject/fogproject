@@ -1,0 +1,47 @@
+=== SnapinHash :: globally disabled ===
+log=/var/log/fogcustom/fogsnapinhash.log dev=/dev/tty6 zzz=1800
+   *  * Snapin hash is globally disabled
+  [serviceRun end]
+
+=== SnapinHash :: storage group has gone ===
+log=/var/log/fogcustom/fogsnapinhash.log dev=/dev/tty6 zzz=1800
+   * Skipping, no such storage group: 3
+   * Completed.
+  [serviceRun end]
+
+=== SnapinHash :: nothing primary to this group ===
+log=/var/log/fogcustom/fogsnapinhash.log dev=/dev/tty6 zzz=1800
+   * Starting Snapin Hashing Service.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Finding any snapins associated with this group as its primary group
+  [getIds snapingroupassociation field=snapinID find={"primary":1,"storagegroupID":3}]
+  [getIds snapin field=- find={"id":[],"isEnabled":1}]
+   * No snapins associated with this group as master.
+   * Completed.
+  [serviceRun end]
+
+=== SnapinHash :: one file present, one missing ===
+log=/var/log/fogcustom/fogsnapinhash.log dev=/dev/tty6 zzz=1800
+   * Starting Snapin Hashing Service.
+   * We are group ID: 3. We are group name: GroupOne
+   * We are node ID: 7. We are node name: NodeSeven
+   * Finding any snapins associated with this group as its primary group
+  [getIds snapingroupassociation field=snapinID find={"primary":1,"storagegroupID":3}]
+  [getIds snapin field=- find={"id":[11,22],"isEnabled":1}]
+   * Found 2 snapins to update hash values as needed.
+  [getList snapin]
+   * Trying Snapin hash for: item11, ID: 11
+   * Getting snapin hash and size for: item11.
+   | Hash: a9dfcf1fb9a20e928fb6dda0254594db64fd2ed627cc56c5419fa11df4ece59f36bdab465b121c2a35ec5e3e2a94aedc8cf5fbdbc8bc1ea043a551af9adf0a41
+  [set Snapin#11 hash='<128 hex chars>']
+  [set Snapin#11 size=3]
+  [save Snapin#11]
+   * Trying Snapin hash for: item22, ID: 22
+  | item22: Path is unavailable
+  [set Snapin#22 hash='']
+  [set Snapin#22 size=0]
+  [save Snapin#22]
+   * Completed.
+  [serviceRun end]
+

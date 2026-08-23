@@ -6598,9 +6598,6 @@ msgstr "No se pudo crear la tarea"
 msgid "Replicating"
 msgstr "¿Reproducir exactamente?"
 
-msgid "Replicating ssl less private key"
-msgstr ""
-
 msgid "Replication Bandwidth"
 msgstr ""
 

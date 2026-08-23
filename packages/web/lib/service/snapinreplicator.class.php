@@ -1,6 +1,6 @@
 <?php
 /**
- * Replication service for snapins
+ * Snapin replicator service.
  *
  * PHP version 7.4+
  *
@@ -10,11 +10,18 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-
 namespace FOG;
 
 /**
- * Replication service for snapins
+ * Snapin replicator service.
+ *
+ * The sequence lives in FOGReplicator, shared with ImageReplicator. All that is
+ * here is what genuinely differs.
+ *
+ * The messages are literal _() calls rather than something the base builds
+ * from a noun, and that is deliberate: gettext extracts msgids from the
+ * source text, so _("There are no $noun available!") would never translate
+ * and would never appear in the .pot -- silently, forever.
  *
  * @category SnapinReplicator
  * @package  FOGProject
@@ -22,14 +29,8 @@ namespace FOG;
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class SnapinReplicator extends FOGService
+class SnapinReplicator extends FOGReplicator
 {
-    /**
-     * Is the service globally enabled.
-     *
-     * @var int
-     */
-    private static $_repOn = 0;
     /**
      * Where to get the services sleeptime
      *
@@ -37,295 +38,42 @@ class SnapinReplicator extends FOGService
      */
     public static $sleeptime = 'SNAPINREPSLEEPTIME';
     /**
-     * Initializes the SnapinReplicator Class
+     * Everything that differs from the other replicator.
      *
-     * @return void
+     * @return array
      */
-    public function __construct()
+    protected function descriptor()
     {
-        parent::__construct();
-        $snapinreplicatorkeys = [
-            'SNAPINREPLICATORDEVICEOUTPUT',
-            'SNAPINREPLICATORLOGFILENAME',
-            self::$sleeptime
+        return [
+            'prefix' => 'SNAPINREPLICATOR',
+            'log' => 'fogsnapinrep.log',
+            'dev' => '/dev/tty4',
+            'route' => 'snapin',
+            'assocRoute' => 'snapingroupassociation',
+            'assocField' => 'snapinID',
+            'model' => 'Snapin',
+            // 'ssl/fog.csr' was dropped here. It is the MASTER's
+            // client-communication CSR -- a request fulfilled years of
+            // installs ago -- and a storage node has no use for it: since
+            // the zoned PKI landed, a node generates its own keypair and
+            // its own CSR in _requestNodeCert() and is issued a
+            // certificate by the master's Web CA. The installer also moved
+            // that file into pki/client/leaf/ with the rest of the client
+            // leaf's material, so this entry named a path that no longer
+            // exists. 'ssl/CA' stays: that is the CA certificate itself,
+            // public trust material a node legitimately holds.
+            'extraPaths' => [
+                'ssl/CA'
+            ],
+            'msg' => [
+                'disabled' => _(' * Snapin replication is globally disabled'),
+                'starting' => _('Starting Snapin Replication'),
+                'kind' => _('snapin replication'),
+                'none' => _('There are no snapins available!'),
+                'associate' => _('snapins to a storage group'),
+                'notSyncing' => _('Not syncing Snapin')
+            ]
         ];
-        list(
-            $dev,
-            $log,
-            $zzz
-        ) = self::getSetting($snapinreplicatorkeys);
-        static::$log = sprintf(
-            '%s%s',
-            (
-                self::$logpath ?
-                self::$logpath :
-                FOG_LOG_DIR . DS
-            ),
-            (
-                $log ?
-                $log :
-                'fogsnapinrep.log'
-            )
-        );
-        // GH-497: the log used to be deleted here on every start, which threw
-        // away the run that led up to a restart -- exactly the one worth
-        // reading -- and made `tail -f` useless across a service restart. The
-        // file is now appended to, and wlog() rotates it on size instead.
-        static::$dev = (
-            $dev ?
-            $dev :
-            '/dev/tty4'
-        );
-        static::$zzz = (
-            $zzz ?
-            $zzz :
-            600
-        );
-    }
-    /**
-     * This is what almost all services have available
-     * but is specific to this service
-     *
-     * @return void
-     */
-    private function _commonOutput()
-    {
-        try {
-            self::$_repOn = self::getSetting('SNAPINREPLICATORGLOBALENABLED');
-            if (self::$_repOn < 1) {
-                throw new \Exception(_(' * Snapin replication is globally disabled'));
-            }
-            foreach ($this->checkIfNodeMaster() as $StorageNode) {
-                $skip = false;
-                self::wlog(
-                    sprintf(
-                        ' * %s',
-                        _('I am the group manager')
-                    ),
-                    FOG_LOG_DIR . DS . 'groupmanager.log'
-                );
-                $myStorageGroupID = $StorageNode->storagegroupID;
-                $myStorageNodeID = $StorageNode->id;
-                // getItem(), not indiv(): a miss answers with null here
-                // rather than exiting the daemon child outright. Refs #907.
-                $StorageGroup = Route::getItem(
-                    'storagegroup',
-                    $myStorageGroupID
-                );
-                if (!$StorageGroup) {
-                    self::outall(
-                        sprintf(
-                            ' * %s: %d',
-                            _('Skipping, no such storage group'),
-                            $myStorageGroupID
-                        )
-                    );
-                    continue;
-                }
-                self::outall(
-                    sprintf(
-                        ' * %s.',
-                        _('Starting Snapin Replication')
-                    )
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s: %d. %s: %s',
-                        _('We are group ID'),
-                        $StorageGroup->id,
-                        _('We are group name'),
-                        $StorageGroup->name
-                    )
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s: %d. %s: %s',
-                        _('We are node ID'),
-                        $StorageNode->id,
-                        _('We are node name'),
-                        $StorageNode->name
-                    )
-                );
-                /**
-                 * More implicit defining of type of sync
-                 * currently happening.
-                 */
-                self::outall(
-                    sprintf(
-                        ' * %s %s -> %s %s.',
-                        _('Attempting to perform'),
-                        _('Group'),
-                        _('Group'),
-                        _('snapin replication')
-                    )
-                );
-                /**
-                 * Get the snapin ids that are valid.
-                 */
-                $find = [
-                    'isEnabled' => [1],
-                    'toReplicate' => [1]
-                ];
-                $snapinIDs = Route::getIds(
-                    'snapin',
-                    $find
-                );
-                $SnapinAssocCount = Route::getCount(
-                    'snapingroupassociation',
-                    [
-                        'storagegroupID' => $myStorageGroupID,
-                        'snapinID' => $snapinIDs
-                    ]
-                );
-                $SnapinCount = count($snapinIDs ?: []);
-                if ($SnapinCount <= 0) {
-                    self::outall(
-                        sprintf(
-                            ' | %s',
-                            _('There are no snapins available!')
-                        )
-                    );
-                    $skip = true;
-                } elseif ($SnapinAssocCount < 1) {
-                    self::outall(
-                        sprintf(
-                            ' | %s.',
-                            _('There is nothing to replicate')
-                        )
-                    );
-                    self::outall(
-                        sprintf(
-                            ' | %s %s.',
-                            _('Please physically associate'),
-                            _('snapins to a storage group')
-                        )
-                    );
-                    $skip = true;
-                }
-                unset($SnapinAssocCount, $SnapinCount);
-                if ($skip) {
-                    continue;
-                }
-                $find = [
-                    'storagegroupID' => $myStorageGroupID,
-                    'snapinID' => $snapinIDs
-                ];
-                $snapinIDs = Route::getIds(
-                    'snapingroupassociation',
-                    $find,
-                    'snapinID'
-                );
-                $Snapins = Route::getList(
-                    'snapin',
-                    ['id' => $snapinIDs]
-                );
-                /**
-                 * Handles replicating of our ssl folder and contents.
-                 *
-                 * 'ssl/fog.csr' was dropped here. It is the MASTER's
-                 * client-communication CSR -- a request that was fulfilled years
-                 * of installs ago -- and a storage node has no use for it: since
-                 * the zoned PKI landed, a node generates its own keypair and its
-                 * own CSR in _requestNodeCert() and is issued a certificate by
-                 * the master's Web CA. The installer also moved that file into
-                 * pki/client/leaf/ with the rest of the client leaf's material,
-                 * so this entry named a path that no longer exists.
-                 *
-                 * 'ssl/CA' stays: that is the CA certificate itself, and it is
-                 * public trust material a node legitimately holds.
-                 */
-                $ssls = [
-                    'ssl/CA'
-                ];
-                self::outall(
-                    sprintf(
-                        ' | %s',
-                        _('Replicating ssl less private key')
-                    )
-                );
-                foreach ($ssls as $ssl) {
-                    $this->replicateItems(
-                        $myStorageGroupID,
-                        $myStorageNodeID,
-                        new Snapin(),
-                        false,
-                        $ssl
-                    );
-                }
-                foreach ($Snapins as $Snapin) {
-                    if (!Snapin::getPrimaryGroup($myStorageGroupID, $Snapin->id)) {
-                        self::outall(
-                            sprintf(
-                                ' | %s: %s',
-                                _('Not syncing Snapin'),
-                                $Snapin->name
-                            )
-                        );
-                        self::outall(
-                            sprintf(
-                                ' | %s.',
-                                _('This is not the primary group')
-                            )
-                        );
-                        continue;
-                    }
-                    $S = new Snapin($Snapin->id);
-                    $this->replicateItems(
-                        $myStorageGroupID,
-                        $myStorageNodeID,
-                        $S,
-                        true
-                    );
-                }
-                /**
-                 * More implicit defining of type of sync
-                 * currently happening.
-                 */
-                self::outall(
-                    sprintf(
-                        ' * %s %s -> %s %s.',
-                        _('Attempting to perform'),
-                        _('Group'),
-                        _('Nodes'),
-                        _('snapin replication')
-                    )
-                );
-                foreach ($Snapins as $Snapin) {
-                    $S = new Snapin($Snapin->id);
-                    $this->replicateItems(
-                        $myStorageGroupID,
-                        $myStorageNodeID,
-                        $S,
-                        false
-                    );
-                }
-                unset($Snapins);
-            }
-        } catch (\Exception $e) {
-            self::outall(
-                sprintf(
-                    ' * %s',
-                    _($e->getMessage())
-                )
-            );
-        }
-    }
-    /**
-     * This is runs the service
-     *
-     * @return void
-     */
-    public function serviceRun()
-    {
-        self::wlog(
-            sprintf(
-                ' * %s.',
-                _('Checking if I am the group manager')
-            ),
-            FOG_LOG_DIR . DS . 'groupmanager.log'
-        );
-        $this->_commonOutput();
-        parent::serviceRun();
     }
 }
 
