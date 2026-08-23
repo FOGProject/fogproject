@@ -7087,3 +7087,63 @@ $this->schema[] = [
     . "so this is roughly the length of a whole ping cycle rather than a cost "
     . "paid per host.','2','Ping Host Settings')",
 ];
+// 354
+$this->schema[] = [
+    // ADR 0022 decision 4: an index on each work item's START column.
+    //
+    // ActivityWindow bounds its union by a time range and orders by the
+    // start, so without these "what ran between X and Y" is a full scan per
+    // table -- five scans, on the tables that grow fastest on a busy server.
+    // `tasks` has an index on `taskCheckIn` and none on `taskCreateTime`,
+    // which is the column a window query reads; the other four have nothing
+    // on their start column at all.
+    //
+    // Added WITH the helper rather than before it, which is what the ADR
+    // asks for: an index nothing queries is maintenance cost on every insert
+    // for no read, and all five of these tables are insert-hot.
+    //
+    // Plain single-column indexes, not covering ones. The union selects
+    // several columns per row, so a covering index would be most of the
+    // table; the job here is to FIND the rows in the range, not to answer
+    // the whole query from the index.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353: ADD INDEX has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and re-running one
+    // is error 1061 rather than a no-op. Every table and column is named in
+    // the probe so the installer's grant check still passes.
+    function () {
+        $wanted = [
+            ['tasks', 'taskCreateTime', 'idx_taskCreateTime'],
+            ['snapinJobs', 'sjCreateTime', 'idx_sjCreateTime'],
+            ['snapinTasks', 'stCheckinDate', 'idx_stCheckinDate'],
+            ['multicastSessions', 'msStartDateTime', 'idx_msStartDateTime'],
+            ['fileDeleteQueue', 'fdqCreateDate', 'idx_fdqCreateDate'],
+        ];
+        foreach ($wanted as $spec) {
+            list($table, $column, $index) = $spec;
+            // Matched on the COLUMN, not on the index NAME. A server that
+            // already indexes the column under a different name -- hand
+            // tuned, or a later step folding it into a composite -- must not
+            // get a second index on the same column, which is write cost for
+            // no read. SEQ_IN_INDEX = 1 because only a LEADING column is
+            // usable for a range scan on it.
+            $have = self::$DB->query(
+                "SELECT `INDEX_NAME` AS `i` "
+                . "FROM `information_schema`.`STATISTICS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND `TABLE_NAME` = '" . $table . "' "
+                . "AND `COLUMN_NAME` = '" . $column . "' "
+                . "AND `SEQ_IN_INDEX` = 1"
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+            if (count((array)$have) > 0) {
+                continue;
+            }
+            self::$DB->query(
+                "ALTER TABLE `" . $table . "` "
+                . "ADD INDEX `" . $index . "` (`" . $column . "`)"
+            );
+        }
+
+        return true;
+    },
+];

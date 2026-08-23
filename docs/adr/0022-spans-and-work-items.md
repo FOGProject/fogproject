@@ -2,7 +2,32 @@
 
 ## Status
 
-accepted, with Decisions 3 and 5 **superseded during review**
+accepted, with Decisions 3 and 5 **superseded during review**, and Decision 4
+implemented on `working-1.6`
+
+Decision 4 is `lib/fog/activitywindow.class.php` plus schema step 354, which
+indexes the start column on all five tables -- added *with* the helper, as the
+decision asks, because an index nothing queries is write cost on an
+insert-hot table for no read. Verified against a copy of a real database: 135
+rows across four sources (the fifth, `fileDeleteQueue`, was empty on that
+server), the column set and DESC ordering as specified, the range bound and
+the source whitelist both applied, and `EXPLAIN` reporting a `range` scan on
+`idx_taskCreateTime` rather than a table scan.
+
+`tests/activity-window.test.php` pins the parts that fail silently: every arm
+names columns that exist in `commons/schema-expected.php`, every arm produces
+the same six outputs in the same order -- a UNION takes its column names from
+the first arm, so a disagreeing arm supplies its second column as somebody
+else's `subjectID` rather than erroring -- and step 354 indexes exactly the
+column each arm bounds on.
+
+**It has no caller yet, and that is worth stating rather than leaving to be
+discovered.** The decision is for a read path, and nothing in this ADR or in
+0023 specifies a surface for it: 0023's activity viewer answers "what
+happened" from the event logs, which is a different question from "what ran".
+A helper with no consumer is at risk of rotting, so the honest next step is a
+consumer -- but building one was not part of this decision and inventing a
+page for it here would have been scope nobody asked for.
 
 Both concerned `imagingLog`, and grilling them established that the table
 should not be repaired -- it should be retired. `taskLog` is written at the
@@ -273,9 +298,23 @@ someone reaches for to answer "when did this image last go out".
 ### 4. "Everything that ran in the last hour" is one read path, not one table
 
 The prompt's actual complaint is answered by a query, not a schema. A single
-`ActivityWindow` helper unions the six tables behind one column set —
+`ActivityWindow` helper unions the work-item tables behind one column set —
 `source`, `subjectID`, `startedAt`, `endedAt`, `state`, `label` — mapping each
 table's own names into it.
+
+**Five tables, not six.** This decision was written against the original six;
+Decision 3 then retired `imagingLog`, which was the only one of them that was
+a span rather than a work item (Decision 6). What remains is `tasks`,
+`snapinJobs`, `snapinTasks`, `multicastSessions` and `fileDeleteQueue` — and
+they are exactly the five that speak the `taskStates` vocabulary, which is
+what makes one `state` column across the union mean anything.
+
+`endedAt` is NULL for `tasks` and `snapinJobs`, permanently, because neither
+table has an end column. Decision 2 already rules out substituting
+`taskStateChangedTime`, so the projection reports the absence rather than
+filling it with the timestamp of the last transition. `label` is likewise
+empty for `snapinJobs`: the table has nothing to give, and a join invented to
+fill it would be a cost every caller pays for a column only some want.
 
 This is deliberately a *read* projection with no write side. It costs one class
 and no migration, every table keeps its own vocabulary and its own writers, and
