@@ -63,6 +63,8 @@ $methods = [];
 foreach (
     [
         '_nodeSignaturePayload',
+        'nodeSigningKeyFor',
+        '_nodeVerificationKeys',
         'nodeSignatureHeaders',
         'validNodeSignature'
     ] as $name
@@ -89,17 +91,78 @@ if (count($fails) > 0) {
     exit(1);
 }
 
+/*
+ * nodeSigningKeyFor() and _nodeVerificationKeys() read nfsGroupMembers, so
+ * the probe needs a $DB. A fake one rather than a stub of the methods:
+ * what is worth testing is the row handling itself -- an unmatched host
+ * used to come back as the string 'Array' and sign every request to an
+ * unknown peer with a constant no one could verify.
+ *
+ * The fake answers on the shape of the SQL, which is all the two callers
+ * differ by: one names ngmHostname, the other does not.
+ */
+class NodeSigFakeResult
+{
+    private $_rows;
+
+    public function __construct($rows)
+    {
+        $this->_rows = $rows;
+    }
+
+    public function fetch($mode = null, $how = null)
+    {
+        return $this;
+    }
+
+    public function get($field = null)
+    {
+        return $this->_rows;
+    }
+}
+
+class NodeSigFakeDb
+{
+    /** Rows as ['ngmHostname' => ..., 'ngmKey' => ...]. */
+    public static $nodes = [];
+
+    public function escape($value)
+    {
+        return "'" . str_replace("'", "''", (string)$value) . "'";
+    }
+
+    public function query($sql)
+    {
+        $rows = [];
+        foreach (self::$nodes as $node) {
+            if (trim((string)$node['ngmKey']) === '') {
+                continue;
+            }
+            if (false !== strpos($sql, 'ngmHostname')) {
+                $quoted = "'" . $node['ngmHostname'] . "'";
+                if (false === strpos($sql, $quoted)) {
+                    continue;
+                }
+            }
+            $rows[] = ['ngmKey' => $node['ngmKey']];
+        }
+        return new NodeSigFakeResult($rows);
+    }
+}
+
 eval(
     'class NodeSigProbe {'
     . ' const NODE_API_KEY_SETTING = ' . $consts['NODE_API_KEY_SETTING'] . ';'
     . ' const NODE_SIGNATURE_WINDOW = '
     . $consts['NODE_SIGNATURE_WINDOW'] . ';'
     . ' public static $key = \'\';'
+    . ' public static $DB;'
     . ' public static function nodeApiKey() { return self::$key; }'
     . ' public static function getSetting($k) { return self::$key; }'
     . implode("\n", $methods)
     . ' }'
 );
+NodeSigProbe::$DB = new NodeSigFakeDb();
 
 /**
  * Presents a set of headers as an inbound request.
@@ -225,6 +288,93 @@ if (NodeSigProbe::validNodeSignature()) {
     $fails[] = 'a request dated beyond the window into the future is'
         . ' accepted';
 }
+
+/*
+ * Per-peer keys.
+ *
+ * A true storage node points DATABASE_HOST at the master, so both ends read
+ * the same globalSettings row and there is nothing to distribute. A peer
+ * that is a full FOG server has its own database, mints its own key, and
+ * can never verify anything the master signs -- validNodeSignature() must
+ * not mint, so it cannot heal itself either. nfsGroupMembers.ngmKey is the
+ * per-peer secret the administrator sets on both ends, the same way ngmUser
+ * and ngmPass have always had to match the account on the node.
+ */
+$peerKey = str_repeat('b2', 32);
+NodeSigFakeDb::$nodes = [
+    ['ngmHostname' => '10.0.0.9', 'ngmKey' => $peerKey],
+    ['ngmHostname' => '10.0.0.10', 'ngmKey' => ''],
+];
+
+if (NodeSigProbe::nodeSigningKeyFor('10.0.0.9') !== $peerKey) {
+    $fails[] = 'nodeSigningKeyFor() does not return a peer key that is set';
+}
+
+// The node exists but has no key of its own -- the shared-database case,
+// which must keep signing with the installation-wide key.
+if (NodeSigProbe::nodeSigningKeyFor('10.0.0.10') !== '') {
+    $fails[] = 'nodeSigningKeyFor() returned something for a node with an'
+        . ' empty ngmKey; a shared-database node must fall back';
+}
+
+// No such node. This is the one that bit: the single-row fetch handed back
+// the empty result set, which casts to the string 'Array', so every request
+// to an unknown host was signed with a constant nobody holds -- and it read
+// as a working signature right up to the point of verification.
+$unknown = NodeSigProbe::nodeSigningKeyFor('203.0.113.199');
+if ($unknown !== '') {
+    $fails[] = 'nodeSigningKeyFor() returned ' . var_export($unknown, true)
+        . ' for a host matching no node; expected an empty string';
+}
+
+// The signer prefers the peer key, and the result differs from what the
+// shared key would have produced.
+$peerHeaders = NodeSigProbe::nodeSignatureHeaders($url, 'GET');
+if ($peerHeaders === $headers) {
+    $fails[] = 'nodeSignatureHeaders() ignored the peer key and signed with'
+        . ' the installation-wide one';
+}
+
+// This server holds that peer key in its own table, so it verifies -- the
+// shared-database topology, where the master signs with the target node's
+// ngmKey and the node reads the very same row.
+nodeSigPresent('GET', $uri, $peerHeaders);
+if (!NodeSigProbe::validNodeSignature()) {
+    $fails[] = 'a signature made with a peer key present in nfsGroupMembers'
+        . ' was refused';
+}
+
+// The global key still verifies alongside it. Both are legitimate and the
+// receiver cannot tell from the request which was used.
+NodeSigFakeDb::$nodes = [];
+$globalHeaders = NodeSigProbe::nodeSignatureHeaders($url, 'GET');
+NodeSigFakeDb::$nodes = [
+    ['ngmHostname' => '10.0.0.9', 'ngmKey' => $peerKey],
+];
+nodeSigPresent('GET', $uri, $globalHeaders);
+if (!NodeSigProbe::validNodeSignature()) {
+    $fails[] = 'the installation-wide key stopped verifying once a peer key'
+        . ' existed; adding peers must not break the common case';
+}
+
+// A key this server does not hold is still refused. Widening the candidate
+// set must not turn into accepting anything.
+$stranger = str_repeat('c3', 32);
+$sig = hash_hmac('sha256', time() . "\nGET\n" . $uri, $stranger);
+nodeSigPresent(
+    'GET',
+    $uri,
+    [
+        'X-Fog-Node-Timestamp: ' . time(),
+        'X-Fog-Node-Signature: ' . $sig
+    ]
+);
+if (NodeSigProbe::validNodeSignature()) {
+    $fails[] = 'a signature made with a key this server does not hold was'
+        . ' accepted';
+}
+
+NodeSigFakeDb::$nodes = [];
 
 // A different installation's key.
 NodeSigProbe::$key = str_repeat('b2', 32);

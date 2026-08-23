@@ -682,6 +682,10 @@ class StorageNodeManagement extends FOGPage
             filter_input(INPUT_POST, 'pass') ?:
             $this->obj->get('pass')
         );
+        $apikey = (
+            filter_input(INPUT_POST, 'apikey') ?:
+            $this->obj->get('key')
+        );
         $isgren = isset($_POST['isGraphEnabled']) ?:
             $this->obj->get('isGraphEnabled');
         $isen = isset($_POST['isEnabled']) ?:
@@ -1005,6 +1009,37 @@ class StorageNodeManagement extends FOGPage
                 true
             )
             . '</div>',
+            // Only needed when the peer is a full FOG server with its own
+            // database. A true storage node reads the master's
+            // globalSettings, so it already shares FOG_NODE_API_KEY and
+            // this stays empty.
+            //
+            // A text input rather than a password one, deliberately: the
+            // whole point of the field is that the administrator has to
+            // read the value and set it as the peer's own
+            // FOG_NODE_API_KEY. A masked field cannot be transcribed. It
+            // is never emitted by the API -- 'key' is already in
+            // Route::$sensitiveAlwaysFields -- and this page is admin only.
+            self::makeLabel(
+                $labelClass,
+                'apikey',
+                _('Node API Signing Key')
+            ) => self::makeInput(
+                'form-control storagenodeapikey-input',
+                'apikey',
+                _('Leave empty unless this node is its own FOG server'),
+                'text',
+                'apikey',
+                $apikey,
+                true
+            )
+            . '<div class="form-text">'
+            . _(
+                'Only for a peer running its own FOG database. Set that '
+                . 'peer FOG_NODE_API_KEY global setting to the same value, '
+                . 'or it cannot verify requests this server signs.'
+            )
+            . '</div>',
         ];
 
         $buttons = self::makeButton(
@@ -1152,6 +1187,7 @@ class StorageNodeManagement extends FOGPage
             ->set('isEnabled', $isen)
             ->set('user', $user)
             ->set('pass', $pass)
+            ->set('key', trim((string)filter_input(INPUT_POST, 'apikey')))
             ->set('bandwidth', $bandwidth)
             ->set('graphcolor', $graphcolor);
         if ($this->obj->get('isMaster')) {
