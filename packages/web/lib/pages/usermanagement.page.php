@@ -178,6 +178,10 @@ class UserManagement extends FOGPage
                 $labelClass,
                 'apienabled',
                 _('User API Enable')
+                . '<br/>('
+                . _('legacy fog-user-token header and HTTP Basic; not '
+                    . 'needed for fog_ bearer tokens')
+                . ')'
             ) => self::makeInput(
                 'apienabled-input',
                 'apienabled',
@@ -199,12 +203,14 @@ class UserManagement extends FOGPage
              * the same end state reached through a window in which the
              * password chosen here is a working login nobody is watching.
              *
-             * A password is still required by the form above and is
-             * deliberately not made optional: uPass is NOT NULL, an empty
-             * hash fails password_verify() by accident rather than by rule,
-             * and the flag is what makes the credential unusable. Weakening
-             * the field would put an account one unticked box away from a
-             * blank-password login.
+             * Ticking this hides the password fields above (fog.user.add.js)
+             * and addPost() generates an unusable random one instead. It is
+             * NOT left blank: uPass is NOT NULL, and User::set() bcrypts
+             * whatever it is handed -- so an empty string becomes a VALID
+             * hash OF the empty string, which password_verify('', ...)
+             * accepts. Storing that would leave the account one unticked box
+             * away from a blank-password login. The flag is the policy; the
+             * random password is the backstop behind it.
              */
             self::makeLabel(
                 $labelClass,
@@ -227,6 +233,16 @@ class UserManagement extends FOGPage
                 -1,
                 (isset($_POST['apionly']) ? 'checked' : '')
             )
+            // Revealed by fog.user.add.js when the box is ticked, in place
+            // of the password rows it hides. Says where the credential
+            // actually comes from, because the answer is not on this form:
+            // tokens are issued from the user's API tab or FOG
+            // Configuration -> API Tokens, after the account exists.
+            . '<div class="form-text d-none" id="apionly-password-note">'
+            . _('No password is needed. Issue this account a token from its '
+                . 'API tab, or from FOG Configuration &rarr; API Tokens, '
+                . 'once it has been created.')
+            . '</div>'
         ];
 
         // A user created into no site at all sees nothing, so this one
@@ -283,8 +299,13 @@ class UserManagement extends FOGPage
                 filter_input(INPUT_POST, 'user')
             )
         );
+        // Cast before trim(). The API-only toggle DISABLES this field, and a
+        // disabled input is not submitted at all -- so filter_input() answers
+        // null here, which is a PHP 8.1 deprecation straight into trim() (the
+        // null-to-internal-param class), invisible on a distro php.ini that
+        // hides deprecations.
         $password = trim(
-            filter_input(INPUT_POST, 'password')
+            (string)filter_input(INPUT_POST, 'password')
         );
         $friendly = trim(
             filter_input(INPUT_POST, 'display')
@@ -292,6 +313,22 @@ class UserManagement extends FOGPage
         $apien = (int)isset($_POST['apienabled']);
         $apionly = (int)isset($_POST['apionly']);
         $token = self::createSecToken();
+
+        /*
+         * An API-only account is not asked for a password -- the form hides
+         * the fields -- so one is generated here and never shown to anybody.
+         *
+         * It is NOT left empty. User::set() bcrypts whatever it is given, so
+         * ''; would be stored as a perfectly valid hash of the empty string
+         * and password_verify('', $hash) would return true. isAPIOnly()
+         * refuses the sign-in either way, but that leaves the account one
+         * unticked box away from a blank-password login by somebody who
+         * later decides the service account should be interactive after all.
+         * 256 bits of CSPRNG output cannot be typed back in.
+         */
+        if ($apionly && '' === $password) {
+            $password = bin2hex(random_bytes(32));
+        }
 
         $serverFault = false;
         try {
@@ -783,6 +820,10 @@ class UserManagement extends FOGPage
                 $labelClass,
                 'apienabled',
                 _('User API Enable')
+                . '<br/>('
+                . _('legacy fog-user-token header and HTTP Basic; not '
+                    . 'needed for fog_ bearer tokens')
+                . ')'
             ) => self::makeInput(
                 'apienabled-input',
                 'apienabled',

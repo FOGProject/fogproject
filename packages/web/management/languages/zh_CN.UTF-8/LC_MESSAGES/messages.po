@@ -5385,6 +5385,9 @@ msgstr "没有可用的散列"
 msgid "No open slots"
 msgstr "没有开口槽"
 
+msgid "No password is needed. Issue this account a token from its API tab, or from FOG Configuration &rarr; API Tokens, once it has been created."
+msgstr ""
+
 #, fuzzy
 msgid "No plugin tasks to run"
 msgstr "发送无有效类"
@@ -9928,6 +9931,9 @@ msgid "keys"
 msgstr ""
 
 msgid "leave to keep the current one"
+msgstr ""
+
+msgid "legacy fog-user-token header and HTTP Basic; not needed for fog_ bearer tokens"
 msgstr ""
 
 #, php-format

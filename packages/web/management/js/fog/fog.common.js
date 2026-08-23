@@ -2743,7 +2743,16 @@ $.fn.validateForm = function(input) {
         exactLength = $(e).attr("exactlength") || "-1";
 
       minLength = parseInt(minLength);
-      maxLength = parseInt(maxLength) / 2;
+      // NOT halved. This used to read `parseInt(maxLength) / 2`, which was
+      // wrong in both directions and only ever reached the user as a
+      // message, because no maximum is actually enforced here:
+      //
+      //   no maxlength at all -> makeInput() omits the attribute, the
+      //     default "-1" halves to -0.5, and the password field on Create
+      //     New User told you it "must be between 4 and -0.5 characters"
+      //   a real maxlength    -> it was halved, so the username field
+      //     claimed a limit of 25 when makeInput() had been given 50
+      maxLength = parseInt(maxLength);
       exactLength = parseInt(exactLength);
 
       if (beEqualTo) beEqualTo = "#" + beEqualTo;
@@ -2752,7 +2761,11 @@ $.fn.validateForm = function(input) {
 
       if (val.length < minLength) {
         isValid = false;
-        if (maxLength == minLength) {
+        if (maxLength < 0) {
+          // No upper bound was declared, so do not invent one. The old
+          // message named a range whose top half was meaningless.
+          invalidReason = 'Field must be at least ' + minLength + ' characters';
+        } else if (maxLength == minLength) {
           invalidReason = 'Field must be ' + minLength + ' characters';
         } else {
           invalidReason = 'Field must be between ' + minLength + ' and ' + maxLength +' characters';
