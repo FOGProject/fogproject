@@ -7550,3 +7550,40 @@ $this->schema[] = [
     . "DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci "
     . "ROW_FORMAT=DYNAMIC",
 ];
+// Guarded for the same reason as steps 312 and 314: working-1.6 and
+// dev-branch number the same migration differently, so an install that has
+// crossed between them may already carry the column.
+$columnuAPIOnly = array_filter(
+    (array)DatabaseManager::getColumns(
+        'users',
+        'uAPIOnly'
+    )
+);
+// 360
+$this->schema[] = count($columnuAPIOnly ?: []) ? [] : [
+    // An account that holds API credentials and cannot sign in.
+    //
+    // The case is a service account: an unattended integration wants a
+    // token and a set of roles, and nothing else. Until now the only way to
+    // give it those was an ordinary account, which meant a working password
+    // sitting on the login form for a credential nobody was ever going to
+    // type -- and, if the password was left at whatever the creator chose,
+    // an interactive way in that nobody was watching.
+    //
+    // A flag on the account rather than an absent password, because "no
+    // password" is not a state FOG can hold: uPass is NOT NULL, an empty
+    // hash fails password_verify() by accident rather than by rule, and
+    // nothing stops the next admin setting one. This says what is meant.
+    //
+    // DEFAULT '0' so every existing account is unaffected: the flag has to
+    // be set deliberately, and an upgrade must never take a login away from
+    // somebody who had one.
+    //
+    // It is NOT users.uAllowAPI inverted. That flag governs whether the
+    // fog-user-token header works for this account; this one governs
+    // whether a browser session may be made for it. An account can be any
+    // combination of the two, including API-only with uAllowAPI off, which
+    // is a service account reachable only through an issued Bearer token.
+    "ALTER TABLE `users` "
+    . "ADD COLUMN `uAPIOnly` ENUM('0','1') NOT NULL DEFAULT '0'",
+];

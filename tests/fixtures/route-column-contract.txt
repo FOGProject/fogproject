@@ -572,6 +572,7 @@ user	6	uType	type	-	-
 user	7	uDisplay	display	-	-
 user	8	uAllowAPI	api	-	-
 user	9	uAuthSource	authsource	-	-
+user	10	uAPIOnly	apionly	-	-
 usergroup	0	ugID	id	-	-
 usergroup	1	ugID	DT_RowId	f	-
 usergroup	2	ugName	name	-	-

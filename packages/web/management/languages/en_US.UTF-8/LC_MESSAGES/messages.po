@@ -452,6 +452,10 @@ msgstr ""
 msgid "API Documentation"
 msgstr "Location"
 
+#, fuzzy
+msgid "API Only Account"
+msgstr "Slack Accounts"
+
 msgid "API Token Created"
 msgstr ""
 
@@ -8443,6 +8447,9 @@ msgstr ""
 msgid "This FOG server"
 msgstr ""
 
+msgid "This account is for API access only and cannot sign in."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8619,6 +8626,9 @@ msgid "This would leave no account able to administer FOG without its identity p
 msgstr ""
 
 msgid "This would leave no account able to administer FOG."
+msgstr ""
+
+msgid "This would leave no account able to sign in and administer FOG."
 msgstr ""
 
 #, fuzzy
@@ -9483,6 +9493,9 @@ msgid "Your FOG database schema is not up to date"
 msgstr ""
 
 msgid "Your database connection appears to be invalid"
+msgstr ""
+
+msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
 #, fuzzy

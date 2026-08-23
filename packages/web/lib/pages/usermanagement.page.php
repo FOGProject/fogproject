@@ -181,6 +181,42 @@ class UserManagement extends FOGPage
                 -1,
                 -1,
                 (isset($_POST['apienabled']) ? 'checked' : '')
+            ),
+            /*
+             * Offered at creation, not only on edit, because the account
+             * this exists for is created for the purpose: an unattended
+             * integration that wants roles and a token and never a browser.
+             * Creating it interactive and then turning the sign-in off is
+             * the same end state reached through a window in which the
+             * password chosen here is a working login nobody is watching.
+             *
+             * A password is still required by the form above and is
+             * deliberately not made optional: uPass is NOT NULL, an empty
+             * hash fails password_verify() by accident rather than by rule,
+             * and the flag is what makes the credential unusable. Weakening
+             * the field would put an account one unticked box away from a
+             * blank-password login.
+             */
+            self::makeLabel(
+                $labelClass,
+                'apionly',
+                _('API Only Account')
+                . '<br/>('
+                . _('a service account: it may hold API tokens and can '
+                    . 'never sign in to this interface')
+                . ')'
+            ) => self::makeInput(
+                'apionly-input',
+                'apionly',
+                '',
+                'checkbox',
+                'apionly',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                (isset($_POST['apionly']) ? 'checked' : '')
             )
         ];
 
@@ -245,6 +281,7 @@ class UserManagement extends FOGPage
             filter_input(INPUT_POST, 'display')
         );
         $apien = (int)isset($_POST['apienabled']);
+        $apionly = (int)isset($_POST['apionly']);
         $token = self::createSecToken();
 
         $serverFault = false;
@@ -264,6 +301,7 @@ class UserManagement extends FOGPage
                 ->set('password', $password)
                 ->set('display', $friendly)
                 ->set('api', $apien)
+                ->set('apionly', $apionly)
                 ->set('type', 0)
                 ->set('token', $token);
             if (!$User->save()) {
@@ -367,6 +405,42 @@ class UserManagement extends FOGPage
                 false
             )
         ];
+
+        /*
+         * Whether this account may sign in at all.
+         *
+         * Editable here rather than read-only like the auth source below,
+         * because unlike an auth source this IS a plain two-state
+         * administrative decision with no external system behind it, and
+         * both directions are safe to expose: setting it is guarded by
+         * User::save(), clearing it only ever gives a sign-in back.
+         *
+         * A password is not offered alongside it and the Password tab
+         * disappears while it is set (see edit()), so there is no way to
+         * arrive at "I set them a password" for an account that could never
+         * use one.
+         */
+        $fields[self::makeLabel(
+            $labelClass,
+            'apionly',
+            _('API Only Account')
+            . '<br/>('
+            . _('a service account: it may hold API tokens and can never '
+                . 'sign in to this interface')
+            . ')'
+        )] = self::makeInput(
+            'apionly-input',
+            'apionly',
+            '',
+            'checkbox',
+            'apionly',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            ($this->obj->isAPIOnly() ? ' checked' : '')
+        );
 
         /*
          * Where this account authenticates, read-only.
@@ -512,7 +586,16 @@ class UserManagement extends FOGPage
         }
         $this->obj
             ->set('name', $user)
-            ->set('display', $display);
+            ->set('display', $display)
+            /*
+             * Set from presence, like every other checkbox on this form.
+             * Both directions run on every Update, which is what makes the
+             * box able to clear the flag as well as set it -- and the
+             * refusal that protects the last interactive administrator
+             * lives in User::save(), so it applies to the REST and CSV
+             * paths identically rather than only to this one.
+             */
+            ->set('apionly', (int)isset($_POST['apionly']));
 
         /*
          * Return the account to FOG's own password, if asked.
@@ -1174,10 +1257,17 @@ class UserManagement extends FOGPage
          * User::save() deliberately permits it (see
          * _assertAuthSourceKeepsBreakGlass).
          *
-         * The General tab shows the auth source, so the missing tab has an
-         * explanation on the same page.
+         * An API-only account is refused by the same method for its own
+         * reason, so it is in exactly the same position and the tab is
+         * hidden for it too. To give such an account a usable password,
+         * untick API Only first.
+         *
+         * The General tab shows both the auth source and the API-only box,
+         * so the missing tab has an explanation on the same page.
          */
-        if ('' === trim((string)$this->obj->get('authsource'))) {
+        if ('' === trim((string)$this->obj->get('authsource'))
+            && !$this->obj->isAPIOnly()
+        ) {
             $tabData[] = [
                 'name' => _('Password'),
                 'id' => 'user-changepw',

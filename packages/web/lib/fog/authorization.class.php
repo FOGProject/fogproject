@@ -1947,6 +1947,17 @@ class Authorization extends FOGBase
         if (!empty($changes['localOnly'])) {
             $users = array_diff($users, self::_externalUsers($changes));
         }
+        /*
+         * Independent of localOnly, and deliberately so. They answer
+         * different questions: localOnly asks who can get in without the
+         * directory, this asks who can reach the UI at all. An API-only
+         * account with a local password is still a local administrator --
+         * it just cannot use a browser -- and a directory-sourced account
+         * that can sign in interactively is still an interactive one.
+         */
+        if (!empty($changes['interactiveOnly'])) {
+            $users = array_diff($users, self::_apiOnlyUsers($changes));
+        }
         // Direct membership as roleID => [userIDs].
         $membership = [];
         $rows = self::$DB
@@ -2112,6 +2123,117 @@ class Authorization extends FOGBase
         return $external;
     }
     /**
+     * The user ids barred from interactive sign-in, after applying any
+     * proposed users.uAPIOnly changes.
+     *
+     * Reads the column directly for the reason _externalUsers() does: this
+     * is a query whose wrong answer either bricks the install or lets it be
+     * bricked, so it owns its SQL rather than inheriting the query
+     * builder's wildcard handling.
+     *
+     * @param array $changes the proposed changes; 'apiOnly' is honoured
+     *
+     * @return array user ids
+     */
+    private static function _apiOnlyUsers($changes = [])
+    {
+        $rows = self::$DB
+            ->query('SELECT `uID`, `uAPIOnly` FROM `users`')
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $stored = [];
+        foreach ((array)$rows as $row) {
+            $stored[(int)$row['uID']] = (string)$row['uAPIOnly'];
+        }
+        return self::apiOnlyUsersGiven(
+            $stored,
+            (array)($changes['apiOnly'] ?? [])
+        );
+    }
+    /**
+     * Which of these accounts would be barred from signing in.
+     *
+     * The decision half of _apiOnlyUsers(), split out for the same reason
+     * externalUsersGiven() is: it is the part with rules in it and the only
+     * part testable without a database. A proposed value REPLACES the
+     * stored one, and anything that is not the string '1' means the account
+     * can still sign in -- so an absent column, a null and a '0' all read
+     * as interactive, which is the direction that cannot lock anyone out.
+     *
+     * @param array $stored   userID => stored users.uAPIOnly
+     * @param array $proposed userID => proposed users.uAPIOnly
+     *
+     * @return array user ids
+     */
+    public static function apiOnlyUsersGiven(array $stored, array $proposed)
+    {
+        foreach ($proposed as $uid => $flag) {
+            $stored[(int)$uid] = $flag ? '1' : '0';
+        }
+        $apiOnly = [];
+        foreach ($stored as $uid => $flag) {
+            if ('1' === (string)$flag) {
+                $apiOnly[] = (int)$uid;
+            }
+        }
+        return $apiOnly;
+    }
+    /**
+     * Is there an administrator who can actually sign in to the UI?
+     *
+     * @param array $changes the proposed changes (see adminExistsGiven())
+     *
+     * @return bool
+     */
+    public static function interactiveAdminExists($changes = [])
+    {
+        $changes['interactiveOnly'] = true;
+        return self::adminExistsGiven($changes);
+    }
+    /**
+     * Refuses a change that would leave nobody able to sign in and
+     * administer FOG.
+     *
+     * An API-only administrator is not locked out -- it can still work over
+     * REST -- so this is a weaker property than the other two guards and
+     * has to be, or marking a service account API-only on an install that
+     * has no interactive administrator would be refused for no reason. What
+     * it protects against is the plausible accident: marking the account
+     * you are signed in as, or the last one anybody signs in as, and
+     * discovering that the only way back is a token that may not exist yet.
+     * A brand-new API-only account has no token until somebody issues one,
+     * and issuing one takes a UI session.
+     *
+     * PRESERVES rather than REQUIRES, exactly like
+     * assertLocalAdminRemains(): an install that already has no interactive
+     * administrator has nothing here to protect, and refusing its
+     * operations would brick it to defend a property it already gave up.
+     *
+     * @param array $changes the proposed changes (see adminExistsGiven())
+     *
+     * @throws Exception when the last interactive administrator would be lost
+     * @return void
+     */
+    public static function assertInteractiveAdminRemains($changes = [])
+    {
+        if (!self::interactiveAdminExists()) {
+            return;
+        }
+        if (self::interactiveAdminExists($changes)) {
+            return;
+        }
+        self::_auditRefusal(
+            'guard.lastinteractiveadmin',
+            'no account would be able to sign in and administer FOG'
+        );
+        throw new \Exception(
+            _(
+                'This would leave no account able to sign in and administer '
+                . 'FOG.'
+            )
+        );
+    }
+    /**
      * Is there an administrator who can sign in without a directory?
      *
      * @param array $changes the proposed changes (see adminExistsGiven())
@@ -2203,6 +2325,11 @@ class Authorization extends FOGBase
                 // directory-sourced admins passes it while being one
                 // outage away from locked out.
                 self::assertLocalAdminRemains($changes);
+                // And can be what takes away the last account anybody signs
+                // in as, which the check below equally would not notice: an
+                // install left holding nothing but API-only administrators
+                // passes it while having no way into its own UI.
+                self::assertInteractiveAdminRemains($changes);
                 break;
             case 'role':
                 $changes = ['removeRoles' => $ids];

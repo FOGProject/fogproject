@@ -67,7 +67,10 @@ class User extends FOGController
         'token' => 'uAPIToken',
         // '' = local account. Non-empty names the external provider that
         // authenticates this user (e.g. 'ldap'); see schema step 314.
-        'authsource' => 'uAuthSource'
+        'authsource' => 'uAuthSource',
+        // '1' = this account may hold API credentials but may not sign in.
+        // See isAPIOnly() and schema step 360.
+        'apionly' => 'uAPIOnly'
     ];
     /**
      * The required fields
@@ -180,6 +183,34 @@ class User extends FOGController
             ]
         );
     }
+    /**
+     * Whether this account is barred from interactive sign-in.
+     *
+     * An API-only account is a service account: it may hold API tokens and
+     * act with its roles over REST, and no browser session may ever be made
+     * for it. Three separate places enforce that, because FOG has three
+     * separate ways a session comes into existence and no single one of
+     * them sits downstream of the other two:
+     *
+     *   - passwordValidate(), which is where the local password and the
+     *     iPXE menu login both land, and which is the ONLY one of the three
+     *     that runs before the remember-me cookie is minted;
+     *   - establishSession(), where a provider that proves an identity by
+     *     itself (OIDC today) hands over;
+     *   - _isLoggedIn(), which every browser request passes through, and
+     *     which is the only thing that catches a remember-me cookie issued
+     *     before the flag was set.
+     *
+     * Reads the column rather than caching the answer: the flag can be set
+     * while the account is signed in, and the point of the third check is
+     * that the very next request stops.
+     *
+     * @return bool
+     */
+    public function isAPIOnly()
+    {
+        return '1' === (string)$this->get('apionly');
+    }
     public function passwordValidate(
         $username,
         $password,
@@ -229,6 +260,26 @@ class User extends FOGController
         // LDAP plugin's own isLdapType() guard, which never fired because
         // USER_TYPE_HOOK rewrote the type it tested one block earlier.
         if ($isExternal && true !== $authenticated) {
+            self::_auditLoginFailure($username, $tmpUser);
+            return false;
+        }
+        /*
+         * An API-only account has no interactive login, whoever vouches for
+         * it. Refused HERE rather than only at establishSession() because
+         * this method mints the remember-me cookie and its userAuths row a
+         * few lines below: refusing downstream would leave a working
+         * two-day credential behind for a login that was rejected.
+         *
+         * Placed after the external check so a directory-sourced service
+         * account is still refused for the reason that applies first, and
+         * before the password compare so nothing is learned about the
+         * stored credential either way.
+         *
+         * Recorded as an ordinary failed login, which is what it is: the
+         * row carries the presented name and the attempt is visible beside
+         * every other one rather than in a category of its own.
+         */
+        if ($tmpUser->isValid() && $tmpUser->isAPIOnly()) {
             self::_auditLoginFailure($username, $tmpUser);
             return false;
         }
@@ -411,6 +462,25 @@ class User extends FOGController
             session_start();
         }
         $source = self::normalizeAuthSource($source);
+        /*
+         * The provider-facing half of the API-only refusal. A provider that
+         * proves an identity by its own means never reaches
+         * passwordValidate() -- OIDC calls straight in here -- so without
+         * this an API-only account would still get a browser session from
+         * any configured identity provider.
+         *
+         * Throws rather than returning an invalid user because the callers
+         * differ in what they do with a return value and agree on what they
+         * do with an exception: OIDC's flow ignores the return entirely and
+         * wraps the whole callback in a catch that shows the message, and
+         * ProcessLogin::loginPost() does the same. A quiet return would be
+         * a sign-in that appears to succeed and lands nowhere.
+         */
+        if ($this->isAPIOnly()) {
+            throw new \Exception(
+                _('This account is for API access only and cannot sign in.')
+            );
+        }
         if (self::$FOGUser->isValid()) {
             $type = self::$FOGUser->get('type');
             self::$HookManager->processEvent(
@@ -570,6 +640,21 @@ class User extends FOGController
     private function _isLoggedIn()
     {
         if (!$this->isValid() || session_status() !== PHP_SESSION_ACTIVE) {
+            return false;
+        }
+        /*
+         * The catch-all half of the API-only refusal, and the only one that
+         * covers a session this request did not create. Two cases reach it:
+         * a remember-me cookie minted before the flag was set, which
+         * ProcessLogin::processMainLogin() replays without ever calling
+         * establishSession(); and an account marked API-only while it is
+         * signed in, which stops on its very next request rather than at
+         * the end of the inactivity timeout.
+         *
+         * Cheap enough to sit on every authenticated request: the object is
+         * already loaded, so this reads a field and issues no query.
+         */
+        if ($this->isAPIOnly()) {
             return false;
         }
         $keys = [
@@ -825,6 +910,7 @@ class User extends FOGController
     public function save()
     {
         $this->_assertAuthSourceKeepsBreakGlass();
+        $this->_assertApiOnlyKeepsInteractiveLogin();
         // Captured before the save, because that is what stamps the id on.
         $isNew = (int)$this->get('id') < 1;
         // Propagate a failed write rather than reporting success; the
@@ -895,6 +981,49 @@ class User extends FOGController
          */
         Authorization::assertLocalAdminRemains(
             ['authSources' => [$id => $pending]]
+        );
+    }
+    /**
+     * Refuses to take the last administrator anybody signs in as.
+     *
+     * Writing users.uAPIOnly takes the UI away from the account it is
+     * written to (see isAPIOnly() above). Doing that to the last
+     * administrator who can still reach the UI leaves the install
+     * administrable only over REST -- which is fine if a token already
+     * exists, and a brick if one does not, because issuing one takes a UI
+     * session. The failure mode this is really guarding is the ordinary
+     * one: ticking the box on your own account.
+     *
+     * It sits on save() for the same reason the auth-source guard does:
+     * uAPIOnly is an ordinary field and is not in Route::$serverOwnedFields,
+     * so a REST PUT /fog/user/{id}, a plugin's own set()/save() and the CSV
+     * import all reach it and have nothing in common. Guarding the write is
+     * what makes it a standing property rather than something each new
+     * caller has to remember. Delete is covered separately, by
+     * Authorization::assertAdminRemainsAfterDelete().
+     *
+     * @throws Exception when the last interactive administrator would be lost
+     * @return void
+     */
+    private function _assertApiOnlyKeepsInteractiveLogin()
+    {
+        $id = (int)$this->get('id');
+        /*
+         * A row with no id yet is a new account, which cannot take a login
+         * away from anybody -- the same reasoning as the auth-source guard,
+         * and it holds here for the same reason: users.uName carries a plain
+         * KEY and not a UNIQUE one, so there is no INSERT ... ON DUPLICATE
+         * KEY UPDATE by name for an update to ride in on.
+         */
+        if ($id < 1 || !$this->isDirty('apionly')) {
+            return;
+        }
+        // Clearing it only ever gives an account its sign-in back.
+        if (!$this->isAPIOnly()) {
+            return;
+        }
+        Authorization::assertInteractiveAdminRemains(
+            ['apiOnly' => [$id => true]]
         );
     }
     /**
