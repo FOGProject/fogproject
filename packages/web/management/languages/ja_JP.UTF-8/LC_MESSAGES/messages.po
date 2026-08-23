@@ -5563,6 +5563,10 @@ msgid "Pending..."
 msgstr "保留中..."
 
 #, fuzzy
+msgid "Permission"
+msgstr "バージョン"
+
+#, fuzzy
 msgid "Permission denied"
 msgstr "アクセス拒否"
 

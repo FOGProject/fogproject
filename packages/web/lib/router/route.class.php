@@ -1639,7 +1639,16 @@ class Route extends FOGBase
                 true
             )
         ) {
-            Audit::markOutcome(Audit::FAILED);
+            // The code and the message are both in hand here and both used
+            // to be dropped, so every `failed` row in the trail read
+            // "something went wrong" with no way to find out what. A delete
+            // of an id that is already gone and a delete that hit a
+            // constraint are the same row without this.
+            $why = 'HTTP ' . (int)$code;
+            if (is_string($msg) && '' !== $msg) {
+                $why .= ': ' . $msg;
+            }
+            Audit::markOutcome(Audit::FAILED, $why);
         }
         HTTPResponseCodes::breakHead(
             $code,

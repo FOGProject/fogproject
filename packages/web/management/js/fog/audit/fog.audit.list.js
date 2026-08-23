@@ -48,6 +48,24 @@
     unknown: 'text-bg-secondary'
   };
 
+  // An empty permission is not a missing value -- it is the record of a write
+  // that reached no authorization gate at all (the FOS and registration
+  // endpoints, ADR 0021 Decision 4). The grid says "none"; the modal below
+  // spells out why. An empty cell would read as a bug.
+  function permissionColumn() {
+    return {
+      data: 'permission',
+      render: function(d, t) {
+        var v = d === null ? '' : String(d);
+        if (t !== 'display') {
+          return v;
+        }
+        return v ? $.escapeHtml(v)
+          : '<em class="text-muted">' + $.escapeHtml('none') + '</em>';
+      }
+    };
+  }
+
   function outcomeColumn() {
     return {
       data: 'outcome',
@@ -85,6 +103,7 @@
       escaped('createdTime'),
       escaped('createdBy'),
       escaped('type'),
+      permissionColumn(),
       outcomeColumn(),
       {
         data: 'subjectLabel',

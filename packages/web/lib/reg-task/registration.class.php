@@ -264,7 +264,7 @@ class Registration extends FOGBase
                 // "A registration was attempted and failed" is invisible
                 // today, and it is the shape of both a misconfiguration and
                 // a probe.
-                Audit::markOutcome(Audit::FAILED);
+                Audit::markOutcome(Audit::FAILED, 'host save failed');
                 throw new \Exception(
                     _('Failed to create Host!')
                 );
@@ -478,7 +478,7 @@ class Registration extends FOGBase
                 // "A registration was attempted and failed" is invisible
                 // today, and it is the shape of both a misconfiguration and
                 // a probe.
-                Audit::markOutcome(Audit::FAILED);
+                Audit::markOutcome(Audit::FAILED, 'host save failed');
                 throw new \Exception(
                     _('Failed to create Host!')
                 );
@@ -535,7 +535,7 @@ class Registration extends FOGBase
                 // "A registration was attempted and failed" is invisible
                 // today, and it is the shape of both a misconfiguration and
                 // a probe.
-                Audit::markOutcome(Audit::FAILED);
+                Audit::markOutcome(Audit::FAILED, 'host save failed');
                 throw new \Exception(
                     _('Failed to create Host!')
                 );

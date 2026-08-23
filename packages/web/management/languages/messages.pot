@@ -4928,6 +4928,9 @@ msgstr ""
 msgid "Pending..."
 msgstr ""
 
+msgid "Permission"
+msgstr ""
+
 msgid "Permission denied"
 msgstr ""
 

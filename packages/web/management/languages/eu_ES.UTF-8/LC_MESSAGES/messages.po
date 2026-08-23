@@ -5799,6 +5799,10 @@ msgid "Pending..."
 msgstr "Ausstehend..."
 
 #, fuzzy
+msgid "Permission"
+msgstr "Version"
+
+#, fuzzy
 msgid "Permission denied"
 msgstr "Sitzungsname"
 

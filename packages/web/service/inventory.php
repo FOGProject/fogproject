@@ -140,7 +140,7 @@ try {
             ->set('hdserial', $hdserial);
     }
     if (!$Inventory->save()) {
-        Audit::markOutcome(Audit::FAILED);
+        Audit::markOutcome(Audit::FAILED, 'inventory save failed');
         throw new \Exception(
             _('Failed to create inventory for this host')
         );

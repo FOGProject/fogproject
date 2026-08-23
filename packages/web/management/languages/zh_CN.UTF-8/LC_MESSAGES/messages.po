@@ -5797,6 +5797,10 @@ msgid "Pending..."
 msgstr "待..."
 
 #, fuzzy
+msgid "Permission"
+msgstr "版"
+
+#, fuzzy
 msgid "Permission denied"
 msgstr "会话名称"
 
