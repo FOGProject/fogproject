@@ -4022,23 +4022,52 @@ _createWebLeaf() {
     # well-formed certificate that no client will accept. Left undetected it
     # surfaces as a browser error days later with nothing connecting it to the
     # rename.
-    if [[ -n $sslcachain && -e $sslcachain ]] && \
-        ! openssl verify -CAfile "$rootCAPem" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+    #
+    # Verified against the root the CHAIN terminates in, not against
+    # $rootCAPem. Under --web-ca-* the leaf chains to the OTHER server's root
+    # while $rootCAPem is still this server's own -- validateExternalCA never
+    # reassigns it -- so the old form failed on every external-CA install and
+    # printed the box below unconditionally, telling the admin to delete a Web
+    # zone that was working correctly.
+    local vtmp vroot=""
+    vtmp=$(mktemp -d 2>>$error_log)
+    if [[ -n $vtmp && -n $sslcachain && -e $sslcachain ]]; then
+        _rootFromChain "$sslcachain" > "${vtmp}/root.pem" 2>>$error_log
+        if [[ -s ${vtmp}/root.pem ]]; then
+            vroot="${vtmp}/root.pem"
+        elif [[ -n $rootCAPem && -f $rootCAPem ]]; then
+            # A chain carrying no root of its own. FOG's is the only anchor
+            # available, and for a FOG-issued leaf it is also the right one.
+            vroot="$rootCAPem"
+        fi
+    fi
+    if [[ -n $vroot ]] && \
+        ! openssl verify -CAfile "$vroot" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
         echo
         echo "  ###################################################################"
         echo "  # WARNING: the web certificate does not verify against the CA     #"
-        echo "  # that issued it. The usual cause is a name outside that CA's     #"
-        echo "  # name constraints -- this server was renamed, or gained an       #"
-        echo "  # --extra-server-name, after the CA was created.                  #"
-        echo "  #                                                                 #"
-        echo "  # Re-run with the name permitted:                                 #"
-        echo "  #   --internal-domain <domain>                                    #"
-        echo "  # A CA is never re-issued once it exists, so also remove it so    #"
-        echo "  # the new constraints take effect:                                #"
-        echo "  #   rm -rf $(_pkiZoneDir web)"
+        echo "  # that issued it.                                                 #"
+        if [[ $externalca == yes ]]; then
+            echo "  #                                                                 #"
+            echo "  # This server uses an external CA, so check that the leaf, the    #"
+            echo "  # intermediate and the root you supplied really belong together:  #"
+            echo "  #   --web-ca-cert / --web-ca-key / --web-ca-root                  #"
+            echo "  # Nothing under the FOG PKI tree needs removing for this.         #"
+        else
+            echo "  # The usual cause is a name outside that CA's name constraints    #"
+            echo "  # -- this server was renamed, or gained an --extra-server-name,   #"
+            echo "  # after the CA was created.                                       #"
+            echo "  #                                                                 #"
+            echo "  # Re-run with the name permitted:                                 #"
+            echo "  #   --internal-domain <domain>                                    #"
+            echo "  # A CA is never re-issued once it exists, so also remove it so    #"
+            echo "  # the new constraints take effect:                                #"
+            echo "  #   rm -rf $(_pkiZoneDir web)"
+        fi
         echo "  ###################################################################"
         echo
     fi
+    [[ -n $vtmp ]] && rm -rf "$vtmp" >>$error_log 2>&1
     return 0
 }
 # Put the PKI private keys back under root's control, and keep them there.
@@ -4126,6 +4155,88 @@ _caTrustLayout() {
 # Sets $selfCacertOpts, which callers splice in as "${selfCacertOpts[@]}". Empty
 # when there is nothing to anchor, or when the install is serving plain HTTP --
 # which is the default here, so on most installs this is a no-op and the calls
+# Split a PEM bundle into one file per certificate, c1.pem upward, in $2.
+_splitPemBundle() {
+    local src="$1" dir="$2" f found=1
+    [[ -n $src && -f $src && -n $dir && -d $dir ]] || return 1
+    awk -v d="$dir" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$src" 2>>$error_log
+    for f in "$dir"/c*.pem; do
+        [[ -f $f ]] && { found=0; break; }
+    done
+    return $found
+}
+# The self-signed certificate in a chain file, on stdout. That is the root, and
+# it is the only member of the bundle whose identity does not depend on the
+# file's ORDER -- the writers disagree about order (validateExternalCA writes
+# the root first, createWebIntermediateCA appends it last), so selecting on the
+# property is the only way to read either.
+_rootFromChain() {
+    local bundle="$1" tmpd f subj issuer st=1
+    [[ -n $bundle && -f $bundle ]] || return 1
+    tmpd=$(mktemp -d) || return 1
+    if _splitPemBundle "$bundle" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+            issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+            [[ -z $subj ]] && continue
+            # -subject prints "subject=..." and -issuer "issuer=...", so compare
+            # the values rather than the whole line.
+            if [[ ${subj#subject=} == "${issuer#issuer=}" ]]; then
+                cat "$f"
+                st=0
+                break
+            fi
+        done
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# Every root this server should accept for its OWN web certificate, in one
+# file, and $trustAnchorPem naming it.
+#
+# Both roots, not one: $rootCAPem is what _installCATrustAnchor puts in the
+# system store and what fog-client pins, while the root the served leaf
+# actually chains to may be a DIFFERENT one entirely -- that is exactly the
+# case under --web-ca-cert/--web-ca-key/--web-ca-root, where another server's
+# root issued this server's Web CA and $rootCAPem is deliberately left alone.
+# Anchoring on $rootCAPem by itself was therefore wrong on every external-CA
+# install, and wrong in the silent direction: wget's --ca-certificate REPLACES
+# the default bundle, so naming the local root does not add trust, it removes
+# the only trust that would have worked.
+#
+# Deduplicated on fingerprint, not on path: on an ordinary FOG install these
+# are the same certificate reached two ways, and appending it twice is
+# pointless noise in a file an admin may well end up reading.
+_resolveTrustAnchor() {
+    trustAnchorPem=""
+    local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+    local chainroot fp seen=""
+    mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+    : > "$out" 2>>$error_log || return 1
+
+    if [[ -n $rootCAPem && -f $rootCAPem ]]; then
+        fp=$(openssl x509 -in "$rootCAPem" -noout -fingerprint -sha256 2>/dev/null)
+        if [[ -n $fp ]]; then
+            cat "$rootCAPem" >> "$out" 2>>$error_log
+            seen="$fp"
+        fi
+    fi
+    if [[ -n $sslcachain && -f $sslcachain ]]; then
+        chainroot=$(_rootFromChain "$sslcachain")
+        if [[ -n $chainroot ]]; then
+            fp=$(printf '%s\n' "$chainroot" \
+                | openssl x509 -noout -fingerprint -sha256 2>/dev/null)
+            if [[ -n $fp && $fp != "$seen" ]]; then
+                printf '%s\n' "$chainroot" >> "$out" 2>>$error_log
+            fi
+        fi
+    fi
+    [[ -s $out ]] || return 1
+    trustAnchorPem="$out"
+    return 0
+}
 # are unchanged. When it is empty the tool verifies against the system store,
 # which is the right answer for a certificate from a public CA.
 #
@@ -4154,8 +4265,11 @@ _caTrustLayout() {
 _resolveSelfCacert() {
     selfCacertOpts=()
     [[ $httpproto == https ]] || return 0
-    [[ -n $rootCAPem && -s $rootCAPem ]] || return 0
-    selfCacertOpts=(--ca-certificate="$rootCAPem")
+    # The chain's own root as well as $rootCAPem -- see _resolveTrustAnchor for
+    # why naming $rootCAPem alone broke every --web-ca-* install.
+    _resolveTrustAnchor >>$error_log 2>&1 || return 0
+    [[ -s $trustAnchorPem ]] || return 0
+    selfCacertOpts=(--ca-certificate="$trustAnchorPem")
 }
 _installCATrustAnchor() {
     local anchor="$rootCAPem" st=0
