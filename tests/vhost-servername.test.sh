@@ -4,9 +4,9 @@
 #
 #   tests/vhost-servername.test.sh
 #
-# _createWebLeaf() has issued CN=$hostname with every address as an IP SAN for a
+# _createWebLeaf() has issued CN=${NET_hostname} with every address as an IP SAN for a
 # while, so the certificate has been name-first. The vhost was not: ServerName
-# was $ipaddress and the name was demoted to an alias. Harmless while nothing
+# was ${NET_fog_server_ip} and the name was demoted to an alias. Harmless while nothing
 # verified -- and not harmless once the installer's own calls to itself started
 # verifying, because no public CA will issue for an address.
 #
@@ -52,8 +52,8 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=fog.example.org" \
     -keyout "$WORK/leaf.key" -out "$WORK/leaf.pem" >/dev/null 2>&1
 
 reset_env() {
-    etcconf=""; sslpubcert=""; sslfullchain=""
-    hostname=""; ipaddress=""; ipaddresses=""; extraServerNames=""
+    etcconf=""; PKI_web_vhost_cert=""; sslfullchain=""
+    NET_hostname=""; NET_fog_server_ip=""; PKI_san_ip_addresses=""; PKI_san_dns_names=""
     vhostname=""; vhostaliases=""
     error_log="$WORK/error.log"
 }
@@ -62,9 +62,9 @@ echo "== name first, addresses as aliases =="
 
 # A/B/C. The ordinary multi-homed server with a certificate.
 reset_env
-sslpubcert="$WORK/leaf.pem"
-hostname="fog.example.org"
-ipaddress="10.0.0.1"; ipaddresses="10.0.0.1 10.0.0.2"
+PKI_web_vhost_cert="$WORK/leaf.pem"
+NET_hostname="fog.example.org"
+NET_fog_server_ip="10.0.0.1"; PKI_san_ip_addresses="10.0.0.1 10.0.0.2"
 _resolveVhostNames
 check "$vhostname" "fog.example.org" "A: ServerName is the certificate's name, not the address"
 has "$vhostaliases" "10.0.0.1" "B: the FIRST address is still an alias"
@@ -79,8 +79,8 @@ check "$(printf '%s' "$vhostname" | wc -w | tr -d ' ')" "1" "E: ServerName is a 
 
 # F. Admin extras ride along.
 reset_env
-sslpubcert="$WORK/leaf.pem"
-ipaddresses="10.0.0.1"; extraServerNames="fog.dmz.example.org images.example.org"
+PKI_web_vhost_cert="$WORK/leaf.pem"
+PKI_san_ip_addresses="10.0.0.1"; PKI_san_dns_names="fog.dmz.example.org images.example.org"
 _resolveVhostNames
 has "$vhostaliases" "fog.dmz.example.org"  "F: --extra-server-name reaches the aliases"
 has "$vhostaliases" "images.example.org"   "F2: every extra name, not just the first"
@@ -90,16 +90,16 @@ echo "== the DNS-less fallback =="
 # G/H. No certificate and no hostname: the address becomes the primary name, and
 #      must NOT then also appear as an alias of itself.
 reset_env
-ipaddress="10.0.0.5"; ipaddresses="10.0.0.5"
+NET_fog_server_ip="10.0.0.5"; PKI_san_ip_addresses="10.0.0.5"
 _resolveVhostNames
 check "$vhostname" "10.0.0.5" "G: falls back to the address when no name exists"
 hasnt "$vhostaliases" "10.0.0.5" "H: the fallback address is not aliased to itself"
 
 # I. hostname with no readable certificate still beats the address.
 reset_env
-hostname="fog.example.org"; ipaddress="10.0.0.5"; ipaddresses="10.0.0.5"
+NET_hostname="fog.example.org"; NET_fog_server_ip="10.0.0.5"; PKI_san_ip_addresses="10.0.0.5"
 _resolveVhostNames
-check "$vhostname" "fog.example.org" "I: \$hostname is preferred over the address"
+check "$vhostname" "fog.example.org" "I: \${NET_hostname} is preferred over the address"
 has "$vhostaliases" "10.0.0.5" "I2: and the address is aliased"
 
 echo "== emission (source-level) =="

@@ -25,7 +25,7 @@ while getopts "$optspec" o; do
                         usage
                         handleError "Path must be an existing directory" 8
                     fi
-                    backupPath=$OPTARG
+                    DB_backup_path=$OPTARG
                     ;;
                 no-database)
                     noBackupDB=1
@@ -56,7 +56,7 @@ while getopts "$optspec" o; do
                 usage
                 handleError "Path must be an existing directory" 8
             fi
-            backupPath=$OPTARG
+            DB_backup_path=$OPTARG
             ;;
         [Dd])
             noBackupDB=1
@@ -82,17 +82,17 @@ while getopts "$optspec" o; do
             ;;
     esac
 done
-if [[ -z $backupPath ]]; then
+if [[ -z ${DB_backup_path} ]]; then
     usage
     handleError "A path to backup the data must be set." 11
 fi
-if [[ ! -d $backupPath ]]; then
+if [[ ! -d ${DB_backup_path} ]]; then
     usage
     handleError "Path must be an existing directory" 8
 fi
 backupDate=$(date +"%Y%m%d");
-backupDir="$backupPath/$backupDate"
-cd $backupPath
+backupDir="${DB_backup_path}/$backupDate"
+cd ${DB_backup_path}
 countBackup=`ls | grep $backupDate | wc -l`
 backupDir="${backupDir}_$countBackup"
 [[ ! -d $backupDir ]] && mkdir -p $backupDir/{images,mysql,snapins,reports,logs} >/dev/null 2>&1
@@ -121,14 +121,14 @@ backupDB() {
     local defaults escpass
     defaults=$(mktemp) || handleError "Could not create a temporary file" 20
     chmod 600 "$defaults"
-    escpass="${snmysqlpass//\\/\\\\}"
+    escpass="${DB_password//\\/\\\\}"
     escpass="${escpass//\"/\\\"}"
     printf '[client]\nhost=%s\nuser=%s\npassword="%s"\n' \
-        "${snmysqlhost:-localhost}" "$snmysqluser" "$escpass" > "$defaults"
+        "${DB_host:-localhost}" "${DB_user}" "$escpass" > "$defaults"
     # --single-transaction so a live server is not locked for the duration;
     # --quick so a large tasks/imaging history is streamed rather than buffered.
     mysqldump --defaults-extra-file="$defaults" --single-transaction --quick \
-        "${mysqldbname:-fog}" > "$backupDir/mysql/fog.sql" \
+        "${DB_name:-fog}" > "$backupDir/mysql/fog.sql" \
         2>>$backupDir/logs/error.log
     stat=$?
     rm -f "$defaults"
@@ -141,7 +141,7 @@ backupDB() {
     echo "Done"
 }
 backupImages() {
-    imageLocation=$storageLocation
+    imageLocation=${STORAGE_image_share_path}
     [[ ! -d $imageLocation ]] && handleError "Images location:$imageLocation does not exist on this server" 15
     dots "Backing up images"
     cp -auv $imageLocation $backupDir/images/ 2>>$backupDir/logs/error.log 1>>$backupDir/logs/progress.log 2>&1

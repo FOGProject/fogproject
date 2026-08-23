@@ -44,7 +44,7 @@ $functions = file_get_contents($root . '/lib/common/functions.sh');
 // emit their own copy, so counting matters as much as matching: a fourth
 // added without the suffix is the same bug again.
 preg_match_all(
-    '#try_files \\\\\$uri \\\\\$uri/ \$\{webroot\}api/index\.php([^;"]*);#',
+    '#try_files \\\\\$uri \\\\\$uri/ \$\{WEB_root\}api/index\.php([^;"]*);#',
     $functions,
     $matches
 );
@@ -71,7 +71,7 @@ foreach ($matches[1] as $i => $suffix) {
 // Apache's side is QSA and must stay that way -- counted the same way, and
 // for the same reason: there are three of these too.
 preg_match_all(
-    '#RewriteRule \^\$\{webrootre\}\(\.\*\)\$ \$\{webroot\}api/index\.php '
+    '#RewriteRule \^\$\{webrootre\}\(\.\*\)\$ \$\{WEB_root\}api/index\.php '
     . '\[([^\]]*)\]#',
     $functions,
     $apache

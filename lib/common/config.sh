@@ -13,7 +13,7 @@
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-[[ -z $username || "x$username" == "xfog" ]] && username="fogproject"
+[[ -z ${SVC_user} || "x${SVC_user}" == "xfog" ]] && SVC_user="fogproject"
 [[ -z $webdirsrc ]] && webdirsrc="../packages/web"
 [[ -z $tftpdirsrc ]] && tftpdirsrc="../packages/tftp"
 # iPXE now lives in its own repository and its binaries arrive as a release
@@ -71,14 +71,13 @@ fog_udpversion="20250223"
 # a fingerprint and an enrolment kit to hand out. --no-secure-boot sets this to
 # 0, and because .fogsettings is sourced before this file, that choice survives
 # an upgrade rather than being silently re-enabled.
-[[ -z $secureboot ]] && secureboot=1
+[[ -z ${PKI_sb_enabled} ]] && PKI_sb_enabled=1
 # Anchoring this server's own CA in this server's own trust store is on by
 # default: without it every HTTPS call made ON the FOG server TO the FOG server
 # fails to verify, including the ones inside FOG that have no way to be handed
-# a CA file. --no-ca-trust sets this to 0, and because .fogsettings is sourced
-# before this file, that choice survives an upgrade rather than being silently
-# re-enabled -- the same reasoning as $secureboot above.
-[[ -z $catrust ]] && catrust=1
+# a CA file. FOG always anchors its own CA here (GH-1120 retired --no-ca-trust:
+# a server that cannot verify its own certificate is not a supported state, and
+# the opt-out mostly produced installs that failed in confusing ways later).
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
@@ -181,11 +180,11 @@ serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname
 # file), so the checkout root is always workingdir's parent. Recomputed
 # unconditionally (no `[[ -z ]]` guard) because, like fogprogramdir, it is a
 # RECORD once persisted to .fogsettings, not a control -- see writeUpdateFile.
-[[ -n $workingdir ]] && fog_git_path="$(cd "$workingdir/.." && pwd)"
+[[ -n $workingdir ]] && FOG_git_path="$(cd "$workingdir/.." && pwd)"
 # fog_update_channel IS a genuine persisted preference (see writeUpdateFile),
 # so this default only matters on a first install -- .fogsettings carries an
 # admin's actual choice forward on every upgrade after that. Derived from
 # whatever branch is already checked out; left unset if that is not one of
 # the three known channel branches (e.g. a feature/PR branch, or no git repo
 # at all for a tarball install) rather than guessing.
-[[ -z $fog_update_channel ]] && fog_update_channel="$(branchToChannel "$(git -C "$fog_git_path" rev-parse --abbrev-ref HEAD 2>/dev/null)" 2>/dev/null)"
+[[ -z ${FOG_update_channel} ]] && FOG_update_channel="$(branchToChannel "$(git -C "${FOG_git_path}" rev-parse --abbrev-ref HEAD 2>/dev/null)" 2>/dev/null)"

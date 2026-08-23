@@ -63,9 +63,9 @@ tftpdirdst="$WORK/dst"
 mkdir -p "$tftpdirsrc" "$tftpdirdst"
 
 ipxeVer="v2.0.0-fog.8"
-sslcachain=""
-sslcapem="$WORK/ca.pem"
-echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "$sslcapem"
+PKI_web_trust_chain=""
+PKI_web_ca_cert="$WORK/ca.pem"
+echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "${PKI_web_ca_cert}"
 
 stamp="$tftpdirdst/.fog-ipxe-build"
 
@@ -82,12 +82,12 @@ needs() { _needsLocalIpxeBuild && echo yes || echo no; }
 echo "ipxe build stamp:"
 
 # --- the build only ever happens when it was asked for ----------------------
-rebuildIpxeWithMyCA="no"
+BOOT_rebuild_ipxe_with_my_ca="no"
 published
 rm -f "$stamp"
 is "$(needs)" "no" "no rebuild when --rebuild-ipxe-with-my-ca is off"
 
-rebuildIpxeWithMyCA="yes"
+BOOT_rebuild_ipxe_with_my_ca="yes"
 is "$(needs)" "yes" "rebuild when asked for and nothing has been built"
 
 # --- a build that is genuinely still staged is not repeated ------------------
@@ -108,9 +108,9 @@ ipxeVer="v2.0.1-fog.1"
 is "$(needs)" "yes" "rebuild when the iPXE release moves"
 ipxeVer="v2.0.0-fog.8"
 
-echo "-----BEGIN CERTIFICATE----- rotated -----END CERTIFICATE-----" > "$sslcapem"
+echo "-----BEGIN CERTIFICATE----- rotated -----END CERTIFICATE-----" > "${PKI_web_ca_cert}"
 is "$(needs)" "yes" "rebuild when the CA bytes change"
-echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "$sslcapem"
+echo "-----BEGIN CERTIFICATE----- fixture -----END CERTIFICATE-----" > "${PKI_web_ca_cert}"
 
 # --- downloadipxe must not unpack over a staged build ------------------------
 locallybuilt
@@ -130,7 +130,7 @@ is "$([[ -e $WORK/fetched ]] && echo fetched || echo kept)" "fetched" \
     "download still runs when the release moves"
 ipxeVer="v2.0.0-fog.8"
 
-rebuildIpxeWithMyCA="no"
+BOOT_rebuild_ipxe_with_my_ca="no"
 rm -f "$WORK/fetched"
 downloadipxe >/dev/null 2>&1
 is "$([[ -e $WORK/fetched ]] && echo fetched || echo kept)" "fetched" \

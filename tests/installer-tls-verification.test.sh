@@ -29,7 +29,7 @@
 #      _installNodeWebCert() and _installCATrustAnchor(), so there is no anchor
 #      for anything yet and verification cannot succeed. They keep -k, with the
 #      reasoning written at the call site, and _requestNodeCert() is separately
-#      protected by an HMAC keyed on $snmysqlpass.
+#      protected by an HMAC keyed on ${DB_password}.
 #
 # So this file does not say "never -k". It says: exactly the four Group C calls
 # -- registerStorageNode() makes two of them -- and no others. The count is pinned deliberately -- a NEW unverified
@@ -202,10 +202,10 @@ if printf '%s' "$helper" | grep -qE -- '--insecure|(^|[[:space:]])-[a-zA-Z]*k[a-
 else
     ok "_resolveSelfCacert hands back no insecure flag"
 fi
-if printf '%s' "$helper" | grep -q 'httpproto == https'; then
+if printf '%s' "$helper" | grep -q 'WEB_url_proto} == https'; then
     ok "_resolveSelfCacert is a no-op on a plain-HTTP install"
 else
-    bad "_resolveSelfCacert does not gate on \$httpproto -- an http install would get a stray --cacert"
+    bad "_resolveSelfCacert does not gate on \${WEB_url_proto} -- an http install would get a stray --cacert"
 fi
 
 # The three call sites, each pinned to the function it lives in and to the
@@ -254,9 +254,9 @@ source "$FUNCS" >/dev/null 2>&1
 
 # A plain-HTTP install must be left exactly as it was: no --cacert, and no
 # attempt to resolve an anchor that will not exist.
-httpproto=http
-rootCAPem=""
-sslcachain=""
+WEB_url_proto=http
+PKI_root_ca_cert=""
+PKI_web_trust_chain=""
 selfCacertOpts=(poison)
 _resolveSelfCacert
 if [[ ${#selfCacertOpts[@]} -eq 0 ]]; then
@@ -267,7 +267,7 @@ fi
 
 # https with nothing to anchor -- curl falls back to the system store, which is
 # the right answer on an install whose certificate came from a public CA.
-httpproto=https
+WEB_url_proto=https
 selfCacertOpts=(poison)
 _resolveSelfCacert
 if [[ ${#selfCacertOpts[@]} -eq 0 ]]; then
@@ -283,7 +283,7 @@ if command -v openssl >/dev/null 2>&1; then
     openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
         -keyout "$tmp/ca.key" -out "$tmp/ca.pem" \
         -subj "/CN=fog-tls-gate-test" >/dev/null 2>&1
-    rootCAPem="$tmp/ca.pem"
+    PKI_root_ca_cert="$tmp/ca.pem"
     selfCacertOpts=()
     _resolveSelfCacert
     if [[ ${#selfCacertOpts[@]} -eq 2 && ${selfCacertOpts[0]} == "--cacert" && -s ${selfCacertOpts[1]} ]]; then

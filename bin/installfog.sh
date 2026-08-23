@@ -168,8 +168,6 @@ usage() {
     echo -e "\t      --internal-subnet\t\tRestrict those CAs to this subnet, e.g."
     echo -e "\t                 \t\t\t10.20.30.0/24 (repeatable). REPLACES the default"
     echo -e "\t                 \t\t\tof all RFC1918 ranges"
-    echo -e "\t      --no-sb-name-constraints\tIssue the Secure Boot CA without name"
-    echo -e "\t                 \t\t\tconstraints. Use if firmware rejects the chain"
     echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone only"
     echo -e "\t                 \t\t\t(equivalent to --external-ca --ca-*)"
     echo -e "\t      --secureboot-ca-cert\tYour own SECURE BOOT intermediate: the"
@@ -225,15 +223,13 @@ usage() {
     echo -e "\t                      \t\t\tand no 'Enroll Secure Boot Key' menu"
     echo -e "\t                      \t\t\tentry. Binaries are still signed -- a"
     echo -e "\t                      \t\t\tsignature is inert with Secure Boot off"
-    echo -e "\t      --no-ca-trust\t\tDo not add this server's CA to this"
-    echo -e "\t                   \t\t\tserver's own system trust store"
     exit 0
 }
 
-sextraServerNames=()
+sPKI_san_dns_names=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,no-ca-trust,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:,no-sb-name-constraints"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -270,10 +266,10 @@ while :; do
 			;;
         -c | --ssl-path)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                ssslpath="${2}"
-                ssslpath="${ssslpath#'/'}"
-                ssslpath="${ssslpath%'/'}"
-                ssslpath="/${ssslpath}/"
+                sPKI_client_cert_dir="${2}"
+                sPKI_client_cert_dir="${sPKI_client_cert_dir#'/'}"
+                sPKI_client_cert_dir="${sPKI_client_cert_dir%'/'}"
+                sPKI_client_cert_dir="/${sPKI_client_cert_dir}/"
             else
                 echo "Error: Missing argument for --$1"
                 usage
@@ -296,7 +292,7 @@ while :; do
             ;;
         --hostname)
             if [[ -n "${2}" ]] && [[ $(validhostname "${2}") -eq 0 ]]; then
-                shostname="${2}"
+                sNET_hostname="${2}"
             else
                 echo "Error: --hostname requires a valid hostname"
                 exit 9
@@ -313,7 +309,7 @@ while :; do
             shift 2
             ;;
         -o | --oldcopy)
-            scopybackold=1
+            sFOG_copy_back_old=1
             shift
 			;;
         -d | --no-defaults)
@@ -335,7 +331,7 @@ while :; do
             # which also silently decided whether iPXE got rebuilt and whether
             # Secure Boot binaries were staged at all. Those are separate keys
             # now -- see --rebuild-ipxe-with-my-ca and --public-web-cert.
-            shttpsRedirect="yes"
+            sWEB_https_redirect="yes"
             shift
             ;;
         --no-force-https | --no-https-redirect)
@@ -345,7 +341,7 @@ while :; do
             # sourced first. Re-running without -S therefore kept forcing the
             # redirect, and hand-editing .fogsettings was the only escape.
             # Setting the same shadow -S uses keeps the two symmetric.
-            shttpsRedirect="no"
+            sWEB_https_redirect="no"
             shift
             ;;
         --public-web-cert)
@@ -356,22 +352,22 @@ while :; do
             # CA to the host store by default, so a plain `openssl verify`
             # answers "trusted" for FOG's own leaf, which is exactly the case
             # that needs the rebuild.
-            spublicWebCert="yes"
+            sPKI_web_cert_publicly_trusted="yes"
             shift
             ;;
         --no-public-web-cert)
-            spublicWebCert="no"
+            sPKI_web_cert_publicly_trusted="no"
             shift
             ;;
         --rebuild-ipxe-with-my-ca)
             # Deliberately long: it states WHY the rebuild happens. Not
             # "...WithMyFogCA", because it must adapt to a configured external
             # CA too -- the build embeds whichever CA signs the web leaf.
-            srebuildIpxeWithMyCA="yes"
+            sBOOT_rebuild_ipxe_with_my_ca="yes"
             shift
             ;;
         --no-rebuild-ipxe-with-my-ca)
-            srebuildIpxeWithMyCA="no"
+            sBOOT_rebuild_ipxe_with_my_ca="no"
             shift
             ;;
         --install-mode)
@@ -395,7 +391,7 @@ while :; do
             ;;
         --ca-cert)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sextcacert="${2}"
+                sImportWebCACert="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -405,7 +401,7 @@ while :; do
             ;;
         --ca-key)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sextcakey="${2}"
+                sImportWebCAKey="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -415,7 +411,7 @@ while :; do
             ;;
         --ca-root)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sextcaroot="${2}"
+                sImportWebCARoot="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -440,10 +436,10 @@ while :; do
             ;;
         -D | --docroot)
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                sdocroot="${2}"
-                sdocroot="${sdocroot#'/'}"
-                sdocroot="${sdocroot%'/'}"
-                sdocroot="/${sdocroot}/"
+                sWEB_docroot="${2}"
+                sWEB_docroot="${sWEB_docroot#'/'}"
+                sWEB_docroot="${sWEB_docroot%'/'}"
+                sWEB_docroot="/${sWEB_docroot}/"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -457,24 +453,24 @@ while :; do
                 usage
                 exit 2
             fi
-            swebroot="${2}"
-            swebroot="${swebroot#'/'}"
-            swebroot="${swebroot%'/'}"
+            sWEB_root="${2}"
+            sWEB_root="${sWEB_root#'/'}"
+            sWEB_root="${sWEB_root%'/'}"
             # Store the FINAL "/x/" form here rather than the bare "x". Two
             # separate bugs came out of not doing so, both because the
             # normalisation further down only runs on the upgrade path (it is
             # gated on grepping an existing .fogsettings):
             #
             #   -W /      stripped to "", and the application tested `-n
-            #             $swebroot`, so the one case the help text exists to
+            #             ${sWEB_root}`, so the one case the help text exists to
             #             document was discarded and fell back to /fog/.
             #   -W /fog   on a FRESH install left webroot as "fog" with no
             #             slashes, producing URLs like http://1.2.3.4fogmanagement.
             #
             # swebrootset records that the flag was given, separately from its
             # value, so an empty value still counts.
-            swebrootset=1
-            [[ -z $swebroot ]] && swebroot="/" || swebroot="/${swebroot}/"
+            sWEB_root_set=1
+            [[ -z ${sWEB_root} ]] && sWEB_root="/" || sWEB_root="/${sWEB_root}/"
             shift 2
             ;;
         -N | --mysqldbname)
@@ -483,7 +479,7 @@ while :; do
             # a handler, so it hung the option loop. The application half
             # (smysqldbname -> mysqldbname) was already in place below.
             if [[ -n "${2}" ]] && [[ "${2}" != -* ]]; then
-                smysqldbname="${2}"
+                sDB_name="${2}"
             else
                 echo "Error: Missing argument for $1"
                 usage
@@ -497,7 +493,7 @@ while :; do
                 usage
                 exit 4
             fi
-            sbackupPath=$2
+            sDB_backup_path=$2
             shift 2
             ;;
         -s | --startrange)
@@ -506,9 +502,9 @@ while :; do
                 usage
                 exit 5
             fi
-            sstartrange=$2
-            sdodhcp="Y"
-            sbldhcp=1
+            sDHCP_range_start=$2
+            sDHCP_enabled="Y"
+            sDHCP_enabled=1
             shift 2
             ;;
         -e | --endrange)
@@ -517,13 +513,13 @@ while :; do
                 usage
                 exit 6
             fi
-            sendrange=$2
-            sdodhcp="Y"
-            sbldhcp=1
+            sDHCP_range_end=$2
+            sDHCP_enabled="Y"
+            sDHCP_enabled=1
             shift 2
             ;;
         -E | --no-exportbuild)
-            sblexports=0
+            sSTORAGE_rebuild_nfs_exports=0
             shift
             ;;
         -X | --exitFail)
@@ -531,7 +527,7 @@ while :; do
             shift
             ;;
         -T | --no-tftpbuild)
-            snoTftpBuild="true"
+            sBOOT_external_tftp_server="true"
             shift
             ;;
         -F | --no-vhost)
@@ -544,7 +540,7 @@ while :; do
             ;;
         --secure-boot-key)
             if [[ -f $2 ]]; then
-                ssecureBootKey="$2"
+                sPKI_sb_codesign_key="$2"
             else
                 echo "$1 requires a readable private key file after"
                 usage
@@ -554,7 +550,7 @@ while :; do
             ;;
         --secure-boot-cert)
             if [[ -f $2 ]]; then
-                ssecureBootCert="$2"
+                sPKI_sb_codesign_cert="$2"
             else
                 echo "$1 requires a readable certificate file after"
                 usage
@@ -563,16 +559,12 @@ while :; do
             shift 2
             ;;
         --no-secure-boot)
-            ssecureboot=0
-            shift
-            ;;
-        --no-ca-trust)
-            scatrust=0
+            sPKI_sb_enabled=0
             shift
             ;;
         --netboot-proto)
             case $2 in
-                http|https) snetbootproto="$2" ;;
+                http|https) sBOOT_url_proto="$2" ;;
                 *) echo "$1 must be http or https"; usage; exit 3 ;;
             esac
             shift 2
@@ -586,12 +578,8 @@ while :; do
                 usage
                 exit 3
             fi
-            sbootdelay="$2"
+            sBOOT_dhcp_delay_seconds="$2"
             shift 2
-            ;;
-        --no-sb-name-constraints)
-            ssbNameConstraints="no"
-            shift
             ;;
         --internal-domain)
             if [[ $(validhostname "${2}") -ne 0 ]]; then
@@ -599,7 +587,7 @@ while :; do
                 usage
                 exit 3
             fi
-            sinternalDomains="${sinternalDomains:+$sinternalDomains }${2}"
+            sPKI_allowed_domain_names="${sPKI_allowed_domain_names:+${sPKI_allowed_domain_names} }${2}"
             shift 2
             ;;
         --internal-subnet)
@@ -613,7 +601,7 @@ while :; do
                 usage
                 exit 3
             fi
-            sinternalSubnets="${sinternalSubnets:+$sinternalSubnets }${2}"
+            sPKI_internal_subnets="${sPKI_internal_subnets:+${sPKI_internal_subnets} }${2}"
             shift 2
             ;;
         --web-ca-cert | --web-ca-key | --web-ca-root | --secureboot-ca-cert)
@@ -623,21 +611,21 @@ while :; do
                 exit 3
             fi
             case $1 in
-                --web-ca-cert)    swebExtCACert="$2" ;;
-                --web-ca-key)     swebExtCAKey="$2" ;;
-                --web-ca-root)    swebExtCARoot="$2" ;;
+                --web-ca-cert)    sImportWebCACert="$2" ;;
+                --web-ca-key)     sImportWebCAKey="$2" ;;
+                --web-ca-root)    sImportWebCARoot="$2" ;;
                 # The Secure Boot zone's anchor: what gets ENROLLED in
                 # firmware. Pairs with --secure-boot-key/--secure-boot-cert,
                 # which name the leaf that actually signs. Supplying only the
                 # leaf pair (the historic form) still works and enrols that
                 # certificate, exactly as before.
-                --secureboot-ca-cert) ssecureBootMokCert="$2" ;;
+                --secureboot-ca-cert) sPKI_sb_ca_cert="$2" ;;
             esac
             shift 2
             ;;
         --kernel-backup-count)
             if [[ -n "${2}" && "${2}" =~ ^[0-9]+$ && "${2}" -ge 1 ]]; then
-                skernelBackupCount="${2}"
+                sBOOT_kernel_backups_kept="${2}"
             else
                 echo "$1 requires a positive integer after"
                 usage
@@ -756,22 +744,22 @@ resolvedfogprogramdir="$fogprogramdir"
 # $workingdir. Captured here so it can be re-asserted after .fogsettings is
 # sourced below, the same way resolvedfogprogramdir is -- otherwise a stale
 # path recorded from a moved/re-cloned checkout would silently win.
-resolvedfoggitpath="$fog_git_path"
-[[ -z $dnsaddress ]] && dnsaddress=""
-[[ -z $username ]] && username=""
-[[ -z $password ]] && password=""
-[[ -z $osid ]] && osid=""
-[[ -z $osname ]] && osname=""
-[[ -z $dodhcp ]] && dodhcp=""
-[[ -z $bldhcp ]] && bldhcp=""
-[[ -z $installtype ]] && installtype=""
-[[ -z $interface ]] && interface=""
-[[ -z $ipaddress ]] && ipaddress=""
-[[ -z $hostname ]] && hostname=""
-[[ -z $routeraddress ]] && routeraddress=""
-[[ -z $plainrouter ]] && plainrouter=""
-[[ -z $blexports ]] && blexports=1
-[[ -z $installlang ]] && installlang=0
+resolvedfoggitpath="${FOG_git_path}"
+[[ -z ${DHCP_dns_server_ip} ]] && DHCP_dns_server_ip=""
+[[ -z ${SVC_user} ]] && SVC_user=""
+[[ -z ${SVC_password} ]] && SVC_password=""
+[[ -z ${FOG_os_id} ]] && FOG_os_id=""
+[[ -z ${FOG_os_name} ]] && FOG_os_name=""
+[[ -z ${DHCP_enabled} ]] && DHCP_enabled=""
+[[ -z ${DHCP_enabled} ]] && DHCP_enabled=""
+[[ -z ${FOG_install_type} ]] && FOG_install_type=""
+[[ -z ${NET_interface} ]] && NET_interface=""
+[[ -z ${NET_fog_server_ip} ]] && NET_fog_server_ip=""
+[[ -z ${NET_hostname} ]] && NET_hostname=""
+[[ -z ${DHCP_router} ]] && DHCP_router=""
+[[ -z ${DHCP_router} ]] && DHCP_router=""
+[[ -z ${STORAGE_rebuild_nfs_exports} ]] && STORAGE_rebuild_nfs_exports=1
+[[ -z ${FOG_install_lang} ]] && FOG_install_lang=0
 [[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
 [[ -z $guessdefaults ]] && guessdefaults=1
 [[ -z $doupdate ]] && doupdate=1
@@ -780,10 +768,10 @@ resolvedfoggitpath="$fog_git_path"
 # after .fogsettings has been sourced -- the migration there has to be able to
 # tell a PERSISTED https (the only evidence an admin ever asked for -S) from a
 # defaulted one, and it cannot if the default has already written https here.
-[[ -z $httpproto ]] && httpproto="http"
+[[ -z ${WEB_url_proto} ]] && WEB_url_proto="http"
 [[ -z $externalca ]] && externalca="no"
-[[ -z $mysqldbname ]] && mysqldbname="fog"
-[[ -z $tftpAdvOpts ]] && tftpAdvOpts=""
+[[ -z ${DB_name} ]] && DB_name="fog"
+[[ -z ${BOOT_tftp_options} ]] && BOOT_tftp_options=""
 [[ -z $fogpriorconfig ]] && fogpriorconfig="$fogprogramdir/.fogsettings"
 #clearScreen
 if [[ -z $* || $* != +(-h|-?|--help|--uninstall) ]]; then
@@ -811,55 +799,188 @@ case $doupdate in
             # it (see writeFogSettings). Re-assert before doOSSpecificIncludes,
             # which derives snapindir from it.
             fogprogramdir="$resolvedfogprogramdir"
-            fog_git_path="$resolvedfoggitpath"
+            FOG_git_path="$resolvedfoggitpath"
             doOSSpecificIncludes
-            # This was `blexports=$blexports` -- a self-assignment that did
+            # This was `STORAGE_rebuild_nfs_exports=${STORAGE_rebuild_nfs_exports}` -- a self-assignment that did
             # nothing, so -E was silently discarded on upgrades: the handler
             # wrote blexports directly and the .fogsettings sourced just above
             # overwrote it (blexports is a managed key). -E/-s/-e now use the
             # s-prefixed shadows every other flag uses, which is what
             # 0d49b78e1 introduced the convention for.
-            [[ -n $sblexports ]] && blexports=$sblexports
-            [[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
-            [[ -n $sbackupPath ]] && backupPath=$sbackupPath
-            [[ -n $swebrootset ]] && webroot=$swebroot
-            [[ -n $sdocroot ]] && docroot=$sdocroot
+            [[ -n ${sSTORAGE_rebuild_nfs_exports} ]] && STORAGE_rebuild_nfs_exports=${sSTORAGE_rebuild_nfs_exports}
+            [[ -n ${sBOOT_external_tftp_server} ]] && BOOT_external_tftp_server=${sBOOT_external_tftp_server}
+            [[ -n ${sDB_backup_path} ]] && DB_backup_path=${sDB_backup_path}
+            [[ -n ${sWEB_root_set} ]] && WEB_root=${sWEB_root}
+            [[ -n ${sWEB_docroot} ]] && WEB_docroot=${sWEB_docroot}
             [[ -n $signorehtmldoc ]] && ignorehtmldoc=$signorehtmldoc
-            [[ -n $scopybackold ]] && copybackold=$scopybackold
+            [[ -n ${sFOG_copy_back_old} ]] && FOG_copy_back_old=${sFOG_copy_back_old}
         fi
         ;;
     *)
         echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
-# --- httpproto / httpsRedirect migration -------------------------------------
+# --- GH-1120 key rename: carry every pre-1.6 value onto its new key ----------
+#
+# Runs after .fogsettings is sourced and BEFORE the flag shadows below, so the
+# order stays: explicit flag > persisted value > migrated value. It must also
+# run before the WEB_https_redirect migration further down, which reads
+# ${WEB_url_proto} -- on an upgrade that value only exists once this block has
+# copied $httpproto onto it.
+#
+# GH-1120 renamed all 79 managed keys to CATEGORY_lower_snake_case. .fogsettings
+# is SOURCED, so the old names are still live shell variables at this point,
+# holding everything the previous install recorded. This is the only thing that
+# moves them: deprecatedKeys in writeUpdateFile() strips the old lines and
+# carries NO value, so removing this block does not degrade the migration -- it
+# wipes every setting on the next upgrade, silently, and under -y.
+#
+# Each pair is guarded on the NEW key, so the block fires exactly once: after
+# this run the new name is persisted and the old line is gone, and a flag that
+# already set the new key on this run correctly wins over the persisted value.
+#
+# Modelled on the httpproto/httpsRedirect seeding immediately below, which is
+# the same shape for a single key.
+# FOG
+[[ -z ${FOG_install_type} ]] && FOG_install_type="$installtype"
+[[ -z ${FOG_os_id} ]] && FOG_os_id="$osid"
+[[ -z ${FOG_os_name} ]] && FOG_os_name="$osname"
+[[ -z ${FOG_packages} ]] && FOG_packages="$packages"
+[[ -z ${FOG_install_lang} ]] && FOG_install_lang="$installlang"
+[[ -z ${FOG_send_reports} ]] && FOG_send_reports="$sendreports"
+[[ -z ${FOG_installed} ]] && FOG_installed="$fogupdateloaded"
+[[ -z ${FOG_copy_back_old} ]] && FOG_copy_back_old="$copybackold"
+[[ -z ${FOG_update_channel} ]] && FOG_update_channel="$fog_update_channel"
+[[ -z ${FOG_git_path} ]] && FOG_git_path="$fog_git_path"
+[[ -z ${FOG_program_dir} ]] && FOG_program_dir="$fogprogramdir"
+# NET
+[[ -z ${NET_interface} ]] && NET_interface="$interface"
+[[ -z ${NET_fog_server_ip} ]] && NET_fog_server_ip="$ipaddress"
+[[ -z ${NET_subnet_mask} ]] && NET_subnet_mask="$submask"
+[[ -z ${NET_hostname} ]] && NET_hostname="$hostname"
+# DHCP
+[[ -z ${DHCP_engine} ]] && DHCP_engine="$dhcpengine"
+[[ -z ${DHCP_service_name} ]] && DHCP_service_name="$dhcpd"
+[[ -z ${DHCP_dns_server_ip} ]] && DHCP_dns_server_ip="$dnsaddress"
+[[ -z ${DHCP_range_start} ]] && DHCP_range_start="$startrange"
+[[ -z ${DHCP_range_end} ]] && DHCP_range_end="$endrange"
+# DB
+[[ -z ${DB_name} ]] && DB_name="$mysqldbname"
+[[ -z ${DB_host} ]] && DB_host="$snmysqlhost"
+[[ -z ${DB_user} ]] && DB_user="$snmysqluser"
+[[ -z ${DB_password} ]] && DB_password="$snmysqlpass"
+[[ -z ${DB_external} ]] && DB_external="$snmysqlexternal"
+[[ -z ${DB_backup_path} ]] && DB_backup_path="$backupPath"
+# WEB
+[[ -z ${WEB_server_engine} ]] && WEB_server_engine="$webserver"
+[[ -z ${WEB_docroot} ]] && WEB_docroot="$docroot"
+[[ -z ${WEB_root} ]] && WEB_root="$webroot"
+[[ -z ${WEB_php_version} ]] && WEB_php_version="$php_ver"
+[[ -z ${WEB_url_proto} ]] && WEB_url_proto="$httpproto"
+[[ -z ${WEB_https_redirect} ]] && WEB_https_redirect="$httpsRedirect"
+# BOOT
+[[ -z ${BOOT_url_proto} ]] && BOOT_url_proto="$netbootproto"
+[[ -z ${BOOT_url_proto_forced} ]] && BOOT_url_proto_forced="$netbootProtoForced"
+[[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="$rebuildIpxeWithMyCA"
+[[ -z ${BOOT_dhcp_delay_seconds} ]] && BOOT_dhcp_delay_seconds="$bootdelay"
+[[ -z ${BOOT_external_tftp_server} ]] && BOOT_external_tftp_server="$noTftpBuild"
+[[ -z ${BOOT_tftp_options} ]] && BOOT_tftp_options="$tftpAdvOpts"
+[[ -z ${BOOT_kernel_backups_kept} ]] && BOOT_kernel_backups_kept="$kernelBackupGenerations"
+# STORAGE
+[[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="$storageLocation"
+[[ -z ${STORAGE_rebuild_nfs_exports} ]] && STORAGE_rebuild_nfs_exports="$blexports"
+# SVC
+[[ -z ${SVC_user} ]] && SVC_user="$username"
+[[ -z ${SVC_password} ]] && SVC_password="$password"
+[[ -z ${SVC_firewall_control} ]] && SVC_firewall_control="$fwconfigure"
+# PKI
+[[ -z ${PKI_root_ca_cert} ]] && PKI_root_ca_cert="$rootCAPem"
+[[ -z ${PKI_root_ca_key} ]] && PKI_root_ca_key="$rootCAKey"
+[[ -z ${PKI_web_trust_chain} ]] && PKI_web_trust_chain="$sslcachain"
+[[ -z ${PKI_client_cert_dir} ]] && PKI_client_cert_dir="$sslpath"
+[[ -z ${PKI_sb_ca_cert} ]] && PKI_sb_ca_cert="$secureBootMokCert"
+[[ -z ${PKI_sb_codesign_cert} ]] && PKI_sb_codesign_cert="$secureBootCert"
+[[ -z ${PKI_sb_codesign_key} ]] && PKI_sb_codesign_key="$secureBootKey"
+[[ -z ${PKI_sb_enabled} ]] && PKI_sb_enabled="$secureboot"
+[[ -z ${PKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted="$publicWebCert"
+[[ -z ${PKI_allowed_domain_names} ]] && PKI_allowed_domain_names="$internalDomains"
+[[ -z ${PKI_internal_subnets} ]] && PKI_internal_subnets="$internalSubnets"
+[[ -z ${PKI_san_ip_addresses} ]] && PKI_san_ip_addresses="$ipaddresses"
+[[ -z ${PKI_san_dns_names} ]] && PKI_san_dns_names="$extraServerNames"
+# --- and the seven merges, where two old keys held one answer ----------------
+#
+# DHCP_enabled: dodhcp was Y/N and bldhcp was 1/0, both written from the same
+# prompt. Seeded from bldhcp because every DECISION read that one; dodhcp was
+# read only by the prompt loop that wrote it. So the 1/0 encoding survives and
+# no value has to be translated.
+[[ -z ${DHCP_enabled} ]] && DHCP_enabled="$bldhcp"
+#
+# DHCP_router: routeraddress doubled as a config-file comment -- declining a
+# router stored the literal "#   No router address added" -- which is why
+# plainrouter existed at all, to hold the clean value for display. One key holds
+# the clean value or nothing; the config writers emit the comment. Prefer
+# plainrouter, and fall back to routeraddress only when it is a real address.
+if [[ -z ${DHCP_router} ]]; then
+    if [[ -n $plainrouter ]]; then
+        DHCP_router="$plainrouter"
+    elif [[ -n $routeraddress && $routeraddress != \#* ]]; then
+        DHCP_router="$routeraddress"
+    fi
+fi
+# DHCP_dns_server_ip had the identical wart with no clean twin, so it is
+# cleaned here rather than merged.
+[[ ${DHCP_dns_server_ip} == \#* ]] && DHCP_dns_server_ip=""
+#
+# The Web CA pair is seeded from FOG's OWN canonical paths, not from the import
+# paths. validateExternalCA() already copies an imported CA into the canonical
+# location, so $sslcapem/$sslcakey are the right values on an external-CA
+# install too -- and --ca-cert/--ca-key/--web-ca-cert/--web-ca-key keep working
+# as run-scoped INPUTS. That is the whole point of the merge: six persisted keys
+# holding three values is what silently discarded anything typed at the prompt
+# whenever the flags were also given.
+[[ -z ${PKI_web_ca_cert} ]] && PKI_web_ca_cert="$sslcapem"
+[[ -z ${PKI_web_ca_key} ]]  && PKI_web_ca_key="$sslcakey"
+#
+# The imported root IS value-carrying, and stays separate from PKI_root_ca_cert:
+# validateExternalCA() feeds it to the chain file only, and conflating it with
+# the root fog-client pins is exactly what the three-zone split exists to
+# prevent. Flag spelling wins over prompt spelling, as it always did.
+[[ -z ${PKI_web_external_root_cert} ]] && PKI_web_external_root_cert="${webExtCARoot:-$extcaroot}"
+#
+# The vhost pair absorbs webCertFile/webKeyFile, which recorded where an
+# externally-managed leaf actually lived. Those win when set: on such a server
+# createSSLCA() had already reassigned $sslpubcert/$sslprivkey to them, but the
+# recorded pair is the one the admin's tooling renews.
+[[ -z ${PKI_web_vhost_cert} ]] && PKI_web_vhost_cert="${webCertFile:-$sslpubcert}"
+[[ -z ${PKI_web_vhost_key} ]]  && PKI_web_vhost_key="${webKeyFile:-$sslprivkey}"
+# --- WEB_url_proto / WEB_https_redirect migration ---------------------------
 #
 # Runs after .fogsettings is sourced and BEFORE the flags below, so the order
 # stays: explicit flag > persisted value > migrated value.
 #
-# $httpproto used to mean three unrelated things at once -- "FOG uses HTTPS for
+# ${WEB_url_proto} used to mean three unrelated things at once -- "FOG uses HTTPS for
 # its own URLs", "redirect HTTP to HTTPS", and "rebuild iPXE with the CA baked
 # in". They are separate keys now. Splitting them needs one guess made once,
 # about existing servers:
 #
-#   An existing httpproto=https is the ONLY evidence its admin ever asked for
-#   -S, so seed httpsRedirect from it. Everybody else gets no redirect, which
+#   An existing WEB_url_proto=https is the ONLY evidence its admin ever asked for
+#   -S, so seed WEB_https_redirect from it. Everybody else gets no redirect,
 #   is the point -- trust in FOG's CA reaches a client when fog-client installs
 #   it there, so on a fresh server a forced redirect breaks exactly the
 #   machines that cannot fix themselves.
 #
-# Guarded on httpsRedirect being unset, so it fires once. After that the key is
+# Guarded on WEB_https_redirect being unset, so it fires once. After that it is
 # persisted and this branch can never re-run -- which matters, because an admin
 # who turns the redirect off must not have it turned back on by the next
-# upgrade re-reading httpproto.
-if [[ -z $httpsRedirect ]]; then
-    [[ $httpproto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
+# upgrade re-reading WEB_url_proto.
+if [[ -z ${WEB_https_redirect} ]]; then
+    [[ ${WEB_url_proto} == https ]] && WEB_https_redirect="yes" || WEB_https_redirect="no"
 fi
 # Safe for everyone: 443 already listens on every install (both web servers
 # emit their :443 vhost in both arms), and no redirect follows from this.
-httpproto="https"
-[[ -z $publicWebCert ]] && publicWebCert="no"
-[[ -z $rebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA="no"
+WEB_url_proto="https"
+[[ -z ${PKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted="no"
+[[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="no"
 
 # --- --install-mode ----------------------------------------------------------
 #
@@ -870,58 +991,63 @@ httpproto="https"
 _applyInstallMode
 
 # evaluation of command line options
-[[ -n $shttpsRedirect ]] && httpsRedirect=$shttpsRedirect
-[[ -n $spublicWebCert ]] && publicWebCert=$spublicWebCert
-[[ -n $srebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA=$srebuildIpxeWithMyCA
-[[ -n $shostname ]] && hostname=$shostname
-[[ ${#sextraServerNames[@]} -gt 0 ]] && extraServerNames="${sextraServerNames[*]}"
-[[ -n $sstartrange ]] && startrange=$sstartrange
-[[ -n $sendrange ]] && endrange=$sendrange
+[[ -n ${sWEB_https_redirect} ]] && WEB_https_redirect=${sWEB_https_redirect}
+[[ -n ${sPKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted=${sPKI_web_cert_publicly_trusted}
+[[ -n ${sBOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca=${sBOOT_rebuild_ipxe_with_my_ca}
+[[ -n ${sNET_hostname} ]] && NET_hostname=${sNET_hostname}
+[[ ${#sextraServerNames[@]} -gt 0 ]] && PKI_san_dns_names="${sPKI_san_dns_names[*]}"
+[[ -n ${sDHCP_range_start} ]] && DHCP_range_start=${sDHCP_range_start}
+[[ -n ${sDHCP_range_end} ]] && DHCP_range_end=${sDHCP_range_end}
 # -s/-e imply "set DHCP up". These were written directly by the handlers, so on
 # an upgrade the .fogsettings sourced above overwrote them (both are managed
 # keys) and the ranges were accepted while DHCP configuration stayed off.
-[[ -n $sdodhcp ]] && dodhcp=$sdodhcp
-[[ -n $sbldhcp ]] && bldhcp=$sbldhcp
-[[ -n $ssslpath ]] && sslpath=$ssslpath
+[[ -n ${sDHCP_enabled} ]] && DHCP_enabled=${sDHCP_enabled}
+[[ -n ${sDHCP_enabled} ]] && DHCP_enabled=${sDHCP_enabled}
+[[ -n ${sPKI_client_cert_dir} ]] && PKI_client_cert_dir=${sPKI_client_cert_dir}
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
 [[ -n $sexternalca ]] && externalca=$sexternalca
-[[ -n $sextcacert ]] && extcacert=$sextcacert
-[[ -n $sextcakey ]] && extcakey=$sextcakey
-[[ -n $sextcaroot ]] && extcaroot=$sextcaroot
-[[ -n $sdocroot ]] && docroot=$sdocroot
-[[ -n $swebrootset ]] && webroot=$swebroot
-[[ -n $sbackupPath ]] && backupPath=$sbackupPath
+[[ -n ${sWEB_docroot} ]] && WEB_docroot=${sWEB_docroot}
+[[ -n ${sWEB_root_set} ]] && WEB_root=${sWEB_root}
+[[ -n ${sDB_backup_path} ]] && DB_backup_path=${sDB_backup_path}
 [[ -n $sexitFail ]] && exitFail=$sexitFail
-[[ -n $snoTftpBuild ]] && noTftpBuild=$snoTftpBuild
-[[ -n $ssecureBootKey ]] && secureBootKey=$ssecureBootKey
-[[ -n $ssecureBootCert ]] && secureBootCert=$ssecureBootCert
-[[ -n $ssecureboot ]] && secureboot=$ssecureboot
-[[ -n $scatrust ]] && catrust=$scatrust
-[[ -n $skernelBackupCount ]] && kernelBackupGenerations=$skernelBackupCount
+[[ -n ${sBOOT_external_tftp_server} ]] && BOOT_external_tftp_server=${sBOOT_external_tftp_server}
+[[ -n ${sPKI_sb_codesign_key} ]] && PKI_sb_codesign_key=${sPKI_sb_codesign_key}
+[[ -n ${sPKI_sb_codesign_cert} ]] && PKI_sb_codesign_cert=${sPKI_sb_codesign_cert}
+[[ -n ${sPKI_sb_enabled} ]] && PKI_sb_enabled=${sPKI_sb_enabled}
+[[ -n ${sBOOT_kernel_backups_kept} ]] && BOOT_kernel_backups_kept=${sBOOT_kernel_backups_kept}
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
 # persisted value. A persisted value does NOT beat the computed default any
 # more: netbootproto is re-derived every run unless netbootProtoForced records
 # that somebody actually passed --netboot-proto. It used to, and that is how a
 # value one run derived went on overriding the keys it was derived from.
-[[ -n $snetbootproto ]] && netbootproto=$snetbootproto
-[[ -n $sbootdelay ]] && bootdelay=$sbootdelay
-[[ -n $swebExtCACert ]] && webExtCACert=$swebExtCACert
-[[ -n $swebExtCAKey ]] && webExtCAKey=$swebExtCAKey
-[[ -n $swebExtCARoot ]] && webExtCARoot=$swebExtCARoot
-[[ -n $ssecureBootMokCert ]] && secureBootMokCert=$ssecureBootMokCert
-[[ -n $ssbNameConstraints ]] && sbNameConstraints=$ssbNameConstraints
+[[ -n ${sBOOT_url_proto} ]] && BOOT_url_proto=${sBOOT_url_proto}
+[[ -n ${sBOOT_dhcp_delay_seconds} ]] && BOOT_dhcp_delay_seconds=${sBOOT_dhcp_delay_seconds}
+# The external-CA IMPORT paths. GH-1120 collapsed six persisted keys
+# (extcacert/extcakey/extcaroot from the prompt, webExtCACert/webExtCAKey/
+# webExtCARoot from --web-ca-*) that only ever held three values -- and that
+# duplication is what silently discarded anything typed at the prompt whenever
+# the flags were also given. Both flag spellings now write one run-scoped input,
+# and the canonical PKI_web_ca_* slots are set by validateExternalCA() once the
+# import has actually been validated.
+[[ -n $sImportWebCACert ]] && importWebCACert=$sImportWebCACert
+[[ -n $sImportWebCAKey ]] && importWebCAKey=$sImportWebCAKey
+[[ -n $sImportWebCARoot ]] && importWebCARoot=$sImportWebCARoot
+[[ -n ${sPKI_sb_ca_cert} ]] && PKI_sb_ca_cert=${sPKI_sb_ca_cert}
 # Repeatable flags REPLACE the persisted list rather than appending to it, the
 # same way --extra-server-name does: an admin re-running with a narrower set
 # means that set, and appending would make a value impossible to remove
 # without hand-editing .fogsettings.
-[[ -n $sinternalDomains ]] && internalDomains=$sinternalDomains
-[[ -n $sinternalSubnets ]] && internalSubnets=$sinternalSubnets
+[[ -n ${sPKI_allowed_domain_names} ]] && PKI_allowed_domain_names=${sPKI_allowed_domain_names}
+[[ -n ${sPKI_internal_subnets} ]] && PKI_internal_subnets=${sPKI_internal_subnets}
 # Supplying any web-zone CA file implies --external-ca, the same way supplying
 # --ca-cert always has. Saves an admin from the "I gave you the files and
 # nothing happened" failure, which produces a working install with the wrong
 # CA and no error to explain it.
-[[ -n $webExtCACert || -n $webExtCAKey || -n $webExtCARoot ]] && externalca="yes"
+# Derived, never persisted (GH-1120 retired the key). It has to test the IMPORT
+# inputs: PKI_web_ca_cert names FOG own Web CA on every ordinary install, so
+# testing that would declare every install an external-CA install.
+[[ -n $importWebCACert || -n $importWebCAKey || -n $importWebCARoot ]] && externalca="yes"
 # Deliberately NOT persisted to .fogsettings: this is a one-shot instruction
 # for a single run (revertUpdate passes it), not a preference. Persisting it
 # would make every later update silently roll the kernels back.
@@ -932,16 +1058,16 @@ restoreKernelBackup=${srestoreKernelBackup:-0}
 # a pair rather than silently leaving kernels unsigned on a server whose admin
 # believes they are signed -- that failure only shows up at a client, as a
 # Security Policy Violation with nothing on the server to explain it.
-if [[ -n $secureBootKey || -n $secureBootCert ]]; then
-    if [[ -z $secureBootKey || -z $secureBootCert ]]; then
+if [[ -n ${PKI_sb_codesign_key} || -n ${PKI_sb_codesign_cert} ]]; then
+    if [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]]; then
         echo " * --secure-boot-key and --secure-boot-cert must be set together"
         exit 9
     fi
-    for sbfile in "$secureBootKey" "$secureBootCert"; do
+    for sbfile in "${PKI_sb_codesign_key}" "${PKI_sb_codesign_cert}"; do
         if [[ ! -r $sbfile ]]; then
-            # $secureBootKey/$secureBootCert may be this run's
+            # ${PKI_sb_codesign_key}/${PKI_sb_codesign_cert} may be this run's
             # --secure-boot-key/--secure-boot-cert (staged in
-            # $ssecureBootKey/$ssecureBootCert below), or they may only be
+            # ${sPKI_sb_codesign_key}/${sPKI_sb_codesign_cert} below), or they may only be
             # non-empty because .fogsettings recorded a previous run's pair
             # (see writeUpdateFile) -- the two are otherwise indistinguishable
             # once sourced. Only the first is a mistake worth refusing the
@@ -949,16 +1075,16 @@ if [[ -n $secureBootKey || -n $secureBootCert ]]; then
             # to force a fresh key, and should fall through to
             # _ensureSecureBootKeys() regenerating one, not exit 9 before that
             # function ever runs.
-            if [[ -n $ssecureBootKey || -n $ssecureBootCert ]]; then
+            if [[ -n ${sPKI_sb_codesign_key} || -n ${sPKI_sb_codesign_cert} ]]; then
                 echo " * Cannot read Secure Boot signing file: $sbfile"
                 exit 9
             fi
             echo " * The Secure Boot key/certificate recorded in .fogsettings is"
             echo "   missing on disk: $sbfile"
             echo "   Treating it as unset and generating a new one."
-            secureBootKey=""
-            secureBootCert=""
-            secureBootMokCert=""
+            PKI_sb_codesign_key=""
+            PKI_sb_codesign_cert=""
+            PKI_sb_ca_cert=""
             break
         fi
     done
@@ -974,23 +1100,23 @@ preserveSecureBootAdminFiles
 [[ -f $fogpriorconfig ]] && grep -l webroot $fogpriorconfig >>$error_log 2>&1
 case $? in
     0)
-        if [[ -n $webroot ]]; then
-            webroot=${webroot#'/'}
-            webroot=${webroot%'/'}
-            [[ -z $webroot ]] && webroot="/" || webroot="/${webroot}/"
+        if [[ -n ${WEB_root} ]]; then
+            WEB_root=${WEB_root#'/'}
+            WEB_root=${WEB_root%'/'}
+            [[ -z ${WEB_root} ]] && WEB_root="/" || WEB_root="/${WEB_root}/"
         fi
         ;;
     *)
-        [[ -z $webroot ]] && webroot="/fog/"
+        [[ -z ${WEB_root} ]] && WEB_root="/fog/"
         ;;
 esac
-if [[ -z $backupPath ]]; then
-    backupPath="/home/"
-    backupPath="${backupPath%'/'}"
-    backupPath="${backupPath#'/'}"
-    backupPath="/$backupPath/"
+if [[ -z ${DB_backup_path} ]]; then
+    DB_backup_path="/home/"
+    DB_backup_path="${DB_backup_path%'/'}"
+    DB_backup_path="${DB_backup_path#'/'}"
+    DB_backup_path="/${DB_backup_path}/"
 fi
-[[ -n $smysqldbname ]] && mysqldbname=$smysqldbname
+[[ -n ${sDB_name} ]] && DB_name=${sDB_name}
 # --uninstall runs here: late enough that .fogsettings and the distro config
 # have been read (both are needed to know what to remove -- docroot, storage
 # location, service list, config paths), but before input.sh, which would
@@ -999,16 +1125,16 @@ if [[ $douninstall -eq 1 ]]; then
     # Normally both are already loaded by the upgrade path above. They are not
     # if -U/--no-upgrade was also given, so load them here rather than
     # uninstalling with half the paths unset.
-    if [[ -z $osid ]]; then
+    if [[ -z ${FOG_os_id} ]]; then
         [[ -f $fogprogramdir/.fogsettings ]] && . "$fogprogramdir/.fogsettings"
-        [[ -n $osid ]] && doOSSpecificIncludes >/dev/null
+        [[ -n ${FOG_os_id} ]] && doOSSpecificIncludes >/dev/null
     fi
     uninstallFOG
 fi
-[[ ! $doupdate -eq 1 || ! $fogupdateloaded -eq 1 ]] && . ../lib/common/input.sh
+[[ ! $doupdate -eq 1 || ! ${FOG_installed} -eq 1 ]] && . ../lib/common/input.sh
 # ask user input for newly added options like hostname etc.
 . ../lib/common/newinput.sh
-# GH-954: after BOTH paths that can set $ipaddress -- fresh detection in
+# GH-954: after BOTH paths that can set ${NET_fog_server_ip} -- fresh detection in
 # input.sh, and .fogsettings sourced earlier on an upgrade. An install written
 # by an older installer has the multi-line value persisted, so normalizing only
 # at detection would leave every upgrade carrying the broken form forward.
@@ -1031,18 +1157,18 @@ echo "   #             https://wiki.fogproject.org/wiki/index.php             #"
 echo "   ######################################################################"
 echo
 echo " * Here are the settings FOG will use:"
-echo " * Base Linux: $osname"
+echo " * Base Linux: ${FOG_os_name}"
 echo " * Detected Linux Distribution: $linuxReleaseName"
-echo " * Interface: $interface"
-echo " * Server IP Address: $ipaddress"
-echo " * Server Subnet Mask: $submask"
-echo " * Hostname: $hostname"
+echo " * Interface: ${NET_interface}"
+echo " * Server IP Address: ${NET_fog_server_ip}"
+echo " * Server Subnet Mask: ${NET_subnet_mask}"
+echo " * Hostname: ${NET_hostname}"
 echo
-case $installtype in
+case ${FOG_install_type} in
     N)
         echo " * Installation Type: Normal Server"
         echo -n " * Internationalization: "
-        case $installlang in
+        case ${FOG_install_lang} in
             1)
                 echo "Yes"
                 ;;
@@ -1050,11 +1176,11 @@ case $installtype in
                 echo "No"
                 ;;
         esac
-        echo " * Image Storage Location: $storageLocation"
-        case $bldhcp in
+        echo " * Image Storage Location: ${STORAGE_image_share_path}"
+        case ${DHCP_enabled} in
             1)
                 echo " * Using FOG DHCP: Yes"
-                echo " * DHCP router Address: $plainrouter"
+                echo " * DHCP router Address: ${DHCP_router}"
                 ;;
             *)
                 echo " * Using FOG DHCP: No"
@@ -1065,20 +1191,20 @@ case $installtype in
                 echo
                 echo " * On a Windows DHCP server you must set options 066 and 067"
                 echo
-                echo " * Option 066/next-server is the IP of the FOG Server: (e.g. $ipaddress)"
+                echo " * Option 066/next-server is the IP of the FOG Server: (e.g. ${NET_fog_server_ip})"
                 echo " * Option 067/filename is the bootfile: (e.g. undionly.kkpxe or snponly.efi)"
                 ;;
         esac
         ;;
     S)
         echo " * Installation Type: Storage Node"
-        echo " * Node IP Address: $ipaddress"
-        echo " * MySQL Database Host: $snmysqlhost"
-        echo " * MySQL Database User: $snmysqluser"
+        echo " * Node IP Address: ${NET_fog_server_ip}"
+        echo " * MySQL Database Host: ${DB_host}"
+        echo " * MySQL Database User: ${DB_user}"
         ;;
 esac
 echo -n " * Send OS Name, OS Version, and FOG Version: "
-case $sendreports in
+case ${FOG_send_reports} in
     Y)
         echo "Yes"
         ;;
@@ -1088,11 +1214,11 @@ case $sendreports in
 esac
 # Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
 # it resolved rather than only what was passed.
-echo " * Web protocol: $httpproto"
-echo " * Netboot (PXE) protocol: ${netbootproto:-http (resolved during install)}"
-echo -n " * Force HTTP->HTTPS redirect: "; [[ $httpsRedirect == yes ]] && echo "Yes" || echo "No"
-echo -n " * Web certificate chains to a public root: "; [[ $publicWebCert == yes ]] && echo "Yes" || echo "No"
-echo -n " * Rebuild iPXE with your CA: "; [[ $rebuildIpxeWithMyCA == yes ]] && echo "Yes (adds 10-25 min)" || echo "No"
+echo " * Web protocol: ${WEB_url_proto}"
+echo " * Netboot (PXE) protocol: ${BOOT_url_proto:-http (resolved during install)}"
+echo -n " * Force HTTP->HTTPS redirect: "; [[ ${WEB_https_redirect} == yes ]] && echo "Yes" || echo "No"
+echo -n " * Web certificate chains to a public root: "; [[ ${PKI_web_cert_publicly_trusted} == yes ]] && echo "Yes" || echo "No"
+echo -n " * Rebuild iPXE with your CA: "; [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]] && echo "Yes (adds 10-25 min)" || echo "No"
 echo
 promptInstallMode
 while [[ -z $blGo ]]; do
@@ -1110,21 +1236,21 @@ while [[ -z $blGo ]]; do
             checkInternetConnection
             if [[ $ignorehtmldoc -eq 1 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
-                for z in $packages; do
+                for z in ${FOG_packages}; do
                     [[ $z != htmldoc ]] && newpackagelist="$newpackagelist $z"
                 done
-                packages="$(echo $newpackagelist)"
+                FOG_packages="$(echo $newpackagelist)"
             fi
-            if [[ $bldhcp == 0 ]]; then
+            if [[ ${DHCP_enabled} == 0 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
-                for z in $packages; do
+                for z in ${FOG_packages}; do
                     [[ $z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
                 done
-                packages="$(echo $newpackagelist)"
+                FOG_packages="$(echo $newpackagelist)"
             fi
-            case $installtype in
+            case ${FOG_install_type} in
                 [Ss])
-                    packages=$(echo $packages | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g')
+                    FOG_packages=$(echo ${FOG_packages} | sed -e 's/[-a-zA-Z]*dhcp[-a-zA-Z]*//g')
                     ;;
             esac
             installPackages
@@ -1135,20 +1261,20 @@ while [[ -z $blGo ]]; do
             echo
             echo " * Configuring services"
             echo
-            if [[ -z $storageLocation ]]; then
+            if [[ -z ${STORAGE_image_share_path} ]]; then
                 case $autoaccept in
                     [Yy]|[Yy][Ee][Ss])
-                        storageLocation="/images"
+                        STORAGE_image_share_path="/images"
                         ;;
                     *)
                         echo
                         echo -n " * What is the storage location for your images directory? (/images) "
                         read storageLocation
-                        [[ -z $storageLocation ]] && storageLocation="/images"
-                        while [[ ! -d $storageLocation && $storageLocation != "/images" ]]; do
+                        [[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="/images"
+                        while [[ ! -d ${STORAGE_image_share_path} && ${STORAGE_image_share_path} != "/images" ]]; do
                             echo -n " * Please enter a valid directory for your storage location (/images) "
                             read storageLocation
-                            [[ -z $storageLocation ]] && storageLocation="/images"
+                            [[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="/images"
                         done
                         ;;
                 esac
@@ -1158,7 +1284,7 @@ while [[ -z $blGo ]]; do
             # get this too -- configureMinHttpd still runs as httpd_t and still
             # has to reach the master over HTTP.
             installSELinuxModule
-            case $installtype in
+            case ${FOG_install_type} in
                 [Ss])
                     checkDatabaseConnection
                     backupReports
@@ -1203,7 +1329,7 @@ while [[ -z $blGo ]]; do
                         # After it, not before: on a node the anchor is pulled
                         # out of the chain that call is what fetches.
                         _installCATrustAnchor
-                        [[ -n $snmysqlhost ]] && fogserver=$snmysqlhost || fogserver="fog-server"
+                        [[ -n ${DB_host} ]] && fogserver=${DB_host} || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
                         echo
@@ -1213,13 +1339,13 @@ while [[ -z $blGo ]]; do
                         echo " | below."
                         echo
                         echo " * Management Server URL:"
-                        echo "   ${httpproto}://${fogserver}${webroot}"
+                        echo "   ${WEB_url_proto}://${fogserver}${WEB_root}"
                         echo
                         echo "   You will need this, write this down!"
-                        echo "   IP Address:          $ipaddress"
-                        echo "   Interface:           $interface"
-                        echo "   Management Username: $username"
-                        echo "   Management Password: $password"
+                        echo "   IP Address:          ${NET_fog_server_ip}"
+                        echo "   Interface:           ${NET_interface}"
+                        echo "   Management Username: ${SVC_user}"
+                        echo "   Management Password: ${SVC_password}"
                         echo
                     fi
                     ;;
@@ -1325,7 +1451,7 @@ while [[ -z $blGo ]]; do
                     _installNodeCertSigner
                     # Anchors the root the two calls above have just finished
                     # settling, so this host's own curl/wget/PHP can verify
-                    # this host. Reads only $rootCAPem -- no key -- so it is
+                    # this host. Reads only ${PKI_root_ca_cert} -- no key -- so it is
                     # deliberately on the far side of _hardenPkiPermissions.
                     _installCATrustAnchor
                     configureUDPCast
@@ -1364,7 +1490,7 @@ while [[ -z $blGo ]]; do
                     echo
                     echo "   This can be done by opening a web browser and going to:"
                     echo
-                    echo "   ${httpproto}://${ipaddress}${webroot}management"
+                    echo "   ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}management"
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"

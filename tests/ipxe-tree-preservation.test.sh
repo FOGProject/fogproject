@@ -128,7 +128,7 @@ fi
 
 # --- the rebuild stamp -------------------------------------------------------
 needs() {
-    rebuildIpxeWithMyCA="$1"; ipxeVer="$2"; sslcachain="$3"; sslcapem="$3"
+    BOOT_rebuild_ipxe_with_my_ca="$1"; ipxeVer="$2"; PKI_web_trust_chain="$3"; PKI_web_ca_cert="$3"
     if _needsLocalIpxeBuild; then
         printf '%s' "$(_ipxeBuildStampValue)" > "${tftpdirdst}/.fog-ipxe-build"
         echo "rebuild"

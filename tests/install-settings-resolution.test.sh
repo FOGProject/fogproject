@@ -4,7 +4,7 @@
 #
 #   tests/install-settings-resolution.test.sh
 #
-# $httpproto used to mean three unrelated things at once: "FOG uses HTTPS for
+# ${WEB_url_proto} used to mean three unrelated things at once: "FOG uses HTTPS for
 # its own URLs", "redirect HTTP to HTTPS", and "rebuild iPXE with the CA baked
 # in". Splitting them into httpsRedirect / publicWebCert / rebuildIpxeWithMyCA
 # is only safe if two properties hold, and neither is visible by reading the
@@ -13,7 +13,7 @@
 #   1. An existing server does not silently acquire a redirect, or silently
 #      lose netboot, when httpproto moves to https for everyone.
 #   2. The migration that seeds httpsRedirect from a pre-existing
-#      httpproto=https fires ONCE. If it re-fires, an admin who turns the
+#      WEB_url_proto=https fires ONCE. If it re-fires, an admin who turns the
 #      redirect off has it turned back on by the next upgrade -- and because
 #      HSTS rides on the same key, "turned back on" reaches browsers that then
 #      refuse plain HTTP for six months from their own cache.
@@ -49,16 +49,16 @@ error_log=/dev/null
 # --- the migration, replayed exactly as bin/installfog.sh performs it --------
 # persisted_httpproto / persisted_redirect stand in for .fogsettings.
 migrate() {
-    httpproto=""; httpsRedirect=""; publicWebCert=""; rebuildIpxeWithMyCA=""; netbootproto=""
-    [[ -z $httpproto ]] && httpproto="http"            # pre-source default
-    [[ -n $1 ]] && httpproto="$1"                       # .fogsettings
-    [[ -n $2 ]] && httpsRedirect="$2"
-    if [[ -z $httpsRedirect ]]; then
-        [[ $httpproto == https ]] && httpsRedirect="yes" || httpsRedirect="no"
+    WEB_url_proto=""; WEB_https_redirect=""; PKI_web_cert_publicly_trusted=""; BOOT_rebuild_ipxe_with_my_ca=""; BOOT_url_proto=""
+    [[ -z ${WEB_url_proto} ]] && WEB_url_proto="http"            # pre-source default
+    [[ -n $1 ]] && WEB_url_proto="$1"                       # .fogsettings
+    [[ -n $2 ]] && WEB_https_redirect="$2"
+    if [[ -z ${WEB_https_redirect} ]]; then
+        [[ ${WEB_url_proto} == https ]] && WEB_https_redirect="yes" || WEB_https_redirect="no"
     fi
-    httpproto="https"
-    [[ -z $publicWebCert ]] && publicWebCert="no"
-    [[ -z $rebuildIpxeWithMyCA ]] && rebuildIpxeWithMyCA="no"
+    WEB_url_proto="https"
+    [[ -z ${PKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted="no"
+    [[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="no"
 }
 
 echo "install settings resolution:"
@@ -69,42 +69,42 @@ echo "install settings resolution:"
 # fog-client yet, so no machine has inherited trust in FOG's CA, and a forced
 # redirect would break exactly the ones that cannot fix themselves.
 migrate "" ""
-is "$httpproto|$httpsRedirect" "https|no" "fresh install: https, no redirect"
+is "${WEB_url_proto}|${WEB_https_redirect}" "https|no" "fresh install: https, no redirect"
 
 # The case that must not regress: an existing plain-HTTP server. It gains HTTPS
 # availability (443 already listened) and must not gain a redirect.
 migrate "http" ""
-is "$httpproto|$httpsRedirect" "https|no" "upgrade from http: https, still no redirect"
+is "${WEB_url_proto}|${WEB_https_redirect}" "https|no" "upgrade from http: https, still no redirect"
 
-# An existing httpproto=https is the only evidence its admin ever ran -S.
+# An existing WEB_url_proto=https is the only evidence its admin ever ran -S.
 migrate "https" ""
-is "$httpproto|$httpsRedirect" "https|yes" "upgrade from https: redirect seeded once"
+is "${WEB_url_proto}|${WEB_https_redirect}" "https|yes" "upgrade from https: redirect seeded once"
 
 # ...and having been seeded, it is persisted, so the seeding must never run
 # again. An admin who turns it off keeps it off.
 migrate "https" "no"
-is "$httpsRedirect" "no" "third run: an admin's 'no' survives, seeding does not re-fire"
+is "${WEB_https_redirect}" "no" "third run: an admin's 'no' survives, seeding does not re-fire"
 
 migrate "https" "yes"
-is "$httpsRedirect" "yes" "third run: an admin's 'yes' survives"
+is "${WEB_https_redirect}" "yes" "third run: an admin's 'yes' survives"
 
 # --- the four modes ----------------------------------------------------------
 mode() { sinstallMode="$1"; _applyInstallMode; }
 
 mode standard
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "${WEB_url_proto}|${BOOT_url_proto}|${PKI_web_cert_publicly_trusted}|${BOOT_rebuild_ipxe_with_my_ca}" \
    "https|http|no|no" "standard: HTTPS web, HTTP netboot, no rebuild"
 
 mode http-only
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "${WEB_url_proto}|${BOOT_url_proto}|${PKI_web_cert_publicly_trusted}|${BOOT_rebuild_ipxe_with_my_ca}" \
    "http|http|no|no" "http-only: plain HTTP throughout"
 
 mode public-cert
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "${WEB_url_proto}|${BOOT_url_proto}|${PKI_web_cert_publicly_trusted}|${BOOT_rebuild_ipxe_with_my_ca}" \
    "https|https|yes|no" "public-cert: HTTPS netboot with NO rebuild"
 
 mode embed-ca
-is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
+is "${WEB_url_proto}|${BOOT_url_proto}|${PKI_web_cert_publicly_trusted}|${BOOT_rebuild_ipxe_with_my_ca}" \
    "https|https|no|yes" "embed-ca: HTTPS netboot via a rebuild"
 
 # --- netboot transport -------------------------------------------------------
@@ -116,10 +116,10 @@ is "$httpproto|$netbootproto|$publicWebCert|$rebuildIpxeWithMyCA" \
 # persisted, and was then indistinguishable from one an admin forced. Modelling
 # them as one thing is how a test can pass while the behaviour is wrong.
 nb() {
-    publicWebCert="$1"; rebuildIpxeWithMyCA="$2"
-    snetbootproto="$3"; netbootproto="$4"; netbootProtoForced="$5"
+    PKI_web_cert_publicly_trusted="$1"; BOOT_rebuild_ipxe_with_my_ca="$2"
+    sBOOT_url_proto="$3"; BOOT_url_proto="$4"; BOOT_url_proto_forced="$5"
     _resolveNetbootProto
-    printf '%s' "$netbootproto"
+    printf '%s' "${BOOT_url_proto}"
 }
 
 is "$(nb no no '')"   "http"  "netboot defaults to http"
@@ -133,7 +133,7 @@ is "$(nb no no https)"  "https" "explicit --netboot-proto https wins"
 is "$(nb yes no http)"  "http"  "explicit --netboot-proto http wins over publicWebCert"
 
 # The reported regression. A run with neither trigger resolves http and persists
-# it; the admin then declares publicWebCert="yes" and re-runs. The persisted
+# it; the admin then declares PKI_web_cert_publicly_trusted="yes" and re-runs. The persisted
 # value must NOT survive that -- it was derived from the very key that changed.
 is "$(nb yes no '' http '')"   "https" "a persisted derived http is re-derived when publicWebCert appears"
 is "$(nb no yes '' http '')"   "https" "...and when rebuildIpxeWithMyCA appears"
@@ -141,20 +141,24 @@ is "$(nb no no '' https '')"   "http"  "a persisted derived https is re-derived 
 
 # ...but a value the admin actually forced does survive, which is the whole
 # reason the marker exists rather than the persisted value simply being ignored.
-is "$(nb yes no '' http yes)"  "http"  "a FORCED http survives publicWebCert=yes"
+is "$(nb yes no '' http yes)"  "http"  "a FORCED http survives PKI_web_cert_publicly_trusted=yes"
 is "$(nb no no '' https yes)"  "https" "a FORCED https survives with neither trigger set"
 
-# The old resolver keyed on $caCreated, a PERSISTED key that is "yes" on every
-# re-run of an existing server. With httpproto now https for everyone, that
-# would have resolved netbootproto=https on every upgraded install in
+# The old resolver keyed on $caCreated, a PERSISTED key that was "yes" on every
+# re-run of an existing server. With WEB_url_proto now https for everyone, that
+# would have resolved BOOT_url_proto=https on every upgraded install in
 # existence -- the one configuration that cannot work behind a private CA.
+#
+# GH-1120 retired $caCreated outright and made $externalca run-scoped. Both are
+# still set here on purpose: the case is that NEITHER can reach the resolver, and
+# it keeps failing if one is ever wired back in.
 caCreated="yes"; externalca="yes"
 is "$(nb no no '')" "http" "a pre-existing CA does NOT drag netboot onto https"
 caCreated=""; externalca=""
 
 # --- warnings ----------------------------------------------------------------
 report() {
-    netbootproto="$1"; publicWebCert="$2"; rebuildIpxeWithMyCA="$3"; httpproto=https
+    BOOT_url_proto="$1"; PKI_web_cert_publicly_trusted="$2"; BOOT_rebuild_ipxe_with_my_ca="$3"; WEB_url_proto=https
     _reportNetbootProto 2>&1
 }
 
@@ -179,16 +183,102 @@ else
     bad "publicWebCert https netboot printed a warning it should not"
 fi
 
-# --- persistence -------------------------------------------------------------
-# Every key this change introduces has to survive a round trip through
-# .fogsettings, or the migration re-fires and the admin's choice is lost.
-for key in httpsRedirect publicWebCert rebuildIpxeWithMyCA netbootproto; do
-    if grep -qE "^[[:space:]]*.*\b${key}\b" <(sed -n '/local -a managedKeys=(/,/^    )/p' "$FUNCS"); then
+# --- persistence and the GH-1120 key model -----------------------------------
+# Every key has to survive a round trip through .fogsettings, or the migration
+# re-fires and the admin's choice is lost.
+#
+# Both arrays are read out of the real source rather than restated here, and
+# COMMENTS ARE STRIPPED FIRST: the arrays carry a lot of explanatory prose that
+# names keys, so a grep over the raw block passes for a key that is only
+# MENTIONED in a comment -- exactly the failure this is meant to catch.
+arrayKeys() {
+    sed -n "/local -a $1=(/,/^    )/p" "$FUNCS" \
+        | sed -e 's/#.*$//' -e "s/local -a $1=(//" -e 's/)//' \
+        | tr -s ' \n' '\n\n' | grep -vE '^$'
+}
+managed="$(arrayKeys managedKeys)"
+deprecated="$(arrayKeys deprecatedKeys)"
+inlist() { printf '%s\n' "$2" | grep -qxF "$1"; }
+
+# The four ADR 0015 keys, under their GH-1120 names.
+for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
+           BOOT_rebuild_ipxe_with_my_ca BOOT_url_proto; do
+    if inlist "$key" "$managed"; then
         ok "${key} is a managed key"
     else
         bad "${key} is NOT in managedKeys -- it will not survive an upgrade"
     fi
 done
+
+# All 66 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# this array turns a hand-set key into a managed one, and the admin's value
+# starts being overwritten. That is a behaviour change even though it looks
+# like documentation, so the count is asserted as well as the membership.
+modelKeys="
+    BOOT_dhcp_delay_seconds BOOT_external_tftp_server BOOT_kernel_backups_kept BOOT_rebuild_ipxe_with_my_ca
+    BOOT_tftp_options BOOT_url_proto BOOT_url_proto_forced DB_backup_path
+    DB_external DB_host DB_name DB_password
+    DB_user DHCP_dns_server_ip DHCP_enabled DHCP_engine
+    DHCP_range_end DHCP_range_start DHCP_router DHCP_service_name
+    FOG_copy_back_old FOG_git_path FOG_install_lang FOG_install_type
+    FOG_installed FOG_os_id FOG_os_name FOG_packages
+    FOG_program_dir FOG_send_reports FOG_update_channel NET_fog_server_ip
+    NET_hostname NET_interface NET_subnet_mask PKI_allowed_domain_names
+    PKI_client_cert_dir PKI_client_encrypt_cert PKI_client_encrypt_key PKI_internal_subnets
+    PKI_root_ca_cert PKI_root_ca_key PKI_san_dns_names PKI_san_ip_addresses
+    PKI_sb_ca_cert PKI_sb_codesign_cert PKI_sb_codesign_key PKI_sb_enabled
+    PKI_web_ca_cert PKI_web_ca_key PKI_web_cert_publicly_trusted PKI_web_external_root_cert
+    PKI_web_trust_chain PKI_web_vhost_cert PKI_web_vhost_key STORAGE_image_share_path
+    STORAGE_rebuild_nfs_exports SVC_firewall_control SVC_password SVC_user
+    WEB_docroot WEB_https_redirect WEB_php_version WEB_root
+    WEB_server_engine WEB_url_proto"
+missing=""
+for key in $modelKeys; do
+    inlist "$key" "$managed" || missing="$missing $key"
+done
+is "$missing" "" "every key of the GH-1120 model is in managedKeys"
+is "$(printf '%s\n' $modelKeys | wc -l)" "$(printf '%s\n' $managed | wc -l)" \
+   "managedKeys holds exactly the model keys and nothing else"
+
+# All 79 pre-GH-1120 spellings are stripped on upgrade. Without this an upgraded
+# server keeps a line describing a layout the installer no longer implements --
+# and because .fogsettings is SOURCED, a stale line is a live shell variable
+# that later code may still read.
+legacyKeys="
+    acmeLeaf backupPath bldhcp blexports
+    bootdelay caCreated catrust copybackold
+    dhcpd dhcpengine dnsaddress docroot
+    dodhcp endrange extcacert extcakey
+    extcaroot externalca extraServerNames fog_git_path
+    fog_update_channel fogprogramdir fogupdateloaded fwconfigure
+    hostname httpproto httpsRedirect installlang
+    installtype interface internalDomains internalSubnets
+    ipaddress ipaddresses kernelBackupGenerations mysqldbname
+    netbootProtoForced netbootproto noTftpBuild osid
+    osname packages password php_ver
+    plainrouter publicWebCert rebuildIpxeWithMyCA rootCAKey
+    rootCAPem routeraddress sbNameConstraints secureBootCert
+    secureBootKey secureBootMokCert secureboot sendreports
+    snmysqlexternal snmysqlhost snmysqlpass snmysqluser
+    sslcachain sslcakey sslcapem sslcsr
+    sslpath sslprivkey sslpubcert startrange
+    storageLocation submask tftpAdvOpts username
+    webCertFile webExtCACert webExtCAKey webExtCARoot
+    webKeyFile webroot webserver"
+unstripped=""
+for key in $legacyKeys; do
+    inlist "$key" "$deprecated" || unstripped="$unstripped $key"
+done
+is "$unstripped" "" "every pre-GH-1120 key is in deprecatedKeys"
+
+# No key may be in both. The awk merge tests DEP before MAP, so a key in both
+# would be stripped from the position it occupies and then re-appended at the
+# end -- silently reordering the file on every run.
+both=""
+for key in $managed; do
+    inlist "$key" "$deprecated" && both="$both $key"
+done
+is "$both" "" "no key is both managed and deprecated"
 
 # --- flag surface ------------------------------------------------------------
 for opt in install-mode public-web-cert rebuild-ipxe-with-my-ca https-redirect netboot-proto; do

@@ -207,9 +207,9 @@ fi
 # rather than re-detected, since only doOSSpecificIncludes' per-distro
 # config.sh actually needs it here.
 . "$fogprogramdir/.fogsettings"
-linuxReleaseName_lower="${osname,,}"
+linuxReleaseName_lower="${FOG_os_name,,}"
 . ../lib/common/config.sh
-[[ -n $osid ]] && doOSSpecificIncludes >/dev/null
+[[ -n ${FOG_os_id} ]] && doOSSpecificIncludes >/dev/null
 . ../lib/common/update.sh
 
 # writeUpdateFile() (functions.sh) refreshes the "## Version:" comment line in
@@ -217,7 +217,7 @@ linuxReleaseName_lower="${osname,,}"
 # its own top, but updatefog.sh never sources that far into it.
 [[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
 
-[[ -n $sgitpath ]] && fog_git_path="$sgitpath"
+[[ -n $sgitpath ]] && FOG_git_path="$sgitpath"
 
 if [[ -n $sbranch ]]; then
     # --branch is a one-off deviation for testing, not a channel switch -- it
@@ -225,20 +225,20 @@ if [[ -n $sbranch ]]; then
     # --branch goes right back to tracking whatever channel was configured.
     branch="$sbranch"
     echo " * FOG Update"
-    echo "   Git path: $fog_git_path"
+    echo "   Git path: ${FOG_git_path}"
     echo "   Branch:   $branch (custom -- not a tracked channel)"
     echo
 else
-    [[ -n $schannel ]] && fog_update_channel="$schannel"
+    [[ -n $schannel ]] && FOG_update_channel="$schannel"
 
-    if [[ -z $fog_update_channel ]]; then
+    if [[ -z ${FOG_update_channel} ]]; then
         echo " * No update channel configured for this server, and none given via --channel."
         echo " * Pass --channel stable|staging|dev, or --branch for a one-off checkout."
         exit 1
     fi
 
-    branch=$(channelToBranch "$fog_update_channel") || {
-        echo " * Unknown update channel: $fog_update_channel (expected stable, staging, or dev)"
+    branch=$(channelToBranch "${FOG_update_channel}") || {
+        echo " * Unknown update channel: ${FOG_update_channel} (expected stable, staging, or dev)"
         exit 1
     }
 
@@ -251,8 +251,8 @@ else
     writeUpdateFile
 
     echo " * FOG Update"
-    echo "   Git path: $fog_git_path"
-    echo "   Channel:  $fog_update_channel ($branch)"
+    echo "   Git path: ${FOG_git_path}"
+    echo "   Channel:  ${FOG_update_channel} ($branch)"
     echo
 fi
 
@@ -281,7 +281,7 @@ extraServerNameArgs=()
 for extraname in "${supdateExtraServerNames[@]}"; do
     extraServerNameArgs+=(--extra-server-name "$extraname")
 done
-(cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag ${supdatehostname:+--hostname "$supdatehostname"} "${extraServerNameArgs[@]}" >>$error_log 2>&1)
+(cd "${FOG_git_path}/bin" && bash installfog.sh -Y $updateVhostFlag ${supdatehostname:+--hostname "$supdatehostname"} "${extraServerNameArgs[@]}" >>$error_log 2>&1)
 installStatus=$?
 cd "$workingdir"
 

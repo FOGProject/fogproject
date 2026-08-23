@@ -4,7 +4,7 @@
 #
 #   tests/vhost-netboot-exclusion.test.sh
 #
-# When $httpproto is https and $netbootproto is http, the :80 vhost redirects
+# When ${WEB_url_proto} is https and ${BOOT_url_proto} is http, the :80 vhost redirects
 # everything to HTTPS -- except the paths iPXE itself fetches, because iPXE
 # validates TLS strictly, has no --insecure, and cannot chain a private CA. A
 # path that falls through to the redirect does not fail visibly on the server;
@@ -68,7 +68,7 @@ echo "vhost netboot exclusion:"
 want 2 'for nbdir in ipxe secureboot; do' \
     "both web servers iterate the same netboot-reachable directory set"
 
-want 1 'location ^~ ${webroot}service/${nbdir}/ {' \
+want 1 'location ^~ ${WEB_root}service/${nbdir}/ {' \
     "nginx excludes each netboot directory with a prefix location"
 
 want 1 'RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/' \
@@ -77,7 +77,7 @@ want 1 'RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/' \
 # `^~` specifically: a plain prefix location loses to a regex location, and
 # service/ipxe/ has to beat `location /`. Without it the exclusion parses fine
 # and does nothing.
-if grep -qF 'location ^~ ${webroot}service/${nbdir}/ {' "$FUNCS"; then
+if grep -qF 'location ^~ ${WEB_root}service/${nbdir}/ {' "$FUNCS"; then
     ok "nginx uses ^~, which is what beats location /"
 else
     bad "nginx netboot location is not ^~ -- it will lose to location /"
@@ -86,7 +86,7 @@ fi
 # 2. The CA download, in both. Deliberately NOT under the netbootproto guard:
 #    the client this serves is one that trusts nothing yet, which has nothing
 #    to do with which transport netboot uses.
-want 1 'location = ${webroot}management/other/ca.cert.der {' \
+want 1 'location = ${WEB_root}management/other/ca.cert.der {' \
     "nginx serves ca.cert.der over plain HTTP"
 
 want 1 'RewriteRule /management/other/ca.cert.der$ - [L]' \
@@ -105,26 +105,26 @@ fi
 # 4. Both exclusion sets stay behind a netbootproto guard, so an install whose
 #    netboot already runs on HTTPS is not given pointless carve-outs.
 #
-#    The guard is `!= https`, not `!= "$httpproto"`. What would catch iPXE is
+#    The guard is `!= https`, not `!= "${WEB_url_proto}"`. What would catch iPXE is
 #    the REDIRECT, and the redirect is its own setting now -- comparing against
 #    httpproto stopped meaning anything once httpproto became https for
 #    everyone regardless of whether a redirect is emitted.
-want 2 'if [[ $netbootproto != https ]]; then' \
+want 2 'if [[ ${BOOT_url_proto} != https ]]; then' \
     "both exclusion sets are guarded on netboot not already being https"
 
 # 5. The redirect itself, and HSTS with it, are gated on httpsRedirect -- not
 #    on httpproto, which is now https on every install.
-want 1 'if [[ $httpsRedirect != yes ]]; then' \
+want 1 'if [[ ${WEB_https_redirect} != yes ]]; then' \
     "nginx serves :80 normally unless the redirect is on"
 
-want 1 'if [[ $httpsRedirect == yes ]]; then' \
+want 1 'if [[ ${WEB_https_redirect} == yes ]]; then' \
     "apache emits its rewrite only when the redirect is on"
 
 # HSTS is the one setting an admin cannot take back: a browser that has seen it
 # refuses plain HTTP to this host for six months from its own cache. It used to
 # be emitted on the :443 server in BOTH arms, including on a plain-HTTP
 # install. It must never be emitted unconditionally again.
-want 2 '[[ $httpsRedirect == yes ]] && \' \
+want 2 '[[ ${WEB_https_redirect} == yes ]] && \' \
     "both HSTS emissions are gated on the redirect"
 
 # Counted rather than pattern-matched against the continuation line: the guard
@@ -136,7 +136,7 @@ want 2 'add_header Strict-Transport-Security max-age=15768000;' \
 # 6. 443 is in the firewall list unconditionally: both web servers emit their
 #    :443 vhost in both arms, so the port is listening on every install.
 if grep -qF 'echo "443/tcp HTTPS (web UI, client check-in)"' "$FUNCS" && \
-   ! grep -qF '[[ $httpproto == https ]] && echo "443/tcp' "$FUNCS"; then
+   ! grep -qF '[[ ${WEB_url_proto} == https ]] && echo "443/tcp' "$FUNCS"; then
     ok "443/tcp is advertised on every install, not only under https"
 else
     bad "443/tcp is still gated on httpproto"

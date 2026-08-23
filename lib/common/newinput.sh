@@ -14,7 +14,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-while [[ -z $hostname ]]; do
+while [[ -z ${NET_hostname} ]]; do
     strSuggestedHostname=$(hostname -f)
     blHost="N"
     if [[ -z $autoaccept ]]; then
@@ -22,13 +22,13 @@ while [[ -z $hostname ]]; do
         echo "  Which hostname would you like to use? Currently is: ${strSuggestedHostname}"
         echo "  Note: This hostname will be in the certificate we generate for your"
         echo "  FOG webserver. The hostname will only be used for this but won't be"
-        echo "  set as a local hostname on your server!"
+        echo "  set as a local NET_hostname on your server!"
         echo -n "  Would you like to change it? If you are not sure, select No. [y/N] "
         read blHost
     fi
     case $blHost in
         [Nn]|[Nn][Oo]|"")
-            hostname=$strSuggestedHostname
+            NET_hostname=$strSuggestedHostname
             ;;
         [Yy]|[Yy][Ee][Ss])
             echo -n "  Which hostname would you like to use? "
@@ -43,16 +43,22 @@ done
 #
 # Asked only where it can still be acted on. These are baked into a CA at the
 # moment it is issued and a CA is never re-issued, so on a server that already
-# has one the answer would be recorded and silently ignored -- $caCreated is
-# the test for that. Skipped under -Y as well: the defaults (this server's own
-# domain, all RFC1918 ranges) are what an unattended install should get.
-if [[ -z $autoaccept && $caCreated != yes && -z $internalDomains && -z $internalSubnets ]]; then
+# has one the answer would be recorded and silently ignored.
+#
+# $caCreated used to be that test. GH-1120 retired it: it was a persisted key
+# standing in for "does the CA exist", and both of its uses already paired it
+# with an -e/-f check on the very file it stood in for. Ask the filesystem
+# instead -- it cannot go stale, and it is right on a server whose .fogsettings
+# was lost. Skipped under -Y as well: the defaults (this server's own domain,
+# all RFC1918 ranges) are what an unattended install should get.
+fogRootCAPath="${PKI_root_ca_cert:-${PKI_client_cert_dir:-$snapindir/ssl}/CA/.fogCA.pem}"
+if [[ -z $autoaccept && ! -f $fogRootCAPath && -z ${PKI_allowed_domain_names} && -z ${PKI_internal_subnets} ]]; then
     echo
     echo "  FOG issues its own certificates from two CAs -- one for web servers,"
     echo "  one for signing FOS kernels. Both are constrained so they can only"
     echo "  ever issue for names inside your own network."
     echo
-    echo "  By default that means ${hostname#*.} and every private IP range"
+    echo "  By default that means ${NET_hostname#*.} and every private IP range"
     echo "  (10.x, 172.16-31.x, 192.168.x)."
     echo -n "  Would you like to narrow or extend that? [y/N] "
     read blConstrain
@@ -68,7 +74,7 @@ if [[ -z $autoaccept && $caCreated != yes && -z $internalDomains && -z $internal
                     echo "  Ignoring '${entry}': not a valid domain name."
                     continue
                 fi
-                internalDomains="${internalDomains:+$internalDomains }${entry}"
+                PKI_allowed_domain_names="${PKI_allowed_domain_names:+${PKI_allowed_domain_names} }${entry}"
             done
             echo
             echo "  Subnets these CAs may issue for, space separated, e.g."
@@ -82,12 +88,12 @@ if [[ -z $autoaccept && $caCreated != yes && -z $internalDomains && -z $internal
                     echo "  Ignoring '${entry}': not a valid subnet."
                     continue
                 fi
-                internalSubnets="${internalSubnets:+$internalSubnets }${entry}"
+                PKI_internal_subnets="${PKI_internal_subnets:+${PKI_internal_subnets} }${entry}"
             done
             ;;
     esac
 fi
-while [[ -z $sendreports ]]; do
+while [[ -z ${FOG_send_reports} ]]; do
     blReports="Y"
     if [[ -z $autoaccept ]]; then
         echo "  FOG would like to collect some data:"
@@ -106,13 +112,13 @@ while [[ -z $sendreports ]]; do
     fi
     case $blReports in
         [Yy]|[Yy][Ee][Ss]|"")
-            sendreports="Y"
+            FOG_send_reports="Y"
             ;;
         [Nn]|[Nn][Oo])
-            sendreports="N"
+            FOG_send_reports="N"
             ;;
         *)
-            sendreports=""
+            FOG_send_reports=""
             echo "  Invalid input, please try again."
             ;;
     esac
@@ -144,21 +150,23 @@ while [[ -z $externalca ]]; do
             ;;
     esac
 done
-# --web-ca-cert/--web-ca-key/--web-ca-root already answer this, and answering
-# it twice was worse than redundant: the prompt collects $extcacert/$extcakey/
-# $extcaroot, but validateExternalCA resolves ${webExtCACert:-$extcacert} and so
-# prefers the command line -- meaning anything typed here was silently
-# discarded. Under -y the prompt never ran and the flags worked, which made the
-# whole thing look like the flags only worked with -y.
+# --web-ca-cert/--web-ca-key/--web-ca-root already answer this. Answering it
+# twice used to be worse than redundant: the prompt collected extcacert/extcakey/
+# extcaroot while validateExternalCA resolved ${webExtCACert:-$extcacert}, so the
+# command line always won and anything typed here was silently discarded. Under
+# -y the prompt never ran and the flags worked, which made the whole thing look
+# like the flags only worked with -y.
 #
-# All three, not any: a partial trio still needs the rest collected, and the
-# per-variable fallback in validateExternalCA merges the two sources correctly.
-if [[ $externalca == yes && -n $webExtCACert && -n $webExtCAKey && -n $webExtCARoot ]]; then
+# GH-1120 collapsed both sets onto one run-scoped input, so the prompt and the
+# flags now write the same variables and cannot disagree.
+#
+# All three, not any: a partial trio still needs the rest collected.
+if [[ $externalca == yes && -n $importWebCACert && -n $importWebCAKey && -n $importWebCARoot ]]; then
     echo
     echo "  Using the CA files given on the command line:"
-    echo "    intermediate cert: $webExtCACert"
-    echo "    intermediate key:  $webExtCAKey"
-    echo "    root cert:         $webExtCARoot"
+    echo "    intermediate cert: $importWebCACert"
+    echo "    intermediate key:  $importWebCAKey"
+    echo "    root cert:         $importWebCARoot"
 elif [[ $externalca == yes && -z $autoaccept ]]; then
     echo
     echo "  Please provide the paths to your CA files. The intermediate CA"
@@ -166,16 +174,16 @@ elif [[ $externalca == yes && -z $autoaccept ]]; then
     echo "  root CA certificate is used as the trust anchor. Press [Enter] to"
     echo "  keep the value shown in brackets (from a previous install)."
     echo
-    [[ -n $extcacert ]] && dfltcacert=" [$extcacert]" || dfltcacert=""
+    [[ -n $importWebCACert ]] && dfltcacert=" [$importWebCACert]" || dfltcacert=""
     echo -n "  Path to the intermediate CA certificate (PEM)$dfltcacert: "
     read inextcacert
-    [[ -n $inextcacert ]] && extcacert="$inextcacert"
-    [[ -n $extcakey ]] && dfltcakey=" [$extcakey]" || dfltcakey=""
+    [[ -n $inextcacert ]] && importWebCACert="$inextcacert"
+    [[ -n $importWebCAKey ]] && dfltcakey=" [$importWebCAKey]" || dfltcakey=""
     echo -n "  Path to the intermediate CA private key (PEM)$dfltcakey: "
     read inextcakey
-    [[ -n $inextcakey ]] && extcakey="$inextcakey"
-    [[ -n $extcaroot ]] && dfltcaroot=" [$extcaroot]" || dfltcaroot=""
+    [[ -n $inextcakey ]] && importWebCAKey="$inextcakey"
+    [[ -n $importWebCARoot ]] && dfltcaroot=" [$importWebCARoot]" || dfltcaroot=""
     echo -n "  Path to the root CA certificate (PEM)$dfltcaroot: "
     read inextcaroot
-    [[ -n $inextcaroot ]] && extcaroot="$inextcaroot"
+    [[ -n $inextcaroot ]] && importWebCARoot="$inextcaroot"
 fi

@@ -6879,21 +6879,28 @@ class Route extends FOGBase
      * returned. Also the exact key list the installer writes into
      * .fogsettings.pub -- keep the two in step.
      *
+     * GH-1120 renamed these along with every other .fogsettings key, and the
+     * response keys move with them rather than being mapped back. That is a
+     * BREAKING change to /api/whoami, taken deliberately on the way to 1.6
+     * stable: a shim would have frozen the old spellings into the API for the
+     * life of the release, to keep a name like 'osid' that is itself a
+     * second encoding of 'osname' and has already changed meaning once.
+     *
      * @var array
      */
     const WHOAMI_KEYS = [
-        'ipaddress',
-        'hostname',
-        'osid',
-        'osname',
-        'installtype'
+        'NET_fog_server_ip',
+        'NET_hostname',
+        'FOG_os_id',
+        'FOG_os_name',
+        'FOG_install_type'
     ];
 
     /**
      * Returns this server's own identity facts.
      *
      * Reads .fogsettings.pub, NOT .fogsettings. The latter holds the
-     * $password and $snmysqlpass cleartext credentials and is now 0600
+     * $SVC_password and $DB_password cleartext credentials and is now 0600
      * root:root; this route reading it directly was the reason it had to be
      * world-readable, which meant every local account on the server could
      * read the database password and the fleet-wide replication FTP one.
@@ -6903,7 +6910,7 @@ class Route extends FOGBase
      * Per server, deliberately, rather than from globalSettings: a storage
      * node serves this route too and its database is the MASTER's, so a
      * table-backed answer would have every node reporting the master's
-     * hostname, IP and installtype.
+     * hostname, IP and install type.
      *
      * @return void
      */
@@ -6917,6 +6924,13 @@ class Route extends FOGBase
         // that. It is unreadable once the installer has run, so this costs
         // nothing on a fully updated server and stops the route going blank
         // on a partially updated one.
+        //
+        // GH-1120 narrows that safety net once: a server whose web tree is new
+        // but whose installer has not re-run still has PRE-rename keys in
+        // .fogsettings, which these names no longer match, so the route answers
+        // with empty strings until the installer runs. Deliberate -- reading
+        // both spellings would mean carrying the retired names in code that
+        // exists only to cover a deploy ordering the installer fixes anyway.
         foreach (['.fogsettings.pub', '.fogsettings'] as $file) {
             if (!is_readable($base . $file)) {
                 continue;

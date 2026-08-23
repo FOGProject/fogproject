@@ -87,7 +87,7 @@ fi
 echo
 echo "2. every remote fetch is bounded"
 
-# Remote curls only. The maintenance/* calls to $ipaddress are this same host
+# Remote curls only. The maintenance/* calls to ${NET_fog_server_ip} are this same host
 # over loopback or the LAN, which cannot exhibit the 300s stall being guarded.
 # joined <file> -- the file with backslash continuations folded onto one line
 # and comment lines dropped. Both matter: every bounded call here is written
@@ -103,10 +103,11 @@ joined() {
 # here unnoticed. The three exclusions are named individually so a NEW remote
 # call cannot accidentally inherit one:
 #
-#   ipaddress     the maintenance/* posts -- this same host over loopback
+#   NET_fog_server_ip
+#                 the maintenance/* posts -- this same host over loopback
 #   selfName      the schema post and the liveness probe. Same host, same
 #                 loopback: these address it by the name its own certificate
-#                 carries instead of by $ipaddress, because no public CA will
+#                 carries instead of by ${NET_fog_server_ip}, because no public CA will
 #                 issue for an address and the old form could not verify on an
 #                 ACME install. A rename, not a new remote fetch.
 #   dbhttpcode=   backupDB's fetch of backup_db.php, likewise this same host
@@ -121,7 +122,7 @@ remotecurls() {
     joined "$1" \
         | grep -E '(^|[^-[:alnum:]_])curl[[:space:]]+-' \
         | grep -vE '^[[:space:]]*echo ' \
-        | grep -v 'ipaddress' \
+        | grep -v 'NET_fog_server_ip' \
         | grep -v 'selfName' \
         | grep -v 'dbhttpcode=' \
         | grep -v 'nodecert.php'

@@ -50,9 +50,9 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=fog.example.org" \
     -keyout "$WORK/foreign/priv.key" -out "$WORK/foreign/fullchain.pem" >/dev/null 2>&1
 
 reset_env() {
-    etcconf=""; sslpath="$WORK/ssl"; rootCAPem="$WORK/ssl/ca.pem"; sslcachain=""
-    sslpubcert="$WORK/ssl/leaf.pem"; sslprivkey="$WORK/ssl/leaf.key"
-    acmeLeaf=""; publicWebCert=""
+    etcconf=""; PKI_client_cert_dir="$WORK/ssl"; PKI_root_ca_cert="$WORK/ssl/ca.pem"; PKI_web_trust_chain=""
+    PKI_web_vhost_cert="$WORK/ssl/leaf.pem"; PKI_web_vhost_key="$WORK/ssl/leaf.key"
+    PKI_web_cert_publicly_trusted=""
     error_log="$WORK/error.log"
 }
 
@@ -69,21 +69,21 @@ fi
 
 # B. FOG pointed straight at an ACME client's tree.
 reset_env
-sslpubcert="/etc/letsencrypt/live/fog.example.org/fullchain.pem"
-out=$(_detectExternalCertManagement) && ok "B: fires when \$sslpubcert is under /etc/letsencrypt" \
+PKI_web_vhost_cert="/etc/letsencrypt/live/fog.example.org/fullchain.pem"
+out=$(_detectExternalCertManagement) && ok "B: fires when \${PKI_web_vhost_cert} is under /etc/letsencrypt" \
     || bad "B: missed a path inside an ACME tree"
 [[ $out == *"ACME client's tree"* ]] && ok "B2: names the ACME tree as the reason" \
     || bad "B2: reason did not name the ACME tree (got '$out')"
 
-# C. The novhost=yes shape -- FOG never wrote the vhost, $sslpubcert still names
+# C. The novhost=yes shape -- FOG never wrote the vhost, ${PKI_web_vhost_cert} still names
 #    FOG's own unused leaf, and the web server serves somebody else's file.
 reset_env
 etcconf="$WORK/hand.conf"
 printf '<VirtualHost *:443>\n    SSLCertificateFile %s\n    SSLCertificateKeyFile %s\n</VirtualHost>\n' \
     "$WORK/foreign/fullchain.pem" "$WORK/foreign/priv.key" > "$etcconf"
-out=$(_detectExternalCertManagement) && ok "C: fires when the vhost serves a cert outside \$sslpath" \
-    || bad "C: missed a vhost-served cert outside \$sslpath"
-[[ $out == *"outside FOG's"* ]] && ok "C2: reason names the path and \$sslpath" \
+out=$(_detectExternalCertManagement) && ok "C: fires when the vhost serves a cert outside \${PKI_client_cert_dir}" \
+    || bad "C: missed a vhost-served cert outside \${PKI_client_cert_dir}"
+[[ $out == *"outside FOG's"* ]] && ok "C2: reason names the path and \${PKI_client_cert_dir}" \
     || bad "C2: reason did not name the path (got '$out')"
 
 # D. A foreign leaf dropped AT FOG's own path. _createCommLeaf documents that as
@@ -91,16 +91,18 @@ out=$(_detectExternalCertManagement) && ok "C: fires when the vhost serves a cer
 #    matching "FOG" in the issuer name, since a CA can be renamed.
 reset_env
 cp "$WORK/foreign/fullchain.pem" "$WORK/ssl/leaf-foreign.pem"
-sslpubcert="$WORK/ssl/leaf-foreign.pem"
+PKI_web_vhost_cert="$WORK/ssl/leaf-foreign.pem"
 out=$(_detectExternalCertManagement) && ok "D: fires on a leaf that does not chain to FOG's CA" \
     || bad "D: missed a foreign leaf sitting at FOG's own path"
 
-# E. Already declared -- the caller skips detection entirely, so an admin who
-#    set acmeLeaf by hand is never second-guessed.
-if awk '/Detect-then-DECLARE/,/_warnExternalCertTooling/' "$FUNCS" | grep -q 'acmeLeaf != yes'; then
-    ok "E: detection is skipped when acmeLeaf is already declared"
+# E. Already pointed elsewhere -- the caller skips detection entirely, so an
+#    admin who already aimed the canonical path at their own certificate is
+#    never second-guessed. GH-1120 replaced the $acmeLeaf key with this derived
+#    test, so the guard is the predicate rather than a persisted value.
+if awk '/Detect-then-LINK/,/_warnExternalCertTooling/' "$FUNCS" | grep -q '! _externallyManagedLeaf'; then
+    ok "E: detection is skipped when the leaf is already externally managed"
 else
-    bad "E: detection does not check acmeLeaf first"
+    bad "E: detection does not check _externallyManagedLeaf first"
 fi
 
 echo "== the paths are captured, and captured from the vhost =="
@@ -121,9 +123,17 @@ printf '    SSLCertificateKeyFile %s\n    SSLCertificateFile %s\n' \
 check "$(_vhostCertPath)" "$WORK/foreign/fullchain.pem" "H: KeyFile listed first is not read as the cert"
 
 # I. Persisted, or FOG re-emits its own paths on the next run and points the web
-#    server at a certificate whose key is not the one on disk.
-for k in webCertFile webKeyFile; do
-    if awk '/managedKeys=/,/^    \)/' "$FUNCS" | grep -qE "^\s*$k\s*$"; then
+#    server at a certificate whose key is not the one on disk. GH-1120 folded
+#    webCertFile/webKeyFile into the canonical vhost pair: the path IS the
+#    record now, so these are the keys that have to survive.
+# Comments stripped and whitespace split, so this does not depend on one key
+# per line (the array is grouped in category blocks) and does not pass for a key
+# that is merely MENTIONED in the array's explanatory prose.
+managedNow="$(sed -n '/local -a managedKeys=(/,/^    )/p' "$FUNCS" \
+    | sed -e 's/#.*$//' -e 's/local -a managedKeys=(//' -e 's/)//' \
+    | tr -s ' \n' '\n\n' | grep -vE '^$')"
+for k in PKI_web_vhost_cert PKI_web_vhost_key; do
+    if printf '%s\n' "$managedNow" | grep -qxF "$k"; then
         ok "I: $k is in managedKeys"
     else
         bad "I: $k is not persisted"
@@ -133,7 +143,7 @@ done
 # J. No prompt on the detect path. Under -y there is nobody to answer, and that
 #    is precisely the run that used to do the damage, so the safe behaviour must
 #    be the default rather than an answer to a question.
-if awk '/Detect-then-DECLARE/,/_warnExternalCertTooling/' "$FUNCS" | grep -qE '(^|[^_[:alnum:]])read($|[[:space:]])'; then
+if awk '/Detect-then-LINK/,/_warnExternalCertTooling/' "$FUNCS" | grep -qE '(^|[^_[:alnum:]])read($|[[:space:]])'; then
     bad "J: the detect path prompts, so an unattended run cannot benefit"
 else
     ok "J: detection never prompts"
@@ -149,9 +159,9 @@ echo "== a FOG fullchain is not mistaken for somebody else's certificate =="
 #    intermediate that signed it. `openssl verify` reads only the FIRST
 #    certificate out of the file under test and ignores the rest, so signal 3
 #    checked the leaf with no intermediate to check it against unless
-#    $sslcachain happened to be set.
+#    ${PKI_web_trust_chain} happened to be set.
 #
-#    $sslcachain is settled LATER in createSSLCA and otherwise arrives from
+#    ${PKI_web_trust_chain} is settled LATER in createSSLCA and otherwise arrives from
 #    .fogsettings -- which an install that died before writeUpdateFile never
 #    wrote. Re-running such an install therefore reached this test with FOG's
 #    own fullchain and no chain variable, concluded the admin managed the
@@ -171,10 +181,10 @@ openssl x509 -req -in "$WORK/zoned/leaf.csr" -CA "$WORK/zoned/int.pem" \
 cat "$WORK/zoned/leaf.pem" "$WORK/zoned/int.pem" > "$WORK/zoned/fullchain.pem"
 
 reset_env
-sslpubcert="$WORK/zoned/fullchain.pem"
-sslcachain=""
+PKI_web_vhost_cert="$WORK/zoned/fullchain.pem"
+PKI_web_trust_chain=""
 if _detectExternalCertManagement >/dev/null; then
-    bad "K: fired on FOG's own fullchain when \$sslcachain was empty"
+    bad "K: fired on FOG's own fullchain when \${PKI_web_trust_chain} was empty"
 else
     ok "K: a FOG-issued fullchain verifies using the chain it carries"
 fi
@@ -182,8 +192,8 @@ fi
 # K2. And the intermediate really is load-bearing -- if the leaf alone were
 #     enough, K would pass for the wrong reason and pin nothing.
 reset_env
-sslpubcert="$WORK/zoned/leaf.pem"
-sslcachain=""
+PKI_web_vhost_cert="$WORK/zoned/leaf.pem"
+PKI_web_trust_chain=""
 if _detectExternalCertManagement >/dev/null; then
     ok "K2: the bare leaf alone genuinely does not chain (K is a real test)"
 else

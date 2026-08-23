@@ -13,11 +13,11 @@
 #
 # Two ways it got that wrong, both fixed and both pinned here:
 #
-#   1. On a master it anchored $rootCAPem unconditionally. With --external-ca /
+#   1. On a master it anchored ${PKI_root_ca_cert} unconditionally. With --external-ca /
 #      --web-ca-root the vhost serves a chain terminating in the ADMIN's root,
-#      while $rootCAPem is still FOG's own -- validateExternalCA deliberately
+#      while ${PKI_root_ca_cert} is still FOG's own -- validateExternalCA deliberately
 #      never reassigns it. So the store learned a root nothing was served under.
-#   2. The node path took the LAST certificate in $sslcachain. The writers of
+#   2. The node path took the LAST certificate in ${PKI_web_trust_chain}. The writers of
 #      that file disagree on order: createWebIntermediateCA and
 #      fog-sign-node-cert write issuer-first with the root appended, while
 #      validateExternalCA writes the root FIRST. "Last certificate" therefore
@@ -108,21 +108,21 @@ error_log=/dev/null
 newcase() {
     fogprogramdir="$WORK/case$1"
     mkdir -p "$fogprogramdir"
-    rootCAPem=""
-    sslcachain=""
+    PKI_root_ca_cert=""
+    PKI_web_trust_chain=""
     trustAnchorPem=""
-    installtype=""
+    FOG_install_type=""
 }
 
 echo "trust anchor:"
 
-# Case A -- FOG issues everything. $rootCAPem and the chain's root are the same
+# Case A -- FOG issues everything. ${PKI_root_ca_cert} and the chain's root are the same
 # certificate reached two ways; the bundle must collapse to one, not list it
 # twice.
 newcase A
-rootCAPem="$WORK/fog/root.pem"
-sslcachain="$WORK/a-chain.pem"
-cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "$sslcachain"
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_trust_chain="$WORK/a-chain.pem"
+cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "${PKI_web_trust_chain}"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "1" "A: FOG-issued master anchors exactly one certificate"
     has_fp "$trustAnchorPem" "$FOGROOT_FP" \
@@ -132,13 +132,13 @@ else
 fi
 
 # Case B -- the regression this was written for. External CA: the vhost chain
-# terminates in the admin's root, $rootCAPem is still FOG's. Both are needed and
+# terminates in the admin's root, ${PKI_root_ca_cert} is still FOG's. Both are needed and
 # both must be present. Before the fix this anchored FOG's root alone.
 newcase B
-rootCAPem="$WORK/fog/root.pem"
-sslcachain="$WORK/b-chain.pem"
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_trust_chain="$WORK/b-chain.pem"
 # validateExternalCA's order: root FIRST, then the intermediate.
-cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "$sslcachain"
+cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "${PKI_web_trust_chain}"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "2" "B: external-CA master anchors two certificates"
     has_fp "$trustAnchorPem" "$EXTROOT_FP" \
@@ -159,9 +159,9 @@ fi
 # appends the root last, so the old "last certificate" rule happened to be right
 # for nodes. It is the master path above that was wrong.
 newcase C
-installtype=S
-sslcachain="$WORK/c-chain.pem"
-cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "$sslcachain"
+FOG_install_type=S
+PKI_web_trust_chain="$WORK/c-chain.pem"
+cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "${PKI_web_trust_chain}"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "1" "C: node anchors exactly one certificate"
     has_fp "$trustAnchorPem" "$FOGROOT_FP" \
@@ -175,9 +175,9 @@ fi
 # what validateExternalCA writes, and selecting by position picks the
 # intermediate out of it.
 newcase D
-installtype=S
-sslcachain="$WORK/d-chain.pem"
-cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "$sslcachain"
+FOG_install_type=S
+PKI_web_trust_chain="$WORK/d-chain.pem"
+cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "${PKI_web_trust_chain}"
 if _resolveTrustAnchor; then
     has_fp "$trustAnchorPem" "$EXTROOT_FP" \
         && ok "D: root-first chain still yields the root" \
@@ -189,9 +189,9 @@ fi
 # Case E -- a chain with no root at all. The master can legitimately send one,
 # and it must be a clean "nothing extra to add", not a failure and not garbage.
 newcase E
-rootCAPem="$WORK/fog/root.pem"
-sslcachain="$WORK/e-chain.pem"
-cp "$WORK/fog/int.pem" "$sslcachain"
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_trust_chain="$WORK/e-chain.pem"
+cp "$WORK/fog/int.pem" "${PKI_web_trust_chain}"
 if _resolveTrustAnchor; then
     check "$(count_certs "$trustAnchorPem")" "1" "E: rootless chain contributes nothing extra"
     has_fp "$trustAnchorPem" "$FOGINT_FP" \

@@ -9,7 +9,7 @@
 # rc-service. chkconfig, sysv-rc-conf, insserv and `service` are all absent.
 #
 # What went wrong without a test here (#863). Every one of these blocks is
-# shaped `case $osid in 1) ... 2) ... esac`, followed by `errorStat $?`. A
+# shaped `case ${FOG_os_id} in 1) ... 2) ... esac`, followed by `errorStat $?`. A
 # `case` that matches no arm exits 0, so errorStat printed OK -- for a step
 # that had not run at all. An Alpine install therefore reported FTP, RPCBind,
 # NFS and DHCP as "started" while none of the four had been touched, and
@@ -76,7 +76,7 @@ systemctl()    { echo "systemctl $*"    >> "$CALLS"; }
 dots()         { :; }
 errorStat()    { :; }
 
-osid=3
+FOG_os_id=3
 systemctl_cmd=""            # not used; kept out of the way of $systemctl below
 systemctl=no
 error_log="$WORK/error.log"
@@ -111,11 +111,11 @@ hasnt "$calls" "sysv-rc-conf" "C2. sysv-rc-conf is not used on Alpine"
 # ---------------------------------------------------------------------------
 # D-H: the per-service blocks carry an osid 3 arm.
 #
-# armsIn <anchor> prints the arm labels of the `case $osid in` block that
+# armsIn <anchor> prints the arm labels of the `case ${FOG_os_id} in` block that
 # contains <anchor>, so this survives the blocks moving around the file.
 # ---------------------------------------------------------------------------
 # blockInfo <anchor> <what> -- <what> is "arms" for the arm labels of the
-# `case $osid in` block containing <anchor>, or "arm3" for the body of its
+# `case ${FOG_os_id} in` block containing <anchor>, or "arm3" for the body of its
 # osid 3 arm. Anchored on content rather than line numbers so this keeps
 # working when the blocks move, and it counts NESTED case/esac (enableInitScript
 # has a `case $linuxReleaseName_lower in` inside it).
@@ -124,7 +124,7 @@ blockInfo() {
         function isCaseOpen(l) { return (l ~ /[ \t]case[ \t].*[ \t]in[ \t]*$/ || l ~ /^[ \t]*case[ \t].*[ \t]in[ \t]*$/) }
         {
             if (!want) {
-                if ($0 ~ /case[ \t]+\$osid[ \t]+in/) {
+                if ($0 ~ /case[ \t]+\${FOG_os_id}[ \t]+in/) {
                     want = 1; d = 1; body = $0 "\n"; arms = ""; arm3 = ""; in3 = 0
                 }
                 next
@@ -167,18 +167,18 @@ has "$(armsIn 'nfs-kernel-server')" "3" "G. the NFS block has an osid 3 arm"
 check "$(armHas 'nfs-kernel-server' 'rc-update add $nfsItem')" "yes" \
       "G2. ...and it enables the NFS server on boot"
 
-has "$(armsIn 'chkconfig $dhcpd on')" "3" "H. the DHCP block has an osid 3 arm"
-check "$(armHas 'chkconfig $dhcpd on' 'rc-update add $dhcpd')" "yes" \
+has "$(armsIn 'chkconfig ${DHCP_service_name} on')" "3" "H. the DHCP block has an osid 3 arm"
+check "$(armHas 'chkconfig ${DHCP_service_name} on' 'rc-update add ${DHCP_service_name}')" "yes" \
       "H2. ...and it enables the DHCP server on boot"
 
 # TFTP is an if/elif chain, not a case, so anchor on the arm itself.
-tftparm="$(sed -n '/elif \[\[ \$osid -eq 3 \]\]; then/,/^[ \t]*else/p' "$FUNCS")"
+tftparm="$(sed -n '/elif \[\[ \${FOG_os_id} -eq 3 \]\]; then/,/^[ \t]*else/p' "$FUNCS")"
 has "$tftparm" "rc-update add in.tftpd" "I. TFTP is enabled on boot, not only started"
 
 # `service` and the dotted fpm name are both wrong on Alpine.
 # Comment lines are excluded -- the fix documents the call it replaced.
-livecalls="$(grep -n 'service php-fpm\${php_ver}' "$FUNCS" | grep -vE '^[0-9]+: *#')"
-check "$livecalls" "" "J. no live service php-fpm\${php_ver} call (wrong command, wrong name on Alpine)"
+livecalls="$(grep -n 'service php-fpm\${WEB_php_version}' "$FUNCS" | grep -vE '^[0-9]+: *#')"
+check "$livecalls" "" "J. no live service php-fpm\${WEB_php_version} call (wrong command, wrong name on Alpine)"
 
 # ---------------------------------------------------------------------------
 # Two nginx defects found on Alpine that were never Alpine-specific.
@@ -218,7 +218,7 @@ check "$(pkgFirstAvailable $sqlserverlist)" "mariadb" \
 
 # And the Alpine package list has to route through that slot rather than
 # naming "mariadb" directly, which installPackages() reads as a CLIENT.
-alpinelist="$(grep -E '^ *packages="bash ' "$ALPINECFG")"
+alpinelist="$(grep -E '^ *FOG_packages="bash ' "$ALPINECFG")"
 has   "$alpinelist" "mariadb-server" "L1. the Alpine package list names the server slot"
 hasnt "$alpinelist" " mariadb "      "L2. ...and not bare mariadb, which maps to the client"
 
@@ -231,13 +231,13 @@ hasnt "$alpinelist" " mariadb "      "L2. ...and not bare mariadb, which maps to
 # conf.d/01_mysqlnd.ini -- both then failed to relocate and FOG had no database
 # driver. The guard must name osid 4 alone.
 extguard="$(grep -B 1 "sed -i 's/;extension=bcmath/" "$FUNCS" | head -1)"
-has   "$extguard" 'osid -eq 4' "O1. the ;extension= block is guarded on Arch"
+has   "$extguard" 'FOG_os_id} -eq 4' "O1. the ;extension= block is guarded on Arch"
 hasnt "$extguard" 'osid -eq 3' "O2. ...and no longer runs on Alpine"
 
 # open_basedir is a plain setting rather than an extension, and Alpine's
 # php.ini carries it too, so that one line still applies to both.
 obguard="$(grep -B 1 "sed -i 's/\^open_basedir" "$FUNCS" | head -1)"
-has "$obguard" 'osid -eq 3' "O3. open_basedir is still handled on Alpine"
+has "$obguard" 'FOG_os_id} -eq 3' "O3. open_basedir is still handled on Alpine"
 
 # ---------------------------------------------------------------------------
 # P: the shipped OpenRC init scripts are actually runnable.
@@ -319,7 +319,7 @@ has "$reporting" "rc-update add crond" "U2. ...and enables the daemon that reads
 #     carrying busybox's run-parts entries for /etc/periodic/* -- unlike the
 #     cron.d file on the other distros, which is FOG's own. Writing it whole
 #     deletes every scheduled job the machine had.
-alpinearm="$(printf '%s\n' "$reporting" | sed -n '/osid -eq 3/,/^    else/p')"
+alpinearm="$(printf '%s\n' "$reporting" | sed -n '/FOG_os_id} -eq 3/,/^    else/p')"
 has   "$alpinearm" '>> "${crondfile}"'  "U3. the FOG block is appended to the host crontab"
 hasnt "$alpinearm" 'cat > ${crondfile}' "U3b. ...and the host's own entries are not overwritten"
 has   "$alpinearm" "FOG_MANAGED_BEGIN"  "U4. the block is marker-delimited, so a re-run replaces it"

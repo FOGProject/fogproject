@@ -56,8 +56,8 @@ if [[ $guessdefaults == 1 ]]; then
     strSuggestedHostname=$(hostname -f)
 fi
 displayOSChoices
-while [[ -z $installtype ]]; do
-    installtype="N"
+while [[ -z ${FOG_install_type} ]]; do
+    FOG_install_type="N"
     if [[ -z $autoaccept ]]; then
         echo "  FOG Server installation modes:"
         echo "      * Normal Server: (Choice N) "
@@ -75,21 +75,21 @@ while [[ -z $installtype ]]; do
         echo -n "  What type of installation would you like to do? [N/s (Normal/Storage)] "
         read installtype
     fi
-    case $installtype in
+    case ${FOG_install_type} in
         [Nn]|[Nn][Oo][Rr][Mm][Aa][Ll]|"")
-            installtype="N"
+            FOG_install_type="N"
             ;;
         [Ss]|[Ss][Tt][Oo][Rr][Aa][Gg][Ee])
-            installtype="S"
+            FOG_install_type="S"
             ;;
         *)
-            installtype=""
+            FOG_install_type=""
             echo "  Invalid input, please try again."
             ;;
     esac
 done
 testInterface() {
-    while [[ -z $interface ]]; do
+    while [[ -z ${NET_interface} ]]; do
         blInt="N"
         if [[ -z $autoaccept ]]; then
             echo
@@ -104,7 +104,7 @@ testInterface() {
         fi
         case $blInt in
             [Nn]|[Nn][Oo]|"")
-                interface=$strSuggestedInterface
+                NET_interface=$strSuggestedInterface
                 ;;
             [Yy]|[Yy][Ee][Ss])
                 echo -n "  What network interface would you like to use? "
@@ -114,67 +114,67 @@ testInterface() {
                 echo "  Invalid input, please try again."
                 ;;
         esac
-        ip -4 link show $interface >/dev/null 2>&1
+        ip -4 link show ${NET_interface} >/dev/null 2>&1
         if [[ $? -ne 0 ]]; then
             echo
-            echo "  * The network interface named $interface does not exist."
-            interface=""
+            echo "  * The network interface named ${NET_interface} does not exist."
+            NET_interface=""
             continue
         fi
     done
 }
 testInterface
 # GH-954: `ip -4 addr show` prints one line per address the interface carries,
-# so what comes back here is a LIST, not a single value. $ipaddresses keeps the
+# so what comes back here is a LIST, not a single value. ${PKI_san_ip_addresses} keeps the
 # whole list for the few consumers that legitimately want every address --
 # certificate SANs, nginx server_name, apache ServerAlias, the maintenance
-# allow list -- and normalizeIpAddress() then reduces $ipaddress to the primary,
+# allow list -- and normalizeIpAddress() then reduces ${NET_fog_server_ip} to the primary,
 # which is what every other consumer has always assumed it was.
-while [[ -z $ipaddress ]]; do
-    ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
-    ipaddresses="$ipaddress"
-    if [[ $(validip $ipaddress) -ne 0 ]]; then
+while [[ -z ${NET_fog_server_ip} ]]; do
+    NET_fog_server_ip=$(ip -4 addr show ${NET_interface} | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
+    PKI_san_ip_addresses="${NET_fog_server_ip}"
+    if [[ $(validip ${NET_fog_server_ip}) -ne 0 ]]; then
         echo
-        echo "  * The interface $interface does not seem to have a valid IP Configured to it."
-        interface=""
+        echo "  * The interface ${NET_interface} does not seem to have a valid IP Configured to it."
+        NET_interface=""
         testInterface
     fi
 done
-submask=$(cidr2mask $(getCidr $interface))
-if [[ -z $submask ]]; then
-    submask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-    submask=$(mask2cidr $submask)
+NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface}))
+if [[ -z ${NET_subnet_mask} ]]; then
+    NET_subnet_mask=$(/sbin/ifconfig -a | grep ${NET_fog_server_ip} -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
+    NET_subnet_mask=$(mask2cidr ${NET_subnet_mask})
 fi
-if [[ $strSuggestedHostname == $ipaddress ]]; then
+if [[ $strSuggestedHostname == ${NET_fog_server_ip} ]]; then
     strSuggestedHostname=$(hostnamectl --static)
 fi
-case $installtype in
+case ${FOG_install_type} in
     [Nn])
         count=0
         blRouter=""
         blDNS=""
-        installlang=""
-        while [[ -z $dodhcp ]]; do
+        FOG_install_lang=""
+        while [[ -z ${DHCP_enabled} ]]; do
             if [[ -z $autoaccept ]]; then
                 echo
                 echo -n "  Would you like to use the FOG server for DHCP service? [y/N] "
                 read dodhcp
             fi
-            case $dodhcp in
+            case ${DHCP_enabled} in
                 [Nn]|[Nn][Oo]|"")
-                    bldhcp=0
-                    dodhcp="N"
+                    DHCP_enabled=0
+                    DHCP_enabled="N"
                     ;;
                 [Yy]|[Yy][Ee][Ss])
-                    bldhcp=1
+                    DHCP_enabled=1
                     ;;
                 *)
                     echo "  Invalid input, please try again."
                     ;;
             esac
         done
-        if [[ $bldhcp -eq 1 ]]; then
-            while [[ -z $routeraddress ]]; do
+        if [[ ${DHCP_enabled} -eq 1 ]]; then
+            while [[ -z ${DHCP_router} ]]; do
                 if [[ -z $autoaccept ]]; then
                     echo
                     echo -n "  Would you like to setup a router address for the DHCP server? [Y/n] "
@@ -187,23 +187,23 @@ case $installtype in
                             echo -n "      the DHCP server? [$strSuggestedRoute]"
                             read routeraddress
                         fi
-                        case $routeraddress in
+                        case ${DHCP_router} in
                             "")
-                                routeraddress=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                DHCP_router=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                                 ;;
                             *)
-                                routeraddress=$(echo $routeraddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                DHCP_router=$(echo ${DHCP_router} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                                 ;;
                         esac
-                        if [[ ! $(validip $routeraddress) -eq 0 ]]; then
-                            routeraddress=""
+                        if [[ ! $(validip ${DHCP_router}) -eq 0 ]]; then
+                            DHCP_router=""
                             echo "  Invalid router IP Address!"
                             continue
                         fi
-                        plainrouter=$routeraddress
+                        DHCP_router=${DHCP_router}
                         ;;
                     [Nn]|[Nn][Oo])
-                        routeraddress="#   No router address added"
+                        DHCP_router="#   No router address added"
                         ;;
                     *)
                         echo "  Invalid input, please try again."
@@ -211,7 +211,7 @@ case $installtype in
                 esac
             done
             count=0
-            while [[ -z $dnsaddress ]]; do
+            while [[ -z ${DHCP_dns_server_ip} ]]; do
                 if [[ -z $autoaccept ]]; then
                     echo
                     echo -n "  Would you like DHCP to handle DNS? [Y/n] "
@@ -223,21 +223,21 @@ case $installtype in
                             echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
                             read dnsaddress
                         fi
-                        case $dnsaddress in
+                        case ${DHCP_dns_server_ip} in
                             "")
-                                dnsaddress=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                DHCP_dns_server_ip=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                                 ;;
                             *)
-                                dnsaddress=$(echo $dnsaddress | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                                DHCP_dns_server_ip=$(echo ${DHCP_dns_server_ip} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
                                 ;;
                         esac
-                        if [[ ! $(validip $dnsaddress) -eq 0 ]]; then
-                            dnsaddress=""
+                        if [[ ! $(validip ${DHCP_dns_server_ip}) -eq 0 ]]; then
+                            DHCP_dns_server_ip=""
                             echo "  Invalid DNS IP address!"
                         fi
                         ;;
                     [Nn]|[Nn][Oo])
-                        dnsaddress="#   No dns added"
+                        DHCP_dns_server_ip="#   No dns added"
                         ;;
                     *)
                         echo "  Invalid input, please try again."
@@ -245,41 +245,41 @@ case $installtype in
                 esac
             done
         else
-            dnsaddress="# No dns added"
-            routeraddress="# No router added"
+            DHCP_dns_server_ip="# No dns added"
+            DHCP_router="# No router added"
         fi
-        while [[ -z $installlang ]]; do
+        while [[ -z ${FOG_install_lang} ]]; do
             if [[ -z $autoaccept ]]; then
                 echo
                 echo "  This version of FOG has internationalization support, would  "
                 echo -n "  you like to install the additional language packs? [y/N] "
                 read installlang
             fi
-            case $installlang in
+            case ${FOG_install_lang} in
                 [Nn]|[Nn][Oo]|"")
-                    installlang=0
+                    FOG_install_lang=0
                     ;;
                 [Yy]|[Yy][Ee][Ss])
-                    installlang=1
+                    FOG_install_lang=1
                     ;;
                 *)
                     echo "  Invalid input, please try again."
                     ;;
             esac
         done
-        [[ -z $snmysqlhost ]] && snmysqlhost='localhost'
-        [[ -z $snmysqluser ]] && snmysqluser='fogmaster'
+        [[ -z ${DB_host} ]] && DB_host='localhost'
+        [[ -z ${DB_user} ]] && DB_user='fogmaster'
         ;;
     [Ss])
-        while [[ -z $snmysqlhost ]]; do
+        while [[ -z ${DB_host} ]]; do
             echo
             echo "  What is the IP address or hostname of the FOG server running "
             echo "  the fog database?  This is typically the server that also "
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
             read snmysqlhost
         done
-        snmysqluser='fogstorage'
-        while [[ -z $snmysqlpass ]]; do
+        DB_user='fogstorage'
+        while [[ -z ${DB_password} ]]; do
             echo
             echo "  What is the password to access the database?  "
             echo "  This information is storage in the management portal under "
@@ -288,12 +288,12 @@ case $installtype in
             echo "  'FOG Storage Nodes' -> "
             echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
             read -r snmysqlpass
-            [[ -z $snmysqlpass ]] && echo "Invalid input, please try again."
+            [[ -z ${DB_password} ]] && echo "Invalid input, please try again."
         done
         ;;
 esac
 # The "would you like to enable secure HTTPS" question used to live here. It
-# set $httpproto, which is now https on every install, so it no longer mapped to
+# set ${WEB_url_proto}, which is now https on every install, so it no longer mapped to
 # anything an admin could decide -- and answering "no" to it used to silently
 # turn off Secure Boot staging and turn on a 25-minute iPXE rebuild, neither of
 # which it mentioned.

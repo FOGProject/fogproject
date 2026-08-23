@@ -14,21 +14,21 @@ read -r os_name os_version <<< $(lsb_release -ir | cut -d':' -f2 | sed -e 's/^[[
 [[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && source /etc/fog/fog.conf
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
 source ${fogprogramdir%/}/.fogsettings
-system_class_php=${docroot}/${webroot}/lib/fog/system.class.php
+system_class_php=${WEB_docroot}/${WEB_root}/lib/fog/system.class.php
 fog_version=$(cat ${system_class_php} | grep FOG_VERSION | cut -d',' -f2 | cut -d"'" -f2)
 
 # Construct correct mysql options.
 options="-sN"
-if [[ $snmysqlhost != "" ]]; then
-        options="$options -h$snmysqlhost"
+if [[ ${DB_host} != "" ]]; then
+        options="$options -h${DB_host}"
 fi
-if [[ $snmysqluser != "" ]]; then
-        options="$options -u$snmysqluser"
+if [[ ${DB_user} != "" ]]; then
+        options="$options -u${DB_user}"
 fi
-if [[ $snmysqlpass != "" ]]; then
-        options="$options -p$snmysqlpass"
+if [[ ${DB_password} != "" ]]; then
+        options="$options -p${DB_password}"
 fi
-options="$options -D $mysqldbname -e"
+options="$options -D ${DB_name} -e"
 
 # Construct sql statements.
 FOG_TFTP_PXE_KERNEL_32_select='select settingValue from globalSettings WHERE settingKey = "FOG_TFTP_PXE_KERNEL_32";'

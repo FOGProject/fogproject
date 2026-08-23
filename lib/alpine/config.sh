@@ -37,7 +37,7 @@ if [[ -z $php_apk ]]; then
     # every currently supported Alpine, so it is the safest thing to guess.
     [[ -z $php_apk ]] && php_apk="83"
 fi
-if [[ -z $packages ]]; then
+if [[ -z ${FOG_packages} ]]; then
     # "mariadb-server" rather than Alpine's own name for it, which is plain
     # "mariadb". installPackages() maps a handful of database package names
     # onto $sqlclientlist / $sqlserverlist so that a MySQL host is not handed a
@@ -48,7 +48,7 @@ if [[ -z $packages ]]; then
     # install then ran all the way to "Setting up and starting MySQL" before
     # dying on an empty datadir. Naming the server slot instead routes it
     # through $sqlserverlist, which now ends in "mariadb". See #863.
-    packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb-server mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 shadow syslinux tar tftp-hpa vsftpd wget xmessage xz"
+    FOG_packages="bash bc cdrkit curl gcc g++ git gzip lftp m4 make mariadb-server mariadb-client net-tools nfs-utils openrc openssh openssl perl perl-crypt-passwdmd5 shadow syslinux tar tftp-hpa vsftpd wget xmessage xz"
     # Only the extensions FOG actually uses. The old list also carried a pile
     # that either never applied here (odbc, pdo_odbc, pdo_pgsql, sqlite3,
     # pdo_sqlite, pdo_dblib, apcu, soap, gmp, bz2, zip) or cannot exist under
@@ -65,16 +65,16 @@ if [[ -z $packages ]]; then
     for _apkmod in fpm session openssl mbstring ctype iconv curl gd gettext \
         bcmath sockets pcntl posix dom simplexml xmlreader ldap mysqli pdo \
         pdo_mysql opcache phar fileinfo ftp; do
-        packages="$packages php${php_apk}-${_apkmod}"
+        FOG_packages="${FOG_packages} php${php_apk}-${_apkmod}"
     done
     unset _apkmod
-    packages="php${php_apk} $packages"
+    FOG_packages="php${php_apk} ${FOG_packages}"
     # Alpine keeps the OpenRC init scripts in separate -openrc subpackages.
     # Install the daemon alone and /etc/init.d/<name> simply does not exist, so
     # every rc-service call later in the install fails with nothing to start.
     # None of these were listed before. (php-fpm is the exception: php8x-fpm
     # ships its own init script, there is no php8x-fpm-openrc.)
-    packages="$packages tftp-hpa-openrc vsftpd-openrc mariadb-openrc nfs-utils-openrc"
+    FOG_packages="${FOG_packages} tftp-hpa-openrc vsftpd-openrc mariadb-openrc nfs-utils-openrc"
     # ca-certificates, not ca-certificates-bundle. The minimal Alpine image
     # carries only the bundle, which is the trusted roots and nothing else --
     # no /usr/local/share/ca-certificates and no update-ca-certificates. FOG
@@ -82,19 +82,19 @@ if [[ -z $packages ]]; then
     # verify the certificate it just issued itself, and with no tool to do it
     # the install failed its own reachability check with "TLS verification
     # failed (curl 60)". See #863.
-    packages="$packages ca-certificates"
+    FOG_packages="${FOG_packages} ca-certificates"
     # linux-headers, because the installer BUILDS udpcast from source and
     # socklib.c includes <linux/types.h>. glibc distributions ship the kernel
     # UAPI headers with libc-dev; musl does not, so gcc alone is not enough and
     # the build died with "fatal error: linux/types.h: No such file or
     # directory" -- taking multicast with it. See #863.
-    packages="$packages linux-headers"
+    FOG_packages="${FOG_packages} linux-headers"
     # Alpine dropped ISC dhcp-server after 3.20: on 3.21+ the `dhcp` package
     # still resolves but ships no files at all, and dhcp-openrc is gone. Kea is
     # the only DHCP server Alpine carries now and it is present as far back as
     # 3.20, so Alpine goes Kea-only rather than carrying a split that would be
     # dead on every current release. FOG already knows how to drive Kea (GH-730).
-    packages="$packages kea kea-dhcp4"
+    FOG_packages="${FOG_packages} kea kea-dhcp4"
 fi
 [[ -z $packageinstaller ]] && packageinstaller="apk add"
 [[ -z $packagelist ]] && packagelist="apk info"
@@ -112,7 +112,7 @@ pkgQueryAll() { apk info 2>/dev/null; }
 pkgListAll() { apk search -q 2>/dev/null; }
 [[ -z $langPackages ]] && langPackages="iso-codes"
 # $dhcpname names the DHCP *package*, and it is what the engine selection in
-# configureDhcpEngine keys on -- it bails out entirely unless $packages
+# configureDhcpEngine keys on -- it bails out entirely unless ${FOG_packages}
 # contains it. Alpine has no ISC option left to choose between (see the
 # Kea-only note above), so the slot is filled by Kea and the selection settles
 # on Kea without a decision to make. Naming the dhcpd *service* here, as this
@@ -120,13 +120,13 @@ pkgListAll() { apk search -q 2>/dev/null; }
 # switch was skipped, leaving Alpine pointed at an ISC daemon it cannot install.
 [[ -z $dhcpname ]] && dhcpname="kea-dhcp4"
 if [[ -z $webdirdest ]]; then
-    if [[ -z $docroot ]]; then
-        docroot="/var/www/"
-        webdirdest="${docroot}fog/"
-    elif [[ "$docroot" != *'fog'* ]]; then
-        webdirdest="${docroot}fog/"
+    if [[ -z ${WEB_docroot} ]]; then
+        WEB_docroot="/var/www/"
+        webdirdest="${WEB_docroot}fog/"
+    elif [[ "${WEB_docroot}" != *'fog'* ]]; then
+        webdirdest="${WEB_docroot}fog/"
     else
-        webdirdest="${docroot}/"
+        webdirdest="${WEB_docroot}/"
     fi
 fi
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
@@ -137,8 +137,8 @@ fi
 [[ -z $httpdconf ]] && httpdconf="/etc/nginx/nginx.conf"
 [[ -z $etcconf ]] && etcconf="/etc/nginx/http.d/default.conf"
 [[ -z $phpini ]] && phpini="/etc/php${php_apk}/php.ini"
-[[ -z $storageLocation ]] && storageLocation="/images"
-[[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
+[[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="/images"
+[[ -z $storageLocationCapture ]] && storageLocationCapture="${STORAGE_image_share_path}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/var/tftpboot"
@@ -148,19 +148,19 @@ fi
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
 # OpenRC service names, as installed by the -openrc subpackages above. dhcpd4
 # is Arch's name for the ISC daemon; Alpine calls it dhcpd.
-[[ -z $dhcpd ]] && dhcpd="dhcpd"
+[[ -z ${DHCP_service_name} ]] && DHCP_service_name="dhcpd"
 [[ -z $iscservice ]] && iscservice="dhcpd"
 # kea-dhcp4 is the package that actually carries /etc/init.d/kea-dhcp4 and
 # /etc/kea/kea-dhcp4.conf; plain "kea" is the meta/library package and brings
 # neither. See the Kea-only note by the package list above.
 [[ -z $keapackage ]] && keapackage="kea-dhcp4"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
-[[ -z $dhcpengine ]] && dhcpengine="kea"
+[[ -z ${DHCP_engine} ]] && DHCP_engine="kea"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 # Alpine's fpm service is php-fpm83, not php-fpm8.3: it takes the undotted
-# package suffix. $php_ver is left alone deliberately -- installPackages
+# package suffix. ${WEB_php_version} is left alone deliberately -- installPackages
 # overwrites it with the dotted version reported by the php binary, which is
 # what the Debian paths want, and the two must not be conflated.
 [[ -z $phpfpm ]] && phpfpm="php-fpm${php_apk}"
-[[ -z $webserver ]] && webserver="nginx"
-packages="${packages} ${webserver}"
+[[ -z ${WEB_server_engine} ]] && WEB_server_engine="nginx"
+FOG_packages="${FOG_packages} ${WEB_server_engine}"

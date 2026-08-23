@@ -54,7 +54,7 @@ USAGE
 # it is by definition the account the web server reads and writes as, and this
 # stays right on a distro whose package renames the account.
 webuser() {
-    local root="${docroot:-/var/www/html/}${webroot:-/fog/}"
+    local root="${WEB_docroot:-/var/www/html/}${WEB_root:-/fog/}"
     root="${root//\/\///}"
     if [[ -d $root ]]; then
         stat -c '%U' "$root" 2>/dev/null && return 0

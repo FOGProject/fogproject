@@ -70,7 +70,7 @@ if (false === strpos($src, "fog-install-probe")) {
         . ' replaced, point this test at whatever replaced it';
 }
 if (!preg_match(
-    '#INSERT INTO \$mysqldbname\.taskLog \([^)]*createdBy[^)]*\) VALUES#',
+    '#INSERT INTO \$\{DB_name\}\.taskLog \([^)]*createdBy[^)]*\) VALUES#',
     $src
 )) {
     $fails[] = 'the fogstorage grant probe no longer names its columns, which'

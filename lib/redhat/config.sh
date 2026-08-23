@@ -19,8 +19,8 @@
 [[ -z $packageQuery ]] && packageQuery="rpm -q \$x"
 case $linuxReleaseName_lower in
     *mageia*)
-        webserver="apache"
-        [[ -z $packages ]] && packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl attr cdrkit-genisoimage curl dhcp-server gcc gcc-aarch64-linux-gnu gcc-c++ git gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-curl php-fpm php-gd php-gettext php-ldap php-mbstring php-mysqlnd php-pcntl php-pdo php-pdo_mysql php-pecl-ssh2 tar tftp-server util-linux vsftpd wget"
+        WEB_server_engine="apache"
+        [[ -z ${FOG_packages} ]] && FOG_packages="apache apache-mod_fcgid apache-mod_php apache-mod_ssl attr cdrkit-genisoimage curl dhcp-server gcc gcc-aarch64-linux-gnu gcc-c++ git gzip htmldoc lftp m4 make mariadb mariadb-common mariadb-common-core mariadb-core net-tools nfs-utils perl perl-Crypt-PasswdMD5 php-cli php-curl php-fpm php-gd php-gettext php-ldap php-mbstring php-mysqlnd php-pcntl php-pdo php-pdo_mysql php-pecl-ssh2 tar tftp-server util-linux vsftpd wget"
         [[ -z $packageinstaller ]] && packageinstaller="urpmi --auto"
         [[ -z $packagelist ]] && packagelist="urpmq"
         [[ -z $packageupdater ]] && packageupdater="$packageinstaller"
@@ -34,14 +34,14 @@ case $linuxReleaseName_lower in
         [[ -z $etcconf ]] && etcconf="/etc/httpd/conf/conf.d/fog.conf"
         ;;
     *)
-        [[ -z $webserver ]] && webserver="httpd"
-        [[ -z $etcconf ]] && etcconf="/etc/$webserver/conf.d/fog.conf"
-        [[ -z $packages ]] && {
+        [[ -z ${WEB_server_engine} ]] && WEB_server_engine="httpd"
+        [[ -z $etcconf ]] && etcconf="/etc/${WEB_server_engine}/conf.d/fog.conf"
+        [[ -z ${FOG_packages} ]] && {
             if [[ $OSVersion -gt 7 ]]; then
-                packages="attr curl dhcp-server gcc gcc-aarch64-linux-gnu gcc-c++ genisoimage git gzip lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process php-pecl-ssh2 syslinux tar tftp-server util-linux-user vsftpd wget xz-devel"
+                FOG_packages="attr curl dhcp-server gcc gcc-aarch64-linux-gnu gcc-c++ genisoimage git gzip lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-json php-ldap php-mbstring php-mysqlnd php-process php-pecl-ssh2 syslinux tar tftp-server util-linux-user vsftpd wget xz-devel"
                 [[ -z $dhcpname ]] && dhcpname="dhcp-server"
             else
-                packages="attr curl dhcp gcc gcc-aarch64-linux-gnu gcc-c++ genisoimage git gzip lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process php-pecl-ssh2 syslinux tar tftp-server util-linux vsftpd wget xz-devel"
+                FOG_packages="attr curl dhcp gcc gcc-aarch64-linux-gnu gcc-c++ genisoimage git gzip lftp m4 make mod_fastcgi mod_ssl mtools mysql mysql-server net-tools nfs-utils openssl php php-cli php-common php-fpm php-gd php-ldap php-mbstring php-mysqlnd php-process php-pecl-ssh2 syslinux tar tftp-server util-linux vsftpd wget xz-devel"
             fi
         }
         pkginst=$(command -v dnf)
@@ -88,22 +88,22 @@ case $linuxReleaseName_lower in
 esac
 [[ -z $langPackages ]] && langPackages="iso-codes"
 if [[ -z $webdirdest ]]; then
-    if [[ -z $docroot ]]; then
-        docroot="/var/www/html/"
-        webdirdest="${docroot}fog/"
-    elif [[ $docroot != *'fog'* ]]; then
-        webdirdest="${docroot}fog/"
+    if [[ -z ${WEB_docroot} ]]; then
+        WEB_docroot="/var/www/html/"
+        webdirdest="${WEB_docroot}fog/"
+    elif [[ ${WEB_docroot} != *'fog'* ]]; then
+        webdirdest="${WEB_docroot}fog/"
     else
-        webdirdest="${docroot}/"
+        webdirdest="${WEB_docroot}/"
     fi
 fi
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
-[[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
-if [[ $webserver == httpd ]]; then
+[[ -z $apachelogdir ]] && apachelogdir="/var/log/${WEB_server_engine}"
+if [[ ${WEB_server_engine} == httpd ]]; then
     [[ -z $apacheuser ]] && apacheuser="apache"
     httperrlog="error_log"
     httpacclog="access_log"
-elif [[ $webserver == nginx ]]; then
+elif [[ ${WEB_server_engine} == nginx ]]; then
     [[ -z $apacheuser ]] && apacheuser="nginx"
     httperrlog="error.log"
     httpacclog="access.log"
@@ -112,13 +112,13 @@ fi
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/$httpacclog"
 [[ -z $phpfpm ]] && phpfpm="php-fpm"
 [[ -z $phpini ]] && phpini="/etc/php.ini"
-[[ -z $storageLocation ]] && storageLocation="/images"
-[[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
+[[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="/images"
+[[ -z $storageLocationCapture ]] && storageLocationCapture="${STORAGE_image_share_path}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/tftpboot"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd/vsftpd.conf"
-[[ -z $dhcpd ]] && dhcpd="dhcpd"
+[[ -z ${DHCP_service_name} ]] && DHCP_service_name="dhcpd"
 [[ -z $iscservice ]] && iscservice="dhcpd"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
