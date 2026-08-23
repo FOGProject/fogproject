@@ -1472,6 +1472,9 @@ class FOGConfigurationPage extends FOGPage
             'SCHEDULERGLOBALENABLED' => true,
             'FILEDELETEQUEUEGLOBALENABLED' => true,
             'PINGHOSTGLOBALENABLED' => true,
+            // Ping Host Settings; schema 356. A 1/0 flag so it renders
+            // as a checkbox here rather than a free-text box.
+            'PINGHOSTUSEICMP' => true,
             'IMAGESIZEGLOBALENABLED' => true,
             'IMAGEREPLICATORGLOBALENABLED' => true,
             'SNAPINREPLICATORGLOBALENABLED' => true,

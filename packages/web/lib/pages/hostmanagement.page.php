@@ -1149,6 +1149,20 @@ class HostManagement extends FOGPage
         // these two are written by the ping service and by the client
         // check-in, so the object is the only source that can be right.
         $lastPing = self::_lastSeenText($this->obj->get('lastping'));
+        // Say WHICH probe reached it, when the row knows. A timestamp with
+        // no method answers "was it up" and leaves "is the service on
+        // PINGHOSTPORT running" unanswered, which is the next question
+        // anyone asks. Rows written before schema 356 have no method and
+        // show the bare timestamp, which is all that is known about them.
+        $pingMethod = strtolower((string)$this->obj->get('pingmethod'));
+        if (_('Never') !== $lastPing && $pingMethod) {
+            $lastPing = sprintf(
+                '%s (%s)',
+                $lastPing,
+                // Protocol name, not translated.
+                strtoupper($pingMethod)
+            );
+        }
         $lastCheckin = self::_lastSeenText($this->obj->get('lastcheckin'));
 
         $labelClass = 'col-sm-3 col-form-label';

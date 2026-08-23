@@ -110,10 +110,11 @@ class PingHosts extends FOGService
             // flag above and unlike the log path and tty: those genuinely
             // need a restart to take effect, these do not, and an admin who
             // changes the port should see it apply on the next cycle.
-            list($port, $timeout) = self::getSetting(
+            list($port, $timeout, $useIcmp) = self::getSetting(
                 [
                     'PINGHOSTPORT',
-                    'PINGHOSTTIMEOUT'
+                    'PINGHOSTTIMEOUT',
+                    'PINGHOSTUSEICMP'
                 ]
             );
             $webServerIP = self::resolveHostName(
@@ -241,51 +242,133 @@ class PingHosts extends FOGService
                 );
             }
             $started = microtime(true);
-            // Static call, like Route::names() above: getClass() is the
+            // ICMP first, TCP for whatever it could not answer.
+            //
+            // The order is the whole point. An echo request asks "is this
+            // machine up"; a TCP connect asks "does this machine run a
+            // service on the one port we guessed at". The first is the
+            // question, so it is asked first, and the connect is only spent
+            // on hosts the echo did not reach.
+            //
+            // A host that answers ICMP is therefore never TCP-probed at all,
+            // which also means the cycle gets CHEAPER on a healthy fleet
+            // rather than paying for both. A fleet that blocks ICMP pays two
+            // batch timeouts instead of one, which is the worst case and is
+            // still one timeout per batch rather than per host.
+            //
+            // Static calls, like Route::names() above: getClass() is the
             // factory for INSTANTIATING a FOG class, and there is nothing to
-            // instantiate here -- executeBatch() is static precisely because
-            // a batch has no single host to be constructed around.
-            $results = Ping::executeBatch(
-                $targets,
-                $timeout,
-                $port
-            );
+            // instantiate here -- the batch methods are static precisely
+            // because a batch has no single host to be constructed around.
+            $method = [];
+            $results = [];
+            $icmpOn = (int)$useIcmp === 1;
+            if ($icmpOn && !Ping::echoAvailable()) {
+                // Once per cycle, not once per host, and said out loud
+                // rather than degrading quietly: an admin who turned ICMP on
+                // and sees no change deserves to know the socket was
+                // refused. Answered by opening a socket, because a gid or
+                // euid test only says what SHOULD happen -- a container
+                // profile can still say no.
+                self::outall(
+                    sprintf(
+                        ' * %s',
+                        _(
+                            'ICMP is enabled but no echo socket could be '
+                            . 'opened; falling back to the TCP check only'
+                        )
+                    )
+                );
+                $icmpOn = false;
+            }
+            if ($icmpOn) {
+                foreach (Ping::echoBatch($targets, $timeout) as $id => $up) {
+                    $results[$id] = 0;
+                    $method[$id] = Ping::METHOD_ICMP;
+                }
+            }
+            // echoBatch() OMITS a host it could not reach rather than
+            // recording false, because an unanswered echo means nothing on
+            // its own -- plenty of healthy hosts drop them. So the TCP probe
+            // gets everything the echo did not positively answer, and it is
+            // the TCP result that decides those.
+            $tcpTargets = array_diff_key($targets, $results);
+            if ($tcpTargets) {
+                foreach (
+                    Ping::executeBatch($tcpTargets, $timeout, $port)
+                    as $id => $code
+                ) {
+                    $results[$id] = $code;
+                    $method[$id] = Ping::METHOD_TCP;
+                }
+            }
             $elapsed = microtime(true) - $started;
             // Group by result so the whole cycle costs a handful of UPDATEs
             // instead of one per host. update() turns an array of ids into
             // an IN () clause, and in practice a fleet resolves to two or
             // three distinct codes -- 0, timed out, and refused.
-            $byCode = [];
+            //
+            // Grouped by code AND method now that both are stored. That is
+            // at most twice as many groups, still a handful, and the pair
+            // has to travel together: a host is 0/icmp or 0/tcp and writing
+            // one group's method onto the other's rows would say the port
+            // answered when the echo did.
+            $byResult = [];
             foreach ($results as $id => $code) {
                 $code = (int)$code;
-                $byCode[$code][] = $id;
+                $how = $method[$id] ?? Ping::METHOD_TCP;
+                $byResult[$code . '|' . $how][] = $id;
                 self::outall(
                     sprintf(
                         ' | %s (%s): %s',
                         $names[$id] ?? $id,
                         $targets[$id],
                         (
-                            $code === 0 ?
-                            _('online') :
-                            // Say both halves for a refused connection: the
-                            // errno alone reads as a failure in the log, and
-                            // it is the one failure that is really a success.
+                            Ping::METHOD_ICMP === $how ?
+                            // Named explicitly: "online" against a fleet
+                            // where some hosts answered an echo and others a
+                            // TCP connect would hide the difference the
+                            // column was added to record.
+                            _('online (icmp echo)') :
                             (
-                                Ping::isAlive($code) ?
+                                $code === 0 ?
                                 sprintf(
-                                    '%s (%s)',
-                                    _('up, port closed'),
-                                    socket_strerror($code)
+                                    '%s %d',
+                                    _('online, tcp port'),
+                                    $port
                                 ) :
-                                socket_strerror($code)
+                                // Say both halves for a refused connection:
+                                // the errno alone reads as a failure in the
+                                // log, and it is the one failure that is
+                                // really a success.
+                                (
+                                    Ping::isAlive($code) ?
+                                    sprintf(
+                                        '%s (%s)',
+                                        _('up, port closed'),
+                                        socket_strerror($code)
+                                    ) :
+                                    socket_strerror($code)
+                                )
                             )
                         )
                     )
                 );
             }
             $seen = self::niceDate()->format('Y-m-d H:i:s');
-            foreach ($byCode as $code => $ids) {
-                $update = ['pingstatus' => $code];
+            foreach ($byResult as $pair => $ids) {
+                list($code, $how) = explode('|', $pair, 2);
+                $code = (int)$code;
+                $update = [
+                    'pingstatus' => $code,
+                    // Written on every result, including failures. The
+                    // method describes the probe that produced this verdict,
+                    // so a host that used to answer ICMP and now answers
+                    // nothing must not keep claiming 'icmp' -- a stale
+                    // method beside a fresh code is a row that contradicts
+                    // itself.
+                    'pingmethod' => $how
+                ];
                 // lastping records "this host answered", so only a result
                 // that PROVES the host answered writes it -- which is not
                 // the same as a successful connection. A refused connection
@@ -320,8 +403,8 @@ class PingHosts extends FOGService
             // Counted by "was the host alive", not by "was the port open",
             // so the summary agrees with what got a lastping stamp above.
             $alive = 0;
-            foreach ($byCode as $code => $ids) {
-                if (Ping::isAlive($code)) {
+            foreach ($byResult as $pair => $ids) {
+                if (Ping::isAlive((int)strstr($pair, '|', true))) {
                     $alive += count($ids);
                 }
             }
