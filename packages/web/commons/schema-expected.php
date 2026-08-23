@@ -925,7 +925,7 @@ return [
             ],
         ],
         'users' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `users` ( `uId` int(11) NOT NULL AUTO_INCREMENT, `uName` varchar(255) DEFAULT NULL, `uPass` longtext NOT NULL, `uCreateDate` datetime NOT NULL DEFAULT current_timestamp(), `uCreateBy` varchar(255) DEFAULT NULL, `uType` int(11) NOT NULL DEFAULT 0, `uDisplay` varchar(255) NOT NULL DEFAULT \'\', `uAllowAPI` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `uAPIToken` varchar(255) NOT NULL DEFAULT \'\', `uAuthSource` varchar(32) NOT NULL DEFAULT \'\', PRIMARY KEY (`uId`), UNIQUE KEY `name` (`uName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `users` ( `uId` int(11) NOT NULL AUTO_INCREMENT, `uName` varchar(255) DEFAULT NULL, `uPass` longtext NOT NULL, `uCreateDate` datetime NOT NULL DEFAULT current_timestamp(), `uCreateBy` varchar(255) DEFAULT NULL, `uType` int(11) NOT NULL DEFAULT 0, `uDisplay` varchar(255) NOT NULL DEFAULT \'\', `uAllowAPI` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `uAPIToken` varchar(255) NOT NULL DEFAULT \'\', `uAuthSource` varchar(32) NOT NULL DEFAULT \'\', `uAPIOnly` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', PRIMARY KEY (`uId`), UNIQUE KEY `name` (`uName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'uId' => 'int(11) NOT NULL',
                 'uName' => 'varchar(255) DEFAULT NULL',
@@ -937,6 +937,7 @@ return [
                 'uAllowAPI' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
                 'uAPIToken' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'uAuthSource' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'uAPIOnly' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
             ],
         ],
         'userTracking' => [

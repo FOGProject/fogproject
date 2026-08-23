@@ -448,6 +448,10 @@ msgstr "API?"
 msgid "API Documentation"
 msgstr "Ort"
 
+#, fuzzy
+msgid "API Only Account"
+msgstr "Slack Accounts"
+
 msgid "API Token Created"
 msgstr ""
 
@@ -8449,6 +8453,9 @@ msgstr ""
 msgid "This FOG server"
 msgstr "IP(s) dieses Servers"
 
+msgid "This account is for API access only and cannot sign in."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -8625,6 +8632,9 @@ msgid "This would leave no account able to administer FOG without its identity p
 msgstr ""
 
 msgid "This would leave no account able to administer FOG."
+msgstr ""
+
+msgid "This would leave no account able to sign in and administer FOG."
 msgstr ""
 
 msgid "Those images should be activated with the associated"
@@ -9489,6 +9499,9 @@ msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
 
 msgid "Your database connection appears to be invalid"
 msgstr "Ihre Datenbankverbindung scheint ungültig zu sein"
+
+msgid "a service account: it may hold API tokens and can never sign in to this interface"
+msgstr ""
 
 #, fuzzy
 msgid "access"
