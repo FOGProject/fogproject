@@ -1258,6 +1258,21 @@ abstract class FOGService extends FOGBase
      */
     public function cleanupProcList()
     {
+        // Iterated over key SNAPSHOTS, with every read and write going to
+        // $this->procRef / $this->procPipes by full path.
+        //
+        // The obvious form -- foreach ((array)$this->procRef as &$x) -- does
+        // not work: casting produces a TEMPORARY, so &$x binds into the copy
+        // and every unset() through it is silently discarded. A finished
+        // transfer then stays in the list forever, and since housekeeping
+        // runs every 100ms the daemon re-reports it about ten times a
+        // second for the life of the process, filling the log while
+        // proc_close() is called again and again on the same handle. The
+        // casts were added for PHP 8 null safety and are still wanted;
+        // array_keys() gives that plus a stable iteration order that is
+        // safe to unset from. (The procPipes unsets below already wrote
+        // through by path and were never affected; procRef was.)
+        //
         // count() on a missing key is a TypeError under PHP 8, not a
         // warning -- an uncaught one, in a daemon, so the replicator would
         // die outright and the unit would simply stop syncing. empty() is
@@ -1265,26 +1280,28 @@ abstract class FOGService extends FOGBase
         // and an entry holding nothing both want the key dropped. The two
         // structures are kept in step by startTasking() and killTasking(),
         // but nothing enforces that, and this is not the place to find out.
-        foreach ((array)$this->procRef as $item => &$itemTypes) {
-            foreach ((array)$itemTypes as $image => &$images) {
-                foreach ((array)$images as $i => &$ref) {
-                    if (!$this->isRunning($images[$i])) {
-                        self::outall(" | Sync finished - " . print_r($images[$i], true));
-                        foreach ((array)($this->procPipes[$item][$image][$i] ?? []) as $j => &$pipe_ref) {
-                            if (is_resource($this->procPipes[$item][$image][$i][$j])) {
-                                fclose($this->procPipes[$item][$image][$i][$j]);
-                            }
-                            unset($this->procPipes[$item][$image][$i][$j]);
-                        }
-                        unset($this->procPipes[$item][$image][$i]);
-                        if (is_resource($images[$i])) {
-                            proc_close($images[$i]);
-                        }
-                        unset($images[$i]);
+        foreach (array_keys((array)$this->procRef) as $item) {
+            foreach (array_keys((array)$this->procRef[$item]) as $image) {
+                foreach (array_keys((array)$this->procRef[$item][$image]) as $i) {
+                    $proc = $this->procRef[$item][$image][$i];
+                    if ($this->isRunning($proc)) {
+                        continue;
                     }
+                    self::outall(" | Sync finished - " . print_r($proc, true));
+                    $pipes = (array)($this->procPipes[$item][$image][$i] ?? []);
+                    foreach (array_keys($pipes) as $j) {
+                        if (is_resource($pipes[$j])) {
+                            fclose($pipes[$j]);
+                        }
+                    }
+                    unset($this->procPipes[$item][$image][$i]);
+                    if (is_resource($proc)) {
+                        proc_close($proc);
+                    }
+                    unset($this->procRef[$item][$image][$i]);
                 }
-                if (empty($itemTypes[$image])) {
-                    unset($itemTypes[$image]);
+                if (empty($this->procRef[$item][$image])) {
+                    unset($this->procRef[$item][$image]);
                 }
                 if (empty($this->procPipes[$item][$image])) {
                     unset($this->procPipes[$item][$image]);
