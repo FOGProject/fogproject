@@ -96,6 +96,10 @@ class SubMenuData extends Hook
                     'customizepxe' => self::$foglang['PXEConfiguration'],
                     'newMenu' => self::$foglang['NewMenu'],
                     'maclist' => self::$foglang['MACAddrList'],
+                    // Beside FOG Settings, which is where the server-wide
+                    // fog-api-token lives -- so both halves of API
+                    // credentials are found in one place.
+                    'apitokens' => _('API Tokens'),
                     'settings' => self::$foglang['FOGSettings'],
                     'logviewer' => self::$foglang['LogViewer'],
                     'config' => self::$foglang['ConfigSave']

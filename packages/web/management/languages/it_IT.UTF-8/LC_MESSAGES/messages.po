@@ -56,6 +56,10 @@ msgid " | Unable to find image path"
 msgstr "Impossibile trovare il Nodo Archiviazione master"
 
 #, php-format
+msgid "%1$d token(s) updated, %2$d deleted."
+msgstr ""
+
+#, php-format
 msgid "%1$s \"%2$s\" (ID %3$s) failed to delete"
 msgstr ""
 
@@ -175,6 +179,9 @@ msgid "(all)"
 msgstr ""
 
 msgid "(default on all)"
+msgstr ""
+
+msgid "(deleted user)"
 msgstr ""
 
 msgid "(empty on all)"
@@ -439,11 +446,23 @@ msgstr ""
 msgid "API Token Failed"
 msgstr "Connessione FTP non è riuscita"
 
+#, fuzzy
+msgid "API Tokens"
+msgstr "API Utente Token"
+
+#, fuzzy
+msgid "API Tokens Updated"
+msgstr "Connessione FTP non è riuscita"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "API token issued for %s."
+msgstr "Token non valido passato"
 
 #, fuzzy
 msgid "API token issued!"
@@ -2310,6 +2329,9 @@ msgstr "Event data deve essere un array"
 msgid "Event must be a string"
 msgstr "Evento deve essere una stringa"
 
+msgid "Every API token on this server. Tokens are stored hashed &mdash; a token cannot be shown again after it is issued, so this page can revoke one but never recover it."
+msgstr ""
+
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
@@ -2718,6 +2740,9 @@ msgid "For a network/SMB share use its path, e.g."
 msgstr ""
 
 msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
+msgstr ""
+
+msgid "For service accounts and unattended integrations. The token acts with that user's roles, and the audit log records that you issued it for them."
 msgstr ""
 
 msgid "Forbidden (disallowed Origin)"
@@ -4137,12 +4162,18 @@ msgstr "È un"
 msgid "Issue Token"
 msgstr "Reset Token"
 
+msgid "Issue a token on behalf of a user"
+msgstr ""
+
 msgid "Issuer"
 msgstr ""
 
 #, fuzzy
 msgid "Issuer URL"
 msgstr "Server Shell"
+
+msgid "Issuing a token requires a POST."
+msgstr ""
 
 msgid "It can no longer be joined"
 msgstr ""
@@ -4920,6 +4951,9 @@ msgstr "Nome"
 msgid "Name for a new token"
 msgstr ""
 
+msgid "Name for the new token"
+msgstr ""
+
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Il parametro Diff deve essere numerico"
@@ -5002,6 +5036,10 @@ msgstr "Nodo"
 #, php-format
 msgid "No %1$s exists with ID %2$s"
 msgstr ""
+
+#, fuzzy
+msgid "No API tokens have been issued."
+msgstr "Token non valido passato"
 
 #, fuzzy
 msgid "No Action"
@@ -5218,6 +5256,9 @@ msgid "No storagegroups assigned to this snapin"
 msgstr "Il gruppo di archiviazione immagine assegnato non è valido"
 
 msgid "No such object."
+msgstr ""
+
+msgid "No such user."
 msgstr ""
 
 #, fuzzy
@@ -8187,6 +8228,9 @@ msgstr ""
 msgid "This is the only time it will be shown. FOG stores only a hash of it and cannot show it again. If you lose it, delete this token and issue another."
 msgstr ""
 
+msgid "This is the only time it will be shown. Hand it to the person or service it was issued for &mdash; you are seeing a credential that belongs to another account."
+msgstr ""
+
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
@@ -9087,10 +9131,16 @@ msgstr ""
 msgid "You do not have permission to change site grants."
 msgstr ""
 
+msgid "You do not have permission to issue API tokens."
+msgstr ""
+
 msgid "You do not have permission to perform this action."
 msgstr ""
 
 msgid "You do not have permission to read any activity source."
+msgstr ""
+
+msgid "You do not have permission to view API tokens."
 msgstr ""
 
 msgid "You may use _, ., -, or a space between."

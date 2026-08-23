@@ -886,6 +886,17 @@ abstract class FOGPage extends FOGBase
                     'certificates' => _('Certificates'),
                     'pxemenu' => self::$foglang['PXEBootMenu'],
                     'maclist' => self::$foglang['MACAddrList'],
+                    // Beside FOG Settings, which is where the server-wide
+                    // fog-api-token lives -- so both halves of API
+                    // credentials are found in one place.
+                    //
+                    // Here as well as in SubMenuData::subMenu() for the
+                    // reason spelled out against secureBoot above: that hook
+                    // carries the same 'about' list and never runs, so an
+                    // entry added only there is invisible. Both copies are
+                    // kept in step so the dead one does not become a
+                    // different menu that somebody later revives.
+                    'apitokens' => _('API Tokens'),
                     'settings' => self::$foglang['FOGSettings'],
                     'logviewer' => self::$foglang['LogViewer'],
                     'config' => self::$foglang['ConfigSave']

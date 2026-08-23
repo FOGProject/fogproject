@@ -162,7 +162,111 @@ class APIToken extends FOGController
             // the user would have no way to tell.
             return false;
         }
+        $row->audit(Audit::TOKEN_ISSUED, 'apitoken.create');
         return $token;
+    }
+
+    /**
+     * Enables or disables this token, recording the change.
+     *
+     * Here rather than at the call sites because there are two of them --
+     * the user's API tab and the central pane -- and an audit trail with a
+     * hole in it is worse than none: it invites the conclusion that nothing
+     * happened.
+     *
+     * @param bool $enabled What to set it to.
+     *
+     * @return bool Whether anything changed.
+     */
+    public function setEnabled($enabled)
+    {
+        $want = $enabled ? '1' : '0';
+        if ($want === (string)$this->get('enabled')) {
+            // Not a no-op worth recording. A save button that touches
+            // nothing should not fill the audit log with rows saying so.
+            return false;
+        }
+        $this->set('enabled', $want)->save();
+        $this->audit(
+            $enabled ? Audit::TOKEN_ENABLED : Audit::TOKEN_DISABLED,
+            'apitoken.edit'
+        );
+        return true;
+    }
+
+    /**
+     * Deletes this token, recording it first.
+     *
+     * Recorded before the destroy because afterwards there is nothing left
+     * to read the owner and name off, and nothing else in the system
+     * remembers that this token existed. What that ordering costs, and why
+     * the row is shaped the way it is, is in audit() below.
+     *
+     * @return void
+     */
+    public function revoke()
+    {
+        $this->audit(Audit::TOKEN_DELETED, 'apitoken.delete');
+        $this->destroy();
+    }
+
+    /**
+     * Writes one audit row about this token.
+     *
+     * WHY THE SUBJECT IS THE TOKEN AND THE OWNER IS IN THE TEXT, which is
+     * the opposite of what it looks like it should be.
+     *
+     * Audit::record() sets itself as Audit::$_current, and
+     * FOGController::destroy() calls Audit::identify() -- which REVISES
+     * $_current in place, stamping the destroyed object's own type, id and
+     * name over whatever was there (ADR 0021 Decision 7: a delete's header
+     * is the only record it leaves). So a row written here naming the OWNER
+     * as its subject silently becomes a row naming the TOKEN, moments
+     * later, with nothing logged and no error.
+     *
+     * Reordering does not fix it. Recording AFTER destroy() works for one
+     * token and corrupts the previous one in a loop, because the next
+     * destroy()'s identify() reaches back into the row the last record()
+     * left as $_current -- which is exactly what the central pane's
+     * multi-delete does.
+     *
+     * So every row here uses the subject identify() would impose anyway.
+     * The two agree, the rewrite is a no-op, and the owner goes in `text`,
+     * which identify() does not touch. All four token events are written
+     * the same way so the log reads uniformly rather than the delete being
+     * shaped differently from its siblings.
+     *
+     * The token and its hash are never recorded: a credential does not go
+     * in a log (#1261/#1262).
+     *
+     * @param string $type       An Audit TOKEN_* constant.
+     * @param string $permission The permission this exercised.
+     *
+     * @return void
+     */
+    public function audit($type, $permission)
+    {
+        $ownerID = (int)$this->get('userID');
+        $owner = self::getClass('User', $ownerID);
+        Audit::record(
+            [
+                'type' => $type,
+                'subjectType' => 'apitoken',
+                'subjectID' => (int)$this->get('id'),
+                'subjectLabel' => (string)$this->get('name'),
+                'permission' => $permission,
+                // The fact the subject cannot carry. A token id means
+                // nothing once the row is gone; whose credential it was is
+                // the whole question anybody brings to this log.
+                'text' => sprintf(
+                    'owner=%s (%d)',
+                    $owner->isValid() ? $owner->get('name') : '(deleted user)',
+                    $ownerID
+                ),
+                'affectedCount' => 1,
+                'renderable' => 1
+            ]
+        );
     }
 
     /**

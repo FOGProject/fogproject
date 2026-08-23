@@ -140,7 +140,23 @@ class Authorization extends FOGBase
      */
     const GLOBAL_SUB_OVERRIDES = [
         'kernelfetch' => 'settings.edit',
-        'initrdfetch' => 'settings.edit'
+        'initrdfetch' => 'settings.edit',
+        // The API token pane lives under FOG Configuration for where an
+        // administrator looks, not for who may see it: it is gated on
+        // apitoken.*, not on that node's own permission. Overridden here
+        // rather than by moving the page, because the alternative is
+        // settings.edit deciding who can read a census of every credential
+        // on the server -- and SIX page nodes already map onto that one
+        // permission.
+        //
+        // apitokens resolves to view for BOTH verbs; a global override
+        // cannot vary by method. That is deliberate rather than a
+        // limitation worked around: reaching the pane needs view, and the
+        // edit and delete grants are checked per action inside
+        // apitokensPost(), which is the only place that can tell an
+        // enable from a revoke anyway.
+        'apitokens' => 'apitoken.view',
+        'issueapitokenfor' => 'apitoken.create'
     ];
     /**
      * API route name => permission action, for the class-parameterized
@@ -373,6 +389,24 @@ class Authorization extends FOGBase
             'printer' => ['view', 'create', 'edit', 'delete'],
             'module' => ['view', 'create', 'edit', 'delete'],
             'user' => ['view', 'create', 'edit', 'delete'],
+            // API tokens are their own node rather than an extension of
+            // user.*, because "can edit users" and "can inventory every API
+            // credential on this server" are different powers and only one
+            // of them is a credential census.
+            //
+            // The four actions are deliberately separate, and delete is the
+            // one to hand out narrowly: DISABLE IS REVERSIBLE AND DELETE IS
+            // NOT. A mass-disable is downtime somebody undoes with one
+            // click; a mass-delete means every integration on the estate
+            // needs a fresh token minted and redeployed to wherever it is
+            // configured, and nothing can bring the old ones back. Same
+            // grant for both would price them the same.
+            //
+            // create is issuing on behalf of another user -- see
+            // FOGConfigurationPage::apitokens(), which hands the plaintext
+            // to the issuer rather than the owner, which is why it is not
+            // folded into edit.
+            'apitoken' => ['view', 'create', 'edit', 'delete'],
             'usergroup' => ['view', 'create', 'edit', 'delete'],
             'role' => ['view', 'create', 'edit', 'delete'],
             // Sites came in from the site plugin. The node keeps the name

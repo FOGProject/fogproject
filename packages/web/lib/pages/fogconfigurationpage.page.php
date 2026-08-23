@@ -1236,6 +1236,343 @@ class FOGConfigurationPage extends FOGPage
         $this->jsonSend($code, $msg);
     }
     /**
+     * The estate-wide API token inventory.
+     *
+     * The per-user API tab answers "what does this user have". This answers
+     * the question that actually drives revocation: "what credentials exist
+     * on this server, and which has nothing touched in months". Without it
+     * that is only answerable by opening every user in turn, which is why
+     * atLastUsed was worth recording in the first place.
+     *
+     * Sits under FOG Configuration because the server-wide fog-api-token
+     * already lives there, so it is where an administrator already goes for
+     * API credentials.
+     *
+     * WHAT IT CANNOT DO, because people will ask: show a token. The table
+     * holds hashes. This is inventory and revocation, never recovery.
+     *
+     * @return void
+     */
+    public function apitokens()
+    {
+        $this->title = _('API Tokens');
+
+        if (!Authorization::can('apitoken.view')) {
+            echo $this->_box(
+                _('API Tokens'),
+                '<p>' . _('You do not have permission to view API tokens.')
+                . '</p>',
+                ['color' => 'warning']
+            );
+            return;
+        }
+
+        $uid = (int)self::$FOGUser->get('id');
+        $tokens = self::getClass('APITokenManager')->visibleTo($uid);
+
+        $mayEdit = Authorization::can('apitoken.edit');
+        $mayDelete = Authorization::can('apitoken.delete');
+        $mayCreate = Authorization::can('apitoken.create');
+
+        $body = '<p>'
+            . _('Every API token on this server. Tokens are stored hashed '
+                . '&mdash; a token cannot be shown again after it is issued, '
+                . 'so this page can revoke one but never recover it.')
+            . '</p>';
+
+        // Filled by the JS from issueAPITokenFor()'s reply. Only ever
+        // populated in the response to the click that minted the token; it
+        // is not carried in the session and not re-rendered later.
+        if ($mayCreate) {
+            $body .= '<div class="alert alert-success d-none" '
+                . 'id="central-token-fresh">';
+            $body .= '<h5>' . _('Copy this token now') . '</h5>';
+            $body .= '<p>'
+                . _('This is the only time it will be shown. Hand it to the '
+                    . 'person or service it was issued for &mdash; you are '
+                    . 'seeing a credential that belongs to another account.')
+                . '</p>';
+            $body .= '<input type="text" class="form-control" readonly '
+                . 'onclick="this.select();" id="central-token-fresh-value"/>';
+            $body .= '</div>';
+        }
+
+        $body .= '<table class="table table-sm" id="apitoken-table">';
+        $body .= '<thead><tr>'
+            . '<th>' . _('User') . '</th>'
+            . '<th>' . _('Name') . '</th>'
+            . '<th>' . _('Created') . '</th>'
+            . '<th>' . _('Created By') . '</th>'
+            . '<th>' . _('Last Used') . '</th>'
+            . '<th>' . _('Enabled') . '</th>';
+        if ($mayDelete) {
+            $body .= '<th>' . _('Delete') . '</th>';
+        }
+        $body .= '</tr></thead><tbody>';
+
+        if (count($tokens) < 1) {
+            $body .= '<tr><td colspan="7">'
+                . _('No API tokens have been issued.')
+                . '</td></tr>';
+        }
+
+        foreach ($tokens as $token) {
+            $body .= '<tr>';
+            $body .= '<td>' . \Initiator::e($token['userName']) . '</td>';
+            $body .= '<td>' . \Initiator::e($token['name']) . '</td>';
+            $body .= '<td>' . \Initiator::e($token['createdTime']) . '</td>';
+            $body .= '<td>' . \Initiator::e($token['createdBy']) . '</td>';
+            // "Never" is a different fact from "used at the epoch", and the
+            // column exists precisely to tell them apart -- so an empty
+            // value is spelled out rather than rendered as a blank cell the
+            // reader has to interpret.
+            $body .= '<td>'
+                . ('' === $token['lastUsed']
+                    ? _('Never')
+                    : \Initiator::e($token['lastUsed']))
+                . '</td>';
+            $body .= '<td><input type="checkbox" name="tokenenabled[]" '
+                . 'value="' . $token['id'] . '"'
+                . ($token['enabled'] ? ' checked' : '')
+                . ($mayEdit ? '' : ' disabled')
+                . '/></td>';
+            if ($mayDelete) {
+                $body .= '<td><input type="checkbox" name="tokendelete[]" '
+                    . 'value="' . $token['id'] . '"/></td>';
+            }
+            $body .= '</tr>';
+        }
+        $body .= '</tbody></table>';
+
+        if ($mayCreate) {
+            $body .= '<hr/>';
+            $body .= '<h5>' . _('Issue a token on behalf of a user') . '</h5>';
+            $body .= '<p>'
+                . _('For service accounts and unattended integrations. The '
+                    . 'token acts with that user\'s roles, and the audit log '
+                    . 'records that you issued it for them.')
+                . '</p>';
+            $body .= '<div class="input-group">';
+            $body .= self::getClass('UserManager')
+                ->buildSelectBox('', 'issuefor', 'id');
+            $body .= '<input type="text" class="form-control" '
+                . 'id="centraltokenname" placeholder="'
+                . _('Name for the new token') . '"/>';
+            $body .= self::makeButton(
+                'centralissuetoken',
+                _('Issue Token'),
+                'btn btn-secondary'
+            );
+            $body .= '</div>';
+        }
+
+        $footer = '';
+        if ($mayEdit || $mayDelete) {
+            $footer = self::makeButton(
+                'apitoken-central-send',
+                _('Update'),
+                'btn btn-primary float-end'
+            );
+        }
+
+        echo '<form class="form-horizontal" method="post" action="'
+            . $this->formAction
+            . '" id="apitoken-central-form">';
+        echo $this->_box(_('API Tokens'), $body, ['footer' => $footer]);
+        echo '</form>';
+    }
+
+    /**
+     * Applies enable/disable and delete from the central pane.
+     *
+     * Every id is resolved through visibleToken(), never loaded directly:
+     * the ids arrive from a form, and a scoped administrator must not be
+     * able to touch a credential belonging to a user they cannot see just
+     * by posting its number.
+     *
+     * @return void
+     */
+    public function apitokensPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        $uid = (int)self::$FOGUser->get('id');
+        $manager = self::getClass('APITokenManager');
+
+        $keepEnabled = array_map(
+            'intval',
+            (array)($_POST['tokenenabled'] ?? [])
+        );
+        $toDelete = array_map(
+            'intval',
+            (array)($_POST['tokendelete'] ?? [])
+        );
+
+        $mayEdit = Authorization::can('apitoken.edit');
+        $mayDelete = Authorization::can('apitoken.delete');
+
+        $deleted = 0;
+        $changed = 0;
+
+        // Deletes first, so a token ticked for both does not get an
+        // enable/disable row written about it moments before it ceases to
+        // exist -- which would read, later, as two administrators
+        // disagreeing about one credential.
+        if ($mayDelete) {
+            foreach ($toDelete as $tokenID) {
+                $token = $manager->visibleToken($tokenID, $uid);
+                if (null === $token) {
+                    continue;
+                }
+                $token->revoke();
+                $deleted++;
+            }
+        }
+
+        if ($mayEdit) {
+            foreach ($manager->visibleTo($uid) as $row) {
+                if (in_array($row['id'], $toDelete, true) && $mayDelete) {
+                    continue;
+                }
+                $token = $manager->visibleToken($row['id'], $uid);
+                if (null === $token) {
+                    continue;
+                }
+                if ($token->setEnabled(in_array($row['id'], $keepEnabled, true))) {
+                    $changed++;
+                }
+            }
+        }
+
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => sprintf(
+                    _('%1$d token(s) updated, %2$d deleted.'),
+                    $changed,
+                    $deleted
+                ),
+                'title' => _('API Tokens Updated')
+            ]
+        );
+    }
+
+    /**
+     * GET half of the issue endpoint. Exists so the POST half can run.
+     *
+     * NOT dead code. FOGPageManager::render() resolves the sub to a method
+     * and, finding none, silently rewrites it to index() -- and only THEN
+     * appends 'Post'. So with sub=issueAPITokenFor and no base method here,
+     * the POST answers 200 from this page's default view having done
+     * nothing, which at the browser is indistinguishable from success. That
+     * is exactly how this shipped broken the first time.
+     *
+     * The two cache endpoints below take the other way out of the same
+     * trap: their sub is literally named cacheFlushPost, so the resolved
+     * method exists and no base is needed. Both work; this one is preferred
+     * for a new endpoint because a GET then gets an honest 405 instead of
+     * quietly rendering the version page.
+     *
+     * Issuing is POST-only, so the GET says so rather than rendering a form
+     * that cannot work.
+     *
+     * @return void
+     */
+    public function issueAPITokenFor()
+    {
+        header('Content-type: application/json');
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_METHOD_NOT_ALLOWED,
+            json_encode(
+                [
+                    'error' => _('Issuing a token requires a POST.'),
+                    'title' => _('API Token Failed')
+                ]
+            )
+        );
+    }
+
+    /**
+     * Issues a token on behalf of another user and returns it once.
+     *
+     * Its own permission (apitoken.create) rather than part of edit,
+     * because this is the one action here that produces a plaintext
+     * credential and hands it to somebody who is not its owner. The audit
+     * row generate() writes carries the owner as subject and the issuer as
+     * createdBy, so that asymmetry is legible afterwards.
+     *
+     * @return void
+     */
+    public function issueAPITokenForPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        if (!Authorization::can('apitoken.create')) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                [
+                    'error' => _('You do not have permission to issue API '
+                        . 'tokens.'),
+                    'title' => _('API Token Failed')
+                ]
+            );
+        }
+
+        $forUserID = (int)filter_input(INPUT_POST, 'issuefor');
+        $name = trim((string)filter_input(INPUT_POST, 'newtokenname'));
+
+        // The target must be in scope. Without this a scoped administrator
+        // could mint a working credential for an account they are not
+        // allowed to see, which is a privilege escalation dressed up as a
+        // convenience feature.
+        $user = self::getClass('User', $forUserID);
+        $unscoped = SiteScope::isUnscoped((int)self::$FOGUser->get('id'));
+        $inScope = $unscoped
+            || in_array(
+                $forUserID,
+                SiteScope::allInScopeIDs(
+                    'user',
+                    (int)self::$FOGUser->get('id')
+                ),
+                true
+            );
+
+        if (!$user->isValid() || !$inScope) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => _('No such user.'),
+                    'title' => _('API Token Failed')
+                ]
+            );
+        }
+
+        $token = APIToken::generate($forUserID, $name);
+        if (false === $token) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                [
+                    'error' => _('Could not issue the token!'),
+                    'title' => _('API Token Failed')
+                ]
+            );
+        }
+
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_CREATED,
+            [
+                'msg' => sprintf(
+                    _('API token issued for %s.'),
+                    $user->get('name')
+                ),
+                'title' => _('API Token Created'),
+                'token' => $token
+            ]
+        );
+    }
+    /**
      * Presents mac listing information.
      *
      * @return void

@@ -354,4 +354,170 @@ $t->check(
     false === strpos($pageSrc, 'fog_new_api_token')
 );
 
+// ---------------------------------------------------------------------------
+// 10. The central pane (FOG Configuration -> API Tokens).
+//
+// A credential census is a different power from editing users, so it has its
+// own permission node -- and the pane is only as good as the four things
+// below, each of which fails silently if it regresses.
+// ---------------------------------------------------------------------------
+$authSrc = file_get_contents($web . '/lib/fog/authorization.class.php');
+$configSrc = file_get_contents(
+    $web . '/lib/pages/fogconfigurationpage.page.php'
+);
+$auditSrc = file_get_contents($web . '/lib/fog/audit.class.php');
+$paneJs = file_get_contents(
+    $web . '/management/js/fog/about/fog.about.apitokens.js'
+);
+
+$t->check(
+    'apitoken is a permission node',
+    (bool)preg_match("/'apitoken' => \['view', 'create', 'edit', 'delete'\]/", $authSrc)
+);
+// delete separate from edit is the whole point: disable is reversible and
+// delete is not, so they must not share a grant.
+$t->check(
+    'delete is its own action, not folded into edit',
+    (bool)preg_match("/'apitoken' => \[[^\]]*'delete'[^\]]*\]/", $authSrc)
+);
+$t->check(
+    'the pane is gated on apitoken.view, not the config page permission',
+    false !== strpos($authSrc, "'apitokens' => 'apitoken.view'")
+);
+$t->check(
+    'issuing on behalf of is gated on apitoken.create',
+    false !== strpos($authSrc, "'issueapitokenfor' => 'apitoken.create'")
+);
+
+// FOGPageManager rewrites an unknown sub to index() and only THEN appends
+// 'Post'. A *Post method whose base does not exist is never dispatched: the
+// request answers 200 from the default view having done nothing. That is how
+// this shipped broken once already.
+$t->check(
+    'issueAPITokenFor has a base method so its Post half dispatches',
+    (bool)preg_match('/public function issueAPITokenFor\(\)/', $configSrc)
+    && (bool)preg_match('/public function issueAPITokenForPost\(\)/', $configSrc)
+);
+$t->check(
+    'apitokens has a base method too',
+    (bool)preg_match('/public function apitokens\(\)/', $configSrc)
+);
+
+// Site scoping. allInScopeIDs() returns [] BOTH for "unscoped" and for "in
+// no site" -- opposite meanings -- so isUnscoped() must be consulted first
+// or a scoped admin with no sites silently sees the whole estate.
+$mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
+$unscopedPos = strpos($mgrSrc, 'SiteScope::isUnscoped');
+$allIDsPos = strpos($mgrSrc, 'SiteScope::allInScopeIDs');
+$t->check(
+    'the pane consults site scope at all',
+    false !== $unscopedPos && false !== $allIDsPos
+);
+$t->check(
+    'isUnscoped() is checked before an empty scope list is trusted',
+    false !== $unscopedPos && $unscopedPos < $allIDsPos
+);
+$t->check(
+    'an empty scope list denies rather than falling through unfiltered',
+    (bool)preg_match('/if \(count\(\$ids\) < 1\) \{\s*(\/\/[^\n]*\n\s*)*return \[\];/', $mgrSrc)
+);
+// Posted ids are an untrusted list. Every mutation resolves through
+// visibleToken(), never a direct load of whatever number was posted.
+$t->check(
+    'central mutations resolve ids through visibleToken()',
+    substr_count($configSrc, 'visibleToken(') >= 2
+    && !preg_match('/getClass\(\'APIToken\',\s*\$tokenID/', $configSrc)
+);
+
+// ---------------------------------------------------------------------------
+// 11. Audit rows must survive destroy()'s rewrite.
+//
+// Audit::record() makes its row Audit::$_current, and
+// FOGController::destroy() calls Audit::identify(), which REVISES $_current
+// in place with the destroyed object's own type/id/name. So a token audit
+// row naming the OWNER as subject silently becomes one naming the TOKEN --
+// no error, nothing logged. Reordering does not help: recording after
+// destroy() corrupts the PREVIOUS row in a multi-delete loop.
+//
+// The resolution is that these rows use the subject identify() would impose
+// anyway, so the rewrite is a no-op, and carry the owner in `text`.
+// ---------------------------------------------------------------------------
+$auditFn = '';
+if (preg_match(
+    '/public function audit\(\$type, \$permission\)\s*\{(.*?)\n    \}/s',
+    $modelSrc,
+    $m
+)) {
+    $auditFn = $m[1];
+}
+$t->check('APIToken::audit() exists', '' !== $auditFn);
+$t->check(
+    "audit rows use the token as subject, matching identify()'s rewrite",
+    (bool)preg_match("/'subjectType' => 'apitoken'/", $auditFn)
+    && (bool)preg_match('/\'subjectID\' => \(int\)\$this->get\(\'id\'\)/', $auditFn)
+);
+$t->check(
+    'the owner is carried in text, which identify() does not touch',
+    (bool)preg_match("/'text' =>/", $auditFn)
+    && false !== strpos($auditFn, 'owner=')
+);
+// identify() sets exactly these three; anything else this row needs must
+// live outside them. If that ever changes, this is the check that notices.
+$t->check(
+    'identify() still rewrites only subjectType/subjectID/subjectLabel',
+    (bool)preg_match(
+        "/function identify\(.*?\)\s*\{.*?->set\('subjectType'.*?->set\('subjectID'.*?->set\('subjectLabel'.*?->save\(\)/s",
+        $auditSrc
+    )
+);
+$t->check(
+    'every token lifecycle event goes through the one audit helper',
+    3 === substr_count($modelSrc, '$this->audit(')
+        + substr_count($modelSrc, '$row->audit(')
+);
+foreach (['TOKEN_ISSUED', 'TOKEN_ENABLED', 'TOKEN_DISABLED', 'TOKEN_DELETED'] as $c) {
+    $t->check(
+        "Audit::$c is defined",
+        (bool)preg_match("/const $c = 'apitoken\./", $auditSrc)
+    );
+}
+
+// The pane's controls need wiring for the same reason the user tab's did.
+$t->check(
+    'the central pane form is wired in JS',
+    false !== strpos($paneJs, '#apitoken-central-form')
+    && false !== strpos($paneJs, '#apitoken-central-send')
+    && false !== strpos($paneJs, '#centralissuetoken')
+);
+
+// WHERE THE MENU ENTRY HAS TO LIVE, which is the defect this pins.
+//
+// There are TWO copies of the 'about' sub-menu list. SubMenuData::subMenu()
+// in lib/hooks/submenudata.hook.php reads like the obvious place and NEVER
+// RUNS: the hook sets $active = false and HookManager only force-activates
+// files under plugins/. The list the sidebar is actually built from is the
+// switch in FOGPage::_buildSubMenuItems(). An entry added only to the hook
+// renders nowhere, with no error -- the page itself answers fine by URL, so
+// it looks like a permission problem rather than a missing menu item.
+//
+// customizepxe and newMenu are in the dead copy only and have been missing
+// from the sidebar for exactly this reason; secureBoot carries a comment
+// about it. Both files are checked so the two lists cannot drift apart
+// again.
+$subMenuLive = file_get_contents($web . '/lib/fog/fogpage.class.php');
+$subMenuHook = file_get_contents($web . '/lib/hooks/submenudata.hook.php');
+$t->check(
+    "the API Tokens entry is in FOGPage::_buildSubMenuItems(), the list the "
+    . "sidebar actually builds from",
+    (bool)preg_match(
+        "/function _buildSubMenuItems\(.*?case 'about':.*?"
+        . "'apitokens' => _\('API Tokens'\).*?case '/s",
+        $subMenuLive
+    )
+);
+$t->check(
+    'the API Tokens entry is also in the SubMenuData copy, kept in step',
+    false !== strpos($subMenuHook, "'apitokens' => _('API Tokens')")
+);
+
 $t->finish();
