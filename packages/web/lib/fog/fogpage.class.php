@@ -994,6 +994,30 @@ abstract class FOGPage extends FOGBase
                 unset($menu[$subKey]);
             }
         }
+
+        // A lone "List All X" is not a sub-menu. It expands the parent to
+        // offer one child that goes where the parent already goes, so it
+        // costs a click and a chevron to arrive at the same page -- "Audit
+        // Log -> List All Audits". _renderMenuNode() turns a childless node
+        // into a direct link, which is how Tasks has always behaved.
+        //
+        // Derived rather than added to the hand-kept case list above,
+        // because that list is where this keeps going wrong. It already
+        // carries home, client, schema, service, hwinfo, apidocs and task
+        // for related reasons, and the registry block above had to be
+        // written separately for the same failure one step earlier. The
+        // condition is the honest one: `list` is the DEFAULT sub every node
+        // gets, so a node left holding only that has nothing to navigate.
+        //
+        // Applies after the two filters on purpose. A node whose `add` was
+        // stripped for lacking `create` (the read-only log viewers) and one
+        // whose `add` was stripped because THIS user may not create are the
+        // same situation from the menu's point of view, and both should
+        // collapse. Runs after the plugin hooks too, so a sub a plugin adds
+        // keeps the node expanded.
+        if (['list'] === array_keys($menu)) {
+            $menu = [];
+        }
         return $menu;
     }
 
