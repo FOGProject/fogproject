@@ -2157,11 +2157,31 @@ fetchipxeasset() {
     cd $cwd
     return $stat
 }
-# The CA that gets compiled into a locally built iPXE. ${PKI_web_trust_chain} when there
-# is one, so an external CA's chain is embedded rather than FOG's own root --
-# buildipxe.sh takes it as CERT=/TRUST=, its only per-site input.
+# The CA that gets compiled into a locally built iPXE: ${PKI_web_ca_cert}, the
+# Web intermediate itself. buildipxe.sh takes it as CERT=/TRUST=, its only
+# per-site input.
+#
+# The Web CA and NOT ${PKI_web_trust_chain}, which is what this used to prefer.
+# The chain is the web zone's trust PATH -- intermediate plus the root anchoring
+# it -- and embedding the whole bundle gives iPXE strictly more trust than the
+# job needs: it makes iPXE trust the FOG root, and therefore anything the root
+# ever signs, when all it has to validate is boot.php's leaf. The intermediate
+# is name-constrained and serverAuth-only (ADR 0016, which is enforceable
+# precisely because iPXE is a verifier FOG can patch), so pinning that one
+# certificate is both narrower and sufficient.
+#
+# It is also what makes bring-your-own-CA work here. An admin whose Web CA is
+# their own intermediate has no FOG root above it, so there was nothing sensible
+# for the chain to contain -- the old preference either embedded a bundle whose
+# root FOG does not own, or fell through to this same value anyway.
+#
+# Expect ONE forced rebuild per server on upgrade: _ipxeBuildStampValue() hashes
+# this file into the stamp's ca= field, so the stamp no longer matches and
+# _needsLocalIpxeBuild() schedules exactly one rebuild. That is correct rather
+# than unfortunate -- the binary on disk really does embed different bytes than
+# the ones this now asks for.
 _resolveIpxeTrust() {
-    [[ -n ${PKI_web_trust_chain} && -f ${PKI_web_trust_chain} ]] && ipxetrust="${PKI_web_trust_chain}" || ipxetrust="${PKI_web_ca_cert}"
+    ipxetrust="${PKI_web_ca_cert}"
 }
 # What a built tree is built FROM: the iPXE release tag, and the exact bytes of
 # the CA that got compiled into it.

@@ -81,6 +81,46 @@ needs() { _needsLocalIpxeBuild && echo yes || echo no; }
 
 echo "ipxe build stamp:"
 
+# --- what gets embedded: the Web CA, never the chain ------------------------
+# TRUST=/CERT= is iPXE's whole per-site trust configuration, so this selection
+# decides what a netbooting client will accept. The chain bundle is the web
+# zone's trust PATH -- intermediate PLUS the root anchoring it -- and embedding
+# it makes iPXE trust the FOG root and so anything the root ever signs, when all
+# it has to validate is boot.php's leaf. The intermediate alone is
+# name-constrained and serverAuth-only, hence narrower and sufficient (ADR 0016).
+#
+# Pinned in the presence of a perfectly valid chain file, because that is the
+# state every existing HTTPS server is in and the old code preferred it.
+PKI_web_trust_chain="$WORK/chain.pem"
+cat "${PKI_web_ca_cert}" > "${PKI_web_trust_chain}"
+echo "-----BEGIN CERTIFICATE----- fixture-root -----END CERTIFICATE-----" >> "${PKI_web_trust_chain}"
+ipxetrust=""
+_resolveIpxeTrust
+is "$ipxetrust" "${PKI_web_ca_cert}" "the Web CA is embedded even when a chain file exists"
+[[ $ipxetrust != "${PKI_web_trust_chain}" ]] \
+    && ok "the trust chain bundle is not embedded" \
+    || bad "the chain bundle was embedded -- iPXE would trust the FOG root"
+
+# Bring-your-own-CA: an admin's own intermediate with no FOG root above it. The
+# answer must still be their CA, not an empty or absent chain.
+( PKI_web_trust_chain=""; ipxetrust=""; _resolveIpxeTrust
+  [[ $ipxetrust == "${PKI_web_ca_cert}" ]] ) \
+    && ok "with no chain at all it is still the Web CA" \
+    || bad "no chain left ipxetrust wrong"
+
+# --- the one forced rebuild this change costs on upgrade --------------------
+# A server built before this landed has a stamp whose ca= is the sha256 of the
+# CHAIN. The binary on disk really does embed different bytes than are now
+# asked for, so exactly one rebuild is correct -- and it must then settle, or
+# every subsequent update pays 10-25 minutes again.
+BOOT_rebuild_ipxe_with_my_ca="yes"
+locallybuilt
+( ipxetrust="${PKI_web_trust_chain}"; _ipxeBuildStampValue > "$stamp" )   # the old stamp
+is "$(needs)" "yes" "one rebuild is scheduled for a server stamped against the chain"
+writestamp                                                                # the new one
+is "$(needs)" "no"  "...and it settles: the next update does not rebuild again"
+PKI_web_trust_chain=""
+
 # --- the build only ever happens when it was asked for ----------------------
 BOOT_rebuild_ipxe_with_my_ca="no"
 published
