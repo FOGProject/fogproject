@@ -136,6 +136,24 @@ class Route extends FOGBase
      */
     protected static $getterDepth = 0;
     /**
+     * Which serialized key of which class holds another entity.
+     *
+     * `parent class => [ key => child class ]`, recorded by embed() at the
+     * moment it serializes a nested object. It is not hand-maintained on
+     * purpose: the emitter has to know what class every nested object is in
+     * order to strip its secrets, and a table someone must remember to update
+     * whenever getter() gains an embed is a credential leak waiting for the
+     * one time they forget. Deriving it from the object being embedded means
+     * it cannot drift from the code that creates the nesting.
+     *
+     * Keyed by class rather than by path, so it stays small and applies
+     * wherever that parent appears -- a list row, a single GET, or nested
+     * inside something else.
+     *
+     * @var array
+     */
+    protected static $nestedClasses = [];
+    /**
      * Set while count() is borrowing listem() to reach recordsFiltered. The
      * row query and every per-row formatter are then skipped -- see the note
      * in FOGManagerController::complex(). Refs GH-707.
@@ -172,6 +190,16 @@ class Route extends FOGBase
      * and cannot recurse back onto the parent entity.
      */
     const EXPAND_MAX_DEPTH = 1;
+    /**
+     * How far stripEntity() will walk into a payload's nesting.
+     *
+     * Well above the three levels anything reaches today (task -> host ->
+     * inventory). See stripEntity() for why this is a backstop rather than a
+     * real bound.
+     *
+     * @var int
+     */
+    const STRIP_MAX_DEPTH = 8;
     /**
      * Hard cap on how many items a single expanded relation (or an expanded
      * list) will materialize, to bound memory. Overflow is truncated and
@@ -2089,12 +2117,16 @@ class Route extends FOGBase
                     // which defeats the selective contract of ?expand=token.
                     $exp = self::expandRelations($classname, $robj, $row);
                     $exp = self::enrichPluginItems($classname, $robj, $exp);
-                    // Strip AFTER expanding so sensitive columns are removed
-                    // whether they arrive on the raw grid row (which may carry
-                    // the encrypted column) or on an inlined related object.
-                    // List rows never expose secrets, matching the bare-grid
-                    // contract.
-                    $rows[$i] = self::stripSensitive($classname, $exp);
+                    // No strip here, and none anywhere else in listem().
+                    // listem() is shared with the web tier -- the LDAP login
+                    // path needs bindPwd to bind at all, the Product Keys
+                    // report needs productKey to report anything -- so it
+                    // hands the row back whole and the emitter removes
+                    // secrets on the way out, expanded relations included.
+                    // That was already how a PLAIN list behaved; stripping
+                    // here as well meant an ?expand= caller inside the server
+                    // got a redacted row where a plain one did not.
+                    $rows[$i] = $exp;
                 }
                 $listData['data'] = $rows;
                 self::$data = $listData;
@@ -2969,7 +3001,13 @@ class Route extends FOGBase
                         } catch (\Exception $e) {
                             $sn = new StorageNode();
                         }
-                        return self::getter('storagenode', $sn);
+                        // embed(), not getter(): this is a nested entity on
+                        // a storagegroup LIST row, and the emitter can only
+                        // strip its FTP credential if it is told what class
+                        // it is. This one is the reason the registry exists
+                        // -- the node's password used to reach anyone with
+                        // storagegroup.view through this column.
+                        return self::embed('storagegroup', 'masternode', $sn);
                     }
                 ];
                 $columns[] = [
@@ -4680,14 +4718,128 @@ class Route extends FOGBase
             return $data;
         }
         if (isset($data['data']) && is_array($data['data'])) {
-            // List payload: both tiers, every row.
+            // List payload: both tiers, every row, and every entity nested
+            // inside a row.
             foreach ($data['data'] as $i => $row) {
-                $data['data'][$i] = self::stripSensitive($classname, $row);
+                $data['data'][$i] = self::stripEntity($classname, $row, false);
             }
             return $data;
         }
         // Single-entity payload: only the fields no client may read back.
-        return self::stripSensitive($classname, $data, true);
+        // Its nested entities are not covered by that carve-out -- see
+        // stripEntity().
+        return self::stripEntity($classname, $data, true);
+    }
+    /**
+     * Strips one serialized entity, then everything nested inside it.
+     *
+     * The nesting comes from self::$nestedClasses, which embed() and
+     * expandRelations() fill in as they build the payload, so this knows what
+     * class each nested object is without a hand-kept table to fall out of
+     * date. Both the one-object and the many-objects shapes are handled: an
+     * expanded to-many relation is a list of entities under a single key.
+     *
+     * $alwaysOnly is TRUE only for the payload's top-level object on a direct
+     * single-entity GET, and never propagates into the nesting. That is the
+     * whole of the tier-1 carve-out: fog-client reads a host's ADPass back
+     * from GET /host/{id} to join a domain, so tier 1 survives there -- but a
+     * host nested inside a task is not that request, and GET /task/{id} was
+     * handing out the host's client token and the storage node's FTP password
+     * because nothing walked into it.
+     *
+     * Depth is capped rather than tracked by identity. The recursion follows
+     * the DATA, which is finite and already built, so it terminates on its
+     * own; the cap is there so a future embed that does contain a cycle
+     * degrades into an unstripped inner object rather than an exhausted
+     * stack, and it sits well above the three levels anything reaches today
+     * (task -> host -> inventory).
+     *
+     * @param string $classname  The class this data is.
+     * @param mixed  $data       The serialized entity.
+     * @param bool   $alwaysOnly Tier 2 only, for the top-level single GET.
+     * @param int    $depth      Recursion guard.
+     *
+     * @return mixed
+     */
+    protected static function stripEntity(
+        $classname,
+        $data,
+        $alwaysOnly = false,
+        $depth = 0
+    ) {
+        if (!is_array($data) || $depth > self::STRIP_MAX_DEPTH) {
+            return $data;
+        }
+        $data = self::stripSensitive($classname, $data, $alwaysOnly);
+        $nested = (array)(self::$nestedClasses[strtolower((string)$classname)]
+            ?? self::$nestedClasses[$classname]
+            ?? []);
+        foreach ($nested as $key => $child) {
+            if (!isset($data[$key]) || !is_array($data[$key])) {
+                continue;
+            }
+            $value = $data[$key];
+            // A to-many relation is a list of entities; a to-one is the
+            // entity itself. An entity is an associative array, so a list
+            // is the case where the keys are 0..n-1.
+            $isList = $value === []
+                || array_keys($value) === range(0, count($value) - 1);
+            if ($isList) {
+                foreach ($value as $j => $item) {
+                    $value[$j] = self::stripEntity(
+                        $child,
+                        $item,
+                        false,
+                        $depth + 1
+                    );
+                }
+                $data[$key] = $value;
+                continue;
+            }
+            $data[$key] = self::stripEntity($child, $value, false, $depth + 1);
+        }
+        return $data;
+    }
+    /**
+     * Serializes one embedded entity and records what class it is.
+     *
+     * Every nested object in a payload goes through here. The recording is
+     * the point: stripSensitivePayload() strips secrets at the emitter, and
+     * to do that on a NESTED object it has to know that class. getter() is
+     * the only code that knows -- so it says so here, once, beside the
+     * embed itself, and the emitter reads it back out of $nestedClasses.
+     *
+     * The class is derived from the object rather than passed in, so an
+     * embed cannot be registered under the wrong name and a new one cannot
+     * be added without registering it at all.
+     *
+     * Non-objects answer [] rather than fataling. Several call sites here
+     * guard the same case by hand today -- a snapin task whose job row is
+     * gone resolves get('snapinjob') to a STRING and get() on that is fatal
+     * (#895) -- and one guard in one place is easier to keep right than
+     * five.
+     *
+     * @param string $parentClass Class of the entity being built.
+     * @param string $key         Key the child is stored under.
+     * @param mixed  $obj         The related object, possibly not one.
+     * @param bool   $useGetter   Shape the child with getter() rather than
+     *                            its plain get(); matches what each call
+     *                            site did before.
+     *
+     * @return array The serialized child.
+     */
+    protected static function embed($parentClass, $key, $obj, $useGetter = false)
+    {
+        if (!is_object($obj) || !$obj instanceof FOGController) {
+            return [];
+        }
+        $child = strtolower(FOGCore::shortName($obj));
+        self::$nestedClasses[$parentClass][$key] = $child;
+        if (!$useGetter) {
+            return (array) $obj->get();
+        }
+        $data = self::getter($child, $obj);
+        return is_array($data) ? $data : [];
     }
     /**
      * This is a commonizing element so list/search/getinfo
@@ -4730,13 +4882,27 @@ class Route extends FOGBase
                         [
                             'ADPass' => $pass,
                             'productKey' => $productKey,
-                            'hostscreen' => $class->get('hostscreen')->get(),
-                            'hostalo' => $class->get('hostalo')->get(),
-                            'inventory' => self::getter(
-                                'inventory',
-                                $class->get('inventory')
+                            'hostscreen' => self::embed(
+                                $classname,
+                                'hostscreen',
+                                $class->get('hostscreen')
                             ),
-                            'image' => $class->get('imagename')->get(),
+                            'hostalo' => self::embed(
+                                $classname,
+                                'hostalo',
+                                $class->get('hostalo')
+                            ),
+                            'inventory' => self::embed(
+                                $classname,
+                                'inventory',
+                                $class->get('inventory'),
+                                true
+                            ),
+                            'image' => self::embed(
+                                $classname,
+                                'image',
+                                $class->get('imagename')
+                            ),
                             'imagename' => $class->getImageName(),
                             'primac' => $class->get('mac')->__toString(),
                             'macs' => $class->getMyMacs(),
@@ -4759,9 +4925,21 @@ class Route extends FOGBase
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            'os' => $class->get('os')->get(),
-                            'imagepartitiontype' => $class->get('imagepartitiontype')->get(),
-                            'imagetype' => $class->get('imagetype')->get(),
+                            'os' => self::embed(
+                                $classname,
+                                'os',
+                                $class->get('os')
+                            ),
+                            'imagepartitiontype' => self::embed(
+                                $classname,
+                                'imagepartitiontype',
+                                $class->get('imagepartitiontype')
+                            ),
+                            'imagetype' => self::embed(
+                                $classname,
+                                'imagetype',
+                                $class->get('imagetype')
+                            ),
                             'imagetypename' => $class->getImageType()->get('name'),
                             'imageparttypename' => $class->getImagePartitionType()->get(
                                 'name'
@@ -4781,7 +4959,11 @@ class Route extends FOGBase
                     $extra = [
                         'online' => $class->get('online'),
                         //'logfiles' => $class->get('logfiles'),
-                        'storagegroup' => $class->get('storagegroup')->get(),
+                        'storagegroup' => self::embed(
+                            $classname,
+                            'storagegroup',
+                            $class->get('storagegroup')
+                        ),
                         'location_url' => sprintf(
                             '%s://%s/%s',
                             self::$httpproto,
@@ -4835,15 +5017,37 @@ class Route extends FOGBase
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            'image' => $class->get('image')->get(),
-                            'host' => self::getter(
-                                'host',
-                                $class->get('host')
+                            'image' => self::embed(
+                                $classname,
+                                'image',
+                                $class->get('image')
                             ),
-                            'type' => $class->get('type')->get(),
-                            'state' => $class->get('state')->get(),
-                            'storagenode' => $class->get('storagenode')->get(),
-                            'storagegroup' => $class->get('storagegroup')->get()
+                            'host' => self::embed(
+                                $classname,
+                                'host',
+                                $class->get('host'),
+                                true
+                            ),
+                            'type' => self::embed(
+                                $classname,
+                                'type',
+                                $class->get('type')
+                            ),
+                            'state' => self::embed(
+                                $classname,
+                                'state',
+                                $class->get('state')
+                            ),
+                            'storagenode' => self::embed(
+                                $classname,
+                                'storagenode',
+                                $class->get('storagenode')
+                            ),
+                            'storagegroup' => self::embed(
+                                $classname,
+                                'storagegroup',
+                                $class->get('storagegroup')
+                            )
                         ]
                     );
                     break;
@@ -4885,18 +5089,28 @@ class Route extends FOGBase
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            'snapin' => is_object($snapin)
-                                ? $snapin->get()
-                                : [],
-                            'snapinjob' => self::getter(
+                            'snapin' => self::embed(
+                                $classname,
+                                'snapin',
+                                $snapin
+                            ),
+                            'snapinjob' => self::embed(
+                                $classname,
                                 'snapinjob',
-                                $sj
+                                $sj,
+                                true
                             ),
-                            'host' => self::getter(
+                            'host' => self::embed(
+                                $classname,
                                 'host',
-                                $host
+                                $host,
+                                true
                             ),
-                            'state' => $class->get('state')->get()
+                            'state' => self::embed(
+                                $classname,
+                                'state',
+                                $class->get('state')
+                            )
                         ]
                     );
                     break;
@@ -4911,13 +5125,17 @@ class Route extends FOGBase
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            'host' => self::getter(
+                            'host' => self::embed(
+                                $classname,
                                 'host',
-                                $class->get('host')
+                                $class->get('host'),
+                                true
                             ),
-                            'state' => is_object($sjState)
-                                ? $sjState->get()
-                                : []
+                            'state' => self::embed(
+                                $classname,
+                                'state',
+                                $sjState
+                            )
                         ]
                     );
                     break;
@@ -4934,9 +5152,11 @@ class Route extends FOGBase
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            'host' => self::getter(
+                            'host' => self::embed(
+                                $classname,
                                 'host',
-                                $utHost
+                                $utHost,
+                                true
                             ),
                             'hostname' => is_object($utHost)
                                 ? $utHost->get('name')
@@ -4949,32 +5169,43 @@ class Route extends FOGBase
                         $class->get(),
                         [
                             'imageID' => $class->get('image'),
-                            'image' => $class->get('imagename')->get(),
-                            'state' => $class->get('state')->get()
+                            'image' => self::embed(
+                                $classname,
+                                'image',
+                                $class->get('imagename')
+                            ),
+                            'state' => self::embed(
+                                $classname,
+                                'state',
+                                $class->get('state')
+                            )
                         ]
                     );
                     unset($data['imagename']);
                     break;
                 case 'scheduledtask':
+                    // Lifted out of the nested ternaries it used to be: the
+                    // key and the object have to agree, and embed() has to be
+                    // told the key it is registering under.
+                    $stGroupBased = $class->isGroupBased();
+                    $stKey = $stGroupBased ? 'group' : 'host';
+                    $stObj = $stGroupBased
+                        ? $class->getGroup()
+                        : $class->getHost();
                     $data = FOGCore::fastmerge(
                         $class->get(),
                         [
-                            (
-                                $class->isGroupBased() ?
-                                'group' :
-                                'host'
-                            ) => (
-                                $class->isGroupBased() ?
-                                self::getter(
-                                    'group',
-                                    $class->getGroup()
-                                ) :
-                                self::getter(
-                                    'host',
-                                    $class->getHost()
-                                )
+                            $stKey => self::embed(
+                                $classname,
+                                $stKey,
+                                $stObj,
+                                true
                             ),
-                            'tasktype' => $class->getTaskType()->get(),
+                            'tasktype' => self::embed(
+                                $classname,
+                                'tasktype',
+                                $class->getTaskType()
+                            ),
                             'runtime' => $class->getTime()
                         ]
                     );
@@ -5006,22 +5237,34 @@ class Route extends FOGBase
                     'class' => &$class
                 ]
             );
-            // Tier 2 is stripped HERE, not only in the emitter, because
-            // getter() is the one place that knows what class it is
-            // shaping regardless of what payload the result ends up
-            // nested inside. stripSensitivePayload() keys off the
-            // payload's own '_lang' stamp, so a storagenode embedded in a
-            // storagegroup row was stripped as a storagegroup -- which is
-            // to say not at all, and the node's FTP password went out in
-            // the storage group grid to anyone holding storagegroup.view.
-            // Same shape for task.host, task.image and host.inventory.
+            // NOTHING is stripped here. Secrets come out at the emitter,
+            // once, and that is the whole of the rule -- printer() says so
+            // for lists and it now holds for single entities and for every
+            // nested object as well.
             //
-            // Tier 2 only. Tier 1 exists precisely so a single-entity GET
-            // still carries it (fog-client reads host ADPass back to join
-            // a domain), and that carve-out is applied by the emitter,
-            // which knows whether it is emitting a list or one record.
-            // getter() does not and must not guess.
-            $data = self::stripSensitive($classname, $data, true);
+            // It used to strip tier 2 here, because the emitter keyed off
+            // the payload's '_lang' stamp and so read a storagenode nested
+            // in a storagegroup row as a storagegroup, which is to say not
+            // at all. That fixed the nesting in the wrong layer and cost
+            // twice:
+            //
+            //   - it only ever covered embeds built by recursing into
+            //     getter(). The 14 that were a plain ->get() -- task's
+            //     storagenode among them -- were stripped at no level, and
+            //     GET /task/{id} returned the node's FTP password and the
+            //     host's client token in the clear.
+            //   - it made getItem() and getList() disagree. getList() reads
+            //     listem()'s rows before the emitter and so sees everything;
+            //     getItem() came through here and saw a redacted object. The
+            //     replicator asked getItem() for the node it was about to
+            //     send to and got no password, so every transfer was refused
+            //     at login and blamed on the admin's stored credential.
+            //
+            // embed() records what class each nested object is instead, and
+            // stripSensitivePayload() walks that on the way out. Internal
+            // callers -- the daemons, the LDAP bind, the Product Keys report
+            // -- get the whole object, consistently, whichever wrapper they
+            // used to ask for it.
             return $data;
         } catch (\Exception $e) {
             self::_sendCaught($e);
@@ -5395,7 +5638,8 @@ class Route extends FOGBase
      * objects are added under their relation token. One-to-many relations
      * become a capped array plus companion `<token>_total`/`<token>_truncated`
      * keys. Related objects are serialized one level deep (no further
-     * expansion) and have their secrets stripped.
+     * expansion). Their secrets are removed at the emitter like every other
+     * nested object's, via the class this records in $nestedClasses.
      *
      * @param string $classname The entity classname.
      * @param object $class      The loaded entity object.
@@ -5425,7 +5669,12 @@ class Route extends FOGBase
                 if ($obj instanceof FOGController && $obj->isValid()) {
                     $g = self::getter($rel['class'], $obj);
                     if (is_array($g)) {
-                        $data[$token] = self::stripSensitive($rel['class'], $g);
+                        // Registered, not stripped. Same rule as embed():
+                        // the emitter removes secrets, and it can only do
+                        // that on a related object if it knows the class.
+                        self::$nestedClasses[$classname][$token]
+                            = $rel['class'];
+                        $data[$token] = $g;
                     }
                 }
                 continue;
@@ -5450,7 +5699,8 @@ class Route extends FOGBase
                 }
                 $g = self::getter($rel['class'], $robj);
                 if (is_array($g)) {
-                    $items[] = self::stripSensitive($rel['class'], $g);
+                    self::$nestedClasses[$classname][$token] = $rel['class'];
+                    $items[] = $g;
                 }
             }
             $data[$token] = $items;

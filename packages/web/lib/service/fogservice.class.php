@@ -465,16 +465,18 @@ abstract class FOGService extends FOGBase
                 continue;
             }
             // Take the FTP credential off the LIST row, before the re-fetch
-            // below replaces the object. The two wrappers disagree about
-            // secrets: getList() hands back what listem() built and the
-            // emitter strips them on the way out to HTTP, so an internal
-            // caller still sees them; getItem() goes through getter(), which
-            // strips tier-2 fields -- storagenode pass and key -- at the
-            // source, so what it returns has no password in it at all.
-            // Reading pass off the re-fetched object left
-            // self::$FOGFTP->password empty and every replication login was
-            // refused, reported as a stale password for the node when the
-            // stored one was correct all along.
+            // below replaces the object. It is the row this loop actually
+            // selected on, and reading it here means the credential does not
+            // depend on what a second trip through the router hands back.
+            //
+            // It used to be load-bearing rather than tidy: getItem() went
+            // through getter(), which stripped storagenode pass and key at
+            // the source, so the re-fetched object had no password on it and
+            // every replication login was refused -- reported as a stale
+            // password for the node when the stored one was correct all
+            // along. That asymmetry is gone; getItem() and getList() now both
+            // hand internal callers the whole object and the API emitter is
+            // the only thing that removes secrets.
             $nodeUser = $StorageNode->user;
             $nodePass = $StorageNode->pass;
             // getItem(), not indiv(): a node that vanished between the list
