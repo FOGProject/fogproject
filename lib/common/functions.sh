@@ -6180,9 +6180,11 @@ validateExternalCA() {
     dots "Validating external CA files (${zone})"
     # The supplied private key must match the supplied intermediate certificate
     local certmod keymod
-    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log | openssl md5 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log | openssl md5 2>>$error_log)
-    if [[ -z $certmod || $certmod != $keymod ]]; then
+    # Raw modulus, no `openssl md5`: md5 of the empty output an unreadable file
+    # produces is a non-empty hash, so with it two unreadable files "pair".
+    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log)
+    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log)
+    if [[ -z $certmod || -z $keymod || $certmod != "$keymod" ]]; then
         echo "Failed"
         echo "  The supplied CA private key ($keysrc) does not match the"
         echo "  supplied CA certificate ($certsrc)."
@@ -6404,8 +6406,37 @@ _resolveClientLeafPaths() {
             && ! -e "${leafdir}/${f}" ]] \
             && mv "${PKI_client_cert_dir}/${f}" "${leafdir}/${f}" >>$error_log 2>&1
     done
-    PKI_client_encrypt_key="${leafdir}/.srvprivate.key"
-    PKI_client_encrypt_cert="${leafdir}/.srvpublic.crt"
+    PKI_client_encrypt_key="$(_clientLeafTarget "${PKI_client_encrypt_key}" \
+        "${leafdir}/.srvprivate.key" "${PKI_client_cert_dir}/.srvprivate.key")"
+    PKI_client_encrypt_cert="$(_clientLeafTarget "${PKI_client_encrypt_cert}" \
+        "${leafdir}/.srvpublic.crt" "${PKI_client_cert_dir}/.srvpublic.crt")"
+}
+# Where one half of the comm keypair actually lives: FOG's own zone path, or a
+# file the admin named with --client-cert/--client-key.
+#
+# $1 the current record, $2 the zone path, $3 the historic canonical name.
+#
+# The awkward case is that an UPGRADED server's record holds $3 -- the previous
+# version recorded the snapin-dir path -- and $3 is outside the zone, so a plain
+# "outside the zone means the admin's" test would declare every upgraded server
+# externally managed and never migrate anything. $3 is one of FOG's own names,
+# so it is answered with the zone path, exactly as _resolveWebLeafPaths answers
+# its own pre-separation and old-flat-layout paths.
+#
+# Anything else that exists is the admin's file and is returned untouched; the
+# canonical name is then symlinked at it, which is what "point FOG at your own
+# file" means in this zone. A recorded path that no longer exists falls back to
+# the zone rather than being trusted -- the file was removed, and FOG issuing
+# into its own zone is recoverable where a dangling record is not.
+_clientLeafTarget() {
+    local record="$1" zonepath="$2" canon="$3" rr
+    [[ -z $record ]] && { echo "$zonepath"; return 0; }
+    rr="$(readlink -f "$record" 2>/dev/null)"
+    [[ $record == "$zonepath" || $record == "$canon" ]] && { echo "$zonepath"; return 0; }
+    [[ -n $rr && ( $rr == "$(readlink -f "$zonepath" 2>/dev/null)" \
+        || $rr == "$(readlink -f "$canon" 2>/dev/null)" ) ]] && { echo "$zonepath"; return 0; }
+    [[ -f $record ]] && { echo "$record"; return 0; }
+    echo "$zonepath"
 }
 # The compat links themselves, made once the files they point at exist. Split
 # from _resolveClientLeafPaths because on a fresh install the keypair does not
@@ -7186,8 +7217,9 @@ _createCommLeaf() {
     # there was the one path into this state.
     if [[ -f ${PKI_client_encrypt_cert} ]]; then
         local haveMod wantMod
-        haveMod=$(openssl x509 -noout -modulus -in "${PKI_client_encrypt_cert}" 2>/dev/null | openssl md5 2>/dev/null)
-        wantMod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null | openssl md5 2>/dev/null)
+        # Raw modulus, no `openssl md5` -- see _discardOrphanedCommLeaf.
+        haveMod=$(openssl x509 -noout -modulus -in "${PKI_client_encrypt_cert}" 2>/dev/null)
+        wantMod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null)
         # No key yet is not a mismatch. An install that has the certificate but
         # not the key is mid-migration, not broken -- _separateCommKey runs
         # after this and is what settles that case.
@@ -7227,13 +7259,16 @@ _createCommLeaf() {
         "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"; do
         [[ -f $oldcert && -f ${PKI_client_encrypt_key} ]] || continue
         local certmod keymod
-        certmod=$(openssl x509 -noout -modulus -in "$oldcert" 2>/dev/null | openssl md5 2>/dev/null)
-        keymod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null | openssl md5 2>/dev/null)
+        # Raw modulus, no `openssl md5`. With it, an unreadable $oldcert and an
+        # unreadable key both hashed to md5("") and compared EQUAL, so this
+        # branch adopted a certificate it had never actually parsed.
+        certmod=$(openssl x509 -noout -modulus -in "$oldcert" 2>/dev/null)
+        keymod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null)
         # The modulus test is what makes this safe. A certificate that does NOT
         # pair with this key is the web certificate of a server whose zones
         # were already separated some other way; copying it here would publish
         # a public key nothing on this server can decrypt against.
-        if [[ -n $certmod && $certmod == $keymod ]]; then
+        if [[ -n $certmod && -n $keymod && $certmod == "$keymod" ]]; then
             dots "Adopting existing client communication certificate"
             cp -f "$oldcert" "${PKI_client_encrypt_cert}" >>$error_log 2>&1
             errorStat $?
@@ -7278,8 +7313,14 @@ _discardOrphanedCommLeaf() {
     local cert="${PKI_client_encrypt_cert}" key="${PKI_client_encrypt_key}"
     [[ -f $cert && -f $key && ${rootCAKeyOffline:-0} -ne 1 ]] || return 0
     local certmod keymod
-    certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null | openssl md5 2>/dev/null)
-    keymod=$(openssl rsa -noout -modulus -in "$key" 2>/dev/null | openssl md5 2>/dev/null)
+    # The raw modulus, NOT piped through `openssl md5`. With the md5 the
+    # emptiness guard below does not work: an unreadable file makes the x509/rsa
+    # call print nothing, and md5 of nothing is a perfectly non-empty hash of
+    # the empty string. So an unreadable CERT beside a readable key produced a
+    # "mismatch" and this function deleted the certificate -- exactly the
+    # destroyed-certificate outcome the comment below says it must not cause.
+    certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null)
+    keymod=$(openssl rsa -noout -modulus -in "$key" 2>/dev/null)
     # Unreadable either way is not a mismatch. _createCommLeaf() reports that
     # case rather than acting on it, and deleting on a failed read would turn a
     # bad openssl invocation into a destroyed certificate.
