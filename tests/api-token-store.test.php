@@ -490,4 +490,34 @@ $t->check(
     && false !== strpos($paneJs, '#centralissuetoken')
 );
 
+// WHERE THE MENU ENTRY HAS TO LIVE, which is the defect this pins.
+//
+// There are TWO copies of the 'about' sub-menu list. SubMenuData::subMenu()
+// in lib/hooks/submenudata.hook.php reads like the obvious place and NEVER
+// RUNS: the hook sets $active = false and HookManager only force-activates
+// files under plugins/. The list the sidebar is actually built from is the
+// switch in FOGPage::_buildSubMenuItems(). An entry added only to the hook
+// renders nowhere, with no error -- the page itself answers fine by URL, so
+// it looks like a permission problem rather than a missing menu item.
+//
+// customizepxe and newMenu are in the dead copy only and have been missing
+// from the sidebar for exactly this reason; secureBoot carries a comment
+// about it. Both files are checked so the two lists cannot drift apart
+// again.
+$subMenuLive = file_get_contents($web . '/lib/fog/fogpage.class.php');
+$subMenuHook = file_get_contents($web . '/lib/hooks/submenudata.hook.php');
+$t->check(
+    "the API Tokens entry is in FOGPage::_buildSubMenuItems(), the list the "
+    . "sidebar actually builds from",
+    (bool)preg_match(
+        "/function _buildSubMenuItems\(.*?case 'about':.*?"
+        . "'apitokens' => _\('API Tokens'\).*?case '/s",
+        $subMenuLive
+    )
+);
+$t->check(
+    'the API Tokens entry is also in the SubMenuData copy, kept in step',
+    false !== strpos($subMenuHook, "'apitokens' => _('API Tokens')")
+);
+
 $t->finish();
