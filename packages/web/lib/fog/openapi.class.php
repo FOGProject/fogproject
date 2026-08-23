@@ -266,8 +266,12 @@ class OpenAPI extends FOGBase
                 'including any a plugin has added.',
                 '',
                 'Enable under FOG Configuration > FOG Settings > API System.',
-                'Authenticate with the `fog-api-token` (server-wide) and',
-                '`fog-user-token` (per user) headers, or with HTTP basic auth.',
+                'Preferred: send the per-user API token as',
+                '`Authorization: Bearer <token>`, which needs nothing else.',
+                'Otherwise the `fog-api-token` (server-wide) header is',
+                'required, plus one caller identity -- either the',
+                '`fog-user-token` header or HTTP basic auth. Basic auth does',
+                'not replace the `fog-api-token` header.',
                 '',
                 'Field names: every property is also addressable by its raw',
                 'database column name, because the model layer flips',
@@ -307,17 +311,24 @@ class OpenAPI extends FOGBase
     }
 
     /**
-     * Both token headers are required together; basic auth is the
-     * alternative. Two entries in the list means OR, two keys inside one
-     * entry means AND.
+     * Three ways in, listed strongest first.
+     *
+     * A Bearer token stands alone: it is a 512-bit random per-user secret.
+     * The other two carry a weaker credential -- a legacy header pair, or a
+     * human-chosen password -- and both keep the server-wide fog-api-token
+     * gate. See Route::_testBearer() for why that asymmetry is deliberate
+     * rather than an oversight.
+     *
+     * Two entries in the list means OR, two keys inside one entry means AND.
      *
      * @return array
      */
     private static function _globalSecurity()
     {
         return [
+            ['bearerAuth' => []],
             ['fogApiToken' => [], 'fogUserToken' => []],
-            ['basicAuth' => []]
+            ['fogApiToken' => [], 'basicAuth' => []]
         ];
     }
 
@@ -327,6 +338,19 @@ class OpenAPI extends FOGBase
     private static function _securitySchemes()
     {
         return [
+            'bearerAuth' => [
+                'type' => 'http',
+                'scheme' => 'bearer',
+                'description' => implode(' ', [
+                    'The per-user API token from the API tab of a user with',
+                    'API access enabled, sent as `Authorization: Bearer`.',
+                    'Sufficient on its own -- no fog-api-token header is',
+                    'needed alongside it. Send the value exactly as the UI',
+                    'displays it: it is already base64 encoded, and a raw',
+                    'token is indistinguishable from an encoded one because',
+                    'hex is itself valid base64.'
+                ])
+            ],
             'fogApiToken' => [
                 'type' => 'apiKey',
                 'in' => 'header',
