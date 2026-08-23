@@ -2,7 +2,12 @@
 
 ## Status
 
-accepted
+accepted. Key names updated by
+[ADR 0024](0024-fogsettings-unified-key-model.md), which also removed
+`--no-sb-name-constraints` and took name constraints off the Secure Boot zone
+entirely. The decision below -- that the Web CA keeps enforceable constraints
+because iPXE is a verifier FOG can patch -- is unchanged, and is the reason the
+two zones now differ.
 
 ## Context
 
@@ -14,7 +19,7 @@ extension to be marked critical, and it is.
 
 FOG also builds its own iPXE. When the netboot protocol is HTTPS --
 `_resolveNetbootProto()` selects that automatically whenever
-`rebuildIpxeWithMyCA` is set -- `buildipxe.sh` bakes `.fogCA.pem` into the
+`BOOT_rebuild_ipxe_with_my_ca` is set -- `buildipxe.sh` bakes `.fogCA.pem` into the
 binary as `CERT=`/`TRUST=` so iPXE can validate the FOG server over TLS.
 
 **These two features are mutually incompatible.** iPXE's `x509_extensions[]`
@@ -43,7 +48,7 @@ chain -- the binary boots, iPXE starts and reports `HTTPS` among its features,
 and only then cannot read the certificate it was given.
 
 Both branches were affected: `working-1.6` since 2026-08-10 and `dev-branch`
-since 2026-08-09, which bakes the same CA in whenever `httpproto` is `https`.
+since 2026-08-09, which bakes the same CA in whenever `WEB_url_proto` is `https`.
 
 ## Decision
 
@@ -130,9 +135,12 @@ converts fail-closed to fail-open for any verifier that does not implement the
 extension. Acceptable only because the sole such verifier in FOG's estate is
 one we control -- which is an argument for fixing that verifier.
 
-**Add `--no-web-name-constraints`, defaulting on.** Mirrors the existing
-`--no-sb-name-constraints`. Rejected because it leaves HTTPS netboot broken out
-of the box, with the fix behind a flag nobody discovers.
+**Add `--no-web-name-constraints`, defaulting on.** Mirrors
+`--no-sb-name-constraints`, which existed when this was written. Rejected because
+it leaves HTTPS netboot broken out of the box, with the fix behind a flag nobody
+discovers -- and that reasoning was later applied to the flag it mirrored:
+GH-1120 removed `--no-sb-name-constraints` and the constraints it governed, for
+the same "nobody passes it until a fleet has already failed" argument.
 
 **Drop the constraints from the Web CA.** Strictly worse than making them
 non-critical: it surrenders the property on every verifier rather than only on

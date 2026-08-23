@@ -2,7 +2,11 @@
 
 ## Status
 
-accepted
+accepted. Key names updated by
+[ADR 0024](0024-fogsettings-unified-key-model.md), which renamed every
+`.fogsettings` key and retired `acmeLeaf`. The decision below stands unchanged --
+the independence of these settings is the point, and the new names make it more
+visible, not less. Only the spellings moved.
 
 ## Context
 
@@ -42,28 +46,37 @@ makes Secure Boot onboarding **harder**, not easier.
 
 Each concern is its own `.fogsettings` key. No compound value hides another.
 
-| Key | Default | Means |
-| --- | --- | --- |
-| `httpproto` | `https` | protocol FOG uses for its own **non-netboot** URLs |
-| `netbootproto` | `http` | protocol iPXE uses to fetch `boot.php` |
-| `publicWebCert` | `no` | the web certificate chains to a **public** root |
-| `rebuildIpxeWithMyCA` | `no` | rebuild iPXE embedding the configured CA |
-| `httpsRedirect` | `no` | force the HTTP→HTTPS redirect |
-| `acmeLeaf` | `no` | leaf managed outside FOG (pre-existing) |
+| Key | Was | Default | Means |
+| --- | --- | --- | --- |
+| `WEB_url_proto` | `httpproto` | `https` | protocol FOG uses for its own **non-netboot** URLs |
+| `BOOT_url_proto` | `netbootproto` | `http` | protocol iPXE uses to fetch `boot.php` |
+| `PKI_web_cert_publicly_trusted` | `publicWebCert` | `no` | the web certificate chains to a **public** root |
+| `BOOT_rebuild_ipxe_with_my_ca` | `rebuildIpxeWithMyCA` | `no` | rebuild iPXE embedding the configured CA |
+| `WEB_https_redirect` | `httpsRedirect` | `no` | force the HTTP→HTTPS redirect |
+| *(derived)* | `acmeLeaf` | — | leaf managed outside FOG |
+
+`WEB_` and `BOOT_` being separate namespaces is this ADR's point restated in the
+key names: the two `*_url_proto` keys ask the same question of different
+subsystems, and neither implies the other.
+
+`acmeLeaf` no longer exists. "The leaf is managed outside FOG" is now derived --
+`PKI_web_vhost_cert` is a canonical path, and when it resolves outside the web
+PKI zone dir the leaf is somebody else's. See ADR 0024.
 
 Resolution rules:
 
-- `netbootproto` defaults to `http`, steered to `https` **iff** `publicWebCert`
-  or `rebuildIpxeWithMyCA` is set. An explicit `--netboot-proto` always wins.
-- The build happens **iff** `rebuildIpxeWithMyCA=yes`, and then only when the
-  iPXE tag or the embedded CA has actually changed.
+- `BOOT_url_proto` defaults to `http`, steered to `https` **iff**
+  `PKI_web_cert_publicly_trusted` or `BOOT_rebuild_ipxe_with_my_ca` is set. An
+  explicit `--netboot-proto` always wins.
+- The build happens **iff** `BOOT_rebuild_ipxe_with_my_ca=yes`, and then only
+  when the iPXE tag or the embedded CA has actually changed.
 - Secure Boot is prepared and everything unsigned is signed, **in every mode**.
-- `netbootproto=https` forced with neither trigger is legal and warned.
+- `BOOT_url_proto=https` forced with neither trigger is legal and warned.
 
 `--install-mode` is a preset over these keys — a convenience, never a
 replacement. Discrete flags apply after it and override only their own field.
 
-### Why `publicWebCert` is stated, not measured
+### Why `PKI_web_cert_publicly_trusted` is stated, not measured
 
 A probe was prototyped and removed. It was delicate: FOG installs its own CA
 into the host trust store by default, so a plain `openssl verify` answers

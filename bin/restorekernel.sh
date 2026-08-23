@@ -106,7 +106,7 @@ if [[ ! -r "$fogprogramdir/.fogsettings" ]]; then
 fi
 . "$fogprogramdir/.fogsettings"
 # .fogsettings records docroot and webroot but NOT webdirdest -- config.sh
-# derives that ("${docroot}fog/"). Sourcing .fogsettings alone therefore left
+# derives that ("${WEB_docroot}fog/"). Sourcing .fogsettings alone therefore left
 # $webdirdest empty and $ipxedir as the relative string "service/ipxe", so
 # --list mislabelled everything and --generation would have copied the restore
 # into a stray directory under bin/ instead of the live tree.
@@ -114,9 +114,9 @@ fi
 # Same ordering as bin/updatefog.sh, and for the same reason: .fogsettings
 # first so the recorded values win, then config.sh to derive what it does not
 # record. This is the bug commit ca02e0b9e fixed in setupacme.sh.
-linuxReleaseName_lower="${osname,,}"
+linuxReleaseName_lower="${FOG_os_name,,}"
 . ../lib/common/config.sh
-[[ -n $osid ]] && doOSSpecificIncludes >/dev/null
+[[ -n ${FOG_os_id} ]] && doOSSpecificIncludes >/dev/null
 
 kbdir="${fogprogramdir}/customizations/kernel-backups"
 ipxedir="${webdirdest}service/ipxe"
@@ -223,7 +223,7 @@ if [[ $st -ne 0 ]]; then
     echo " * Could not copy the generation into place. See $error_log."
     exit 1
 fi
-chown -R ${username}:${apacheuser} "$ipxedir" >>$error_log 2>&1
+chown -R ${SVC_user}:${apacheuser} "$ipxedir" >>$error_log 2>&1
 errorStat 0
 
 # The restored kernels carry whatever signature they had when they were
@@ -232,7 +232,7 @@ errorStat 0
 # refuses to boot -- so re-sign rather than leave a subtly broken set behind.
 # _resignKernels() skips anything already carrying a valid signature, so this
 # is a no-op in the common case where the key has not changed.
-if [[ -n $secureBootKey && -n $secureBootCert ]]; then
+if [[ -n ${PKI_sb_codesign_key} && -n ${PKI_sb_codesign_cert} ]]; then
     _resignKernels
 fi
 

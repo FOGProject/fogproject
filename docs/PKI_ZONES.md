@@ -76,10 +76,10 @@ issues day to day) — everything is a dotfile (`ls -a`):
 root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
                                    .fogCA.pem is a symlink to wherever the
                                    certificate already lived before this split.
-root/leaf/.srvprivate.key         symlink -> $sslpath/.srvprivate.key
-root/leaf/.srvpublic.crt          symlink -> $sslpath/.srvpublic.crt
+root/leaf/.srvprivate.key         symlink -> $PKI_client_cert_dir/.srvprivate.key
+root/leaf/.srvpublic.crt          symlink -> $PKI_client_cert_dir/.srvpublic.crt
                                    (the comm leaf's real files stay at
-                                   $sslpath -- see "Why they were separated")
+                                   $PKI_client_cert_dir -- see "Why they were separated")
 web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate and node certificates
 web/ca/.fogWebCAchain.pem         CA + web intermediate
 web/leaf/.webLeaf.{key,pem}       what the web server actually serves
@@ -110,12 +110,12 @@ separate, web-user-writable directory for in-flight kernel-signing requests --
 unrelated key material, and deliberately not part of this tree.
 
 `.srvprivate.key`/`.srvpublic.crt` themselves stay exactly where they have
-always been, at `$sslpath` — `root/leaf/` only adds discoverability symlinks
+always been, at `$PKI_client_cert_dir` — `root/leaf/` only adds discoverability symlinks
 to them, so nothing under `pki/` is flat while the comm keypair's real files
 never move.
 
 An install that already ran an earlier layout (flat `CA/.fogCA.*` directly
-under `$sslpath`, or the intermediate one-level-down `CA/web/.fogWebCA.*`
+under `$PKI_client_cert_dir`, or the intermediate one-level-down `CA/web/.fogWebCA.*`
 split) migrates its key/cert material into the new tree in place on the next
 run — no re-issuing, and the old paths keep resolving via symlink where
 anything might still reference them directly.
@@ -135,15 +135,15 @@ The only endpoint-visible change is Secure Boot.
 
 ## Private key protection
 
-The CA private key used to be readable by the web user. `$sslpath` lives under
+The CA private key used to be readable by the web user. `$PKI_client_cert_dir` lives under
 `$snapindir`, and `configureSnapins()` chowned that whole tree to
-`$username:$apacheuser` at mode 775 — so a remote code execution in the PHP
+`${SVC_user}:$apacheuser` at mode 775 — so a remote code execution in the PHP
 application could read the key the entire installation trusts. It also ran
 *after* certificate creation, so setting stricter permissions during
 `createSSLCA` had no effect at all: they were overwritten later in the same
 install.
 
-`$sslpath` is now excluded from that recursion and the permissions are applied
+`$PKI_client_cert_dir` is now excluded from that recursion and the permissions are applied
 afterwards, from `_hardenPkiPermissions`:
 
 | File | Mode | Why |
@@ -219,7 +219,7 @@ every signing operation, and nothing has to be re-enrolled in firmware
 Either invocation refuses and tells you the exact path to restore if the
 signing CA's private key isn't on this server (`fog-offline-ca-key` moved it
 out, or the Web CA key is simply missing). The web leaf invocation also
-refuses if it's ACME-managed (`acmeLeaf=yes`) — renew that one through your
+refuses if the leaf is managed outside FOG — renew that one through your
 ACME client instead.
 
 Nothing here runs on a timer. Wire it into your own cron if you want
@@ -227,15 +227,15 @@ unattended renewal; `installfog.sh` does not install one for you.
 
 ## Name constraints
 
-Both intermediates are issued with `nameConstraints` and an
-`extendedKeyUsage`, so neither can issue outside its zone or outside your
-network:
+Both intermediates carry an `extendedKeyUsage`, so neither can issue outside
+its zone. Only the **Web CA** carries `nameConstraints`:
 
 ```
 Web CA:          extendedKeyUsage = serverAuth
-Secure Boot CA:  extendedKeyUsage = codeSigning
-both:            permitted DNS: this server's hostname and domain
+                 permitted DNS: this server's hostname and domain
                  permitted IP:  all RFC1918 ranges, plus this server's own
+Secure Boot CA:  extendedKeyUsage = codeSigning
+                 no nameConstraints -- see below
 ```
 
 Extend or narrow with:
@@ -263,20 +263,28 @@ domains, produces a valid certificate that nothing accepts. The installer
 verifies the leaf against its issuer after signing and says so, naming the
 `rm -rf` that lets the CA be re-created with the new constraints.
 
-**On the Secure Boot CA the constraints are opt-out**, via
-`--no-sb-name-constraints`. They constrain nothing that matters for code
-signing — a code-signing leaf carries no names anyone resolves — and they sit
-in the one certificate UEFI and shim actually parse. The flag exists so that a
-fleet which rejects the chain is a re-issue of one intermediate rather than a
-re-enrolment of every machine.
+**The Secure Boot CA carries no `nameConstraints` at all**, and there is no flag
+to add them (GH-1120 removed `--no-sb-name-constraints` along with the
+`sbNameConstraints` key).
 
-A related trap, measured rather than assumed: OpenSSL applies DNS constraints
-to the subject **CN** when a certificate carries no DNS SAN. A CN of
-`evil.example.com` under a `corp.local` constraint is rejected; the Secure Boot
-signing CN passes only because "FOG Project Secure Boot Signing" is not
-hostname-shaped and so is never read as a DNS name. Depending on that would
-mean a rename of that CN stops the fleet booting, so the signing leaf carries a
-permitted DNS SAN.
+They constrained nothing that mattered for code signing — a code-signing leaf
+carries no names anyone resolves — while sitting in the one certificate UEFI and
+shim actually parse, where an extension the firmware mishandles costs a physical
+trip to every machine. An opt-out flag was the wrong shape for that risk: it put
+the safe answer behind something nobody passes until a fleet has already failed
+to boot.
+
+The Web CA keeps its constraints because ADR 0016 made them *enforceable* there —
+iPXE is a verifier FOG can patch, and firmware is not.
+
+A related trap this used to depend on, recorded because it explains the SAN on
+the signing leaf: OpenSSL applies DNS constraints to the subject **CN** when a
+certificate carries no DNS SAN. A CN of `evil.example.com` under a `corp.local`
+constraint is rejected, and the Secure Boot signing CN passed only because
+"FOG Project Secure Boot Signing" is not hostname-shaped and so is never read as
+a DNS name. Depending on that would have meant a rename of that CN stopping the
+fleet booting, so the signing leaf carries a permitted DNS SAN. That remains
+true and harmless now that the zone is unconstrained.
 
 ## Bringing your own CA
 
@@ -344,7 +352,7 @@ reference fixed canonical paths. Those paths may be symlinks, so the real
 files can live wherever you keep certificates:
 
 ```bash
-sed -i "s|^sslprivkey=.*|sslprivkey='/etc/pki/fog/server.key'|" /opt/fog/.fogsettings
+sed -i "s|^PKI_web_vhost_key=.*|PKI_web_vhost_key='/etc/pki/fog/server.key'|" /opt/fog/.fogsettings
 ./installfog.sh -Y
 ```
 
@@ -357,7 +365,7 @@ world-readable directory silently defeats the separation the `fog-sign-kernel`
 sudo helper depends on.
 
 > `.srvprivate.key` is no longer one of these relocatable pointers. It is the
-> communication key itself. If your `sslprivkey` used to point elsewhere, the
+> communication key itself. If your `PKI_web_vhost_key` used to point elsewhere, the
 > installer copies the key material into a file FOG owns and lets your own file
 > carry on as the *web* key — so an ACME renewal writing it no longer changes
 > what `certDecrypt()` reads.
@@ -369,8 +377,16 @@ whatever your site already runs, and point its install hook at the paths FOG's
 vhost reads. Full walkthrough in
 [EXTERNAL_CA_AND_LETSENCRYPT.md](EXTERNAL_CA_AND_LETSENCRYPT.md).
 
-Set `acmeLeaf="yes"` in [`/opt/fog/.fogsettings`](https://docs.fogproject.org/install-fogsettings) so the installer
-stops regenerating the leaf, and so it leaves the permissions on your key alone.
+Make `PKI_web_vhost_cert` **resolve to your certificate** — a symlink is
+enough. The installer reads where that canonical path points: outside its own
+web PKI zone directory means the leaf is yours, so it stops regenerating it and
+leaves the permissions on your key alone.
+
+There is no key to set. GH-1120 retired `acmeLeaf`, `webCertFile` and
+`webKeyFile` in favour of asking the filesystem, because a hand-set flag that
+nothing re-checked was exactly what got forgotten -- and forgetting it meant the
+installer re-issued the leaf from the original CSR against your ACME key,
+leaving a mismatched pair and a web server that would not start.
 
 > The historic warning about not letting an ACME client replace
 > `.srvprivate.key` no longer applies: the web server does not use that file.
@@ -380,8 +396,8 @@ stops regenerating the leaf, and so it leaves the permissions on your key alone.
 
 This is one option among several, not a default — nothing here is installed
 or configured automatically. If you'd rather have a publicly-trusted
-certificate on the web leaf than FOG's own Web CA, `acmeLeaf=yes` above is the
-escape hatch. [acme.sh](https://github.com/acmesh-official/acme.sh) is a
+certificate on the web leaf than FOG's own Web CA, pointing
+`PKI_web_vhost_cert` at it (above) is the escape hatch. [acme.sh](https://github.com/acmesh-official/acme.sh) is a
 reasonable lightweight client for that — no daemon, no separate CA to run.
 
 **Pick a challenge type first.** Two options, and which one fits depends on
@@ -419,27 +435,39 @@ acme.sh --install-cert -d fog.example.com \
     --ca-file        /opt/fog/pki/web/ca/.fogWebCAchain.pem \
     --reloadcmd      "systemctl reload httpd"     # apache2 on Ubuntu
 ```
-`--cert-file` (leaf only) maps to `sslpubcert`; `--ca-file` (intermediate
-only) maps to `sslcachain` — matching Apache's
+`--cert-file` (leaf only) maps to `PKI_web_vhost_cert`; `--ca-file` (intermediate
+only) maps to `PKI_web_trust_chain` — matching Apache's
 `SSLCertificateFile`/`SSLCertificateChainFile` split. Don't use
-`--fullchain-file` for `sslpubcert`, or the vhost ends up listing the
+`--fullchain-file` for `PKI_web_vhost_cert`, or the vhost ends up listing the
 intermediate twice.
 
-**Tell FOG about it**, once, in `.fogsettings`:
+**Nothing to tell FOG.** Writing acme.sh's output to the canonical paths, as
+`--cert-file`/`--key-file`/`--ca-file` above already do, is the whole
+declaration:
 ```
-acmeLeaf=yes
-sslprivkey=/opt/fog/pki/web/leaf/.webLeaf.key
-sslpubcert=/opt/fog/pki/web/leaf/.webLeaf.pem
-sslcachain=/opt/fog/pki/web/ca/.fogWebCAchain.pem
+PKI_web_vhost_key=/opt/fog/pki/web/leaf/.webLeaf.key
+PKI_web_vhost_cert=/opt/fog/pki/web/leaf/.webLeaf.pem
+PKI_web_trust_chain=/opt/fog/pki/web/ca/.fogWebCAchain.pem
 ```
-Reusing the exact default paths above is what makes `_resolveWebLeafPaths()`
-recognize them as already-yours and leave them alone on every later
-`installfog.sh` run; `sslcachain` gets the same treatment from
+Those are the defaults, and `.fogsettings` already holds them -- they are shown
+here so you can see that acme.sh is writing to the files FOG reads.
+`_resolveWebLeafPaths()` recognizes them and leaves them alone on every later
+`installfog.sh` run; `PKI_web_trust_chain` gets the same treatment from
 `createWebIntermediateCA()`.
+
+If you would rather keep your certificate in the ACME client's own tree, point
+the canonical path at it instead:
+```bash
+ln -sf /etc/letsencrypt/live/fog.example.com/cert.pem \
+       /opt/fog/pki/web/leaf/.webLeaf.pem
+```
+A canonical path resolving outside `/opt/fog/pki/web/` is what tells the
+installer the leaf is externally managed. Either arrangement works; the symlink
+is better if your client rewrites its own files in place.
 
 **Renewal** is acme.sh's own cron entry — the `--reloadcmd` above is what
 picks up each renewed certificate. `renewal-helper --zone web` already
-refuses on an ACME-managed leaf; use `acme.sh --renew -d fog.example.com
+refuses on an externally-managed leaf; use `acme.sh --renew -d fog.example.com
 --force` instead if you ever need to force one.
 
 ## HTTPS and netboot
@@ -453,7 +481,7 @@ iPXE can only validate a chain ending in a **public** root, through its
 | FOG's own PKI | HTTPS once `ca.cert.der` is trusted | HTTP |
 | Your internal PKI | HTTPS once your root is trusted | HTTP |
 
-On a **fresh** install with `httpproto=https` and FOG's own PKI, netboot stays
+On a **fresh** install with `WEB_url_proto=https` and FOG's own PKI, netboot stays
 on HTTP automatically while everything else is HTTPS. That avoids the historic
 trade where enabling HTTPS meant rebuilding iPXE with the CA baked in — which
 works, and forfeits the signed Secure Boot shim, because a locally rebuilt
@@ -470,7 +498,7 @@ that exact FQDN, not a short hostname and not an IP.
 
 You no longer have to set `FOG_WEB_HOST` yourself: the installer resolves the
 netboot name from the certificate the vhost actually serves and records it into
-that setting, so both hops of a boot use one name. Under `netbootproto=https`
+that setting, so both hops of a boot use one name. Under `BOOT_url_proto=https`
 the row is therefore a **record, not a control** — it is rewritten on every
 install run and an edit through FOG Settings will not survive. Plain-HTTP
 netboot is untouched, and `FOG_WEB_HOST` stays yours to set there.
@@ -514,9 +542,11 @@ that intermediate is enrolled as `MOK.der` through MokManager, or written into
 `db` through the Setup Mode PK/KEK/db path. Firmware and shim both accept a
 chain terminating at the enrolled CA rather than demanding the exact signer.
 
-> That verification predates the `nameConstraints` extension now carried on the
-> Secure Boot CA. Re-confirm both routes on hardware before relying on it, and
-> use `--no-sb-name-constraints` if a fleet rejects the chain.
+> That verification predates a `nameConstraints` extension that was briefly
+> carried on the Secure Boot CA and has since been removed entirely (GH-1120),
+> so the concern it raised no longer applies. An intermediate is never re-minted,
+> so a CA issued while that extension was being written still carries it --
+> remove `.fogSBCA.pem` to re-issue without.
 
 ### Servers that already enrolled a MOK
 
@@ -585,9 +615,11 @@ longer does.
 ## Still unverified
 
 - **nginx.** Every vhost change was exercised on Apache only. The managed-block
-  splice and the `netbootproto` redirect exclusion both have nginx branches
+  splice and the `BOOT_url_proto` redirect exclusion both have nginx branches
   that have never executed.
-- **Secure Boot with name constraints on hardware.** See the note above.
+- **Secure Boot chain validation on hardware** for CAs issued during the window
+  when the Secure Boot zone carried `nameConstraints`. New CAs carry none. See
+  the note above.
 - **Node certificate issuance against a real second machine.** The endpoint,
   the signing helper and the HMAC agreement between installer and endpoint are
   each verified in isolation; the two halves have not been run against each

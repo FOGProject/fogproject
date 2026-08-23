@@ -1667,7 +1667,51 @@ class OpenAPI extends FOGBase
                     'whoami',
                     _('Server identity'),
                     '',
-                    $json(['type' => 'object'], _('Server facts.'))
+                    // Named rather than left as a bare object: the response is
+                    // exactly Route::WHOAMI_KEYS, and GH-1120 renamed all five
+                    // of those keys. A schema that documented nothing could not
+                    // have told a consumer that the break had happened.
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'NET_fog_server_ip' => [
+                                    'type' => 'string',
+                                    'description' => _('This server\'s own IP '
+                                        . 'address. Space-separated when the '
+                                        . 'interface carries more than one.')
+                                ],
+                                'NET_hostname' => [
+                                    'type' => 'string',
+                                    'description' => _('This server\'s '
+                                        . 'hostname, as its certificate names '
+                                        . 'it.')
+                                ],
+                                'FOG_os_id' => [
+                                    'type' => 'string',
+                                    'description' => _('Numeric OS family id '
+                                        . 'the installer recorded. A second '
+                                        . 'encoding of FOG_os_name whose '
+                                        . 'meaning has changed between '
+                                        . 'releases; prefer FOG_os_name.')
+                                ],
+                                'FOG_os_name' => [
+                                    'type' => 'string',
+                                    'description' => _('OS family name the '
+                                        . 'installer recorded. The stable '
+                                        . 'identifier of the two.')
+                                ],
+                                'FOG_install_type' => [
+                                    'type' => 'string',
+                                    'description' => _('N for a full server, '
+                                        . 'S for a storage node.')
+                                ]
+                            ]
+                        ],
+                        _('Server facts. Every field is a string, and is empty '
+                            . 'rather than absent when the installer has not '
+                            . 'published it yet.')
+                    )
                 )
             ],
             '/pendingmacs' => [

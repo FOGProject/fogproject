@@ -26,7 +26,7 @@
 # surviving data. That doubles as a genuinely useful "rebuild the server, keep
 # my hosts" path.
 #
-# The SSL CA deserves specific mention: it lives at $sslpath, which is under
+# The SSL CA deserves specific mention: it lives at ${PKI_client_cert_dir}, which is under
 # $fogprogramdir/snapins. That means a naive `rm -rf $fogprogramdir` destroys
 # it as a side effect, and losing .fogCA.key/.fogCA.pem permanently breaks
 # every deployed fog-client and every PXE binary pinned to that CA -- there is
@@ -81,7 +81,7 @@ uninstallFOG() {
         exit 1
     fi
 
-    [[ -z $webdirdest ]] && webdirdest="${docroot}fog/"
+    [[ -z $webdirdest ]] && webdirdest="${WEB_docroot}fog/"
 
     echo
     echo "  ##################################################################"
@@ -135,11 +135,11 @@ uninstallFOG() {
 
     echo "   Your data:"
     echo
-    printf '     %-42s %s\n' "database '$mysqldbname'" "$plan_db"
-    printf '     %-42s %s\n' "images in $storageLocation" "$plan_images"
+    printf '     %-42s %s\n' "database '${DB_name}'" "$plan_db"
+    printf '     %-42s %s\n' "images in ${STORAGE_image_share_path}" "$plan_images"
     printf '     %-42s %s\n' "snapins in $snapindir" "$plan_snapins"
-    printf '     %-42s %s\n' "SSL CA in $sslpath" "$plan_ssl"
-    printf '     %-42s %s\n' "Linux account '$username'" "$plan_user"
+    printf '     %-42s %s\n' "SSL CA in ${PKI_client_cert_dir}" "$plan_ssl"
+    printf '     %-42s %s\n' "Linux account '${SVC_user}'" "$plan_user"
     echo
     if [[ $plan_ssl == DELETED ]]; then
         echo "   ** Removing the SSL CA permanently breaks every deployed"
@@ -161,10 +161,10 @@ uninstallFOG() {
     # enough to trigger a destructive uninstall by accident. --force exists for
     # automation that genuinely means it.
     if [[ $uninstallforce != 1 ]]; then
-        echo "   Type this server's hostname ($hostname) to proceed, anything else to abort."
+        echo "   Type this server's hostname (${NET_hostname}) to proceed, anything else to abort."
         echo
         read -r -p "   > " reply
-        if [[ $reply != "$hostname" ]]; then
+        if [[ $reply != "${NET_hostname}" ]]; then
             echo
             echo " * Aborted, nothing was changed."
             echo
@@ -177,13 +177,13 @@ uninstallFOG() {
     # next to the cost of being wrong, and it is the only part of this that
     # cannot be reconstructed from the FOG sources.
     dots "Backing up database"
-    if [[ -d $backupPath ]]; then
-        mysqldump ${snmysqlhost:+-h $snmysqlhost} -u "${snmysqluser}" \
-            -p"${snmysqlpass}" "${mysqldbname}" \
-            > "${backupPath%/}/fog_uninstall_${mysqldbname}_${timestamp}.sql" 2>>$error_log
+    if [[ -d ${DB_backup_path} ]]; then
+        mysqldump ${DB_host:+-h ${DB_host}} -u "${DB_user}" \
+            -p"${DB_password}" "${DB_name}" \
+            > "${DB_backup_path%/}/fog_uninstall_${DB_name}_${timestamp}.sql" 2>>$error_log
         errorStat $?
     else
-        echo "Skipped (no $backupPath)"
+        echo "Skipped (no ${DB_backup_path})"
     fi
 
     dots "Stopping and disabling FOG services"
@@ -220,13 +220,13 @@ uninstallFOG() {
     # end one of these blocks with `[[ test ]] && command; errorStat $?` -- when
     # the test is false the && returns 1, errorStat reports the step as Failed,
     # and the installer aborts mid-uninstall. That is not hypothetical: it
-    # stopped the uninstall three steps in during testing, because ${docroot}fog
+    # stopped the uninstall three steps in during testing, because ${WEB_docroot}fog
     # is a real directory rather than a symlink on a normal install.
     dots "Removing FOG web files"
     st=0
     rm -rf "$webdirdest" >>$error_log 2>&1 || st=1
-    if [[ -L ${docroot}fog ]]; then
-        rm -f "${docroot}fog" >>$error_log 2>&1 || st=1
+    if [[ -L ${WEB_docroot}fog ]]; then
+        rm -f "${WEB_docroot}fog" >>$error_log 2>&1 || st=1
     fi
     errorStat $st
 
@@ -241,7 +241,7 @@ uninstallFOG() {
     case $(basename "$etcconf" 2>/dev/null) in
         fog.conf|001-fog.conf)
             rm -f "$etcconf" >>$error_log 2>&1 || st=1
-            [[ $osid -eq 2 ]] && a2dissite 001-fog >>$error_log 2>&1
+            [[ ${FOG_os_id} -eq 2 ]] && a2dissite 001-fog >>$error_log 2>&1
             ;;
     esac
     if [[ -n $tftpdirdst && -d $tftpdirdst ]]; then
@@ -259,15 +259,15 @@ uninstallFOG() {
     esac
 
     if [[ $purgedb == 1 ]]; then
-        dots "Dropping database '$mysqldbname'"
-        mysql ${snmysqlhost:+-h $snmysqlhost} -u "${snmysqluser}" \
-            -p"${snmysqlpass}" --execute="DROP DATABASE IF EXISTS \`${mysqldbname}\`;" \
+        dots "Dropping database '${DB_name}'"
+        mysql ${DB_host:+-h ${DB_host}} -u "${DB_user}" \
+            -p"${DB_password}" --execute="DROP DATABASE IF EXISTS \`${DB_name}\`;" \
             >>$error_log 2>&1
         errorStat $?
     fi
     if [[ $purgeimages == 1 ]]; then
         dots "Removing images"
-        rm -rf "${storageLocation:?}" >>$error_log 2>&1
+        rm -rf "${STORAGE_image_share_path:?}" >>$error_log 2>&1
         errorStat $?
     fi
     if [[ $purgesnapins == 1 ]]; then
@@ -277,7 +277,7 @@ uninstallFOG() {
     fi
     if [[ $purgessl == 1 ]]; then
         dots "Removing SSL CA"
-        rm -rf "${sslpath:?}" >>$error_log 2>&1
+        rm -rf "${PKI_client_cert_dir:?}" >>$error_log 2>&1
         errorStat $?
         # Tied to purge-ssl rather than run unconditionally: the anchor is only
         # stale once the CA it names is actually gone. A plain uninstall keeps
@@ -293,8 +293,8 @@ uninstallFOG() {
     # Left until last: the account owns the paths above, so removing it first
     # would leave them orphaned mid-run if something failed.
     if [[ $purgeuser == 1 ]]; then
-        dots "Removing '$username' account"
-        userdel -r "$username" >>$error_log 2>&1
+        dots "Removing '${SVC_user}' account"
+        userdel -r "${SVC_user}" >>$error_log 2>&1
         errorStat $?
     fi
 
@@ -305,9 +305,9 @@ uninstallFOG() {
     echo
     echo " * FOG has been uninstalled."
     echo
-    [[ $plan_db == KEPT ]] && echo "   Database '$mysqldbname' was kept."
-    [[ $plan_images == KEPT ]] && echo "   Images in $storageLocation were kept."
-    [[ $plan_ssl == KEPT ]] && echo "   The SSL CA in $sslpath was kept."
+    [[ $plan_db == KEPT ]] && echo "   Database '${DB_name}' was kept."
+    [[ $plan_images == KEPT ]] && echo "   Images in ${STORAGE_image_share_path} were kept."
+    [[ $plan_ssl == KEPT ]] && echo "   The SSL CA in ${PKI_client_cert_dir} was kept."
     echo "   Reinstalling over what remains will pick it all back up."
     echo
     echo "   Packages were not removed. Restart or reconfigure your webserver,"

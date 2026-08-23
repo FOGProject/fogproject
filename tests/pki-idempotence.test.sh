@@ -4,7 +4,7 @@
 #
 #   tests/pki-idempotence.test.sh
 #
-# The web leaf's historic guard was `[[ ! -x $sslpubcert ]]`. Certificates are
+# The web leaf's historic guard was `[[ ! -x ${PKI_web_vhost_cert} ]]`. Certificates are
 # not executable, so that test was true of every certificate ever written and
 # the leaf was re-signed on EVERY installer run. It was harmless only while one
 # key did every job; the moment the signing key can be offline, or a client has
@@ -75,39 +75,38 @@ setSELinuxContext() { :; }
 # --- a self-contained install tree -------------------------------------------
 fogprogramdir="$WORK/opt/fog"
 snapindir="$WORK/opt/fog/snapins"
-sslpath="$snapindir/ssl"
+PKI_client_cert_dir="$snapindir/ssl"
 webdirdest="$WORK/var/www/fog"
-backupPath="$WORK/backups"
+DB_backup_path="$WORK/backups"
 version="1.6.0-test"
 apacheuser="$(id -un)"
-hostname="fogserver.test.local"
-ipaddress="10.0.0.5"
-ipaddresses="10.0.0.5"
-certip="$ipaddress"
+NET_hostname="fogserver.test.local"
+NET_fog_server_ip="10.0.0.5"
+PKI_san_ip_addresses="10.0.0.5"
+certip="${NET_fog_server_ip}"
 # Set so _collectPkiNames does not stop to prompt for them.
-internalDomains="test.local"
-extraServerNames=""
-secureboot=1
+PKI_allowed_domain_names="test.local"
+PKI_san_dns_names=""
+PKI_sb_enabled=1
 recreateKeys=no
 recreateCA=no
 externalca=no
-acmeLeaf=no
-mkdir -p "$sslpath/CA" "$webdirdest" "$backupPath"
+mkdir -p "${PKI_client_cert_dir}/CA" "$webdirdest" "${DB_backup_path}"
 
 # One pass of the PKI creation path, in createSSLCA()'s own order.
 pki_pass() {
     _resolveSslPath
     _resolveRootCA
 
-    local sanentries="IP.1 = ${ipaddress}"
-    cat > "$sslpath/ca.cnf" << EOF
+    local sanentries="IP.1 = ${NET_fog_server_ip}"
+    cat > "${PKI_client_cert_dir}/ca.cnf" << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = $hostname
+DNS.1 = ${NET_hostname}
 EOF
-    cat > "$sslpath/req.cnf" << EOF
+    cat > "${PKI_client_cert_dir}/req.cnf" << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -120,15 +119,14 @@ OU = FOG Client Communication
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = $hostname
+DNS.1 = ${NET_hostname}
 EOF
 
-    [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
     _separateCommKey
-    if [[ ! -e $sslpath/.srvprivate.key || ! -e $sslcsr ]]; then
-        openssl genrsa -out "$sslpath/.srvprivate.key" 4096 >>$error_log 2>&1
-        openssl req -new -sha512 -key "$sslpath/.srvprivate.key" -out "$sslcsr" \
-            -config "$sslpath/req.cnf" >>$error_log 2>&1
+    if [[ ! -e ${PKI_client_cert_dir}/.srvprivate.key || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
+        openssl genrsa -out "${PKI_client_cert_dir}/.srvprivate.key" 4096 >>$error_log 2>&1
+        openssl req -new -sha512 -key "${PKI_client_cert_dir}/.srvprivate.key" -out "${PKI_client_cert_dir}/fog.csr" \
+            -config "${PKI_client_cert_dir}/req.cnf" >>$error_log 2>&1
     fi
     _createCommLeaf >/dev/null 2>&1
 
@@ -146,10 +144,10 @@ EOF
 # --- the artefacts a second run must not touch -------------------------------
 artefacts() {
     printf '%s\n' \
-        "$sslpath/CA/.fogCA.pem|root CA certificate" \
+        "${PKI_client_cert_dir}/CA/.fogCA.pem|root CA certificate" \
         "$fogprogramdir/pki/root/ca/.fogCA.key|root CA private key" \
-        "$sslpath/.srvprivate.key|client communication key" \
-        "$sslpath/.srvpublic.crt|client communication leaf" \
+        "${PKI_client_cert_dir}/.srvprivate.key|client communication key" \
+        "${PKI_client_cert_dir}/.srvpublic.crt|client communication leaf" \
         "$fogprogramdir/pki/web/ca/.fogWebCA.pem|web intermediate CA" \
         "$fogprogramdir/pki/web/ca/.fogWebCA.key|web intermediate CA key" \
         "$fogprogramdir/pki/web/leaf/.webLeaf.key|web leaf private key" \
@@ -164,7 +162,7 @@ artefacts() {
         "$fogprogramdir/pki/secureboot/KEK.pem|Key Exchange Key certificate"
     # Not listed: the flat MOK.key/MOK.pem pair. It is the FALLBACK for a server
     # with no Secure Boot CA -- _ensureSecureBootKeys returns early here because
-    # createSecureBootIntermediateCA has already pointed $secureBootKey at the
+    # createSecureBootIntermediateCA has already pointed ${PKI_sb_codesign_key} at the
     # signing leaf -- so it is genuinely absent in this configuration rather
     # than missing. sign.key/sign.pem above are what this install enrols.
 }
@@ -232,7 +230,7 @@ stamp="$fogprogramdir/pki/web/leaf/.webLeaf.sans"
 if [[ -f $stamp ]]; then
     ok "the web leaf SAN stamp exists"
     leafbefore=$(sumof "$fogprogramdir/pki/web/leaf/.webLeaf.pem")
-    hostname="renamed.test.local"
+    NET_hostname="renamed.test.local"
     pki_pass
     if [[ "$(sumof "$fogprogramdir/pki/web/leaf/.webLeaf.pem")" != "$leafbefore" ]]; then
         ok "renaming the server DOES re-issue the web leaf"
@@ -241,9 +239,9 @@ if [[ -f $stamp ]]; then
     fi
     # ...and nothing above the leaf moved with it.
     for ca in \
-        "$sslpath/CA/.fogCA.pem" \
+        "${PKI_client_cert_dir}/CA/.fogCA.pem" \
         "$fogprogramdir/pki/web/ca/.fogWebCA.pem" \
-        "$sslpath/.srvpublic.crt"; do
+        "${PKI_client_cert_dir}/.srvpublic.crt"; do
         [[ -n ${BEFORE[$ca]:-} ]] || continue
         if [[ "$(sumof "$ca")" != "${BEFORE[$ca]}" ]]; then
             bad "re-issuing the leaf also changed $ca"

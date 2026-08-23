@@ -10,15 +10,15 @@
 # PROTOCOL is chosen but never calls the function that writes the URL, so
 # nothing could see the host.
 #
-# What went wrong without one. configureDefaultiPXEfile() used $ipaddress for
+# What went wrong without one. configureDefaultiPXEfile() used ${NET_fog_server_ip} for
 # the whole prior life of the line; when a name was introduced it was
-# ${hostname:-$ipaddress}, guarded only by validip -- and validhostname()
+# ${NET_hostname:-${NET_fog_server_ip}}, guarded only by validip -- and validhostname()
 # accepts a single label, so a short "fog" passed every check and produced
 # https://fog/fog/service/ipxe/boot.php against a certificate issued to
 # fog.arrowheaddental.com. iPXE stopped at the handshake.
 #
 # That failed only on the path the change was written for. _defaultServerNames()
-# puts both the FQDN and the short ${hostname%%.*} in the SAN list, so a short
+# puts both the FQDN and the short ${NET_hostname%%.*} in the SAN list, so a short
 # name is a real SAN on a FOG-issued certificate. But _createWebLeaf() returns
 # early when acmeLeaf/publicWebCert is set, so a publicly-issued leaf carries
 # only the names its issuer was asked for -- and publicWebCert is one of exactly
@@ -26,7 +26,7 @@
 #
 # The properties pinned here, in the order they are easiest to break again:
 #
-#   1. the name comes from the CERTIFICATE, not from $hostname (A2, I);
+#   1. the name comes from the CERTIFICATE, not from ${NET_hostname} (A2, I);
 #   2. a commonName is honoured only when there is no subjectAltName at all,
 #      which is iPXE's own rule -- see docs/adr/0016 (D, E). E is the one most
 #      likely to be "simplified" by someone who reads D;
@@ -94,11 +94,11 @@ mkleaf cnliar   "fog"             "DNS:other.example.org"
 mkleaf wildcard "*.example.org"   "DNS:*.example.org"
 
 reset_env() {
-    etcconf=""; sslpubcert=""; sslfullchain=""
-    hostname=""; ipaddress=""; ipaddresses=""; extraServerNames=""
-    netboothost=""; netbootproto=""; netbootProtoForced=""; snetbootproto=""
-    publicWebCert="no"; rebuildIpxeWithMyCA="no"
-    webroot="/fog/"
+    etcconf=""; PKI_web_vhost_cert=""; sslfullchain=""
+    NET_hostname=""; NET_fog_server_ip=""; PKI_san_ip_addresses=""; PKI_san_dns_names=""
+    netboothost=""; BOOT_url_proto=""; BOOT_url_proto_forced=""; sBOOT_url_proto=""
+    PKI_web_cert_publicly_trusted="no"; BOOT_rebuild_ipxe_with_my_ca="no"
+    WEB_root="/fog/"
     tftpdirdst="$WORK/tftp"
     error_log="$WORK/error.log"
     # Without this the fatal paths call `exit 1` and take the test script with
@@ -135,42 +135,42 @@ rc $status 1 "H: an unreadable certificate matches nothing"
 
 echo "== _resolveNetbootHost: one name for the whole boot =="
 
-# I. The reported case: a public leaf for the FQDN, and $hostname holding the
+# I. The reported case: a public leaf for the FQDN, and ${NET_hostname} holding the
 #    short name. The certificate wins.
 reset_env
-sslpubcert="$WORK/public.pem"
-hostname="fog"; ipaddress="10.0.0.1"
+PKI_web_vhost_cert="$WORK/public.pem"
+NET_hostname="fog"; NET_fog_server_ip="10.0.0.1"
 _resolveNetbootHost >/dev/null 2>&1; status=$?
 rc $status 0 "I: resolves against a public leaf"
-check "$netboothost" "fog.example.org" "I2: the name is the CERTIFICATE's, not \$hostname"
+check "$netboothost" "fog.example.org" "I2: the name is the CERTIFICATE's, not \${NET_hostname}"
 
 # J. No certificate to read -- a storage node's configureMinHttpd path, or
 #    --no-vhost. Fall back to the name, never to the address.
 reset_env
-hostname="fog.example.org"; ipaddress="10.0.0.1"
+NET_hostname="fog.example.org"; NET_fog_server_ip="10.0.0.1"
 _resolveNetbootHost >/dev/null 2>&1; status=$?
 rc $status 0 "J: no readable certificate is not fatal on its own"
-check "$netboothost" "fog.example.org" "J2: ...it falls back to \$hostname"
+check "$netboothost" "fog.example.org" "J2: ...it falls back to \${NET_hostname}"
 
 # K. No certificate AND no name: the address is all there is, and an https URL
 #    built from it cannot work whatever the certificate says.
 reset_env
-ipaddress="10.0.0.5"
+NET_fog_server_ip="10.0.0.5"
 _resolveNetbootHost >/dev/null 2>&1; status=$?
 rc $status 1 "K: an address-only server is fatal under HTTPS netboot"
 
 # L. A certificate that does not serve the name resolved from it.
 reset_env
-sslpubcert="$WORK/cnliar.pem"
-hostname="fog"; ipaddress="10.0.0.1"
+PKI_web_vhost_cert="$WORK/cnliar.pem"
+NET_hostname="fog"; NET_fog_server_ip="10.0.0.1"
 _resolveNetbootHost >/dev/null 2>&1; status=$?
 rc $status 1 "L: a name the certificate does not carry is fatal"
 
 # M. Idempotent: the recorder calls this after configureDefaultiPXEfile already
 #    has, and must get the same answer without re-announcing it.
 reset_env
-sslpubcert="$WORK/public.pem"
-hostname="fog"; ipaddress="10.0.0.1"
+PKI_web_vhost_cert="$WORK/public.pem"
+NET_hostname="fog"; NET_fog_server_ip="10.0.0.1"
 _resolveNetbootHost >/dev/null 2>&1
 second=$(_resolveNetbootHost 2>&1)
 check "$netboothost" "fog.example.org" "M: a second call keeps the same name"
@@ -182,9 +182,9 @@ echo "== configureDefaultiPXEfile: what actually reaches default.ipxe =="
 #    resolver.
 reset_env
 mkdir -p "$tftpdirdst"
-sslpubcert="$WORK/public.pem"
-hostname="fog"; ipaddress="10.0.0.1"
-snetbootproto="https"
+PKI_web_vhost_cert="$WORK/public.pem"
+NET_hostname="fog"; NET_fog_server_ip="10.0.0.1"
+sBOOT_url_proto="https"
 configureDefaultiPXEfile >/dev/null 2>&1
 written=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
 has   "$written" "https://fog.example.org/fog/service/ipxe/boot.php" \
@@ -197,9 +197,9 @@ hasnt "$written" "https://fog/" \
 reset_env
 mkdir -p "$tftpdirdst"
 rm -f "$tftpdirdst/default.ipxe"
-sslpubcert="$WORK/public.pem"
-hostname="fog"; ipaddress="10.0.0.1"
-snetbootproto="http"
+PKI_web_vhost_cert="$WORK/public.pem"
+NET_hostname="fog"; NET_fog_server_ip="10.0.0.1"
+sBOOT_url_proto="http"
 configureDefaultiPXEfile >/dev/null 2>&1
 written=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
 has "$written" "http://10.0.0.1/fog/service/ipxe/boot.php" \
@@ -211,8 +211,8 @@ has "$written" "http://10.0.0.1/fog/service/ipxe/boot.php" \
 reset_env
 mkdir -p "$tftpdirdst"
 rm -f "$tftpdirdst/default.ipxe"
-ipaddress="10.0.0.5"
-snetbootproto="https"
+NET_fog_server_ip="10.0.0.5"
+sBOOT_url_proto="https"
 configureDefaultiPXEfile >/dev/null 2>&1
 if [[ ! -f $tftpdirdst/default.ipxe ]]; then
     ok "P: an aborted resolution writes no default.ipxe"
@@ -223,7 +223,7 @@ fi
 echo "== the recorder keeps FOG_WEB_HOST in step =="
 
 # Q. Hops 2..n come from the FOG_WEB_HOST DB row, which the installer never used
-#    to write -- it is seeded from $ipaddress on a fresh schema deploy and then
+#    to write -- it is seeded from ${NET_fog_server_ip} on a fresh schema deploy and then
 #    left alone, so a fresh public-cert install pointed them at https://<IP>/.
 #    Source-level, because asserting the row needs a database.
 if grep -q "recordNetbootWebHost" "$REPO/bin/installfog.sh"; then
@@ -234,7 +234,7 @@ fi
 
 # R. Gated on HTTPS netboot. Rewriting FOG_WEB_HOST on every plain-HTTP install
 #    would stomp a name plenty of admins set deliberately.
-if awk '/^recordNetbootWebHost\(\)/,/^}/' "$FUNCS" | grep -q 'netbootproto == https'; then
+if awk '/^recordNetbootWebHost\(\)/,/^}/' "$FUNCS" | grep -q 'BOOT_url_proto} == https'; then
     ok "R: the rewrite only happens under HTTPS netboot"
 else
     bad "R: FOG_WEB_HOST would be rewritten on HTTP installs too"

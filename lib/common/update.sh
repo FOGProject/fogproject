@@ -30,26 +30,26 @@
 # reading the FOG_IPXE_BG_FILE setting whose entire purpose is renaming that
 # file.
 
-# Fetches, checks out, and hard-resets $fog_git_path to $1 (a branch name --
-# the caller has already resolved this from either $fog_update_channel via
+# Fetches, checks out, and hard-resets ${FOG_git_path} to $1 (a branch name --
+# the caller has already resolved this from either ${FOG_update_channel} via
 # channelToBranch, or a one-off --branch override). Sets $updatePrevCommit
 # (module-global, read by revertUpdate below) to the commit HEAD was at
 # before touching anything.
 gitUpdateToBranch() {
     local branch="$1" st
-    updatePrevCommit=$(git -C "$fog_git_path" rev-parse HEAD 2>>$error_log)
+    updatePrevCommit=$(git -C "${FOG_git_path}" rev-parse HEAD 2>>$error_log)
     dots "Fetching FOG (${branch})"
-    git -C "$fog_git_path" fetch --all >>$error_log 2>&1
+    git -C "${FOG_git_path}" fetch --all >>$error_log 2>&1
     st=$?
     errorStat $st
     [[ $st -ne 0 ]] && return 1
     dots "Checking out ${branch}"
-    git -C "$fog_git_path" checkout "$branch" >>$error_log 2>&1
+    git -C "${FOG_git_path}" checkout "$branch" >>$error_log 2>&1
     st=$?
     errorStat $st
     [[ $st -ne 0 ]] && return 1
     dots "Resetting to origin/${branch}"
-    git -C "$fog_git_path" reset --hard "origin/${branch}" >>$error_log 2>&1
+    git -C "${FOG_git_path}" reset --hard "origin/${branch}" >>$error_log 2>&1
     st=$?
     errorStat $st
     return $st
@@ -73,9 +73,9 @@ gitUpdateToBranch() {
 revertUpdate() {
     echo " * Reverting to the previous commit ($updatePrevCommit)"
     dots "Reverting git checkout"
-    git -C "$fog_git_path" reset --hard "$updatePrevCommit" >>$error_log 2>&1
+    git -C "${FOG_git_path}" reset --hard "$updatePrevCommit" >>$error_log 2>&1
     errorStat $?
     dots "Re-running installfog.sh against the reverted commit"
-    (cd "$fog_git_path/bin" && bash installfog.sh -Y $updateVhostFlag --restore-kernel-backup >>$error_log 2>&1)
+    (cd "${FOG_git_path}/bin" && bash installfog.sh -Y $updateVhostFlag --restore-kernel-backup >>$error_log 2>&1)
     errorStat $?
 }

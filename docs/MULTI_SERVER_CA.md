@@ -88,8 +88,10 @@ https://<server>/fog/management/other/ca.cert.der
 
 Since the trust-store change, each server also anchors *itself* in its own
 system store at install time, so `curl` and `wget` **on** a FOG server work
-against that server without `-k`. That is per-server and does not federate;
-`--no-ca-trust` opts out.
+against that server without `-k`. That is per-server and does not federate, and
+it is unconditional -- GH-1120 removed the `--no-ca-trust` opt-out, because a
+server that cannot verify its own certificate is not a supported state and the
+failures surfaced far from the flag that caused them.
 
 Browsers still need a manual import — see [What is and is not
 unified](#what-is-and-is-not-unified).
@@ -291,7 +293,7 @@ vhost block while that migration still appended rather than replaced, so FOG's
 previous vhost is sitting above the managed one — and the first matching vhost
 is the one the web server uses. Update the installer and run it again; it
 detects and removes the stale copy by itself now. `openssl x509 -in
-"$(grep -oP "(?<=^sslpubcert=').*(?=')" /opt/fog/.fogsettings)" -noout -issuer`
+"$(grep -oP "(?<=^PKI_web_vhost_cert=').*(?=')" /opt/fog/.fogsettings)" -noout -issuer`
 is what tells you the leaf itself was fine all along.
 
 **The far server's web tier will not start, or its certificate does not
@@ -302,11 +304,15 @@ names passed as extra arguments. `fog-mint-web-ca` probes for this before
 emitting, so this mostly appears when a CA was built by hand.
 
 **The installer prompts for CA paths even though you passed the flags.**
-Fixed. Passing `--web-ca-*` set `externalca=yes`, which triggered the
-interactive prompt for the *flat* `extcacert`/`extcakey`/`extcaroot` paths —
-and those were then ignored, because the command-line values take precedence.
-Pressing Enter through it was harmless. On a version with the fix the run prints
-the paths it is using instead.
+Fixed, twice. Passing `--web-ca-*` used to set `externalca=yes`, which triggered
+the interactive prompt for the *flat* `extcacert`/`extcakey`/`extcaroot` paths —
+and those were then ignored, because the command-line values took precedence.
+Pressing Enter through it was harmless. A version with the first fix prints the
+paths it is using instead.
+
+GH-1120 removed the cause rather than the symptom: those six keys held three
+values reached two ways, and both spellings now write one run-scoped input, so
+the prompt and the flags cannot disagree.
 
 **`Refusing to continue: the root ... carries pathlen:0`.** That root cannot
 anchor an intermediate, so nothing beneath it would verify. Use a root that can,

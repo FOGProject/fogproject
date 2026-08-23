@@ -4,7 +4,7 @@
 #
 #   tests/client-repin-warning.test.sh
 #
-# -K/--recreate-keys and -C/--recreate-CA regenerate $sslpath/.srvprivate.key.
+# -K/--recreate-keys and -C/--recreate-CA regenerate ${PKI_client_cert_dir}/.srvprivate.key.
 # That is the key FOGBase::certDecrypt() opens on every fog-client handshake, so
 # replacing it invalidates every registered client at once -- and it used to say
 # nothing at all. The symptom arrives days later as hosts failing to authorize,
@@ -61,20 +61,20 @@ setSELinuxContext() { :; }
 # --- a self-contained install tree -------------------------------------------
 fogprogramdir="$WORK/opt/fog"
 snapindir="$WORK/opt/fog/snapins"
-sslpath="$snapindir/ssl"
+PKI_client_cert_dir="$snapindir/ssl"
 webdirdest="$WORK/var/www/fog"
-backupPath="$WORK/backups"
+DB_backup_path="$WORK/backups"
 version="1.6.0-test"
 apacheuser="$(id -un)"
-hostname="fogserver.test.local"
-ipaddress="10.0.0.5"
-ipaddresses="10.0.0.5"
-certip="$ipaddress"
-internalDomains="test.local"
-extraServerNames=""
+NET_hostname="fogserver.test.local"
+NET_fog_server_ip="10.0.0.5"
+PKI_san_ip_addresses="10.0.0.5"
+certip="${NET_fog_server_ip}"
+PKI_allowed_domain_names="test.local"
+PKI_san_dns_names=""
 recreateKeys=no
 recreateCA=no
-mkdir -p "$sslpath/CA" "$webdirdest/management/other/ssl" "$backupPath"
+mkdir -p "${PKI_client_cert_dir}/CA" "$webdirdest/management/other/ssl" "${DB_backup_path}"
 
 # The comm-key half of createSSLCA(), in its own order, plus the publish step
 # that hands the certificate to clients. Everything below the comm leaf (web
@@ -83,15 +83,15 @@ comm_pass() {
     _resolveSslPath
     _resolveRootCA >/dev/null 2>&1
 
-    local sanentries="IP.1 = ${ipaddress}"
-    cat > "$sslpath/ca.cnf" << CNF
+    local sanentries="IP.1 = ${NET_fog_server_ip}"
+    cat > "${PKI_client_cert_dir}/ca.cnf" << CNF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = $hostname
+DNS.1 = ${NET_hostname}
 CNF
-    cat > "$sslpath/req.cnf" << CNF
+    cat > "${PKI_client_cert_dir}/req.cnf" << CNF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -104,27 +104,26 @@ OU = FOG Client Communication
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = $hostname
+DNS.1 = ${NET_hostname}
 CNF
 
-    [[ -z $sslcsr ]] && sslcsr="$sslpath/fog.csr"
     _separateCommKey
-    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e $sslpath/.srvprivate.key || ! -e $sslcsr ]]; then
-        if [[ ! -e $sslpath/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
-            openssl genrsa -out "$sslpath/.srvprivate.key" 4096 >>$error_log 2>&1
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_cert_dir}/.srvprivate.key || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
+        if [[ ! -e ${PKI_client_cert_dir}/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
+            openssl genrsa -out "${PKI_client_cert_dir}/.srvprivate.key" 4096 >>$error_log 2>&1
             if [[ $recreateKeys == yes || $recreateCA == yes ]]; then
                 _discardOrphanedCommLeaf
             fi
         fi
-        openssl req -new -sha512 -key "$sslpath/.srvprivate.key" -out "$sslcsr" \
-            -config "$sslpath/req.cnf" >>$error_log 2>&1
+        openssl req -new -sha512 -key "${PKI_client_cert_dir}/.srvprivate.key" -out "${PKI_client_cert_dir}/fog.csr" \
+            -config "${PKI_client_cert_dir}/req.cnf" >>$error_log 2>&1
     fi
     _createCommLeaf >/dev/null 2>&1
     _warnClientRepin
     # The publish at the end of createSSLCA(), which is what makes the file this
     # run compared against the "deployed copy" for the next one.
     mkdir -p "$webdirdest/management/other/ssl" >>$error_log 2>&1
-    cp -f "$commLeafPem" "$webdirdest/management/other/ssl/srvpublic.crt" >>$error_log 2>&1
+    cp -f "${PKI_client_encrypt_cert}" "$webdirdest/management/other/ssl/srvpublic.crt" >>$error_log 2>&1
     return 0
 }
 
@@ -134,7 +133,7 @@ echo "client re-pin warning:"
 
 # --- 1. first install: nothing was ever published, so nothing to re-pin -------
 out=$(comm_pass)
-if [[ ! -f $sslpath/.srvpublic.crt ]]; then
+if [[ ! -f ${PKI_client_cert_dir}/.srvpublic.crt ]]; then
     bad "the first pass did not produce a comm leaf at all -- check $error_log"
     printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
     exit 1
@@ -147,15 +146,15 @@ else
 fi
 
 deployed_fp=$(fp "$webdirdest/management/other/ssl/srvpublic.crt")
-key_before=$(openssl rsa -noout -modulus -in "$sslpath/.srvprivate.key" 2>/dev/null | openssl md5)
+key_before=$(openssl rsa -noout -modulus -in "${PKI_client_cert_dir}/.srvprivate.key" 2>/dev/null | openssl md5)
 
 # --- 2. an ordinary upgrade must stay silent ---------------------------------
 # configureHttpd rm -rf's $webdirdest before createSSLCA and backs it up first,
 # so reproduce that: the deployed copy is reachable only from the backup, which
 # is the path _warnClientRepin has to fall back to.
-mkdir -p "$backupPath/fog_web_${version}.BACKUP/management/other/ssl"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl"
 cp -f "$webdirdest/management/other/ssl/srvpublic.crt" \
-      "$backupPath/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
+      "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
 rm -rf "$webdirdest"
 
 out=$(comm_pass)
@@ -171,9 +170,9 @@ else
 fi
 
 # --- 3. -K against that existing install -------------------------------------
-mkdir -p "$backupPath/fog_web_${version}.BACKUP/management/other/ssl"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl"
 cp -f "$webdirdest/management/other/ssl/srvpublic.crt" \
-      "$backupPath/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
+      "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
 rm -rf "$webdirdest"
 
 recreateKeys=yes
@@ -187,7 +186,7 @@ else
     bad "-K aborted (exit $status) instead of warning and proceeding"
 fi
 
-key_after=$(openssl rsa -noout -modulus -in "$sslpath/.srvprivate.key" 2>/dev/null | openssl md5)
+key_after=$(openssl rsa -noout -modulus -in "${PKI_client_cert_dir}/.srvprivate.key" 2>/dev/null | openssl md5)
 if [[ $key_after != "$key_before" ]]; then
     ok "-K regenerated the client communication key"
 else
@@ -196,7 +195,7 @@ fi
 
 # The bug underneath the missing warning: the leaf has to follow the key, or the
 # published certificate's public half pairs with a key this server threw away.
-certmod=$(openssl x509 -noout -modulus -in "$sslpath/.srvpublic.crt" 2>/dev/null | openssl md5)
+certmod=$(openssl x509 -noout -modulus -in "${PKI_client_cert_dir}/.srvpublic.crt" 2>/dev/null | openssl md5)
 if [[ -n $certmod && $certmod == "$key_after" ]]; then
     ok "-K re-issued the comm leaf so it pairs with the new key"
 else
@@ -222,9 +221,9 @@ else
 fi
 
 # --- 4. and it settles: the run after -K is quiet again ----------------------
-mkdir -p "$backupPath/fog_web_${version}.BACKUP/management/other/ssl"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl"
 cp -f "$webdirdest/management/other/ssl/srvpublic.crt" \
-      "$backupPath/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
+      "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
 rm -rf "$webdirdest"
 
 out=$(comm_pass)
@@ -239,16 +238,16 @@ fi
 # all -- a bad restore or a lost disk. There the surviving certificate is the
 # admin's way back (put the old key next to it and the server is whole), so it
 # must NOT be deleted. _createCommLeaf()'s own mismatch warning covers this.
-mkdir -p "$backupPath/fog_web_${version}.BACKUP/management/other/ssl"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl"
 cp -f "$webdirdest/management/other/ssl/srvpublic.crt" \
-      "$backupPath/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
+      "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"
 rm -rf "$webdirdest"
 
-kept_fp=$(fp "$sslpath/.srvpublic.crt")
-rm -f "$sslpath/.srvprivate.key"
+kept_fp=$(fp "${PKI_client_cert_dir}/.srvpublic.crt")
+rm -f "${PKI_client_cert_dir}/.srvprivate.key"
 out=$(comm_pass)
 
-if [[ -f $sslpath/.srvpublic.crt && "$(fp "$sslpath/.srvpublic.crt")" == "$kept_fp" ]]; then
+if [[ -f ${PKI_client_cert_dir}/.srvpublic.crt && "$(fp "${PKI_client_cert_dir}/.srvpublic.crt")" == "$kept_fp" ]]; then
     ok "a missing key does NOT delete the surviving certificate"
 else
     bad "a missing key deleted the certificate -- the admin's route back (restore the old key) is gone"

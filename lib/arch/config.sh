@@ -23,7 +23,7 @@
 # Arch splits almost nothing out of the php package: everything FOG needs
 # except gd is already built in, just commented out in php.ini, which
 # configureHttpd uncomments.
-[[ -z $packages ]] && packages="attr bc cdrtools curl dhcp gcc git gzip lftp m4 make mariadb mariadb-clients net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php php-fpm php-gd syslinux tar tftp-hpa vsftpd wget xz"
+[[ -z ${FOG_packages} ]] && FOG_packages="attr bc cdrtools curl dhcp gcc git gzip lftp m4 make mariadb mariadb-clients net-tools nfs-utils openssh openssl perl perl-crypt-passwdmd5 php php-fpm php-gd syslinux tar tftp-hpa vsftpd wget xz"
 # -Syu, not -Sy. Arch does not support partial upgrades: refreshing the package
 # databases and then installing against a system that has not been upgraded
 # produces binaries linked to a newer glibc than the one on disk. Installing
@@ -40,27 +40,27 @@ pkgListAll() { pacman -Slq 2>/dev/null; }
 [[ -z $langPackages ]] && langPackages="iso-codes"
 [[ -z $dhcpname ]] && dhcpname="dhcp"
 if [[ -z $webdirdest ]]; then
-    if [[ -z $docroot ]]; then
-        docroot="/srv/http/"
-        webdirdest="${docroot}fog/"
-    elif [[ "$docroot" != *'fog'* ]]; then
-        webdirdest="${docroot}fog/"
+    if [[ -z ${WEB_docroot} ]]; then
+        WEB_docroot="/srv/http/"
+        webdirdest="${WEB_docroot}fog/"
+    elif [[ "${WEB_docroot}" != *'fog'* ]]; then
+        webdirdest="${WEB_docroot}fog/"
     else
-        webdirdest="${docroot}/"
+        webdirdest="${WEB_docroot}/"
     fi
 fi
 # Arch is the one distro where the web server's package and its service have
 # different names: the package is `apache`, the unit is httpd.service.
-# Everywhere else the two coincide, which is why $webserver is used as both.
+# Everywhere else the two coincide, which is why ${WEB_server_engine} is used as both.
 # It is the *service* name that matters here -- every systemctl call in
-# configureHttpd is built from it -- so $webserver is httpd and the package is
-# added by name at the end of this file instead of through $webserver.
-[[ -z $webserver ]] && webserver="httpd"
+# configureHttpd is built from it -- so ${WEB_server_engine} is httpd and the package is
+# added by name at the end of this file instead of through ${WEB_server_engine}.
+[[ -z ${WEB_server_engine} ]] && WEB_server_engine="httpd"
 [[ -z $webredirect ]] && webredirect="${webdirdest}/index.php"
 # "apache" is accepted alongside "httpd" so a .fogsettings written before the
 # service/package split above still resolves to Arch's real paths instead of
 # falling through to the nginx guess below and inventing /etc/apache/.
-if [[ $webserver == "httpd" || $webserver == "apache" ]]; then
+if [[ ${WEB_server_engine} == "httpd" || ${WEB_server_engine} == "apache" ]]; then
     [[ -z $apacheuser ]] && apacheuser="http"
     [[ -z $apachelogdir ]] && apachelogdir="/var/log/httpd"
     [[ -z $httpdconf ]] && httpdconf="/etc/httpd/conf/httpd.conf"
@@ -68,15 +68,15 @@ if [[ $webserver == "httpd" || $webserver == "apache" ]]; then
 else
     # This is all just a guess, will most likely need a ton of refinement
     [[ -z $apacheuser ]] && apacheuser="nginx"
-    [[ -z $apachelogdir ]] && apachelogdir="/var/log/$webserver"
-    [[ -z $httpdconf ]] && httpdconf="/etc/$webserver/conf/httpd.conf"
-    [[ -z $etcconf ]] && etcconf="/etc/$webserver/conf/extra/fog.conf"
+    [[ -z $apachelogdir ]] && apachelogdir="/var/log/${WEB_server_engine}"
+    [[ -z $httpdconf ]] && httpdconf="/etc/${WEB_server_engine}/conf/httpd.conf"
+    [[ -z $etcconf ]] && etcconf="/etc/${WEB_server_engine}/conf/extra/fog.conf"
 fi
 [[ -z $apacheerrlog ]] && apacheerrlog="$apachelogdir/error_log"
 [[ -z $apacheacclog ]] && apacheacclog="$apachelogdir/access_log"
 [[ -z $phpini ]] && phpini="/etc/php/php.ini"
-[[ -z $storageLocation ]] && storageLocation="/images"
-[[ -z $storageLocationCapture ]] && storageLocationCapture="${storageLocation}/dev"
+[[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="/images"
+[[ -z $storageLocationCapture ]] && storageLocationCapture="${STORAGE_image_share_path}/dev"
 [[ -z $dhcpconfig ]] && dhcpconfig="/etc/dhcpd.conf"
 [[ -z $dhcpconfigother ]] && dhcpconfigother="/etc/dhcp/dhcpd.conf"
 [[ -z $tftpdirdst ]] && tftpdirdst="/srv/tftp"
@@ -88,7 +88,7 @@ fi
 [[ -z $tftpconfig ]] && tftpconfig="/etc/conf.d/tftpd"
 [[ -z $ftpxinetd ]] && ftpxinetd="/etc/xinetd.d/vsftpd"
 [[ -z $ftpconfig ]] && ftpconfig="/etc/vsftpd.conf"
-[[ -z $dhcpd ]] && dhcpd="dhcpd4"
+[[ -z ${DHCP_service_name} ]] && DHCP_service_name="dhcpd4"
 [[ -z $iscservice ]] && iscservice="dhcpd4"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
@@ -97,5 +97,5 @@ fi
 # derive "php8.4-fpm" from the dotted version the php binary reports, which is
 # the Debian naming and matches nothing here.
 [[ -z $phpfpm ]] && phpfpm="php-fpm"
-# Not ${webserver} -- see the note by the webserver assignment above.
-packages="${packages} apache"
+# Not ${WEB_server_engine} -- see the note by the webserver assignment above.
+FOG_packages="${FOG_packages} apache"

@@ -240,8 +240,8 @@ tftpdirdst="$WORK/tftp"
 webdirdest="$WORK/web"
 mk_tree "$tftpdirdst" yes
 mk_web "$webdirdest" yes
-secureBootKey=""
-secureBootCert=""
+PKI_sb_codesign_key=""
+PKI_sb_codesign_cert=""
 
 _publishLocalBootFiles >/dev/null
 BOOT="$webdirdest/service/localboot"
@@ -458,7 +458,7 @@ if grep -q 'FOG-BOOT-DELAY-BEGIN' "$L"; then
 else
     ok "no sentinel block without --boot-delay"
 fi
-bootdelay=15
+BOOT_dhcp_delay_seconds=15
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/xd"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/xd"
 LD="$WORK/xd/fog-ipxe/autoexec.ipxe"
@@ -479,7 +479,7 @@ for s in autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     is "$(grep -c '^sleep 15' "$WORK/xd/$s")" "1" \
        "--boot-delay 15 reaches $s too"
 done
-unset bootdelay
+unset BOOT_dhcp_delay_seconds
 _publishLocalBootFiles >/dev/null
 rm -rf "$WORK/x/fog-esp-x86_64"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/x/fog-esp-x86_64"
 

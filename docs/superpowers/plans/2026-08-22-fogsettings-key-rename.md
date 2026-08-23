@@ -6,6 +6,12 @@
 > but verify every key against the `managedKeys` array in `writeUpdateFile()`
 > itself before trusting either.
 
+> **Status: implemented** on `claude/fogsettings-key-rename-dgdp8i`. 79 → 66 as
+> planned, all 79 verified against the `managedKeys` array itself. Test suite
+> 101 → 114 (103 on the branch, plus the 11 that arrived with `working-1.6`), all
+> passing. **Outcome** at the end of this document records where the finished work
+> diverged from the plan and why.
+
 **Goal:** Give every `.fogsettings` key a category prefix
 (`UPPERCASE_CATEGORY_lower_snake_case`, nine categories), collapse the duplicate
 certificate keys, and rewrite the shell logic to match — so that a setting can no
@@ -275,3 +281,130 @@ git grep -nE '\$(sslcapem|sslcakey|sslcachain|sslprivkey|sslpubcert|sslpath|root
 
 And that the key list reconciles: **79 in, 66 out** — 6 retired, 9 absorbed into
 slots they duplicated, 2 promoted from local variables.
+
+
+---
+
+## Outcome
+
+Landed as three commits plus a `working-1.6` merge. ADR
+[0024](../../adr/0024-fogsettings-unified-key-model.md) records the model itself;
+`docs/FOGSETTINGS.md` was rewritten for the mechanics. The plan held up — the
+model, the two-part migration and the `_linkCanonical()` inversion all shipped as
+designed. What follows is only where reality differed.
+
+### Two bugs the plan would have shipped
+
+**The external-CA merge, as specified, breaks every install.** Absorbing
+`extcacert`/`webExtCACert` into `PKI_web_ca_cert` reads clean, but `externalca`
+derives from *"is an import path set"* — and `PKI_web_ca_cert` names FOG's **own**
+Web CA on every ordinary install. The derivation would have declared every
+install an external-CA install.
+
+The import paths therefore needed names the plan never gave them: they are
+run-scoped inputs (`importWebCACert` / `importWebCAKey` / `importWebCARoot`)
+written by both flag spellings *and* the prompt, with `validateExternalCA()`
+setting the canonical slots once the import validates. That is also what finally
+closes the bug R3 was filed for — anything typed at the prompt was discarded
+whenever the flags were also given — rather than renaming around it.
+
+**The sweep's file list was wrong.** `utils/FOGBackup/FOGBackup.sh` and
+`utils/reporting/report.sh` source `.fogsettings` and read `DB_*`,
+`STORAGE_image_share_path`, `WEB_docroot` and `WEB_root`. Neither is in `bin/` or
+`lib/`, and both would have broken on the first upgrade.
+
+What found them was classifying every remaining match **by form** after the sweep
+— `$v` / `${v}` / `v=` versus a bare word — rather than trusting a file list. Worth
+repeating for any future rename: the bare-word bucket is where directory paths and
+prose hide, and the variable-form bucket is where the misses hide.
+
+### `$fogprogramdir` had to leave the sweep entirely
+
+The plan had `FOG_program_dir` as a record written from the live variable, which
+is what shipped. What it did not anticipate is that the variable must then be
+**excluded from the mechanical rename altogether**: its 236 references are the
+live control variable, and `/etc/fog/fog.conf` still emits `fogprogramdir=` on
+every existing server. Only the `managedKeys` entry and one explicit assignment
+moved.
+
+`settingLine()` resolving `${!key}` is why that assignment is mandatory rather
+than tidy — a managed key naming no live variable emits an empty line, silently.
+The same applies to `PKI_client_encrypt_cert`/`_key`.
+
+### `writeUpdateFile()` needed a third path
+
+Not in the plan, and not cosmetic. The in-place `awk` merge rewrites managed keys
+*in the position they already occupy* and appends the ones it did not find — so on
+the migration run, with every old key deprecated and every new key absent, it
+strips all 79 lines and appends 66 at the end. The category blocks and the
+`## Derived — do not edit` marker would describe nothing, and the file would read
+as a pile of appended keys after its own footer.
+
+So a recognizable file carrying only pre-rename keys now gets a **one-time
+canonical rewrite**, which also carries every *unrecognised* line through. That
+second half matters as much: hand-set keys (`inetConnectTimeout`,
+`storageLocationCapture`, `ftppasvmin`/`max`, `mcastportmin`/`max`) and an admin's
+own comments survive only because something preserves what it does not manage,
+and a plain fresh write does not.
+
+### The rename could not be mechanical
+
+Only `$v` / `${v}` / assignment forms were rewritten automatically; every bare
+word was triaged by hand. The measurements are the argument:
+
+- **265 of 278 `secureboot` matches are the `packages/secureboot/` directory
+  path** and test filenames. Thirteen are the variable.
+- **222 of 398 `packages` matches** are the `packages/` path in PHP tests.
+- Three tests assert on **source text** — `grep -q 'httpproto == https'`,
+  `grep -q 'acmeLeaf != yes'`, a regex-escaped `${webroot}` — and break silently
+  under an otherwise-correct rename.
+
+One site is deliberately left un-renamed and commented: the POST field names in
+the `create_update_node.php` call (`sslpath=`, `interface=`, `webroot=`) are that
+endpoint's own field names, mapping to `storageNode` DB columns. Only the values
+moved.
+
+### Verification came out stronger than planned
+
+The plan's `git grep` check was run once and **not** kept as a test: its output is
+~940 hits, of which ~820 are directory paths, prose and the deliberately-unrenamed
+`$fogprogramdir`. A test asserting zero would have to encode that exception list
+and would fail on the next unrelated comment mentioning a retired key. The
+membership half of what it was for is covered properly instead:
+
+- `install-settings-resolution.test.sh` asserts all 66 are in `managedKeys`, all
+  79 in `deprecatedKeys`, and none in both — reading both arrays out of the real
+  source **with comments stripped**, because the arrays carry prose that names
+  keys and a raw grep passes for one merely mentioned.
+- `tests/fogsettings-migration.test.sh` (new) **extracts the seed block from the
+  installer and evaluates it** rather than replaying it by hand, then runs
+  `writeUpdateFile()` over a synthesized pre-rename file. A hand-copied replay is
+  how a test passes while the behaviour is wrong.
+- `tests/whoami-keys-in-step.test.php` (new) binds `Route::WHOAMI_KEYS` to the
+  pub-file loop — `docs/FOGSETTINGS.md` said in as many words that nothing did.
+
+Both new tests were negative-controlled: deliberately broken, observed to fail,
+restored.
+
+**Writing the migration test surfaced the GH-850 hazard live.** The fixture
+contains `fogprogramdir='/opt/fog'`, as a real pre-rename file does. Sourcing it
+relocated the install mid-test and wrote a real `/opt/fog/.fogsettings` on the
+host, which the assertions then read — so the carry-over checks failed for a
+reason unrelated to the carry-over code. That is exactly what
+`resolvedfogprogramdir` exists to prevent. The test now mirrors the installer and
+says why.
+
+### Docs, and one thing not to attempt
+
+ADR 0024 added; `docs/FOGSETTINGS.md` rewritten; ADRs 0015, 0002, 0016 and 0018
+updated — 0015 and 0002 with a Status note rather than a silent edit, since in
+both the key names are part of the decision. ADR 0008's matches turned out to be
+directory paths and the unrenamed `$fogprogramdir`, so it needed nothing.
+
+**A mechanical pass over `docs/` must not be attempted.** Most `password`,
+`hostname` and `interface` matches in this tree are user passwords, *client*
+hostnames and PHP `interface` declarations. Every hit needs reading; the remaining
+in-repo docs were swept per-hit on that basis.
+
+The admin-facing fog-docs pages, and the still-stale `command-line-options.md`,
+remain a separate change.

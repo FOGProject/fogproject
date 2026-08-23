@@ -21,16 +21,16 @@ resolvedfogprogramdir="$fogprogramdir"
 # .fogsettings records fogprogramdir but does not control it -- a stale line in
 # there must not point us at a different tree than the one we just read.
 fogprogramdir="$resolvedfogprogramdir"
-[[ ! -d $docroot ]] && handleError "    No web folder found" 2
-case $osid in
+[[ ! -d ${WEB_docroot} ]] && handleError "    No web folder found" 2
+case ${FOG_os_id} in
     1|2)
-        if [[ -z $docroot ]]; then
-            docroot="/var/www/html/"
-            webdirdest="${docroot}fog/"
-        elif [[ $docroot != *'fog'* ]]; then
-            webdirdest="${docroot}fog/"
+        if [[ -z ${WEB_docroot} ]]; then
+            WEB_docroot="/var/www/html/"
+            webdirdest="${WEB_docroot}fog/"
+        elif [[ ${WEB_docroot} != *'fog'* ]]; then
+            webdirdest="${WEB_docroot}fog/"
         else
-            webdirdest="${docroot}/"
+            webdirdest="${WEB_docroot}/"
         fi
         # GH-953: the /var/www/ fallback for osid 2 that used to live here is
         # gone -- see the note in lib/ubuntu/config.sh. It could only have
@@ -39,13 +39,13 @@ case $osid in
         # does not exist.
         ;;
     3)
-        if [[ -z $docroot ]]; then
-            docroot="/var/www/html/"
-            webdirdest="${docroot}fog/"
-        elif [[ $docroot != *'fog'* ]]; then
-            webdirdest="${docroot}fog/"
+        if [[ -z ${WEB_docroot} ]]; then
+            WEB_docroot="/var/www/html/"
+            webdirdest="${WEB_docroot}fog/"
+        elif [[ ${WEB_docroot} != *'fog'* ]]; then
+            webdirdest="${WEB_docroot}fog/"
         else
-            webdirdest="${docroot}/"
+            webdirdest="${WEB_docroot}/"
         fi
         ;;
 esac

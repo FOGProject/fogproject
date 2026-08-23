@@ -5,19 +5,19 @@
 #   tests/web-chain-feedback.test.sh
 #
 # _writeWebChainFiles() assembles what the web server sends: the leaf from
-# $sslpubcert, then the intermediates out of $sslcachain, into
+# ${PKI_web_vhost_cert}, then the intermediates out of ${PKI_web_trust_chain}, into
 # pki/web/leaf/.webFullChain.pem. The vhost is pointed at that bundle.
 #
 # Which meant the bundle was reachable as an INPUT. createSSLCA() adopts
 # whatever certificate path the live vhost names, via
 # _detectExternalCertManagement() signal 2 -- "the vhost serves a leaf from
 # outside FOG's own paths, so the admin must manage it". That test only knew
-# about $sslpath, and the zoned PKI had long since moved FOG's own web leaf to
+# about ${PKI_client_cert_dir}, and the zoned PKI had long since moved FOG's own web leaf to
 # $fogprogramdir/pki/web/leaf. So on an ordinary FOG-issued HTTPS server the
 # signal fired on FOG's own file, recorded acmeLeaf=yes, and set
-# $sslpubcert=.webFullChain.pem. From then on
+# ${PKI_web_vhost_cert}=.webFullChain.pem. From then on
 #
-#     cat "$sslpubcert" "$chainonly" > fullchain.new
+#     cat "${PKI_web_vhost_cert}" "$chainonly" > fullchain.new
 #
 # appended one more copy of the intermediate on every install. Observed live at
 # fourteen certificates: leaf + 13 identical "CN=FOG Web CA".
@@ -28,8 +28,8 @@
 # boot.php. Nothing server-side says why.
 #
 # Three fixes, all pinned here: the detector knows the PKI tree is FOG's, the
-# assembler reads only the leaf out of $sslpubcert, and _resolveWebLeafPaths()
-# repoints an $sslpubcert that names the derived bundle -- while leaving an
+# assembler reads only the leaf out of ${PKI_web_vhost_cert}, and _resolveWebLeafPaths()
+# repoints an ${PKI_web_vhost_cert} that names the derived bundle -- while leaving an
 # admin's own fullchain.pem alone, because that is a supported value.
 #
 # Needs openssl. Runs on generated fixtures -- no install, no network, no root.
@@ -61,11 +61,11 @@ errorStat() { :; }
 
 # --- fixture: root -> intermediate -> leaf, the shape FOG issues -------------
 fogprogramdir="$WORK/opt/fog"
-sslpath="$WORK/opt/fog/snapins/ssl"
+PKI_client_cert_dir="$WORK/opt/fog/snapins/ssl"
 webdirdest="$WORK/var/www/fog"
 leafdir="$fogprogramdir/pki/web/leaf"
 cadir="$fogprogramdir/pki/web/ca"
-mkdir -p "$leafdir" "$cadir" "$sslpath" "$webdirdest/management/other/ssl"
+mkdir -p "$leafdir" "$cadir" "${PKI_client_cert_dir}" "$webdirdest/management/other/ssl"
 
 openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 30 \
     -subj "/CN=FOG Server CA" -keyout "$cadir/root.key" -out "$cadir/root.pem" \
@@ -84,10 +84,10 @@ openssl x509 -req -in "$leafdir/leaf.csr" -CA "$cadir/.fogWebCA.pem" \
     -out "$leafdir/.webLeaf.pem" >/dev/null 2>&1
 
 # root+intermediate, the shape createWebIntermediateCA writes.
-sslcachain="$cadir/.fogWebCAchain.pem"
-cat "$cadir/.fogWebCA.pem" "$cadir/root.pem" > "$sslcachain"
+PKI_web_trust_chain="$cadir/.fogWebCAchain.pem"
+cat "$cadir/.fogWebCA.pem" "$cadir/root.pem" > "${PKI_web_trust_chain}"
 
-sslprivkey="$leafdir/.webLeaf.key"
+PKI_web_vhost_key="$leafdir/.webLeaf.key"
 fullchain="$leafdir/.webFullChain.pem"
 
 ncerts() { grep -c 'BEGIN CERTIFICATE' "$1" 2>/dev/null; }
@@ -95,13 +95,13 @@ ncerts() { grep -c 'BEGIN CERTIFICATE' "$1" 2>/dev/null; }
 echo "web chain feedback:"
 
 # --- the assembler, run over and over ----------------------------------------
-sslpubcert="$leafdir/.webLeaf.pem"
+PKI_web_vhost_cert="$leafdir/.webLeaf.pem"
 _writeWebChainFiles
 is "$(ncerts "$fullchain")" "2" "a normal run assembles leaf + intermediate"
 
-# THE REGRESSION. $sslpubcert names the bundle this function writes, which is
+# THE REGRESSION. ${PKI_web_vhost_cert} names the bundle this function writes, which is
 # what createSSLCA() adopted from the vhost on every FOG-issued HTTPS server.
-sslpubcert="$fullchain"
+PKI_web_vhost_cert="$fullchain"
 for _ in 1 2 3 4 5; do _writeWebChainFiles; done
 is "$(ncerts "$fullchain")" "2" "five runs against its own output stay at leaf + intermediate"
 # -nameopt RFC2253 pins the formatting. Without it openssl prints whatever its
@@ -124,8 +124,8 @@ is "$(ncerts "$fullchain")" "2" "the next run collapses a grown bundle back"
 
 # --- the cause: FOG's own PKI tree is not evidence of an external cert -------
 etcconf="$WORK/fog.conf"
-rootCAPem="$cadir/root.pem"
-sslpubcert="$leafdir/.webLeaf.pem"
+PKI_root_ca_cert="$cadir/root.pem"
+PKI_web_vhost_cert="$leafdir/.webLeaf.pem"
 
 echo "    ssl_certificate ${fullchain};" > "$etcconf"
 _detectExternalCertManagement >/dev/null 2>&1
@@ -136,13 +136,13 @@ _detectExternalCertManagement >/dev/null 2>&1
 is "$?" "0" "a vhost serving someone else's leaf still is external"
 
 # --- and the input stops naming the output ----------------------------------
-sslpubcert="$fullchain"
+PKI_web_vhost_cert="$fullchain"
 _resolveWebLeafPaths
-is "$sslpubcert" "$leafdir/.webLeaf.pem" "an \$sslpubcert naming the derived bundle is repointed"
+is "${PKI_web_vhost_cert}" "$leafdir/.webLeaf.pem" "an \${PKI_web_vhost_cert} naming the derived bundle is repointed"
 
-sslpubcert="/etc/letsencrypt/live/fog/fullchain.pem"
+PKI_web_vhost_cert="/etc/letsencrypt/live/fog/fullchain.pem"
 _resolveWebLeafPaths
-is "$sslpubcert" "/etc/letsencrypt/live/fog/fullchain.pem" \
+is "${PKI_web_vhost_cert}" "/etc/letsencrypt/live/fog/fullchain.pem" \
     "an ACME client's own fullchain is left alone"
 
 echo
