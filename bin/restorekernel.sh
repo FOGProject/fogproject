@@ -105,6 +105,13 @@ if [[ ! -r "$fogprogramdir/.fogsettings" ]]; then
     exit 1
 fi
 . "$fogprogramdir/.fogsettings"
+# Before the first read of a renamed key. A .fogsettings written by a
+# pre-GH-1120 installer has osid/osname, not FOG_os_id/FOG_os_name, and the
+# doOSSpecificIncludes below is -n guarded -- so without this the distro config
+# is silently SKIPPED, $webdirdest stays empty, and $ipxedir below becomes the
+# relative string "service/ipxe". That is the exact bug the comment further
+# down says ca02e0b9e already fixed once.
+migrateDeprecatedKeys
 # .fogsettings records docroot and webroot but NOT webdirdest -- config.sh
 # derives that ("${WEB_docroot}fog/"). Sourcing .fogsettings alone therefore left
 # $webdirdest empty and $ipxedir as the relative string "service/ipxe", so

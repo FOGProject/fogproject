@@ -15,12 +15,11 @@
 #
 # Keep 2 and drop 1 and every setting on every server is wiped, silently, on the
 # next upgrade -- and under -y there is nobody to notice. Nothing else in the
-# suite exercises the pair together, and no unit test can: the seed block is
-# inline in the installer and writeUpdateFile() only runs at the very end of an
-# install.
+# suite exercises the pair together, and no unit test can: writeUpdateFile()
+# only runs at the very end of an install.
 #
-# The seed block is EXTRACTED FROM THE INSTALLER AND EVALUATED here rather than
-# copied. A hand-copied replay is how a test passes while the behaviour is
+# The migration is EXTRACTED FROM lib/common/functions.sh AND EVALUATED here
+# rather than copied. A hand-copied replay is how a test passes while the behaviour is
 # wrong, which is the failure mode install-settings-resolution.test.sh already
 # documents for the httpsRedirect migration.
 #
@@ -29,9 +28,7 @@
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 FUNCS="$REPO/lib/common/functions.sh"
-INSTALLER="$REPO/bin/installfog.sh"
 [[ -f $FUNCS ]] || { echo "ERROR: $FUNCS not found" >&2; exit 1; }
-[[ -f $INSTALLER ]] || { echo "ERROR: $INSTALLER not found" >&2; exit 1; }
 
 PASS=0
 FAIL=0
@@ -147,14 +144,29 @@ OLDEOF
 
 echo "== the seed block carries every value =="
 
-# Extract the real block and run it, so this cannot drift from the installer.
-seedblock=$(sed -n '/^# --- GH-1120 key rename:/,/^# --- WEB_url_proto/p' "$INSTALLER" | sed '$d')
+# Extract the real migration and run it, so this cannot drift from the code.
+#
+# It used to be an inline block in bin/installfog.sh and is now
+# migrateDeprecatedKeys() in lib/common/functions.sh. It had to move: three
+# entry points source .fogsettings and then read a renamed key -- installfog.sh,
+# updatefog.sh and restorekernel.sh -- and a block living inside one of them
+# could not be called by the other two, which is why those two had no migration
+# at all. All three source functions.sh first.
+#
+# Evaluating the DEFINITION and then calling it keeps every eval site below
+# unchanged: the string still both defines and runs the migration.
+#
+# The ordering property this move exists for is pinned separately, in
+# tests/fogsettings-key-migration.test.sh. This file is about the VALUES.
+seedblock=$(sed -n '/^migrateDeprecatedKeys() {/,/^}$/p' "$FUNCS")
 if [[ -z $seedblock ]]; then
-    bad "could not extract the rename-seed block from bin/installfog.sh"
+    bad "could not extract migrateDeprecatedKeys() from lib/common/functions.sh"
     printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
     exit 1
 fi
-ok "the rename-seed block is present in bin/installfog.sh"
+seedblock="${seedblock}
+migrateDeprecatedKeys"
+ok "migrateDeprecatedKeys() is present in lib/common/functions.sh"
 
 # Sourcing the old file is what an upgrade does: .fogsettings is SHELL.
 resolvedfogprogramdir="$fogprogramdir"

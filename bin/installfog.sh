@@ -812,6 +812,24 @@ case $doupdate in
             # which derives snapindir from it.
             fogprogramdir="$resolvedfogprogramdir"
             FOG_git_path="$resolvedfoggitpath"
+            # GH-1120 (this bug): doOSSpecificIncludes cases on FOG_os_id, so
+            # it is the FIRST consumer of a renamed key -- earlier than the
+            # migration block, which used to run only after this whole case
+            # statement. Upgrading a server whose .fogsettings predates the
+            # rename therefore reached here with FOG_os_id unset, fell to the
+            # `*)` arm, and printed "Sorry, answer not recognized".
+            #
+            # It did not exit: that arm blanks FOG_os_id and returns, so the
+            # distro config was never sourced and $webdirdest/$tftpdirdst
+            # stayed empty -- which made the `*$webdirdest*` guard below match
+            # EVERY directory, so the install then also refused to run from a
+            # path that was perfectly fine. One empty variable, two misleading
+            # messages, neither naming the real cause.
+            #
+            # Migrating before the first consumer rather than after the case is
+            # what fixes it. Idempotent: every line is guarded on the NEW key
+            # being empty, so the call at the end of the case is a no-op here.
+            migrateDeprecatedKeys
             doOSSpecificIncludes
             # This was `STORAGE_rebuild_nfs_exports=${STORAGE_rebuild_nfs_exports}` -- a self-assignment that did
             # nothing, so -E was silently discarded on upgrades: the handler
@@ -832,141 +850,7 @@ case $doupdate in
         echo -e "\n * FOG Installer will NOT attempt to upgrade from\n    previous version of FOG."
         ;;
 esac
-# --- GH-1120 key rename: carry every pre-1.6 value onto its new key ----------
-#
-# Runs after .fogsettings is sourced and BEFORE the flag shadows below, so the
-# order stays: explicit flag > persisted value > migrated value. It must also
-# run before the WEB_https_redirect migration further down, which reads
-# ${WEB_url_proto} -- on an upgrade that value only exists once this block has
-# copied $httpproto onto it.
-#
-# GH-1120 renamed all 79 managed keys to CATEGORY_lower_snake_case. .fogsettings
-# is SOURCED, so the old names are still live shell variables at this point,
-# holding everything the previous install recorded. This is the only thing that
-# moves them: deprecatedKeys in writeUpdateFile() strips the old lines and
-# carries NO value, so removing this block does not degrade the migration -- it
-# wipes every setting on the next upgrade, silently, and under -y.
-#
-# Each pair is guarded on the NEW key, so the block fires exactly once: after
-# this run the new name is persisted and the old line is gone, and a flag that
-# already set the new key on this run correctly wins over the persisted value.
-#
-# Modelled on the httpproto/httpsRedirect seeding immediately below, which is
-# the same shape for a single key.
-# FOG
-[[ -z ${FOG_install_type} ]] && FOG_install_type="$installtype"
-[[ -z ${FOG_os_id} ]] && FOG_os_id="$osid"
-[[ -z ${FOG_os_name} ]] && FOG_os_name="$osname"
-[[ -z ${FOG_packages} ]] && FOG_packages="$packages"
-[[ -z ${FOG_install_lang} ]] && FOG_install_lang="$installlang"
-[[ -z ${FOG_send_reports} ]] && FOG_send_reports="$sendreports"
-[[ -z ${FOG_installed} ]] && FOG_installed="$fogupdateloaded"
-[[ -z ${FOG_copy_back_old} ]] && FOG_copy_back_old="$copybackold"
-[[ -z ${FOG_update_channel} ]] && FOG_update_channel="$fog_update_channel"
-[[ -z ${FOG_git_path} ]] && FOG_git_path="$fog_git_path"
-[[ -z ${FOG_program_dir} ]] && FOG_program_dir="$fogprogramdir"
-# NET
-[[ -z ${NET_interface} ]] && NET_interface="$interface"
-[[ -z ${NET_fog_server_ip} ]] && NET_fog_server_ip="$ipaddress"
-[[ -z ${NET_subnet_mask} ]] && NET_subnet_mask="$submask"
-[[ -z ${NET_hostname} ]] && NET_hostname="$hostname"
-# DHCP
-[[ -z ${DHCP_engine} ]] && DHCP_engine="$dhcpengine"
-[[ -z ${DHCP_service_name} ]] && DHCP_service_name="$dhcpd"
-[[ -z ${DHCP_dns_server_ip} ]] && DHCP_dns_server_ip="$dnsaddress"
-[[ -z ${DHCP_range_start} ]] && DHCP_range_start="$startrange"
-[[ -z ${DHCP_range_end} ]] && DHCP_range_end="$endrange"
-# DB
-[[ -z ${DB_name} ]] && DB_name="$mysqldbname"
-[[ -z ${DB_host} ]] && DB_host="$snmysqlhost"
-[[ -z ${DB_user} ]] && DB_user="$snmysqluser"
-[[ -z ${DB_password} ]] && DB_password="$snmysqlpass"
-[[ -z ${DB_external} ]] && DB_external="$snmysqlexternal"
-[[ -z ${DB_backup_path} ]] && DB_backup_path="$backupPath"
-# WEB
-[[ -z ${WEB_server_engine} ]] && WEB_server_engine="$webserver"
-[[ -z ${WEB_docroot} ]] && WEB_docroot="$docroot"
-[[ -z ${WEB_root} ]] && WEB_root="$webroot"
-[[ -z ${WEB_php_version} ]] && WEB_php_version="$php_ver"
-[[ -z ${WEB_url_proto} ]] && WEB_url_proto="$httpproto"
-[[ -z ${WEB_https_redirect} ]] && WEB_https_redirect="$httpsRedirect"
-# BOOT
-[[ -z ${BOOT_url_proto} ]] && BOOT_url_proto="$netbootproto"
-[[ -z ${BOOT_url_proto_forced} ]] && BOOT_url_proto_forced="$netbootProtoForced"
-[[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="$rebuildIpxeWithMyCA"
-[[ -z ${BOOT_dhcp_delay_seconds} ]] && BOOT_dhcp_delay_seconds="$bootdelay"
-[[ -z ${BOOT_external_tftp_server} ]] && BOOT_external_tftp_server="$noTftpBuild"
-[[ -z ${BOOT_tftp_options} ]] && BOOT_tftp_options="$tftpAdvOpts"
-[[ -z ${BOOT_kernel_backups_kept} ]] && BOOT_kernel_backups_kept="$kernelBackupGenerations"
-# STORAGE
-[[ -z ${STORAGE_image_share_path} ]] && STORAGE_image_share_path="$storageLocation"
-[[ -z ${STORAGE_rebuild_nfs_exports} ]] && STORAGE_rebuild_nfs_exports="$blexports"
-# SVC
-[[ -z ${SVC_user} ]] && SVC_user="$username"
-[[ -z ${SVC_password} ]] && SVC_password="$password"
-[[ -z ${SVC_firewall_control} ]] && SVC_firewall_control="$fwconfigure"
-# PKI
-[[ -z ${PKI_root_ca_cert} ]] && PKI_root_ca_cert="$rootCAPem"
-[[ -z ${PKI_root_ca_key} ]] && PKI_root_ca_key="$rootCAKey"
-[[ -z ${PKI_web_trust_chain} ]] && PKI_web_trust_chain="$sslcachain"
-[[ -z ${PKI_client_cert_dir} ]] && PKI_client_cert_dir="$sslpath"
-[[ -z ${PKI_sb_ca_cert} ]] && PKI_sb_ca_cert="$secureBootMokCert"
-[[ -z ${PKI_sb_codesign_cert} ]] && PKI_sb_codesign_cert="$secureBootCert"
-[[ -z ${PKI_sb_codesign_key} ]] && PKI_sb_codesign_key="$secureBootKey"
-[[ -z ${PKI_sb_enabled} ]] && PKI_sb_enabled="$secureboot"
-[[ -z ${PKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted="$publicWebCert"
-[[ -z ${PKI_allowed_domain_names} ]] && PKI_allowed_domain_names="$internalDomains"
-[[ -z ${PKI_internal_subnets} ]] && PKI_internal_subnets="$internalSubnets"
-[[ -z ${PKI_san_ip_addresses} ]] && PKI_san_ip_addresses="$ipaddresses"
-[[ -z ${PKI_san_dns_names} ]] && PKI_san_dns_names="$extraServerNames"
-# --- and the seven merges, where two old keys held one answer ----------------
-#
-# DHCP_enabled: dodhcp was Y/N and bldhcp was 1/0, both written from the same
-# prompt. Seeded from bldhcp because every DECISION read that one; dodhcp was
-# read only by the prompt loop that wrote it. Either encoding is fine to copy
-# here -- _normalizeBooleanSettings below converts whatever arrives to yes/no,
-# so the seed stays a copy and does not have to know which literal it is
-# carrying.
-[[ -z ${DHCP_enabled} ]] && DHCP_enabled="$bldhcp"
-#
-# DHCP_router: routeraddress doubled as a config-file comment -- declining a
-# router stored the literal "#   No router address added" -- which is why
-# plainrouter existed at all, to hold the clean value for display. One key holds
-# the clean value or nothing; the config writers emit the comment. Prefer
-# plainrouter, and fall back to routeraddress only when it is a real address.
-if [[ -z ${DHCP_router} ]]; then
-    if [[ -n $plainrouter ]]; then
-        DHCP_router="$plainrouter"
-    elif [[ -n $routeraddress && $routeraddress != \#* ]]; then
-        DHCP_router="$routeraddress"
-    fi
-fi
-# DHCP_dns_server_ip had the identical wart with no clean twin, so it is
-# cleaned here rather than merged.
-[[ ${DHCP_dns_server_ip} == \#* ]] && DHCP_dns_server_ip=""
-#
-# The Web CA pair is seeded from FOG's OWN canonical paths, not from the import
-# paths. validateExternalCA() already copies an imported CA into the canonical
-# location, so $sslcapem/$sslcakey are the right values on an external-CA
-# install too -- and --ca-cert/--ca-key/--web-ca-cert/--web-ca-key keep working
-# as run-scoped INPUTS. That is the whole point of the merge: six persisted keys
-# holding three values is what silently discarded anything typed at the prompt
-# whenever the flags were also given.
-[[ -z ${PKI_web_ca_cert} ]] && PKI_web_ca_cert="$sslcapem"
-[[ -z ${PKI_web_ca_key} ]]  && PKI_web_ca_key="$sslcakey"
-#
-# The imported root IS value-carrying, and stays separate from PKI_root_ca_cert:
-# validateExternalCA() feeds it to the chain file only, and conflating it with
-# the root fog-client pins is exactly what the three-zone split exists to
-# prevent. Flag spelling wins over prompt spelling, as it always did.
-[[ -z ${PKI_web_external_root_cert} ]] && PKI_web_external_root_cert="${webExtCARoot:-$extcaroot}"
-#
-# The vhost pair absorbs webCertFile/webKeyFile, which recorded where an
-# externally-managed leaf actually lived. Those win when set: on such a server
-# createSSLCA() had already reassigned $sslpubcert/$sslprivkey to them, but the
-# recorded pair is the one the admin's tooling renews.
-[[ -z ${PKI_web_vhost_cert} ]] && PKI_web_vhost_cert="${webCertFile:-$sslpubcert}"
-[[ -z ${PKI_web_vhost_key} ]]  && PKI_web_vhost_key="${webKeyFile:-$sslprivkey}"
+migrateDeprecatedKeys
 # --- WEB_url_proto / WEB_https_redirect migration ---------------------------
 #
 # Runs after .fogsettings is sourced and BEFORE the flags below, so the order
