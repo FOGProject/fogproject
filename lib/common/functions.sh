@@ -1194,7 +1194,6 @@ GRANT INSERT,UPDATE ON ${DB_name}.taskStates TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON ${DB_name}.taskLog TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON ${DB_name}.snapinTasks TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON ${DB_name}.snapinJobs TO 'fogstorage'@'%' ;
-GRANT INSERT,UPDATE ON ${DB_name}.imagingLog TO 'fogstorage'@'%' ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
