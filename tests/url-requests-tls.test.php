@@ -151,12 +151,30 @@ if (!preg_match(
         . ' itself';
 }
 if (!preg_match(
-    '#if \(\$isFogHost && !isset\(\$options\[CURLOPT_COOKIE\]\)\) \{\s*\n\s*\$options\[CURLOPT_COOKIE\]#',
+    '#if \(\$isFogHost\s*\n?\s*&& !isset\(\$options\[CURLOPT_COOKIE\]\)#',
     $src
 )) {
     $fails[] = "the session cookie is no longer gated on \$isFogHost; the"
         . " signed-in administrator's session id would be sent to every"
         . ' third-party host this class fetches from';
+}
+/*
+ * And only when there IS a session to forward. session_id() is '' in every
+ * CLI daemon and in any API request authenticated by token rather than by
+ * cookie, and the header still went out as the bare "PHPSESSID=". An empty
+ * value satisfies isset() on the far side, so init.php's browser-less gate
+ * opened, use_strict_mode found no id to resume, and PHP minted a throwaway
+ * session per request -- ~3,000 an hour from the multicast daemon's node
+ * reads alone. Pinned by shape for the same reason as the gate above: what
+ * must not come back is a cookie line that runs with no session.
+ */
+if (!preg_match(
+    '#!isset\(\$options\[CURLOPT_COOKIE\]\)\s*\n\s*&& session_id\(\) !== \x27\x27#',
+    $src
+)) {
+    $fails[] = 'the session cookie is no longer gated on there being a'
+        . ' session to send; a session-less caller would again send'
+        . ' "PHPSESSID=", which mints an empty session on the far side';
 }
 if (false === strpos($src, 'X-CSRF-Token:')) {
     $fails[] = 'the CSRF token is no longer filtered out for third-party'
