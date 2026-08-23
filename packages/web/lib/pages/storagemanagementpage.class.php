@@ -683,6 +683,8 @@ class StorageManagementPage extends FOGPage
             $this->obj->get('user');
         $pass = filter_input(INPUT_POST, 'pass') ?:
             $this->obj->get('pass');
+        $apikey = filter_input(INPUT_POST, 'apikey') ?:
+            $this->obj->get('key');
         $isgren = isset($_POST['isGraphEnabled']) ?:
             $this->obj->get('isGraphEnabled');
         $isen = isset($_POST['isEnabled']) ?:
@@ -868,6 +870,26 @@ class StorageManagementPage extends FOGPage
             . Initiator::e($pass)
             . '" autocomplete="off" class="form-control" required/>'
             . '</div>',
+            // Only needed when the peer is a full FOG server with its own
+            // database. A true storage node reads the master's
+            // globalSettings, so it already shares FOG_NODE_API_KEY and
+            // this stays empty.
+            //
+            // type=text rather than password, deliberately: the whole point
+            // is that the administrator reads the value and sets it as the
+            // peer's own FOG_NODE_API_KEY, and a masked field cannot be
+            // transcribed. stripNodeSecrets() keeps it out of every API
+            // payload, and this page is admin only.
+            '<label for="apikey">'
+            . _('Node API Signing Key')
+            . '</label>' => '<div class="input-group">'
+            . '<input type="text" name="apikey" id="apikey" value="'
+            . Initiator::e($apikey)
+            . '" autocomplete="off" class="form-control" '
+            . 'placeholder="'
+            . _('Leave empty unless this node is its own FOG server')
+            . '"/>'
+            . '</div>',
             '<label for="update">'
             . _('Make Changes?')
             . '</label>' => '<button name="update" id="update" type="submit" '
@@ -993,6 +1015,7 @@ class StorageManagementPage extends FOGPage
                 ->set('isEnabled', $isen)
                 ->set('user', $user)
                 ->set('pass', $pass)
+                ->set('key', trim((string)filter_input(INPUT_POST, 'apikey')))
                 ->set('bandwidth', $bandwidth);
             if (!$this->obj->save()) {
                 throw new Exception(_('Storage Node update failed!'));

@@ -3212,6 +3212,9 @@ msgstr ""
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr ""
 
@@ -3922,6 +3925,9 @@ msgid "No viable storage groups found"
 msgstr ""
 
 msgid "Node"
+msgstr ""
+
+msgid "Node API Signing Key"
 msgstr ""
 
 msgid "Node Offline"

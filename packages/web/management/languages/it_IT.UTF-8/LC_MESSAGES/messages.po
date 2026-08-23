@@ -3345,6 +3345,9 @@ msgstr "Ultima versione"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "Livello deve essere una stringa"
 
@@ -4070,6 +4073,9 @@ msgstr "Nessun gruppo di storage disponibile trovato"
 
 msgid "Node"
 msgstr "Nodo"
+
+msgid "Node API Signing Key"
+msgstr ""
 
 msgid "Node Offline"
 msgstr ""

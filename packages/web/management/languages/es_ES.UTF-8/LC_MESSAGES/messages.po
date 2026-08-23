@@ -3715,6 +3715,9 @@ msgstr "Última versión"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr ""
 
@@ -4516,6 +4519,9 @@ msgstr ""
 
 msgid "Node"
 msgstr "Nodo"
+
+msgid "Node API Signing Key"
+msgstr ""
 
 #, fuzzy
 msgid "Node Offline"

@@ -3260,6 +3260,9 @@ msgstr "最新版本"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "等级必须是整数"
 
@@ -3978,6 +3981,9 @@ msgstr "找不到可用的存储组"
 
 msgid "Node"
 msgstr "节点"
+
+msgid "Node API Signing Key"
+msgstr ""
 
 msgid "Node Offline"
 msgstr "节点已下线"

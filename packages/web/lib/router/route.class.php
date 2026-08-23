@@ -2179,6 +2179,37 @@ class Route extends FOGBase
         return 1 === preg_match(self::SENSITIVE_SETTING_PATTERN, $key);
     }
     /**
+     * Strips a storage node's credentials from an outbound payload.
+     *
+     * ngmPass is the node's FTP credential. It reaches the root-running
+     * replicator's lftp invocation and the SSH helpers in Snapin and
+     * TaskQueue, so holding it is holding the node -- the same credential
+     * class as GHSA-2hqx-5ffg-w4c3. It was being returned in full by
+     * GET /storagenode/{id} and, less obviously, embedded in every task
+     * payload, to any caller the API let in.
+     *
+     * ngmKey joins it now that nodeSigningKeyFor() gives that column a
+     * meaning: it is the secret a peer FOG server verifies signed requests
+     * with, so publishing it would hand over the thing the signature
+     * proves.
+     *
+     * Nothing reads either back over the API. Every consumer is server-side
+     * PHP with the object already in hand -- snapin.class.php,
+     * taskqueue.class.php, snapinclient.class.php, logviewerhook and the
+     * node edit page all call $StorageNode->get('pass') directly -- so
+     * there is no legitimate reader to carve out for.
+     *
+     * @param array $data The payload about to be emitted.
+     *
+     * @return array
+     */
+    public static function stripNodeSecrets($data)
+    {
+        $data = (array)$data;
+        unset($data['pass'], $data['key']);
+        return $data;
+    }
+    /**
      * Drops the value of a globalSettings row that holds a credential.
      *
      * The name, description and category stay -- only the value goes -- so
@@ -2314,7 +2345,7 @@ class Route extends FOGBase
                     );
                 }
                 $data = FOGCore::fastmerge(
-                    $class->get(),
+                    self::stripNodeSecrets($class->get()),
                     $extra,
                     array(
                         'storagegroup' => self::getter(
@@ -2347,7 +2378,9 @@ class Route extends FOGBase
                         ),
                         'type' => $class->get('type')->get(),
                         'state' => $class->get('state')->get(),
-                        'storagenode' => $class->get('storagenode')->get(),
+                        'storagenode' => self::stripNodeSecrets(
+                            $class->get('storagenode')->get()
+                        ),
                         'storagegroup' => $class->get('storagegroup')->get()
                     )
                 );
