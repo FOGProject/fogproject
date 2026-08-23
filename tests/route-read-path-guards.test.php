@@ -593,26 +593,67 @@ $t->check(
     in_array('pass', $nodeBlocked, true) && in_array('key', $nodeBlocked, true)
 );
 
-// That getter() APPLIES it is a source assertion, and the comment says
-// so rather than dressing it up: getter('storagenode', ...) and
-// getter('image', ...) both run live lookups (node online state, image
-// storage groups) that this DB-free fixture cannot serve, so driving the
-// real call here is not available. The end-to-end proof is the live run
-// recorded in the commit -- storagegroup/list carrying the node's FTP
-// password before and clean after. What is worth pinning cheaply is that
-// the call is still there and is still the ALWAYS-ONLY form: passing
-// false would strip tier 1 too and silently break domain joins.
-$getterSrc = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/router/route.class.php'
+// That a nested entity is stripped as WHAT IT IS used to be asserted here
+// against getter()'s source, because getter('storagenode', ...) runs live
+// lookups this DB-free fixture cannot serve. It no longer has to be: the
+// strip happens at the emitter now, over the class registry embed() fills
+// in, and stripSensitivePayload() takes plain arrays. So this is the real
+// behaviour rather than a regex over the shape of a line.
+//
+// Why the move: getter()'s per-level strip only ever reached embeds built
+// by recursing into getter(). The ones that were a plain ->get() -- task's
+// storagenode among them -- were stripped at no level at all, and it also
+// made Route::getItem() hand redacted objects to internal callers while
+// Route::getList() handed whole ones. See
+// tests/api-nested-secret-strip.test.php for the full set.
+$nestedProp = new \ReflectionProperty('FOG\\Route', 'nestedClasses');
+$nestedProp->setAccessible(true);
+$nestedProp->setValue(null, ['task' => ['storagenode' => 'storagenode']]);
+$emitClass = new \ReflectionProperty('FOG\\Route', 'emitClassname');
+$emitClass->setAccessible(true);
+$emitClass->setValue(null, 'task');
+
+$nestedOut = Route::stripSensitivePayload(
+    [
+        'id' => 1,
+        '_lang' => 'task',
+        'storagenode' => [
+            'id' => 3,
+            'name' => 'debian',
+            'pass' => 'NODEFTPPW',
+            'key' => 'NODEHMACKEY',
+        ],
+    ]
 );
 $t->check(
-    'getter() strips tier 2 before returning, so a nested entity is'
-    . ' stripped as what it is',
-    (bool)preg_match(
-        '/\$data = self::stripSensitive\(\$classname, \$data, true\);\s*\n\s*return \$data;/',
-        $getterSrc
-    )
+    'a storagenode nested in a task is stripped as a storagenode, not as'
+    . ' a task',
+    !array_key_exists('pass', $nestedOut['storagenode'])
+    && !array_key_exists('key', $nestedOut['storagenode'])
 );
+$t->check(
+    'stripping the nested entity leaves its non-secret columns alone',
+    'debian' === ($nestedOut['storagenode']['name'] ?? null)
+);
+
+// The tier-1 carve-out must NOT follow the nesting. A host reached through
+// GET /host/{id} keeps ADPass so fog-client can join a domain; the same
+// host reached as task.host is a different request and keeps nothing.
+$nestedProp->setValue(null, ['task' => ['host' => 'host']]);
+$emitClass->setValue(null, 'task');
+$nestedHost = Route::stripSensitivePayload(
+    [
+        'id' => 1,
+        '_lang' => 'task',
+        'host' => ['id' => 9, 'name' => 'pc', 'ADPass' => 'JOINPW'],
+    ]
+);
+$t->check(
+    'tier 1 does NOT survive in a nested position (task.host.ADPass)',
+    !array_key_exists('ADPass', $nestedHost['host'])
+);
+$nestedProp->setValue(null, []);
+$emitClass->setValue(null, '');
 
 // Tier 1 must NOT be dropped by the always-only pass -- that carve-out is
 // why fog-client can still read a host's ADPass back to join a domain,

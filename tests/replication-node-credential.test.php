@@ -15,11 +15,19 @@
  *                 storagenode pass and key). The object handed back has no
  *                 password on it at all.
  *
- * So `$StorageNode->pass` after the re-fetch is the empty string, lftp is
- * given no password, and every transfer is refused at login. Because the
+ * So `$StorageNode->pass` after the re-fetch was the empty string, lftp was
+ * given no password, and every transfer was refused at login. Because the
  * replicator reports a refused login as "check the password stored for this
- * node", the symptom points at the admin's configuration -- the stored
- * password is fine and the daemon simply never reads it.
+ * node", the symptom pointed at the admin's configuration -- the stored
+ * password was fine and the daemon simply never read it.
+ *
+ * The router asymmetry itself has since been closed: getter() no longer
+ * strips, so getItem() and getList() both hand internal callers the whole
+ * object and only the API emitter removes secrets (see
+ * tests/api-nested-secret-strip.test.php). This stays as the regression gate
+ * for the DAEMON's half -- it fakes the old asymmetry deliberately, so it
+ * still fails if the credential read moves back onto the re-fetched object,
+ * whatever the router happens to be doing that week.
  *
  * This runs the REAL method body, lifted from the shipped file, against
  * fakes that reproduce exactly that asymmetry, and asserts on the credential
