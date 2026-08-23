@@ -282,10 +282,76 @@ $t->check(
     && (false === $legacyPos || $bearerPos < $legacyPos)
 );
 // Posted token ids must be constrained to the user whose page this is,
-// otherwise one user's form deletes another's credentials.
+// otherwise one user's form deletes another's credentials. The manage loop
+// iterates the OWNER'S tokens and matches posted ids against them, rather
+// than loading whatever id was posted.
 $t->check(
-    'token management is scoped to the owning user',
-    (bool)preg_match("/'userID'\s*=>\s*\\\$uid/", $pageSrc)
+    'token management iterates the owning user\'s tokens',
+    (bool)preg_match(
+        '/getClass\(\'APITokenManager\'\)\s*\n?\s*->forUser\(\$uid\)/',
+        $pageSrc
+    )
+);
+$mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
+$t->check(
+    'forUser() filters on the owner column',
+    (bool)preg_match('/WHERE `atUserID` = :uid/', $mgrSrc)
+);
+
+// ---------------------------------------------------------------------------
+// 9. The two form-plumbing bugs a real deploy found, which no source read
+// would have.
+//
+// Both were invisible to every other check in this file: the page rendered,
+// the buttons drew, and clicking them did nothing whatsoever. Pinned because
+// the failure mode is silence -- no error, no log line, no failed request.
+// ---------------------------------------------------------------------------
+$jsSrc = file_get_contents(
+    $web . '/management/js/fog/user/fog.user.edit.js'
+);
+
+// (a) FOG has no generic binding that picks a tab form up. disableFormDefaults()
+//     only suppresses the native submit; every card is wired by hand in its
+//     page's JS, and an unwired one renders perfectly and does nothing.
+$t->check(
+    'the token card form is wired in JS',
+    false !== strpos($jsSrc, '#user-apitoken-form')
+);
+$t->check(
+    'the save button is wired',
+    false !== strpos($jsSrc, '#apitoken-send')
+);
+$t->check(
+    'the issue button is wired',
+    false !== strpos($jsSrc, '#issuetoken')
+);
+
+// (b) processForm() posts `new FormData(form)`, and FormData omits submit
+//     buttons unless the submitter is handed to it. So the save discriminator
+//     has to be a real field, and creation cannot be a submit button at all.
+$t->check(
+    'the save discriminator is a posted field, not a button name',
+    false !== strpos($pageSrc, "filter_input(INPUT_POST, 'tokenaction')")
+    && false !== strpos($pageSrc, 'name="tokenaction" value="manage"')
+);
+$t->check(
+    'the issue control is not a submit button',
+    false !== strpos($pageSrc, 'type="button" id="issuetoken"')
+);
+$t->check(
+    'issuing a token is its own CSRF-gated endpoint',
+    (bool)preg_match(
+        '/public function issueAPIToken\(\)\s*\{\s*(\/\/[^\n]*\n\s*)*self::checkAuthAndCSRF\(\);/',
+        $pageSrc
+    )
+);
+
+// The plaintext must reach the browser exactly once, in the reply to the
+// click that created it. Anything that persists it across renders -- a
+// session key, a data attribute -- defeats show-once.
+$t->check(
+    'the plaintext is not carried in the session',
+    false === strpos($pageSrc, 'fog_new_api_token')
 );
 
 $t->finish();

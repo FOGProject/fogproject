@@ -443,11 +443,22 @@ msgstr ""
 msgid "API Documentation"
 msgstr "Acción"
 
+msgid "API Token Created"
+msgstr ""
+
+#, fuzzy
+msgid "API Token Failed"
+msgstr "Añadir fallidos SNAPin!"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy
+msgid "API token issued!"
+msgstr "unidad no válida pasó"
 
 msgid "API?"
 msgstr ""
@@ -7031,7 +7042,7 @@ msgstr "Seleccionar una imagen válida"
 msgid "Selected tasks cancelled!"
 msgstr "se ha actualizado correctamente"
 
-msgid "Sent as an Authorization: Bearer header, on its own -- no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
 msgid "Serial Number"

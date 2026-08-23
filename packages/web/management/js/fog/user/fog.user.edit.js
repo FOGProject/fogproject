@@ -69,6 +69,63 @@
         });
     });
 
+    // ----------------------------------------------------
+    // BEARER API TOKEN CARD
+    //
+    // Every tab form in this file is wired the same way: suppress the native
+    // submit, and drive the post from a button's click handler. There is no
+    // generic binding that picks a form up automatically -- disableFormDefaults()
+    // only stops the native submit -- so a card with no wiring here renders
+    // fine and silently does nothing when clicked.
+    var apiTokenForm = $('#user-apitoken-form'),
+        apiTokenFormBtn = $('#apitoken-send'),
+        issueTokenBtn = $('#issuetoken');
+
+    apiTokenForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    // Save: enable/disable and delete. Rides the tab form.
+    apiTokenFormBtn.on('click', function(e) {
+        apiTokenFormBtn.prop('disabled', true);
+        apiTokenForm.processForm(function(err) {
+            apiTokenFormBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            // The rows the save acted on are stale now -- a deleted token
+            // still has a row and a toggled one still shows its old state.
+            location.reload();
+        });
+    });
+
+    // Issue: its own endpoint, because the plaintext comes back in this
+    // response and is shown once. See the PHP side for why it cannot ride
+    // the form.
+    issueTokenBtn.on('click', function(e) {
+        var name = $('#newtokenname').val();
+        issueTokenBtn.prop('disabled', true);
+        $.apiCall(
+            'post',
+            '../management/index.php?node=user&sub=issueAPIToken&id=' + Common.id,
+            { newtokenname: name },
+            function(err, data) {
+                issueTokenBtn.prop('disabled', false);
+                if (err || !data || !data.token) {
+                    return;
+                }
+                // Shown, not stored. Nothing here writes the token anywhere
+                // that survives the page: no localStorage, no data attribute
+                // that a later render reuses.
+                $('#apitoken-fresh-value').val(data.token);
+                $('#apitoken-fresh-header').text(data.token);
+                $('#apitoken-fresh').removeClass('d-none');
+                $('#newtokenname').val('');
+                $('#apitoken-fresh-value').trigger('focus').trigger('select');
+            }
+        );
+    });
+
     $('.resettoken').on('click', function(e) {
         e.preventDefault();
         Pace.ignore(function() {

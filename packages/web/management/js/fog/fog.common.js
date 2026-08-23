@@ -1696,7 +1696,18 @@ $.notifyFromAPI = function(res, isError) {
     }
   }
   var title = res.title,
-    type = 'success';
+    type = 'success',
+    // Declared. It never was: every branch below ASSIGNED it as an implicit
+    // global, and `if (!msg)` READS it -- so any response carrying none of
+    // error/info/warning/msg threw ReferenceError out of the success
+    // handler and took the caller's callback with it. The fallback two
+    // lines down existed precisely for that case and could never run.
+    //
+    // The usual way in is a body jQuery did not parse as JSON (an endpoint
+    // missing its Content-type header): res is then a string, every lookup
+    // is undefined, and the user sees a silent failure rather than
+    // 'Bad Response'.
+    msg;
   if (res.error) {
     type = 'error';
     msg = res.error;

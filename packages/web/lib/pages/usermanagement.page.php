@@ -786,13 +786,6 @@ class UserManagement extends FOGPage
     private function _userBearerTokens()
     {
         $uid = (int)$this->obj->get('id');
-        // Shown exactly once, on the render immediately after creation. The
-        // plaintext exists nowhere else -- not in the row, not in a log --
-        // so this is the user's only chance to copy it, and the session key
-        // is cleared as it is read rather than on any later event that might
-        // not happen.
-        $fresh = (string)($_SESSION['fog_new_api_token'] ?? '');
-        unset($_SESSION['fog_new_api_token']);
 
         echo '<form class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL('user-api', $uid)
@@ -801,30 +794,32 @@ class UserManagement extends FOGPage
         echo '<div class="card-header">' . _('Bearer API Tokens') . '</div>';
         echo '<div class="card-body">';
 
-        if ('' !== $fresh) {
-            echo '<div class="alert alert-success">';
-            echo '<h5>' . _('Copy this token now') . '</h5>';
-            echo '<p>'
-                . _('This is the only time it will be shown. FOG stores only '
-                    . 'a hash of it and cannot show it again. If you lose it, '
-                    . 'delete this token and issue another.')
-                . '</p>';
-            echo '<input type="text" class="form-control" readonly '
-                . 'onclick="this.select();" value="'
-                . \Initiator::e($fresh) . '"/>';
-            echo '<p class="mt-2 mb-0"><code>Authorization: Bearer '
-                . \Initiator::e($fresh) . '</code></p>';
-            echo '</div>';
-        }
+        // Filled in by fog.user.edit.js from issueAPIToken()'s response and
+        // never by PHP. The plaintext reaches the browser once, in the reply
+        // to the click that created it, and is not carried in the session or
+        // re-rendered on any later page load -- so a back button, a refresh
+        // or a second admin opening the same user cannot surface it.
+        echo '<div class="alert alert-success d-none" id="apitoken-fresh">';
+        echo '<h5>' . _('Copy this token now') . '</h5>';
+        echo '<p>'
+            . _('This is the only time it will be shown. FOG stores only a '
+                . 'hash of it and cannot show it again. If you lose it, '
+                . 'delete this token and issue another.')
+            . '</p>';
+        echo '<input type="text" class="form-control" readonly '
+            . 'onclick="this.select();" id="apitoken-fresh-value"/>';
+        echo '<p class="mt-2 mb-0"><code>Authorization: Bearer '
+            . '<span id="apitoken-fresh-header"></span></code></p>';
+        echo '</div>';
 
         echo '<p>'
-            . _('Sent as an Authorization: Bearer header, on its own -- no '
+            . _('Sent as an Authorization: Bearer header, on its own &mdash; no '
                 . 'fog-api-token header is needed alongside it. Each token '
                 . 'acts with this user\'s roles.')
             . '</p>';
 
         $tokens = self::getClass('APITokenManager')
-            ->find(['userID' => $uid]);
+            ->forUser($uid);
         echo '<table class="table table-sm">';
         echo '<thead><tr>'
             . '<th>' . _('Name') . '</th>'
@@ -859,10 +854,32 @@ class UserManagement extends FOGPage
         }
         echo '</tbody></table>';
 
+        // type=button, not submit. Creation does NOT ride this form: it is
+        // its own AJAX call to issueAPIToken(), the same shape the Reset
+        // Token control beside it already uses. Two reasons, and the first
+        // is fatal on its own:
+        //
+        //  - processForm() posts `new FormData(form)`, and FormData omits
+        //    submit buttons unless the submitter is passed to it. A
+        //    name=createtoken submit button therefore never arrives, so the
+        //    handler could not tell a create from a save however it was
+        //    wired.
+        //  - the plaintext is shown once. Routing it through the tab form
+        //    means either putting it in the session and reloading -- which
+        //    lands the user back on the General tab with the secret
+        //    unseen -- or threading it through handleEditPost()'s shared
+        //    fixed-shape response. The dedicated endpoint returns it to the
+        //    click that asked for it and nothing else has to change.
+        // Read by _userBearerTokensPost() to tell this card's save from the
+        // legacy card's. See the comment there for why it cannot be the
+        // button's own name.
+        echo '<input type="hidden" name="tokenaction" value="manage"/>';
+
         echo '<div class="input-group">';
         echo '<input type="text" class="form-control" name="newtokenname" '
-            . 'placeholder="' . _('Name for a new token') . '"/>';
-        echo '<button type="submit" name="createtoken" value="1" '
+            . 'id="newtokenname" placeholder="'
+            . _('Name for a new token') . '"/>';
+        echo '<button type="button" id="issuetoken" '
             . 'class="btn btn-secondary">' . _('Issue Token') . '</button>';
         echo '</div>';
 
@@ -904,32 +921,80 @@ class UserManagement extends FOGPage
             ->set('token', $apitoken);
     }
     /**
+     * Issues one API token and returns its plaintext, once.
+     *
+     * Its own endpoint rather than part of the tab form, for the reasons set
+     * out where the Issue Token button is emitted. Modelled on the Reset
+     * Token control beside it, which has always been a direct AJAX call.
+     *
+     * The plaintext is written to this response and nowhere else -- not the
+     * session, not a log, not the row. If the caller loses it, the token is
+     * unrecoverable by design and the answer is to delete it and issue
+     * another.
+     *
+     * @return void
+     */
+    public function issueAPIToken()
+    {
+        // State-changing and it mints a credential, so it gets the same gate
+        // as any other POST here. Ordinary role checks still apply: reaching
+        // this page at all requires user.edit.
+        self::checkAuthAndCSRF();
+        // Not optional. Without it jQuery reads the body as text, hands
+        // $.notifyFromAPI a STRING, and every res.<key> lookup is undefined
+        // -- so the caller sees no token and no error, just a notification
+        // that says nothing. Every other JSON endpoint here sets it too.
+        header('Content-type: application/json');
+
+        $uid = (int)$this->obj->get('id');
+        $name = trim((string)filter_input(INPUT_POST, 'newtokenname'));
+
+        $token = $uid > 0 ? APIToken::generate($uid, $name) : false;
+        if (false === $token) {
+            // generate() returns false when the row did not store, so this
+            // is "there is no token", not "there might be one you cannot
+            // see". Reported as a server fault because nothing the user
+            // typed can cause it.
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(
+                    [
+                        'error' => _('Could not issue the token!'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
+
+        self::jsonSend(
+            HTTPResponseCodes::HTTP_CREATED,
+            json_encode(
+                [
+                    'msg' => _('API token issued!'),
+                    'title' => _('API Token Created'),
+                    'token' => $token,
+                    'name' => $name,
+                    'created' => self::formatTime('now', 'Y-m-d H:i:s')
+                ]
+            )
+        );
+    }
+    /**
      * Handles a submit from the Bearer token card.
      *
      * @return bool whether this request came from that card.
      */
     private function _userBearerTokensPost()
     {
-        $isCreate = null !== filter_input(INPUT_POST, 'createtoken');
-        $isManage = null !== filter_input(INPUT_POST, 'apitoken-send');
-        if (!$isCreate && !$isManage) {
+        // A hidden field, not the button's name. processForm() posts
+        // `new FormData(form)` and FormData omits submit buttons unless the
+        // submitter is passed to it, so a name= on the button never arrives
+        // -- the handler would see every save as "not mine" and fall
+        // through to the legacy card. The JS sets this before posting.
+        if ('manage' !== (string)filter_input(INPUT_POST, 'tokenaction')) {
             return false;
         }
         $uid = (int)$this->obj->get('id');
-        if ($isCreate) {
-            $token = APIToken::generate(
-                $uid,
-                (string)filter_input(INPUT_POST, 'newtokenname')
-            );
-            if (false === $token) {
-                throw new \Exception(_('Could not issue the token!'));
-            }
-            // Carried to the next render and shown once. Not returned in
-            // this response body and not logged: the plaintext should touch
-            // as few places as possible on its way to the screen.
-            $_SESSION['fog_new_api_token'] = $token;
-            return true;
-        }
         $keepEnabled = array_map(
             'intval',
             (array)($_POST['tokenenabled'] ?? [])
@@ -943,7 +1008,7 @@ class UserManagement extends FOGPage
         // filter would let anyone who can edit one user disable or delete
         // any token on the server by posting its id.
         $tokens = self::getClass('APITokenManager')
-            ->find(['userID' => $uid]);
+            ->forUser($uid);
         foreach ((array)$tokens as &$token) {
             $tid = (int)$token->get('id');
             if (in_array($tid, $toDelete, true)) {

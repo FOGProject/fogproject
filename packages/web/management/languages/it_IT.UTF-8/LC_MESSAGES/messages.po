@@ -432,11 +432,22 @@ msgstr "API?"
 msgid "API Documentation"
 msgstr "Luogo"
 
+msgid "API Token Created"
+msgstr ""
+
+#, fuzzy
+msgid "API Token Failed"
+msgstr "Connessione FTP non è riuscita"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy
+msgid "API token issued!"
+msgstr "Token non valido passato"
 
 msgid "API?"
 msgstr "API?"
@@ -6655,7 +6666,7 @@ msgstr "Selezionare un'immagine valida"
 msgid "Selected tasks cancelled!"
 msgstr "Attività pianificate create con successo"
 
-msgid "Sent as an Authorization: Bearer header, on its own -- no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
 msgid "Serial Number"

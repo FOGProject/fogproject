@@ -441,11 +441,22 @@ msgstr "API?"
 msgid "API Documentation"
 msgstr "Ort"
 
+msgid "API Token Created"
+msgstr ""
+
+#, fuzzy
+msgid "API Token Failed"
+msgstr "FTP-Verbindung fehlgeschlagen"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy
+msgid "API token issued!"
+msgstr "Ungültiger Token übergeben"
 
 msgid "API?"
 msgstr "API?"
@@ -6883,7 +6894,7 @@ msgstr "Wählen Sie ein gültiges Abbild"
 msgid "Selected tasks cancelled!"
 msgstr "geplante Tasks wurde erfolgreich erstellt"
 
-msgid "Sent as an Authorization: Bearer header, on its own -- no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
 msgid "Serial Number"

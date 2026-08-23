@@ -445,11 +445,22 @@ msgstr ""
 msgid "API Documentation"
 msgstr "位置"
 
+msgid "API Token Created"
+msgstr ""
+
+#, fuzzy
+msgid "API Token Failed"
+msgstr "FTP连接失败"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy
+msgid "API token issued!"
+msgstr "无效的令牌传递"
 
 msgid "API?"
 msgstr ""
@@ -6881,7 +6892,7 @@ msgstr "选择一个有效的图像"
 msgid "Selected tasks cancelled!"
 msgstr "已成功更新"
 
-msgid "Sent as an Authorization: Bearer header, on its own -- no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
 msgid "Serial Number"
