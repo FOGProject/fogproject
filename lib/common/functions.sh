@@ -2295,15 +2295,29 @@ doOSSpecificIncludes() {
             ;;
     esac
     currentdir=$(pwd)
-    case $currentdir in
-        *$webdirdest*|*$tftpdirdst*)
-            echo "Please change installation directory."
-            echo "Running from here will fail."
-            echo "You are in $currentdir which is a folder that will"
-            echo "be moved during installation."
-            exit 1
-            ;;
-    esac
+    # Both variables are tested for non-emptiness FIRST, and that is the whole
+    # point rather than defensive noise: in a glob, `*$webdirdest*` with an
+    # empty $webdirdest is `**`, which matches EVERY path. So whenever this
+    # function reaches here without having sourced a distro config -- the `*)`
+    # arm above blanks osid and RETURNS rather than exiting -- the old form
+    # refused to run from any directory at all, and said so in a message about
+    # the install layout that had nothing to do with the real problem.
+    #
+    # Ported from working-1.6, where a .fogsettings key rename made this easy
+    # to hit: an unset id took the `*)` arm and the admin got "Sorry, answer
+    # not recognized" followed by "Please change installation directory" about
+    # a path that was fine. That rename is not on this branch and is not being
+    # ported, but the amplifier here never depended on it -- ANY route to this
+    # guard without a sourced distro config produces the same false message,
+    # and on a 1.5 server a hand-edited or truncated .fogsettings is the way in.
+    if { [[ -n $webdirdest ]] && [[ $currentdir == *"$webdirdest"* ]]; } \
+        || { [[ -n $tftpdirdst ]] && [[ $currentdir == *"$tftpdirdst"* ]]; }; then
+        echo "Please change installation directory."
+        echo "Running from here will fail."
+        echo "You are in $currentdir which is a folder that will"
+        echo "be moved during installation."
+        exit 1
+    fi
 }
 errorStat() {
     local status=$1
