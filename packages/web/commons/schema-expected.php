@@ -88,6 +88,19 @@ return [
                 'acRedacted' => 'tinyint(1) unsigned NOT NULL DEFAULT 0',
             ],
         ],
+        'apiTokens' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'atID' => 'int(11) NOT NULL',
+                'atUserID' => 'int(11) NOT NULL DEFAULT 0',
+                'atName' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'atHash' => 'char(64) NOT NULL DEFAULT \'\'',
+                'atEnabled' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
+                'atCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'atCreatedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'atLastUsed' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'auditLog' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `auditLog` ( `alID` int(11) NOT NULL AUTO_INCREMENT, `alCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `alCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `alIP` varchar(45) NOT NULL DEFAULT \'\', `alAuthSource` varchar(64) NOT NULL DEFAULT \'\', `alType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectID` int(11) NOT NULL DEFAULT 0, `alSubjectLabel` varchar(255) NOT NULL DEFAULT \'\', `alPermission` varchar(128) NOT NULL DEFAULT \'\', `alOutcome` enum(\'unknown\',\'allowed\',\'denied\',\'failed\',\'partial\') NOT NULL DEFAULT \'unknown\', `alCorrelationID` varchar(32) NOT NULL DEFAULT \'\', `alAffectedCount` int(11) NOT NULL DEFAULT 0, `alRenderable` tinyint(1) unsigned NOT NULL DEFAULT 1, `alText` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`alID`), KEY `alCreatedTime` (`alCreatedTime`), KEY `alCreatedBy` (`alCreatedBy`), KEY `alCorrelationID` (`alCorrelationID`), KEY `alOutcome` (`alOutcome`), KEY `alSubject` (`alSubjectType`,`alSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [

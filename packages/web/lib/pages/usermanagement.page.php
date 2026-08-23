@@ -769,6 +769,113 @@ class UserManagement extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</form>';
+        $this->_userBearerTokens();
+    }
+    /**
+     * The Bearer token card: issue, list, disable and delete APITokens.
+     *
+     * A SEPARATE card from the one above, deliberately. The field above is
+     * users.uAPIToken -- plaintext, permanently re-readable, sent as
+     * fog-user-token beside fog-api-token. These are ADR 0027 tokens: hashed
+     * at rest, shown once, and the only thing Authorization: Bearer accepts.
+     * Two credentials with different properties should not share a card and
+     * read as one setting.
+     *
+     * @return void
+     */
+    private function _userBearerTokens()
+    {
+        $uid = (int)$this->obj->get('id');
+        // Shown exactly once, on the render immediately after creation. The
+        // plaintext exists nowhere else -- not in the row, not in a log --
+        // so this is the user's only chance to copy it, and the session key
+        // is cleared as it is read rather than on any later event that might
+        // not happen.
+        $fresh = (string)($_SESSION['fog_new_api_token'] ?? '');
+        unset($_SESSION['fog_new_api_token']);
+
+        echo '<form class="form-horizontal" method="post" action="'
+            . self::makeTabUpdateURL('user-api', $uid)
+            . '" id="user-apitoken-form">';
+        echo '<div class="card mt-3">';
+        echo '<div class="card-header">' . _('Bearer API Tokens') . '</div>';
+        echo '<div class="card-body">';
+
+        if ('' !== $fresh) {
+            echo '<div class="alert alert-success">';
+            echo '<h5>' . _('Copy this token now') . '</h5>';
+            echo '<p>'
+                . _('This is the only time it will be shown. FOG stores only '
+                    . 'a hash of it and cannot show it again. If you lose it, '
+                    . 'delete this token and issue another.')
+                . '</p>';
+            echo '<input type="text" class="form-control" readonly '
+                . 'onclick="this.select();" value="'
+                . \Initiator::e($fresh) . '"/>';
+            echo '<p class="mt-2 mb-0"><code>Authorization: Bearer '
+                . \Initiator::e($fresh) . '</code></p>';
+            echo '</div>';
+        }
+
+        echo '<p>'
+            . _('Sent as an Authorization: Bearer header, on its own -- no '
+                . 'fog-api-token header is needed alongside it. Each token '
+                . 'acts with this user\'s roles.')
+            . '</p>';
+
+        $tokens = self::getClass('APITokenManager')
+            ->find(['userID' => $uid]);
+        echo '<table class="table table-sm">';
+        echo '<thead><tr>'
+            . '<th>' . _('Name') . '</th>'
+            . '<th>' . _('Created') . '</th>'
+            . '<th>' . _('Last Used') . '</th>'
+            . '<th>' . _('Enabled') . '</th>'
+            . '<th>' . _('Delete') . '</th>'
+            . '</tr></thead><tbody>';
+        if (count($tokens) < 1) {
+            echo '<tr><td colspan="5">' . _('No tokens issued.') . '</td></tr>';
+        }
+        foreach ((array)$tokens as &$token) {
+            $tid = (int)$token->get('id');
+            $last = trim((string)$token->get('lastUsed'));
+            echo '<tr>';
+            echo '<td>' . \Initiator::e($token->get('name')) . '</td>';
+            echo '<td>' . \Initiator::e($token->get('createdTime')) . '</td>';
+            // A token that has never been used reads as such rather than as
+            // a date, so "issued and forgotten" is visible at a glance --
+            // that is the whole reason the column is recorded.
+            echo '<td>'
+                . ('' === $last ? _('Never') : \Initiator::e($last))
+                . '</td>';
+            echo '<td><input type="checkbox" name="tokenenabled[]" value="'
+                . $tid . '"'
+                . ('1' === (string)$token->get('enabled') ? ' checked' : '')
+                . '/></td>';
+            echo '<td><input type="checkbox" name="tokendelete[]" value="'
+                . $tid . '"/></td>';
+            echo '</tr>';
+            unset($token);
+        }
+        echo '</tbody></table>';
+
+        echo '<div class="input-group">';
+        echo '<input type="text" class="form-control" name="newtokenname" '
+            . 'placeholder="' . _('Name for a new token') . '"/>';
+        echo '<button type="submit" name="createtoken" value="1" '
+            . 'class="btn btn-secondary">' . _('Issue Token') . '</button>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo self::makeButton(
+            'apitoken-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
     }
     /**
      * User Change API Post
@@ -778,6 +885,16 @@ class UserManagement extends FOGPage
     public function userAPIPost()
     {
         self::checkAuthAndCSRF();
+        // The Bearer card posts to this same tab URL, so it lands here too.
+        // Routed first and returned from: its submits carry none of the
+        // legacy card's fields, and falling through would read an absent
+        // apienabled checkbox as "unticked" and an absent apitoken as empty
+        // -- silently disabling fog-user-token for the account and wiping
+        // uAPIToken as a side effect of issuing a Bearer token. That is the
+        // control-type/hand-built-form defect class (GH-987) exactly.
+        if ($this->_userBearerTokensPost()) {
+            return;
+        }
         $apien = (int)isset($_POST['apienabled']);
         $apitoken = base64_decode(
             filter_input(INPUT_POST, 'apitoken')
@@ -785,6 +902,62 @@ class UserManagement extends FOGPage
         $this->obj
             ->set('api', $apien)
             ->set('token', $apitoken);
+    }
+    /**
+     * Handles a submit from the Bearer token card.
+     *
+     * @return bool whether this request came from that card.
+     */
+    private function _userBearerTokensPost()
+    {
+        $isCreate = null !== filter_input(INPUT_POST, 'createtoken');
+        $isManage = null !== filter_input(INPUT_POST, 'apitoken-send');
+        if (!$isCreate && !$isManage) {
+            return false;
+        }
+        $uid = (int)$this->obj->get('id');
+        if ($isCreate) {
+            $token = APIToken::generate(
+                $uid,
+                (string)filter_input(INPUT_POST, 'newtokenname')
+            );
+            if (false === $token) {
+                throw new \Exception(_('Could not issue the token!'));
+            }
+            // Carried to the next render and shown once. Not returned in
+            // this response body and not logged: the plaintext should touch
+            // as few places as possible on its way to the screen.
+            $_SESSION['fog_new_api_token'] = $token;
+            return true;
+        }
+        $keepEnabled = array_map(
+            'intval',
+            (array)($_POST['tokenenabled'] ?? [])
+        );
+        $toDelete = array_map(
+            'intval',
+            (array)($_POST['tokendelete'] ?? [])
+        );
+        // Scoped to THIS user's tokens. The ids arrive from a form and a
+        // form is an untrusted list, so acting on them without the userID
+        // filter would let anyone who can edit one user disable or delete
+        // any token on the server by posting its id.
+        $tokens = self::getClass('APITokenManager')
+            ->find(['userID' => $uid]);
+        foreach ((array)$tokens as &$token) {
+            $tid = (int)$token->get('id');
+            if (in_array($tid, $toDelete, true)) {
+                $token->destroy();
+                unset($token);
+                continue;
+            }
+            $want = in_array($tid, $keepEnabled, true) ? '1' : '0';
+            if ($want !== (string)$token->get('enabled')) {
+                $token->set('enabled', $want)->save();
+            }
+            unset($token);
+        }
+        return true;
     }
     /**
      * Present the roles tab.

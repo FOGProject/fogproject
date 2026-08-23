@@ -1559,14 +1559,16 @@ class Route extends FOGBase
     /**
      * Reads an RFC 6750 Bearer credential from the Authorization header.
      *
-     * The value is the same per-user API token the fog-user-token header
-     * carries, sent the standard way and with the same base64 encoding the
-     * API tab displays. Deliberately not raw: a 128-character hex token is
-     * ITSELF valid base64 (a-f and 0-9 are all in the alphabet), so a strict
-     * decode of one succeeds and cannot be told apart from an encoded token.
-     * Accepting both spellings would therefore mean two lookups per request
-     * to resolve an ambiguity we do not have to create. Send exactly what
-     * the UI shows.
+     * The value is an APIToken -- a `fog_`-prefixed string shown once at
+     * creation -- sent EXACTLY as issued, with no encoding applied.
+     *
+     * It is deliberately not base64, and this is the one place the two token
+     * systems visibly differ. users.uAPIToken is base64 in its header
+     * because the UI displays it that way and always has. An APIToken is
+     * displayed once, by us, so the string the user copies can simply be the
+     * string the server wants -- there is nothing to encode and nothing to
+     * get wrong. Since Bearer accepts only APITokens (ADR 0027), no
+     * ambiguity arises from the two spellings.
      *
      * REDIRECT_HTTP_AUTHORIZATION is read for the reason _basicAuthCredentials
      * explains -- under FastCGI the Authorization header does not arrive on
@@ -1600,40 +1602,38 @@ class Route extends FOGBase
             if ('' !== $rest && !preg_match('/^\s/', $rest)) {
                 continue;
             }
-            $rest = trim($rest);
-            if ('' === $rest) {
-                return '';
-            }
-            // strict base64 decode: a malformed header is not a credential,
-            // but it IS an attempt -- return '' rather than null so the
-            // caller refuses it instead of falling through to another scheme.
-            $decoded = base64_decode($rest, true);
-            if ($decoded === false) {
-                return '';
-            }
-            return trim($decoded);
+            // Returned as sent. An empty value is still an ATTEMPT -- ''
+            // rather than null -- so the caller refuses it instead of
+            // falling through to another scheme.
+            return trim($rest);
         }
         return null;
     }
     /**
      * Test Bearer authentication.
      *
-     * A per-user API token is a 512-bit random secret (FOGBase::createSecToken)
-     * and stands on its own, so a Bearer request does NOT additionally need
-     * the server-wide fog-api-token. HTTP basic auth still does: its
-     * credential is a human-chosen password, and that server-wide gate is
-     * the only thing keeping every FOG password from being a standalone API
+     * The ONLY credential accepted here is an APIToken (ADR 0027): a 512-bit
+     * CSPRNG secret, stored hashed, shown once, individually revocable. It
+     * stands on its own, so a Bearer request does NOT additionally need the
+     * server-wide fog-api-token. HTTP basic auth still does: its credential
+     * is a human-chosen password, and that server-wide gate is the only
+     * thing keeping every FOG password from being a standalone API
      * credential. The asymmetry is deliberate, and it is also forced -- one
      * Authorization header carries one credential, so the legacy two-header
      * pair has no Bearer spelling.
+     *
+     * users.uAPIToken is NOT accepted here, in any encoding. #1324 shipped
+     * an interim shape that did accept it; that is withdrawn deliberately
+     * rather than by oversight. It stays plaintext in the database and
+     * visible in the UI, which is exactly what a Bearer credential must not
+     * be -- so the two are separate credentials with separate properties,
+     * not two spellings of one. uAPIToken keeps working unchanged as
+     * fog-user-token beside fog-api-token, so nothing has to migrate.
      *
      * Once a Bearer credential is PRESENTED it decides the request. Falling
      * through to the other schemes would let a bad Bearer plus good legacy
      * headers still authenticate, which no real client does and which makes
      * a failure impossible to reason about from the status code.
-     *
-     * Nothing has to migrate: fog-api-token plus fog-user-token, and basic
-     * auth, are unchanged.
      *
      * @return bool Whether the request authenticated. False means no Bearer
      *              credential was offered -- a presented one that failed
@@ -1645,10 +1645,8 @@ class Route extends FOGBase
         if (null === $token) {
             return false;
         }
-        $user = self::getClass('User')
-            ->set('token', $token)
-            ->load('token');
-        if ($user->isValid() && $user->get('api')) {
+        $user = APIToken::resolve($token);
+        if (null !== $user) {
             // Bind the token's owner as the acting user so role-based
             // authorization applies, exactly as the fog-user-token path does.
             self::$FOGUser = $user;
@@ -1658,13 +1656,17 @@ class Route extends FOGBase
         // fog-user-token rejection is, and the presented token is NOT
         // written down -- a rejected credential is still a credential,
         // which is the mistake #1261/#1262 fixed in the SQL fault log.
+        //
+        // No subject: a refused token resolved to no owner, by definition of
+        // having been refused. Naming the account whose DISABLED token was
+        // tried would be useful, but it would mean a second lookup path that
+        // reports why a credential failed, and that is an oracle. "A bearer
+        // token was refused" is the honest fact.
         Audit::record(
             [
                 'type' => Audit::TOKEN_REJECTED,
                 'outcome' => Audit::DENIED,
                 'subjectType' => 'user',
-                'subjectID' => (int)$user->get('id'),
-                'subjectLabel' => (string)$user->get('name'),
                 'authSource' => 'bearer',
                 'renderable' => 1
             ]
@@ -6823,7 +6825,21 @@ class Route extends FOGBase
                     $findWhere = ['userID' => $itemIDs];
                     $removeItems = [
                         'roleuserassociation' => $findWhere,
-                        'usergroupmember' => $findWhere
+                        'usergroupmember' => $findWhere,
+                        // A token outlives its owner as a WORKING credential
+                        // if this is missed, which is why it goes here rather
+                        // than in User::destroy(): destroy() is only the UI
+                        // path, and the REST delete funnels to deletemass()
+                        // without ever calling it. That split is what left
+                        // orphans before (see the snapintask note below), and
+                        // an orphaned API token is a live way in belonging to
+                        // an account that no longer exists.
+                        //
+                        // APIToken::resolve() also refuses a token whose
+                        // owner will not load, so a future miss here fails
+                        // closed rather than authenticating as nobody. Both,
+                        // deliberately: this is the fix and that is the net.
+                        'apitoken' => $findWhere
                     ];
                     break;
                 case 'role':

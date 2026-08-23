@@ -7483,3 +7483,70 @@ $this->schema[] = [
     . "runner service. (Default /dev/tty3)','/dev/tty3',"
     . "'FOG Linux Service TTY Output')",
 ];
+
+// 359
+$this->schema[] = [
+    // ADR 0027: a Bearer token becomes its own credential, stored HASHED.
+    //
+    // users.uAPIToken stays exactly as it is -- plaintext, shown in the UI,
+    // sent as fog-user-token beside fog-api-token. That pair was sound
+    // because obtaining either half required an authenticated UI session, so
+    // a leaked half is not a way in. What broke that property was GH-1324
+    // making the same plaintext value a COMPLETE standalone credential, and
+    // the two disclosures found immediately after (GH-1325, GH-1326) are
+    // what a plaintext credential costs when any emitter forgets it.
+    //
+    // So this table is not a replacement for uAPIToken and there is no
+    // migration: nothing existing changes, and Bearer stops accepting
+    // uAPIToken once it accepts these instead. Each credential ends up with
+    // exactly one spelling.
+    //
+    // atHash is SHA-256 of the token, unsalted, and that is deliberate
+    // rather than an oversight. A salt defeats PRECOMPUTATION, which needs a
+    // guessable input; these are 512-bit CSPRNG secrets with no dictionary
+    // and no constructible table, so a salt buys nothing while costing the
+    // ability to look a token up by hash at all -- with a per-row salt you
+    // cannot compute the hash until you already know which row to check.
+    // CHAR(64) because hex SHA-256 is always 64 characters.
+    //
+    // THE INVARIANT THAT DECISION RESTS ON: the token must stay
+    // CSPRNG-generated and at least 256 bits. Shorten it, make it
+    // user-choosable, or derive it from anything predictable, and salting
+    // becomes necessary. See APIToken::generate().
+    //
+    // UNIQUE on atHash is integrity, not just an index: two rows sharing a
+    // hash would make a token ambiguous about who it authenticates as.
+    //
+    // atLastUsed is NULL-able and only ever written with a real datetime.
+    // FOG has a standing defect class where save() puts '' into a date
+    // column and the cleared sql_mode accepts it as 0000-00-00; "never
+    // used" has to stay distinguishable from "used at the epoch".
+    "CREATE TABLE IF NOT EXISTS `apiTokens` ("
+    . "`atID` INT NOT NULL AUTO_INCREMENT,"
+    // The owner. Every token acts with this user's roles -- there are no
+    // ownerless tokens, because FOG's authorization is entirely per-user and
+    // an unowned token would need a parallel permission model AND would
+    // blind auditLog, which keys every row off the acting user.
+    . "`atUserID` INT NOT NULL DEFAULT 0,"
+    // What the token is for, chosen by whoever created it. The point of N
+    // tokens per user is that one integration can be rotated without
+    // touching the others, which only works if you can tell them apart.
+    . "`atName` VARCHAR(255) NOT NULL DEFAULT '',"
+    . "`atHash` CHAR(64) NOT NULL DEFAULT '',"
+    // Per-token kill switch, independent of users.uAllowAPI. That flag
+    // governs fog-user-token and keeps doing exactly that; this one parks a
+    // single integration. Kept as a flag rather than only offering delete so
+    // a disabled row still says the token existed and when it was last used
+    // -- a deleted one leaves auditLog referring to something nobody can
+    // identify.
+    . "`atEnabled` ENUM('0','1') NOT NULL DEFAULT '1',"
+    . "`atCreatedTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+    . "`atCreatedBy` VARCHAR(255) NOT NULL DEFAULT '',"
+    . "`atLastUsed` DATETIME NULL DEFAULT NULL,"
+    . "PRIMARY KEY (`atID`),"
+    . "UNIQUE KEY `atHash` (`atHash`),"
+    . "KEY `atUserID` (`atUserID`)"
+    . ") ENGINE=InnoDB "
+    . "DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci "
+    . "ROW_FORMAT=DYNAMIC",
+];

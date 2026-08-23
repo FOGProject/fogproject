@@ -1061,6 +1061,10 @@ msgstr "grundlegende Tasks"
 msgid "Batch Script"
 msgstr ""
 
+#, fuzzy
+msgid "Bearer API Tokens"
+msgstr "API-Zugangstoken"
+
 msgid "Bind DN"
 msgstr "DN binden"
 
@@ -1570,6 +1574,9 @@ msgstr "Fehler: Herunterladen des Kernels fehlgeschlagen"
 msgid "Copy from existing"
 msgstr "Kopie von bereits existierenden"
 
+msgid "Copy this token now"
+msgstr ""
+
 msgid "Copyright"
 msgstr ""
 
@@ -1599,6 +1606,10 @@ msgstr "Nichts konnte gefunden werden"
 
 msgid "Could not find temp filename"
 msgstr "Temporärer Dateiname konnte nicht gefunden werden."
+
+#, fuzzy
+msgid "Could not issue the token!"
+msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Could not link plugin assets"
@@ -1848,6 +1859,10 @@ msgstr "Benutzer erfolgreich erstellt"
 
 msgid "Create tasking succeeded"
 msgstr ""
+
+#, fuzzy
+msgid "Created"
+msgstr "Erstellen"
 
 msgid "Created By"
 msgstr "Erstellt von"
@@ -4247,6 +4262,10 @@ msgstr "Ist ein Paket"
 msgid "Is a"
 msgstr "Ist ein"
 
+#, fuzzy
+msgid "Issue Token"
+msgstr "Token zurücksetzen"
+
 msgid "Issuer"
 msgstr ""
 
@@ -4491,6 +4510,10 @@ msgstr ""
 #, fuzzy
 msgid "Last Successful Ping"
 msgstr "Erfolgreich"
+
+#, fuzzy
+msgid "Last Used"
+msgstr "Zuletzt hochgeladen"
 
 msgid "Last flush"
 msgstr ""
@@ -5057,6 +5080,9 @@ msgstr ""
 msgid "Name"
 msgstr "Name"
 
+msgid "Name for a new token"
+msgstr ""
+
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Diff Parameter muss numerisch sein"
@@ -5369,6 +5395,9 @@ msgstr ""
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "Kein valides Image für diesen Host definiert"
+
+msgid "No tokens issued."
+msgstr ""
 
 msgid "No type information available for this column."
 msgstr ""
@@ -6853,6 +6882,9 @@ msgstr "Wählen Sie ein gültiges Abbild"
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "geplante Tasks wurde erfolgreich erstellt"
+
+msgid "Sent as an Authorization: Bearer header, on its own -- no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgstr ""
 
 msgid "Serial Number"
 msgstr "Seriennummer"
@@ -8433,6 +8465,9 @@ msgid "This is the catch-all site. Its members are in scope for everything, incl
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is the only time it will be shown. FOG stores only a hash of it and cannot show it again. If you lose it, delete this token and issue another."
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
