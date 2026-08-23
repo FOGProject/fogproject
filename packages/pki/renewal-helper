@@ -42,8 +42,9 @@ running install already expects them.
 
   --zone web          the certificate the web server (Apache) serves.
                       Reloads Apache afterward so it picks up the new cert.
-                      Refuses if the leaf is ACME-managed (acmeLeaf=yes) --
-                      renew that one through your ACME client instead.
+                      Refuses if the leaf is managed outside FOG -- i.e. the
+                      canonical path resolves outside the web PKI zone. Renew
+                      that one through whatever issues it.
 
   --zone secureboot   the code-signing leaf fog-sign-kernel signs with.
                       No reload needed and no firmware re-enrollment --
@@ -74,10 +75,19 @@ done
 # .fogsettings is the source of truth for where this install keeps things and
 # what it's already using for each zone's leaf -- the same file installfog.sh
 # itself reads and writes. Sourcing it (rather than re-deriving paths) is what
-# keeps this in sync with a server that customized sslprivkey/sslpubcert, and
-# with whichever CA installfog.sh already resolved for the web leaf (its own
-# Web intermediate, or the root directly, on a server whose root can't anchor
-# one).
+# keeps this in sync with a server that pointed PKI_web_vhost_key/_cert
+# somewhere of its own, and with whichever CA installfog.sh already resolved for
+# the web leaf (its own Web intermediate, or the root directly, on a server
+# whose root can't anchor one).
+#
+# The key names below are the GH-1120 ones. This script was missed by that
+# rename and went on reading sslpath, sslprivkey, sslpubcert, sslcakey,
+# sslcapem, sslcachain, rootCAPem, hostname, osid and acmeLeaf -- every one of
+# which deprecatedKeys now STRIPS from .fogsettings. So each read produced an
+# empty string and fell through to a default: correct only on a server that had
+# customised nothing, and silently wrong on any other. $fogprogramdir is the one
+# old spelling that is still right, because /etc/fog/fog.conf is deliberately
+# exempt from the rename.
 if [[ -r $CONF ]]; then
     # shellcheck disable=SC1090
     . "$CONF"
@@ -86,17 +96,30 @@ elif [[ -r /etc/fog/fog.conf ]]; then
     [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
 fi
 : "${fogprogramdir:=/opt/fog}"
-: "${sslpath:=${fogprogramdir}/snapins/ssl}"
+# The shared openssl config both issuing zones read. Moved out of
+# $snapindir/ssl with the client keypair; installfog.sh's _pkiConfDir is the
+# authority on this path.
+: "${pkiconfdir:=${fogprogramdir}/pki/conf}"
 
 _reissueWeb() {
-    if [[ ${acmeLeaf:-} == yes ]]; then
-        echo "Refusing: this web certificate is externally managed (acmeLeaf=yes)." >&2
-        echo "Renew it through your ACME client instead." >&2
+    local key="${PKI_web_vhost_key:-${fogprogramdir}/pki/web/leaf/.webLeaf.key}"
+    local cert="${PKI_web_vhost_cert:-${fogprogramdir}/pki/web/leaf/.webLeaf.pem}"
+    local cakey="${PKI_web_ca_key:-}" capem="${PKI_web_ca_cert:-}"
+    # "Is this leaf mine?" is a question for the filesystem, not a stored key.
+    # GH-1120 retired acmeLeaf for exactly the reason it mattered here: it had to
+    # be typed in by hand and nothing re-checked it. The canonical path
+    # resolving outside the web zone IS the signal -- the same test
+    # _externallyManagedLeaf() makes in the installer.
+    local zonedir target
+    zonedir="$(readlink -f "${fogprogramdir}/pki/web" 2>/dev/null)"
+    target="$(readlink -f "$cert" 2>/dev/null)"
+    if [[ -n $zonedir && -n $target && $target != "$zonedir"/* ]]; then
+        echo "Refusing: this web certificate is managed outside FOG." >&2
+        echo "  ${cert}" >&2
+        echo "  resolves to ${target}, which is outside ${zonedir}." >&2
+        echo "Renew it through whatever issues it (an ACME client, your CA)." >&2
         return 1
     fi
-    local key="${sslprivkey:-${fogprogramdir}/pki/web/leaf/.webLeaf.key}"
-    local cert="${sslpubcert:-${fogprogramdir}/pki/web/leaf/.webLeaf.pem}"
-    local cakey="${sslcakey:-}" capem="${sslcapem:-}"
     if [[ -z $cakey || -z $capem ]]; then
         echo "Cannot renew: this install hasn't resolved a web signing CA yet." >&2
         echo "Run installfog.sh at least once before using this script." >&2
@@ -108,8 +131,8 @@ _reissueWeb() {
         echo "Restore it there, then re-run this script." >&2
         return 1
     fi
-    if [[ ! -f "$sslpath/req.cnf" || ! -f "$sslpath/ca.cnf" ]]; then
-        echo "Cannot renew: ${sslpath}/req.cnf or ca.cnf is missing." >&2
+    if [[ ! -f "$pkiconfdir/req.cnf" || ! -f "$pkiconfdir/ca.cnf" ]]; then
+        echo "Cannot renew: ${pkiconfdir}/req.cnf or ca.cnf is missing." >&2
         echo "Run installfog.sh once to generate them, then re-run this script." >&2
         return 1
     fi
@@ -121,11 +144,11 @@ _reissueWeb() {
     openssl genrsa -out "$key" 4096 >/dev/null 2>&1 || st=1
     echo "Issuing a new web certificate, signed by ${capem}..."
     openssl req -new -sha512 -key "$key" -out "${leafdir}/.webLeaf.csr" \
-        -config "$sslpath/req.cnf" \
-        -subj "/CN=${hostname:-}/O=FOG Project/OU=FOG Web UI" >/dev/null 2>&1 || st=1
+        -config "$pkiconfdir/req.cnf" \
+        -subj "/CN=${NET_hostname:-}/O=FOG Project/OU=FOG Web UI" >/dev/null 2>&1 || st=1
     openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "$capem" -CAkey "$cakey" \
         -CAcreateserial -out "$cert" -days 1825 -extensions v3_ca \
-        -extfile "$sslpath/ca.cnf" >/dev/null 2>&1 || st=1
+        -extfile "$pkiconfdir/ca.cnf" >/dev/null 2>&1 || st=1
     if [[ $st -ne 0 ]]; then
         echo "Failed -- see openssl's output above." >&2
         return 1
@@ -136,9 +159,15 @@ _reissueWeb() {
     # Same stamp _createWebLeaf writes, so the next installfog.sh run doesn't
     # mistake this fresh cert for one that needs re-issuing over a name-set
     # mismatch that was never there.
-    openssl md5 < "$sslpath/ca.cnf" 2>/dev/null > "${leafdir}/.webLeaf.sans"
-    if [[ -n ${sslcachain:-} && -f $sslcachain ]] && \
-        ! openssl verify -CAfile "${rootCAPem:-}" -untrusted "$sslcachain" "$cert" >/dev/null 2>&1; then
+    openssl md5 < "$pkiconfdir/ca.cnf" 2>/dev/null > "${leafdir}/.webLeaf.sans"
+    # Anchored on the web zone's own trust anchor, which _resolveTrustAnchor
+    # writes with BOTH the FOG root and an external root where there is one --
+    # so this verifies on an external-CA install too, where PKI_root_ca_cert
+    # alone cannot complete the chain.
+    local anchor="${fogprogramdir}/pki/web/ca/.trustAnchor.pem"
+    [[ -f $anchor ]] || anchor="${PKI_root_ca_cert:-}"
+    if [[ -n ${PKI_web_trust_chain:-} && -f ${PKI_web_trust_chain} && -n $anchor ]] && \
+        ! openssl verify -CAfile "$anchor" -untrusted "${PKI_web_trust_chain}" "$cert" >/dev/null 2>&1; then
         echo "WARNING: the new certificate does not verify against its chain." >&2
         echo "Its name set may no longer be permitted by the Web CA's nameConstraints" >&2
         echo "-- re-run installfog.sh with the current --hostname/--extra-server-name" >&2
@@ -147,7 +176,7 @@ _reissueWeb() {
     echo "New web certificate issued, valid 5 years: ${cert}"
     if command -v systemctl >/dev/null 2>&1; then
         local svc="httpd"
-        [[ ${osid:-} -eq 2 ]] && svc="apache2"
+        [[ ${FOG_os_id:-} -eq 2 ]] && svc="apache2"
         echo "Reloading ${svc} so it picks up the new certificate..."
         systemctl reload "$svc" >/dev/null 2>&1 || systemctl restart "$svc" >/dev/null 2>&1 || \
             echo "WARNING: could not reload/restart ${svc} -- reload it yourself." >&2

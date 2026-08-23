@@ -82,9 +82,14 @@ seedNeighbours() {
     echo "legacy-ca"           > "${PKI_client_cert_dir}/CA/.fogCA.pem"
     echo "an-admins-snapin-cert" > "${PKI_client_cert_dir}/snapin-upload.crt"
 }
+# What must STAY in $snapindir/ssl. req.cnf, ca.cnf, fog.csr and dhparam.pem all
+# move now -- see _relocatePkiConf and the fog.csr line in
+# _resolveClientLeafPaths -- so the only thing left to protect here is the
+# legacy CA/ tree (the root certificate genuinely lives there) and whatever
+# snapin material the admin put beside it, which is the whole point of the move.
 neighboursIntact() {
     local f bad=""
-    for f in req.cnf ca.cnf fog.csr dhparam.pem CA/.fogCA.pem snapin-upload.crt; do
+    for f in CA/.fogCA.pem snapin-upload.crt; do
         [[ -f "${PKI_client_cert_dir}/${f}" && ! -L "${PKI_client_cert_dir}/${f}" ]] \
             || bad="$bad $f"
     done
@@ -154,6 +159,45 @@ is "$(readlink -f "${PKI_client_cert_dir}/.srvprivate.key")" \
    "$(readlink -f "$ZONE/.srvprivate.key")" \
    "upgrade: the canonical name still resolves to the key"
 is "$(neighboursIntact)" "" "upgrade: every neighbouring file is untouched"
+
+# --- C2. and the rest of the material lands in its own new home -------------
+# Asserting where each file WENT, not merely that it left $snapindir/ssl. The
+# destinations differ on purpose: fog.csr is the client leaf's own request,
+# req.cnf/ca.cnf are the shared name set BOTH issuing zones read, and
+# dhparam.pem is web-server TLS parameters the vhost names directly.
+_relocatePkiConf
+CONFDIR="$fogprogramdir/pki/conf"
+is "$(cat "$ZONE/fog.csr" 2>/dev/null)" "client-csr" \
+   "upgrade: fog.csr moved into the client leaf dir"
+is "$(cat "$CONFDIR/req.cnf" 2>/dev/null)" "shared-req-config" \
+   "upgrade: req.cnf moved into pki/conf (shared, not client-owned)"
+is "$(cat "$CONFDIR/ca.cnf" 2>/dev/null)" "shared-ca-config" \
+   "upgrade: ca.cnf moved into pki/conf"
+is "$(cat "$fogprogramdir/pki/web/dhparam.pem" 2>/dev/null)" "dhparams" \
+   "upgrade: dhparam.pem moved into the web zone"
+# Gone from the old location, so nothing can go on reading a stale copy.
+moved=""
+for f in fog.csr req.cnf ca.cnf dhparam.pem; do
+    [[ -e "${PKI_client_cert_dir}/${f}" ]] && moved="$moved $f"
+done
+is "$moved" "" "upgrade: none of them is left behind in \$snapindir/ssl"
+# No compat symlinks for these, unlike the keypair: every reader is FOG's own
+# code, updated with the move. A link would be a second name with one reader.
+links=""
+for f in fog.csr req.cnf ca.cnf dhparam.pem; do
+    [[ -L "${PKI_client_cert_dir}/${f}" ]] && links="$links $f"
+done
+is "$links" "" "upgrade: and no compatibility symlinks were left for them"
+# ca.cnf's BYTES must survive the move: _createWebLeaf hashes this file into
+# .webLeaf.sans to decide whether the web leaf's name set changed, so altering
+# it here would re-issue every server's web certificate for no reason.
+is "$(sha256sum < "$CONFDIR/ca.cnf")" "$(printf 'shared-ca-config\n' | sha256sum)" \
+   "upgrade: ca.cnf's bytes are unchanged, so the SAN stamp stays valid"
+# Idempotent: a second pass has nothing to move and must not disturb what it
+# finds.
+_relocatePkiConf
+is "$(cat "$CONFDIR/ca.cnf" 2>/dev/null)" "shared-ca-config" \
+   "a second relocation pass changes nothing"
 
 # --- D. THE TRAP: _separateCommKey must not eat its own compat link ---------
 # _separateCommKey dereferences a symlink at the canonical name and copies the

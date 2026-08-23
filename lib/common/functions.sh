@@ -4551,6 +4551,14 @@ _installNodeCertSigner() {
         echo "PKI_WEB_CA_CERT=${PKI_web_ca_cert}"
         echo "PKI_WEB_CA_KEY=${PKI_web_ca_key}"
         echo "PKI_ROOT_CERT=${PKI_root_ca_cert}"
+        # What the web zone is actually anchored by, and the chain a node should
+        # serve beneath its leaf. Both differ from PKI_ROOT_CERT as soon as the
+        # admin supplies their own Web CA: the FOG root never signed that
+        # intermediate, so it can neither verify what this helper issues nor
+        # belong in what the node serves. .trustAnchor.pem carries the FOG root
+        # AND an imported root where there is one, so it is correct either way.
+        echo "PKI_WEB_ANCHOR=$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+        echo "PKI_WEB_CHAIN=${PKI_web_trust_chain}"
         if [[ -f $sbca ]]; then
             echo "PKI_SB_CA_CERT=${sbca}"
             echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
@@ -6384,6 +6392,22 @@ _pkiZoneDir() {
         secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
     esac
 }
+# The shared openssl configuration both issuing zones read.
+#
+# req.cnf (the CSR's subject and SANs) and ca.cnf (the v3 extensions written
+# into a signed certificate) are NOT client-zone material, even though they
+# lived in $snapindir/ssl next to the comm keypair. Each is read by the client
+# comm leaf AND the web leaf, and by packages/pki/renewal-helper -- one name set,
+# so the two zones can never disagree about which names this server answers to.
+# Putting them under a zone would make one zone's directory a dependency of
+# another's issuance.
+#
+# Deliberately not a zone token in _pkiZoneDir: conf/ holds no keys and no
+# certificates, so giving it the ca/+leaf/ shape the zones have would say
+# something false about it.
+_pkiConfDir() {
+    echo "${fogprogramdir}/pki/conf"
+}
 # The client zone's leaf directory, and the compatibility links that keep the
 # canonical names working.
 #
@@ -6402,12 +6426,10 @@ _pkiZoneDir() {
 # symlink on purpose -- symlinking the whole directory would put snapin uploads
 # straight back beside the keypair, which is the thing being fixed.
 #
-# Everything else in that directory stays put, and this is not laziness: req.cnf
-# and ca.cnf are read by the WEB leaf's issuance too and by packages/pki/
-# renewal-helper, fog.csr is replicated to storage nodes by
-# SnapinReplicator, dhparam.pem is named in the emitted nginx config, and the
-# legacy CA/ tree is read by the web UI to report offline-key state. Each is its
-# own contract with something outside the installer.
+# The rest of what used to sit in that directory moves too, but not all into
+# this zone -- see _relocatePkiConf. Only the legacy CA/ tree stays behind: the
+# root certificate genuinely lives there (pki/root/ca/.fogCA.pem is a symlink to
+# it) and the web UI reads it to report offline-key state.
 _resolveClientLeafPaths() {
     local leafdir f
     leafdir="$(_pkiZoneDir client)/leaf"
@@ -6432,6 +6454,44 @@ _resolveClientLeafPaths() {
         "${leafdir}/.srvprivate.key" "${PKI_client_cert_dir}/.srvprivate.key")"
     PKI_client_encrypt_cert="$(_clientLeafTarget "${PKI_client_encrypt_cert}" \
         "${leafdir}/.srvpublic.crt" "${PKI_client_cert_dir}/.srvpublic.crt")"
+    # The comm leaf's own CSR belongs with the leaf it requested.
+    [[ -f "${PKI_client_cert_dir}/fog.csr" && ! -e "${leafdir}/fog.csr" ]] \
+        && mv "${PKI_client_cert_dir}/fog.csr" "${leafdir}/fog.csr" >>$error_log 2>&1
+    return 0
+}
+# Move the shared openssl config, and the web server's DH parameters, out of
+# $snapindir/ssl.
+#
+# No compatibility symlinks for these, unlike the keypair, and the difference is
+# the point: nothing outside FOG's own code reads them. The keypair's canonical
+# names are baked into FOGBase, so they had to keep resolving; these three are
+# named only by this installer, by packages/pki/renewal-helper (updated with
+# them) and by the vhost this installer writes. A symlink would be a second name
+# for a file with one reader.
+#
+# The CONTENTS of ca.cnf are unchanged by moving it, which matters more than it
+# looks: _createWebLeaf stamps .webLeaf.sans with a hash of this file to decide
+# whether the web leaf's name set changed. Moving the file without touching its
+# bytes leaves that stamp valid, so no server re-issues its web certificate over
+# this.
+_relocatePkiConf() {
+    local confdir webdir f
+    confdir="$(_pkiConfDir)"
+    webdir="$(_pkiZoneDir web)"
+    mkdir -p "$confdir" "$webdir" >>$error_log 2>&1
+    # Readable: openssl reads these as root, but the renewal helper and an admin
+    # inspecting the name set do too, and they hold no secrets.
+    chmod 0755 "$confdir" >>$error_log 2>&1
+    for f in req.cnf ca.cnf; do
+        [[ -f "${PKI_client_cert_dir}/${f}" && ! -e "${confdir}/${f}" ]] \
+            && mv "${PKI_client_cert_dir}/${f}" "${confdir}/${f}" >>$error_log 2>&1
+        [[ -f "${confdir}/${f}" ]] && chmod 0644 "${confdir}/${f}" >>$error_log 2>&1
+    done
+    # dhparam.pem is web-server TLS parameters -- the nginx vhost names it
+    # directly -- so it belongs in the web zone rather than beside the snapins.
+    [[ -f "${PKI_client_cert_dir}/dhparam.pem" && ! -e "${webdir}/dhparam.pem" ]] \
+        && mv "${PKI_client_cert_dir}/dhparam.pem" "${webdir}/dhparam.pem" >>$error_log 2>&1
+    return 0
 }
 # Where one half of the comm keypair actually lives: FOG's own zone path, or a
 # file the admin named with --client-cert/--client-key.
@@ -7309,9 +7369,9 @@ _createCommLeaf() {
     # Signed by the ROOT, not by an intermediate. fog-client pins the root and
     # fetches this certificate directly; giving it its own intermediate would
     # add a chain the client has no reason to walk.
-    openssl x509 -req -in "${PKI_client_cert_dir}/fog.csr" -CA "${PKI_root_ca_cert}" -CAkey "${PKI_root_ca_key}" \
+    openssl x509 -req -in "$(_pkiZoneDir client)/leaf/fog.csr" -CA "${PKI_root_ca_cert}" -CAkey "${PKI_root_ca_key}" \
         -CAcreateserial -sha512 -days 3650 -extensions v3_ca \
-        -extfile "${PKI_client_cert_dir}/ca.cnf" -out "${PKI_client_encrypt_cert}" >>$error_log 2>&1 || st=1
+        -extfile "$(_pkiConfDir)/ca.cnf" -out "${PKI_client_encrypt_cert}" >>$error_log 2>&1 || st=1
     chmod 0644 "${PKI_client_encrypt_cert}" >>$error_log 2>&1
     errorStat $st
 }
@@ -7656,7 +7716,7 @@ _createWebLeaf() {
     # NAMES had not changed. The install reported success and the vhost went on
     # serving a certificate signed by the CA that had just been replaced, with
     # nothing anywhere saying so.
-    want=$( { cat "${PKI_client_cert_dir}/ca.cnf" 2>/dev/null
+    want=$( { cat "$(_pkiConfDir)/ca.cnf" 2>/dev/null
               openssl x509 -in "${PKI_web_ca_cert}" -noout -fingerprint -sha256 2>/dev/null
             } | openssl md5 2>/dev/null)
     if [[ -e ${PKI_web_vhost_cert} && -e $stamp && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
@@ -7671,14 +7731,14 @@ _createWebLeaf() {
     # the same file req.cnf's comm-leaf CSR (below) also reads, so the two
     # never diverge on names, only on subject.
     openssl req -new -sha512 -key "${PKI_web_vhost_key}" -out "${leafdir}/.webLeaf.csr" \
-        -config "${PKI_client_cert_dir}/req.cnf" \
+        -config "$(_pkiConfDir)/req.cnf" \
         -subj "/CN=${NET_hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
     # 5 years: short enough that a compromised leaf key ages out on its own,
     # long enough not to need automatic renewal. renewal-helper (packages/pki)
     # exists for an admin who wants to rotate it sooner.
     openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "${PKI_web_ca_cert}" -CAkey "${PKI_web_ca_key}" \
         -CAcreateserial -out "${PKI_web_vhost_cert}" -days 1825 -extensions v3_ca \
-        -extfile "${PKI_client_cert_dir}/ca.cnf" >>$error_log 2>&1 || st=1
+        -extfile "$(_pkiConfDir)/ca.cnf" >>$error_log 2>&1 || st=1
     [[ $st -eq 0 ]] && echo "$want" > "$stamp"
     chmod 0600 "${PKI_web_vhost_key}" >>$error_log 2>&1
     chmod 0644 "${PKI_web_vhost_cert}" >>$error_log 2>&1
@@ -8138,6 +8198,10 @@ createSSLCA() {
     PKI_client_cert_dir=${PKI_client_cert_dir//\/$}
     [[ ! -d ${PKI_client_cert_dir} ]] && mkdir -p ${PKI_client_cert_dir} >>$error_log 2>&1
     [[ ! -d ${PKI_client_cert_dir}/CA ]] && mkdir -p ${PKI_client_cert_dir}/CA >>$error_log 2>&1
+    # Before anything reads or writes req.cnf/ca.cnf -- which is both zones'
+    # issuance below -- so an upgrade finds them where this run expects them and
+    # a fresh install has the directory to write into.
+    _relocatePkiConf
     _collectPkiNames
     _resolveRootCA
     # Detect-then-LINK, before anything below decides whether to issue a
@@ -8209,7 +8273,7 @@ createSSLCA() {
     # where a certificate has no DNS SAN at all OpenSSL falls back to matching
     # the subject CN against them -- and this CN is an IP literal. A leaf with
     # only IP SANs would be rejected by its own CA.
-    cat > ${PKI_client_cert_dir}/ca.cnf << EOF
+    cat > $(_pkiConfDir)/ca.cnf << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
@@ -8229,7 +8293,7 @@ EOF
     # .srvprivate.key not already existing, which is why upgrades never hit it.
     # With prompt = no the values below are taken literally, which is what they
     # were always meant to be.
-    cat > ${PKI_client_cert_dir}/req.cnf << EOF
+    cat > $(_pkiConfDir)/req.cnf << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -8262,7 +8326,7 @@ EOF
     # every line below reads.
     _separateCommKey
     _resolveClientLeafPaths
-    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_encrypt_key} || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_encrypt_key} || ! -e $(_pkiZoneDir client)/leaf/fog.csr ]]; then
         dots "Creating SSL Private Key"
         if [[ $(validip $certip) -ne 0 ]]; then
             echo -e "\n"
@@ -8295,7 +8359,7 @@ EOF
         # config and openssl reads nothing from stdin. Feeding it a line here
         # would be dead input, and it was the mismatch between that one line and
         # the number of prompted fields that broke fresh installs.
-        openssl req -new -sha512 -key ${PKI_client_encrypt_key} -out ${PKI_client_cert_dir}/fog.csr -config ${PKI_client_cert_dir}/req.cnf >>$error_log 2>&1
+        openssl req -new -sha512 -key ${PKI_client_encrypt_key} -out $(_pkiZoneDir client)/leaf/fog.csr -config $(_pkiConfDir)/req.cnf >>$error_log 2>&1
         errorStat $?
     fi
     _createCommLeaf
@@ -8497,8 +8561,12 @@ EOF
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         # Creates the diffie helman param file.
-                        if [[ ! -f ${PKI_client_cert_dir}/dhparam.pem ]]; then
-                            openssl dhparam -dsaparam -out ${PKI_client_cert_dir}/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        if [[ ! -f $(_pkiZoneDir web)/dhparam.pem ]]; then
+                            # The web zone dir normally exists by here, but a
+                            # storage node reaches this vhost writer without
+                            # having minted a Web CA, so nothing has created it.
+                            mkdir -p "$(_pkiZoneDir web)" >>$error_log 2>&1
+                            openssl dhparam -dsaparam -out $(_pkiZoneDir web)/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen ${NET_fog_server_ip}:443 ssl${nginxhttp2listen};" >> "$etcconf"
@@ -8508,7 +8576,7 @@ EOF
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
                         echo "    ssl_protocols TLSv1.2 TLSv1.3;" >> "$etcconf"
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
-                        echo "    ssl_dhparam ${PKI_client_cert_dir}/dhparam.pem;" >> "$etcconf"
+                        echo "    ssl_dhparam $(_pkiZoneDir web)/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
                         # nginx has no separate chain directive -- ssl_certificate must BE the
                         # concatenation. Falls back to the bare leaf when nothing sits between
@@ -8646,9 +8714,13 @@ EOF
                         echo "}" >> "$etcconf"
                         echo "Continued (See Below)"
                         # Creates the diffie helman param file.
-                        if [[ ! -f ${PKI_client_cert_dir}/dhparam.pem ]]; then
+                        if [[ ! -f $(_pkiZoneDir web)/dhparam.pem ]]; then
                             dots "Creating DHParam file"
-                            openssl dhparam -dsaparam -out ${PKI_client_cert_dir}/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            # See the other dhparam site: a storage node reaches
+                            # this without having minted a Web CA, so nothing has
+                            # created the zone directory.
+                            mkdir -p "$(_pkiZoneDir web)" >>$error_log 2>&1
+                            openssl dhparam -dsaparam -out $(_pkiZoneDir web)/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             echo "Done"
                         fi
                         dots "Setting up Nginx virtualhost${sslenabled}"
@@ -8671,7 +8743,7 @@ EOF
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
                         echo "    ssl_protocols TLSv1.2 TLSv1.3;" >> "$etcconf"
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
-                        echo "    ssl_dhparam ${PKI_client_cert_dir}/dhparam.pem;" >> "$etcconf"
+                        echo "    ssl_dhparam $(_pkiZoneDir web)/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
                         # nginx has no separate chain directive -- ssl_certificate must BE the
                         # concatenation. Falls back to the bare leaf when nothing sits between

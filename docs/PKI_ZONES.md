@@ -76,6 +76,11 @@ issues day to day) — everything is a dotfile (`ls -a`):
 root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
                                    .fogCA.pem is a symlink to wherever the
                                    certificate already lived before this split.
+conf/req.cnf                      the CSR subject and SANs, and the v3 extensions
+conf/ca.cnf                        written into a signed certificate. SHARED --
+                                   both issuing zones read them, so the two can
+                                   never disagree about the names this server
+                                   answers to. Also read by renewal-helper.
 client/leaf/.srvprivate.key       the client communication keypair, which every
 client/leaf/.srvpublic.crt         registered fog-client pins. The REAL files.
                                    0640 root:$apacheuser, in a 0710 directory --
@@ -84,9 +89,16 @@ client/leaf/.srvpublic.crt         registered fog-client pins. The REAL files.
                                    not 0700 root:root.
                                    $PKI_client_cert_dir/.srvprivate.key and
                                    .srvpublic.crt are symlinks to these.
+client/leaf/fog.csr               the comm leaf's own CSR, kept with the leaf it
+                                   requested.
 web/ca/.fogWebCA.{key,pem}        signs the vhost's certificate and node certificates
 web/ca/.fogWebCAchain.pem         CA + web intermediate
 web/leaf/.webLeaf.{key,pem}       what the web server actually serves
+web/ca/.trustAnchor.pem           what this server anchors the web zone on: the
+                                  FOG root, plus an imported root where there is
+                                  one, deduped by fingerprint
+web/dhparam.pem                   Diffie-Hellman parameters the nginx vhost
+                                  names directly
 secureboot/ca/.fogSBCA.{key,pem,der}  signs the code-signing leaf; .der is
                                   the same certificate MOK.der publishes, kept
                                   here so it can be verified without reaching
@@ -127,12 +139,66 @@ the keypair. The names have to keep resolving because `FOGBase::_decryptCheck()`
 builds `<sslpath>/.srvprivate.key` with the filename hardcoded, taking the
 directory from the storage-node database record rather than from `.fogsettings`.
 
-Only the keypair moved. `req.cnf` and `ca.cnf` are read by the web leaf's own
-issuance and by `packages/pki/renewal-helper`; `fog.csr` is replicated to storage
-nodes by `SnapinReplicator`; `dhparam.pem` is named in the emitted nginx config;
-and the legacy `CA/` tree is read by the web UI to report offline-key state. Each
-is a contract with something outside the installer, so relocating them is its own
-change.
+The rest of that directory moved too, and not all to the same place — where a
+file went says what it is:
+
+| File | New home | Why there |
+|---|---|---|
+| `fog.csr` | `pki/client/leaf/` | the comm leaf's own request, so it belongs with the leaf |
+| `req.cnf`, `ca.cnf` | `pki/conf/` | **shared** — the client leaf *and* the web leaf read both, so neither zone owns them, and putting them under one would make that zone's directory a dependency of the other's issuance |
+| `dhparam.pem` | `pki/web/` | web-server TLS parameters, named directly by the nginx vhost |
+
+None of these gets a compatibility symlink, and that is the difference from the
+keypair rather than an inconsistency: the keypair's canonical names are baked
+into `FOGBase`, so they had to keep resolving. These are named only by the
+installer, by `packages/pki/renewal-helper` (updated with them), and by the vhost
+the installer writes — a symlink would be a second name for a file with one
+reader.
+
+`ca.cnf`'s **bytes** are unchanged by the move, which matters more than it looks:
+`_createWebLeaf` hashes that file into `.webLeaf.sans` to decide whether the web
+leaf's name set changed. Moving it without touching its contents leaves the stamp
+valid, so no server re-issues its web certificate over this. Verified on a live
+upgrade: identical stamp, identical web-leaf and comm-leaf fingerprints.
+
+Only the legacy `CA/` tree stays behind. The root certificate genuinely lives
+there — `pki/root/ca/.fogCA.pem` is a symlink to it — and the web UI reads it to
+report offline-key state.
+
+`SnapinReplicator` no longer replicates `ssl/fog.csr` to storage nodes. It is the
+*master's* client-communication CSR, a request fulfilled long ago, and a node has
+no use for it: a node generates its own keypair and its own CSR and is issued a
+certificate by the master's Web CA (below). `ssl/CA` still replicates — that is
+the CA certificate, public trust material a node legitimately holds.
+
+## Storage node certificates
+
+A node never sends a private key anywhere. `_requestNodeCert()` generates a
+keypair and a CSR **on the node**, POSTs the CSR to the master's
+`service/nodecert.php`, and installs what comes back as its web vhost
+certificate. The master signs through `fog-sign-node-cert`, a root-only helper
+the web user may invoke but cannot hand paths to — every path comes from a
+root-owned config, which is what stops a compromised web tier naming its own CA
+key.
+
+**This works when the Web CA is an imported one, and did not before.** The helper
+used to append `PKI_ROOT_CERT` to the chain it returned and verify the freshly
+signed leaf against `PKI_ROOT_CERT` — the FOG root, which on a bring-your-own-CA
+server never signed that intermediate. `openssl verify` therefore could not build
+a chain and *every* node request was refused, with a message blaming name
+constraints for something that was never a name problem.
+
+Two config values fix it, and both are per-zone because the zones are not
+anchored by the same thing:
+
+| Value | Is | Why not `PKI_ROOT_CERT` |
+|---|---|---|
+| `PKI_WEB_ANCHOR` | `pki/web/ca/.trustAnchor.pem` | carries the FOG root **and** an imported root where there is one, so one path verifies on either kind of install |
+| `PKI_WEB_CHAIN` | `PKI_web_trust_chain` | already *is* issuer-plus-its-root, so it is the right thing for a node to serve beneath its leaf; building it from the FOG root appended an unrelated certificate |
+
+The Secure Boot zone keeps `PKI_ROOT_CERT` as its anchor, and that is not an
+oversight: there is no "bring your own Secure Boot root", because firmware trusts
+the enrolled certificate directly and nothing above it is ever consulted.
 
 `pki/root/leaf/` held discoverability symlinks to the keypair while it lived in
 the snapin directory. It is retired — a second set of links pointing at the first
@@ -233,6 +299,22 @@ nothing renews them automatically. To rotate either one sooner:
 /opt/fog/pki/renewal-helper --zone web
 /opt/fog/pki/renewal-helper --zone secureboot
 ```
+
+>[!warning]
+>This helper was **missed entirely by the GH-1120 key rename** and was broken on
+>every 1.6 server until it was fixed alongside the moves above. It read eleven
+>retired key names — `sslpath`, `sslprivkey`, `sslpubcert`, `sslcakey`,
+>`sslcapem`, `sslcachain`, `rootCAPem`, `hostname`, `osid` and `acmeLeaf` — all
+>of which `deprecatedKeys` *strips* from `.fogsettings`. Each read therefore
+>produced an empty string and fell through to a default: correct only on a server
+>that had customised nothing. `$fogprogramdir` is the one old spelling still
+>right, because `/etc/fog/fog.conf` is deliberately exempt from the rename.
+>
+>It also refused on `acmeLeaf=yes`, a key that no longer exists. It now asks the
+>filesystem the same question `_externallyManagedLeaf()` does — does the
+>canonical path resolve outside the web zone — and it verifies the reissued leaf
+>against `.trustAnchor.pem` rather than the FOG root, so it works on an
+>external-CA install too.
 
 The web leaf re-issues from the online Web CA (or the root directly, on a
 server whose root can't anchor an intermediate) and reloads Apache so it
