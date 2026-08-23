@@ -4858,6 +4858,10 @@ msgstr "Deve avere un nome per creare la tabella"
 msgid "MySQL Administrator or by running"
 msgstr "MySQL Administrator o eseguendo"
 
+#, fuzzy
+msgid "N for a full server, S for a storage node."
+msgstr "tutti i nodi di archiviazione attivi"
+
 msgid "N/A"
 msgstr "N/D"
 
@@ -5264,8 +5268,14 @@ msgstr "Nome Storage Node"
 msgid "Null when this is the last page."
 msgstr ""
 
+msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_name whose meaning has changed between releases; prefer FOG_os_name."
+msgstr ""
+
 msgid "O/S"
 msgstr "O / S"
+
+msgid "OS family name the installer recorded. The stable identifier of the two."
+msgstr ""
 
 msgid "OU"
 msgstr ""
@@ -6608,9 +6618,8 @@ msgstr "Server Shell"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
-#, fuzzy
-msgid "Server facts."
-msgstr "Informazione generale"
+msgid "Server facts. Every field is a string, and is empty rather than absent when the installer has not published it yet."
+msgstr ""
 
 #, fuzzy
 msgid "Server identity"
@@ -8135,6 +8144,12 @@ msgid "This server becomes the platform owner, so Microsoft's published CA certi
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
+msgstr ""
+
+msgid "This server's hostname, as its certificate names it."
+msgstr ""
+
+msgid "This server's own IP address. Space-separated when the interface carries more than one."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -10352,6 +10367,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+#~ msgid "Server facts."
+#~ msgstr "Informazione generale"
 
 #~ msgid "Site Association"
 #~ msgstr "Associazione Sito"
