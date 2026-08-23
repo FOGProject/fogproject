@@ -592,6 +592,32 @@ class Route extends FOGBase
      *
      * Inert in core: nothing here knows what a site is.
      *
+     * NO REENTRANCY GUARD HERE, AND THAT IS NOT AN OVERSIGHT.
+     *
+     * 1.6 fires this same event from Authorization and has to guard against
+     * asking a plugin for a boundary while already asking a plugin for a
+     * boundary, because there its HookManager primes its known-event cache
+     * with Route::getIds('hookevent') -- a scoped read, which arrives straight
+     * back here, with the cache assigned only AFTER that call returns, so the
+     * recursion has no floor. It exhausts memory rather than erroring, which
+     * is why it presents as a hung request rather than a stack trace.
+     *
+     * Neither half of that exists on this branch. HookManager primes from
+     * getSubObjectIDs('HookEvent', ...), a direct model read that never enters
+     * Route; and the site plugin's listener reads through getSubObjectIDs too,
+     * not getIds()/getNames(). So there is nothing to guard against today.
+     *
+     * What WOULD reintroduce it: a listener that computes its boundary by
+     * reading through Route::getIds()/getNames(), which is the obvious way to
+     * write one. If that ever lands, this needs the same in-progress flag
+     * Authorization carries on 1.6 -- set in a try/finally, so a listener that
+     * throws cannot leave the guard set and silently disable every plugin
+     * boundary for the rest of the request -- and the nested read is answered
+     * with core's boundary alone. That is the safe direction: the outer call
+     * still applies the plugin's, and a boundary only ever narrows, so the
+     * inner read is wider than the caller's answer and never wider than core
+     * allows.
+     *
      * @param string $classname The class being read.
      * @param string $idExpr    The object-id column, quoted and qualified.
      *
