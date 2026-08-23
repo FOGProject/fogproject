@@ -3186,7 +3186,6 @@ class Route extends FOGBase
                 $limit = 0;
             }
             $item = trim($item);
-            $like = '%' . $item . '%';
 
             $data = [];
             $data['_query'] = $item;
@@ -3207,30 +3206,23 @@ class Route extends FOGBase
                 ) {
                     continue;
                 }
+                // The search BOX labels a bucket `ipxe` and fills it from
+                // pxeMenu, which is what that box has always linked to.
+                // The remap stays here rather than moving into
+                // _searchRows(), because it is a property of this bucket
+                // and not of the class: Route::search('ipxe') asking for
+                // ipxeTable rows and being handed pxeMenu ids is exactly
+                // the GH-1290 defect, and search() no longer reads these
+                // buckets at all.
                 $searchfor = $search;
                 if ($search === 'ipxe') {
                     $searchfor = 'pxemenuoptions';
                 }
-                $classVars = self::getClass(
-                    $searchfor,
-                    '',
-                    true
-                );
-                // An entity with no `name` field has nothing for a universal
-                // search to match on or to label a result with. Skipped
-                // rather than special-cased, because this list is not ours
-                // alone: SEARCH_PAGES hands $searchPages to plugins BY
-                // REFERENCE and they append to it, so no amount of reading
-                // the core list can tell you what arrives here. The live
-                // example is the ntfy plugin, whose model is id/serverURL/
-                // topicEndpoint/credentials -- every unisearch emitted two
-                // "Undefined array key: name" warnings, built a SELECT with
-                // an empty backtick pair, got false back, and then
-                // foreach()ed over the false.
-                //
-                // Before the _lang stamp, so a skipped entity does not leave
-                // a heading behind for results it will never contribute.
-                if (!isset($classVars['databaseFields']['name'])) {
+                $rows = self::_searchRows($searchfor, $item, $limit);
+                // null = the entity has no name to search. Skipped BEFORE
+                // the _lang stamp, so it does not leave a heading behind
+                // for results it will never contribute.
+                if (null === $rows) {
                     continue;
                 }
                 $data['_lang'][$search] = (
@@ -3238,132 +3230,18 @@ class Route extends FOGBase
                     _($search) :
                     _('settings')
                 );
-                $j = $w = $g = '';
-                $params = ['item1' => $like, 'item2' => $like];
-                switch ($search) {
-                    case 'host':
-                        $j = "LEFT OUTER JOIN `hostMAC`
-                        ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
-                        $w = " OR `hostMAC`.`hmMAC` LIKE :item3";
-                        $params['item3'] = $like;
-                        $g = "GROUP BY `hosts`.`hostName`";
-                        break;
-                    case 'setting':
-                        // The value IS matched -- searching "bzImage" to find
-                        // FOG_TFTP_PXE_KERNEL is the point of searching
-                        // settings at all, and a key-only search can never
-                        // do it.
-                        //
-                        // What must not happen is confirming a CREDENTIAL
-                        // value. globalSettings is also where FOG keeps its
-                        // passwords, maskSensitiveSetting() strips their
-                        // value from this same user's API reads, and a hit
-                        // here would answer the question that masking
-                        // refuses -- repeatedly, a few characters at a time.
-                        // So a credential row that matched ONLY on its value
-                        // is dropped below, after the query.
-                        //
-                        // Dropped after rather than excluded in the WHERE on
-                        // purpose: an SQL-side exclusion needs a second copy
-                        // of isSensitiveSetting()'s rule (pattern, include
-                        // list, exempt list) written in a different dialect,
-                        // and the day the two drift nothing fails -- the
-                        // values just quietly become findable again. Calling
-                        // the real predicate keeps one rule in one place.
-                        $w = " OR `settingValue` LIKE :item3";
-                        $params['item3'] = $like;
-                        break;
-                    case 'storagenode':
-                        $w = " OR `ngmHostname` LIKE :item3";
-                        $params['item3'] = $like;
-                }
-                // Object scope, in the query.
-                //
-                // This is the route the search box calls, it takes an
-                // entity permission and no object scope, and its own route
-                // permission is null -- so any authenticated api user could
-                // read the id and name of every match on the server. The
-                // per-entity Authorization::can() check above is about WHICH
-                // ENTITIES may be searched, not which objects of them.
-                //
-                // PARENTHESISED, and that is the whole of the risk here: the
-                // match clause is a chain of ORs, so ANDing a boundary onto
-                // the end of it binds to the last OR arm only and every other
-                // arm keeps matching server-wide. The boundary has to wrap
-                // the disjunction, not join it.
-                $scopeWhere = self::_requestScopeWhere(
-                    $searchfor,
-                    "`{$classVars['databaseTable']}`."
-                    . "`{$classVars['databaseFields']['id']}`"
-                );
-                $sql = "SELECT `{$classVars['databaseFields']['id']}`,"
-                    . "`{$classVars['databaseFields']['name']}`
-                    FROM `{$classVars['databaseTable']}`
-                {$j}
-                WHERE (`{$classVars['databaseFields']['id']}` LIKE :item1
-                OR `{$classVars['databaseFields']['name']}` LIKE :item2
-                {$w})"
-                . (null === $scopeWhere ? '' : " AND {$scopeWhere}")
-                . "
-                {$g}";
-                if ($limit > 0) {
-                    $sql .= " LIMIT " . (int)$limit;
-                }
-                $vals = self::$DB->query(
-                    $sql,
-                    [],
-                    $params
-                )->fetch(
-                    \PDO::FETCH_ASSOC,
-                    'fetch_all'
-                )->get();
-                foreach ($vals as $val) {
-                    // Skip if the fields don't exist
-                    if (!($val[$classVars['databaseFields']['id']] ?? '')) {
-                        continue;
-                    }
-                    if (!($val[$classVars['databaseFields']['name']] ?? '')) {
-                        continue;
-                    }
+                foreach ($rows as $row) {
                     if (!self::$ajax) {
-                        $api = stripos(
-                            $val[$classVars['databaseFields']['name']],
-                            '_api'
-                        );
+                        $api = stripos($row['name'], '_api');
                         if (false !== $api) {
                             continue;
                         }
                     }
-                    // A credential setting that matched only on its VALUE is
-                    // dropped: returning it would confirm a substring of a
-                    // value maskSensitiveSetting() refuses to show. Matching
-                    // its key still returns it -- searching "PASSWORD" should
-                    // find FOG_TFTP_FTP_PASSWORD, that is not a secret.
-                    //
-                    // Recomputed here rather than asked of the query, because
-                    // SQL cannot say which OR arm matched. stripos is the
-                    // same substring test the bound '%term%' performs. Where
-                    // the two can disagree -- a term containing % or _, which
-                    // LIKE treats as a wildcard and stripos does not -- the
-                    // disagreement drops the row, which is the safe direction.
-                    if ('setting' === $search) {
-                        $sid = (string)$val[$classVars['databaseFields']['id']];
-                        $skey = (string)$val[$classVars['databaseFields']['name']];
-                        $visible = false !== stripos($sid, $item)
-                            || false !== stripos($skey, $item);
-                        if (!$visible && self::isSensitiveSetting($skey)) {
-                            continue;
-                        }
-                    }
-                    $data[$search][] = [
-                        'id' => $val[$classVars['databaseFields']['id']],
-                        'name' => $val[$classVars['databaseFields']['name']]
-                    ];
+                    $data[$search][] = $row;
                 }
                 if (array_key_exists($search, $data)) {
                     $data['_results'][$search] = count(isset($data[$search]) ? $data[$search] : []);
                 }
-                unset($items);
                 unset($search);
             }
             self::$HookManager->processEvent(
@@ -3374,6 +3252,184 @@ class Route extends FOGBase
         } catch (\Exception $e) {
             self::_sendCaught($e);
         }
+    }
+    /**
+     * The id/name rows of ONE class whose id or name matches a term.
+     *
+     * Extracted from unisearch()'s loop body so that search() can use it
+     * too. GH-1290: search() used to call unisearch() and then read the
+     * bucket keyed by its own class name out of the result, which made two
+     * separate defects inevitable.
+     *
+     *  - unisearch() iterates $searchPages (16 entries), not $validClasses
+     *    (51). A class with no bucket produced no ids, listem() matched
+     *    nothing, and the route answered 200 with recordsFiltered 0 --
+     *    indistinguishable from "no matches exist", for 17 classes.
+     *  - unisearch() remaps the MODEL for `ipxe` to `pxemenuoptions` but
+     *    keys the bucket `ipxe`, so search('ipxe') fed pxeMenu ids into a
+     *    lookup against ipxeTable. Those tables share nothing but an
+     *    integer, so it returned real rows that were not the rows asked
+     *    for -- wrong data presented as a match, silently, which is worse
+     *    than the empty case.
+     *
+     * Sharing the body rather than giving search() its own query is the
+     * point: THE GUARDS ARE IN HERE. A second implementation would need a
+     * second copy of the object-scope boundary and of the credential rule
+     * below, and the day the two drift nothing fails -- the rows just
+     * quietly become visible again.
+     *
+     * Returns NULL for a class that cannot be searched at all, and an empty
+     * array for one that can and matched nothing. Callers need the
+     * difference: unisearch() must not stamp a heading for results that
+     * can never arrive, and search() must not report "no matches" for a
+     * question it never asked.
+     *
+     * The `_api` filter is deliberately NOT applied here. Its two callers
+     * have different policies today -- unisearch() drops those names only
+     * when the request is not XHR, search() drops them always -- and
+     * folding that difference into a shared helper would change one of
+     * them silently.
+     *
+     * @param string $class The lowercase class to query.
+     * @param string $item  The term.
+     * @param int    $limit Row cap, 0 for none.
+     *
+     * @return array|null Rows of ['id' => , 'name' => ], or null if the
+     *                    class has no name field to search.
+     */
+    private static function _searchRows($class, $item, $limit = 0)
+    {
+        $classVars = self::getClass($class, '', true);
+        // An entity with no `name` field has nothing to match on or to
+        // label a result with. Not ours alone to enumerate, either:
+        // SEARCH_PAGES hands $searchPages to plugins BY REFERENCE and they
+        // append to it, so no amount of reading the core list tells you
+        // what arrives here. The live example is the ntfy plugin, whose
+        // model is id/serverURL/topicEndpoint/credentials -- every
+        // unisearch emitted two "Undefined array key: name" warnings,
+        // built a SELECT with an empty backtick pair, got false back, and
+        // then foreach()ed over the false.
+        if (!isset($classVars['databaseFields']['name'])) {
+            return null;
+        }
+        $item = trim($item);
+        $like = '%' . $item . '%';
+        $idCol = $classVars['databaseFields']['id'];
+        $nameCol = $classVars['databaseFields']['name'];
+
+        $j = $w = $g = '';
+        $params = ['item1' => $like, 'item2' => $like];
+        switch ($class) {
+            case 'host':
+                $j = "LEFT OUTER JOIN `hostMAC`
+                ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
+                $w = " OR `hostMAC`.`hmMAC` LIKE :item3";
+                $params['item3'] = $like;
+                $g = "GROUP BY `hosts`.`hostName`";
+                break;
+            case 'setting':
+                // The value IS matched -- searching "bzImage" to find
+                // FOG_TFTP_PXE_KERNEL is the point of searching settings
+                // at all, and a key-only search can never do it.
+                //
+                // What must not happen is confirming a CREDENTIAL value.
+                // globalSettings is also where FOG keeps its passwords,
+                // maskSensitiveSetting() strips their value from this same
+                // user's API reads, and a hit here would answer the
+                // question that masking refuses -- repeatedly, a few
+                // characters at a time. So a credential row that matched
+                // ONLY on its value is dropped below, after the query.
+                //
+                // Dropped after rather than excluded in the WHERE on
+                // purpose: an SQL-side exclusion needs a second copy of
+                // isSensitiveSetting()'s rule (pattern, include list,
+                // exempt list) written in a different dialect, and the day
+                // the two drift nothing fails -- the values just quietly
+                // become findable again. Calling the real predicate keeps
+                // one rule in one place.
+                $w = " OR `settingValue` LIKE :item3";
+                $params['item3'] = $like;
+                break;
+            case 'storagenode':
+                $w = " OR `ngmHostname` LIKE :item3";
+                $params['item3'] = $like;
+        }
+
+        // Object scope, in the query.
+        //
+        // Both routes that reach here take an entity permission and no
+        // object scope, so without this any authenticated api user could
+        // read the id and name of every match on the server. The
+        // per-entity Authorization::can() check in unisearch() is about
+        // WHICH ENTITIES may be searched, not which objects of them.
+        //
+        // PARENTHESISED, and that is the whole of the risk here: the match
+        // clause is a chain of ORs, so ANDing a boundary onto the end of it
+        // binds to the last OR arm only and every other arm keeps matching
+        // server-wide. The boundary has to wrap the disjunction, not join
+        // it.
+        $scopeWhere = self::_requestScopeWhere(
+            $class,
+            "`{$classVars['databaseTable']}`.`{$idCol}`"
+        );
+        $sql = "SELECT `{$idCol}`,`{$nameCol}`
+            FROM `{$classVars['databaseTable']}`
+        {$j}
+        WHERE (`{$idCol}` LIKE :item1
+        OR `{$nameCol}` LIKE :item2
+        {$w})"
+        . (null === $scopeWhere ? '' : " AND {$scopeWhere}")
+        . "
+        {$g}";
+        if ($limit > 0) {
+            $sql .= " LIMIT " . (int)$limit;
+        }
+        $vals = self::$DB->query(
+            $sql,
+            [],
+            $params
+        )->fetch(
+            \PDO::FETCH_ASSOC,
+            'fetch_all'
+        )->get();
+
+        $rows = [];
+        foreach ((array)$vals as $val) {
+            // Skip if the fields don't exist
+            if (!($val[$idCol] ?? '')) {
+                continue;
+            }
+            if (!($val[$nameCol] ?? '')) {
+                continue;
+            }
+            // A credential setting that matched only on its VALUE is
+            // dropped: returning it would confirm a substring of a value
+            // maskSensitiveSetting() refuses to show. Matching its key
+            // still returns it -- searching "PASSWORD" should find
+            // FOG_TFTP_FTP_PASSWORD, that is not a secret.
+            //
+            // Recomputed here rather than asked of the query, because SQL
+            // cannot say which OR arm matched. stripos is the same
+            // substring test the bound '%term%' performs. Where the two
+            // can disagree -- a term containing % or _, which LIKE treats
+            // as a wildcard and stripos does not -- the disagreement drops
+            // the row, which is the safe direction.
+            if ('setting' === $class) {
+                $sid = (string)$val[$idCol];
+                $skey = (string)$val[$nameCol];
+                $visible = false !== stripos($sid, $item)
+                    || false !== stripos($skey, $item);
+                if (!$visible && self::isSensitiveSetting($skey)) {
+                    continue;
+                }
+            }
+            $rows[] = [
+                'id' => $val[$idCol],
+                'name' => $val[$nameCol]
+            ];
+        }
+
+        return $rows;
     }
     /**
      * Presents the equivalent of a page's search.
@@ -3389,16 +3445,43 @@ class Route extends FOGBase
             $classname = strtolower($class);
             $classman = $classname . 'manager';
             self::$data = [];
-            self::unisearch($item);
-            $items = json_decode(self::getData());
+            // GH-1290: searches THIS class, rather than running the
+            // universal search and reading a bucket out of its result.
+            //
+            // The old shape could only ever answer for a class that
+            // unisearch() happened to have populated a bucket for -- and
+            // unisearch() iterates $searchPages (16), not $validClasses
+            // (51), and skips `task` outright. For the other 17 named
+            // classes $ids came back empty, listem() matched nothing, and
+            // this route answered 200 with recordsFiltered 0. Nothing
+            // errored and nothing was logged, so from the caller's side it
+            // was indistinguishable from "no matches exist" -- which is
+            // how a client ends up shipping code against a route that has
+            // never worked. It also fed `ipxe` searches a set of pxeMenu
+            // ids to look up in ipxeTable, returning real rows that were
+            // not the ones asked for.
+            //
+            // A null answer means the class has no name field to search
+            // on. That is left as an empty result rather than an error:
+            // the route is generic over every class, OpenAPI stopped
+            // ADVERTISING it for those classes in GH-1285, and turning a
+            // documented-as-absent operation into a new error response is
+            // a separate decision from making the working ones work.
+            $rows = (array)self::_searchRows($classname, $item);
             $ids = [];
-            foreach ((array)$items->{$classname} as &$obj) {
-                if (false != stripos($obj->name, '_api')) {
+            foreach ($rows as $row) {
+                // Dropped unconditionally here, unlike unisearch(), which
+                // only drops them for a non-XHR request. Preserved as it
+                // was rather than unified -- see _searchRows().
+                if (false != stripos($row['name'], '_api')) {
                     continue;
                 }
-                $ids[] = $obj->id;
-                unset($obj);
+                $ids[] = $row['id'];
             }
+            // An empty id list is NOT an unbounded query: filter() turns an
+            // empty array into `id = ''`, which matches no row. Worth
+            // knowing, because the alternative reading of an empty IN list
+            // is "return the whole table".
             self::listem($classname, ['id' => $ids]);
             self::$HookManager->processEvent(
                 'API_MASSDATA_MAPPING',

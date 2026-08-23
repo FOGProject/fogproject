@@ -478,26 +478,27 @@ class OpenAPI extends FOGBase
     /**
      * Whether /{class}/search/{item} can return anything for this class.
      *
-     * Route::search() does not query the class. It calls unisearch() and
-     * reads the class out of the result, and unisearch() skips any entity
-     * whose model has no `name` field -- such an entity has nothing to match
-     * on and nothing to label a result with. The route is still reachable
-     * for those classes: it answers 200 and reports recordsFiltered: 0 for
-     * every term, including terms that match a real row. Documenting it
-     * there advertises an operation the server cannot honour.
+     * An entity whose model has no `name` field has nothing to match on and
+     * nothing to label a result with, so Route::_searchRows() returns null
+     * for it and the route answers an empty set. Documenting search there
+     * advertises an operation the server cannot honour.
      *
-     * The test is deliberately the same isset() unisearch() applies, against
-     * the same reflected $databaseFields, rather than a list of class names
-     * written out here. $validClasses is mutated at runtime by the
-     * API_VALID_CLASSES hook, so a hand-kept list would silently mis-describe
-     * every class a plugin contributes -- and it would be a second copy of a
-     * rule that already has one home.
+     * The test is deliberately the same isset() Route::_searchRows()
+     * applies, against the same reflected $databaseFields, rather than a
+     * list of class names written out here. $validClasses is mutated at
+     * runtime by the API_VALID_CLASSES hook, so a hand-kept list would
+     * silently mis-describe every class a plugin contributes -- and it
+     * would be a second copy of a rule that already has one home.
      *
-     * A necessary condition, not a sufficient one. unisearch() also iterates
-     * $searchPages rather than $validClasses and skips 'task' outright, so
-     * some classes that pass this test still answer empty. Narrowing to that
-     * is a larger change to what the document claims and is tracked
-     * separately; this fixes the 20 classes the condition below settles.
+     * NECESSARY AND NOW SUFFICIENT. It used to be only necessary: search()
+     * ran the universal search and read a bucket out of its result, and
+     * unisearch() iterates $searchPages rather than $validClasses and skips
+     * `task`, so 17 classes passed this test and still answered empty
+     * (GH-1290). search() queries the named class directly now, so every
+     * class this returns true for genuinely answers. If that ever stops
+     * being true, the document starts lying again -- which is why
+     * tests/class-search-searches-its-class.test.php pins the two
+     * conditions to the same isset().
      *
      * @param string $class The lowercase route class name.
      *
