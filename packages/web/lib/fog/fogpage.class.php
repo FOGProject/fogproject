@@ -5670,6 +5670,25 @@ abstract class FOGPage extends FOGBase
         $dbcolumns = $obj->getColumns();
         $columns = [];
         $tableID = '';
+        /**
+         * Secrets never leave through the export, for the same reason they
+         * never leave through the API.
+         *
+         * The export posts to ?node=<x>&sub=getExportList -- the MANAGEMENT
+         * route -- so Route's emitter stripping never saw it, and the CSV
+         * shipped every user's API token and password hash, every host token,
+         * and a storage node's FTP password and key in the clear. That last
+         * pair is the GHSA-2hqx-5ffg-w4c3 credential class: holding it is
+         * holding the node. `visible: false` on the DataTables column hides
+         * the value on screen and does nothing to the payload.
+         *
+         * Same defect shape as GH-1323 -- one emitter stripped and its
+         * sibling did not -- so the fix is the same: strip AT the emitter,
+         * from the one list. unfilterableFields() unions both sensitive tiers
+         * and is fed by API_SENSITIVE_FIELDS, so a plugin's own secrets are
+         * covered here too and the two emitters cannot drift apart.
+         */
+        $secretColumns = Route::unfilterableFields($this->childClass);
         if ($this->childClass == 'Host') {
             $columns[] = [
                 'db' => 'hmMAC',
@@ -5682,6 +5701,9 @@ abstract class FOGPage extends FOGBase
         foreach ($dbcolumns as $common => &$real) {
             if ('id' == $common) {
                 $tableID = $real;
+                continue;
+            }
+            if (in_array($common, $secretColumns, true)) {
                 continue;
             }
             $column = [

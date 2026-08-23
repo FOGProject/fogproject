@@ -15,8 +15,6 @@
         {data: 'ip'},
         {data: 'maxClients'},
         {data: 'user', visible: false},
-        {data: 'pass', visible: false},
-        {data: 'key', visible: false},
         {data: 'interface'},
         {data: 'bandwidth', visible: false},
         {data: 'webroot'},
