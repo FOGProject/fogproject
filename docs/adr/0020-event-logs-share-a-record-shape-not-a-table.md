@@ -2,7 +2,7 @@
 
 ## Status
 
-accepted -- phases 0, 1 and 2 of the Migration section are implemented on
+accepted -- all five phases of the Migration section are implemented on
 `working-1.6`
 
 Phases 0 and 1 are the ones the ADR marks as worth doing whatever happens to
@@ -24,8 +24,200 @@ tested rather than assumed, against a copy of a real database -- 2,256
 of both steps was a no-op, and a write through each model left all seven
 columns untouched.
 
-Phases 3 to 5 -- writers, then readers, then the backfill and the index drop
--- are **not** started. Phase 4 is what gates ADR 0023's item 5.
+Phase 3 maps the seven columns onto the frame's friendly keys and fills them:
+`History` gains `type`/`subjectType`/`subjectID`/`subjectLabel` and five
+`TYPE_` constants, `UserTracking` gains `createdBy`/`ip`/`subjectLabel`, and
+`FOGBase::logHistory()` takes an optional frame that its five callers pass --
+four in `FOGController` (save and destroy, success and failure) and one in
+`FOGBase::log()`. **No reader changed**, which is the phase boundary: a row
+written now carries the prose *and* the structure, so a revert is a code
+revert.
+
+Two details worth keeping visible because they are invisible from anywhere but
+the row:
+
+- `userTracking`'s actor is filled by `save()`'s auto-fill and by no writer.
+  Mapping the column to the key `createdBy` is the entire mechanism, which is
+  Decision 3 -- `UserTrack::json()` deliberately does not set it, so a
+  fog-client row records `'fog'` rather than whichever operator happened to be
+  signed in.
+- An absent frame key is left unset rather than defaulted, so
+  `history.hSubjectID` stays NULL on a subjectless row. Writing 0 there is a
+  real id pointing at nothing, and the table has no foreign key to catch it.
+
+Proven against a lab copy at schema 353 rather than asserted, the same way
+phase 2's inertness was: a real `Host` save wrote `hType='update'` with the
+class, id and name as its subject and the prose unchanged beside it;
+`FOGBase::log()` wrote `hType='log'` with `hSubjectID` NULL; and
+`UserTrack::json()` filled `utIP` and `utHostName` from the real client
+endpoint. `tests/event-frame-writers.test.php` pins the halves CI can see
+without a database -- the field maps, the constants, and that every call site
+passes a type.
+
+Phase 4 switches the readers. `history` gains a `summary` output column built
+at render from the row's type and subject, so a row reads in the language of
+whoever is looking rather than whoever triggered it; the activity viewer and
+the legacy History Report both display it. `userTracking` and `taskLog` render
+the host name from their stored copy when the host is gone, which is what
+phase 2 added the column for -- `Route::deletemass('host')` leaves both
+tables' rows in place and the grid resolved the name live, so a deleted host's
+rows rendered a blank name forever. The live name still wins where the host
+exists, so a rename shows immediately.
+
+Three choices inside phase 4 worth stating, because each has a plausible
+alternative that reads as equivalent and is not:
+
+- **`summary` is a NEW output column; `info` is untouched.** `info` is `hText`
+  and keeps returning the stored string, so anything reading the REST list is
+  unaffected, the search filter still matches real column text, and a legacy
+  row's prose is still reachable beside the summary in the detail pane.
+  Rewriting `info`'s meaning underneath its consumers would have been a
+  smaller diff and a worse change. `summary` is neither orderable nor
+  searchable, because there is nothing in the database to sort or match it
+  against.
+- **Failure rows do not try to carry the error text.** The error exists only
+  inside the prose, so the sentence says what happened and `info` says why.
+  The activity viewer's detail pane shows the stored line whenever it differs
+  from the summary, which is exactly the failure rows and nothing else.
+- **Legacy rows are not parsed.** A row with no type, a `TYPE_LOG` row, a row
+  with no subject id and a type nothing recognises all fall back to the stored
+  prose verbatim. See "The old `history` rows" below for why parsing them was
+  rejected.
+
+**What phase 4 does NOT do, and no phase assigns.** Decision 5 also says the
+writers should stop assembling *translated* prose. They still translate at
+write time, so `hText` remains a locale-stamped string. Phase 4 makes that
+stop mattering for anything a person reads -- the sentence on screen is built
+from the frame -- but the stored column is unchanged. That is deliberate here:
+emptying or changing `hText` breaks every existing reader of it, including the
+fallback this phase depends on and the REST field, and phase 5's `hText` to
+`TEXT` conversion presumes the column still carries prose. It is a separate
+change with its own risk, and it is not a prerequisite for ADR 0023's item 5.
+
+`tests/event-frame-readers.test.php` drives the real formatters against
+synthetic rows: every type renders a distinguishable sentence, all four
+fallback shapes return the stored prose verbatim, and the host name comes from
+the live record where one exists and the stored copy where it does not.
+Mutation-verified against three edits -- blanking the fallback, letting the
+stored copy win over the live name, and giving two types the same sentence.
+
+**Phase 5 is implemented, and its gate was waived deliberately.** The ADR
+wrote "not before a full release cycle after Phase 4", and that condition
+cannot be satisfied as written: there is no 1.6 release, so a full release
+cycle after phase 4 is a date that never arrives on this branch, and phases 2
+to 4 all landed in the same unreleased line. The maintainer waived it on
+2026-08-22. What the gate was actually protecting -- do not move storage out
+from under a reader that still depends on it -- is met, and met more strongly
+than the gate asked, because phase 4's readers build their sentence from the
+frame and phase 5 is the step that removes the last reason they could not.
+
+Phase 5 is schema step 355, one guarded closure doing three things in the one
+order a server accepts:
+
+- `userTracking.utHostName` is backfilled by the same restricted `UPDATE ...
+  JOIN` step 341 used, so only rows whose host still exists are filled and only
+  rows whose copy is still empty are touched. A re-run is a no-op and a hand
+  correction is never overwritten.
+- `UNIQUE (hText, hTime)` is dropped and `KEY (hTime)` added. The unique index
+  was a lossy deduplicator on the table most likely to be asked "what happened
+  at 14:32"; `hTime` is what every reader actually orders by, and none of them
+  could use a composite whose leading column is the text.
+- `hText` returns to `TEXT`. The 255 was never a product decision -- step 3305
+  narrowed a `LONGTEXT` purely to make the column indexable by the unique key
+  now being dropped, and it has been silently truncating the longest entries,
+  which are the failure messages, ever since.
+
+The ordering inside the closure is load bearing: a `VARCHAR(255)` inside a
+unique index cannot become `TEXT` while that index exists.
+
+One consequence the ADR did not predict. `TEXT NOT NULL` can carry no literal
+`DEFAULT` -- both MySQL and MariaDB refuse one -- so the column that was
+`varchar(255) NOT NULL DEFAULT ''` now has no default at all, and an `INSERT`
+omitting it is error 1364 on a strict server rather than a silent `''`.
+`History` therefore declares `info` in `$databaseFieldsRequired`, which is
+honest rather than a workaround: `FOGBase::logHistory()` has always returned
+without writing when the text is empty. `tests/optional-columns-carry-defaults`
+caught the disagreement.
+
+**Decision 5's writer half is implemented too**, and it is what phase 5's index
+drop was waiting on rather than the other way round. The four `FOGController`
+call sites no longer assemble translated prose: they call one
+`_historyText()` helper that wraps nothing in `_()`, so `hText` is now a
+stable machine-comparable record instead of a sentence in whichever locale the
+operator who triggered it was using. The text is **not** emptied -- three
+readers still fall back to it (`History::summary()` for any row it cannot
+frame, the REST `info` field, and the search filter) -- and the shape is
+byte-for-byte what the prose always had minus the `_()` calls, so legacy rows
+and new ones still read together. The one deliberate change is `NAME:` to
+`Name:`, an inconsistency that only survived because each of the four sites
+built its own string.
+
+The renderer moved from `Route::_historySummary()` to `History::summary()`
+in the same change, because the dashboard's Recent Activity card turned out to
+be a **reader phase 4 missed**: it queries `history` directly rather than
+through `Route::listem()`, so it was still rendering `hText` raw and would have
+shown the stored English to every reader once the writers stopped translating.
+It now renders the same sentence the grid and `History_Report` do. `Route`
+keeps a thin wrapper so its column formatter reads like every other formatter
+there.
+
+**Decision 6's replacement bound is implemented as a per-request cap**,
+`FOGBase::LOG_HISTORY_MAX`, and NOT as the log-level check the decision offers
+as its alternative. The level check is unusable here: `$curlog >= $level`
+compares two of `log()`'s six positional arguments, and both of
+`user.class.php`'s calls -- the login and failed-login rows, the two that must
+never be dropped -- passed the object in the `$logbrow` slot and left `$level`
+at its default of 1 against a `$curlog` of 0. A level gate would have silenced
+exactly the events worth keeping. Their argument order is fixed now, but a
+bound whose correctness depends on six positional arguments being right at
+every call site, in plugins included, is not a bound. The cap never drops the
+first hundred rows, so anything logging once or twice per request always lands
+and only a caller emitting hundreds -- `hookdebugger`, which `print_r()`s every
+hook payload -- is stopped.
+
+`tests/history-untranslated-and-bounded.test.php` pins all of it statically
+(39 checks, mutation-verified six ways). What CI cannot check is that any of it
+behaves that way against a server, so
+`/home/telliott/labs/adr0020/prove_phase5.php` drives the real step and the
+real writers against a lab database: the closure applies and re-runs clean, the
+index swap and type change land, the backfill fills the row whose host exists
+and leaves both the orphan and the hand-corrected copy alone, two identical
+rows in the same second now BOTH survive where one used to silently replace the
+other, a real `save()` stores `Host ID: 199 Name: zzp5-h has been successfully
+updated.` while `History::summary()` renders `Host "zzp5-h" (ID 199) was
+saved`, and the cap holds at exactly 100 rows for 125 calls. 21 checks, all
+passing.
+
+ADR 0023's item 5 is implemented.
+
+**Decision 7 is implemented**, 2026-08-22, and it was two-thirds missing until
+then: `usertracking` went on `Route::$readOnlyClasses` when ADR 0023 item 1
+landed and `history` and `tasklog` never followed. Both now do, so all four
+write verbs answer 404 on all three.
+
+None of what came off was reachable by accident. `history` resolves to
+`report`, whose node declares view/create/edit/delete -- so `report.delete` was
+a grantable, working permission that removed rows from the administrative audit
+trail, and REST DELETE funnels through `deletemass()` rather than `destroy()`,
+so it did not even pass the model on the way out. `tasklog` resolves to `task`,
+where a `task.delete` grant could rewrite or remove the imaging reports GH-1206
+exists to keep findable after the fact. Nothing in FOG called either -- no page,
+no JS, no service.
+
+The published document needed no edit: `OpenAPI::_classPaths()` derives
+writability from `Route::writableClasses()` rather than keeping a second copy
+of the list, so `/history` now carries only `get` and `/history/{id}` only
+`get`, generated from the same change. Verified against a lab copy rather than
+assumed.
+
+`tests/event-tables-are-read-only.test.php` (32 checks, mutation-verified four
+ways) pins it at the ROUTER, building the router and matching real URIs, with
+`host` as a control so a router that defined nothing cannot pass. It exists
+separately from `tests/permission-actions-declared.test.php` for a reason worth
+stating: that test fails a routable operation whose node does not DECLARE the
+action, and `report` declares `delete`. Declaring the action is the other way
+to satisfy it, which is exactly what made it blind to this for as long as it
+was.
 
 One coverage note worth keeping visible: `tests/schema-executes.test.php`
 deliberately skips closure steps, so CI's schema replay does **not** exercise
@@ -345,11 +537,26 @@ fixed states it as a constant rather than storing it on every row.
 Everything else is domain payload and stays as it is: `userTracking.utDate`,
 `taskLog.taskID`/`taskStateID`/`logTaskTypeName`.
 
-### 3. `utUserName` maps to `subjectLabel`, not to `createdBy`
+### 3. `utUserName` is not the actor; `createdBy` is, and it is `'fog'`
 
 Its `createdBy` is `'fog'`, which `save()` already produces for free. This is
 the load-bearing correction in this ADR and the reason to write it down before
 touching any table.
+
+**Corrected while implementing phase 3.** This decision was headed
+"`utUserName` maps to `subjectLabel`", which contradicts both the frame table
+in Decision 2 and Decision 4 below. `userTracking`'s subject is the **host** —
+`utHostID` is its `subjectID` and always has been, and the `subjectLabel`
+Decision 4 requires is the denormalized host name, which is why phase 2 added
+`utHostName` at `varchar(16)` to match `hosts.hostName` rather than something
+sized for an account. `utUserName` is domain payload under the friendly key
+`username`, exactly as it was.
+
+The point the heading was making survives intact and is the one that matters:
+`utUserName` is what the row is *about*, not who caused it, so it must never
+become `createdBy`. Naming `subjectLabel` as its destination was the error —
+it would have put an endpoint OS account in the column the deletion policy
+relies on, and left the host name with nowhere to go.
 
 ### 4. Deletion policy is declared per table, in the model
 

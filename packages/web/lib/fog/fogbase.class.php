@@ -973,6 +973,26 @@ abstract class FOGBase
      *
      * @var string
      */
+    /**
+     * How many TYPE_LOG history rows one request may write.
+     *
+     * ADR 0020 decision 6. See FOGBase::log() for why this is a cap rather
+     * than a log-level check. Generous on purpose: the point is to stop a
+     * runaway, not to ration logging, and anything under this bound behaves
+     * exactly as it did before.
+     *
+     * @var int
+     */
+    const LOG_HISTORY_MAX = 100;
+    /**
+     * TYPE_LOG history rows written so far in this request.
+     *
+     * Static and never reset: a request is one process, so process lifetime
+     * IS the window being bounded.
+     *
+     * @var int
+     */
+    protected static $logHistoryRows = 0;
     const FAULT_LOG_SUBDIR = 'faults';
     /**
      * How big a fault log may get before one old copy is kept, in bytes.
@@ -2702,16 +2722,70 @@ abstract class FOGBase
         if ($curlog >= $level) {
             echo $txt;
         }
-        self::logHistory($txt);
+        // ADR 0020 decision 6: this cap is what REPLACES the unique index
+        // on (hText, hTime) that schema step 355 drops. That index bounded
+        // the debug firehose by discarding rows after the fact -- two
+        // different events in the same second with the same prose became
+        // one row, silently -- and the ADR is explicit that the bound
+        // belongs on the writer instead.
+        //
+        // A per-request cap and NOT the level check the ADR offers as the
+        // alternative. `$curlog >= $level` is unusable as a gate here: it
+        // compares two arguments that real call sites already get wrong.
+        // Both of user.class.php's calls (the login and the failed-login
+        // rows, which are the ones that must never be dropped) passed the
+        // object in the `$logbrow` slot and left `$level` at its default of
+        // 1 against a `$curlog` of 0, so a level gate would have silenced
+        // exactly the two events worth keeping. Their argument order is
+        // fixed now, but a bound whose correctness depends on six
+        // positional arguments being right at every call site -- including
+        // in plugins, which this class is the base of -- is not a bound.
+        //
+        // The cap does not care. It never drops the first
+        // LOG_HISTORY_MAX rows, so anything that logs once or twice per
+        // request -- every real event -- always lands, and only a caller
+        // emitting hundreds per request is stopped. hookdebugger, which
+        // print_r()s every hook payload, is that caller.
+        //
+        // Per REQUEST rather than per second or per install: a request is
+        // the unit a runaway loop lives inside, the counter needs no
+        // storage, and it cannot silently swallow the first occurrence of
+        // anything.
+        if (self::$logHistoryRows >= self::LOG_HISTORY_MAX) {
+            return;
+        }
+        self::$logHistoryRows++;
+        // No subject: log() takes a string and has no object in hand. The
+        // type still says which writer produced the row, which is what
+        // separates the debug firehose from a model's own history line.
+        self::logHistory($txt, ['type' => History::TYPE_LOG]);
     }
     /**
      * Log to history table.
      *
+     * ADR 0020 phase 3: a row now carries the structured frame beside the
+     * prose, not instead of it. The prose is unchanged and every reader
+     * still reads it -- readers switch in phase 4, which is the release
+     * where the discontinuity becomes visible. Until then a caller that
+     * passes no frame writes exactly the row it wrote before.
+     *
+     * The frame is passed as an array rather than four parameters because
+     * three of the five call sites have a subject and two do not, and a
+     * positional list of four optional arguments at five call sites is how
+     * the wrong value ends up in the wrong column silently.
+     *
+     * Unset frame keys are left unset rather than defaulted: save() skips a
+     * null and lets the column's own DEFAULT apply, which is what keeps
+     * `hSubjectID` NULL on a subjectless row instead of writing 0 -- a real
+     * id that points at nothing.
+     *
      * @param string $string the string to store
+     * @param array  $frame  optional 'type', 'subjectType', 'subjectID' and
+     *                       'subjectLabel'; see History's TYPE_ constants
      *
      * @return void
      */
-    protected static function logHistory($string)
+    protected static function logHistory($string, array $frame = [])
     {
         if (!is_string($string)) {
             throw new \Exception(_('String must be a string'));
@@ -2730,10 +2804,16 @@ abstract class FOGBase
             return;
         }
         if (self::$DB) {
-            self::getClass('History')
+            $History = self::getClass('History')
                 ->set('info', $string)
-                ->set('ip', self::$remoteaddr)
-                ->save();
+                ->set('ip', self::$remoteaddr);
+            foreach (['type', 'subjectType', 'subjectID', 'subjectLabel'] as $k) {
+                if (!array_key_exists($k, $frame)) {
+                    continue;
+                }
+                $History->set($k, $frame[$k]);
+            }
+            $History->save();
         }
     }
     /**

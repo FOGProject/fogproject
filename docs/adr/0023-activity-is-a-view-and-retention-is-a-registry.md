@@ -9,7 +9,34 @@ Items 1-4, 6 and 7 of the sequencing table below are implemented on
 because it narrows an existing grant: a role holding `report.view` loses user
 tracking on deploy and is re-granted deliberately. Item 6 landed with ADR
 0021's merge 8 rather than separately, since the sweep it needed was the same
-sweep. Item 5 remains gated on ADR 0020 phases 2-4.
+sweep. Item 5 landed once ADR 0020's phases 2 to 4 had given `userTracking`
+and `taskLog` the frame: both are now sources in the filter, each with a
+`summary` column, and the promise this ADR made held -- they are entries in
+`_allSources()` and nothing else about the page changed.
+
+Item 5 carried one thing this table does not show, and it is the half worth
+reading before changing the page again. `getList` resolves to `activity.view`
+by naming convention, so the page's own gate is the only gate unless a source
+declares another. Offering `userTracking` under `activity.view` alone would
+have re-opened, through a different door, exactly what item 1 closed -- the
+permission registry says of the `usertracking` node that "everything that
+reads it ... resolves here", and this viewer is a new reader of it. So a
+source may declare an extra permission, and `userTracking` requires
+`usertracking.view` while `taskLog` requires `task.view`. Neither is a
+widening or a narrowing: each keeps the boundary that table already had.
+
+`history` declares none, which is what it has had since the page shipped.
+Requiring `report.view` for it as well was put to the maintainer when item 5
+landed and **declined** (2026-08-22): `history` is the only source an
+`activity.view`-only role can read, so the requirement would silently empty
+the page for that role on upgrade, and `activity` exists as a node of its own
+precisely so this page carries its own grant. This is settled rather than
+pending.
+
+It is also the single null that keeps "this user may read no source"
+unreachable, so `tests/activity-sources.test.php` pins it as a value: making
+that change anyway fails a test rather than reaching an undefined index that
+becomes a class name.
 
 Item 7 is bounded to genuinely new installs, and the test of "new" is the
 installer's own: `applyNewInstallDefaults()` runs only when no `.fogsettings`
@@ -296,7 +323,7 @@ take a third table.
 | 2 | `?node=activity` viewer: frame columns, `source` filter with one value, explicit `LIMIT`, grid + client-filled modal | nothing |
 | 3 | Dashboard card, ten rows, no timer | 2 |
 | 4 | `History_Report` redirects to the viewer; class and endpoint stay | 2 |
-| 5 | Additional sources appear in the filter | ADR 0020 phases 2–4 |
+| 5 | Additional sources appear in the filter | ADR 0020 phases 2–4 — **shipped** |
 | 6 | Retention registry + sweep + per-table settings | **ADR 0021 `auditLog` merged** |
 | 7 | New-install default of 365 days on `userTracking`; upgrade notice | 6 |
 

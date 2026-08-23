@@ -47,6 +47,58 @@ msgid " | Unable to find image path"
 msgstr "| イメージパスが見つかりません"
 
 #, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) failed to delete"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) failed to save"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) was deleted"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) was saved"
+msgstr ""
+
+#, php-format
+msgid "%1$s (ID %2$s) failed to delete"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s (ID %2$s) failed to save"
+msgstr "保存に失敗しました"
+
+#, php-format
+msgid "%1$s (ID %2$s) was deleted"
+msgstr ""
+
+#, php-format
+msgid "%1$s (ID %2$s) was saved"
+msgstr ""
+
+#, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr "このホストは既に存在します"
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -2128,6 +2180,9 @@ msgstr "既定で有効"
 msgid "Encryption Data Reset"
 msgstr "暗号化データをリセット"
 
+msgid "Endpoint logins"
+msgstr ""
+
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2531,6 +2586,10 @@ msgstr "ファイルの削除に失敗しました"
 msgid "File System Information"
 msgstr "ファイルシステム情報"
 
+#, fuzzy
+msgid "File deletions"
+msgstr "削除"
+
 msgid "File does not exist"
 msgstr "ファイルが存在しません"
 
@@ -2577,6 +2636,10 @@ msgstr "関連付けられたイメージを検索しています"
 
 msgid "Finding any snapins associated"
 msgstr "関連付けられたスナップインを検索しています"
+
+#, fuzzy
+msgid "Finished"
+msgstr "タスク実行に失敗しました"
 
 msgid "First Check In"
 msgstr ""
@@ -3324,6 +3387,9 @@ msgstr "このサーバーは FOG Web サーバーではありません"
 msgid "I am the group manager"
 msgstr "私はグループマネージャーです"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -3687,6 +3753,10 @@ msgstr "内"
 
 msgid "In FOG"
 msgstr "FOG 内"
+
+#, fuzzy
+msgid "Include"
+msgstr "含まれる項目"
 
 #, php-format
 msgid "Index page of: %s%s"
@@ -4518,6 +4588,9 @@ msgstr "ホストの更新に失敗しました"
 msgid "Master Node"
 msgstr "マスターノード"
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 msgid "Max Clients"
 msgstr "最大クライアント数"
 
@@ -4728,6 +4801,10 @@ msgstr "マルチキャストイメージ"
 msgid "Multicast Sessions"
 msgstr "マルチキャストセッションを開始"
 
+#, fuzzy
+msgid "Multicast sessions"
+msgstr "マルチキャストセッションを開始"
+
 msgid "Multiple Snapin -- orig Single"
 msgstr ""
 
@@ -4739,9 +4816,6 @@ msgstr "MySQL Administrator または次のコマンドを実行して"
 
 msgid "N/A"
 msgstr "N/A"
-
-msgid "NAME"
-msgstr "名前"
 
 msgid "NOT"
 msgstr "NOT"
@@ -6187,9 +6261,6 @@ msgstr "戻りコード"
 msgid "Returning value of key"
 msgstr "キーの値を返しています"
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -6275,6 +6346,10 @@ msgstr "このイメージを含むノード"
 
 msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
+
+#, fuzzy
+msgid "Run History"
+msgstr "全履歴をエクスポート"
 
 #, fuzzy
 msgid "Run With arguments."
@@ -6632,6 +6707,10 @@ msgid "Should anything go wrong"
 msgstr "問題が発生した場合"
 
 #, fuzzy
+msgid "Show"
+msgstr "メニューの表示方法"
+
+#, fuzzy
 msgid "Show password"
 msgstr "パスワードを変更"
 
@@ -6935,6 +7014,14 @@ msgstr "スナップインを追加しました！"
 msgid "Snapin is protected and cannot be deleted"
 msgstr "スナップインは保護されているため削除できません"
 
+#, fuzzy
+msgid "Snapin jobs"
+msgstr "スナップイン"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "スナップインハッシュ"
+
 msgid "Snapin update failed!"
 msgstr "スナップインの更新に失敗しました！"
 
@@ -6972,6 +7059,10 @@ msgstr "ダウンロードに失敗しました"
 
 msgid "Start Time"
 msgstr "開始時刻"
+
+#, fuzzy
+msgid "Started"
+msgstr "開始"
 
 #, fuzzy
 msgid "Started By"
@@ -7484,6 +7575,10 @@ msgid "Task Types"
 msgstr "タスクタイプ"
 
 #, fuzzy
+msgid "Task activity"
+msgstr "有効"
+
+#, fuzzy
 msgid "Task failed"
 msgstr "タスク実行に失敗しました"
 
@@ -7544,7 +7639,7 @@ msgstr "ターミナル"
 msgid "Text"
 msgstr "テキスト"
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 #, fuzzy
@@ -8057,6 +8152,9 @@ msgstr "この時刻は既に存在します"
 msgid "Title"
 msgstr ""
 
+msgid "To"
+msgstr ""
+
 msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
@@ -8333,6 +8431,9 @@ msgstr "プライマリグループとして"
 
 msgid "Unsupported URL Scheme"
 msgstr "サポートされていない URL スキーム"
+
+msgid "Up, port closed"
+msgstr ""
 
 msgid "Update"
 msgstr "更新"
@@ -8833,6 +8934,10 @@ msgstr "少なくとも 1 つのグループを関連付ける必要がありま
 msgid "You do not have permission to perform this action."
 msgstr ""
 
+#, fuzzy
+msgid "You do not have permission to read any activity source."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -9072,12 +9177,6 @@ msgstr "完了しました"
 msgid "has been killed"
 msgstr "強制終了されました"
 
-msgid "has been successfully destroyed"
-msgstr "正常に削除されました"
-
-msgid "has been successfully updated"
-msgstr "正常に更新されました"
-
 #, fuzzy
 msgid "has completed on"
 msgstr "完了しました"
@@ -9085,12 +9184,6 @@ msgstr "完了しました"
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "スナップインタスクが完了しました。"
-
-msgid "has failed to destroy"
-msgstr "削除に失敗しました"
-
-msgid "has failed to save"
-msgstr "保存に失敗しました"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -9381,9 +9474,11 @@ msgstr "このホストは既に存在します"
 msgid "old"
 msgstr ""
 
-#, fuzzy
-msgid "online"
-msgstr "キューに登録されました:"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
+msgstr ""
 
 msgid "or"
 msgstr "または"
@@ -9609,6 +9704,12 @@ msgstr "更新できません"
 
 msgid "unavailable"
 msgstr "利用不可"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "より多くのドライバーを含む新しいカーネルへ更新してください"
@@ -10621,9 +10722,6 @@ msgstr ""
 #~ msgid "Import Sites"
 #~ msgstr "サイトをインポート"
 
-#~ msgid "Included Items"
-#~ msgstr "含まれる項目"
-
 #~ msgid "Info"
 #~ msgstr "情報"
 
@@ -10857,6 +10955,9 @@ msgstr ""
 
 #~ msgid "Must use an"
 #~ msgstr "次を使用する必要があります"
+
+#~ msgid "NAME"
+#~ msgstr "名前"
 
 #~ msgid "NOTICE"
 #~ msgstr "通知"
@@ -11444,9 +11545,6 @@ msgstr ""
 #~ msgid "Somebody will be able to help in some form"
 #~ msgstr "何らかの形で誰かがサポートできるはずです"
 
-#~ msgid "Start"
-#~ msgstr "開始"
-
 #~ msgid "Start Date"
 #~ msgstr "開始日"
 
@@ -11915,6 +12013,18 @@ msgstr ""
 #~ msgid "has been started on port"
 #~ msgstr "次のポートで開始されました"
 
+#~ msgid "has been successfully destroyed"
+#~ msgstr "正常に削除されました"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "正常に更新されました"
+
+#~ msgid "has failed to destroy"
+#~ msgstr "削除に失敗しました"
+
+#~ msgid "has failed to save"
+#~ msgstr "保存に失敗しました"
+
 #~ msgid "help with any aspect of FOG"
 #~ msgstr "FOG に関するあらゆるサポート"
 
@@ -11997,6 +12107,10 @@ msgstr ""
 
 #~ msgid "on the following pages of this document"
 #~ msgstr "このドキュメントの次のページ"
+
+#, fuzzy
+#~ msgid "online"
+#~ msgstr "キューに登録されました:"
 
 #~ msgid "open"
 #~ msgstr "開く"

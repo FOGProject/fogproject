@@ -486,28 +486,52 @@ class Route extends FOGBase
     /**
      * Classes the API serves for reading only.
      *
-     * Listed here rather than removed from $validClasses, because the read
-     * side is legitimate and used: the Hosts And Users report and the Login
-     * History tabs on host and group both go through usertracking.view.
+     * ADR 0020 decision 7: the three event tables lose their write routes.
+     * These are the records of what happened, and a record of what happened
+     * that can be edited through the same API that produced it is not a
+     * record. Retention pruning, if it is ever wanted, is a named operation
+     * with its own permission -- not `DELETE /api/history/{id}`.
      *
-     * usertracking is here because coreRegistry() says, in as many words,
-     * that the node has no `create` -- rows come from the fog-client's own
-     * endpoint, which is node `client` and permission-exempt, so nothing
-     * legitimate POSTs one. The generic CRUD routes offered create, join,
-     * update and delete on it anyway, on movement records for named people,
-     * reachable by any holder of '*'. Nothing in FOG called them; they
+     * Listed here rather than removed from $validClasses, because the read
+     * side of each is legitimate and used: the Hosts And Users report and
+     * the Login History tabs go through usertracking.view, Task Management's
+     * log pane and the activity viewer read tasklog, and the activity viewer
+     * and History_Report read history.
+     *
+     * WHAT EACH ONE WAS EXPOSING. None of these were reachable by accident;
+     * they were all grantable permissions that worked.
+     *
+     *  - `usertracking` -> the node has no `create` at all in
+     *    coreRegistry(): rows come from the fog-client's own endpoint, which
+     *    is node `client` and permission-exempt, so nothing legitimate POSTs
+     *    one. The generic routes offered create, join, update and delete
+     *    anyway, on movement records for named people.
+     *  - `history` -> resolves to `report`, whose node declares
+     *    view/create/edit/delete. So a `report.delete` grant could remove
+     *    rows from the administrative audit trail, and REST DELETE funnels
+     *    through deletemass() rather than destroy(), so it did not even pass
+     *    the model.
+     *  - `tasklog` -> resolves to `task`. A `task.delete` grant could rewrite
+     *    or remove the imaging and task reports that GH-1206 exists to keep
+     *    findable after the fact.
+     *
+     * Nothing in FOG calls any of them -- no page, no JS, no service. They
      * existed because the route map expanded over every class without asking
      * whether each one should be writable.
      *
      * An unmatched route is a 404, not a 403, and that is the honest answer:
      * the operation does not exist rather than being withheld.
      *
-     * OpenAPI::_paths() reads this too, so the document stops advertising
-     * the four verbs in the same commit that stops answering them.
+     * OpenAPI::_classPaths() reads this too, through writableClasses(), so
+     * the document stops advertising the four verbs in the same commit that
+     * stops answering them -- it is generated from this list rather than
+     * from a second copy of it.
      *
      * @var array
      */
     public static $readOnlyClasses = [
+        'history',
+        'tasklog',
         'usertracking'
     ];
     /**
@@ -2113,20 +2137,70 @@ class Route extends FOGBase
                         'db' => $real,
                         'dt' => $common,
                         'formatter' => function ($d, $row) {
-                            // hostPingCode: NULL/'' = never pinged,
-                            // 0 = online, any non-zero errno = unreachable.
-                            // Only "online" is worth an attention color;
-                            // an unreachable host is the normal resting
-                            // state for a managed host, so keep it neutral
-                            // and surface the specific reason as the text.
+                            // hostPingCode is FOUR states, not two, and the
+                            // third is the one this column used to get
+                            // wrong:
+                            //
+                            //   NULL/''       never pinged
+                            //   0             up, and the port answered
+                            //   ECONNREFUSED  UP -- the host's own kernel
+                            //                 sent a RST; nothing is
+                            //                 listening on the port
+                            //   anything else not reachable
+                            //
+                            // Ping::isAlive() owns which errnos mean the
+                            // host answered, shared with the service that
+                            // stamps hostLastPing, so the badge and the
+                            // timestamp cannot disagree.
+                            //
+                            // Refused gets its own colour rather than
+                            // borrowing success: the machine is up, which
+                            // is what was asked, but "the port is shut" is
+                            // the fact behind every "why is my Linux host
+                            // green now" question and is worth reading off
+                            // the grid.
                             if ($d === null || $d === '') {
                                 return '<span class="badge bg-secondary">'
                                     . _('Not pinged')
                                     . '</span>';
                             }
                             if ((int)$d === 0) {
+                                // WHICH probe answered, from the sibling
+                                // column -- an echo reply and a completed
+                                // connect are both errno 0 and mean
+                                // different things to whoever is asking
+                                // "is the service running". Rows written
+                                // before schema 356 carry no method and
+                                // fall back to a bare "Online", which is
+                                // exactly as much as is known about them.
+                                $how = $row['hostPingMethod'] ?? '';
+                                // The protocol names are not translated --
+                                // they are protocol names. Only the word
+                                // around them is, which also keeps an HTML
+                                // entity out of the msgid.
+                                if (Ping::METHOD_ICMP === $how) {
+                                    return '<span class="badge bg-success">'
+                                        . sprintf(
+                                            '%s &middot; ICMP',
+                                            _('Online')
+                                        )
+                                        . '</span>';
+                                }
+                                if (Ping::METHOD_TCP === $how) {
+                                    return '<span class="badge bg-success">'
+                                        . sprintf(
+                                            '%s &middot; TCP',
+                                            _('Online')
+                                        )
+                                        . '</span>';
+                                }
                                 return '<span class="badge bg-success">'
                                     . _('Online')
+                                    . '</span>';
+                            }
+                            if (Ping::isAlive($d)) {
+                                return '<span class="badge bg-info">'
+                                    . _('Up, port closed')
                                     . '</span>';
                             }
                             return '<span class="badge bg-secondary">'
@@ -2166,15 +2240,19 @@ class Route extends FOGBase
                         $real,
                         'hostLink',
                         'host',
-                        function ($d, $row) {
+                        function ($d, $row) use ($classname) {
                             if (!$d) {
                                 return self::EMPTY_CELL;
                             }
+                            // ADR 0020 phase 4: the stored name answers when
+                            // the host is gone, so a deleted host's rows do
+                            // not all render "(41) - " forever.
                             return '<a href="../management/index.php?node=host&'
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
-                                . '(' . $d . ') - ' . self::rel('host', $d)->get('name')
+                                . '(' . $d . ') - '
+                                . self::_hostLabel($d, $row, $classname)
                                 . '</a>';
                         },
                         self::_hostNameOrder($classname)
@@ -2670,6 +2748,83 @@ class Route extends FOGBase
                         return $taskStates[$id] ?: self::EMPTY_CELL;
                     }
                 ];
+                // ADR 0023 item 5: the one-line "what happened" the activity
+                // viewer shows, in the same output column every source uses.
+                $columns[] = [
+                    'dt' => 'summary',
+                    'formatter' => function ($d, $row) use (
+                        &$taskStates,
+                        $classname
+                    ) {
+                        // An error or warning row already IS a sentence
+                        // somebody wrote for a person to read (the FOS report
+                        // endpoint's message), so it is used as it stands.
+                        // Only a state row has to be assembled.
+                        $text = isset($row['logText']) ? (string)$row['logText'] : '';
+                        if ('' !== $text) {
+                            return \Initiator::e($text);
+                        }
+                        $host = self::_hostLabel(
+                            isset($row['logHostID']) ? $row['logHostID'] : 0,
+                            $row,
+                            $classname
+                        );
+                        $what = isset($row['logTaskTypeName'])
+                            ? (string)$row['logTaskTypeName']
+                            : '';
+                        $image = isset($row['logImageName'])
+                            ? (string)$row['logImageName']
+                            : '';
+                        $stateId = isset($row['taskStateID'])
+                            ? (int)$row['taskStateID']
+                            : 0;
+                        if (!isset($taskStates[$stateId])) {
+                            $taskStates[$stateId] = self::getClass(
+                                'TaskState',
+                                $stateId
+                            )->get('name');
+                        }
+                        // An unresolvable state renders as a word, not as
+                        // nothing. The `statename` column can afford an
+                        // EMPTY_CELL because it sits beside other columns;
+                        // this one IS the activity viewer's only content
+                        // column for this source, so an empty string here is
+                        // a row that renders and says nothing at all. Same
+                        // stance as _userTrackingAction()'s unknown arm.
+                        $state = (string)$taskStates[$stateId];
+                        if ('' === $state) {
+                            $state = _('Unknown');
+                        }
+                        if ('' === $what) {
+                            // Nothing to say beyond the state. Rows written
+                            // before schema 341 backfilled the type name are
+                            // the case, and there is no way to recover it.
+                            return \Initiator::e($state);
+                        }
+                        // Spelled out per shape rather than assembled from
+                        // fragments: a format string built from a variable
+                        // never reaches the catalogue.
+                        if ('' !== $image && '' !== $host) {
+                            return \Initiator::e(
+                                sprintf(
+                                    _('%1$s of %2$s on %3$s: %4$s'),
+                                    $what,
+                                    $image,
+                                    $host,
+                                    $state
+                                )
+                            );
+                        }
+                        if ('' !== $host) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s on %2$s: %3$s'), $what, $host, $state)
+                            );
+                        }
+                        return \Initiator::e(
+                            sprintf(_('%1$s: %2$s'), $what, $state)
+                        );
+                    }
+                ];
                 break;
             case 'storagegroup':
                 // Each formatter resolves the row's OWN group.
@@ -2770,6 +2925,33 @@ class Route extends FOGBase
                     }
                 ];*/
                 break;
+            case 'history':
+                // ADR 0020 phase 4: the readable line, built at RENDER from
+                // the structured columns phase 3 fills, so a row reads in
+                // the language of whoever is looking at it rather than the
+                // language of whoever triggered it.
+                //
+                // A separate output column rather than a new formatter on
+                // `info`: `info` is `hText` and stays exactly what it was,
+                // so anything reading the REST list keeps getting the stored
+                // string, the search filter keeps matching real column text,
+                // and a legacy row's prose is still reachable beside the
+                // summary in the detail pane. "Readers switch" is what this
+                // phase is; rewriting a field's meaning underneath its
+                // consumers is not.
+                //
+                // Not orderable and not searchable, because it is not a
+                // column: there is nothing in the database to ORDER BY or
+                // LIKE against. `info` and `subjectLabel` are both still
+                // real columns and both still searchable, which is where a
+                // search for a message or an object name lands.
+                $columns[] = [
+                    'dt' => 'summary',
+                    'formatter' => function ($d, $row) {
+                        return \Initiator::e(self::_historySummary($row));
+                    }
+                ];
+                break;
             case 'usertracking':
                 $columns[] = [
                     'db' => 'utUserName',
@@ -2782,34 +2964,60 @@ class Route extends FOGBase
                     'utHostID',
                     'hostname',
                     'Host',
-                    function ($d, $row) {
-                        return \Initiator::e(self::rel('Host', $d)->get('name'));
+                    function ($d, $row) use ($classname) {
+                        return \Initiator::e(
+                            self::_hostLabel($d, $row, $classname)
+                        );
                     }
                 );
                 $columns[] = [
                     'db' => 'utAction',
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
-                        switch ((string) $d) {
-                            case (string) UserTracking::ACTION_LOGOUT:
-                                return _('Logout');
-                            case (string) UserTracking::ACTION_LOGIN:
-                                return _('Login');
-                            case (string) UserTracking::ACTION_SERVICE_START:
-                                return _('Service Start');
+                        // Escaped here rather than in the helper: an
+                        // unrecognised code renders as itself, and the
+                        // summary below escapes the whole sentence once.
+                        return \Initiator::e(self::_userTrackingAction($d));
+                    }
+                ];
+                // ADR 0023 item 5: the one-line "what happened" the activity
+                // viewer shows, in the same output column every source uses.
+                $columns[] = [
+                    'dt' => 'summary',
+                    'formatter' => function ($d, $row) use ($classname) {
+                        $who = isset($row['utUserName'])
+                            ? (string)$row['utUserName']
+                            : '';
+                        $host = self::_hostLabel(
+                            isset($row['utHostID']) ? $row['utHostID'] : 0,
+                            $row,
+                            $classname
+                        );
+                        $action = self::_userTrackingAction(
+                            isset($row['utAction']) ? $row['utAction'] : ''
+                        );
+                        // Both halves are optional in practice: a service
+                        // start has no person, and a row whose host was
+                        // deleted before phase 3 has no name to fall back
+                        // on. Each msgid is spelled out because a format
+                        // string built from a variable never reaches the
+                        // catalogue.
+                        if ('' !== $who && '' !== $host) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s: %2$s on %3$s'), $action, $who, $host)
+                            );
                         }
-                        // A code this does not know renders as itself, not as
-                        // an empty cell. utAction has no lookup table and
-                        // nothing constrains the column to the three codes
-                        // UserTracking declares, so an unrecognised one is a
-                        // real possibility (a plugin writing its own, or the
-                        // '' that save() wrote into every unset column before
-                        // GH-1245). Falling out of the switch returned null,
-                        // so the row still listed with a blank Action and
-                        // nothing said why.
-                        return '' === (string) $d
-                            ? _('Unknown')
-                            : \Initiator::e($d);
+                        if ('' !== $host) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s on %2$s'), $action, $host)
+                            );
+                        }
+                        if ('' !== $who) {
+                            return \Initiator::e(
+                                sprintf(_('%1$s: %2$s'), $action, $who)
+                            );
+                        }
+                        return \Initiator::e($action);
                     }
                 ];
                 break;
@@ -5436,6 +5644,103 @@ class Route extends FOGBase
             $column['order'] = $order;
         }
         return $column;
+    }
+    /**
+     * A userTracking action code as its label.
+     *
+     * Shared by the grid's own Action column and by the activity viewer's
+     * summary, so the two can never disagree about what a code means.
+     *
+     * @param mixed $code The stored utAction value.
+     *
+     * @return string
+     */
+    private static function _userTrackingAction($code)
+    {
+        switch ((string) $code) {
+            case (string) UserTracking::ACTION_LOGOUT:
+                return _('Logout');
+            case (string) UserTracking::ACTION_LOGIN:
+                return _('Login');
+            case (string) UserTracking::ACTION_SERVICE_START:
+                return _('Service Start');
+        }
+        // A code this does not know renders as itself, not as an empty
+        // cell. utAction has no lookup table and nothing constrains the
+        // column to the three codes UserTracking declares, so an
+        // unrecognised one is a real possibility (a plugin writing its own,
+        // or the '' that save() wrote into every unset column before
+        // GH-1245). Falling out of the switch returned null, so the row
+        // still listed with a blank Action and nothing said why.
+        return '' === (string) $code ? _('Unknown') : (string) $code;
+    }
+    /**
+     * One history row as a sentence, in the READER's language.
+     *
+     * Delegates to History::summary(), which is where the renderer lives
+     * now. It moved there when the dashboard's Recent Activity card became
+     * a second reader (ADR 0020 decision 5, writer half): the sentence is a
+     * property of a history row, not of the router, and two readers reaching
+     * into the router for it is how they drift apart.
+     *
+     * Kept as a wrapper rather than inlined at the call site so the grid
+     * column's formatter still reads like every other formatter here.
+     *
+     * @param array $row The raw database row.
+     *
+     * @return string
+     */
+    private static function _historySummary($row)
+    {
+        return History::summary($row);
+    }
+    /**
+     * The row column holding a denormalized copy of the host's name.
+     *
+     * ADR 0020 phase 4, and the reason phase 2 added the column at all: a
+     * grid that resolves the host name live from an id renders a blank cell
+     * forever once the host is deleted, and `Route::deletemass('host')`
+     * leaves both of these tables' rows in place. The row survives and
+     * becomes unreadable, which is the worst of both policies.
+     *
+     * The live name is still preferred where the host exists, so a renamed
+     * host reads as its current name; the stored copy answers only when
+     * there is nothing left to look up.
+     *
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return string|null The row key, or null if the class has no copy.
+     */
+    private static function _hostNameColumn($classname)
+    {
+        switch ($classname) {
+            case 'tasklog':
+                return 'logHostName';
+            case 'usertracking':
+                return 'utHostName';
+        }
+        return null;
+    }
+    /**
+     * The host's name for a grid row: live if it still exists, else stored.
+     *
+     * @param mixed  $id        The host id from the row.
+     * @param array  $row       The raw database row.
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return string
+     */
+    private static function _hostLabel($id, $row, $classname)
+    {
+        $name = $id ? (string)self::rel('host', $id)->get('name') : '';
+        if ('' !== $name) {
+            return $name;
+        }
+        $key = self::_hostNameColumn($classname);
+        if (null !== $key && isset($row[$key])) {
+            return (string)$row[$key];
+        }
+        return $name;
     }
     /**
      * The SQL to sort a class's host column by host NAME rather than id.

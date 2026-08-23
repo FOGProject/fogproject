@@ -511,8 +511,18 @@ class DashboardPage extends FOGPage
             // Bound in the QUERY. These tables have nothing ageing them out
             // and grow for the life of the install, so "fetch and show ten"
             // is not the same thing as "fetch ten".
+            // The frame columns, not just the prose. ADR 0020 decision 5's
+            // writer half stops `hText` being translated at write time, so
+            // a card rendering that column raw would show the stored
+            // English to every reader whatever their language. The
+            // sentence is built per reader by History::summary() below,
+            // which is the same renderer the activity grid and
+            // History_Report use -- this card was the one reader phase 4
+            // did not switch, because it reads rows directly rather than
+            // through Route::listem().
             $recent = self::$DB->query(
-                "SELECT `hUser`, `hTime`, `hText`, `hIP`
+                "SELECT `hUser`, `hTime`, `hText`, `hIP`,
+                        `hType`, `hSubjectType`, `hSubjectID`, `hSubjectLabel`
                    FROM `history`
                   ORDER BY `hTime` DESC
                   LIMIT " . self::RECENT_ACTIVITY
@@ -545,15 +555,14 @@ class DashboardPage extends FOGPage
                     . '<th>' . _('From') . '</th>'
                     . '</tr></thead><tbody>';
                 foreach ((array)$recent as $row) {
-                    // hText is assembled by FOGBase::logHistory() and
-                    // interpolates object names, which are writable from
-                    // surfaces that need no login. Escaped, like every other
-                    // cell here.
+                    // The sentence interpolates object names, which are
+                    // writable from surfaces that need no login. Escaped,
+                    // like every other cell here.
                     printf(
                         '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>',
                         \Initiator::e($row['hUser']),
                         \Initiator::e($row['hTime']),
-                        \Initiator::e($row['hText']),
+                        \Initiator::e(History::summary($row)),
                         \Initiator::e($row['hIP'])
                     );
                 }

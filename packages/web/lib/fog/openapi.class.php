@@ -476,6 +476,40 @@ class OpenAPI extends FOGBase
     }
 
     /**
+     * Whether /{class}/search/{item} can return anything for this class.
+     *
+     * Route::search() does not query the class. It calls unisearch() and
+     * reads the class out of the result, and unisearch() skips any entity
+     * whose model has no `name` field -- such an entity has nothing to match
+     * on and nothing to label a result with. The route is still reachable
+     * for those classes: it answers 200 and reports recordsFiltered: 0 for
+     * every term, including terms that match a real row. Documenting it
+     * there advertises an operation the server cannot honour.
+     *
+     * The test is deliberately the same isset() unisearch() applies, against
+     * the same reflected $databaseFields, rather than a list of class names
+     * written out here. $validClasses is mutated at runtime by the
+     * API_VALID_CLASSES hook, so a hand-kept list would silently mis-describe
+     * every class a plugin contributes -- and it would be a second copy of a
+     * rule that already has one home.
+     *
+     * A necessary condition, not a sufficient one. unisearch() also iterates
+     * $searchPages rather than $validClasses and skips 'task' outright, so
+     * some classes that pass this test still answer empty. Narrowing to that
+     * is a larger change to what the document claims and is tracked
+     * separately; this fixes the 20 classes the condition below settles.
+     *
+     * @param string $class The lowercase route class name.
+     *
+     * @return bool
+     */
+    private static function _isSearchable($class)
+    {
+        $vars = self::_classVars($class);
+        return null !== $vars && isset($vars['databaseFields']['name']);
+    }
+
+    /**
      * Turns a schema-expected column type into an OpenAPI schema.
      *
      * Input looks like 'varchar(250) NOT NULL', 'int(11) NOT NULL',
@@ -967,25 +1001,32 @@ class OpenAPI extends FOGBase
             );
         }
 
-        $paths['/' . $class . '/search/{item}'] = [
-            'parameters' => [
-                [
-                    'name' => 'item',
-                    'in' => 'path',
-                    'required' => true,
-                    'schema' => ['type' => 'string'],
-                    'description' => _('Text to match across the class fields.')
-                ]
-            ],
-            'get' => self::_op(
-                $class,
-                'search',
-                sprintf(_('Search %s'), $class),
-                _('Returns the same envelope as a list.'),
-                self::_listResponse($ref),
-                self::_listParameters()
-            )
-        ];
+        // Route::search() cannot answer for every class, so the document
+        // must not offer it for every class. See _isSearchable().
+        if (self::_isSearchable($class)) {
+            $paths['/' . $class . '/search/{item}'] = [
+                'parameters' => [
+                    [
+                        'name' => 'item',
+                        'in' => 'path',
+                        'required' => true,
+                        'schema' => ['type' => 'string'],
+                        'description' => _('Text to match against the id and name. A few '
+                            . 'classes match more: host also on MAC, storagenode '
+                            . 'on node hostname, setting on value.')
+                    ]
+                ],
+                'get' => self::_op(
+                    $class,
+                    'search',
+                    sprintf(_('Search %s'), $class),
+                    _('Matches the term against the class name field. '
+                        . 'Returns the same envelope as a list.'),
+                    self::_listResponse($ref),
+                    self::_listParameters()
+                )
+            ];
+        }
 
         $paths['/' . $class . '/count'] = [
             'get' => self::_op(

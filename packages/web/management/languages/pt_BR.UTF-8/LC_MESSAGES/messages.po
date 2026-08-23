@@ -56,6 +56,58 @@ msgid " | Unable to find image path"
 msgstr "Falha ao destruir Storage Node"
 
 #, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) failed to delete"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) failed to save"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) was deleted"
+msgstr ""
+
+#, php-format
+msgid "%1$s \"%2$s\" (ID %3$s) was saved"
+msgstr ""
+
+#, php-format
+msgid "%1$s (ID %2$s) failed to delete"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s (ID %2$s) failed to save"
+msgstr "não foi capaz de salvar"
+
+#, php-format
+msgid "%1$s (ID %2$s) was deleted"
+msgstr ""
+
+#, php-format
+msgid "%1$s (ID %2$s) was saved"
+msgstr ""
+
+#, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr "Impressora já existe"
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -2212,6 +2264,9 @@ msgstr "Atualizar impressora"
 msgid "Encryption Data Reset"
 msgstr ""
 
+msgid "Endpoint logins"
+msgstr ""
+
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2635,6 +2690,10 @@ msgid "File System Information"
 msgstr "Informações sobre o arquivo do sistema"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "Falha ao excluir arquivo"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "O método não existe"
 
@@ -2686,6 +2745,10 @@ msgstr "Não snapins associado"
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "Não snapins associado"
+
+#, fuzzy
+msgid "Finished"
+msgstr "tarefa iniciada"
 
 msgid "First Check In"
 msgstr ""
@@ -3462,6 +3525,9 @@ msgstr "Eu não sou o servidor web nevoeiro"
 msgid "I am the group manager"
 msgstr " | Eu sou o único membro"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "identidade"
 
@@ -3851,6 +3917,9 @@ msgstr "Dentro "
 #, fuzzy
 msgid "In FOG"
 msgstr "Dentro "
+
+msgid "Include"
+msgstr ""
 
 #, php-format
 msgid "Index page of: %s%s"
@@ -4731,6 +4800,9 @@ msgstr "atualização do utilizador falhou"
 msgid "Master Node"
 msgstr "Nó mestre"
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 msgid "Max Clients"
 msgstr "Clientes Max"
 
@@ -4944,6 +5016,10 @@ msgstr "multicast"
 msgid "Multicast Sessions"
 msgstr "Iniciar Sessão Multicast"
 
+#, fuzzy
+msgid "Multicast sessions"
+msgstr "Iniciar Sessão Multicast"
+
 msgid "Multiple Snapin -- orig Single"
 msgstr ""
 
@@ -4955,9 +5031,6 @@ msgstr ""
 
 msgid "N/A"
 msgstr "N / D"
-
-msgid "NAME"
-msgstr ""
 
 msgid "NOT"
 msgstr "NÃO"
@@ -6446,9 +6519,6 @@ msgstr "Código de retorno"
 msgid "Returning value of key"
 msgstr "Retornando valor da chave"
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -6542,6 +6612,10 @@ msgstr "Não foi possível encontrar todos os nós que contêm esta imagem"
 
 msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
+
+#, fuzzy
+msgid "Run History"
+msgstr "História de login"
 
 #, fuzzy
 msgid "Run With arguments."
@@ -6912,6 +6986,9 @@ msgstr "Nome do host"
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "Gerenciamento de senha"
@@ -7243,6 +7320,14 @@ msgid "Snapin is protected and cannot be deleted"
 msgstr "Snapin está protegido e não pode ser excluído"
 
 #, fuzzy
+msgid "Snapin jobs"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "Caminho Snapin"
+
+#, fuzzy
 msgid "Snapin update failed!"
 msgstr "atualização Snapin falhou"
 
@@ -7280,6 +7365,10 @@ msgstr "Falha no download"
 
 msgid "Start Time"
 msgstr "start Time"
+
+#, fuzzy
+msgid "Started"
+msgstr "Começar"
 
 #, fuzzy
 msgid "Started By"
@@ -7829,6 +7918,10 @@ msgid "Task Types"
 msgstr "Tipos de tarefa"
 
 #, fuzzy
+msgid "Task activity"
+msgstr "Ativo"
+
+#, fuzzy
 msgid "Task failed"
 msgstr "Carga falhou: %s"
 
@@ -7892,7 +7985,7 @@ msgstr "Serial"
 msgid "Text"
 msgstr "Texto"
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 #, fuzzy
@@ -8415,6 +8508,9 @@ msgstr "Tempo já existe"
 msgid "Title"
 msgstr ""
 
+msgid "To"
+msgstr ""
+
 msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
@@ -8700,6 +8796,9 @@ msgid "Unset storage group as primary group"
 msgstr "Grupo primário de actualização"
 
 msgid "Unsupported URL Scheme"
+msgstr ""
+
+msgid "Up, port closed"
 msgstr ""
 
 msgid "Update"
@@ -9223,6 +9322,9 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
+msgid "You do not have permission to read any activity source."
+msgstr ""
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -9479,26 +9581,12 @@ msgid "has been killed"
 msgstr "foi atualizado com sucesso"
 
 #, fuzzy
-msgid "has been successfully destroyed"
-msgstr "foi atualizado com sucesso"
-
-msgid "has been successfully updated"
-msgstr "foi atualizado com sucesso"
-
-#, fuzzy
 msgid "has completed on"
 msgstr "foi destruído"
 
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "Inválida Snapin Tasking"
-
-#, fuzzy
-msgid "has failed to destroy"
-msgstr "falhou para ser destruído"
-
-msgid "has failed to save"
-msgstr "não foi capaz de salvar"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -9807,7 +9895,10 @@ msgstr "Impressora já existe"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"
@@ -10045,6 +10136,12 @@ msgstr "Falha ao atualizar"
 #, fuzzy
 msgid "unavailable"
 msgstr "Não disponível"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""
@@ -10634,9 +10731,6 @@ msgstr ""
 #~ msgid "Snapin Pack File"
 #~ msgstr "Arquivo Snapin"
 
-#~ msgid "Start"
-#~ msgstr "Começar"
-
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "Nó de Armazenamento Criado"
@@ -10754,6 +10848,20 @@ msgstr ""
 #, fuzzy
 #~ msgid "completed imaging"
 #~ msgstr "concluído"
+
+#, fuzzy
+#~ msgid "has been successfully destroyed"
+#~ msgstr "foi atualizado com sucesso"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "foi atualizado com sucesso"
+
+#, fuzzy
+#~ msgid "has failed to destroy"
+#~ msgstr "falhou para ser destruído"
+
+#~ msgid "has failed to save"
+#~ msgstr "não foi capaz de salvar"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

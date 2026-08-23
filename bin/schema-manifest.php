@@ -34,6 +34,13 @@
  *       failure this whole mechanism exists to catch. It also lists
  *       columns that moved in both directions on one table, which are the
  *       candidates for a `renames` entry.
+ *
+ *       A table 1.6 dropped ON PURPOSE is not a forgotten port, but the
+ *       diff cannot tell the two apart -- both look like "present there,
+ *       absent here". The NEW manifest declares those in a `retired`
+ *       block and they are reported as accounted for rather than as a
+ *       difference. Without it the warning fires on every schema commit
+ *       forever, and a warning that always fires is one nobody reads.
  */
 
 /**
@@ -270,12 +277,19 @@ if ($cmd === 'generate') {
         $tables[$table] = ['create' => $create, 'columns' => $cols];
     }
 
-    // Preserve the hand-maintained renames block across regeneration.
+    // Preserve the hand-maintained blocks across regeneration. Neither can
+    // be derived from a live database: `renames` describes a transition the
+    // end state has already erased, and `retired` describes a table that is
+    // absent precisely because the decision was taken.
     $renames = [];
+    $retired = [];
     if (file_exists($out)) {
         $existing = include $out;
         if (is_array($existing) && !empty($existing['renames'])) {
             $renames = $existing['renames'];
+        }
+        if (is_array($existing) && !empty($existing['retired'])) {
+            $retired = $existing['retired'];
         }
     }
 
@@ -286,11 +300,18 @@ if ($cmd === 'generate') {
         . " * GENERATED FILE -- do not hand-edit the `tables` block. Regenerate\n"
         . " * with:  php bin/schema-manifest.php generate <fog-web-root>\n"
         . " *\n"
-        . " * The `renames` block IS maintained by hand and is preserved across\n"
-        . " * regeneration. A manifest describes an END state, so a renamed\n"
-        . " * column is indistinguishable from a new one; without an entry here\n"
+        . " * The `renames` and `retired` blocks ARE maintained by hand and are\n"
+        . " * preserved across regeneration.\n"
+        . " *\n"
+        . " * `renames`: a manifest describes an END state, so a renamed column\n"
+        . " * is indistinguishable from a new one; without an entry here\n"
         . " * SchemaReconciler would add the target column empty and strand the\n"
         . " * data in the old one.\n"
+        . " *\n"
+        . " * `retired`: a table 1.6 dropped deliberately, so that the 1.5\n"
+        . " * comparison in .githooks/pre-commit reports it as accounted for\n"
+        . " * rather than as a port somebody forgot. Read by that check only --\n"
+        . " * SchemaReconciler never touches it.\n"
         . " *\n"
         . " * Consumed by SchemaReconciler::reconcile().\n"
         . " *\n"
@@ -303,20 +324,22 @@ if ($cmd === 'generate') {
         . " *\n"
         . " * @category SchemaExpected\n"
         . " * @package  FOGProject\n"
-        . " * @author   Tom Elliott <tommygunsster\@gmail.com>\n"
+        . " * @author   Tom Elliott <tommygunsster@gmail.com>\n"
         . " * @license  http://opensource.org/licenses/gpl-3.0 GPLv3\n"
         . " * @link     https://fogproject.org\n"
         . " */\n"
         . "return [\n"
         . "    'renames' => " . render($renames) . ",\n"
+        . "    'retired' => " . render($retired) . ",\n"
         . "    'tables' => " . render($tables) . ",\n"
         . "];\n";
     file_put_contents($out, $php);
     printf(
-        "Wrote %s: %d tables, %d renames preserved\n",
+        "Wrote %s: %d tables, %d renames preserved, %d retired preserved\n",
         $out,
         count($tables),
-        count($renames)
+        count($renames),
+        count($retired)
     );
     exit(0);
 }
@@ -358,9 +381,32 @@ if ($cmd === 'diff') {
             $A[$t][$i] = $to;
         }
     }
+    // Tables the NEW side declares it dropped on purpose. Keyed lowercase so
+    // the lookup matches the comparison, which is case-insensitive because
+    // MySQL's own table-name casing depends on the server's filesystem.
+    $retired = [];
+    foreach ((array)($b['retired'] ?? []) as $r) {
+        $t = strtolower($r['table'] ?? '');
+        if (!$t) {
+            continue;
+        }
+        $retired[$t] = (string)($r['reason'] ?? '');
+    }
+
     $found = 0;
     foreach ($A as $table => $cols) {
         if (!isset($B[$table])) {
+            if (isset($retired[$table])) {
+                // Reported, not silenced. The point of the block is that the
+                // difference is accounted for -- somebody reading the output
+                // still gets told the table is gone and why.
+                printf(
+                    "RETIRED TABLE   %s -- %s\n",
+                    $table,
+                    $retired[$table] ?: 'no reason recorded'
+                );
+                continue;
+            }
             printf("MISSING TABLE   %s\n", $table);
             $found++;
             continue;
