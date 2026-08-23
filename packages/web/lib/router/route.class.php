@@ -118,6 +118,70 @@ class Route extends FOGBase
         'virus'
     );
     /**
+     * globalSettings rows whose VALUE is a credential.
+     *
+     * Settings are the odd one out: they are key/value rows, so the secret
+     * is the value of a particular *row* rather than a column present on
+     * every row. A setting matched here has its 'value' removed from API
+     * output while its name, description and category stay, so a consumer
+     * can still see that the setting exists.
+     *
+     * Matching is a pattern plus a short explicit list rather than a hand
+     * maintained enumeration of every key, so a credential setting added
+     * later is masked by default instead of leaking silently until someone
+     * remembers to add it.
+     *
+     * The pattern deliberately requires PASSWORD/PASSWD/PWD and not a bare
+     * "PASS": FOG_USER_MINPASSLENGTH is password *policy* and the UI has to
+     * be able to describe its own rules. KEY is deliberately absent for the
+     * same reason -- FOG_KEYMAP, FOG_KEY_SEQUENCE, FOG_HOSTKEY_ALLOWED_
+     * SOURCES and FOG_QUICKREG_PROD_KEY_BIOS are all configuration.
+     *
+     * Checked against a real 1.5.10 install: the five keys this pattern
+     * catches (FOG_AD_DEFAULT_PASSWORD, _LEGACY, FOG_API_TOKEN,
+     * FOG_PROXY_PASSWORD, FOG_TFTP_FTP_PASSWORD) are all genuine
+     * credentials, and nothing it catches is not one.
+     *
+     * @var string
+     */
+    const SENSITIVE_SETTING_PATTERN = '#(PASSWORD|PASSWD|PWD|SECRET|TOKEN)#i';
+    /**
+     * Credential settings the pattern does not catch.
+     *
+     * @var array
+     */
+    public static $sensitiveSettings = array(
+        // "PASS", not "PASSWORD" -- outside the pattern by one word.
+        'FOG_STORAGENODE_MYSQLPASS',
+        // The shared HMAC secret FOG signs its own server-to-server
+        // requests with. See FOGBase::nodeApiKey().
+        'FOG_NODE_API_KEY',
+    );
+    /**
+     * Settings the pattern matches that are NOT credentials.
+     *
+     * Empty on this branch -- verified against a real 1.5.10 install, the
+     * pattern has no false positives here. Kept so the predicate has the
+     * same three parts it has on working-1.6: this is the one function that
+     * decides whether something is a secret, and a shape that differs
+     * between the branches is a port waiting to go wrong.
+     *
+     * @var array
+     */
+    public static $sensitiveSettingsExempt = array();
+    /**
+     * True once api/index.php has constructed this class.
+     *
+     * The seam between "FOG is answering an HTTP API request" and "a page is
+     * calling Route as a library". Nothing but api/index.php does `new
+     * Route`, and 116 in-tree call sites reach listem()/indiv()/getData()
+     * statically without ever constructing it -- FOG Configuration among
+     * them, which is why credential masking cannot simply be unconditional.
+     *
+     * @var bool
+     */
+    private static $_isApiRequest = false;
+    /**
      * Valid Tasking classes.
      *
      * @var array
@@ -214,6 +278,9 @@ class Route extends FOGBase
      */
     public function __construct()
     {
+        // Everything below this point is serving an HTTP API request. See
+        // the property's docblock for why that has to be distinguishable.
+        self::$_isApiRequest = true;
         list(
             self::$_enabled,
             self::$_token
@@ -1076,10 +1143,16 @@ class Route extends FOGBase
             ) {
                 continue;
             }
-            self::$data[$classname.'s'][] = self::getter(
+            $row = self::getter(
                 $classname,
                 $class
             );
+            // A hit on a masked credential is itself the disclosure.
+            if (!self::_settingHitIsVisible($classname, $row, $item)) {
+                unset($class, $row);
+                continue;
+            }
+            self::$data[$classname.'s'][] = $row;
             self::$data['count']++;
             unset($class);
         }
@@ -1866,6 +1939,8 @@ class Route extends FOGBase
      */
     public static function getsearchbody($class)
     {
+        // Captured before $class is reassigned to an instance below.
+        $classname = strtolower((string)$class);
         $classVars = self::getClass(
             $class,
             '',
@@ -1883,6 +1958,7 @@ class Route extends FOGBase
             }
             unset($key);
         }
+        self::_refuseSettingValueFilter($classname, array_keys($find));
         return $find;
     }
     /**
@@ -2004,6 +2080,124 @@ class Route extends FOGBase
      *
      * @return object|array
      */
+    /**
+     * Refuses a filter that would probe a masked setting value.
+     *
+     * Masking the value in the response is only half a fix. `value` is a
+     * declared field of Service, so /service/ids/value=guess and a
+     * {"value":"guess"} body were both exact-match oracles: the value never
+     * appears in the answer, but whether a row comes back tells you whether
+     * the guess was right, one guess at a time and with no rate limit.
+     *
+     * Refused with a 400 that names the field rather than silently dropped.
+     * A dropped term is the worse failure -- the filter vanishes, the whole
+     * table comes back, and the caller reads that as "no such value".
+     *
+     * @param string $classname The lowercase class being filtered.
+     * @param array  $keys      The filter keys the caller supplied.
+     *
+     * @return void
+     */
+    private static function _refuseSettingValueFilter($classname, $keys)
+    {
+        if (!self::$_isApiRequest || 'service' !== strtolower((string)$classname)) {
+            return;
+        }
+        if (!in_array('value', (array)$keys, true)) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_BAD_REQUEST,
+            json_encode(
+                array(
+                    'error' => 'Filtering settings by value is not permitted: '
+                        . 'it would confirm the credential values that are '
+                        . 'masked out of the response.'
+                )
+            )
+        );
+    }
+    /**
+     * Should this search hit be shown, given what it matched on?
+     *
+     * FOGManagerController::search() fills its WHERE from EVERY declared
+     * field -- array_fill_keys(array_keys($this->databaseFields), $keyword)
+     * -- so a substring of a masked credential brings its row back. The row
+     * carries no value, but its arrival is the answer.
+     *
+     * A sensitive setting is therefore kept only when the term is visible in
+     * something the caller is allowed to read. Every field except the value,
+     * rather than a list of the four this class has today, so a field added
+     * later is covered by default instead of by remembering.
+     *
+     * @param string $classname The lowercase class searched.
+     * @param mixed  $row       The serialized row.
+     * @param string $term      The search keyword.
+     *
+     * @return bool
+     */
+    private static function _settingHitIsVisible($classname, $row, $term)
+    {
+        if (!self::$_isApiRequest
+            || 'service' !== strtolower((string)$classname)
+            || !is_array($row)
+        ) {
+            return true;
+        }
+        if (!self::isSensitiveSetting((string)($row['name'] ?? ''))) {
+            return true;
+        }
+        $term = trim((string)$term);
+        if ('' === $term) {
+            return true;
+        }
+        foreach ($row as $field => $cell) {
+            if ('value' === $field || !is_scalar($cell)) {
+                continue;
+            }
+            if (false !== stripos((string)$cell, $term)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Is this globalSettings key's value a credential?
+     *
+     * @param string $key The setting name.
+     *
+     * @return bool
+     */
+    public static function isSensitiveSetting($key)
+    {
+        if (in_array($key, self::$sensitiveSettingsExempt, true)) {
+            return false;
+        }
+        if (in_array($key, self::$sensitiveSettings, true)) {
+            return true;
+        }
+        return 1 === preg_match(self::SENSITIVE_SETTING_PATTERN, $key);
+    }
+    /**
+     * Drops the value of a globalSettings row that holds a credential.
+     *
+     * The name, description and category stay -- only the value goes -- so
+     * a consumer can still see the setting exists and what it is for.
+     *
+     * @param mixed $data A serialized setting row.
+     *
+     * @return mixed
+     */
+    public static function maskSensitiveSetting($data)
+    {
+        if (!is_array($data) || !isset($data['name'])) {
+            return $data;
+        }
+        if (self::isSensitiveSetting((string)$data['name'])) {
+            unset($data['value']);
+        }
+        return $data;
+    }
     public static function getter($classname, $class, $item = '')
     {
         if (!$class instanceof $classname) {
@@ -2277,6 +2471,29 @@ class Route extends FOGBase
                     'class' => &$class
                 )
             );
+        /*
+         * A credential setting's value never leaves over the API.
+         *
+         * GET /service returned every globalSettings row with its value, so
+         * any authenticated API caller read FOG_API_TOKEN, the AD default
+         * password, the proxy password, the TFTP FTP password, the storage
+         * node MySQL password and (as of GH-1312) the node signing key. A
+         * uType 1 mobile user could do it too.
+         *
+         * Gated on this being an actual API request, which is the whole
+         * reason it is here rather than unconditional: FOG Configuration
+         * builds its own form from Route::listem('service', ...) and reads
+         * $Service->value back out to render and to save. Masking that would
+         * blank every credential field in the UI and then write the blank
+         * back. Only api/index.php constructs this class, so the flag it
+         * sets is exactly "the answer is going to an HTTP client".
+         *
+         * After API_GETTER, not before: a listener may legitimately want the
+         * real value in process, and none of them may put it back.
+         */
+        if (self::$_isApiRequest && 'service' === $classname) {
+            $data = self::maskSensitiveSetting($data);
+        }
         return $data;
     }
     /**
@@ -2339,6 +2556,7 @@ class Route extends FOGBase
                 )
             );
         }
+        self::_refuseSettingValueFilter($class, array_keys($whereItems));
         return $whereItems;
     }
     /**
