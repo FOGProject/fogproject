@@ -9705,6 +9705,9 @@ msgstr "Imagereplikation"
 msgid "images"
 msgstr "Images"
 
+msgid "images and snapinfiles are opt-in: each is an outbound request to the node itself, so they are returned only for expand=images, expand=snapinfiles or expand=all. logfiles is not returned by this route at all."
+msgstr ""
+
 #, fuzzy
 msgid "images to a storage group"
 msgstr "bildet ab zu einer Speichergruppe"

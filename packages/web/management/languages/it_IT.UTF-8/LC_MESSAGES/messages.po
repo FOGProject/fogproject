@@ -9357,6 +9357,9 @@ msgstr "replica dell'immagine"
 msgid "images"
 msgstr "immagini"
 
+msgid "images and snapinfiles are opt-in: each is an outbound request to the node itself, so they are returned only for expand=images, expand=snapinfiles or expand=all. logfiles is not returned by this route at all."
+msgstr ""
+
 msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
 
