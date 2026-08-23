@@ -4028,6 +4028,9 @@ msgstr ""
 msgid "Master Node"
 msgstr ""
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 msgid "Max Clients"
 msgstr ""
 
@@ -5504,9 +5507,6 @@ msgstr ""
 msgid "Returning value of key"
 msgstr ""
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -6710,7 +6710,7 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 msgid "That group is already defined for this provider!"

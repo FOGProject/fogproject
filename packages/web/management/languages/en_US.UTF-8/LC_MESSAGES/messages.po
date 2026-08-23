@@ -4762,6 +4762,9 @@ msgstr "User update failed"
 msgid "Master Node"
 msgstr "Master Node"
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 msgid "Max Clients"
 msgstr "Max Clients"
 
@@ -6477,9 +6480,6 @@ msgstr "Return Code"
 msgid "Returning value of key"
 msgstr "Returning value of key"
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -7923,7 +7923,7 @@ msgstr "Serial"
 msgid "Text"
 msgstr "Text"
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 #, fuzzy
