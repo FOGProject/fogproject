@@ -934,13 +934,138 @@ abstract class FOGService extends FOGBase
         posix_kill($pid, $sig);
     }
     /**
-     * Kills the tasking
+     * Is a pid still present, and still running what we started?
+     *
+     * /proc is read rather than posix_kill($pid, 0) because a pid can be
+     * recycled between the kill and the check. Matching the cmdline means a
+     * reused pid running something else answers "gone", which is the honest
+     * answer -- and a zombie, whose cmdline is empty, answers "gone" too,
+     * correctly: it holds no port and no file.
+     *
+     * @param int    $pid   The pid to test.
+     * @param string $match Substring the cmdline must contain, if any.
+     *
+     * @return bool
+     */
+    public function isPidAlive($pid, $match = '')
+    {
+        $pid = (int)$pid;
+        if ($pid < 1) {
+            return false;
+        }
+        $cmdline = @file_get_contents(
+            sprintf('/proc/%d/cmdline', $pid)
+        );
+        if (empty($cmdline)) {
+            return false;
+        }
+        if ('' === $match) {
+            return true;
+        }
+        return false !== strpos(
+            str_replace("\0", ' ', $cmdline),
+            $match
+        );
+    }
+    /**
+     * Waits, bounded, for a process to exit.
+     *
+     * @param resource $procRef The proc_open() handle.
+     * @param int      $tenths  How many tenths of a second to wait.
+     *
+     * @return bool True if it exited within the window.
+     */
+    private function _waitForExit($procRef, $tenths = 30)
+    {
+        for ($i = 0; $i < $tenths; $i++) {
+            if (!$this->isRunning($procRef)) {
+                return true;
+            }
+            usleep(100000);
+        }
+        return !$this->isRunning($procRef);
+    }
+    /**
+     * Terminates a process tree and reports whether it is actually gone.
+     *
+     * SIGTERM the tree, wait, then SIGKILL what is left. Both halves matter:
+     *
+     * - proc_close() BLOCKS until the child is reaped, so a process that
+     *   ignored SIGTERM used to hang the daemon inside the kill itself.
+     * - the answer is only honest once the process has had a chance to go,
+     *   and callers act on it: MulticastTask only releases its ownership
+     *   row when the sender is really gone.
+     *
+     * The handle is deliberately NOT closed when the process survives
+     * everything -- proc_close() would block forever waiting to reap it.
+     * Leaking one handle beats wedging the daemon, and the caller is told.
+     *
+     * @param resource $procRef The proc_open() handle.
+     *
+     * @return bool True when nothing is left running.
+     */
+    private function _terminateProc($procRef)
+    {
+        if (!is_resource($procRef)) {
+            return true;
+        }
+        if (!$this->isRunning($procRef)) {
+            // Already exited; proc_close() only reaps it.
+            proc_close($procRef);
+            return true;
+        }
+        $pid = (int)$this->getPID($procRef);
+        if ($pid > 0) {
+            $this->killAll($pid, SIGTERM);
+        }
+        proc_terminate($procRef, SIGTERM);
+        if (!$this->_waitForExit($procRef)) {
+            if ($pid > 0) {
+                $this->killAll($pid, SIGKILL);
+            }
+            proc_terminate($procRef, SIGKILL);
+            $this->_waitForExit($procRef);
+        }
+        if ($this->isRunning($procRef)) {
+            return false;
+        }
+        proc_close($procRef);
+        return true;
+    }
+    /**
+     * Closes out a set of proc_open() pipes.
+     *
+     * @param mixed $pipes The stored pipe set, if any.
+     *
+     * @return void
+     */
+    private function _closePipes($pipes)
+    {
+        foreach ((array)$pipes as &$close) {
+            if (is_resource($close)) {
+                fclose($close);
+            }
+            unset($close);
+        }
+    }
+    /**
+     * Kills the tasking.
+     *
+     * Returns whether the process is GONE by the time the call finishes:
+     * true when nothing is left running, false when it survived SIGTERM
+     * and SIGKILL. That is the only question a caller can act on, and it
+     * was previously unanswerable -- the old code returned false after a
+     * SUCCESSFUL kill, returned !$isRunning ("was it already dead") from
+     * the itemType branch, and fell off the end returning null when the
+     * process had already exited. MulticastTask::killTask() discarded it
+     * and hardcoded true, which left the "could not be killed" arms in
+     * MulticastManager unreachable.
      *
      * @param int    $index    the index for the item to look into
      * @param mixed  $itemType the type of the item
      * @param string $filename the filename to close out
      *
-     * @return bool
+     * @return bool True when the process is gone.
      */
     public function killTasking(
         $index = 0,
@@ -948,11 +1073,14 @@ abstract class FOGService extends FOGBase
         $filename = false
     ) {
         if ($itemType === false) {
-            foreach ((array)$this->procPipes[$index] as $i => &$close) {
-                fclose($close);
-                unset($close);
+            // isset guard: killTask() is also called on a task whose start
+            // FAILED, where no pipes were ever stored -- MulticastManager
+            // does exactly that. Unguarded this warned on every failed
+            // multicast start under PHP 8.
+            if (isset($this->procPipes[$index])) {
+                $this->_closePipes($this->procPipes[$index]);
+                unset($this->procPipes[$index]);
             }
-            unset($this->procPipes[$index]);
             // procRef may be an array keyed by $index or a single resource
             // (the multicast path collapses it to one resource via
             // array_shift). Resolve to a single reference so we never index
@@ -960,54 +1088,23 @@ abstract class FOGService extends FOGBase
             $procRef = is_array($this->procRef)
                 ? ($this->procRef[$index] ?? null)
                 : $this->procRef;
-            if ($this->isRunning($procRef)) {
-                $pid = $this->getPID($procRef);
-                if ($pid) {
-                    $this->killAll($pid, SIGTERM);
-                }
-                proc_terminate($procRef, SIGTERM);
-                proc_close($procRef);
-                return false;
-            }
-            // Process already exited — release the resource.
-            if (is_resource($procRef)) {
-                proc_close($procRef);
-            }
-        } else {
-            if (isset($this->procRef[$itemType])
-                && isset($this->procRef[$itemType][$filename])
-                && isset($this->procRef[$itemType][$filename][$index])
-            ) {
-                $procRef = $this->procRef[$itemType][$filename][$index];
-            } else {
-                return true;
-            }
-            if (isset($this->procPipes[$itemType])
-                && isset($this->procPipes[$itemType][$filename])
-                && isset($this->procPipes[$itemType][$filename][$index])
-            ) {
-                $pipes = $this->procPipes[$itemType][$filename][$index];
-            } else {
-                return true;
-            }
-            $isRunning = $this->isRunning($procRef);
-            if ($isRunning) {
-                $pid = $this->getPID($procRef);
-                if ($pid) {
-                    $this->killAll($pid, SIGTERM);
-                }
-                proc_terminate($procRef, SIGTERM);
-            }
-            // Always close pipes and release the process resource,
-            // whether it was still running or had already exited.
-            foreach ((array)$pipes as $i => &$close) {
-                fclose($close);
-                unset($close);
-            }
-            unset($pipes);
-            proc_close($procRef);
-            return !$isRunning;
+            return $this->_terminateProc($procRef);
         }
+        if (!isset($this->procRef[$itemType][$filename][$index])) {
+            return true;
+        }
+        $procRef = $this->procRef[$itemType][$filename][$index];
+        if (isset($this->procPipes[$itemType][$filename][$index])) {
+            $this->_closePipes(
+                $this->procPipes[$itemType][$filename][$index]
+            );
+            unset($this->procPipes[$itemType][$filename][$index]);
+        }
+        // Both sides of the pair are dropped, not just the pipes: the
+        // handle is closed below, and cleanupProcList() walks procRef
+        // expecting a live resource with matching pipes still beside it.
+        unset($this->procRef[$itemType][$filename][$index]);
+        return $this->_terminateProc($procRef);
     }
     /**
      * Gets the pid of the running reference
@@ -1101,9 +1198,16 @@ abstract class FOGService extends FOGBase
      */
     public function cleanupProcList()
     {
-        foreach ($this->procRef as $item => &$itemTypes) {
-            foreach ($itemTypes as $image => &$images) {
-                foreach ($images as $i => &$ref) {
+        // count() on a missing key is a TypeError under PHP 8, not a
+        // warning -- an uncaught one, in a daemon, so the replicator would
+        // die outright and the unit would simply stop syncing. empty() is
+        // null-safe and means the same thing at every site here: no entry
+        // and an entry holding nothing both want the key dropped. The two
+        // structures are kept in step by startTasking() and killTasking(),
+        // but nothing enforces that, and this is not the place to find out.
+        foreach ((array)$this->procRef as $item => &$itemTypes) {
+            foreach ((array)$itemTypes as $image => &$images) {
+                foreach ((array)$images as $i => &$ref) {
                     if (!$this->isRunning($images[$i])) {
                         self::outall(
                             ' | '
@@ -1111,30 +1215,34 @@ abstract class FOGService extends FOGBase
                             . print_r($images[$i], true)
                         );
                         foreach (
-                            (array)$this->procPipes[$item][$image][$i]
+                            (array)($this->procPipes[$item][$image][$i] ?? [])
                             as &$pipe
                         ) {
-                            fclose($pipe);
+                            if (is_resource($pipe)) {
+                                fclose($pipe);
+                            }
                             unset($pipe);
                         }
                         unset($this->procPipes[$item][$image][$i]);
-                        proc_close($images[$i]);
+                        if (is_resource($images[$i])) {
+                            proc_close($images[$i]);
+                        }
                         unset($images[$i]);
                     }
                     unset($ref);
                 }
-                if (!count($itemTypes[$image])) {
+                if (empty($itemTypes[$image])) {
                     unset($itemTypes[$image]);
                 }
-                if (!count($this->procPipes[$item][$image])) {
+                if (empty($this->procPipes[$item][$image])) {
                     unset($this->procPipes[$item][$image]);
                 }
                 unset($images);
             }
-            if (!count($this->procRef[$item])) {
+            if (empty($this->procRef[$item])) {
                 unset($this->procRef[$item]);
             }
-            if (!count($this->procPipes[$item])) {
+            if (empty($this->procPipes[$item])) {
                 unset($this->procPipes[$item]);
             }
             unset($itemTypes);
