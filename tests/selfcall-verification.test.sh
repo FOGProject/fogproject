@@ -184,6 +184,54 @@ else
     bad "M: checkWebTier still dials \${NET_fog_server_ip}"
 fi
 
+# N. No self-addressed call may be sent to a proxy.
+#
+# A FOG server behind corporate egress filtering has http_proxy/https_proxy in
+# root's environment, and curl honours them for every host that is not in
+# no_proxy -- including the server's own name and its own LAN address. The
+# request then goes to the proxy, which either cannot route back or refuses to
+# CONNECT. Observed on backupDB() as
+# `curl: (56) CONNECT tunnel failed, response 502`, i.e. the backup step failing
+# for a reason with nothing to do with the database, and reported with a blank
+# explanation because plain -s also suppresses curl's error text.
+#
+# Matched on the URL each call dials rather than on a list of function names, so
+# a self-call added later is covered without editing this.
+# Any curl invocation naming one of the addresses this server dials itself (or
+# its master) by. The URL can sit a long way down the line, after a dozen -d
+# flags, so this matches the whole line rather than a URL-shaped prefix.
+selfcalls=$(grep -nE '\bcurl\b' "$FUNCS" \
+    | grep -E '\$\{NET_fog_server_ip\}|\$\{DB_host\}|\$\{selfName\}|selfCacertOpts')
+n=$(printf '%s\n' "$selfcalls" | grep -cvE '^$')
+[[ $n -ge 5 ]] && ok "N: found $n self-addressed curl calls to check" \
+    || bad "N: only found $n self-addressed curl calls; the match is probably broken"
+proxied=""
+while IFS= read -r line; do
+    [[ -z $line ]] && continue
+    [[ $line == *"--noproxy"* ]] || proxied="$proxied ${line%%:*}"
+done <<< "$selfcalls"
+check "$proxied" "" "N: every self-addressed curl passes --noproxy"
+
+# O. And the dump fetch reports WHY it failed.
+#    The block builds a $dbwhy string for five distinct failure modes; plain -s
+#    silences curl's message, so the "curl exited N" branch had nothing to put
+#    after the colon.
+if awk '/dbhttpcode=\$\(curl/,/dbcurlstat=\$\?/' "$FUNCS" | grep -q 'curl -sS'; then
+    ok "O: the dump fetch uses -sS, so its failure reason is not blank"
+else
+    bad "O: the dump fetch still uses plain -s -- \$dbcurlerr will be empty"
+fi
+
+# P. jq only runs when curl actually produced a body.
+#    Unconditional, the redirection `< \$dbraw` failed on any curl error and bash
+#    printed "No such file or directory" into the middle of the progress line,
+#    ahead of the guards that would have explained the real fault.
+if awk '/dbcurlstat=\$\?/,/dbjqstat=1/' "$FUNCS" | grep -q 'if \[\[ -f \$dbraw \]\]'; then
+    ok "P: jq is guarded on curl having written the response body"
+else
+    bad "P: jq runs unconditionally, so a curl failure leaks a bash error"
+fi
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0

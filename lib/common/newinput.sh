@@ -32,7 +32,7 @@ while [[ -z ${NET_hostname} ]]; do
             ;;
         [Yy]|[Yy][Ee][Ss])
             echo -n "  Which hostname would you like to use? "
-            read hostname
+            read NET_hostname
             ;;
         *)
             echo "  Invalid input, please try again."
@@ -112,10 +112,10 @@ while [[ -z ${FOG_send_reports} ]]; do
     fi
     case $blReports in
         [Yy]|[Yy][Ee][Ss]|"")
-            FOG_send_reports="Y"
+            FOG_send_reports="yes"
             ;;
         [Nn]|[Nn][Oo])
-            FOG_send_reports="N"
+            FOG_send_reports="no"
             ;;
         *)
             FOG_send_reports=""

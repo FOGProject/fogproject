@@ -84,14 +84,15 @@ comm_pass() {
     _resolveRootCA >/dev/null 2>&1
 
     local sanentries="IP.1 = ${NET_fog_server_ip}"
-    cat > "${PKI_client_cert_dir}/ca.cnf" << CNF
+    _relocatePkiConf
+    cat > "$(_pkiConfDir)/ca.cnf" << CNF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
 DNS.1 = ${NET_hostname}
 CNF
-    cat > "${PKI_client_cert_dir}/req.cnf" << CNF
+    cat > "$(_pkiConfDir)/req.cnf" << CNF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -108,18 +109,20 @@ DNS.1 = ${NET_hostname}
 CNF
 
     _separateCommKey
-    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_cert_dir}/.srvprivate.key || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
-        if [[ ! -e ${PKI_client_cert_dir}/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
-            openssl genrsa -out "${PKI_client_cert_dir}/.srvprivate.key" 4096 >>$error_log 2>&1
+    _resolveClientLeafPaths
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_encrypt_key} || ! -e $(_pkiZoneDir client)/leaf/fog.csr ]]; then
+        if [[ ! -e ${PKI_client_encrypt_key} || $recreateKeys == yes || $recreateCA == yes ]]; then
+            openssl genrsa -out "${PKI_client_encrypt_key}" 4096 >>$error_log 2>&1
             if [[ $recreateKeys == yes || $recreateCA == yes ]]; then
                 _discardOrphanedCommLeaf
             fi
         fi
-        openssl req -new -sha512 -key "${PKI_client_cert_dir}/.srvprivate.key" -out "${PKI_client_cert_dir}/fog.csr" \
-            -config "${PKI_client_cert_dir}/req.cnf" >>$error_log 2>&1
+        openssl req -new -sha512 -key "${PKI_client_encrypt_key}" -out "$(_pkiZoneDir client)/leaf/fog.csr" \
+            -config "$(_pkiConfDir)/req.cnf" >>$error_log 2>&1
     fi
     _createCommLeaf >/dev/null 2>&1
     _warnClientRepin
+    _linkClientLeafCompat
     # The publish at the end of createSSLCA(), which is what makes the file this
     # run compared against the "deployed copy" for the next one.
     mkdir -p "$webdirdest/management/other/ssl" >>$error_log 2>&1

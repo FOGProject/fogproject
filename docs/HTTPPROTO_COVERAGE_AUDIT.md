@@ -240,8 +240,15 @@ The FOG root and everything fog-client depends on are untouched.
 
 ### The client-communication leaf (external issuer)
 
-Drop the certificate at `$PKI_client_cert_dir/.srvpublic.crt` with its key at
-`$PKI_client_cert_dir/.srvprivate.key`. FOG keeps both from then on and never re-issues.
+Pass `--client-cert` and `--client-key` (both, or neither — half a pair is
+refused). FOG keeps them from then on and never re-issues.
+
+Dropping the files at the canonical names still works and is equivalent: those
+are `$PKI_client_cert_dir/.srvpublic.crt` and `.srvprivate.key`, now symlinks
+into `pki/client/leaf/`. Either way FOG checks the modulus first — comparing the
+raw modulus, not `openssl md5` of it, because md5 of the empty output an
+unreadable file produces is a perfectly non-empty hash, so two unreadable files
+used to "pair".
 
 >[!danger]
 >The two must pair. Every registered fog-client encrypts to the public half of

@@ -251,11 +251,69 @@ Then, unconditionally:
 - **`settingLine()` must stay single-quote-safe.** Values reach it from admin
   input and package lists.
 - **`FOG_installed` is unquoted and numeric** to match the historical format.
+  It is also the one boolean-looking key the normalizer below leaves alone —
+  see "Boolean values".
 - **A typo in `managedKeys` is silent, not fatal.** `settingLine()` resolves
   `${!key}`, so a key naming no live variable emits an empty line.
 - Adding a key to `managedKeys` **turns a hand-set key into a managed one**, so
   the admin's value starts being overwritten. That is a behavior change even
   though it looks like documentation.
+
+---
+
+## Boolean values
+
+Every boolean key holds `yes` or `no`. There were three encodings before this,
+and the flag layer mixed them inside a single variable — `sDHCP_enabled` was
+assigned `"Y"` and then `1` on the very next line, and
+`sBOOT_external_tftp_server` was assigned the string `"true"`, which nothing
+tested for.
+
+| Old encoding | Keys |
+|---|---|
+| `yes`/`no` | `WEB_https_redirect`, `BOOT_rebuild_ipxe_with_my_ca`, `PKI_web_cert_publicly_trusted`, `BOOT_url_proto_forced` |
+| `1`/`0` | `FOG_copy_back_old`, `DHCP_enabled`, `DB_external`, `BOOT_external_tftp_server`, `STORAGE_rebuild_nfs_exports`, `PKI_sb_enabled`, `FOG_install_lang` |
+| `Y`/`N` | `FOG_send_reports` |
+
+Which literal a test had to use was a per-key fact nobody could carry, and
+getting it wrong fails silently in both directions:
+
+```sh
+[[ "N" == 0 ]]    # simply false
+[[ "N" -eq 1 ]]   # "N" is evaluated as an ARITHMETIC expression -- an unset
+                  # variable named N, so 0 -- rather than erroring
+```
+
+That pair is how `DHCP_enabled="N"` satisfied neither the enabled test nor the
+disabled one.
+
+`_normalizeBool()` maps `yes|y|1|true|on|enabled` and the negatives, in any
+case, onto `yes`/`no`. Two things it deliberately does not do:
+
+- **An unrecognised value is left alone**, not guessed at. Turning a typo into
+  `no` is how a deliberate setting disappears with nothing to show why.
+- **Empty stays empty.** The prompt loops are `while [[ -z ${KEY} ]]`, so
+  collapsing unset into `no` would stop every prompt firing.
+
+`_normalizeBooleanSettings()` applies it to the twelve keys and runs on **every**
+install, not once behind a version marker — `.fogsettings` is a file admins edit,
+so an old encoding can arrive at any time. That makes it idempotent and
+self-repairing, and it is what keeps the GH-1120 key migration a *copy* rather
+than a translation. It runs after the flag shadows, because every source of a
+value has fed in by that point and the flag layer was itself the worst offender.
+`writeUpdateFile()` therefore only ever sees `yes`/`no`.
+
+**Polarity is untouched.** `BOOT_external_tftp_server` keeps the sense it
+inherited from `noTftpBuild`, so values carry across unchanged and only the
+encoding moves.
+
+Three keys are outside this:
+
+| Key | Why |
+|---|---|
+| `FOG_installed` | unquoted numeric via `settingLine()`'s own branch to preserve the historical format, read by `bin/updatefog.sh`, and install *state* rather than a preference |
+| `SVC_firewall_control` | tri-state — `configure`/`disable`/`skip`. Folding it to `yes`/`no` destroys an answer |
+| `FOG_install_type` | an `N`/`S` enum |
 
 ---
 

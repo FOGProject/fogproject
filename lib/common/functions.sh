@@ -496,7 +496,7 @@ registerStorageNode() {
     # over ${DB_password}, which is the real control on the node<->master trust
     # bootstrap. Closing this properly needs the master to hand a node its
     # anchor out of band, which is a design change, not a flag change.
-    storageNodeExists=$(curl -s -X POST -d "ip=${NET_fog_server_ip}" -d "fogverified" -kL ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/check_node_exists.php -o -)
+    storageNodeExists=$(curl -s --noproxy '*' -X POST -d "ip=${NET_fog_server_ip}" -d "fogverified" -kL ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/check_node_exists.php -o -)
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
@@ -531,7 +531,7 @@ registerStorageNode() {
         # the VALUES now come from ${PKI_client_cert_dir}, ${NET_interface} and
         # ${WEB_root}. Renaming the field names to match the settings would make
         # the master silently drop them.
-        regstatus=$(curl -s -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n ${STORAGE_image_share_path}|base64)" -d "ftppath=$(echo -n ${STORAGE_image_share_path}|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n ${PKI_client_cert_dir}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "bandwidth=1" -d "webroot=$(echo -n ${WEB_root}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php)
+        regstatus=$(curl -s --noproxy '*' -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n ${STORAGE_image_share_path}|base64)" -d "ftppath=$(echo -n ${STORAGE_image_share_path}|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n ${PKI_client_cert_dir}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "bandwidth=1" -d "webroot=$(echo -n ${WEB_root}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php)
         case $regstatus in
             2*)
                 echo "Done"
@@ -558,7 +558,7 @@ updateStorageNodeCredentials() {
     # -k on purpose -- see registerStorageNode. This is called from the node
     # path before any anchor exists, and from the master path after one does;
     # the shared function has to work in the earlier of the two.
-    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php
+    curl -s --noproxy '*' -k -X POST -d "nodePass" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php
     echo "Done"
 }
 # Mirrors fog_git_path/fog_update_channel/extraServerNames/servicelogs into
@@ -645,7 +645,7 @@ backupDB() {
     # External Unprivileged Database Implementation
     # Skip database backup for external databases
     # ---------------------------------------------------------
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         echo " * Skipping database backup (External Database Mode)"
         return 0
     fi
@@ -714,10 +714,33 @@ backupDB() {
         # Verified, not -k: this is an HTTPS call to this server, and
         # _resolveSelfCacert names the anchor for the chain it is serving.
         _resolveSelfCacert
-        dbhttpcode=$(curl -s "${selfCacertOpts[@]}" --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
+        # --noproxy '*' because this is a call to THIS server. With http_proxy
+        # or https_proxy set in the installer's environment -- ordinary on a
+        # server behind corporate egress filtering -- curl sends even a
+        # self-addressed request to the proxy, which either cannot route back to
+        # the FOG server or refuses to CONNECT to it. Observed as
+        # `curl: (56) CONNECT tunnel failed, response 502`, i.e. the backup step
+        # failing for a reason that has nothing to do with the database. The two
+        # other self-calls in this file (the serves-FOG probe and the schema
+        # POST) already pass it; this one was missed.
+        #
+        # -sS, not -s. Plain -s suppresses curl's error message as well as the
+        # progress meter, so $dbcurlerr came back EMPTY and the "curl exited N"
+        # branch below reported a bare exit code with no reason -- defeating the
+        # diagnostics the rest of this block exists to produce.
+        dbhttpcode=$(curl -sS --noproxy '*' "${selfCacertOpts[@]}" --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
         dbcurlstat=$?
-        jq -r '. | ._content' < "$dbraw" > "$dbbackupfile" 2>>"$dbcurlerr"
-        dbjqstat=$?
+        # Only when curl actually produced a body. Running jq unconditionally
+        # meant that on any curl failure the redirection `< "$dbraw"` failed
+        # too, and bash printed "No such file or directory" to the installer's
+        # stderr -- landing in the middle of the progress line, before the
+        # guards below had a chance to say what really happened.
+        if [[ -f $dbraw ]]; then
+            jq -r '. | ._content' < "$dbraw" > "$dbbackupfile" 2>>"$dbcurlerr"
+            dbjqstat=$?
+        else
+            dbjqstat=1
+        fi
         # Ordered most specific first, so the message names the earliest
         # thing that went wrong rather than its downstream effect. A redirect
         # is called out on its own: -f fails only on 4xx and 5xx, so a 3xx
@@ -908,7 +931,7 @@ checkWebTier() {
 # hold, table not created yet). Callers must treat empty as "unknown" and never
 # as zero.
 schemaVersionInDB() {
-    [[ "${DB_external}" == "1" ]] && return 0
+    [[ ${DB_external} == yes ]] && return 0
     [[ -z $sqloptionsuser ]] && return 0
     mysql $sqloptionsuser --password="${DB_password}" -N -B --execute="SELECT vValue FROM \`${DB_name}\`.\`schemaVersion\` WHERE vID=1" 2>/dev/null | tail -1
 }
@@ -918,7 +941,7 @@ schemaVersionInDB() {
 # an established install, and guessing "established" would leave a genuinely
 # fresh install with no way to bootstrap. Callers show both instructions.
 fogUserCount() {
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         [[ -z ${DB_host} || -z ${DB_user} ]] && return 0
         mysql --host="${DB_host}" --user="${DB_user}" --password="${DB_password}" $mysqlsslopt -N -B --execute="SELECT COUNT(*) FROM \`${DB_name}\`.\`users\`" 2>/dev/null | tail -1
         return 0
@@ -1101,7 +1124,7 @@ updateDB() {
     # External Unprivileged Database Implementation
     # Bypass DB user management (fogstorage) requiring root GRANT
     # ---------------------------------------------------------
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         echo " * Skipping fogstorage DB user management (External Database Mode)"
         # Return cleanly, skipping the GRANT/ALTER commands below
         return 0
@@ -1194,7 +1217,6 @@ GRANT INSERT,UPDATE ON ${DB_name}.taskStates TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON ${DB_name}.taskLog TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON ${DB_name}.snapinTasks TO 'fogstorage'@'%' ;
 GRANT INSERT,UPDATE ON ${DB_name}.snapinJobs TO 'fogstorage'@'%' ;
-GRANT INSERT,UPDATE ON ${DB_name}.imagingLog TO 'fogstorage'@'%' ;
 FLUSH PRIVILEGES ;
 SET SQL_MODE=@OLD_SQL_MODE ;
 EOF
@@ -1536,7 +1558,7 @@ listPackages() {
         done
         FOG_packages=$(echo $newpackagelist)
     fi
-    if [[ ${DHCP_enabled} == 0 ]]; then
+    if [[ ${DHCP_enabled} != yes ]]; then
         [[ -z $newpackagelist ]] && newpackagelist=""
         for z in ${FOG_packages}; do
             [[ -$z != $dhcpname ]] && newpackagelist="$newpackagelist $z"
@@ -1556,7 +1578,7 @@ listPackages() {
     case ${FOG_os_id} in
         1)
             FOG_packages="${FOG_packages} php-bcmath bc"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
                 for i in fr de eu es pt zh en ja; do
                     FOG_packages="${FOG_packages} glibc-langpack-${i}"
@@ -1581,9 +1603,9 @@ listPackages() {
             FOG_packages="${FOG_packages// xinetd/}"
             FOG_packages="${FOG_packages// php-gettext/}"
             FOG_packages="${FOG_packages// php-php-gettext/}"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
-                if [[ ${FOG_install_lang} -eq 1 ]]; then
+                if [[ ${FOG_install_lang} == yes ]]; then
                     for i in fr de eu es pt zh-hans en ja; do
                         FOG_packages="${FOG_packages} language-pack-${i}"
                     done
@@ -2157,11 +2179,31 @@ fetchipxeasset() {
     cd $cwd
     return $stat
 }
-# The CA that gets compiled into a locally built iPXE. ${PKI_web_trust_chain} when there
-# is one, so an external CA's chain is embedded rather than FOG's own root --
-# buildipxe.sh takes it as CERT=/TRUST=, its only per-site input.
+# The CA that gets compiled into a locally built iPXE: ${PKI_web_ca_cert}, the
+# Web intermediate itself. buildipxe.sh takes it as CERT=/TRUST=, its only
+# per-site input.
+#
+# The Web CA and NOT ${PKI_web_trust_chain}, which is what this used to prefer.
+# The chain is the web zone's trust PATH -- intermediate plus the root anchoring
+# it -- and embedding the whole bundle gives iPXE strictly more trust than the
+# job needs: it makes iPXE trust the FOG root, and therefore anything the root
+# ever signs, when all it has to validate is boot.php's leaf. The intermediate
+# is name-constrained and serverAuth-only (ADR 0016, which is enforceable
+# precisely because iPXE is a verifier FOG can patch), so pinning that one
+# certificate is both narrower and sufficient.
+#
+# It is also what makes bring-your-own-CA work here. An admin whose Web CA is
+# their own intermediate has no FOG root above it, so there was nothing sensible
+# for the chain to contain -- the old preference either embedded a bundle whose
+# root FOG does not own, or fell through to this same value anyway.
+#
+# Expect ONE forced rebuild per server on upgrade: _ipxeBuildStampValue() hashes
+# this file into the stamp's ca= field, so the stamp no longer matches and
+# _needsLocalIpxeBuild() schedules exactly one rebuild. That is correct rather
+# than unfortunate -- the binary on disk really does embed different bytes than
+# the ones this now asks for.
 _resolveIpxeTrust() {
-    [[ -n ${PKI_web_trust_chain} && -f ${PKI_web_trust_chain} ]] && ipxetrust="${PKI_web_trust_chain}" || ipxetrust="${PKI_web_ca_cert}"
+    ipxetrust="${PKI_web_ca_cert}"
 }
 # What a built tree is built FROM: the iPXE release tag, and the exact bytes of
 # the CA that got compiled into it.
@@ -2884,7 +2926,7 @@ resolveDHCPEngine() {
     # doOSSpecificIncludes before we ever get here). Must run after repo setup
     # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
     [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
-    [[ ${DHCP_enabled} -eq 1 ]] || return 0
+    [[ ${DHCP_enabled} == yes ]] || return 0
     local iscpkg="$dhcpname"
     [[ -n $iscpkg && ${FOG_packages} == *"$iscpkg"* ]] || return 0
     # Honor an explicit/persisted choice; an existing install is never switched.
@@ -2995,7 +3037,7 @@ pkgFirstInstalled() {
     return 1
 }
 installPackages() {
-    [[ ${FOG_install_lang} -eq 1 ]] && FOG_packages="${FOG_packages} gettext"
+    [[ ${FOG_install_lang} == yes ]] && FOG_packages="${FOG_packages} gettext"
     FOG_packages="${FOG_packages} jq"
     FOG_packages="${FOG_packages} unzip"
     FOG_packages="${FOG_packages} attr"
@@ -3034,7 +3076,7 @@ installPackages() {
     case ${FOG_os_id} in
         1)
             FOG_packages="${FOG_packages} php-bcmath bc"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
                 for i in fr de eu es pt zh en ja; do
                     FOG_packages="${FOG_packages} glibc-langpack-${i}";
@@ -3088,12 +3130,12 @@ installPackages() {
             FOG_packages="${FOG_packages// php-php-gettext/}"
             FOG_packages="${FOG_packages} php-bcmath bc"
             FOG_packages="${FOG_packages} php-ssh2"
-            if [[ ${FOG_install_lang} -eq 1 ]]; then
+            if [[ ${FOG_install_lang} == yes ]]; then
                 FOG_packages="${FOG_packages} php-intl"
             fi
             case $linuxReleaseName_lower in
                 *ubuntu*|*mint*)
-                    if [[ ${FOG_install_lang} -eq 1 ]]; then
+                    if [[ ${FOG_install_lang} == yes ]]; then
                         for i in fr de eu es pt zh-hans en ja; do
                             FOG_packages="${FOG_packages} language-pack-${i}";
                         done
@@ -3623,7 +3665,7 @@ _firewallPortList() {
     # 443 is listening on every install whatever httpproto says. Gating this on
     # httpproto told admins to leave closed a port their server was serving on.
     echo "443/tcp HTTPS (web UI, client check-in)"
-    [[ ${BOOT_external_tftp_server} != 1 ]] && echo "69/udp TFTP (PXE boot)"
+    [[ ${BOOT_external_tftp_server} != yes ]] && echo "69/udp TFTP (PXE boot)"
     echo "21/tcp FTP (image/snapin replication, node operations)"
     # Passive data. vsftpd is pinned to this range by configureFTP() for
     # exactly this reason -- see the comment there.
@@ -3640,7 +3682,7 @@ _firewallPortList() {
     # random per boot and could not be firewalled at all.
     echo "20048/tcp NFS mountd"
     echo "20048/udp NFS mountd"
-    [[ ${DHCP_enabled} -eq 1 ]] && echo "67/udp DHCP (FOG is your DHCP server)"
+    [[ ${DHCP_enabled} == yes ]] && echo "67/udp DHCP (FOG is your DHCP server)"
     # udpcast multicast. UDPCAST_STARTINGPORT is the base and each concurrent
     # session consumes two ports, so the window is base .. base + 2*sessions.
     echo "${mcastportmin}-${mcastportmax}/udp Multicast (udpcast)"
@@ -3656,8 +3698,8 @@ _configureFirewalld() {
     local svc
     for svc in http tftp ftp nfs mountd rpc-bind dhcp; do
         case $svc in
-            tftp)     [[ ${BOOT_external_tftp_server} == 1 ]] && continue ;;
-            dhcp)     [[ ${DHCP_enabled} -ne 1 ]] && continue ;;
+            tftp)     [[ ${BOOT_external_tftp_server} == yes ]] && continue ;;
+            dhcp)     [[ ${DHCP_enabled} != yes ]] && continue ;;
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
@@ -3683,7 +3725,7 @@ _configureUfw() {
     # loaded -- ufw's stock before.rules already accepts RELATED,ESTABLISHED,
     # so the helper is the only missing piece. Persisted, because a reboot
     # without it breaks PXE and nothing says why.
-    if [[ ${BOOT_external_tftp_server} != 1 ]]; then
+    if [[ ${BOOT_external_tftp_server} != yes ]]; then
         echo "nf_conntrack_tftp" > /etc/modules-load.d/fog-conntrack.conf 2>>$error_log
         modprobe nf_conntrack_tftp >>$error_log 2>&1 || true
     fi
@@ -3717,7 +3759,7 @@ _reportIptables() {
         port="${p%/*}"
         echo " *   iptables -I INPUT -p $proto --dport ${port/-/:} -j ACCEPT"
     done < <(_firewallPortList)
-    if [[ ${BOOT_external_tftp_server} != 1 ]]; then
+    if [[ ${BOOT_external_tftp_server} != yes ]]; then
         echo " * TFTP also needs the conntrack helper, or PXE transfers stall:"
         echo " *   modprobe nf_conntrack_tftp"
     fi
@@ -4011,7 +4053,7 @@ configureMySql() {
     # ---------------------------------------------------------
     # External Unprivileged Database Implementation
     # ---------------------------------------------------------
-    if [[ "${DB_external}" == "1" ]]; then
+    if [[ ${DB_external} == yes ]]; then
         dots "Verifying external database connection"
 
         # Test connection and ensure the database exists and is accessible.
@@ -4335,7 +4377,7 @@ EOF
     fi
     errorStat $?
     dots "Setting up exports file"
-    if [[ ${STORAGE_rebuild_nfs_exports} != 1 ]]; then
+    if [[ ${STORAGE_rebuild_nfs_exports} != yes ]]; then
         echo "Skipped"
         if [[ -f "$nfsconfig" ]] && grep -q "no_root_squash" "$nfsconfig"; then
             echo
@@ -4509,6 +4551,14 @@ _installNodeCertSigner() {
         echo "PKI_WEB_CA_CERT=${PKI_web_ca_cert}"
         echo "PKI_WEB_CA_KEY=${PKI_web_ca_key}"
         echo "PKI_ROOT_CERT=${PKI_root_ca_cert}"
+        # What the web zone is actually anchored by, and the chain a node should
+        # serve beneath its leaf. Both differ from PKI_ROOT_CERT as soon as the
+        # admin supplies their own Web CA: the FOG root never signed that
+        # intermediate, so it can neither verify what this helper issues nor
+        # belong in what the node serves. .trustAnchor.pem carries the FOG root
+        # AND an imported root where there is one, so it is correct either way.
+        echo "PKI_WEB_ANCHOR=$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+        echo "PKI_WEB_CHAIN=${PKI_web_trust_chain}"
         if [[ -f $sbca ]]; then
             echo "PKI_SB_CA_CERT=${sbca}"
             echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
@@ -4604,7 +4654,7 @@ _requestNodeCert() {
     # on ${DB_password} -- a secret only a genuine node of this master holds -- and
     # what comes back is a certificate chain the caller validates on its own
     # terms. See registerStorageNode for the full reasoning.
-    resp=$(curl -sS -k -X POST \
+    resp=$(curl -sS --noproxy '*' -k -X POST \
         -d "type=${type}" \
         -d "hmac=${mac}" \
         --data-urlencode "csr=${b64}" \
@@ -5199,9 +5249,13 @@ _hardenPkiPermissions() {
     # stricter mode here does not harden anything -- it stops every client on
     # the server from authenticating, with "Private key not readable" as the
     # only clue.
-    if [[ -f ${PKI_client_cert_dir}/.srvprivate.key ]]; then
-        chown root:${apacheuser} "${PKI_client_cert_dir}/.srvprivate.key" >>$error_log 2>&1
-        chmod 0640 "${PKI_client_cert_dir}/.srvprivate.key" >>$error_log 2>&1
+    # The REAL file, not the canonical name. chown/chmod follow symlinks, so
+    # going through the compat link would work by accident -- but it silently
+    # does nothing at all on the run before the link exists, and names the wrong
+    # thing in the error log when it fails.
+    if [[ -f ${PKI_client_encrypt_key} ]]; then
+        chown root:${apacheuser} "${PKI_client_encrypt_key}" >>$error_log 2>&1
+        chmod 0640 "${PKI_client_encrypt_key}" >>$error_log 2>&1
     fi
     errorStat $?
     # configureSnapins now prunes ${PKI_client_cert_dir}, so its recursive relabel no longer
@@ -5511,10 +5565,65 @@ configureStorage() {
 clearScreen() {
     clear
 }
+# One boolean encoding for .fogsettings: yes / no.
+#
+# Before this there were three, and the flag layer mixed them inside a single
+# variable -- sDHCP_enabled was assigned "Y" and then 1 on the very next line,
+# and sBOOT_external_tftp_server was assigned the string "true", which nothing
+# tested for. The keys divided up as yes/no (three keys), 1/0 (seven) and Y/N
+# (one), so which literal a test had to use was a per-key fact nobody could
+# carry, and getting it wrong is silent: `[[ $x == 0 ]]` against "N" is simply
+# false, and `[[ "N" -eq 1 ]]` evaluates "N" as an arithmetic expression --
+# an unset variable named N, so zero -- rather than erroring. That pair is
+# exactly how DHCP_enabled="N" satisfied neither the enabled test nor the
+# disabled one (GH-1120 follow-up).
+#
+# Anything a human might reasonably have typed maps in, so hand-edited files
+# keep working; anything else is left ALONE rather than guessed at, because
+# silently turning a typo into "no" is how a deliberate setting disappears.
+# Empty stays empty -- callers distinguish "unset" from "no" (see the
+# `[[ -z ${DHCP_enabled} ]]` prompt loops), and collapsing that here would make
+# every prompt stop firing.
+_normalizeBool() {
+    case "${1,,}" in
+        yes|y|1|true|on|enabled)   echo "yes" ;;
+        no|n|0|false|off|disabled) echo "no" ;;
+        *)                         echo "$1" ;;
+    esac
+}
+# The keys _normalizeBool applies to, and the only ones it may.
+#
+# FOG_installed is deliberately absent: settingLine() writes it unquoted and
+# numeric to preserve the historical file format, bin/updatefog.sh reads it, and
+# it records install STATE rather than a preference. SVC_firewall_control
+# (configure/disable/skip) and FOG_install_type (N/S) are absent because they
+# are not booleans at all -- folding either to yes/no would destroy an answer.
+_booleanSettingKeys() {
+    echo BOOT_external_tftp_server BOOT_rebuild_ipxe_with_my_ca \
+         BOOT_url_proto_forced DB_external DHCP_enabled FOG_copy_back_old \
+         FOG_install_lang FOG_send_reports PKI_sb_enabled \
+         PKI_web_cert_publicly_trusted STORAGE_rebuild_nfs_exports \
+         WEB_https_redirect
+}
+# Normalize in place, every run.
+#
+# NOT a one-shot migration keyed on a version marker: .fogsettings is a file
+# admins edit, so an old encoding can arrive at any time, not just on the
+# upgrade that renamed things. Running every time makes this idempotent and
+# self-repairing, and means writeUpdateFile() only ever sees yes/no -- so the
+# migration stays a copy rather than becoming a translation.
+_normalizeBooleanSettings() {
+    local key
+    for key in $(_booleanSettingKeys); do
+        [[ -n ${!key} ]] || continue
+        printf -v "$key" '%s' "$(_normalizeBool "${!key}")"
+    done
+}
 writeUpdateFile() {
     PKI_client_cert_dir="${PKI_client_cert_dir//\/$}"
     tmpDte=$(date +%c)
-    [[ -z ${FOG_copy_back_old} || ${FOG_copy_back_old} -lt 1 ]] && FOG_copy_back_old=0
+    _normalizeBooleanSettings
+    [[ -z ${FOG_copy_back_old} ]] && FOG_copy_back_old="no"
 
     # GH-632: this assumed $fogprogramdir already existed. On a pristine system
     # it does not -- nothing creates it until `mkdir -p $fogprogramdir/cache`
@@ -5532,14 +5641,15 @@ writeUpdateFile() {
     # under its own name here or the emitted line would be empty.
     FOG_program_dir="$fogprogramdir"
 
-    # Same shape, for the same reason: canonical-path RECORDS whose value is a
-    # pure function of ${PKI_client_cert_dir}. Derived here as well as in
-    # _createCommLeaf() so they are still recorded on an install that never
-    # reached it -- settingLine() resolves values by ${!key}, so an unset key
-    # emits an empty line, which #1121 would read as "no client cert configured".
-    if [[ -n ${PKI_client_cert_dir} ]]; then
-        PKI_client_encrypt_key="${PKI_client_cert_dir}/.srvprivate.key"
-        PKI_client_encrypt_cert="${PKI_client_cert_dir}/.srvpublic.crt"
+    # Same shape, for the same reason: canonical-path RECORDS, now a pure
+    # function of the client PKI zone rather than of ${PKI_client_cert_dir}.
+    # Derived here as well as in _createCommLeaf() so they are still recorded on
+    # an install that never reached it -- settingLine() resolves values by
+    # ${!key}, so an unset key emits an empty line, which #1121 would read as
+    # "no client cert configured".
+    if [[ -n $fogprogramdir ]]; then
+        PKI_client_encrypt_key="$(_pkiZoneDir client)/leaf/.srvprivate.key"
+        PKI_client_encrypt_cert="$(_pkiZoneDir client)/leaf/.srvpublic.crt"
     fi
 
     # Managed keys, in the canonical order a freshly written file uses. This one
@@ -5976,7 +6086,7 @@ writeUpdateFile() {
         # No file, or a file with no recognizable header: write from scratch.
         # Fresh files default an empty DB_external to 0 (historical behavior;
         # the in-place upgrade path leaves it as-is).
-        DB_external="${DB_external:-0}"
+        DB_external="${DB_external:-no}"
         emitFogSettings "" > "$fogprogramdir/.fogsettings"
     fi
     # This file holds two cleartext passwords -- ${SVC_password} (the ${SVC_user}
@@ -6100,9 +6210,11 @@ validateExternalCA() {
     dots "Validating external CA files (${zone})"
     # The supplied private key must match the supplied intermediate certificate
     local certmod keymod
-    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log | openssl md5 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log | openssl md5 2>>$error_log)
-    if [[ -z $certmod || $certmod != $keymod ]]; then
+    # Raw modulus, no `openssl md5`: md5 of the empty output an unreadable file
+    # produces is a non-empty hash, so with it two unreadable files "pair".
+    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log)
+    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log)
+    if [[ -z $certmod || -z $keymod || $certmod != "$keymod" ]]; then
         echo "Failed"
         echo "  The supplied CA private key ($keysrc) does not match the"
         echo "  supplied CA certificate ($certsrc)."
@@ -6233,9 +6345,12 @@ emitNginxPhpBody() {
 #   |                                storage nodes. Online.
 #   +-- FOG Secure Boot CA           enrolled as MOK.der / written to db;
 #   |                                issues the code-signing leaves.
-#   \-- .srvprivate.key + srvpublic.crt
-#                                    the client communication keypair, left
-#                                    exactly where it has always been.
+#   \-- FOG Client Comm leaf         .srvprivate.key + .srvpublic.crt, in
+#                                    pki/client/leaf. Signed by the root
+#                                    directly -- fog-client pins the root, so
+#                                    there is no intermediate to chain through.
+#                                    Reachable at the historic $snapindir/ssl
+#                                    names through a symlink each.
 #
 # Why the intermediates hang off the EXISTING root rather than a new one above
 # it: an existing server then gets the separation on an ordinary update. A new
@@ -6273,8 +6388,166 @@ _pkiZoneDir() {
     case "$1" in
         root) echo "${fogprogramdir}/pki/root" ;;
         web) echo "${fogprogramdir}/pki/web" ;;
+        client) echo "${fogprogramdir}/pki/client" ;;
         secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
     esac
+}
+# The shared openssl configuration both issuing zones read.
+#
+# req.cnf (the CSR's subject and SANs) and ca.cnf (the v3 extensions written
+# into a signed certificate) are NOT client-zone material, even though they
+# lived in $snapindir/ssl next to the comm keypair. Each is read by the client
+# comm leaf AND the web leaf, and by packages/pki/renewal-helper -- one name set,
+# so the two zones can never disagree about which names this server answers to.
+# Putting them under a zone would make one zone's directory a dependency of
+# another's issuance.
+#
+# Deliberately not a zone token in _pkiZoneDir: conf/ holds no keys and no
+# certificates, so giving it the ca/+leaf/ shape the zones have would say
+# something false about it.
+_pkiConfDir() {
+    echo "${fogprogramdir}/pki/conf"
+}
+# The client zone's leaf directory, and the compatibility links that keep the
+# canonical names working.
+#
+# The comm keypair used to live directly in ${PKI_client_cert_dir}, i.e.
+# $snapindir/ssl -- the same directory an admin edits to change snapin SSL, and
+# the directory the snapin replicator walks. So "change the snapin certificates"
+# and "replace the one keypair every registered client pins" were the same
+# operation on the same directory, and the second one is invisible until hosts
+# stop checking in.
+#
+# The real files move into the client zone. What stays behind at the canonical
+# names is a SYMLINK per file, because the names are not free: FOGBase's
+# _decryptCheck() builds `<sslpath>/.srvprivate.key` with the filename
+# hardcoded, taking the directory from the storage-node record rather than from
+# .fogsettings, so the path has to keep resolving. Per file and not a directory
+# symlink on purpose -- symlinking the whole directory would put snapin uploads
+# straight back beside the keypair, which is the thing being fixed.
+#
+# The rest of what used to sit in that directory moves too, but not all into
+# this zone -- see _relocatePkiConf. Only the legacy CA/ tree stays behind: the
+# root certificate genuinely lives there (pki/root/ca/.fogCA.pem is a symlink to
+# it) and the web UI reads it to report offline-key state.
+_resolveClientLeafPaths() {
+    local leafdir f
+    leafdir="$(_pkiZoneDir client)/leaf"
+    mkdir -p "$leafdir" >>$error_log 2>&1
+    # 0710 root:${apacheuser}, NOT the 0700 root:root the other zones' leaf dirs
+    # get. The web tier must be able to TRAVERSE this to read the private key --
+    # certDecrypt() opens it on every fog-client handshake -- and 0700 here
+    # fails that as `Private key not readable`, per client, with nothing naming
+    # this directory. Traverse only: 0710 grants no listing.
+    chown root:${apacheuser} "$leafdir" >>$error_log 2>&1
+    chmod 0710 "$leafdir" >>$error_log 2>&1
+    # Migrate a REAL file only. A symlink here is either FOG's own compat link
+    # from a previous run (already migrated, nothing to do) or an admin pointing
+    # at their own file, which _separateCommKey settles first and which must not
+    # be dragged into the zone as a link.
+    for f in .srvprivate.key .srvpublic.crt; do
+        [[ -f "${PKI_client_cert_dir}/${f}" && ! -L "${PKI_client_cert_dir}/${f}" \
+            && ! -e "${leafdir}/${f}" ]] \
+            && mv "${PKI_client_cert_dir}/${f}" "${leafdir}/${f}" >>$error_log 2>&1
+    done
+    PKI_client_encrypt_key="$(_clientLeafTarget "${PKI_client_encrypt_key}" \
+        "${leafdir}/.srvprivate.key" "${PKI_client_cert_dir}/.srvprivate.key")"
+    PKI_client_encrypt_cert="$(_clientLeafTarget "${PKI_client_encrypt_cert}" \
+        "${leafdir}/.srvpublic.crt" "${PKI_client_cert_dir}/.srvpublic.crt")"
+    # The comm leaf's own CSR belongs with the leaf it requested.
+    [[ -f "${PKI_client_cert_dir}/fog.csr" && ! -e "${leafdir}/fog.csr" ]] \
+        && mv "${PKI_client_cert_dir}/fog.csr" "${leafdir}/fog.csr" >>$error_log 2>&1
+    return 0
+}
+# Move the shared openssl config, and the web server's DH parameters, out of
+# $snapindir/ssl.
+#
+# No compatibility symlinks for these, unlike the keypair, and the difference is
+# the point: nothing outside FOG's own code reads them. The keypair's canonical
+# names are baked into FOGBase, so they had to keep resolving; these three are
+# named only by this installer, by packages/pki/renewal-helper (updated with
+# them) and by the vhost this installer writes. A symlink would be a second name
+# for a file with one reader.
+#
+# The CONTENTS of ca.cnf are unchanged by moving it, which matters more than it
+# looks: _createWebLeaf stamps .webLeaf.sans with a hash of this file to decide
+# whether the web leaf's name set changed. Moving the file without touching its
+# bytes leaves that stamp valid, so no server re-issues its web certificate over
+# this.
+_relocatePkiConf() {
+    local confdir webdir f
+    confdir="$(_pkiConfDir)"
+    webdir="$(_pkiZoneDir web)"
+    mkdir -p "$confdir" "$webdir" >>$error_log 2>&1
+    # Readable: openssl reads these as root, but the renewal helper and an admin
+    # inspecting the name set do too, and they hold no secrets.
+    chmod 0755 "$confdir" >>$error_log 2>&1
+    for f in req.cnf ca.cnf; do
+        [[ -f "${PKI_client_cert_dir}/${f}" && ! -e "${confdir}/${f}" ]] \
+            && mv "${PKI_client_cert_dir}/${f}" "${confdir}/${f}" >>$error_log 2>&1
+        [[ -f "${confdir}/${f}" ]] && chmod 0644 "${confdir}/${f}" >>$error_log 2>&1
+    done
+    # dhparam.pem is web-server TLS parameters -- the nginx vhost names it
+    # directly -- so it belongs in the web zone rather than beside the snapins.
+    [[ -f "${PKI_client_cert_dir}/dhparam.pem" && ! -e "${webdir}/dhparam.pem" ]] \
+        && mv "${PKI_client_cert_dir}/dhparam.pem" "${webdir}/dhparam.pem" >>$error_log 2>&1
+    return 0
+}
+# Where one half of the comm keypair actually lives: FOG's own zone path, or a
+# file the admin named with --client-cert/--client-key.
+#
+# $1 the current record, $2 the zone path, $3 the historic canonical name.
+#
+# The awkward case is that an UPGRADED server's record holds $3 -- the previous
+# version recorded the snapin-dir path -- and $3 is outside the zone, so a plain
+# "outside the zone means the admin's" test would declare every upgraded server
+# externally managed and never migrate anything. $3 is one of FOG's own names,
+# so it is answered with the zone path, exactly as _resolveWebLeafPaths answers
+# its own pre-separation and old-flat-layout paths.
+#
+# Anything else that exists is the admin's file and is returned untouched; the
+# canonical name is then symlinked at it, which is what "point FOG at your own
+# file" means in this zone. A recorded path that no longer exists falls back to
+# the zone rather than being trusted -- the file was removed, and FOG issuing
+# into its own zone is recoverable where a dangling record is not.
+_clientLeafTarget() {
+    local record="$1" zonepath="$2" canon="$3" rr
+    [[ -z $record ]] && { echo "$zonepath"; return 0; }
+    rr="$(readlink -f "$record" 2>/dev/null)"
+    [[ $record == "$zonepath" || $record == "$canon" ]] && { echo "$zonepath"; return 0; }
+    [[ -n $rr && ( $rr == "$(readlink -f "$zonepath" 2>/dev/null)" \
+        || $rr == "$(readlink -f "$canon" 2>/dev/null)" ) ]] && { echo "$zonepath"; return 0; }
+    [[ -f $record ]] && { echo "$record"; return 0; }
+    echo "$zonepath"
+}
+# The compat links themselves, made once the files they point at exist. Split
+# from _resolveClientLeafPaths because on a fresh install the keypair does not
+# exist yet when the paths have to be settled -- _linkCanonical is a no-op for a
+# target that is not there, so linking early would silently link nothing.
+_linkClientLeafCompat() {
+    mkdir -p "${PKI_client_cert_dir}" >>$error_log 2>&1
+    _linkCanonical "${PKI_client_encrypt_key}" "${PKI_client_cert_dir}/.srvprivate.key"
+    _linkCanonical "${PKI_client_encrypt_cert}" "${PKI_client_cert_dir}/.srvpublic.crt"
+}
+# pki/root/leaf/ held discoverability symlinks to the comm keypair, from when
+# its real files lived in $snapindir/ssl and the root zone was the only zone
+# without a leaf/. The keypair has its own zone now, so that directory would be
+# a second set of links pointing at the first -- two indirections to the same
+# file and nothing reading either.
+#
+# Only ever unlinks a SYMLINK, so a real file somebody else put there survives
+# and the rmdir then fails harmlessly rather than taking it. Finding nothing
+# there is the normal case, on a fresh install and on any server installed after
+# this landed.
+_retireRootLeafLinks() {
+    local rootLeafDir f
+    rootLeafDir="$(_pkiZoneDir root)/leaf"
+    [[ -d $rootLeafDir ]] || return 0
+    for f in .srvprivate.key .srvpublic.crt; do
+        [[ -L "${rootLeafDir}/${f}" ]] && rm -f "${rootLeafDir}/${f}" >>$error_log 2>&1
+    done
+    rmdir "$rootLeafDir" >/dev/null 2>&1
+    return 0
 }
 # Whether the certificate this server serves is managed OUTSIDE FOG.
 #
@@ -6983,11 +7256,11 @@ $(_nameConstraints)" "FOG Web UI"
 # The client communication certificate: the public half of the keypair
 # fog-client encrypts to, and whose private half FOGBase::certDecrypt() opens.
 #
-# Nothing about the keypair changes here. .srvprivate.key stays exactly where
-# it has always been and keeps exactly the contents it has always had -- that
-# is the point of hanging the new zones off the existing root instead of
-# restructuring beneath it. What changes is only that the vhost stops pointing
-# at this certificate and serves a Web CA leaf instead.
+# The keypair's CONTENTS never change: every registered client is already
+# encrypting to its public half, so re-keying locks all of them out at once.
+# Its LOCATION did move, into the client zone -- see _resolveClientLeafPaths for
+# why $snapindir/ssl was the wrong home and what stays behind there. The vhost
+# also stopped pointing at this certificate and serves a Web CA leaf instead.
 #
 # Two properties this has to hold that the historic code did not:
 #
@@ -7006,18 +7279,15 @@ _createCommLeaf() {
     # premise is "say where the cert is" cannot have.
     #
     # They are RECORDS of a canonical path, re-derived every run, not controls.
-    # The filename is not free: FOGBase builds `<dir>/.srvprivate.key` with the
-    # name hardcoded, taking the directory from the storage-node record rather
-    # than from .fogsettings. So the canonical NAME must not move even though
-    # its target may -- point it at your own file with a symlink, exactly as
-    # the web vhost pair works.
-    PKI_client_encrypt_key="${PKI_client_cert_dir}/.srvprivate.key"
-    PKI_client_encrypt_cert="${PKI_client_cert_dir}/.srvpublic.crt"
+    # Settled by _resolveClientLeafPaths, which createSSLCA calls before this --
+    # re-derived here too so the function is safe to reach on its own, and
+    # idempotent either way.
+    _resolveClientLeafPaths
 
     # Already present: keep it, whoever issued it. This is also the supported
-    # way to run a comm leaf issued OUTSIDE FOG -- drop the certificate at
-    # ${PKI_client_cert_dir}/.srvpublic.crt with its key at ${PKI_client_cert_dir}/.srvprivate.key and FOG
-    # leaves both alone from then on.
+    # way to run a comm leaf issued OUTSIDE FOG -- drop the pair at
+    # ${PKI_client_encrypt_cert} / ${PKI_client_encrypt_key} (or pass
+    # --client-cert/--client-key) and FOG leaves both alone from then on.
     #
     # Checked with the same modulus test the adopt branch below uses, and for
     # the same reason it gives: a certificate that does not pair with this key
@@ -7029,8 +7299,9 @@ _createCommLeaf() {
     # there was the one path into this state.
     if [[ -f ${PKI_client_encrypt_cert} ]]; then
         local haveMod wantMod
-        haveMod=$(openssl x509 -noout -modulus -in "${PKI_client_encrypt_cert}" 2>/dev/null | openssl md5 2>/dev/null)
-        wantMod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null | openssl md5 2>/dev/null)
+        # Raw modulus, no `openssl md5` -- see _discardOrphanedCommLeaf.
+        haveMod=$(openssl x509 -noout -modulus -in "${PKI_client_encrypt_cert}" 2>/dev/null)
+        wantMod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null)
         # No key yet is not a mismatch. An install that has the certificate but
         # not the key is mid-migration, not broken -- _separateCommKey runs
         # after this and is what settles that case.
@@ -7070,13 +7341,16 @@ _createCommLeaf() {
         "${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ssl/srvpublic.crt"; do
         [[ -f $oldcert && -f ${PKI_client_encrypt_key} ]] || continue
         local certmod keymod
-        certmod=$(openssl x509 -noout -modulus -in "$oldcert" 2>/dev/null | openssl md5 2>/dev/null)
-        keymod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null | openssl md5 2>/dev/null)
+        # Raw modulus, no `openssl md5`. With it, an unreadable $oldcert and an
+        # unreadable key both hashed to md5("") and compared EQUAL, so this
+        # branch adopted a certificate it had never actually parsed.
+        certmod=$(openssl x509 -noout -modulus -in "$oldcert" 2>/dev/null)
+        keymod=$(openssl rsa -noout -modulus -in "${PKI_client_encrypt_key}" 2>/dev/null)
         # The modulus test is what makes this safe. A certificate that does NOT
         # pair with this key is the web certificate of a server whose zones
         # were already separated some other way; copying it here would publish
         # a public key nothing on this server can decrypt against.
-        if [[ -n $certmod && $certmod == $keymod ]]; then
+        if [[ -n $certmod && -n $keymod && $certmod == "$keymod" ]]; then
             dots "Adopting existing client communication certificate"
             cp -f "$oldcert" "${PKI_client_encrypt_cert}" >>$error_log 2>&1
             errorStat $?
@@ -7095,9 +7369,9 @@ _createCommLeaf() {
     # Signed by the ROOT, not by an intermediate. fog-client pins the root and
     # fetches this certificate directly; giving it its own intermediate would
     # add a chain the client has no reason to walk.
-    openssl x509 -req -in "${PKI_client_cert_dir}/fog.csr" -CA "${PKI_root_ca_cert}" -CAkey "${PKI_root_ca_key}" \
+    openssl x509 -req -in "$(_pkiZoneDir client)/leaf/fog.csr" -CA "${PKI_root_ca_cert}" -CAkey "${PKI_root_ca_key}" \
         -CAcreateserial -sha512 -days 3650 -extensions v3_ca \
-        -extfile "${PKI_client_cert_dir}/ca.cnf" -out "${PKI_client_encrypt_cert}" >>$error_log 2>&1 || st=1
+        -extfile "$(_pkiConfDir)/ca.cnf" -out "${PKI_client_encrypt_cert}" >>$error_log 2>&1 || st=1
     chmod 0644 "${PKI_client_encrypt_cert}" >>$error_log 2>&1
     errorStat $st
 }
@@ -7118,11 +7392,17 @@ _createCommLeaf() {
 # where to restore the key. A stale certificate is recoverable -- put the old
 # key back -- where no certificate at all is not.
 _discardOrphanedCommLeaf() {
-    local cert="${PKI_client_cert_dir}/.srvpublic.crt" key="${PKI_client_cert_dir}/.srvprivate.key"
+    local cert="${PKI_client_encrypt_cert}" key="${PKI_client_encrypt_key}"
     [[ -f $cert && -f $key && ${rootCAKeyOffline:-0} -ne 1 ]] || return 0
     local certmod keymod
-    certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null | openssl md5 2>/dev/null)
-    keymod=$(openssl rsa -noout -modulus -in "$key" 2>/dev/null | openssl md5 2>/dev/null)
+    # The raw modulus, NOT piped through `openssl md5`. With the md5 the
+    # emptiness guard below does not work: an unreadable file makes the x509/rsa
+    # call print nothing, and md5 of nothing is a perfectly non-empty hash of
+    # the empty string. So an unreadable CERT beside a readable key produced a
+    # "mismatch" and this function deleted the certificate -- exactly the
+    # destroyed-certificate outcome the comment below says it must not cause.
+    certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null)
+    keymod=$(openssl rsa -noout -modulus -in "$key" 2>/dev/null)
     # Unreadable either way is not a mismatch. _createCommLeaf() reports that
     # case rather than acting on it, and deleting on a failed read would turn a
     # bad openssl invocation into a destroyed certificate.
@@ -7152,7 +7432,7 @@ _discardOrphanedCommLeaf() {
 # the byte-identical file, has to stay silent or the warning stops meaning
 # anything.
 _warnClientRepin() {
-    local newcert="${PKI_client_encrypt_cert:-${PKI_client_cert_dir}/.srvpublic.crt}"
+    local newcert="${PKI_client_encrypt_cert:-$(_pkiZoneDir client)/leaf/.srvpublic.crt}"
     [[ -f $newcert ]] || return 0
     # configureHttpd rm -rf's $webdirdest before createSSLCA runs, so the live
     # copy is usually already gone -- but it backs the tree up first. Same two
@@ -7195,7 +7475,8 @@ _warnClientRepin() {
 }
 # Make .srvprivate.key a file FOG owns outright.
 #
-# An admin who relocated ${PKI_web_vhost_key} has ${PKI_client_cert_dir}/.srvprivate.key as a symlink
+# An admin who relocated ${PKI_web_vhost_key} has the canonical
+# ${PKI_client_cert_dir}/.srvprivate.key as a symlink
 # to their own key -- which under the historic layout was the web key AND the
 # comm key. Separating the zones means the comm key has to stop following that
 # link, or an ACME renewal writing their file would still change what
@@ -7205,10 +7486,26 @@ _warnClientRepin() {
 # already encrypting to its public half, and a new key would lock all of them
 # out at once.
 _separateCommKey() {
-    local canon="${PKI_client_cert_dir}/.srvprivate.key" target
+    local canon="${PKI_client_cert_dir}/.srvprivate.key" target zonedir
     [[ ! -L $canon ]] && return 0
     target=$(readlink -f "$canon" 2>/dev/null)
     [[ -z $target || ! -f $target ]] && return 0
+    # FOG's OWN compat link into the client zone is not something to separate --
+    # it is the layout. Without this test the link is dereferenced and the key
+    # copied back over it on every run: a real duplicate of the client private
+    # key reappears in $snapindir/ssl, and this function announces that it
+    # separated a key from the web key, which it did not.
+    #
+    # _linkClientLeafCompat does put the link back later in the same run, so the
+    # duplicate is transient -- but only if the run gets that far, and errorStat
+    # exits between here and there. A private key left lying in the directory
+    # the snapin replicator walks is not a state to reach and then rely on being
+    # tidied.
+    #
+    # Same question, and the same readlink -f on both sides, as
+    # _externallyManagedLeaf asks of the web leaf.
+    zonedir=$(readlink -f "$(_pkiZoneDir client)" 2>/dev/null)
+    [[ -n $zonedir && $target == "$zonedir"/* ]] && return 0
     dots "Separating the client communication key from the web key"
     rm -f "$canon" >>$error_log 2>&1
     cp -f "$target" "$canon" >>$error_log 2>&1
@@ -7419,7 +7716,7 @@ _createWebLeaf() {
     # NAMES had not changed. The install reported success and the vhost went on
     # serving a certificate signed by the CA that had just been replaced, with
     # nothing anywhere saying so.
-    want=$( { cat "${PKI_client_cert_dir}/ca.cnf" 2>/dev/null
+    want=$( { cat "$(_pkiConfDir)/ca.cnf" 2>/dev/null
               openssl x509 -in "${PKI_web_ca_cert}" -noout -fingerprint -sha256 2>/dev/null
             } | openssl md5 2>/dev/null)
     if [[ -e ${PKI_web_vhost_cert} && -e $stamp && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
@@ -7434,14 +7731,14 @@ _createWebLeaf() {
     # the same file req.cnf's comm-leaf CSR (below) also reads, so the two
     # never diverge on names, only on subject.
     openssl req -new -sha512 -key "${PKI_web_vhost_key}" -out "${leafdir}/.webLeaf.csr" \
-        -config "${PKI_client_cert_dir}/req.cnf" \
+        -config "$(_pkiConfDir)/req.cnf" \
         -subj "/CN=${NET_hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
     # 5 years: short enough that a compromised leaf key ages out on its own,
     # long enough not to need automatic renewal. renewal-helper (packages/pki)
     # exists for an admin who wants to rotate it sooner.
     openssl x509 -req -in "${leafdir}/.webLeaf.csr" -CA "${PKI_web_ca_cert}" -CAkey "${PKI_web_ca_key}" \
         -CAcreateserial -out "${PKI_web_vhost_cert}" -days 1825 -extensions v3_ca \
-        -extfile "${PKI_client_cert_dir}/ca.cnf" >>$error_log 2>&1 || st=1
+        -extfile "$(_pkiConfDir)/ca.cnf" >>$error_log 2>&1 || st=1
     [[ $st -eq 0 ]] && echo "$want" > "$stamp"
     chmod 0600 "${PKI_web_vhost_key}" >>$error_log 2>&1
     chmod 0644 "${PKI_web_vhost_cert}" >>$error_log 2>&1
@@ -7901,6 +8198,10 @@ createSSLCA() {
     PKI_client_cert_dir=${PKI_client_cert_dir//\/$}
     [[ ! -d ${PKI_client_cert_dir} ]] && mkdir -p ${PKI_client_cert_dir} >>$error_log 2>&1
     [[ ! -d ${PKI_client_cert_dir}/CA ]] && mkdir -p ${PKI_client_cert_dir}/CA >>$error_log 2>&1
+    # Before anything reads or writes req.cnf/ca.cnf -- which is both zones'
+    # issuance below -- so an upgrade finds them where this run expects them and
+    # a fresh install has the directory to write into.
+    _relocatePkiConf
     _collectPkiNames
     _resolveRootCA
     # Detect-then-LINK, before anything below decides whether to issue a
@@ -7972,7 +8273,7 @@ createSSLCA() {
     # where a certificate has no DNS SAN at all OpenSSL falls back to matching
     # the subject CN against them -- and this CN is an IP literal. A leaf with
     # only IP SANs would be rejected by its own CA.
-    cat > ${PKI_client_cert_dir}/ca.cnf << EOF
+    cat > $(_pkiConfDir)/ca.cnf << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
@@ -7992,7 +8293,7 @@ EOF
     # .srvprivate.key not already existing, which is why upgrades never hit it.
     # With prompt = no the values below are taken literally, which is what they
     # were always meant to be.
-    cat > ${PKI_client_cert_dir}/req.cnf << EOF
+    cat > $(_pkiConfDir)/req.cnf << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -8018,8 +8319,14 @@ EOF
     # one path, and was re-derived to it on every run anyway. Every reader now
     # names the canonical location directly, so there is no ordering dependency
     # between this function and _createCommLeaf() below.
+    # Order matters. _separateCommKey first, while the canonical name may still
+    # be an admin's symlink to their web key: it copies the material out from
+    # under that link. _resolveClientLeafPaths second, which then has a real
+    # file to move into the client zone and sets the two canonical-path records
+    # every line below reads.
     _separateCommKey
-    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_cert_dir}/.srvprivate.key || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
+    _resolveClientLeafPaths
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_encrypt_key} || ! -e $(_pkiZoneDir client)/leaf/fog.csr ]]; then
         dots "Creating SSL Private Key"
         if [[ $(validip $certip) -ne 0 ]]; then
             echo -e "\n"
@@ -8034,8 +8341,8 @@ EOF
         # 4096 to match what certDecrypt() expects: it chunks the ciphertext by
         # modulus size (openssl_pkey_get_details -> bits/8), so the key size is
         # part of the wire framing, not a tunable.
-        if [[ ! -e ${PKI_client_cert_dir}/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
-            openssl genrsa -out ${PKI_client_cert_dir}/.srvprivate.key 4096 >>$error_log 2>&1
+        if [[ ! -e ${PKI_client_encrypt_key} || $recreateKeys == yes || $recreateCA == yes ]]; then
+            openssl genrsa -out ${PKI_client_encrypt_key} 4096 >>$error_log 2>&1
             # Only under the flags that ASKED for a new key. This branch also
             # fires when .srvprivate.key is merely ABSENT -- a bad restore, a
             # lost disk -- and that is damage, not intent. There, the surviving
@@ -8052,7 +8359,7 @@ EOF
         # config and openssl reads nothing from stdin. Feeding it a line here
         # would be dead input, and it was the mismatch between that one line and
         # the number of prompted fields that broke fresh installs.
-        openssl req -new -sha512 -key ${PKI_client_cert_dir}/.srvprivate.key -out ${PKI_client_cert_dir}/fog.csr -config ${PKI_client_cert_dir}/req.cnf >>$error_log 2>&1
+        openssl req -new -sha512 -key ${PKI_client_encrypt_key} -out $(_pkiZoneDir client)/leaf/fog.csr -config $(_pkiConfDir)/req.cnf >>$error_log 2>&1
         errorStat $?
     fi
     _createCommLeaf
@@ -8062,17 +8369,14 @@ EOF
     # re-issued, adopted, or left exactly as it was.
     _warnClientRepin
 
-    # Discoverability symlinks only -- the comm leaf's real files stay at
-    # ${PKI_client_cert_dir} (see _createCommLeaf's own comment for why). This just gives
-    # the root zone the same ca/+leaf/ shape as the other two zones, so
-    # nothing under pki/ is flat. ${PKI_client_encrypt_key}/${PKI_client_encrypt_cert} are set
-    # unconditionally at the top of _createCommLeaf, so they're valid here
-    # even if that call returned early without issuing anything yet.
-    local rootLeafDir="$(_pkiZoneDir root)/leaf"
-    mkdir -p "$rootLeafDir" >>$error_log 2>&1
-    chmod 0700 "$rootLeafDir" >>$error_log 2>&1
-    [[ -f ${PKI_client_encrypt_key} ]] && ln -sf "${PKI_client_encrypt_key}" "${rootLeafDir}/.srvprivate.key" >>$error_log 2>&1
-    [[ -f ${PKI_client_encrypt_cert} ]] && ln -sf "${PKI_client_encrypt_cert}" "${rootLeafDir}/.srvpublic.crt" >>$error_log 2>&1
+    # The compat links at the canonical $snapindir/ssl names, now that the
+    # keypair definitely exists. FOGBase's _decryptCheck() builds
+    # `<sslpath>/.srvprivate.key` from the storage-node record with the filename
+    # hardcoded, so those two names have to keep resolving whatever the layout
+    # underneath them is.
+    _linkClientLeafCompat
+
+    _retireRootLeafLinks
 
     # --- Web zone ----------------------------------------------------------
     #
@@ -8257,8 +8561,12 @@ EOF
                         echo "    proxy_cookie_domain ~(?P<secure_domain>([-0-9a-z]+\.)?[-0-9a-z]+\.[a-z]+)$ \"$secure_domain; secure\";" >> "$etcconf"
                         echo "}" >> "$etcconf"
                         # Creates the diffie helman param file.
-                        if [[ ! -f ${PKI_client_cert_dir}/dhparam.pem ]]; then
-                            openssl dhparam -dsaparam -out ${PKI_client_cert_dir}/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                        if [[ ! -f $(_pkiZoneDir web)/dhparam.pem ]]; then
+                            # The web zone dir normally exists by here, but a
+                            # storage node reaches this vhost writer without
+                            # having minted a Web CA, so nothing has created it.
+                            mkdir -p "$(_pkiZoneDir web)" >>$error_log 2>&1
+                            openssl dhparam -dsaparam -out $(_pkiZoneDir web)/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen ${NET_fog_server_ip}:443 ssl${nginxhttp2listen};" >> "$etcconf"
@@ -8268,7 +8576,7 @@ EOF
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
                         echo "    ssl_protocols TLSv1.2 TLSv1.3;" >> "$etcconf"
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
-                        echo "    ssl_dhparam ${PKI_client_cert_dir}/dhparam.pem;" >> "$etcconf"
+                        echo "    ssl_dhparam $(_pkiZoneDir web)/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
                         # nginx has no separate chain directive -- ssl_certificate must BE the
                         # concatenation. Falls back to the bare leaf when nothing sits between
@@ -8406,9 +8714,13 @@ EOF
                         echo "}" >> "$etcconf"
                         echo "Continued (See Below)"
                         # Creates the diffie helman param file.
-                        if [[ ! -f ${PKI_client_cert_dir}/dhparam.pem ]]; then
+                        if [[ ! -f $(_pkiZoneDir web)/dhparam.pem ]]; then
                             dots "Creating DHParam file"
-                            openssl dhparam -dsaparam -out ${PKI_client_cert_dir}/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
+                            # See the other dhparam site: a storage node reaches
+                            # this without having minted a Web CA, so nothing has
+                            # created the zone directory.
+                            mkdir -p "$(_pkiZoneDir web)" >>$error_log 2>&1
+                            openssl dhparam -dsaparam -out $(_pkiZoneDir web)/dhparam.pem 4096 >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                             echo "Done"
                         fi
                         dots "Setting up Nginx virtualhost${sslenabled}"
@@ -8431,7 +8743,7 @@ EOF
                         echo "    client_max_body_size 3000m;" >> "$etcconf"
                         echo "    ssl_protocols TLSv1.2 TLSv1.3;" >> "$etcconf"
                         echo "    ssl_prefer_server_ciphers off;" >> "$etcconf"
-                        echo "    ssl_dhparam ${PKI_client_cert_dir}/dhparam.pem;" >> "$etcconf"
+                        echo "    ssl_dhparam $(_pkiZoneDir web)/dhparam.pem;" >> "$etcconf"
                         echo "    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-CHACHA20-POLY1305;" >> "$etcconf"
                         # nginx has no separate chain directive -- ssl_certificate must BE the
                         # concatenation. Falls back to the bare leaf when nothing sits between
@@ -9214,7 +9526,7 @@ configureHttpd() {
     else
         echo "Skipped"
     fi
-    if [[ ${FOG_copy_back_old} -gt 0 ]]; then
+    if [[ ${FOG_copy_back_old} == yes ]]; then
         if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
             dots "Copying back old web folder as is";
             cp -Rf ${DB_backup_path}/fog_web_${version}.BACKUP/* $webdirdest/
@@ -9280,7 +9592,7 @@ configureHttpd() {
     for i in $(find ${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$error_log); do
         cp -Rf $i ${webdirdest}/management/other/ >>$error_log 2>&1
     done
-    if [[ ${FOG_install_lang} -eq 1 ]]; then
+    if [[ ${FOG_install_lang} == yes ]]; then
         dots "Creating the language binaries"
         langpath="${webdirdest}/management/languages"
         languagesfound=$(find $langpath -maxdepth 1 -type d -exec basename {} \; | awk -F. '/\./ {print $1}' 2>>$error_log)
@@ -10021,7 +10333,7 @@ _ensureSecureBootKeys() {
         # absent and the notice would only send an admin looking for a 404. The
         # keys are still minted and the binaries still signed -- see the top of
         # this function -- there is simply nothing to enrol them with yet.
-        if [[ -f $key && -f $cert && ${PKI_sb_enabled:-1} != 0 ]]; then
+        if [[ -f $key && -f $cert && ${PKI_sb_enabled:-yes} == yes ]]; then
             echo
             echo "  ###################################################################"
             echo "  # NOTICE: this server's Secure Boot trust has moved from a self-  #"
@@ -10145,7 +10457,7 @@ _ensureSecureBootPlatformKeys() {
     # (see _ensureSecureBootKeys); enrolment material is not. Blanked rather
     # than merely skipped so _publishSecureBootAuthVars takes its "no platform
     # keys" branch and clears any blobs a previous, non-opted-out run left.
-    [[ ${PKI_sb_enabled:-1} == 0 ]] && return 0
+    [[ ${PKI_sb_enabled:-yes} != yes ]] && return 0
     # No signing key means the whole feature is opted out; there is nothing for
     # a platform key to authorise.
     [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]] && return 0
@@ -10228,7 +10540,7 @@ _publishSecureBootKit() {
     # this file existing (bootmenu.class.php:2089). The binaries are still
     # signed -- see _ensureSecureBootKeys for why signing is not part of what
     # the flag turns off.
-    if [[ -z ${PKI_sb_ca_cert} || ${PKI_sb_enabled:-1} == 0 ]]; then
+    if [[ -z ${PKI_sb_ca_cert} || ${PKI_sb_enabled:-yes} != yes ]]; then
         rm -rf "$kitdir" >>$error_log 2>&1
         return 0
     fi
@@ -12501,12 +12813,12 @@ $(_keaSecureBootClassCommented)"
     fi
 }
 configureDHCP() {
-    if [[ ${DHCP_enabled} -eq 1 && ${DHCP_engine} == kea ]]; then
+    if [[ ${DHCP_enabled} == yes && ${DHCP_engine} == kea ]]; then
         dots "Setting up and starting DHCP Server (Kea)"
     else
         case $linuxReleaseName_lower in
             *debian*)
-                if [[ ${DHCP_enabled} -eq 1 ]]; then
+                if [[ ${DHCP_enabled} == yes ]]; then
                     dots "Setting up and starting DHCP Server (incl. debian 9 fix)"
                     sed -i.fog "s/INTERFACESv4=\"\"/INTERFACESv4=\"${NET_interface}\"/g" /etc/default/isc-dhcp-server
                 else
@@ -12519,7 +12831,7 @@ configureDHCP() {
         esac
     fi
     case ${DHCP_enabled} in
-        1)
+        yes)
             # GH-954: one line per address, so a second address on the NIC
             # made this multi-line and every consumer below it wrong.
             serverip=$(ip -4 -o addr show ${NET_interface} | awk -F'([ /])+' '/global/ {print $4}' | head -1)
@@ -12775,7 +13087,7 @@ diffconfig() {
     fi
 }
 setupFogReporting() {
-    [[ ${FOG_send_reports} == "N" ]] && return
+    [[ ${FOG_send_reports} != yes ]] && return
     local reportingdir="$fogprogramdir/reporting"
     local rreports="$reportingdir/report.sh"
     dots "Setting up FOG External Reporting"

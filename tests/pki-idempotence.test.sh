@@ -99,14 +99,15 @@ pki_pass() {
     _resolveRootCA
 
     local sanentries="IP.1 = ${NET_fog_server_ip}"
-    cat > "${PKI_client_cert_dir}/ca.cnf" << EOF
+    _relocatePkiConf
+    cat > "$(_pkiConfDir)/ca.cnf" << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
 DNS.1 = ${NET_hostname}
 EOF
-    cat > "${PKI_client_cert_dir}/req.cnf" << EOF
+    cat > "$(_pkiConfDir)/req.cnf" << EOF
 [req]
 distinguished_name = req_distinguished_name
 req_extensions = v3_req
@@ -123,10 +124,11 @@ DNS.1 = ${NET_hostname}
 EOF
 
     _separateCommKey
-    if [[ ! -e ${PKI_client_cert_dir}/.srvprivate.key || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
-        openssl genrsa -out "${PKI_client_cert_dir}/.srvprivate.key" 4096 >>$error_log 2>&1
-        openssl req -new -sha512 -key "${PKI_client_cert_dir}/.srvprivate.key" -out "${PKI_client_cert_dir}/fog.csr" \
-            -config "${PKI_client_cert_dir}/req.cnf" >>$error_log 2>&1
+    _resolveClientLeafPaths
+    if [[ ! -e ${PKI_client_encrypt_key} || ! -e $(_pkiZoneDir client)/leaf/fog.csr ]]; then
+        openssl genrsa -out "${PKI_client_encrypt_key}" 4096 >>$error_log 2>&1
+        openssl req -new -sha512 -key "${PKI_client_encrypt_key}" -out "$(_pkiZoneDir client)/leaf/fog.csr" \
+            -config "$(_pkiConfDir)/req.cnf" >>$error_log 2>&1
     fi
     _createCommLeaf >/dev/null 2>&1
 

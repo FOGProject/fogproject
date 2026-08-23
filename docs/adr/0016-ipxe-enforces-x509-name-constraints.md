@@ -19,8 +19,21 @@ extension to be marked critical, and it is.
 
 FOG also builds its own iPXE. When the netboot protocol is HTTPS --
 `_resolveNetbootProto()` selects that automatically whenever
-`BOOT_rebuild_ipxe_with_my_ca` is set -- `buildipxe.sh` bakes `.fogCA.pem` into the
-binary as `CERT=`/`TRUST=` so iPXE can validate the FOG server over TLS.
+`BOOT_rebuild_ipxe_with_my_ca` is set -- `buildipxe.sh` bakes a certificate into
+the binary as `CERT=`/`TRUST=` so iPXE can validate the FOG server over TLS.
+
+Which certificate is `_resolveIpxeTrust()`'s answer, and it is
+`PKI_web_ca_cert` — the name-constrained, `serverAuth`-only Web CA intermediate
+itself, not `PKI_web_trust_chain`. That makes this ADR's subject the certificate
+iPXE actually parses: embedding the chain bundle instead would hand iPXE the FOG
+root as well, and so trust in anything the root ever signs, to validate one
+leaf. Narrowing it to the intermediate is only *safe* because of the patch below
+— an unpatched iPXE cannot parse a critical `nameConstraints` at all, which is
+exactly the incompatibility this ADR exists to resolve.
+
+The distinction that makes this decision possible, and that the Secure Boot zone
+cannot borrow (see ADR 0024 and `_sbNameConstraints`' removal): iPXE is a
+verifier FOG can patch, and UEFI firmware is not.
 
 **These two features are mutually incompatible.** iPXE's `x509_extensions[]`
 table knows five extensions: `basicConstraints`, `keyUsage`, `extKeyUsage`,

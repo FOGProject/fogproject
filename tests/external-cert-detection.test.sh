@@ -99,11 +99,83 @@ out=$(_detectExternalCertManagement) && ok "D: fires on a leaf that does not cha
 #    admin who already aimed the canonical path at their own certificate is
 #    never second-guessed. GH-1120 replaced the $acmeLeaf key with this derived
 #    test, so the guard is the predicate rather than a persisted value.
+#
+#    This one assertion is necessarily structural: it is about the ORDER
+#    createSSLCA consults things in, and the only way to observe that
+#    behaviourally is to run createSSLCA, which mints the vhost, writes under
+#    /etc and restarts services. The predicate itself is exercised for real
+#    below -- which is the part that used to be missing entirely.
 if awk '/Detect-then-LINK/,/_warnExternalCertTooling/' "$FUNCS" | grep -q '! _externallyManagedLeaf'; then
     ok "E: detection is skipped when the leaf is already externally managed"
 else
     bad "E: detection does not check _externallyManagedLeaf first"
 fi
+
+echo "== _externallyManagedLeaf: the symlink test that replaced \$acmeLeaf =="
+
+# The whole point of retiring $acmeLeaf was to stop asking a persisted key and
+# ask the filesystem instead: a canonical vhost path resolving OUTSIDE the web
+# zone dir IS the signal that somebody else manages the leaf. Getting it wrong
+# is expensive in both directions -- a false negative regenerates the leaf from
+# the original CSR against an ACME key and the web server will not start, a
+# false positive silently ends FOG's own renewals -- and until now nothing
+# executed the predicate at all.
+#
+# Needs a real $fogprogramdir, which is why the fixture above could not do this:
+# _pkiZoneDir derives from it, and unset it resolves to /pki/web.
+eml_env() {
+    fogprogramdir="$WORK/eml/opt/fog"
+    EMLZONE="$fogprogramdir/pki/web"
+    EMLLEAF="$EMLZONE/leaf"
+    mkdir -p "$EMLLEAF" "$WORK/eml/etc/letsencrypt/live/fog"
+    : > "$EMLLEAF/.webLeaf.pem"
+    : > "$EMLZONE/sibling.pem"
+    : > "$WORK/eml/etc/letsencrypt/live/fog/fullchain.pem"
+}
+eml() { _externallyManagedLeaf && echo external || echo fog; }
+eml_env
+
+# FOG's own leaf, the ordinary install. A false positive here is what ends a
+# server's renewals with nothing to show why.
+PKI_web_vhost_cert="$EMLLEAF/.webLeaf.pem"
+check "$(eml)" "fog" "a real file inside the web zone is FOG-managed"
+
+# THE case this exists for: the canonical path is a symlink into an ACME tree.
+ln -sf "$WORK/eml/etc/letsencrypt/live/fog/fullchain.pem" "$EMLLEAF/acme.pem"
+PKI_web_vhost_cert="$EMLLEAF/acme.pem"
+check "$(eml)" "external" "a symlink out of the zone is externally managed"
+
+# A symlink that stays inside the zone is still FOG's -- the test is on where it
+# LANDS, not on the fact that it is a link. FOG makes such links itself
+# (_linkCanonical), so reading them as external would make FOG disown its own
+# certificates.
+ln -sf "$EMLZONE/sibling.pem" "$EMLLEAF/inzone.pem"
+PKI_web_vhost_cert="$EMLLEAF/inzone.pem"
+check "$(eml)" "fog" "a symlink landing inside the zone is still FOG-managed"
+
+# No symlink needed: the key may simply name a path elsewhere.
+PKI_web_vhost_cert="$WORK/eml/etc/letsencrypt/live/fog/fullchain.pem"
+check "$(eml)" "external" "a path outside the zone needs no symlink to count"
+
+# Unset and unresolvable both mean FOG-managed, which is the SAFE direction: a
+# fresh install has no leaf yet and must go on managing its own.
+PKI_web_vhost_cert=""
+check "$(eml)" "fog" "unset is FOG-managed (a fresh install must still issue)"
+PKI_web_vhost_cert="$EMLLEAF/never-created.pem"
+check "$(eml)" "fog" "a path that does not exist yet is FOG-managed"
+ln -sf "$WORK/eml/no-such-dir/gone.pem" "$EMLLEAF/dangling.pem"
+PKI_web_vhost_cert="$EMLLEAF/dangling.pem"
+check "$(eml)" "fog" "a dangling symlink is FOG-managed, not external"
+
+# readlink -f on BOTH sides, so an install reached through a symlinked
+# $fogprogramdir is not mistaken for somebody else's certificate. Without the
+# resolution on the zone side this compares a real path against a symlinked one
+# and every such server is declared externally managed.
+mkdir -p "$WORK/eml/real"
+mv "$WORK/eml/opt/fog" "$WORK/eml/real/fog"
+ln -sf "$WORK/eml/real/fog" "$WORK/eml/opt/fog"
+PKI_web_vhost_cert="$fogprogramdir/pki/web/leaf/.webLeaf.pem"
+check "$(eml)" "fog" "a symlinked \$fogprogramdir is still FOG-managed"
 
 echo "== the paths are captured, and captured from the vhost =="
 

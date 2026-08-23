@@ -97,10 +97,27 @@ source (permalinks below, pinned to
 [`ipxe/ipxe@bfc442a`](https://github.com/ipxe/ipxe/commit/bfc442ad18577c876292e10bbed0d40d421456dc)):
 
 1. **`TRUST=` is additive, not exclusive.** FOG's own build
-   (`buildipxe.sh`) passes `TRUST=${cert}` (FOG's CA) into iPXE's `make`. That
-   compiles FOG's CA in as a pinned root
+   (`buildipxe.sh`) passes `TRUST=${cert}` into iPXE's `make`, where `${cert}`
+   is **`PKI_web_ca_cert`** — the Web CA intermediate itself, resolved by
+   `_resolveIpxeTrust()`. That compiles it in as a pinned root
    ([`src/Makefile.housekeeping#L620-L649`](https://github.com/ipxe/ipxe/blob/bfc442ad18577c876292e10bbed0d40d421456dc/src/Makefile.housekeeping#L620-L649)) —
    but it does not remove iPXE's other, unconditional default described next.
+
+   **The Web CA, not `PKI_web_trust_chain`.** The chain bundle is the web zone's
+   trust *path* — intermediate plus the root anchoring it — and embedding the
+   whole bundle would make iPXE trust the FOG root, and so anything the root ever
+   signs, when all it has to validate is `boot.php`'s leaf. The intermediate on
+   its own is name-constrained and `serverAuth`-only, which is enforceable
+   precisely because iPXE is a verifier FOG can patch (ADR 0016) — so pinning
+   that one certificate is both narrower and sufficient. It is also what makes
+   bring-your-own-CA work here: an admin whose Web CA is their own intermediate
+   has no FOG root above it, so there was never anything sensible for the chain
+   to contain.
+
+   Expect **one** forced rebuild per server on the upgrade that changed this.
+   `_ipxeBuildStampValue()` hashes this file into the stamp's `ca=` field, so the
+   stamp stops matching and exactly one rebuild is scheduled — correct, because
+   the binary on disk really does embed different bytes than are now asked for.
 2. **iPXE ships a public-CA fallback by default, regardless of `TRUST=`.**
    [`src/config/crypto.h`](https://github.com/ipxe/ipxe/blob/bfc442ad18577c876292e10bbed0d40d421456dc/src/config/crypto.h)
    unconditionally defines
@@ -186,6 +203,30 @@ is what used to make anything typed at the prompt vanish whenever the flags were
 also given.
 If the source files are no longer readable on a later run, the installer reuses
 the already-imported CA in `/opt/fog/pki/root/ca/`.
+
+### Storage nodes are issued from it too
+
+An imported Web CA issues certificates to storage nodes, exactly as FOG's own
+would. Each node generates its own keypair and its own CSR locally and sends
+only the CSR to the master, which signs it with whatever `PKI_web_ca_cert` names
+— your intermediate included. The node's private key never leaves the node.
+
+This was broken until recently, and the failure was worth naming: the signing
+helper verified each freshly issued node certificate against `PKI_root_ca_cert`,
+which is FOG's own root and is *not* replaced by an external **web** CA (it is
+what fog-client pins). Your intermediate was never signed by it, so no chain
+could be built and every node request was refused — with a message blaming the
+CA's name constraints, which sent people looking in the wrong place entirely.
+
+The helper now anchors on `pki/web/ca/.trustAnchor.pem`, which carries FOG's root
+*and* your root where you supplied one, and hands the node
+`PKI_web_trust_chain` — your intermediate plus your root — rather than appending
+FOG's root to a chain it does not anchor. See
+[PKI_ZONES.md](PKI_ZONES.md#storage-node-certificates).
+
+>[!note]
+>If you supplied a root FOG already trusts, `PKI_web_external_root_cert` stays
+>empty and the anchor holds one certificate. Nothing else changes.
 
 ---
 

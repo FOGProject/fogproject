@@ -170,6 +170,11 @@ usage() {
     echo -e "\t                 \t\t\tof all RFC1918 ranges"
     echo -e "\t      --web-ca-cert/-key/-root\tBring your own CA for the WEB zone only"
     echo -e "\t                 \t\t\t(equivalent to --external-ca --ca-*)"
+    echo -e "\t      --client-cert/--client-key\tYour own CLIENT COMMUNICATION keypair,"
+    echo -e "\t                 \t\t\tthe one every registered fog-client pins. Both"
+    echo -e "\t                 \t\t\tor neither. Swapping it warns and proceeds --"
+    echo -e "\t                 \t\t\tevery client must then be reinstalled or"
+    echo -e "\t                 \t\t\tre-pinned"
     echo -e "\t      --secureboot-ca-cert\tYour own SECURE BOOT intermediate: the"
     echo -e "\t                 \t\t\tcertificate enrolled in firmware. Pair it with"
     echo -e "\t                 \t\t\t--secure-boot-key/--secure-boot-cert, which name"
@@ -309,7 +314,7 @@ while :; do
             shift 2
             ;;
         -o | --oldcopy)
-            sFOG_copy_back_old=1
+            sFOG_copy_back_old="yes"
             shift
 			;;
         -d | --no-defaults)
@@ -503,8 +508,7 @@ while :; do
                 exit 5
             fi
             sDHCP_range_start=$2
-            sDHCP_enabled="Y"
-            sDHCP_enabled=1
+            sDHCP_enabled="yes"
             shift 2
             ;;
         -e | --endrange)
@@ -514,12 +518,11 @@ while :; do
                 exit 6
             fi
             sDHCP_range_end=$2
-            sDHCP_enabled="Y"
-            sDHCP_enabled=1
+            sDHCP_enabled="yes"
             shift 2
             ;;
         -E | --no-exportbuild)
-            sSTORAGE_rebuild_nfs_exports=0
+            sSTORAGE_rebuild_nfs_exports="no"
             shift
             ;;
         -X | --exitFail)
@@ -527,7 +530,7 @@ while :; do
             shift
             ;;
         -T | --no-tftpbuild)
-            sBOOT_external_tftp_server="true"
+            sBOOT_external_tftp_server="yes"
             shift
             ;;
         -F | --no-vhost)
@@ -559,7 +562,7 @@ while :; do
             shift 2
             ;;
         --no-secure-boot)
-            sPKI_sb_enabled=0
+            sPKI_sb_enabled="no"
             shift
             ;;
         --netboot-proto)
@@ -604,7 +607,8 @@ while :; do
             sPKI_internal_subnets="${sPKI_internal_subnets:+${sPKI_internal_subnets} }${2}"
             shift 2
             ;;
-        --web-ca-cert | --web-ca-key | --web-ca-root | --secureboot-ca-cert)
+        --web-ca-cert | --web-ca-key | --web-ca-root | --secureboot-ca-cert \
+            | --client-cert | --client-key)
             if [[ ! -f $2 ]]; then
                 echo "$1 requires a readable file after"
                 usage
@@ -614,6 +618,16 @@ while :; do
                 --web-ca-cert)    sImportWebCACert="$2" ;;
                 --web-ca-key)     sImportWebCAKey="$2" ;;
                 --web-ca-root)    sImportWebCARoot="$2" ;;
+                # The client-communication keypair, which every registered
+                # fog-client pins. Named so it can be supplied rather than only
+                # dropped at the canonical paths by hand -- the client zone was
+                # the last one an admin could not point at their own files.
+                #
+                # These name the leaf itself, not a CA: there is no intermediate
+                # in this zone, because fog-client pins the root and the leaf is
+                # signed by it directly.
+                --client-cert)    sPKI_client_encrypt_cert="$2" ;;
+                --client-key)     sPKI_client_encrypt_key="$2" ;;
                 # The Secure Boot zone's anchor: what gets ENROLLED in
                 # firmware. Pairs with --secure-boot-key/--secure-boot-cert,
                 # which name the leaf that actually signs. Supplying only the
@@ -751,15 +765,13 @@ resolvedfoggitpath="${FOG_git_path}"
 [[ -z ${FOG_os_id} ]] && FOG_os_id=""
 [[ -z ${FOG_os_name} ]] && FOG_os_name=""
 [[ -z ${DHCP_enabled} ]] && DHCP_enabled=""
-[[ -z ${DHCP_enabled} ]] && DHCP_enabled=""
 [[ -z ${FOG_install_type} ]] && FOG_install_type=""
 [[ -z ${NET_interface} ]] && NET_interface=""
 [[ -z ${NET_fog_server_ip} ]] && NET_fog_server_ip=""
 [[ -z ${NET_hostname} ]] && NET_hostname=""
 [[ -z ${DHCP_router} ]] && DHCP_router=""
-[[ -z ${DHCP_router} ]] && DHCP_router=""
-[[ -z ${STORAGE_rebuild_nfs_exports} ]] && STORAGE_rebuild_nfs_exports=1
-[[ -z ${FOG_install_lang} ]] && FOG_install_lang=0
+[[ -z ${STORAGE_rebuild_nfs_exports} ]] && STORAGE_rebuild_nfs_exports="yes"
+[[ -z ${FOG_install_lang} ]] && FOG_install_lang="no"
 [[ -z $bluseralreadyexists ]] && bluseralreadyexists=0
 [[ -z $guessdefaults ]] && guessdefaults=1
 [[ -z $doupdate ]] && doupdate=1
@@ -911,8 +923,10 @@ esac
 #
 # DHCP_enabled: dodhcp was Y/N and bldhcp was 1/0, both written from the same
 # prompt. Seeded from bldhcp because every DECISION read that one; dodhcp was
-# read only by the prompt loop that wrote it. So the 1/0 encoding survives and
-# no value has to be translated.
+# read only by the prompt loop that wrote it. Either encoding is fine to copy
+# here -- _normalizeBooleanSettings below converts whatever arrives to yes/no,
+# so the seed stays a copy and does not have to know which literal it is
+# carrying.
 [[ -z ${DHCP_enabled} ]] && DHCP_enabled="$bldhcp"
 #
 # DHCP_router: routeraddress doubled as a config-file comment -- declining a
@@ -1002,8 +1016,9 @@ _applyInstallMode
 # an upgrade the .fogsettings sourced above overwrote them (both are managed
 # keys) and the ranges were accepted while DHCP configuration stayed off.
 [[ -n ${sDHCP_enabled} ]] && DHCP_enabled=${sDHCP_enabled}
-[[ -n ${sDHCP_enabled} ]] && DHCP_enabled=${sDHCP_enabled}
 [[ -n ${sPKI_client_cert_dir} ]] && PKI_client_cert_dir=${sPKI_client_cert_dir}
+[[ -n ${sPKI_client_encrypt_cert} ]] && PKI_client_encrypt_cert=${sPKI_client_encrypt_cert}
+[[ -n ${sPKI_client_encrypt_key} ]] && PKI_client_encrypt_key=${sPKI_client_encrypt_key}
 [[ -n $srecreateCA ]] && recreateCA=$srecreateCA
 [[ -n $srecreateKeys ]] && recreateKeys=$srecreateKeys
 [[ -n $sexternalca ]] && externalca=$sexternalca
@@ -1040,6 +1055,17 @@ _applyInstallMode
 # without hand-editing .fogsettings.
 [[ -n ${sPKI_allowed_domain_names} ]] && PKI_allowed_domain_names=${sPKI_allowed_domain_names}
 [[ -n ${sPKI_internal_subnets} ]] && PKI_internal_subnets=${sPKI_internal_subnets}
+# --- one boolean encoding ----------------------------------------------------
+#
+# Deliberately AFTER the flag shadows above, not before them: every source of a
+# boolean feeds in by this point -- the value .fogsettings persisted, the value
+# the rename seed block copied off a pre-1.6 key, and the value a flag set this
+# run -- and the flag layer was itself the worst offender for mixed encodings.
+# Normalizing earlier would leave whatever the flags assigned unconverted.
+#
+# input.sh/newinput.sh are sourced later still and write yes/no directly, since
+# they run after this point.
+_normalizeBooleanSettings
 # Supplying any web-zone CA file implies --external-ca, the same way supplying
 # --ca-cert always has. Saves an admin from the "I gave you the files and
 # nothing happened" failure, which produces a working install with the wrong
@@ -1089,6 +1115,49 @@ if [[ -n ${PKI_sb_codesign_key} || -n ${PKI_sb_codesign_cert} ]]; then
         fi
     done
     unset sbfile
+fi
+# --client-cert / --client-key: only meaningful as a pair, and gated on the
+# SHADOWS rather than on the resolved values.
+#
+# That differs from the Secure Boot pair above and has to. These two are managed
+# keys -- canonical-path RECORDS that writeUpdateFile persists on every run --
+# so on any upgrade they are non-empty from .fogsettings alone. Testing the
+# resolved values would refuse every ordinary upgrade. The shadows are set only
+# when a flag was actually passed on this run.
+if [[ -n ${sPKI_client_encrypt_cert} || -n ${sPKI_client_encrypt_key} ]]; then
+    if [[ -z ${sPKI_client_encrypt_cert} || -z ${sPKI_client_encrypt_key} ]]; then
+        echo " * --client-cert and --client-key must be set together"
+        echo "   Half a pair cannot be used: fog-client encrypts to the public"
+        echo "   half and the server decrypts with the private half, so a"
+        echo "   certificate without its key locks out every registered host."
+        exit 9
+    fi
+    # A supplied pair that does not actually pair is a typo, not history, and
+    # every registered client stops authenticating the moment it is installed.
+    # The admin has just named both files, so say so now rather than letting
+    # _createCommLeaf's mismatch warning report it after the fact.
+    # The raw modulus, NOT piped through `openssl md5`. That idiom appears
+    # elsewhere in this codebase and it defeats the emptiness test below: an
+    # unreadable file makes the x509/rsa call print nothing, and `openssl md5`
+    # of nothing is the perfectly non-empty MD5 of the empty string. So two
+    # unreadable files produce identical non-empty values and "pair".
+    ccmod=$(openssl x509 -noout -modulus -in "${sPKI_client_encrypt_cert}" 2>/dev/null)
+    ckmod=$(openssl rsa -noout -modulus -in "${sPKI_client_encrypt_key}" 2>/dev/null)
+    if [[ -z $ccmod || -z $ckmod ]]; then
+        echo " * Could not read --client-cert/--client-key as a certificate and key"
+        echo "   cert: ${sPKI_client_encrypt_cert}"
+        echo "   key:  ${sPKI_client_encrypt_key}"
+        exit 9
+    fi
+    if [[ $ccmod != "$ckmod" ]]; then
+        echo " * --client-cert and --client-key do not pair"
+        echo "   cert: ${sPKI_client_encrypt_cert}"
+        echo "   key:  ${sPKI_client_encrypt_key}"
+        echo "   Installing these would stop every registered fog-client"
+        echo "   authenticating, and no re-pin would fix it."
+        exit 9
+    fi
+    unset ccmod ckmod
 fi
 # Immediately after validation and long before configureHttpd() rebuilds the
 # web tree, so a pair the admin parked somewhere that gets deleted is copied
@@ -1169,7 +1238,7 @@ case ${FOG_install_type} in
         echo " * Installation Type: Normal Server"
         echo -n " * Internationalization: "
         case ${FOG_install_lang} in
-            1)
+            yes)
                 echo "Yes"
                 ;;
             *)
@@ -1178,7 +1247,7 @@ case ${FOG_install_type} in
         esac
         echo " * Image Storage Location: ${STORAGE_image_share_path}"
         case ${DHCP_enabled} in
-            1)
+            yes)
                 echo " * Using FOG DHCP: Yes"
                 echo " * DHCP router Address: ${DHCP_router}"
                 ;;
@@ -1205,7 +1274,7 @@ case ${FOG_install_type} in
 esac
 echo -n " * Send OS Name, OS Version, and FOG Version: "
 case ${FOG_send_reports} in
-    Y)
+    yes)
         echo "Yes"
         ;;
     *)
@@ -1241,7 +1310,7 @@ while [[ -z $blGo ]]; do
                 done
                 FOG_packages="$(echo $newpackagelist)"
             fi
-            if [[ ${DHCP_enabled} == 0 ]]; then
+            if [[ ${DHCP_enabled} != yes ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in ${FOG_packages}; do
                     [[ $z != $dhcpname ]] && newpackagelist="$newpackagelist $z"

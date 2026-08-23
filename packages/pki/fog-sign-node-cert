@@ -70,16 +70,39 @@ chainout="${PKI_STAGING}/${reqid}.chain"
 [[ -f $csr ]] || die "no request at ${csr}"
 [[ -f $san ]] || die "no name list at ${san}"
 
+# anchor: what the issued certificate must verify against, and what the node is
+# handed so it can serve a usable chain. Per zone, because the two zones are not
+# anchored by the same thing.
+#
+# The web zone's anchor is NOT necessarily PKI_ROOT_CERT. When the admin brought
+# their own Web CA, PKI_WEB_CA_CERT is their intermediate and the FOG root never
+# signed it -- so verifying against the FOG root cannot build a chain, and
+# appending the FOG root to what the node serves adds an unrelated certificate.
+# PKI_WEB_ANCHOR is the web zone's own trust anchor
+# (pki/web/ca/.trustAnchor.pem), which _resolveTrustAnchor builds with the FOG
+# root AND an external root where there is one, deduped by fingerprint. That
+# covers both installs with no branch here.
 case "$type" in
     web)
         cacert="${PKI_WEB_CA_CERT:-}"
         cakey="${PKI_WEB_CA_KEY:-}"
+        anchor="${PKI_WEB_ANCHOR:-${PKI_ROOT_CERT:-}}"
+        # What the node serves beneath its leaf. PKI_WEB_CHAIN is the web zone's
+        # trust path -- the issuing intermediate plus the root that anchors it --
+        # so it is right for a FOG-issued and an imported CA alike. Falling back
+        # to building it here keeps an older config working.
+        chainsrc="${PKI_WEB_CHAIN:-}"
         eku="serverAuth"
         days=825
         ;;
     signing)
         cacert="${PKI_SB_CA_CERT:-}"
         cakey="${PKI_SB_CA_KEY:-}"
+        # The Secure Boot intermediate is always minted under the FOG root --
+        # there is no "bring your own Secure Boot root", because firmware trusts
+        # the enrolled certificate directly and nothing above it is consulted.
+        anchor="${PKI_ROOT_CERT:-}"
+        chainsrc=""
         eku="codeSigning"
         days=730
         ;;
@@ -166,15 +189,38 @@ fi
 
 # The node needs the issuer to serve a usable chain, and the anchor to know
 # what it is trusting. Both are public.
-cat "$cacert" > "$chainout"
-[[ -n ${PKI_ROOT_CERT:-} && -f ${PKI_ROOT_CERT} ]] && cat "$PKI_ROOT_CERT" >> "$chainout"
+#
+# Prefer the zone's own maintained chain: it already IS issuer-plus-its-root,
+# which is what an imported CA needs and what building it from PKI_ROOT_CERT got
+# wrong. Without a chain configured, fall back to the issuer plus the anchor.
+if [[ -n $chainsrc && -s $chainsrc ]]; then
+    cat "$chainsrc" > "$chainout"
+else
+    cat "$cacert" > "$chainout"
+    [[ -n $anchor && -f $anchor ]] && cat "$anchor" >> "$chainout"
+fi
 
 # Verify before handing it back. A certificate that does not chain is the
 # failure mode name constraints produce, and catching it here means the node
 # is told rather than silently installing something no client accepts.
-if ! openssl verify -CAfile "${PKI_ROOT_CERT:-$cacert}" -untrusted "$cacert" "$out" >/dev/null 2>&1; then
+#
+# Against $anchor, not PKI_ROOT_CERT. On an external-CA install the FOG root did
+# not sign this issuer, so anchoring there failed for every node -- and failed
+# with the message below, which sent the admin looking at name constraints for
+# something that was never a name problem.
+# Narrowing fallbacks, most correct first. A missing .trustAnchor.pem means an
+# install that has not run _resolveTrustAnchor yet; the FOG root is still right
+# on an ordinary install, and the issuer itself is the last resort that at least
+# proves this helper signed what it thinks it signed.
+if [[ -z $anchor || ! -f $anchor ]]; then
+    anchor="${PKI_ROOT_CERT:-}"
+fi
+if [[ -z $anchor || ! -f $anchor ]]; then
+    anchor="$cacert"
+fi
+if ! openssl verify -CAfile "$anchor" -untrusted "$cacert" "$out" >/dev/null 2>&1; then
     rm -f "$out" "$chainout"
-    die "the issued certificate does not verify -- a requested name is probably outside the CA's name constraints"
+    die "the issued certificate does not verify against ${anchor} -- a requested name is probably outside the CA's name constraints"
 fi
 
 chmod 0644 "$out" "$chainout"

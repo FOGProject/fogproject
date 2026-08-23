@@ -221,9 +221,20 @@ class SnapinReplicator extends FOGService
                 );
                 /**
                  * Handles replicating of our ssl folder and contents.
+                 *
+                 * 'ssl/fog.csr' was dropped here. It is the MASTER's
+                 * client-communication CSR -- a request that was fulfilled years
+                 * of installs ago -- and a storage node has no use for it: since
+                 * the zoned PKI landed, a node generates its own keypair and its
+                 * own CSR in _requestNodeCert() and is issued a certificate by
+                 * the master's Web CA. The installer also moved that file into
+                 * pki/client/leaf/ with the rest of the client leaf's material,
+                 * so this entry named a path that no longer exists.
+                 *
+                 * 'ssl/CA' stays: that is the CA certificate itself, and it is
+                 * public trust material a node legitimately holds.
                  */
                 $ssls = [
-                    'ssl/fog.csr',
                     'ssl/CA'
                 ];
                 self::outall(

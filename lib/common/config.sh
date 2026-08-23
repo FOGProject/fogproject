@@ -71,7 +71,7 @@ fog_udpversion="20250223"
 # a fingerprint and an enrolment kit to hand out. --no-secure-boot sets this to
 # 0, and because .fogsettings is sourced before this file, that choice survives
 # an upgrade rather than being silently re-enabled.
-[[ -z ${PKI_sb_enabled} ]] && PKI_sb_enabled=1
+[[ -z ${PKI_sb_enabled} ]] && PKI_sb_enabled="yes"
 # Anchoring this server's own CA in this server's own trust store is on by
 # default: without it every HTTPS call made ON the FOG server TO the FOG server
 # fails to verify, including the ones inside FOG that have no way to be handed
