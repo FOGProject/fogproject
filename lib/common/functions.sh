@@ -5219,9 +5219,13 @@ _hardenPkiPermissions() {
     # stricter mode here does not harden anything -- it stops every client on
     # the server from authenticating, with "Private key not readable" as the
     # only clue.
-    if [[ -f ${PKI_client_cert_dir}/.srvprivate.key ]]; then
-        chown root:${apacheuser} "${PKI_client_cert_dir}/.srvprivate.key" >>$error_log 2>&1
-        chmod 0640 "${PKI_client_cert_dir}/.srvprivate.key" >>$error_log 2>&1
+    # The REAL file, not the canonical name. chown/chmod follow symlinks, so
+    # going through the compat link would work by accident -- but it silently
+    # does nothing at all on the run before the link exists, and names the wrong
+    # thing in the error log when it fails.
+    if [[ -f ${PKI_client_encrypt_key} ]]; then
+        chown root:${apacheuser} "${PKI_client_encrypt_key}" >>$error_log 2>&1
+        chmod 0640 "${PKI_client_encrypt_key}" >>$error_log 2>&1
     fi
     errorStat $?
     # configureSnapins now prunes ${PKI_client_cert_dir}, so its recursive relabel no longer
@@ -5607,14 +5611,15 @@ writeUpdateFile() {
     # under its own name here or the emitted line would be empty.
     FOG_program_dir="$fogprogramdir"
 
-    # Same shape, for the same reason: canonical-path RECORDS whose value is a
-    # pure function of ${PKI_client_cert_dir}. Derived here as well as in
-    # _createCommLeaf() so they are still recorded on an install that never
-    # reached it -- settingLine() resolves values by ${!key}, so an unset key
-    # emits an empty line, which #1121 would read as "no client cert configured".
-    if [[ -n ${PKI_client_cert_dir} ]]; then
-        PKI_client_encrypt_key="${PKI_client_cert_dir}/.srvprivate.key"
-        PKI_client_encrypt_cert="${PKI_client_cert_dir}/.srvpublic.crt"
+    # Same shape, for the same reason: canonical-path RECORDS, now a pure
+    # function of the client PKI zone rather than of ${PKI_client_cert_dir}.
+    # Derived here as well as in _createCommLeaf() so they are still recorded on
+    # an install that never reached it -- settingLine() resolves values by
+    # ${!key}, so an unset key emits an empty line, which #1121 would read as
+    # "no client cert configured".
+    if [[ -n $fogprogramdir ]]; then
+        PKI_client_encrypt_key="$(_pkiZoneDir client)/leaf/.srvprivate.key"
+        PKI_client_encrypt_cert="$(_pkiZoneDir client)/leaf/.srvpublic.crt"
     fi
 
     # Managed keys, in the canonical order a freshly written file uses. This one
@@ -6308,9 +6313,12 @@ emitNginxPhpBody() {
 #   |                                storage nodes. Online.
 #   +-- FOG Secure Boot CA           enrolled as MOK.der / written to db;
 #   |                                issues the code-signing leaves.
-#   \-- .srvprivate.key + srvpublic.crt
-#                                    the client communication keypair, left
-#                                    exactly where it has always been.
+#   \-- FOG Client Comm leaf         .srvprivate.key + .srvpublic.crt, in
+#                                    pki/client/leaf. Signed by the root
+#                                    directly -- fog-client pins the root, so
+#                                    there is no intermediate to chain through.
+#                                    Reachable at the historic $snapindir/ssl
+#                                    names through a symlink each.
 #
 # Why the intermediates hang off the EXISTING root rather than a new one above
 # it: an existing server then gets the separation on an ordinary update. A new
@@ -6348,8 +6356,85 @@ _pkiZoneDir() {
     case "$1" in
         root) echo "${fogprogramdir}/pki/root" ;;
         web) echo "${fogprogramdir}/pki/web" ;;
+        client) echo "${fogprogramdir}/pki/client" ;;
         secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
     esac
+}
+# The client zone's leaf directory, and the compatibility links that keep the
+# canonical names working.
+#
+# The comm keypair used to live directly in ${PKI_client_cert_dir}, i.e.
+# $snapindir/ssl -- the same directory an admin edits to change snapin SSL, and
+# the directory the snapin replicator walks. So "change the snapin certificates"
+# and "replace the one keypair every registered client pins" were the same
+# operation on the same directory, and the second one is invisible until hosts
+# stop checking in.
+#
+# The real files move into the client zone. What stays behind at the canonical
+# names is a SYMLINK per file, because the names are not free: FOGBase's
+# _decryptCheck() builds `<sslpath>/.srvprivate.key` with the filename
+# hardcoded, taking the directory from the storage-node record rather than from
+# .fogsettings, so the path has to keep resolving. Per file and not a directory
+# symlink on purpose -- symlinking the whole directory would put snapin uploads
+# straight back beside the keypair, which is the thing being fixed.
+#
+# Everything else in that directory stays put, and this is not laziness: req.cnf
+# and ca.cnf are read by the WEB leaf's issuance too and by packages/pki/
+# renewal-helper, fog.csr is replicated to storage nodes by
+# SnapinReplicator, dhparam.pem is named in the emitted nginx config, and the
+# legacy CA/ tree is read by the web UI to report offline-key state. Each is its
+# own contract with something outside the installer.
+_resolveClientLeafPaths() {
+    local leafdir f
+    leafdir="$(_pkiZoneDir client)/leaf"
+    mkdir -p "$leafdir" >>$error_log 2>&1
+    # 0710 root:${apacheuser}, NOT the 0700 root:root the other zones' leaf dirs
+    # get. The web tier must be able to TRAVERSE this to read the private key --
+    # certDecrypt() opens it on every fog-client handshake -- and 0700 here
+    # fails that as `Private key not readable`, per client, with nothing naming
+    # this directory. Traverse only: 0710 grants no listing.
+    chown root:${apacheuser} "$leafdir" >>$error_log 2>&1
+    chmod 0710 "$leafdir" >>$error_log 2>&1
+    # Migrate a REAL file only. A symlink here is either FOG's own compat link
+    # from a previous run (already migrated, nothing to do) or an admin pointing
+    # at their own file, which _separateCommKey settles first and which must not
+    # be dragged into the zone as a link.
+    for f in .srvprivate.key .srvpublic.crt; do
+        [[ -f "${PKI_client_cert_dir}/${f}" && ! -L "${PKI_client_cert_dir}/${f}" \
+            && ! -e "${leafdir}/${f}" ]] \
+            && mv "${PKI_client_cert_dir}/${f}" "${leafdir}/${f}" >>$error_log 2>&1
+    done
+    PKI_client_encrypt_key="${leafdir}/.srvprivate.key"
+    PKI_client_encrypt_cert="${leafdir}/.srvpublic.crt"
+}
+# The compat links themselves, made once the files they point at exist. Split
+# from _resolveClientLeafPaths because on a fresh install the keypair does not
+# exist yet when the paths have to be settled -- _linkCanonical is a no-op for a
+# target that is not there, so linking early would silently link nothing.
+_linkClientLeafCompat() {
+    mkdir -p "${PKI_client_cert_dir}" >>$error_log 2>&1
+    _linkCanonical "${PKI_client_encrypt_key}" "${PKI_client_cert_dir}/.srvprivate.key"
+    _linkCanonical "${PKI_client_encrypt_cert}" "${PKI_client_cert_dir}/.srvpublic.crt"
+}
+# pki/root/leaf/ held discoverability symlinks to the comm keypair, from when
+# its real files lived in $snapindir/ssl and the root zone was the only zone
+# without a leaf/. The keypair has its own zone now, so that directory would be
+# a second set of links pointing at the first -- two indirections to the same
+# file and nothing reading either.
+#
+# Only ever unlinks a SYMLINK, so a real file somebody else put there survives
+# and the rmdir then fails harmlessly rather than taking it. Finding nothing
+# there is the normal case, on a fresh install and on any server installed after
+# this landed.
+_retireRootLeafLinks() {
+    local rootLeafDir f
+    rootLeafDir="$(_pkiZoneDir root)/leaf"
+    [[ -d $rootLeafDir ]] || return 0
+    for f in .srvprivate.key .srvpublic.crt; do
+        [[ -L "${rootLeafDir}/${f}" ]] && rm -f "${rootLeafDir}/${f}" >>$error_log 2>&1
+    done
+    rmdir "$rootLeafDir" >/dev/null 2>&1
+    return 0
 }
 # Whether the certificate this server serves is managed OUTSIDE FOG.
 #
@@ -7058,11 +7143,11 @@ $(_nameConstraints)" "FOG Web UI"
 # The client communication certificate: the public half of the keypair
 # fog-client encrypts to, and whose private half FOGBase::certDecrypt() opens.
 #
-# Nothing about the keypair changes here. .srvprivate.key stays exactly where
-# it has always been and keeps exactly the contents it has always had -- that
-# is the point of hanging the new zones off the existing root instead of
-# restructuring beneath it. What changes is only that the vhost stops pointing
-# at this certificate and serves a Web CA leaf instead.
+# The keypair's CONTENTS never change: every registered client is already
+# encrypting to its public half, so re-keying locks all of them out at once.
+# Its LOCATION did move, into the client zone -- see _resolveClientLeafPaths for
+# why $snapindir/ssl was the wrong home and what stays behind there. The vhost
+# also stopped pointing at this certificate and serves a Web CA leaf instead.
 #
 # Two properties this has to hold that the historic code did not:
 #
@@ -7081,18 +7166,15 @@ _createCommLeaf() {
     # premise is "say where the cert is" cannot have.
     #
     # They are RECORDS of a canonical path, re-derived every run, not controls.
-    # The filename is not free: FOGBase builds `<dir>/.srvprivate.key` with the
-    # name hardcoded, taking the directory from the storage-node record rather
-    # than from .fogsettings. So the canonical NAME must not move even though
-    # its target may -- point it at your own file with a symlink, exactly as
-    # the web vhost pair works.
-    PKI_client_encrypt_key="${PKI_client_cert_dir}/.srvprivate.key"
-    PKI_client_encrypt_cert="${PKI_client_cert_dir}/.srvpublic.crt"
+    # Settled by _resolveClientLeafPaths, which createSSLCA calls before this --
+    # re-derived here too so the function is safe to reach on its own, and
+    # idempotent either way.
+    _resolveClientLeafPaths
 
     # Already present: keep it, whoever issued it. This is also the supported
-    # way to run a comm leaf issued OUTSIDE FOG -- drop the certificate at
-    # ${PKI_client_cert_dir}/.srvpublic.crt with its key at ${PKI_client_cert_dir}/.srvprivate.key and FOG
-    # leaves both alone from then on.
+    # way to run a comm leaf issued OUTSIDE FOG -- drop the pair at
+    # ${PKI_client_encrypt_cert} / ${PKI_client_encrypt_key} (or pass
+    # --client-cert/--client-key) and FOG leaves both alone from then on.
     #
     # Checked with the same modulus test the adopt branch below uses, and for
     # the same reason it gives: a certificate that does not pair with this key
@@ -7193,7 +7275,7 @@ _createCommLeaf() {
 # where to restore the key. A stale certificate is recoverable -- put the old
 # key back -- where no certificate at all is not.
 _discardOrphanedCommLeaf() {
-    local cert="${PKI_client_cert_dir}/.srvpublic.crt" key="${PKI_client_cert_dir}/.srvprivate.key"
+    local cert="${PKI_client_encrypt_cert}" key="${PKI_client_encrypt_key}"
     [[ -f $cert && -f $key && ${rootCAKeyOffline:-0} -ne 1 ]] || return 0
     local certmod keymod
     certmod=$(openssl x509 -noout -modulus -in "$cert" 2>/dev/null | openssl md5 2>/dev/null)
@@ -7227,7 +7309,7 @@ _discardOrphanedCommLeaf() {
 # the byte-identical file, has to stay silent or the warning stops meaning
 # anything.
 _warnClientRepin() {
-    local newcert="${PKI_client_encrypt_cert:-${PKI_client_cert_dir}/.srvpublic.crt}"
+    local newcert="${PKI_client_encrypt_cert:-$(_pkiZoneDir client)/leaf/.srvpublic.crt}"
     [[ -f $newcert ]] || return 0
     # configureHttpd rm -rf's $webdirdest before createSSLCA runs, so the live
     # copy is usually already gone -- but it backs the tree up first. Same two
@@ -7270,7 +7352,8 @@ _warnClientRepin() {
 }
 # Make .srvprivate.key a file FOG owns outright.
 #
-# An admin who relocated ${PKI_web_vhost_key} has ${PKI_client_cert_dir}/.srvprivate.key as a symlink
+# An admin who relocated ${PKI_web_vhost_key} has the canonical
+# ${PKI_client_cert_dir}/.srvprivate.key as a symlink
 # to their own key -- which under the historic layout was the web key AND the
 # comm key. Separating the zones means the comm key has to stop following that
 # link, or an ACME renewal writing their file would still change what
@@ -7280,10 +7363,26 @@ _warnClientRepin() {
 # already encrypting to its public half, and a new key would lock all of them
 # out at once.
 _separateCommKey() {
-    local canon="${PKI_client_cert_dir}/.srvprivate.key" target
+    local canon="${PKI_client_cert_dir}/.srvprivate.key" target zonedir
     [[ ! -L $canon ]] && return 0
     target=$(readlink -f "$canon" 2>/dev/null)
     [[ -z $target || ! -f $target ]] && return 0
+    # FOG's OWN compat link into the client zone is not something to separate --
+    # it is the layout. Without this test the link is dereferenced and the key
+    # copied back over it on every run: a real duplicate of the client private
+    # key reappears in $snapindir/ssl, and this function announces that it
+    # separated a key from the web key, which it did not.
+    #
+    # _linkClientLeafCompat does put the link back later in the same run, so the
+    # duplicate is transient -- but only if the run gets that far, and errorStat
+    # exits between here and there. A private key left lying in the directory
+    # the snapin replicator walks is not a state to reach and then rely on being
+    # tidied.
+    #
+    # Same question, and the same readlink -f on both sides, as
+    # _externallyManagedLeaf asks of the web leaf.
+    zonedir=$(readlink -f "$(_pkiZoneDir client)" 2>/dev/null)
+    [[ -n $zonedir && $target == "$zonedir"/* ]] && return 0
     dots "Separating the client communication key from the web key"
     rm -f "$canon" >>$error_log 2>&1
     cp -f "$target" "$canon" >>$error_log 2>&1
@@ -8093,8 +8192,14 @@ EOF
     # one path, and was re-derived to it on every run anyway. Every reader now
     # names the canonical location directly, so there is no ordering dependency
     # between this function and _createCommLeaf() below.
+    # Order matters. _separateCommKey first, while the canonical name may still
+    # be an admin's symlink to their web key: it copies the material out from
+    # under that link. _resolveClientLeafPaths second, which then has a real
+    # file to move into the client zone and sets the two canonical-path records
+    # every line below reads.
     _separateCommKey
-    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_cert_dir}/.srvprivate.key || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
+    _resolveClientLeafPaths
+    if [[ $recreateKeys == yes || $recreateCA == yes || ! -e ${PKI_client_encrypt_key} || ! -e ${PKI_client_cert_dir}/fog.csr ]]; then
         dots "Creating SSL Private Key"
         if [[ $(validip $certip) -ne 0 ]]; then
             echo -e "\n"
@@ -8109,8 +8214,8 @@ EOF
         # 4096 to match what certDecrypt() expects: it chunks the ciphertext by
         # modulus size (openssl_pkey_get_details -> bits/8), so the key size is
         # part of the wire framing, not a tunable.
-        if [[ ! -e ${PKI_client_cert_dir}/.srvprivate.key || $recreateKeys == yes || $recreateCA == yes ]]; then
-            openssl genrsa -out ${PKI_client_cert_dir}/.srvprivate.key 4096 >>$error_log 2>&1
+        if [[ ! -e ${PKI_client_encrypt_key} || $recreateKeys == yes || $recreateCA == yes ]]; then
+            openssl genrsa -out ${PKI_client_encrypt_key} 4096 >>$error_log 2>&1
             # Only under the flags that ASKED for a new key. This branch also
             # fires when .srvprivate.key is merely ABSENT -- a bad restore, a
             # lost disk -- and that is damage, not intent. There, the surviving
@@ -8127,7 +8232,7 @@ EOF
         # config and openssl reads nothing from stdin. Feeding it a line here
         # would be dead input, and it was the mismatch between that one line and
         # the number of prompted fields that broke fresh installs.
-        openssl req -new -sha512 -key ${PKI_client_cert_dir}/.srvprivate.key -out ${PKI_client_cert_dir}/fog.csr -config ${PKI_client_cert_dir}/req.cnf >>$error_log 2>&1
+        openssl req -new -sha512 -key ${PKI_client_encrypt_key} -out ${PKI_client_cert_dir}/fog.csr -config ${PKI_client_cert_dir}/req.cnf >>$error_log 2>&1
         errorStat $?
     fi
     _createCommLeaf
@@ -8137,17 +8242,14 @@ EOF
     # re-issued, adopted, or left exactly as it was.
     _warnClientRepin
 
-    # Discoverability symlinks only -- the comm leaf's real files stay at
-    # ${PKI_client_cert_dir} (see _createCommLeaf's own comment for why). This just gives
-    # the root zone the same ca/+leaf/ shape as the other two zones, so
-    # nothing under pki/ is flat. ${PKI_client_encrypt_key}/${PKI_client_encrypt_cert} are set
-    # unconditionally at the top of _createCommLeaf, so they're valid here
-    # even if that call returned early without issuing anything yet.
-    local rootLeafDir="$(_pkiZoneDir root)/leaf"
-    mkdir -p "$rootLeafDir" >>$error_log 2>&1
-    chmod 0700 "$rootLeafDir" >>$error_log 2>&1
-    [[ -f ${PKI_client_encrypt_key} ]] && ln -sf "${PKI_client_encrypt_key}" "${rootLeafDir}/.srvprivate.key" >>$error_log 2>&1
-    [[ -f ${PKI_client_encrypt_cert} ]] && ln -sf "${PKI_client_encrypt_cert}" "${rootLeafDir}/.srvpublic.crt" >>$error_log 2>&1
+    # The compat links at the canonical $snapindir/ssl names, now that the
+    # keypair definitely exists. FOGBase's _decryptCheck() builds
+    # `<sslpath>/.srvprivate.key` from the storage-node record with the filename
+    # hardcoded, so those two names have to keep resolving whatever the layout
+    # underneath them is.
+    _linkClientLeafCompat
+
+    _retireRootLeafLinks
 
     # --- Web zone ----------------------------------------------------------
     #
