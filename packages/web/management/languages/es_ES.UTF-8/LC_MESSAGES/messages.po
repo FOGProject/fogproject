@@ -4914,6 +4914,9 @@ msgstr "actualización Valoración falló"
 msgid "Master Node"
 msgstr "nodo de almacenamiento"
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 #, fuzzy
 msgid "Max Clients"
 msgstr "Clientela"
@@ -6664,9 +6667,6 @@ msgstr "Código de retorno"
 msgid "Returning value of key"
 msgstr "Volviendo valor de clave"
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -8171,7 +8171,7 @@ msgstr "De serie"
 msgid "Text"
 msgstr "Siguiente"
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 #, fuzzy

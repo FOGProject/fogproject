@@ -4800,6 +4800,9 @@ msgstr "用户更新失败"
 msgid "Master Node"
 msgstr "主节点"
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 msgid "Max Clients"
 msgstr "最大客户"
 
@@ -6516,9 +6519,6 @@ msgstr "返回代码"
 msgid "Returning value of key"
 msgstr "返回键的值"
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -7985,7 +7985,7 @@ msgstr "串行"
 msgid "Text"
 msgstr "文本"
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 #, fuzzy

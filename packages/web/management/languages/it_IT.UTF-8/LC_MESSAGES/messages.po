@@ -4632,6 +4632,9 @@ msgstr "Aggiornamento ruolo non riuscito"
 msgid "Master Node"
 msgstr "Maestro Node"
 
+msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgstr ""
+
 msgid "Max Clients"
 msgstr "clienti max"
 
@@ -6299,9 +6302,6 @@ msgstr "Codice di ritorno"
 msgid "Returning value of key"
 msgstr "Tornando valore della chiave"
 
-msgid "Returns the same envelope as a list."
-msgstr ""
-
 msgid "Reverse"
 msgstr ""
 
@@ -7703,7 +7703,7 @@ msgstr "Terminale"
 msgid "Text"
 msgstr "Testo"
 
-msgid "Text to match across the class fields."
+msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
 #, fuzzy
