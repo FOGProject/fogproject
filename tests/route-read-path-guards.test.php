@@ -344,11 +344,28 @@ $userBlocked = Route::unfilterableFields('user');
 
 $t->check(
     'unfilterableFields(host) carries the tier-1 fields',
-    count(array_diff(Route::$sensitiveFields['host'], $hostBlocked)) === 0
+    count(
+        array_diff(
+            (array)(Route::$sensitiveFields['host'] ?? []),
+            $hostBlocked
+        )
+    ) === 0
 );
+/*
+ * user has no tier-1 entry at all as of GH-1326: token and password are both
+ * tier 2, so the class is simply absent from $sensitiveFields the way image
+ * and snapin are. Assert the derived list directly rather than diffing a tier
+ * that is not there -- diffing it would be vacuous even if it did not fatal,
+ * and this pins the property that actually matters: both user secrets are
+ * blocked, wherever they are declared.
+ *
+ * It DID fatal, which is the second reason to write it this way.
+ * array_diff(null, ...) is a TypeError on PHP 8 and only a warning on 7.4, so
+ * the 7.4 job passed and the 8.3 job died -- the null-to-internal-param class.
+ */
 $t->check(
-    'unfilterableFields(user) carries the tier-1 fields',
-    count(array_diff(Route::$sensitiveFields['user'], $userBlocked)) === 0
+    'unfilterableFields(user) carries both user secrets',
+    count(array_diff(['token', 'password'], $userBlocked)) === 0
 );
 $t->check(
     'unfilterableFields folds in what a plugin declared (tier 1)',
