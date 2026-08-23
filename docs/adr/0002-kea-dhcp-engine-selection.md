@@ -2,13 +2,16 @@
 
 ## Status
 
-accepted
+accepted. Key names updated by
+[ADR 0024](0024-fogsettings-unified-key-model.md): `dhcpengine` is now
+`DHCP_engine` and `bldhcp` is now `DHCP_enabled`, which also absorbed `dodhcp`
+-- the two were one answer in two encodings. The decision is unchanged.
 
 ## Context
 
 ISC-DHCP reached end-of-life in 2022 and Debian 13 (Trixie) dropped the
 `isc-dhcp-server` package entirely (issue #730). FOG can optionally run the
-DHCP service itself (the installer's `bldhcp=1` path), and that service must
+DHCP service itself (the installer's `DHCP_enabled=1` path), and that service must
 hand each PXE client the architecture-appropriate iPXE binary — BIOS gets
 `undionly.kkpxe`, the various UEFI arches and ARM64 get the right `snponly.efi`.
 Today `configureDHCP()` does this by writing an ISC `dhcpd.conf` whose `class`
@@ -30,13 +33,13 @@ and config path per distro.
 Engine selection is **stable across re-runs and never silently switches a
 working install**:
 
-1. An explicit `dhcpengine=` in `.fogsettings` is honored (and is the admin's
-   supported opt-in path — set `dhcpengine='kea'` by hand to migrate an existing
+1. An explicit `DHCP_engine=` in `.fogsettings` is honored (and is the admin's
+   supported opt-in path — set `DHCP_engine='kea'` by hand to migrate an existing
    ISC box).
 2. Otherwise, if a prior `.fogsettings` already configured DHCP (a pre-Kea
    install), the engine is treated as `isc` — existing boxes are not switched.
 3. Otherwise (fresh install), the engine resolves to the preferred available
-   one (Kea, else ISC). The result is persisted as `dhcpengine`.
+   one (Kea, else ISC). The result is persisted as `DHCP_engine`.
 
 A fresh install on a distro lacking Kea (or where it is not in a configured
 repo) correctly lands on ISC; if neither is available the install hard-fails
@@ -58,9 +61,9 @@ logic that does not translate cleanly to Kea client-classes.) The ISC path gains
 an optional, **non-fatal** `dhcpd -t` check that warns but still starts the
 daemon, preserving its long-standing behavior.
 
-When the installer owns DHCP (`bldhcp=1`), bringing up one engine **stops and
+When the installer owns DHCP (`DHCP_enabled=1`), bringing up one engine **stops and
 disables the other FOG-relevant DHCP daemon** if present, symmetrically, so the
-two never contend for port 67. When `bldhcp=0`, the installer touches no DHCP
+two never contend for port 67. When `DHCP_enabled=0`, the installer touches no DHCP
 service at all.
 
 ## Why
@@ -78,7 +81,7 @@ once every few years.
 
 ## Consequences
 
-- `.fogsettings` gains a `dhcpengine` variable; its absence on an older install
+- `.fogsettings` gains a `DHCP_engine` variable; its absence on an older install
   is meaningful (implies ISC) and must be preserved by the inference rule above.
 - The arch→bootfile mapping now lives in two places; a new firmware arch code
   must be added to both the ISC and Kea generators (comments flag this).

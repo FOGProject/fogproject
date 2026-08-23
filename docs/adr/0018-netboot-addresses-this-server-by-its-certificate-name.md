@@ -11,12 +11,12 @@ fetches got their host from two unrelated places with nothing comparing them.
 
 | Hop | URL | Host came from |
 | --- | --- | --- |
-| 1 | `default.ipxe` → `service/ipxe/boot.php` | shell `$hostname` |
+| 1 | `default.ipxe` → `service/ipxe/boot.php` | shell `${NET_hostname}` |
 | 2..n | `${boot-url}/service/ipxe/*`, `web=`, Secure Boot `MOK.der` / `mmx64.efi` | the `FOG_WEB_HOST` DB row |
 | kernel / init | relative, so it inherits hop 1's host | — |
 
-`configureDefaultiPXEfile()` used `$ipaddress` for the entire prior life of that
-line. When HTTPS netboot arrived it became `${hostname:-$ipaddress}`, guarded
+`configureDefaultiPXEfile()` used `${NET_fog_server_ip}` for the entire prior life of that
+line. When HTTPS netboot arrived it became `${NET_hostname:-$NET_fog_server_ip}`, guarded
 only by `validip` — so the *only* rejected value was an IPv4 literal.
 `validhostname()` accepts a single label, and a short name therefore passed every
 check on the path.
@@ -27,16 +27,16 @@ fails the handshake on a name mismatch, so the boot stopped before it fetched
 anything.
 
 **The guard was wrong in a way that testing could not see.**
-`_defaultServerNames()` puts *both* the FQDN and the short `${hostname%%.*}` into
+`_defaultServerNames()` puts *both* the FQDN and the short `${NET_hostname%%.*}` into
 the SAN list, so on a FOG-issued leaf a short name is a genuine SAN and
-`$hostname` works. But `_createWebLeaf()` returns early when `acmeLeaf` or
-`publicWebCert` is set — FOG's SAN list is never applied to a publicly-issued
+`${NET_hostname}` works. But `_createWebLeaf()` returns early when the leaf is externally managed or
+`PKI_web_cert_publicly_trusted` is set — FOG's SAN list is never applied to a publicly-issued
 leaf, which carries only the names its issuer was asked for. Since
-`publicWebCert` is one of exactly two triggers for HTTPS netboot (ADR 0015), the
+`PKI_web_cert_publicly_trusted` is one of exactly two triggers for HTTPS netboot (ADR 0015), the
 short-name case is not an edge case: it is roughly half the population that
 selects HTTPS netboot at all.
 
-Meanwhile `FOG_WEB_HOST` is seeded from `$ipaddress` on a fresh schema deploy and
+Meanwhile `FOG_WEB_HOST` is seeded from `${NET_fog_server_ip}` on a fresh schema deploy and
 was never written again — the string does not appear anywhere in `lib/` or
 `bin/`. So a fresh `--install-mode public-cert` install pointed hops 2..n at
 `https://<address>/`, which no public CA will ever certify.
@@ -70,13 +70,13 @@ second call.
 4. `FOG_WEB_HOST` is **recorded** from the same value by
    `recordNetbootWebHost()`, so hops 2..n agree with hop 1 by construction.
 
-Plain-HTTP netboot is untouched and still uses `$ipaddress`. It never cared about
+Plain-HTTP netboot is untouched and still uses `${NET_fog_server_ip}`. It never cared about
 names, and rewriting it would change the boot URL of every ordinary install.
 
 ### `FOG_WEB_HOST` becomes a record, but only under HTTPS netboot
 
 This is the part an admin can be surprised by, so it is stated plainly: when
-`netbootproto=https`, `FOG_WEB_HOST` is overwritten on every install run and an
+`BOOT_url_proto=https`, `FOG_WEB_HOST` is overwritten on every install run and an
 edit through the Settings tab will not survive. It joins `FOG_GIT_PATH`,
 `FOG_EXTRA_SERVER_NAMES` and `SERVICE_LOG_PATH` as a record rather than a
 control, for the same reason `SERVICE_LOG_PATH` became one: two things that must
@@ -90,7 +90,7 @@ netboot is HTTPS.
 ## Consequences
 
 - HTTPS netboot works on a publicly-issued certificate without the admin having
-  to know that `$hostname` and `FOG_WEB_HOST` are separate values that both had
+  to know that `${NET_hostname}` and `FOG_WEB_HOST` are separate values that both had
   to be right.
 - A server whose certificate genuinely cannot cover a usable name now fails the
   install instead of shipping a broken TFTP tree. That is a louder failure than
@@ -134,8 +134,9 @@ boot — the precise failure mode the original IP guard was made fatal to preven
 
 ## References
 
-- ADR 0015 — the settings this builds on: `netbootproto`, `publicWebCert`,
-  `rebuildIpxeWithMyCA` as independent keys.
+- ADR 0015 — the settings this builds on: `BOOT_url_proto`,
+  `PKI_web_cert_publicly_trusted`, `BOOT_rebuild_ipxe_with_my_ca` as independent
+  keys.
 - ADR 0016 — why iPXE's name checking is the rule to mirror.
 - `docs/PKI_ZONES.md` — the Let's Encrypt netboot caveat this enforces.
 - `docs/HTTPPROTO_COVERAGE_AUDIT.md` §A2 — the full set of URLs iPXE fetches.

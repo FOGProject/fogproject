@@ -14,7 +14,7 @@ extension to be marked critical, and it is.
 
 FOG also builds its own iPXE. When the netboot protocol is HTTPS --
 `_resolveNetbootProto()` selects that automatically whenever
-`rebuildIpxeWithMyCA` is set -- `buildipxe.sh` bakes `.fogCA.pem` into the
+`BOOT_rebuild_ipxe_with_my_ca` is set -- `buildipxe.sh` bakes `.fogCA.pem` into the
 binary as `CERT=`/`TRUST=` so iPXE can validate the FOG server over TLS.
 
 **These two features are mutually incompatible.** iPXE's `x509_extensions[]`
@@ -43,7 +43,7 @@ chain -- the binary boots, iPXE starts and reports `HTTPS` among its features,
 and only then cannot read the certificate it was given.
 
 Both branches were affected: `working-1.6` since 2026-08-10 and `dev-branch`
-since 2026-08-09, which bakes the same CA in whenever `httpproto` is `https`.
+since 2026-08-09, which bakes the same CA in whenever `WEB_url_proto` is `https`.
 
 ## Decision
 
