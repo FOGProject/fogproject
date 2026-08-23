@@ -1,11 +1,11 @@
-# `httpproto` coverage audit, and the conditional HTTPS redirect
+# `WEB_url_proto` coverage audit, and the conditional HTTPS redirect
 
-> **Headline:** `httpproto` is honoured by every URL the installer emits, so
+> **Headline:** `WEB_url_proto` is honoured by every URL the installer emits, so
 > redefining it as *"the protocol FOG uses for its own **non-netboot** URLs"* is
 > safe on the installer side. It is **not** safe yet on three other fronts:
 > three sites still gate the iPXE download, the Secure Boot staging and the
-> local iPXE rebuild on `httpproto` rather than on `netbootproto`; the HTTP→HTTPS
-> redirect and HSTS are both welded to `httpproto` with no separate key; and the
+> local iPXE rebuild on `WEB_url_proto` rather than on `BOOT_url_proto`; the HTTP→HTTPS
+> redirect and HSTS are both welded to `WEB_url_proto` with no separate key; and the
 > redirect's exclusion list was missing a directory iPXE fetches directly.
 > Everything in Part B §4 and §5 was found broken **before** any default was
 > flipped, and is fixed on this branch.
@@ -35,9 +35,9 @@ value. Conflating them is what
 
 | Decision | Governed by | Why it is separate |
 | --- | --- | --- |
-| The scheme FOG uses for its **own non-netboot** URLs — the web UI, the API, the client installer download, URLs handed to fog-client | `httpproto` | An ordinary TLS decision. Every consumer here can be told to trust a CA. |
-| The scheme **iPXE** uses to fetch `boot.php` and everything downstream of it | `netbootproto` | iPXE can be told to trust nothing. It validates strictly, has no `--insecure`, and its only route to a private CA is a rebuild that costs the signed Secure Boot chain. |
-| Whether plain HTTP is **redirected** to HTTPS | the redirect, today welded to `httpproto` | Trust reaches a client machine when fog-client installs FOG's CA into that machine's store. On a fresh server nothing has fog-client yet, so a forced redirect breaks exactly the machines that cannot fix themselves. |
+| The scheme FOG uses for its **own non-netboot** URLs — the web UI, the API, the client installer download, URLs handed to fog-client | `WEB_url_proto` | An ordinary TLS decision. Every consumer here can be told to trust a CA. |
+| The scheme **iPXE** uses to fetch `boot.php` and everything downstream of it | `BOOT_url_proto` | iPXE can be told to trust nothing. It validates strictly, has no `--insecure`, and its only route to a private CA is a rebuild that costs the signed Secure Boot chain. |
+| Whether plain HTTP is **redirected** to HTTPS | the redirect, today welded to `WEB_url_proto` | Trust reaches a client machine when fog-client installs FOG's CA into that machine's store. On a fresh server nothing has fog-client yet, so a forced redirect breaks exactly the machines that cannot fix themselves. |
 
 >[!important]
 >iPXE can only validate a chain terminating in a **public** root, via its
@@ -53,11 +53,11 @@ value. Conflating them is what
 arrived*, not a configured value. For the netboot path this is not an oversight,
 it is the mechanism:
 
-The installer writes `default.ipxe` with `chain <netbootproto>://…/boot.php`.
+The installer writes `default.ipxe` with `chain <BOOT_url_proto>://…/boot.php`.
 `BootMenu` then builds the whole menu, the `web=` kernel argument and every
 `${boot-url}` from `self::$httpproto` — so the entire boot sequence inherits the
 protocol iPXE arrived on, with no PHP configuration at all. Replacing that with
-a configured `httpproto` would break every HTTPS-web / HTTP-netboot install.
+a configured `WEB_url_proto` would break every HTTPS-web / HTTP-netboot install.
 
 Self-derivation is likewise correct for same-origin work: the API-disabled
 redirect, the OpenAPI `servers[0].url`, the Swagger spec URL.
@@ -69,7 +69,7 @@ It is **wrong**, or at least insufficient, in two places:
   column for it; the replicator works around this by trying HTTP and retrying
   HTTPS.
 - **The CLI daemons.** `$_SERVER['HTTPS']` is unset outside a request, so
-  `$httpproto` is unconditionally `http` in every background service.
+  `$WEB_url_proto` is unconditionally `http` in every background service.
 
 ## A2. Everything iPXE fetches during a boot
 
@@ -79,18 +79,18 @@ directories**, not one.
 | Step | URL | Where it comes from |
 | --- | --- | --- |
 | 0 | `tftp://${next-server}/default.ipxe` | the embedded/autoexec script |
-| 1 | `<netbootproto>://<server><webroot>service/ipxe/boot.php` | `default.ipxe`, written by the installer |
+| 1 | `<BOOT_url_proto>://<server><WEB_root>service/ipxe/boot.php` | `default.ipxe`, written by the installer |
 | 2 | `${boot-url}/service/ipxe/` → `grub.exe`, `refind.conf`, `refind*.efi`, `bg.png` / `bgdark.png`, `advanced.php` | `BootMenu` |
 | 3 | the kernel (`bzImage`) and init (`init.xz`) | **relative** — iPXE resolves them against `boot.php`'s own URI, so they inherit the netboot scheme with no PHP involvement |
 | 4 | `${boot-url}/service/secureboot/MOK.der` (`imgfetch`), `mmx64.efi` / `arm64-efi/mmaa64.efi` (`chain`) | `BootMenu`'s Secure Boot entries |
-| 5 | `web=<proto>://<host><webroot>/` | handed to **FOS**, not fetched by iPXE |
+| 5 | `web=<proto>://<host><WEB_root>/` | handed to **FOS**, not fetched by iPXE |
 
 >[!important]
 >**`<host>` is not one value.** Step 1's host is written by the installer; steps
 >2, 4 and 5's come from the `FOG_WEB_HOST` DB row, read by `BootMenu`; step 3's
 >is inherited from step 1 because the URLs are relative. Nothing used to compare
->the two — step 1 was `$hostname` and could be a short label, while
->`FOG_WEB_HOST` was seeded from `$ipaddress` and never rewritten, so an HTTPS
+>the two — step 1 was `${NET_hostname}` and could be a short label, while
+>`FOG_WEB_HOST` was seeded from `${NET_fog_server_ip}` and never rewritten, so an HTTPS
 >netboot install could fail at step 1, at step 2, or at both, for different
 >reasons. Both are now derived from the served certificate's name and
 >`FOG_WEB_HOST` is recorded from it; see `docs/adr/0018`.
@@ -159,7 +159,7 @@ stamp is deleted whenever the leaf's key is regenerated, so the two can never
 disagree.
 
 >[!note]
->This replaced a guard of `[[ ! -x $sslpubcert ]]`. Certificates are not
+>This replaced a guard of `[[ ! -x $PKI_web_vhost_cert ]]`. Certificates are not
 >executable, so that test was true of every certificate ever written and the leaf
 >was re-signed on **every single run**. `tests/pki-idempotence.test.sh` now runs
 >the PKI path twice and fails if anything long-lived changes.
@@ -201,7 +201,9 @@ root, plus the root the served chain terminates in, deduplicated by fingerprint.
 >chain **by position**. Both readers select it by `subject == issuer`.
 >`tests/trust-anchor.test.sh` pins this.
 
-`--no-ca-trust` declines the OS-trust-store step entirely. It does not affect
+The OS-trust-store step is unconditional. It used to be declinable with
+`--no-ca-trust`; GH-1120 removed that flag, because a server that cannot verify
+its own certificate is not a supported state. Either way it does not affect
 browsers: Firefox carries its own NSS store, Chrome reads a per-user one, and the
 browser is usually on another machine.
 
@@ -211,13 +213,23 @@ Three separate things an admin may want to supply, at three different levels.
 
 ### The web leaf (managed outside FOG)
 
-Set `acmeLeaf="yes"` in `.fogsettings` by hand. FOG then leaves the leaf in
-place and does not lock its private key down to `root:root 0600`, because an
-ACME renewal hook writes that file as whatever user it runs as.
+Make `PKI_web_vhost_cert` resolve to your certificate — a symlink out of FOG's
+web PKI zone directory is enough. FOG reads where that canonical path points,
+leaves the leaf in place, and does not lock its private key down to
+`root:root 0600`, because an ACME renewal hook writes that file as whatever user
+it runs as.
 
-`acmeLeaf` and `publicWebCert` answer different questions — *who manages the
-leaf file* versus *what the leaf chains to*. All four combinations are real;
-internal ACME with step-ca is `acmeLeaf=yes` with `publicWebCert=no`.
+This was a hand-set `acmeLeaf="yes"` key until GH-1120, which retired it along
+with `webCertFile`/`webKeyFile`. The reason is the failure mode: a flag nothing
+re-checked was exactly what got forgotten, and forgetting it meant FOG re-issued
+the leaf from its original CSR against an ACME private key — a mismatched pair
+and a web server that would not start, silently, under `-y`. A symlink cannot
+disagree with itself.
+
+Where the leaf is managed and what it chains to are still different questions —
+*who owns the file* versus *what signed it*. All four combinations are real;
+internal ACME with step-ca is an externally-managed leaf with
+`PKI_web_cert_publicly_trusted=no`.
 
 ### The web CA (external issuer for the vhost leaf)
 
@@ -228,8 +240,8 @@ The FOG root and everything fog-client depends on are untouched.
 
 ### The client-communication leaf (external issuer)
 
-Drop the certificate at `$sslpath/.srvpublic.crt` with its key at
-`$sslpath/.srvprivate.key`. FOG keeps both from then on and never re-issues.
+Drop the certificate at `$PKI_client_cert_dir/.srvpublic.crt` with its key at
+`$PKI_client_cert_dir/.srvprivate.key`. FOG keeps both from then on and never re-issues.
 
 >[!danger]
 >The two must pair. Every registered fog-client encrypts to the public half of
@@ -269,6 +281,12 @@ installer settings work.
 ---
 
 # Part B — Audit findings
+
+> **Key names in this Part predate GH-1120** and are left as they were found.
+> These are reproduced findings with `file:line` evidence; rewriting the names
+> would falsify the record of what was observed. See
+> [ADR 0024](adr/0024-fogsettings-unified-key-model.md) for the old → new
+> mapping.
 
 Point-in-time, against `working-1.6` as of 2026-08-17. Line numbers drift.
 

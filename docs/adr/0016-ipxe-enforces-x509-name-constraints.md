@@ -2,7 +2,12 @@
 
 ## Status
 
-accepted
+accepted. Key names updated by
+[ADR 0024](0024-fogsettings-unified-key-model.md), which also removed
+`--no-sb-name-constraints` and took name constraints off the Secure Boot zone
+entirely. The decision below -- that the Web CA keeps enforceable constraints
+because iPXE is a verifier FOG can patch -- is unchanged, and is the reason the
+two zones now differ.
 
 ## Context
 
@@ -130,9 +135,12 @@ converts fail-closed to fail-open for any verifier that does not implement the
 extension. Acceptable only because the sole such verifier in FOG's estate is
 one we control -- which is an argument for fixing that verifier.
 
-**Add `--no-web-name-constraints`, defaulting on.** Mirrors the existing
-`--no-sb-name-constraints`. Rejected because it leaves HTTPS netboot broken out
-of the box, with the fix behind a flag nobody discovers.
+**Add `--no-web-name-constraints`, defaulting on.** Mirrors
+`--no-sb-name-constraints`, which existed when this was written. Rejected because
+it leaves HTTPS netboot broken out of the box, with the fix behind a flag nobody
+discovers -- and that reasoning was later applied to the flag it mirrored:
+GH-1120 removed `--no-sb-name-constraints` and the constraints it governed, for
+the same "nobody passes it until a fleet has already failed" argument.
 
 **Drop the constraints from the Web CA.** Strictly worse than making them
 non-critical: it surrenders the property on every verifier rather than only on
