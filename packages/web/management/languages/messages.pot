@@ -64,6 +64,26 @@ msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
 #, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -1900,6 +1920,9 @@ msgstr ""
 msgid "Encryption Data Reset"
 msgstr ""
 
+msgid "Endpoint logins"
+msgstr ""
+
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2267,6 +2290,9 @@ msgstr ""
 msgid "File System Information"
 msgstr ""
 
+msgid "File deletions"
+msgstr ""
+
 msgid "File does not exist"
 msgstr ""
 
@@ -2307,6 +2333,9 @@ msgid "Finding any images associated"
 msgstr ""
 
 msgid "Finding any snapins associated"
+msgstr ""
+
+msgid "Finished"
 msgstr ""
 
 msgid "First Check In"
@@ -2960,6 +2989,9 @@ msgstr ""
 msgid "I am the group manager"
 msgstr ""
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr ""
 
@@ -3284,6 +3316,9 @@ msgid "In"
 msgstr ""
 
 msgid "In FOG"
+msgstr ""
+
+msgid "Include"
 msgstr ""
 
 #, php-format
@@ -4211,6 +4246,9 @@ msgstr ""
 msgid "Multicast Sessions"
 msgstr ""
 
+msgid "Multicast sessions"
+msgstr ""
+
 msgid "Multiple Snapin -- orig Single"
 msgstr ""
 
@@ -4221,9 +4259,6 @@ msgid "MySQL Administrator or by running"
 msgstr ""
 
 msgid "N/A"
-msgstr ""
-
-msgid "NAME"
 msgstr ""
 
 msgid "NOT"
@@ -5585,6 +5620,9 @@ msgstr ""
 msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
+msgid "Run History"
+msgstr ""
+
 msgid "Run With arguments."
 msgstr ""
 
@@ -5897,6 +5935,9 @@ msgstr ""
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 msgid "Show password"
 msgstr ""
 
@@ -6171,6 +6212,12 @@ msgstr ""
 msgid "Snapin is protected and cannot be deleted"
 msgstr ""
 
+msgid "Snapin jobs"
+msgstr ""
+
+msgid "Snapin tasks"
+msgstr ""
+
 msgid "Snapin update failed!"
 msgstr ""
 
@@ -6205,6 +6252,9 @@ msgid "Start Download Fail"
 msgstr ""
 
 msgid "Start Time"
+msgstr ""
+
+msgid "Started"
 msgstr ""
 
 msgid "Started By"
@@ -6656,6 +6706,9 @@ msgid "Task Type is not valid"
 msgstr ""
 
 msgid "Task Types"
+msgstr ""
+
+msgid "Task activity"
 msgstr ""
 
 msgid "Task failed"
@@ -7188,6 +7241,9 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+msgid "To"
+msgstr ""
+
 msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
@@ -7429,6 +7485,9 @@ msgid "Unset storage group as primary group"
 msgstr ""
 
 msgid "Unsupported URL Scheme"
+msgstr ""
+
+msgid "Up, port closed"
 msgstr ""
 
 msgid "Update"
@@ -7877,6 +7936,9 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
+msgid "You do not have permission to read any activity source."
+msgstr ""
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -8100,22 +8162,10 @@ msgstr ""
 msgid "has been killed"
 msgstr ""
 
-msgid "has been successfully destroyed"
-msgstr ""
-
-msgid "has been successfully updated"
-msgstr ""
-
 msgid "has completed on"
 msgstr ""
 
 msgid "has completed snapin tasking"
-msgstr ""
-
-msgid "has failed to destroy"
-msgstr ""
-
-msgid "has failed to save"
 msgstr ""
 
 msgid "has no code on disk"
@@ -8385,7 +8435,10 @@ msgstr ""
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"
@@ -8598,6 +8651,12 @@ msgid "unable to be updated"
 msgstr ""
 
 msgid "unavailable"
+msgstr ""
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
 msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"

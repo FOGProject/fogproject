@@ -88,6 +88,26 @@ msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
 #, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr "Questo host esiste già"
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -2178,6 +2198,9 @@ msgstr "Aggiorna la stampante predefinita"
 msgid "Encryption Data Reset"
 msgstr ""
 
+msgid "Endpoint logins"
+msgstr ""
+
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2589,6 +2612,10 @@ msgid "File System Information"
 msgstr "File System Information"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "Impossibile eliminare il file"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "Metodo non esiste"
 
@@ -2636,6 +2663,10 @@ msgstr "Trovare tutte le immagini associate"
 
 msgid "Finding any snapins associated"
 msgstr "Individuazione di eventuali snaps associati"
+
+#, fuzzy
+msgid "Finished"
+msgstr "Attività iniziata"
 
 msgid "First Check In"
 msgstr ""
@@ -3388,6 +3419,9 @@ msgstr "Io non sono il server web fog"
 msgid "I am the group manager"
 msgstr "Sono il responsabile del gruppo"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -3757,6 +3791,9 @@ msgstr "In"
 
 msgid "In FOG"
 msgstr "In FOG"
+
+msgid "Include"
+msgstr ""
 
 #, php-format
 msgid "Index page of: %s%s"
@@ -4808,6 +4845,10 @@ msgstr "Immagine Multicast"
 msgid "Multicast Sessions"
 msgstr "Sessione multicast non valida"
 
+#, fuzzy
+msgid "Multicast sessions"
+msgstr "Sessione multicast non valida"
+
 msgid "Multiple Snapin -- orig Single"
 msgstr ""
 
@@ -4819,9 +4860,6 @@ msgstr "MySQL Administrator o eseguendo"
 
 msgid "N/A"
 msgstr "N/D"
-
-msgid "NAME"
-msgstr "NOME"
 
 msgid "NOT"
 msgstr "NON"
@@ -6358,6 +6396,10 @@ msgid "Rows matching the filter, within what the caller may see. A real total, i
 msgstr ""
 
 #, fuzzy
+msgid "Run History"
+msgstr "Accesso Storia"
+
+#, fuzzy
 msgid "Run With arguments."
 msgstr "Snap-Run con l'argomento"
 
@@ -6713,6 +6755,9 @@ msgstr "Nome Host"
 msgid "Should anything go wrong"
 msgstr "Qualsiasi cosa andasse storto"
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "Cambia password"
@@ -7025,6 +7070,14 @@ msgstr "Snapin aggiunto!"
 msgid "Snapin is protected and cannot be deleted"
 msgstr "Snapin è protetto e non può essere cancellato"
 
+#, fuzzy
+msgid "Snapin jobs"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "Hash snap-in"
+
 msgid "Snapin update failed!"
 msgstr "Aggiornamento Snapin fallito!"
 
@@ -7061,6 +7114,10 @@ msgstr "Scaricamento fallito"
 
 msgid "Start Time"
 msgstr "Ora di inizio"
+
+#, fuzzy
+msgid "Started"
+msgstr "Inizio"
 
 #, fuzzy
 msgid "Started By"
@@ -7580,6 +7637,10 @@ msgstr "Task Type non è valido"
 
 msgid "Task Types"
 msgstr "Tipi di attività"
+
+#, fuzzy
+msgid "Task activity"
+msgstr "Attivo"
 
 #, fuzzy
 msgid "Task failed"
@@ -8154,6 +8215,9 @@ msgstr "Ora esiste già"
 msgid "Title"
 msgstr ""
 
+msgid "To"
+msgstr ""
+
 msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
@@ -8431,6 +8495,9 @@ msgid "Unset storage group as primary group"
 msgstr "come il suo gruppo primario"
 
 msgid "Unsupported URL Scheme"
+msgstr ""
+
+msgid "Up, port closed"
 msgstr ""
 
 msgid "Update"
@@ -8934,6 +9001,9 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
+msgid "You do not have permission to read any activity source."
+msgstr ""
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -9176,12 +9246,6 @@ msgstr "è stato completato"
 msgid "has been killed"
 msgstr "è stato cancellato"
 
-msgid "has been successfully destroyed"
-msgstr "è stato distrutta con successo"
-
-msgid "has been successfully updated"
-msgstr "è stato aggiornato con successo"
-
 #, fuzzy
 msgid "has completed on"
 msgstr "è stato completato"
@@ -9189,12 +9253,6 @@ msgstr "è stato completato"
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "Non valido Snapin Tasking"
-
-msgid "has failed to destroy"
-msgstr "è fallita la distruzione"
-
-msgid "has failed to save"
-msgstr "fallito il salvataggio"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -9484,7 +9542,10 @@ msgstr "Questo host esiste già"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"
@@ -9710,6 +9771,12 @@ msgstr "Tra impostazioni host e globali"
 
 msgid "unavailable"
 msgstr "non disponibile"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "aggiornare ad un nuovo kernel che abbia maggiori driver built in"
@@ -10179,6 +10246,9 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "Host associato"
 
+#~ msgid "NAME"
+#~ msgstr "NOME"
+
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
 #~ msgstr "Nessun gruppo di storage disponibile trovato"
@@ -10291,9 +10361,6 @@ msgstr ""
 
 #~ msgid "Snapin Pack File"
 #~ msgstr "Snapin Pack File"
-
-#~ msgid "Start"
-#~ msgstr "Inizio"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"
@@ -10416,6 +10483,18 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "es."
+
+#~ msgid "has been successfully destroyed"
+#~ msgstr "è stato distrutta con successo"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "è stato aggiornato con successo"
+
+#~ msgid "has failed to destroy"
+#~ msgstr "è fallita la distruzione"
+
+#~ msgid "has failed to save"
+#~ msgstr "fallito il salvataggio"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

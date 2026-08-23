@@ -451,8 +451,8 @@ class User extends FOGController
             ),
             0,
             0,
-            $this,
-            0
+            0,
+            $this
         );
         $this->_isLoggedIn();
         return $this;
@@ -501,8 +501,8 @@ class User extends FOGController
             ),
             0,
             0,
-            $this,
-            0
+            0,
+            $this
         );
         self::$EventManager->notify(
             'LoginFail',

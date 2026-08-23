@@ -72,6 +72,7 @@ class ReportManagement extends FOGPage
         _('Inventory Report');
         _('Pending Mac List');
         _('Product Keys');
+        _('Run History');
         _('Snapin List');
     }
     /**

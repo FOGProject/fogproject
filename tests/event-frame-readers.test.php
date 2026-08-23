@@ -237,6 +237,83 @@ foreach ($cases as $classname => $cols) {
     FogTestHarness::setStatic('Route', 'relCache', []);
 }
 
+// ---------------------------------------------------------------------
+// 3. The two summaries ADR 0023 item 5 added. These are the activity
+//    viewer's only content column for their source, so an empty one is a
+//    page that renders and says nothing.
+$utSummary = readerFormatter('usertracking', 'summary');
+$t->check('usertracking has a summary formatter', is_callable($utSummary));
+if (is_callable($utSummary)) {
+    FogTestHarness::setStatic('Route', 'relCache', []);
+    $out = $utSummary(null, [
+        'utAction' => \FOG\UserTracking::ACTION_LOGIN,
+        'utUserName' => 'jsmith',
+        'utHostID' => 41,
+        'utHostName' => 'lab-01'
+    ]);
+    $t->check(
+        "a login names the person and the host (got: $out)",
+        false !== strpos($out, 'jsmith') && false !== strpos($out, 'lab-01')
+    );
+    // A service start has no person. The clause has to drop rather than
+    // render an empty one.
+    $out = $utSummary(null, [
+        'utAction' => \FOG\UserTracking::ACTION_SERVICE_START,
+        'utUserName' => '',
+        'utHostID' => 41,
+        'utHostName' => 'lab-01'
+    ]);
+    $t->check(
+        "a row with no person still says something (got: $out)",
+        '' !== $out && false !== strpos($out, 'lab-01')
+    );
+    // The bare worst case: no person, and a host deleted before phase 3
+    // filled the stored copy. The action alone is all there is.
+    $out = $utSummary(null, ['utAction' => '', 'utUserName' => '', 'utHostID' => 0]);
+    $t->check(
+        "a row with nothing but a code is not blank (got: $out)",
+        '' !== $out
+    );
+}
+
+$tlSummary = readerFormatter('tasklog', 'summary');
+$t->check('tasklog has a summary formatter', is_callable($tlSummary));
+if (is_callable($tlSummary)) {
+    FogTestHarness::setStatic('Route', 'relCache', []);
+    // An error row is already a sentence somebody wrote; it is used whole.
+    $out = $tlSummary(null, [
+        'logText' => 'partclone exited 1',
+        'logTaskTypeName' => 'Deploy',
+        'logHostID' => 41,
+        'logHostName' => 'lab-01'
+    ]);
+    $t->check(
+        "a row with text uses it verbatim (got: $out)",
+        'partclone exited 1' === $out
+    );
+    // A state row has no text and has to be assembled.
+    $out = $tlSummary(null, [
+        'logText' => '',
+        'logTaskTypeName' => 'Deploy',
+        'logImageName' => 'win11',
+        'logHostID' => 41,
+        'logHostName' => 'lab-01',
+        'taskStateID' => 3
+    ]);
+    $t->check(
+        "a state row names the task, image and host (got: $out)",
+        false !== strpos($out, 'Deploy')
+        && false !== strpos($out, 'win11')
+        && false !== strpos($out, 'lab-01')
+    );
+    // Pre-341 rows have no type name. Something must still render.
+    $out = $tlSummary(null, ['logText' => '', 'taskStateID' => 3]);
+    $t->check(
+        "a row with no task type is not blank (got: $out)",
+        '' !== $out
+    );
+}
+
 // userTracking's plain name column takes the same route.
 $name = readerFormatter('usertracking', 'hostname');
 $t->check('usertracking has a hostname formatter', is_callable($name));

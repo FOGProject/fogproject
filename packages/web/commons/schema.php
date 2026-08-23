@@ -7087,3 +7087,270 @@ $this->schema[] = [
     . "so this is roughly the length of a whole ping cycle rather than a cost "
     . "paid per host.','2','Ping Host Settings')",
 ];
+// 354
+$this->schema[] = [
+    // ADR 0022 decision 4: an index on each work item's START column.
+    //
+    // ActivityWindow bounds its union by a time range and orders by the
+    // start, so without these "what ran between X and Y" is a full scan per
+    // table -- five scans, on the tables that grow fastest on a busy server.
+    // `tasks` has an index on `taskCheckIn` and none on `taskCreateTime`,
+    // which is the column a window query reads; the other four have nothing
+    // on their start column at all.
+    //
+    // Added WITH the helper rather than before it, which is what the ADR
+    // asks for: an index nothing queries is maintenance cost on every insert
+    // for no read, and all five of these tables are insert-hot.
+    //
+    // Plain single-column indexes, not covering ones. The union selects
+    // several columns per row, so a covering index would be most of the
+    // table; the job here is to FIND the rows in the range, not to answer
+    // the whole query from the index.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353: ADD INDEX has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and re-running one
+    // is error 1061 rather than a no-op. Every table and column is named in
+    // the probe so the installer's grant check still passes.
+    function () {
+        $wanted = [
+            ['tasks', 'taskCreateTime', 'idx_taskCreateTime'],
+            ['snapinJobs', 'sjCreateTime', 'idx_sjCreateTime'],
+            ['snapinTasks', 'stCheckinDate', 'idx_stCheckinDate'],
+            ['multicastSessions', 'msStartDateTime', 'idx_msStartDateTime'],
+            ['fileDeleteQueue', 'fdqCreateDate', 'idx_fdqCreateDate'],
+        ];
+        foreach ($wanted as $spec) {
+            list($table, $column, $index) = $spec;
+            // Matched on the COLUMN, not on the index NAME. A server that
+            // already indexes the column under a different name -- hand
+            // tuned, or a later step folding it into a composite -- must not
+            // get a second index on the same column, which is write cost for
+            // no read. SEQ_IN_INDEX = 1 because only a LEADING column is
+            // usable for a range scan on it.
+            $have = self::$DB->query(
+                "SELECT `INDEX_NAME` AS `i` "
+                . "FROM `information_schema`.`STATISTICS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND `TABLE_NAME` = '" . $table . "' "
+                . "AND `COLUMN_NAME` = '" . $column . "' "
+                . "AND `SEQ_IN_INDEX` = 1"
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+            if (count((array)$have) > 0) {
+                continue;
+            }
+            self::$DB->query(
+                "ALTER TABLE `" . $table . "` "
+                . "ADD INDEX `" . $index . "` (`" . $column . "`)"
+            );
+        }
+
+        return true;
+    },
+];
+// 355
+$this->schema[] = [
+    // ADR 0020 phase 5. Three changes to `history` and `userTracking` that
+    // the ADR held back until a full release cycle after phase 4, so that
+    // an install upgrading through phase 4 had one release where readers
+    // and writers were both known good before the storage moved.
+    //
+    // THAT GATE HAS BEEN WAIVED DELIBERATELY, by the maintainer, on
+    // 2026-08-22. It cannot be satisfied as written: there is no 1.6
+    // release, so "a full release cycle after phase 4" is a date that
+    // never arrives on this branch, and phases 2 to 4 all landed in the
+    // same unreleased line. The condition the gate was really protecting
+    // -- do not move storage out from under a reader that still depends on
+    // it -- is met, and met more strongly than the gate asked: phase 4's
+    // readers build their sentence from the frame, and this step is the
+    // one that removes the last reason they could not.
+    //
+    // 1. Backfill `userTracking.utHostName`.
+    //
+    // Same restricted UPDATE ... JOIN step 341 used for taskLog, and it is
+    // restricted the same way and for the same two reasons: only rows whose
+    // host still exists can be filled at all, and only rows whose copy is
+    // still empty are touched, so a re-run is a no-op and a hand
+    // correction is never overwritten. Rows whose host is already gone stay
+    // empty -- the name is unrecoverable by the time the join fails, which
+    // is the whole reason the column exists.
+    //
+    // 2. `UNIQUE (hText, hTime)` becomes `KEY (hTime)`.
+    //
+    // ADR 0020 decision 6. A unique index on the text is a lossy
+    // deduplicator: two genuinely different events in the same second with
+    // the same prose collapse into one row, and INSERT ... ON DUPLICATE KEY
+    // UPDATE turns that into a silent overwrite rather than an error. Now
+    // that a row carries a type and a subject id, "two identical rows in
+    // one second" is a description of two real events.
+    //
+    // The replacement index is the one the table is actually queried by:
+    // every reader of `history` orders by `hTime` DESC -- the activity
+    // grid, the dashboard card, History_Report -- and none of them can use
+    // a composite whose leading column is the text.
+    //
+    // The firehose that index was built for is bounded at the WRITER now
+    // rather than by discarding rows afterwards; see FOGBase::log().
+    //
+    // 3. `hText` VARCHAR(255) back to TEXT.
+    //
+    // 255 was never a product decision. Step 3305 narrowed a LONGTEXT to
+    // varchar(255) for the sole purpose of making it indexable by the
+    // unique key being dropped above, and truncation at 255 has been
+    // silently cutting the tail off long entries ever since -- the failure
+    // messages, which are the longest rows and the ones worth reading.
+    // TEXT rather than back to LONGTEXT: 64KB is past any prose this
+    // writes, and it is the smaller row format.
+    //
+    // Ordering inside the closure is load bearing. The index has to go
+    // before the type change: a VARCHAR(255) in a unique index cannot
+    // become TEXT while that index exists, because a TEXT column needs a
+    // prefix length to be indexed at all.
+    //
+    // A closure rather than bare ALTERs because none of DROP INDEX, ADD
+    // INDEX or MODIFY has IF [NOT] EXISTS on the versions this supports, so
+    // a re-run converges by probing instead of erroring.
+    function () {
+        // 1. userTracking backfill.
+        self::$DB->query(
+            "UPDATE `userTracking` "
+            . "JOIN `hosts` ON `hosts`.`hostID` = `userTracking`.`utHostID` "
+            . "SET `userTracking`.`utHostName` = `hosts`.`hostName` "
+            . "WHERE `userTracking`.`utHostName` = ''"
+        );
+
+        // 2. Swap the unique index for one on the column readers order by.
+        $idx = self::$DB->query(
+            "SELECT DISTINCT `INDEX_NAME` AS `i` "
+            . "FROM `information_schema`.`STATISTICS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'history'"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $names = [];
+        foreach ((array)$idx as $row) {
+            if (isset($row['i'])) {
+                $names[] = $row['i'];
+            }
+        }
+        if (in_array('updateTime', $names)) {
+            self::$DB->query(
+                "ALTER TABLE `history` DROP INDEX `updateTime`"
+            );
+        }
+
+        // 3. Widen the text, now that nothing indexes it.
+        $type = self::$DB->query(
+            "SELECT `DATA_TYPE` AS `t` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'history' AND `COLUMN_NAME` = 'hText'"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $now = '';
+        foreach ((array)$type as $row) {
+            if (isset($row['t'])) {
+                $now = strtolower($row['t']);
+            }
+        }
+        if ('text' !== $now) {
+            // No DEFAULT: MySQL and MariaDB both refuse a literal default on
+            // a TEXT column, which is why the varchar carried one and this
+            // cannot. NOT NULL still holds, so the ORM's '' is unaffected.
+            self::$DB->query(
+                "ALTER TABLE `history` MODIFY `hText` TEXT NOT NULL"
+            );
+        }
+
+        // The index the readers actually use. Added after the type change so
+        // that a re-run which got as far as the DROP but not the MODIFY
+        // still ends in the same place.
+        if (!in_array('hTime', $names)) {
+            self::$DB->query(
+                "ALTER TABLE `history` ADD INDEX `hTime` (`hTime`)"
+            );
+        }
+
+        return true;
+    },
+];
+// 356
+$this->schema[] = [
+    // How the ping reached the host, alongside WHETHER it did.
+    //
+    // hostPingCode has carried the verdict since 1.5 and cannot carry this
+    // as well. Once an ICMP echo is tried before the TCP connect, "the host
+    // answered" has two causes -- an echo reply, or a connect that completed
+    // -- and both would be recorded as errno 0. Nothing in the row could
+    // then tell an administrator whether the service on PINGHOSTPORT is
+    // actually running, which is the first thing anyone asks after "is it
+    // up".
+    //
+    // varchar, NOT an enum, and that is a scar rather than a preference:
+    // FOGController::save() has written '' into columns of every type for
+    // years (the sql_mode/GH-1243 family), and '' is not a member of any
+    // enum -- it lands as the enum error value and is invisible until
+    // something reads it back. A varchar takes '' harmlessly and the
+    // readers already treat empty as "unknown". It also leaves room for
+    // 'icmp6' without an ALTER when ICMPv6 lands.
+    //
+    // NULL-able with a NULL default: every existing row predates the column
+    // and genuinely has no answer, which is a different fact from "we
+    // pinged and could not tell". The grid renders both as unknown; the
+    // distinction costs nothing to keep and cannot be recovered later.
+    //
+    // No index. Same reasoning as hostLastPing in 353 -- written on every
+    // cycle for every host, read only by a page that is already fetching
+    // the row.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354: ADD COLUMN
+    // has no IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and the
+    // column is named in the probe so the installer's grant check still
+    // passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN ('hostPingMethod')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostPingMethod', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostPingMethod` VARCHAR(10) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+    // An opt-out, not an opt-in. ICMP is the better probe -- it asks "is
+    // this machine up" rather than "does this machine run the one service
+    // we guessed at" -- so it is on by default and a server that wants the
+    // old behaviour turns it off.
+    //
+    // The reason to have the switch at all is that a fleet-wide echo sweep
+    // every PINGHOSTSLEEPTIME seconds looks like a host sweep to an IDS,
+    // and some sites will be told to stop doing it. Degradation is already
+    // automatic when the socket cannot be opened; this is for the case
+    // where it CAN and should not be.
+    //
+    // A 1/0 flag rather than a method name, so the configuration page
+    // renders it as a checkbox from the existing map and validates it
+    // without a new input type. Registered in fogconfigurationpage's
+    // checkbox map in the same commit; a setting missing from that map
+    // renders as a free-text box that invites typos.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('PINGHOSTUSEICMP','Try a real ICMP echo request before falling back "
+    . "to the TCP connect on PINGHOSTPORT. ICMP asks whether the machine is "
+    . "up rather than whether it runs a particular service, so it reaches "
+    . "hosts that answer no TCP port at all. Turn it off if a fleet-wide "
+    . "echo sweep is unwelcome on your network; the TCP check then runs on "
+    . "its own, exactly as before.','1','Ping Host Settings')",
+];

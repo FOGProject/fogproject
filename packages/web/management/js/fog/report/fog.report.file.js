@@ -357,5 +357,44 @@
           }
         });
       break;
+      // Run History
+      //
+      // The one report here that is NOT serverSide. ActivityWindow returns
+      // a plain array with its own row cap and the real filter is the date
+      // range, so there is no server-side protocol to speak -- see the
+      // class docblock in lib/reports/run_history.report.php.
+      //
+      // The range and the source ticks live in the page URL, so they are
+      // forwarded to getList verbatim rather than re-read from the form:
+      // whatever the server rendered the form from is what the table asks
+      // for, and the two cannot drift.
+    case 'run history':
+      var runTable = $('#runhistory-table'),
+        table = runTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportButtons,
+          columns: [
+            {data: 'source'},
+            {data: 'label'},
+            {data: 'host'},
+            {data: 'startedAt'},
+            {data: 'endedAt'},
+            {data: 'state'}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: '../management/index.php?node=report&sub=getList&f='
+            + Common.f
+            + (window.location.search
+              ? '&' + window.location.search.replace(/^\?/, '')
+              : ''),
+            type: 'post'
+          }
+        });
+      break;
   }
 })(jQuery);

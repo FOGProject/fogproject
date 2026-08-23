@@ -88,6 +88,26 @@ msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
 #, php-format
+msgid "%1$s of %2$s on %3$s: %4$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s on %2$s"
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%1$s on %2$s: %3$s"
+msgstr "打印机已经存在"
+
+#, php-format
+msgid "%1$s: %2$s"
+msgstr ""
+
+#, php-format
+msgid "%1$s: %2$s on %3$s"
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -2244,6 +2264,9 @@ msgstr "更新打印机"
 msgid "Encryption Data Reset"
 msgstr ""
 
+msgid "Endpoint logins"
+msgstr ""
+
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -2667,6 +2690,10 @@ msgid "File System Information"
 msgstr "文件系统信息"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "无法删除文件"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "方法不存在"
 
@@ -2718,6 +2745,10 @@ msgstr "没有snapins相关"
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "没有snapins相关"
+
+#, fuzzy
+msgid "Finished"
+msgstr "任务开始"
 
 msgid "First Check In"
 msgstr ""
@@ -3494,6 +3525,9 @@ msgstr "我不是雾Web服务器"
 msgid "I am the group manager"
 msgstr "|我唯一​​的成员"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -3883,6 +3917,9 @@ msgstr "在"
 #, fuzzy
 msgid "In FOG"
 msgstr "在"
+
+msgid "Include"
+msgstr ""
 
 #, php-format
 msgid "Index page of: %s%s"
@@ -4979,6 +5016,10 @@ msgstr "组播"
 msgid "Multicast Sessions"
 msgstr "开始多播会话"
 
+#, fuzzy
+msgid "Multicast sessions"
+msgstr "开始多播会话"
+
 msgid "Multiple Snapin -- orig Single"
 msgstr ""
 
@@ -4990,9 +5031,6 @@ msgstr ""
 
 msgid "N/A"
 msgstr "N / A"
-
-msgid "NAME"
-msgstr ""
 
 msgid "NOT"
 msgstr "不"
@@ -6576,6 +6614,10 @@ msgid "Rows matching the filter, within what the caller may see. A real total, i
 msgstr ""
 
 #, fuzzy
+msgid "Run History"
+msgstr "登录历史记录"
+
+#, fuzzy
 msgid "Run With arguments."
 msgstr "管理单元运行带有参数"
 
@@ -6944,6 +6986,9 @@ msgstr "主机名"
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "管理密码"
@@ -7275,6 +7320,14 @@ msgid "Snapin is protected and cannot be deleted"
 msgstr "管理单元被保护，不能被删除"
 
 #, fuzzy
+msgid "Snapin jobs"
+msgstr "Snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "管理单元路径"
+
+#, fuzzy
 msgid "Snapin update failed!"
 msgstr "管理单元更新失败"
 
@@ -7312,6 +7365,10 @@ msgstr "下载失败"
 
 msgid "Start Time"
 msgstr "开始时间"
+
+#, fuzzy
+msgid "Started"
+msgstr "开始"
 
 #, fuzzy
 msgid "Started By"
@@ -7859,6 +7916,10 @@ msgstr "任务类型是无效"
 
 msgid "Task Types"
 msgstr "任务类型"
+
+#, fuzzy
+msgid "Task activity"
+msgstr "活性"
 
 #, fuzzy
 msgid "Task failed"
@@ -8447,6 +8508,9 @@ msgstr "时间已存在"
 msgid "Title"
 msgstr ""
 
+msgid "To"
+msgstr ""
+
 msgid "To PXE boot with Secure Boot on"
 msgstr ""
 
@@ -8732,6 +8796,9 @@ msgid "Unset storage group as primary group"
 msgstr "更新主要组"
 
 msgid "Unsupported URL Scheme"
+msgstr ""
+
+msgid "Up, port closed"
 msgstr ""
 
 msgid "Update"
@@ -9255,6 +9322,9 @@ msgstr ""
 msgid "You do not have permission to perform this action."
 msgstr ""
 
+msgid "You do not have permission to read any activity source."
+msgstr ""
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -9511,26 +9581,12 @@ msgid "has been killed"
 msgstr "已成功更新"
 
 #, fuzzy
-msgid "has been successfully destroyed"
-msgstr "已成功更新"
-
-msgid "has been successfully updated"
-msgstr "已成功更新"
-
-#, fuzzy
 msgid "has completed on"
 msgstr "已被破坏"
 
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "无效的管理单元任务处理"
-
-#, fuzzy
-msgid "has failed to destroy"
-msgstr "未能被销毁"
-
-msgid "has failed to save"
-msgstr "未能保存"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -9839,7 +9895,10 @@ msgstr "打印机已经存在"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"
@@ -10077,6 +10136,12 @@ msgstr "无法更新"
 #, fuzzy
 msgid "unavailable"
 msgstr "不可用"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""
@@ -10666,9 +10731,6 @@ msgstr ""
 #~ msgid "Snapin Pack File"
 #~ msgstr "文件管理单元"
 
-#~ msgid "Start"
-#~ msgstr "开始"
-
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "存储节点创建"
@@ -10786,6 +10848,20 @@ msgstr ""
 #, fuzzy
 #~ msgid "completed imaging"
 #~ msgstr "完成"
+
+#, fuzzy
+#~ msgid "has been successfully destroyed"
+#~ msgstr "已成功更新"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "已成功更新"
+
+#, fuzzy
+#~ msgid "has failed to destroy"
+#~ msgstr "未能被销毁"
+
+#~ msgid "has failed to save"
+#~ msgstr "未能保存"
 
 #, fuzzy
 #~ msgid "multicast tasks!"
