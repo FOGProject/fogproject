@@ -460,7 +460,7 @@ msgstr ""
 msgid "Aborted due to failure of \"%s\" with exit code %s"
 msgstr ""
 
-msgid "Accepts the same optional trailing filter segment as a list. Reports the true filtered total and ignores paging."
+msgid "Accepts the same optional filter as a list. Reports the true filtered total and ignores paging."
 msgstr ""
 
 msgid "Access"
@@ -831,7 +831,7 @@ msgstr ""
 msgid "Also reachable as /delete and /remove."
 msgstr ""
 
-msgid "Also reachable as /list and /all. A trailing filter segment accepts field:value pairs."
+msgid "Also reachable as /list and /all. Filter with ?filter= or the equivalent trailing path segment; both take field=value pairs joined with &."
 msgstr ""
 
 msgid "Also reachable as /update and /edit. Send only the fields being changed."
@@ -4801,7 +4801,7 @@ msgstr "Aktualisierung der Rolle fehlgeschlagen"
 msgid "Master Node"
 msgstr "Master-Knoten"
 
-msgid "Matches the term against the class name field. Returns the same envelope as a list."
+msgid "Matches the term against the class name field. Returns the same envelope as a list. Takes no filter -- the match is the whole query."
 msgstr ""
 
 msgid "Max Clients"
@@ -6866,6 +6866,9 @@ msgstr ""
 msgid "Server version and paging bounds"
 msgstr "Kernel-Versionen"
 
+msgid "Server-side column filter, written as a URL encoded query string: field=value, joined with & for more than one, ANDed together. A comma separated value matches any of its parts. Only fields the class declares are accepted -- anything else answers 400 and names the offending key -- and credential fields are refused outright. Also accepted as a trailing path segment (/{class}/list/field=value), which wins when both are sent."
+msgstr ""
+
 msgid "Service"
 msgstr "Service"
 
@@ -8785,10 +8788,10 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "Unmark selected pending"
 msgstr "Ausgewählten MAcs freigeben"
 
-msgid "Unpaged and uncapped -- the cheap way to enumerate a large table. Accepts an optional trailing filter segment."
+msgid "Unpaged and uncapped -- the cheap way to enumerate a large table. Accepts an optional filter."
 msgstr ""
 
-msgid "Unpaged and uncapped. Accepts an optional trailing filter segment and an optional field name to return instead of the id."
+msgid "Unpaged and uncapped. Accepts an optional filter and an optional trailing field name to return instead of the id."
 msgstr ""
 
 #, php-format

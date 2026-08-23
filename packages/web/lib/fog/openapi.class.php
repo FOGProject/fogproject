@@ -954,8 +954,9 @@ class OpenAPI extends FOGBase
                 $class,
                 'list',
                 sprintf(_('List %s'), $class),
-                _('Also reachable as /list and /all. A trailing filter segment '
-                    . 'accepts field:value pairs.'),
+                _('Also reachable as /list and /all. Filter with ?filter= or '
+                    . 'the equivalent trailing path segment; both take '
+                    . 'field=value pairs joined with &.'),
                 self::_listResponse($ref),
                 self::_listParameters()
             ),
@@ -1022,9 +1023,10 @@ class OpenAPI extends FOGBase
                     'search',
                     sprintf(_('Search %s'), $class),
                     _('Matches the term against the class name field. '
-                        . 'Returns the same envelope as a list.'),
+                        . 'Returns the same envelope as a list. Takes no '
+                        . 'filter -- the match is the whole query.'),
                     self::_listResponse($ref),
-                    self::_listParameters()
+                    self::_pageParameters()
                 )
             ];
         }
@@ -1034,8 +1036,8 @@ class OpenAPI extends FOGBase
                 $class,
                 'count',
                 sprintf(_('Count %s'), $class),
-                _('Accepts the same optional trailing filter segment as a list. '
-                    . 'Reports the true filtered total and ignores paging.'),
+                _('Accepts the same optional filter as a list. Reports the '
+                    . 'true filtered total and ignores paging.'),
                 [
                     '200' => [
                         'description' => _('The count.'),
@@ -1050,7 +1052,8 @@ class OpenAPI extends FOGBase
                             ]
                         ]
                     ]
-                ]
+                ],
+                self::_filterParameters()
             )
         ];
 
@@ -1060,8 +1063,9 @@ class OpenAPI extends FOGBase
                 'names',
                 sprintf(_('Id and name pairs for %s'), $class),
                 _('Unpaged and uncapped -- the cheap way to enumerate a large '
-                    . 'table. Accepts an optional trailing filter segment.'),
-                self::_rawArrayResponse()
+                    . 'table. Accepts an optional filter.'),
+                self::_rawArrayResponse(),
+                self::_filterParameters()
             )
         ];
 
@@ -1070,10 +1074,11 @@ class OpenAPI extends FOGBase
                 $class,
                 'ids',
                 sprintf(_('Ids for %s'), $class),
-                _('Unpaged and uncapped. Accepts an optional trailing filter '
-                    . 'segment and an optional field name to return instead of '
-                    . 'the id.'),
-                self::_rawArrayResponse()
+                _('Unpaged and uncapped. Accepts an optional filter and an '
+                    . 'optional trailing field name to return instead of the '
+                    . 'id.'),
+                self::_rawArrayResponse(),
+                self::_filterParameters()
             )
         ];
 
@@ -1326,10 +1331,47 @@ class OpenAPI extends FOGBase
      */
     private static function _listParameters()
     {
+        return array_merge(
+            self::_pageParameters(),
+            self::_filterParameters()
+        );
+    }
+
+    /**
+     * Paging only, for an operation that pages but cannot be filtered.
+     *
+     * search() builds its own where clause from the ids it matched and
+     * passes it down as an array, which Route::handleWhereItems() will not
+     * let a request-supplied filter replace -- so advertising ?filter=
+     * there would describe an argument the handler ignores. That is the
+     * defect this whole change is fixing, so it must not be reintroduced
+     * one function further along.
+     *
+     * @return array
+     */
+    private static function _pageParameters()
+    {
         return [
             ['$ref' => '#/components/parameters/start'],
             ['$ref' => '#/components/parameters/length'],
             ['$ref' => '#/components/parameters/expand']
+        ];
+    }
+
+    /**
+     * Filter alone, for the operations that take no page.
+     *
+     * count/names/ids all route their filter through the same
+     * Route::handleWhereItems(), so they accept exactly what list does --
+     * but none of them pages, so start/length/expand would be advertising
+     * arguments the handler never reads.
+     *
+     * @return array
+     */
+    private static function _filterParameters()
+    {
+        return [
+            ['$ref' => '#/components/parameters/filter']
         ];
     }
 
@@ -2063,6 +2105,22 @@ class OpenAPI extends FOGBase
                     'Comma separated relations to inline. Forces the page size to '
                     . 'EXPAND_MAX_ITEMS, so an expanded page can come back smaller '
                     . 'than the length asked for.'
+                )
+            ],
+            'filter' => [
+                'name' => 'filter',
+                'in' => 'query',
+                'required' => false,
+                'schema' => ['type' => 'string'],
+                'description' => _(
+                    'Server-side column filter, written as a URL encoded query '
+                    . 'string: field=value, joined with & for more than one, '
+                    . 'ANDed together. A comma separated value matches any of '
+                    . 'its parts. Only fields the class declares are accepted -- '
+                    . 'anything else answers 400 and names the offending key -- '
+                    . 'and credential fields are refused outright. Also accepted '
+                    . 'as a trailing path segment (/{class}/list/field=value), '
+                    . 'which wins when both are sent.'
                 )
             ]
         ];

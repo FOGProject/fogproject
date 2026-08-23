@@ -748,12 +748,85 @@ class Route extends FOGBase
      * own fields. Internal callers pass arrays and are not validated here;
      * a bad key from PHP code is a programming error, handled in _buildSql.
      *
+     * A caller may also send the same string as `?filter=`, which is the
+     * only form a generated client can use. OpenAPI cannot mark a PATH
+     * parameter optional, so documenting the trailing segment would mean a
+     * second path per operation per class -- 204 of them -- and every
+     * generator would emit a separate operation for each. A query parameter
+     * documents as one optional argument on the operation that already
+     * exists. The segment keeps working and still wins when both are sent;
+     * nothing that relied on it changes.
+     *
      * @param string|array $whereItems The test item.
      * @param string       $class      Class to validate request keys against.
      * @return array $whereItems The normalized structure
      */
+    /**
+     * ?filter= belonging to the route currently being dispatched.
+     *
+     * Null except between runMatches() capturing it and the route handler
+     * consuming it. See handleWhereItems() for why it is not simply read
+     * from the query string at the point of use.
+     *
+     * @var string|null
+     */
+    private static $_requestFilter = null;
+    /**
+     * Records the dispatched route's ?filter=, if it takes one.
+     *
+     * Named routes only, so a filter cannot be smuggled into a route that
+     * does not advertise one -- search in particular, which builds its own
+     * where clause and would otherwise be overridable from the request.
+     *
+     * @param string $routeName The matched route's name.
+     *
+     * @return void
+     */
+    public static function captureRequestFilter($routeName)
+    {
+        self::$_requestFilter = null;
+        if (!in_array($routeName, ['list', 'count', 'names', 'ids'], true)) {
+            return;
+        }
+        $filter = self::queryParam('filter');
+        if (null !== $filter && '' !== $filter) {
+            self::$_requestFilter = $filter;
+        }
+    }
+    /**
+     * Returns the captured filter and clears it.
+     *
+     * @return string|null
+     */
+    public static function takeRequestFilter()
+    {
+        $filter = self::$_requestFilter;
+        self::$_requestFilter = null;
+        return $filter;
+    }
     public static function handleWhereItems($whereItems, $class = null)
     {
+        // ?filter= from the dispatched route, consumed once. Only when
+        // there is NO filter already -- false from listem()'s default, or an
+        // empty array from names()/ids(); a NON-EMPTY array is a filter built
+        // in PHP and must never be replaceable from the request, because
+        // search() hands its matched ids down this way.
+        //
+        // Consumed rather than read, and captured in runMatches() rather than
+        // read from the query string here, because this helper is shared by
+        // the routes and by a great deal of internal code that legitimately
+        // passes no filter at all. Reading the request directly made every
+        // one of those calls pick the caller's filter up -- including
+        // getActivePlugins(), which lists `hookevent` during LoadGlobals
+        // before any route has been dispatched, so ?filter=hostID=1 turned
+        // the whole API into a 500 at boot. Taking it once means the
+        // dispatched handler gets it and every nested call sees null.
+        if (false === $whereItems || (is_array($whereItems) && count($whereItems) < 1)) {
+            $filter = self::takeRequestFilter();
+            if (null !== $filter && '' !== $filter) {
+                $whereItems = $filter;
+            }
+        }
         if (is_string($whereItems)) {
             parse_str(urldecode($whereItems), $whereItems);
 
@@ -1311,6 +1384,10 @@ class Route extends FOGBase
                 self::$matches['params']['id'] ?? 0
             );
             $args = array_values(self::$matches['params']);
+            // Capture ?filter= for the route about to run. Done HERE, in
+            // the dispatcher, because this is the only place that knows the
+            // request matched a filterable route -- see handleWhereItems().
+            self::captureRequestFilter(self::$matches['name'] ?? '');
             // Splitting call to get closure from 'target' index of self::$matches
             // from the execution of the closure.
             // For some reason this trips up some versions of PHP, thus breaking search.
