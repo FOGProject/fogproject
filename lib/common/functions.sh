@@ -496,7 +496,7 @@ registerStorageNode() {
     # over ${DB_password}, which is the real control on the node<->master trust
     # bootstrap. Closing this properly needs the master to hand a node its
     # anchor out of band, which is a design change, not a flag change.
-    storageNodeExists=$(curl -s -X POST -d "ip=${NET_fog_server_ip}" -d "fogverified" -kL ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/check_node_exists.php -o -)
+    storageNodeExists=$(curl -s --noproxy '*' -X POST -d "ip=${NET_fog_server_ip}" -d "fogverified" -kL ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/check_node_exists.php -o -)
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
@@ -531,7 +531,7 @@ registerStorageNode() {
         # the VALUES now come from ${PKI_client_cert_dir}, ${NET_interface} and
         # ${WEB_root}. Renaming the field names to match the settings would make
         # the master silently drop them.
-        regstatus=$(curl -s -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n ${STORAGE_image_share_path}|base64)" -d "ftppath=$(echo -n ${STORAGE_image_share_path}|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n ${PKI_client_cert_dir}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "bandwidth=1" -d "webroot=$(echo -n ${WEB_root}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php)
+        regstatus=$(curl -s --noproxy '*' -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n ${STORAGE_image_share_path}|base64)" -d "ftppath=$(echo -n ${STORAGE_image_share_path}|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n ${PKI_client_cert_dir}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "bandwidth=1" -d "webroot=$(echo -n ${WEB_root}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php)
         case $regstatus in
             2*)
                 echo "Done"
@@ -558,7 +558,7 @@ updateStorageNodeCredentials() {
     # -k on purpose -- see registerStorageNode. This is called from the node
     # path before any anchor exists, and from the master path after one does;
     # the shared function has to work in the earlier of the two.
-    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php
+    curl -s --noproxy '*' -k -X POST -d "nodePass" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php
     echo "Done"
 }
 # Mirrors fog_git_path/fog_update_channel/extraServerNames/servicelogs into
@@ -714,10 +714,33 @@ backupDB() {
         # Verified, not -k: this is an HTTPS call to this server, and
         # _resolveSelfCacert names the anchor for the chain it is serving.
         _resolveSelfCacert
-        dbhttpcode=$(curl -s "${selfCacertOpts[@]}" --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
+        # --noproxy '*' because this is a call to THIS server. With http_proxy
+        # or https_proxy set in the installer's environment -- ordinary on a
+        # server behind corporate egress filtering -- curl sends even a
+        # self-addressed request to the proxy, which either cannot route back to
+        # the FOG server or refuses to CONNECT to it. Observed as
+        # `curl: (56) CONNECT tunnel failed, response 502`, i.e. the backup step
+        # failing for a reason that has nothing to do with the database. The two
+        # other self-calls in this file (the serves-FOG probe and the schema
+        # POST) already pass it; this one was missed.
+        #
+        # -sS, not -s. Plain -s suppresses curl's error message as well as the
+        # progress meter, so $dbcurlerr came back EMPTY and the "curl exited N"
+        # branch below reported a bare exit code with no reason -- defeating the
+        # diagnostics the rest of this block exists to produce.
+        dbhttpcode=$(curl -sS --noproxy '*' "${selfCacertOpts[@]}" --max-redirs 0 -w '%{http_code}' -o "$dbraw" "$url" 2>"$dbcurlerr")
         dbcurlstat=$?
-        jq -r '. | ._content' < "$dbraw" > "$dbbackupfile" 2>>"$dbcurlerr"
-        dbjqstat=$?
+        # Only when curl actually produced a body. Running jq unconditionally
+        # meant that on any curl failure the redirection `< "$dbraw"` failed
+        # too, and bash printed "No such file or directory" to the installer's
+        # stderr -- landing in the middle of the progress line, before the
+        # guards below had a chance to say what really happened.
+        if [[ -f $dbraw ]]; then
+            jq -r '. | ._content' < "$dbraw" > "$dbbackupfile" 2>>"$dbcurlerr"
+            dbjqstat=$?
+        else
+            dbjqstat=1
+        fi
         # Ordered most specific first, so the message names the earliest
         # thing that went wrong rather than its downstream effect. A redirect
         # is called out on its own: -f fails only on 4xx and 5xx, so a 3xx
@@ -4623,7 +4646,7 @@ _requestNodeCert() {
     # on ${DB_password} -- a secret only a genuine node of this master holds -- and
     # what comes back is a certificate chain the caller validates on its own
     # terms. See registerStorageNode for the full reasoning.
-    resp=$(curl -sS -k -X POST \
+    resp=$(curl -sS --noproxy '*' -k -X POST \
         -d "type=${type}" \
         -d "hmac=${mac}" \
         --data-urlencode "csr=${b64}" \
