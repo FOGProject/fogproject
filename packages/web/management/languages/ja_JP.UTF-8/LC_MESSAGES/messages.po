@@ -417,11 +417,22 @@ msgstr "API？"
 msgid "API Documentation"
 msgstr "詳細ドキュメント"
 
+msgid "API Token Created"
+msgstr ""
+
+#, fuzzy
+msgid "API Token Failed"
+msgstr "FTP 接続に失敗しました"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy
+msgid "API token issued!"
+msgstr "無効なトークンが渡されました"
 
 msgid "API?"
 msgstr "API？"
@@ -1017,6 +1028,10 @@ msgstr "基本タスク"
 msgid "Batch Script"
 msgstr ""
 
+#, fuzzy
+msgid "Bearer API Tokens"
+msgstr "ユーザー API トークン"
+
 msgid "Bind DN"
 msgstr "バインド DN"
 
@@ -1502,6 +1517,9 @@ msgstr "エラー: カーネルのダウンロードに失敗しました"
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
 
+msgid "Copy this token now"
+msgstr ""
+
 msgid "Copyright"
 msgstr ""
 
@@ -1528,6 +1546,10 @@ msgstr "見つかりませんでした"
 
 msgid "Could not find temp filename"
 msgstr "一時ファイル名が見つかりません"
+
+#, fuzzy
+msgid "Could not issue the token!"
+msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not link plugin assets"
@@ -1772,6 +1794,10 @@ msgstr "タスク状態を作成"
 #, fuzzy
 msgid "Create tasking succeeded"
 msgstr "タスク状態を作成"
+
+#, fuzzy
+msgid "Created"
+msgstr "作成"
 
 msgid "Created By"
 msgstr "作成者"
@@ -4062,6 +4088,10 @@ msgstr "パック"
 msgid "Is a"
 msgstr "次の種類です"
 
+#, fuzzy
+msgid "Issue Token"
+msgstr "トークンをリセット"
+
 msgid "Issuer"
 msgstr ""
 
@@ -4298,6 +4328,10 @@ msgstr ""
 #, fuzzy
 msgid "Last Successful Ping"
 msgstr "タスクを正常に設定しました"
+
+#, fuzzy
+msgid "Last Used"
+msgstr "最終キャプチャ"
 
 msgid "Last flush"
 msgstr ""
@@ -4840,6 +4874,9 @@ msgstr "フォーラムは、最も一般的で迅速なサポートを受ける
 msgid "Name"
 msgstr "名前"
 
+msgid "Name for a new token"
+msgstr ""
+
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Diff パラメーターは数値で指定してください"
@@ -5144,6 +5181,9 @@ msgstr ""
 
 msgid "No token passed to authenticate this host"
 msgstr "このホストを認証するためのトークンが渡されていません"
+
+msgid "No tokens issued."
+msgstr ""
 
 #, fuzzy
 msgid "No type information available for this column."
@@ -6577,6 +6617,9 @@ msgstr "有効なイメージを選択してください"
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "スケジュール済みタスクを作成しました"
+
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgstr ""
 
 msgid "Serial Number"
 msgstr "シリアル番号"
@@ -8075,6 +8118,9 @@ msgid "This is the catch-all site. Its members are in scope for everything, incl
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is the only time it will be shown. FOG stores only a hash of it and cannot show it again. If you lose it, delete this token and issue another."
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."

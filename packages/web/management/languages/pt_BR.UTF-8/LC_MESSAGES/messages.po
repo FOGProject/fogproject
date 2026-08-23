@@ -445,11 +445,22 @@ msgstr ""
 msgid "API Documentation"
 msgstr "Localização"
 
+msgid "API Token Created"
+msgstr ""
+
+#, fuzzy
+msgid "API Token Failed"
+msgstr "Conexão FTP falhou"
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
 msgstr ""
+
+#, fuzzy
+msgid "API token issued!"
+msgstr "Token inválido passado"
 
 msgid "API?"
 msgstr ""
@@ -1065,6 +1076,10 @@ msgstr "Tarefas básicas"
 msgid "Batch Script"
 msgstr ""
 
+#, fuzzy
+msgid "Bearer API Tokens"
+msgstr "token de acesso"
+
 msgid "Bind DN"
 msgstr ""
 
@@ -1573,6 +1588,9 @@ msgstr "Erro: falha ao baixar do kernel"
 msgid "Copy from existing"
 msgstr "Não foi possível criar impressora"
 
+msgid "Copy this token now"
+msgstr ""
+
 msgid "Copyright"
 msgstr ""
 
@@ -1602,6 +1620,10 @@ msgstr "Não foi possível encontrar temporário filename"
 
 msgid "Could not find temp filename"
 msgstr "Não foi possível encontrar temporário filename"
+
+#, fuzzy
+msgid "Could not issue the token!"
+msgstr "Não foi possível ler o arquivo tmp."
 
 #, fuzzy
 msgid "Could not link plugin assets"
@@ -1851,6 +1873,10 @@ msgstr "usuário criado"
 
 msgid "Create tasking succeeded"
 msgstr ""
+
+#, fuzzy
+msgid "Created"
+msgstr "Crio"
 
 msgid "Created By"
 msgstr "Criado por"
@@ -4248,6 +4274,10 @@ msgstr "É uma"
 msgid "Is a"
 msgstr "É uma"
 
+#, fuzzy
+msgid "Issue Token"
+msgstr "token de acesso"
+
 msgid "Issuer"
 msgstr ""
 
@@ -4490,6 +4520,10 @@ msgstr ""
 #, fuzzy
 msgid "Last Successful Ping"
 msgstr "Bem sucedido"
+
+#, fuzzy
+msgid "Last Used"
+msgstr "host criado"
 
 msgid "Last flush"
 msgstr ""
@@ -5055,6 +5089,9 @@ msgstr ""
 msgid "Name"
 msgstr "Nome"
 
+msgid "Name for a new token"
+msgstr ""
+
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Você deve digitar um nome"
@@ -5367,6 +5404,9 @@ msgstr ""
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "Sem Imagem definida para este alojamento"
+
+msgid "No tokens issued."
+msgstr ""
 
 msgid "No type information available for this column."
 msgstr ""
@@ -6851,6 +6891,9 @@ msgstr "Selecione uma imagem válida"
 #, fuzzy
 msgid "Selected tasks cancelled!"
 msgstr "foi atualizado com sucesso"
+
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgstr ""
 
 msgid "Serial Number"
 msgstr "Número de série"
@@ -8428,6 +8471,9 @@ msgid "This is the catch-all site. Its members are in scope for everything, incl
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is the only time it will be shown. FOG stores only a hash of it and cannot show it again. If you lose it, delete this token and issue another."
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."

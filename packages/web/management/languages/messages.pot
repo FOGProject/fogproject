@@ -376,10 +376,19 @@ msgstr ""
 msgid "API Documentation"
 msgstr ""
 
+msgid "API Token Created"
+msgstr ""
+
+msgid "API Token Failed"
+msgstr ""
+
 msgid "API class is not mapped to a permission node"
 msgstr ""
 
 msgid "API route is not mapped to a permission"
+msgstr ""
+
+msgid "API token issued!"
 msgstr ""
 
 msgid "API?"
@@ -908,6 +917,9 @@ msgstr ""
 msgid "Batch Script"
 msgstr ""
 
+msgid "Bearer API Tokens"
+msgstr ""
+
 msgid "Bind DN"
 msgstr ""
 
@@ -1343,6 +1355,9 @@ msgstr ""
 msgid "Copy from existing"
 msgstr ""
 
+msgid "Copy this token now"
+msgstr ""
+
 msgid "Copyright"
 msgstr ""
 
@@ -1366,6 +1381,9 @@ msgid "Could not find any"
 msgstr ""
 
 msgid "Could not find temp filename"
+msgstr ""
+
+msgid "Could not issue the token!"
 msgstr ""
 
 msgid "Could not link plugin assets"
@@ -1563,6 +1581,9 @@ msgid "Create task form success"
 msgstr ""
 
 msgid "Create tasking succeeded"
+msgstr ""
+
+msgid "Created"
 msgstr ""
 
 msgid "Created By"
@@ -3599,6 +3620,9 @@ msgstr ""
 msgid "Is a"
 msgstr ""
 
+msgid "Issue Token"
+msgstr ""
+
 msgid "Issuer"
 msgstr ""
 
@@ -3801,6 +3825,9 @@ msgid "Last Ping"
 msgstr ""
 
 msgid "Last Successful Ping"
+msgstr ""
+
+msgid "Last Used"
 msgstr ""
 
 msgid "Last flush"
@@ -4282,6 +4309,9 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
+msgid "Name for a new token"
+msgstr ""
+
 msgid "Name. Must be unique."
 msgstr ""
 
@@ -4552,6 +4582,9 @@ msgid "No such object."
 msgstr ""
 
 msgid "No token passed to authenticate this host"
+msgstr ""
+
+msgid "No tokens issued."
 msgstr ""
 
 msgid "No type information available for this column."
@@ -5823,6 +5856,9 @@ msgid "Select a valid image"
 msgstr ""
 
 msgid "Selected tasks cancelled!"
+msgstr ""
+
+msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
 msgid "Serial Number"
@@ -7166,6 +7202,9 @@ msgid "This is the catch-all site. Its members are in scope for everything, incl
 msgstr ""
 
 msgid "This is the minimum space for the host this is deploying to."
+msgstr ""
+
+msgid "This is the only time it will be shown. FOG stores only a hash of it and cannot show it again. If you lose it, delete this token and issue another."
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
