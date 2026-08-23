@@ -7361,6 +7361,18 @@ EOF
     chmod 0644 "${outdir}/${certfile}" >>$error_log 2>&1
     return $st
 }
+# Did ${PKI_root_ca_cert} actually issue ${PKI_web_ca_cert}?
+#
+# The one question that separates a FOG-generated Web CA from one imported with
+# --web-ca-cert, which no comparison of PATHS can answer -- the import lands on
+# the same canonical filenames the generator uses. See the call site in
+# createWebIntermediateCA for what regenerating the chain from the wrong root
+# costs.
+_rootIssuedWebCA() {
+    [[ -n ${PKI_root_ca_cert} && -s ${PKI_root_ca_cert} ]] || return 1
+    [[ -n ${PKI_web_ca_cert} && -s ${PKI_web_ca_cert} ]] || return 1
+    openssl verify -trusted "${PKI_root_ca_cert}" "${PKI_web_ca_cert}" >/dev/null 2>&1
+}
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
 # this zone has zero endpoint impact -- browsers just need the root trusted,
 # and fog-client already trusts it, because the root is what it pins.
@@ -7407,8 +7419,35 @@ $(_nameConstraints)" "FOG Web UI"
     if [[ -z ${PKI_web_trust_chain} || ${PKI_web_trust_chain} == "${cadir}/.fogWebCAchain.pem" \
         || ${PKI_web_trust_chain} == "${webdir}/.fogWebCAchain.pem" || ${PKI_web_trust_chain} == "${PKI_root_ca_cert}" ]]; then
         PKI_web_trust_chain="${cadir}/.fogWebCAchain.pem"
-        cat "${PKI_web_ca_cert}" "${PKI_root_ca_cert}" > "${PKI_web_trust_chain}" 2>>$error_log
-        chmod 0644 "${PKI_web_trust_chain}" >>$error_log 2>&1
+        # The root appended has to be the one that actually ISSUED
+        # ${PKI_web_ca_cert}, and the path guard above cannot tell. Under
+        # --web-ca-cert/--web-ca-key/--web-ca-root the Web CA was issued by
+        # ANOTHER server's root, validateExternalCA imports to this exact
+        # canonical path, and it deliberately leaves ${PKI_root_ca_cert}
+        # pointing at THIS server's own root. So every path test says
+        # "FOG-managed default, safe to regenerate" and the cat then replaces
+        # the imported root with one that does not sign the intermediate above
+        # it.
+        #
+        # Nothing complains at the time. The damage surfaces on the NEXT run,
+        # because _resolveTrustAnchor reads its root back out of this file and
+        # _resolveSelfCacert passes the result as --cacert, which REPLACES
+        # curl's bundle -- so backupDB and updateDB both fail with "unable to
+        # get local issuer certificate" while the served chain is perfectly
+        # fine and every external check passes. That combination is what makes
+        # it hard to place: the box can be verified correct from outside and
+        # still be unable to verify itself.
+        #
+        # Checked as a property, not a path, for the same reason _rootFromChain
+        # selects on self-signedness rather than on file order.
+        #
+        # The -s fallback keeps a fresh install working when there is no chain
+        # on disk yet: a chain built from the wrong root is still better than
+        # no chain at all, and that is the pre-existing behaviour.
+        if _rootIssuedWebCA || [[ ! -s ${PKI_web_trust_chain} ]]; then
+            cat "${PKI_web_ca_cert}" "${PKI_root_ca_cert}" > "${PKI_web_trust_chain}" 2>>$error_log
+            chmod 0644 "${PKI_web_trust_chain}" >>$error_log 2>&1
+        fi
     fi
 }
 # The client communication certificate: the public half of the keypair
