@@ -5932,6 +5932,10 @@ msgid "Pending..."
 msgstr "macs pendientes"
 
 #, fuzzy
+msgid "Permission"
+msgstr "Versión"
+
+#, fuzzy
 msgid "Permission denied"
 msgstr "Nombre de sesión"
 

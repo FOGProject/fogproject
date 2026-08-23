@@ -81,6 +81,10 @@ class Audit extends FOGBase
     const TOKEN_REJECTED = 'auth.token.rejected';
     const API_DENIED = 'auth.api.denied';
     /**
+     * How much of a failure reason markOutcome() stores.
+     */
+    const MAX_DETAIL = 512;
+    /**
      * The synthetic actor for a write no person made.
      *
      * Not a new convention: FOGController::save()'s createdBy auto-fill
@@ -262,11 +266,26 @@ class Audit extends FOGBase
      * is no path here that revises an OLDER row, and none that lowers a
      * denial to anything else.
      *
+     * $detail is why. Without it a `failed` row says only that something
+     * went wrong, and the trail cannot answer the first question anybody
+     * asks of it -- every call site below already holds the reason (the
+     * HTTP status it is about to send, the message it is about to throw)
+     * and used to discard it on the way past.
+     *
+     * Untranslated, like every other alText: this is machine detail, and a
+     * reason stored in the locale of whoever happened to trip it is not
+     * greppable six months later.
+     *
+     * It does NOT overwrite. A row whose text was set at record() time
+     * carries a more specific reason than anything known here, so the
+     * detail fills an empty field and otherwise stands aside.
+     *
      * @param string $outcome one of the outcome constants
+     * @param string $detail  untranslated reason, or '' when none is known
      *
      * @return void
      */
-    public static function markOutcome($outcome)
+    public static function markOutcome($outcome, $detail = '')
     {
         if (!self::$_current instanceof AuditLog
             || !self::$_current->isValid()
@@ -280,10 +299,31 @@ class Audit extends FOGBase
             return;
         }
         try {
-            self::$_current->set('outcome', (string)$outcome)->save();
+            self::$_current->set('outcome', (string)$outcome);
+            $detail = (string)$detail;
+            if ('' !== $detail && '' === (string)self::$_current->get('text')) {
+                // alText is longtext, so the cap is not about the column. A
+                // PDOException carries the whole failing statement and every
+                // bound placeholder, and this row is read in a grid.
+                self::$_current->set('text', self::_trim($detail));
+            }
+            self::$_current->save();
         } catch (\Exception $e) {
             self::_writeFailed((string)$e->getMessage());
         }
+    }
+    /**
+     * Bounds a reason string to something a log viewer can print.
+     *
+     * @param string $detail the reason
+     *
+     * @return string
+     */
+    private static function _trim($detail)
+    {
+        return strlen($detail) > self::MAX_DETAIL
+            ? substr($detail, 0, self::MAX_DETAIL) . '...'
+            : $detail;
     }
     /**
      * Records the change rows for one subject.

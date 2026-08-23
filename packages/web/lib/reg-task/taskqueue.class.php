@@ -254,7 +254,7 @@ class TaskQueue extends TaskingElement
                 ->set('stateID', self::getProgressState())
                 ->set('checkInTime', self::niceDate()->format('Y-m-d H:i:s'));
             if (!$this->Task->save()) {
-                Audit::markOutcome(Audit::FAILED);
+                Audit::markOutcome(Audit::FAILED, 'task save failed');
                 throw new \Exception(_('Failed to update Task'));
             }
             if (!$this->taskLog()) {
@@ -628,7 +628,7 @@ class TaskQueue extends TaskingElement
             // update, the task save, the task log or the imaging log failed.
             // The task is left short of Complete and FOS is told, but until
             // now nobody watching notifications was. See #1202.
-            Audit::markOutcome(Audit::FAILED);
+            Audit::markOutcome(Audit::FAILED, (string)$e->getMessage());
             $this->_notifyImagingOutcome($e->getMessage());
             echo $e->getMessage();
         }

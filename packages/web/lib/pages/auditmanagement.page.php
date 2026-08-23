@@ -79,15 +79,24 @@ class AuditManagement extends FOGPage
     {
         $this->title = _('Audit Log');
 
+        // Action and Permission sit next to each other on purpose. Action is
+        // where the request came from (`access.api`, `access.page`,
+        // `auth.login`) and on its own it says nothing about what happened --
+        // every API write in the install reads `access.api`. Permission is
+        // what was actually exercised (`host.delete`, `image.create`), and
+        // without it in the grid the only way to tell a create from a delete
+        // was to open the row.
         $this->headerData = [
             _('When'),
             _('Who'),
             _('Action'),
+            _('Permission'),
             _('Outcome'),
             _('Subject'),
             _('From')
         ];
         $this->attributes = [
+            [],
             [],
             [],
             [],
