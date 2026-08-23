@@ -27,7 +27,9 @@
 # zone's own trust path (issuer + the root anchoring it), which is what a node
 # should serve beneath its leaf.
 #
-# Runs fog-sign-node-cert directly against generated CAs. Needs openssl. No
+# Runs fog-sign-node-cert directly against generated CAs, from a working copy
+# with its CONF path and its root guard rewritten -- see run_helper(), and case F
+# which asserts the shipped file still carries that guard. Needs openssl. No
 # install, no network, no root, no sudo.
 #
 # Exit status 0 = pass or skip, 1 = fail.
@@ -97,7 +99,15 @@ run_helper() {
     # new section in the extension file it builds.
     printf 'DNS:node1.test.local\n' > "$STAGE/${reqid}.san"
     rm -f "$STAGE/${reqid}.pem" "$STAGE/${reqid}.chain"
-    sed "s|^CONF=.*|CONF=\"${conf}\"|" "$HELPER" > "$WORK/helper.sh"
+    # Two rewrites, both so the real signing logic can run in a test:
+    #   - CONF, because the helper deliberately takes no path from its caller;
+    #     its locations come from a root-only config file.
+    #   - the root guard, because the helper legitimately refuses to run as
+    #     anyone else and CI runs unprivileged. Stripping it here does not weaken
+    #     the check -- case F below asserts the guard is still in the shipped
+    #     file, and everything the guard protects (the CA key) is a fixture.
+    sed -e "s|^CONF=.*|CONF=\"${conf}\"|" \
+        -e '/^\[\[ \$EUID -eq 0 \]\]/d' "$HELPER" > "$WORK/helper.sh"
     chmod +x "$WORK/helper.sh"
     HELPER_OUT="$("$WORK/helper.sh" "$zone" "$reqid" 2>&1)"
     HELPER_ST=$?
@@ -202,6 +212,15 @@ done
 printf '%s\n' "$signer" | grep -q 'PKI_WEB_ANCHOR=.*trustAnchor' \
     && ok "E: PKI_WEB_ANCHOR names the web zone's trust anchor bundle" \
     || bad "E: PKI_WEB_ANCHOR does not name .trustAnchor.pem"
+
+# --- F. the shipped helper still refuses to run unprivileged -----------------
+# run_helper() strips this line from its working copy so the signing logic is
+# reachable in CI. That is only safe while the real file still has it: without
+# the guard the web user could invoke the helper directly and openssl would read
+# a CA key it must never be able to read.
+grep -q '^\[\[ \$EUID -eq 0 \]\]' "$HELPER" \
+    && ok "F: the shipped helper refuses to run as non-root" \
+    || bad "F: the shipped helper lost its root guard"
 
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1

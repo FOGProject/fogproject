@@ -129,7 +129,16 @@ is "$mode" "710" "the leaf dir is 0710 (traversable by the web user)"
 [[ $mode != 700 ]] \
     && ok "...and NOT 0700, which is what would break certDecrypt()" \
     || bad "the leaf dir is 0700 -- the web user cannot traverse it"
-is "$(stat -c '%U:%G' "$ZONE")" "root:${apacheuser}" "the leaf dir is root:\${apacheuser}"
+# Ownership needs root to assert: chown(2) cannot hand a file to another owner
+# unprivileged, so an unprivileged run leaves the directory owned by whoever ran
+# the test and asserting root:${apacheuser} would fail on a correct tree. The
+# mode assertions above and below are the ones that carry the traversal bug, and
+# they hold either way -- chmod on your own directory always works.
+if [[ $EUID -eq 0 ]]; then
+    is "$(stat -c '%U:%G' "$ZONE")" "root:${apacheuser}" "the leaf dir is root:\${apacheuser}"
+else
+    printf '  --    ownership assertion needs root; skipped (running as %s)\n' "$(id -un)"
+fi
 # 0710 over 0750 on purpose: the group digit is 1, so the web user can traverse
 # INTO the directory but cannot list what is in it.
 is "$(stat -c '%a' "$ZONE" | cut -c2)" "1" "group bit is execute-only: traverse, no listing"
