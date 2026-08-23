@@ -3387,6 +3387,9 @@ msgstr "このサーバーは FOG Web サーバーではありません"
 msgid "I am the group manager"
 msgstr "私はグループマネージャーです"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -9471,9 +9474,11 @@ msgstr "このホストは既に存在します"
 msgid "old"
 msgstr ""
 
-#, fuzzy
-msgid "online"
-msgstr "キューに登録されました:"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
+msgstr ""
 
 msgid "or"
 msgstr "または"
@@ -12102,6 +12107,10 @@ msgstr ""
 
 #~ msgid "on the following pages of this document"
 #~ msgstr "このドキュメントの次のページ"
+
+#, fuzzy
+#~ msgid "online"
+#~ msgstr "キューに登録されました:"
 
 #~ msgid "open"
 #~ msgstr "開く"

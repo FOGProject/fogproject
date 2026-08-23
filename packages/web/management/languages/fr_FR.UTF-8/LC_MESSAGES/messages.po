@@ -3526,6 +3526,9 @@ msgstr "Je ne suis pas le serveur web de brouillard"
 msgid "I am the group manager"
 msgstr " | Je suis le seul membre"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -9893,7 +9896,10 @@ msgstr "Imprimante existe déjà"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"

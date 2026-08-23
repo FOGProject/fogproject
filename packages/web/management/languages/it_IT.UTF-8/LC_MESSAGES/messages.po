@@ -3419,6 +3419,9 @@ msgstr "Io non sono il server web fog"
 msgid "I am the group manager"
 msgstr "Sono il responsabile del gruppo"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -9539,7 +9542,10 @@ msgstr "Questo host esiste già"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"

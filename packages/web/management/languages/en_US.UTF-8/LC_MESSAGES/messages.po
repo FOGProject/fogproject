@@ -3524,6 +3524,9 @@ msgstr "I am not the fog web server"
 msgid "I am the group manager"
 msgstr " | I am the only member"
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "ID"
 
@@ -9891,7 +9894,10 @@ msgstr "Printer already exists"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 msgid "or"

@@ -3594,6 +3594,9 @@ msgstr ""
 msgid "I am the group manager"
 msgstr ""
 
+msgid "ICMP is enabled but no echo socket could be opened; falling back to the TCP check only"
+msgstr ""
+
 msgid "ID"
 msgstr "CARNÉ DE IDENTIDAD"
 
@@ -10076,7 +10079,10 @@ msgstr "Impresora ya existe"
 msgid "old"
 msgstr ""
 
-msgid "online"
+msgid "online (icmp echo)"
+msgstr ""
+
+msgid "online, tcp port"
 msgstr ""
 
 #, fuzzy
