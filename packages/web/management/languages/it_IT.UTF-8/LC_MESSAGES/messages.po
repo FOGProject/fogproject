@@ -5262,6 +5262,10 @@ msgid "Nothing needs it day to day. Restore it only to issue a new intermediate,
 msgstr ""
 
 #, fuzzy
+msgid "Nothing to age out"
+msgstr "Nome Storage Node"
+
+#, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "Nome Storage Node"
 
@@ -6290,6 +6294,14 @@ msgstr "Risultati"
 
 msgid "Resume Reload"
 msgstr ""
+
+#, fuzzy
+msgid "Retention Runner"
+msgstr "Nome Plugin"
+
+#, fuzzy
+msgid "Retention is globally disabled"
+msgstr "* La replica di immagini è globalmente disattivata"
 
 msgid "Retention refused, audit row would not store"
 msgstr ""
@@ -9248,6 +9260,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr "funziona sui computer client."
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr "gruppo"
 
@@ -9793,6 +9808,10 @@ msgstr "Tra impostazioni host e globali"
 
 msgid "unavailable"
 msgstr "non disponibile"
+
+#, fuzzy
+msgid "unchanged for"
+msgstr "Immagini per"
 
 msgid "up"
 msgstr ""

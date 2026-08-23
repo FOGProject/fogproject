@@ -5450,6 +5450,10 @@ msgid "Nothing needs it day to day. Restore it only to issue a new intermediate,
 msgstr ""
 
 #, fuzzy
+msgid "Nothing to age out"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "Nom du nœud de stockage"
 
@@ -6507,6 +6511,14 @@ msgstr "Résultats"
 
 msgid "Resume Reload"
 msgstr ""
+
+#, fuzzy
+msgid "Retention Runner"
+msgstr "Nom Plugin"
+
+#, fuzzy
+msgid "Retention is globally disabled"
+msgstr "SnapIn avec ce nom existe déjà"
 
 msgid "Retention refused, audit row would not store"
 msgstr ""
@@ -9581,6 +9593,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr ""
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr "groupe"
 
@@ -10159,6 +10174,10 @@ msgstr "Impossible de mettre à jour"
 #, fuzzy
 msgid "unavailable"
 msgstr "Indisponible"
+
+#, fuzzy
+msgid "unchanged for"
+msgstr "imager"
 
 msgid "up"
 msgstr ""

@@ -1,0 +1,58 @@
+#!/sbin/openrc-run
+### BEGIN INIT INFO
+# Provides: FOGRetentionRunner
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd $apache2 $mysql
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGRetentionRunner
+# Long-Description: Ages out the tables that record what happened -- the audit
+# trail, the administrative history, the host login records and the task log.
+# Stopping or disabling this script stops that pruning; nothing else does it.
+### END INIT INFO
+
+name=FOGRetentionRunner
+# The interpreter is named explicitly, and FOGPHPBIN is rewritten by
+# installInitScript to whatever php binary this host actually has.
+# Alpine ships no unversioned "php" -- the package and the executable
+# are both php8x -- and the daemons themselves start "#!/usr/bin/php",
+# so running them directly could never work here. See #863.
+command=FOGPHPBIN
+command_args="/opt/fog/service/FOGRetentionRunner/FOGRetentionRunner"
+pidfile=/run/fog/$name.pid
+
+# supervise-daemon, not start-stop-daemon with command_background.
+#
+# These daemons exit immediately when the database is not yet accepting
+# connections: FOG's bootstrap fails with "A valid database connection could
+# not be made" long before the service's own waitDbReady() is reached. The
+# systemd units answer that with Restart=always, RestartSec=1 and
+# StartLimitIntervalSec=0, so on a systemd host the daemon is simply restarted
+# every second until mariadb is up and nobody ever notices. OpenRC has no
+# supervision at all by default, so every FOG daemon started at boot, died
+# within a second, and stayed dead -- while starting one BY HAND afterwards
+# worked perfectly, which is exactly what made this look like an rc-update
+# problem rather than a restart one. respawn_max=0 is unlimited. See #863.
+supervisor=supervise-daemon
+respawn_delay=1
+respawn_max=0
+# Like FOGPluginRunner, this daemon runs as the web user rather than root: it
+# needs a database connection and nothing else. FOGWEBUSER is rewritten to
+# $apacheuser in the installed copy by installInitScript().
+command_user="FOGWEBUSER"
+
+depend() {
+        need net
+        # Ordering only, never "need": the database is allowed to live on
+        # another host, and a storage node has no mariadb at all. This mirrors
+        # the systemd units' After=...mysql.service.
+        after mariadb mysql
+}
+
+start_pre() {
+        # /run is a tmpfs, so it is empty on every boot, and nothing else in
+        # FOG creates this directory -- the systemd units use no pidfile at
+        # all. checkpath is OpenRC's own idempotent mkdir.
+        checkpath --directory --mode 0755 /run/fog
+}

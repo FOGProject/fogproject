@@ -114,6 +114,15 @@ granted. Cost: a plugin task cannot do root-only work. That is the correct
 default, and any plugin needing more should be arguing for a specific,
 reviewable core capability rather than inheriting root by accident.
 
+> **No longer the only one.**
+> [ADR 0026](0026-retention-runs-in-a-daemon-named-for-retention.md) adds
+> `FOGRetentionRunner` as a second non-root daemon, on its own reasoning
+> rather than this one: it needs a database connection and nothing else, and
+> a sweep that issues `DELETE`s is the last thing that should run as root. It
+> uses the same `FOGWEBUSER` placeholder and gets its own log sub-directory
+> for the same reasons set out below. The installer's substitution loop was
+> already over every unit file, so nothing here had to change.
+
 Two consequences follow, both about the log:
 
 **The runner gets its own log sub-directory**, `$servicelogs/plugins/`, owned by

@@ -5449,6 +5449,10 @@ msgid "Nothing needs it day to day. Restore it only to issue a new intermediate,
 msgstr ""
 
 #, fuzzy
+msgid "Nothing to age out"
+msgstr "存储节点名称"
+
+#, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "存储节点名称"
 
@@ -6506,6 +6510,14 @@ msgstr "结果"
 
 msgid "Resume Reload"
 msgstr ""
+
+#, fuzzy
+msgid "Retention Runner"
+msgstr "插件名称"
+
+#, fuzzy
+msgid "Retention is globally disabled"
+msgstr "管理单元与该名称已经存在"
 
 msgid "Retention refused, audit row would not store"
 msgstr ""
@@ -9580,6 +9592,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr ""
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr "组"
 
@@ -10158,6 +10173,10 @@ msgstr "无法更新"
 #, fuzzy
 msgid "unavailable"
 msgstr "不可用"
+
+#, fuzzy
+msgid "unchanged for"
+msgstr "成像"
 
 msgid "up"
 msgstr ""

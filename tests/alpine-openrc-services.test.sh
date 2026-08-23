@@ -258,7 +258,16 @@ else
         [[ $(head -1 "$f") == "#!/sbin/openrc-run" ]] || badshebang="$badshebang $(basename "$f")"
     done
     check "$badshebang" "" "P. every Alpine init script starts with #!/sbin/openrc-run"
-    check "$(ls -1 "$INITD" | wc -l | tr -d ' ')" "9" "P2. all nine daemons ship an OpenRC script"
+    # Counted against packages/service rather than against a literal. The
+    # property is "every daemon ships an OpenRC script", and a hardcoded
+    # number states it only until the next daemon is added -- at which point
+    # the test fails for the daemon that DID ship one, and the fix looks like
+    # bumping a constant. FOGRetentionRunner was the tenth and made that
+    # concrete. Q below is the converse check: every script names a service
+    # directory that exists.
+    check "$(ls -1 "$INITD" | wc -l | tr -d ' ')" \
+        "$(ls -1d "$REPO"/packages/service/FOG* | wc -l | tr -d ' ')" \
+        "P2. every daemon under packages/service ships an OpenRC script"
 fi
 
 # ---------------------------------------------------------------------------

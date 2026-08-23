@@ -1,0 +1,74 @@
+#!/usr/bin/php -q
+<?php
+/**
+ * FOGRetentionRunner service to age out the tables that record what happened
+ *
+ * PHP version 5
+ *
+ * @category FOGRetentionRunner
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+/**
+ * FOGRetentionRunner service to age out the tables that record what happened
+ *
+ * The sweep used to run inside FOGPluginRunner, which meant an administrator
+ * who switched off a daemon named for plugins also switched off pruning of
+ * the audit trail, the history, the host login records and the task log --
+ * with nothing anywhere to say so. It has its own unit now so that turning
+ * retention off is a deliberate act, and so that "is retention running" is a
+ * question `systemctl status` can answer.
+ *
+ * Like FOGPluginRunner and unlike the other seven this runs as the web user,
+ * not root: it needs a database connection and nothing else. The User=/Group=
+ * lines in the unit file are what enforce that, and installInitScript() fills
+ * them in.
+ *
+ * @category FOGRetentionRunner
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require dirname(realpath(__FILE__)).'/../etc/config.php';
+require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
+$service_name = 'FOGRetentionRunner';
+service_persist($service_name);
+$ServiceClass = $FOGCore::getClass('RetentionRunner');
+$ServiceClass->getBanner();
+$ServiceClass->waitInterfaceReady();
+$ServiceClass->waitDbReady();
+$ServiceClass->serviceStart();
+while (true) {
+    if (!$ServiceClass::$zzz) {
+        $ServiceClass::$zzz = 3600;
+    }
+    if (!isset($nextrun)) {
+        $ServiceClass->serviceRun();
+        $nextrun = FOGCore::niceDate()
+            ->modify(
+                sprintf(
+                    '+%s second%s',
+                    $ServiceClass::$zzz,
+                    $ServiceClass::$zzz != 1 ? '' : 's'
+                )
+            );
+    }
+    if (FOGCore::niceDate() < $nextrun) {
+        usleep(100000);
+        continue;
+    }
+    $nextrun = FOGCore::niceDate()
+        ->modify(
+            sprintf(
+                '+%s second%s',
+                $ServiceClass::$zzz,
+                $ServiceClass::$zzz != 1 ? '' : 's'
+            )
+        );
+    $ServiceClass->serviceRun();
+}
+$ServiceClass::outall(sprintf(" * Service has ended."));
+exit(0);

@@ -442,11 +442,19 @@ capability, and it belongs in `FOGPluginRunner`, the existing non-root
 periodic daemon (ADR 0010), rather than a new one. Adding the setting requires
 bumping `FOG_SCHEMA` in the same step or the insert is silently skipped.
 
+> **Amended by [ADR 0026](0026-retention-runs-in-a-daemon-named-for-retention.md).**
+> The sweep runs in `FOGRetentionRunner`, its own daemon, not in
+> `FOGPluginRunner`. The cost argument above is sound and was not the deciding
+> factor: a daemon named for plugins is one a site with no plugins switches
+> off, and doing so silently stopped pruning with nothing anywhere to say so.
+> Nothing else in this decision moves.
+
 **The sweep is generic, not `auditLog`-specific** (amended per ADR 0023).
 Three tables need ageing out and they arrived from three directions:
 `auditLog` here, `history` and `userTracking` in ADR 0023, and `imagingLog`
-in ADR 0022 — which defers to this mechanism explicitly. So what
-`FOGPluginRunner` walks is a **retention registry** of table → setting name →
+in ADR 0022 — which defers to this mechanism explicitly. So what the sweep's
+daemon (`FOGRetentionRunner` per ADR 0026) walks is a **retention registry**
+of table → setting name →
 date column, core-registered and extensible by a plugin through a hook, the
 same shape as the permission registry. `FOG_AUDIT_RETENTION_DAYS` becomes the
 first entry rather than the only one, and a fourth table is a registry entry

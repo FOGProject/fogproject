@@ -5577,6 +5577,10 @@ msgid "Nothing needs it day to day. Restore it only to issue a new intermediate,
 msgstr ""
 
 #, fuzzy
+msgid "Nothing to age out"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "nodo de almacenamiento"
 
@@ -6653,6 +6657,14 @@ msgstr "resultados"
 
 msgid "Resume Reload"
 msgstr ""
+
+#, fuzzy
+msgid "Retention Runner"
+msgstr "Nombre de la impresora"
+
+#, fuzzy
+msgid "Retention is globally disabled"
+msgstr "Nombre de la impresora"
 
 msgid "Retention refused, audit row would not store"
 msgstr ""
@@ -9765,6 +9777,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr ""
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr "grupo"
 
@@ -10340,6 +10355,10 @@ msgstr "No se ha podido destruir"
 #, fuzzy
 msgid "unavailable"
 msgstr "No se dispone de hash"
+
+#, fuzzy
+msgid "unchanged for"
+msgstr "Imagen"
 
 msgid "up"
 msgstr ""

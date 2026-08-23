@@ -1805,6 +1805,22 @@ installFOGServices() {
     # labelling result instead of whether the directory was created -- a failed
     # mkdir or chown here would have printed OK.
     setSELinuxContext "$servicelogs/plugins" httpd_sys_rw_content_t
+    # FOGRetentionRunner is the second non-root daemon and needs the same
+    # thing for the same reason -- rotation renames and unlinks, so it needs
+    # write on the DIRECTORY, and $servicelogs itself is root's.
+    #
+    # Its own directory rather than sharing plugins/. There is no privilege
+    # boundary between the two to defend (both run as $apacheuser), but a
+    # retention log filed under plugins/ would reintroduce exactly the
+    # "this must be a plugin thing" confusion that giving retention its own
+    # daemon exists to remove.
+    dots "Creating FOG retention runner log directory"
+    mkdir -p $servicelogs/retention >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/retention >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller -- see the note
+    # on the plugins directory above.
+    setSELinuxContext "$servicelogs/retention" httpd_sys_rw_content_t
     # Where the web tier records what FOS told it (fogproject#1206). Its own
     # subdirectory for the same reason the plugin runner's is: the writer is
     # the web user, rotation renames and unlinks, and $servicelogs itself is
@@ -4196,17 +4212,21 @@ installInitScript() {
                 "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
         done
     fi
-    # ADR 0010: FOGPluginRunner is the one daemon that does NOT run as root --
-    # it executes third-party plugin code, which runs as the web user
-    # everywhere else. Its shipped unit/init script carries the literal
-    # FOGWEBUSER, rewritten here to the real account in the INSTALLED copy
-    # only, on the same "cp -f restores the source every run" reasoning as the
-    # path substitution above.
+    # ADR 0010: FOGPluginRunner and FOGRetentionRunner are the two daemons that
+    # do NOT run as root. The plugin runner executes third-party plugin code,
+    # which runs as the web user everywhere else; the retention runner needs a
+    # database connection and nothing else. Their shipped unit/init scripts
+    # carry the literal FOGWEBUSER, rewritten here to the real account in the
+    # INSTALLED copy only, on the same "cp -f restores the source every run"
+    # reasoning as the path substitution above.
+    #
+    # The loop is over every unit file rather than those two by name, which is
+    # why adding the second one needed no change here.
     #
     # Unconditional, unlike that one. A placeholder left in place is not a
     # cosmetic default: systemd refuses to start a unit whose User= does not
     # resolve, which is the intended failure -- loud, rather than quietly
-    # running plugin code as root.
+    # running plugin code, or a sweep that issues DELETEs, as root.
     for unitfile in $initdsrc/*; do
         sed -i "s|FOGWEBUSER|${apacheuser}|g" \
             "$initdpath/$(basename $unitfile)" >>$error_log 2>&1

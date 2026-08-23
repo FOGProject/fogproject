@@ -19,7 +19,10 @@ namespace FOG;
  * ONE MECHANISM, NOT FOUR. Four tables need ageing out and they arrived from
  * three directions -- `auditLog` from ADR 0021, `history` and `userTracking`
  * from ADR 0023. ADR 0022 deferred `imagingLog` here and then retired the
- * table instead; `taskLog` inherits the question and grows faster.
+ * table instead; `taskLog` inherited the question, grows faster, and is the
+ * fourth entry -- added by schema 357, which also removed the orphaned
+ * `FOG_IMAGINGLOG_RETENTION_DAYS` row that survived its table and had been
+ * rendering on the settings page doing nothing for anyone who set it.
  * Built per-table that would be four sweeps ageing four tables with four
  * bugs, so what exists is a registry of table => setting => date column and
  * one sweep that walks it. A fifth table is a registry entry.
@@ -87,7 +90,16 @@ class Retention extends FOGBase
      * `children` are rows in another table that point at these and are in no
      * foreign key, so nothing else would remove them. auditChange is the only
      * one today; without it a swept auditLog leaves its change rows behind as
-     * permanent orphans holding the values the header explained.
+     * permanent orphans holding the values the header explained. taskLog has
+     * none: schema 341 denormalized the host and task identity onto the row
+     * precisely so nothing else has to be kept alive for it to stay readable.
+     *
+     * taskLog is also the one entry whose window bounds a PAGE and not just
+     * a table. The dashboard's images-per-day chart reads it since ADR 0022
+     * decision 3 retired imagingLog, and that chart offers a one-year view --
+     * so a window shorter than the view silently flattens the far end of the
+     * graph rather than erroring. The setting's own description says so; this
+     * note is here for whoever changes the chart's range next.
      *
      * @return array table => [setting, date, id, children]
      */
@@ -106,6 +118,11 @@ class Retention extends FOGBase
                 'setting' => 'FOG_HISTORY_RETENTION_DAYS',
                 'date' => 'hTime',
                 'id' => 'hID',
+            ],
+            'taskLog' => [
+                'setting' => 'FOG_TASKLOG_RETENTION_DAYS',
+                'date' => 'createTime',
+                'id' => 'id',
             ],
             'userTracking' => [
                 'setting' => 'FOG_USERTRACKING_RETENTION_DAYS',

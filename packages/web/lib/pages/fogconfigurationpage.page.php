@@ -2745,6 +2745,7 @@ class FOGConfigurationPage extends FOGPage
                     $multicastlogname,
                     $pinghostlogname,
                     $pluginrunnerlogname,
+                    $retentionrunnerlogname,
                     $schedulerlogname,
                     $servicelogname,
                     $snapinhashlogname,
@@ -2756,6 +2757,7 @@ class FOGConfigurationPage extends FOGPage
                     'MULTICASTLOGFILENAME',
                     'PINGHOSTLOGFILENAME',
                     'PLUGINRUNNERLOGFILENAME',
+                    'RETENTIONRUNNERLOGFILENAME',
                     'SCHEDULERLOGFILENAME',
                     'SERVICEMASTERLOGFILENAME',
                     'SNAPINHASHLOGFILENAME',
@@ -2806,6 +2808,11 @@ class FOGConfigurationPage extends FOGPage
                     $fogfiles
                 );
                 $pluginrunnerlog = array_shift($pluginrunnerlog);
+                $retentionrunnerlog = preg_grep(
+                    '#('.$retentionrunnerlogname.'$)#i',
+                    $fogfiles
+                );
+                $retentionrunnerlog = array_shift($retentionrunnerlog);
                 $svcmasterlog = preg_grep(
                     '#('.$servicelogname.'$)#i',
                     $fogfiles
@@ -2908,6 +2915,15 @@ class FOGConfigurationPage extends FOGPage
                     ) => (
                         $pluginrunnerlog ?
                         $pluginrunnerlog :
+                        null
+                    ),
+                    (
+                        $retentionrunnerlog ?
+                        _('Retention Runner') :
+                        null
+                    ) => (
+                        $retentionrunnerlog ?
+                        $retentionrunnerlog :
                         null
                     ),
                 ];

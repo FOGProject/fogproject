@@ -4623,6 +4623,9 @@ msgstr ""
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
+msgid "Nothing to age out"
+msgstr ""
+
 msgid "Nothing to do on Storage Node Named"
 msgstr ""
 
@@ -5528,6 +5531,12 @@ msgid "Result"
 msgstr ""
 
 msgid "Resume Reload"
+msgstr ""
+
+msgid "Retention Runner"
+msgstr ""
+
+msgid "Retention is globally disabled"
 msgstr ""
 
 msgid "Retention refused, audit row would not store"
@@ -8165,6 +8174,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr ""
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr ""
 
@@ -8672,6 +8684,9 @@ msgid "unable to be updated"
 msgstr ""
 
 msgid "unavailable"
+msgstr ""
+
+msgid "unchanged for"
 msgstr ""
 
 msgid "up"

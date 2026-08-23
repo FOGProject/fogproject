@@ -5220,6 +5220,10 @@ msgid "Nothing needs it day to day. Restore it only to issue a new intermediate,
 msgstr ""
 
 #, fuzzy
+msgid "Nothing to age out"
+msgstr "検索対象が渡されていません"
+
+#, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "ストレージノード名"
 
@@ -6249,6 +6253,14 @@ msgstr "結果"
 
 msgid "Resume Reload"
 msgstr ""
+
+#, fuzzy
+msgid "Retention Runner"
+msgstr "プラグインをインストールしました！"
+
+#, fuzzy
+msgid "Retention is globally disabled"
+msgstr "* イメージレプリケーションは全体設定で無効になっています"
 
 msgid "Retention refused, audit row would not store"
 msgstr ""
@@ -9180,6 +9192,9 @@ msgstr "送信元"
 msgid "function on client computers."
 msgstr "クライアントコンピューター上の機能。"
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr "グループ"
 
@@ -9726,6 +9741,10 @@ msgstr "更新できません"
 
 msgid "unavailable"
 msgstr "利用不可"
+
+#, fuzzy
+msgid "unchanged for"
+msgstr "イメージ処理対象"
 
 msgid "up"
 msgstr ""
@@ -11126,9 +11145,6 @@ msgstr ""
 
 #~ msgid "Notes"
 #~ msgstr "メモ"
-
-#~ msgid "Nothing passed to search for"
-#~ msgstr "検索対象が渡されていません"
 
 #~ msgid "Object"
 #~ msgstr "オブジェクト"

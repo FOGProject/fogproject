@@ -54,9 +54,13 @@ class FOGLogPaths
      * top level is added here and nowhere else -- '' is the top level itself,
      * 'plugins' is the plugin runner's, which is separate because that daemon
      * runs as the web user and rotation needs write on the directory
-     * (ADR 0010). 'fos' is where the web tier records what FOS told it, and
-     * is separate for the same reason: that writer IS the web tier, and the
-     * top level belongs to root's daemons.
+     * (ADR 0010). 'retention' is the retention runner's, the second non-root
+     * daemon, separate from plugins/ not for privilege -- both run as the web
+     * user -- but because a retention log filed under plugins/ would suggest
+     * retention is a plugin feature, which is the confusion that daemon was
+     * split out to end. 'fos' is where the web tier records what FOS told it,
+     * and is separate for the same reason as plugins/: that writer IS the web
+     * tier, and the top level belongs to root's daemons.
      *
      * 'faults' is FOGBase::logFault()'s -- every database write FOG could not
      * complete. It is the one entry here written by BOTH tiers, which is why
@@ -69,6 +73,7 @@ class FOGLogPaths
     const FOG_SUBDIRS = [
         '',
         'plugins',
+        'retention',
         'fos',
         'faults',
     ];

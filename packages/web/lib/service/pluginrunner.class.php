@@ -72,28 +72,6 @@ class PluginRunner extends FOGService
      */
     const IDLE_REPEAT = 900;
     /**
-     * Seconds between retention sweeps.
-     *
-     * Not the daemon's 60-second cycle: nothing about a retention window
-     * changes minute to minute, and each sweep costs a COUNT per configured
-     * table. Hourly also means a first sweep on a long-neglected table --
-     * bounded to Retention::MAX_PER_PASS rows a pass -- catches up over
-     * hours rather than holding locks for the length of one enormous DELETE.
-     *
-     * @var int
-     */
-    const RETENTION_INTERVAL = 3600;
-    /**
-     * When the next retention sweep is due, as a unix timestamp.
-     *
-     * Zero so the first cycle after a start sweeps immediately. Held in
-     * memory for the same reason $_nextRun is (ADR 0010 decision 5): a
-     * restart makes it due, and the sweep is idempotent.
-     *
-     * @var int
-     */
-    private $_nextRetention = 0;
-    /**
      * Is the service globally enabled.
      *
      * @var int
@@ -349,20 +327,20 @@ class PluginRunner extends FOGService
             // throw a second message of its own; that message was
             // unreachable, and reading it here suggested the log line came
             // from this class when it always came from the base.
-            //
-            // Moved ABOVE the plugin-system gate so the retention sweep
-            // below it still runs on a server with plugins switched off. The
-            // only visible difference is which message a non-master node
-            // logs when both are true.
             $this->checkIfNodeMaster();
-            // Retention is not plugin work. It lives here because this is
-            // the only non-root periodic daemon FOG has (ADR 0010), and
-            // standing up a ninth daemon to run one DELETE an hour is not
-            // proportionate. It sits under this daemon's own enable flag --
-            // an operator who turns the plugin runner off has turned off the
-            // process, and retention going quiet with it is honest -- but
-            // above the PLUGIN gate, which is about plugins.
-            $this->_retentionSweep();
+            // Retention used to be swept here, above the plugin gate but
+            // under this daemon's enable flag, on the grounds that this was
+            // the only non-root periodic daemon FOG had (ADR 0010) and a
+            // ninth unit for one DELETE an hour was not proportionate.
+            //
+            // It has its own daemon now -- FOGRetentionRunner. The cost was
+            // never the point: a daemon named for plugins is one an operator
+            // who runs no plugins will switch off, and switching it off also
+            // stopped the audit trail, the history, the host login records
+            // and the task log being pruned, with nothing anywhere to say
+            // so. That is a breakage nobody asked for, and the fix is for
+            // the daemon to say what it does rather than for the sweep to
+            // hide inside one that does not.
             if (!self::getSetting('FOG_PLUGINSYS_ENABLED')) {
                 throw new \Exception(_('The plugin system is disabled'));
             }
@@ -404,62 +382,6 @@ class PluginRunner extends FOGService
             }
         } catch (\Exception $e) {
             $this->_logIdle($e->getMessage());
-        }
-    }
-    /**
-     * Ages out the registered log tables, at most once an hour.
-     *
-     * Its own schedule rather than the daemon's 60-second cycle: nothing
-     * about a retention window changes minute to minute, and the sweep costs
-     * a COUNT per configured table every time it runs.
-     *
-     * Throwable, like _runTask(): the registry is extensible by a plugin
-     * hook, so a bad contribution must not take the daemon down with it. A
-     * failure here is logged and the cycle carries on -- but note the one
-     * thing that is NOT an error and is deliberately not retried harder: a
-     * table whose audit row would not store is left ALONE, growing, rather
-     * than being shrunk without a record (ADR 0021 Decision 10).
-     *
-     * @return void
-     */
-    private function _retentionSweep()
-    {
-        $now = self::niceDate()->getTimestamp();
-        if ($now < $this->_nextRetention) {
-            return;
-        }
-        $this->_nextRetention = $now + self::RETENTION_INTERVAL;
-        try {
-            $removed = Retention::sweep();
-        } catch (\Throwable $e) {
-            self::outall(
-                sprintf(
-                    ' * %s: %s',
-                    _('Retention sweep failed'),
-                    $e->getMessage()
-                )
-            );
-            return;
-        }
-        foreach ($removed as $table => $count) {
-            if (false === $count) {
-                self::outall(
-                    sprintf(
-                        ' * %s: %s',
-                        _('Retention refused, audit row would not store'),
-                        $table
-                    )
-                );
-                continue;
-            }
-            self::outall(
-                sprintf(
-                    ' * %s: %s (%d)',
-                    _('Retention removed rows from'),
-                    $table,
-                    $count
-                )
-            );
         }
     }
     /**

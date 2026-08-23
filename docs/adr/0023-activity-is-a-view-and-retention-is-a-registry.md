@@ -199,9 +199,11 @@ defers to 0021's mechanism — so the sweep is generic from the start:
 - A **retention registry**: table → setting name → date column. Core
   registers its own; a plugin contributes through a hook, the same shape as
   the permission registry.
-- One sweep in `FOGPluginRunner` (ADR 0010, the existing non-root periodic
-  daemon) walks the registry. Adding a fourth table is a registry entry, not a
-  second sweep.
+- One sweep walks the registry. Adding a fourth table is a registry entry, not
+  a second sweep. (Originally in `FOGPluginRunner`; moved to its own daemon,
+  `FOGRetentionRunner`, by
+  [ADR 0026](0026-retention-runs-in-a-daemon-named-for-retention.md) — the
+  registry itself is unchanged.)
 - `0` means keep forever, and it is the value every setting takes unless an
   admin chooses otherwise. See Decision 7.
 
@@ -303,8 +305,10 @@ Named and deferred rather than bolted onto a mechanism that does not fit it.
 **ADR 0021 — one amendment, made.** Decision 9's retention sweep becomes
 generic: a registry of table → setting → date column, walked by one sweep,
 rather than a mechanism that knows only about `auditLog`. Nothing else in 0021
-moves; `audit.manage` is still the right gate, and `FOGPluginRunner` is still
-the right home.
+moved at the time; `audit.manage` is still the right gate. The home did move
+later — see [ADR 0026](0026-retention-runs-in-a-daemon-named-for-retention.md),
+which takes the sweep out of `FOGPluginRunner` and gives it a daemon named for
+what it does.
 
 **ADR 0020 — no change.** Its Decision 1 is what makes Decision 1 here
 possible, and this ADR is a consumer of the frame, not a constraint on it. The

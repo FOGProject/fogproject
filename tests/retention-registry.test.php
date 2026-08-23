@@ -91,16 +91,25 @@ if (!class_exists('Retention', true)) {
 
 $core = Retention::coreRegistry();
 check(
-    'coreRegistry() lists the three tables ADR 0021 and 0023 name',
-    count($core) === 3,
+    'coreRegistry() lists the four tables ADR 0021, 0022 and 0023 name',
+    count($core) === 4,
     $failures,
     $checks
 );
-// Was four. imagingLog was retired by ADR 0022 decision 3 -- taskLog carries
-// the image name now -- so its entry went with the table.
+// Was four, then three, and is four again. imagingLog was retired by ADR 0022
+// decision 3 -- taskLog carries the image name now -- so its entry went with
+// the table, and schema 357 put taskLog itself in. Both halves are pinned,
+// because the shape that went wrong in between was the successor table
+// growing unbounded while a setting named after the dead one still rendered.
 check(
     'the retired imagingLog is not still registered',
     !isset($core['imagingLog']),
+    $failures,
+    $checks
+);
+check(
+    'taskLog, which inherited imaging history, is registered',
+    isset($core['taskLog']),
     $failures,
     $checks
 );
@@ -170,6 +179,46 @@ foreach ($core as $table => $entry) {
         $checks
     );
 }
+
+/*
+ * 2b. And no setting key names a table that is gone.
+ *
+ * FOG_IMAGINGLOG_RETENTION_DAYS is the worked example and the reason this
+ * check exists: step 347 inserted it, ADR 0022 decision 3 dropped the table
+ * from under it, and the row stayed -- rendering on the settings page,
+ * accepting a number, ageing out nothing. It is not enough to check that the
+ * registry no longer names imagingLog (above); the failure was a setting with
+ * NO registry entry, which nothing else here would notice. Schema 357 deletes
+ * the row and carries its value to FOG_TASKLOG_RETENTION_DAYS.
+ *
+ * Textual, deliberately: the INSERT in 347 is still in the file and always
+ * will be -- replaying the schema on a fresh install runs it -- so what is
+ * asserted is that a later step removes it again.
+ */
+// Concatenation collapsed first. The statements in schema.php are written as
+// "..." . "..." across several lines, and the WHERE clause below appears
+// TWICE in the step -- once in the INSERT ... SELECT that copies the value
+// out, once in the DELETE that removes the row. Searching the raw source for
+// the WHERE alone therefore still matches after the DELETE is gone, which is
+// a gate that cannot fail. Joining the halves lets the whole statement be
+// pinned, so removing the DELETE removes the only thing that matches.
+$schemaSql = preg_replace('#"\s*\.\s*"#', '', $schemaSrc);
+check(
+    'schema.php deletes the orphaned FOG_IMAGINGLOG_RETENTION_DAYS row',
+    false !== strpos(
+        $schemaSql,
+        "DELETE FROM `globalSettings` "
+        . "WHERE `settingKey` = 'FOG_IMAGINGLOG_RETENTION_DAYS'"
+    ),
+    $failures,
+    $checks
+);
+check(
+    'and carries its value to the successor key',
+    false !== strpos($schemaSrc, "'FOG_TASKLOG_RETENTION_DAYS'"),
+    $failures,
+    $checks
+);
 
 /*
  * 3. The arithmetic. 0 is forever, and forever is the largest window.
@@ -291,24 +340,39 @@ check(
 );
 
 /*
- * 7. The sweep has a caller. A registry and no daemon is a setting that
- *    silently does nothing.
+ * 7. The sweep has a caller, and it is a daemon named for retention.
+ *
+ * A registry and no daemon is a setting that silently does nothing, which is
+ * the first half. The second half is WHICH daemon, and it is a property worth
+ * pinning rather than a tidiness preference: the sweep lived in
+ * FOGPluginRunner, so an administrator who ran no plugins and switched that
+ * off silently stopped pruning the audit trail, the history, the host login
+ * records and the task log. Putting it back there -- or adding a second
+ * caller in a daemon that is about something else -- reopens exactly that.
  */
 $runner = (string) file_get_contents(
-    $webroot . '/lib/service/pluginrunner.class.php'
+    $webroot . '/lib/service/retentionrunner.class.php'
 );
 check(
-    'FOGPluginRunner calls Retention::sweep()',
+    'FOGRetentionRunner calls Retention::sweep()',
     false !== strpos($runner, 'Retention::sweep()'),
     $failures,
     $checks
 );
-// Both halves. The wrapper existing proves nothing if serviceRun() stopped
-// calling it -- the sweep would be dead code and every configured window
-// would silently do nothing.
+// Its own enable flag, named for the feature rather than for the process. The
+// only switches that stop retention are this one and the per-table windows.
 check(
-    'serviceRun() invokes the retention sweep',
-    false !== strpos($runner, '$this->_retentionSweep();'),
+    'and gates on RETENTIONGLOBALENABLED, not another daemon\'s flag',
+    false !== strpos($runner, "getSetting('RETENTIONGLOBALENABLED')"),
+    $failures,
+    $checks
+);
+$plugin = (string) file_get_contents(
+    $webroot . '/lib/service/pluginrunner.class.php'
+);
+check(
+    'the plugin runner no longer sweeps',
+    false === strpos($plugin, 'Retention::sweep()'),
     $failures,
     $checks
 );

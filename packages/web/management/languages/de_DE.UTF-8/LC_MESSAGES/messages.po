@@ -5450,6 +5450,10 @@ msgid "Nothing needs it day to day. Restore it only to issue a new intermediate,
 msgstr ""
 
 #, fuzzy
+msgid "Nothing to age out"
+msgstr "Speicherknotenname"
+
+#, fuzzy
 msgid "Nothing to do on Storage Node Named"
 msgstr "Speicherknotenname"
 
@@ -6507,6 +6511,14 @@ msgstr "Ergebnis"
 
 msgid "Resume Reload"
 msgstr ""
+
+#, fuzzy
+msgid "Retention Runner"
+msgstr "Plugin-Name"
+
+#, fuzzy
+msgid "Retention is globally disabled"
+msgstr "* Imagereplikation ist global deaktiviert"
 
 msgid "Retention refused, audit row would not store"
 msgstr ""
@@ -9585,6 +9597,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr "wie Dienste auf Clientcomputer funktionieren."
 
+msgid "further cycles"
+msgstr ""
+
 msgid "group"
 msgstr "Gruppe"
 
@@ -10165,6 +10180,10 @@ msgstr "Host- und globalen Einstellungen gibt,"
 #, fuzzy
 msgid "unavailable"
 msgstr "nicht verfügbar"
+
+#, fuzzy
+msgid "unchanged for"
+msgstr "Imaged für"
 
 msgid "up"
 msgstr ""

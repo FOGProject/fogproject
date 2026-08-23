@@ -7354,3 +7354,132 @@ $this->schema[] = [
     . "echo sweep is unwelcome on your network; the TCP check then runs on "
     . "its own, exactly as before.','1','Ping Host Settings')",
 ];
+
+// 357
+$this->schema[] = [
+    // taskLog joins the retention registry, and the setting that used to
+    // point at imagingLog is removed rather than left to mislead.
+    //
+    // ADR 0022 decision 3 retired imagingLog and moved its one unique fact
+    // (the image name) onto taskLog. The retention SETTING it had been given
+    // one step earlier, in 347, went nowhere: FOG_IMAGINGLOG_RETENTION_DAYS
+    // survived the DROP TABLE, is read by nothing, and -- because it is not
+    // in Retention::settingKeys() -- is not even hidden behind `audit.manage`
+    // the way the three real windows are. So it renders in Logging Settings
+    // for anyone holding `settings.edit`, invites a number, accepts it, and
+    // ages out nothing at all. A control that silently does nothing is worse
+    // than an absent one, because an administrator who sets it believes the
+    // question is answered.
+    //
+    // Meanwhile taskLog -- which is what imaging history IS now -- was aged
+    // out by nothing, and it grows faster than the table it replaced: one row
+    // per state transition rather than one per imaging run.
+    //
+    // THE OLD VALUE IS CARRIED ACROSS, NOT DISCARDED. An administrator who
+    // typed 184 into the imagingLog box was answering exactly this question
+    // about exactly this data, and the table underneath it changing name is
+    // not a reason to make them answer twice. Everyone else has the 0 that
+    // step 347 inserted, which stays 0 -- keep forever, ADR 0023 Decision 7,
+    // on upgrade and new install alike.
+    //
+    // INSERT ... SELECT with an aggregate rather than a closure: MAX() over
+    // an empty set yields one row of NULL, so the COALESCE supplies the '0'
+    // default when the old key is absent (a 1.5 upgrade that never saw step
+    // 347) without a second statement or a branch. INSERT IGNORE keeps it
+    // idempotent if the step is ever replayed.
+    //
+    // Columns named, per the note on step 346: a step that does not name them
+    // has broken the installer's grant probe twice.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "SELECT 'FOG_TASKLOG_RETENTION_DAYS', "
+    . "'How many days of task history to keep -- the per-task log rows behind "
+    . "the Task Management log view, the FOS failure reports, and the "
+    . "dashboard''s images-per-day graph. 0 keeps everything forever, which "
+    . "is the default. Note that this window also bounds how far back that "
+    . "graph can reach: a window shorter than the range you look at flattens "
+    . "the far end of it. Replaces the old imaging log window, whose table "
+    . "was retired; if you had set one, its value was carried over here. "
+    . "Shortening this window is recorded in the audit trail before it takes "
+    . "effect.', "
+    . "COALESCE(MAX(`settingValue`), '0'), 'Logging Settings' "
+    . "FROM `globalSettings` "
+    . "WHERE `settingKey` = 'FOG_IMAGINGLOG_RETENTION_DAYS'",
+    // Second, and only after the value above is safely copied. A row keyed on
+    // settingKey, so this cannot take anything else with it.
+    "DELETE FROM `globalSettings` "
+    . "WHERE `settingKey` = 'FOG_IMAGINGLOG_RETENTION_DAYS'",
+];
+
+// 358
+$this->schema[] = [
+    // FOGRetentionRunner: the sweep gets a daemon that says what it does.
+    //
+    // Retention shipped inside FOGPluginRunner (step 329's daemon), above the
+    // plugin-system gate but underneath PLUGINRUNNERGLOBALENABLED. That was
+    // defensible on cost -- it was the only non-root periodic daemon FOG had,
+    // and a ninth unit to run one DELETE an hour looked disproportionate --
+    // and wrong on the thing that actually matters, which is what an
+    // administrator reads.
+    //
+    // "FOGPluginRunner" says this daemon is for plugins. A site that installs
+    // none switches it off, in the UI or by disabling the unit, and nothing
+    // anywhere said that doing so also stopped the audit trail, the
+    // administrative history, the host login records and the task log from
+    // ever being pruned. Retention already HAS an off switch and it is per
+    // table -- 0 days, keep forever. A second one, unrelated and named after
+    // something else, is the kind of breakage that comes back as a bug report
+    // against a feature working exactly as written.
+    //
+    // Categories match the other eight services so the runner appears
+    // alongside them on the configuration page rather than in a section of
+    // its own.
+    //
+    // THE SLEEP TIME IS THE SWEEP INTERVAL. There is no second schedule held
+    // inside the loop the way the old RETENTION_INTERVAL was, so the setting,
+    // the log and `systemctl status` agree, and lowering it genuinely raises
+    // the catch-up rate -- one pass removes at most Retention::MAX_PER_PASS
+    // rows per table, so a first sweep on a long-neglected table finishes in
+    // proportionally fewer hours.
+    //
+    // RETENTIONGLOBALENABLED, not RETENTIONRUNNERGLOBALENABLED: the other
+    // three keys name the runner because they configure the process (its log,
+    // its tty, its cycle), and this one names the feature because that is what
+    // it turns off. An administrator hunting for "how do I stop FOG deleting
+    // my logs" is looking for the second word, not the first.
+    //
+    // Columns named, per the note on step 346: a step that does not name them
+    // has broken the installer's grant probe twice.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('RETENTIONGLOBALENABLED','This setting defines if retention should be "
+    . "enabled or not. When it is on, the retention runner deletes rows older "
+    . "than the windows set under Logging Settings -- and nothing else in FOG "
+    . "deletes them, so turning this off means those tables grow forever. Note "
+    . "that each window has its own off switch already: 0 days means keep "
+    . "everything forever for that table. (Default is enabled)',"
+    . "'1','FOG Linux Service Enabled'),"
+    . "('RETENTIONRUNNERSLEEPTIME','The amount of time between retention "
+    . "sweeps. This is the sweep interval itself, not a poll around one, so "
+    . "lowering it makes a backlog clear proportionally sooner -- a single "
+    . "pass removes at most 5000 rows from each table so that it never holds "
+    . "locks for long. Value is in seconds. (Default 3600)',"
+    . "'3600','FOG Linux Service Sleep Times'),"
+    . "('RETENTIONRUNNERLOGFILENAME','Filename to store the retention runner "
+    . "log file to. It is written to a retention/ subdirectory of the service "
+    . "log path, because this service runs as the web user rather than root. "
+    . "(Default fogretentionrunner.log)','fogretentionrunner.log',"
+    . "'FOG Linux Service Logs'),"
+    . "('RETENTIONRUNNERDEVICEOUTPUT','The tty to output to for the retention "
+    . "runner service. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output')",
+];
