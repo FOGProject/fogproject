@@ -787,6 +787,17 @@ class UserManagement extends FOGPage
     {
         $uid = (int)$this->obj->get('id');
 
+        // Gated on apitoken.*, NOT on the user.edit that got us to this
+        // page. Otherwise the central pane's permissions are decorative:
+        // anyone who could edit a user could delete their credentials from
+        // here regardless of holding apitoken.delete.
+        if (!Authorization::can('apitoken.view')) {
+            return;
+        }
+        $mayEdit = Authorization::can('apitoken.edit');
+        $mayCreate = Authorization::can('apitoken.create');
+        $mayDelete = Authorization::can('apitoken.delete');
+
         echo '<form class="form-horizontal" method="post" action="'
             . self::makeTabUpdateURL('user-api', $uid)
             . '" id="user-apitoken-form">';
@@ -826,7 +837,7 @@ class UserManagement extends FOGPage
             . '<th>' . _('Created') . '</th>'
             . '<th>' . _('Last Used') . '</th>'
             . '<th>' . _('Enabled') . '</th>'
-            . '<th>' . _('Delete') . '</th>'
+            . ($mayDelete ? '<th>' . _('Delete') . '</th>' : '')
             . '</tr></thead><tbody>';
         if (count($tokens) < 1) {
             echo '<tr><td colspan="5">' . _('No tokens issued.') . '</td></tr>';
@@ -846,9 +857,12 @@ class UserManagement extends FOGPage
             echo '<td><input type="checkbox" name="tokenenabled[]" value="'
                 . $tid . '"'
                 . ('1' === (string)$token->get('enabled') ? ' checked' : '')
+                . ($mayEdit ? '' : ' disabled')
                 . '/></td>';
-            echo '<td><input type="checkbox" name="tokendelete[]" value="'
-                . $tid . '"/></td>';
+            if ($mayDelete) {
+                echo '<td><input type="checkbox" name="tokendelete[]" '
+                    . 'value="' . $tid . '"/></td>';
+            }
             echo '</tr>';
             unset($token);
         }
@@ -875,21 +889,26 @@ class UserManagement extends FOGPage
         // button's own name.
         echo '<input type="hidden" name="tokenaction" value="manage"/>';
 
-        echo '<div class="input-group">';
-        echo '<input type="text" class="form-control" name="newtokenname" '
-            . 'id="newtokenname" placeholder="'
-            . _('Name for a new token') . '"/>';
-        echo '<button type="button" id="issuetoken" '
-            . 'class="btn btn-secondary">' . _('Issue Token') . '</button>';
-        echo '</div>';
+        if ($mayCreate) {
+            echo '<div class="input-group">';
+            echo '<input type="text" class="form-control" '
+                . 'name="newtokenname" id="newtokenname" placeholder="'
+                . _('Name for a new token') . '"/>';
+            echo '<button type="button" id="issuetoken" '
+                . 'class="btn btn-secondary">' . _('Issue Token')
+                . '</button>';
+            echo '</div>';
+        }
 
         echo '</div>';
         echo '<div class="card-footer">';
-        echo self::makeButton(
-            'apitoken-send',
-            _('Update'),
-            'btn btn-primary float-end'
-        );
+        if ($mayEdit || $mayDelete) {
+            echo self::makeButton(
+                'apitoken-send',
+                _('Update'),
+                'btn btn-primary float-end'
+            );
+        }
         echo '</div>';
         echo '</div>';
         echo '</form>';
@@ -940,6 +959,19 @@ class UserManagement extends FOGPage
         // as any other POST here. Ordinary role checks still apply: reaching
         // this page at all requires user.edit.
         self::checkAuthAndCSRF();
+        if (!Authorization::can('apitoken.create')) {
+            header('Content-type: application/json');
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(
+                    [
+                        'error' => _('You do not have permission to issue '
+                            . 'API tokens.'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
         // Not optional. Without it jQuery reads the body as text, hands
         // $.notifyFromAPI a STRING, and every res.<key> lookup is undefined
         // -- so the caller sees no token and no error, just a notification
@@ -994,6 +1026,16 @@ class UserManagement extends FOGPage
         if ('manage' !== (string)filter_input(INPUT_POST, 'tokenaction')) {
             return false;
         }
+        // Returns true either way: the request WAS this card's, so it must
+        // not fall through to the legacy card's handler even when the user
+        // may not act on it. Falling through would read the legacy card's
+        // absent fields as empty and wipe uAPIToken -- turning a permission
+        // denial into data loss on a different credential.
+        if (!Authorization::can('apitoken.view')) {
+            return true;
+        }
+        $mayEdit = Authorization::can('apitoken.edit');
+        $mayDelete = Authorization::can('apitoken.delete');
         $uid = (int)$this->obj->get('id');
         $keepEnabled = array_map(
             'intval',
@@ -1011,14 +1053,15 @@ class UserManagement extends FOGPage
             ->forUser($uid);
         foreach ((array)$tokens as &$token) {
             $tid = (int)$token->get('id');
-            if (in_array($tid, $toDelete, true)) {
-                $token->destroy();
+            if ($mayDelete && in_array($tid, $toDelete, true)) {
+                // revoke(), not destroy(): it writes the audit row first,
+                // while the owner and name can still be read off the row.
+                $token->revoke();
                 unset($token);
                 continue;
             }
-            $want = in_array($tid, $keepEnabled, true) ? '1' : '0';
-            if ($want !== (string)$token->get('enabled')) {
-                $token->set('enabled', $want)->save();
+            if ($mayEdit) {
+                $token->setEnabled(in_array($tid, $keepEnabled, true));
             }
             unset($token);
         }

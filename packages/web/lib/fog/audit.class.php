@@ -80,6 +80,20 @@ class Audit extends FOGBase
     const LOGIN_FAILED = 'auth.login.failed';
     const TOKEN_REJECTED = 'auth.token.rejected';
     const API_DENIED = 'auth.api.denied';
+    /*
+     * API token lifecycle (ADR 0027). Recorded because the credential
+     * itself cannot be: the table holds only a hash, so once a token is
+     * gone there is no artefact left to reason about. These rows are the
+     * only record that it ever existed, who minted it and who took it away.
+     *
+     * TOKEN_ISSUED carries the OWNER as its subject and the issuer as
+     * createdBy, so "an admin minted a credential for somebody else" is
+     * never ambiguous after the fact.
+     */
+    const TOKEN_ISSUED = 'apitoken.issued';
+    const TOKEN_ENABLED = 'apitoken.enabled';
+    const TOKEN_DISABLED = 'apitoken.disabled';
+    const TOKEN_DELETED = 'apitoken.deleted';
     /**
      * How much of a failure reason markOutcome() stores.
      */
