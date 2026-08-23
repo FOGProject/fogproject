@@ -4084,6 +4084,9 @@ msgstr "只分配打印机"
 msgid "Only allowed to have"
 msgstr "您只能拥有"
 
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
+
 msgid "Open Source Computer Cloning Solution"
 msgstr "开源计算机克隆解决方案"
 

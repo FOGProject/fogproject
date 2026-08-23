@@ -4622,6 +4622,9 @@ msgstr "Only Assigned Printers"
 msgid "Only allowed to have"
 msgstr "You are only allowed to assign"
 
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
+
 msgid "Open Source Computer Cloning Solution"
 msgstr "Open Source Computer Cloning Solution"
 

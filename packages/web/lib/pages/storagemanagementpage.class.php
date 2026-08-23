@@ -883,6 +883,13 @@ class StorageManagementPage extends FOGPage
             '<label for="apikey">'
             . _('Node API Signing Key')
             . '</label>' => '<div class="input-group">'
+            . '<i class="input-group-addon icon fa fa-question hand" title="'
+            . _(
+                'Only for a peer running its own FOG database. On that '
+                . 'peer run bin/fog-node-key.php --set with this same '
+                . 'value, or it cannot verify requests this server signs.'
+            )
+            . '" data-toggle="tooltip" data-placement="left"></i>'
             . '<input type="text" name="apikey" id="apikey" value="'
             . Initiator::e($apikey)
             . '" autocomplete="off" class="form-control" '
