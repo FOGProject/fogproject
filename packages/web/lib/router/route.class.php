@@ -692,13 +692,21 @@ class Route extends FOGBase
             && !$isunauth
         ) {
             /**
-             * Test our token.
+             * A Bearer token authenticates on its own -- see _testBearer for
+             * why it does not additionally need the server-wide token. The
+             * legacy schemes apply only when no Bearer credential is offered,
+             * so every existing client is unaffected.
              */
-            self::_testToken();
-            /**
-             * Test our authentication.
-             */
-            self::_testAuth();
+            if (!self::_testBearer()) {
+                /**
+                 * Test our token.
+                 */
+                self::_testToken();
+                /**
+                 * Test our authentication.
+                 */
+                self::_testAuth();
+            }
         }
         /**
          * A valid session cookie authenticates API calls with no token,
@@ -1533,6 +1541,123 @@ class Route extends FOGBase
         return ['', ''];
     }
     /**
+     * Reads an RFC 6750 Bearer credential from the Authorization header.
+     *
+     * The value is the same per-user API token the fog-user-token header
+     * carries, sent the standard way and with the same base64 encoding the
+     * API tab displays. Deliberately not raw: a 128-character hex token is
+     * ITSELF valid base64 (a-f and 0-9 are all in the alphabet), so a strict
+     * decode of one succeeds and cannot be told apart from an encoded token.
+     * Accepting both spellings would therefore mean two lookups per request
+     * to resolve an ambiguity we do not have to create. Send exactly what
+     * the UI shows.
+     *
+     * REDIRECT_HTTP_AUTHORIZATION is read for the reason _basicAuthCredentials
+     * explains -- under FastCGI the Authorization header does not arrive on
+     * its own, and Apache prefixes REDIRECT_ onto what survives the vhost's
+     * internal rewrite. That plumbing is why Bearer needs no new webserver
+     * config: it rides the header basic auth already had to recover by hand.
+     *
+     * @return string|null The decoded token, or null when no Bearer
+     *                     credential was presented at all. An empty string
+     *                     means one was presented and was malformed, which
+     *                     is a failed attempt rather than an absent one.
+     */
+    private static function _bearerCredential()
+    {
+        $keys = [
+            'HTTP_AUTHORIZATION',
+            'REDIRECT_HTTP_AUTHORIZATION'
+        ];
+        foreach ($keys as $key) {
+            $header = trim(self::_serverVar($key));
+            if (stripos($header, 'bearer') !== 0) {
+                continue;
+            }
+            $rest = substr($header, 6);
+            // The scheme must be followed by whitespace or by nothing at all.
+            // 'Bearertoken' is not a Bearer credential and must fall through
+            // to the other schemes; a bare 'Bearer' with no value IS one --
+            // it is what a client that built the header from an unset config
+            // value sends, and answering 401 tells them that, where falling
+            // through answers 403 about a server token they never heard of.
+            if ('' !== $rest && !preg_match('/^\s/', $rest)) {
+                continue;
+            }
+            $rest = trim($rest);
+            if ('' === $rest) {
+                return '';
+            }
+            // strict base64 decode: a malformed header is not a credential,
+            // but it IS an attempt -- return '' rather than null so the
+            // caller refuses it instead of falling through to another scheme.
+            $decoded = base64_decode($rest, true);
+            if ($decoded === false) {
+                return '';
+            }
+            return trim($decoded);
+        }
+        return null;
+    }
+    /**
+     * Test Bearer authentication.
+     *
+     * A per-user API token is a 512-bit random secret (FOGBase::createSecToken)
+     * and stands on its own, so a Bearer request does NOT additionally need
+     * the server-wide fog-api-token. HTTP basic auth still does: its
+     * credential is a human-chosen password, and that server-wide gate is
+     * the only thing keeping every FOG password from being a standalone API
+     * credential. The asymmetry is deliberate, and it is also forced -- one
+     * Authorization header carries one credential, so the legacy two-header
+     * pair has no Bearer spelling.
+     *
+     * Once a Bearer credential is PRESENTED it decides the request. Falling
+     * through to the other schemes would let a bad Bearer plus good legacy
+     * headers still authenticate, which no real client does and which makes
+     * a failure impossible to reason about from the status code.
+     *
+     * Nothing has to migrate: fog-api-token plus fog-user-token, and basic
+     * auth, are unchanged.
+     *
+     * @return bool Whether the request authenticated. False means no Bearer
+     *              credential was offered -- a presented one that failed
+     *              does not return at all.
+     */
+    private static function _testBearer()
+    {
+        $token = self::_bearerCredential();
+        if (null === $token) {
+            return false;
+        }
+        $user = self::getClass('User')
+            ->set('token', $token)
+            ->load('token');
+        if ($user->isValid() && $user->get('api')) {
+            // Bind the token's owner as the acting user so role-based
+            // authorization applies, exactly as the fog-user-token path does.
+            self::$FOGUser = $user;
+            return true;
+        }
+        // Presented and refused. Recorded for the same reason the
+        // fog-user-token rejection is, and the presented token is NOT
+        // written down -- a rejected credential is still a credential,
+        // which is the mistake #1261/#1262 fixed in the SQL fault log.
+        Audit::record(
+            [
+                'type' => Audit::TOKEN_REJECTED,
+                'outcome' => Audit::DENIED,
+                'subjectType' => 'user',
+                'subjectID' => (int)$user->get('id'),
+                'subjectLabel' => (string)$user->get('name'),
+                'authSource' => 'bearer',
+                'renderable' => 1
+            ]
+        );
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_UNAUTHORIZED
+        );
+    }
+    /**
      * Test authentication.
      *
      * @return void
@@ -1767,8 +1892,8 @@ class Route extends FOGBase
      * "Export Database" button (management/export.php?type=sql), which
      * requires a logged-in session and CSRF token and so cannot be used
      * by scripts. This endpoint relies only on the standard API auth
-     * already enforced in the constructor (fog-api-token plus an
-     * api-enabled fog-user-token, or HTTP basic auth) and reuses
+     * already enforced in the constructor (a Bearer token, or fog-api-token
+     * plus an api-enabled fog-user-token, or HTTP basic auth) and reuses
      * Schema::exportdb() so the dump matches the web UI byte-for-byte.
      *
      * The dump is streamed as an attachment; we exit afterward to keep
