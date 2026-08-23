@@ -2043,7 +2043,8 @@ class Route extends FOGBase
             self::_applySiteScope($classname);
             self::_applySettingValueScope(
                 $classname,
-                isset($pass_vars) ? $pass_vars : []
+                isset($pass_vars) ? $pass_vars : [],
+                is_array($whereItems) ? $whereItems : []
             );
             self::$data['_lang'] = $classname;
             if (self::$getterDepth === 0
@@ -5565,6 +5566,38 @@ class Route extends FOGBase
             }
 
             $whereItems = self::handleWhereItems($whereItems, $class);
+            // The value oracle again -- see names(). Refused here rather
+            // than dropped per row, because this route projects $getField
+            // and nothing else: on the default /setting/ids the setting NAME
+            // is not in the result at all, so there is no row to ask
+            // isSensitiveSetting() about. Refusing costs a caller nothing --
+            // /setting?filter=value=<x> still answers, with the credential
+            // rows removed.
+            //
+            // SAPI-gated exactly like the sensitive-getField refusal below:
+            // sendResponse() exits, and a daemon that exits is a restart
+            // loop. Off-request this returns no rows and logs, fail-closed.
+            if ('setting' === $classname
+                && is_array($whereItems)
+                && array_key_exists('value', $whereItems)
+            ) {
+                if ('cli' === PHP_SAPI) {
+                    self::error(
+                        'Route::ids: refusing a setting filter on value.'
+                        . ' Returning no rows.'
+                    );
+                    self::$data = [];
+                    return;
+                }
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        [
+                            'error' => _('Cannot filter setting ids on: value')
+                        ]
+                    )
+                );
+            }
             if (false !== $whereItems && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
@@ -6663,11 +6696,28 @@ class Route extends FOGBase
      *
      * @return void
      */
-    private static function _applySettingValueScope($classname, $vars)
-    {
+    private static function _applySettingValueScope(
+        $classname,
+        $vars,
+        $whereItems = []
+    ) {
         if ('setting' !== strtolower((string)$classname)) {
             return;
         }
+        // ?filter=value=<guess> is the same oracle asked as an equality
+        // rather than a substring, and it arrives by a different door:
+        // handleWhereItems(), not the DataTables search box. It is not
+        // refused per FIELD -- unfilterableFields() deliberately leaves
+        // settings out so ?filter=value=/images keeps working -- so it is
+        // answered per ROW here, like everything else in this function.
+        //
+        // Stricter than the search arm, and deliberately so. A search term
+        // is ORed across the columns, so a sensitive row that matched on
+        // its NAME is kept. Filter terms are ANDed, so `value=x&name=y`
+        // matching on name does not make the value any less load bearing --
+        // the row's presence still confirms the guess. Once a request
+        // filters on value at all, every sensitive row goes.
+        $valueFiltered = array_key_exists('value', (array)$whereItems);
         $terms = [];
         if ('' !== trim((string)($vars['search']['value'] ?? ''))) {
             $terms[] = (string)$vars['search']['value'];
@@ -6677,7 +6727,7 @@ class Route extends FOGBase
                 $terms[] = (string)$col['search']['value'];
             }
         }
-        if (!count($terms)) {
+        if (!count($terms) && !$valueFiltered) {
             return;
         }
         $payload = self::$data;
@@ -6689,6 +6739,9 @@ class Route extends FOGBase
             $arr = (array)$row;
             if (!self::isSensitiveSetting((string)($arr['name'] ?? ''))) {
                 $kept[] = $row;
+                continue;
+            }
+            if ($valueFiltered) {
                 continue;
             }
             // Every field EXCEPT the value, rather than a list of the four
@@ -6992,10 +7045,28 @@ class Route extends FOGBase
                 )
             );
             $vals = self::$DB->query($sqlResult['sql'], [], $sqlResult['params'])->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+            // Same value oracle listem() answers per row, and worse here:
+            // this route returns only id and name, so there is no value for
+            // maskSensitiveSetting() to strip and the row's mere presence IS
+            // the whole answer. `?filter=value=<guess>` against a credential
+            // key would confirm the guess outright.
+            //
+            // Dropped rather than refused because the name is right here in
+            // the projection, so the real predicate can be asked. Only when
+            // the request filtered on value at all -- a plain /setting/names
+            // must still list every key.
+            $dropSensitive = 'setting' === $classname
+                && is_array($whereItems)
+                && array_key_exists('value', $whereItems);
             foreach ($vals as &$val) {
+                $name = $val[$classVars['databaseFields']['name']];
+                if ($dropSensitive && self::isSensitiveSetting((string)$name)) {
+                    unset($val);
+                    continue;
+                }
                 $data[] = [
                     'id' => $val[$classVars['databaseFields']['id']],
-                    'name' => $val[$classVars['databaseFields']['name']]
+                    'name' => $name
                 ];
                 unset($val);
             }

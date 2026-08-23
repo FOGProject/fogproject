@@ -112,8 +112,14 @@ if (false === $scopeStart) {
 
     // No search term at all must be a no-op: a plain listing has to keep
     // returning every setting, values masked, as it always has.
+    //
+    // Matched loosely on purpose. The guard has since grown a second arm
+    // for ?filter=value= (see setting-value-filter-oracle.test.php), which
+    // is a NEW reason to act, not a lost reason to bail -- pinning the
+    // condition as one literal line failed on the extra clause while the
+    // property it guards was intact.
     $checks++;
-    if (false === strpos($scope, 'if (!count($terms)) {')) {
+    if (!preg_match('/if \(!count\(\$terms\)[^)]*\) \{/', $scope)) {
         $failures[] = '_applySettingValueScope() lost its early return for a '
             . 'request with no search terms, so a plain settings list would '
             . 'start hiding credential rows entirely';

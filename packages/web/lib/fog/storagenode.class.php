@@ -357,8 +357,14 @@ class StorageNode extends FOGController
     {
         $response = $this->_getData('images');
         $values = array_map('basename', (array)$response);
+        // 'image', not 'storagenode'. These are image DIRECTORY basenames
+        // read off the node; a storagenode's own `path` is the share root
+        // (/images) on every node FOG has ever installed, so the lookup
+        // could never match and this field was always []. dev-branch still
+        // carries the original getSubObjectIDs('Image', ...) -- the class
+        // name was lost when this call moved to Route::getIds().
         $values = Route::getIds(
-            'storagenode',
+            'image',
             ['path' => $values]
         );
         $this->set('images', $values);
