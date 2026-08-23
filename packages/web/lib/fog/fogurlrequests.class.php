@@ -649,6 +649,44 @@ class FOGURLRequests extends FOGBase
             $options[CURLOPT_NOSIGNAL] = true;
         }
         /*
+         * Prove to FOG's own hosts that this request came from FOG.
+         *
+         * The cookie above only works when a browser session exists to
+         * forward. Every CLI daemon and every token-authenticated API call
+         * has none, so StorageNode::_getData() went out unauthenticated,
+         * getfiles.php answered 401, and the loader turned that into an
+         * empty file list -- wrong data rather than an error. This is the
+         * credential those callers can actually hold: a shared secret in
+         * globalSettings, which master and node both read (GH-1312).
+         *
+         * Signed for every FOG host, not only the session-less case, so the
+         * browser path exercises the same code. A signature that stops
+         * verifying then shows up in the UI immediately instead of only in a
+         * daemon nobody is watching.
+         *
+         * Bound to the method actually about to be sent. $available turns the
+         * request into a HEAD via CURLOPT_NOBODY, which is why this sits
+         * after that block rather than beside the cookie it belongs with.
+         */
+        if ($isFogHost) {
+            if (!empty($options[CURLOPT_CUSTOMREQUEST])) {
+                $method = (string)$options[CURLOPT_CUSTOMREQUEST];
+            } elseif (!empty($options[CURLOPT_NOBODY])) {
+                $method = 'HEAD';
+            } elseif (!empty($options[CURLOPT_POST])) {
+                $method = 'POST';
+            } else {
+                $method = 'GET';
+            }
+            $signature = self::nodeSignatureHeaders($url, $method);
+            if (count($signature) > 0) {
+                $options[CURLOPT_HTTPHEADER] = array_merge(
+                    (array)($options[CURLOPT_HTTPHEADER] ?? []),
+                    $signature
+                );
+            }
+        }
+        /*
          * The TLS exemption for FOG's own nodes. Applied here rather than in
          * the defaults so it is decided by the URL: a caller cannot acquire
          * it by not thinking about it, which is how every request this class
