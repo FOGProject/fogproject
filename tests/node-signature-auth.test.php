@@ -376,6 +376,45 @@ if (NodeSigProbe::validNodeSignature()) {
 
 NodeSigFakeDb::$nodes = [];
 
+/*
+ * A peer must have SOME way to be given the key.
+ *
+ * FOG_NODE_API_KEY is hidden from the FOG Configuration page on purpose --
+ * printing a shared secret into a form field on every page load is not
+ * worth it for a value that generates itself -- and setSetting() is an
+ * UPDATE that does nothing when the row is absent, which is exactly the
+ * state a pure receiver is in: it never signs, so nodeApiKey() has never
+ * run there. Without bin/fog-node-key.php the per-peer key can be set on
+ * the master and nowhere else, which makes the whole feature inoperable in
+ * the one topology it exists for.
+ */
+if (!is_readable('bin/fog-node-key.php')) {
+    $fails[] = 'bin/fog-node-key.php is gone; a peer FOG server would have'
+        . ' no way to be given its FOG_NODE_API_KEY';
+} else {
+    $cli = (string)file_get_contents('bin/fog-node-key.php');
+    // An upsert, not an UPDATE. The row is normally absent on the machine
+    // that needs this run, and an UPDATE there is a silent no-op.
+    if (false === strpos($cli, 'ON DUPLICATE KEY UPDATE')) {
+        $fails[] = 'bin/fog-node-key.php no longer upserts; on a peer the'
+            . ' row does not exist yet and an UPDATE would do nothing';
+    }
+    // It must read back what it wrote: a silent no-op here looks exactly
+    // like success and then fails later as an unexplained 401 on the node.
+    if (false === strpos($cli, 'The key did not land')) {
+        $fails[] = 'bin/fog-node-key.php no longer verifies its own write';
+    }
+}
+
+// ...and the UI has to say where to run it, or the value is a dead end.
+$nodePage = (string)file_get_contents(
+    'packages/web/lib/pages/storagenodemanagement.page.php'
+);
+if (false === strpos($nodePage, 'fog-node-key.php')) {
+    $fails[] = 'the storage node page no longer tells the administrator how'
+        . ' to set the matching key on the peer';
+}
+
 // A different installation's key.
 NodeSigProbe::$key = str_repeat('b2', 32);
 nodeSigPresent('GET', $uri, $headers);

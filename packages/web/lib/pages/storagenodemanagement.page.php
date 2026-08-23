@@ -1035,9 +1035,9 @@ class StorageNodeManagement extends FOGPage
             )
             . '<div class="form-text">'
             . _(
-                'Only for a peer running its own FOG database. Set that '
-                . 'peer FOG_NODE_API_KEY global setting to the same value, '
-                . 'or it cannot verify requests this server signs.'
+                'Only for a peer running its own FOG database. On that '
+                . 'peer run bin/fog-node-key.php --set with this same '
+                . 'value, or it cannot verify requests this server signs.'
             )
             . '</div>',
         ];
