@@ -5,11 +5,18 @@
  * GENERATED FILE -- do not hand-edit the `tables` block. Regenerate
  * with:  php bin/schema-manifest.php generate <fog-web-root>
  *
- * The `renames` block IS maintained by hand and is preserved across
- * regeneration. A manifest describes an END state, so a renamed
- * column is indistinguishable from a new one; without an entry here
+ * The `renames` and `retired` blocks ARE maintained by hand and are
+ * preserved across regeneration.
+ *
+ * `renames`: a manifest describes an END state, so a renamed column
+ * is indistinguishable from a new one; without an entry here
  * SchemaReconciler would add the target column empty and strand the
  * data in the old one.
+ *
+ * `retired`: a table 1.6 dropped deliberately, so that the 1.5
+ * comparison in .githooks/pre-commit reports it as accounted for
+ * rather than as a port somebody forgot. Read by that check only --
+ * SchemaReconciler never touches it.
  *
  * Consumed by SchemaReconciler::reconcile().
  *
@@ -17,7 +24,7 @@
  *
  * @category SchemaExpected
  * @package  FOGProject
- * @author   Tom Elliott <tommygunsster\@gmail.com>
+ * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
@@ -58,6 +65,13 @@ return [
             'from' => 'msAnon4',
             'to' => 'msMaxwait',
             'type' => 'INT(11) NOT NULL',
+        ],
+    ],
+    'retired' => [
+        [
+            'table' => 'imagingLog',
+            'reason' => 'ADR 0022 decision 3 -- taskLog records an imaging'
+                . ' run now, so the table was retired rather than ported',
         ],
     ],
     'tables' => [
