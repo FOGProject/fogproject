@@ -4,6 +4,12 @@
 > (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps
 > use checkbox (`- [ ]`) syntax for tracking.
 
+> **Status: implemented.** Commits `68aeee9f5` (this plan), `1a213a3bd` (the
+> rename), `fe9ad235c` (docs + ADR 0024) on
+> `claude/fogsettings-key-rename-dgdp8i`. Test suite 101 -> 103, all passing.
+> Every task below is done; the **Deviations** section at the end records where
+> the finished work differs from what this plan said, and why.
+
 **Design record:** [issue #1120](https://github.com/FOGProject/fogproject/issues/1120) —
 the model is settled across the last four comments; [comment
 5382375472](https://github.com/FOGProject/fogproject/issues/1120#issuecomment-5382375472)
@@ -167,12 +173,12 @@ firewall behaviour (external TFTP server ⇒ 69/udp stays closed, `functions.sh:
 
 Files: `lib/common/functions.sh` (`writeUpdateFile()`, :5503-5758)
 
-- [ ] Rewrite `managedKeys` as the 66 new names grouped in category order
+- [x] Rewrite `managedKeys` as the 66 new names grouped in category order
       (`FOG_ NET_ DHCP_ DB_ WEB_ PKI_ BOOT_ STORAGE_ SVC_`), preserving every existing
       explanatory comment against its renamed key — those comments are the record of why
       each key is a preference or a record and must not be lost in the move.
-- [ ] Add `FOG_program_dir="$fogprogramdir"` near the top of the function (see constraints).
-- [ ] Emit `## Derived — do not edit` in the **fresh-write** path immediately before the
+- [x] Add `FOG_program_dir="$fogprogramdir"` near the top of the function (see constraints).
+- [x] Emit `## Derived — do not edit` in the **fresh-write** path immediately before the
       record-only block, and a matching blank-line-separated `## <Category>` comment per block.
 
 **The trap that makes this more than a list edit.** The in-place `awk` merge rewrites each
@@ -181,7 +187,7 @@ the migration run **every** old key is deprecated and **every** new key is absen
 merge degenerates: it strips all 79 lines and appends 66 at the end, orphaning the comment
 structure and putting the derived block nowhere near its marker. So:
 
-- [ ] Add a one-time full-rewrite branch: when the file is recognizable **but contains no
+- [x] Add a one-time full-rewrite branch: when the file is recognizable **but contains no
       new-scheme key**, rewrite it canonically *while carrying every unrecognised line
       through* into a trailing hand-set section. Unrecognised lines must survive —
       `docs/FOGSETTINGS.md` records that hand-set keys (`inetConnectTimeout`,
@@ -197,9 +203,9 @@ that file is: `:809` sources `.fogsettings` → `:822-828` upgrade-only shadows 
 seed block** → `:864-870` `_applyInstallMode` → `:872-919` main shadow block. The new block
 goes in the same slot, after the existing seed, before `_applyInstallMode`.
 
-- [ ] One `[[ -z ${NEW} ]] && NEW="${old}"` per pair, in one clearly marked section,
+- [x] One `[[ -z ${NEW} ]] && NEW="${old}"` per pair, in one clearly marked section,
       guarded on the new key so it fires exactly once.
-- [ ] Merge pairs need an explicit source, chosen for a reason, not alphabetically:
+- [x] Merge pairs need an explicit source, chosen for a reason, not alphabetically:
       - `DHCP_enabled` ← `bldhcp` (every decision reads it: `functions.sh:1530`, `:2878`,
         `:3634`, `:3651`, `:12056`, `installfog.sh:1049`; `dodhcp` is read only by the
         prompt loop that writes it). Keeps `bldhcp`'s `1`/`0` encoding.
@@ -213,10 +219,10 @@ goes in the same slot, after the existing seed, before `_applyInstallMode`.
         import paths: `validateExternalCA()` already imports the bytes into the canonical
         location, so the canonical slot is the right value and `extcacert`/`webExtCACert`
         remain pure run-scoped inputs behind the unchanged flags.
-- [ ] Convert the `:822-828` upgrade-only shadow block to the new key names. Safe before
+- [x] Convert the `:822-828` upgrade-only shadow block to the new key names. Safe before
       the seed, because the seed is guarded on the new name — a flag that already set it
       correctly wins over the persisted value.
-- [ ] Rename every shadow at `:233-649` (assignment) and `:746`, `:822-828`, `:873-919`,
+- [x] Rename every shadow at `:233-649` (assignment) and `:746`, `:822-828`, `:873-919`,
       `:993` (application). Note `sfogprogramdir` (:746, before `config.sh`) and
       `smysqldbname` (:993) are applied **outside** the main block — both must move with it.
 
@@ -224,13 +230,13 @@ goes in the same slot, after the existing seed, before `_applyInstallMode`.
 
 Files: `lib/common/functions.sh:5656`
 
-- [ ] Extend the array to all 79 old spellings plus the 7 already there
+- [x] Extend the array to all 79 old spellings plus the 7 already there
       (`storageftpuser storageftppass bootfilename notpxedefaultfile php_verAdds pkiMode
       fogClientCACN`) = 86 entries, grouped and commented by category.
-- [ ] Comment that `deprecatedKeys` **only strips and carries no value** — Task 2 is what
+- [x] Comment that `deprecatedKeys` **only strips and carries no value** — Task 2 is what
       carries it, and cannot be skipped. This is the single most important comment in the
       change: dropping Task 2 while keeping Task 3 silently wipes every setting on upgrade.
-- [ ] Case-sensitivity is doing real work here: `fog_git_path`/`FOG_git_path` and
+- [x] Case-sensitivity is doing real work here: `fog_git_path`/`FOG_git_path` and
       `fog_update_channel`/`FOG_update_channel` are distinct keys to both `awk` and the
       shell. Intended, but worth the comment.
 
@@ -261,46 +267,46 @@ Use `(?<![A-Za-z0-9_])name(?![A-Za-z0-9_])` boundaries, never bare substring.
 generated vhost content. Grep for every old spelling inside test *string literals*, not
 just as variables.
 
-- [ ] `lib/common/functions.sh` (1984 refs) — the bulk.
-- [ ] `bin/installfog.sh` (263), `bin/updatefog.sh` (35), `bin/restorekernel.sh` (21).
-- [ ] `lib/common/`: `input.sh` (87), `uninstall.sh` (62), `newinput.sh` (51),
+- [x] `lib/common/functions.sh` (1984 refs) — the bulk.
+- [x] `bin/installfog.sh` (263), `bin/updatefog.sh` (35), `bin/restorekernel.sh` (21).
+- [x] `lib/common/`: `input.sh` (87), `uninstall.sh` (62), `newinput.sh` (51),
       `config.sh` (36), `utils.sh` (28).
-- [ ] `lib/{alpine,arch,ubuntu,redhat}/config.sh` (42/30/30/28) — mostly `$packages`.
-- [ ] `tests/` — 20+ files; heaviest are `localboot-publish` (88),
+- [x] `lib/{alpine,arch,ubuntu,redhat}/config.sh` (42/30/30/28) — mostly `$packages`.
+- [x] `tests/` — 20+ files; heaviest are `localboot-publish` (88),
       `install-settings-resolution` (82), `pki-idempotence` (61),
       `client-repin-warning` (43), `netboot-host` (43).
-- [ ] Comments and prose in the swept files: renaming the code and leaving comments naming
+- [x] Comments and prose in the swept files: renaming the code and leaving comments naming
       `httpproto` makes the file lie. The 1005 bare-word hits are mostly this.
 
 ### Task 5 — the two value decisions the merges force
 
-- [ ] `DHCP_router` / `DHCP_dns_server_ip` hold a **clean value or empty**; the
+- [x] `DHCP_router` / `DHCP_dns_server_ip` hold a **clean value or empty**; the
       `"#   No router address added"` / `"#   No dns added"` comment strings move into the
       config writers (`functions.sh:11937` Kea, `:12136` ISC, and the `validip` gates at
       `:11965`, `:12039`, `:12091`, `:12140`). `plainrouter` existed only to hold the clean
       value for display (`installfog.sh:1052`); with one key there is nothing to hold.
-- [ ] `DHCP_enabled` carries `bldhcp`'s `1`/`0`. `input.sh:157-174` currently sets both
+- [x] `DHCP_enabled` carries `bldhcp`'s `1`/`0`. `input.sh:157-174` currently sets both
       keys from one prompt; it now sets one.
 
 ### Task 6 — the six retirements
 
-- [ ] **`catrust`** → always anchor FOG's CA in the host trust store. Remove the
+- [x] **`catrust`** → always anchor FOG's CA in the host trust store. Remove the
       `--no-ca-trust` flag (`installfog.sh:570`, `:900`), the `config.sh:81` default, and
       the gate at `functions.sh:5060`.
-- [ ] **`caCreated`** → both uses already pair it with an existence check on the very file
+- [x] **`caCreated`** → both uses already pair it with an existence check on the very file
       it stands in for; drop to the `-e`/`-f` test alone (`:5873`, `:6232`), and to a
       file test at `newinput.sh:49`. Delete the assignment at `:8690`. The explanatory
       comment at `:6387-6388` stays, rewritten.
-- [ ] **`sbNameConstraints`** → delete `_sbNameConstraints()` (`:6172`); its call site
+- [x] **`sbNameConstraints`** → delete `_sbNameConstraints()` (`:6172`); its call site
       (`:9522`) drops to `extendedKeyUsage = codeSigning` alone. Keep the comment,
       rewritten to record why the Secure Boot zone carries none — firmware is a verifier
       FOG cannot patch, unlike iPXE (ADR 0016). Existing `.fogSBCA.pem` files are never
       re-minted (`:9385` gates on `[[ ! -f ]]`), so nothing needs migrating.
-- [ ] **`externalca`** → becomes prompt-scoped, never persisted. It is already derived at
+- [x] **`externalca`** → becomes prompt-scoped, never persisted. It is already derived at
       `installfog.sh:924`; keep it as a local driving `newinput.sh:120-145` prompt flow.
-- [ ] **`sslcsr`** → use the canonical `$PKI_client_cert_dir/fog.csr` already linked at
+- [x] **`sslcsr`** → use the canonical `$PKI_client_cert_dir/fog.csr` already linked at
       `:7806`. Touches `:6783`, `:7699`, `:7701`, `:7734`.
-- [ ] **`acmeLeaf`** → the inversion, and the largest piece here. Replace the persisted
+- [x] **`acmeLeaf`** → the inversion, and the largest piece here. Replace the persisted
       key with a derived test: `PKI_web_vhost_cert` resolving **outside** `_pkiZoneDir()`
       (`:6000`) means the leaf is externally managed. `_detectExternalCertManagement()`
       (`:7470`) stops recording `acmeLeaf=yes`+`webCertFile`/`webKeyFile` and instead
@@ -316,35 +322,35 @@ just as variables.
 
 ### Task 7 — promote the client-encryption pair
 
-- [ ] `commLeafPem`/`commLeafKey` (`functions.sh:6699-6700`) become managed keys
+- [x] `commLeafPem`/`commLeafKey` (`functions.sh:6699-6700`) become managed keys
       `PKI_client_encrypt_cert`/`_key`. The client zone is currently the only one an
       admin cannot point elsewhere, and it holds the one certificate every registered
       client pins.
-- [ ] The **canonical filenames are not free**: `fogbase.class.php:2402` builds
+- [x] The **canonical filenames are not free**: `fogbase.class.php:2402` builds
       `/.srvprivate.key` with the name hardcoded, taking the directory from the
       storage-node record. These keys name a canonical path whose *target* may move; the
       canonical name must not. `_separateCommKey()` (`:6892`) already handles the symlink
       case for the key, and `_warnClientRepin()` (`:6839`) already exists — no new
       warning machinery needed.
-- [ ] The web-served copy (`management/other/ssl/srvpublic.crt`, `:7705`) stays derived.
+- [x] The web-served copy (`management/other/ssl/srvpublic.crt`, `:7705`) stays derived.
 
 ### Task 8 — `.fogsettings.pub` and `/api/whoami`
 
-- [ ] `writeUpdateFile()`'s pub loop (`functions.sh:~5750`) emits the new spellings:
+- [x] `writeUpdateFile()`'s pub loop (`functions.sh:~5750`) emits the new spellings:
       `NET_fog_server_ip`, `NET_hostname`, `FOG_os_id`, `FOG_os_name`, `FOG_install_type`.
-- [ ] `Route::WHOAMI_KEYS` (`packages/web/lib/router/route.class.php:6884`) and the loop
+- [x] `Route::WHOAMI_KEYS` (`packages/web/lib/router/route.class.php:6884`) and the loop
       that consumes it (`:6936`), plus the `.fogsettings` fallback parse, move to the same
       names. `docs/FOGSETTINGS.md` records that the array and the pub-file loop have no
       test binding them — add one (Task 9).
-- [ ] Tighten `/whoami`'s OpenAPI schema (`openapi.class.php:1623`) to name the five
+- [x] Tighten `/whoami`'s OpenAPI schema (`openapi.class.php:1623`) to name the five
       fields. Per `CLAUDE.md:194-224` a route change without an `openapi.class.php` change
       needs justifying in the message; here it needs the edit instead.
-- [ ] Note in the PR body: this is a **breaking** API change, and `darksidemilk/FogApi`
+- [x] Note in the PR body: this is a **breaking** API change, and `darksidemilk/FogApi`
       consumes `/whoami`.
 
 ### Task 9 — verification tests, then the docs this change overrides
 
-- [ ] Extend `tests/install-settings-resolution.test.sh`. It already parses the real array
+- [x] Extend `tests/install-settings-resolution.test.sh`. It already parses the real array
       (`:186`) and replays the migration block inline (`:50-60`) — both patterns extend
       directly:
       - all 66 new names are in `managedKeys`;
@@ -353,20 +359,20 @@ just as variables.
         does not overwrite a value the admin since changed (the one-shot property);
       - update the `caCreated`/`externalca` assertions at `:151-153`, which reference
         retired keys.
-- [ ] New `tests/fogsettings-key-model.test.sh`: greps `bin/ lib/` for every old spelling
+- [x] New `tests/fogsettings-key-model.test.sh`: greps `bin/ lib/` for every old spelling
       and fails on any hit outside the seed block and `deprecatedKeys`. This is the
       "nothing survives" check, mechanised.
-- [ ] New `tests/whoami-keys-in-step.test.php`: binds `Route::WHOAMI_KEYS` to the pub-file
+- [x] New `tests/whoami-keys-in-step.test.php`: binds `Route::WHOAMI_KEYS` to the pub-file
       loop — the gap `docs/FOGSETTINGS.md` names explicitly.
-- [ ] Rewrite `docs/FOGSETTINGS.md`: the four kinds' examples, the `writeUpdateFile()`
+- [x] Rewrite `docs/FOGSETTINGS.md`: the four kinds' examples, the `writeUpdateFile()`
       section (both paths plus the new one-time rewrite branch), the `.fogsettings.pub`
       table, the reader table, and the `s`-prefix section.
-- [ ] New ADR `docs/adr/0024-fogsettings-unified-key-model.md`: the ten categories, the
+- [x] New ADR `docs/adr/0024-fogsettings-unified-key-model.md`: the ten categories, the
       tie-break rule (*the category is the subsystem that owns the value, not every
       subsystem that reads it*), why `WEB_`/`BOOT_` stay separate namespaces, why the
       migration needs both halves, and what was deliberately deferred (R6 boolean
       encodings, #1279, `FOG_os_id`'s retirement, `fog.conf`'s variable name).
-- [ ] Amend ADR 0015's key table to the new spellings, and correct key names in
+- [x] Amend ADR 0015's key table to the new spellings, and correct key names in
       `docs/PKI_ZONES.md` and `docs/EXTERNAL_CA_AND_LETSENCRYPT.md`. Leave the
       admin-facing fog-docs page to its own session, and say so in the PR body.
 
@@ -414,3 +420,99 @@ This is the check that would catch the degenerate-merge trap in Task 1.
 R6 boolean/polarity normalisation · `fog_update_channel`'s values (#1279) ·
 `FOG_os_id`'s retirement · client-encryption cert issuance from the Web CA ·
 `/etc/fog/fog.conf`'s variable name · the `fog-docs` admin pages.
+
+
+---
+
+## Deviations from this plan
+
+Recorded because each one changed the shape of the work rather than just its
+detail, and two of them are the reason the change is correct.
+
+### The sweep scope in Task 4 was incomplete
+
+This plan named `bin/`, `lib/` and `tests/`, taken from the issue's own spot
+check. `utils/FOGBackup/FOGBackup.sh` and `utils/reporting/report.sh` also source
+`.fogsettings` -- between them reading `DB_host`, `DB_user`, `DB_password`,
+`DB_name`, `DB_backup_path`, `STORAGE_image_share_path`, `WEB_docroot` and
+`WEB_root` -- and would have broken on the first upgrade. Both are swept.
+
+The check that found it was grepping every old spelling across the whole tree
+*after* the sweep and classifying what was left by form (`$v` / `${v}` / `v=`
+versus a bare word), rather than trusting the file list. Worth repeating for any
+future rename: the bare-word bucket is where the directory paths and prose hide,
+and the variable-form bucket is where the misses hide.
+
+### The external-CA merge needed a third variable, not two
+
+The plan had `PKI_web_ca_cert` seeded from `$sslcapem` with `extcacert` and
+`webExtCACert` "remaining pure run-scoped inputs behind the unchanged flags". It
+did not say what those inputs were *called*, and the mechanical sweep collapsed
+both onto the canonical slot -- which produced a real bug: `externalca` is derived
+from "is an import path set", and `PKI_web_ca_cert` names FOG's own Web CA on
+every ordinary install, so **every** install would have been declared an
+external-CA install.
+
+The import paths are now named run-scoped inputs (`importWebCACert`,
+`importWebCAKey`, `importWebCARoot`) written by both flag spellings and by the
+prompt, and `validateExternalCA()` reads those and sets the canonical slots once
+the import validates. That also closes the older reported bug this merge existed
+to fix -- anything typed at the prompt was discarded whenever the flags were also
+given -- rather than only renaming around it.
+
+### `fogprogramdir` left the sweep entirely
+
+The plan had it as a record written from the live variable, which is what
+shipped. What the plan did not anticipate is that it therefore has to be
+*excluded from the mechanical sweep altogether*: its 236 references are the live
+control variable, and `/etc/fog/fog.conf` still emits `fogprogramdir=`. Only the
+`managedKeys` entry and one explicit assignment moved.
+
+### `settingLine()`'s indirect expansion forced two more assignments
+
+`${!key}` means a `managedKeys` entry naming no live variable emits an empty line
+silently. The plan caught this for `FOG_program_dir`. It also applies to
+`PKI_client_encrypt_cert`/`_key` (Task 7), which are derived in
+`writeUpdateFile()` as well as in `_createCommLeaf()` so they are recorded even
+on an install that never reached the latter.
+
+### Verification came out stronger than planned
+
+- The planned `tests/fogsettings-key-model.test.sh` (a grep for surviving old
+  spellings) was **not** written as a test. Run once during implementation, its
+  output was ~940 hits of which ~820 were directory paths, prose and the
+  deliberately-unrenamed `$fogprogramdir` -- a test asserting zero would have had
+  to encode that whole exception list, and would fail on the next unrelated
+  comment mentioning a retired key. The membership half of what it was for is
+  covered properly by the `managedKeys`/`deprecatedKeys` assertions in
+  `install-settings-resolution.test.sh`, against the real arrays.
+- `tests/fogsettings-migration.test.sh` **extracts the seed block from the
+  installer and evaluates it** rather than replaying it by hand, which the plan
+  did not specify. A hand-copied replay is how a test passes while the behaviour
+  is wrong; this one fails outright if the block is removed or renamed.
+- Both new tests were negative-controlled -- deliberately broken, observed to
+  fail, restored -- rather than only observed to pass.
+
+### Writing the migration test found a live hazard
+
+The synthesized fixture contains `fogprogramdir='/opt/fog'`, as a real
+pre-rename file does. Sourcing it relocated the install mid-test and wrote a real
+`/opt/fog/.fogsettings` on the host, which the assertions then read -- so the
+carry-over checks failed for a reason that had nothing to do with the carry-over
+code. That is exactly the GH-850 hazard `bin/installfog.sh` re-asserts
+`resolvedfogprogramdir` to prevent. The test now mirrors the installer and says
+why.
+
+### Docs landed narrower than the plan's default
+
+Per the scoping decision, this pass covers ADRs plus `docs/FOGSETTINGS.md` (the
+in-repo mechanics doc for the code that changed). `PKI_ZONES.md`,
+`EXTERNAL_CA_AND_LETSENCRYPT.md`, `MULTI_SERVER_CA.md`,
+`SUPPORTED_CUSTOMIZATIONS.md` and `HTTPPROTO_COVERAGE_AUDIT.md` still carry
+pre-rename spellings and are queued with the fog-docs work.
+
+A mechanical pass over `docs/` is **unsafe** and should not be attempted: most
+`password`, `hostname` and `interface` matches in this tree are user passwords,
+client hostnames and PHP interfaces. ADR 0008's matches, for instance, turned out
+to be directory paths and the unrenamed `$fogprogramdir`, so it needed no change
+at all. Each hit needs reading.
