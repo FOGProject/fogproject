@@ -36,6 +36,13 @@
 # install ALSO refused to run from a path that was perfectly fine. One empty
 # variable, two misleading messages, neither naming the cause.
 #
+# Both halves are fixed. The migration is ordered before its first consumer,
+# and that guard now tests each variable for non-emptiness before matching on
+# it -- so a failed dispatch produces one accurate complaint instead of two,
+# only one of which was ever true. The amplifier was never specific to the key
+# rename: ANY path reaching that guard without a sourced distro config hit it,
+# which is why it is fixed separately rather than left to the migration.
+#
 # updatefog.sh and restorekernel.sh had it worse: they guard the call as
 # `[[ -n ${FOG_os_id} ]] && doOSSpecificIncludes`, so an empty key SKIPPED the
 # distro config with no message at all.
@@ -44,10 +51,11 @@
 # is installed, no root is needed and no path outside a temp dir is touched.
 # What runs is a *resemblance harness*: the same four steps the real scripts
 # perform, in the same order, against fixture .fogsettings files written here.
-# The two `case` statements are copied in shape from the real ones, so the
-# failure mode is reproduced rather than described -- and the test proves it
-# is testing the right thing by asserting that skipping the migration brings
-# both symptoms back.
+# The `case` statements are copied in shape from the real ones, so the failure
+# mode is reproduced rather than described -- and the test proves it is testing
+# the right thing by asserting that skipping the migration brings the dispatch
+# failure back. The directory guard is evaluated in BOTH shapes, old and new,
+# so the amplifier stays documented as well as fixed.
 #
 # Usage: bash tests/fogsettings-key-migration.test.sh
 # Exit status 0 = pass, 1 = fail.
@@ -185,16 +193,30 @@ harness() {
             *) distro="UNRECOGNIZED"; webdirdest=""; tftpdirdst="" ;;
         esac
 
-        # Step 4b: the directory guard that runs immediately after it. An empty
-        # $webdirdest turns `*$webdirdest*` into `*`, so this reports whether a
-        # perfectly ordinary path is wrongly rejected.
+        # Step 4b: the directory guard that runs immediately after it, in BOTH
+        # shapes, because the difference between them is the second half of
+        # this bug.
+        #
+        #   guard_glob  the original `case $currentdir in *$webdirdest*`. An
+        #               empty $webdirdest makes that `**`, which matches every
+        #               path -- so a failed dispatch was AMPLIFIED into a
+        #               second, unrelated-sounding complaint about the install
+        #               directory.
+        #   guard_safe  the current form, which tests each variable for
+        #               non-emptiness before using it in a match.
         currentdir="/home/someone/fogproject/bin"
         case $currentdir in
-            *$webdirdest*|*$tftpdirdst*) guard="REJECTED" ;;
-            *)                           guard="allowed"  ;;
+            *$webdirdest*|*$tftpdirdst*) guard_glob="REJECTED" ;;
+            *)                           guard_glob="allowed"  ;;
         esac
+        if { [ -n "$webdirdest" ] && case $currentdir in *"$webdirdest"*) true ;; *) false ;; esac; } \
+            || { [ -n "$tftpdirdst" ] && case $currentdir in *"$tftpdirdst"*) true ;; *) false ;; esac; }; then
+            guard_safe="REJECTED"
+        else
+            guard_safe="allowed"
+        fi
 
-        echo "${distro}|${guard}|${FOG_os_id}|${FOG_os_name}|${NET_interface}|${DB_user}|${WEB_docroot}"
+        echo "${distro}|${guard_safe}|${FOG_os_id}|${FOG_os_name}|${NET_interface}|${DB_user}|${WEB_docroot}|${guard_glob}"
     )
 }
 
@@ -207,7 +229,7 @@ if [ "$out" = "NOFUNC" ]; then
     echo "FAIL: migrateDeprecatedKeys() is not defined in lib/common/functions.sh"
     exit 1
 fi
-IFS='|' read -r distro guard osid osname iface dbuser docroot <<EOF
+IFS='|' read -r distro guard osid osname iface dbuser docroot guard_glob <<EOF
 $out
 EOF
 
@@ -228,7 +250,7 @@ is  'old format: an unrelated directory is not rejected' "$guard" "allowed"
 # value replaced by an empty old variable.
 # ---------------------------------------------------------------------------
 
-IFS='|' read -r distro guard osid osname iface dbuser docroot <<EOF
+IFS='|' read -r distro guard osid osname iface dbuser docroot guard_glob <<EOF
 $(harness "$tmp/new.fogsettings")
 EOF
 
@@ -245,13 +267,19 @@ is  'new format: an unrelated directory is not rejected' "$guard" "allowed"
 # ever passes, the harness has stopped exercising the thing it claims to.
 # ---------------------------------------------------------------------------
 
-IFS='|' read -r distro guard osid _ _ _ _ <<EOF
+IFS='|' read -r distro guard osid _ _ _ _ guard_glob <<EOF
 $(harness "$tmp/old.fogsettings" skip)
 EOF
 
-is  'without the migration: FOG_os_id is empty'                "$osid"   ""
-is  'without the migration: the distro falls to the *) arm'    "$distro" "UNRECOGNIZED"
-is  'without the migration: every directory is wrongly rejected' "$guard" "REJECTED"
+is  'without the migration: FOG_os_id is empty'             "$osid"   ""
+is  'without the migration: the distro falls to the *) arm' "$distro" "UNRECOGNIZED"
+# The amplifier, and why it is worth a fix of its own. With the dispatch
+# failed, $webdirdest is empty -- and the ORIGINAL glob then rejected every
+# directory on earth, which is the second message nobody could connect to a
+# key rename. The guarded form does not, so a failed dispatch now produces one
+# accurate complaint instead of two, only one of which was true.
+is  'the old glob rejects every directory once webdirdest is empty' "$guard_glob" "REJECTED"
+is  'the guarded form does not'                                     "$guard"      "allowed"
 
 # ---------------------------------------------------------------------------
 # 4. The migration runs before the first read, in every entry point.
@@ -297,6 +325,21 @@ done
 # scripts had no migration at all.
 check 'the migration lives in functions.sh, which all three source first' \
     "$(grep -q '^migrateDeprecatedKeys() {' "$functions" && echo yes)"
+
+# And the REAL guard, not the harness' copy of it.
+#
+# Without this the two guard_glob/guard_safe cases above are decorative: they
+# prove the two SHAPES differ, which is arithmetic, not that the shipped code
+# uses the safe one. Reverting functions.sh to the unguarded glob passed every
+# other check in this file.
+# Comments are stripped first -- the fix carries an explanation that QUOTES the
+# broken form, and grepping the whole function found that instead of code.
+guardcode=$(sed -n '/^doOSSpecificIncludes() {/,/^}$/p' "$functions" \
+    | grep -vE '^[[:space:]]*#')
+check 'the real directory guard does not glob on a possibly-empty $webdirdest' \
+    "$(printf '%s\n' "$guardcode" | grep -q '\*\$webdirdest\*' || echo yes)"
+check 'the real directory guard tests $webdirdest for non-emptiness first' \
+    "$(printf '%s\n' "$guardcode" | grep -q -- '-n \$webdirdest' && echo yes)"
 
 # ---------------------------------------------------------------------------
 # 5. Every deprecated key has a migration pair.
