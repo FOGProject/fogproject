@@ -2612,6 +2612,10 @@ msgid "File System Information"
 msgstr "File System Information"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "Impossibile eliminare il file"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "Metodo non esiste"
 
@@ -2659,6 +2663,10 @@ msgstr "Trovare tutte le immagini associate"
 
 msgid "Finding any snapins associated"
 msgstr "Individuazione di eventuali snaps associati"
+
+#, fuzzy
+msgid "Finished"
+msgstr "Attività iniziata"
 
 msgid "First Check In"
 msgstr ""
@@ -3781,6 +3789,9 @@ msgstr "In"
 msgid "In FOG"
 msgstr "In FOG"
 
+msgid "Include"
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr ""
@@ -4826,6 +4837,10 @@ msgstr "Immagine Multicast"
 
 #, fuzzy
 msgid "Multicast Sessions"
+msgstr "Sessione multicast non valida"
+
+#, fuzzy
+msgid "Multicast sessions"
 msgstr "Sessione multicast non valida"
 
 msgid "Multiple Snapin -- orig Single"
@@ -6378,6 +6393,10 @@ msgid "Rows matching the filter, within what the caller may see. A real total, i
 msgstr ""
 
 #, fuzzy
+msgid "Run History"
+msgstr "Accesso Storia"
+
+#, fuzzy
 msgid "Run With arguments."
 msgstr "Snap-Run con l'argomento"
 
@@ -6733,6 +6752,9 @@ msgstr "Nome Host"
 msgid "Should anything go wrong"
 msgstr "Qualsiasi cosa andasse storto"
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "Cambia password"
@@ -7045,6 +7067,14 @@ msgstr "Snapin aggiunto!"
 msgid "Snapin is protected and cannot be deleted"
 msgstr "Snapin è protetto e non può essere cancellato"
 
+#, fuzzy
+msgid "Snapin jobs"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "Hash snap-in"
+
 msgid "Snapin update failed!"
 msgstr "Aggiornamento Snapin fallito!"
 
@@ -7081,6 +7111,10 @@ msgstr "Scaricamento fallito"
 
 msgid "Start Time"
 msgstr "Ora di inizio"
+
+#, fuzzy
+msgid "Started"
+msgstr "Inizio"
 
 #, fuzzy
 msgid "Started By"
@@ -8176,6 +8210,9 @@ msgid "Time Already Exists"
 msgstr "Ora esiste già"
 
 msgid "Title"
+msgstr ""
+
+msgid "To"
 msgstr ""
 
 msgid "To PXE boot with Secure Boot on"
@@ -10318,9 +10355,6 @@ msgstr ""
 
 #~ msgid "Snapin Pack File"
 #~ msgstr "Snapin Pack File"
-
-#~ msgid "Start"
-#~ msgstr "Inizio"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

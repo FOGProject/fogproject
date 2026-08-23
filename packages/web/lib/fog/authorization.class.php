@@ -78,7 +78,14 @@ class Authorization extends FOGBase
      * @var array
      */
     const REPORT_NODES = [
-        'hosts_and_users' => 'usertracking'
+        'hosts_and_users' => 'usertracking',
+        // Run History reads the five work-item tables through
+        // ActivityWindow (ADR 0022 decision 4). It is task activity, and
+        // Task Management's own log pane is gated on task.view, so a
+        // report.view grant reading the same rows through a different
+        // screen is the defect ADR 0023 opens with. Narrows against the
+        // default `report` node; nothing anyone holds gets wider.
+        'run_history' => 'task'
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.

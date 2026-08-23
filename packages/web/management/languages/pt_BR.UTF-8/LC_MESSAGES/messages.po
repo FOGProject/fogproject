@@ -2690,6 +2690,10 @@ msgid "File System Information"
 msgstr "Informações sobre o arquivo do sistema"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "Falha ao excluir arquivo"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "O método não existe"
 
@@ -2741,6 +2745,10 @@ msgstr "Não snapins associado"
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "Não snapins associado"
+
+#, fuzzy
+msgid "Finished"
+msgstr "tarefa iniciada"
 
 msgid "First Check In"
 msgstr ""
@@ -3907,6 +3915,9 @@ msgstr "Dentro "
 msgid "In FOG"
 msgstr "Dentro "
 
+msgid "Include"
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr ""
@@ -4997,6 +5008,10 @@ msgstr "multicast"
 
 #, fuzzy
 msgid "Multicast Sessions"
+msgstr "Iniciar Sessão Multicast"
+
+#, fuzzy
+msgid "Multicast sessions"
 msgstr "Iniciar Sessão Multicast"
 
 msgid "Multiple Snapin -- orig Single"
@@ -6596,6 +6611,10 @@ msgid "Rows matching the filter, within what the caller may see. A real total, i
 msgstr ""
 
 #, fuzzy
+msgid "Run History"
+msgstr "História de login"
+
+#, fuzzy
 msgid "Run With arguments."
 msgstr "Snapin Run com o argumento"
 
@@ -6964,6 +6983,9 @@ msgstr "Nome do host"
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "Gerenciamento de senha"
@@ -7295,6 +7317,14 @@ msgid "Snapin is protected and cannot be deleted"
 msgstr "Snapin está protegido e não pode ser excluído"
 
 #, fuzzy
+msgid "Snapin jobs"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "Caminho Snapin"
+
+#, fuzzy
 msgid "Snapin update failed!"
 msgstr "atualização Snapin falhou"
 
@@ -7332,6 +7362,10 @@ msgstr "Falha no download"
 
 msgid "Start Time"
 msgstr "start Time"
+
+#, fuzzy
+msgid "Started"
+msgstr "Começar"
 
 #, fuzzy
 msgid "Started By"
@@ -8469,6 +8503,9 @@ msgid "Time Already Exists"
 msgstr "Tempo já existe"
 
 msgid "Title"
+msgstr ""
+
+msgid "To"
 msgstr ""
 
 msgid "To PXE boot with Secure Boot on"
@@ -10687,9 +10724,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "Arquivo Snapin"
-
-#~ msgid "Start"
-#~ msgstr "Começar"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

@@ -2690,6 +2690,10 @@ msgid "File System Information"
 msgstr "文件系统信息"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "无法删除文件"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "方法不存在"
 
@@ -2741,6 +2745,10 @@ msgstr "没有snapins相关"
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "没有snapins相关"
+
+#, fuzzy
+msgid "Finished"
+msgstr "任务开始"
 
 msgid "First Check In"
 msgstr ""
@@ -3907,6 +3915,9 @@ msgstr "在"
 msgid "In FOG"
 msgstr "在"
 
+msgid "Include"
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr ""
@@ -4997,6 +5008,10 @@ msgstr "组播"
 
 #, fuzzy
 msgid "Multicast Sessions"
+msgstr "开始多播会话"
+
+#, fuzzy
+msgid "Multicast sessions"
 msgstr "开始多播会话"
 
 msgid "Multiple Snapin -- orig Single"
@@ -6596,6 +6611,10 @@ msgid "Rows matching the filter, within what the caller may see. A real total, i
 msgstr ""
 
 #, fuzzy
+msgid "Run History"
+msgstr "登录历史记录"
+
+#, fuzzy
 msgid "Run With arguments."
 msgstr "管理单元运行带有参数"
 
@@ -6964,6 +6983,9 @@ msgstr "主机名"
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "管理密码"
@@ -7295,6 +7317,14 @@ msgid "Snapin is protected and cannot be deleted"
 msgstr "管理单元被保护，不能被删除"
 
 #, fuzzy
+msgid "Snapin jobs"
+msgstr "Snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "管理单元路径"
+
+#, fuzzy
 msgid "Snapin update failed!"
 msgstr "管理单元更新失败"
 
@@ -7332,6 +7362,10 @@ msgstr "下载失败"
 
 msgid "Start Time"
 msgstr "开始时间"
+
+#, fuzzy
+msgid "Started"
+msgstr "开始"
 
 #, fuzzy
 msgid "Started By"
@@ -8469,6 +8503,9 @@ msgid "Time Already Exists"
 msgstr "时间已存在"
 
 msgid "Title"
+msgstr ""
+
+msgid "To"
 msgstr ""
 
 msgid "To PXE boot with Secure Boot on"
@@ -10687,9 +10724,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "文件管理单元"
-
-#~ msgid "Start"
-#~ msgstr "开始"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"

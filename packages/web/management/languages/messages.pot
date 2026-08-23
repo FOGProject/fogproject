@@ -2290,6 +2290,9 @@ msgstr ""
 msgid "File System Information"
 msgstr ""
 
+msgid "File deletions"
+msgstr ""
+
 msgid "File does not exist"
 msgstr ""
 
@@ -2330,6 +2333,9 @@ msgid "Finding any images associated"
 msgstr ""
 
 msgid "Finding any snapins associated"
+msgstr ""
+
+msgid "Finished"
 msgstr ""
 
 msgid "First Check In"
@@ -3309,6 +3315,9 @@ msgstr ""
 msgid "In FOG"
 msgstr ""
 
+msgid "Include"
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr ""
@@ -4229,6 +4238,9 @@ msgid "Multicast Image"
 msgstr ""
 
 msgid "Multicast Sessions"
+msgstr ""
+
+msgid "Multicast sessions"
 msgstr ""
 
 msgid "Multiple Snapin -- orig Single"
@@ -5605,6 +5617,9 @@ msgstr ""
 msgid "Rows matching the filter, within what the caller may see. A real total, including for site-restricted users."
 msgstr ""
 
+msgid "Run History"
+msgstr ""
+
 msgid "Run With arguments."
 msgstr ""
 
@@ -5917,6 +5932,9 @@ msgstr ""
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 msgid "Show password"
 msgstr ""
 
@@ -6191,6 +6209,12 @@ msgstr ""
 msgid "Snapin is protected and cannot be deleted"
 msgstr ""
 
+msgid "Snapin jobs"
+msgstr ""
+
+msgid "Snapin tasks"
+msgstr ""
+
 msgid "Snapin update failed!"
 msgstr ""
 
@@ -6225,6 +6249,9 @@ msgid "Start Download Fail"
 msgstr ""
 
 msgid "Start Time"
+msgstr ""
+
+msgid "Started"
 msgstr ""
 
 msgid "Started By"
@@ -7209,6 +7236,9 @@ msgid "Time Already Exists"
 msgstr ""
 
 msgid "Title"
+msgstr ""
+
+msgid "To"
 msgstr ""
 
 msgid "To PXE boot with Secure Boot on"

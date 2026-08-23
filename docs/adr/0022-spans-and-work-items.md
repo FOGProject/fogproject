@@ -21,13 +21,47 @@ the first arm, so a disagreeing arm supplies its second column as somebody
 else's `subjectID` rather than erroring -- and step 354 indexes exactly the
 column each arm bounds on.
 
-**It has no caller yet, and that is worth stating rather than leaving to be
-discovered.** The decision is for a read path, and nothing in this ADR or in
-0023 specifies a surface for it: 0023's activity viewer answers "what
-happened" from the event logs, which is a different question from "what ran".
-A helper with no consumer is at risk of rotting, so the honest next step is a
-consumer -- but building one was not part of this decision and inventing a
-page for it here would have been scope nobody asked for.
+**Its consumer is the Run History report** (`lib/reports/run_history.report.php`),
+added 2026-08-22. The class shipped without one, which was recorded here as the
+thing most likely to let it rot, and this closes that.
+
+A report rather than a page or a tab on the activity viewer, and the reason is
+the distinction this ADR is built on. 0023's viewer answers "what HAPPENED" out
+of the event logs; this answers "what RAN". An event is a point in time and a
+work item is a span, so they do not share a column set, and folding spans into
+that viewer would break the one thing its design commits to -- one grid, one
+column set, a source filter that grows. A report is the existing home for "pick
+a range, get rows": the file name is the menu entry, no new node or plumbing is
+needed, and the range lives in the URL so a report pasted into a ticket still
+shows what it showed.
+
+It is gated on `task`, not `report`. Reports share one permission node by
+default, which is the defect ADR 0023 opens with, and
+`Authorization::REPORT_NODES` is the seam that already exists for saying
+otherwise. This is task activity and Task Management's own log pane is gated
+there, so a `report.view` grant reading the same rows through a different
+screen would re-open exactly what 0023 item 1 closed. It narrows against the
+default; nothing anyone holds today gets wider.
+
+Two things the lab found that no static test could. `TaskStateManager->find()`
+does not exist in 1.6 -- an entirely plausible-looking fatal -- and, underneath
+it, the report was building its window with PHP's `date()` while the columns it
+compares are stamped by `save()` through `niceDate()`, which uses the
+configured FOG timezone. That does not error: `BETWEEN` matches a shifted
+window and the report quietly answers a question nobody asked. On a lab where
+the two clocks were five hours apart, a task created seconds earlier did not
+appear in a window ending "now". Both fixed; the window is on FOG's clock and
+`tests/run-history-report.test.php` pins it.
+
+`tests/run-history-report.test.php` (23 checks, mutation-verified six ways)
+covers the wiring that fails silently -- the four names that must agree
+(filename, class, the `f` the JS switches on, the REPORT_NODES key), the column
+keys matching between `getList()` and the DataTables definition, the gate, and
+the menu label reaching xgettext. `/home/telliott/labs/adr0020/prove_runhistory.php`
+drives the real `getList()` against a lab database: the row comes back in the
+default window with its host and state ids resolved to names, `endedAt` is
+correctly empty for a task (Decision 2), and the row survives its host being
+deleted, showing the bare id rather than a blank cell.
 
 Both concerned `imagingLog`, and grilling them established that the table
 should not be repaired -- it should be retired. `taskLog` is written at the

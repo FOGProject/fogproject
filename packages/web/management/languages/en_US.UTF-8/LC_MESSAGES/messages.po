@@ -2689,6 +2689,10 @@ msgid "File System Information"
 msgstr "File System Information"
 
 #, fuzzy
+msgid "File deletions"
+msgstr "Failed to delete file"
+
+#, fuzzy
 msgid "File does not exist"
 msgstr "Method does not exist"
 
@@ -2740,6 +2744,10 @@ msgstr "No snapins associated"
 #, fuzzy
 msgid "Finding any snapins associated"
 msgstr "No snapins associated"
+
+#, fuzzy
+msgid "Finished"
+msgstr "Task Started"
 
 msgid "First Check In"
 msgstr ""
@@ -3906,6 +3914,9 @@ msgstr "In "
 msgid "In FOG"
 msgstr "In "
 
+msgid "Include"
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr ""
@@ -4996,6 +5007,10 @@ msgstr "Multicast"
 
 #, fuzzy
 msgid "Multicast Sessions"
+msgstr "Start Multicast Session"
+
+#, fuzzy
+msgid "Multicast sessions"
 msgstr "Start Multicast Session"
 
 msgid "Multiple Snapin -- orig Single"
@@ -6595,6 +6610,10 @@ msgid "Rows matching the filter, within what the caller may see. A real total, i
 msgstr ""
 
 #, fuzzy
+msgid "Run History"
+msgstr "Login History"
+
+#, fuzzy
 msgid "Run With arguments."
 msgstr "Snapin Run With Argument"
 
@@ -6963,6 +6982,9 @@ msgstr "Host Name"
 msgid "Should anything go wrong"
 msgstr ""
 
+msgid "Show"
+msgstr ""
+
 #, fuzzy
 msgid "Show password"
 msgstr "Management Password"
@@ -7294,6 +7316,14 @@ msgid "Snapin is protected and cannot be deleted"
 msgstr "Snapin is protected and cannot be deleted"
 
 #, fuzzy
+msgid "Snapin jobs"
+msgstr "Snapins"
+
+#, fuzzy
+msgid "Snapin tasks"
+msgstr "Snapin Path"
+
+#, fuzzy
 msgid "Snapin update failed!"
 msgstr "Snapin update failed"
 
@@ -7331,6 +7361,10 @@ msgstr "Download Failed"
 
 msgid "Start Time"
 msgstr "Start Time"
+
+#, fuzzy
+msgid "Started"
+msgstr "Start"
 
 #, fuzzy
 msgid "Started By"
@@ -8468,6 +8502,9 @@ msgid "Time Already Exists"
 msgstr "Time Already Exists"
 
 msgid "Title"
+msgstr ""
+
+msgid "To"
 msgstr ""
 
 msgid "To PXE boot with Secure Boot on"
@@ -10682,9 +10719,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "Snapin File"
-
-#~ msgid "Start"
-#~ msgstr "Start"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"
