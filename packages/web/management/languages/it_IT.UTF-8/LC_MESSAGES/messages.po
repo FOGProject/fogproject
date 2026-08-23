@@ -5409,7 +5409,7 @@ msgstr "Permesso solo di avere"
 msgid "Only an administrator may grant full access."
 msgstr "Gruppo amministrativo"
 
-msgid "Only for a peer running its own FOG database. Set that peer FOG_NODE_API_KEY global setting to the same value, or it cannot verify requests this server signs."
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
 msgstr ""
 
 msgid "Only snapins shared by every host in the group can be ordered here. Saving sets this order on each host (shared snapins run first, in this order; any host-specific snapins run after). Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
