@@ -69,8 +69,13 @@ class Host extends FOGController
         'prev_sec_tok' => 'hostSecTokenPrev',
         'sec_time' => 'hostSecTime',
         'pingstatus' => 'hostPingCode',
+        // WHICH probe produced pingstatus -- 'icmp' or 'tcp', empty when
+        // unknown. Separate because pingstatus is an errno and an ICMP echo
+        // reply has none; both an echo reply and a completed connect record
+        // 0, and only this says which. See schema step 356.
+        'pingmethod' => 'hostPingMethod',
         // The two halves of "when was this host last seen". lastping is
-        // written by FOGPingHosts on a successful connect; lastcheckin by
+        // written by FOGPingHosts whenever the host answered; lastcheckin by
         // FOGClient on every client request. Kept apart on purpose -- see
         // schema step 353. "Last seen" is MAX(the two) and is derived where
         // it is displayed, never stored.

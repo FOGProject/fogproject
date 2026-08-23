@@ -2165,6 +2165,35 @@ class Route extends FOGBase
                                     . '</span>';
                             }
                             if ((int)$d === 0) {
+                                // WHICH probe answered, from the sibling
+                                // column -- an echo reply and a completed
+                                // connect are both errno 0 and mean
+                                // different things to whoever is asking
+                                // "is the service running". Rows written
+                                // before schema 356 carry no method and
+                                // fall back to a bare "Online", which is
+                                // exactly as much as is known about them.
+                                $how = $row['hostPingMethod'] ?? '';
+                                // The protocol names are not translated --
+                                // they are protocol names. Only the word
+                                // around them is, which also keeps an HTML
+                                // entity out of the msgid.
+                                if (Ping::METHOD_ICMP === $how) {
+                                    return '<span class="badge bg-success">'
+                                        . sprintf(
+                                            '%s &middot; ICMP',
+                                            _('Online')
+                                        )
+                                        . '</span>';
+                                }
+                                if (Ping::METHOD_TCP === $how) {
+                                    return '<span class="badge bg-success">'
+                                        . sprintf(
+                                            '%s &middot; TCP',
+                                            _('Online')
+                                        )
+                                        . '</span>';
+                                }
                                 return '<span class="badge bg-success">'
                                     . _('Online')
                                     . '</span>';

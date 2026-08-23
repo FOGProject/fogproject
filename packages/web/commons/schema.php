@@ -7270,3 +7270,87 @@ $this->schema[] = [
         return true;
     },
 ];
+// 356
+$this->schema[] = [
+    // How the ping reached the host, alongside WHETHER it did.
+    //
+    // hostPingCode has carried the verdict since 1.5 and cannot carry this
+    // as well. Once an ICMP echo is tried before the TCP connect, "the host
+    // answered" has two causes -- an echo reply, or a connect that completed
+    // -- and both would be recorded as errno 0. Nothing in the row could
+    // then tell an administrator whether the service on PINGHOSTPORT is
+    // actually running, which is the first thing anyone asks after "is it
+    // up".
+    //
+    // varchar, NOT an enum, and that is a scar rather than a preference:
+    // FOGController::save() has written '' into columns of every type for
+    // years (the sql_mode/GH-1243 family), and '' is not a member of any
+    // enum -- it lands as the enum error value and is invisible until
+    // something reads it back. A varchar takes '' harmlessly and the
+    // readers already treat empty as "unknown". It also leaves room for
+    // 'icmp6' without an ALTER when ICMPv6 lands.
+    //
+    // NULL-able with a NULL default: every existing row predates the column
+    // and genuinely has no answer, which is a different fact from "we
+    // pinged and could not tell". The grid renders both as unknown; the
+    // distinction costs nothing to keep and cannot be recovered later.
+    //
+    // No index. Same reasoning as hostLastPing in 353 -- written on every
+    // cycle for every host, read only by a page that is already fetching
+    // the row.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354: ADD COLUMN
+    // has no IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and the
+    // column is named in the probe so the installer's grant check still
+    // passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN ('hostPingMethod')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostPingMethod', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostPingMethod` VARCHAR(10) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+    // An opt-out, not an opt-in. ICMP is the better probe -- it asks "is
+    // this machine up" rather than "does this machine run the one service
+    // we guessed at" -- so it is on by default and a server that wants the
+    // old behaviour turns it off.
+    //
+    // The reason to have the switch at all is that a fleet-wide echo sweep
+    // every PINGHOSTSLEEPTIME seconds looks like a host sweep to an IDS,
+    // and some sites will be told to stop doing it. Degradation is already
+    // automatic when the socket cannot be opened; this is for the case
+    // where it CAN and should not be.
+    //
+    // A 1/0 flag rather than a method name, so the configuration page
+    // renders it as a checkbox from the existing map and validates it
+    // without a new input type. Registered in fogconfigurationpage's
+    // checkbox map in the same commit; a setting missing from that map
+    // renders as a free-text box that invites typos.
+    //
+    // FOG_SCHEMA is bumped in the same commit. An INSERT here without the
+    // bump is silently skipped on every install -- the coarse gate never
+    // sends the admin to the updater, so the precise one never runs.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('PINGHOSTUSEICMP','Try a real ICMP echo request before falling back "
+    . "to the TCP connect on PINGHOSTPORT. ICMP asks whether the machine is "
+    . "up rather than whether it runs a particular service, so it reaches "
+    . "hosts that answer no TCP port at all. Turn it off if a fleet-wide "
+    . "echo sweep is unwelcome on your network; the TCP check then runs on "
+    . "its own, exactly as before.','1','Ping Host Settings')",
+];
