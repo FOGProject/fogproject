@@ -188,6 +188,30 @@ class SnapinHash extends FOGService
                         $path,
                         $file
                     );
+                    // ImageSize has had this guard for years; SnapinHash
+                    // never grew it. Without it hash_file() on a file that
+                    // is not there -- deleted, or storage unmounted when
+                    // the pass ran -- returns FALSE with a warning, and
+                    // false was then SAVED as the hash. A client comparing
+                    // against an empty hash fails the snapin every time,
+                    // with nothing in the log to say why. Blanking both
+                    // columns says the file is not currently there, which
+                    // is true, and the next pass repairs it.
+                    if (!file_exists($filepath) || !is_readable($filepath)) {
+                        self::outall(
+                            sprintf(
+                                '| %s: %s',
+                                $Snapin->get('name'),
+                                _('Path is unavailable')
+                            )
+                        );
+                        $Snapin
+                            ->set('hash', '')
+                            ->set('size', 0)
+                            ->save();
+                        unset($path, $file);
+                        continue;
+                    }
                     self::outall(
                         sprintf(
                             ' * %s: %s.',
