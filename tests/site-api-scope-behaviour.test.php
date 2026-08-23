@@ -380,6 +380,46 @@ if (null !== $dbSkip) {
     );
 
     /*
+     * A fragment containing a top-level OR is still bound by the caller's
+     * filter.
+     *
+     * _andScopeWhere() parenthesises BOTH sides, and until this case existed
+     * nothing proved the fragment's own pair: every fragment the site plugin
+     * emits is a single `EXISTS (...)` term, which binds the same with or
+     * without them, so dropping them was invisible.
+     *
+     * It is not invisible in general, and the direction it fails is
+     * disclosure. `(caller) AND a OR b` parses as `((caller) AND a) OR b`, so
+     * the OR's second arm escapes the caller's filter entirely and returns
+     * rows nobody asked for. Here the caller asks for ONE group and the
+     * fragment permits two: parenthesised that is one row, unparenthesised it
+     * is two -- and the extra one was never in the caller's filter at all.
+     *
+     * A third-party listener is free to emit OR at the top level; nothing in
+     * the contract says a fragment must be a single term.
+     */
+    ScopeProbe::$whereAnswer = function ($idExpr) use ($ids) {
+        return $idExpr . ' = ' . $ids[0] . ' OR ' . $idExpr . ' = ' . $ids[1];
+    };
+    Route::$data = null;
+    Route::names('group', ['id' => [$ids[0]]]);
+    check(
+        'fragment: a top-level OR cannot escape the caller\'s own filter',
+        $mine(array_column((array)Route::$data, 'id')) === [$ids[0]],
+        $failures,
+        $checks
+    );
+    Route::$data = null;
+    Route::listem('group', 'name', false, ['id' => [$ids[0]]]);
+    check(
+        'fragment: listem() binds a top-level OR to the caller\'s filter too',
+        $mine(array_column((array)(Route::$data['groups'] ?? []), 'id'))
+        === [$ids[0]],
+        $failures,
+        $checks
+    );
+
+    /*
      * Exactly ONE boundary is applied, never both.
      *
      * Two narrowings ANDed together is not a safer boundary, it is a

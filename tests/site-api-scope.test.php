@@ -436,12 +436,31 @@ check(
     $failures,
     $checks
 );
-check(
-    'the API hook applies no boundary when nobody is logged in (daemons)',
-    false !== strpos($apiHook, 'self::$FOGUser->isValid()'),
-    $failures,
-    $checks
-);
+// Per handler, not once for the file. Both scopeIDs() and scopeWhere() carry
+// this guard and BOTH have to: scopeWhere() is consulted first, so a boundary
+// it emitted would apply before scopeIDs() was ever asked, and the daemons and
+// status endpoints reach Route::ids()/names() logged out. A file-wide strpos()
+// is satisfied by either copy, so deleting the one on the fragment path -- the
+// likelier regression, being the newer code -- passed this check unchanged.
+// Mutation-verified: removing either guard alone must fail, not just removing
+// both.
+foreach (array('scopeIDs', 'scopeWhere') as $handler) {
+    $body = '';
+    if (preg_match(
+        '/public function ' . $handler . '\(.*?\n    \}/s',
+        $apiHook,
+        $m
+    )) {
+        $body = $m[0];
+    }
+    check(
+        'the API hook\'s ' . $handler . '() applies no boundary when nobody'
+        . ' is logged in (daemons)',
+        false !== strpos($body, 'self::$FOGUser->isValid()'),
+        $failures,
+        $checks
+    );
+}
 // SiteHostAssociation is read twice in the management hook and only one
 // of those is the boundary. The grid shows each row's site name, which is
 // a per-host lookup by hostID and stays. What must not come back is a
