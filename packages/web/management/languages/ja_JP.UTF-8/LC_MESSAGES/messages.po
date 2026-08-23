@@ -429,6 +429,10 @@ msgstr "詳細ドキュメント"
 msgid "API Only Account"
 msgstr "Slack アカウント"
 
+#, fuzzy
+msgid "API Only?"
+msgstr "Slack アカウント"
+
 msgid "API Token Created"
 msgstr ""
 

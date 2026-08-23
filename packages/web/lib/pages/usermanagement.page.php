@@ -44,11 +44,20 @@ class UserManagement extends FOGPage
         $this->headerData = [
             _('Username'),
             _('Friendly Name'),
-            _('API?')
+            _('API?'),
+            // Separate from API? rather than folded into it: they are
+            // independent flags and every combination is real. API? is
+            // whether fog-user-token works for this account; this is
+            // whether the account can sign in at all. An account can be
+            // API-only with API? off -- a service account reachable only
+            // through an issued Bearer token -- and collapsing the two into
+            // one cell would make that state unreadable.
+            _('API Only?')
         ];
         $this->attributes = [
             [],
             [],
+            ['width' => 22],
             ['width' => 22]
         ];
         $types = [];

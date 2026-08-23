@@ -456,6 +456,10 @@ msgstr "位置"
 msgid "API Only Account"
 msgstr "斯莱克账户"
 
+#, fuzzy
+msgid "API Only?"
+msgstr "斯莱克账户"
+
 msgid "API Token Created"
 msgstr ""
 
