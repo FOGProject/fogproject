@@ -22,8 +22,14 @@
 #      that has no users yet, and --no-check-certificate handed it to whoever
 #      answered on that address. These cannot simply drop the flag, because
 #      they run before _installCATrustAnchor() has taught the system store
-#      about FOG's CA -- hence _resolveSelfCacert(), which names $rootCAPem
-#      directly.
+#      about FOG's CA -- hence _resolveSelfCacert(), which names a resolved
+#      anchor file directly. That anchor is $rootCAPem AND the root the served
+#      chain terminates in: under --web-ca-cert/--web-ca-key/--web-ca-root
+#      those are two DIFFERENT certificates, and naming $rootCAPem alone
+#      anchored on a root that does not sign the leaf. wget's
+#      --ca-certificate replaces the default bundle rather than adding to it,
+#      so that did not merely fail to help, it removed the only trust that
+#      would have worked.
 #   C. The node/master bootstrap -- registerStorageNode() and
 #      updateStorageNodeCredentials(). A genuine chicken-and-egg: on a fresh
 #      storage node they run BEFORE _installCATrustAnchor(), so there is no
@@ -174,10 +180,25 @@ if printf '%s' "$helper" | grep -q -- '--ca-certificate'; then
 else
     bad "_resolveSelfCacert does not pass --ca-certificate -- it is not anchoring anything"
 fi
-if printf '%s' "$helper" | grep -q 'rootCAPem'; then
-    ok "_resolveSelfCacert anchors on \$rootCAPem, the same file _installCATrustAnchor uses"
+if printf '%s' "$helper" | grep -q '_resolveTrustAnchor'; then
+    ok "_resolveSelfCacert anchors on the resolved trust anchor"
 else
-    bad "_resolveSelfCacert does not read \$rootCAPem"
+    bad "_resolveSelfCacert does not call _resolveTrustAnchor -- nothing resolves the chain's root"
+fi
+# Pin the RESOLVER's definition too, not just that the helper calls it. A
+# _resolveTrustAnchor rewritten to emit $rootCAPem alone would satisfy the
+# assertion above while restoring the whole bug, silently, on every
+# external-CA install.
+resolver=$(body _resolveTrustAnchor "$FUNCS")
+if printf '%s' "$resolver" | grep -q 'rootCAPem'; then
+    ok "_resolveTrustAnchor includes \$rootCAPem, the file _installCATrustAnchor uses"
+else
+    bad "_resolveTrustAnchor does not read \$rootCAPem"
+fi
+if printf '%s' "$resolver" | grep -q 'sslcachain'; then
+    ok "_resolveTrustAnchor also includes the root the served chain ends in"
+else
+    bad "_resolveTrustAnchor does not read \$sslcachain -- an imported Web CA would not verify"
 fi
 if printf '%s' "$helper" | grep -qE -- '--insecure|--no-check-certificate|(^|[[:space:]])-[a-zA-Z]*k[a-zA-Z]*([[:space:]]|$)'; then
     bad "_resolveSelfCacert hands back an insecure flag"
@@ -257,12 +278,54 @@ if command -v openssl >/dev/null 2>&1; then
         -keyout "$tmp/ca.key" -out "$tmp/ca.pem" \
         -subj "/CN=fog-tls-gate-test" >/dev/null 2>&1
     rootCAPem="$tmp/ca.pem"
+    # _resolveTrustAnchor writes under $(_pkiZoneDir web), so the zone has to
+    # live somewhere writable for the duration of the test.
+    fogprogramdir="$tmp/fog"
+    anchor="$tmp/fog/pki/web/ca/.trustAnchor.pem"
+    sslcachain=""
     selfCacertOpts=()
     _resolveSelfCacert
-    if [[ ${#selfCacertOpts[@]} -eq 1 && ${selfCacertOpts[0]} == "--ca-certificate=$tmp/ca.pem" ]]; then
-        ok "https with a root on disk: --ca-certificate points at it"
+    if [[ ${#selfCacertOpts[@]} -eq 1 && ${selfCacertOpts[0]} == "--ca-certificate=$anchor" ]]; then
+        ok "https with a root on disk: --ca-certificate points at the anchor"
     else
         bad "https with a root on disk: got '${selfCacertOpts[*]}'"
+    fi
+    if [[ $(grep -c 'BEGIN CERTIFICATE' "$anchor" 2>/dev/null) -eq 1 ]]; then
+        ok "no separate chain root: the anchor holds exactly one certificate"
+    else
+        bad "no separate chain root: anchor holds $(grep -c 'BEGIN CERTIFICATE' "$anchor" 2>/dev/null), expected 1"
+    fi
+
+    # The regression this whole change exists for: an imported Web CA, whose
+    # chain terminates in ANOTHER server's root. Both roots must reach the
+    # anchor, or the server cannot verify its own certificate and backupDB and
+    # the schema deploy fail with "unable to get local issuer certificate".
+    openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+        -keyout "$tmp/hub.key" -out "$tmp/hub.pem" \
+        -subj "/CN=fog-tls-gate-hub" >/dev/null 2>&1
+    cat "$tmp/hub.pem" > "$tmp/chain.pem"
+    sslcachain="$tmp/chain.pem"
+    selfCacertOpts=()
+    _resolveSelfCacert
+    if [[ $(grep -c 'BEGIN CERTIFICATE' "$anchor" 2>/dev/null) -eq 2 ]]; then
+        ok "imported Web CA: the anchor holds the local root AND the chain's"
+    else
+        bad "imported Web CA: anchor holds $(grep -c 'BEGIN CERTIFICATE' "$anchor" 2>/dev/null), expected 2"
+    fi
+    if openssl verify -CAfile "$anchor" "$tmp/hub.pem" >/dev/null 2>&1; then
+        ok "imported Web CA: the foreign root verifies against the anchor"
+    else
+        bad "imported Web CA: the foreign root does not verify against the anchor"
+    fi
+
+    # Same certificate reached two ways must not be listed twice.
+    cat "$tmp/ca.pem" > "$tmp/chain.pem"
+    selfCacertOpts=()
+    _resolveSelfCacert
+    if [[ $(grep -c 'BEGIN CERTIFICATE' "$anchor" 2>/dev/null) -eq 1 ]]; then
+        ok "chain root == \$rootCAPem: deduplicated to one certificate"
+    else
+        bad "chain root == \$rootCAPem: anchor holds $(grep -c 'BEGIN CERTIFICATE' "$anchor" 2>/dev/null), expected 1"
     fi
 else
     echo "  SKIP  openssl absent, cannot build a throwaway CA"
