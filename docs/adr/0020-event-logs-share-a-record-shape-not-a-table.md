@@ -190,6 +190,35 @@ passing.
 
 ADR 0023's item 5 is implemented.
 
+**Decision 7 is implemented**, 2026-08-22, and it was two-thirds missing until
+then: `usertracking` went on `Route::$readOnlyClasses` when ADR 0023 item 1
+landed and `history` and `tasklog` never followed. Both now do, so all four
+write verbs answer 404 on all three.
+
+None of what came off was reachable by accident. `history` resolves to
+`report`, whose node declares view/create/edit/delete -- so `report.delete` was
+a grantable, working permission that removed rows from the administrative audit
+trail, and REST DELETE funnels through `deletemass()` rather than `destroy()`,
+so it did not even pass the model on the way out. `tasklog` resolves to `task`,
+where a `task.delete` grant could rewrite or remove the imaging reports GH-1206
+exists to keep findable after the fact. Nothing in FOG called either -- no page,
+no JS, no service.
+
+The published document needed no edit: `OpenAPI::_classPaths()` derives
+writability from `Route::writableClasses()` rather than keeping a second copy
+of the list, so `/history` now carries only `get` and `/history/{id}` only
+`get`, generated from the same change. Verified against a lab copy rather than
+assumed.
+
+`tests/event-tables-are-read-only.test.php` (32 checks, mutation-verified four
+ways) pins it at the ROUTER, building the router and matching real URIs, with
+`host` as a control so a router that defined nothing cannot pass. It exists
+separately from `tests/permission-actions-declared.test.php` for a reason worth
+stating: that test fails a routable operation whose node does not DECLARE the
+action, and `report` declares `delete`. Declaring the action is the other way
+to satisfy it, which is exactly what made it blind to this for as long as it
+was.
+
 One coverage note worth keeping visible: `tests/schema-executes.test.php`
 deliberately skips closure steps, so CI's schema replay does **not** exercise
 349 or 350. Real installs do run them; only the harness does not. The

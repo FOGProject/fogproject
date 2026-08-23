@@ -486,28 +486,52 @@ class Route extends FOGBase
     /**
      * Classes the API serves for reading only.
      *
-     * Listed here rather than removed from $validClasses, because the read
-     * side is legitimate and used: the Hosts And Users report and the Login
-     * History tabs on host and group both go through usertracking.view.
+     * ADR 0020 decision 7: the three event tables lose their write routes.
+     * These are the records of what happened, and a record of what happened
+     * that can be edited through the same API that produced it is not a
+     * record. Retention pruning, if it is ever wanted, is a named operation
+     * with its own permission -- not `DELETE /api/history/{id}`.
      *
-     * usertracking is here because coreRegistry() says, in as many words,
-     * that the node has no `create` -- rows come from the fog-client's own
-     * endpoint, which is node `client` and permission-exempt, so nothing
-     * legitimate POSTs one. The generic CRUD routes offered create, join,
-     * update and delete on it anyway, on movement records for named people,
-     * reachable by any holder of '*'. Nothing in FOG called them; they
+     * Listed here rather than removed from $validClasses, because the read
+     * side of each is legitimate and used: the Hosts And Users report and
+     * the Login History tabs go through usertracking.view, Task Management's
+     * log pane and the activity viewer read tasklog, and the activity viewer
+     * and History_Report read history.
+     *
+     * WHAT EACH ONE WAS EXPOSING. None of these were reachable by accident;
+     * they were all grantable permissions that worked.
+     *
+     *  - `usertracking` -> the node has no `create` at all in
+     *    coreRegistry(): rows come from the fog-client's own endpoint, which
+     *    is node `client` and permission-exempt, so nothing legitimate POSTs
+     *    one. The generic routes offered create, join, update and delete
+     *    anyway, on movement records for named people.
+     *  - `history` -> resolves to `report`, whose node declares
+     *    view/create/edit/delete. So a `report.delete` grant could remove
+     *    rows from the administrative audit trail, and REST DELETE funnels
+     *    through deletemass() rather than destroy(), so it did not even pass
+     *    the model.
+     *  - `tasklog` -> resolves to `task`. A `task.delete` grant could rewrite
+     *    or remove the imaging and task reports that GH-1206 exists to keep
+     *    findable after the fact.
+     *
+     * Nothing in FOG calls any of them -- no page, no JS, no service. They
      * existed because the route map expanded over every class without asking
      * whether each one should be writable.
      *
      * An unmatched route is a 404, not a 403, and that is the honest answer:
      * the operation does not exist rather than being withheld.
      *
-     * OpenAPI::_paths() reads this too, so the document stops advertising
-     * the four verbs in the same commit that stops answering them.
+     * OpenAPI::_classPaths() reads this too, through writableClasses(), so
+     * the document stops advertising the four verbs in the same commit that
+     * stops answering them -- it is generated from this list rather than
+     * from a second copy of it.
      *
      * @var array
      */
     public static $readOnlyClasses = [
+        'history',
+        'tasklog',
         'usertracking'
     ];
     /**
