@@ -776,11 +776,20 @@ resolvedfoggitpath="${FOG_git_path}"
 [[ -z $guessdefaults ]] && guessdefaults=1
 [[ -z $doupdate ]] && doupdate=1
 [[ -z $ignorehtmldoc ]] && ignorehtmldoc=0
-# NOT the new default. httpproto is forced to https for everyone further down,
-# after .fogsettings has been sourced -- the migration there has to be able to
-# tell a PERSISTED https (the only evidence an admin ever asked for -S) from a
-# defaulted one, and it cannot if the default has already written https here.
-[[ -z ${WEB_url_proto} ]] && WEB_url_proto="http"
+# NO default here, deliberately -- not even http, which is what this line used
+# to write. WEB_url_proto is forced to https for everyone further down, after
+# .fogsettings has been sourced, and the WEB_https_redirect migration in between
+# has to tell a PERSISTED https (the only evidence an admin ever asked for -S)
+# from a defaulted one.
+#
+# Defaulting it here defeated both steps. migrateDeprecatedKeys' seed is
+# `[[ -z ${WEB_url_proto} ]] && WEB_url_proto="$httpproto"`, and this line had
+# already made it non-empty, so on a pre-1.6 upgrade that seed could never fire:
+# a server that had been running httpproto=https reached the redirect migration
+# holding http and came out with WEB_https_redirect=no -- its redirect switched
+# off by the upgrade, silently. Nothing reads WEB_url_proto between here and that
+# seed, and it is assigned unconditionally afterwards, so leaving it unset costs
+# nothing.
 [[ -z $externalca ]] && externalca="no"
 [[ -z ${DB_name} ]] && DB_name="fog"
 [[ -z ${BOOT_tftp_options} ]] && BOOT_tftp_options=""

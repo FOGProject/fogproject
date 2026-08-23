@@ -3816,7 +3816,14 @@ displayOSChoices() {
                 echo "          4) Arch Based Linux (Arch, Manjaro)"
                 echo
                 echo -n "  Choice: [$strSuggestedOS] "
-                read osid
+                # Into the key the case below tests. This read used to name the
+                # pre-1.6 variable while the case tested the renamed one, so the
+                # answer landed nowhere: FOG_os_id is already $strSuggestedOS by
+                # this point (set at the top of this loop), the case matched
+                # that, and the loop broke -- so the prompt accepted a choice and
+                # then always installed for the SUGGESTED distro. Pressing Enter
+                # still takes the suggestion, through the "" branch below.
+                read FOG_os_id
                 case ${FOG_os_id} in
                     "")
                         FOG_os_id=$strSuggestedOS
