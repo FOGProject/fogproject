@@ -8940,6 +8940,9 @@ msgstr "Actualización de Grupo Primario"
 msgid "Unsupported URL Scheme"
 msgstr ""
 
+msgid "Up, port closed"
+msgstr ""
+
 msgid "Update"
 msgstr "Actualizar"
 
@@ -10289,6 +10292,12 @@ msgstr "No se ha podido destruir"
 #, fuzzy
 msgid "unavailable"
 msgstr "No se dispone de hash"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""

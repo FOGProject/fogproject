@@ -8761,6 +8761,9 @@ msgstr "Grupo primário de actualização"
 msgid "Unsupported URL Scheme"
 msgstr ""
 
+msgid "Up, port closed"
+msgstr ""
+
 msgid "Update"
 msgstr "Atualizar"
 
@@ -10107,6 +10110,12 @@ msgstr "Falha ao atualizar"
 #, fuzzy
 msgid "unavailable"
 msgstr "Não disponível"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""

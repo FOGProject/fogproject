@@ -8460,6 +8460,9 @@ msgstr "come il suo gruppo primario"
 msgid "Unsupported URL Scheme"
 msgstr ""
 
+msgid "Up, port closed"
+msgstr ""
+
 msgid "Update"
 msgstr "Aggiornare"
 
@@ -9740,6 +9743,12 @@ msgstr "Tra impostazioni host e globali"
 
 msgid "unavailable"
 msgstr "non disponibile"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "aggiornare ad un nuovo kernel che abbia maggiori driver built in"

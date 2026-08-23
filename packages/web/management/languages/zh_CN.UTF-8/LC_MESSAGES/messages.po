@@ -8761,6 +8761,9 @@ msgstr "更新主要组"
 msgid "Unsupported URL Scheme"
 msgstr ""
 
+msgid "Up, port closed"
+msgstr ""
+
 msgid "Update"
 msgstr "更新"
 
@@ -10107,6 +10110,12 @@ msgstr "无法更新"
 #, fuzzy
 msgid "unavailable"
 msgstr "不可用"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr ""

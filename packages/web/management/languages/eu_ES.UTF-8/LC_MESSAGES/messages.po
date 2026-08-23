@@ -8765,6 +8765,9 @@ msgstr "als primäre Gruppe finden"
 msgid "Unsupported URL Scheme"
 msgstr ""
 
+msgid "Up, port closed"
+msgstr ""
+
 msgid "Update"
 msgstr "Update"
 
@@ -10115,6 +10118,12 @@ msgstr "Host- und globalen Einstellungen gibt,"
 #, fuzzy
 msgid "unavailable"
 msgstr "nicht verfügbar"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "auf einen neueren Kernel updaten, der mehr Treiber beinhaltet. "

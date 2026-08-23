@@ -8393,6 +8393,9 @@ msgstr "プライマリグループとして"
 msgid "Unsupported URL Scheme"
 msgstr "サポートされていない URL スキーム"
 
+msgid "Up, port closed"
+msgstr ""
+
 msgid "Update"
 msgstr "更新"
 
@@ -9672,6 +9675,12 @@ msgstr "更新できません"
 
 msgid "unavailable"
 msgstr "利用不可"
+
+msgid "up"
+msgstr ""
+
+msgid "up, port closed"
+msgstr ""
 
 msgid "update to a newer kernel which may have more drivers built in"
 msgstr "より多くのドライバーを含む新しいカーネルへ更新してください"
