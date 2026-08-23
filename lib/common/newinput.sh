@@ -32,7 +32,7 @@ while [[ -z ${NET_hostname} ]]; do
             ;;
         [Yy]|[Yy][Ee][Ss])
             echo -n "  Which hostname would you like to use? "
-            read hostname
+            read NET_hostname
             ;;
         *)
             echo "  Invalid input, please try again."

@@ -73,7 +73,7 @@ while [[ -z ${FOG_install_type} ]]; do
         echo "     http://www.fogproject.org/wiki/index.php?title=InstallationModes"
         echo
         echo -n "  What type of installation would you like to do? [N/s (Normal/Storage)] "
-        read installtype
+        read FOG_install_type
     fi
     case ${FOG_install_type} in
         [Nn]|[Nn][Oo][Rr][Mm][Aa][Ll]|"")
@@ -108,7 +108,7 @@ testInterface() {
                 ;;
             [Yy]|[Yy][Ee][Ss])
                 echo -n "  What network interface would you like to use? "
-                read interface
+                read NET_interface
                 ;;
             *)
                 echo "  Invalid input, please try again."
@@ -158,17 +158,21 @@ case ${FOG_install_type} in
             if [[ -z $autoaccept ]]; then
                 echo
                 echo -n "  Would you like to use the FOG server for DHCP service? [y/N] "
-                read dodhcp
+                read DHCP_enabled
             fi
             case ${DHCP_enabled} in
                 [Nn]|[Nn][Oo]|"")
                     DHCP_enabled=0
-                    DHCP_enabled="N"
                     ;;
                 [Yy]|[Yy][Ee][Ss])
                     DHCP_enabled=1
                     ;;
                 *)
+                    # Cleared so the loop re-prompts. Before the read targeted
+                    # this key it was always empty here and always matched ""
+                    # above, so an unrecognised answer could not survive; now it
+                    # can, and a non-empty one would end the loop.
+                    DHCP_enabled=""
                     echo "  Invalid input, please try again."
                     ;;
             esac
@@ -185,7 +189,7 @@ case ${FOG_install_type} in
                         if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
                             echo "  What is the IP address to be used for the router on"
                             echo -n "      the DHCP server? [$strSuggestedRoute]"
-                            read routeraddress
+                            read DHCP_router
                         fi
                         case ${DHCP_router} in
                             "")
@@ -221,7 +225,7 @@ case ${FOG_install_type} in
                     [Yy]|[Yy][Ee][Ss]|"")
                         if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
                             echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
-                            read dnsaddress
+                            read DHCP_dns_server_ip
                         fi
                         case ${DHCP_dns_server_ip} in
                             "")
@@ -253,7 +257,7 @@ case ${FOG_install_type} in
                 echo
                 echo "  This version of FOG has internationalization support, would  "
                 echo -n "  you like to install the additional language packs? [y/N] "
-                read installlang
+                read FOG_install_lang
             fi
             case ${FOG_install_lang} in
                 [Nn]|[Nn][Oo]|"")
@@ -263,6 +267,9 @@ case ${FOG_install_type} in
                     FOG_install_lang=1
                     ;;
                 *)
+                    # See the DHCP_enabled loop above: cleared so an
+                    # unrecognised answer re-prompts instead of ending the loop.
+                    FOG_install_lang=""
                     echo "  Invalid input, please try again."
                     ;;
             esac
@@ -276,7 +283,7 @@ case ${FOG_install_type} in
             echo "  What is the IP address or hostname of the FOG server running "
             echo "  the fog database?  This is typically the server that also "
             echo -n "  runs the web server, dhcp, and tftp.  IP or Hostname: "
-            read snmysqlhost
+            read DB_host
         done
         DB_user='fogstorage'
         while [[ -z ${DB_password} ]]; do
@@ -287,7 +294,7 @@ case ${FOG_install_type} in
             echo "  'FOG Settings' -> "
             echo "  'FOG Storage Nodes' -> "
             echo  -n "  'FOG_STORAGENODE_MYSQLPASS'.  Password: "
-            read -r snmysqlpass
+            read -r DB_password
             [[ -z ${DB_password} ]] && echo "Invalid input, please try again."
         done
         ;;
