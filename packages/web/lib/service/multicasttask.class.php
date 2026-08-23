@@ -1002,13 +1002,31 @@ class MulticastTask extends FOGService
             }
             $streams[] = $chunks;
         }
+        // GH-536: the first stream is the partition every machine reaches
+        // at the same moment, straight off the wire; the ones after it are
+        // reached only once each machine has finished writing the one
+        // before, and identical hardware does not finish together. A single
+        // wait covering both cases has to be long enough for the slowest
+        // machine on the LAST partition, which makes a machine that never
+        // shows up for the FIRST one hold the whole session open for that
+        // long as well. So the configured wait applies to the first stream
+        // and a longer one to the rest.
+        //
+        // This is one token different from working-1.6, which uses a flat
+        // 600 for the later streams. It can, because there the first value
+        // is per-session -- the admin sets it on the task in front of them.
+        // Here it is FOG_UDPCAST_MAXWAIT, a global, so an admin who raised
+        // it raised it as policy for every partition, and shortening the
+        // later ones to 600 would quietly undo that. Taking the larger of
+        // the two gives the improvement to anyone who lowered the setting
+        // and changes nothing for anyone who raised it.
+        $firstwait = $maxwait * 60;
+        $laterwait = max(600, $firstwait);
         ob_start();
-        // $i is gone with the sprintf: both arms of the max-wait
-        // ternary it fed were already identical ($maxwait * 60).
-        foreach ($streams as $stream) {
+        foreach ($streams as $i => $stream) {
             $cmd = str_replace(
                 '{MAXWAIT}',
-                (string)($maxwait * 60),
+                (string)(0 === $i ? $firstwait : $laterwait),
                 implode($buildcmd)
             );
             $paths = array();
