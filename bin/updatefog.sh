@@ -207,6 +207,11 @@ fi
 # rather than re-detected, since only doOSSpecificIncludes' per-distro
 # config.sh actually needs it here.
 . "$fogprogramdir/.fogsettings"
+# Before the first read of a renamed key. On a .fogsettings written by a
+# pre-GH-1120 installer FOG_os_name and FOG_os_id do not exist yet, and the
+# doOSSpecificIncludes below is -n guarded, so without this the distro config
+# is silently SKIPPED rather than failing loudly.
+migrateDeprecatedKeys
 linuxReleaseName_lower="${FOG_os_name,,}"
 . ../lib/common/config.sh
 [[ -n ${FOG_os_id} ]] && doOSSpecificIncludes >/dev/null

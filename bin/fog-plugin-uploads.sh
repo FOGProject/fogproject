@@ -31,9 +31,17 @@
 
 set -u
 
-progdir="${fogprogramdir:-/opt/fog}"
+# GH-1120 renamed fogprogramdir to FOG_program_dir. Both spellings are read,
+# newest first, because this script has to work either side of the upgrade
+# that rewrites .fogsettings: a server that has not upgraded yet still has the
+# old line, one that has only has the new. Reading just the old name meant
+# silently falling back to /opt/fog on any server with a custom program dir --
+# and it runs `set -u`, so it cannot call migrateDeprecatedKeys the way the
+# other entry points do (that function tests dozens of deliberately-unset
+# variables). Defaulted expansions are unbound-safe; a bare read is not.
+progdir="${FOG_program_dir:-${fogprogramdir:-/opt/fog}}"
 [[ -r $progdir/.fogsettings ]] && . "$progdir/.fogsettings"
-progdir="${fogprogramdir:-/opt/fog}"
+progdir="${FOG_program_dir:-${fogprogramdir:-/opt/fog}}"
 plugindir="$progdir/plugins"
 
 usage() {
