@@ -4420,6 +4420,19 @@ abstract class FOGBase
      * DB_host="$snmysqlhost"`), so a row written once is readable everywhere
      * with nothing to distribute.
      *
+     * That last clause holds for a TRUE storage node and only for one. A
+     * peer that is itself a full FOG server -- its own DATABASE_HOST, its
+     * own globalSettings -- shares no row with the master, mints its own
+     * key here, and cannot verify anything the master signs. Nothing in the
+     * installer distributes this value, and validNodeSignature() must never
+     * mint one, so a pure receiver cannot heal itself either.
+     *
+     * nodeSigningKeyFor() is the answer for that topology: a per-peer key
+     * on the master's storage node record, which the administrator also
+     * sets as that peer's own FOG_NODE_API_KEY. Same model as ngmUser and
+     * ngmPass, which have always had to be kept in step with the account
+     * that actually exists on the node.
+     *
      * @var string
      */
     const NODE_API_KEY_SETTING = 'FOG_NODE_API_KEY';
@@ -4499,6 +4512,98 @@ abstract class FOGBase
         return trim((string) self::getSetting(self::NODE_API_KEY_SETTING));
     }
     /**
+     * The signing key for one peer, or '' to fall back to the shared one.
+     *
+     * A storage node that shares the master's database verifies with the
+     * global key and needs nothing here. A peer that is a full FOG server
+     * has its own globalSettings and cannot see the master's row at all, so
+     * the two ends have to be given a value in common by hand.
+     *
+     * nfsGroupMembers.ngmKey is where it goes. The column has existed since
+     * 1.5, is declared on StorageNode as `key`, and has never been read or
+     * written by anything -- and it is already listed in
+     * Route::$sensitiveAlwaysFields, so no route has ever emitted it and
+     * none will start now.
+     *
+     * Matched on ngmHostname because that is what the caller has: signing
+     * happens in FOGURLRequests, which knows a URL and not which node it
+     * belongs to. A host that matches no node, or a node with an empty key,
+     * returns '' and the caller signs with the installation-wide key --
+     * which is what every existing shared-database install keeps doing.
+     *
+     * @param string $host The host part of the URL about to be requested.
+     *
+     * @return string The peer's key, or '' if it has none.
+     */
+    public static function nodeSigningKeyFor($host)
+    {
+        $host = trim((string) $host);
+        if ($host === '') {
+            return '';
+        }
+        // fetch_all rather than fetch()->get('ngmKey'): on a host that
+        // matches no node the single-row form hands back the empty result
+        // set itself, which casts to the string 'Array' -- a non-empty
+        // "key" that signs every request to an unknown host with a
+        // constant nobody can verify. Indexing a list makes "no row" and
+        // "no key" the same, empty, answer.
+        $rows = self::$DB->query(
+            sprintf(
+                'SELECT `ngmKey` FROM `nfsGroupMembers` '
+                . 'WHERE `ngmHostname` = %s AND `ngmKey` <> %s LIMIT 1',
+                self::$DB->escape($host),
+                self::$DB->escape('')
+            )
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $rows = (array) $rows;
+        if (count($rows) < 1) {
+            return '';
+        }
+        return trim((string) ($rows[0]['ngmKey'] ?? ''));
+    }
+    /**
+     * Every key a signature reaching THIS server could legitimately carry.
+     *
+     * The global key first, because on a shared-database install that is
+     * the one the master signed with and the common case should cost one
+     * comparison.
+     *
+     * Then every non-empty ngmKey this server can see. Two topologies need
+     * it and they need it for opposite reasons:
+     *
+     *   - Shared database. The master signed with the target node's own
+     *     ngmKey; the node reads the same table, so the key is right there.
+     *   - Standalone peer. The administrator set this server's
+     *     FOG_NODE_API_KEY to match, so the global key already covers it --
+     *     but this server's OWN node rows are also legitimate signers if it
+     *     is a master in its own right.
+     *
+     * The candidate set is bounded by the number of storage nodes and each
+     * miss is one hash_hmac, so the cost is not worth a cache that could
+     * then go stale against a rotated key.
+     *
+     * @return array Distinct non-empty keys.
+     */
+    private static function _nodeVerificationKeys()
+    {
+        $keys = [];
+        $global = trim((string) self::getSetting(self::NODE_API_KEY_SETTING));
+        if ($global !== '') {
+            $keys[] = $global;
+        }
+        $rows = self::$DB->query(
+            'SELECT `ngmKey` FROM `nfsGroupMembers` '
+            . "WHERE `ngmKey` <> ''"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array) $rows as $row) {
+            $candidate = trim((string) ($row['ngmKey'] ?? ''));
+            if ($candidate !== '') {
+                $keys[] = $candidate;
+            }
+        }
+        return array_values(array_unique($keys));
+    }
+    /**
      * The exact bytes both ends run through hash_hmac().
      *
      * Method and path are in the signed material so a captured signature
@@ -4535,12 +4640,24 @@ abstract class FOGBase
      */
     public static function nodeSignatureHeaders($url, $method = 'GET')
     {
-        $key = self::nodeApiKey();
-        if ($key === '') {
-            return [];
-        }
         $parts = parse_url((string) $url);
         if ($parts === false) {
+            return [];
+        }
+        // The peer's own key if it has one, otherwise the installation-wide
+        // key. Ordered this way round so a shared-database install -- where
+        // no ngmKey is ever set -- signs exactly as it did before, and a
+        // full FOG server registered as a peer gets a secret that is only
+        // good for talking to it.
+        //
+        // Resolved before the empty-key bail below, because "this peer has
+        // no key of its own" is not the same as "this installation has no
+        // key" and only the second is a reason to give up.
+        $key = self::nodeSigningKeyFor($parts['host'] ?? '');
+        if ($key === '') {
+            $key = self::nodeApiKey();
+        }
+        if ($key === '') {
             return [];
         }
         $uri = ($parts['path'] ?? '/');
@@ -4573,7 +4690,14 @@ abstract class FOGBase
      *
      * getSetting() rather than nodeApiKey() deliberately: verification must
      * never mint a key. If no key exists there is nothing this request can
-     * have signed with, and the answer is no.
+     * have signed with, and the answer is no. That is also why a peer which
+     * only ever RECEIVES signed requests cannot heal itself, and why its
+     * key has to be put there by hand -- see nodeSigningKeyFor().
+     *
+     * More than one key can be correct. _nodeVerificationKeys() has the
+     * reasoning; the short version is that the signer may have used this
+     * installation's shared key or a per-peer one, and the receiver cannot
+     * tell which from the request.
      *
      * @return bool
      */
@@ -4591,20 +4715,28 @@ abstract class FOGBase
         if (abs(time() - (int) $timestamp) > self::NODE_SIGNATURE_WINDOW) {
             return false;
         }
-        $key = trim((string) self::getSetting(self::NODE_API_KEY_SETTING));
-        if ($key === '') {
+        $keys = self::_nodeVerificationKeys();
+        if (count($keys) < 1) {
             return false;
         }
-        $expected = hash_hmac(
-            'sha256',
-            self::_nodeSignaturePayload(
-                strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')),
-                (string) ($_SERVER['REQUEST_URI'] ?? ''),
-                $timestamp
-            ),
-            $key
+        $payload = self::_nodeSignaturePayload(
+            strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')),
+            (string) ($_SERVER['REQUEST_URI'] ?? ''),
+            $timestamp
         );
-        return hash_equals($expected, $signature);
+        // Every candidate is compared, and the result is accumulated rather
+        // than returned early, so the time taken does not depend on WHICH
+        // key matched -- an early return would let a caller learn a node's
+        // position in the list by timing it. hash_equals is already constant
+        // time for the comparison itself; this keeps the loop from undoing
+        // that.
+        $matched = false;
+        foreach ($keys as $key) {
+            if (hash_equals(hash_hmac('sha256', $payload, $key), $signature)) {
+                $matched = true;
+            }
+        }
+        return $matched;
     }
     /**
      * Is the current session a FOG administrator?
