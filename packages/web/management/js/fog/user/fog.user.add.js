@@ -26,7 +26,13 @@
 
         fields.each(function() {
             var field = $(this),
-                row = field.closest('div[class^="form-group"]');
+                // '.row.mb-3' is what renderAddForm() actually emits around
+                // a label/field pair -- NOT a form-group. validateForm()
+                // itself looks for 'div[class^="form-group"]' here and gets
+                // an empty set on every modern page, which it survives only
+                // because it has a fallback. Copying that selector hid
+                // nothing at all, which is what deploying this found.
+                row = field.closest('.row.mb-3');
             field
                 .prop('required', !apiOnly)
                 .prop('disabled', apiOnly);
@@ -36,10 +42,10 @@
                 field.val('');
                 // The field may already be marked invalid from an earlier
                 // failed submit. Leaving that behind would show an error
-                // against a hidden row. Same two selectors validateForm()
-                // itself clears down at the top of a pass.
+                // against a row nobody can see. validateForm() inserts the
+                // message directly AFTER the input, not inside the row.
                 field.removeClass('is-invalid');
-                row.find('span.invalid-feedback').remove();
+                field.next('span.invalid-feedback').remove();
             }
             row.toggleClass('d-none', apiOnly);
         });

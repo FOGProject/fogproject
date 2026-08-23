@@ -158,6 +158,29 @@ $t->check(
     'it hides the row',
     (bool)preg_match("/row\.toggleClass\('d-none', apiOnly\)/", $addJs)
 );
+// The selector, pinned separately and deliberately. renderAddForm() emits
+// '<div class="row mb-3">'; there is no form-group anywhere on the page.
+// The first cut of this copied validateForm()'s own
+// 'div[class^="form-group"]' lookup, which matches nothing -- so closest()
+// returned an empty set, toggleClass() was a no-op on it, and the rows
+// stayed visible while every other check here passed. Source review could
+// not see it; deploying it could.
+$t->check(
+    'the row is found by the wrapper renderAddForm() actually emits',
+    (bool)preg_match("/field\.closest\('\.row\.mb-3'\)/", $addJs)
+    && false === strpos($addJs, 'form-group')
+);
+$t->check(
+    'renderAddForm() still emits that wrapper',
+    false !== strpos(
+        file_get_contents($web . '/lib/fog/fogpage.class.php'),
+        '<div class="row mb-3">'
+    )
+);
+$t->check(
+    'the stale error span is cleared where validateForm() puts it',
+    false !== strpos($addJs, "field.next('span.invalid-feedback').remove()")
+);
 $t->check(
     'it clears any value left behind',
     (bool)preg_match("/field\.val\(''\)/", $addJs)
@@ -199,9 +222,9 @@ $t->check(
     )
 );
 $t->check(
-    'FOG_BCACHE_VER is at least 306',
+    'FOG_BCACHE_VER is at least 307',
     (bool)preg_match("/define\('FOG_BCACHE_VER', (\d+)\)/", $sysSrc, $m)
-    && (int)$m[1] >= 306
+    && (int)$m[1] >= 307
 );
 
 $t->finish();
