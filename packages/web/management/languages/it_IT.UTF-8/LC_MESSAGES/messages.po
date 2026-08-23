@@ -443,6 +443,10 @@ msgstr "Luogo"
 msgid "API Only Account"
 msgstr "Slack Accounts"
 
+#, fuzzy
+msgid "API Only?"
+msgstr "Slack Accounts"
+
 msgid "API Token Created"
 msgstr ""
 

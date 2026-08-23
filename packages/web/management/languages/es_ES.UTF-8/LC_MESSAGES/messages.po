@@ -454,6 +454,10 @@ msgstr "Acción"
 msgid "API Only Account"
 msgstr "Añadir nueva cuenta de usuario"
 
+#, fuzzy
+msgid "API Only?"
+msgstr "Añadir nueva cuenta de usuario"
+
 msgid "API Token Created"
 msgstr ""
 

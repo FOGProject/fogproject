@@ -456,6 +456,10 @@ msgstr "Localização"
 msgid "API Only Account"
 msgstr "Contas Slack"
 
+#, fuzzy
+msgid "API Only?"
+msgstr "Contas Slack"
+
 msgid "API Token Created"
 msgstr ""
 
