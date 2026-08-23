@@ -244,7 +244,6 @@ class Route extends FOGBase
         ],
         'user' => [
             'password',
-            'token',
         ],
     ];
     /**
@@ -285,6 +284,16 @@ class Route extends FOGBase
         // Found leaking through the storage GROUP list, not the node list:
         // the group's `masternode` column embeds the whole node object,
         // password included, to anyone holding storagegroup.view.
+        // A user's API token. Tier 2 rather than tier 1 because nothing
+        // reads it back over the API: the API tab renders it server-side
+        // from the object (UserManagement::userAPI), and the reset button
+        // posts to management/status/newtoken.php -- neither goes through
+        // a REST payload. It is a complete standalone credential now that
+        // Authorization: Bearer accepts it, so a single-entity GET handing
+        // it to any holder of user.view was the whole account.
+        'user' => [
+            'token',
+        ],
         'storagenode' => [
             'pass',
             'key',
