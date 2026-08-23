@@ -1468,10 +1468,23 @@ class Route extends FOGBase
             filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
         );
         $passtoken = trim($passtoken);
-        if (!hash_equals((string)self::$_token, (string)$passtoken)) {
-            // Before sendResponse(), which exits. The presented token is
-            // NOT recorded -- a rejected credential is still a credential,
-            // and #1261/#1262 was exactly this mistake in the SQL fault log.
+        if (hash_equals((string)self::$_token, (string)$passtoken)) {
+            return;
+        }
+        // Only when something was actually presented. An absent header is
+        // not an attempt, which is the rule _testAuth() already applies to
+        // the user token one method below -- this method did not, and it
+        // runs FIRST, so every unauthenticated API request wrote a rejection
+        // row. On the lab server that was 73 api-token rows against 1
+        // user-token row, which is not a difference in traffic: it is this
+        // method recording the ordinary case of nobody presenting anything.
+        // Rejections matter because they are rare, and burying the real ones
+        // under the routine ones is how a log stops being read.
+        //
+        // Before sendResponse(), which exits. The presented token is NOT
+        // recorded -- a rejected credential is still a credential, and
+        // #1261/#1262 was exactly this mistake in the SQL fault log.
+        if ('' !== $passtoken) {
             Audit::record(
                 [
                     'type' => Audit::TOKEN_REJECTED,
@@ -1481,10 +1494,30 @@ class Route extends FOGBase
                     'renderable' => 1
                 ]
             );
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_FORBIDDEN
-            );
         }
+        // 401, not 403. Nothing here has authenticated anybody: this method
+        // runs before _testAuth() and its failure means the credential was
+        // missing or wrong, which is precisely what 401 is for. 403 says
+        // "I know who you are and you may not", and answering it to a caller
+        // who presented nothing sends whoever is debugging that client
+        // looking for a permission they do not have rather than for the
+        // credential they did not send.
+        //
+        // It also made the router disagree with itself. _testBearer() and
+        // _testAuth() both answer 401 for a missing or bad credential; this
+        // was the one arm that did not, and because it runs first it decided
+        // the response for EVERY unauthenticated request -- so an API call
+        // with no headers at all came back 403 while a merely wrong Bearer
+        // token came back 401.
+        //
+        // Deliberately no WWW-Authenticate header, which RFC 7235 would
+        // otherwise want on a 401: it is what makes a browser throw up a
+        // native basic-auth prompt, and the management UI reaches these same
+        // routes over XHR. That is a real regression traded against a header
+        // no FOG client reads.
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_UNAUTHORIZED
+        );
     }
     /**
      * Reads a $_SERVER value, preferring filter_input.
