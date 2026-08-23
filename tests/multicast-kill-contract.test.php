@@ -38,6 +38,21 @@ if (!is_dir('/proc/self')) {
     fwrite(STDERR, "SKIP: no /proc on this platform\n");
     exit(0);
 }
+// SIGTERM and SIGKILL come from ext-pcntl, not ext-posix. The daemons need
+// pcntl anyway -- service_lib.php forks -- but a bare CLI image can have
+// posix_kill() and still not have the constants, and without them
+// proc_terminate() is handed the string 'SIGTERM' and quietly does nothing.
+if (!defined('SIGTERM') || !defined('SIGKILL')) {
+    fwrite(STDERR, "SKIP: ext-pcntl signal constants unavailable\n");
+    exit(0);
+}
+// killAll() shells out to ps to walk the process tree, and returns without
+// signalling anything if it is missing.
+exec('command -v ps', $psOut, $psRet);
+if (0 !== $psRet) {
+    fwrite(STDERR, "SKIP: no ps on PATH\n");
+    exit(0);
+}
 
 /**
  * Stand-in for the real base class.
@@ -107,23 +122,24 @@ function spawn($cmd)
 }
 
 /**
- * Waits for a freshly forked child to publish its argv.
+ * Waits for a freshly forked child to actually become the thing we asked for.
  *
- * execve() does not make a process visible all at once. The kernel installs
- * the new mm -- so /proc/<pid>/exe already names the new binary -- BEFORE it
- * records where argv lives, and until it does /proc/<pid>/cmdline reads
- * empty for a process that is plainly running. Measured here at roughly
- * four spawns in five.
+ * execve() does not make a process visible all at once, and what you see in
+ * the window before it lands depends on the kernel. Between fork() and exec()
+ * the child still shares the parent's memory map, so /proc/<pid>/cmdline
+ * reads back THIS INTERPRETER'S argv -- and where the mm has been swapped but
+ * argv is not yet recorded, it reads empty. Both were observed: empty on the
+ * dev box for roughly four spawns in five, and the parent's own argv on the
+ * PHP 7.4 CI image, where a first attempt at this that merely waited for
+ * "non-empty" sailed straight through and failed the match.
  *
- * Nothing in the product looks at a pid that young: the reconciler reads one
+ * So the wait is for a cmdline that is non-empty AND is not ours. That is
+ * independent of what the checks below then assert about its contents, which
+ * is the point -- settling on the assertion would prove nothing.
+ *
+ * Nothing in the product looks at a pid this young: the reconciler reads one
  * persisted by a previous daemon run, and clearSenderRef() one that has been
- * sending an image for minutes. But this file spawned and asked immediately,
- * and failed intermittently until it stopped.
- *
- * This does read the same file isPidAlive() reads, so it cannot by itself
- * evidence that a running process reads as alive -- that claim is anchored
- * below on getmypid(), which has no such window. What the wait buys is the
- * cmdline MATCHING checks, which are the part with content.
+ * sending an image for minutes.
  *
  * @param int $pid The pid to wait for.
  *
@@ -131,10 +147,12 @@ function spawn($cmd)
  */
 function settle($pid)
 {
+    $mine = (string)@file_get_contents('/proc/self/cmdline');
     for ($i = 0; $i < 250; $i++) {
-        if ('' !== (string)@file_get_contents(
+        $theirs = (string)@file_get_contents(
             sprintf('/proc/%d/cmdline', $pid)
-        )) {
+        );
+        if ('' !== $theirs && $theirs !== $mine) {
             return;
         }
         usleep(20000);
