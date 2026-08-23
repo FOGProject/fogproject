@@ -190,10 +190,10 @@ return [
             ],
         ],
         'history' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `history` ( `hID` int(11) NOT NULL AUTO_INCREMENT, `hText` varchar(255) NOT NULL DEFAULT \'\', `hUser` varchar(200) NOT NULL DEFAULT \'\', `hTime` timestamp NOT NULL DEFAULT current_timestamp(), `hIP` varchar(50) NOT NULL DEFAULT \'\', `hType` varchar(16) NOT NULL DEFAULT \'\', `hSubjectType` varchar(64) NOT NULL DEFAULT \'\', `hSubjectID` int(11) DEFAULT NULL, `hSubjectLabel` varchar(200) NOT NULL DEFAULT \'\', PRIMARY KEY (`hID`), UNIQUE KEY `updateTime` (`hText`,`hTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `history` ( `hID` int(11) NOT NULL AUTO_INCREMENT, `hText` text NOT NULL, `hUser` varchar(200) NOT NULL DEFAULT \'\', `hTime` timestamp NOT NULL DEFAULT current_timestamp(), `hIP` varchar(50) NOT NULL DEFAULT \'\', `hType` varchar(16) NOT NULL DEFAULT \'\', `hSubjectType` varchar(64) NOT NULL DEFAULT \'\', `hSubjectID` int(11) DEFAULT NULL, `hSubjectLabel` varchar(200) NOT NULL DEFAULT \'\', PRIMARY KEY (`hID`), KEY `hTime` (`hTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hID' => 'int(11) NOT NULL',
-                'hText' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hText' => 'text NOT NULL',
                 'hUser' => 'varchar(200) NOT NULL DEFAULT \'\'',
                 'hTime' => 'timestamp NOT NULL DEFAULT current_timestamp()',
                 'hIP' => 'varchar(50) NOT NULL DEFAULT \'\'',

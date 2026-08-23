@@ -4795,9 +4795,6 @@ msgstr "MySQL Administrator または次のコマンドを実行して"
 msgid "N/A"
 msgstr "N/A"
 
-msgid "NAME"
-msgstr "名前"
-
 msgid "NOT"
 msgstr "NOT"
 
@@ -9138,12 +9135,6 @@ msgstr "完了しました"
 msgid "has been killed"
 msgstr "強制終了されました"
 
-msgid "has been successfully destroyed"
-msgstr "正常に削除されました"
-
-msgid "has been successfully updated"
-msgstr "正常に更新されました"
-
 #, fuzzy
 msgid "has completed on"
 msgstr "完了しました"
@@ -9151,12 +9142,6 @@ msgstr "完了しました"
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "スナップインタスクが完了しました。"
-
-msgid "has failed to destroy"
-msgstr "削除に失敗しました"
-
-msgid "has failed to save"
-msgstr "保存に失敗しました"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -10930,6 +10915,9 @@ msgstr ""
 #~ msgid "Must use an"
 #~ msgstr "次を使用する必要があります"
 
+#~ msgid "NAME"
+#~ msgstr "名前"
+
 #~ msgid "NOTICE"
 #~ msgstr "通知"
 
@@ -11986,6 +11974,18 @@ msgstr ""
 
 #~ msgid "has been started on port"
 #~ msgstr "次のポートで開始されました"
+
+#~ msgid "has been successfully destroyed"
+#~ msgstr "正常に削除されました"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "正常に更新されました"
+
+#~ msgid "has failed to destroy"
+#~ msgstr "削除に失敗しました"
+
+#~ msgid "has failed to save"
+#~ msgstr "保存に失敗しました"
 
 #~ msgid "help with any aspect of FOG"
 #~ msgstr "FOG に関するあらゆるサポート"

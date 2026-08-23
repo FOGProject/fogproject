@@ -577,6 +577,62 @@ abstract class FOGController extends FOGBase
             || $this instanceof AuditChange;
     }
     /**
+     * The stored history line for a save or a destroy.
+     *
+     * ADR 0020 decision 5, writer half. This text is DELIBERATELY NOT
+     * TRANSLATED, which is the whole change: the four call sites used to
+     * wrap every fragment in _(), so what landed in `hText` was a sentence
+     * in whatever locale the person who triggered it happened to be using.
+     * The row was then unreadable to the next admin, unsearchable across an
+     * install with more than one language, and impossible to filter on --
+     * "has been successfully updated" is not a value, it is a translation of
+     * one.
+     *
+     * Phase 4 made that stop mattering for anything a person reads: every
+     * reader now builds its sentence from the frame (type, subjectType,
+     * subjectID, subjectLabel) in the READER's locale. History::summary()
+     * is that renderer. So this string's job changed -- it is the stable,
+     * machine-comparable record of the event, not the thing on screen.
+     *
+     * It is not emptied, and that is deliberate too. Three readers still
+     * fall back to it: History::summary() itself for any row it cannot
+     * frame (legacy rows, TYPE_LOG rows, a plugin's own type), the REST
+     * `info` field, and the search filter. An empty column would break all
+     * three to save nothing.
+     *
+     * Kept byte-for-byte in the shape the prose has always had, minus the
+     * _() calls, so a legacy row and a new one still sort and read
+     * together. The one change is "NAME:" to "Name:" -- save() shouted it
+     * and the other three did not, and the inconsistency only survived
+     * because each site built its own string.
+     *
+     * @param string $outcome untranslated outcome clause, e.g.
+     *                        'has been successfully updated'
+     * @param string $error   optional error text to append
+     *
+     * @return string
+     */
+    private function _historyText($outcome, $error = '')
+    {
+        $msg = sprintf(
+            '%s ID: %s',
+            self::shortName($this),
+            $this->get('id')
+        );
+        if ($this->get('name')) {
+            $msg .= sprintf(' Name: %s', $this->get('name'));
+        }
+        $msg .= ' ' . $outcome . '.';
+        if ('' !== (string)$error) {
+            // The exception's own message. Not translated here either, and
+            // frequently not translatable at all -- it is usually the
+            // database server's text.
+            $msg .= sprintf(' Error: %s', $error);
+        }
+
+        return $msg;
+    }
+    /**
      * Stores data into the database.
      *
      * @return bool|object
@@ -822,25 +878,7 @@ abstract class FOGController extends FOGBase
             }
 
             if (!$this->_isLogTable() && !$this instanceof Plugin) {
-                if ($this->get('name')) {
-                    $msg = sprintf(
-                        '%s %s: %s %s: %s %s.',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('NAME'),
-                        $this->get('name'),
-                        _('has been successfully updated')
-                    );
-                } else {
-                    $msg = sprintf(
-                        '%s %s: %s %s.',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('has been successfully updated')
-                    );
-                }
+                $msg = $this->_historyText('has been successfully updated');
                 // ADR 0020 phase 3: the frame beside the prose. The
                 // subject is this object -- its class, its id and its name
                 // -- and it is read here rather than at the writer because
@@ -862,29 +900,10 @@ abstract class FOGController extends FOGBase
             $this->_auditChanges();
         } catch (\Exception $e) {
             if (!$this->_isLogTable()) {
-                if ($this->get('name')) {
-                    $msg = sprintf(
-                        '%s %s: %s %s: %s %s. %s: %s',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('Name'),
-                        $this->get('name'),
-                        _('has failed to save'),
-                        _('Error'),
-                        $e->getMessage()
-                    );
-                } else {
-                    $msg = sprintf(
-                        '%s %s: %s %s. %s: %s',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('has failed to save'),
-                        _('Error'),
-                        $e->getMessage()
-                    );
-                }
+                $msg = $this->_historyText(
+                    'has failed to save',
+                    $e->getMessage()
+                );
                 // ADR 0020 phase 3: the frame beside the prose. The
                 // subject is this object -- its class, its id and its name
                 // -- and it is read here rather than at the writer because
@@ -1315,25 +1334,7 @@ abstract class FOGController extends FOGBase
                 throw new \Exception((string) self::$DB->error);
             }
             if (!$this->_isLogTable()) {
-                if ($this->get('name')) {
-                    $msg = sprintf(
-                        '%s %s: %s %s: %s %s.',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('Name'),
-                        $this->get('name'),
-                        _('has been successfully destroyed')
-                    );
-                } else {
-                    $msg = sprintf(
-                        '%s %s: %s %s.',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('has been successfully destroyed')
-                    );
-                }
+                $msg = $this->_historyText('has been successfully destroyed');
                 // ADR 0020 phase 3: the frame beside the prose. The
                 // subject is this object -- its class, its id and its name
                 // -- and it is read here rather than at the writer because
@@ -1366,29 +1367,10 @@ abstract class FOGController extends FOGBase
             }
         } catch (\Exception $e) {
             if (!$this->_isLogTable()) {
-                if ($this->get('name')) {
-                    $msg = sprintf(
-                        '%s %s: %s %s: %s %s. %s: %s',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('Name'),
-                        $this->get('name'),
-                        _('has failed to destroy'),
-                        _('Error'),
-                        $e->getMessage()
-                    );
-                } else {
-                    $msg = sprintf(
-                        '%s %s: %s %s. %s: %s',
-                        self::shortName($this),
-                        _('ID'),
-                        $this->get('id'),
-                        _('has failed to destroy'),
-                        _('Error'),
-                        $e->getMessage()
-                    );
-                }
+                $msg = $this->_historyText(
+                    'has failed to destroy',
+                    $e->getMessage()
+                );
                 // ADR 0020 phase 3: the frame beside the prose. The
                 // subject is this object -- its class, its id and its name
                 // -- and it is read here rather than at the writer because

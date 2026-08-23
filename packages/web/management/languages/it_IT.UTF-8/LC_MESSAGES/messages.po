@@ -4840,9 +4840,6 @@ msgstr "MySQL Administrator o eseguendo"
 msgid "N/A"
 msgstr "N/D"
 
-msgid "NAME"
-msgstr "NOME"
-
 msgid "NOT"
 msgstr "NON"
 
@@ -9209,12 +9206,6 @@ msgstr "è stato completato"
 msgid "has been killed"
 msgstr "è stato cancellato"
 
-msgid "has been successfully destroyed"
-msgstr "è stato distrutta con successo"
-
-msgid "has been successfully updated"
-msgstr "è stato aggiornato con successo"
-
 #, fuzzy
 msgid "has completed on"
 msgstr "è stato completato"
@@ -9222,12 +9213,6 @@ msgstr "è stato completato"
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "Non valido Snapin Tasking"
-
-msgid "has failed to destroy"
-msgstr "è fallita la distruzione"
-
-msgid "has failed to save"
-msgstr "fallito il salvataggio"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -10218,6 +10203,9 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "Host associato"
 
+#~ msgid "NAME"
+#~ msgstr "NOME"
+
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
 #~ msgstr "Nessun gruppo di storage disponibile trovato"
@@ -10455,6 +10443,18 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "es."
+
+#~ msgid "has been successfully destroyed"
+#~ msgstr "è stato distrutta con successo"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "è stato aggiornato con successo"
+
+#~ msgid "has failed to destroy"
+#~ msgstr "è fallita la distruzione"
+
+#~ msgid "has failed to save"
+#~ msgstr "fallito il salvataggio"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

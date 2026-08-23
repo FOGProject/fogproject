@@ -5010,9 +5010,6 @@ msgstr ""
 msgid "N/A"
 msgstr "N/A"
 
-msgid "NAME"
-msgstr ""
-
 msgid "NOT"
 msgstr "NOT"
 
@@ -9543,26 +9540,12 @@ msgid "has been killed"
 msgstr "has been successfully updated"
 
 #, fuzzy
-msgid "has been successfully destroyed"
-msgstr "has been successfully updated"
-
-msgid "has been successfully updated"
-msgstr "has been successfully updated"
-
-#, fuzzy
 msgid "has completed on"
 msgstr "has been destroyed"
 
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "Invalid Snapin Tasking"
-
-#, fuzzy
-msgid "has failed to destroy"
-msgstr "has failed to be destroyed"
-
-msgid "has failed to save"
-msgstr "has failed to save"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -10820,6 +10803,20 @@ msgstr ""
 #, fuzzy
 #~ msgid "completed imaging"
 #~ msgstr "Completed"
+
+#, fuzzy
+#~ msgid "has been successfully destroyed"
+#~ msgstr "has been successfully updated"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "has been successfully updated"
+
+#, fuzzy
+#~ msgid "has failed to destroy"
+#~ msgstr "has failed to be destroyed"
+
+#~ msgid "has failed to save"
+#~ msgstr "has failed to save"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

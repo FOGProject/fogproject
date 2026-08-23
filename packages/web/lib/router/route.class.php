@@ -5624,33 +5624,14 @@ class Route extends FOGBase
     /**
      * One history row as a sentence, in the READER's language.
      *
-     * ADR 0020 phase 4. `history` stored its prose pre-translated at write
-     * time -- `sprintf('%s %s: %s ...', _('ID'), ...)` -- so a row written
-     * by a German-speaking operator read as German to everyone afterwards,
-     * and the same field label had two spellings in one English install
-     * because two of the four writers used `_('NAME')` and two `_('Name')`.
-     * Phase 3 gave the row a machine-readable type and subject; this turns
-     * those back into a sentence at the moment somebody reads it.
+     * Delegates to History::summary(), which is where the renderer lives
+     * now. It moved there when the dashboard's Recent Activity card became
+     * a second reader (ADR 0020 decision 5, writer half): the sentence is a
+     * property of a history row, not of the router, and two readers reaching
+     * into the router for it is how they drift apart.
      *
-     * Falls back to the stored prose whenever the frame cannot answer:
-     *
-     *   - a row written before phase 3, which has no type. Those are NOT
-     *     backfilled -- the prose is only parseable in the locale it was
-     *     written in, so a parser would produce a table that is complete on
-     *     English installs and partial elsewhere. The ADR takes the clean
-     *     boundary instead.
-     *   - a TYPE_LOG row, which has no subject: FOGBase::log() takes a
-     *     string and has no object in hand.
-     *   - a type this does not recognise, which is what a plugin writing
-     *     its own code looks like.
-     *
-     * The failure types deliberately do not try to carry the error text.
-     * That detail exists only inside the prose, so the sentence says what
-     * happened and `info` -- still returned beside this -- says why.
-     *
-     * The subject's class is NOT translated. It is an identifier, it is
-     * what the prose has always shown, and it is not in any message
-     * catalogue.
+     * Kept as a wrapper rather than inlined at the call site so the grid
+     * column's formatter still reads like every other formatter here.
      *
      * @param array $row The raw database row.
      *
@@ -5658,45 +5639,7 @@ class Route extends FOGBase
      */
     private static function _historySummary($row)
     {
-        $type = isset($row['hType']) ? (string)$row['hType'] : '';
-        $label = isset($row['hSubjectLabel']) ? (string)$row['hSubjectLabel'] : '';
-        $id = isset($row['hSubjectID']) ? $row['hSubjectID'] : null;
-        $class = isset($row['hSubjectType']) ? (string)$row['hSubjectType'] : '';
-        $text = isset($row['hText']) ? (string)$row['hText'] : '';
-        if ('' === $type || '' === $class || null === $id) {
-            return $text;
-        }
-        $class = ucfirst($class);
-        // Each arm spells its whole msgid out. A format string built from a
-        // variable never reaches the catalogue -- xgettext reads source, not
-        // runtime -- so the sentence has to be a literal per case.
-        if ('' !== $label) {
-            switch ($type) {
-                case History::TYPE_UPDATE:
-                    return sprintf(_('%1$s "%2$s" (ID %3$s) was saved'), $class, $label, $id);
-                case History::TYPE_UPDATE_FAILED:
-                    return sprintf(_('%1$s "%2$s" (ID %3$s) failed to save'), $class, $label, $id);
-                case History::TYPE_DELETE:
-                    return sprintf(_('%1$s "%2$s" (ID %3$s) was deleted'), $class, $label, $id);
-                case History::TYPE_DELETE_FAILED:
-                    return sprintf(_('%1$s "%2$s" (ID %3$s) failed to delete'), $class, $label, $id);
-            }
-            return $text;
-        }
-        // Plenty of objects have no name -- an association row, a task log.
-        // The prose has always dropped the name clause for those rather
-        // than printing an empty one.
-        switch ($type) {
-            case History::TYPE_UPDATE:
-                return sprintf(_('%1$s (ID %2$s) was saved'), $class, $id);
-            case History::TYPE_UPDATE_FAILED:
-                return sprintf(_('%1$s (ID %2$s) failed to save'), $class, $id);
-            case History::TYPE_DELETE:
-                return sprintf(_('%1$s (ID %2$s) was deleted'), $class, $id);
-            case History::TYPE_DELETE_FAILED:
-                return sprintf(_('%1$s (ID %2$s) failed to delete'), $class, $id);
-        }
-        return $text;
+        return History::summary($row);
     }
     /**
      * The row column holding a denormalized copy of the host's name.

@@ -5012,9 +5012,6 @@ msgstr "dem MySQL Administrator oder mit"
 msgid "N/A"
 msgstr "nicht verfügbar"
 
-msgid "NAME"
-msgstr "NAME"
-
 msgid "NOT"
 msgstr "NICHT"
 
@@ -9549,26 +9546,12 @@ msgid "has been killed"
 msgstr "wurde abgebrochen"
 
 #, fuzzy
-msgid "has been successfully destroyed"
-msgstr "wurde erfolgreich zerstört"
-
-msgid "has been successfully updated"
-msgstr "wurde erfolgreich aktualisiert"
-
-#, fuzzy
 msgid "has completed on"
 msgstr "wurde abgeschlossen"
 
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "Ungültiges Snapin-Tasking"
-
-#, fuzzy
-msgid "has failed to destroy"
-msgstr "konnte nicht zerstört werden"
-
-msgid "has failed to save"
-msgstr "konnte nicht gespeichert werden"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -10607,6 +10590,9 @@ msgstr ""
 #~ msgid "Module Associated"
 #~ msgstr "zugeordneter Host"
 
+#~ msgid "NAME"
+#~ msgstr "NAME"
+
 #, fuzzy
 #~ msgid "No directory group feeds this user group."
 #~ msgstr "Keine brauchbaren Speichergruppen gefunden"
@@ -10858,6 +10844,20 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "z.B."
+
+#, fuzzy
+#~ msgid "has been successfully destroyed"
+#~ msgstr "wurde erfolgreich zerstört"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "wurde erfolgreich aktualisiert"
+
+#, fuzzy
+#~ msgid "has failed to destroy"
+#~ msgstr "konnte nicht zerstört werden"
+
+#~ msgid "has failed to save"
+#~ msgstr "konnte nicht gespeichert werden"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

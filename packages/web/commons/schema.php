@@ -7147,3 +7147,126 @@ $this->schema[] = [
         return true;
     },
 ];
+// 355
+$this->schema[] = [
+    // ADR 0020 phase 5. Three changes to `history` and `userTracking` that
+    // the ADR held back until a full release cycle after phase 4, so that
+    // an install upgrading through phase 4 had one release where readers
+    // and writers were both known good before the storage moved.
+    //
+    // THAT GATE HAS BEEN WAIVED DELIBERATELY, by the maintainer, on
+    // 2026-08-22. It cannot be satisfied as written: there is no 1.6
+    // release, so "a full release cycle after phase 4" is a date that
+    // never arrives on this branch, and phases 2 to 4 all landed in the
+    // same unreleased line. The condition the gate was really protecting
+    // -- do not move storage out from under a reader that still depends on
+    // it -- is met, and met more strongly than the gate asked: phase 4's
+    // readers build their sentence from the frame, and this step is the
+    // one that removes the last reason they could not.
+    //
+    // 1. Backfill `userTracking.utHostName`.
+    //
+    // Same restricted UPDATE ... JOIN step 341 used for taskLog, and it is
+    // restricted the same way and for the same two reasons: only rows whose
+    // host still exists can be filled at all, and only rows whose copy is
+    // still empty are touched, so a re-run is a no-op and a hand
+    // correction is never overwritten. Rows whose host is already gone stay
+    // empty -- the name is unrecoverable by the time the join fails, which
+    // is the whole reason the column exists.
+    //
+    // 2. `UNIQUE (hText, hTime)` becomes `KEY (hTime)`.
+    //
+    // ADR 0020 decision 6. A unique index on the text is a lossy
+    // deduplicator: two genuinely different events in the same second with
+    // the same prose collapse into one row, and INSERT ... ON DUPLICATE KEY
+    // UPDATE turns that into a silent overwrite rather than an error. Now
+    // that a row carries a type and a subject id, "two identical rows in
+    // one second" is a description of two real events.
+    //
+    // The replacement index is the one the table is actually queried by:
+    // every reader of `history` orders by `hTime` DESC -- the activity
+    // grid, the dashboard card, History_Report -- and none of them can use
+    // a composite whose leading column is the text.
+    //
+    // The firehose that index was built for is bounded at the WRITER now
+    // rather than by discarding rows afterwards; see FOGBase::log().
+    //
+    // 3. `hText` VARCHAR(255) back to TEXT.
+    //
+    // 255 was never a product decision. Step 3305 narrowed a LONGTEXT to
+    // varchar(255) for the sole purpose of making it indexable by the
+    // unique key being dropped above, and truncation at 255 has been
+    // silently cutting the tail off long entries ever since -- the failure
+    // messages, which are the longest rows and the ones worth reading.
+    // TEXT rather than back to LONGTEXT: 64KB is past any prose this
+    // writes, and it is the smaller row format.
+    //
+    // Ordering inside the closure is load bearing. The index has to go
+    // before the type change: a VARCHAR(255) in a unique index cannot
+    // become TEXT while that index exists, because a TEXT column needs a
+    // prefix length to be indexed at all.
+    //
+    // A closure rather than bare ALTERs because none of DROP INDEX, ADD
+    // INDEX or MODIFY has IF [NOT] EXISTS on the versions this supports, so
+    // a re-run converges by probing instead of erroring.
+    function () {
+        // 1. userTracking backfill.
+        self::$DB->query(
+            "UPDATE `userTracking` "
+            . "JOIN `hosts` ON `hosts`.`hostID` = `userTracking`.`utHostID` "
+            . "SET `userTracking`.`utHostName` = `hosts`.`hostName` "
+            . "WHERE `userTracking`.`utHostName` = ''"
+        );
+
+        // 2. Swap the unique index for one on the column readers order by.
+        $idx = self::$DB->query(
+            "SELECT DISTINCT `INDEX_NAME` AS `i` "
+            . "FROM `information_schema`.`STATISTICS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'history'"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $names = [];
+        foreach ((array)$idx as $row) {
+            if (isset($row['i'])) {
+                $names[] = $row['i'];
+            }
+        }
+        if (in_array('updateTime', $names)) {
+            self::$DB->query(
+                "ALTER TABLE `history` DROP INDEX `updateTime`"
+            );
+        }
+
+        // 3. Widen the text, now that nothing indexes it.
+        $type = self::$DB->query(
+            "SELECT `DATA_TYPE` AS `t` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'history' AND `COLUMN_NAME` = 'hText'"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $now = '';
+        foreach ((array)$type as $row) {
+            if (isset($row['t'])) {
+                $now = strtolower($row['t']);
+            }
+        }
+        if ('text' !== $now) {
+            // No DEFAULT: MySQL and MariaDB both refuse a literal default on
+            // a TEXT column, which is why the varchar carried one and this
+            // cannot. NOT NULL still holds, so the ORM's '' is unaffected.
+            self::$DB->query(
+                "ALTER TABLE `history` MODIFY `hText` TEXT NOT NULL"
+            );
+        }
+
+        // The index the readers actually use. Added after the type change so
+        // that a re-run which got as far as the DROP but not the MODIFY
+        // still ends in the same place.
+        if (!in_array('hTime', $names)) {
+            self::$DB->query(
+                "ALTER TABLE `history` ADD INDEX `hTime` (`hTime`)"
+            );
+        }
+
+        return true;
+    },
+];

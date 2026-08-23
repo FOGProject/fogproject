@@ -4243,9 +4243,6 @@ msgstr ""
 msgid "N/A"
 msgstr ""
 
-msgid "NAME"
-msgstr ""
-
 msgid "NOT"
 msgstr ""
 
@@ -8132,22 +8129,10 @@ msgstr ""
 msgid "has been killed"
 msgstr ""
 
-msgid "has been successfully destroyed"
-msgstr ""
-
-msgid "has been successfully updated"
-msgstr ""
-
 msgid "has completed on"
 msgstr ""
 
 msgid "has completed snapin tasking"
-msgstr ""
-
-msgid "has failed to destroy"
-msgstr ""
-
-msgid "has failed to save"
 msgstr ""
 
 msgid "has no code on disk"

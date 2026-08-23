@@ -5011,9 +5011,6 @@ msgstr ""
 msgid "N/A"
 msgstr "N / A"
 
-msgid "NAME"
-msgstr ""
-
 msgid "NOT"
 msgstr "不"
 
@@ -9544,26 +9541,12 @@ msgid "has been killed"
 msgstr "已成功更新"
 
 #, fuzzy
-msgid "has been successfully destroyed"
-msgstr "已成功更新"
-
-msgid "has been successfully updated"
-msgstr "已成功更新"
-
-#, fuzzy
 msgid "has completed on"
 msgstr "已被破坏"
 
 #, fuzzy
 msgid "has completed snapin tasking"
 msgstr "无效的管理单元任务处理"
-
-#, fuzzy
-msgid "has failed to destroy"
-msgstr "未能被销毁"
-
-msgid "has failed to save"
-msgstr "未能保存"
 
 #, fuzzy
 msgid "has no code on disk"
@@ -10825,6 +10808,20 @@ msgstr ""
 #, fuzzy
 #~ msgid "completed imaging"
 #~ msgstr "完成"
+
+#, fuzzy
+#~ msgid "has been successfully destroyed"
+#~ msgstr "已成功更新"
+
+#~ msgid "has been successfully updated"
+#~ msgstr "已成功更新"
+
+#, fuzzy
+#~ msgid "has failed to destroy"
+#~ msgstr "未能被销毁"
+
+#~ msgid "has failed to save"
+#~ msgstr "未能保存"
 
 #, fuzzy
 #~ msgid "multicast tasks!"
