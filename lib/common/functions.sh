@@ -2852,7 +2852,17 @@ configureTFTPandPXE() {
     chown -R ${SVC_user} $tftpdirdst >>$error_log 2>&1
     chown -R ${SVC_user} $webdirdest/service/ipxe >>$error_log 2>&1
     find $tftpdirdst -type d -exec chmod 755 {} \; >>$error_log 2>&1
-    find $webdirdest -type d -exec chmod 755 {} \; >>$error_log 2>&1
+    # management/logs is pruned: this runs AFTER configureHttpd() on a full
+    # install, and a flat 755 here would strip the setgid bit that makes a
+    # root daemon's log file carry the web group. Losing it denies the web
+    # user today's log for the life of the install.
+    #
+    # ${webdirdest%/} rather than $webdirdest: the variable always carries a
+    # trailing slash, find renders children under the start point verbatim,
+    # and "<dir>//management/logs" matches nothing -- so the prune would
+    # silently do nothing and the setgid bit would be stripped anyway.
+    find $webdirdest -type d -path "${webdirdest%/}/management/logs" -prune -o \
+        -type d -exec chmod 755 {} \; >>$error_log 2>&1
     find $tftpdirdst ! -type d -exec chmod 655 {} \; >>$error_log 2>&1
     configureDefaultiPXEfile
     # GH-963: must come AFTER every file is in place, configureDefaultiPXEfile
@@ -10087,6 +10097,21 @@ die();
     errorStat $?
     [[ -d /var/www/html/ && ! -e /var/www/html/fog/ ]] && ln -s "$webdirdest" /var/www/html/
     [[ -d /var/www/ && ! -e /var/www/fog ]] && ln -s "$webdirdest" /var/www/
+    # FOGBase::_writeLogLine()'s destination. Not shipped in the repo, and the
+    # rm -rf above takes it out on every install, so without this it is created
+    # by whichever FOG process logs first after a deploy -- and ten of the
+    # twelve daemons run as root while the web UI, FOGPluginRunner and
+    # FOGRetentionRunner do not. Root normally wins that race at boot, leaving
+    # a root-owned 0755 directory that denies every non-root writer for the
+    # life of the install.
+    #
+    # Created here so the answer is settled before anything races for it. 2775
+    # rather than 0755 because root daemons legitimately write here too, and
+    # setgid is what makes the files they create carry the web group instead of
+    # root's; _writeLogLine() widens the file mode to match. The chown below
+    # covers this directory, which is why it is created ahead of it.
+    mkdir -p "${webdirdest%/}/management/logs" >>$error_log 2>&1
+    chmod 2775 "${webdirdest%/}/management/logs" >>$error_log 2>&1
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
     chown -R ${SVC_user}:${apacheuser} "$webdirdest/service/ipxe"
 }

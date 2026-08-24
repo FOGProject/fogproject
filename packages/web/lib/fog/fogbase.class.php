@@ -928,19 +928,89 @@ abstract class FOGBase
         );
         if (self::$mySchema >= FOG_SCHEMA && self::getSetting($setting) > 0) {
             $log_filename = BASEPATH . 'management/logs';
-            if (!file_exists($log_filename)) {
-                mkdir($log_filename, 0777, true);
+            if (!is_dir($log_filename)) {
+                self::_createLogDir($log_filename);
             }
             $log_file_data = $log_filename
                 . '/' . $prefix . '_'
                 . $date->format('d-m-Y')
                 . '.log';
+            // Whoever creates the day's file owns it, and file_put_contents
+            // creates 0666 masked by the umask -- 0644 under systemd. A root
+            // daemon that logs first therefore locks the web user out of
+            // today's file even when the DIRECTORY is right. Only the creator
+            // can chmod it, so widen it here, at creation, rather than trying
+            // to repair it from the side that has already been denied.
+            $isNew = !file_exists($log_file_data);
             file_put_contents($log_file_data, $string."\n", FILE_APPEND);
+            if ($isNew) {
+                @chmod($log_file_data, 0664);
+            }
         }
         if (self::$service || self::$ajax || !$show) {
             return;
         }
         printf('<div class="debug %s">%s</div>', $cssClass, $string);
+    }
+    /**
+     * Creates the web tree's log directory so every FOG process can write it.
+     *
+     * BASEPATH/management/logs is shared by two sets of writers that do not
+     * share a uid. The web UI runs as the web user; so do FOGPluginRunner and
+     * FOGRetentionRunner. The other ten daemons run as ROOT and boot this same
+     * web tree -- packages/service/etc/config.php points WEBROOT at it and
+     * service_lib.php requires commons/base.inc.php -- so a FOGBase::info()
+     * from any of them lands here too.
+     *
+     * The directory is not shipped in the repo and installfog.sh's
+     * configureHttpd() rm -rf's the web tree, so it is recreated from scratch
+     * after every deploy by whichever process logs first. That is a race, and
+     * root usually wins it: ten of the twelve daemons start at boot.
+     *
+     * Two things make root winning fatal rather than merely untidy:
+     *
+     *   - mkdir()'s mode argument is masked by the process umask (0022 under
+     *     systemd), so mkdir(0777) actually lands 0755. chmod() is NOT masked,
+     *     which is why the mode is asserted separately here instead of being
+     *     passed to mkdir and assumed.
+     *   - the group would otherwise be root's, so widening the mode alone
+     *     would not help the web user either. BASEPATH's own group is the one
+     *     installfog.sh chowns the web tree to, which makes it the right
+     *     answer without this class having to know the distro's web user.
+     *
+     * Get it wrong and every non-root writer is denied for the life of the
+     * install, once per log line, with nothing to explain it but a PHP warning
+     * -- one box produced half a million of them in a day.
+     *
+     * setgid so that files created in here by a root daemon inherit the web
+     * group rather than root's; _writeLogLine() widens the file mode to match.
+     *
+     * Failures are deliberately swallowed. mkdir() warns "File exists" when it
+     * loses the race, and PHP's stat cache makes a long-lived daemon lose it
+     * repeatedly against a directory it created itself. The write that follows
+     * still warns if it genuinely cannot proceed, so no real failure is hidden.
+     *
+     * Only ever called for a directory that does not exist yet, because
+     * repairing one from here is not possible: a non-root process cannot
+     * chmod or chgrp a directory root owns, and root's own is_writable() is
+     * true whatever the mode says, so the process that could repair it never
+     * detects that it needs to. An install left in the old state is fixed by
+     * configureHttpd(), which is where the web tree's permissions belong.
+     *
+     * @param string $dir the directory to create
+     *
+     * @return void
+     */
+    private static function _createLogDir($dir)
+    {
+        if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+            return;
+        }
+        $gid = @filegroup(BASEPATH);
+        if ($gid !== false) {
+            @chgrp($dir, $gid);
+        }
+        @chmod($dir, 02775);
     }
     /**
      * Prints error.
