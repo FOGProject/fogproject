@@ -341,6 +341,13 @@ $.deleteAssociated = function(table, url, cb, opts) {
     });
   });
 };
+// opts.node       - entity node, used to build the default delete URL.
+// opts.url        - the delete endpoint, when it is not <node>&sub=deletemulti.
+// opts.modal      - confirm modal, when the page's own #deleteModal is not it.
+// opts.confirmSel - that modal's confirm button.
+// opts.noun       - what the confirm button should say is being deleted.
+//                   The last three are passed straight through to $.reAuth;
+//                   see the note there for why a page can need them.
 $.deleteSelected = function(table, cb, opts) {
   opts = opts || {};
   opts = $.fogDefaults(opts, {
@@ -394,6 +401,10 @@ $.deleteSelected = function(table, cb, opts) {
       }
       opts.password = password;
       $.deleteSelected(table, cb, opts);
+    }, {
+      modal: opts.modal,
+      confirmSel: opts.confirmSel,
+      noun: opts.noun
     });
     return;
   }
@@ -408,7 +419,7 @@ $.deleteSelected = function(table, cb, opts) {
         if (table !== undefined) {
           table.draw(false);
         }
-        reAuthModal.finishReAuth();
+        $.finishReAuth(opts.modal || reAuthModal);
         $.notifyFromAPI(res, false);
         if (cb && typeof(cb) === 'function') {
           cb(null,res);
@@ -429,7 +440,7 @@ $.deleteSelected = function(table, cb, opts) {
           });
           return;
         } else {
-          reAuthModal.finishReAuth();
+          $.finishReAuth(opts.modal || reAuthModal);
           $.notifyFromAPI(res.responseJSON, res);
           if (cb && typeof(cb) === 'function') {
             cb(res,res.responseJSON);
@@ -1735,43 +1746,73 @@ $.notifyFromAPI = function(res, isError) {
   );
   $.debugLog(res);
 };
-$.reAuth = function(count, cb) {
-  deleteConfirmButton.text(deleteLang.replace('{0}', count).replace('{node}', Common.node + (count != 1 ? 's' : '')));
+// opts.modal      - the confirm modal (default '#deleteModal', resolved once
+//                   at page load into reAuthModal).
+// opts.confirmSel - its confirm button (default '#confirmDeleteModal').
+// opts.noun       - what is being deleted, for the button text. Defaults to
+//                   Common.node, which is the page's entity -- wrong for any
+//                   grid that is not the page's own list.
+//
+// Parameterized because a page can carry more than one deletable grid. The
+// Bearer API token card sits on the USER edit page, whose own #deleteModal
+// deletes the account: sharing it meant the confirm read "Delete 1 users",
+// the password field the token delete needs was not in that modal at all,
+// and -- worst -- deleteConfirmButton.off('click') below tore the General
+// tab's delete-user handler off, leaving that button dead until a reload.
+// $.registerGeneralTab already parameterizes exactly these two selectors;
+// this follows it.
+$.reAuth = function(count, cb, opts) {
+  opts = opts || {};
+  var modal = opts.modal ? $(opts.modal) : reAuthModal,
+    confirmBtn = opts.confirmSel ? $(opts.confirmSel) : deleteConfirmButton,
+    // deleteLang is captured once at load from the default button. A custom
+    // one carries its own template, so read it the first time and stash it
+    // -- by the second call the text has been substituted already.
+    lang = opts.confirmSel
+      ? (confirmBtn.data('reauthLang')
+        || confirmBtn.data('reauthLang', confirmBtn.text()).data('reauthLang'))
+      : deleteLang,
+    noun = opts.noun || Common.node,
+    // Scoped to the modal: two of these on one page means two #deletePassword
+    // inputs, and a document-wide lookup reads whichever came first.
+    pw = modal.find('input[type="password"]').first();
+
+  confirmBtn.text(lang.replace('{0}', count).replace('{node}', noun + (count != 1 ? 's' : '')));
   // enable all buttons / focus on the input box incase
   //   the modal is already being shown
-  reAuthModal.setContainerDisable(false);
-  $("#deletePassword").trigger('focus');
-  reAuthModal.registerModal(
+  modal.setContainerDisable(false);
+  pw.trigger('focus');
+  modal.registerModal(
     // On show
     function(e) {
-      $("#deletePassword").val('');
-      $("#deletePassword").trigger('focus');
-      reAuthModal.setContainerDisable(false);
+      pw.val('');
+      pw.trigger('focus');
+      modal.setContainerDisable(false);
     },
     // On close
     function(e) {
-      $("#deletePassword").val('');
+      pw.val('');
       cb('authClose');
     }
   );
   // The auth modal is not a form, so
   //   the enter key must be manually bound
   //   to submit the password
-  $("#deletePassword").off('keypress');
-  $('#deletePassword').keypress(function (e) {
+  pw.off('keypress');
+  pw.keypress(function (e) {
     if (e.which == 13) {
-      reAuthModal.setContainerDisable(true);
-      cb(null, $("#deletePassword").val());
+      modal.setContainerDisable(true);
+      cb(null, pw.val());
       return false;
     }
   });
 
-  deleteConfirmButton.off('click');
-  deleteConfirmButton.on('click', function(e) {
-    reAuthModal.setContainerDisable(true);
-    cb(null, $("#deletePassword").val());
+  confirmBtn.off('click');
+  confirmBtn.on('click', function(e) {
+    modal.setContainerDisable(true);
+    cb(null, pw.val());
   });
-  reAuthModal.modal('show');
+  modal.modal('show');
 };
 /**
  * Allows calling as $.funcname(element, ...args);

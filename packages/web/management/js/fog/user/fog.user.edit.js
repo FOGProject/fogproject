@@ -108,10 +108,6 @@
         }, {
             order: [[0, 'asc']],
             rowId: 'id',
-            // Paged, not virtual-scroll. Scroller measures a display:none
-            // table as zero-width, and this one is inside a tab that is
-            // hidden until it is clicked.
-            scroller: false,
             ajax: {url: tokenBase + 'userAPITokenList' + tokenId, type: 'post'},
             columns: [
                 {data: 'name'},
@@ -141,12 +137,17 @@
             ]
         });
 
-        // The tab is hidden at init, where DataTables measures zero column
-        // widths. Re-sync the moment it becomes visible, which is the first
-        // point the real widths exist.
-        $('a[href="#user-api"]').on('shown.bs.tab', function() {
-            tokenTable.columns.adjust();
-        });
+        // No shown.bs.tab handler of its own: fogBindScrollerAutosize() in
+        // fog.common.js already re-measures every Scroller table one macrotask
+        // after a tab is shown, which is what every other in-tab grid here
+        // relies on. This card originally passed scroller:false and adjusted
+        // its own columns synchronously -- and that combination is exactly
+        // wrong twice over. fogSizeScroller() returns early for a non-Scroller
+        // table, so the shared handler skipped it entirely; and a synchronous
+        // columns.adjust() inside shown.bs.tab measures before the revealed
+        // tab's layout is final. The result was a header row sized against a
+        // zero-width table: one column squeezed to a single character with its
+        // title stacked vertically.
     }
 
     function setTokensEnabled(enabled) {
@@ -186,7 +187,13 @@
             }
         }, {
             node: 'user',
-            url: tokenBase + 'userAPITokenDelete' + tokenId
+            url: tokenBase + 'userAPITokenDelete' + tokenId,
+            // Its own modal and its own noun. The page's shared #deleteModal
+            // deletes the ACCOUNT, so borrowing it read "Delete 1 users",
+            // had no password field, and unbound the General tab's delete.
+            modal: '#apitokenDeleteModal',
+            confirmSel: '#confirmAPITokenDelete',
+            noun: 'API token'
         });
     });
 

@@ -64,6 +64,13 @@ $tok = $strip($tokSrc);
 $cfg = $strip($cfgSrc);
 $usr = $strip($usrSrc);
 $js = $strip($jsSrc);
+$common = $strip(
+    file_get_contents($web . '/management/js/fog/fog.common.js')
+);
+$usrJs = file_get_contents(
+    $web . '/management/js/fog/user/fog.user.edit.js'
+);
+$usrJsStripped = $strip($usrJs);
 
 // ---------------------------------------------------------------------------
 // 1. Scope comes from Authorization, not SiteScope.
@@ -189,11 +196,59 @@ $t->check(
     (bool)preg_match("/\\\$\.deleteSelected\(table,/", $js)
     && false !== strpos($js, 'sub=apitokendelete')
 );
+// Its OWN modal, and both surfaces point $.deleteSelected at it. Reusing
+// the shared 'deleteModal' id is what broke the per-user card: that page
+// already renders one -- the one that deletes the ACCOUNT -- so $.reAuth
+// resolved the wrong modal, found no password field, and unbound the
+// General tab's delete-user handler on its way past.
 $t->check(
     'the re-auth modal $.reAuth needs is rendered by the pane',
-    (bool)preg_match("/'deleteModal',/", $cfg)
-    && (bool)preg_match("/'confirmDeleteModal',/", $cfg)
-    && (bool)preg_match("/'deletePassword'/", $cfg)
+    (bool)preg_match("/'apitokenDeleteModal',/", $cfg)
+    && (bool)preg_match("/'confirmAPITokenDelete',/", $cfg)
+    && (bool)preg_match("/'apitokenDeletePassword'/", $cfg)
+);
+$t->check(
+    'neither surface reuses the shared deleteModal id',
+    false === strpos($cfg, "'deleteModal',")
+    && false === strpos($usr, "'deleteModal',")
+);
+$t->check(
+    'both point $.deleteSelected at that modal, with a real noun',
+    2 === substr_count($js . $usrJsStripped, "modal: '#apitokenDeleteModal'")
+    && 2 === substr_count(
+        $js . $usrJsStripped,
+        "confirmSel: '#confirmAPITokenDelete'"
+    )
+    && 2 === substr_count($js . $usrJsStripped, "noun: 'API token'")
+);
+// $.reAuth defaults its noun to Common.node, which on these two pages is
+// 'about' and 'user' -- so without the override the confirm button offers to
+// delete "1 abouts" or "1 users".
+$t->check(
+    '$.reAuth honours an explicit modal, button and noun',
+    (bool)preg_match(
+        '/\$\.reAuth = function\(count, cb, opts\)/',
+        $common
+    )
+    && (bool)preg_match('/noun = opts\.noun \|\| Common\.node/', $common)
+    && (bool)preg_match(
+        '/modal = opts\.modal \? \$\(opts\.modal\) : reAuthModal/',
+        $common
+    )
+    && (bool)preg_match(
+        '/confirmBtn = opts\.confirmSel \? \$\(opts\.confirmSel\)/',
+        $common
+    )
+);
+// The password input is read out of the modal that was opened. Document-wide
+// it picks whichever #deletePassword came first in the DOM.
+$t->check(
+    'the password field is scoped to that modal',
+    (bool)preg_match(
+        "/pw = modal\.find\('input\[type=\"password\"\]'\)\.first\(\)/",
+        $common
+    )
+    && false === strpos($common, '$("#deletePassword")')
 );
 $t->check(
     'enable and disable are one endpoint driven by a flag',
@@ -311,11 +366,6 @@ foreach ([
 // uAPIToken card, which is what made an absent checkbox read as "unticked"
 // and risked wiping uAPIToken as a side effect (the GH-987 class).
 // ---------------------------------------------------------------------------
-$usrJs = file_get_contents(
-    $web . '/management/js/fog/user/fog.user.edit.js'
-);
-$usrJsStripped = $strip($usrJs);
-
 $t->check(
     'the per-user card is a DataTable',
     false !== strpos($usrJsStripped, "$('#user-apitoken-table').registerTable(")
@@ -400,15 +450,32 @@ foreach ([
         )
     );
 }
+// It inits inside a hidden tab, where DataTables measures zero column widths,
+// so something has to re-measure once the tab is shown. That something is
+// fogBindScrollerAutosize() in fog.common.js, which every other in-tab grid
+// relies on -- and it only handles SCROLLER tables: fogSizeScroller() returns
+// early on !init.scroller. So opting out of Scroller here silently opts out
+// of the resize path too, and the header renders sized against a zero-width
+// table (one column squeezed to a single character, its title stacked
+// vertically). A hand-rolled shown.bs.tab handler is not the fix either: run
+// synchronously it measures before the revealed tab's layout is final, which
+// is exactly why the shared one defers a macrotask.
 $t->check(
-    'the tab grid is paged, not virtual-scrolled (it inits hidden)',
-    (bool)preg_match('/scroller: false/', $usrJsStripped)
+    'the tab grid stays a Scroller table, so the shared resize path covers it',
+    false === strpos($usrJsStripped, 'scroller: false')
 );
 $t->check(
-    'and re-measures when the tab becomes visible',
-    (bool)preg_match(
+    'and does not hand-roll its own post-show measure',
+    !preg_match(
         "/shown\.bs\.tab[^}]*columns\.adjust\(\)/s",
         $usrJsStripped
+    )
+);
+$t->check(
+    'the shared handler it depends on is still there and still deferred',
+    (bool)preg_match(
+        "/shown\.bs\.tab\.fogScroller[^}]*setTimeout\(fogSizeAllScrollers, 0\)/s",
+        $common
     )
 );
 $t->check(

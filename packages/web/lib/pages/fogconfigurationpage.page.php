@@ -1368,26 +1368,31 @@ class FOGConfigurationPage extends FOGPage
             // $.reAuth calls modal('show') on an empty jQuery set:
             // nothing opens, nothing is deleted, nothing is logged, and
             // the button looks broken rather than gated.
+            // Named for this grid rather than reusing 'deleteModal', so the
+            // pane never depends on being the only deletable thing on its
+            // page -- the assumption that broke the same card on the user
+            // edit page, where the account's own delete modal already holds
+            // that id.
             $modals .= self::makeModal(
-                'deleteModal',
+                'apitokenDeleteModal',
                 _('Confirm password'),
                 '<div class="input-group">'
                 . self::makeInput(
                     'form-control',
-                    'deletePW',
+                    'apitokenDeletePW',
                     _('Password'),
                     'password',
-                    'deletePassword'
+                    'apitokenDeletePassword'
                 )
                 . '</div>',
                 self::makeButton(
-                    'closeDeleteModal',
+                    'closeAPITokenDeleteModal',
                     _('Cancel'),
                     'btn btn-outline-secondary float-start',
                     'data-bs-dismiss="modal"'
                 )
                 . self::makeButton(
-                    'confirmDeleteModal',
+                    'confirmAPITokenDelete',
                     _('Delete') . ' {0} ' . _('{node}'),
                     'btn btn-outline-secondary float-end'
                 ),

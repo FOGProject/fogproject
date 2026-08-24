@@ -105,7 +105,13 @@
       }
     }, {
       node: 'about',
-      url: '../management/index.php?node=about&sub=apitokendelete'
+      url: '../management/index.php?node=about&sub=apitokendelete',
+      // Named modal and explicit noun rather than the page-wide #deleteModal
+      // and Common.node -- which here is 'about', so the confirm button read
+      // "Delete 1 abouts".
+      modal: '#apitokenDeleteModal',
+      confirmSel: '#confirmAPITokenDelete',
+      noun: 'API token'
     });
   });
 

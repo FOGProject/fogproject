@@ -1082,26 +1082,35 @@ class UserManagement extends FOGPage
             // FOG_DELETE_REAUTH is on. Without it $.reAuth calls
             // modal('show') on an empty jQuery set: nothing opens, nothing
             // is deleted, nothing is logged.
+            //
+            // Its OWN id, not the shared 'deleteModal'. This page already
+            // renders one of those -- the one that deletes the account --
+            // and reusing the id put two of them in the DOM: $.reAuth
+            // resolved the account's, so the confirm read "delete this
+            // user", the password field it needs was not in that modal at
+            // all, and its deleteConfirmButton.off('click') tore the
+            // General tab's delete-user handler off for the rest of the
+            // page's life.
             $modals .= self::makeModal(
-                'deleteModal',
+                'apitokenDeleteModal',
                 _('Confirm password'),
                 '<div class="input-group">'
                 . self::makeInput(
                     'form-control',
-                    'deletePW',
+                    'apitokenDeletePW',
                     _('Password'),
                     'password',
-                    'deletePassword'
+                    'apitokenDeletePassword'
                 )
                 . '</div>',
                 self::makeButton(
-                    'closeDeleteModal',
+                    'closeAPITokenDeleteModal',
                     _('Cancel'),
                     'btn btn-outline-secondary float-start',
                     'data-bs-dismiss="modal"'
                 )
                 . self::makeButton(
-                    'confirmDeleteModal',
+                    'confirmAPITokenDelete',
                     _('Delete') . ' {0} ' . _('{node}'),
                     'btn btn-outline-secondary float-end'
                 ),

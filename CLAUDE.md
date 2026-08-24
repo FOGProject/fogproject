@@ -68,18 +68,14 @@ Net effect: a typical commit will also include a `system.class.php` version bump
 ### Commit authorship
 
 Commits are **authored by the maintainer and co-authored by the agent**, not the
-other way round. Set this per-clone before committing:
+other way round.
 
-```bash
-git config user.name  "JJ Fullmer"
-git config user.email "7743340+darksidemilk@users.noreply.github.com"
-```
+Whose name that is belongs to the clone, not to this file — several people work
+on this repo, each from their own. Use whatever `git config user.name` /
+`user.email` already say; never override them on the commit, and never fall back
+to `Claude <noreply@anthropic.com>` as the author.
 
-That address is the GitHub noreply for `darksidemilk` and is what the existing
-history already uses (`git log --author=darksidemilk`) — don't invent a variant,
-and don't fall back to `Claude <noreply@anthropic.com>` as the author.
-
-Then end the message with a co-author trailer:
+End the message with a co-author trailer:
 
 ```
 Co-Authored-By: Claude <noreply@anthropic.com>
