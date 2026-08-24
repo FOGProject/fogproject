@@ -1183,37 +1183,45 @@ class Authorization extends FOGBase
         return in_array('*', self::getPermissions($userID), true);
     }
     /**
-     * Is this request carrying no authenticated principal at all?
+     * Is this a declared machine request that carries no principal?
      *
-     * Site scope answers "which objects may THIS USER see". Where there is
-     * no user, deny-all is not a conservative reading of that question --
-     * it is a confident answer to a different one, and it is what broke
-     * every machine path when the boundary moved into the query
-     * (46fc53a20, "Enforce the site boundary in the query, not on the
-     * rows"). A PXE client's boot script lost its host identity AND its
-     * task on any server with a site configured: no `set hostname`, no
-     * `set imageID`, a menu banner reading "Host is registered as" with
-     * nothing after it, and a scheduled task that simply never ran. The
-     * FOS progress and hostinfo endpoints, and the task scheduler's
-     * expired-checkin sweep, went the same way.
+     * Site scope answers "which objects may THIS USER see". On an entry
+     * point that has no user and cannot acquire one, deny-all is not a
+     * conservative reading of that question -- it is a confident answer to
+     * a different one, and it is what broke every machine path when the
+     * boundary moved into the query (46fc53a20, "Enforce the site boundary
+     * in the query, not on the rows"). A PXE client's boot script lost its
+     * host identity AND its task on any server with a site configured: no
+     * `set hostname`, no `set imageID`, a menu banner reading "Host is
+     * registered as" with nothing after it, and a scheduled task that
+     * simply never ran. The FOS progress and hostinfo endpoints, and the
+     * task scheduler's expired-checkin sweep, went the same way.
      *
-     * Exempting these is safe because it cannot widen what any USER sees:
-     * every route that returns a scoped list to a caller has already made
-     * that caller authenticate. Verified on a live server -- GET /api/host,
-     * /task, /group, /user and /usergroup all answer 401 with no
-     * credentials and with a bad token, so an anonymous caller never
-     * reaches the scope layer through the API at all. The UI binds
-     * $FOGUser from the session (LoadGlobals) and every REST arm binds it
-     * from the token it accepted (Route::_apiAuth and the fog-user-token
-     * path), so an authenticated caller is never mistaken for a machine.
+     * Three conditions, and the first is the one that matters.
      *
-     * What is left is exactly the machine surface -- service/ipxe/boot.php,
-     * advanced.php, the FOS protocol endpoints under service/, and the ten
-     * CLI daemons -- none of which has a user to scope by, and each of
-     * which constrains itself by the MAC or token it was handed.
+     * FOG_MACHINE_REQUEST is DECLARED by the entry point, one line at the
+     * top of each of the 44 files under service/ and once in
+     * packages/service/lib/service_lib.php for the ten daemons, exactly
+     * like FOG_WANTS_SESSION in management/index.php. It is deliberately
+     * not inferred from "no principal is bound", because those two are not
+     * the same statement: a machine entry point HAS no user, while a route
+     * that merely failed to authenticate one is a bug. Keying on absence
+     * would hand that bug the exemption as well, so a route that ever lost
+     * its 401 would silently lose site scoping in the same stroke --
+     * tests/route-read-path-guards.test.php section (j) exists to catch
+     * exactly that, and it still does. A new file under service/ that
+     * forgets the declaration fails the safe way: deny-all, visibly
+     * broken, rather than quietly unbounded.
      *
-     * Only when the caller named no user. A caller that passes a user id
-     * explicitly is asking about THAT user and still gets the boundary.
+     * Nothing outside those files can reach this. The UI binds $FOGUser
+     * from the session (LoadGlobals) and every REST arm binds it from the
+     * token it accepted (Route::_apiAuth and the fog-user-token path), and
+     * neither declares the constant.
+     *
+     * The remaining two conditions keep an authenticated caller bounded
+     * even on a machine entry point -- fog-client endpoints can carry a
+     * user -- and keep a caller that named a user id explicitly bounded,
+     * because it is asking about THAT user.
      *
      * @param int|null $userID the user id the caller supplied, if any
      *
@@ -1221,7 +1229,8 @@ class Authorization extends FOGBase
      */
     private static function _hasNoPrincipal($userID = null)
     {
-        return null === $userID
+        return defined('FOG_MACHINE_REQUEST')
+            && null === $userID
             && !(self::$FOGUser && self::$FOGUser->isValid());
     }
     /**

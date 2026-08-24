@@ -56,6 +56,13 @@ ini_set('log_errors', '1');
 // PDO raises 'MySQL server has gone away', which the supervisor logs and
 // recovers from by re-forking (#917).
 ini_set('mysqlnd.net_read_timeout', '300');
+/*
+ * A machine entry point: a daemon runs with no signed-in user and cannot
+ * acquire one. Declared here rather than in each daemon because this file
+ * is what every one of them requires -- see Authorization::_hasNoPrincipal()
+ * for what it licenses and why the distinction matters.
+ */
+define('FOG_MACHINE_REQUEST', true);
 require WEBROOT.'/commons/base.inc.php';
 $service_logpath = sprintf(
     '/%s/%s',
