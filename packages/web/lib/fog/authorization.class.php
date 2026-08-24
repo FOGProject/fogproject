@@ -1183,6 +1183,48 @@ class Authorization extends FOGBase
         return in_array('*', self::getPermissions($userID), true);
     }
     /**
+     * Is this request carrying no authenticated principal at all?
+     *
+     * Site scope answers "which objects may THIS USER see". Where there is
+     * no user, deny-all is not a conservative reading of that question --
+     * it is a confident answer to a different one, and it is what broke
+     * every machine path when the boundary moved into the query
+     * (46fc53a20, "Enforce the site boundary in the query, not on the
+     * rows"). A PXE client's boot script lost its host identity AND its
+     * task on any server with a site configured: no `set hostname`, no
+     * `set imageID`, a menu banner reading "Host is registered as" with
+     * nothing after it, and a scheduled task that simply never ran. The
+     * FOS progress and hostinfo endpoints, and the task scheduler's
+     * expired-checkin sweep, went the same way.
+     *
+     * Exempting these is safe because it cannot widen what any USER sees:
+     * every route that returns a scoped list to a caller has already made
+     * that caller authenticate. Verified on a live server -- GET /api/host,
+     * /task, /group, /user and /usergroup all answer 401 with no
+     * credentials and with a bad token, so an anonymous caller never
+     * reaches the scope layer through the API at all. The UI binds
+     * $FOGUser from the session (LoadGlobals) and every REST arm binds it
+     * from the token it accepted (Route::_apiAuth and the fog-user-token
+     * path), so an authenticated caller is never mistaken for a machine.
+     *
+     * What is left is exactly the machine surface -- service/ipxe/boot.php,
+     * advanced.php, the FOS protocol endpoints under service/, and the ten
+     * CLI daemons -- none of which has a user to scope by, and each of
+     * which constrains itself by the MAC or token it was handed.
+     *
+     * Only when the caller named no user. A caller that passes a user id
+     * explicitly is asking about THAT user and still gets the boundary.
+     *
+     * @param int|null $userID the user id the caller supplied, if any
+     *
+     * @return bool
+     */
+    private static function _hasNoPrincipal($userID = null)
+    {
+        return null === $userID
+            && !(self::$FOGUser && self::$FOGUser->isValid());
+    }
+    /**
      * Public view of _isUnrestricted for scope-enforcing plugins (Site) that
      * must let global '*' holders bypass list filtering.
      *
@@ -1236,6 +1278,14 @@ class Authorization extends FOGBase
             return true;
         }
         if (self::_isUnrestricted($userID)) {
+            return true;
+        }
+        // No user to bound -- see _hasNoPrincipal(). Stated here as well as
+        // in _boundedUserID() because the single-object and list paths have
+        // to give the same answer: an object hidden from every list but
+        // still served through GET /<class>/<id>, or the reverse, is two
+        // statements of who may see what.
+        if (self::_hasNoPrincipal($userID)) {
             return true;
         }
         if (null === $userID) {
@@ -1402,6 +1452,10 @@ class Authorization extends FOGBase
     private static function _boundedUserID($node, $userID = null)
     {
         if (self::_isUnrestricted($userID)) {
+            return null;
+        }
+        // No user to bound -- see _hasNoPrincipal().
+        if (self::_hasNoPrincipal($userID)) {
             return null;
         }
         if (null === $userID) {
