@@ -5166,6 +5166,9 @@ msgstr "ノードは利用できません"
 msgid "No open slots"
 msgstr "空きスロットがありません"
 
+msgid "No password is needed. Issue this account a token from its API tab, or from FOG Configuration &rarr; API Tokens, once it has been created."
+msgstr ""
+
 #, fuzzy
 msgid "No plugin tasks to run"
 msgstr "有効なタスクが見つかりません"
@@ -9519,6 +9522,9 @@ msgstr ""
 #, fuzzy
 msgid "leave to keep the current one"
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
+
+msgid "legacy fog-user-token header and HTTP Basic; not needed for fog_ bearer tokens"
+msgstr ""
 
 #, php-format
 msgid "lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterwards"

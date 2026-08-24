@@ -5386,6 +5386,9 @@ msgstr "Pas de hachage disponible"
 msgid "No open slots"
 msgstr "Pas de fentes ouvertes"
 
+msgid "No password is needed. Issue this account a token from its API tab, or from FOG Configuration &rarr; API Tokens, once it has been created."
+msgstr ""
+
 #, fuzzy
 msgid "No plugin tasks to run"
 msgstr "Aucune classe valide envoyé"
@@ -9929,6 +9932,9 @@ msgid "keys"
 msgstr ""
 
 msgid "leave to keep the current one"
+msgstr ""
+
+msgid "legacy fog-user-token header and HTTP Basic; not needed for fog_ bearer tokens"
 msgstr ""
 
 #, php-format
