@@ -931,120 +931,404 @@ class UserManagement extends FOGPage
         $mayCreate = Authorization::can('apitoken.create');
         $mayDelete = Authorization::can('apitoken.delete');
 
-        echo '<form class="form-horizontal" method="post" action="'
-            . self::makeTabUpdateURL('user-api', $uid)
-            . '" id="user-apitoken-form">';
+        // A DATATABLE, like every other list in FOG, and like the central
+        // pane. This was a hand-built <table> of checkboxes posted through
+        // the tab form: no sorting, no search, and a shape that exists
+        // nowhere else in the UI. An account with thirty integrations was
+        // unreadable and there was no way to act on a subset.
+        //
+        // The whole card is now AJAX rather than a form. That removes the
+        // hidden tokenaction=manage discriminator and _userBearerTokensPost()
+        // with it -- both existed only because this card shared a POST
+        // target with the legacy uAPIToken card above, which is exactly the
+        // arrangement that made an absent checkbox read as "unticked" and
+        // risked wiping uAPIToken as a side effect of touching a Bearer
+        // token (the GH-987 defect class). Nothing shares a target now.
+        //
+        // Its own table id, not 'dataTable': the user edit page already
+        // carries association grids on other tabs, and registerTable()
+        // passes `retrieve: true` to DataTables -- a second init on a
+        // duplicate id would silently hand back the FIRST table's instance.
+        $body = '<p>'
+            . _('Sent as an Authorization: Bearer header, on its own '
+                . '&mdash; no fog-api-token header is needed alongside it. '
+                . 'Each token acts with this user\'s roles.')
+            . '</p>';
+
+        $buttons = '';
+        if ($mayDelete) {
+            $buttons .= self::makeButton(
+                'apitoken-delete-selected',
+                _('Delete selected'),
+                'btn btn-danger float-start'
+            );
+        }
+        $buttons .= '<div class="btn-group float-end">';
+        if ($mayEdit) {
+            $buttons .= self::makeButton(
+                'apitoken-disable-selected',
+                _('Disable selected'),
+                'btn btn-secondary'
+            );
+            $buttons .= self::makeButton(
+                'apitoken-enable-selected',
+                _('Enable selected'),
+                'btn btn-secondary'
+            );
+        }
+        if ($mayCreate) {
+            $buttons .= self::makeButton(
+                'issuetoken',
+                _('Issue Token'),
+                'btn btn-primary'
+            );
+        }
+        $buttons .= '</div>';
+
+        $table = '<table id="user-apitoken-table" '
+            . 'class="display table table-bordered table-striped">';
+        $table .= '<thead><tr class="header">'
+            . '<th>' . _('Name') . '</th>'
+            . '<th>' . _('Created') . '</th>'
+            . '<th>' . _('Created By') . '</th>'
+            . '<th>' . _('Last Used') . '</th>'
+            . '<th width="22">' . _('Enabled') . '</th>'
+            . '</tr></thead><tbody></tbody></table>';
+
+        $modals = '';
+        if ($mayCreate) {
+            $issueBody = '<div class="row mb-3">';
+            $issueBody .= self::makeLabel(
+                'col-sm-3 col-form-label',
+                'newtokenname',
+                _('Name')
+                . '<br/>('
+                . _('what this token is for')
+                . ')'
+            );
+            $issueBody .= '<div class="col-sm-9">'
+                . self::makeInput(
+                    'form-control',
+                    'newtokenname',
+                    _('e.g. nightly inventory script'),
+                    'text',
+                    'newtokenname',
+                    '',
+                    true,
+                    false,
+                    1,
+                    255
+                )
+                . '</div>';
+            $issueBody .= '</div>';
+            $issueBody .= '<p class="form-text mb-0">'
+                . _('Required, and unique for this account &mdash; it is the '
+                    . 'only thing that tells one token from another when it '
+                    . 'comes time to revoke one.')
+                . '</p>';
+
+            $modals .= self::makeModal(
+                'userIssueTokenModal',
+                _('Issue a Bearer token'),
+                $issueBody,
+                self::makeButton(
+                    'closeUserIssueModal',
+                    _('Cancel'),
+                    'btn btn-outline-secondary float-start',
+                    'data-bs-dismiss="modal"'
+                )
+                . self::makeButton(
+                    'confirmUserIssueToken',
+                    _('Issue Token'),
+                    'btn btn-primary float-end'
+                ),
+                '',
+                'primary'
+            );
+
+            // The plaintext reaches the browser once, in the reply to the
+            // click that created it. It is not carried in the session and
+            // not re-rendered on any later page load, so a back button, a
+            // refresh, or a second admin opening the same user cannot
+            // surface it. Its own modal rather than an inline alert because
+            // it has to be DISMISSED: closing it is the moment the grid
+            // reloads, and a banner nobody closes leaves a credential on
+            // screen behind whatever happens next.
+            $freshBody = '<p>'
+                . _('This is the only time it will be shown. FOG stores only '
+                    . 'a hash of it and cannot show it again. If you lose it, '
+                    . 'delete this token and issue another.')
+                . '</p>'
+                . '<input type="text" class="form-control" readonly '
+                . 'onclick="this.select();" id="apitoken-fresh-value"/>'
+                . '<p class="mt-2 mb-0"><code>Authorization: Bearer '
+                . '<span id="apitoken-fresh-header"></span></code></p>';
+            $modals .= self::makeModal(
+                'userFreshTokenModal',
+                _('Copy this token now'),
+                $freshBody,
+                self::makeButton(
+                    'closeUserFreshToken',
+                    _('Done'),
+                    'btn btn-primary float-end',
+                    'data-bs-dismiss="modal"'
+                ),
+                '',
+                'success'
+            );
+        }
+        if ($mayDelete) {
+            // The re-auth prompt $.deleteSelected drives when
+            // FOG_DELETE_REAUTH is on. Without it $.reAuth calls
+            // modal('show') on an empty jQuery set: nothing opens, nothing
+            // is deleted, nothing is logged.
+            //
+            // Its OWN id, not the shared 'deleteModal'. This page already
+            // renders one of those -- the one that deletes the account --
+            // and reusing the id put two of them in the DOM: $.reAuth
+            // resolved the account's, so the confirm read "delete this
+            // user", the password field it needs was not in that modal at
+            // all, and its deleteConfirmButton.off('click') tore the
+            // General tab's delete-user handler off for the rest of the
+            // page's life.
+            $modals .= self::makeModal(
+                'apitokenDeleteModal',
+                _('Confirm password'),
+                '<div class="input-group">'
+                . self::makeInput(
+                    'form-control',
+                    'apitokenDeletePW',
+                    _('Password'),
+                    'password',
+                    'apitokenDeletePassword'
+                )
+                . '</div>',
+                self::makeButton(
+                    'closeAPITokenDeleteModal',
+                    _('Cancel'),
+                    'btn btn-outline-secondary float-start',
+                    'data-bs-dismiss="modal"'
+                )
+                . self::makeButton(
+                    'confirmAPITokenDelete',
+                    _('Delete') . ' {0} ' . _('{node}'),
+                    'btn btn-outline-secondary float-end'
+                ),
+                '',
+                'danger'
+            );
+        }
+
         echo '<div class="card mt-3">';
         echo '<div class="card-header">' . _('Bearer API Tokens') . '</div>';
         echo '<div class="card-body">';
-
-        // Filled in by fog.user.edit.js from issueAPIToken()'s response and
-        // never by PHP. The plaintext reaches the browser once, in the reply
-        // to the click that created it, and is not carried in the session or
-        // re-rendered on any later page load -- so a back button, a refresh
-        // or a second admin opening the same user cannot surface it.
-        echo '<div class="alert alert-success d-none" id="apitoken-fresh">';
-        echo '<h5>' . _('Copy this token now') . '</h5>';
-        echo '<p>'
-            . _('This is the only time it will be shown. FOG stores only a '
-                . 'hash of it and cannot show it again. If you lose it, '
-                . 'delete this token and issue another.')
-            . '</p>';
-        echo '<input type="text" class="form-control" readonly '
-            . 'onclick="this.select();" id="apitoken-fresh-value"/>';
-        echo '<p class="mt-2 mb-0"><code>Authorization: Bearer '
-            . '<span id="apitoken-fresh-header"></span></code></p>';
+        echo $body;
+        echo $table;
+        echo '<div class="btn-actionbox">' . $buttons . '</div>';
         echo '</div>';
-
-        echo '<p>'
-            . _('Sent as an Authorization: Bearer header, on its own &mdash; no '
-                . 'fog-api-token header is needed alongside it. Each token '
-                . 'acts with this user\'s roles.')
-            . '</p>';
-
-        $tokens = self::getClass('APITokenManager')
-            ->forUser($uid);
-        echo '<table class="table table-sm">';
-        echo '<thead><tr>'
-            . '<th>' . _('Name') . '</th>'
-            . '<th>' . _('Created') . '</th>'
-            . '<th>' . _('Last Used') . '</th>'
-            . '<th>' . _('Enabled') . '</th>'
-            . ($mayDelete ? '<th>' . _('Delete') . '</th>' : '')
-            . '</tr></thead><tbody>';
-        if (count($tokens) < 1) {
-            echo '<tr><td colspan="5">' . _('No tokens issued.') . '</td></tr>';
-        }
-        foreach ((array)$tokens as &$token) {
-            $tid = (int)$token->get('id');
-            $last = trim((string)$token->get('lastUsed'));
-            echo '<tr>';
-            echo '<td>' . \Initiator::e($token->get('name')) . '</td>';
-            echo '<td>' . \Initiator::e($token->get('createdTime')) . '</td>';
-            // A token that has never been used reads as such rather than as
-            // a date, so "issued and forgotten" is visible at a glance --
-            // that is the whole reason the column is recorded.
-            echo '<td>'
-                . ('' === $last ? _('Never') : \Initiator::e($last))
-                . '</td>';
-            echo '<td><input type="checkbox" name="tokenenabled[]" value="'
-                . $tid . '"'
-                . ('1' === (string)$token->get('enabled') ? ' checked' : '')
-                . ($mayEdit ? '' : ' disabled')
-                . '/></td>';
-            if ($mayDelete) {
-                echo '<td><input type="checkbox" name="tokendelete[]" '
-                    . 'value="' . $tid . '"/></td>';
-            }
-            echo '</tr>';
-            unset($token);
-        }
-        echo '</tbody></table>';
-
-        // type=button, not submit. Creation does NOT ride this form: it is
-        // its own AJAX call to issueAPIToken(), the same shape the Reset
-        // Token control beside it already uses. Two reasons, and the first
-        // is fatal on its own:
-        //
-        //  - processForm() posts `new FormData(form)`, and FormData omits
-        //    submit buttons unless the submitter is passed to it. A
-        //    name=createtoken submit button therefore never arrives, so the
-        //    handler could not tell a create from a save however it was
-        //    wired.
-        //  - the plaintext is shown once. Routing it through the tab form
-        //    means either putting it in the session and reloading -- which
-        //    lands the user back on the General tab with the secret
-        //    unseen -- or threading it through handleEditPost()'s shared
-        //    fixed-shape response. The dedicated endpoint returns it to the
-        //    click that asked for it and nothing else has to change.
-        // Read by _userBearerTokensPost() to tell this card's save from the
-        // legacy card's. See the comment there for why it cannot be the
-        // button's own name.
-        echo '<input type="hidden" name="tokenaction" value="manage"/>';
-
-        if ($mayCreate) {
-            echo '<div class="input-group">';
-            echo '<input type="text" class="form-control" '
-                . 'name="newtokenname" id="newtokenname" placeholder="'
-                . _('Name for a new token') . '"/>';
-            echo '<button type="button" id="issuetoken" '
-                . 'class="btn btn-secondary">' . _('Issue Token')
-                . '</button>';
-            echo '</div>';
-        }
-
         echo '</div>';
-        echo '<div class="card-footer">';
-        if ($mayEdit || $mayDelete) {
-            echo self::makeButton(
-                'apitoken-send',
-                _('Update'),
-                'btn btn-primary float-end'
+        echo $modals;
+    }
+    /**
+     * This user's Bearer tokens, as DataTables JSON.
+     *
+     * Not Route::listem(). APIToken is deliberately absent from
+     * Route::$validClasses -- a token-management REST surface would let one
+     * API credential mint another -- so the REST layer cannot answer this
+     * and should not be taught to.
+     *
+     * @return void
+     */
+    public function userAPITokenList()
+    {
+        $this->userAPITokenListPost();
+    }
+    /**
+     * @return void
+     */
+    public function userAPITokenListPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        if (!Authorization::can('apitoken.view')) {
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(
+                    [
+                        'error' => _('You do not have permission to view API '
+                            . 'tokens.'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
             );
         }
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
+
+        $uid = (int)$this->obj->get('id');
+        $rows = [];
+        // visibleTo() applies the acting user's object scope; the userID
+        // filter here narrows it to the account being edited. Both, not
+        // either: scope decides what this administrator may see at all, and
+        // the id decides which of that belongs on this page.
+        foreach (
+            self::getClass('APITokenManager')
+                ->visibleTo((int)self::$FOGUser->get('id')) as $token
+        ) {
+            if ($token['userID'] !== $uid) {
+                continue;
+            }
+            $rows[] = [
+                'id' => $token['id'],
+                'name' => $token['name'],
+                'createdTime' => $token['createdTime'],
+                'createdBy' => $token['createdBy'],
+                // "Never" is a different fact from "used at the epoch", and
+                // the column exists precisely to tell them apart.
+                'lastUsed' => '' === $token['lastUsed']
+                    ? _('Never')
+                    : $token['lastUsed'],
+                'enabled' => $token['enabled'] ? 1 : 0
+            ];
+        }
+
+        self::jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(
+                [
+                    'draw' => (int)filter_input(INPUT_POST, 'draw') ?: 0,
+                    'recordsTotal' => count($rows),
+                    'recordsFiltered' => count($rows),
+                    'data' => $rows
+                ]
+            )
+        );
+    }
+    /**
+     * Revokes the selected tokens. See _postOnly() in the config page for
+     * why a base method has to exist at all.
+     *
+     * @return void
+     */
+    public function userAPITokenDelete()
+    {
+        $this->_tokenPostOnly();
+    }
+    /**
+     * @return void
+     */
+    public function userAPITokenDeletePost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        if (!Authorization::can('apitoken.delete')) {
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(
+                    [
+                        'error' => _('You do not have permission to revoke '
+                            . 'API tokens.'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
+
+        // The owner id is passed, so this card can only ever act on the
+        // account it is displayed under. Without it anyone who may edit one
+        // user could revoke any token on the server by posting its number.
+        $revoked = self::getClass('APITokenManager')->revokeMany(
+            array_map('intval', (array)($_POST['remitems'] ?? [])),
+            (int)self::$FOGUser->get('id'),
+            (int)$this->obj->get('id')
+        );
+
+        self::jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(
+                [
+                    'msg' => sprintf(_('%d token(s) revoked.'), $revoked),
+                    'title' => _('API Tokens Revoked')
+                ]
+            )
+        );
+    }
+    /**
+     * Enables or disables the selected tokens.
+     *
+     * @return void
+     */
+    public function userAPITokenEnable()
+    {
+        $this->_tokenPostOnly();
+    }
+    /**
+     * @return void
+     */
+    public function userAPITokenEnablePost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        if (!Authorization::can('apitoken.edit')) {
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(
+                    [
+                        'error' => _('You do not have permission to change '
+                            . 'API tokens.'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
+
+        $enabled = (int)filter_input(INPUT_POST, 'enabled') === 1;
+        $changed = self::getClass('APITokenManager')->setEnabledMany(
+            array_map('intval', (array)($_POST['remitems'] ?? [])),
+            $enabled,
+            (int)self::$FOGUser->get('id'),
+            (int)$this->obj->get('id')
+        );
+
+        self::jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(
+                [
+                    'msg' => sprintf(
+                        $enabled
+                            ? _('%d token(s) enabled.')
+                            : _('%d token(s) disabled.'),
+                        $changed
+                    ),
+                    'title' => _('API Tokens Updated')
+                ]
+            )
+        );
+    }
+    /**
+     * Refuses a GET on an endpoint that only acts on POST.
+     *
+     * These base methods exist because of how FOGPageManager::render()
+     * dispatches: it looks the BASE method up FIRST and rewrites $method to
+     * 'index' when it is missing, so a sub implemented only as fooPost()
+     * never reaches the .Post test and quietly renders the node's default
+     * page instead -- HTTP 200, wrong body, nothing logged.
+     *
+     * @return void
+     */
+    private function _tokenPostOnly()
+    {
+        header('Content-type: application/json');
+        self::jsonSend(
+            HTTPResponseCodes::HTTP_METHOD_NOT_ALLOWED,
+            json_encode(
+                [
+                    'error' => _('This endpoint only accepts POST.'),
+                    'title' => _('API Token Failed')
+                ]
+            )
+        );
     }
     /**
      * User Change API Post
@@ -1054,16 +1338,14 @@ class UserManagement extends FOGPage
     public function userAPIPost()
     {
         self::checkAuthAndCSRF();
-        // The Bearer card posts to this same tab URL, so it lands here too.
-        // Routed first and returned from: its submits carry none of the
-        // legacy card's fields, and falling through would read an absent
-        // apienabled checkbox as "unticked" and an absent apitoken as empty
-        // -- silently disabling fog-user-token for the account and wiping
-        // uAPIToken as a side effect of issuing a Bearer token. That is the
-        // control-type/hand-built-form defect class (GH-987) exactly.
-        if ($this->_userBearerTokensPost()) {
-            return;
-        }
+        // The Bearer card used to post to this same tab URL and had to be
+        // routed off first, or its submits -- carrying none of the legacy
+        // card's fields -- would read an absent apienabled checkbox as
+        // "unticked" and an absent apitoken as empty, silently disabling
+        // fog-user-token and wiping uAPIToken as a side effect of touching
+        // a Bearer token (the GH-987 defect class exactly). That card is
+        // now a DataTable driven by its own endpoints and shares no POST
+        // target with this one, so the discriminator is gone with it.
         $apien = (int)isset($_POST['apienabled']);
         $apitoken = base64_decode(
             filter_input(INPUT_POST, 'apitoken')
@@ -1114,7 +1396,44 @@ class UserManagement extends FOGPage
         $uid = (int)$this->obj->get('id');
         $name = trim((string)filter_input(INPUT_POST, 'newtokenname'));
 
+        // Required, and required here rather than only by the form's
+        // required attribute -- this endpoint is reachable without the
+        // form. A nameless token is the one nobody can ever revoke with
+        // confidence: the whole point of the last-used column is deciding
+        // what to delete, and "(no name), never used" is not a decision
+        // anybody will act on.
+        if ('' === $name) {
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    [
+                        'error' => _('Give the token a name saying what it is for.'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
+
         $token = $uid > 0 ? APIToken::generate($uid, $name) : false;
+        if (APIToken::DUPLICATE_NAME === $token) {
+            // A user's token names are unique so the list stays readable
+            // when it comes time to revoke one. Refused rather than
+            // silently made unique, because a name the administrator did
+            // not choose is no more identifying than no name at all.
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    [
+                        'error' => sprintf(
+                            _('This account already has a token called '
+                                . '"%s". Pick a different name.'),
+                            $name
+                        ),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
         if (false === $token) {
             // generate() returns false when the row did not store, so this
             // is "there is no token", not "there might be one you cannot
@@ -1143,62 +1462,6 @@ class UserManagement extends FOGPage
                 ]
             )
         );
-    }
-    /**
-     * Handles a submit from the Bearer token card.
-     *
-     * @return bool whether this request came from that card.
-     */
-    private function _userBearerTokensPost()
-    {
-        // A hidden field, not the button's name. processForm() posts
-        // `new FormData(form)` and FormData omits submit buttons unless the
-        // submitter is passed to it, so a name= on the button never arrives
-        // -- the handler would see every save as "not mine" and fall
-        // through to the legacy card. The JS sets this before posting.
-        if ('manage' !== (string)filter_input(INPUT_POST, 'tokenaction')) {
-            return false;
-        }
-        // Returns true either way: the request WAS this card's, so it must
-        // not fall through to the legacy card's handler even when the user
-        // may not act on it. Falling through would read the legacy card's
-        // absent fields as empty and wipe uAPIToken -- turning a permission
-        // denial into data loss on a different credential.
-        if (!Authorization::can('apitoken.view')) {
-            return true;
-        }
-        $mayEdit = Authorization::can('apitoken.edit');
-        $mayDelete = Authorization::can('apitoken.delete');
-        $uid = (int)$this->obj->get('id');
-        $keepEnabled = array_map(
-            'intval',
-            (array)($_POST['tokenenabled'] ?? [])
-        );
-        $toDelete = array_map(
-            'intval',
-            (array)($_POST['tokendelete'] ?? [])
-        );
-        // Scoped to THIS user's tokens. The ids arrive from a form and a
-        // form is an untrusted list, so acting on them without the userID
-        // filter would let anyone who can edit one user disable or delete
-        // any token on the server by posting its id.
-        $tokens = self::getClass('APITokenManager')
-            ->forUser($uid);
-        foreach ((array)$tokens as &$token) {
-            $tid = (int)$token->get('id');
-            if ($mayDelete && in_array($tid, $toDelete, true)) {
-                // revoke(), not destroy(): it writes the audit row first,
-                // while the owner and name can still be read off the row.
-                $token->revoke();
-                unset($token);
-                continue;
-            }
-            if ($mayEdit) {
-                $token->setEnabled(in_array($tid, $keepEnabled, true));
-            }
-            unset($token);
-        }
-        return true;
     }
     /**
      * Present the roles tab.

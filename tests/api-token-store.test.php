@@ -265,30 +265,38 @@ if (preg_match('/function userAPIPost\((.*?)\n    \}/s', $pageSrc, $m)) {
     $apiPost = $m[1];
 }
 $t->check('userAPIPost() exists', '' !== $apiPost);
+// The ordering fix is gone because the collision is: the Bearer card is a
+// DataTable with its own endpoints and shares no POST target with this tab,
+// so a Bearer action can no longer carry (or omit) the legacy card's fields.
+// Comments stripped first: the comment left where the discriminator used to
+// live names all four of these, so a source-text check would fail on the
+// documentation rather than on the code.
+$pageCode = preg_replace(
+    '#(^|\s)//[^\n]*#',
+    '$1',
+    preg_replace('#/\*.*?\*/#s', '', $pageSrc)
+);
 $t->check(
-    'userAPIPost() hands off to the token handler before touching uAPIToken',
+    'the Bearer card no longer posts through this tab at all',
+    false === strpos($pageCode, '_userBearerTokensPost')
+    && false === strpos($pageCode, "filter_input(INPUT_POST, 'tokenaction')")
+    && false === strpos($pageCode, 'tokendelete')
+    && false === strpos($pageCode, 'tokenenabled')
+);
+// Posted token ids are still untrusted. Every bulk action passes the id of
+// the account whose page this is, so one user's card cannot reach another's
+// credentials however the request is forged.
+$t->check(
+    'bulk delete is constrained to the account being edited',
     (bool)preg_match(
-        '/_userBearerTokensPost\(.*?\)(.*?)return;/s',
-        $apiPost
+        '/revokeMany\(\s*array_map[^;]*\(int\)\$this->obj->get\(.id.\)/s',
+        $pageSrc
     )
 );
-// The READ of the legacy field, not the word -- it also appears in the
-// comment that explains why the ordering matters.
-$legacyPos = strpos($apiPost, "\$_POST['apienabled']");
-$bearerPos = strpos($apiPost, '$this->_userBearerTokensPost(');
 $t->check(
-    'the token handler runs first, so absent legacy fields are never read as 0',
-    false !== $bearerPos
-    && (false === $legacyPos || $bearerPos < $legacyPos)
-);
-// Posted token ids must be constrained to the user whose page this is,
-// otherwise one user's form deletes another's credentials. The manage loop
-// iterates the OWNER'S tokens and matches posted ids against them, rather
-// than loading whatever id was posted.
-$t->check(
-    'token management iterates the owning user\'s tokens',
+    'bulk enable/disable is constrained the same way',
     (bool)preg_match(
-        '/getClass\(\'APITokenManager\'\)\s*\n?\s*->forUser\(\$uid\)/',
+        '/setEnabledMany\(\s*array_map[^;]*\(int\)\$this->obj->get\(.id.\)/s',
         $pageSrc
     )
 );
@@ -314,12 +322,14 @@ $jsSrc = file_get_contents(
 //     only suppresses the native submit; every card is wired by hand in its
 //     page's JS, and an unwired one renders perfectly and does nothing.
 $t->check(
-    'the token card form is wired in JS',
-    false !== strpos($jsSrc, '#user-apitoken-form')
+    'the token grid is initialised in JS',
+    false !== strpos($jsSrc, "$('#user-apitoken-table').registerTable(")
 );
 $t->check(
-    'the save button is wired',
-    false !== strpos($jsSrc, '#apitoken-send')
+    'all three bulk buttons are wired',
+    false !== strpos($jsSrc, '#apitoken-delete-selected')
+    && false !== strpos($jsSrc, '#apitoken-enable-selected')
+    && false !== strpos($jsSrc, '#apitoken-disable-selected')
 );
 $t->check(
     'the issue button is wired',
@@ -329,14 +339,18 @@ $t->check(
 // (b) processForm() posts `new FormData(form)`, and FormData omits submit
 //     buttons unless the submitter is handed to it. So the save discriminator
 //     has to be a real field, and creation cannot be a submit button at all.
+// There is no longer a discriminator to get wrong: each action has its own
+// endpoint, and every one of them has a base method so FOGPageManager's
+// rewrite-to-index() cannot swallow it (the "answers 200 having done
+// nothing" shape that shipped once already).
 $t->check(
-    'the save discriminator is a posted field, not a button name',
-    false !== strpos($pageSrc, "filter_input(INPUT_POST, 'tokenaction')")
-    && false !== strpos($pageSrc, 'name="tokenaction" value="manage"')
-);
-$t->check(
-    'the issue control is not a submit button',
-    false !== strpos($pageSrc, 'type="button" id="issuetoken"')
+    'each bulk action is its own endpoint with a base method',
+    (bool)preg_match('/public function userAPITokenList\(\)/', $pageSrc)
+    && (bool)preg_match('/public function userAPITokenListPost\(\)/', $pageSrc)
+    && (bool)preg_match('/public function userAPITokenDelete\(\)/', $pageSrc)
+    && (bool)preg_match('/public function userAPITokenDeletePost\(\)/', $pageSrc)
+    && (bool)preg_match('/public function userAPITokenEnable\(\)/', $pageSrc)
+    && (bool)preg_match('/public function userAPITokenEnablePost\(\)/', $pageSrc)
 );
 $t->check(
     'issuing a token is its own CSRF-gated endpoint',
@@ -403,19 +417,22 @@ $t->check(
     (bool)preg_match('/public function apitokens\(\)/', $configSrc)
 );
 
-// Site scoping. allInScopeIDs() returns [] BOTH for "unscoped" and for "in
-// no site" -- opposite meanings -- so isUnscoped() must be consulted first
-// or a scoped admin with no sites silently sees the whole estate.
+// Object scope. This USED to ask SiteScope::isUnscoped() directly, which
+// saw only ONE of the three reasons core declines to narrow -- and so
+// narrowed a '*' holder that every other page in FOG shows everything to.
+// The boundary now comes from Authorization::scopedObjectIDs(), whose
+// tri-state is inverted: null means "no boundary", an array (even empty)
+// means "these and no others". Pinned in detail by
+// tests/apitoken-grid-and-scope.test.php; kept here so this file cannot
+// pass while the pane has gone back to asking SiteScope.
 $mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
-$unscopedPos = strpos($mgrSrc, 'SiteScope::isUnscoped');
-$allIDsPos = strpos($mgrSrc, 'SiteScope::allInScopeIDs');
 $t->check(
-    'the pane consults site scope at all',
-    false !== $unscopedPos && false !== $allIDsPos
+    'the pane bounds what it shows by object scope',
+    false !== strpos($mgrSrc, 'Authorization::scopedObjectIDs')
 );
 $t->check(
-    'isUnscoped() is checked before an empty scope list is trusted',
-    false !== $unscopedPos && $unscopedPos < $allIDsPos
+    'it does not reach past Authorization into SiteScope',
+    !preg_match('/^\s*[^*\/\n]*SiteScope::/m', $mgrSrc)
 );
 $t->check(
     'an empty scope list denies rather than falling through unfiltered',
@@ -423,10 +440,15 @@ $t->check(
 );
 // Posted ids are an untrusted list. Every mutation resolves through
 // visibleToken(), never a direct load of whatever number was posted.
+// Both surfaces now funnel through the manager's _resolve(), so the check
+// follows it there -- and the pane must not have grown a direct load back.
 $t->check(
-    'central mutations resolve ids through visibleToken()',
-    substr_count($configSrc, 'visibleToken(') >= 2
-    && !preg_match('/getClass\(\'APIToken\',\s*\$tokenID/', $configSrc)
+    'bulk mutations resolve ids through visibleToken()',
+    (bool)preg_match(
+        '/private function _resolve\(.*?\$token = \$this->visibleToken\(/s',
+        $mgrSrc
+    )
+    && !preg_match('/getClass\(.APIToken.,\s*\$tokenID/', $configSrc)
 );
 
 // ---------------------------------------------------------------------------
@@ -484,10 +506,14 @@ foreach (['TOKEN_ISSUED', 'TOKEN_ENABLED', 'TOKEN_DISABLED', 'TOKEN_DELETED'] as
 
 // The pane's controls need wiring for the same reason the user tab's did.
 $t->check(
-    'the central pane form is wired in JS',
-    false !== strpos($paneJs, '#apitoken-central-form')
-    && false !== strpos($paneJs, '#apitoken-central-send')
-    && false !== strpos($paneJs, '#centralissuetoken')
+    // The pane is a DataTable now, not a form of checkboxes: it is wired
+    // with the same registerTable() every other list page uses, and its
+    // bulk actions post to their own subs. See
+    // tests/apitoken-grid-and-scope.test.php for the full contract.
+    'the central pane grid is wired in JS',
+    false !== strpos($paneJs, "$('#dataTable').registerTable(")
+    && false !== strpos($paneJs, 'sub=apitokenlist')
+    && false !== strpos($paneJs, '#issuetoken')
 );
 
 // WHERE THE MENU ENTRY HAS TO LIVE, which is the defect this pins.

@@ -90,12 +90,24 @@ class APITokenManager extends FOGManagerController
      *
      * SITE SCOPING. A scoped admin must not learn the account names and
      * integration names of users outside their scope -- an inventory is a
-     * disclosure surface even when every value in it is a hash. The tri-state
-     * here is the trap, and it is the one this codebase has been bitten by
-     * before: allInScopeIDs() returns [] BOTH for "this user is unscoped"
-     * and for "this user is in no site", which mean opposite things. So
-     * isUnscoped() is asked FIRST, and only after it says no does an empty
-     * list get read as "sees nothing".
+     * disclosure surface even when every value in it is a hash.
+     *
+     * The boundary comes from Authorization::scopedObjectIDs(), NOT from
+     * SiteScope directly, and that distinction was a live bug rather than
+     * a style preference. Core declines to narrow for THREE reasons --
+     * the caller holds '*', no sites are in use, or the caller is in a
+     * catch-all site -- and only the third is a SiteScope question.
+     * Calling SiteScope::isUnscoped() here saw one of the three, so an
+     * administrator holding '*' who happened not to reach a catch-all site
+     * was narrowed to their site's user list on this page alone while
+     * every other page in FOG correctly showed them everything. On a lab
+     * server that meant "No such user" for every name the issue dropdown
+     * offered.
+     *
+     * The tri-state is the trap and it is inverted from the old one:
+     * scopedObjectIDs() returns NULL for "no boundary applies" and an
+     * ARRAY -- possibly empty -- for "these and no others". An empty array
+     * therefore means "sees nothing" and is never confused with silence.
      *
      * @param int $actingUserID Whose visibility applies.
      *
@@ -107,12 +119,12 @@ class APITokenManager extends FOGManagerController
         $actingUserID = (int)$actingUserID;
         $where = '';
 
-        if (!SiteScope::isUnscoped($actingUserID)) {
-            $ids = SiteScope::allInScopeIDs('user', $actingUserID);
+        $ids = Authorization::scopedObjectIDs('user', $actingUserID);
+        if (null !== $ids) {
             if (count($ids) < 1) {
-                // Scoped, and in scope of nothing. Deny rather than fall
-                // through to an unfiltered query -- the empty list means
-                // "no users", not "no filter".
+                // Bounded, and in scope of nothing. Deny rather than fall
+                // through to an unfiltered query -- the empty array means
+                // "no users", and only null means "no filter".
                 return [];
             }
             $where = ' WHERE `t`.`atUserID` IN ('
@@ -177,17 +189,125 @@ class APITokenManager extends FOGManagerController
         if (!$token->isValid()) {
             return null;
         }
-        $actingUserID = (int)$actingUserID;
-        if (SiteScope::isUnscoped($actingUserID)) {
-            return $token;
-        }
-        $ids = SiteScope::allInScopeIDs('user', $actingUserID);
-        // Same tri-state as visibleTo(): scoped with an empty list sees
-        // nothing, so in_array against [] correctly denies.
-        if (!in_array((int)$token->get('userID'), $ids, true)) {
+        if (!$this->userInScope((int)$token->get('userID'), $actingUserID)) {
             return null;
         }
         return $token;
+    }
+    /**
+     * Revokes every token in a posted id list that the caller may touch.
+     *
+     * @param array $ids          The posted ids.
+     * @param int   $actingUserID Whose visibility applies.
+     * @param int   $ownerID      Restrict to this owner, or null for any.
+     *
+     * @return int How many were revoked.
+     */
+    public function revokeMany(array $ids, $actingUserID, $ownerID = null)
+    {
+        $revoked = 0;
+        foreach ($this->_resolve($ids, $actingUserID, $ownerID) as $token) {
+            // revoke(), not destroy(): it writes the audit row first, while
+            // the owner and name can still be read off the row.
+            $token->revoke();
+            $revoked++;
+        }
+        return $revoked;
+    }
+    /**
+     * Enables or disables every token in a posted id list.
+     *
+     * One method for both directions rather than two, because the only
+     * difference is the value written and setEnabled() already decides
+     * whether anything actually changed.
+     *
+     * @param array $ids          The posted ids.
+     * @param bool  $enabled      What to set them to.
+     * @param int   $actingUserID Whose visibility applies.
+     * @param int   $ownerID      Restrict to this owner, or null for any.
+     *
+     * @return int How many changed state.
+     */
+    public function setEnabledMany(
+        array $ids,
+        $enabled,
+        $actingUserID,
+        $ownerID = null
+    ) {
+        $changed = 0;
+        foreach ($this->_resolve($ids, $actingUserID, $ownerID) as $token) {
+            if ($token->setEnabled($enabled)) {
+                $changed++;
+            }
+        }
+        return $changed;
+    }
+    /**
+     * Turns a posted id list into the tokens the caller may actually touch.
+     *
+     * THE POINT OF THIS METHOD. The ids arrive from a form, and a form is an
+     * untrusted list -- so every one is resolved through visibleToken()
+     * rather than loaded directly, and a caller cannot revoke a credential
+     * belonging to a user they cannot see just by posting its number.
+     *
+     * $ownerID is the second, narrower gate the per-user tab needs: that
+     * card is reached through ?node=user&id=N and must act only on N's
+     * tokens, otherwise anyone who may edit one user could disable any
+     * token on the server from it. The central pane passes null because
+     * spanning users is its whole job.
+     *
+     * Silently skipping what does not resolve is deliberate: the counts
+     * returned describe what happened, and naming the ids that were refused
+     * would tell a scoped caller which numbers exist.
+     *
+     * @param array $ids          The posted ids.
+     * @param int   $actingUserID Whose visibility applies.
+     * @param int   $ownerID      Restrict to this owner, or null for any.
+     *
+     * @return array APIToken objects, possibly empty.
+     */
+    private function _resolve(array $ids, $actingUserID, $ownerID = null)
+    {
+        $actingUserID = (int)$actingUserID;
+        $ownerID = null === $ownerID ? null : (int)$ownerID;
+        $out = [];
+        foreach ($ids as $id) {
+            $token = $this->visibleToken((int)$id, $actingUserID);
+            if (null === $token) {
+                continue;
+            }
+            if (null !== $ownerID
+                && (int)$token->get('userID') !== $ownerID
+            ) {
+                continue;
+            }
+            $out[] = $token;
+        }
+        return $out;
+    }
+    /**
+     * May this administrator act on this user's credentials at all?
+     *
+     * The one place the boundary is stated, so the inventory, the per-token
+     * lookup and the issue-on-behalf-of endpoint cannot drift apart. They
+     * did: issueAPITokenForPost() carried its own inline copy asking
+     * SiteScope directly, which is how a '*' holder ended up being told
+     * "No such user" about a user the same page had just listed for them.
+     *
+     * @param int $userID       The account whose credentials are in play.
+     * @param int $actingUserID Whose visibility applies.
+     *
+     * @return bool
+     */
+    public function userInScope($userID, $actingUserID)
+    {
+        $ids = Authorization::scopedObjectIDs('user', (int)$actingUserID);
+        // null is the permissive value -- no boundary applies. An array,
+        // even an empty one, is an enumeration of what may be reached.
+        if (null === $ids) {
+            return true;
+        }
+        return in_array((int)$userID, $ids, true);
     }
 }
 
