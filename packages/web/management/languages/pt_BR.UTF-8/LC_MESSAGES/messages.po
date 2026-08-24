@@ -3632,9 +3632,6 @@ msgstr "IP Passou está incorreta"
 msgid "Icon"
 msgstr "Ícone"
 
-msgid "Icon File not found"
-msgstr "Ícone do Arquivo não encontrado"
-
 #, php-format
 msgid "Id and name pairs for %s"
 msgstr ""
@@ -10749,6 +10746,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "usuário atualizada"
+
+#~ msgid "Icon File not found"
+#~ msgstr "Ícone do Arquivo não encontrado"
 
 #, fuzzy
 #~ msgid "Imaging History"

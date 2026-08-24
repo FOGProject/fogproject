@@ -326,4 +326,167 @@ $t->check(
     [] === $concat
 );
 
+// ---------------------------------------------------------------------------
+// 6. Where NEW icon names come from.
+//
+// Section 5 pins the values commons/schema.php seeds. It cannot see the other
+// way a value reaches taskTypes.ttIcon: an administrator choosing one from the
+// Task Type edit form, whose dropdown TaskType::iconlist() builds.
+//
+// That dropdown used to be built from management/other/_variables.scss -- a
+// Font Awesome *4.7.0* variables file no stylesheet imported and nothing
+// regenerated. The FA7 migration did not touch it, so it went on offering 786
+// v4 names of which 148 no longer exist, including all seven the schema steps
+// in section 5 had just repaired. Fixing the data while leaving the picker
+// able to rewrite it is not a fix.
+//
+// So this pins the SOURCE rather than the values: the names offered must all
+// resolve in the shipped stylesheet, which makes a second, drifting copy of
+// the icon list fail here instead of on somebody's screen.
+//
+// The real method is executed, not read. A regex over the source would pass
+// on code that reads the right file and parses it wrongly -- and parsing is
+// where the next FA version bump will break it. _faIcons() depends on nothing
+// but BASEPATH and that file, so lifting the two methods into a bare host
+// class runs the committed code with no FOG boot. Extraction failing is a
+// hard failure: it means the methods were renamed and somebody should look,
+// not that the check should quietly pass.
+// ---------------------------------------------------------------------------
+$taskTypeSrc = file_get_contents($web . '/lib/fog/tasktype.class.php');
+$from = strpos($taskTypeSrc, '    private static $_faIcons');
+$to = strpos($taskTypeSrc, '     * Returns the icon for this task or type.');
+$to = false === $to ? false : strrpos(substr($taskTypeSrc, 0, $to), '    /**');
+$t->check(
+    'the icon-picker methods can be located in tasktype.class.php',
+    false !== $from && false !== $to && $to > $from
+);
+if (false !== $from && false !== $to && $to > $from) {
+    if (!defined('BASEPATH')) {
+        define('BASEPATH', $web . '/');
+    }
+    if (!class_exists('Initiator')) {
+        eval(
+            'class Initiator { public static function e($v) { return htmlspecialchars('
+            . '(string)($v ?? ""), ENT_QUOTES | ENT_SUBSTITUTE, "UTF-8", false); } }'
+        );
+    }
+    eval('class FogIconPickerHost { ' . substr($taskTypeSrc, $from, $to - $from) . ' }');
+    $host = new FogIconPickerHost();
+    $html = $host->iconlist('');
+    preg_match_all('/<option value="([a-z0-9-]+)"/', $html, $om);
+    $offered = $om[1];
+
+    $t->check(
+        sprintf('the picker offers a plausible number of icons (%d)', count($offered)),
+        count($offered) > 500
+    );
+
+    // The same authority section 5 uses, asked of every name on offer.
+    $unresolvable = [];
+    foreach ($offered as $name) {
+        if (!preg_match('/\.fa-' . preg_quote($name, '/') . '[,:{ ]/', $cssSrc)) {
+            $unresolvable[] = $name;
+        }
+    }
+    $t->check(
+        sprintf(
+            'every icon the picker offers resolves in the shipped CSS%s',
+            [] === $unresolvable
+                ? ''
+                : ' -- ' . count($unresolvable) . ' do not: '
+                    . implode(', ', array_slice($unresolvable, 0, 8))
+        ),
+        [] === $unresolvable
+    );
+
+    // Brands resolve in the stylesheet but live only in the Brands font, and
+    // FOG renders a stored name as `fas fa-<name>` -- so an offered brand
+    // draws a tofu box, which section 1 already calls out as worse to eyeball
+    // than an absent icon.
+    $brandsAt = preg_match(
+        '/font-family:"Font Awesome \d+ Brands"/',
+        $cssSrc,
+        $bm,
+        PREG_OFFSET_CAPTURE
+    ) ? $bm[0][1] : false;
+    $t->check('the CSS still marks where the brands section starts', false !== $brandsAt);
+    $brandsOffered = [];
+    if (false !== $brandsAt) {
+        foreach ($offered as $name) {
+            $at = strpos($cssSrc, '.fa-' . $name . ',');
+            $at = false === $at ? strpos($cssSrc, '.fa-' . $name . '{') : $at;
+            if (false !== $at && $at > $brandsAt) {
+                $brandsOffered[] = $name;
+            }
+        }
+    }
+    $t->check(
+        sprintf(
+            'the picker offers no brand-only icon%s',
+            [] === $brandsOffered
+                ? ''
+                : ' -- ' . count($brandsOffered) . ' offered: '
+                    . implode(', ', array_slice($brandsOffered, 0, 8))
+        ),
+        [] === $brandsOffered
+    );
+
+    // Aliases are names too. FA7 declares them by grouping selectors --
+    // `.fa-ban,.fa-cancel{--fa:"\f05e"}` is two usable names in one rule --
+    // so a parser that reads only the first class of each rule silently drops
+    // hundreds of them and every check above still passes, because everything
+    // it DOES offer is valid. The expectation is derived from the stylesheet
+    // here rather than written down, so it survives a version bump: find a
+    // grouped rule and require all of its names.
+    $grouped = [];
+    if (preg_match_all(
+        '/([^{}]+)\{--fa:\s*"\\\\[0-9a-f]+"/i',
+        false === $brandsAt ? $cssSrc : substr($cssSrc, 0, $brandsAt),
+        $gm,
+        PREG_SET_ORDER
+    )) {
+        foreach ($gm as $rule) {
+            preg_match_all('/\.fa-([a-z0-9-]+)(?=[,{:\s]|$)/', $rule[1], $gn);
+            if (count($gn[1]) > 1) {
+                $grouped = $gn[1];
+                break;
+            }
+        }
+    }
+    $t->check(
+        sprintf('the stylesheet still groups aliases (%s)', implode(', ', $grouped)),
+        count($grouped) > 1
+    );
+    $missingAlias = array_diff($grouped, $offered);
+    $t->check(
+        sprintf(
+            'the picker offers every alias in a grouped rule%s',
+            [] === $missingAlias ? '' : ' -- MISSING: ' . implode(', ', $missingAlias)
+        ),
+        [] === $missingAlias
+    );
+
+    // The glyph beside each name has to be a character. The previous code
+    // emitted `&#xf02b` with no trailing semicolon and then html-escaped it,
+    // so htmlspecialchars could not recognise it as an entity even with
+    // double_encode off and every row rendered the literal text.
+    $t->check(
+        'the picker renders glyphs, not escaped entity text',
+        false === strpos($html, '&amp;#x')
+    );
+
+    // Nothing may reintroduce a second, static copy of the icon list.
+    // Both halves matter: the class has to name the stylesheet, and the file
+    // it used to read has to be gone -- a check on the source alone passes on
+    // a comment that merely mentions it, which this one did.
+    $t->check(
+        'the picker reads the shipped stylesheet',
+        false !== strpos($taskTypeSrc, 'management/css/font-awesome.min.css')
+    );
+    $t->check(
+        'the Font Awesome 4 variables file is gone',
+        !file_exists($web . '/management/other/_variables.scss')
+    );
+}
+
 $t->finish();
