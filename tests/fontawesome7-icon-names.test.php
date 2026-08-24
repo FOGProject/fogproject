@@ -16,9 +16,25 @@
  *
  * WHAT IS PINNED:
  *
- *  1. No FA4-only class name survives anywhere in core. These are the names
- *     that FA7 dropped outright (fa-refresh, fa-magic, fa-warning, ...); each
- *     one is a blank box.
+ *  1. No FA4-only class name survives anywhere in core -- meaning any name that
+ *     is not what FA7 calls the icon today, whether or not it happens to still
+ *     resolve. Measured against the shipped build, those 26 names split three
+ *     ways, and the split is worth knowing because it is NOT intuitive:
+ *
+ *       8  have no class in the stylesheet at all and render nothing:
+ *          fa-check-square-o, fa-circle-o, fa-file-excel-o, fa-hdd-o,
+ *          fa-money, fa-moon-o, fa-square-o, fa-sun-o. Note the pattern --
+ *          these are the FA4 "-o" outline variants, whose glyphs moved to the
+ *          regular family and whose old names were not kept.
+ *       2  resolve to a codepoint in the BRANDS font while `.fa` selects the
+ *          solid one, so they draw a tofu box: fa-windows, fa-slack. A wrong
+ *          glyph, not an absent one, which is arguably worse to eyeball.
+ *      16  still render correctly, because FA7 kept the old name as an alias
+ *          (fa-refresh, fa-magic, fa-warning, fa-dashboard, ...).
+ *
+ *     The last group is why this check exists at all rather than trusting a
+ *     visual pass: two thirds of the renames LOOK fine in a browser today and
+ *     would break only when FontAwesome eventually drops the aliases.
  *  2. No bare `fa fa-*` two-token form. `.fa` still resolves to solid in FA7 so
  *     these do render, but leaving some call sites on the old prefix while the
  *     rest move is the inconsistency the migration existed to remove.
