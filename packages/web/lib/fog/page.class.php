@@ -104,7 +104,6 @@ class Page extends FOGBase
         'css/ionicons.min.css',
         'css/datatables.min.css',
         'css/slider.css',
-        'css/pnotify.min.css',
         'css/animate.css',
         'css/pace.min.css',
         'css/adminlte4.min.css',
@@ -121,7 +120,6 @@ class Page extends FOGBase
         'css/font-awesome.min.css',
         'css/select2.min.css',
         'css/select2-bootstrap-5-theme.min.css',
-        'css/pnotify.min.css',
         'css/animate.css',
         'css/pace.min.css',
         'css/adminlte4.min.css',
@@ -180,7 +178,6 @@ class Page extends FOGBase
         'js/adminlte4.min.js',
         'js/datatables.min.js',
         'js/bootbox.min.js',
-        'js/pnotify.min.js',
         'js/pace.min.js',
         'js/input-mask/jquery.inputmask.js',
         'js/input-mask/jquery.inputmask.extensions.js',
@@ -202,9 +199,16 @@ class Page extends FOGBase
      */
     protected static $loginJavascripts = [
         'js/jquery.min.js',
+        // Needed for $.notify(): toasts are Bootstrap's Toast component now,
+        // and this list carried no Bootstrap JS at all. The login page is
+        // where the queued flash messages land -- "logged out due to
+        // inactivity" is preserved across the session rebuild in
+        // User::logout() specifically so it can toast here -- so without this
+        // that notice dies on `bootstrap is not defined` and the user is
+        // returned to a login screen that never says why.
+        'js/bootstrap5.bundle.min.js',
         'js/select2.full.min.js',
         'js/adminlte4.min.js',
-        'js/pnotify.min.js',
         'js/pace.min.js',
         'js/fog/bootstrap-csrf.js',
         'js/fog/fog.common.js',

@@ -1662,37 +1662,166 @@ $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();
 };
+// Toasts are Bootstrap 5's own Toast component. FOG used to vendor PNotify
+// 3.2.0 for this; bootstrap5.bundle.min.js already carries Toast, so the
+// library was dropped rather than updated. PNotify's last release was 2020,
+// it has no Bootstrap 5 styling and its icon presets stop at Font Awesome 5 --
+// which is exactly why the toast icon names had to be hand-overridden at this
+// call site after the FA7 migration. Owning the markup ends that class of
+// problem: the icon names below are ordinary FOG source, checked by
+// tests/fontawesome7-icon-names.test.php like every other icon we emit.
+//
+// Auto-hide delay is PNotify's default, kept so toasts live exactly as long
+// as they used to.
+var TOAST_DELAY = 8000;
+
+// type -> [Bootstrap contextual suffix, icon, header theme].
+//
+// `warning` is genuinely new: PNotify 3 had no such type, so every warning
+// $.notifyFromAPI() produced has been rendering with plain notice styling.
+//
+// The third field is the fix for a contrast bug worth explaining, because
+// neither half of it is visible from reading the markup. `text-bg-*` picks its
+// own foreground for contrast, and for warning and info Bootstrap picks DARK
+// text -- so a blanket `btn-close-white` puts a white x on yellow and on cyan,
+// near enough invisible. But swapping to a plain `.btn-close` only moves the
+// problem: under `[data-bs-theme=dark]` Bootstrap filters `.btn-close` white
+// again, so those two go invisible for anyone using FOG's dark theme instead.
+//
+// These backgrounds are fixed colours in BOTH themes, so the header is pinned
+// to the theme its own background belongs to. That is enough for the text and
+// the icon, which read their colour from the scoped variables.
+//
+// It is NOT enough for the close button, and the reason is worth writing down
+// because the markup looks correct either way: Bootstrap dims it with
+// `[data-bs-theme=dark] .btn-close`, a DESCENDANT selector, so it matches any
+// close button anywhere under <html data-bs-theme="dark"> and a nearer `light`
+// scope does not call it off. Verified by reading the computed filter -- all
+// five were identical while the title colours had scoped correctly. So a light
+// header clears the filter itself, below.
+var TOAST_TYPES = {
+  success: ['success', 'fas fa-circle-check', 'dark'],
+  error: ['danger', 'fas fa-triangle-exclamation', 'dark'],
+  warning: ['warning', 'fas fa-triangle-exclamation', 'light'],
+  info: ['info', 'fas fa-circle-info', 'light'],
+  notice: ['secondary', 'fas fa-circle-exclamation', 'dark']
+};
+
+// One container, made on demand rather than baked into the page templates --
+// toasts are raised from the login page and the management shell both, and
+// neither should have to carry markup for a thing it may never show.
+// Top-right is where PNotify's default stack sat. The z-index is Bootstrap's
+// own (--bs-toast-zindex: 1090), which is above modals at 1055, so a toast
+// raised by an action inside a modal is still visible.
+function fogToastContainer() {
+  var el = document.getElementById('fog-toast-container');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fog-toast-container';
+    el.className = 'toast-container position-fixed top-0 end-0 p-3';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
 $.notify = function(title, body, type) {
+  type = TOAST_TYPES[type] ? type : 'success';
   // De-dupe identical, still-visible notices. Repeated identical actions
   // (clicking a button several times, or several genuine updates in a row)
   // should collapse into the existing toast -- refreshing its auto-hide timer
   // and showing a running count -- instead of piling separate toasts on the
   // stack. Distinct messages still stack normally.
-  type = type || 'success';
   var active = ($.notify._active = $.notify._active || {});
   var key = type + '\u0000' + (title || '') + '\u0000' + (body || '');
   var existing = active[key];
-  if (existing && existing.state !== 'closed' && existing.state !== 'closing') {
-    existing._fogCount = (existing._fogCount || 1) + 1;
-    existing.update({title: (title || '') + ' (×' + existing._fogCount + ')'});
-    existing.queueRemove(); // restart the auto-hide countdown
-    return existing;
+  // isConnected as well as isShown: a toast removed from the document by
+  // anything other than its own hidden.bs.toast handler keeps both its `show`
+  // class and its map entry, so isShown() alone stays true for an element that
+  // is no longer on the page -- and every later notification with the same
+  // text would then be "collapsed" onto a node nobody can see, silently. The
+  // container is a direct child of body and nothing in FOG removes it today;
+  // this is one condition so that stays a fact about the code rather than an
+  // assumption it depends on.
+  if (existing && existing.el.isConnected && existing.toast.isShown()) {
+    existing.count += 1;
+    existing.titleEl.textContent = (title || '') + ' (\u00d7' + existing.count + ')';
+    // show() clears the pending hide timeout before rescheduling it, so this
+    // restarts the countdown exactly as PNotify's queueRemove() did.
+    existing.toast.show();
+    return existing.toast;
   }
-  // Prune references to notices that have since closed so the map can't grow
-  // unbounded across a long-lived (AJAX-navigated) page.
-  for (var k in active) {
-    if (active[k].state === 'closed') {
-      delete active[k];
-    }
+
+  var variant = TOAST_TYPES[type][0],
+    icon = TOAST_TYPES[type][1],
+    // An error or a warning interrupts; anything else is a status update the
+    // screen reader should announce at the next opportunity instead of cutting
+    // across what is being read.
+    urgent = (type === 'error' || type === 'warning');
+
+  var el = document.createElement('div');
+  el.className = 'toast fog-toast';
+  el.setAttribute('role', urgent ? 'alert' : 'status');
+  el.setAttribute('aria-live', urgent ? 'assertive' : 'polite');
+  el.setAttribute('aria-atomic', 'true');
+
+  var header = document.createElement('div');
+  header.className = 'toast-header text-bg-' + variant;
+  header.setAttribute('data-bs-theme', TOAST_TYPES[type][2]);
+
+  var iconEl = document.createElement('i');
+  iconEl.className = icon + ' me-2';
+  iconEl.setAttribute('aria-hidden', 'true');
+
+  var titleEl = document.createElement('strong');
+  titleEl.className = 'me-auto';
+  // textContent, not innerHTML. PNotify defaulted title_escape/text_escape to
+  // false, so every toast title and body has been parsed as HTML -- including
+  // $.notifyFromAPI()'s res.error, which can carry a value the user typed.
+  // Nothing passes markup, so making this text-only costs nothing and closes
+  // the hole rather than relying on every future caller to escape.
+  titleEl.textContent = title || '';
+
+  var closer = document.createElement('button');
+  closer.type = 'button';
+  closer.className = 'btn-close';
+  if ('light' === TOAST_TYPES[type][2]) {
+    // See the TOAST_TYPES comment: the theme scope cannot reach this one.
+    // Inline rather than a stylesheet rule because fog-default-ui.min.css is
+    // a committed build artifact whose compiler no longer reproduces it byte
+    // for byte, so editing its source would mix an unrelated 50-byte
+    // regeneration into this change. CSP allows it: style-src carries
+    // 'unsafe-inline' and sets no style-src-attr.
+    closer.style.filter = 'none';
   }
-  var notice = new PNotify({
-    title: title,
-    text: body,
-    type: type
+  closer.setAttribute('data-bs-dismiss', 'toast');
+  closer.setAttribute('aria-label', 'Close');
+
+  header.appendChild(iconEl);
+  header.appendChild(titleEl);
+  header.appendChild(closer);
+
+  var bodyEl = document.createElement('div');
+  bodyEl.className = 'toast-body';
+  bodyEl.textContent = body || '';
+
+  el.appendChild(header);
+  el.appendChild(bodyEl);
+  fogToastContainer().appendChild(el);
+
+  // Disposed and removed once it has gone, so neither the DOM nor the de-dupe
+  // map grows without bound on a long-lived AJAX-navigated page. This replaces
+  // PNotify's leftover-reference sweep: the element tells us when it is done
+  // rather than being polled for it.
+  el.addEventListener('hidden.bs.toast', function() {
+    delete active[key];
+    bootstrap.Toast.getInstance(el).dispose();
+    el.remove();
   });
-  notice._fogCount = 1;
-  active[key] = notice;
-  return notice;
+
+  var toast = new bootstrap.Toast(el, {delay: TOAST_DELAY});
+  active[key] = {toast: toast, el: el, titleEl: titleEl, count: 1};
+  toast.show();
+  return toast;
 };
 $.notifyFromAPI = function(res, isError) {
   if (res === undefined) {
@@ -3057,28 +3186,6 @@ function setupIntegrations() {
     },
     restartOnRequestAfter: false
   };
-  // Toasts had no icon at all. PNotify's "bootstrap3" styling emits glyphicon
-  // classes, and glyphicons were dropped by Bootstrap 4 -- so since the BS3->BS5
-  // move every notice rendered its icon slot as an empty box: `content: none`,
-  // zero width, falling back to the body font. Silent, like every icon failure.
-  //
-  // PNotify ships a "fontawesome" styling, but its class names are FA4
-  // (fa-warning, fa-times, fa-exclamation-circle) and we ship no v4 shims, so
-  // switching to it alone would swap one set of blank boxes for another. The
-  // names are overridden here, at our call site, rather than in the vendored
-  // pnotify.min.js -- editing that file means the next upgrade of it silently
-  // reverts the fix, and it is not ours to change.
-  PNotify.prototype.options.styling = "fontawesome";
-  $.extend(PNotify.styling.fontawesome, {
-    notice_icon: 'fas fa-circle-exclamation',
-    info_icon: 'fas fa-circle-info',
-    success_icon: 'fas fa-circle-check',
-    error_icon: 'fas fa-triangle-exclamation',
-    closer: 'fas fa-xmark',
-    pin_up: 'fas fa-pause',
-    pin_down: 'fas fa-play'
-  });
-
   // Extending input mask to add our types (absent on the slim asset set)
   if ($.inputmask) {
     $.extend($.inputmask.defaults.definitions, {

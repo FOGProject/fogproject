@@ -205,27 +205,48 @@ $t->check(
 );
 
 // ---------------------------------------------------------------------------
-// 4. Vendored presets that would otherwise render blank.
+// 4. Toast icons.
 //
-// PNotify's own styling presets are FA4. FOG used its "bootstrap3" preset,
-// which emits glyphicon classes -- dropped by Bootstrap 4 -- so from the BS3
-// to BS5 move until this migration every toast rendered its icon slot as an
-// empty box. Swapping to PNotify's "fontawesome" preset alone would have
-// traded glyphicons for FA4 names, which are equally blank here.
+// These used to be an override of a vendored library's icon presets. FOG
+// carried PNotify 3.2.0, whose "bootstrap3" styling emits glyphicon classes --
+// dropped by Bootstrap 4 -- so from the BS3 to BS5 move every toast rendered
+// its icon slot as an empty box, and PNotify's alternative "fontawesome"
+// preset names FA4 icons, which are equally blank here. The names had to be
+// patched at FOG's call site, because editing the vendored bundle means the
+// next upgrade of it silently reverts the fix.
+//
+// PNotify is gone: toasts are Bootstrap's own Toast component built from FOG's
+// markup, so the icon names are ordinary FOG source and section 3 above
+// already checks that each one resolves. What is pinned here is that every
+// type a caller can pass still HAS an icon -- an unmapped type falls back to
+// success, which would put a green tick on a failure.
 // ---------------------------------------------------------------------------
 $common = file_get_contents($web . '/management/js/fog/fog.common.js');
-$t->check(
-    'PNotify is not left on the glyphicon-emitting bootstrap3 preset',
-    false === strpos($common, 'options.styling = "bootstrap3"')
+$toastTypes = [];
+if (preg_match('/var TOAST_TYPES = \{(.*?)\};/s', $common, $tm)) {
+    preg_match_all(
+        "/(\w+): \['([a-z]+)', '([a-z]+ fa-[a-z0-9-]+)'[^\]]*\]/",
+        $tm[1],
+        $rows,
+        PREG_SET_ORDER
+    );
+    foreach ($rows as $row) {
+        $toastTypes[$row[1]] = $row[3];
+    }
+}
+// The five $.notify() understands. 'warning' is reachable only through
+// $.notifyFromAPI(), which is how it went unnoticed that PNotify had no such
+// type and rendered every warning with plain notice styling.
+$missingTypes = array_diff(
+    ['success', 'error', 'warning', 'info', 'notice'],
+    array_keys($toastTypes)
 );
 $t->check(
-    'and its FA4 preset names are overridden with FA7 ones',
-    (bool)preg_match(
-        '/PNotify\.styling\.fontawesome,\s*\{/',
-        $common
-    )
-    && (bool)preg_match("/error_icon: 'fas fa-triangle-exclamation'/", $common)
-    && (bool)preg_match("/closer: 'fas fa-xmark'/", $common)
+    sprintf(
+        'every toast type has an icon%s',
+        [] === $missingTypes ? '' : ' -- MISSING: ' . implode(', ', $missingTypes)
+    ),
+    [] === $missingTypes
 );
 
 // ---------------------------------------------------------------------------
