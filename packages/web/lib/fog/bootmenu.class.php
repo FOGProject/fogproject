@@ -118,6 +118,181 @@ class BootMenu extends FOGBase
      */
     private static $_exitTypes = array();
     /**
+     * Lines to show the operator about how this boot was resolved
+     *
+     * @var array
+     */
+    private $_notices = array();
+    /**
+     * Is the booting machine an ARM one?
+     *
+     * iPXE tells us: default.ipxe posts "param arch ${arch}", derived from
+     * ${buildarch}, and every chain this class emits carries it forward.
+     * The value is the architecture of the iPXE binary DHCP handed the
+     * machine, not a guess.
+     *
+     * One place rather than the four open-coded stripos() tests, so the
+     * kernel selection, the loader selection and the two new guards below
+     * cannot answer it differently.
+     *
+     * @return bool
+     */
+    private static function _archIsArm()
+    {
+        return false !== stripos(
+            isset($_REQUEST['arch']) ? $_REQUEST['arch'] : '',
+            'arm'
+        );
+    }
+    /**
+     * Makes a value safe to interpolate into an iPXE `echo` line.
+     *
+     * boot.php is unauthenticated by necessity -- a booting NIC has no
+     * credential to present -- and iPXE scripts are newline-delimited
+     * commands. Initiator::sanitizeOutput() collapses a RUN of whitespace
+     * to its first character rather than removing newlines, so a lone
+     * "\n" in a request or stored value survives into the emitted script
+     * as a command separator and anything past it would be executed.
+     *
+     * Whitelist rather than escape: these values are kernel and init
+     * filenames, so the safe set is small and known, and iPXE's tokenizer
+     * strips quotes outright so there is no escaping mechanism to lean on.
+     *
+     * @param string $value the value to render
+     *
+     * @return string
+     */
+    private static function _echoSafe($value)
+    {
+        return substr(
+            preg_replace('/[^A-Za-z0-9._-]/', '', (string)$value),
+            0,
+            64
+        );
+    }
+    /**
+     * Applies a host's kernel/init override to the arch-selected default.
+     *
+     * A host (or the group that wrote to it) can name its own kernel and
+     * init, and that override deliberately wins over the arch default --
+     * but only where it CAN win. The override is a bare filename with no
+     * architecture in it, and `hosts` stores no architecture at all, so
+     * nothing at edit time can warn an admin that the kernel they picked
+     * is wrong for some of the machines it will reach. Setting a kernel on
+     * a mixed group therefore handed an x86 bzImage to every ARM member,
+     * silently discarding the arch selection made moments earlier.
+     *
+     * Only the arm/non-arm split is policed. i386 code runs on x86_64, so a
+     * deliberate 32-bit override is a legitimate choice and is left alone;
+     * aarch64 and x86 are not the same instruction set in either direction,
+     * so an override across that line can only ever fail to boot.
+     *
+     * The test is the `arm` filename prefix -- the convention every kernel
+     * and init FOG ships follows (arm_Image, arm_init.cpio.gz).
+     *
+     * @param string $field   'kernel' or 'init'
+     * @param string $default what the architecture selected
+     *
+     * @return string the filename to boot
+     */
+    private function _hostOverride($field, $default)
+    {
+        $override = trim((string)self::$Host->get($field));
+        if ('' === $override) {
+            return $default;
+        }
+        $isArmFile = 0 === stripos(basename($override), 'arm');
+        if ($isArmFile === self::_archIsArm()) {
+            return $override;
+        }
+        // Say so on screen rather than just ignoring it: from the
+        // operator's side an ignored override and an honoured one look
+        // identical, and the machine that is misconfigured is the one
+        // that needs telling.
+        $this->_notices[] = sprintf(
+            'echo Ignoring host %s %s -- this machine is %s. Using %s.',
+            $field,
+            self::_echoSafe($override),
+            self::_archIsArm() ? '64-bit ARM' : 'x86',
+            self::_echoSafe($default)
+        );
+
+        return $default;
+    }
+    /**
+     * The memtest boot lines, or a refusal on an architecture that cannot
+     * run memdisk.
+     *
+     * memdisk is a 16-bit x86 real-mode loader. There is no aarch64 build
+     * of it and there never will be, so on ARM the menu entry and the
+     * scheduled task could only ever fail -- the entry dropping the
+     * machine back to the menu with an iPXE error, the task leaving it at
+     * a bare prompt with nothing said about why.
+     *
+     * @param string $onFail what to append when the boot fails or is refused
+     *
+     * @return array
+     */
+    private function _memtestChoice($onFail = ' || goto MENU')
+    {
+        if (self::_archIsArm()) {
+            return array(
+                'echo Memtest needs memdisk, which is x86-only -- it '
+                . 'cannot run on 64-bit ARM.',
+                'sleep 5' . $onFail,
+            );
+        }
+
+        return array(
+            "$this->_memdisk iso raw",
+            $this->_memtest,
+            'boot' . $onFail,
+        );
+    }
+    /**
+     * Whether a kernel-argument string asks for a shutdown when the task
+     * ends.
+     *
+     * stripos()'s arguments were the wrong way round at every call site
+     * this replaces: stripos('shutdown=1', $args) searches for the
+     * ARGUMENTS inside the literal, not the other way about. Two silent
+     * consequences, in opposite directions.
+     *
+     * A real 'shutdown=1 mode=debug' was never detected -- the
+     * ten-character literal cannot contain it -- so a custom iPXE menu
+     * entry that asks for a shutdown never produced one. Only an extraargs
+     * of EXACTLY 'shutdown=1' worked, by accident.
+     *
+     * And an empty string matches at offset 0, so the
+     * `false !== stripos(...)` spelling reported a shutdown for any task
+     * type with no kernel arguments at all.
+     *
+     * @param string $args the argument string to test
+     *
+     * @return bool
+     */
+    private static function _wantsShutdown($args)
+    {
+        $args = trim((string)$args);
+
+        return '' !== $args && false !== stripos($args, 'shutdown=1');
+    }
+    /**
+     * The extraargs the chain arrived with, '' when there were none.
+     *
+     * Not every chain back into a flow carries them, and passing an unset
+     * key to stripos() emits a PHP warning straight into the iPXE script
+     * this class is building.
+     *
+     * @return string
+     */
+    private static function _extraArgs()
+    {
+        return isset($_REQUEST['extraargs'])
+            ? (string)$_REQUEST['extraargs']
+            : '';
+    }
+    /**
      * Initializes the boot menu class
      *
      * @return void
@@ -331,24 +506,33 @@ class BootMenu extends FOGBase
             $keySequence :
             ''
         );
-        if (($_REQUEST['arch'] ?? '') == 'i386') {
+        $rawArch = (string)($_REQUEST['arch'] ?? '');
+        $archId = 'x86_64';
+        if ('i386' === $rawArch) {
+            $archId = 'i386';
             $bzImage = $bzImage32;
             $imagefile = $init_32;
-        } elseif (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm')) {
+        } elseif (false !== stripos($rawArch, 'arm')) {
+            $archId = 'arm64';
             $bzImage = $bzImageArm;
             $imagefile = $init_arm;
         }
-        $kernel = $bzImage;
-        if (self::$Host->get('kernel')) {
-            $bzImage = trim(
-                self::$Host->get('kernel')
+        // Anything that is not one of the three FOG builds a kernel for.
+        // arm32 lands here too: it matches on 'arm' and so is handed the
+        // aarch64 files, which is the same thing that used to happen
+        // silently -- the difference is that the operator is now told, on
+        // screen, why the boot is about to fail.
+        if ('' !== $rawArch
+            && !in_array($rawArch, array('x86_64', 'i386', 'arm64'), true)
+        ) {
+            $this->_notices[] = sprintf(
+                'echo FOG ships no boot kernel for %s -- trying the %s one.',
+                self::_echoSafe($rawArch),
+                $archId
             );
         }
-        if (self::$Host->get('init')) {
-            $imagefile = trim(
-                self::$Host->get('init')
-            );
-        }
+        $bzImage = $this->_hostOverride('kernel', $bzImage);
+        $imagefile = $this->_hostOverride('init', $imagefile);
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim(
             (
@@ -696,10 +880,7 @@ class BootMenu extends FOGBase
                 'echo Host approved successfully',
                 'sleep 3'
             );
-            $shutdown = stripos(
-                'shutdown=1',
-                isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
-            );
+            $shutdown = self::_wantsShutdown(self::_extraArgs());
             $isdebug = preg_match(
                 '#isdebug=yes|mode=debug|mode=onlydebug#i',
                 isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
@@ -1011,16 +1192,8 @@ class BootMenu extends FOGBase
             false,
             ''
         );
-        $shutdown = false !== stripos(
-            'shutdown=1',
-            $TaskType->get('kernelArgs')
-        );
-        if (!$shutdown && isset($_REQUEST['extraargs'])) {
-            $shutdown = false !== stripos(
-                'shutdown=1',
-                $_REQUEST['extraargs']
-            );
-        }
+        $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
+            || self::_wantsShutdown(self::_extraArgs());
         if (!is_numeric($mcastmaxwait)) {
             $mcastmaxwait = 10;
         }
@@ -1186,6 +1359,7 @@ class BootMenu extends FOGBase
                         'params',
                         'param mac0 ${net0/mac}',
                         'param arch ${arch}',
+                        'param platform ${platform}',
                         'param imageID ${imageID}',
                         'param qihost 1',
                         'param username ${username}',
@@ -1204,6 +1378,7 @@ class BootMenu extends FOGBase
                 'params',
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
+                'param platform ${platform}',
                 'param sysuuid ${uuid}',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -1243,10 +1418,7 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
-        $shutdown = stripos(
-            'shutdown=1',
-            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
-        );
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
             isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
@@ -1310,6 +1482,17 @@ class BootMenu extends FOGBase
      */
     private function _parseMe($Send)
     {
+        /**
+         * Anything _hostOverride() decided the operator needs to know,
+         * emitted once, on whichever path actually runs. Appended rather
+         * than prepended because the very first batch through here opens
+         * with '#!ipxe', which has to stay the first line of the script;
+         * and drained so a later batch does not repeat them.
+         */
+        if (count($this->_notices) > 0) {
+            $Send['archnotices'] = $this->_notices;
+            $this->_notices = array();
+        }
         self::$HookManager->processEvent(
             'IPXE_EDIT',
             array(
@@ -1442,10 +1625,7 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
-        $shutdown = stripos(
-            'shutdown=1',
-            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
-        );
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
             isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
@@ -1623,16 +1803,8 @@ class BootMenu extends FOGBase
                     false,
                     ''
                 );
-                $shutdown = false !== stripos(
-                    'shutdown=1',
-                    $TaskType->get('kernelArgs')
-                );
-                if (!$shutdown && isset($_REQUEST['extraargs'])) {
-                    $shutdown = false !== stripos(
-                        'shutdown=1',
-                        $_REQUEST['extraargs']
-                    );
-                }
+                $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
+                    || self::_wantsShutdown(self::_extraArgs());
                 if (!is_numeric($mcastmaxwait)) {
                     $mcastmaxwait = 10;
                 }
@@ -1854,11 +2026,11 @@ class BootMenu extends FOGBase
                 self::$Host->get('kernelArgs'),
             );
             if ($Task->get('typeID') == 4) {
-                $Send['memtest'] = array(
-                    "$this->_memdisk iso raw",
-                    "$this->_memtest",
-                    "boot",
-                );
+                // No '|| goto MENU' tail: a tasked boot has no menu to
+                // return to. On an architecture without memdisk this says
+                // why and stops, rather than dropping the machine to a
+                // bare iPXE prompt with no explanation.
+                $Send['memtest'] = $this->_memtestChoice('');
                 $this->_parseMe($Send);
             } else {
                 $this->_printTasking($kernelArgsArray);
@@ -1935,14 +2107,7 @@ class BootMenu extends FOGBase
                 );
                 break;
             case 2:
-                $Send = self::fastmerge(
-                    $Send,
-                    array(
-                        "$this->_memdisk iso raw",
-                        $this->_memtest,
-                        'boot || goto MENU'
-                    )
-                );
+                $Send = self::fastmerge($Send, $this->_memtestChoice());
                 break;
             case 11:
                 $Send = self::fastmerge(
