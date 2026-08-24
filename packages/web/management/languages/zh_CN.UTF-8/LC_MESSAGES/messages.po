@@ -4338,6 +4338,10 @@ msgstr "是"
 msgid "Issue Token"
 msgstr "访问令牌"
 
+#, fuzzy
+msgid "Issue a Bearer token"
+msgstr "访问令牌"
+
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
@@ -5152,9 +5156,6 @@ msgstr ""
 msgid "Name"
 msgstr "名称"
 
-msgid "Name for a new token (required, unique per account)"
-msgstr ""
-
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "您必须输入一个名称"
@@ -5473,9 +5474,6 @@ msgstr ""
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "没有找到主机定义图片"
-
-msgid "No tokens issued."
-msgstr ""
 
 msgid "No type information available for this column."
 msgstr ""
@@ -6606,6 +6604,9 @@ msgstr "用户更新失败"
 
 msgid "Required database field is empty"
 msgstr "所需的数据库字段为空"
+
+msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr ""

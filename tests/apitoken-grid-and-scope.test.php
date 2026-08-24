@@ -303,10 +303,127 @@ foreach ([
         )
     );
 }
+// ---------------------------------------------------------------------------
+// 5. The per-user Bearer card is the same grid, scoped to one account.
+//
+// It was a hand-built <table> of checkboxes posted through the user's API
+// tab form -- no sort, no search, and sharing a POST target with the legacy
+// uAPIToken card, which is what made an absent checkbox read as "unticked"
+// and risked wiping uAPIToken as a side effect (the GH-987 class).
+// ---------------------------------------------------------------------------
+$usrJs = file_get_contents(
+    $web . '/management/js/fog/user/fog.user.edit.js'
+);
+$usrJsStripped = $strip($usrJs);
+
 $t->check(
-    'FOG_BCACHE_VER is at least 308',
+    'the per-user card is a DataTable',
+    false !== strpos($usrJsStripped, "$('#user-apitoken-table').registerTable(")
+    && false !== strpos($usr, 'id="user-apitoken-table"')
+);
+$t->check(
+    'it uses its OWN table id, not the shared one',
+    false === strpos($usr, "'dataTable'")
+);
+$t->check(
+    'the card no longer posts through the tab form',
+    false === strpos($usr, 'name="tokenaction"')
+    && false === strpos($usr, 'tokenenabled[]')
+    && false === strpos($usr, 'tokendelete[]')
+);
+$t->check(
+    'and its discriminator handler is gone with it',
+    false === strpos($usr, '_userBearerTokensPost')
+);
+$t->check(
+    'delete passes the owner id to revokeMany',
+    (bool)preg_match(
+        '/revokeMany\(\s*array_map[^;]*\(int\)\$this->obj->get\(.id.\)/s',
+        $usr
+    )
+);
+$t->check(
+    'enable passes the owner id to setEnabledMany',
+    (bool)preg_match(
+        '/setEnabledMany\(\s*array_map[^;]*\(int\)\$this->obj->get\(.id.\)/s',
+        $usr
+    )
+);
+$t->check(
+    'the central pane deliberately passes NO owner id',
+    (bool)preg_match(
+        '/revokeMany\(\s*array_map\(.intval., \(array\)\(\$_POST\[.remitems.\] \?\? \[\]\)\),\s*\(int\)self::\$FOGUser->get\(.id.\)\s*\)/s',
+        $cfg
+    )
+);
+// The narrowing itself, in the manager. Losing it turns the per-user card
+// into a server-wide one for anybody holding user.edit.
+$t->check(
+    '_resolve() skips a token whose owner is not the requested one',
+    (bool)preg_match(
+        "/if \(null !== \\\$ownerID\s*&& \(int\)\\\$token->get\('userID'\) !== \\\$ownerID\s*\) \{\s*continue;/s",
+        $mgr
+    )
+);
+$t->check(
+    'and still resolves every id through visibleToken()',
+    (bool)preg_match(
+        "/\\\$token = \\\$this->visibleToken\(\(int\)\\\$id, \\\$actingUserID\);/",
+        $mgr
+    )
+);
+$t->check(
+    'the list endpoint filters to the account being edited',
+    (bool)preg_match(
+        "/if \(\\\$token\['userID'\] !== \\\$uid\) \{\s*continue;/s",
+        $usr
+    )
+);
+$t->check(
+    'its POST-only subs have base methods too',
+    (bool)preg_match('/public function userAPITokenDelete\(\)/', $usr)
+    && (bool)preg_match('/public function userAPITokenEnable\(\)/', $usr)
+    && (bool)preg_match('/public function userAPITokenList\(\)/', $usr)
+);
+foreach ([
+    'userapitokenlist' => 'apitoken.view',
+    'userapitokenenable' => 'apitoken.edit',
+    'userapitokendelete' => 'apitoken.delete',
+    'issueapitoken' => 'apitoken.create'
+] as $sub => $perm) {
+    $t->check(
+        sprintf('user sub %s is gated on %s', $sub, $perm),
+        (bool)preg_match(
+            "/'" . preg_quote($sub, '/') . "' => '"
+            . preg_quote($perm, '/') . "'/",
+            $authSrc
+        )
+    );
+}
+$t->check(
+    'the tab grid is paged, not virtual-scrolled (it inits hidden)',
+    (bool)preg_match('/scroller: false/', $usrJsStripped)
+);
+$t->check(
+    'and re-measures when the tab becomes visible',
+    (bool)preg_match(
+        "/shown\.bs\.tab[^}]*columns\.adjust\(\)/s",
+        $usrJsStripped
+    )
+);
+$t->check(
+    'the plaintext is cleared from the DOM when its modal is dismissed',
+    (bool)preg_match(
+        "/freshModal\.on\('hidden\.bs\.modal'[^}]*"
+        . "\\$\('#apitoken-fresh-value'\)\.val\(''\)/s",
+        $usrJsStripped
+    )
+);
+
+$t->check(
+    'FOG_BCACHE_VER is at least 309',
     (bool)preg_match("/define\('FOG_BCACHE_VER', (\d+)\)/", $sysSrc, $m)
-    && (int)$m[1] >= 308
+    && (int)$m[1] >= 309
 );
 
 $t->finish();

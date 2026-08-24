@@ -1661,19 +1661,12 @@ class FOGConfigurationPage extends FOGPage
             );
         }
 
-        $uid = (int)self::$FOGUser->get('id');
-        $manager = self::getClass('APITokenManager');
-        $ids = array_map('intval', (array)($_POST['remitems'] ?? []));
-
-        $deleted = 0;
-        foreach ($ids as $tokenID) {
-            $token = $manager->visibleToken($tokenID, $uid);
-            if (null === $token) {
-                continue;
-            }
-            $token->revoke();
-            $deleted++;
-        }
+        // null owner: spanning users is this pane's whole job. The
+        // per-user tab passes its own id here instead.
+        $deleted = self::getClass('APITokenManager')->revokeMany(
+            array_map('intval', (array)($_POST['remitems'] ?? [])),
+            (int)self::$FOGUser->get('id')
+        );
 
         $this->_jsonExit(
             HTTPResponseCodes::HTTP_SUCCESS,
@@ -1712,21 +1705,12 @@ class FOGConfigurationPage extends FOGPage
             );
         }
 
-        $uid = (int)self::$FOGUser->get('id');
-        $manager = self::getClass('APITokenManager');
-        $ids = array_map('intval', (array)($_POST['remitems'] ?? []));
         $enabled = (int)filter_input(INPUT_POST, 'enabled') === 1;
-
-        $changed = 0;
-        foreach ($ids as $tokenID) {
-            $token = $manager->visibleToken($tokenID, $uid);
-            if (null === $token) {
-                continue;
-            }
-            if ($token->setEnabled($enabled)) {
-                $changed++;
-            }
-        }
+        $changed = self::getClass('APITokenManager')->setEnabledMany(
+            array_map('intval', (array)($_POST['remitems'] ?? [])),
+            $enabled,
+            (int)self::$FOGUser->get('id')
+        );
 
         $this->_jsonExit(
             HTTPResponseCodes::HTTP_SUCCESS,

@@ -4429,6 +4429,10 @@ msgstr ""
 msgid "Issue Token"
 msgstr "impresora iPrint"
 
+#, fuzzy
+msgid "Issue a Bearer token"
+msgstr "impresora iPrint"
+
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
@@ -5273,9 +5277,6 @@ msgstr ""
 msgid "Name"
 msgstr "Nombre"
 
-msgid "Name for a new token (required, unique per account)"
-msgstr ""
-
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Evento debe ser una cadena"
@@ -5599,9 +5600,6 @@ msgstr ""
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "No se ha definido de este alojamiento imagen"
-
-msgid "No tokens issued."
-msgstr ""
 
 msgid "No type information available for this column."
 msgstr ""
@@ -6753,6 +6751,9 @@ msgid "Required column lookup failed"
 msgstr "actualización Valoración falló"
 
 msgid "Required database field is empty"
+msgstr ""
+
+msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr ""
 
 msgid "Reset Encryption Data"

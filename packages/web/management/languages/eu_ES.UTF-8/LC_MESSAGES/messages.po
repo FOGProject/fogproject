@@ -4337,6 +4337,10 @@ msgstr "Ist ein"
 msgid "Issue Token"
 msgstr "Token zurücksetzen"
 
+#, fuzzy
+msgid "Issue a Bearer token"
+msgstr "Token zurücksetzen"
+
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
@@ -5154,9 +5158,6 @@ msgstr ""
 msgid "Name"
 msgstr "Name"
 
-msgid "Name for a new token (required, unique per account)"
-msgstr ""
-
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Diff Parameter muss numerisch sein"
@@ -5475,9 +5476,6 @@ msgstr ""
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "Kein valides Image für diesen Host definiert"
-
-msgid "No tokens issued."
-msgstr ""
 
 msgid "No type information available for this column."
 msgstr ""
@@ -6608,6 +6606,9 @@ msgstr "Task-Typ aktualisieren fehlgeschlagen"
 
 msgid "Required database field is empty"
 msgstr "Erforderliches Datenbankfeld ist leer"
+
+msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr ""

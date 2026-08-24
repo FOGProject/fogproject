@@ -128,6 +128,19 @@ class Authorization extends FOGBase
             'sessioncreate' => 'image.task',
             'sessioncancel' => 'image.task',
             'sessioncreatemodal' => 'image.task'
+        ],
+        // The Bearer token card on the user's API tab. Gated on apitoken.*
+        // rather than the user.edit that reaches the page, for the same
+        // reason the central pane is: "can edit users" and "can revoke every
+        // credential this account holds" are different powers. Without
+        // these, _subToAction() reads the sub's prefix and lands them on
+        // user.view/user.edit, so anyone who could open the page could
+        // revoke the tokens on it.
+        'user' => [
+            'userapitokenlist' => 'apitoken.view',
+            'userapitokenenable' => 'apitoken.edit',
+            'userapitokendelete' => 'apitoken.delete',
+            'issueapitoken' => 'apitoken.create'
         ]
     ];
     /**

@@ -195,6 +195,97 @@ class APITokenManager extends FOGManagerController
         return $token;
     }
     /**
+     * Revokes every token in a posted id list that the caller may touch.
+     *
+     * @param array $ids          The posted ids.
+     * @param int   $actingUserID Whose visibility applies.
+     * @param int   $ownerID      Restrict to this owner, or null for any.
+     *
+     * @return int How many were revoked.
+     */
+    public function revokeMany(array $ids, $actingUserID, $ownerID = null)
+    {
+        $revoked = 0;
+        foreach ($this->_resolve($ids, $actingUserID, $ownerID) as $token) {
+            // revoke(), not destroy(): it writes the audit row first, while
+            // the owner and name can still be read off the row.
+            $token->revoke();
+            $revoked++;
+        }
+        return $revoked;
+    }
+    /**
+     * Enables or disables every token in a posted id list.
+     *
+     * One method for both directions rather than two, because the only
+     * difference is the value written and setEnabled() already decides
+     * whether anything actually changed.
+     *
+     * @param array $ids          The posted ids.
+     * @param bool  $enabled      What to set them to.
+     * @param int   $actingUserID Whose visibility applies.
+     * @param int   $ownerID      Restrict to this owner, or null for any.
+     *
+     * @return int How many changed state.
+     */
+    public function setEnabledMany(
+        array $ids,
+        $enabled,
+        $actingUserID,
+        $ownerID = null
+    ) {
+        $changed = 0;
+        foreach ($this->_resolve($ids, $actingUserID, $ownerID) as $token) {
+            if ($token->setEnabled($enabled)) {
+                $changed++;
+            }
+        }
+        return $changed;
+    }
+    /**
+     * Turns a posted id list into the tokens the caller may actually touch.
+     *
+     * THE POINT OF THIS METHOD. The ids arrive from a form, and a form is an
+     * untrusted list -- so every one is resolved through visibleToken()
+     * rather than loaded directly, and a caller cannot revoke a credential
+     * belonging to a user they cannot see just by posting its number.
+     *
+     * $ownerID is the second, narrower gate the per-user tab needs: that
+     * card is reached through ?node=user&id=N and must act only on N's
+     * tokens, otherwise anyone who may edit one user could disable any
+     * token on the server from it. The central pane passes null because
+     * spanning users is its whole job.
+     *
+     * Silently skipping what does not resolve is deliberate: the counts
+     * returned describe what happened, and naming the ids that were refused
+     * would tell a scoped caller which numbers exist.
+     *
+     * @param array $ids          The posted ids.
+     * @param int   $actingUserID Whose visibility applies.
+     * @param int   $ownerID      Restrict to this owner, or null for any.
+     *
+     * @return array APIToken objects, possibly empty.
+     */
+    private function _resolve(array $ids, $actingUserID, $ownerID = null)
+    {
+        $actingUserID = (int)$actingUserID;
+        $ownerID = null === $ownerID ? null : (int)$ownerID;
+        $out = [];
+        foreach ($ids as $id) {
+            $token = $this->visibleToken((int)$id, $actingUserID);
+            if (null === $token) {
+                continue;
+            }
+            if (null !== $ownerID
+                && (int)$token->get('userID') !== $ownerID
+            ) {
+                continue;
+            }
+            $out[] = $token;
+        }
+        return $out;
+    }
+    /**
      * May this administrator act on this user's credentials at all?
      *
      * The one place the boundary is stated, so the inventory, the per-token

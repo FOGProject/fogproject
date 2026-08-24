@@ -3676,6 +3676,9 @@ msgstr ""
 msgid "Issue Token"
 msgstr ""
 
+msgid "Issue a Bearer token"
+msgstr ""
+
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
@@ -4365,9 +4368,6 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-msgid "Name for a new token (required, unique per account)"
-msgstr ""
-
 msgid "Name. Must be unique."
 msgstr ""
 
@@ -4644,9 +4644,6 @@ msgid "No such user."
 msgstr ""
 
 msgid "No token passed to authenticate this host"
-msgstr ""
-
-msgid "No tokens issued."
 msgstr ""
 
 msgid "No type information available for this column."
@@ -5616,6 +5613,9 @@ msgid "Required column lookup failed"
 msgstr ""
 
 msgid "Required database field is empty"
+msgstr ""
+
+msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr ""
 
 msgid "Reset Encryption Data"

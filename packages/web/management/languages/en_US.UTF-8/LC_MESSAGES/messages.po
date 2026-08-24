@@ -4337,6 +4337,10 @@ msgstr "Is a"
 msgid "Issue Token"
 msgstr "Access Token"
 
+#, fuzzy
+msgid "Issue a Bearer token"
+msgstr "Access Token"
+
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
@@ -5151,9 +5155,6 @@ msgstr ""
 msgid "Name"
 msgstr "Name"
 
-msgid "Name for a new token (required, unique per account)"
-msgstr ""
-
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "You must enter a name"
@@ -5472,9 +5473,6 @@ msgstr ""
 #, fuzzy
 msgid "No token passed to authenticate this host"
 msgstr "No Image defined for this host"
-
-msgid "No tokens issued."
-msgstr ""
 
 msgid "No type information available for this column."
 msgstr ""
@@ -6605,6 +6603,9 @@ msgstr "User update failed"
 
 msgid "Required database field is empty"
 msgstr "Required database field is empty"
+
+msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr ""

@@ -4153,6 +4153,10 @@ msgstr "次の種類です"
 msgid "Issue Token"
 msgstr "トークンをリセット"
 
+#, fuzzy
+msgid "Issue a Bearer token"
+msgstr "トークンをリセット"
+
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
@@ -4938,9 +4942,6 @@ msgstr "フォーラムは、最も一般的で迅速なサポートを受ける
 msgid "Name"
 msgstr "名前"
 
-msgid "Name for a new token (required, unique per account)"
-msgstr ""
-
 #, fuzzy
 msgid "Name. Must be unique."
 msgstr "Diff パラメーターは数値で指定してください"
@@ -5251,9 +5252,6 @@ msgstr ""
 
 msgid "No token passed to authenticate this host"
 msgstr "このホストを認証するためのトークンが渡されていません"
-
-msgid "No tokens issued."
-msgstr ""
 
 #, fuzzy
 msgid "No type information available for this column."
@@ -6352,6 +6350,9 @@ msgstr "タスクタイプの更新に失敗しました"
 
 msgid "Required database field is empty"
 msgstr "必須のデータベースフィールドが空です"
+
+msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr "暗号化データをリセット"
