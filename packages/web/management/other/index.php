@@ -88,11 +88,6 @@ foreach ((array)$this->stylesheets as $stylesheet) {
 }
 unset($this->stylesheets);
 ?>
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-    <script src="dist/js/html5shiv.min.js"></script>
-    <script src="dist/js/respond.min.js"></script>
-    <![endif]-->
 </head>
 <body class="<?= $isLoggedIn ? 'layout-fixed sidebar-expand-lg bg-body-tertiary' : 'login-page'; ?>">
     <!-- FOG Management only works when JavaScript is enabled. -->
