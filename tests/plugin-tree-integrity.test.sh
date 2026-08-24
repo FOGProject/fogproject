@@ -151,6 +151,39 @@ has "$DEST/location/hooks/locationdeletemassitems.hook.php" \
     "failed repair left the surviving files alone"
 has "$DEST/.fog-plugins-version" "failed repair left the stamp alone"
 
+# --- a swap that cannot be performed must not report success ----------------
+# The swap at the end of the script is the only step whose failure produces a
+# WRONG ANSWER rather than an error, so it is the only one checked. `set -e` is
+# deliberately off -- the download loop needs to tolerate failures and retry --
+# and with the rm/mv unguarded the script printed its errors to stderr, fell
+# through to "Plugins at <version>" and exited 0 while the old release was
+# still on disk. Hit for real on a tree left root-owned by a previous install,
+# during the pin bump that carried the Font Awesome 7 migration: the installer's
+# downloadplugins reports that run as done, so the server ships FA4 plugin icon
+# names against a core with no v4 shims, and the stamp still names the old
+# release so nothing downstream can tell either.
+#
+# A read-only destination reproduces it without root: rm cannot unlink the
+# children of a directory it has no write bit on. Skipped as root, which
+# ignores the mode entirely.
+if [[ $EUID -eq 0 ]]; then
+    echo "  skip  unwritable destination (running as root)"
+else
+    rm -rf "$DEST"
+    run >/dev/null
+    echo "v0.0.1" > "$DEST/.fog-plugins-version"   # an older pin, so a fetch is due
+    chmod 555 "$DEST"
+    out="$(run)"
+    rc=$?
+    chmod 755 "$DEST"
+    is "$rc" "1" "an unwritable destination fails"
+    case "$out" in
+        *"Plugins at $VER"*) bad "no success line when nothing was written (said: $out)" ;;
+        *) ok "no success line when nothing was written" ;;
+    esac
+    is "$(cat "$DEST/.fog-plugins-version")" "v0.0.1" "the old tree is still in place"
+fi
+
 echo
 echo "  $PASS passed, $FAIL failed"
 [[ $FAIL -eq 0 ]]
