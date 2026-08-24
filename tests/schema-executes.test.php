@@ -75,23 +75,13 @@
  *
  * HOW commons/schema.php IS LOADED
  *
- * It is include'd from inside SchemaUpdaterPage::update() and expects that
- * method's context: $this->schema[], self::$DB, self::getClass(). It has no
- * `namespace` declaration -- the real FOG classes reach it through class_alias
- * into the global namespace -- so global stubs are what it resolves against.
- *
- * Two of its dependencies are DISCOVERED rather than listed, so that adding a
- * constant or a class reference to schema.php cannot silently break this test:
- *
- *   - constants are found by tokenising the file and defining a placeholder for
- *     each bare constant fetch. They only ever reach INSERT statements that seed
- *     default settings, and only DDL is executed here, so the values do not
- *     matter. DATABASE_NAME and FOG_SCHEMA are set for real because they do.
- *   - unknown classes are manufactured on demand by an autoloader. Every call
- *     answers null, which is exactly what "this database is empty" looks like to
- *     the introspection schema.php performs at build time -- and an empty
- *     database is the correct answer for a fresh install, which is the path
- *     being modelled.
+ * tests/lib/fog-schema-collector.php, which carries the shim that gives
+ * schema.php the context SchemaUpdaterPage::update() would -- $this->schema[],
+ * self::$DB, self::getClass() -- and discovers its constants and classes rather
+ * than listing them. It lived here until tests/schema-upgrade-replay.test.php
+ * needed the same step array; there is one copy on purpose, because two
+ * hand-kept descriptions of the schema drifting apart is the failure both of
+ * these tests exist to catch.
  *
  * The 8 closure steps are NOT executed. They are data migrations that need the
  * full application, and they emit no DDL. That is a real limit of this test,
@@ -142,249 +132,14 @@ $pass = ($pass === false) ? '' : $pass;
 $stepDb = 'fog_schema_steps_test';
 $manifestDb = 'fog_schema_manifest_test';
 
-/**
- * Bare constant fetches in a PHP file.
- *
- * A T_STRING that is not a function call, not method or property access, not a
- * class reference and not a declaration is a constant read.
- *
- * @param string $file the file to scan
- *
- * @return array list of constant names
- */
-function fogDiscoverConstants($file)
-{
-    $tokens = token_get_all(file_get_contents($file));
-    $count = count($tokens);
-    $skipPrev = [
-        T_OBJECT_OPERATOR,
-        T_DOUBLE_COLON,
-        T_FUNCTION,
-        T_CLASS,
-        T_NEW,
-        T_CONST,
-        T_USE,
-        T_NS_SEPARATOR,
-    ];
-    $trivia = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
-    $found = [];
+require __DIR__ . '/lib/fog-schema-collector.php';
 
-    for ($i = 0; $i < $count; $i++) {
-        $token = $tokens[$i];
-        if (!is_array($token) || $token[0] !== T_STRING) {
-            continue;
-        }
-        $prev = null;
-        for ($j = $i - 1; $j >= 0; $j--) {
-            if (is_array($tokens[$j]) && in_array($tokens[$j][0], $trivia, true)) {
-                continue;
-            }
-            $prev = $tokens[$j];
-            break;
-        }
-        $next = null;
-        for ($j = $i + 1; $j < $count; $j++) {
-            if (is_array($tokens[$j]) && in_array($tokens[$j][0], $trivia, true)) {
-                continue;
-            }
-            $next = $tokens[$j];
-            break;
-        }
-        $prevType = is_array($prev) ? $prev[0] : $prev;
-        $nextType = is_array($next) ? $next[0] : $next;
-
-        if (in_array($prevType, $skipPrev, true)) {
-            continue;
-        }
-        if ($nextType === T_DOUBLE_COLON || $nextType === '(' || $nextType === T_NS_SEPARATOR) {
-            continue;
-        }
-        if (in_array(strtolower($token[1]), ['true', 'false', 'null'], true)) {
-            continue;
-        }
-        $found[$token[1]] = true;
-    }
-
-    return array_keys($found);
-}
-
-/**
- * Permissive stand-in for every FOG class schema.php touches while its step
- * array is being built. Answering null to everything is what an empty database
- * looks like to the introspection it does, and an empty database is precisely
- * the state a fresh install starts from.
- */
-class SchemaStub
-{
-    public function __construct(...$args)
-    {
-    }
-    public function __call($name, $args)
-    {
-        return null;
-    }
-    public static function __callStatic($name, $args)
-    {
-        return null;
-    }
-    public function __get($name)
-    {
-        return null;
-    }
-    public function __set($name, $value)
-    {
-    }
-    public function get($key = null)
-    {
-        return 0;
-    }
-    public function isValid()
-    {
-        return false;
-    }
-    public function save()
-    {
-        return true;
-    }
-}
-
-/**
- * The real Schema class builds these two from DATABASE_NAME; so does this one,
- * which is what points the replay at the scratch database.
- */
-class Schema extends SchemaStub
-{
-    public static function createDatabaseQuery()
-    {
-        return sprintf('CREATE DATABASE IF NOT EXISTS `%s`', DATABASE_NAME);
-    }
-    public static function useDatabaseQuery()
-    {
-        return sprintf('USE `%s`', DATABASE_NAME);
-    }
-}
-
-/**
- * Stands in for self::$DB. schema.php issues one query at file scope, before a
- * single step has been collected; swallowing it is the point.
- */
-class SchemaStubDB extends SchemaStub
-{
-    public function query($query = null, ...$rest)
-    {
-        return $this;
-    }
-    public function fetch($what = null, ...$rest)
-    {
-        return $this;
-    }
-    public function get($key = null)
-    {
-        return [];
-    }
-    public function escape($value)
-    {
-        return $value;
-    }
-    public function sanitize($value)
-    {
-        return $value;
-    }
-    public function __call($name, $args)
-    {
-        return $this;
-    }
-}
-
-/**
- * Stands in for SchemaUpdaterPage, whose method body schema.php is written to
- * run inside.
- */
-class SchemaCollector extends SchemaStub
-{
-    public $schema = [];
-    public static $DB;
-    public static $mySchema = 0;
-
-    public static function getClass($name, ...$args)
-    {
-        return class_exists($name, true) ? new $name() : new SchemaStub();
-    }
-    public static function getManager($name)
-    {
-        return new SchemaStub();
-    }
-    public static function getSetting($key)
-    {
-        return '';
-    }
-    public static function setSetting($key, $value)
-    {
-        return true;
-    }
-    public static function createSecToken()
-    {
-        return '';
-    }
-    public static function fastmerge(...$arrays)
-    {
-        $out = [];
-        foreach ($arrays as $array) {
-            $out = array_merge($out, (array)$array);
-        }
-        return $out;
-    }
-    public function dropDuplicateData(...$args)
-    {
-        return null;
-    }
-    public function collect($file)
-    {
-        include $file;
-        return $this->schema;
-    }
-}
-
-spl_autoload_register(
-    function ($class) {
-        // schema.php is global-namespaced, so anything carrying a separator is
-        // not a name it could have written and not ours to invent.
-        if (strpos($class, '\\') !== false) {
-            return;
-        }
-        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $class)) {
-            return;
-        }
-        eval("class {$class} extends SchemaStub {}");
-    }
-);
-
-define('DATABASE_NAME', $stepDb);
-define('FOG_SCHEMA', PHP_INT_MAX);
-define('DS', '/');
-foreach (fogDiscoverConstants($schemaFile) as $name) {
-    if (defined($name)) {
-        continue;
-    }
-    define($name, '');
-}
-
-SchemaCollector::$DB = new SchemaStubDB();
-$collector = new SchemaCollector();
-try {
-    $steps = $collector->collect($schemaFile);
-} catch (\Throwable $e) {
-    fwrite(
-        STDERR,
-        "FAIL: could not collect the schema steps.\n"
-        . '  ' . get_class($e) . ': ' . $e->getMessage() . "\n"
-        . '  at ' . $e->getFile() . ':' . $e->getLine() . "\n\n"
-        . "  This test shims the context SchemaUpdaterPage::update() provides.\n"
-        . "  If schema.php started using something the shim does not answer,\n"
-        . "  teach SchemaStub about it -- do not delete the assertion.\n"
-    );
-    exit(1);
-}
+// FOG_SCHEMA is PHP_INT_MAX rather than the real constant because this test
+// executes DDL and does not care what the version gate says; schema.php's one
+// use of it (step 29) is false either way against the empty-database stub.
+// tests/schema-upgrade-replay.test.php passes the real value, which is where
+// the constant is the subject rather than a dependency.
+$steps = fogCollectSchemaSteps($schemaFile, $stepDb, PHP_INT_MAX);
 
 $stepDdl = [];
 $closures = 0;

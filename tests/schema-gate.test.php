@@ -59,12 +59,21 @@
  * Together they close it: you cannot append without labelling, and you cannot
  * label without appending.
  *
- * Counting the array for real was tried and rejected. commons/schema.php can
- * be included against a stubbed $this and a fake DB, but it also wants ~35
- * config constants and a couple of core classes, and every one of those is a
- * thing an unrelated schema commit could add. A guard that fails for reasons
- * unconnected to what it guards is a guard people learn to ignore, and these
- * two textual checks are exact for every shape the file actually uses.
+ * Counting the array for real was rejected here, on the grounds that
+ * commons/schema.php also wants ~35 config constants and a couple of core
+ * classes and that any of those is a thing an unrelated schema commit could
+ * add -- a guard failing for reasons unconnected to what it guards is a guard
+ * people learn to ignore. That objection has since been ANSWERED rather than
+ * overruled: tests/lib/fog-schema-collector.php DISCOVERS both the constants
+ * and the classes instead of listing them, so neither can be outgrown, and
+ * tests/schema-upgrade-replay.test.php uses it to compare FOG_SCHEMA against
+ * the real element count.
+ *
+ * This test stays as it is, because the two fail on different things. A real
+ * count is label-independent and catches shapes the text cannot see; these
+ * checks cover the LABEL hygiene a count cannot -- an unlabelled append, or a
+ * label with no append -- and they are what keeps the file's own numbering
+ * meaning what it says. Neither subsumes the other.
  *
  * Usage: php tests/schema-gate.test.php
  * Exit status 0 = pass, 1 = fail.
