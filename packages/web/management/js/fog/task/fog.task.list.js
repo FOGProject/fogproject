@@ -149,14 +149,14 @@
         {
           render: function(data, type, row) {
             return row.tasktypename
-              + ' <i class="fa fa-' + row.tasktypeicon + '"></i> '
+              + ' <i class="fas fa-' + row.tasktypeicon + '"></i> '
           },
           targets: 6
         },
         {
           render: function(data, type, row) {
             return row.taskstatename
-              + ' <i class="fa fa-' + row.taskstateicon + '"></i> '
+              + ' <i class="fas fa-' + row.taskstateicon + '"></i> '
           },
           targets: 7
         },
@@ -223,7 +223,7 @@
         },
         {
           render: function(data, type, row) {
-            return '<i class="fa fa-' + row.taskstateicon + '"></i>';
+            return '<i class="fas fa-' + row.taskstateicon + '"></i>';
           },
           targets: 3
         }
@@ -273,7 +273,7 @@
         {
           render: function(data, type, row) {
             return data
-              + ' <i class="fa fa-'
+              + ' <i class="fas fa-'
               + row.taskstateicon
               + '"></i>';
           },
@@ -368,7 +368,7 @@
         {
           render: function(data, type, row) {
             return $.escapeHtml(data || '')
-              + ' <i class="fa fa-' + $.escapeHtml(row.tasktypeicon || '') + '"></i> ';
+              + ' <i class="fas fa-' + $.escapeHtml(row.tasktypeicon || '') + '"></i> ';
           },
           targets: 2
         },
@@ -384,7 +384,7 @@
         {
           render: function(data, type, row) {
             return $.escapeHtml(data || '')
-              + ' <i class="fa fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i> ';
+              + ' <i class="fas fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i> ';
           },
           targets: 4
         },
@@ -460,14 +460,14 @@
         {
           render: function(data, type, row) {
             return $.escapeHtml(data || '')
-              + ' <i class="fa fa-' + $.escapeHtml(row.tasktypeicon || '') + '"></i> ';
+              + ' <i class="fas fa-' + $.escapeHtml(row.tasktypeicon || '') + '"></i> ';
           },
           targets: 2
         },
         {
           render: function(data, type, row) {
             return $.escapeHtml(data || '')
-              + ' <i class="fa fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i> ';
+              + ' <i class="fas fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i> ';
           },
           targets: 3
         },
@@ -539,7 +539,7 @@
           $.escapeHtml(row.hostname || '')],
         ['Task', $.escapeHtml(String(row.taskid || '')) + ' &mdash; ' + $.escapeHtml(row.tasktypename || '')],
         ['State at the time', $.escapeHtml(row.taskstatename || '')
-          + ' <i class="fa fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i>'],
+          + ' <i class="fas fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i>'],
         ['Type', '<span class="badge ' + (badge[row.logtype] || 'bg-secondary') + '">'
           + $.escapeHtml(row.logtype || '') + '</span>'],
         ['Recorded by', $.escapeHtml(row.createdBy || '')]
