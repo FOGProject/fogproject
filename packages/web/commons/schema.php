@@ -7605,7 +7605,10 @@ $this->schema[] = count($columnuAPIOnly ?: []) ? [] : [
 // must equal count($this->schema), so raising it without adding a step leaves
 // every server permanently below it, and DatabaseManager::establish() then
 // redirects every request to ?node=schema forever while the updater reports
-// nothing to do. See tests/schema-steps-match-fog-schema.test.php.
+// nothing to do. Two tests pin it: schema-gate compares FOG_SCHEMA to
+// the highest `// N` label, and schema-upgrade-replay compares it to
+// the number of elements that really exist, replaying the updater
+// from every version a server can hold.
 //
 // Each is guarded on the old value so an administrator who has already picked
 // their own icon for one of these keeps it.
