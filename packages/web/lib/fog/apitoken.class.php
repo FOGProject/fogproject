@@ -61,6 +61,26 @@ class APIToken extends FOGController
     const LAST_USED_TTL = 300;
 
     /**
+     * generate()'s answer when the owner already has a token by that name.
+     *
+     * A distinct sentinel rather than false, because the caller has to tell
+     * "you already used that name" from "the write failed" -- the first is
+     * something the administrator fixes by typing a different word, the
+     * second is not.
+     *
+     * NOT a UNIQUE index on (atUserID, atName), which is the obvious way to
+     * do this and is actively dangerous here: FOGController::save() writes
+     * with INSERT ... ON DUPLICATE KEY UPDATE, so a duplicate name would
+     * not be rejected -- it would UPDATE the existing row, replacing a live
+     * credential's hash with a new one. The old token would stop working,
+     * the new one would appear to be the old one, and no audit row would
+     * say a token had been revoked. See the silent-overwrite bug class.
+     *
+     * @var string
+     */
+    const DUPLICATE_NAME = 'duplicate-name';
+
+    /**
      * The table.
      *
      * @var string
@@ -139,7 +159,9 @@ class APIToken extends FOGController
      * @param int    $userID The owner.
      * @param string $name   What the token is for.
      *
-     * @return string|false The plaintext token, or false if it did not store.
+     * @return string|false The plaintext token, false if it did not store,
+     *                      or self::DUPLICATE_NAME if the owner already has
+     *                      one by that name.
      */
     public static function generate($userID, $name = '')
     {
@@ -147,12 +169,30 @@ class APIToken extends FOGController
         if ($userID < 1) {
             return false;
         }
+        $name = trim((string)$name);
+        if ('' === $name) {
+            return false;
+        }
+        // Unique per USER, not per server. Two people can each have a
+        // token called "backup script" without ambiguity; one person with
+        // two of them cannot tell which row to revoke, which is the whole
+        // job this page exists to do.
+        //
+        // Checked here rather than by a unique index -- see DUPLICATE_NAME
+        // for why an index would silently overwrite instead of refusing.
+        // That leaves a check-then-insert race, which is the right trade
+        // for a button a human clicks: the worst case is two rows with one
+        // name, which is untidy, against an index whose worst case is a
+        // working credential replaced without a trace.
+        if (self::nameTaken($userID, $name)) {
+            return self::DUPLICATE_NAME;
+        }
         // 512 bits, the same generator users.uAPIToken uses. The prefix is
         // part of the token and therefore part of what gets hashed.
         $token = self::PREFIX . bin2hex(random_bytes(64));
         $row = self::getClass('APIToken')
             ->set('userID', $userID)
-            ->set('name', trim((string)$name))
+            ->set('name', $name)
             ->set('hash', self::hashToken($token))
             ->set('enabled', '1');
         if (!$row->save()) {
@@ -166,6 +206,38 @@ class APIToken extends FOGController
         return $token;
     }
 
+    /**
+     * Does this user already have a token by this name?
+     *
+     * Compared case-insensitively and on the trimmed value, because the
+     * column exists to be read by a person deciding what to revoke and
+     * "Backup" beside "backup " is the ambiguity the uniqueness rule is
+     * there to prevent -- an exact-match check would let both exist.
+     *
+     * @param int    $userID The owner.
+     * @param string $name   The proposed name.
+     *
+     * @return bool
+     */
+    public static function nameTaken($userID, $name)
+    {
+        $userID = (int)$userID;
+        $name = trim((string)$name);
+        if ($userID < 1 || '' === $name) {
+            return false;
+        }
+        $rows = self::$DB
+            ->query(
+                'SELECT COUNT(*) AS `cnt` FROM `apiTokens`'
+                . ' WHERE `atUserID` = :uid'
+                . ' AND LOWER(TRIM(`atName`)) = LOWER(:name)',
+                [],
+                [':uid' => $userID, ':name' => $name]
+            )
+            ->fetch()
+            ->get();
+        return (int)($rows['cnt'] ?? 0) > 0;
+    }
     /**
      * Enables or disables this token, recording the change.
      *

@@ -56,10 +56,6 @@ msgid " | Unable to find image path"
 msgstr "未能摧毁存储节点"
 
 #, php-format
-msgid "%1$d token(s) updated, %2$d deleted."
-msgstr ""
-
-#, php-format
 msgid "%1$s \"%2$s\" (ID %3$s) failed to delete"
 msgstr ""
 
@@ -112,6 +108,18 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d token(s) disabled."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%d token(s) enabled."
+msgstr "图片未启用"
+
+#, php-format
+msgid "%d token(s) revoked."
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -125,6 +133,10 @@ msgstr "%s菜单"
 
 #, php-format
 msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbours when it comes time to revoke one."
 msgstr ""
 
 #, php-format
@@ -470,6 +482,10 @@ msgstr "FTP连接失败"
 #, fuzzy
 msgid "API Tokens"
 msgstr "访问令牌"
+
+#, fuzzy
+msgid "API Tokens Revoked"
+msgstr "FTP连接失败"
 
 #, fuzzy
 msgid "API Tokens Updated"
@@ -2150,6 +2166,10 @@ msgstr "目录"
 msgid "Disable on all hosts"
 msgstr "启用"
 
+#, fuzzy
+msgid "Disable selected"
+msgstr "删除所选"
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -2309,6 +2329,10 @@ msgstr ""
 #, fuzzy
 msgid "Enable on all hosts"
 msgstr "启用"
+
+#, fuzzy
+msgid "Enable selected"
+msgstr "删除所选"
 
 msgid "Enabled"
 msgstr "启用"
@@ -2962,6 +2986,9 @@ msgid "Getting image size for"
 msgstr ""
 
 msgid "Getting snapin hash and size for"
+msgstr ""
+
+msgid "Give the token a name saying what it is for."
 msgstr ""
 
 #, fuzzy
@@ -4321,9 +4348,6 @@ msgstr ""
 msgid "Issuer URL"
 msgstr "服务器外壳"
 
-msgid "Issuing a token requires a POST."
-msgstr ""
-
 msgid "It can no longer be joined"
 msgstr ""
 
@@ -5128,10 +5152,7 @@ msgstr ""
 msgid "Name"
 msgstr "名称"
 
-msgid "Name for a new token"
-msgstr ""
-
-msgid "Name for the new token"
+msgid "Name for a new token (required, unique per account)"
 msgstr ""
 
 #, fuzzy
@@ -5217,10 +5238,6 @@ msgstr "节点"
 #, php-format
 msgid "No %1$s exists with ID %2$s"
 msgstr ""
-
-#, fuzzy
-msgid "No API tokens have been issued."
-msgstr "无效的令牌传递"
 
 #, fuzzy
 msgid "No Action"
@@ -8455,6 +8472,10 @@ msgstr ""
 msgid "This FOG server"
 msgstr ""
 
+#, php-format
+msgid "This account already has a token called \"%s\". Pick a different name."
+msgstr ""
+
 msgid "This account is for API access only and cannot sign in."
 msgstr ""
 
@@ -8465,6 +8486,9 @@ msgid "This directory does not advertise support for nested group chaining, so t
 msgstr ""
 
 msgid "This document"
+msgstr ""
+
+msgid "This endpoint only accepts POST."
 msgstr ""
 
 #, fuzzy
@@ -9460,6 +9484,9 @@ msgstr ""
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
+msgid "You do not have permission to change API tokens."
+msgstr ""
+
 msgid "You do not have permission to change LDAP group associations."
 msgstr ""
 
@@ -9476,6 +9503,9 @@ msgid "You do not have permission to perform this action."
 msgstr ""
 
 msgid "You do not have permission to read any activity source."
+msgstr ""
+
+msgid "You do not have permission to revoke API tokens."
 msgstr ""
 
 msgid "You do not have permission to view API tokens."
@@ -9654,6 +9684,9 @@ msgstr "启用"
 #, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "图像被保护，不能被删除"
+
+msgid "e.g. nightly inventory script"
+msgstr ""
 
 msgid "either already selected or uploaded"
 msgstr ""
@@ -10344,6 +10377,9 @@ msgstr "您必须输入一个名称"
 msgid "weekday"
 msgstr ""
 
+msgid "what this token is for"
+msgstr ""
+
 msgid "which is empty"
 msgstr ""
 
@@ -10788,6 +10824,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Module Associated"
 #~ msgstr "无关联的节点"
+
+#, fuzzy
+#~ msgid "No API tokens have been issued."
+#~ msgstr "无效的令牌传递"
 
 #, fuzzy
 #~ msgid "No directory group feeds this user group."

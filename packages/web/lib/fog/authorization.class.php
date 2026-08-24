@@ -150,12 +150,13 @@ class Authorization extends FOGBase
         // permission.
         //
         // apitokens resolves to view for BOTH verbs; a global override
-        // cannot vary by method. That is deliberate rather than a
-        // limitation worked around: reaching the pane needs view, and the
-        // edit and delete grants are checked per action inside
-        // apitokensPost(), which is the only place that can tell an
-        // enable from a revoke anyway.
+        // cannot vary by method. The grid's own actions are separate subs
+        // precisely so each CAN carry its own permission, rather than one
+        // POST endpoint deciding internally which of three grants it needs.
         'apitokens' => 'apitoken.view',
+        'apitokenlist' => 'apitoken.view',
+        'apitokenenable' => 'apitoken.edit',
+        'apitokendelete' => 'apitoken.delete',
         'issueapitokenfor' => 'apitoken.create'
     ];
     /**

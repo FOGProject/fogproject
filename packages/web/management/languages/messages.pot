@@ -32,10 +32,6 @@ msgid " | Unable to find image path"
 msgstr ""
 
 #, php-format
-msgid "%1$d token(s) updated, %2$d deleted."
-msgstr ""
-
-#, php-format
 msgid "%1$s \"%2$s\" (ID %3$s) failed to delete"
 msgstr ""
 
@@ -88,6 +84,18 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d token(s) disabled."
+msgstr ""
+
+#, php-format
+msgid "%d token(s) enabled."
+msgstr ""
+
+#, php-format
+msgid "%d token(s) revoked."
+msgstr ""
+
+#, php-format
 msgid "%s %s log (%s)"
 msgstr ""
 
@@ -101,6 +109,10 @@ msgstr ""
 
 #, php-format
 msgid "%s added. Install it to set up its database."
+msgstr ""
+
+#, php-format
+msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbours when it comes time to revoke one."
 msgstr ""
 
 #, php-format
@@ -396,6 +408,9 @@ msgid "API Token Failed"
 msgstr ""
 
 msgid "API Tokens"
+msgstr ""
+
+msgid "API Tokens Revoked"
 msgstr ""
 
 msgid "API Tokens Updated"
@@ -1823,6 +1838,9 @@ msgstr ""
 msgid "Disable on all hosts"
 msgstr ""
 
+msgid "Disable selected"
+msgstr ""
+
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
 
@@ -1956,6 +1974,9 @@ msgid "Enable Sending via Location"
 msgstr ""
 
 msgid "Enable on all hosts"
+msgstr ""
+
+msgid "Enable selected"
 msgstr ""
 
 msgid "Enabled"
@@ -2529,6 +2550,9 @@ msgid "Getting image size for"
 msgstr ""
 
 msgid "Getting snapin hash and size for"
+msgstr ""
+
+msgid "Give the token a name saying what it is for."
 msgstr ""
 
 msgid "Global Module Settings"
@@ -3661,9 +3685,6 @@ msgstr ""
 msgid "Issuer URL"
 msgstr ""
 
-msgid "Issuing a token requires a POST."
-msgstr ""
-
 msgid "It can no longer be joined"
 msgstr ""
 
@@ -4344,10 +4365,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-msgid "Name for a new token"
-msgstr ""
-
-msgid "Name for the new token"
+msgid "Name for a new token (required, unique per account)"
 msgstr ""
 
 msgid "Name. Must be unique."
@@ -4421,9 +4439,6 @@ msgstr ""
 
 #, php-format
 msgid "No %1$s exists with ID %2$s"
-msgstr ""
-
-msgid "No API tokens have been issued."
 msgstr ""
 
 msgid "No Action"
@@ -7184,6 +7199,10 @@ msgstr ""
 msgid "This FOG server"
 msgstr ""
 
+#, php-format
+msgid "This account already has a token called \"%s\". Pick a different name."
+msgstr ""
+
 msgid "This account is for API access only and cannot sign in."
 msgstr ""
 
@@ -7194,6 +7213,9 @@ msgid "This directory does not advertise support for nested group chaining, so t
 msgstr ""
 
 msgid "This document"
+msgstr ""
+
+msgid "This endpoint only accepts POST."
 msgstr ""
 
 msgid "This host already exists"
@@ -8058,6 +8080,9 @@ msgstr ""
 msgid "You do not have permission to access this page (%s required)."
 msgstr ""
 
+msgid "You do not have permission to change API tokens."
+msgstr ""
+
 msgid "You do not have permission to change LDAP group associations."
 msgstr ""
 
@@ -8074,6 +8099,9 @@ msgid "You do not have permission to perform this action."
 msgstr ""
 
 msgid "You do not have permission to read any activity source."
+msgstr ""
+
+msgid "You do not have permission to revoke API tokens."
 msgstr ""
 
 msgid "You do not have permission to view API tokens."
@@ -8230,6 +8258,9 @@ msgid "disabled (all)"
 msgstr ""
 
 msgid "does not exist and cannot be created"
+msgstr ""
+
+msgid "e.g. nightly inventory script"
 msgstr ""
 
 msgid "either already selected or uploaded"
@@ -8839,6 +8870,9 @@ msgid "value must be numeric"
 msgstr ""
 
 msgid "weekday"
+msgstr ""
+
+msgid "what this token is for"
 msgstr ""
 
 msgid "which is empty"

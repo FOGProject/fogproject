@@ -103,7 +103,25 @@
     // response and is shown once. See the PHP side for why it cannot ride
     // the form.
     issueTokenBtn.on('click', function(e) {
-        var name = $('#newtokenname').val();
+        var name = $.trim($('#newtokenname').val() || '');
+
+        // Checked here as well as on the server, which is the refusal that
+        // counts. A token name is required and unique per account: it is
+        // the only thing that tells one row from another when somebody is
+        // deciding which credential to revoke. Bouncing an empty one off
+        // the server just to render the same sentence is a round trip for
+        // nothing.
+        if ('' === name) {
+            $.notifyFromAPI(
+                {
+                    error: 'Give the token a name saying what it is for.',
+                    title: 'API Token Failed'
+                },
+                false
+            );
+            return;
+        }
+
         issueTokenBtn.prop('disabled', true);
         $.apiCall(
             'post',

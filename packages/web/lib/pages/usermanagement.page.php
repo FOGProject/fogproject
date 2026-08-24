@@ -1025,8 +1025,10 @@ class UserManagement extends FOGPage
         if ($mayCreate) {
             echo '<div class="input-group">';
             echo '<input type="text" class="form-control" '
-                . 'name="newtokenname" id="newtokenname" placeholder="'
-                . _('Name for a new token') . '"/>';
+                . 'name="newtokenname" id="newtokenname" maxlength="255" '
+                . 'placeholder="'
+                . _('Name for a new token (required, unique per account)')
+                . '"/>';
             echo '<button type="button" id="issuetoken" '
                 . 'class="btn btn-secondary">' . _('Issue Token')
                 . '</button>';
@@ -1114,7 +1116,44 @@ class UserManagement extends FOGPage
         $uid = (int)$this->obj->get('id');
         $name = trim((string)filter_input(INPUT_POST, 'newtokenname'));
 
+        // Required, and required here rather than only by the form's
+        // required attribute -- this endpoint is reachable without the
+        // form. A nameless token is the one nobody can ever revoke with
+        // confidence: the whole point of the last-used column is deciding
+        // what to delete, and "(no name), never used" is not a decision
+        // anybody will act on.
+        if ('' === $name) {
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    [
+                        'error' => _('Give the token a name saying what it is for.'),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
+
         $token = $uid > 0 ? APIToken::generate($uid, $name) : false;
+        if (APIToken::DUPLICATE_NAME === $token) {
+            // A user's token names are unique so the list stays readable
+            // when it comes time to revoke one. Refused rather than
+            // silently made unique, because a name the administrator did
+            // not choose is no more identifying than no name at all.
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    [
+                        'error' => sprintf(
+                            _('This account already has a token called '
+                                . '"%s". Pick a different name.'),
+                            $name
+                        ),
+                        'title' => _('API Token Failed')
+                    ]
+                )
+            );
+        }
         if (false === $token) {
             // generate() returns false when the row did not store, so this
             // is "there is no token", not "there might be one you cannot

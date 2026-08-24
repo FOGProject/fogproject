@@ -403,19 +403,22 @@ $t->check(
     (bool)preg_match('/public function apitokens\(\)/', $configSrc)
 );
 
-// Site scoping. allInScopeIDs() returns [] BOTH for "unscoped" and for "in
-// no site" -- opposite meanings -- so isUnscoped() must be consulted first
-// or a scoped admin with no sites silently sees the whole estate.
+// Object scope. This USED to ask SiteScope::isUnscoped() directly, which
+// saw only ONE of the three reasons core declines to narrow -- and so
+// narrowed a '*' holder that every other page in FOG shows everything to.
+// The boundary now comes from Authorization::scopedObjectIDs(), whose
+// tri-state is inverted: null means "no boundary", an array (even empty)
+// means "these and no others". Pinned in detail by
+// tests/apitoken-grid-and-scope.test.php; kept here so this file cannot
+// pass while the pane has gone back to asking SiteScope.
 $mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
-$unscopedPos = strpos($mgrSrc, 'SiteScope::isUnscoped');
-$allIDsPos = strpos($mgrSrc, 'SiteScope::allInScopeIDs');
 $t->check(
-    'the pane consults site scope at all',
-    false !== $unscopedPos && false !== $allIDsPos
+    'the pane bounds what it shows by object scope',
+    false !== strpos($mgrSrc, 'Authorization::scopedObjectIDs')
 );
 $t->check(
-    'isUnscoped() is checked before an empty scope list is trusted',
-    false !== $unscopedPos && $unscopedPos < $allIDsPos
+    'it does not reach past Authorization into SiteScope',
+    !preg_match('/^\s*[^*\/\n]*SiteScope::/m', $mgrSrc)
 );
 $t->check(
     'an empty scope list denies rather than falling through unfiltered',
@@ -484,10 +487,14 @@ foreach (['TOKEN_ISSUED', 'TOKEN_ENABLED', 'TOKEN_DISABLED', 'TOKEN_DELETED'] as
 
 // The pane's controls need wiring for the same reason the user tab's did.
 $t->check(
-    'the central pane form is wired in JS',
-    false !== strpos($paneJs, '#apitoken-central-form')
-    && false !== strpos($paneJs, '#apitoken-central-send')
-    && false !== strpos($paneJs, '#centralissuetoken')
+    // The pane is a DataTable now, not a form of checkboxes: it is wired
+    // with the same registerTable() every other list page uses, and its
+    // bulk actions post to their own subs. See
+    // tests/apitoken-grid-and-scope.test.php for the full contract.
+    'the central pane grid is wired in JS',
+    false !== strpos($paneJs, "$('#dataTable').registerTable(")
+    && false !== strpos($paneJs, 'sub=apitokenlist')
+    && false !== strpos($paneJs, '#issuetoken')
 );
 
 // WHERE THE MENU ENTRY HAS TO LIVE, which is the defect this pins.

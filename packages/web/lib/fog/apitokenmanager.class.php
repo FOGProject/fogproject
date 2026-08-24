@@ -90,12 +90,24 @@ class APITokenManager extends FOGManagerController
      *
      * SITE SCOPING. A scoped admin must not learn the account names and
      * integration names of users outside their scope -- an inventory is a
-     * disclosure surface even when every value in it is a hash. The tri-state
-     * here is the trap, and it is the one this codebase has been bitten by
-     * before: allInScopeIDs() returns [] BOTH for "this user is unscoped"
-     * and for "this user is in no site", which mean opposite things. So
-     * isUnscoped() is asked FIRST, and only after it says no does an empty
-     * list get read as "sees nothing".
+     * disclosure surface even when every value in it is a hash.
+     *
+     * The boundary comes from Authorization::scopedObjectIDs(), NOT from
+     * SiteScope directly, and that distinction was a live bug rather than
+     * a style preference. Core declines to narrow for THREE reasons --
+     * the caller holds '*', no sites are in use, or the caller is in a
+     * catch-all site -- and only the third is a SiteScope question.
+     * Calling SiteScope::isUnscoped() here saw one of the three, so an
+     * administrator holding '*' who happened not to reach a catch-all site
+     * was narrowed to their site's user list on this page alone while
+     * every other page in FOG correctly showed them everything. On a lab
+     * server that meant "No such user" for every name the issue dropdown
+     * offered.
+     *
+     * The tri-state is the trap and it is inverted from the old one:
+     * scopedObjectIDs() returns NULL for "no boundary applies" and an
+     * ARRAY -- possibly empty -- for "these and no others". An empty array
+     * therefore means "sees nothing" and is never confused with silence.
      *
      * @param int $actingUserID Whose visibility applies.
      *
@@ -107,12 +119,12 @@ class APITokenManager extends FOGManagerController
         $actingUserID = (int)$actingUserID;
         $where = '';
 
-        if (!SiteScope::isUnscoped($actingUserID)) {
-            $ids = SiteScope::allInScopeIDs('user', $actingUserID);
+        $ids = Authorization::scopedObjectIDs('user', $actingUserID);
+        if (null !== $ids) {
             if (count($ids) < 1) {
-                // Scoped, and in scope of nothing. Deny rather than fall
-                // through to an unfiltered query -- the empty list means
-                // "no users", not "no filter".
+                // Bounded, and in scope of nothing. Deny rather than fall
+                // through to an unfiltered query -- the empty array means
+                // "no users", and only null means "no filter".
                 return [];
             }
             $where = ' WHERE `t`.`atUserID` IN ('
@@ -177,17 +189,34 @@ class APITokenManager extends FOGManagerController
         if (!$token->isValid()) {
             return null;
         }
-        $actingUserID = (int)$actingUserID;
-        if (SiteScope::isUnscoped($actingUserID)) {
-            return $token;
-        }
-        $ids = SiteScope::allInScopeIDs('user', $actingUserID);
-        // Same tri-state as visibleTo(): scoped with an empty list sees
-        // nothing, so in_array against [] correctly denies.
-        if (!in_array((int)$token->get('userID'), $ids, true)) {
+        if (!$this->userInScope((int)$token->get('userID'), $actingUserID)) {
             return null;
         }
         return $token;
+    }
+    /**
+     * May this administrator act on this user's credentials at all?
+     *
+     * The one place the boundary is stated, so the inventory, the per-token
+     * lookup and the issue-on-behalf-of endpoint cannot drift apart. They
+     * did: issueAPITokenForPost() carried its own inline copy asking
+     * SiteScope directly, which is how a '*' holder ended up being told
+     * "No such user" about a user the same page had just listed for them.
+     *
+     * @param int $userID       The account whose credentials are in play.
+     * @param int $actingUserID Whose visibility applies.
+     *
+     * @return bool
+     */
+    public function userInScope($userID, $actingUserID)
+    {
+        $ids = Authorization::scopedObjectIDs('user', (int)$actingUserID);
+        // null is the permissive value -- no boundary applies. An array,
+        // even an empty one, is an enumeration of what may be reached.
+        if (null === $ids) {
+            return true;
+        }
+        return in_array((int)$userID, $ids, true);
     }
 }
 
