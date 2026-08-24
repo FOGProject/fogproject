@@ -82,6 +82,21 @@ foreach ((array)$paths as $decodedPath) {
         );
     }
 }
+/*
+ * One entry per DIRECTORY, not per node that names it.
+ *
+ * $validPaths is built from Route::getIds('storagenode', [], 'path') and the
+ * same for 'snapinpath', which return one row per storage node -- and every
+ * node in a group is normally configured with the same paths. So a request
+ * for /opt/fog/snapins matched four identical entries on a four-node
+ * install, globbed the same directory four times, and answered with every
+ * file repeated four times. A 200 with wrong data, scaling with node count,
+ * and invisible on the single-node installs most testing happens on.
+ *
+ * Deduplicated here rather than in $validPaths so it also covers two
+ * different allowed paths that glob to the same directory.
+ */
+$realpaths = array_unique((array)$realpaths);
 $files = [];
 foreach ($realpaths as $path) {
     if (!(is_dir($path)

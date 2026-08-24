@@ -331,10 +331,18 @@ class StorageNode extends FOGController
             false,
             false
         );
-        return preg_grep(
-            '#dev|postdownloadscripts|ssl#',
-            json_decode($response[0], true) ?? [],
-            PREG_GREP_INVERT
+        // array_values, because preg_grep PRESERVES KEYS. Every entry it
+        // filters out leaves a gap, and json_encode renders an array with
+        // gaps as an OBJECT -- so `snapinfiles` reached API clients as
+        // {"0":"a","2":"b"} whenever the node held anything matching the
+        // filter, while `images` looked fine only because it is mapped
+        // through Route::getIds() and rebuilt on the way out.
+        return array_values(
+            preg_grep(
+                '#dev|postdownloadscripts|ssl#',
+                json_decode($response[0], true) ?? [],
+                PREG_GREP_INVERT
+            )
         );
     }
     /**
