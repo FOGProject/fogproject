@@ -7585,38 +7585,66 @@ $this->schema[] = count($columnuAPIOnly ?: []) ? [] : [
     // combination of the two, including API-only with uAllowAPI off, which
     // is a service account reachable only through an issued Bearer token.
     "ALTER TABLE `users` "
-    . "ADD COLUMN `uAPIOnly` ENUM('0','1') NOT NULL DEFAULT '0'",
-    // The Font Awesome 7 migration renamed the icon *classes* in PHP and JS,
-    // but six task types and one task state carry their icon as DATA -- seeded
-    // by steps 2907-2987 above and rendered as `fa fa-<stored name>` by
-    // fog.task.list.js, the host and group task menus, and Task Management.
-    // Every one of the seven is an FA4 outline variant whose `-o` suffix FA7
-    // dropped outright, so after the migration they resolve to nothing and the
-    // icon renders blank. The prefix is fine: `fa` is still the solid alias.
-    //
-    // Appended rather than corrected in place. Editing steps 2907-2987 would
-    // fix a fresh install and leave every existing one broken, because an
-    // install that has already run them never replays them.
-    //
-    // Guarded on the old value so an administrator who has already picked
-    // their own icon for one of these keeps it -- this repairs FOG's seed, it
-    // does not impose a choice.
+    . "ADD COLUMN `uAPIOnly` ENUM('0','1') NOT NULL DEFAULT '0'"
+];
+// Font Awesome 7: icon names stored as data (steps 361-367 below).
+// The Font Awesome 7 migration renamed the icon *classes* in PHP and JS, but
+// six task types and one task state carry their icon as DATA -- seeded by the
+// steps above and rendered as `fas fa-<stored name>` by fog.task.list.js and
+// the host and group task menus. Every one of the seven is an FA4 outline
+// variant whose `-o` suffix FA7 dropped outright, so after the migration they
+// resolve to nothing and the icon renders blank. The prefix is fine: `fa` is
+// still the solid alias.
+//
+// Appended as steps rather than corrected in place. Editing the historical
+// steps would fix a fresh install and leave every existing one broken, because
+// an install that has already run them never replays them.
+//
+// One `$this->schema[] = []` per step, which is the ONLY thing that makes a
+// statement run on an upgrade. Getting this wrong is not a no-op: FOG_SCHEMA
+// must equal count($this->schema), so raising it without adding a step leaves
+// every server permanently below it, and DatabaseManager::establish() then
+// redirects every request to ?node=schema forever while the updater reports
+// nothing to do. See tests/schema-steps-match-fog-schema.test.php.
+//
+// Each is guarded on the old value so an administrator who has already picked
+// their own icon for one of these keeps it.
+// 361
+$this->schema[] = [
     "UPDATE `taskTypes` SET `ttIcon`='square-plus' "
     . "WHERE `ttID`=4 AND `ttIcon`='plus-square-o'",
+];
+// 362
+$this->schema[] = [
     "UPDATE `taskTypes` SET `ttIcon`='hard-drive' "
     . "WHERE `ttID`=5 AND `ttIcon`='hdd-o'",
+];
+// 363
+$this->schema[] = [
     "UPDATE `taskTypes` SET `ttIcon`='circle-arrow-down' "
     . "WHERE `ttID`=15 AND `ttIcon`='arrow-circle-o-down'",
+];
+// 364
+$this->schema[] = [
     "UPDATE `taskTypes` SET `ttIcon`='circle-arrow-up' "
     . "WHERE `ttID`=16 AND `ttIcon`='arrow-circle-o-up'",
+];
+// 365
+$this->schema[] = [
     // Fast/Normal/Full Wipe are read as a set. Normal already holds
     // `hourglass-2`, which FA7 still resolves as an alias of hourglass-half,
-    // and Full holds `hourglass`, so `hourglass-start` here restores the
+    // and Full holds `hourglass`, so `hourglass-start` restores the
     // progression rather than just picking any surviving hourglass.
     "UPDATE `taskTypes` SET `ttIcon`='hourglass-start' "
     . "WHERE `ttID`=18 AND `ttIcon`='hourglass-o'",
+];
+// 366
+$this->schema[] = [
     "UPDATE `taskTypes` SET `ttIcon`='flag' "
     . "WHERE `ttID`=22 AND `ttIcon`='flag-o'",
+];
+// 367
+$this->schema[] = [
     "UPDATE `taskStates` SET `tsIcon`='bookmark' "
     . "WHERE `tsID`=1 AND `tsIcon`='bookmark-o'",
 ];

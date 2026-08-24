@@ -222,17 +222,45 @@ if (!preg_match(
 }
 $schema = (int)$const[1];
 
-if ($schema < $highest) {
+/*
+ * Compared for EQUALITY, not `<`. Both directions strand a server and the
+ * docblock above says so, but this check was one-directional and only the
+ * low side was enforced -- so the worse half went unguarded and then shipped.
+ *
+ * #1338 raised FOG_SCHEMA 360 -> 367 while appending its seven statements to
+ * the previous step's array instead of writing seven `$this->schema[] = [...]`
+ * of their own. No new label, no new append, nothing for either check above to
+ * catch, and `$schema < $highest` is false when $schema is HIGHER. Every check
+ * in CI passed, a fresh install was correct because the statements still ran
+ * inside that last step, and every EXISTING server was left permanently on
+ * ?node=schema: count($this->schema) == mySchema, so the updater reported
+ * nothing to do and never advanced the version past 360, while
+ * DatabaseManager::establish() went on redirecting every request to it.
+ *
+ * FOG_SCHEMA too HIGH is the unrecoverable direction -- a server cannot leave
+ * the schema page to fix itself -- so it is worth the stricter comparison even
+ * though it means a deliberate skip in the numbering is now a failure. There
+ * has never been one.
+ */
+if ($schema !== $highest) {
+    $why = $schema < $highest
+        ? "  Every step after $schema applies to nobody: the coarse gate\n"
+            . "  (mySchema < FOG_SCHEMA) never sends anyone to the schema\n"
+            . "  updater, so the updater's own count check never runs. There\n"
+            . "  is no error and no log line -- the step is never applied.\n"
+        : "  FOG_SCHEMA is ABOVE the last step, so no server can ever reach\n"
+            . "  it: the updater has nothing to apply, never advances the\n"
+            . "  stored version, and every page redirects to ?node=schema\n"
+            . "  permanently. The usual cause is statements appended INSIDE\n"
+            . "  the previous step's array rather than as new\n"
+            . "  `\$this->schema[] = [...]` entries of their own.\n";
     fwrite(
         STDERR,
         "FAIL: FOG_SCHEMA is $schema but commons/schema.php goes to "
         . "$highest.\n"
-        . "  Every step after $schema applies to nobody: the coarse gate\n"
-        . "  (mySchema < FOG_SCHEMA) never sends anyone to the schema\n"
-        . "  updater, so the updater's own count check never runs. There is\n"
-        . "  no error and no log line -- the step is simply never applied.\n"
+        . $why
         . "  Set FOG_SCHEMA to $highest in packages/web/lib/fog/"
-        . "system.class.php.\n"
+        . "system.class.php, or add the missing step.\n"
     );
     exit(1);
 }
