@@ -405,7 +405,7 @@
               + '" class="taskitem" data-task-name="'
               + $.escapeHtml(row.tasktypename + ' - ' + row.hostname)
               + '" title="Run this task again">'
-              + '<i class="fa fa-repeat"></i>'
+              + '<i class="fas fa-arrow-rotate-right"></i>'
               + '</a>';
           },
           targets: 6

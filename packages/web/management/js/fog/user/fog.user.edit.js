@@ -127,10 +127,10 @@
                         }
                         if (data > 0) {
                             return '<span class="badge bg-success">'
-                                + '<i class="fa fa-check-circle"></i></span>';
+                                + '<i class="fas fa-circle-check"></i></span>';
                         }
                         return '<span class="badge bg-danger">'
-                            + '<i class="fa fa-times-circle"></i></span>';
+                            + '<i class="fas fa-circle-xmark"></i></span>';
                     },
                     targets: 4
                 }

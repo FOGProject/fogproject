@@ -115,7 +115,7 @@ unset($this->stylesheets);
                     <li class="nav-item">
                         <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
                             <span class="visually-hidden"><?= _('Toggle navigation'); ?></span>
-                            <i class="fa fa-bars"></i>
+                            <i class="fas fa-bars"></i>
                         </a>
                     </li>
                     <li class="nav-item d-none d-md-block">
@@ -129,11 +129,11 @@ unset($this->stylesheets);
                            data-label-light="<?= _('Switch to dark mode'); ?>"
                            title="<?= _('Toggle dark mode'); ?>"
                            aria-label="<?= _('Toggle dark mode'); ?>">
-                            <i class="fa fa-moon-o"></i>
+                            <i class="far fa-moon"></i>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=logout"><i class="fa fa-sign-out"></i> <?= _('Logout'); ?></a>
+                        <a class="nav-link" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket"></i> <?= _('Logout'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -169,7 +169,7 @@ unset($this->stylesheets);
                             <?php if (self::$pluginIsAvailable): ?>
                                 <li class="nav-header">
                                     <?= _('PLUGIN OPTIONS'); ?>
-                                    <a href="#" class="plugin-options-alternate float-end"><i class="fa fa-minus"></i></a>
+                                    <a href="#" class="plugin-options-alternate float-end"><i class="fas fa-minus"></i></a>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -180,10 +180,10 @@ unset($this->stylesheets);
                         <?php endif; ?>
                         <ul class="nav sidebar-menu flex-column">
                             <li class="nav-header"><?= _('RESOURCES'); ?></li>
-                            <li class="nav-item"><a class="nav-link" href="https://sourceforge.net/donate/index.php?group_id=201099" target="_blank"><i class="nav-icon fa fa-money"></i><p><?= _('Donate'); ?></p></a></li>
-                            <li class="nav-item"><a class="nav-link" href="https://news.fogproject.org" target="_blank"><i class="nav-icon fa fa-bullhorn"></i><p><?= _('News'); ?></p></a></li>
-                            <li class="nav-item"><a class="nav-link" href="https://forums.fogproject.org" target="_blank"><i class="nav-icon fa fa-users"></i><p><?= _('Forums'); ?></p></a></li>
-                            <li class="nav-item"><a class="nav-link" href="https://docs.fogproject.org" target="_blank"><i class="nav-icon fa fa-book"></i><p><?= _('Documentation'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://sourceforge.net/donate/index.php?group_id=201099" target="_blank"><i class="nav-icon fas fa-money-bill-1"></i><p><?= _('Donate'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://news.fogproject.org" target="_blank"><i class="nav-icon fas fa-bullhorn"></i><p><?= _('News'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://forums.fogproject.org" target="_blank"><i class="nav-icon fas fa-users"></i><p><?= _('Forums'); ?></p></a></li>
+                            <li class="nav-item"><a class="nav-link" href="https://docs.fogproject.org" target="_blank"><i class="nav-icon fas fa-book"></i><p><?= _('Documentation'); ?></p></a></li>
                         </ul>
                     </nav>
                 </div>

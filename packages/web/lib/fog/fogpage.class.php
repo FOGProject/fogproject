@@ -304,19 +304,19 @@ abstract class FOGPage extends FOGBase
         parent::__construct();
         self::$FOGCollapseBox = self::makeButton(
             '',
-            '<i class="fa fa-minus"></i>',
+            '<i class="fas fa-minus"></i>',
             'btn btn-tool',
             'data-lte-toggle="card-collapse"'
         );
         self::$FOGExpandBox = self::makeButton(
             '',
-            '<i class="fa fa-plus"></i>',
+            '<i class="fas fa-plus"></i>',
             'btn btn-tool',
             'data-lte-toggle="card-maximize"'
         );
         self::$FOGCloseBox = self::makeButton(
             '',
-            '<i class="fa fa-times"></i>',
+            '<i class="fas fa-xmark"></i>',
             'btn btn-tool',
             'data-lte-toggle="card-remove"'
         );
@@ -440,78 +440,78 @@ abstract class FOGPage extends FOGBase
         $menu = [
             'home' => [
                 self::$foglang['Dashboard'],
-                'fa fa-dashboard'
+                'fas fa-gauge-high'
             ],
             'host' => [
                 self::$foglang['Hosts'],
-                'fa fa-desktop'
+                'fas fa-desktop'
             ],
             'group' => [
                 self::$foglang['Groups'],
-                'fa fa-sitemap'
+                'fas fa-sitemap'
             ],
             'image' => [
                 self::$foglang['Images'],
-                'fa fa-hdd-o'
+                'far fa-hard-drive'
             ],
             'snapin' => [
                 self::$foglang['Snapins'],
-                'fa fa-cube'
+                'fas fa-cube'
             ],
             'storagegroup' => [
                 self::$foglang['Storagegroups'],
-                'fa fa-object-group'
+                'far fa-object-group'
             ],
             'storagenode' => [
                 self::$foglang['Storagenodes'],
-                'fa fa-archive'
+                'fas fa-server'
             ],
             'printer' => [
                 self::$foglang['Printers'],
-                'fa fa-print'
+                'fas fa-print'
             ],
             'module' => [
                 _('Modules'),
-                'fa fa-cogs'
+                'fas fa-sliders'
             ],
             'task' => [
                 self::$foglang['Tasks'],
-                'fa fa-tasks'
+                'fas fa-bars-progress'
             ],
             'user' => [
                 self::$foglang['Users'],
-                'fa fa-users'
+                'fas fa-users'
             ],
             'usergroup' => [
                 _('User Groups'),
-                'fa fa-address-book'
+                'fas fa-people-group'
             ],
             'role' => [
                 _('Roles'),
-                'fa fa-key'
+                'fas fa-user-shield'
             ],
             // Beside roles rather than beside hosts: a site says which
             // objects a user may reach, which is the same kind of answer a
             // role gives about which actions.
             'site' => [
                 _('Sites'),
-                'fa fa-map-marker'
+                'fas fa-building'
             ],
             'ipxe' => [
                 _('iPXE Menu'),
-                'fa fa-bars'
+                'fas fa-list-ol'
             ],
             'about' => [
                 self::$foglang['FOG Configuration'],
-                'fa fa-wrench'
+                'fas fa-wrench'
             ],
             'apidocs' => [
                 _('API Documentation'),
-                'fa fa-code'
+                'fas fa-code'
             ],
             'report' => [
                 self::$foglang['Reports'],
-                'fa fa-file-text'
+                'fas fa-file-lines'
             ],
             // Beside Reports, because that is what people will look for it
             // under -- but a node of its own, not a report. The `report`
@@ -521,7 +521,7 @@ abstract class FOGPage extends FOGBase
             // See docs/adr/0023.
             'activity' => [
                 _('Activity'),
-                'fa fa-history'
+                'fas fa-clock-rotate-left'
             ],
             // Next to Activity, and a different page on purpose. Activity is
             // the operational narrative; this is the record of who was
@@ -530,15 +530,15 @@ abstract class FOGPage extends FOGBase
             // from anyone not granted it. See docs/adr/0021.
             'audit' => [
                 _('Audit Log'),
-                'fa fa-shield'
+                'fas fa-clipboard-list'
             ],
             'service' => [
                 self::$foglang['ClientSettings'],
-                'fa fa-cogs'
+                'fas fa-gears'
             ],
             'client' => [
                 _('FOG Client'),
-                'fa fa-cloud-download'
+                'fas fa-cloud-arrow-down'
             ]
         ];
         $pluginSysOn = (bool)self::getSetting('FOG_PLUGINSYS_ENABLED');
@@ -549,7 +549,7 @@ abstract class FOGPage extends FOGBase
                 'plugin',
                 [
                     self::$foglang['Plugins'],
-                    'fa fa-puzzle-piece'
+                    'fas fa-puzzle-piece'
                 ]
             );
         }
@@ -711,7 +711,7 @@ abstract class FOGPage extends FOGBase
         return [
             'useradmin' => [
                 'title'    => _('User Administration'),
-                'icon'     => 'fa fa-shield',
+                'icon'     => 'fas fa-shield',
                 'children' => ['user', 'usergroup', 'role'],
             ],
         ];
@@ -745,7 +745,7 @@ abstract class FOGPage extends FOGBase
         echo '<a class="nav-link' . ($groupActive ? ' active' : '') . '" href="#">';
         echo '<i class="nav-icon ' . $group['icon'] . '"></i>';
         echo '<p>' . $group['title'];
-        echo '<i class="nav-arrow fa fa-angle-left"></i>';
+        echo '<i class="nav-arrow fas fa-angle-left"></i>';
         echo '</p>';
         echo '</a>';
         echo '<ul class="nav nav-treeview">';
@@ -795,7 +795,7 @@ abstract class FOGPage extends FOGBase
         echo '<i class="nav-icon ' . $title[1] . '"></i>';
         echo '<p>' . $title[0];
         if ($hasChildren) {
-            echo '<i class="nav-arrow fa fa-angle-left"></i>';
+            echo '<i class="nav-arrow fas fa-angle-left"></i>';
         }
         echo '</p>';
         echo '</a>';
@@ -811,7 +811,7 @@ abstract class FOGPage extends FOGBase
                     . '&sub='
                     . $subItem
                     . '">';
-                echo '<i class="nav-icon fa fa-circle-o"></i>';
+                echo '<i class="nav-icon far fa-circle"></i>';
                 echo '<p>' . $text . '</p>';
                 echo '</a>';
                 echo '</li>';

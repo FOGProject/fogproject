@@ -67,7 +67,7 @@
         var icon = toggle.querySelector('i');
         if (icon) {
             // Show the action the click will perform: sun when dark, moon when light.
-            icon.className = isDark ? 'fa fa-sun-o' : 'fa fa-moon-o';
+            icon.className = isDark ? 'far fa-sun' : 'far fa-moon';
         }
         var label = isDark
             ? (toggle.getAttribute('data-label-dark') || '')

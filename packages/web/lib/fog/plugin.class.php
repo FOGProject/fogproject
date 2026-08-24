@@ -353,7 +353,7 @@ class Plugin extends FOGController
         return [
             'name' => strtolower($string('name', basename(rtrim($dir, DS)))),
             'description' => $string('description'),
-            'menuicon' => $string('menuicon', 'fa fa-plug fa-fw'),
+            'menuicon' => $string('menuicon', 'fas fa-plug fa-fw'),
             'version' => $string('version'),
             'fog_min' => $string('fog_min'),
             'fog_max' => $string('fog_max'),
