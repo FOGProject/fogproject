@@ -9854,7 +9854,47 @@ configureHttpd() {
     dots "Dropping the stale class file list"
     rm -f $fogprogramdir/cache/filelist.*.json >>$error_log 2>&1
     errorStat $?
-    for i in $(find ${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name gpl-3.0.txt -a -not -name index.php -a -not -name 'ca.*' 2>>$error_log); do
+    # management/other/ is where an administrator's own files live, and the
+    # rm -rf above took them with it, so they are restored from the backup.
+    #
+    # What must NOT come back is anything FOG owns, and FOG owns three
+    # different kinds of file in here:
+    #
+    #   1. what this release ships there. Asked of the source tree rather than
+    #      named, so the answer cannot drift from what is actually shipped.
+    #      This used to be `gpl-3.0.txt` and `index.php` spelled out in the
+    #      find below -- a second, hand-kept description of the release.
+    #   2. what FOG shipped there in the PAST and has since dropped. The
+    #      source tree CANNOT see these: a file the release no longer ships is
+    #      indistinguishable from one the administrator put there, so
+    #      retirement has to be recorded, and that is what retired_web_other
+    #      is for. Without it a dropped file is copied back out of the backup
+    #      on every upgrade for the rest of the server's life -- which is what
+    #      kept management/other/_variables.scss, a Font Awesome 4 icon list
+    #      dead since the FA7 migration, on every upgraded install with no way
+    #      to leave.
+    #   3. ca.*, which is not shipped in the tree at all but MINTED into this
+    #      directory by _installCATrustAnchor(). Restoring the previous one
+    #      over a freshly generated CA would hand the server a stale trust
+    #      anchor -- the certificate fog-client pins and iPXE is built
+    #      against. Named here rather than derived, because there is nothing
+    #      to derive it from.
+    #
+    # retired_web_other is APPEND-ONLY. Dropping an entry lets the file return
+    # from the backup held by every server that still has one. Add a name here
+    # in the same commit that removes the file from packages/web.
+    local retired_web_other=(_variables.scss)
+    local otherfile
+    for i in $(find ${DB_backup_path}/fog_web_${version}.BACKUP/management/other/ -maxdepth 1 -type f -not -name 'ca.*' 2>>$error_log); do
+        otherfile=$(basename "$i")
+        if [[ -e ${webdirsrc}/management/other/${otherfile} ]]; then
+            continue
+        fi
+        case " ${retired_web_other[*]} " in
+            *" ${otherfile} "*)
+                continue
+                ;;
+        esac
         cp -Rf $i ${webdirdest}/management/other/ >>$error_log 2>&1
     done
     if [[ ${FOG_install_lang} == yes ]]; then
