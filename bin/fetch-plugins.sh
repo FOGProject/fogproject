@@ -149,7 +149,28 @@ echo "$pluginsVer" > "$staging/.fog-plugins-version"
 (cd "$staging" && find . -type f | sed 's|^\./||' | grep -v '^\.fog-plugins-') \
     | sort > "$tmp/manifest"
 mv "$tmp/manifest" "$staging/.fog-plugins-manifest"
-rm -rf "$dest"
-mkdir -p "$(dirname "$dest")"
-mv "$staging" "$dest"
+# Checked, unlike the steps above, because this is the only point where a
+# failure produces a WRONG ANSWER rather than an error. `set -e` is
+# deliberately not on -- the download loop needs to tolerate failures and retry
+# -- so an unguarded rm/mv here printed its error to stderr, fell through, and
+# the script still announced success and exited 0. Hit for real on a tree left
+# root-owned by a previous install: every operation failed, "Plugins at
+# v1.6.15" was printed, and v1.6.14 was still on disk. The installer's
+# downloadplugins reports that as done, so the run ships the OLD plugin release
+# against the new core -- after the Font Awesome 7 migration, that is FA4 icon
+# names against a core with no v4 shims, and the version stamp still names the
+# old release, so nothing downstream can tell either.
+if ! rm -rf "$dest"; then
+    echo "Could not replace $dest" >&2
+    echo "Check ownership and permissions on $(dirname "$dest")" >&2
+    exit 1
+fi
+if ! mkdir -p "$(dirname "$dest")"; then
+    echo "Could not create $(dirname "$dest")" >&2
+    exit 1
+fi
+if ! mv "$staging" "$dest"; then
+    echo "Could not move the unpacked plugins into $dest" >&2
+    exit 1
+fi
 say "Plugins at $pluginsVer"

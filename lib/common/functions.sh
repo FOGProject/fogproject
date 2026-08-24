@@ -2652,9 +2652,15 @@ downloadplugins() {
         # Guidance first: errorStat exits before returning unless $exitFail is
         # set, so anything printed after it is never seen.
         echo "Failed!"
-        echo " * Could not download the plugins (${pluginsVer}) from $pluginsgit"
+        echo " * Could not install the plugins (${pluginsVer}) from $pluginsgit"
         echo " * For an offline install, place the plugin directories in"
         echo " *   packages/web/lib/plugins/ and re-run"
+        # The fetcher fails for two unrelated reasons -- it could not reach a
+        # verified release, or it could not write the tree -- and only the
+        # first is what the guidance above describes. Both write their reason
+        # to stderr, which --quiet does not touch, so point at the log rather
+        # than guessing which one happened.
+        echo " * Full error in $error_log"
         [[ -z $exitFail ]] && exit 1
         return 1
     fi
