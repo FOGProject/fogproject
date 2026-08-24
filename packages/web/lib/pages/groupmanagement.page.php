@@ -2649,7 +2649,7 @@ class GroupManagement extends FOGPage
                 . $id
                 . '&type='
                 . $TaskType->id
-                . '" class="taskitem"><i class="fa fa-'
+                . '" class="taskitem"><i class="fas fa-'
                 . $TaskType->icon
                 . ' fa-2x"></i><br/>'
                 . $TaskType->name

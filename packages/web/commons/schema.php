@@ -7586,4 +7586,37 @@ $this->schema[] = count($columnuAPIOnly ?: []) ? [] : [
     // is a service account reachable only through an issued Bearer token.
     "ALTER TABLE `users` "
     . "ADD COLUMN `uAPIOnly` ENUM('0','1') NOT NULL DEFAULT '0'",
+    // The Font Awesome 7 migration renamed the icon *classes* in PHP and JS,
+    // but six task types and one task state carry their icon as DATA -- seeded
+    // by steps 2907-2987 above and rendered as `fa fa-<stored name>` by
+    // fog.task.list.js, the host and group task menus, and Task Management.
+    // Every one of the seven is an FA4 outline variant whose `-o` suffix FA7
+    // dropped outright, so after the migration they resolve to nothing and the
+    // icon renders blank. The prefix is fine: `fa` is still the solid alias.
+    //
+    // Appended rather than corrected in place. Editing steps 2907-2987 would
+    // fix a fresh install and leave every existing one broken, because an
+    // install that has already run them never replays them.
+    //
+    // Guarded on the old value so an administrator who has already picked
+    // their own icon for one of these keeps it -- this repairs FOG's seed, it
+    // does not impose a choice.
+    "UPDATE `taskTypes` SET `ttIcon`='square-plus' "
+    . "WHERE `ttID`=4 AND `ttIcon`='plus-square-o'",
+    "UPDATE `taskTypes` SET `ttIcon`='hard-drive' "
+    . "WHERE `ttID`=5 AND `ttIcon`='hdd-o'",
+    "UPDATE `taskTypes` SET `ttIcon`='circle-arrow-down' "
+    . "WHERE `ttID`=15 AND `ttIcon`='arrow-circle-o-down'",
+    "UPDATE `taskTypes` SET `ttIcon`='circle-arrow-up' "
+    . "WHERE `ttID`=16 AND `ttIcon`='arrow-circle-o-up'",
+    // Fast/Normal/Full Wipe are read as a set. Normal already holds
+    // `hourglass-2`, which FA7 still resolves as an alias of hourglass-half,
+    // and Full holds `hourglass`, so `hourglass-start` here restores the
+    // progression rather than just picking any surviving hourglass.
+    "UPDATE `taskTypes` SET `ttIcon`='hourglass-start' "
+    . "WHERE `ttID`=18 AND `ttIcon`='hourglass-o'",
+    "UPDATE `taskTypes` SET `ttIcon`='flag' "
+    . "WHERE `ttID`=22 AND `ttIcon`='flag-o'",
+    "UPDATE `taskStates` SET `tsIcon`='bookmark' "
+    . "WHERE `tsID`=1 AND `tsIcon`='bookmark-o'",
 ];

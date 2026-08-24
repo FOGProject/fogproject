@@ -42,7 +42,7 @@
                     }
                     return '<span class="badge bg-'
                         + label
-                        + '"><i class="fa fa-'
+                        + '"><i class="fas fa-'
                         + check
                         + '"></i></span>';
                 },
@@ -59,7 +59,7 @@
                     }
                     return '<span class="badge bg-'
                         + label
-                        + '"><i class="fa fa-'
+                        + '"><i class="fas fa-'
                         + check
                         + '"></i></span>';
                 },

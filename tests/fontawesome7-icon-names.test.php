@@ -228,4 +228,81 @@ $t->check(
     && (bool)preg_match("/closer: 'fas fa-xmark'/", $common)
 );
 
+// ---------------------------------------------------------------------------
+// 5. Icon names that live in the DATABASE, not in a class attribute.
+//
+// The check above scans source for a literal `fas fa-name`, so it is blind to
+// the icons FOG stores as data. taskTypes.ttIcon and taskStates.tsIcon hold a
+// bare icon name -- no prefix -- seeded by commons/schema.php and rendered by
+// fog.task.list.js and the host/group task menus as `fas fa-<stored name>`.
+//
+// That blind spot shipped: the FA7 migration renamed every class in core and
+// left seven seeded values on FA4 outline names FA7 dropped (plus-square-o,
+// hdd-o, arrow-circle-o-down, arrow-circle-o-up, hourglass-o, flag-o and
+// bookmark-o), so six task types and the Queued state rendered blank on every
+// upgraded and every fresh install. Nothing in the suite could see it, because
+// nothing in the suite reads the seed.
+//
+// Pinned against the shipped stylesheet, the same authority section 3 uses.
+// The final value for an id is whichever step sets it last, so the seed is
+// replayed in file order rather than collected -- taking every literal would
+// fail on the historical steps that are SUPPOSED to hold the old names, which
+// are deliberately never edited (an install that has run them never replays
+// them, so a correction has to be appended instead).
+// ---------------------------------------------------------------------------
+$schemaSrc = file_get_contents($root . '/packages/web/commons/schema.php');
+// Statements in this file are written as PHP string concatenations wrapped
+// across lines, so the glue is folded away first -- otherwise the pattern
+// below silently sees only the steps that happen to fit on one line, which is
+// every historical step and none of the appended corrections. That reads as
+// the bug still being present.
+$schemaSrc = preg_replace('/[\x27"]\s*\.\s*[\x27"]/', '', $schemaSrc);
+$seeded = [];
+$pattern = '/`(taskTypes|taskStates)`\s+SET\s+`(ttIcon|tsIcon)`\s*=\s*'
+    . "'([^']+)'\s+WHERE\s+`(ttID|tsID)`\s*=\s*(\d+)/i";
+if (preg_match_all($pattern, $schemaSrc, $mm, PREG_SET_ORDER)) {
+    foreach ($mm as $row) {
+        // Last write wins, exactly as a replay from step 0 would leave it.
+        $seeded[$row[1] . '#' . $row[5]] = $row[3];
+    }
+}
+$t->check(
+    sprintf('the seeded icon names were found (%d)', count($seeded)),
+    count($seeded) >= 20
+);
+
+$deadSeed = [];
+foreach ($seeded as $where => $value) {
+    // A stored value may carry modifiers -- taskStates 3 is
+    // "spinner fa-pulse fa-fw" -- and only the first token is the icon.
+    $name = strtok(trim($value), ' ');
+    if (!preg_match('/\.fa-' . preg_quote($name, '/') . '[,:{ ]/', $cssSrc)) {
+        $deadSeed[] = $where . ' => ' . $value;
+    }
+}
+$t->check(
+    sprintf(
+        'every seeded icon name resolves in the shipped CSS%s',
+        [] === $deadSeed ? '' : ' -- DEAD: ' . implode(', ', $deadSeed)
+    ),
+    [] === $deadSeed
+);
+
+// The renderers that compose those values must not be left on the old prefix
+// either. They evade the bare-form check in section 2 because the name is
+// concatenated on, so the literal ends at the quote and matches nothing.
+$concat = [];
+foreach ($files as $path) {
+    if (preg_match_all('/\bfa fa-[\x27"]/', file_get_contents($path))) {
+        $concat[] = str_replace($root . '/', '', $path);
+    }
+}
+$t->check(
+    sprintf(
+        'no renderer concatenates onto the bare "fa fa-" prefix%s',
+        [] === $concat ? '' : ' -- FOUND: ' . implode(', ', $concat)
+    ),
+    [] === $concat
+);
+
 $t->finish();
