@@ -141,7 +141,7 @@
       if (!$(this).prev().hasClass('input-group-text')) {
         $(this).before(
           '<span class="input-group-text">'
-          + '<i class="fa fa-eye-slash fogpasswordeye"></i></span>'
+          + '<i class="far fa-eye-slash fogpasswordeye"></i></span>'
         );
       }
     });

@@ -74,7 +74,7 @@
                         return data;
                     }
                     if (row.needsupdate > 0) {
-                        return data + ' <button type="button" class="btn btn-warning btn-sm plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fa fa-exclamation-triangle"></i> Update available</button>';
+                        return data + ' <button type="button" class="btn btn-warning btn-sm plugin-update-btn" data-id="'+row.id+'" title="Apply pending database update"><i class="fas fa-triangle-exclamation"></i> Update available</button>';
                     }
                     // Not a button: there is nothing the admin can do to this
                     // plugin from here. It states why activating it will be
@@ -83,10 +83,10 @@
                     // no manifest, so compatError() finds nothing wrong and
                     // the row would otherwise look completely ordinary.
                     if (row.missing > 0) {
-                        return data + ' <span class="badge bg-danger" title="The plugin directory is gone. It cannot be activated. Use Forget to remove the row."><i class="fa fa-unlink"></i> Missing</span>';
+                        return data + ' <span class="badge bg-danger" title="The plugin directory is gone. It cannot be activated. Use Forget to remove the row."><i class="fas fa-link-slash"></i> Missing</span>';
                     }
                     if (row.incompatible) {
-                        return data + ' <span class="badge bg-danger" title="'+$('<div/>').text(row.incompatible).html()+'"><i class="fa fa-ban"></i> Incompatible</span>';
+                        return data + ' <span class="badge bg-danger" title="'+$('<div/>').text(row.incompatible).html()+'"><i class="fas fa-ban"></i> Incompatible</span>';
                     }
                     return data;
                 },
@@ -111,8 +111,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {
@@ -125,8 +125,8 @@
                 // Installed status only; the "Update available" action now
                 // rides on the always-visible name column above.
                 render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {

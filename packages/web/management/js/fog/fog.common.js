@@ -25,10 +25,10 @@ var shouldReAuth,
   exportButtons = [
     {
       extend: 'copy',
-      text: '<i class="fa fa-copy"></i> Copy'
+      text: '<i class="fas fa-copy"></i> Copy'
     },
     {
-      text: '<i class="fa fa-file-excel-o"></i> CSV (All)',
+      text: '<i class="far fa-file-excel"></i> CSV (All)',
       // Full server-side export. Replays the table's current DataTables
       // request (active search + sort) but with no row limit, so the
       // exportAll endpoint streams EVERY matching record as CSV -- not just
@@ -46,18 +46,18 @@ var shouldReAuth,
     },
     {
       extend: 'excel',
-      text: '<i class="fa fa-file-excel-o"></i> Excel'
+      text: '<i class="far fa-file-excel"></i> Excel'
     },
     {
       extend: 'print',
-      text: '<i class="fa fa-print"></i> Print'
+      text: '<i class="fas fa-print"></i> Print'
     },
     {
       extend: 'colvis',
-      text: '<i class="fa fa-columns"></i> Column Visibility'
+      text: '<i class="fas fa-table-columns"></i> Column Visibility'
     },
     {
-      text: '<i class="fa fa-refresh"></i> Refresh',
+      text: '<i class="fas fa-arrows-rotate"></i> Refresh',
       action: function(e, dt, node, config) {
         dt.clear().draw();
         dt.ajax.reload();
@@ -70,26 +70,26 @@ var shouldReAuth,
   reportButtons = [
     {
       extend: 'copy',
-      text: '<i class="fa fa-copy"></i> Copy'
+      text: '<i class="fas fa-copy"></i> Copy'
     },
     {
       extend: 'csv',
-      text: '<i class="fa fa-file-excel-o"></i> CSV'
+      text: '<i class="far fa-file-excel"></i> CSV'
     },
     {
       extend: 'excel',
-      text: '<i class="fa fa-file-excel-o"></i> Excel'
+      text: '<i class="far fa-file-excel"></i> Excel'
     },
     {
       extend: 'print',
-      text: '<i class="fa fa-print"></i> Print'
+      text: '<i class="fas fa-print"></i> Print'
     },
     {
       extend: 'colvis',
-      text: '<i class="fa fa-columns"></i> Column Visibility'
+      text: '<i class="fas fa-table-columns"></i> Column Visibility'
     },
     {
-      text: '<i class="fa fa-refresh"></i> Refresh',
+      text: '<i class="fas fa-arrows-rotate"></i> Refresh',
       action: function(e, dt, node, config) {
         dt.clear().draw();
         dt.ajax.reload();
@@ -2465,14 +2465,14 @@ $.fn.registerTable = function(onSelect, opts) {
     buttons: [
       {
         extend: 'selectAll',
-        text: '<i class="fa fa-check-square-o"></i> Select All'
+        text: '<i class="far fa-square-check"></i> Select All'
       },
       {
         extend: 'selectNone',
-        text: '<i class="fa fa-square-o"></i> Deselect All'
+        text: '<i class="far fa-square"></i> Deselect All'
       },
       {
-        text: '<i class="fa fa-refresh"></i> Refresh',
+        text: '<i class="fas fa-arrows-rotate"></i> Refresh',
         action: function(e, dt, node, config) {
           dt.clear().draw();
           dt.ajax.reload();
@@ -2690,7 +2690,7 @@ function macVendorIcon(vendor) {
   // container=body keeps the tooltip from being clipped by the DataTables
   // scroll body (infinite-scroll) and from rendering under the sticky header;
   // placement=right clears the header above the first row.
-  return ' <i class="fa fa-info-circle text-muted mac-vendor-icon" '
+  return ' <i class="fas fa-circle-info text-muted mac-vendor-icon" '
     + 'data-bs-toggle="tooltip" data-bs-placement="right" data-container="body" '
     + 'title="' + esc + '"></i>';
 }
@@ -2747,7 +2747,7 @@ $.fn.setLoading = function(loading) {
 
   if (loading) {
     $(this).append(
-      '<div class="overlay" id="' + loadingId  + '"><i class="fa fa-refresh fa-spin"></i></div>'
+      '<div class="overlay" id="' + loadingId  + '"><i class="fas fa-arrows-rotate fa-spin"></i></div>'
     );
   } else {
     $(this).children('#'+loadingId).remove();;
@@ -3057,7 +3057,27 @@ function setupIntegrations() {
     },
     restartOnRequestAfter: false
   };
-  PNotify.prototype.options.styling = "bootstrap3";
+  // Toasts had no icon at all. PNotify's "bootstrap3" styling emits glyphicon
+  // classes, and glyphicons were dropped by Bootstrap 4 -- so since the BS3->BS5
+  // move every notice rendered its icon slot as an empty box: `content: none`,
+  // zero width, falling back to the body font. Silent, like every icon failure.
+  //
+  // PNotify ships a "fontawesome" styling, but its class names are FA4
+  // (fa-warning, fa-times, fa-exclamation-circle) and we ship no v4 shims, so
+  // switching to it alone would swap one set of blank boxes for another. The
+  // names are overridden here, at our call site, rather than in the vendored
+  // pnotify.min.js -- editing that file means the next upgrade of it silently
+  // reverts the fix, and it is not ours to change.
+  PNotify.prototype.options.styling = "fontawesome";
+  $.extend(PNotify.styling.fontawesome, {
+    notice_icon: 'fas fa-circle-exclamation',
+    info_icon: 'fas fa-circle-info',
+    success_icon: 'fas fa-circle-check',
+    error_icon: 'fas fa-triangle-exclamation',
+    closer: 'fas fa-xmark',
+    pin_up: 'fas fa-pause',
+    pin_down: 'fas fa-play'
+  });
 
   // Extending input mask to add our types (absent on the slim asset set)
   if ($.inputmask) {
@@ -3156,7 +3176,7 @@ function setupUniversalSearch() {
 function setupPasswordReveal() {
   $(':password')
     .not('.fakes, [name="upass"]')
-    .before('<span class="input-group-text"><i class="fa fa-eye-slash fogpasswordeye"></i></span>');
+    .before('<span class="input-group-text"><i class="far fa-eye-slash fogpasswordeye"></i></span>');
   // These are delegated on `document`, which survives AJAX page swaps, while
   // reinitialize() (and thus this function) runs again on every AJAX page
   // load. Namespace and remove them first so they don't accumulate -- two

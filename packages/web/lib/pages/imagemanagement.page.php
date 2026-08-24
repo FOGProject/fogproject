@@ -299,7 +299,7 @@ class ImageManagement extends FOGPage
                 _('Image Type')
                 . '&nbsp;&nbsp;'
                 . self::makeInfoTooltip(
-                    'icon fa fa-info-circle fa-lg hand',
+                    'icon fas fa-circle-info fa-lg hand',
                     'image-type-info',
                     sprintf(
                         _(
@@ -678,7 +678,7 @@ class ImageManagement extends FOGPage
                 _('Image Type')
                 . '&nbsp;&nbsp;'
                 . self::makeInfoTooltip(
-                    'icon fa fa-info-circle fa-lg hand',
+                    'icon fas fa-circle-info fa-lg hand',
                     'image-type-info',
                     sprintf(
                         _(

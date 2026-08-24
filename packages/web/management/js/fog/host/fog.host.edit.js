@@ -751,13 +751,13 @@
                         'type': 'button',
                         'class': 'btn btn-sm btn-secondary snapin-order-up',
                         'title': 'Move up'
-                    }).append($('<i>', {'class': 'fa fa-arrow-up'})),
+                    }).append($('<i>', {'class': 'fas fa-arrow-up'})),
                     ' ',
                     $('<button>', {
                         'type': 'button',
                         'class': 'btn btn-sm btn-secondary snapin-order-down',
                         'title': 'Move down'
-                    }).append($('<i>', {'class': 'fa fa-arrow-down'}))
+                    }).append($('<i>', {'class': 'fas fa-arrow-down'}))
                 );
             hostSnapinOrderList.append(
                 $('<li>', {

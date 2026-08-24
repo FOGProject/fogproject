@@ -287,13 +287,13 @@
           ],
           buttons: reportButtons.concat([
             {
-              text: '<i class="fa fa-eye"></i> Reveal keys',
+              text: '<i class="far fa-eye"></i> Reveal keys',
               action: function(e, dt, node, config) {
                 revealKeys = !revealKeys;
                 $(node).html(
                   revealKeys
-                    ? '<i class="fa fa-eye-slash"></i> Hide keys'
-                    : '<i class="fa fa-eye"></i> Reveal keys'
+                    ? '<i class="far fa-eye-slash"></i> Hide keys'
+                    : '<i class="far fa-eye"></i> Reveal keys'
                 );
                 dt.draw(false);
               }

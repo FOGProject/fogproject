@@ -21,8 +21,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fa fa-check-circle"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fa fa-times-circle"></i></span>';
+                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
+                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {
@@ -45,9 +45,9 @@
                 // Awesome is 4.7.0 and has no fa-robot.
                 render: function(data, type, row) {
                     var apiOnly = '<span class="badge bg-warning">'
-                        + '<i class="fa fa-key"></i></span>';
+                        + '<i class="fas fa-key"></i></span>';
                     var interactive = '<span class="badge bg-secondary">'
-                        + '<i class="fa fa-user"></i></span>';
+                        + '<i class="fas fa-user"></i></span>';
                     if (data > 0) {
                         return apiOnly;
                     }

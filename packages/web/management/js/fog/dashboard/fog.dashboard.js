@@ -344,7 +344,7 @@
       if ($o.data('master')) {
         $row.prepend(
           $('<i>', {
-            'class': 'fa fa-star fa-fw text-yellow',
+            'class': 'fas fa-star fa-fw text-yellow',
             title: 'Primary node',
             'aria-label': 'Primary node'
           })

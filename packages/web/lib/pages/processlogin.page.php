@@ -214,7 +214,7 @@ class ProcessLogin extends FOGPage
             '',
             true
         );
-        echo '<div class="input-group-text"><span class="fa fa-user"></span></div>';
+        echo '<div class="input-group-text"><span class="fas fa-user"></span></div>';
         echo '</div>';
         // Password -- the trailing icon is a button that shows/hides the value
         // so the user can confirm what they typed (see fog.common.js).
@@ -231,7 +231,7 @@ class ProcessLogin extends FOGPage
         echo '<button type="button" class="input-group-text fog-password-toggle"'
             . ' aria-label="' . \Initiator::e(_('Show password')) . '"'
             . ' aria-pressed="false" tabindex="-1">'
-            . '<span class="fa fa-eye"></span></button>';
+            . '<span class="far fa-eye"></span></button>';
         echo '</div>';
         echo '<div class="mb-3">';
         echo self::_getLanguages();
@@ -289,7 +289,7 @@ class ProcessLogin extends FOGPage
      *   $providers[] = [
      *       'label' => _('Sign in with Acme'),
      *       'url'   => '/fog/ext/oidc/start',
-     *       'icon'  => 'fa fa-key'
+     *       'icon'  => 'fas fa-key'
      *   ];
      *
      * The URL is the only part with teeth, and it is checked rather than

@@ -3075,7 +3075,7 @@ class FOGConfigurationPage extends FOGPage
             . 'placeholder="' . _('Search settings') . '" autocomplete="off">';
         echo '<button type="button" id="settings-search-clear" '
             . 'class="btn btn-secondary" title="' . _('Clear') . '">'
-            . '<i class="fa fa-times"></i></button>';
+            . '<i class="fas fa-xmark"></i></button>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -3227,7 +3227,7 @@ class FOGConfigurationPage extends FOGPage
             echo '<h4 class="settings-panel-title" '
                 . 'data-cat="' . \Initiator::e($cat) . '">'
                 . '<span>' . \Initiator::e($cat) . '</span>'
-                . '<i class="fa fa-chevron-down settings-panel-caret"></i>'
+                . '<i class="fas fa-chevron-down settings-panel-caret"></i>'
                 . '</h4>';
             echo '<div class="settings-panel-body">';
             foreach ($catRows as $row) {
@@ -3267,7 +3267,7 @@ class FOGConfigurationPage extends FOGPage
                 if ($wantsrefresh) {
                     // Visual marker only (no own tooltip); the label tooltip
                     // above already carries the reload note.
-                    echo ' <i class="fa fa-refresh text-muted settings-refresh-note"'
+                    echo ' <i class="fas fa-arrows-rotate text-muted settings-refresh-note"'
                         . ' aria-hidden="true"></i>';
                 }
                 echo '</label>';
