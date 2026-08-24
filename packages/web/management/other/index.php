@@ -284,7 +284,7 @@ foreach ((array)$this->javascripts as $javascript) {
 }
 unset($this->javascripts);
 // Drain any queued flash messages and toast them once the JS bundle
-// (jQuery/pnotify) above has loaded. Nonce'd so the CSP allows it.
+// (jQuery/Bootstrap) above has loaded. Nonce'd so the CSP allows it.
 $flashmessages = self::getMessage();
 if ($flashmessages) {
     echo '<script nonce="' . htmlspecialchars(FOG_CSP_NONCE, ENT_QUOTES, 'UTF-8') . '">';
