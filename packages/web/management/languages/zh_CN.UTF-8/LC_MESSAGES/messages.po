@@ -3632,9 +3632,6 @@ msgstr "IP传递是不正确"
 msgid "Icon"
 msgstr "图标"
 
-msgid "Icon File not found"
-msgstr "图标文件未找到"
-
 #, php-format
 msgid "Id and name pairs for %s"
 msgstr ""
@@ -10749,6 +10746,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Hostext updated!"
 #~ msgstr "用户更新"
+
+#~ msgid "Icon File not found"
+#~ msgstr "图标文件未找到"
 
 #, fuzzy
 #~ msgid "Imaging History"

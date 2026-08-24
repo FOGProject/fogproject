@@ -103,6 +103,86 @@ class TaskType extends FOGController
         'icon'
     ];
     /**
+     * The icon list, memoised for the request.
+     *
+     * @var array|null name => codepoint, or null before the first read
+     */
+    private static $_faIcons = null;
+    /**
+     * Every icon name this install can actually render, and its codepoint.
+     *
+     * Read from the shipped Font Awesome stylesheet, which is the same file
+     * the browser loads, so the picker cannot offer a name the page will not
+     * draw. It used to be read from management/other/_variables.scss -- a
+     * Font Awesome *4.7.0* variables file that no stylesheet imported and
+     * nothing regenerated. The Font Awesome 7 migration did not touch it, so
+     * the picker went on offering 786 v4 names of which 148 no longer exist,
+     * including every one of the seven this branch had just repaired in the
+     * database (schema steps 361-367). Picking one wrote the broken state
+     * straight back. A second copy of the icon list is the whole defect;
+     * deriving it from the stylesheet means the next version bump cannot
+     * reintroduce it.
+     *
+     * BRANDS ARE EXCLUDED. FOG renders a stored name as `fas fa-<name>`, and
+     * the brand icons live only in the Brands font, so `fas fa-github` draws
+     * nothing. The stylesheet does not label an icon with its font, but it is
+     * a concatenation and the brand declarations all follow the brands
+     * font-family rule, so that rule's position is the boundary. Matched on
+     * `Font Awesome <n> Brands` rather than a fixed 7 so a version bump does
+     * not silently turn the filter off.
+     *
+     * Regular needs no such filter: in Font Awesome Free every regular icon
+     * name also exists in solid.
+     *
+     * @return array name => codepoint, lowercase hex, sorted by name
+     */
+    private static function _faIcons()
+    {
+        if (null !== self::$_faIcons) {
+            return self::$_faIcons;
+        }
+        self::$_faIcons = [];
+        $path = BASEPATH . 'management/css/font-awesome.min.css';
+        if (!is_readable($path)) {
+            return self::$_faIcons;
+        }
+        $css = (string)file_get_contents($path);
+        $boundary = preg_match(
+            '/font-family:"Font Awesome \d+ Brands"/',
+            $css,
+            $brands,
+            PREG_OFFSET_CAPTURE
+        ) ? $brands[0][1] : strlen($css);
+        // Each icon is `<selectors>{--fa:"\fXXX"}` and the selector list is
+        // where the ALIASES are: `.fa-ban,.fa-cancel{--fa:"\f05e"}` declares
+        // two usable names in one rule. Reading only the first class of each
+        // rule drops every alias.
+        preg_match_all(
+            '/([^{}]+)\{--fa:\s*"\\\\([0-9a-f]+)"/i',
+            $css,
+            $rules,
+            PREG_SET_ORDER | PREG_OFFSET_CAPTURE
+        );
+        foreach ($rules as $rule) {
+            if ($rule[0][1] >= $boundary) {
+                continue;
+            }
+            if (!preg_match_all(
+                '/\.fa-([a-z0-9-]+)(?=[,{:\s]|$)/',
+                $rule[1][0],
+                $names
+            )) {
+                continue;
+            }
+            foreach ($names[1] as $name) {
+                self::$_faIcons[$name] = strtolower($rule[2][0]);
+            }
+        }
+        ksort(self::$_faIcons);
+
+        return self::$_faIcons;
+    }
+    /**
      * Gives the list of icons.
      *
      * @param mixed $selected the current selected item
@@ -112,53 +192,26 @@ class TaskType extends FOGController
     public function iconlist($selected = '')
     {
         $selected = trim($selected);
-        $fh = fopen(
-            '../management/other/_variables.scss',
-            'rb'
-        );
-        if (!$fh) {
-            return _('Icon File not found');
-        }
-        while (($line = fgets($fh)) !== false) {
-            if (!preg_match('#^\$fa\-var\-#', $line)) {
-                continue;
-            }
-            $match = preg_split(
-                '#[:\s|:^\s]+#',
-                trim(
-                    preg_replace(
-                        '#[\$\"\;\\\]|fa\-var\-#',
-                        '',
-                        $line
-                    )
-                )
-            );
-            $match[0] = trim($match[0]);
-            $match[1] = trim($match[1]);
-            $icons[$match[0]] = sprintf(
-                '&#x%s',
-                $match[1]
-            );
-            unset($match);
-        }
-        fclose($fh);
+        $icons = self::_faIcons();
         if (!count($icons)) {
             return _('No icons found');
         }
-        ksort($icons);
         ob_start();
         echo '<select class="form-control fa" id="icon" name="icon">';
-        foreach ((array) $icons as $name => &$unicode) {
+        foreach ($icons as $name => $codepoint) {
+            // The character itself, not an `&#x...` entity. Initiator::e()
+            // html-escapes what it is given, and the old code passed it an
+            // entity with no trailing semicolon -- which htmlspecialchars
+            // cannot recognise as one even with double_encode off, so every
+            // option rendered the literal text `&#xf02b` rather than a glyph.
             printf(
                 '<option value="%s"%s>%s %s</option>',
                 \Initiator::e($name),
                 $selected == $name ? ' selected' : '',
-                \Initiator::e($unicode),
+                \Initiator::e(mb_chr(hexdec($codepoint), 'UTF-8')),
                 \Initiator::e($name)
             );
-            unset($unicode, $name);
         }
-        unset($icons);
 
         return sprintf(
             '%s</select>',

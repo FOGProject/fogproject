@@ -3495,9 +3495,6 @@ msgstr "指定された IP アドレスが正しくありません"
 msgid "Icon"
 msgstr "アイコン"
 
-msgid "Icon File not found"
-msgstr "アイコンファイルが見つかりません"
-
 #, php-format
 msgid "Id and name pairs for %s"
 msgstr ""
@@ -10850,6 +10847,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "IP of host appears to be"
 #~ msgstr "このノードはオンラインではないようです"
+
+#~ msgid "Icon File not found"
+#~ msgstr "アイコンファイルが見つかりません"
 
 #~ msgid "If a new module is published the client will"
 #~ msgstr "新しいモジュールが公開されると、クライアントは"
