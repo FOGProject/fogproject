@@ -121,6 +121,196 @@ class BootMenu extends FOGBase
      */
     private static $_exitTypes = [];
     /**
+     * The resolved architecture profile, memoised by _arch()
+     *
+     * @var array|null
+     */
+    private static $_archProfile = null;
+    /**
+     * Lines to show the operator about how this boot was resolved
+     *
+     * @var array
+     */
+    private $_notices = [];
+    /**
+     * Everything that varies with the booting machine's architecture.
+     *
+     * iPXE tells us what it is: default.ipxe posts "param arch ${arch}",
+     * derived from ${buildarch} (with a cpuid promotion of a 32-bit build
+     * running on a 64-bit CPU), and every chain this class emits carries it
+     * forward. The value is therefore the architecture of the iPXE binary
+     * DHCP handed the machine -- see the option-93 classes the installer
+     * writes into dhcpd.conf -- not a guess.
+     *
+     * This used to be six separate stripos($_REQUEST['arch'], 'arm') tests
+     * scattered through the file, one beside each thing that varies, so
+     * adding an architecture meant finding all of them and an architecture
+     * FOG has no kernel for silently got the x86_64 one. One table instead:
+     * every consumer looks its answer up here.
+     *
+     * 'warn' is set only when the client named an architecture FOG ships no
+     * FOS kernel for. An ABSENT arch is not that -- plenty of internal
+     * chains post no arch at all -- so it resolves to x86_64 silently, the
+     * behaviour that has always been in place.
+     *
+     * @return array the profile for this request
+     */
+    private static function _arch()
+    {
+        if (null !== self::$_archProfile) {
+            return self::$_archProfile;
+        }
+        $x86 = [
+            'id' => 'x86_64',
+            'label' => '64-bit x86',
+            'isArm' => false,
+            'kernelKey' => 'FOG_TFTP_PXE_KERNEL',
+            'initKey' => 'FOG_PXE_BOOT_IMAGE',
+            'grubBinary' => 'grub.exe',
+            'grubConfigFlag' => '--config-file',
+            'refindBinary' => 'refind_x64.efi',
+            'refindConf' => true,
+            'mokManager' => 'secureboot/mmx64.efi',
+            'memdisk' => true,
+            'warn' => '',
+        ];
+        $profiles = [
+            'x86_64' => $x86,
+            'i386' => array_merge(
+                $x86,
+                [
+                    'id' => 'i386',
+                    'label' => '32-bit x86',
+                    'kernelKey' => 'FOG_TFTP_PXE_KERNEL_32',
+                    'initKey' => 'FOG_PXE_BOOT_IMAGE_32',
+                    'refindBinary' => 'refind_ia32.efi',
+                    // No signed 32-bit UEFI shim exists to chain to.
+                    'mokManager' => '',
+                ]
+            ),
+            'arm64' => array_merge(
+                $x86,
+                [
+                    'id' => 'arm64',
+                    'label' => '64-bit ARM',
+                    'isArm' => true,
+                    'kernelKey' => 'FOG_TFTP_PXE_KERNEL_ARM',
+                    'initKey' => 'FOG_PXE_BOOT_IMAGE_ARM',
+                    'grubBinary' => 'grub_aa64.exe',
+                    // --configfile, not --config-file. Kept as it has always
+                    // been emitted rather than "corrected" to match the x86
+                    // spelling: which one grub_aa64.exe accepts is a property
+                    // of that binary, and changing it here would be a silent
+                    // behaviour change on the one path that cannot be tested
+                    // from an x86 machine.
+                    'grubConfigFlag' => '--configfile',
+                    'refindBinary' => 'refind_aa64.efi',
+                    // The arm build chains rEFInd directly; there is no
+                    // aarch64 refind.conf staged beside it to imgfetch.
+                    'refindConf' => false,
+                    // arm64's MokManager is mmaa64.efi, NOT mmx64.efi -- the
+                    // binary is named for the architecture it runs on, and
+                    // fog-ipxe stages it under that name. Chaining to
+                    // arm64-efi/mmx64.efi is a file that has never existed.
+                    'mokManager' => 'secureboot/arm64-efi/mmaa64.efi',
+                    // memdisk is a 16-bit x86 real-mode loader. There is no
+                    // aarch64 build of it and there never will be.
+                    'memdisk' => false,
+                ]
+            ),
+        ];
+        $raw = strtolower(trim((string)($_REQUEST['arch'] ?? '')));
+        if ('' === $raw || 'x86_64' === $raw) {
+            self::$_archProfile = $profiles['x86_64'];
+            return self::$_archProfile;
+        }
+        if ('i386' === $raw) {
+            self::$_archProfile = $profiles['i386'];
+            return self::$_archProfile;
+        }
+        $profile = false !== stripos($raw, 'arm')
+            ? $profiles['arm64']
+            : $profiles['x86_64'];
+        // Anything that is not one of the three FOG builds a kernel for.
+        // arm32 lands here too: it matches on 'arm' and so is handed the
+        // aarch64 files, which is the same thing that used to happen
+        // silently -- the difference is that the operator is now told, on
+        // screen, why the boot is about to fail.
+        if (!in_array($raw, ['x86_64', 'i386', 'arm64'], true)) {
+            $profile['warn'] = sprintf(
+                'echo FOG ships no boot kernel for %s -- trying the %s one.',
+                self::_echoSafe($raw),
+                $profile['id']
+            );
+        }
+        self::$_archProfile = $profile;
+
+        return self::$_archProfile;
+    }
+    /**
+     * Whether a kernel or init filename belongs to this machine's
+     * architecture.
+     *
+     * A per-host or per-group kernel/init override is a bare filename with
+     * no architecture in it, and `hosts` stores no architecture at all, so
+     * nothing at edit time can warn an admin that the kernel they picked is
+     * wrong for some of the machines it will reach. Setting a kernel on a
+     * mixed group therefore handed an x86 bzImage to every ARM member,
+     * silently, undoing the arch selection made moments earlier.
+     *
+     * Only the arm/non-arm split is policed. i386 code runs on x86_64, so a
+     * deliberate 32-bit override is a legitimate choice and is left alone;
+     * aarch64 and x86 are not the same instruction set in either direction,
+     * so an override across that line can only ever fail to boot.
+     *
+     * The test is the `arm` filename prefix -- the convention every kernel
+     * and init FOG ships follows (arm_Image, arm_init.cpio.gz), and the same
+     * one FOGPage::kernelFileList() already keys off.
+     *
+     * @param string $file the stored override
+     *
+     * @return bool
+     */
+    private static function _fileFitsArch($file)
+    {
+        $file = trim((string)$file);
+        if ('' === $file) {
+            return true;
+        }
+
+        return (0 === stripos(basename($file), 'arm')) === self::_arch()['isArm'];
+    }
+    /**
+     * Applies a host's kernel/init override to the arch-selected default.
+     *
+     * @param string $field   'kernel' or 'init'
+     * @param string $default what the architecture profile selected
+     *
+     * @return string the filename to boot
+     */
+    private function _hostOverride($field, $default)
+    {
+        $override = trim((string)self::$Host->get($field));
+        if ('' === $override) {
+            return $default;
+        }
+        if (self::_fileFitsArch($override)) {
+            return $override;
+        }
+        // Say so on screen rather than just ignoring it: from the operator's
+        // side an ignored override and an honoured one look identical, and
+        // the machine that is misconfigured is the one that needs telling.
+        $this->_notices[] = sprintf(
+            'echo Ignoring host %s %s -- this machine is %s. Using %s.',
+            $field,
+            self::_echoSafe($override),
+            self::_arch()['label'],
+            self::_echoSafe($default)
+        );
+
+        return $default;
+    }
+    /**
      * Builds the std class property and value items as appropriate
      *
      * @param object $object
@@ -206,8 +396,19 @@ class BootMenu extends FOGBase
     public function __construct()
     {
         parent::__construct();
-        $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub.exe '
-            . '--config-file="%s"';
+        $arch = self::_arch();
+        /**
+         * GH: the arch-specific grub binary used to be swapped in AFTER the
+         * $grub array below had already been sprintf()'d from the x86 one,
+         * so the aarch64 branch was dead code and an ARM client choosing any
+         * grub exit type was handed grub.exe. Resolving the architecture
+         * first is what makes that branch actually reach the exit types.
+         */
+        $grubChain = sprintf(
+            'chain -ar ${boot-url}/service/ipxe/%s %s="%%s"',
+            $arch['grubBinary'],
+            $arch['grubConfigFlag']
+        );
 
         /** Booting to hard disk via sanboot
          * The default for both FOG_BOOT_EXIT_TYPE and FOG_EFI_BOOT_EXIT_TYPE, and
@@ -238,32 +439,32 @@ class BootMenu extends FOGBase
                 'find --set-root /BOOTMGR;chainloader /BOOTMGR"'
             )
         ];
-        $refindfile = 'refind_x64.efi';
-        if (file_exists(BASEPATH . '/service/ipxe/refind.efi')) {
+        /**
+         * The generic refind.efi is preferred over the arch-suffixed build
+         * when one is staged, but only where the arch-suffixed name would
+         * have been refind_x64.efi -- the unsuffixed binary is an x86_64
+         * one, so substituting it for the ia32 or aa64 build would hand the
+         * machine a loader it cannot execute.
+         */
+        $refindfile = $arch['refindBinary'];
+        if ('refind_x64.efi' === $refindfile
+            && file_exists(BASEPATH . '/service/ipxe/refind.efi')
+        ) {
             $refindfile = 'refind.efi';
         }
         $refind = sprintf(
-            'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-            . 'chain -ar ${boot-url}/service/ipxe/%s',
-            "\n",
+            'chain -ar ${boot-url}/service/ipxe/%s',
             $refindfile
         );
-        if (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm')) {
-            $grubChain = 'chain -ar ${boot-url}/service/ipxe/grub_aa64.exe '
-                . '--configfile="%s"';
-            $refind = 'chain -ar ${boot-url}/service/ipxe/refind_aa64.efi';
-        }
-        if (false !== stripos(($_REQUEST['arch'] ?? ''), 'i386')) {
-            // use i386 boot loaders instead.
-            if ('refind_x64.efi' === $refindfile) {
-                $refindfile = 'refind_ia32.efi';
-            }
+        if ($arch['refindConf']) {
             $refind = sprintf(
-                'imgfetch ${boot-url}/service/ipxe/refind.conf%s'
-                . 'chain -ar ${boot-url}/service/ipxe/%s',
+                'imgfetch ${boot-url}/service/ipxe/refind.conf%s%s',
                 "\n",
-                $refindfile
+                $refind
             );
+        }
+        if ($arch['warn']) {
+            $this->_notices[] = $arch['warn'];
         }
         self::$_exitTypes = [
             'sanboot' => $sanboot,
@@ -374,15 +575,14 @@ class BootMenu extends FOGBase
             'FOG_KEYMAP',
             'FOG_KEY_SEQUENCE',
             'FOG_MEMTEST_KERNEL',
-            'FOG_PXE_BOOT_IMAGE',
-            'FOG_PXE_BOOT_IMAGE_32',
-            'FOG_PXE_BOOT_IMAGE_ARM',
             'FOG_PXE_HIDDENMENU_TIMEOUT',
             'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
-            'FOG_TFTP_PXE_KERNEL',
-            'FOG_TFTP_PXE_KERNEL_32',
-            'FOG_TFTP_PXE_KERNEL_ARM',
+            // Named by the architecture profile rather than fetching all
+            // six and choosing afterwards, so there is exactly one place
+            // that decides which kernel an architecture boots.
+            $arch['kernelKey'],
+            $arch['initKey'],
         ];
         list(
             $exit,
@@ -393,15 +593,11 @@ class BootMenu extends FOGBase
             $keymap,
             $keySequence,
             $memtest,
-            $imagefile,
-            $init_32,
-            $init_arm,
             $hiddenTimeout,
             $hiddenmenu,
             $menuTimeout,
             $bzImage,
-            $bzImage32,
-            $bzImageArm
+            $imagefile
         ) = self::getSetting($serviceNames);
         $memdisk = 'memdisk';
         $loglevel = $kernelLogLevel;
@@ -416,24 +612,20 @@ class BootMenu extends FOGBase
             $keySequence :
             ''
         );
-        if (($_REQUEST['arch'] ?? '') == 'i386') {
-            $bzImage = $bzImage32;
-            $imagefile = $init_32;
-        } elseif (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm')) {
-            $bzImage = $bzImageArm;
-            $imagefile = $init_arm;
-        }
-        $kernel = $bzImage;
-        if (self::$Host->get('kernel')) {
-            $bzImage = trim(
-                self::$Host->get('kernel')
-            );
-        }
-        if (self::$Host->get('init')) {
-            $imagefile = trim(
-                self::$Host->get('init')
-            );
-        }
+        /**
+         * A host (or the group that wrote to it) can name its own kernel and
+         * init, and that override deliberately wins over the arch default --
+         * but only where it CAN win. See _fileFitsArch(): an x86 filename on
+         * an ARM client, or the reverse, is an override that cannot boot, and
+         * taking it silently discarded the correct arch-selected kernel that
+         * had just been chosen.
+         *
+         * Say so on screen rather than just ignoring it: from the operator's
+         * side an ignored override and an honoured one look identical, and
+         * the machine that is misconfigured is the one that needs telling.
+         */
+        $bzImage = $this->_hostOverride('kernel', $bzImage);
+        $imagefile = $this->_hostOverride('init', $imagefile);
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim(
             (
@@ -578,6 +770,166 @@ class BootMenu extends FOGBase
         }
     }
     /**
+     * Makes a value safe to interpolate into an iPXE `echo` line.
+     *
+     * boot.php is unauthenticated by necessity -- a booting NIC has no
+     * credential to present -- so $_REQUEST['arch'] is attacker-controlled,
+     * and the notices below are the first thing in this class ever to echo
+     * it back. iPXE scripts are newline-delimited commands, and
+     * Initiator::sanitizeOutput() collapses a RUN of whitespace to its
+     * first character rather than removing newlines, so a lone "\n" in a
+     * request value survives into the emitted script as a command
+     * separator. Anything past it would be executed by iPXE -- a chain to
+     * an attacker's URL, for one.
+     *
+     * Whitelist rather than escape: these values are architecture names and
+     * kernel/init filenames, so the safe set is small and known, and there
+     * is no iPXE escaping mechanism to lean on (its tokenizer strips quotes
+     * outright, which is why nothing here is quoted). Length-capped as well,
+     * so a long value cannot push the rest of the menu off screen.
+     *
+     * @param string $value the value to render
+     *
+     * @return string
+     */
+    private static function _echoSafe($value)
+    {
+        $value = preg_replace(
+            '/[^A-Za-z0-9._-]/',
+            '',
+            (string)$value
+        );
+
+        return substr((string)$value, 0, 64);
+    }
+    /**
+     * The extraargs the chain arrived with, '' when there were none.
+     *
+     * Not every chain back into a flow carries them, and passing an unset
+     * key to stripos()/preg_match() emits a PHP warning straight into the
+     * iPXE script this class is building.
+     *
+     * @return string
+     */
+    private static function _extraArgs()
+    {
+        return (string)($_REQUEST['extraargs'] ?? '');
+    }
+    /**
+     * Whether a kernel-argument string asks for a shutdown when the task
+     * ends.
+     *
+     * stripos()'s arguments were the wrong way round at all five call sites
+     * this replaces: stripos('shutdown=1', $args) searches for the
+     * ARGUMENTS inside the literal, not the other way about. Two silent
+     * consequences, in opposite directions.
+     *
+     * A real 'shutdown=1 mode=debug' was never detected -- the ten-character
+     * literal cannot contain it -- so a custom iPXE menu entry that asks for
+     * a shutdown never produced one. Only an extraargs of EXACTLY
+     * 'shutdown=1' worked, by accident.
+     *
+     * And an empty string matches at offset 0, so the
+     * `false !== stripos(...)` spelling reported a shutdown for any task
+     * type with no kernel arguments at all. The four stock task types with
+     * empty ttKernelArgs are all routed elsewhere before reaching that
+     * test, which is why this has not been visible; a site-added task type,
+     * or a chain posting an empty extraargs, reaches it.
+     *
+     * @param string $args the argument string to test
+     *
+     * @return bool
+     */
+    private static function _wantsShutdown($args)
+    {
+        $args = trim((string)$args);
+
+        return '' !== $args && false !== stripos($args, 'shutdown=1');
+    }
+    /**
+     * Whether a kernel-argument string asks for debug mode.
+     *
+     * @param string $args the argument string to test
+     *
+     * @return bool
+     */
+    private static function _wantsDebug($args)
+    {
+        return (bool)preg_match(
+            '#isdebug=yes|mode=debug|mode=onlydebug#i',
+            (string)$args
+        );
+    }
+    /**
+     * The lines that establish ${arch} at the top of an emitted script.
+     *
+     * ${buildarch} is the architecture iPXE itself was built for. The cpuid
+     * test promotes a 32-bit iPXE running on a 64-bit CPU to x86_64, which
+     * is what lets a machine that was handed the i386 binary still boot the
+     * 64-bit FOS kernel. Identical to what default.ipxe does before the
+     * very first chain, and repeated here because each script this class
+     * emits is evaluated fresh.
+     *
+     * @return array
+     */
+    private static function _archDetect()
+    {
+        return [
+            'set arch ${buildarch}',
+            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
+        ];
+    }
+    /**
+     * The POST body carried by every chain back into boot.php.
+     *
+     * This was open-coded at seven call sites, each with its own slightly
+     * different ordering and its own subset of the common params, which is
+     * how two of them came to omit ${platform} -- the value printDefault()
+     * gates the Secure Boot menu entries on, so the follow-up request could
+     * not tell UEFI from BIOS. Order is not significant to iPXE (these all
+     * become POST fields), so one canonical order serves every caller.
+     *
+     * The mac1/mac2 lines are conditional because iPXE errors on an unset
+     * variable; jumping to :bootme on the first absent NIC is how the
+     * original avoided that, and it is preserved exactly.
+     *
+     * @param array $params call-specific 'param ...' lines
+     * @param bool  $tail   emit the :bootme label and the chain itself.
+     *                      False where the caller shares one :bootme across
+     *                      several blocks.
+     *
+     * @return array
+     */
+    private function _chainParams(array $params = [], $tail = true)
+    {
+        $block = array_merge(
+            [
+                'params',
+                'param mac0 ${net0/mac}',
+                'param arch ${arch}',
+                'param platform ${platform}',
+            ],
+            $params,
+            [
+                'param sysuuid ${uuid}',
+                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
+                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+            ]
+        );
+        if (!$tail) {
+            return $block;
+        }
+
+        return array_merge(
+            $block,
+            [
+                'goto bootme',
+                ':bootme',
+                "chain -ar $this->_booturl/ipxe/boot.php##params",
+            ]
+        );
+    }
+    /**
      * Sets the default menu item
      *
      * @param int    $timeout the timeout interval
@@ -641,22 +993,22 @@ class BootMenu extends FOGBase
     {
         $debug = $debug;
         if (!$this->_hiddenmenu || $shortCircuit) {
-            $Send['chainnohide'] = [
-                'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
-                'params',
-                'param mac0 ${net0/mac}',
-                'param arch ${arch}',
-                'param platform ${platform}',
-                'param menuAccess 1',
-                "param debug $debug",
-                'param sysuuid ${uuid}',
-                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                'goto bootme',
-                ':bootme',
-                "chain -ar $this->_booturl/ipxe/boot.php##params",
-            ];
+            $Send['chainnohide'] = array_merge(
+                self::_archDetect(),
+                // menuAccess, capital A. The hidden-menu branch below posts
+                // 'menuaccess' instead, and the two are read at different
+                // points -- the constructor tests menuAccess when deciding
+                // the prompt timeout, verifyCreds() tests menuaccess after
+                // a login. PHP request keys are case-sensitive, so these
+                // are two distinct flags and neither may be folded into
+                // the other.
+                $this->_chainParams(
+                    [
+                        'param menuAccess 1',
+                        "param debug $debug",
+                    ]
+                )
+            );
         } else {
             $KSKey = (
                 $this->_KS->isValid() ?
@@ -668,32 +1020,28 @@ class BootMenu extends FOGBase
                 trim($this->_KS->get('name')) :
                 'Escape'
             );
-            $Send['chainhide'] = [
-                'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
-                "iseq \${platform} efi && set key 0x1b || set key $KSKey",
-                "iseq \${platform} efi && set keyName ESC || "
-                . "set keyName $KSName",
-                "prompt --key \${key} --timeout $this->_timeout "
-                . "Booting... (Press \${keyName} to access the menu) && "
-                . "goto menuAccess || $this->_bootexittype",
-                ':menuAccess',
-                'login',
-                'params',
-                'param mac0 ${net0/mac}',
-                'param arch ${arch}',
-                'param platform ${platform}',
-                'param username ${username}',
-                'param password ${password}',
-                'param menuaccess 1',
-                "param debug $debug",
-                'param sysuuid ${uuid}',
-                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                'goto bootme',
-                ':bootme',
-                "chain -ar $this->_booturl/ipxe/boot.php##params",
-            ];
+            $Send['chainhide'] = array_merge(
+                self::_archDetect(),
+                [
+                    "iseq \${platform} efi && set key 0x1b || set key $KSKey",
+                    "iseq \${platform} efi && set keyName ESC || "
+                    . "set keyName $KSName",
+                    "prompt --key \${key} --timeout $this->_timeout "
+                    . "Booting... (Press \${keyName} to access the menu) && "
+                    . "goto menuAccess || $this->_bootexittype",
+                    ':menuAccess',
+                    'login',
+                ],
+                // menuaccess, lower case -- see the note in the branch above.
+                $this->_chainParams(
+                    [
+                        'param username ${username}',
+                        'param password ${password}',
+                        'param menuaccess 1',
+                        "param debug $debug",
+                    ]
+                )
+            );
         }
         $this->_parseMe($Send);
     }
@@ -704,11 +1052,12 @@ class BootMenu extends FOGBase
      */
     private function _printImageIgnored()
     {
-        $Send['ignored'] = [
-            'echo The MAC Address is set to be ignored for imaging tasks',
-            'sleep 15',
-        ];
-        $this->_parseMe($Send);
+        $this->_say(
+            'ignored',
+            ['echo The MAC Address is set to be ignored for imaging tasks'],
+            15,
+            false
+        );
         $this->printDefault();
     }
     /**
@@ -720,36 +1069,44 @@ class BootMenu extends FOGBase
      */
     private function _printTasking($kernelArgsArray)
     {
+        /**
+         * An entry is either a plain string that is always included, or a
+         * ['value' => ..., 'active' => ...] pair that is included only when
+         * active. Both then get the same debug rewrite, which is why the
+         * two branches this replaces were identical apart from where the
+         * string came from.
+         *
+         * By value, not by reference: the old loop took &$arg over a
+         * (array) cast and unset() the reference inside the body, which
+         * does nothing useful here and is a trap the moment anyone writes
+         * through it -- the cast produces a temporary, so the write lands
+         * nowhere.
+         */
         $kernelArgs = [];
-        foreach ((array)$kernelArgsArray as &$arg) {
+        foreach ((array)$kernelArgsArray as $arg) {
+            if (is_array($arg)) {
+                if (empty($arg['value']) || empty($arg['active'])) {
+                    continue;
+                }
+                $arg = $arg['value'];
+            }
             if (empty($arg)) {
                 continue;
             }
-            if (is_array($arg)) {
-                if (!(isset($arg['value']) && $arg['value'])) {
-                    continue;
-                }
-                if (!(isset($arg['active']) && $arg['active'])) {
-                    continue;
-                }
-                $kernelArgs[] = preg_replace(
-                    '#mode=debug|mode=onlydebug#i',
-                    'isdebug=yes',
-                    $arg['value']
-                );
-            } else {
-                $kernelArgs[] = preg_replace(
-                    '#mode=debug|mode=onlydebug#i',
-                    'isdebug=yes',
-                    $arg
-                );
-            }
-            unset($arg);
+            $kernelArgs[] = preg_replace(
+                '#mode=debug|mode=onlydebug#i',
+                'isdebug=yes',
+                $arg
+            );
         }
-        $kernelArgs = array_filter($kernelArgs);
-        $kernelArgs = array_unique($kernelArgs);
-        $kernelArgs = array_values($kernelArgs);
-        $kernelArgs = implode(' ', (array)$kernelArgs);
+        $kernelArgs = implode(
+            ' ',
+            array_values(
+                array_unique(
+                    array_filter($kernelArgs)
+                )
+            )
+        );
         $Send['task'][(
             self::$Host->isValid() ?
             self::$Host->get('task')->get('typeID') :
@@ -768,22 +1125,14 @@ class BootMenu extends FOGBase
      */
     public function keyreg()
     {
-        $Send['keyreg'] = [
-            'set arch ${buildarch}',
-            'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
-            'echo -n Please enter the product key : ',
-            'read key',
-            'params',
-            'param mac0 ${net0/mac}',
-            'param arch ${arch}',
-            'param platform ${platform}',
-            'param key ${key}',
-            'param sysuuid ${uuid}',
-            'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-            'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ':bootme',
-            "chain -ar $this->_booturl/ipxe/boot.php##params",
-        ];
+        $Send['keyreg'] = array_merge(
+            self::_archDetect(),
+            [
+                'echo -n Please enter the product key : ',
+                'read key',
+            ],
+            $this->_chainParams(['param key ${key}'])
+        );
         $this->_parseMe($Send);
     }
     /**
@@ -876,29 +1225,22 @@ class BootMenu extends FOGBase
     {
         $Send['checksession'] = array_merge(
             $pre,
-            [
-                'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
-                'params',
-                'param mac0 ${net0/mac}',
-                'param arch ${arch}',
-                'param platform ${platform}',
-                'param sessionJoin 1',
-                'param sysuuid ${uuid}',
-                // iPXE keeps these set after the initial login, so every
-                // hop back into this flow stays authenticated. Without them
-                // the follow-up request arrived anonymous and the session
-                // lookup ran with no idea who was asking.
-                'param username ${username}',
-                'param password ${password}',
-            ],
-            $extraParams,
-            [
-                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                ':bootme',
-                "chain -ar $this->_booturl/ipxe/boot.php##params",
-            ]
+            self::_archDetect(),
+            $this->_chainParams(
+                array_merge(
+                    [
+                        'param sessionJoin 1',
+                        // iPXE keeps these set after the initial login, so
+                        // every hop back into this flow stays
+                        // authenticated. Without them the follow-up request
+                        // arrived anonymous and the session lookup ran with
+                        // no idea who was asking.
+                        'param username ${username}',
+                        'param password ${password}',
+                    ],
+                    $extraParams
+                )
+            )
         );
         $this->_parseMe($Send);
     }
@@ -948,17 +1290,17 @@ class BootMenu extends FOGBase
      */
     private function _noTaskType($id)
     {
-        $this->_parseMe(
+        $this->_say(
+            'fail',
             [
-                'fail' => [
-                    '#!ipxe',
-                    sprintf(
-                        'echo Task type %d is missing from this server.',
-                        $id
-                    ),
-                    'sleep 5',
-                ],
-            ]
+                '#!ipxe',
+                sprintf(
+                    'echo Task type %d is missing from this server.',
+                    $id
+                ),
+            ],
+            5,
+            false
         );
     }
     public function sesscreate()
@@ -981,14 +1323,8 @@ class BootMenu extends FOGBase
             );
             return;
         }
-        $extraargs = isset($_REQUEST['extraargs'])
-            ? $_REQUEST['extraargs']
-            : '';
-        $shutdown = stripos('shutdown=1', $extraargs);
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $extraargs
-        );
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
+        $isdebug = self::_wantsDebug(self::_extraArgs());
         $tasktype = Route::getItem('tasktype', TaskType::MULTICAST);
         if (!$tasktype) {
             $this->_noTaskType(TaskType::MULTICAST);
@@ -1063,18 +1399,9 @@ class BootMenu extends FOGBase
             $mcastrdv,
             $nondev
         ) = self::getSetting($serviceNames);
-        if (!$shutdown) {
-            $shutdown = false !== stripos(
-                'shutdown=1',
-                $TaskType->get('kernelArgs')
-            );
-        }
-        if (!$shutdown && isset($_REQUEST['extraargs'])) {
-            $shutdown = false !== stripos(
-                'shutdown=1',
-                $_REQUEST['extraargs']
-            );
-        }
+        $shutdown = $shutdown
+            || self::_wantsShutdown($TaskType->get('kernelArgs'))
+            || self::_wantsShutdown(self::_extraArgs());
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
@@ -1172,13 +1499,13 @@ class BootMenu extends FOGBase
             );
         }
         if (!$Images) {
-            $Send['NoImages'] = [
-                'echo Host is not valid, host has no image assigned, or'
-                . ' there are no images defined on the server.',
-                'sleep 3',
-            ];
-            $this->_parseMe($Send);
-            $this->_chainBoot();
+            $this->_say(
+                'NoImages',
+                [
+                    'echo Host is not valid, host has no image assigned, or'
+                    . ' there are no images defined on the server.',
+                ]
+            );
         } else {
             array_map(
                 function ($Image) use (&$Send, &$defItem) {
@@ -1212,38 +1539,36 @@ class BootMenu extends FOGBase
                     $Send[sprintf(
                         'pathofimage%s',
                         $Image->name
-                    )] = [
-                        sprintf(
-                            ':%s',
-                            $Image->path
-                        ),
-                        sprintf(
-                            'set imageID %d',
-                            $Image->id
-                        ),
-                        'params',
-                        'param mac0 ${net0/mac}',
-                        'param arch ${arch}',
-                        'param imageID ${imageID}',
-                        'param qihost 1',
-                        'param username ${username}',
-                        'param password ${password}',
-                        'param sysuuid ${uuid}',
-                        'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-                        'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-                    ];
+                    )] = array_merge(
+                        [
+                            sprintf(
+                                ':%s',
+                                $Image->path
+                            ),
+                            sprintf(
+                                'set imageID %d',
+                                $Image->id
+                            ),
+                        ],
+                        // No tail: every image block falls through to the
+                        // single :bootme emitted once below.
+                        $this->_chainParams(
+                            [
+                                'param imageID ${imageID}',
+                                'param qihost 1',
+                                'param username ${username}',
+                                'param password ${password}',
+                            ],
+                            false
+                        )
+                    );
                 },
                 (array)$Images
             );
-            $Send['returnmenu'] = [
-                ':return',
-                'params',
-                'param mac0 ${net0/mac}',
-                'param arch ${arch}',
-                'param sysuuid ${uuid}',
-                'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
-                'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
-            ];
+            $Send['returnmenu'] = array_merge(
+                [':return'],
+                $this->_chainParams([], false)
+            );
             $Send['bootmefunc'] = [
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
@@ -1278,20 +1603,8 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
-        // Not every chain back into the join flow carries extraargs, and
-        // passing an unset key to stripos()/preg_match() emits a warning
-        // straight into the iPXE script this is building.
-        $extraargs = isset($_REQUEST['extraargs'])
-            ? $_REQUEST['extraargs']
-            : '';
-        $shutdown = stripos(
-            'shutdown=1',
-            $extraargs
-        );
-        $isdebug = preg_match(
-            '#isdebug=yes|mode=debug|mode=onlydebug#i',
-            $extraargs
-        );
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
+        $isdebug = self::_wantsDebug(self::_extraArgs());
         if (self::$Host->isValid() && !self::$Host->get('pending')) {
             $tasktype = Route::getItem('tasktype', TaskType::MULTICAST);
             if (!$tasktype) {
@@ -1336,12 +1649,7 @@ class BootMenu extends FOGBase
         // gets a message.
         $key = (string)($_REQUEST['key'] ?? '');
         if ($key !== '' && !self::productKeyIsValid($key)) {
-            $Send['keychangefail'] = [
-                'echo Failed to change key',
-                'sleep 3'
-            ];
-            $this->_parseMe($Send);
-            $this->_chainBoot();
+            $this->_say('keychangefail', ['echo Failed to change key']);
             return;
         }
         $update = self::$Host->getManager()->update(
@@ -1350,18 +1658,37 @@ class BootMenu extends FOGBase
             ['productKey' => self::productKeyFormat($key)]
         );
         if (!$update) {
-            $Send['keychangefail'] = [
-                'echo Failed to change key',
-                'sleep 3'
-            ];
-        } else {
-            $Send['keychangesuccess'] = [
-                'echo Successfully changed key',
-                'sleep 3',
-            ];
+            $this->_say('keychangefail', ['echo Failed to change key']);
+            return;
         }
+        $this->_say('keychangesuccess', ['echo Successfully changed key']);
+    }
+    /**
+     * Says something on screen and chains back into the boot menu.
+     *
+     * The "echo a line or two, sleep, _parseMe(), _chainBoot()" shape was
+     * open-coded at every point that has to refuse something -- a bad
+     * login, a key that would not save, an account without task rights,
+     * a server with no images. One spelling of it means the sleep cannot
+     * drift between them and a caller cannot forget the _chainBoot() that
+     * puts the operator back somewhere useful.
+     *
+     * @param string $key   the $Send key, kept distinct per caller so a
+     *                      plugin listening on IPXE_EDIT can still tell
+     *                      which message it is looking at
+     * @param array  $lines the message, without the trailing sleep
+     * @param int    $sleep seconds to leave it on screen
+     * @param bool   $chain chain back into the menu afterwards
+     *
+     * @return void
+     */
+    private function _say($key, array $lines, $sleep = 3, $chain = true)
+    {
+        $Send = [$key => array_merge($lines, ["sleep $sleep"])];
         $this->_parseMe($Send);
-        $this->_chainBoot();
+        if ($chain) {
+            $this->_chainBoot();
+        }
     }
     /**
      * Parses the information for us
@@ -1372,6 +1699,17 @@ class BootMenu extends FOGBase
      */
     private function _parseMe($Send)
     {
+        /**
+         * Anything _arch() or _hostOverride() decided the operator needs to
+         * know, emitted once, on whichever path actually runs. Appended
+         * rather than prepended because the very first batch through here
+         * opens with '#!ipxe', which has to stay the first line of the
+         * script; and drained so a later batch does not repeat them.
+         */
+        if (count($this->_notices ?: []) > 0) {
+            $Send['archnotices'] = $this->_notices;
+            $this->_notices = [];
+        }
         self::$HookManager->processEvent(
             'IPXE_EDIT',
             [
@@ -1465,12 +1803,10 @@ class BootMenu extends FOGBase
                 // account has to actually be allowed to task. Unrestricted
                 // accounts short-circuit inside can() and are unaffected.
                 if (!$tmpUser->can('task.task')) {
-                    $Send['nosessperm'] = [
-                        'echo That account may not join multicast sessions.',
-                        'sleep 3'
-                    ];
-                    $this->_parseMe($Send);
-                    $this->_chainBoot();
+                    $this->_say(
+                        'nosessperm',
+                        ['echo That account may not join multicast sessions.']
+                    );
                     return;
                 }
                 // The name can arrive with the credentials, in which case
@@ -1490,14 +1826,14 @@ class BootMenu extends FOGBase
                 $this->printDefault();
             }
         } else {
-            $Send['invalidlogin'] = [
-                "echo Invalid login!",
-                "clear username",
-                "clear password",
-                "sleep 3"
-            ];
-            $this->_parseMe($Send);
-            $this->_chainBoot();
+            $this->_say(
+                'invalidlogin',
+                [
+                    'echo Invalid login!',
+                    'clear username',
+                    'clear password',
+                ]
+            );
         }
     }
     /**
@@ -1509,18 +1845,8 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
-        $shutdown = false;
-        $isdebug = false;
-        if (isset($_REQUEST['extraargs'])) {
-            $shutdown = stripos(
-                'shutdown=1',
-                $_REQUEST['extraargs']
-            );
-            $isdebug = preg_match(
-                '#isdebug=yes|mode=debug|mode=onlydebug#i',
-                $_REQUEST['extraargs']
-            );
-        }
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
+        $isdebug = self::_wantsDebug(self::_extraArgs());
         if (!$imgID) {
             $this->printImageList();
             return;
@@ -1561,12 +1887,15 @@ class BootMenu extends FOGBase
             );
             $this->_chainBoot(false, true);
         } catch (\Exception $e) {
-            $Send['fail'] = [
-                '#!ipxe',
-                sprintf('echo %s', $e->getMessage()),
-                'sleep 3',
-            ];
-            $this->_parseMe($Send);
+            $this->_say(
+                'fail',
+                [
+                    '#!ipxe',
+                    sprintf('echo %s', $e->getMessage()),
+                ],
+                3,
+                false
+            );
         }
     }
     /**
@@ -1686,16 +2015,8 @@ class BootMenu extends FOGBase
                     $tftp,
                     $timeout
                 ) = self::getSetting($serviceNames);
-                $shutdown = false !== stripos(
-                    'shutdown=1',
-                    $TaskType->get('kernelArgs')
-                );
-                if (!$shutdown && isset($_REQUEST['extraargs'])) {
-                    $shutdown = false !== stripos(
-                        'shutdown=1',
-                        $_REQUEST['extraargs']
-                    );
-                }
+                $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
+                    || self::_wantsShutdown(self::_extraArgs());
                 $globalPIGZ = $pigz;
                 $PIGZ_COMP = $globalPIGZ;
                 if ($StorageNode instanceof StorageNode && $StorageNode->isValid()) {
@@ -1925,11 +2246,11 @@ class BootMenu extends FOGBase
                 self::$Host->get('kernelArgs'),
             ];
             if ($Task->get('typeID') == 4) {
-                $Send['memtest'] = [
-                    "$this->_memdisk iso raw",
-                    "$this->_memtest",
-                    "boot",
-                ];
+                // No '|| goto MENU' tail: a tasked boot has no menu to
+                // return to. On an architecture without memdisk this says
+                // why and stops, rather than dropping the machine to a bare
+                // iPXE prompt with no explanation.
+                $Send['memtest'] = $this->_memtestChoice('');
                 $this->_parseMe($Send);
             } else {
                 // ENROLL_SECUREBOOT used to be special-cased here alongside
@@ -2041,14 +2362,7 @@ class BootMenu extends FOGBase
                 );
                 break;
             case 2:
-                $Send = self::fastmerge(
-                    $Send,
-                    [
-                        "$this->_memdisk iso raw",
-                        $this->_memtest,
-                        'boot || goto MENU'
-                    ]
-                );
+                $Send = self::fastmerge($Send, $this->_memtestChoice());
                 break;
             case 11:
                 $Send = self::fastmerge(
@@ -2072,6 +2386,38 @@ class BootMenu extends FOGBase
                 }
         }
         return $Send;
+    }
+    /**
+     * The memtest boot lines, or a refusal on an architecture that cannot
+     * run memdisk.
+     *
+     * _filterMenus() normally keeps the menu entry off an ARM screen
+     * entirely, so the refusal is only reached by a scheduled memtest task
+     * (which is created server-side, where the host's architecture is not
+     * knowable) or by a site that pointed a custom entry at this behaviour.
+     *
+     * @param string $onFail what to append when the boot fails or is refused
+     *
+     * @return array
+     */
+    private function _memtestChoice($onFail = ' || goto MENU')
+    {
+        if (!self::_arch()['memdisk']) {
+            return [
+                sprintf(
+                    'echo Memtest needs memdisk, which is x86-only -- it '
+                    . 'cannot run on %s.',
+                    self::_arch()['label']
+                ),
+                'sleep 5' . $onFail,
+            ];
+        }
+
+        return [
+            "$this->_memdisk iso raw",
+            $this->_memtest,
+            'boot' . $onFail,
+        ];
     }
     /**
      * Builds the iPXE choice for pxeID 14, "Enroll Secure Boot Key".
@@ -2101,21 +2447,22 @@ class BootMenu extends FOGBase
                 'goto MENU'
             ];
         }
-        if (($_REQUEST['arch'] ?? '') === 'i386') {
+        // An empty mokManager is an architecture with no signed shim to
+        // chain -- 32-bit UEFI today. The per-arch binary name lives in
+        // _arch(); this only has to know whether there is one.
+        $arch = self::_arch();
+        if (!$arch['mokManager']) {
             return [
-                'echo No signed Secure Boot shim exists for 32-bit UEFI.',
+                sprintf(
+                    'echo No signed Secure Boot shim exists for %s UEFI.',
+                    $arch['label']
+                ),
                 'echo Returning to the menu...',
                 'sleep 5',
                 'goto MENU'
             ];
         }
-        // arm64's MokManager is mmaa64.efi, NOT mmx64.efi -- the binary is
-        // named for the architecture it runs on, and fog-ipxe stages it under
-        // that name. Chaining to arm64-efi/mmx64.efi is a file that has never
-        // existed, so every arm64 client fell into the error branch below.
-        $mmTarget = (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm'))
-            ? "$this->_booturl/secureboot/arm64-efi/mmaa64.efi"
-            : "$this->_booturl/secureboot/mmx64.efi";
+        $mmTarget = "$this->_booturl/" . $arch['mokManager'];
         // iPXE's EFI filesystem driver exposes every image it has downloaded
         // -- kernel, initrd, or a plain imgfetch like this one -- to any EFI
         // app that enumerates SimpleFileSystemProtocol handles. MokManager's
@@ -2142,6 +2489,101 @@ class BootMenu extends FOGBase
             . "echo Could not load the Secure Boot enrolment menu. && "
             . "sleep 5 && goto MENU"
         ];
+    }
+    /**
+     * Drops the menu entries this machine could not act on.
+     *
+     * Three reasons, one pass. They were three near-identical
+     * array_filter() blocks; the reasons differ, the mechanism does not.
+     *
+     * Every one matches on pxeName, NEVER pxeID. pxeMenu is user-writable
+     * from iPXE Menu Customization and has an auto_increment primary key,
+     * so the seeded rows only sit at their documented ids on a pristine
+     * install. Keyed by id, a site whose own custom entry happened to land
+     * on 14, 15 or 2 would have had THAT entry hidden instead.
+     *
+     * @param array $Menus the menu rows to filter
+     *
+     * @return array
+     */
+    private function _filterMenus($Menus)
+    {
+        $hide = [];
+        /**
+         * "Enroll Secure Boot Key (MOK attended setup)" and its unattended
+         * sibling are both meaningless on a legacy BIOS boot: there is no
+         * UEFI variable store to enrol into, so every route out of them --
+         * MokManager, and the FOS task behind mode=enrollsb -- can only
+         * fail. Both carry pxeRegOnly=2 so a technician never has to
+         * repoint a client's boot file to reach them, and that "always
+         * shown" is what puts them in front of BIOS clients too.
+         *
+         * Gate on platform, not arch: ia32 UEFI is still UEFI (it gets a
+         * different refusal, with its own reason, in
+         * _enrollSecureBootChoice()), and a 64-bit CPU booted in CSM mode
+         * is not UEFI at all -- so arch answers a different question than
+         * the one being asked here.
+         *
+         * Only hide when the platform is positively known not to be EFI.
+         * default.ipxe and every chain this class emits post
+         * "param platform ${platform}", so it is reliably present; but an
+         * absent value means unknown, and hiding a working option from a
+         * UEFI client is a worse failure than showing a dead one to a BIOS
+         * client.
+         *
+         * FOS keeps its own check (fog.enrollsb refuses BIOS/CSM
+         * explicitly). This is not redundant: a task scheduled server-side
+         * cannot know how the host will next boot, and a host that is BIOS
+         * today may be UEFI tomorrow. This hides what cannot work; FOS
+         * explains what happened.
+         */
+        if (isset($_REQUEST['platform'])
+            && $_REQUEST['platform'] != 'efi'
+        ) {
+            $hide[] = 'fog.enrollsecureboot';
+            $hide[] = 'fog.enrollsecurebootunattended';
+        }
+        /**
+         * The unattended enrol (mode=enrollsb) only auto-enrols when
+         * PK.auth, KEK.auth and db.auth all exist in service/secureboot/ --
+         * fog-build-sb-authvars' output, the same directory MOK.der already
+         * lives in. Without all three the task type itself has nothing
+         * valid to write and refuses (see schema step 323), so hide the PXE
+         * entry point rather than advertise a choice that can only fail.
+         * The attended item is unaffected: it only ever needed MOK.der,
+         * checked separately inside _enrollSecureBootChoice().
+         */
+        $authDir = BASEPATH . 'service/secureboot' . DS;
+        if (!file_exists($authDir . 'PK.auth')
+            || !file_exists($authDir . 'KEK.auth')
+            || !file_exists($authDir . 'db.auth')
+        ) {
+            $hide[] = 'fog.enrollsecurebootunattended';
+        }
+        /**
+         * Memtest is memdisk plus a 16-bit x86 image. There is no aarch64
+         * memdisk and there never will be, so on ARM the entry could only
+         * ever drop the machine back to the menu with an iPXE error. Hidden
+         * here rather than refused inside _menuOpt() for the same reason
+         * the Secure Boot items are: an option that cannot work should not
+         * be on the menu. _menuOpt() keeps its own guard for the case where
+         * a site has pointed a custom entry at the same behaviour.
+         */
+        if (!self::_arch()['memdisk']) {
+            $hide[] = 'fog.memtest';
+        }
+        if (count($hide ?: []) < 1) {
+            return $Menus;
+        }
+
+        return array_values(
+            array_filter(
+                (array)$Menus,
+                function ($Menu) use ($hide) {
+                    return !in_array($Menu->name, $hide, true);
+                }
+            )
+        );
     }
     /**
      * Print the default information for all hosts
@@ -2185,9 +2627,8 @@ class BootMenu extends FOGBase
             $regEnabled
         ) = self::getSetting($ipxeGrabs);
         $Send['head'] = self::fastmerge(
+            self::_archDetect(),
             [
-                'set arch ${buildarch}',
-                'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'goto get_console',
                 ':console_set',
             ],
@@ -2258,82 +2699,7 @@ class BootMenu extends FOGBase
             'AND',
             'id'
         );
-        // pxeID 14 ("Enroll Secure Boot Key (MOK attended setup)") and
-        // pxeID 15 ("Enroll Secure Boot Key (Unattended...)") are both
-        // meaningless on a legacy BIOS boot: there is no UEFI variable
-        // store to enrol into, so every route out of them -- MokManager,
-        // and the FOS task behind mode=enrollsb -- can only fail. Both
-        // carry pxeRegOnly=2 so a technician never has to repoint a
-        // client's boot file to reach them, and that "always shown" is
-        // what puts them in front of BIOS clients too.
-        //
-        // Gate on platform, not arch: ia32 UEFI is still UEFI (it gets a
-        // different refusal, with its own reason), and a 64-bit CPU booted
-        // in CSM mode is not UEFI at all -- so arch answers a different
-        // question than the one being asked here.
-        //
-        // Only hide when the platform is positively known not to be EFI.
-        // default.ipxe and every menu emission below post
-        // "param platform ${platform}", so it is reliably present; but an
-        // absent value means unknown, and hiding a working option from a
-        // UEFI client is a worse failure than showing a dead one to a BIOS
-        // client.
-        //
-        // FOS keeps its own check (fog.enrollsb refuses BIOS/CSM
-        // explicitly). This is not redundant: a task scheduled server-side
-        // cannot know how the host will next boot, and a host that is BIOS
-        // today may be UEFI tomorrow. This hides what cannot work; FOS
-        // explains what happened.
-        if (isset($_REQUEST['platform'])
-            && $_REQUEST['platform'] != 'efi'
-        ) {
-            $Menus = array_values(
-                array_filter(
-                    $Menus,
-                    // By pxeName, not pxeID -- see _menuOpt(). Keyed by id,
-                    // a BIOS client would have had an unrelated custom menu
-                    // entry sitting at 14 or 15 hidden from it instead.
-                    function ($Menu) {
-                        return !in_array(
-                            $Menu->name,
-                            [
-                                'fog.enrollsecureboot',
-                                'fog.enrollsecurebootunattended'
-                            ],
-                            true
-                        );
-                    }
-                )
-            );
-        }
-        // pxeID 15's unattended enrol (mode=enrollsb) only auto-enrols when
-        // PK.auth, KEK.auth and db.auth all exist in service/secureboot/ --
-        // fog-build-sb-authvars' output, the same directory MOK.der already
-        // lives in. Without all three the task type itself has nothing
-        // valid to write and refuses (see schema step 323), so hide the PXE
-        // entry point rather than advertise a choice that can only fail.
-        // The attended item is unaffected: it only ever needed MOK.der,
-        // checked separately inside _enrollSecureBootChoice().
-        //
-        // Matched by pxeName, not pxeID, for the reason spelled out in
-        // _menuOpt(): pxeMenu is user-writable with an auto_increment key, so
-        // these rows are only seeded at 14/15 on a pristine install. Keyed by
-        // id, a site whose own custom entry happened to sit at 15 would have
-        // had THAT entry hidden whenever the .auth files were absent.
-        $authDir = BASEPATH . 'service/secureboot' . DS;
-        if (!file_exists($authDir . 'PK.auth')
-            || !file_exists($authDir . 'KEK.auth')
-            || !file_exists($authDir . 'db.auth')
-        ) {
-            $Menus = array_values(
-                array_filter(
-                    $Menus,
-                    function ($Menu) {
-                        return 'fog.enrollsecurebootunattended' !== $Menu->name;
-                    }
-                )
-            );
-        }
+        $Menus = $this->_filterMenus($Menus);
         array_map(
             function ($Menu) use (&$Send) {
                 $desc = trim($Menu->description);
