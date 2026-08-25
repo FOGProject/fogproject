@@ -1363,6 +1363,10 @@ class Route extends FOGBase
             [__CLASS__, 'uploadSnapinFiles'],
             'uploadSnapinFiles'
         )->post(
+            '/plugin/[i:id]/install',
+            [__CLASS__, 'pluginInstall'],
+            'pluginInstall'
+        )->post(
             "{$expandedw}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
@@ -4479,6 +4483,86 @@ class Route extends FOGBase
                 $e->getMessage()
             );
         } catch (\RuntimeException $e) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                $e->getMessage()
+            );
+        }
+    }
+    /**
+     * Installs a plugin: activate, create its tables, then record it.
+     *
+     * POST /plugin/{id}/install.
+     *
+     * The same three steps PluginManagementPage::installPost() performs,
+     * in the same order, because the order is the contract: state first,
+     * then Plugin::installdb() to apply the plugin's schema migrations,
+     * and installed=1 LAST so the column only ever claims an install that
+     * actually happened.
+     *
+     * installdb() is called unconditionally rather than only for a plugin
+     * that is not yet installed. Migration steps are append-only and
+     * idempotent by contract (docs/PLUGIN_SCHEMA_MIGRATIONS.md) and
+     * Schema::applyUpdates() resumes from the stored count, so calling it
+     * on an installed plugin applies only steps it has not seen -- which
+     * is what the Upgrade action does. One route therefore installs, and
+     * brings a plugin whose code ships newer schema() steps up to date,
+     * without a drop and recreate.
+     *
+     * That also makes it the repair for a row whose installed flag was set
+     * without the tables ever being created. The web Install action cannot
+     * do it: installPost() filters on installed IN ('', 0, '0'), so it
+     * skips a plugin that already claims to be installed.
+     *
+     * @param int $id The plugin id.
+     *
+     * @return void
+     */
+    public static function pluginInstall($id)
+    {
+        try {
+            $Plugin = self::getClass('Plugin', (int)$id);
+            if (!$Plugin->isValid()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_NOT_FOUND,
+                    _('Plugin not found')
+                );
+                return;
+            }
+            // Same gate the page applies. A blocked plugin is one the
+            // server has a reason to refuse -- a conflict with a core
+            // feature that replaced it, for instance -- and the API must
+            // not be the way around it.
+            $blockers = Plugin::activationBlockers([$Plugin->get('id')]);
+            if (count($blockers)) {
+                $reasons = [];
+                foreach ($blockers as $name => $reason) {
+                    $reasons[] = sprintf('%s %s', $name, $reason);
+                }
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    implode('; ', $reasons)
+                );
+                return;
+            }
+            $Plugin->set('state', 1)->save();
+            if (!$Plugin->installdb()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                    sprintf(
+                        // translators: %s is the plugin name.
+                        _('Failed to install %s'),
+                        $Plugin->get('name')
+                    )
+                );
+                return;
+            }
+            // Written here, by the server, having done the work. The
+            // generic edit route refuses this column for exactly that
+            // reason -- see Route::$serverOwnedFields.
+            $Plugin->set('installed', 1)->save();
+            self::sendResponse(HTTPResponseCodes::HTTP_NO_CONTENT);
+        } catch (\Exception $e) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
                 $e->getMessage()
