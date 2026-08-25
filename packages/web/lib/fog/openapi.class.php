@@ -114,6 +114,15 @@ class OpenAPI extends FOGBase
      * @var array
      */
     private static $_classVars = [];
+    /**
+     * Declared class-name casing per route class, memoised. Every schema
+     * name, every $ref and every operationId group asks for it, so a
+     * document that names 53 classes would otherwise reflect each of them
+     * hundreds of times.
+     *
+     * @var array
+     */
+    private static $_classNames = [];
 
     /**
      * Builds the whole document.
@@ -660,7 +669,57 @@ class OpenAPI extends FOGBase
      */
     public static function schemaName($class)
     {
-        return ucfirst((string)$class);
+        return self::className($class);
+    }
+
+    /**
+     * A route class name in the casing its own PHP class declares.
+     *
+     * Route class names are lowercase -- `tasklog`, `storagegroup`,
+     * `usergroupmember` -- because that is what a URL carries. ucfirst()
+     * on one of those gives `Tasklog`, and every generated client then
+     * calls it that: a Tasklog type, a Get-Tasklog command, a
+     * New-Usergroupmember. Nobody writing those by hand would.
+     *
+     * The correct spelling is not a judgement call and does not need a
+     * hand-kept list: the model declares it. PHP class names are
+     * case-insensitive to lookup but ReflectionClass::getShortName()
+     * returns the name as DECLARED, so `tasklog` resolves to the class and
+     * answers `TaskLog`. Same reflection pass the rest of this file already
+     * relies on, same reason -- the server knows, so do not ask anyone to
+     * repeat it.
+     *
+     * Falls back to ucfirst() for a class that will not reflect, which is
+     * the same shape _classVars() already tolerates for a broken plugin.
+     *
+     * @param string $class The lowercase route class name.
+     *
+     * @return string
+     */
+    public static function className($class)
+    {
+        $class = (string)$class;
+        if ('' === $class) {
+            return '';
+        }
+        if (array_key_exists($class, self::$_classNames)) {
+            return self::$_classNames[$class];
+        }
+        $name = ucfirst($class);
+        try {
+            $obj = new \ReflectionClass($class);
+            $short = $obj->getShortName();
+            if ('' !== $short) {
+                $name = $short;
+            }
+        } catch (\Exception $e) {
+            // Keep the ucfirst fallback.
+        } catch (\Error $e) {
+            // A plugin class naming a parent that is not loaded raises
+            // Error rather than Exception. One broken plugin must not
+            // rename every schema in the document.
+        }
+        return self::$_classNames[$class] = $name;
     }
 
     /**
@@ -1537,7 +1596,7 @@ class OpenAPI extends FOGBase
     private static function _operationGroup($routeName, $class)
     {
         if ('' !== (string)$class) {
-            return ucfirst((string)$class);
+            return self::className($class);
         }
         $map = [
             'pendingmacs' => 'Host',
