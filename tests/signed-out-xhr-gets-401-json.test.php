@@ -166,14 +166,14 @@ function phpGuard($file, $condition)
  * variable unnegated.
  */
 $index = strippedPhp($indexFile);
-$arm = phpGuard($indexFile, '!$browserNavigation');
+$arm = phpGuard($indexFile, 'FOGCore::$ajax');
 if (null === $arm) {
-    $fails[] = $indexFile . ' no longer has a guard on !$browserNavigation,'
-        . ' so a signed-out XHR is handed the sign-in form at HTTP 200 and'
-        . ' every failed Save in the UI reports success';
+    $fails[] = $indexFile . ' no longer has a guard on FOGCore::$ajax, so'
+        . ' a signed-out XHR is handed the sign-in form at HTTP 200 and every'
+        . ' failed Save in the UI reports success';
 } else {
     if (false === strpos($arm['cond'], "!defined('FOG_LOCAL_LOGIN')")) {
-        $fails[] = 'the !$browserNavigation arm in ' . $indexFile . ' no'
+        $fails[] = 'the XHR 401 arm in ' . $indexFile . ' no'
             . ' longer exempts FOG_LOCAL_LOGIN, so management/login.php --'
             . ' the break-glass form for when the identity provider is'
             . ' down -- answers JSON to any client not asking for text/html';
@@ -181,33 +181,38 @@ if (null === $arm) {
     if (false === strpos($arm['body'], 'HTTP_UNAUTHORIZED')
         && false === strpos($arm['body'], '401')
     ) {
-        $fails[] = 'the !$browserNavigation arm in ' . $indexFile . ' no'
+        $fails[] = 'the XHR 401 arm in ' . $indexFile . ' no'
             . ' longer sets 401, and a status jQuery reads as success is'
             . ' the whole bug however good the body is';
     }
     if (false === strpos($arm['body'], 'application/json')) {
-        $fails[] = 'the !$browserNavigation arm in ' . $indexFile . ' no'
+        $fails[] = 'the XHR 401 arm in ' . $indexFile . ' no'
             . ' longer declares application/json, so jQuery hands the'
             . ' caller a string and notifyFromAPI has nothing to read';
     }
     if (false === strpos($arm['body'], 'exit;')) {
-        $fails[] = 'the !$browserNavigation arm in ' . $indexFile . ' does'
+        $fails[] = 'the XHR 401 arm in ' . $indexFile . ' does'
             . ' not stop, so the login form is appended to the JSON body';
     }
     /*
-     * Ordering. Above the assignment the variable is null, !null is true,
-     * and every signed-out caller including a browser gets 401 instead of
-     * a page to sign in on.
+     * And it must stay NARROW. Widening it to !$browserNavigation -- which
+     * looks like the more thorough answer, and which is what shipped first --
+     * answers 401 to every caller that is not a document navigation. That
+     * includes checkWebTier() in lib/common/functions.sh, which probes
+     * ?node=schema with a tokenless GET and curl -fL purely to prove the web
+     * tier renders. It took the 401, saw zero bytes and aborted the install
+     * with "Checking web server serves FOG...Failed!" on three healthy
+     * servers. Monitoring and the recovery curl this installer prints on
+     * failure are the same shape and equally unenumerable from here.
      */
-    $at = strpos($index, '$browserNavigation=');
-    $armAt = strpos($index, $arm['cond']);
-    if (false === $at) {
-        $fails[] = $indexFile . ' no longer computes $browserNavigation';
-    } elseif (false !== $armAt && $at > $armAt) {
-        $fails[] = $indexFile . ' computes $browserNavigation after the 401'
-            . ' arm that reads it, so the arm reads null and answers 401 to'
-            . ' browsers as well -- the sign-in page becomes unreachable';
+    if (false !== strpos($arm['cond'], 'browserNavigation')) {
+        $fails[] = 'the XHR 401 arm in ' . $indexFile . ' is gated on'
+            . ' $browserNavigation, so every non-browser caller gets 401 --'
+            . ' including the installer\'s own liveness probe, which then'
+            . ' aborts the install with "Checking web server serves'
+            . ' FOG...Failed!" on a server that is working perfectly';
     }
+    $armAt = strpos($index, $arm['cond']);
     /*
      * And it has to come before the thing it is replacing. After the form
      * is echoed the headers are already committed.
