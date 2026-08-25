@@ -9321,6 +9321,9 @@ msgstr "Il tuo schema di database FOG non è aggiornato"
 msgid "Your database connection appears to be invalid"
 msgstr "La connessione al database sembra non valida"
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 

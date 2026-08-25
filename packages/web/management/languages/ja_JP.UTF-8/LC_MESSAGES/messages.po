@@ -9260,6 +9260,9 @@ msgstr "FOG データベースのスキーマが最新ではありません"
 msgid "Your database connection appears to be invalid"
 msgstr "データベース接続が無効のようです"
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
