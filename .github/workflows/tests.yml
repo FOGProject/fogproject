@@ -90,4 +90,27 @@ jobs:
       contents: read
 
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-pr-regen.yml@main
+    with:
+      # Also compute the version this branch will carry once its merge commit
+      # lands, and commit it here rather than after the merge.
+      #
+      # THIS LINE DEPENDS ON A RULESET, NOT JUST ON THE WORKFLOW.
+      #
+      # FOG_VERSION is the commit count since master, so predicting it before
+      # the merge is only possible while the ruleset on working-1.6 enforces
+      # BOTH of:
+      #
+      #   * "Require branches to be up to date before merging" -- so base is an
+      #     ancestor of head and the merge brings nothing in from base's side;
+      #   * merge commits as the only allowed merge method -- so the merge adds
+      #     exactly one commit. Squash collapses N commits into 1 and makes the
+      #     count unrecoverable; rebase adds no merge commit at all. Either one
+      #     silently makes every version written here wrong.
+      #
+      # If either setting is turned off, revert this line in the same change.
+      # The merge-time sync in sync-generated-files.yml still runs and will
+      # correct the version afterwards, so the failure mode is churn rather
+      # than a wrong version reaching a release -- but it is silent, and this
+      # comment is the only place it is written down.
+      sync_version: true
     secrets: inherit
