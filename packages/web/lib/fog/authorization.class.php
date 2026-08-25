@@ -222,6 +222,10 @@ class Authorization extends FOGBase
         'pendingmacs' => 'host.view',
         'snapinCreateWithFile' => 'snapin.create',
         'uploadSnapinFiles' => 'snapin.create',
+        // The node the web Install button checks, rather than plugin.edit:
+        // installing runs a plugin's schema migrations, which is a
+        // different authority from editing its row.
+        'pluginInstall' => 'plugin.install',
         'settingsCacheView' => 'settings.view',
         'settingsCacheFlush' => 'settings.edit',
         'settingsCacheRefresh' => 'settings.edit'
