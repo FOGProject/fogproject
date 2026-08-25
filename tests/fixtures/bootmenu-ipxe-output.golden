@@ -1,0 +1,2666 @@
+########## unregistered-bios-x86 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-efi-x86 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-efi-x86-mok ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrolment menu. && sleep 5 && goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-efi-x86-mok-authvars ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+item fog.enrollsecurebootunattended Enroll Secure Boot Key (Unattended - secure boot in setup mode required)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrolment menu. && sleep 5 && goto MENU
+:fog.enrollsecurebootunattended
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-efi-x86-authvars-only ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+item fog.enrollsecurebootunattended Enroll Secure Boot Key (Unattended - secure boot in setup mode required)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:fog.enrollsecurebootunattended
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-efi-i386 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_ia32.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init_32.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init_32.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init_32.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-efi-arm64 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
+:fog.reginput
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.reg
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.sysinfo
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## unregistered-no-platform ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## registered-bios ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## registered-efi-mok-authvars ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+item fog.enrollsecurebootunattended Enroll Secure Boot Key (Unattended - secure boot in setup mode required)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrolment menu. && sleep 5 && goto MENU
+:fog.enrollsecurebootunattended
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## pending-approval ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is pending approval!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.sysinfo Client System Information (Compatibility)
+item fog.approvehost Approve This Host
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.approvehost
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param approveHost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## registered-host-kernel-override ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel custom-bzImage loglevel=4 initrd=custom-init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 nomodeset storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch custom-init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## arm64-host-x86-kernel-override ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+echo Ignoring host kernel custom-bzImage -- this machine is 64-bit ARM. Using arm_Image.
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## arm64-host-arm-kernel-override ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel arm_custom_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## x86-host-arm-init-override ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+echo Ignoring host init arm_init.cpio.gz -- this machine is 64-bit x86. Using init.xz.
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## host-kernel-override-unsafe-chars ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+echo Ignoring host kernel evilechopwnedchainhttpxid -- this machine is 64-bit ARM. Using arm_Image.
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## debug-requested ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+item fog.debug Debug Mode
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.debug
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=onlydebug
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## registration-disabled ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## advanced-menu ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.advanced Advanced Menu
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.advanced
+chain -ar http://10.0.0.1/fog/service/ipxe/advanced.php || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## advanced-menu-login ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.advancedlogin Advanced Menu
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.advancedlogin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param advLog 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## hidden-menu ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+iseq ${platform} efi && set key 0x1b || set key 0x1b
+iseq ${platform} efi && set keyName ESC || set keyName Escape
+prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the menu) && goto menuAccess || console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
+:menuAccess
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param username ${username}
+param password ${password}
+param menuaccess 1
+param debug 1
+param sysuuid ${uuid}
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+
+########## hidden-menu-keyseq ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+iseq ${platform} efi && set key 0x1b || set key 0x1b
+iseq ${platform} efi && set keyName ESC || set keyName F12
+prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the menu) && goto menuAccess || console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
+:menuAccess
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param username ${username}
+param password ${password}
+param menuaccess 1
+param debug 1
+param sysuuid ${uuid}
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+
+########## hidden-menu-accessed ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-sanboot ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-exit ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+exit 0 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-grub ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1" || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-grub-first-hdd ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1" || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-grub-first-cdrom ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"" || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-grub-first-found-windows ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"" || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-refind-efi ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-refind-efi-i386 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+imgfetch ${boot-url}/service/ipxe/refind.conf
+chain -ar ${boot-url}/service/ipxe/refind_ia32.efi || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init_32.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init_32.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init_32.xz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-refind-efi-arm64 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
+:fog.reginput
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.reg
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.sysinfo
+kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch arm_init.cpio.gz
+boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-unknown-falls-back-to-sanboot ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## host-exit-override ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is registered as ${hostname}!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.keyreg Update Product Key
+item fog.deployimage Deploy Image
+item fog.multijoin Join Multicast Session
+item fog.quickdel Quick Host Deletion
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+exit 0 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.keyreg
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param keyreg 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.deployimage
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param qihost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.multijoin
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param sessionJoin 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.quickdel
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param delhost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}\ngoto bootme
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## no-menu ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
+
+########## keymap-set ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 keymap=uk web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 keymap=uk web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 keymap=uk web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## kernel-args-and-debug ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0 debug rootfstype=ext4 acpi=off storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0 debug rootfstype=ext4 acpi=off storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0 debug rootfstype=ext4 acpi=off storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## nested-webroot ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot apps/fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/apps/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/apps/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/apps/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## bare-webroot ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${net0/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+kernel memdisk initrd=memtest.bin iso raw
+initrd memtest.bin
+boot || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
