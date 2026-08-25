@@ -383,6 +383,36 @@ class Route extends FOGBase
         'user' => [
             'token',
         ],
+        // Both record what the installer DID, and are written by it only
+        // after it succeeded. PluginManagementPage::installPost() sets
+        // state, then runs Plugin::installdb() to create the tables, and
+        // writes installed=1 last; Plugin::installdb() writes schema to
+        // the number of migration steps it applied.
+        //
+        // Accepting them over the generic edit route lets a client assert
+        // an install that never happened. Measured: PUT /plugin/{id}/edit
+        // with installed=1 on an uninstalled plugin registers the plugin's
+        // classes -- so its routes and schemas appear in GET
+        // system/openapi -- while no table is ever created, and every one
+        // of those routes then answers
+        //
+        //   406  SQLSTATE[42S02]: Base table or view not found
+        //
+        // A client generated from that document gets commands guaranteed
+        // to fail. It also hides from the repair path most admins would
+        // reach for: installPost() only calls installdb() for plugins
+        // filtered on installed IN ('', 0, '0'), so the Install button
+        // skips a row that already claims to be installed. upgradePost()
+        // is what fixes it, and nothing says so.
+        //
+        // state is deliberately NOT here. Activating is a column write and
+        // nothing else -- installPost() and the Activate action both just
+        // set state=1 -- so a client writing it does the whole job rather
+        // than half of it.
+        'plugin' => [
+            'installed',
+            'schema',
+        ],
     ];
     /**
      * Memoized union of the list above and what plugins declare through
