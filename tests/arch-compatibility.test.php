@@ -166,4 +166,41 @@ $t->check(
     (bool)preg_match('/hostArch|set\(\s*\'arch\'/', $menuSrc)
 );
 
+// --- the three regressions found on a live server 2026-08-25 -------------
+// All three were invisible to CI: a fresh install creates the columns, so
+// only an UPGRADE showed them.
+$paneSrc = (string)file_get_contents($web . '/lib/pages/imagemanagement.page.php');
+$listJs = (string)file_get_contents(
+    $web . '/management/js/fog/image/fog.image.list.js'
+);
+$systemSrc = (string)file_get_contents($web . '/lib/fog/system.class.php');
+
+$t->check(
+    'steps 369/370 are their own column-zero appends, not nested in step 368',
+    (bool)preg_match('/^\/\/ 369$\s*^\$this->schema\[\] = \[/m', $schemaSrc)
+    && (bool)preg_match('/^\/\/ 370$\s*^\$this->schema\[\] = \[/m', $schemaSrc)
+);
+$t->check(
+    'FOG_SCHEMA reaches 370, so the updater actually offers the new steps',
+    (bool)preg_match("/define\('FOG_SCHEMA',\s*(\d+)\)/", $systemSrc, $fs)
+    && (int)$fs[1] >= 370
+);
+$t->check(
+    'the Architectures page refuses to render against an unmigrated database',
+    false !== strpos($paneSrc, "DatabaseManager::tableColumns('hosts')")
+    && false !== strpos($paneSrc, 'hostarch')
+);
+$t->check(
+    'no (array) cast on a query result -- (array)false is [false], one blank row',
+    false === strpos($paneSrc, '(array)$rows')
+    && false === strpos($paneSrc, '(array)$images')
+);
+$t->check(
+    'the image grid targets render columns by name, never by index',
+    false === strpos($listJs, 'targets: 0')
+    && false === strpos($listJs, 'targets: 1')
+    && false === strpos($listJs, 'targets: 2')
+    && false !== strpos($listJs, 'colIndex')
+);
+
 $t->finish();
