@@ -1729,6 +1729,9 @@ msgstr ""
 msgid "Database schema is already up to date."
 msgstr ""
 
+msgid "Database update required."
+msgstr ""
+
 msgid "Date"
 msgstr ""
 
@@ -7052,6 +7055,9 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
 msgstr ""
 
 msgid "The architecture of the machine this image was captured from."

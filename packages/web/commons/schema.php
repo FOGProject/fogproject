@@ -7734,7 +7734,10 @@ $this->schema[] = [
             ]
         );
     },
-    // 369: hosts.hostArch -- the architecture last observed for this host.
+];
+// 369
+$this->schema[] = [
+    // hosts.hostArch -- the architecture last observed for this host.
     //
     // FOG has always known this and never kept it. iPXE posts `arch` on every
     // boot (default.ipxe sends ${buildarch} with the cpuid promotion that
@@ -7786,7 +7789,10 @@ $this->schema[] = [
 
         return true;
     },
-    // 370: images.imageArch -- the architecture of the machine this image was
+];
+// 370
+$this->schema[] = [
+    // images.imageArch -- the architecture of the machine this image was
     // captured from.
     //
     // The half that makes the host column worth having. With both sides

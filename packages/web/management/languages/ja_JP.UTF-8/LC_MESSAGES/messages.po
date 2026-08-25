@@ -1958,6 +1958,10 @@ msgstr "データベースの保存に失敗しました"
 msgid "Database schema is already up to date."
 msgstr "FOG データベースのスキーマが最新ではありません"
 
+#, fuzzy
+msgid "Database update required."
+msgstr "データベースの更新に失敗しました"
+
 msgid "Date"
 msgstr "日付"
 
@@ -7974,6 +7978,9 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
 msgstr ""
 
 msgid "The architecture of the machine this image was captured from."

@@ -251,6 +251,54 @@ $schema = (int)$const[1];
  * though it means a deliberate skip in the numbering is now a failure. There
  * has never been one.
  */
+/*
+ * A step label that is INDENTED is a step nested inside another step.
+ *
+ * The label scan above is anchored to column zero, which is what stops a
+ * number inside a step's own prose being read as a label. The cost is a blind
+ * spot with no symptom: append your closures inside the previous step's array
+ * and label them `    // 369`, and every check here still passes. The highest
+ * column-zero label has not moved, so FOG_SCHEMA already matches it; there is
+ * no unlabelled append, because there is no append at all.
+ *
+ * What you get is a migration that runs on a FRESH install -- the containing
+ * step still executes, so CI is green on every engine -- and never runs on an
+ * UPGRADE, because that step's number is already stored and it is never
+ * replayed. The columns exist everywhere the tests look and on no real server.
+ *
+ * That is exactly what happened to steps 369/370 (hostArch/imageArch): both
+ * closures went inside step 368, CI passed on MariaDB 10.5, 11.8 and MySQL
+ * 8.0, and the live upgrade silently did nothing.
+ *
+ * Only numbers ABOVE the highest real label are flagged. Steps routinely cite
+ * earlier ones in prose ("same as 336/338/341"), and those are legitimate.
+ */
+$nested = [];
+preg_match_all(
+    '/^[ \t]+\/\/ (\d+)\s*[:.]/m',
+    $schemaSrc,
+    $nestedMatches,
+    PREG_SET_ORDER
+);
+foreach ($nestedMatches as $m) {
+    if ((int)$m[1] > $highest) {
+        $nested[] = (int)$m[1];
+    }
+}
+if (count($nested)) {
+    fwrite(
+        STDERR,
+        "FAIL: indented step label(s) above the highest real step ("
+        . $highest . "): " . implode(', ', $nested) . "\n"
+        . "  An indented `// N` is a step appended INSIDE another step's\n"
+        . "  array. It runs on a fresh install and never on an upgrade, and\n"
+        . "  nothing else in this file's checks can see it.\n"
+        . "  Move it to a column-zero `// N` label followed by its own\n"
+        . "  `\$this->schema[] = [...]`, and bump FOG_SCHEMA to match.\n"
+    );
+    exit(1);
+}
+
 if ($schema !== $highest) {
     $why = $schema < $highest
         ? "  Every step after $schema applies to nobody: the coarse gate\n"

@@ -48,12 +48,19 @@ class ImageManagement extends FOGPage
             _('Enabled'),
             _('Captured')
         ];
+        // Each <th> carries its DataTables data key, the same contract the
+        // host grid uses. fog.image.list.js builds both its column list and
+        // its columnDefs targets from these rather than from hardcoded
+        // indexes: the renders here used to be pinned to targets 1 and 2, so
+        // inserting Architecture at position 1 slid the lock render onto the
+        // new column and the enabled render onto Protected, silently. Names
+        // cannot slide.
         $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            []
+            ['data-col' => 'mainlink'],
+            ['data-col' => 'arch'],
+            ['data-col' => 'protected'],
+            ['data-col' => 'isEnabled'],
+            ['data-col' => 'deployed']
         ];
     }
     /**
@@ -1289,6 +1296,30 @@ class ImageManagement extends FOGPage
     {
         $this->title = _('Architectures');
 
+        // Refuse to render against a database that has not been migrated.
+        //
+        // Not hypothetical: this page was reachable on a live 1.6 server
+        // sitting at schema version 368 while FOG_SCHEMA still said 368, so
+        // the updater never offered steps 369/370. The queries below then
+        // failed with 1054 Unknown column, PDODB swallowed the exception and
+        // returned false, and the tables rendered one blank row each -- which
+        // looks like "no data" rather than "broken", and is the worst of both.
+        //
+        // tableColumns() returns [] when it cannot read the table at all, and
+        // its contract is that empty means "don't know", so only a populated
+        // list missing the column counts as proof of an unmigrated database.
+        $hostCols = DatabaseManager::tableColumns('hosts');
+        $imageCols = DatabaseManager::tableColumns('images');
+        if ((count($hostCols) && !in_array('hostarch', $hostCols))
+            || (count($imageCols) && !in_array('imagearch', $imageCols))
+        ) {
+            echo '<div class="alert alert-warning">';
+            echo '<strong>' . _('Database update required.') . '</strong> ';
+            echo _('The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page.');
+            echo '</div>';
+            return;
+        }
+
         $rows = self::$DB->query(
             "SELECT `hosts`.`hostID` AS `id`, `hosts`.`hostName` AS `host`, "
             . "`hosts`.`hostArch` AS `hostArch`, "
@@ -1299,7 +1330,7 @@ class ImageManagement extends FOGPage
             . "ON `hosts`.`hostImage` = `images`.`imageID` "
             . "ORDER BY `hosts`.`hostName`"
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-        $rows = (array)$rows;
+        $rows = is_array($rows) ? $rows : [];
 
         $images = self::$DB->query(
             "SELECT `images`.`imageID` AS `id`, "
@@ -1314,7 +1345,7 @@ class ImageManagement extends FOGPage
             . "`images`.`imageArch`, `images`.`imageDateTime` "
             . "ORDER BY `images`.`imageName`"
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-        $images = (array)$images;
+        $images = is_array($images) ? $images : [];
 
         // Counted in PHP off the same rows the table renders, so the summary
         // and the detail cannot disagree.
