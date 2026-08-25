@@ -739,10 +739,27 @@ class OpenAPI extends FOGBase
             $schema = self::_applyModelConstraint($class, $property, $schema);
             $properties[$property] = $schema;
         }
+        // additionalProperties is stated rather than left to the default.
+        //
+        // The default is already true -- an object schema that says nothing
+        // permits extra properties -- so this loosens nothing and changes no
+        // validator's verdict. What it changes is code generation: most
+        // generators emit a catch-all bag ONLY when the keyword is explicitly
+        // present, and silently drop, or refuse, unknown keys when it is
+        // absent. openapi-generator's PowerShell models are the sharp case;
+        // without this they throw on the first key they were not told about.
+        //
+        // Declaring the computed fields above fixes the 80 this document can
+        // enumerate. It cannot enumerate the rest: a plugin contributes its
+        // own classes and its own joined fields at runtime, and a client
+        // generated from a pinned snapshot meets fields added after it was
+        // generated. Both are normal here, so tolerating unknown keys is the
+        // correct standing behaviour for a FOG response, not a workaround.
         $out = [
             'type' => 'object',
             'x-fog-table' => $table,
-            'properties' => $properties
+            'properties' => $properties,
+            'additionalProperties' => true
         ];
         $required = array_values(
             array_filter(
