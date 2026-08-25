@@ -120,6 +120,10 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
@@ -297,6 +301,9 @@ msgid "A location already exists with this name!"
 msgstr ""
 
 msgid "A menu entry already exists with this name!"
+msgstr ""
+
+msgid "A migration step failed. The plugin is left activated and not marked installed."
 msgstr ""
 
 msgid "A module already exists with this name!"
@@ -497,6 +504,9 @@ msgid "Activate selected"
 msgstr ""
 
 msgid "Activated"
+msgstr ""
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
 msgstr ""
 
 msgid "Active"
@@ -2277,6 +2287,10 @@ msgstr ""
 msgid "Failed to install "
 msgstr ""
 
+#, php-format
+msgid "Failed to install %s"
+msgstr ""
+
 msgid "Failed to install logo file"
 msgstr ""
 
@@ -3445,6 +3459,9 @@ msgstr ""
 msgid "Install Plugins"
 msgstr ""
 
+msgid "Install a plugin"
+msgstr ""
+
 msgid "Install plugins failed!"
 msgstr ""
 
@@ -4592,6 +4609,9 @@ msgstr ""
 msgid "No plugin tasks to run"
 msgstr ""
 
+msgid "No plugin with that id."
+msgstr ""
+
 msgid "No plugins selected."
 msgstr ""
 
@@ -5214,6 +5234,9 @@ msgid "Plugin deactivated!"
 msgstr ""
 
 msgid "Plugin installed!"
+msgstr ""
+
+msgid "Plugin not found"
 msgstr ""
 
 msgid "Plugin runner is globally disabled"
@@ -7090,6 +7113,9 @@ msgstr ""
 msgid "The plugin directory does not exist."
 msgstr ""
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 msgid "The plugin system is disabled"
 msgstr ""
 
@@ -7113,6 +7139,9 @@ msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
 msgid "The selected site no longer exists"
+msgstr ""
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
 msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."

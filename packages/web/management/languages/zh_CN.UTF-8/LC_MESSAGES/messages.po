@@ -144,6 +144,10 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
@@ -342,6 +346,9 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "A menu entry already exists with this name!"
 msgstr "图像已经存在具有此名称！"
+
+msgid "A migration step failed. The plugin is left activated and not marked installed."
+msgstr ""
 
 #, fuzzy
 msgid "A module already exists with this name!"
@@ -582,6 +589,9 @@ msgstr "打印机"
 #, fuzzy
 msgid "Activated"
 msgstr "活性"
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
+msgstr ""
 
 msgid "Active"
 msgstr "活性"
@@ -2670,6 +2680,10 @@ msgstr "连接失败"
 msgid "Failed to install "
 msgstr "未能摧毁"
 
+#, fuzzy, php-format
+msgid "Failed to install %s"
+msgstr "未能摧毁"
+
 #, fuzzy
 msgid "Failed to install logo file"
 msgstr "未能摧毁"
@@ -4067,6 +4081,10 @@ msgid "Install Plugins"
 msgstr "安装插件"
 
 #, fuzzy
+msgid "Install a plugin"
+msgstr "安装插件"
+
+#, fuzzy
 msgid "Install plugins failed!"
 msgstr "安装插件"
 
@@ -5411,6 +5429,10 @@ msgid "No plugin tasks to run"
 msgstr "发送无有效类"
 
 #, fuzzy
+msgid "No plugin with that id."
+msgstr "发送无有效类"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "更新管理单元"
 
@@ -6138,6 +6160,10 @@ msgstr "插件名称"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "插件名称"
+
+#, fuzzy
+msgid "Plugin not found"
+msgstr "未发现记录，错误： %s"
 
 #, fuzzy
 msgid "Plugin runner is globally disabled"
@@ -8353,6 +8379,9 @@ msgstr "目录"
 msgid "The plugin directory does not exist."
 msgstr "方法不存在"
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin system is disabled"
 msgstr "捐款将被禁用"
@@ -8379,6 +8408,9 @@ msgstr ""
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "不复存在"
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
+msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""

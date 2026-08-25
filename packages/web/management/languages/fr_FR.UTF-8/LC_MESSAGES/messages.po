@@ -145,6 +145,10 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
@@ -343,6 +347,9 @@ msgstr "Une image existe déjà avec ce nom!"
 #, fuzzy
 msgid "A menu entry already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
+
+msgid "A migration step failed. The plugin is left activated and not marked installed."
+msgstr ""
 
 #, fuzzy
 msgid "A module already exists with this name!"
@@ -583,6 +590,9 @@ msgstr "Imprimante"
 #, fuzzy
 msgid "Activated"
 msgstr "actif"
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
+msgstr ""
 
 msgid "Active"
 msgstr "actif"
@@ -2671,6 +2681,10 @@ msgstr "Échec de connexion"
 msgid "Failed to install "
 msgstr "Impossible de détruire"
 
+#, fuzzy, php-format
+msgid "Failed to install %s"
+msgstr "Impossible de détruire"
+
 #, fuzzy
 msgid "Failed to install logo file"
 msgstr "Impossible de détruire"
@@ -4068,6 +4082,10 @@ msgid "Install Plugins"
 msgstr "Installer Plugins"
 
 #, fuzzy
+msgid "Install a plugin"
+msgstr "Installer Plugins"
+
+#, fuzzy
 msgid "Install plugins failed!"
 msgstr "Installer Plugins"
 
@@ -5412,6 +5430,10 @@ msgid "No plugin tasks to run"
 msgstr "Aucune classe valide envoyé"
 
 #, fuzzy
+msgid "No plugin with that id."
+msgstr "Aucune classe valide envoyé"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "snapin mise à jour"
 
@@ -6139,6 +6161,10 @@ msgstr "Nom Plugin"
 #, fuzzy
 msgid "Plugin installed!"
 msgstr "Nom Plugin"
+
+#, fuzzy
+msgid "Plugin not found"
+msgstr "Enregistrement non trouvé, Erreur: %s"
 
 #, fuzzy
 msgid "Plugin runner is globally disabled"
@@ -8354,6 +8380,9 @@ msgstr "Annuaire"
 msgid "The plugin directory does not exist."
 msgstr "Méthode n'existe pas"
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin system is disabled"
 msgstr "Les dons sont désactivés"
@@ -8380,6 +8409,9 @@ msgstr ""
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr " n'existe plus"
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
+msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
