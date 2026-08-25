@@ -2030,7 +2030,7 @@ class OpenAPI extends FOGBase
      */
     private static function _pluginInstallOp()
     {
-        return self::_op(
+        $op = self::_op(
             '',
             'pluginInstall',
             _('Install a plugin'),
@@ -2050,7 +2050,10 @@ class OpenAPI extends FOGBase
                     . 'its schema is up to date.')],
                 '400' => [
                     'description' => _('The server refuses to activate this '
-                        . 'plugin; the message says why.'),
+                        . 'plugin, or the plugin declares no schema() '
+                        . 'migrations and is already installed, so '
+                        . 're-running its installer would drop and recreate '
+                        . 'its tables. The message says which.'),
                     'content' => [
                         'application/json' => [
                             'schema' => ['$ref' => '#/components/schemas/Error']
@@ -2076,6 +2079,14 @@ class OpenAPI extends FOGBase
                 ]
             ]
         );
+        // Grouped under plugin rather than system, the same way the two
+        // upload routes are grouped under snapin and storagegroup. _op()
+        // takes the tag from its class argument, which has to stay empty
+        // here so the operation id and the permission lookup both key off
+        // the fixed-route name -- but a reader looking for this opens the
+        // plugin tag, not system.
+        $op['tags'] = ['plugin'];
+        return $op;
     }
 
     /**

@@ -4156,6 +4156,38 @@ class Route extends FOGBase
                             ->addHost($hostsToAdd);
                     }
                     break;
+                case 'plugin':
+                    // installed and schema are server-owned, but state is
+                    // deliberately not: activating is a plain column write
+                    // and doing it over the API is legitimate. What is NOT
+                    // legitimate is using it to switch on a plugin the
+                    // server refuses to run -- an installed plugin left
+                    // deactivated because a FOG upgrade moved past its
+                    // fog_max is exactly the case activationBlockers()
+                    // exists for, and without this it is one PUT away from
+                    // loading on every boot (installed=1 AND state=1 is
+                    // what getActivePlugins() selects on).
+                    //
+                    // Gated on the TRANSITION to active, read from the
+                    // stored row rather than the mutated object, for the
+                    // same reason _refuseServerOwned() compares values: a
+                    // client that reads a plugin and PUTs it back
+                    // unchanged is asking for nothing, and an ordinary
+                    // description edit on an already-active plugin must
+                    // not start failing the day it becomes blocked.
+                    if (isset($vars->state)
+                        && (int)$vars->state === 1
+                        && !(int)self::getClass('Plugin', $id)->get('state')
+                    ) {
+                        $blockers = Plugin::activationBlockers([(int)$id]);
+                        if (count($blockers)) {
+                            self::setErrorMessage(
+                                self::_blockerReasons($blockers),
+                                HTTPResponseCodes::HTTP_BAD_REQUEST
+                            );
+                        }
+                    }
+                    break;
             }
             // Store the data and recreate.
             // If failed present so.
@@ -4505,6 +4537,27 @@ class Route extends FOGBase
         }
     }
     /**
+     * Flattens Plugin::activationBlockers() into one readable sentence.
+     *
+     * Shared by the two places that refuse an activation -- this route and
+     * the plugin arm of edit() -- so a caller turning a plugin on gets the
+     * same reason whichever way it asked. PluginManagementPage does the
+     * identical join in _refuseBlocked(); it stays there because it throws
+     * rather than answering, and this is the HTTP boundary.
+     *
+     * @param array $blockers name => reason, as activationBlockers returns.
+     *
+     * @return string
+     */
+    private static function _blockerReasons(array $blockers)
+    {
+        $reasons = [];
+        foreach ($blockers as $name => $reason) {
+            $reasons[] = sprintf('%s %s', $name, $reason);
+        }
+        return implode('; ', $reasons);
+    }
+    /**
      * Installs a plugin: activate, create its tables, then record it.
      *
      * POST /plugin/{id}/install.
@@ -4515,14 +4568,19 @@ class Route extends FOGBase
      * and installed=1 LAST so the column only ever claims an install that
      * actually happened.
      *
-     * installdb() is called unconditionally rather than only for a plugin
-     * that is not yet installed. Migration steps are append-only and
+     * installdb() is called without the install-state filter the web
+     * Install button applies. Migration steps are append-only and
      * idempotent by contract (docs/PLUGIN_SCHEMA_MIGRATIONS.md) and
      * Schema::applyUpdates() resumes from the stored count, so calling it
      * on an installed plugin applies only steps it has not seen -- which
      * is what the Upgrade action does. One route therefore installs, and
      * brings a plugin whose code ships newer schema() steps up to date,
      * without a drop and recreate.
+     *
+     * That contract holds only for a plugin that adopted schema(). One
+     * that did not is refused a SECOND install, because installdb() would
+     * fall back to its legacy install() and drop its tables; see the
+     * guard below.
      *
      * That also makes it the repair for a row whose installed flag was set
      * without the tables ever being created. The web Install action cannot
@@ -4538,39 +4596,70 @@ class Route extends FOGBase
         try {
             $Plugin = self::getClass('Plugin', (int)$id);
             if (!$Plugin->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND,
-                    _('Plugin not found')
+                // setErrorMessage(), not sendResponse(): every error this
+                // route can answer with is documented as the Error schema,
+                // and sendResponse() writes the bare string into a body
+                // labelled application/json. A generated client parses
+                // that and gets a syntax error instead of the reason.
+                self::setErrorMessage(
+                    _('Plugin not found'),
+                    HTTPResponseCodes::HTTP_NOT_FOUND
                 );
-                return;
             }
             // Same gate the page applies. A blocked plugin is one the
             // server has a reason to refuse -- a conflict with a core
             // feature that replaced it, for instance -- and the API must
-            // not be the way around it.
+            // not be the way around it. The generic edit route carries
+            // the other half of this, on `state`; see Route::edit().
             $blockers = Plugin::activationBlockers([$Plugin->get('id')]);
             if (count($blockers)) {
-                $reasons = [];
-                foreach ($blockers as $name => $reason) {
-                    $reasons[] = sprintf('%s %s', $name, $reason);
-                }
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_BAD_REQUEST,
-                    implode('; ', $reasons)
+                self::setErrorMessage(
+                    self::_blockerReasons($blockers),
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
                 );
-                return;
+            }
+            // installdb() is idempotent only for a manager that adopted
+            // the schema() contract. Without one it falls back to the
+            // legacy install(), whose 1.5 shape opens with uninstall() --
+            // a DROP -- and rebuilds; wolbroadcast destroyed its own
+            // table on every install that way until fog-plugins#24. The
+            // web Install button never met that because it filters on
+            // installed IN ('', 0, '0'), and this route deliberately does
+            // not filter, so the protection has to be restored here or
+            // "install an installed plugin" silently means "empty it".
+            //
+            // A FIRST install of such a plugin is still allowed: there is
+            // nothing to lose, and it is how a legacy plugin has always
+            // been installed. A plugin with no manager at all (hooks
+            // only) has neither method and re-installs as a no-op, which
+            // is correct and must not be refused.
+            $manager = $Plugin->getManager();
+            if ($Plugin->get('installed')
+                && !method_exists($manager, 'schema')
+                && method_exists($manager, 'install')
+            ) {
+                self::setErrorMessage(
+                    sprintf(
+                        // translators: %s is the plugin name.
+                        _('%s does not declare schema() migrations, so '
+                            . 're-installing it would drop and recreate its '
+                            . 'tables. Uninstall it first if that is what '
+                            . 'you want.'),
+                        $Plugin->get('name')
+                    ),
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                );
             }
             $Plugin->set('state', 1)->save();
             if (!$Plugin->installdb()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                self::setErrorMessage(
                     sprintf(
                         // translators: %s is the plugin name.
                         _('Failed to install %s'),
                         $Plugin->get('name')
-                    )
+                    ),
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
                 );
-                return;
             }
             // Written here, by the server, having done the work. The
             // generic edit route refuses this column for exactly that
@@ -4578,9 +4667,9 @@ class Route extends FOGBase
             $Plugin->set('installed', 1)->save();
             self::sendResponse(HTTPResponseCodes::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
-                $e->getMessage()
+            self::setErrorMessage(
+                $e->getMessage(),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }
