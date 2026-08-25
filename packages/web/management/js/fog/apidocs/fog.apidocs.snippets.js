@@ -551,6 +551,251 @@
         return lines.join('\n');
     }
 
+    /* ---------------------------------------------------------------- *
+     * Ruby                                                              *
+     * ---------------------------------------------------------------- */
+
+    var RUBY_METHODS = {
+        GET: 'Get',
+        POST: 'Post',
+        PUT: 'Put',
+        PATCH: 'Patch',
+        DELETE: 'Delete',
+        HEAD: 'Head',
+        OPTIONS: 'Options'
+    };
+
+    /**
+     * A double-quoted Ruby string interpolates #{...}, so that sequence has to
+     * be escaped on top of the C-style escapes quoteDouble already applies.
+     * Nothing else in a header or a JSON body can change the meaning.
+     */
+    function quoteRuby(value) {
+        return quoteDouble(value).replace(/#\{/g, '\\#{');
+    }
+
+    function rubyValue(value, pad) {
+        if (value === null) {
+            return 'nil';
+        }
+        if (typeof value === 'boolean' || typeof value === 'number') {
+            return String(value);
+        }
+        if (typeof value === 'string') {
+            return quoteRuby(value);
+        }
+        if (Array.isArray(value)) {
+            if (!value.length) {
+                return '[]';
+            }
+            return '[\n' + value.map(function (item) {
+                return pad + '  ' + rubyValue(item, pad + '  ');
+            }).join(',\n') + '\n' + pad + ']';
+        }
+        if (typeof value === 'object') {
+            var keys = Object.keys(value);
+            if (!keys.length) {
+                return '{}';
+            }
+            return '{\n' + keys.map(function (key) {
+                return pad + '  ' + quoteRuby(key) + ' => '
+                    + rubyValue(value[key], pad + '  ');
+            }).join(',\n') + '\n' + pad + '}';
+        }
+        return quoteRuby(String(value));
+    }
+
+    function rubySnippet(request) {
+        var req = readRequest(request);
+        var body = req.body;
+        var lines = [];
+        var verb = RUBY_METHODS[req.method];
+        var headers = req.headers;
+
+        if (body.kind === 'form' || body.kind === 'file') {
+            // set_form writes the multipart header, boundary included.
+            headers = headers.filter(function (pair) {
+                return pair[0].toLowerCase() !== 'content-type';
+            });
+        }
+
+        // net/http is stdlib, so this runs on a stock Ruby with nothing to
+        // install -- which is the point of a snippet someone pastes once.
+        lines.push('require "json"');
+        lines.push('require "net/http"');
+        lines.push('require "uri"');
+        lines.push('');
+        lines.push('uri = URI(' + quoteRuby(req.url) + ')');
+        lines.push('');
+
+        if (verb) {
+            lines.push('request = Net::HTTP::' + verb + '.new(uri)');
+        } else {
+            // Net::HTTP has no class for an unusual verb; GenericRequest takes
+            // the method as a string instead.
+            lines.push('request = Net::HTTPGenericRequest.new('
+                + quoteRuby(req.method) + ', true, true, uri)');
+        }
+        headers.forEach(function (pair) {
+            lines.push('request[' + quoteRuby(pair[0]) + '] = '
+                + quoteRuby(pair[1]));
+        });
+        lines.push('');
+
+        if (body.kind === 'json') {
+            lines.push('request.body = JSON.generate(' + rubyValue(body.value, '') + ')');
+            lines.push('');
+        } else if (body.kind === 'raw') {
+            lines.push('request.body = ' + quoteRuby(body.raw));
+            lines.push('');
+        } else if (body.kind === 'form' || body.kind === 'file') {
+            var fields = body.kind === 'file'
+                ? [['file', body.file]]
+                : body.fields;
+            lines.push('request.set_form([');
+            fields.forEach(function (pair) {
+                lines.push('  [' + quoteRuby(pair[0]) + ', '
+                    + (isFileLike(pair[1])
+                        ? 'File.open(' + quoteRuby(pair[1].name) + ')'
+                        : quoteRuby(String(pair[1])))
+                    + '],');
+            });
+            lines.push('], "multipart/form-data")');
+            lines.push('');
+        }
+
+        // use_ssl has to be set explicitly; Net::HTTP does not infer it from
+        // the scheme, and without it an https URL is spoken to in plaintext.
+        lines.push('response = Net::HTTP.start('
+            + 'uri.hostname, uri.port, use_ssl: uri.scheme == "https") do |http|');
+        lines.push('  http.request(request)');
+        lines.push('end');
+        lines.push('');
+        lines.push('puts response.code');
+        lines.push('puts response.body');
+
+        return lines.join('\n');
+    }
+
+    /* ---------------------------------------------------------------- *
+     * PHP                                                               *
+     * ---------------------------------------------------------------- */
+
+    /**
+     * Single-quoted, which in PHP escapes only the backslash and the quote and
+     * interpolates nothing -- so a body containing $foo or \n stays literal.
+     */
+    function quotePhp(value) {
+        return "'" + String(value).replace(/[\\']/g, '\\$&') + "'";
+    }
+
+    function phpValue(value, pad) {
+        if (value === null) {
+            return 'null';
+        }
+        if (typeof value === 'boolean') {
+            return value ? 'true' : 'false';
+        }
+        if (typeof value === 'number') {
+            return String(value);
+        }
+        if (typeof value === 'string') {
+            return quotePhp(value);
+        }
+        if (Array.isArray(value)) {
+            if (!value.length) {
+                return '[]';
+            }
+            return '[\n' + value.map(function (item) {
+                return pad + '    ' + phpValue(item, pad + '    ') + ',';
+            }).join('\n') + '\n' + pad + ']';
+        }
+        if (typeof value === 'object') {
+            var keys = Object.keys(value);
+            if (!keys.length) {
+                return '[]';
+            }
+            return '[\n' + keys.map(function (key) {
+                return pad + '    ' + quotePhp(key) + ' => '
+                    + phpValue(value[key], pad + '    ') + ',';
+            }).join('\n') + '\n' + pad + ']';
+        }
+        return quotePhp(String(value));
+    }
+
+    function phpSnippet(request) {
+        var req = readRequest(request);
+        var body = req.body;
+        var lines = ['<?php', ''];
+        var headers = req.headers;
+
+        if (body.kind === 'form' || body.kind === 'file') {
+            // Handed an array, curl builds the multipart body and sets the
+            // header with its own boundary. Sending the one from here, which
+            // has no boundary, replaces that and the body becomes unreadable.
+            headers = headers.filter(function (pair) {
+                return pair[0].toLowerCase() !== 'content-type';
+            });
+        }
+
+        lines.push('$ch = curl_init(' + quotePhp(req.url) + ');');
+        lines.push('');
+        lines.push('curl_setopt($ch, CURLOPT_CUSTOMREQUEST, '
+            + quotePhp(req.method) + ');');
+        // Without this curl_exec prints the body and returns a bool, which is
+        // the usual first surprise for anyone new to the extension.
+        lines.push('curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);');
+
+        if (headers.length) {
+            lines.push('curl_setopt($ch, CURLOPT_HTTPHEADER, [');
+            headers.forEach(function (pair) {
+                lines.push('    ' + quotePhp(pair[0] + ': ' + pair[1]) + ',');
+            });
+            lines.push(']);');
+        }
+
+        if (body.kind === 'json') {
+            lines.push('');
+            lines.push('$payload = ' + phpValue(body.value, '') + ';');
+            lines.push('');
+            lines.push('curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));');
+        } else if (body.kind === 'raw') {
+            lines.push('');
+            lines.push('curl_setopt($ch, CURLOPT_POSTFIELDS, '
+                + quotePhp(body.raw) + ');');
+        } else if (body.kind === 'form' || body.kind === 'file') {
+            var fields = body.kind === 'file'
+                ? [['file', body.file]]
+                : body.fields;
+            lines.push('');
+            lines.push('curl_setopt($ch, CURLOPT_POSTFIELDS, [');
+            fields.forEach(function (pair) {
+                lines.push('    ' + quotePhp(pair[0]) + ' => '
+                    + (isFileLike(pair[1])
+                        ? 'new CURLFile(' + quotePhp(pair[1].name) + ')'
+                        : quotePhp(String(pair[1])))
+                    + ',');
+            });
+            lines.push(']);');
+        }
+
+        lines.push('');
+        lines.push('$response = curl_exec($ch);');
+        lines.push('');
+        // curl_exec returns false on a transport failure and an error page's
+        // body on an HTTP one; both look like "it worked" to json_decode.
+        lines.push('if ($response === false) {');
+        lines.push('    throw new RuntimeException(curl_error($ch));');
+        lines.push('}');
+        lines.push('');
+        lines.push('$status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);');
+        lines.push('curl_close($ch);');
+        lines.push('');
+        lines.push('var_dump($status, json_decode($response, true));');
+
+        return lines.join('\n');
+    }
+
     /* ---------------------------------------------------------------- */
 
     var GENERATORS = {
@@ -568,6 +813,16 @@
             title: 'JavaScript',
             syntax: 'javascript',
             fn: javascriptSnippet
+        },
+        ruby: {
+            title: 'Ruby',
+            syntax: 'ruby',
+            fn: rubySnippet
+        },
+        php: {
+            title: 'PHP',
+            syntax: 'php',
+            fn: phpSnippet
         }
     };
 
@@ -576,20 +831,37 @@
      *
      * `languages` is doing real work here, not decoration. A `generators` map
      * passed in config is *merged* into Swagger UI's own rather than replacing
-     * it, so listing only the four wanted below still leaves curl_powershell
-     * and curl_cmd in the map and renders six tabs -- including the `curl.exe`
-     * one this exists to displace. `languages` is the allowlist the selector
-     * filters the merged map through, so it is what actually decides the tabs.
+     * it, so a shorter `generators` does not mean fewer tabs -- the built-ins
+     * stay in the merged map and render alongside. `languages` is the allowlist
+     * the selector filters that merged map through, so it is the only thing
+     * that actually decides which tabs appear.
      *
-     * Tab order follows the merged map, which puts the built-ins first: cURL,
-     * then PowerShell, Python, JavaScript. cURL leads deliberately -- it is the
-     * form every reader recognises and the one the FOG docs quote -- and being
-     * first also makes it the tab that opens by default.
+     * Every generator that exists is currently listed, built-ins included, so
+     * the set can be judged on a real server rather than on argument. That is a
+     * starting position and not the intended end state -- eight tabs is more
+     * than a panel this size wears well, and two of them (cURL (PowerShell) and
+     * PowerShell) answer the same question in different ways on purpose, so a
+     * reader can see which one they actually want. Cull by deleting entries
+     * from this list; nothing else has to change, and a generator dropped from
+     * here stays available for a later reversal.
      *
-     * Adding the Windows cmd tab back is one entry in LANGUAGES. curl_powershell
-     * is the one to leave out; see the note at the top of this file.
+     * Order follows the merged map, which puts Swagger UI's three first. cURL
+     * leads, which also makes it the tab that opens by default.
      */
-    var LANGUAGES = ['curl_bash', 'powershell', 'python', 'javascript'];
+    var LANGUAGES = [
+        // Swagger UI's own. curl_powershell is `curl.exe` with PowerShell
+        // quoting rather than PowerShell, which is what the `powershell`
+        // generator below exists to offer instead.
+        'curl_bash',
+        'curl_powershell',
+        'curl_cmd',
+        // FOG's.
+        'powershell',
+        'python',
+        'javascript',
+        'ruby',
+        'php'
+    ];
 
     function config() {
         var generators = {

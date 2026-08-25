@@ -25,8 +25,18 @@
 # Content-Type copied onto a multipart request overrides the boundary the
 # client would have generated.
 #
+# The last section feeds every generated snippet to the real interpreter and
+# asks it to parse. Quoting is where a snippet generator goes wrong -- an
+# apostrophe in a filename, a backslash in a body, a $var that PHP would have
+# interpolated -- and those produce output that reads fine and does not run.
+# php -l, ast.parse, ruby -c and node --check each cost milliseconds and turn
+# that whole class into a test failure. PowerShell has no equivalent here,
+# since pwsh is not a reasonable thing to require; its quoting is covered by
+# the assertions above instead.
+#
 # Needs node. Skips (exit 0) rather than failing when it is absent, the same
-# way secureboot-authvars.test.sh skips without efitools.
+# way secureboot-authvars.test.sh skips without efitools. Each interpreter is
+# independently optional and skips on its own.
 #
 # Exit status 0 = pass or skip, 1 = fail.
 
@@ -123,11 +133,18 @@ check(
     'unknown: ' + unknown.join(', ')
 );
 
-// 3. The whole point: PowerShell means Invoke-RestMethod, not curl.exe.
+// 3. The whole point: a PowerShell tab that is PowerShell.
+//
+// Swagger UI's curl_powershell is currently offered alongside it, on purpose,
+// so the two can be compared on a live server before one is dropped -- so this
+// no longer asserts its absence. What has to stay true either way is that the
+// tab titled PowerShell is ours and is distinct from the curl.exe one.
 check(
-    'curl_powershell is not offered',
-    (config.languages || []).indexOf('curl_powershell') < 0,
-    'the curl.exe tab is back; it is what the PowerShell generator replaces'
+    'a PowerShell tab is offered and is FOG\'s own generator',
+    (config.languages || []).indexOf('powershell') >= 0
+        && typeof fns.requestSnippetGenerator_powershell === 'function'
+        && config.generators.powershell.title === 'PowerShell',
+    JSON.stringify(config.generators.powershell)
 );
 
 const jsonRequest = map({
@@ -139,7 +156,10 @@ const jsonRequest = map({
         accept: 'application/json'
     }),
     body: JSON.stringify({
-        name: 'lab-pc-01',
+        // The apostrophe and the #{} are the fixture, not decoration: they are
+        // what PowerShell's single quotes, PHP's single quotes and Ruby's
+        // interpolation each have to survive.
+        name: "Bill's #{PC}",
         enforce: true,
         imageID: 3,
         ip: null
@@ -149,6 +169,8 @@ const jsonRequest = map({
 const ps = snippets.generators.powershell.fn(jsonRequest);
 const py = snippets.generators.python.fn(jsonRequest);
 const js = snippets.generators.javascript.fn(jsonRequest);
+const rb = snippets.generators.ruby.fn(jsonRequest);
+const php = snippets.generators.php.fn(jsonRequest);
 
 check(
     'PowerShell calls Invoke-RestMethod',
@@ -194,6 +216,51 @@ check(
     js
 );
 
+check(
+    'Ruby uses stdlib net/http, so the snippet needs no gem installed',
+    /^require "net\/http"$/m.test(rb) && /Net::HTTP::Put\.new\(uri\)/.test(rb),
+    rb
+);
+
+// Net::HTTP does not infer TLS from the scheme. Without use_ssl an https URL
+// is spoken to in plaintext, which fails in a way that looks like the server.
+check(
+    'Ruby sets use_ssl from the scheme',
+    /use_ssl: uri\.scheme == "https"/.test(rb),
+    rb
+);
+
+// Not reachable by ruby -c: "#{PC}" parses fine and fails at run time with a
+// NameError, so only an assertion on the text catches it. A description field
+// containing #{...} would otherwise be silently replaced by whatever that
+// evaluated to -- or blow up -- when the snippet is run.
+check(
+    'Ruby escapes #{} so a body is not interpolated',
+    /Bill's \\#\{PC\}/.test(rb),
+    rb
+);
+
+check(
+    'Ruby emits Ruby literals, not JSON ones',
+    /"ip" => nil/.test(rb) && /"enforce" => true/.test(rb) && !/\bnull\b/.test(rb),
+    rb
+);
+
+check(
+    'PHP requests the response body rather than printing it',
+    /CURLOPT_RETURNTRANSFER, true/.test(php)
+        && /CURLOPT_CUSTOMREQUEST, 'PUT'/.test(php),
+    php
+);
+
+// Single-quoted, so nothing in a body is interpolated and only \\ and ' need
+// escaping. A double-quoted literal would eat a $var out of a JSON payload.
+check(
+    'PHP quotes with single quotes and escapes the apostrophe',
+    /'fog-api-token: QUJD'/.test(php) && !/\$payload = \[\s*"/.test(php),
+    php
+);
+
 // A multipart Content-Type has a boundary the client generates. Copying the
 // one Swagger UI sent -- which has none -- overrides that, and the server gets
 // a body it cannot parse.
@@ -210,6 +277,8 @@ const formRequest = map({
 const pyForm = snippets.generators.python.fn(formRequest);
 const jsForm = snippets.generators.javascript.fn(formRequest);
 const psForm = snippets.generators.powershell.fn(formRequest);
+const rbForm = snippets.generators.ruby.fn(formRequest);
+const phpForm = snippets.generators.php.fn(formRequest);
 
 check(
     'Python drops Content-Type on a multipart request',
@@ -221,11 +290,24 @@ check(
     !/multipart\/form-data/.test(jsForm) && /new FormData\(\)/.test(jsForm),
     jsForm
 );
+// set_form and a CURLOPT_POSTFIELDS array both write the header themselves, so
+// both need the boundary-less one out of the way -- but each still names
+// multipart in its own call, which is why these look for the header form.
+check(
+    'Ruby lets set_form write the multipart header',
+    !/request\["Content-Type"\]/.test(rbForm) && /set_form\(\[/.test(rbForm),
+    rbForm
+);
+check(
+    'PHP lets curl write the multipart header',
+    !/'Content-Type: multipart/.test(phpForm) && /new CURLFile\(/.test(phpForm),
+    phpForm
+);
 
 // Swagger UI suffixes repeated form keys; the wire name is what precedes it.
 check(
     'the _**[] form-key marker is stripped',
-    !/_\*\*\[\]/.test(pyForm + jsForm + psForm),
+    !/_\*\*\[\]/.test(pyForm + jsForm + psForm + rbForm + phpForm),
     psForm
 );
 
@@ -248,7 +330,9 @@ check(
     'a body-less request produces no body',
     !/-Body/.test(snippets.generators.powershell.fn(bare))
         && !/payload/.test(snippets.generators.python.fn(bare))
-        && !/body:/.test(snippets.generators.javascript.fn(bare)),
+        && !/body:/.test(snippets.generators.javascript.fn(bare))
+        && !/request\.body/.test(snippets.generators.ruby.fn(bare))
+        && !/CURLOPT_POSTFIELDS/.test(snippets.generators.php.fn(bare)),
     snippets.generators.powershell.fn(bare)
 );
 
@@ -260,6 +344,113 @@ if [[ $? -eq 0 ]]; then
 else
     FAIL=$((FAIL + 1))
 fi
+
+# --- does the generated code actually parse? -------------------------------
+#
+# Written out across four body shapes chosen for their quoting: a JSON document
+# carrying an apostrophe and a #{} that Ruby would interpolate, a bare GET, a
+# multipart upload whose filename has an apostrophe in it, and a raw body with
+# newlines, a backslash, a double quote and a $var in it.
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+node - "$SNIPPETS" "$WORK" <<'NODEEOF'
+'use strict';
+const fs = require('fs');
+const snippets = require(process.argv[2]);
+const out = process.argv[3];
+
+function map(obj) {
+    return {
+        get: (key) => obj[key],
+        forEach: (cb) => Object.keys(obj).forEach((key) => cb(obj[key], key)),
+        size: Object.keys(obj).length
+    };
+}
+
+const cases = {
+    json: map({
+        url: 'https://fog.example.org/fog/host/42/edit',
+        method: 'PUT',
+        headers: map({ 'fog-api-token': 'QUJD', 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+            name: "Bill's #{PC}",
+            imageID: 3,
+            enforce: true,
+            ip: null,
+            macs: ['00:11:22:33:44:55'],
+            nested: { key: 'value' }
+        }, null, 2)
+    }),
+    bare: map({
+        url: 'https://fog.example.org/fog/host',
+        method: 'GET',
+        headers: map({ 'fog-api-token': 'QUJD' })
+    }),
+    form: map({
+        url: 'https://fog.example.org/fog/snapin/createwithfile',
+        method: 'POST',
+        headers: map({ 'Content-Type': 'multipart/form-data' }),
+        body: map({
+            name: 'thing',
+            'file_**[]': { name: "o'brien.exe", size: 1, type: 'application/octet-stream' }
+        })
+    }),
+    raw: map({
+        url: 'https://fog.example.org/fog/system/thing',
+        method: 'POST',
+        headers: map({ 'Content-Type': 'text/plain' }),
+        body: 'line one\nit\'s \\ "quoted" $var\nline three'
+    })
+};
+
+const EXT = {
+    powershell: 'ps1',
+    python: 'py',
+    javascript: 'mjs',
+    ruby: 'rb',
+    php: 'php'
+};
+
+Object.keys(cases).forEach((name) => {
+    Object.keys(snippets.generators).forEach((lang) => {
+        fs.writeFileSync(
+            out + '/' + name + '.' + lang + '.' + EXT[lang],
+            snippets.generators[lang].fn(cases[name])
+        );
+    });
+});
+NODEEOF
+
+# Each interpreter is optional. A machine without ruby still gets every other
+# check rather than the whole section going quiet.
+syntax_check() {
+    local label="$1" tool="$2" glob="$3"
+    shift 3
+    if ! command -v "$tool" >/dev/null 2>&1; then
+        echo "SKIP: $label syntax check ($tool is not installed)"
+        return
+    fi
+    local bad_files=0 f out
+    for f in "$WORK"/*."$glob"; do
+        [[ -f $f ]] || continue
+        if ! out="$("$@" "$f" 2>&1)"; then
+            echo "      $(basename "$f"): $out"
+            bad_files=$((bad_files + 1))
+        fi
+    done
+    if [[ $bad_files -eq 0 ]]; then
+        ok "generated $label parses"
+    else
+        bad "generated $label does not parse ($bad_files snippet(s))"
+    fi
+}
+
+syntax_check PHP php php php -l
+syntax_check Python python3 py     python3 -c 'import ast, sys; ast.parse(open(sys.argv[1]).read())'
+syntax_check Ruby ruby rb ruby -c
+syntax_check JavaScript node mjs node --check
 
 echo
 if [[ $FAIL -gt 0 ]]; then
