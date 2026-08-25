@@ -76,6 +76,19 @@ Resolution rules:
 `--install-mode` is a preset over these keys — a convenience, never a
 replacement. Discrete flags apply after it and override only their own field.
 
+The chosen preset is persisted as `FOG_install_mode` and seeded back into the
+preset before it is applied, so the question is asked once rather than on every
+upgrade. Two consequences follow from that placement:
+
+- It is applied *after* the line that forces `WEB_url_proto=https`, which is the
+  only reason `http-only` can persist at all. Before, that mode left no trace in
+  the four keys and had to be passed again on every upgrade or it reverted.
+- Any discrete transport flag **clears** it. Once a flag has moved one of the
+  four keys off its preset the shape is no longer one of the named modes, and a
+  name left behind would have the next run's preset overwrite the very key that
+  moved — the same trap `BOOT_url_proto` documents above. Empty means custom,
+  and the four keys then stand alone as the model they always were.
+
 ### Why `PKI_web_cert_publicly_trusted` is stated, not measured
 
 A probe was prototyped and removed. It was delicate: FOG installs its own CA

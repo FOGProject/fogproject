@@ -62,7 +62,7 @@ in this area:
 
 | Kind | Meaning | Examples |
 |---|---|---|
-| **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `PKI_sb_enabled`, `SVC_firewall_control`, `FOG_update_channel`, `PKI_internal_subnets`, `BOOT_kernel_backups_kept` |
+| **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `PKI_sb_enabled`, `SVC_firewall_control`, `FOG_update_channel`, `FOG_install_mode`, `PKI_internal_subnets`, `BOOT_kernel_backups_kept` |
 | **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `FOG_program_dir`, `FOG_git_path`, `FOG_packages`, `WEB_php_version`, `BOOT_url_proto`, every canonical `PKI_*` path |
 | **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `inetConnectTimeout`, `inetMaxTime`, `storageLocationCapture`, `ftppasvmin`/`ftppasvmax`, `mcastportmin`/`mcastportmax` |
 | **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `WEB_https_redirect`, `BOOT_url_proto_forced` |
@@ -314,6 +314,7 @@ Three keys are outside this:
 | `FOG_installed` | unquoted numeric via `settingLine()`'s own branch to preserve the historical format, read by `bin/updatefog.sh`, and install *state* rather than a preference |
 | `SVC_firewall_control` | tri-state — `configure`/`disable`/`skip`. Folding it to `yes`/`no` destroys an answer |
 | `FOG_install_type` | an `N`/`S` enum |
+| `FOG_install_mode` | names a *preset over* four other keys rather than holding a value of its own, and is the only key that is deliberately cleared — any discrete transport flag makes the shape custom, so the name would no longer describe it. See below |
 
 ---
 
