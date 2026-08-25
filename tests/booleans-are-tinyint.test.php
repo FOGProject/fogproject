@@ -97,54 +97,83 @@ foreach ($tables as $table => $def) {
 }
 
 // --- 2 & 3. the conversion keeps its three statements ----------------------
-$schema = (string) file_get_contents($web . '/commons/schema.php');
-$step = '';
-if (preg_match('#\n// 368\n\$this->schema\[\] = \[(.*?)\n\];#s', $schema, $m)) {
-    $step = $m[1];
+// The SQL lives in Schema::enumToTinyint(), shared so that core step 368 and
+// the three bundled plugins that convert their own columns cannot drift.
+$schemaClass = (string) file_get_contents($web . '/lib/fog/schema.class.php');
+$method = '';
+if (preg_match(
+    '#public static function enumToTinyint\(array \$map\)\s*\{(.*?)\n    \}#s',
+    $schemaClass,
+    $m
+)) {
+    $method = $m[1];
 }
-btCheck('schema step 368 was found', $step !== '', $failures, $checks);
+btCheck(
+    'Schema::enumToTinyint() exists -- core and the bundled plugins share one '
+    . 'implementation of the conversion',
+    $method !== '',
+    $failures,
+    $checks
+);
 
-// The step opens with a comment block that names all three statements in a
-// different order to the one it runs them in. Order is only meaningful for
-// the code, so read the code.
-$code = preg_replace('#^\s*//.*$#m', '', $step);
-
-$varcharAt = strpos($code, 'VARCHAR(1)');
-$updateAt = strpos($code, 'UPDATE');
-$tinyintAt = strpos($code, 'TINYINT(1)');
+$varcharAt = strpos($method, 'VARCHAR(1)');
+$updateAt = strpos($method, 'UPDATE');
+$tinyintAt = strpos($method, 'TINYINT(1)');
 
 btCheck(
-    'step 368 converts through VARCHAR(1) first -- a direct ALTER to TINYINT '
-    . "converts an ENUM by INDEX, turning every '0' into 1 and every '1' into "
-    . '2, silently, on every upgrading server',
+    'enumToTinyint() converts through VARCHAR(1) first -- a direct ALTER to '
+    . "TINYINT converts an ENUM by INDEX, turning every '0' into 1 and every "
+    . "'1' into 2, silently, on every upgrading server",
     $varcharAt !== false,
     $failures,
     $checks
 );
 btCheck(
-    'step 368 still repairs stragglers between the two ALTERs -- a row holding '
-    . "the ENUM error value arrives as '' and tinyint refuses it",
+    'enumToTinyint() still repairs stragglers between the two ALTERs -- a row '
+    . "holding the ENUM error value arrives as '' and tinyint refuses it",
     $updateAt !== false,
     $failures,
     $checks
 );
 btCheck(
-    'step 368 lands on TINYINT(1)',
+    'enumToTinyint() lands on TINYINT(1)',
     $tinyintAt !== false,
     $failures,
     $checks
 );
 btCheck(
-    'step 368 runs VARCHAR -> UPDATE -> TINYINT in that order',
+    'enumToTinyint() runs VARCHAR -> UPDATE -> TINYINT in that order',
     $varcharAt !== false && $updateAt !== false && $tinyintAt !== false
         && $varcharAt < $updateAt && $updateAt < $tinyintAt,
     $failures,
     $checks
 );
 btCheck(
-    'step 368 checks the live column type before touching it, so a re-run is '
-    . 'a read and a column already changed is left alone',
-    false !== strpos($code, "enum\\\\('0','1'\\\\)"),
+    'enumToTinyint() checks the live column type before touching it, so a '
+    . 're-run is a read and a column already changed is left alone',
+    false !== strpos($method, "enum\\\\('0','1'\\\\)"),
+    $failures,
+    $checks
+);
+btCheck(
+    'enumToTinyint() carries the column\'s nullability across rather than '
+    . 'assuming NOT NULL -- LDAPServers.lsAllowAPI is nullable, and rewriting '
+    . 'that would be a behaviour change smuggled in by a type change',
+    false !== strpos($method, 'IS_NULLABLE'),
+    $failures,
+    $checks
+);
+
+// --- 4. step 368 is what runs it for the core tables -----------------------
+$schema = (string) file_get_contents($web . '/commons/schema.php');
+$step = '';
+if (preg_match('#\n// 368\n\$this->schema\[\] = \[(.*?)\n\];#s', $schema, $m)) {
+    $step = $m[1];
+}
+btCheck('schema step 368 was found', $step !== '', $failures, $checks);
+btCheck(
+    'schema step 368 converts the core columns through the shared helper',
+    false !== strpos(preg_replace('#^\s*//.*$#m', '', $step), 'Schema::enumToTinyint'),
     $failures,
     $checks
 );

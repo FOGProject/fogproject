@@ -67,6 +67,15 @@ is the existing default). Core columns are converted by schema step 368; the
 bundled plugins convert their own, because each plugin owns its schema
 ([ADR 0009](0009-plugins-become-installable-artifacts.md)).
 
+All four callers run the same code: `Schema::enumToTinyint()`. The conversion has
+one rule in it that must not be re-derived per plugin (below), so it is written
+once and the plugins call it. It reads nullability and default out of
+`information_schema` and carries them across rather than assuming `NOT NULL` —
+`LDAPServers`.`lsAllowAPI` is nullable and `lsUseGroupMatch` has no default at
+all, and rewriting either would be a behaviour change smuggled in by a type
+change. It also skips any column that is not still exactly `enum('0','1')`, so a
+re-run is a read.
+
 New two-state columns are declared `TINYINT(1)` from the start. `enum` remains
 correct for a genuine enumeration — `lsSearchScope`, `pmAction`, `ttType`,
 `alOutcome` and the rest are untouched.
