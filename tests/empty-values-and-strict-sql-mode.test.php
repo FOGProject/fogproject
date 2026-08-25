@@ -198,11 +198,22 @@ evCheck(
         $nullArms
     )
 );
+// perform_update() used to spell this inline as
+// `$value = (null === $value) ? null : trim($value);`. Forum topic 18227
+// moved it to _trimValue(), which additionally has to survive a boolean and
+// an array -- see booleans-store-as-zero-or-one.test.php. What matters here
+// is unchanged: null must reach the bind array as null.
 evCheck(
-    strpos($mSquashed, '$value=(null===$value)?null:trim($value);') !== false,
+    strpos($mSquashed, '$value=self::_trimValue($value);') !== false
+    || strpos($mSquashed, '$value=(null===$value)?null:trim($value);') !== false,
     'FOGManagerController::perform_update() trims the value again. '
     . "trim(null) is '' -- and a PHP 8.1 deprecation -- which puts the zero "
     . 'date straight back into a column being cleared.'
+);
+evCheck(
+    strpos($mSquashed, 'is_string($value)?trim($value):$value') !== false,
+    'FOGManagerController::_trimValue() no longer leaves a non-string alone, '
+    . 'so null goes back to being trimmed into the zero date.'
 );
 
 // ---------------------------------------------------------------
