@@ -28,23 +28,32 @@
         // not exist on this page.
         select: false,
         buttons: [],
-        paging: true,
-        searching: true,
-        ordering: true,
-        info: true,
-        // Classic paging, not the virtual scroller. Scroller sizes its
-        // viewport from a UNIFORM row height, and these tables deliberately
-        // carry taller rows (the muted "Not yet seen" spans) alongside short
-        // ones; it also renders into a fixed-height viewport, which is wrong
-        // for a report whose whole job is to be read top to bottom.
-        scroller: false
+        // Ordered by the first column, which is the name in both tables --
+        // the order the PHP already emitted, so the first paint does not
+        // reshuffle.
+        order: [[0, 'asc']],
+        // Paging style is NOT set here. registerTable() derives it from the
+        // admin's FOG_TABLE_SCROLL_MODE, and these two tables follow that
+        // setting like every other grid in FOG. An earlier version passed
+        // scroller:false to force classic paging, on the theory that Scroller
+        // needs a uniform row height these tables do not have -- they do: the
+        // muted "Not yet seen" spans are ordinary inline text at the same line
+        // height as every other cell. Opting a table out of a global display
+        // preference needs a real reason, and that was not one.
+        rowCallback: function(row, data) {
+            // Re-apply the mismatch highlight on every draw.
+            //
+            // The class is written by PHP onto the <tr>, but a table that
+            // pages -- virtually or classically -- redraws its rows, and the
+            // red row is the single thing this report exists to show. Keying
+            // off a data attribute rather than trusting the class to survive
+            // means it cannot quietly stop appearing on page two, which is a
+            // failure nobody would notice until it mattered.
+            if ($(row).attr('data-mismatch') === '1') {
+                $(row).addClass('table-danger');
+            }
+        }
     };
-    // Ordered by the first column, which is the name in both tables -- the
-    // order the PHP already emitted, so the first paint does not reshuffle.
-    $('#architectures-images').registerTable(null, $.extend({}, opts, {
-        order: [[0, 'asc']]
-    }));
-    $('#architectures-hosts').registerTable(null, $.extend({}, opts, {
-        order: [[0, 'asc']]
-    }));
+    $('#architectures-images').registerTable(null, $.extend({}, opts));
+    $('#architectures-hosts').registerTable(null, $.extend({}, opts));
 })(jQuery);
