@@ -540,14 +540,61 @@ class Route extends FOGBase
         'task'
     ];
     /**
-     * Names not unique
+     * Classes whose `name` the database does not make unique.
+     *
+     * create() and edit() refuse a body whose `name` any EXISTING row of
+     * that class already holds, unless the class is listed here. The
+     * question that check is really asking is whether the name identifies
+     * a row on its own -- and the authority on that is the schema, not
+     * this list. Where the two disagree the API refuses a write the
+     * database would have accepted, with a 500 reading `Already created`.
+     *
+     * The test is "a UNIQUE index covering the name column ALONE". A name
+     * that appears only inside a COMPOSITE unique key is not unique by
+     * itself, and that is the case the original list missed:
+     * rolePermissions is keyed `(rpRoleID, rpName)`, so two roles are
+     * meant to hold `plugin.view` -- but the API answered `Already
+     * created` to the second one, which made granting a permission to a
+     * second role impossible over REST. Measured on a real server:
+     * `image.task`, `report.view` and `task.view` were each held by three
+     * roles at the time.
+     *
+     * The others earn their place the same way:
+     *
+     *   - oui           the manufacturer repeats by design; a live server
+     *                   holds 1533 rows reading `Apple, Inc.`, and the
+     *                   unique key is `(ouiMACPrefix, ouiMan)`.
+     *   - the three association classes, whose name column is '' on every
+     *     row that exists -- so a client PUTting an object back verbatim,
+     *     `"name":""` included, was refused.
+     *   - multicastsession, which has no unique key on msName and holds
+     *     '' for every session created without one.
+     *
+     * NOT added, deliberately: imagetype, keysequence, module and
+     * pxemenuoptions. Nothing indexes their names either, but nothing
+     * shows duplicates are INTENDED there, and quietly allowing them is
+     * the riskier direction to be wrong in. Refusing a duplicate the
+     * schema would accept is an inconvenience; accepting one the product
+     * meant to reject is a data problem. Those four stay strict until
+     * somebody wants them otherwise.
+     *
+     * tests/nonunique-names-match-schema.test.php holds the other end: it
+     * reads the same CREATE TABLE statements out of the schema manifest,
+     * so a table that gains or loses a unique key on its name cannot
+     * leave this list quietly stale.
      *
      * @var array
      */
     public static $nonUniqueNameClasses = [
         'filedeletequeue',
+        'multicastsession',
+        'oui',
+        'rolepermission',
+        'roleuserassociation',
+        'roleusergroupassociation',
         'scheduledtask',
-        'task'
+        'task',
+        'usergroupmember'
     ];
     /**
      * Valid active tasking classes.
