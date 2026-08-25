@@ -504,6 +504,15 @@ class SiteManagement extends FOGPage
      */
     public function edit()
     {
+        // The three membership counts, read through the object's own
+        // loaders rather than counting rows: every one of these lives
+        // behind an association tab you have to leave this one to see.
+        $this->notes = [
+            _('Site') => $this->obj->get('name'),
+            _('Hosts') => (string)count((array)$this->obj->get('hosts')),
+            _('Users') => (string)count((array)$this->obj->get('users')),
+            _('Groups') => (string)count((array)$this->obj->get('groups'))
+        ];
         $tabData = [];
 
         $tabData[] = [

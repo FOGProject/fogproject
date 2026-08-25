@@ -1424,6 +1424,11 @@ class SnapinManagement extends FOGPage
      */
     public function edit()
     {
+        $this->notes = [
+            _('Snapin') => $this->obj->get('name'),
+            _('File') => $this->obj->get('file'),
+            _('Filesize') => self::formatByteSize($this->obj->get('size'))
+        ];
         $tabData = [];
 
         // General

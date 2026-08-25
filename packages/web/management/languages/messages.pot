@@ -402,6 +402,9 @@ msgstr ""
 msgid "API Documentation"
 msgstr ""
 
+msgid "API Enabled"
+msgstr ""
+
 msgid "API Only Account"
 msgstr ""
 
@@ -2414,6 +2417,9 @@ msgstr ""
 msgid "Files Deleted List"
 msgstr ""
 
+msgid "Filesize"
+msgstr ""
+
 msgid "Filter"
 msgstr ""
 
@@ -4169,6 +4175,9 @@ msgstr ""
 msgid "Mass update failed"
 msgstr ""
 
+msgid "Master"
+msgstr ""
+
 msgid "Master Node"
 msgstr ""
 
@@ -4179,6 +4188,9 @@ msgid "Max Clients"
 msgstr ""
 
 msgid "Max Size"
+msgstr ""
+
+msgid "Member"
 msgstr ""
 
 msgid "Members"
@@ -4702,6 +4714,9 @@ msgstr ""
 msgid "Nodes"
 msgstr ""
 
+msgid "None"
+msgstr ""
+
 msgid "Normal Snapin"
 msgstr ""
 
@@ -4757,6 +4772,9 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr ""
+
+msgid "OS"
 msgstr ""
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -5318,6 +5336,9 @@ msgid "Primary Group"
 msgstr ""
 
 msgid "Primary MAC"
+msgstr ""
+
+msgid "Primary Storage Group"
 msgstr ""
 
 msgid "Primary User"
@@ -6197,6 +6218,9 @@ msgid "Sites This Role Grants"
 msgstr ""
 
 msgid "Size"
+msgstr ""
+
+msgid "Size on Server"
 msgstr ""
 
 #, php-format

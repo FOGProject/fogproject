@@ -472,6 +472,10 @@ msgid "API Documentation"
 msgstr "位置"
 
 #, fuzzy
+msgid "API Enabled"
+msgstr "已启用"
+
+#, fuzzy
 msgid "API Only Account"
 msgstr "斯莱克账户"
 
@@ -2835,6 +2839,10 @@ msgid "Files Deleted List"
 msgstr "删除的文件数据"
 
 #, fuzzy
+msgid "Filesize"
+msgstr "文件大小"
+
+#, fuzzy
 msgid "Filter"
 msgstr "文件"
 
@@ -4922,6 +4930,10 @@ msgstr "批准选定主机"
 msgid "Mass update failed"
 msgstr "用户更新失败"
 
+#, fuzzy
+msgid "Master"
+msgstr "主节点"
+
 msgid "Master Node"
 msgstr "主节点"
 
@@ -4933,6 +4945,10 @@ msgstr "最大客户"
 
 msgid "Max Size"
 msgstr "最大尺寸"
+
+#, fuzzy
+msgid "Member"
+msgstr "会员"
 
 msgid "Members"
 msgstr "会员"
@@ -5539,6 +5555,9 @@ msgstr "没有可用的散列"
 msgid "Nodes"
 msgstr "节点"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "无效的管理单元"
@@ -5601,6 +5620,10 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr "O / S"
+
+#, fuzzy
+msgid "OS"
 msgstr "O / S"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6259,6 +6282,10 @@ msgstr "主要组"
 
 msgid "Primary MAC"
 msgstr "主MAC"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "存储组"
 
 msgid "Primary User"
 msgstr "主要用户"
@@ -7299,6 +7326,10 @@ msgstr ""
 #, fuzzy
 msgid "Size"
 msgstr "最大尺寸"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "网络服务器"
 
 #, php-format
 msgid "Skipped unknown %s: %s"

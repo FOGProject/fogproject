@@ -975,6 +975,14 @@ class ImageManagement extends FOGPage
      */
     public function edit()
     {
+        $this->notes = [
+            _('Image') => $this->obj->get('name'),
+            _('OS') => $this->obj->getOS()->get('name'),
+            _('Image Type') => $this->obj->getImageType()->get('name'),
+            _('Last Captured') => self::dateOrNever($this->obj->get('deployed')),
+            _('Size on Server') => self::formatByteSize($this->obj->get('srvsize')),
+            _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name')
+        ];
         $tabData = [];
 
         $tabData[] = [

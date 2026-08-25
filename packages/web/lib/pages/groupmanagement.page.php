@@ -2419,6 +2419,10 @@ class GroupManagement extends FOGPage
      */
     public function edit()
     {
+        $this->notes = [
+            _('Group') => $this->obj->get('name'),
+            _('Members') => (string)$this->obj->getHostCount()
+        ];
         $tabData = [];
 
         // General
