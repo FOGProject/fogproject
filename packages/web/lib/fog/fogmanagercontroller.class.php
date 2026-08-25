@@ -899,6 +899,31 @@ abstract class FOGManagerController extends FOGBase
         return $a;
     }
     /**
+     * Trims a value on its way into a bound parameter, and leaves anything
+     * that is not a string alone.
+     *
+     * Trimming is a string operation, but `trim()` casts first, and the cast
+     * is where the information goes. trim(null) is '' -- and a PHP 8.1
+     * deprecation -- which would put the zero date back into a column being
+     * cleared. trim(false) is also '', which is not how any column in the
+     * schema spells false: enum('0','1') rejects it outright under
+     * STRICT_TRANS_TABLES, and so does the tinyint(1) `hosts`.`hostInfoLock`
+     * that ends every imaging task via ->set('tokenlock', false). And an
+     * array -- a nested IN () list is one -- is a TypeError on PHP 8.
+     *
+     * A boolean is left as a boolean and normalised once, in PDODB::_bind(),
+     * so save() and the two builders here cannot disagree about what false
+     * stores. See GH-1245 and forum topic 18227.
+     *
+     * @param mixed $value the value being bound
+     *
+     * @return mixed
+     */
+    private static function _trimValue($value)
+    {
+        return is_string($value) ? trim($value) : $value;
+    }
+    /**
      * Inserts data in mass to the database.
      *
      * @param array  $fields the fields to insert into
@@ -987,7 +1012,7 @@ abstract class FOGManagerController extends FOGBase
                         ':%s',
                         $key
                     );
-                    $val = trim($val);
+                    $val = self::_trimValue($val);
                     $insertVals[$key] = $val;
                     unset($val);
                 }
@@ -1079,7 +1104,7 @@ abstract class FOGManagerController extends FOGBase
             // GH-1245: null is a value to write, not a string to trim.
             // trim(null) is '' -- and a PHP 8.1 deprecation -- which would
             // put the zero date back into a column being cleared.
-            $value = (null === $value) ? null : trim($value);
+            $value = self::_trimValue($value);
             $updateKey = sprintf(
                 ':update_%s',
                 $field
@@ -1104,7 +1129,7 @@ abstract class FOGManagerController extends FOGBase
                 $key = trim($field);
                 if (is_array($value) && count($value ?: []) > 0) {
                     foreach ($value as $i => &$val) {
-                        $val = trim($val);
+                        $val = self::_trimValue($val);
                         // Define the key
                         $k = sprintf(
                             '%s_%d',
@@ -1131,7 +1156,10 @@ abstract class FOGManagerController extends FOGBase
                     if (is_array($value)) {
                         $value = '';
                     }
-                    $value = trim($value);
+                    // Read side, same rule as the write side above: a filter
+                    // holding false has to bind the same literal the column
+                    // now stores, or it silently matches nothing.
+                    $value = self::_trimValue($value);
                     $k = sprintf(
                         '%s',
                         $key
