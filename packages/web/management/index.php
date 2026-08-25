@@ -134,6 +134,49 @@ if (!isset($node) || (!in_array($node, $nodes) && !$currentUser->isValid())) {
             exit;
         }
     }
+    /*
+     * A caller that cannot follow a browser sign-in must not be handed the
+     * sign-in FORM either.
+     *
+     * $browserNavigation above already tells browsers and machines apart, and
+     * already declines to bounce a machine to the identity provider. But
+     * execution then fell through to the login page for both, so a signed-out
+     * XHR got the form at HTTP 200 with Content-type: text/html. jQuery treats
+     * 200 as success, so $.apiCall ran its SUCCESS handler with a string body;
+     * $.notifyFromAPI found none of error/info/warning/msg in it and -- until
+     * the matching change in fog.common.js -- fell back to a GREEN toast
+     * reading "Bad Response". The write had been discarded and the UI said it
+     * worked. Reported against the plugin Update button, but this branch is
+     * reached by every ?node= endpoint, so it was every Save on every page.
+     *
+     * 401 with a readable reason instead. That is what the XHR error handler
+     * is for, and it is also the right answer for curl, FogApi and any other
+     * client library, none of which can do anything with a login form.
+     *
+     * The install/schema paths cannot reach this: `schema` and `client` are in
+     * $nodes above and take the other branch. Nor can the login POST itself --
+     * processMainLogin() answers it through jsonSend(), which exits.
+     *
+     * FOG_LOCAL_LOGIN is exempt, for the same reason the redirect above exempts
+     * it and not a weaker one. management/login.php defines it and then
+     * requires this file; that page exists so a human can always reach a form
+     * when the provider is down, and answering it with JSON would take the
+     * break-glass page away on exactly the request shape it is there to serve.
+     * A browser sends an Accept naming text/html and would have rendered
+     * anyway -- this makes it true regardless of what the client asks for,
+     * which is what a break-glass path has to be.
+     */
+    if (!defined('FOG_LOCAL_LOGIN') && !$browserNavigation) {
+        header('Content-type: application/json');
+        echo json_encode(
+            [
+                'error' => _('Your session has ended. Sign in again.'),
+                'title' => _('Session Expired')
+            ]
+        );
+        http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
+        exit;
+    }
     $Page
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])
