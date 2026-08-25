@@ -107,6 +107,10 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "打印机更新！"
+
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run."
 msgstr ""
@@ -3627,6 +3631,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "主机图片"
+
+#, fuzzy
 msgid "Hosts assigned"
 msgstr "无关联的节点"
 
@@ -3637,6 +3645,10 @@ msgstr "更新打印机"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "在任务主机"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "主机列表"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3939,6 +3951,10 @@ msgid "Imaged For"
 msgstr "成像"
 
 msgid "Images"
+msgstr "图片"
+
+#, fuzzy
+msgid "Images only"
 msgstr "图片"
 
 #, fuzzy
@@ -5648,9 +5664,6 @@ msgstr "无连接来获取管理单元"
 msgid "Not yet seen"
 msgstr ""
 
-msgid "Not yet seen -- set on this host's next PXE boot"
-msgstr ""
-
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
@@ -7063,6 +7076,10 @@ msgstr "选择一个cron类型"
 
 msgid "Select a valid image"
 msgstr "选择一个有效的图像"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "选择一个cron类型"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -9516,6 +9533,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9758,7 +9778,7 @@ msgstr "有"
 msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
 msgstr ""
 
-msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"

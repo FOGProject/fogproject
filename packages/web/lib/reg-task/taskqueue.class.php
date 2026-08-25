@@ -559,12 +559,16 @@ class TaskQueue extends TaskingElement
         // endpoint were needed for it.
         //
         // Guarded rather than assumed. A host that somehow reaches here with
-        // no recorded architecture leaves the image NULL, which archCanRun()
-        // reads as "allow" -- the same state every image captured before
-        // schema step 370 is already in.
-        $capturedArch = Image::normalizeArch(self::$Host->get('arch'));
-        if ('' !== $capturedArch) {
-            $this->Image->set('arch', $capturedArch);
+        // no recorded architecture leaves the image NULL, which
+        // Architecture::canRun() reads as "allow" -- the same state every
+        // image captured before schema step 370 is already in.
+        //
+        // The id copies straight across (schema step 372): both sides point
+        // at the same `architectures` row, so there is nothing to normalise
+        // here any more and no way for the two to spell it differently.
+        $capturedArchID = (int)self::$Host->get('archID');
+        if ($capturedArchID > 0) {
+            $this->Image->set('archID', $capturedArchID);
         }
         $this->Image
             ->set(

@@ -98,6 +98,10 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "プリンターを更新しました！"
+
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run."
 msgstr ""
@@ -3491,6 +3495,10 @@ msgid "Hosts And Users"
 msgstr "ホストとユーザー"
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "ホストとユーザー"
+
+#, fuzzy
 msgid "Hosts assigned"
 msgstr "関連付けられたホスト"
 
@@ -3501,6 +3509,10 @@ msgstr "ホストを作成しました"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "タスク内のホスト"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "ホスト Init"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3789,6 +3801,10 @@ msgid "Imaged For"
 msgstr "イメージ処理対象"
 
 msgid "Images"
+msgstr "イメージ"
+
+#, fuzzy
+msgid "Images only"
 msgstr "イメージ"
 
 #, fuzzy
@@ -5421,9 +5437,6 @@ msgstr "スナップインを同期していません"
 msgid "Not yet seen"
 msgstr "未設定"
 
-msgid "Not yet seen -- set on this host's next PXE boot"
-msgstr ""
-
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
@@ -6791,6 +6804,10 @@ msgstr "Cron タイプを選択してください"
 
 msgid "Select a valid image"
 msgstr "有効なイメージを選択してください"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "選択したログイン"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -9139,6 +9156,9 @@ msgstr "プラグインを削除しても、割り当てられたキーは保持
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9372,7 +9392,7 @@ msgstr "ただし、次があります"
 msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
 msgstr ""
 
-msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
@@ -11785,9 +11805,6 @@ msgstr ""
 
 #~ msgid "Select/Deselect All"
 #~ msgstr "すべて選択/解除"
-
-#~ msgid "Selected Logins"
-#~ msgstr "選択したログイン"
 
 #~ msgid "Selected groups's current activity"
 #~ msgstr "選択したグループの現在のアクティビティ"
