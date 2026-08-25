@@ -185,7 +185,10 @@ if ($helper !== '') {
         'false stays false' => [false, false],
         'true stays true' => [true, true],
         'a string is still trimmed' => ['  x  ', 'x'],
-        'an int is unharmed' => [0, '0'],
+        'an int stays an int' => [0, 0],
+        // A nested IN () list arrives here as an array, and trim() on one is
+        // a TypeError -- fatal, not a warning, on PHP 8.
+        'an array is handed back untouched' => [['a'], ['a']],
     ];
     foreach ($cases as $what => $case) {
         list($in, $want) = $case;

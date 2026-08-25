@@ -899,16 +899,17 @@ abstract class FOGManagerController extends FOGBase
         return $a;
     }
     /**
-     * Trims a value on its way into a bound parameter, without flattening
-     * the two types that are not strings.
+     * Trims a value on its way into a bound parameter, and leaves anything
+     * that is not a string alone.
      *
-     * `trim()` casts first, and both casts lose information the database
-     * then refuses. trim(null) is '' -- and a PHP 8.1 deprecation -- which
-     * would put the zero date back into a column being cleared. trim(false)
-     * is also '', which is not how any column in the schema spells false:
-     * enum('0','1') rejects it outright under STRICT_TRANS_TABLES, and so
-     * does the tinyint(1) `hosts`.`hostInfoLock` that ends every imaging
-     * task via ->set('tokenlock', false).
+     * Trimming is a string operation, but `trim()` casts first, and the cast
+     * is where the information goes. trim(null) is '' -- and a PHP 8.1
+     * deprecation -- which would put the zero date back into a column being
+     * cleared. trim(false) is also '', which is not how any column in the
+     * schema spells false: enum('0','1') rejects it outright under
+     * STRICT_TRANS_TABLES, and so does the tinyint(1) `hosts`.`hostInfoLock`
+     * that ends every imaging task via ->set('tokenlock', false). And an
+     * array -- a nested IN () list is one -- is a TypeError on PHP 8.
      *
      * A boolean is left as a boolean and normalised once, in PDODB::_bind(),
      * so save() and the two builders here cannot disagree about what false
@@ -920,10 +921,7 @@ abstract class FOGManagerController extends FOGBase
      */
     private static function _trimValue($value)
     {
-        if (null === $value || is_bool($value)) {
-            return $value;
-        }
-        return trim($value);
+        return is_string($value) ? trim($value) : $value;
     }
     /**
      * Inserts data in mass to the database.
