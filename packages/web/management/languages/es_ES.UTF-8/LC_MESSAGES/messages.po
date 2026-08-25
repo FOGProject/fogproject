@@ -3655,6 +3655,10 @@ msgstr "tipo de tarea no es válida"
 msgid "Host is not valid!"
 msgstr "tipo de tarea no es válida"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "está protegido, no se permite la eliminación"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3964,6 +3968,9 @@ msgstr "Nombre de la imagen"
 #, fuzzy
 msgid "Image architecture"
 msgstr "Protegido"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
 
 #, fuzzy
 msgid "Image is invalid"
