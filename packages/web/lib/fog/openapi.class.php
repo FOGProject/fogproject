@@ -342,13 +342,19 @@ class OpenAPI extends FOGBase
                 'type' => 'http',
                 'scheme' => 'bearer',
                 'description' => implode(' ', [
-                    'The per-user API token from the API tab of a user with',
-                    'API access enabled, sent as `Authorization: Bearer`.',
+                    'An API token issued from the API tab of a user with API',
+                    'access enabled, sent as `Authorization: Bearer`.',
                     'Sufficient on its own -- no fog-api-token header is',
-                    'needed alongside it. Send the value exactly as the UI',
-                    'displays it: it is already base64 encoded, and a raw',
-                    'token is indistinguishable from an encoded one because',
-                    'hex is itself valid base64.'
+                    'needed alongside it.',
+                    'Every issued token carries a `fog_` prefix and is shown',
+                    'once, at creation: it is hashed at rest, so a token that',
+                    'has been lost cannot be recovered and must be reissued.',
+                    'A user may hold several, each individually revocable, so',
+                    'one integration can be rotated without disturbing the',
+                    'others.',
+                    'This is NOT the per-user token that fog-user-token',
+                    'carries. That token is a separate credential, is',
+                    'unchanged, and is not accepted here.'
                 ])
             ],
             'fogApiToken' => [
@@ -583,7 +589,21 @@ class OpenAPI extends FOGBase
 
         if (preg_match("/DEFAULT\s+(?!NULL)'?([^'\s]+)'?/i", $sqlType, $dm)) {
             $default = $dm[1];
-            if ('integer' === $schema['type']) {
+            if (preg_match('/^\w+\s*\(/', $default)) {
+                // A SQL function, not a value. DEFAULT current_timestamp()
+                // means "whatever the server clock says at INSERT", which is
+                // not something an OpenAPI default can express -- and copying
+                // it through produces an invalid document, because `default`
+                // must be an instance of the schema it sits on and
+                // "current_timestamp()" is not a date-time.
+                //
+                // Not academic: openapi-generator REFUSES to generate from
+                // this document over exactly nodefailure.failureTime and
+                // snapintask.checkin, both DEFAULT current_timestamp() on a
+                // datetime column. Recorded under an extension so the
+                // information is not simply lost.
+                $schema['x-fog-sql-default'] = $default;
+            } elseif ('integer' === $schema['type']) {
                 $schema['default'] = (int)$default;
             } elseif ('number' === $schema['type']) {
                 $schema['default'] = (float)$default;
@@ -719,10 +739,27 @@ class OpenAPI extends FOGBase
             $schema = self::_applyModelConstraint($class, $property, $schema);
             $properties[$property] = $schema;
         }
+        // additionalProperties is stated rather than left to the default.
+        //
+        // The default is already true -- an object schema that says nothing
+        // permits extra properties -- so this loosens nothing and changes no
+        // validator's verdict. What it changes is code generation: most
+        // generators emit a catch-all bag ONLY when the keyword is explicitly
+        // present, and silently drop, or refuse, unknown keys when it is
+        // absent. openapi-generator's PowerShell models are the sharp case;
+        // without this they throw on the first key they were not told about.
+        //
+        // Declaring the computed fields above fixes the 80 this document can
+        // enumerate. It cannot enumerate the rest: a plugin contributes its
+        // own classes and its own joined fields at runtime, and a client
+        // generated from a pinned snapshot meets fields added after it was
+        // generated. Both are normal here, so tolerating unknown keys is the
+        // correct standing behaviour for a FOG response, not a workaround.
         $out = [
             'type' => 'object',
             'x-fog-table' => $table,
-            'properties' => $properties
+            'properties' => $properties,
+            'additionalProperties' => true
         ];
         $required = array_values(
             array_filter(
@@ -752,6 +789,46 @@ class OpenAPI extends FOGBase
             if ('' !== $note) {
                 $out['description'] .= ' ' . $note;
             }
+            // And say it in the schema, not only in the sentence.
+            //
+            // The sentence above is accurate and stays -- it carries the
+            // "not settable through create/edit" nuance that no keyword
+            // expresses. But a generated client cannot read English. Every
+            // generator builds its deserialiser from `properties`, so a
+            // field named only in a description is a field the generated
+            // model does not have: AutoRest copies this very sentence into
+            // a doc comment and then emits a model that reads none of the
+            // fields it names, and openapi-generator's PowerShell models
+            // THROW on the undeclared key rather than ignoring it. Either
+            // way `GET /host/1` loses macs, imagename, groups and the rest
+            // -- 80 fields across 24 classes.
+            //
+            // readOnly is the precise keyword: OpenAPI defines it as "MAY
+            // be sent in a response and MUST NOT be sent in a request",
+            // which is exactly what a computed field is, and it keeps these
+            // out of the request bodies that $ref this same schema.
+            //
+            // No `type`. An empty schema means "any type", which is honest:
+            // these are computed in Route::getter() rather than derived
+            // from a column, so there is no type source to read. macs is an
+            // array, imagename a string, inventory an object. Asserting a
+            // type here would be a guess, and a wrong guess is worse for a
+            // generated client than no assertion at all.
+            foreach ($additional as $field) {
+                if (isset($properties[$field])) {
+                    // Already a real column; the column definition wins.
+                    continue;
+                }
+                $properties[$field] = [
+                    'readOnly' => true,
+                    'x-fog-computed' => true,
+                    'description' => _(
+                        'Computed field. Returned by the API but not a '
+                        . 'column, and not settable.'
+                    )
+                ];
+            }
+            $out['properties'] = $properties;
         }
         return $out;
     }
