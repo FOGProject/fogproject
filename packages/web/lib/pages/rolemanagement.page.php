@@ -592,6 +592,14 @@ class RoleManagement extends FOGPage
      */
     public function edit()
     {
+        // What this role grants and who holds it -- the two questions the
+        // page exists to answer, and both are behind association tabs.
+        $this->notes = [
+            _('Role') => $this->obj->get('name'),
+            _('Permissions') => (string)count((array)$this->obj->get('permissions')),
+            _('Users') => (string)count((array)$this->obj->get('users')),
+            _('User Groups') => (string)count((array)$this->obj->get('usergroups'))
+        ];
         $tabData = [];
 
         // General

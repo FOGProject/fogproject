@@ -1070,27 +1070,6 @@ class HostManagement extends FOGPage
         );
     }
     /**
-     * Renders a "last seen" timestamp for display.
-     *
-     * NULL means the event has never happened, which is a different fact
-     * from "it happened at the zero date" -- so it gets its own word rather
-     * than an empty box the reader has to interpret. validDate() also
-     * catches the 0000-00-00 spelling, which a column added at step 353
-     * cannot hold but which a hand-edited database still can.
-     *
-     * @param string|null $value The stored datetime, or null.
-     *
-     * @return string
-     */
-    private static function _lastSeenText($value)
-    {
-        if (!$value || !self::validDate($value)) {
-            return _('Never');
-        }
-
-        return self::niceDate($value)->format('Y-m-d H:i:s');
-    }
-    /**
      * Displays the host general tab.
      *
      * @return void
@@ -1148,7 +1127,7 @@ class HostManagement extends FOGPage
         // Deliberately NOT read from INPUT_POST like every other value here:
         // these two are written by the ping service and by the client
         // check-in, so the object is the only source that can be right.
-        $lastPing = self::_lastSeenText($this->obj->get('lastping'));
+        $lastPing = self::dateOrNever($this->obj->get('lastping'));
         // Say WHICH probe reached it, when the row knows. A timestamp with
         // no method answers "was it up" and leaves "is the service on
         // PINGHOSTPORT running" unanswered, which is the next question
@@ -1163,7 +1142,7 @@ class HostManagement extends FOGPage
                 strtoupper($pingMethod)
             );
         }
-        $lastCheckin = self::_lastSeenText($this->obj->get('lastcheckin'));
+        $lastCheckin = self::dateOrNever($this->obj->get('lastcheckin'));
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -3485,6 +3464,21 @@ class HostManagement extends FOGPage
      */
     public function edit()
     {
+        // Identity plus the facts you cannot see from the other twenty
+        // tabs: which image is assigned, when it was last imaged, and which
+        // group it belongs to.
+        $primaryGroup = new Group(self::minId($this->obj->get('groups')));
+        $this->notes = [
+            _('Host') => $this->obj->get('name'),
+            _('Primary MAC') => (string)$this->obj->get('mac'),
+            _('Assigned Image') => $this->obj->getImageName(),
+            _('Last Deployed') => self::dateOrNever($this->obj->get('deployed')),
+            _('Primary Group') => (
+                $primaryGroup->isValid() ?
+                $primaryGroup->get('name') :
+                _('None')
+            )
+        ];
         $tabData = [];
 
         // General

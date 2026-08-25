@@ -375,6 +375,106 @@ trait FOGPageRender
     }
 
     /**
+     * Renders a stored datetime for display, or the word "Never".
+     *
+     * NULL means the event has never happened, which is a different fact
+     * from "it happened at the zero date" -- so it gets its own word rather
+     * than an empty box the reader has to interpret. validDate() also
+     * catches the 0000-00-00 spelling, which a column added at step 353
+     * cannot hold but which a hand-edited database still can.
+     *
+     * Lived on HostManagement as _lastSeenText() until the edit info card
+     * needed the same guard for an image's capture date. Every empty-date
+     * column in the schema reaches a page this way, so the guard belongs
+     * next to the other shared renderers rather than on one page.
+     *
+     * @param string|null $value The stored datetime, or null.
+     *
+     * @return string
+     */
+    protected static function dateOrNever($value)
+    {
+        if (!$value || !self::validDate($value)) {
+            return _('Never');
+        }
+
+        return self::niceDate($value)->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * Renders the edit page's info card: the record's identity and the few
+     * facts about it you cannot see from whichever tab you are on.
+     *
+     * 1.5 had this as an "Info" dropdown at the head of the tab strip
+     * (FOGSubMenu::addNotes), because that strip lived in a col-xs-3 sidebar
+     * with no room for anything else. 1.6's tab card is full width, and the
+     * whole value of this block is context that SURVIVES a tab switch -- a
+     * dropdown that closes on the next click gives you one glance per click,
+     * which is the thing it was supposed to save you. So it is a static card
+     * above the tabs instead.
+     *
+     * Full width rather than a sidebar column for the same reason the tab
+     * card is full width: a col-3 sidebar would squeeze every tab body on
+     * the page (the host page alone has six DataTables grids) for the whole
+     * page height, to keep five lines on screen. At md and below a sidebar
+     * column stacks to the top anyway, so it would only ever differ on
+     * desktop.
+     *
+     * Plain .card, not card-primary card-outline like the tab card below it:
+     * two identically accented outlined cards stacked read as one confused
+     * object, and the tabs should keep the visual weight.
+     *
+     * Values are escaped. 1.5's fixTitle() only collapsed whitespace, so
+     * host names, image names and file paths went into that panel raw; that
+     * also means these entries are text, and a page wanting markup here has
+     * to grow an explicit opt-in rather than smuggling it through a value.
+     *
+     * @return void
+     */
+    protected function renderInfoCard()
+    {
+        $notes = (array)$this->notes;
+        // Mirrors PLUGINS_INJECT_TABDATA in tabFields(): a plugin that adds
+        // a tab to a core page can add its line here too. 1.5's equivalent
+        // rode SUB_MENULINK_DATA, which 1.6 repurposed for the sidebar node
+        // menu, so there is no back-compat name to keep.
+        self::$HookManager->processEvent(
+            'EDIT_INFO_DATA',
+            [
+                'notes' => &$notes,
+                'obj' => &$this->obj
+            ]
+        );
+        if (!count($notes)) {
+            return;
+        }
+        echo '<div class="card mb-3" id="edit-info-card">';
+        echo '<div class="card-body py-2">';
+        echo '<div class="row row-cols-auto gx-5 gy-2">';
+        foreach ($notes as $label => $value) {
+            $value = (string)($value ?? '');
+            echo '<div class="col">';
+            echo '<div class="small text-secondary text-uppercase">';
+            echo \Initiator::e($label);
+            echo '</div>';
+            echo '<div class="fw-semibold">';
+            // An em dash rather than dropping the entry: a host with no
+            // deploy date is telling you something, and a card whose fields
+            // come and go is harder to read than one that always says the
+            // same things. Muted, matching how the grids already draw an
+            // empty cell (Route's imageLink, lastping, deployed).
+            echo $value === '' ?
+                '<span class="text-muted">&mdash;</span>' :
+                \Initiator::e($value);
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+
+    /**
      * Shared scaffold for the standard edit() tab pages.
      *
      * Sets the canonical "Edit: <name> ID: <id>" page title from the
@@ -404,6 +504,7 @@ trait FOGPageRender
             _('ID'),
             $this->obj->get('id')
         );
+        $this->renderInfoCard();
         echo self::tabFields($tabData, $obj);
     }
 
