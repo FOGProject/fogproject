@@ -7651,3 +7651,87 @@ $this->schema[] = [
     "UPDATE `taskStates` SET `tsIcon`='bookmark' "
     . "WHERE `tsID`=1 AND `tsIcon`='bookmark-o'",
 ];
+// 368
+$this->schema[] = [
+    // Store a boolean as a boolean.
+    //
+    // FOG has spelled its two-state columns `enum('0','1')` since the
+    // beginning, and it has never spelled all of them that way: `sites`
+    // .`siteCatchAll`, `auditLog`.`alRenderable`, `auditChange`.`acRedacted`
+    // and `hosts`.`hostInfoLock` are already tinyint(1). Two conventions for
+    // one idea, and the older of the two is the one with a trap in it.
+    //
+    // WHY THE ENUM IS ACTIVELY DANGEROUS, not merely inconsistent. An
+    // integer written to an ENUM is a MEMBER INDEX, not a value, and these
+    // enums are therefore off by one:
+    //
+    //     0  ->  index 0, the error value: refused under STRICT_TRANS_TABLES
+    //     1  ->  index 1, which is the member '0'  -- i.e. FALSE
+    //     2  ->  index 2, which is the member '1'  -- i.e. TRUE
+    //
+    // So `->set('isEnabled', 1)` means DISABLED if the value ever reaches
+    // the server as an integer rather than a string. FOG survives that only
+    // because PDODB binds every parameter as PDO::PARAM_STR; it is the
+    // reason PDODB::_bind() may not use PDO::PARAM_BOOL, and the reason
+    // Schema::defaultLiteral() exists. tinyint(1) has no such trap: 0 is
+    // false and 1 is true whether it arrives as a string or an integer.
+    // See fogproject#1361 and forum topic 18227.
+    //
+    // The migration itself -- and the reason it is three statements per
+    // column rather than one ALTER -- is Schema::enumToTinyint().
+    //
+    // WHAT CHANGES FOR CALLERS. PDODB runs with ATTR_EMULATE_PREPARES off,
+    // so mysqlnd hands back native types: these columns read back as the
+    // integer 1 where they used to read back as the string '1', and the REST
+    // API payload changes from "imageEnabled":"1" to "imageEnabled":1.
+    // Deliberate -- see docs/adr/0028. Every reader in the tree tests
+    // truthiness or casts with (string) first; both spellings are unchanged
+    // by this. Downstream consumers that compare the JSON strictly against
+    // "1" are not, which is why it lands in a beta.
+    //
+    // CORE TABLES ONLY. Each bundled plugin owns its own schema (ADR 0009),
+    // so LDAPServers, OIDCProviders and location are converted by their own
+    // steps in FOGProject/fog-plugins rather than reached into from here.
+    //
+    // NOT INCLUDED, deliberately: the char(1)/varchar(1) flags
+    // (`tasks`.`taskShutdown`, `snapins`.`sReboot`, `hosts`.`hostUseAD`).
+    // They look like the same thing and are not -- `hostUseAD` is tri-state,
+    // with '' meaning "inherit" as a third value the form renders, so that
+    // family needs a per-column reading rather than a sweep.
+    function () {
+        // The conversion itself is Schema::enumToTinyint() -- shared,
+        // because the bundled LDAP, OIDC and location plugins each convert
+        // their own columns from their own schema() (ADR 0009) and the
+        // three-statement rule above must not be re-implemented per caller.
+        return Schema::enumToTinyint(
+            [
+                'apiTokens' => ['atEnabled'],
+                'hostMAC' => [
+                    'hmIgnoreClient',
+                    'hmIgnoreImaging',
+                    'hmPending',
+                    'hmPrimary'
+                ],
+                'hosts' => ['hostEnforce', 'hostPending'],
+                'imageGroupAssoc' => ['igaPrimary'],
+                'images' => ['imageEnabled', 'imageReplicate'],
+                'multicastSessions' => ['msShutdown'],
+                'nfsGroupMembers' => ['ngmGraphEnabled'],
+                'powerManagement' => ['pmOndemand'],
+                'pxeMenu' => ['pxeHotKeyEnable'],
+                'snapinGroupAssoc' => ['sgaPrimary'],
+                'snapinJobs' => ['sjAbortOnFail'],
+                'snapins' => [
+                    'sEnabled',
+                    'sHideLog',
+                    'sPackType',
+                    'sReplicate',
+                    'sShutdown'
+                ],
+                'tasks' => ['taskBypassBitlocker', 'taskWOL'],
+                'taskTypes' => ['ttIsAdvanced'],
+                'users' => ['uAllowAPI', 'uAPIOnly'],
+            ]
+        );
+    },
+];
