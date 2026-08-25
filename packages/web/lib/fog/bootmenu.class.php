@@ -308,10 +308,7 @@ class BootMenu extends FOGBase
             . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
             "\n"
         );
-        $reboot = sprintf(
-            'reboot',
-            "\n"
-        );
+        $reboot = 'reboot';
 
         if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'i386') !== false) {
             //user i386 boot loaders instead
@@ -388,6 +385,16 @@ class BootMenu extends FOGBase
          */
         $bootroot = trim((string)$curroot, '/');
         $curroot = '/' . ($bootroot === '' ? '' : $bootroot . '/');
+        /**
+         * BOOT_ITEM_NEW_SETTINGS passes 'webroot' by reference, but no
+         * $webroot was ever assigned, so PHP created it at the call and
+         * every plugin reading it saw NULL. Bind it to the bare form that
+         * accompanies 'webserver' in the same payload -- the value
+         * 'set fog-webroot' emits -- so the argument means what its name
+         * says. Writes to it are still discarded; nothing downstream
+         * reads the argument back.
+         */
+        $webroot = $bootroot;
         $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
         $Send['booturl'] = array(
             '#!ipxe',
@@ -566,7 +573,6 @@ class BootMenu extends FOGBase
                 )
             );
         }
-        $kernel = $bzImage;
         $initrd = $imagefile;
         $this->_timeout = $timeout;
         $this->_hiddenmenu = ($hiddenmenu && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']));
@@ -777,7 +783,6 @@ class BootMenu extends FOGBase
      */
     private function _chainBoot($debug = false, $shortCircuit = false)
     {
-        $debug = $debug;
         if (!(isset($this->_hiddenmenu) && $this->_hiddenmenu) || $shortCircuit) {
             $Send['chainnohide'] = array(
                 'set arch ${buildarch}',
@@ -2221,7 +2226,6 @@ class BootMenu extends FOGBase
             $this->_chainBoot(true);
             return;
         }
-        $Menus = self::getClass('PXEMenuOptionsManager')->find('', '', 'id');
         $ipxeGrabs = array(
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_IPXE_BG_FILE',
