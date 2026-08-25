@@ -60,7 +60,16 @@ class TaskManager extends FOGManagerController
             '',
             $updateFields
         );
-        $this->update(
+        // Enumerated BEFORE the update, because $findWhere selects on the
+        // states being cancelled out of and matches nothing once they are
+        // gone. Route::cancel() sends the group arm and the task arm here, so
+        // without this a bulk cancel left every one of its tasks reading
+        // In-Progress in the log -- the same hole Task::cancel() had.
+        $cancelledIDs = Route::getIds(
+            'task',
+            $findWhere
+        );
+        $updated = $this->update(
             $findWhere,
             '',
             [
@@ -68,6 +77,13 @@ class TaskManager extends FOGManagerController
                 'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
             ]
         );
+        if ($updated) {
+            // Reloaded after the update so each row records the state the task
+            // is now in, not the one it was cancelled out of.
+            foreach ((array)$cancelledIDs as $cancelledID) {
+                TaskLog::recordState(new Task($cancelledID));
+            }
+        }
         $findWhere = [
             'hostID' => $hostIDs,
             'stateID' => $notComplete

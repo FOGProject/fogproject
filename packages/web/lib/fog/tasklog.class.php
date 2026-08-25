@@ -168,6 +168,58 @@ class TaskLog extends FOGController
         }
     }
     /**
+     * Records one task state transition.
+     *
+     * The single definition of what a state row looks like. It used to live
+     * inline in TaskingElement::taskLog(), which meant only the two callers
+     * that go through a TaskingElement -- checkIn() and checkout() -- could
+     * write one. Cancellation does not go through either, so a cancelled task
+     * left no row at all and the last thing the log said about it was
+     * In-Progress, forever.
+     *
+     * The timestamp is the moment of the TRANSITION. taskLog() used to pass the
+     * task's own createdTime, and `createdTime` maps to this row's `createTime`
+     * -- one column, not two -- so every row a task ever wrote carried the
+     * instant the task was created. In-Progress and Complete came out sharing a
+     * timestamp to the second, which is what made the log unreadable: nothing
+     * could be ordered, and repeated transitions looked like duplicates.
+     *
+     * hostName/taskTypeName/imageName are denormalized here for the reason
+     * schema 341 gave: tasks are deleted routinely and this row outlives them.
+     *
+     * @param object $Task the task whose state just changed.
+     *
+     * @return bool|object false if there is no task to record.
+     */
+    public static function recordState($Task)
+    {
+        if (!$Task instanceof Task || !$Task->isValid()) {
+            return false;
+        }
+        $Host = $Task->getHost();
+        $hasHost = ($Host && $Host->isValid());
+        // Only an imaging task has an image; every other type leaves this empty
+        // and the dashboard chart counts rows where it is not.
+        $imageName = '';
+        if ($Task->isImagingTask()) {
+            $Image = $Task->getImage();
+            if ($Image && $Image->isValid()) {
+                $imageName = $Image->get('name');
+            }
+        }
+
+        return self::getClass('TaskLog')
+            ->set('taskID', $Task->get('id'))
+            ->set('taskStateID', $Task->get('stateID'))
+            ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->set('createdBy', $Task->get('createdBy'))
+            ->set('hostID', ($hasHost ? $Host->get('id') : 0))
+            ->set('hostName', ($hasHost ? $Host->get('name') : ''))
+            ->set('taskTypeName', $Task->getTaskTypeText())
+            ->set('imageName', $imageName)
+            ->save();
+    }
+    /**
      * Gets the task object.
      *
      * @return object

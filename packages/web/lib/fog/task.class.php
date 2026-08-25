@@ -305,7 +305,14 @@ class Task extends TaskType
                     ]
                 );
         }
-        $this->set('stateID', self::getCancelledState())->save();
+        // Recorded only if the save actually happened, so the log cannot
+        // claim a transition the database never took. Before this, cancelling
+        // wrote nothing to taskLog at all: the row for the In-Progress
+        // transition stayed the last word on the task, and Task Management's
+        // log pane showed a cancelled task as still running.
+        if ($this->set('stateID', self::getCancelledState())->save()) {
+            TaskLog::recordState($this);
+        }
 
         return $this;
     }

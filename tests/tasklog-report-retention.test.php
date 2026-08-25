@@ -217,8 +217,15 @@ $pdo->exec(
     . " (56,7,'127.0.0.1','fos','error','both gone',999,'deadhost','Deploy'),"
     // written before schema 341: nothing stored, joins must still answer
     . " (10,7,'127.0.0.1','fos','error','pre-341',NULL,'',''),"
-    // a state row: never carries an identity of its own
+    // a state row written before schema 369: no identity of its own, because
+    // 341's backfill excluded logType='state' explicitly
     . " (10,3,'127.0.0.1','fog','state',NULL,NULL,'',''),"
+    // a state row written by TaskLog::recordState(): carries its own identity,
+    // and here BOTH its task (11) and its host (101) are gone. This is the row
+    // 341 said could not exist and 369 exists to produce -- the log pane shows
+    // state rows and the dashboard counts them, so one that cannot name its
+    // host or say whether it was a capture is not readable.
+    . " (11,3,'127.0.0.1','fog','state',NULL,101,'beta','Upload'),"
     // the host has since been RENAMED: host 100 is 'alpha' now and the
     // report was written when it was 'oldname'. The stored copy has to win,
     // or the fallback is really just a null-check and the record is not
@@ -300,5 +307,36 @@ $t->check(
     'a state row still resolves its state',
     'In Progress' === ($rows[4]['logStateName'] ?? null)
 );
+
+// The state row that carries its own identity. Found by that identity rather
+// than by position, because its logText is NULL and cannot key $by.
+$ownIdentity = null;
+foreach ($rows as $row) {
+    if ('beta' === ($row['logHostName'] ?? null)) {
+        $ownIdentity = $row;
+    }
+}
+if ($t->check('the recordState() state row is returned', null !== $ownIdentity)) {
+    // Neither its task nor its host exists, so every one of these can only
+    // come from the row's own columns.
+    $t->check(
+        'a state row names its host after task AND host are gone',
+        'beta' === $ownIdentity['logHostName']
+    );
+    $t->check(
+        'a state row says whether it was a capture or a deploy',
+        'Upload' === $ownIdentity['logTypeName']
+    );
+    $t->check(
+        'a state row keeps its state icon through the reportType join',
+        '' !== (string)($ownIdentity['logTypeIcon'] ?? '')
+    );
+    // logHostID comes from the `hosts` join by design -- the grid links the
+    // name with it, and a link to a deleted host is worse than no link.
+    $t->check(
+        'but it does NOT invent a host link for a deleted host',
+        null === ($ownIdentity['logHostID'] ?? null)
+    );
+}
 
 $t->finish();

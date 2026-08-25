@@ -568,7 +568,15 @@ class TaskManagement extends FOGPage
      *
      * The row's own copy of the host and task type wins; the joins
      * through `tasks` are the fallback for rows written before schema
-     * 341, and for state rows, which never carry one.
+     * 341.
+     *
+     * State rows used to be part of that fallback -- 341's backfill excluded
+     * them explicitly, so they never carried a copy at all. They do now:
+     * TaskLog::recordState() writes one on every transition, and schema 369
+     * backfilled the existing rows whose task is still there. What is left in
+     * the fallback is the historical rows whose task survives, and what no
+     * query can answer is a pre-369 state row whose task is already gone --
+     * the grid renders those with a placeholder.
      *
      * That order is deliberate and not just a null-check: a report is a
      * historical record, so the name the host had WHEN IT FAILED is the
