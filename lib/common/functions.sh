@@ -455,18 +455,161 @@ checkDatabaseConnection() {
 # which is exactly the old behaviour. Rejected: an empty value, an IP literal,
 # localhost (the RHEL/Rocky minimal default, and identical on every node), and
 # anything outside the hostname grammar fog-sign-node-cert enforces.
-_nodeRegistrationName() {
+# The first argument that can actually serve as a certificate/vhost name, or
+# nothing at all (status 1) when none of them can.
+#
+# Rejects, in this order: the empty string; the kernel's literal default
+# "(none)", which is what a machine with no hostname configured reports and
+# which is NOT empty, so every -z test in the tree waves it through; an IP
+# literal; localhost (the RHEL/Rocky minimal default, and identical on every
+# node); and anything outside the hostname grammar fog-sign-node-cert enforces,
+# which is validhostname().
+#
+# One helper rather than a list repeated per caller, for the reason
+# _defaultServerNames() gives above itself: two sites deriving names separately
+# is how a name gets into a certificate that its own CA does not permit. It is
+# also the guard the interactive prompt never had -- see lib/common/newinput.sh,
+# where an unvalidated answer used to reach an OpenSSL config directly.
+#
+# Echoes nothing on failure rather than a fallback, because the two callers want
+# DIFFERENT fallbacks: a node registration wants the address, and the installer
+# wants to ask the admin. Deciding here would take that choice away from both.
+_usableHostname() {
     local n
-    for n in "${NET_hostname}" "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)"; do
+    for n in "$@"; do
         n="${n%.}"
         [[ -z $n ]] && continue
+        [[ ${n,,} == "(none)" ]] && continue
         [[ $n =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] && continue
         [[ ${n,,} == localhost || ${n,,} == localhost.* ]] && continue
-        [[ $n =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]] || continue
+        [[ $(validhostname "$n") -ne 0 ]] && continue
         echo "$n"
         return 0
     done
+    return 1
+}
+# What this MACHINE says its own name is, filtered through _usableHostname --
+# for callers that have to discover the name rather than be told it. Echoes
+# nothing when the machine has no usable name of its own, which is the state
+# this whole cluster of helpers exists to detect.
+#
+# hostnamectl is last and is not redundant with the two before it: it answers on
+# a systemd host whose name is set but not resolvable, which is exactly when
+# `hostname -f` fails. lib/common/input.sh used to reach for it as a fallback
+# and never got the chance, because lib/common/newinput.sh overwrote the
+# suggestion with a bare `hostname -f` a few lines later.
+#
+# stderr is discarded on all three. `hostname -f` on a machine with no
+# resolvable name prints "hostname: Name or service not known", and the
+# installer tees its output to a log admins are asked to attach to bug reports
+# -- so an unsuppressed error here reads as the failure rather than as the
+# reason for the question that follows it.
+_detectedHostname() {
+    _usableHostname "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)" "$(hostnamectl --static 2>/dev/null)"
+}
+_nodeRegistrationName() {
+    local n
+    n=$(_usableHostname "${NET_hostname}") || n=$(_detectedHostname)
+    [[ -n $n ]] && { echo "$n"; return 0; }
     echo "${NET_fog_server_ip}"
+}
+# The name to put in a certificate, guaranteed to be usable as one.
+#
+# ${NET_hostname} is normally it, but three OpenSSL call sites interpolate that
+# value directly and none of them survives a bad one, so none of them may read
+# it raw:
+#
+#   * the Secure Boot signing request's `subjectAltName = DNS:` -- an empty
+#     value makes the whole extension string `DNS:`, which OpenSSL rejects
+#     outright ("X509V3_parse_list:invalid null value"). That aborts the
+#     installer from inside configureHttpd(), which has already stopped the web
+#     server and has not yet reached the createSSLCA() call that restarts it.
+#     The admin sees a dead web server after an update and no mention of a
+#     hostname anywhere.
+#   * the web leaf's `-subj "/CN=..."` -- an empty value is SKIPPED with a
+#     warning and status 0, so the leaf is issued with no commonName at all,
+#     which then poisons _servedCertName() on every later run.
+#   * the platform key's subject, which becomes "FOG Project ()".
+#
+# Unlike _nodeRegistrationName() this never falls back to an address: its
+# callers all need a DNS name specifically, and an IP literal in a DNS SAN is
+# the exact failure the nameConstraints note in createSecureBootIntermediateCA()
+# describes. fogserver is the floor for the reason _defaultServerNames() gives:
+# it is already in every certificate FOG issues.
+_certLeafName() {
+    local n
+    n=$(_usableHostname "${NET_hostname}") || n=$(_detectedHostname)
+    [[ -n $n ]] && { echo "$n"; return 0; }
+    echo "fogserver"
+}
+# Make ${NET_hostname} resolve on this box, so the installer's own calls to
+# itself can reach it.
+#
+# Not cosmetic. checkWebTier() dials $(_servedCertName) over HTTPS and exits on
+# curl status 6 with "the name ... did not resolve from this server", and the
+# schema deploy carries the same hint -- both of which is what an admin sees if
+# the name is set but nothing maps it to an address.
+#
+# Adds nothing when the name already resolves, by any means: a real DNS record
+# is the better answer and this must not shadow it. The address is this server's
+# own, falling back to 127.0.1.1 -- Debian's convention for a machine's own FQDN
+# and the safe choice when NET_fog_server_ip has not been resolved yet.
+_ensureHostsEntry() {
+    local fqdn="$1" short="$2" target line st=0
+    [[ -z $fqdn ]] && return 0
+    getent hosts "$fqdn" >/dev/null 2>&1 && return 0
+    # normalizeIpAddress() has already collapsed this to a single address by the
+    # time the install phase runs, but take the first field regardless -- a
+    # multi-address value here would write an unparseable /etc/hosts line.
+    target=$(echo ${NET_fog_server_ip} | awk '{print $1}')
+    [[ -z $target ]] && target="127.0.1.1"
+    line="${target}\t${fqdn}"
+    [[ -n $short && $short != "$fqdn" ]] && line="${line} ${short}"
+    dots "Adding ${fqdn} to /etc/hosts"
+    printf '%b\n' "$line" >> /etc/hosts 2>>$error_log || st=1
+    errorStat $st
+}
+# Give this machine a hostname when it has none.
+#
+# Runs only when lib/common/newinput.sh found no usable name on the system
+# itself -- a working server is never renamed, which is the promise that prompt
+# has always made. There is simply nothing to preserve in this case, and nothing
+# works until a name exists: see the DNS: note in newinput.sh for what the
+# installer does without one.
+#
+# Deliberately NOT fatal. A container whose UTS namespace belongs to the host
+# cannot set a hostname, and refusing to install there would trade one broken
+# case for another. FOG still issues its certificate for ${NET_hostname}; the
+# admin is told what did not happen and can make the name resolve themselves.
+#
+# hostnamectl first, /etc/hostname + hostname(1) second: Alpine's OpenRC has no
+# hostnamectl at all, and on a systemd host that has it, writing /etc/hostname
+# alone would not take effect until reboot.
+applySystemHostname() {
+    [[ ${hostnameNeedsSystemSet:-0} -eq 1 ]] || return 0
+    [[ -z ${NET_hostname} ]] && return 0
+    local fqdn short st=1
+    fqdn="${NET_hostname}"
+    short="${fqdn%%.*}"
+    dots "Setting this server's hostname to ${short}"
+    if command -v hostnamectl >/dev/null 2>&1; then
+        hostnamectl set-hostname "$short" >>$error_log 2>&1 && st=0
+    fi
+    if [[ $st -ne 0 ]]; then
+        st=0
+        echo "$short" > /etc/hostname 2>>$error_log || st=1
+        hostname "$short" >>$error_log 2>&1 || st=1
+    fi
+    if [[ $st -ne 0 ]]; then
+        echo "Skipped"
+        echo "   This server's hostname could not be set -- no privilege, or a"
+        echo "   container whose hostname belongs to its host. FOG will still"
+        echo "   issue its certificate for '${fqdn}'; make that name resolve to"
+        echo "   this server yourself, or the web UI will not validate."
+    else
+        echo "OK"
+    fi
+    _ensureHostsEntry "$fqdn" "$short"
 }
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
@@ -5895,6 +6038,22 @@ writeUpdateFile() {
         # --- FOG_: install shape, OS records, update channel, install location
         FOG_install_type FOG_os_id FOG_os_name FOG_install_lang FOG_send_reports
         FOG_copy_back_old
+        # FOG_install_mode is which of the four presets the admin picked --
+        # standard / http-only / public-cert / embed-ca -- or empty for a shape
+        # assembled from the discrete transport flags instead.
+        #
+        # A genuine persisted PREFERENCE, like FOG_update_channel and
+        # PKI_sb_enabled rather than like BOOT_url_proto: it is an answer a
+        # person gave, and it has to outlive the run it was given on. Without
+        # it, promptInstallMode() had nothing to check and re-asked on every
+        # interactive upgrade, where a bare Enter takes the `standard` default
+        # and silently reverted a public-cert or embed-ca server.
+        #
+        # It is NOT the model -- the four WEB_/BOOT_/PKI_ keys below are. It is
+        # the preset naming a point in them, which is why any discrete flag
+        # clears it (see installfog.sh) rather than letting a stale name
+        # overwrite the key that moved.
+        FOG_install_mode
         # FOG_installed stays unquoted+numeric in the emitted file to match the
         # historical format (see settingLine below).
         FOG_installed
@@ -7202,10 +7361,29 @@ _collectPkiNames() {
 # binaries were staged and whether iPXE was rebuilt. Four named modes are
 # honest about a four-dimensional choice in a way one yes/no cannot be.
 #
-# A preset, not a replacement for the model: it writes the same keys
-# --https-redirect/--public-web-cert/--rebuild-ipxe-with-my-ca write, and an
-# admin who passed any of those (or --install-mode) is not asked at all -- they
-# have already answered.
+# A preset, not a replacement for the model: it writes the same
+# --public-web-cert/--rebuild-ipxe-with-my-ca keys those flags write, and an
+# admin who passed any of them (or --install-mode) is not asked at all -- they
+# have already answered. It does NOT touch WEB_https_redirect, despite the
+# --https-redirect shadow being one of the flags checked below; no mode sets or
+# clears the redirect, which is seeded once from a pre-1.6 httpproto=https and
+# is the admin's from then on.
+#
+# ASKED ONCE, which is what $priorInstall enforces. Everything else here is
+# run-scoped -- the s* shadows are this run's flags -- so before that line there
+# was nothing in the guard that could remember an answer, and every interactive
+# upgrade got the menu again. That was not merely repetitive: any unrecognised
+# reply including a bare Enter takes the `standard` default below, and
+# _applyInstallMode then wrote it straight over a public-cert or embed-ca
+# server's keys, which writeUpdateFile persisted. The prompt reverted the very
+# choice it was asking about.
+#
+# $priorInstall rather than $doupdate: the question is "has this machine ever
+# had FOG", and $doupdate answers a different one -- it is 0 for --no-upgrade on
+# a server that has been running for years. A machine that HAS had FOG has
+# either a persisted ${FOG_install_mode} (seeded back into $sinstallMode in
+# installfog.sh, so the first guard above has already returned) or a shape built
+# from discrete flags, and neither is something to re-ask.
 #
 # Guarded on `! -t 0` as well as $autoaccept, following the schema-update prompt
 # in this file: a piped or cron-driven install has no one to answer, and a read
@@ -7213,6 +7391,7 @@ _collectPkiNames() {
 promptInstallMode() {
     [[ -n $sinstallMode ]] && return 0
     [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} || -n ${sBOOT_rebuild_ipxe_with_my_ca} ]] && return 0
+    [[ ${priorInstall:-0} -eq 1 ]] && return 0
     [[ -n $autoaccept || ! -t 0 ]] && return 0
 
     local answer=""
@@ -7250,6 +7429,8 @@ promptInstallMode() {
         *)             sinstallMode="standard" ;;
     esac
     _applyInstallMode
+    # Persisted, so this is the last time the question gets asked.
+    FOG_install_mode="$sinstallMode"
     echo
     echo " * Using install mode: $sinstallMode"
     echo "   web=${WEB_url_proto} netboot=${BOOT_url_proto:-http} redirect=${WEB_https_redirect:-no}"
@@ -7997,7 +8178,7 @@ _createWebLeaf() {
     # never diverge on names, only on subject.
     openssl req -new -sha512 -key "${PKI_web_vhost_key}" -out "${leafdir}/.webLeaf.csr" \
         -config "$(_pkiConfDir)/req.cnf" \
-        -subj "/CN=${NET_hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
+        -subj "/CN=$(_certLeafName)/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
     # 5 years: short enough that a compromised leaf key ages out on its own,
     # long enough not to need automatic renewal. renewal-helper (packages/pki)
     # exists for an admin who wants to rotate it sooner.
@@ -8527,23 +8708,35 @@ createSSLCA() {
         [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
         sanentries="${sanentries}IP.${sancount} = ${ip}"
     done
-    dnscount=1
+    # Every DNS name in ONE pass from _defaultServerNames(), which already emits
+    # ${NET_hostname} first when there is one.
+    #
+    # DNS.1 used to be hardcoded to ${NET_hostname}, with this loop starting at
+    # DNS.2 and skipping it to avoid a duplicate. That meant an empty hostname
+    # emitted a literal `DNS.1 = ` -- and OpenSSL ACCEPTS that, putting a
+    # zero-length dNSName in the certificate. It signs cleanly and then fails
+    # every `openssl verify` against the DNS nameConstraints both intermediates
+    # carry, which is the silent half of the hazard the note below describes.
+    #
+    # DNS.1 is still not optional. Where a certificate has no DNS SAN at all
+    # OpenSSL falls back to matching the subject CN against those constraints --
+    # and this CN is an IP literal, so a leaf with only IP SANs would be
+    # rejected by its own CA. Nothing is lost by deriving it: _defaultServerNames()
+    # always yields at least fogserver/fog-server, so there is always a DNS.1.
+    dnscount=0
     dnsSanEntries=""
     while IFS= read -r extraname; do
-        [[ -z $extraname || $extraname == "${NET_hostname}" ]] && continue
+        [[ -z $extraname ]] && continue
         dnscount=$((dnscount + 1))
-        dnsSanEntries="${dnsSanEntries}"$'\n'"DNS.${dnscount} = ${extraname}"
+        [[ -n $dnsSanEntries ]] && dnsSanEntries="${dnsSanEntries}"$'\n'
+        dnsSanEntries="${dnsSanEntries}DNS.${dnscount} = ${extraname}"
     done < <(_defaultServerNames)
-    # DNS.1 is not optional. Both intermediates carry DNS name constraints, and
-    # where a certificate has no DNS SAN at all OpenSSL falls back to matching
-    # the subject CN against them -- and this CN is an IP literal. A leaf with
-    # only IP SANs would be rejected by its own CA.
     cat > $(_pkiConfDir)/ca.cnf << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = ${NET_hostname}$dnsSanEntries
+$dnsSanEntries
 EOF
     # Written unconditionally, unlike historically: the web leaf's CSR is built
     # from it on any run where the name set changed, not only on the run that
@@ -8571,7 +8764,7 @@ OU = FOG Client Communication
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = ${NET_hostname}$dnsSanEntries
+$dnsSanEntries
 EOF
 
     # --- Client communication keypair -------------------------------------
@@ -9427,6 +9620,40 @@ EOF
                         a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
+                    # After a2ensite, not beside the diffconfig above, and that
+                    # ordering is the whole point on Debian/Ubuntu: the fog
+                    # vhost lives in sites-available and is not part of the
+                    # loaded config until the line above links it. Testing
+                    # earlier would have passed while saying nothing about the
+                    # file just written.
+                    #
+                    # This is the misread the nginx arm already fixed (see
+                    # "Testing nginx configuration" above): the apache arm ends
+                    # in `diffconfig; errorStat $?`, and diffconfig returns 0
+                    # when there is no backup to compare against -- so errorStat
+                    # printed OK for a vhost apache cannot parse and the install
+                    # carried on to die at "Starting and checking status of web
+                    # services", with nothing pointing at the config. GH-650 is
+                    # exactly that failure reaching a user.
+                    #
+                    # The tool is named differently per distro and no distro
+                    # ships the others, so try them in turn rather than casing
+                    # on ${FOG_os_id}: apache2ctl on Debian/Ubuntu, apachectl on
+                    # RHEL/Arch/Alpine, httpd where only the daemon is on PATH.
+                    # None present means nothing to test and nothing to report.
+                    dots "Testing Apache configuration"
+                    local httpdtest=0 httpdtool="" httpdcandidate=""
+                    for httpdcandidate in apache2ctl apachectl httpd; do
+                        if command -v $httpdcandidate >/dev/null 2>&1; then
+                            httpdtool=$httpdcandidate
+                            break
+                        fi
+                    done
+                    if [[ -n $httpdtool ]]; then
+                        $httpdtool -t >> $workingdir/error_logs/fog_error_${version}.log 2>&1
+                        httpdtest=$?
+                    fi
+                    errorStat $httpdtest
                     ;;
             esac
             ;;
@@ -10520,6 +10747,15 @@ createSecureBootIntermediateCA() {
         # booting, discovered at the machines -- shim links OpenSSL and
         # verifies the chain itself. A permitted DNS name here both satisfies
         # the constraint and stops the CN fallback from ever running.
+        #
+        # Resolved into a variable first, and via _certLeafName() rather than
+        # ${NET_hostname} raw. This line was `DNS:${NET_hostname:-$(hostname)}`,
+        # and on a server with no hostname both halves are empty: the extension
+        # string becomes a bare `DNS:`, OpenSSL refuses to parse it, and the
+        # errorStat below kills the installer with the web server already
+        # stopped and not yet restarted. _certLeafName() cannot return empty.
+        local sbSanName
+        sbSanName=$(_certLeafName)
         cat > "${leafdir}/sign.cnf" << EOF
 [ req ]
 distinguished_name = req_dn
@@ -10534,7 +10770,7 @@ OU = FOG Secure Boot
 basicConstraints = critical,CA:FALSE
 extendedKeyUsage = codeSigning
 subjectKeyIdentifier = hash
-subjectAltName   = DNS:${NET_hostname:-$(hostname)}
+subjectAltName   = DNS:${sbSanName}
 EOF
         openssl req -new -sha256 -nodes -newkey rsa:2048 \
             -config "${leafdir}/sign.cnf" -keyout "${leafdir}/sign.key" \
@@ -10810,7 +11046,7 @@ _ensureSecureBootPlatformKeys() {
     # can tell WHICH FOG server owns the platform key it is now carrying. With a
     # generic CN, a site running two FOG servers has no way to tell them apart
     # from the machine that got enrolled.
-    subject="FOG Project (${NET_hostname:-$(hostname)})"
+    subject="FOG Project ($(_certLeafName))"
     # 4096-bit and no extendedKeyUsage: these are trust anchors in a firmware
     # database, not code-signing certificates, and some firmware rejects a PK
     # carrying a codeSigning EKU. 3650 days matches the MOK key -- an expired PK

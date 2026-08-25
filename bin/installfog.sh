@@ -110,6 +110,10 @@ usage() {
     echo -e "\t                  \t\t\t  netboot can use HTTPS with no rebuild"
     echo -e "\t                  \t\t\tembed-ca: rebuild iPXE with your CA"
     echo -e "\t                  \t\t\t  (adds 10-25 min and a Secure Boot step)"
+    echo -e "\t                  \t\t\tAsked once and remembered in .fogsettings,"
+    echo -e "\t                  \t\t\t  so it only needs giving to CHANGE it. Any"
+    echo -e "\t                  \t\t\t  of the four flags below makes the shape"
+    echo -e "\t                  \t\t\t  custom and clears the remembered mode."
     echo -e "\t-S    --force-https\t\tForce the HTTP->HTTPS redirect"
     echo -e "\t      --https-redirect\t\t  (same thing, clearer name)"
     echo -e "\t      --no-force-https\t\tUndo --force-https: serve both HTTP and"
@@ -231,7 +235,11 @@ usage() {
     exit 0
 }
 
-sPKI_san_dns_names=()
+# Declared so ${#sextraServerNames[@]} is safe before any --extra-server-name is
+# seen. This used to declare sPKI_san_dns_names, which nothing ever appended to
+# -- the half of the PKI_ rename that reached the reader of this array but not
+# the --extra-server-name handler that fills it.
+sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
 longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
@@ -895,6 +903,22 @@ WEB_url_proto="https"
 # keys an admin could set individually. Applied BEFORE the discrete flags, so
 # `--install-mode public-cert --no-rebuild-ipxe-with-my-ca` means what it reads
 # like -- each discrete key overrides its own field and nothing else.
+#
+# Seeded from the persisted ${FOG_install_mode} when no --install-mode was given
+# this run, which is what makes the choice survive an upgrade. Two things follow
+# from it, and both were bugs before:
+#
+#   * promptInstallMode() no longer re-asks a question already answered. It used
+#     to key only on the run-scoped s* shadows, so every interactive upgrade got
+#     the four-mode menu again -- and a bare Enter there takes the `standard`
+#     default, which _applyInstallMode then wrote over a public-cert or embed-ca
+#     server. The admin's choice was silently reverted, then persisted.
+#   * `--install-mode http-only` persists at last. WEB_url_proto is forced to
+#     https unconditionally a few lines above, so http-only left no trace in the
+#     four keys and could not be recovered from them -- it had to be passed
+#     again on every upgrade or it reverted, which the docs had to warn about.
+#     Running here, AFTER that line, is what lets the preset win.
+[[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
 _applyInstallMode
 
 # evaluation of command line options
@@ -902,7 +926,13 @@ _applyInstallMode
 [[ -n ${sPKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted=${sPKI_web_cert_publicly_trusted}
 [[ -n ${sBOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca=${sBOOT_rebuild_ipxe_with_my_ca}
 [[ -n ${sNET_hostname} ]] && NET_hostname=${sNET_hostname}
-[[ ${#sextraServerNames[@]} -gt 0 ]] && PKI_san_dns_names="${sPKI_san_dns_names[*]}"
+# sextraServerNames, not sPKI_san_dns_names. The rename that produced the
+# PKI_ prefix reached this line but not the --extra-server-name handler that
+# feeds it, so this expanded an array nothing ever assigns: the guard saw the
+# names, the assignment wrote the empty string, and every --extra-server-name
+# was silently discarded -- including on the ACME/public-cert installs that
+# exist to carry an extra name.
+[[ ${#sextraServerNames[@]} -gt 0 ]] && PKI_san_dns_names="${sextraServerNames[*]}"
 [[ -n ${sDHCP_range_start} ]] && DHCP_range_start=${sDHCP_range_start}
 [[ -n ${sDHCP_range_end} ]] && DHCP_range_end=${sDHCP_range_end}
 # -s/-e imply "set DHCP up". These were written directly by the handlers, so on
@@ -931,6 +961,25 @@ _applyInstallMode
 # value one run derived went on overriding the keys it was derived from.
 [[ -n ${sBOOT_url_proto} ]] && BOOT_url_proto=${sBOOT_url_proto}
 [[ -n ${sBOOT_dhcp_delay_seconds} ]] && BOOT_dhcp_delay_seconds=${sBOOT_dhcp_delay_seconds}
+# Record the shape, AFTER the discrete flags above have had their say.
+#
+# A preference, not a record: it is the admin's declared answer to "how should
+# this server handle HTTPS, netboot and Secure Boot", and it has to carry
+# forward on every upgrade rather than only the run it was made on.
+#
+# CLEARED by any discrete transport flag, and that is what keeps it from
+# becoming the trap _resolveNetbootProto documents. Once a flag has moved one of
+# the four keys off its preset, the shape is no longer one of the four named
+# modes -- and leaving the mode set would have the next run's
+# _applyInstallMode overwrite that very key from a name that no longer
+# describes it. Empty means custom, which is exactly true, and the four keys
+# then stand on their own as the model they always were.
+if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
+    || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
+    FOG_install_mode=""
+else
+    FOG_install_mode="$sinstallMode"
+fi
 # The external-CA IMPORT paths. GH-1120 collapsed six persisted keys
 # (extcacert/extcakey/extcaroot from the prompt, webExtCACert/webExtCAKey/
 # webExtCARoot from --web-ca-*) that only ever held three values -- and that
@@ -1196,6 +1245,11 @@ while [[ -z $blGo ]]; do
             echo " * Installation Started"
             echo
             checkInternetConnection
+            # Here rather than alongside the questions above: this MUTATES the
+            # system, and nothing may do that before the confirmation the admin
+            # just gave. First in the install phase, so every step after it --
+            # package post-install scripts included -- sees the real name.
+            applySystemHostname
             if [[ $ignorehtmldoc -eq 1 ]]; then
                 [[ -z $newpackagelist ]] && newpackagelist=""
                 for z in ${FOG_packages}; do
