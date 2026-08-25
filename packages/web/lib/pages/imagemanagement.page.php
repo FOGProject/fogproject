@@ -1511,6 +1511,11 @@ class ImageManagement extends FOGPage
         echo _('Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose.');
         echo '</div>';
         echo '<div class="card-body table-responsive">';
+        // NOT a DataTable, unlike the two report tables below, and it must not
+        // become one: every row here is a pair of form inputs, and DataTables
+        // removes the rows it has paged away from the DOM -- so anything past
+        // page one would silently stop being submitted. Three rows need no
+        // paging anyway.
         echo '<table class="table table-hover"><thead><tr>';
         echo '<th>' . _('Architecture') . '</th>';
         echo '<th>' . _('Description') . '</th>';
@@ -1558,7 +1563,8 @@ class ImageManagement extends FOGPage
         echo _('Images');
         echo '</h4></div>';
         echo '<div class="card-body table-responsive">';
-        echo '<table class="table table-hover"><thead><tr>';
+        echo '<table id="architectures-images" class="table table-hover">';
+        echo '<thead><tr>';
         echo '<th>' . _('Image') . '</th>';
         echo '<th>' . _('Architecture') . '</th>';
         echo '<th>' . _('Sector Size') . '</th>';
@@ -1591,7 +1597,8 @@ class ImageManagement extends FOGPage
         echo _('Hosts');
         echo '</h4></div>';
         echo '<div class="card-body table-responsive">';
-        echo '<table class="table table-hover"><thead><tr>';
+        echo '<table id="architectures-hosts" class="table table-hover">';
+        echo '<thead><tr>';
         echo '<th>' . _('Host') . '</th>';
         echo '<th>' . _('Architecture') . '</th>';
         echo '<th>' . _('Assigned image') . '</th>';
@@ -1690,10 +1697,27 @@ class ImageManagement extends FOGPage
      */
     private function _archStat($value, $label, $warn)
     {
+        // A card, not AdminLTE's `small-box`. small-box is built for a
+        // saturated background with white text forced on top of it, so
+        // `bg-light` -- the only neutral in that family -- paints a near-white
+        // box that the dark theme then writes its light text onto, and the
+        // number is invisible. Nothing else in FOG used small-box, so there
+        // was no house tile to inherit a fix from.
+        //
+        // The card idiom below is the one the Images and Hosts cards on this
+        // same page already use. The theme styles cards in both modes, so this
+        // needs no colour of its own and cannot drift from the rest of the
+        // page. Only the warning tile takes a colour, and it takes it from
+        // card-danger, which forces its own contrast.
         echo '<div class="col-sm-6 col-md-3">';
-        echo '<div class="small-box ' . ($warn ? 'bg-danger' : 'bg-light') . '">';
-        echo '<div class="inner"><h3>' . (int)$value . '</h3>';
-        echo '<p>' . htmlentities($label, ENT_QUOTES, 'utf-8') . '</p>';
+        echo '<div class="card '
+            . ($warn && $value > 0 ? 'card-danger' : 'card-primary')
+            . ' card-outline">';
+        echo '<div class="card-body text-center">';
+        echo '<h3 class="mb-0">' . (int)$value . '</h3>';
+        echo '<p class="mb-0 text-muted">'
+            . htmlentities($label, ENT_QUOTES, 'utf-8')
+            . '</p>';
         echo '</div></div></div>';
     }
     /**
