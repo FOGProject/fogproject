@@ -799,6 +799,9 @@ msgstr ""
 msgid "An image already exists with this name!"
 msgstr ""
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 msgid "An image with this name already exists!"
 msgstr ""
 
@@ -5972,6 +5975,9 @@ msgstr ""
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+msgid "Sector Size"
+msgstr ""
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -7159,6 +7165,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -8313,6 +8322,9 @@ msgid "but has recently failed for this host"
 msgstr ""
 
 msgid "but there are"
+msgstr ""
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
 msgstr ""
 
 msgid "captured before FOG tracked this. It will be set the next time this image is captured."

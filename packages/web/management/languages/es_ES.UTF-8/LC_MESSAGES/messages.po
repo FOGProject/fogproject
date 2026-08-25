@@ -953,6 +953,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "An image already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 #, fuzzy
 msgid "An image with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
@@ -7173,6 +7176,10 @@ msgstr "Estado del servicio"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "servidor TFTP"
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -8619,6 +8626,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -9928,6 +9938,9 @@ msgstr "No se ha definido de este alojamiento imagen"
 #, fuzzy
 msgid "but there are"
 msgstr "Existen"
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
 
 msgid "captured before FOG tracked this. It will be set the next time this image is captured."
 msgstr ""

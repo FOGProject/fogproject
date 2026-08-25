@@ -316,7 +316,7 @@ return [
             ],
         ],
         'images' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `images` ( `imageID` int(11) NOT NULL AUTO_INCREMENT, `imageName` varchar(40) NOT NULL, `imageDesc` longtext NOT NULL DEFAULT \'\', `imagePath` longtext NOT NULL, `imageProtect` mediumint(9) NOT NULL DEFAULT 0, `imageMagnetUri` longtext NOT NULL DEFAULT \'\', `imageDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `imageCreateBy` varchar(50) NOT NULL DEFAULT \'\', `imageBuilding` int(11) NOT NULL DEFAULT 0, `imageSize` varchar(255) NOT NULL DEFAULT \'\', `imageTypeID` mediumint(9) NOT NULL, `imagePartitionTypeID` mediumint(9) NOT NULL, `imageOSID` mediumint(9) NOT NULL, `imageFormat` char(1) DEFAULT NULL, `imageLastDeploy` datetime DEFAULT NULL, `imageCompress` int(11) DEFAULT NULL, `imageEnabled` tinyint(1) NOT NULL DEFAULT 1, `imageReplicate` tinyint(1) NOT NULL DEFAULT 1, `imageServerSize` bigint(20) unsigned NOT NULL DEFAULT 0, `imageArch` varchar(16) DEFAULT NULL, PRIMARY KEY (`imageID`), UNIQUE KEY `imageName` (`imageName`), KEY `new_index` (`imageName`), KEY `new_index1` (`imageBuilding`), KEY `new_index2` (`imageTypeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `images` ( `imageID` int(11) NOT NULL AUTO_INCREMENT, `imageName` varchar(40) NOT NULL, `imageDesc` longtext NOT NULL DEFAULT \'\', `imagePath` longtext NOT NULL, `imageProtect` mediumint(9) NOT NULL DEFAULT 0, `imageMagnetUri` longtext NOT NULL DEFAULT \'\', `imageDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `imageCreateBy` varchar(50) NOT NULL DEFAULT \'\', `imageBuilding` int(11) NOT NULL DEFAULT 0, `imageSize` varchar(255) NOT NULL DEFAULT \'\', `imageTypeID` mediumint(9) NOT NULL, `imagePartitionTypeID` mediumint(9) NOT NULL, `imageOSID` mediumint(9) NOT NULL, `imageFormat` char(1) DEFAULT NULL, `imageLastDeploy` datetime DEFAULT NULL, `imageCompress` int(11) DEFAULT NULL, `imageEnabled` tinyint(1) NOT NULL DEFAULT 1, `imageReplicate` tinyint(1) NOT NULL DEFAULT 1, `imageServerSize` bigint(20) unsigned NOT NULL DEFAULT 0, `imageArch` varchar(16) DEFAULT NULL, `imageSectorSize` int(11) DEFAULT NULL, PRIMARY KEY (`imageID`), UNIQUE KEY `imageName` (`imageName`), KEY `new_index` (`imageName`), KEY `new_index1` (`imageBuilding`), KEY `new_index2` (`imageTypeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'imageID' => 'int(11) NOT NULL',
                 'imageName' => 'varchar(40) NOT NULL',
@@ -338,6 +338,7 @@ return [
                 'imageReplicate' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'imageServerSize' => 'bigint(20) unsigned NOT NULL DEFAULT 0',
                 'imageArch' => 'varchar(16) DEFAULT NULL',
+                'imageSectorSize' => 'int(11) DEFAULT NULL',
             ],
         ],
         'imageTypes' => [

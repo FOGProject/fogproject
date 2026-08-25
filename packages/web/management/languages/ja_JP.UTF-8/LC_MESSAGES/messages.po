@@ -896,6 +896,9 @@ msgstr "この名前のプリンターは既に存在します！"
 msgid "An image already exists with this name!"
 msgstr "この名前のイメージは既に存在します！"
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 #, fuzzy
 msgid "An image with this name already exists!"
 msgstr "その名前のホストは既に存在します"
@@ -6753,6 +6756,10 @@ msgstr "設定"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "サーバーシェル"
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -8087,6 +8094,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -9358,6 +9368,9 @@ msgstr "ただし、このホストでは最近失敗しています"
 
 msgid "but there are"
 msgstr "ただし、次があります"
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
 
 msgid "captured before FOG tracked this. It will be set the next time this image is captured."
 msgstr ""

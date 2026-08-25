@@ -331,6 +331,42 @@ class FOGSSH
      *
      * @return array
      */
+    /**
+     * Reads a small remote file over the open sftp session.
+     *
+     * Same ssh2.sftp:// stream wrapper scanFilesystem() below uses. Bounded on
+     * purpose: every caller so far wants a metadata sidecar of a few hundred
+     * bytes, and an unbounded read here would happily pull a 40GB image into
+     * memory if a path were ever wrong.
+     *
+     * Returns '' for absent or unreadable rather than false, so callers can
+     * treat "not there" and "could not read it" the same way -- which is what
+     * they want, because both mean "we do not know".
+     *
+     * @param string $remote_file the path on the node
+     * @param int    $maxBytes    hard cap on what is read
+     *
+     * @return string
+     */
+    public function readFile($remote_file, $maxBytes = 65536)
+    {
+        if (!$this->exists($remote_file)) {
+            return '';
+        }
+        if (!$this->_sftp) {
+            $this->sftp();
+        }
+        $sftp = $this->_sftp;
+        $data = @file_get_contents(
+            "ssh2.sftp://$sftp$remote_file",
+            false,
+            null,
+            0,
+            $maxBytes
+        );
+
+        return false === $data ? '' : (string)$data;
+    }
     public function scanFilesystem($remote_file)
     {
         if (!$this->exists($remote_file)) {

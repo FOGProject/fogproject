@@ -61,7 +61,11 @@ class Image extends FOGController
         // TaskQueue::_moveUpload() when the captured bytes land; NULL for
         // every image captured before schema step 370, which is why
         // archCanRun() treats unknown as allowed.
-        'arch' => 'imageArch'
+        'arch' => 'imageArch',
+        // The LOGICAL sector size, in bytes, of the disk this image was
+        // captured from -- 512 or 4096, NULL when unknown. Read out of the
+        // image's own sfdisk dump; see parseSectorSize(). Schema step 371.
+        'sectorsize' => 'imageSectorSize'
     ];
     /**
      * The required fields
@@ -108,6 +112,68 @@ class Image extends FOGController
             'imagetype'
         ]
     ];
+    /**
+     * The logical sector size recorded in an sfdisk dump.
+     *
+     * FOS writes the source disk's geometry into the dump at capture, and
+     * util-linux 2.35+ puts the logical sector size on its own line:
+     *
+     *     label: gpt
+     *     device: /dev/sda
+     *     unit: sectors
+     *     sector-size: 4096
+     *
+     * This is the same line, read the same way, that
+     * validateImageSectorSize() in FOS's funcs.sh keys its refusal off. Two
+     * readers of one fact is one too many, but the alternative is asking FOS
+     * to report something it has been writing to disk for years -- which
+     * would need an init release to reach anybody.
+     *
+     * Returns 0 when the dump has no such line. That is not a failure: dumps
+     * written before util-linux 2.35 do not carry it, and FOS treats the same
+     * absence as "allow the deploy rather than guess". Nothing here may be
+     * stricter than the code doing the actual refusing.
+     *
+     * @param string $dump the contents of a d<N>.*partitions file
+     *
+     * @return int bytes, or 0 when the dump does not say
+     */
+    public static function parseSectorSize($dump)
+    {
+        if (!preg_match('/^sector-size:\\s*(\\d+)\\s*$/mi', (string)$dump, $m)) {
+            return 0;
+        }
+
+        return (int)$m[1];
+    }
+    /**
+     * How a sector size should be described to a person.
+     *
+     * 4096 is 4Kn. 512 is deliberately NOT called "512n" or "512e": those
+     * differ only in PHYSICAL block size, which no capture records, and they
+     * are interchangeable as deploy targets anyway because only the logical
+     * size governs whether an image's geometry fits. Claiming one or the
+     * other would be inventing a fact.
+     *
+     * @param int $bytes the logical sector size
+     *
+     * @return string '' when unknown
+     */
+    public static function sectorSizeLabel($bytes)
+    {
+        $bytes = (int)$bytes;
+        if ($bytes < 1) {
+            return '';
+        }
+        if (4096 === $bytes) {
+            return '4Kn (4096-byte logical sectors)';
+        }
+        if (512 === $bytes) {
+            return '512n/512e (512-byte logical sectors)';
+        }
+
+        return sprintf('%d-byte logical sectors', $bytes);
+    }
     /**
      * Normalises an architecture string to iPXE's vocabulary.
      *
