@@ -1824,29 +1824,45 @@ $.notify = function(title, body, type) {
   return toast;
 };
 $.notifyFromAPI = function(res, isError) {
-  if (res === undefined) {
-    typemsg = "msg";
+  // A body that is not an object cannot carry a message, and the guard used
+  // to be `res === undefined` -- which a STRING body walks straight past. A
+  // string is exactly what arrives when an endpoint answers with HTML, the
+  // shape management/index.php returned for a signed-out XHR: the sign-in
+  // page at 200. Every lookup below was then undefined, `type` kept its old
+  // 'success' default, and the user got a GREEN toast reading 'Bad Response'
+  // while the write was silently discarded.
+  //
+  // statusText is not used for the reason: it is empty over HTTP/2, which has
+  // no reason phrase, so it produced an empty message on exactly the servers
+  // most likely to hit this.
+  if (!res || typeof res !== 'object') {
     res = {
-      title: 'Generic ' + (isError ? 'Error' : 'Message'),
+      title: 'Bad Response',
+      error: (isError && isError.status)
+        ? 'The server answered ' + isError.status
+          + ' with no readable message.'
+        : 'The server returned no readable message.'
     };
-    if (isError) {
-      res.error = isError ? isError.statusText : 'Unknown issue';
-    } else {
-      res.msg = 'No message';
-    }
   }
   var title = res.title,
-    type = 'success',
+    // NOT 'success'. A response carrying none of error/info/warning/msg is
+    // one that nothing could be read out of, and that is a failure whatever
+    // the status line says -- the fallback at the bottom of this function
+    // exists precisely for it. Each branch below overrides this, so a
+    // response that does carry a message is unaffected.
+    type = 'error',
     // Declared. It never was: every branch below ASSIGNED it as an implicit
     // global, and `if (!msg)` READS it -- so any response carrying none of
     // error/info/warning/msg threw ReferenceError out of the success
     // handler and took the caller's callback with it. The fallback two
     // lines down existed precisely for that case and could never run.
     //
-    // The usual way in is a body jQuery did not parse as JSON (an endpoint
-    // missing its Content-type header): res is then a string, every lookup
-    // is undefined, and the user sees a silent failure rather than
-    // 'Bad Response'.
+    // The usual way in was a body jQuery did not parse as JSON (an endpoint
+    // missing its Content-type header, or answering with HTML): res was then
+    // a string and every lookup below undefined. The guard at the top of this
+    // function now turns any non-object into a real error object, so a string
+    // no longer reaches here -- but `msg` can still end up unset if an object
+    // carries none of the four keys, which is what the fallback below is for.
     msg;
   if (res.error) {
     type = 'error';

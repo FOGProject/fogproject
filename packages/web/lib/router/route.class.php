@@ -383,6 +383,36 @@ class Route extends FOGBase
         'user' => [
             'token',
         ],
+        // Both record what the installer DID, and are written by it only
+        // after it succeeded. PluginManagementPage::installPost() sets
+        // state, then runs Plugin::installdb() to create the tables, and
+        // writes installed=1 last; Plugin::installdb() writes schema to
+        // the number of migration steps it applied.
+        //
+        // Accepting them over the generic edit route lets a client assert
+        // an install that never happened. Measured: PUT /plugin/{id}/edit
+        // with installed=1 on an uninstalled plugin registers the plugin's
+        // classes -- so its routes and schemas appear in GET
+        // system/openapi -- while no table is ever created, and every one
+        // of those routes then answers
+        //
+        //   406  SQLSTATE[42S02]: Base table or view not found
+        //
+        // A client generated from that document gets commands guaranteed
+        // to fail. It also hides from the repair path most admins would
+        // reach for: installPost() only calls installdb() for plugins
+        // filtered on installed IN ('', 0, '0'), so the Install button
+        // skips a row that already claims to be installed. upgradePost()
+        // is what fixes it, and nothing says so.
+        //
+        // state is deliberately NOT here. Activating is a column write and
+        // nothing else -- installPost() and the Activate action both just
+        // set state=1 -- so a client writing it does the whole job rather
+        // than half of it.
+        'plugin' => [
+            'installed',
+            'schema',
+        ],
     ];
     /**
      * Memoized union of the list above and what plugins declare through
@@ -510,14 +540,61 @@ class Route extends FOGBase
         'task'
     ];
     /**
-     * Names not unique
+     * Classes whose `name` the database does not make unique.
+     *
+     * create() and edit() refuse a body whose `name` any EXISTING row of
+     * that class already holds, unless the class is listed here. The
+     * question that check is really asking is whether the name identifies
+     * a row on its own -- and the authority on that is the schema, not
+     * this list. Where the two disagree the API refuses a write the
+     * database would have accepted, with a 500 reading `Already created`.
+     *
+     * The test is "a UNIQUE index covering the name column ALONE". A name
+     * that appears only inside a COMPOSITE unique key is not unique by
+     * itself, and that is the case the original list missed:
+     * rolePermissions is keyed `(rpRoleID, rpName)`, so two roles are
+     * meant to hold `plugin.view` -- but the API answered `Already
+     * created` to the second one, which made granting a permission to a
+     * second role impossible over REST. Measured on a real server:
+     * `image.task`, `report.view` and `task.view` were each held by three
+     * roles at the time.
+     *
+     * The others earn their place the same way:
+     *
+     *   - oui           the manufacturer repeats by design; a live server
+     *                   holds 1533 rows reading `Apple, Inc.`, and the
+     *                   unique key is `(ouiMACPrefix, ouiMan)`.
+     *   - the three association classes, whose name column is '' on every
+     *     row that exists -- so a client PUTting an object back verbatim,
+     *     `"name":""` included, was refused.
+     *   - multicastsession, which has no unique key on msName and holds
+     *     '' for every session created without one.
+     *
+     * NOT added, deliberately: imagetype, keysequence, module and
+     * pxemenuoptions. Nothing indexes their names either, but nothing
+     * shows duplicates are INTENDED there, and quietly allowing them is
+     * the riskier direction to be wrong in. Refusing a duplicate the
+     * schema would accept is an inconvenience; accepting one the product
+     * meant to reject is a data problem. Those four stay strict until
+     * somebody wants them otherwise.
+     *
+     * tests/nonunique-names-match-schema.test.php holds the other end: it
+     * reads the same CREATE TABLE statements out of the schema manifest,
+     * so a table that gains or loses a unique key on its name cannot
+     * leave this list quietly stale.
      *
      * @var array
      */
     public static $nonUniqueNameClasses = [
         'filedeletequeue',
+        'multicastsession',
+        'oui',
+        'rolepermission',
+        'roleuserassociation',
+        'roleusergroupassociation',
         'scheduledtask',
-        'task'
+        'task',
+        'usergroupmember'
     ];
     /**
      * Valid active tasking classes.
@@ -1333,6 +1410,10 @@ class Route extends FOGBase
             [__CLASS__, 'uploadSnapinFiles'],
             'uploadSnapinFiles'
         )->post(
+            '/plugin/[i:id]/install',
+            [__CLASS__, 'pluginInstall'],
+            'pluginInstall'
+        )->post(
             "{$expandedw}/[create|new]?",
             [__CLASS__, 'create'],
             'create'
@@ -2084,7 +2165,22 @@ class Route extends FOGBase
                     $whereItems['jobID'] = [-1];
                 }
             }
-            if (count($whereItems ?: []) < 1) {
+            // Not under $inputoverride, which the docblock defines as
+            // "override php://input to blank" -- and getsearchbody() reads
+            // php://input and turns any class field it finds there into a
+            // WHERE. The parse_str() branch above was the only thing the
+            // flag suppressed, so every internal Route::getList() call was
+            // still silently filtered by the body of whatever request it
+            // happened to run inside.
+            //
+            // That is not a tidiness point. Plugin::activationBlockers()
+            // lists `plugin` this way to decide whether a plugin may be
+            // switched on, so POST /plugin/{id}/install with an unrelated
+            // body -- {"name":"ldap"} -- listed one row, found the target
+            // was not in it, reported no blockers and installed a plugin
+            // this server refuses to run. Any gate built on a getList() is
+            // defeatable the same way.
+            if (!$inputoverride && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($class);
             }
 
@@ -4107,6 +4203,38 @@ class Route extends FOGBase
                             ->addHost($hostsToAdd);
                     }
                     break;
+                case 'plugin':
+                    // installed and schema are server-owned, but state is
+                    // deliberately not: activating is a plain column write
+                    // and doing it over the API is legitimate. What is NOT
+                    // legitimate is using it to switch on a plugin the
+                    // server refuses to run -- an installed plugin left
+                    // deactivated because a FOG upgrade moved past its
+                    // fog_max is exactly the case activationBlockers()
+                    // exists for, and without this it is one PUT away from
+                    // loading on every boot (installed=1 AND state=1 is
+                    // what getActivePlugins() selects on).
+                    //
+                    // Gated on the TRANSITION to active, read from the
+                    // stored row rather than the mutated object, for the
+                    // same reason _refuseServerOwned() compares values: a
+                    // client that reads a plugin and PUTs it back
+                    // unchanged is asking for nothing, and an ordinary
+                    // description edit on an already-active plugin must
+                    // not start failing the day it becomes blocked.
+                    if (isset($vars->state)
+                        && (int)$vars->state === 1
+                        && !(int)self::getClass('Plugin', $id)->get('state')
+                    ) {
+                        $blockers = Plugin::activationBlockers([(int)$id]);
+                        if (count($blockers)) {
+                            self::setErrorMessage(
+                                self::_blockerReasons($blockers),
+                                HTTPResponseCodes::HTTP_BAD_REQUEST
+                            );
+                        }
+                    }
+                    break;
             }
             // Store the data and recreate.
             // If failed present so.
@@ -4452,6 +4580,143 @@ class Route extends FOGBase
             self::sendResponse(
                 HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
                 $e->getMessage()
+            );
+        }
+    }
+    /**
+     * Flattens Plugin::activationBlockers() into one readable sentence.
+     *
+     * Shared by the two places that refuse an activation -- this route and
+     * the plugin arm of edit() -- so a caller turning a plugin on gets the
+     * same reason whichever way it asked. PluginManagementPage does the
+     * identical join in _refuseBlocked(); it stays there because it throws
+     * rather than answering, and this is the HTTP boundary.
+     *
+     * @param array $blockers name => reason, as activationBlockers returns.
+     *
+     * @return string
+     */
+    private static function _blockerReasons(array $blockers)
+    {
+        $reasons = [];
+        foreach ($blockers as $name => $reason) {
+            $reasons[] = sprintf('%s %s', $name, $reason);
+        }
+        return implode('; ', $reasons);
+    }
+    /**
+     * Installs a plugin: activate, create its tables, then record it.
+     *
+     * POST /plugin/{id}/install.
+     *
+     * The same three steps PluginManagementPage::installPost() performs,
+     * in the same order, because the order is the contract: state first,
+     * then Plugin::installdb() to apply the plugin's schema migrations,
+     * and installed=1 LAST so the column only ever claims an install that
+     * actually happened.
+     *
+     * installdb() is called without the install-state filter the web
+     * Install button applies. Migration steps are append-only and
+     * idempotent by contract (docs/PLUGIN_SCHEMA_MIGRATIONS.md) and
+     * Schema::applyUpdates() resumes from the stored count, so calling it
+     * on an installed plugin applies only steps it has not seen -- which
+     * is what the Upgrade action does. One route therefore installs, and
+     * brings a plugin whose code ships newer schema() steps up to date,
+     * without a drop and recreate.
+     *
+     * That contract holds only for a plugin that adopted schema(). One
+     * that did not is refused a SECOND install, because installdb() would
+     * fall back to its legacy install() and drop its tables; see the
+     * guard below.
+     *
+     * That also makes it the repair for a row whose installed flag was set
+     * without the tables ever being created. The web Install action cannot
+     * do it: installPost() filters on installed IN ('', 0, '0'), so it
+     * skips a plugin that already claims to be installed.
+     *
+     * @param int $id The plugin id.
+     *
+     * @return void
+     */
+    public static function pluginInstall($id)
+    {
+        try {
+            $Plugin = self::getClass('Plugin', (int)$id);
+            if (!$Plugin->isValid()) {
+                // setErrorMessage(), not sendResponse(): every error this
+                // route can answer with is documented as the Error schema,
+                // and sendResponse() writes the bare string into a body
+                // labelled application/json. A generated client parses
+                // that and gets a syntax error instead of the reason.
+                self::setErrorMessage(
+                    _('Plugin not found'),
+                    HTTPResponseCodes::HTTP_NOT_FOUND
+                );
+            }
+            // Same gate the page applies. A blocked plugin is one the
+            // server has a reason to refuse -- a conflict with a core
+            // feature that replaced it, for instance -- and the API must
+            // not be the way around it. The generic edit route carries
+            // the other half of this, on `state`; see Route::edit().
+            $blockers = Plugin::activationBlockers([$Plugin->get('id')]);
+            if (count($blockers)) {
+                self::setErrorMessage(
+                    self::_blockerReasons($blockers),
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                );
+            }
+            // installdb() is idempotent only for a manager that adopted
+            // the schema() contract. Without one it falls back to the
+            // legacy install(), whose 1.5 shape opens with uninstall() --
+            // a DROP -- and rebuilds; wolbroadcast destroyed its own
+            // table on every install that way until fog-plugins#24. The
+            // web Install button never met that because it filters on
+            // installed IN ('', 0, '0'), and this route deliberately does
+            // not filter, so the protection has to be restored here or
+            // "install an installed plugin" silently means "empty it".
+            //
+            // A FIRST install of such a plugin is still allowed: there is
+            // nothing to lose, and it is how a legacy plugin has always
+            // been installed. A plugin with no manager at all (hooks
+            // only) has neither method and re-installs as a no-op, which
+            // is correct and must not be refused.
+            $manager = $Plugin->getManager();
+            if ($Plugin->get('installed')
+                && !method_exists($manager, 'schema')
+                && method_exists($manager, 'install')
+            ) {
+                self::setErrorMessage(
+                    sprintf(
+                        // translators: %s is the plugin name.
+                        _('%s does not declare schema() migrations, so '
+                            . 're-installing it would drop and recreate its '
+                            . 'tables. Uninstall it first if that is what '
+                            . 'you want.'),
+                        $Plugin->get('name')
+                    ),
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                );
+            }
+            $Plugin->set('state', 1)->save();
+            if (!$Plugin->installdb()) {
+                self::setErrorMessage(
+                    sprintf(
+                        // translators: %s is the plugin name.
+                        _('Failed to install %s'),
+                        $Plugin->get('name')
+                    ),
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            // Written here, by the server, having done the work. The
+            // generic edit route refuses this column for exactly that
+            // reason -- see Route::$serverOwnedFields.
+            $Plugin->set('installed', 1)->save();
+            self::sendResponse(HTTPResponseCodes::HTTP_NO_CONTENT);
+        } catch (\Exception $e) {
+            self::setErrorMessage(
+                $e->getMessage(),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
             );
         }
     }

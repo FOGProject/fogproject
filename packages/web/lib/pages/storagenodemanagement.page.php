@@ -1260,6 +1260,17 @@ class StorageNodeManagement extends FOGPage
      */
     public function edit()
     {
+        $this->notes = [
+            _('Storage Node') => $this->obj->get('name'),
+            _('Storage Group') => $this->obj->getStorageGroup()->get('name'),
+            _('Role') => (
+                $this->obj->get('isMaster') ?
+                _('Master') :
+                _('Member')
+            ),
+            _('Image Path') => $this->obj->get('path'),
+            _('Max Clients') => (string)$this->obj->get('maxClients')
+        ];
         $tabData = [];
 
         // General

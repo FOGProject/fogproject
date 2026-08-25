@@ -336,6 +336,11 @@ class UserGroupManagement extends FOGPage
      */
     public function edit()
     {
+        $this->notes = [
+            _('User Group') => $this->obj->get('name'),
+            _('Members') => (string)count((array)$this->obj->get('users')),
+            _('Roles') => (string)count((array)$this->obj->get('roles'))
+        ];
         $tabData = [];
 
         // General

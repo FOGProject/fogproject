@@ -550,9 +550,11 @@ class OpenAPI extends FOGBase
      * Input looks like 'varchar(250) NOT NULL', 'int(11) NOT NULL',
      * "enum('0','1') NOT NULL" or 'longtext DEFAULT NULL'.
      *
-     * tinyint(1) maps to integer rather than boolean on purpose: FOG spells
-     * its booleans enum('0','1') and uses tinyint for genuine small integers,
-     * so the usual MySQL-to-bool shortcut would mistype real data.
+     * tinyint(1) maps to integer rather than boolean on purpose. Since ADR
+     * 0028 tinyint(1) IS how FOG spells a boolean, so the shortcut is no
+     * longer a mistyping -- but the value on the wire is 0/1, not JSON
+     * true/false, because that is what mysqlnd returns for the column.
+     * Documenting it as boolean would describe a payload FOG does not send.
      *
      * @param string $sqlType The column definition.
      *
@@ -2009,8 +2011,84 @@ class OpenAPI extends FOGBase
             '/storagegroup/{id}/uploadsnapinfiles' => [
                 'parameters' => [self::_idParameter()],
                 'post' => self::_uploadSnapinFilesOp()
+            ],
+            '/plugin/{id}/install' => [
+                'parameters' => [self::_idParameter()],
+                'post' => self::_pluginInstallOp()
             ]
         ];
+    }
+
+    /**
+     * POST /plugin/{id}/install.
+     *
+     * Written out here rather than falling out of the generic shapes for
+     * the same reason the upload routes are: it is an action, not CRUD on
+     * a row. The generic edit route cannot express it, and deliberately
+     * refuses to pretend it can -- plugins.installed and plugins.schema
+     * are server-owned, because both record what this operation DID.
+     *
+     * @return array
+     */
+    private static function _pluginInstallOp()
+    {
+        $op = self::_op(
+            '',
+            'pluginInstall',
+            _('Install a plugin'),
+            _('Activates the plugin, applies its schema migrations, and '
+                . 'records the result -- the same three steps, in the same '
+                . 'order, as the Install action in the web UI. Idempotent: '
+                . 'migration steps are append-only and are resumed from the '
+                . 'count already applied, so calling this on an installed '
+                . 'plugin applies only steps it has not seen, which is what '
+                . 'the UI calls Upgrade. Setting `installed` through the '
+                . 'generic edit route instead is refused: that column '
+                . 'records that this operation succeeded, and asserting it '
+                . 'without running the migrations leaves the plugin\'s '
+                . 'routes in this document while its tables do not exist.'),
+            [
+                '204' => ['description' => _('The plugin is installed and '
+                    . 'its schema is up to date.')],
+                '400' => [
+                    'description' => _('The server refuses to activate this '
+                        . 'plugin, or the plugin declares no schema() '
+                        . 'migrations and is already installed, so '
+                        . 're-running its installer would drop and recreate '
+                        . 'its tables. The message says which.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ],
+                '404' => [
+                    'description' => _('No plugin with that id.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ],
+                '500' => [
+                    'description' => _('A migration step failed. The plugin '
+                        . 'is left activated and not marked installed.'),
+                    'content' => [
+                        'application/json' => [
+                            'schema' => ['$ref' => '#/components/schemas/Error']
+                        ]
+                    ]
+                ]
+            ]
+        );
+        // Grouped under plugin rather than system, the same way the two
+        // upload routes are grouped under snapin and storagegroup. _op()
+        // takes the tag from its class argument, which has to stay empty
+        // here so the operation id and the permission lookup both key off
+        // the fixed-route name -- but a reader looking for this opens the
+        // plugin tag, not system.
+        $op['tags'] = ['plugin'];
+        return $op;
     }
 
     /**

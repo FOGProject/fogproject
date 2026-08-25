@@ -510,6 +510,23 @@ class TaskQueue extends TaskingElement
                 ->set('format', 0)
                 ->set('srvsize', self::getFilesize($dest));
         }
+        // Stamp the image with the architecture of the machine that made it.
+        //
+        // An image cannot discover its own architecture, and does not have
+        // to: a capture requires the host to PXE boot, and BootMenu records
+        // hostArch on that same boot before FOS even loads. So by the time
+        // this runs the capturing host's architecture is already known and
+        // this is a copy, not an inference -- no FOS change and no new
+        // endpoint were needed for it.
+        //
+        // Guarded rather than assumed. A host that somehow reaches here with
+        // no recorded architecture leaves the image NULL, which archCanRun()
+        // reads as "allow" -- the same state every image captured before
+        // schema step 370 is already in.
+        $capturedArch = Image::normalizeArch(self::$Host->get('arch'));
+        if ('' !== $capturedArch) {
+            $this->Image->set('arch', $capturedArch);
+        }
         $this->Image
             ->set(
                 'deployed',

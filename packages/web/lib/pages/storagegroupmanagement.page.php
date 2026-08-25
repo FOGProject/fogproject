@@ -770,6 +770,16 @@ class StorageGroupManagement extends FOGPage
      */
     public function edit()
     {
+        $master = $this->obj->getMasterStorageNode();
+        $this->notes = [
+            _('Storage Group') => $this->obj->get('name'),
+            _('Master Node') => (
+                $master instanceof StorageNode && $master->isValid() ?
+                $master->get('name') :
+                _('None')
+            ),
+            _('Storage Nodes') => (string)count((array)$this->obj->get('allnodes'))
+        ];
         $tabData = [];
 
         // General

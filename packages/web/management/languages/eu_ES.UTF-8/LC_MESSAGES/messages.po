@@ -103,6 +103,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -139,8 +143,16 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "Hosts"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -338,6 +350,9 @@ msgstr "Ein Snapin mit diesem Namen ist bereits vorhanden!"
 msgid "A menu entry already exists with this name!"
 msgstr "Dieser Benutzername ist bereits vorhanden!"
 
+msgid "A migration step failed. The plugin is left activated and not marked installed."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
@@ -461,6 +476,10 @@ msgid "API Documentation"
 msgstr "Ort"
 
 #, fuzzy
+msgid "API Enabled"
+msgstr "ist aktiviert"
+
+#, fuzzy
 msgid "API Only Account"
 msgstr "Slack Accounts"
 
@@ -578,6 +597,9 @@ msgstr "ausgewählte Images hinzufügen"
 #, fuzzy
 msgid "Activated"
 msgstr "Aktiv"
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
+msgstr ""
 
 msgid "Active"
 msgstr "Aktiv"
@@ -1002,6 +1024,9 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -1014,6 +1039,10 @@ msgid "Assigned Group Name"
 msgstr "Name der Speichergruppe"
 
 msgid "Assigned Image"
+msgstr "Zugeordnetes Image"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "Zugeordnetes Image"
 
 #, fuzzy
@@ -2567,10 +2596,16 @@ msgstr "sichern möchten, können Sie das mit"
 msgid "FOG is unable to communicate with the database"
 msgstr "FOG kann nicht mit der Datenbank verbinden."
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "FOG-Server im Standard-Ordner."
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -2666,6 +2701,10 @@ msgstr "Verbindung nicht möglich"
 
 #, fuzzy
 msgid "Failed to install "
+msgstr "Starten fehlgeschlagen"
+
+#, fuzzy, php-format
+msgid "Failed to install %s"
 msgstr "Starten fehlgeschlagen"
 
 #, fuzzy
@@ -2817,6 +2856,10 @@ msgstr "Zerstören des Speicherknotens fehlgeschlagen"
 #, fuzzy
 msgid "Files Deleted List"
 msgstr "Datei löschen"
+
+#, fuzzy
+msgid "Filesize"
+msgstr "Dateigröße"
 
 #, fuzzy
 msgid "Filter"
@@ -3575,6 +3618,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts assigned"
+msgstr "zugeordneter Host"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "Standarddrucker aktualisieren"
 
@@ -3835,8 +3882,16 @@ msgid "Image added!"
 msgstr "Image hinzugefügt"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "Geschützt"
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "Image ist nicht gültig"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "da innerhalb diese Speichergruppe einer aktiviert ist"
 
 msgid "Image is not enabled"
 msgstr "Abbild ist nicht aktiv"
@@ -4062,6 +4117,10 @@ msgid "Install"
 msgstr "Installierte Plugins"
 
 msgid "Install Plugins"
+msgstr "Plugins installieren"
+
+#, fuzzy
+msgid "Install a plugin"
 msgstr "Plugins installieren"
 
 #, fuzzy
@@ -4906,6 +4965,10 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "Mass update failed"
 msgstr "Aktualisierung der Rolle fehlgeschlagen"
 
+#, fuzzy
+msgid "Master"
+msgstr "Master-Knoten"
+
 msgid "Master Node"
 msgstr "Master-Knoten"
 
@@ -4917,6 +4980,10 @@ msgstr "Maximale Clients"
 
 msgid "Max Size"
 msgstr "Max. Größe"
+
+#, fuzzy
+msgid "Member"
+msgstr "Mitglieder"
 
 msgid "Members"
 msgstr "Mitglieder"
@@ -5413,6 +5480,10 @@ msgid "No plugin tasks to run"
 msgstr "Keine gültigen Tasks gefunden"
 
 #, fuzzy
+msgid "No plugin with that id."
+msgstr "Keine gültigen Tasks gefunden"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Snapin geschützt"
 
@@ -5519,6 +5590,9 @@ msgstr "Pfad ist nicht verfügbar"
 msgid "Nodes"
 msgstr "Knoten"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "Normales Snapin"
@@ -5553,6 +5627,10 @@ msgstr "Hier nicht erlaubt"
 msgid "Not pinged"
 msgstr "Nicht synchronisieren"
 
+#, fuzzy
+msgid "Not recorded"
+msgstr "(empfohlen)"
+
 msgid "Not syncing"
 msgstr "Nicht synchronisieren"
 
@@ -5562,6 +5640,12 @@ msgstr "Image wird nicht synchronisiert"
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "Snapin wird nicht synchronisiert"
+
+msgid "Not yet seen"
+msgstr ""
+
+msgid "Not yet seen -- set on this host's next PXE boot"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -5581,6 +5665,10 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr "O/S"
+
+#, fuzzy
+msgid "OS"
 msgstr "O/S"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6142,6 +6230,10 @@ msgid "Plugin installed!"
 msgstr "Plugin-Name"
 
 #, fuzzy
+msgid "Plugin not found"
+msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
+
+#, fuzzy
 msgid "Plugin runner is globally disabled"
 msgstr "* Anpingen der Hosts ist global deaktiviert"
 
@@ -6235,6 +6327,10 @@ msgstr "Primäre Gruppe"
 
 msgid "Primary MAC"
 msgstr "Primäre MAC"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "Speichergruppe"
 
 msgid "Primary User"
 msgstr "Hauptbenutzer"
@@ -7276,6 +7372,10 @@ msgstr ""
 msgid "Size"
 msgstr "Größe"
 
+#, fuzzy
+msgid "Size on Server"
+msgstr "Web-Server"
+
 #, php-format
 msgid "Skipped unknown %s: %s"
 msgstr ""
@@ -8226,6 +8326,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -8357,6 +8460,9 @@ msgstr "Home-Verzeichnis speichern"
 msgid "The plugin directory does not exist."
 msgstr "Methode ist nicht vorhanden"
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin system is disabled"
 msgstr "* Anpingen der Hosts ist global deaktiviert"
@@ -8383,6 +8489,9 @@ msgstr ""
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "läuft nicht mehr"
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
+msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "Die Einstellungen wirken sich in der Regel auf alle Hosts aus."
@@ -9538,6 +9647,9 @@ msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
 msgid "Your database connection appears to be invalid"
 msgstr "Ihre Datenbankverbindung scheint ungültig zu sein"
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
@@ -9632,6 +9744,9 @@ msgstr "ist offen, aber ist vor kurzem für diesen Host fehlgeschlagen"
 #, fuzzy
 msgid "but there are"
 msgstr "Es gibt"
+
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "prüfen Sie bitte, ob sie genügend Speicherplatz haben."
@@ -9808,6 +9923,10 @@ msgid "host"
 msgstr "Host"
 
 #, fuzzy
+msgid "host is"
+msgstr "Hosts"
+
+#, fuzzy
 msgid "hosts"
 msgstr "Hosts"
 
@@ -9873,6 +9992,10 @@ msgstr "Image"
 
 msgid "image file found, file"
 msgstr ""
+
+#, fuzzy
+msgid "image is"
+msgstr "Images"
 
 #, fuzzy
 msgid "image replication"
@@ -10005,6 +10128,9 @@ msgstr "Aktiviert"
 msgid "minutes"
 msgstr "Minuten"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10078,6 +10204,9 @@ msgstr "auf diesem Knoten nicht gefunden"
 #, fuzzy
 msgid "not reachable"
 msgstr "Nicht verfügbar"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10694,10 +10823,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "Gruppeneinstellungen Module"
-
-#, fuzzy
-#~ msgid "Host Associated"
-#~ msgstr "zugeordneter Host"
 
 #, fuzzy
 #~ msgid "Host Ext"

@@ -75,6 +75,19 @@ return [
         ],
     ],
     'tables' => [
+        'apiTokens' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` tinyint(1) NOT NULL DEFAULT 1, `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'atID' => 'int(11) NOT NULL',
+                'atUserID' => 'int(11) NOT NULL DEFAULT 0',
+                'atName' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'atHash' => 'char(64) NOT NULL DEFAULT \'\'',
+                'atEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
+                'atCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'atCreatedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'atLastUsed' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'auditChange' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `auditChange` ( `acID` int(11) NOT NULL AUTO_INCREMENT, `acAuditID` int(11) NOT NULL, `acSubjectType` varchar(64) NOT NULL DEFAULT \'\', `acSubjectID` int(11) NOT NULL DEFAULT 0, `acField` varchar(128) NOT NULL DEFAULT \'\', `acOldValue` longtext DEFAULT NULL, `acNewValue` longtext DEFAULT NULL, `acRedacted` tinyint(1) unsigned NOT NULL DEFAULT 0, PRIMARY KEY (`acID`), KEY `acAuditID` (`acAuditID`), KEY `acSubject` (`acSubjectType`,`acSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -86,19 +99,6 @@ return [
                 'acOldValue' => 'longtext DEFAULT NULL',
                 'acNewValue' => 'longtext DEFAULT NULL',
                 'acRedacted' => 'tinyint(1) unsigned NOT NULL DEFAULT 0',
-            ],
-        ],
-        'apiTokens' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'atID' => 'int(11) NOT NULL',
-                'atUserID' => 'int(11) NOT NULL DEFAULT 0',
-                'atName' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'atHash' => 'char(64) NOT NULL DEFAULT \'\'',
-                'atEnabled' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
-                'atCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
-                'atCreatedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'atLastUsed' => 'datetime DEFAULT NULL',
             ],
         ],
         'auditLog' => [
@@ -232,20 +232,20 @@ return [
             ],
         ],
         'hostMAC' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostMAC` ( `hmID` int(11) NOT NULL AUTO_INCREMENT, `hmHostID` int(11) NOT NULL, `hmMAC` varchar(59) NOT NULL, `hmDesc` longtext NOT NULL DEFAULT \'\', `hmPrimary` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `hmPending` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `hmIgnoreClient` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `hmIgnoreImaging` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', PRIMARY KEY (`hmID`), UNIQUE KEY `hmHostID` (`hmMAC`), UNIQUE KEY `hmMAC` (`hmMAC`), UNIQUE KEY `hmMAC_2` (`hmMAC`), KEY `idxHostID` (`hmHostID`), KEY `idxMac` (`hmMAC`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostMAC` ( `hmID` int(11) NOT NULL AUTO_INCREMENT, `hmHostID` int(11) NOT NULL, `hmMAC` varchar(59) NOT NULL, `hmDesc` longtext NOT NULL DEFAULT \'\', `hmPrimary` tinyint(1) NOT NULL DEFAULT 0, `hmPending` tinyint(1) NOT NULL DEFAULT 0, `hmIgnoreClient` tinyint(1) NOT NULL DEFAULT 0, `hmIgnoreImaging` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`hmID`), UNIQUE KEY `hmHostID` (`hmMAC`), UNIQUE KEY `hmMAC` (`hmMAC`), UNIQUE KEY `hmMAC_2` (`hmMAC`), KEY `idxHostID` (`hmHostID`), KEY `idxMac` (`hmMAC`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hmID' => 'int(11) NOT NULL',
                 'hmHostID' => 'int(11) NOT NULL',
                 'hmMAC' => 'varchar(59) NOT NULL',
                 'hmDesc' => 'longtext NOT NULL DEFAULT \'\'',
-                'hmPrimary' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
-                'hmPending' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
-                'hmIgnoreClient' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
-                'hmIgnoreImaging' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'hmPrimary' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hmPending' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hmIgnoreClient' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hmIgnoreImaging' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'hosts' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) NOT NULL DEFAULT 0, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) NOT NULL DEFAULT 0, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArch` varchar(16) DEFAULT NULL, PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hostID' => 'int(11) NOT NULL',
                 'hostName' => 'varchar(16) NOT NULL',
@@ -268,20 +268,21 @@ return [
                 'hostKernel' => 'varchar(250) NOT NULL DEFAULT \'\'',
                 'hostDevice' => 'varchar(250) NOT NULL DEFAULT \'\'',
                 'hostInit' => 'longtext DEFAULT NULL',
-                'hostPending' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'hostPending' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'hostPubKey' => 'longtext NOT NULL DEFAULT \'\'',
                 'hostSecToken' => 'longtext NOT NULL DEFAULT \'\'',
                 'hostSecTime' => 'timestamp NULL DEFAULT NULL',
                 'hostPingCode' => 'varchar(20) DEFAULT NULL',
                 'hostExitBios' => 'longtext DEFAULT NULL',
                 'hostExitEfi' => 'longtext DEFAULT NULL',
-                'hostEnforce' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
+                'hostEnforce' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'hostInfoKey' => 'varchar(255) DEFAULT NULL',
                 'hostInfoLock' => 'tinyint(1) DEFAULT 0',
                 'hostSecTokenPrev' => 'longtext NOT NULL DEFAULT \'\'',
                 'hostLastPing' => 'datetime DEFAULT NULL',
                 'hostLastCheckin' => 'datetime DEFAULT NULL',
                 'hostPingMethod' => 'varchar(10) DEFAULT NULL',
+                'hostArch' => 'varchar(16) DEFAULT NULL',
             ],
         ],
         'hostScreenSettings' => [
@@ -298,12 +299,12 @@ return [
             ],
         ],
         'imageGroupAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `imageGroupAssoc` ( `igaID` mediumint(9) NOT NULL AUTO_INCREMENT, `igaImageID` mediumint(9) NOT NULL, `igaStorageGroupID` mediumint(9) NOT NULL, `igaPrimary` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', PRIMARY KEY (`igaID`), UNIQUE KEY `igaImageID` (`igaImageID`,`igaStorageGroupID`), UNIQUE KEY `igaImageID_2` (`igaImageID`,`igaStorageGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `imageGroupAssoc` ( `igaID` mediumint(9) NOT NULL AUTO_INCREMENT, `igaImageID` mediumint(9) NOT NULL, `igaStorageGroupID` mediumint(9) NOT NULL, `igaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`igaID`), UNIQUE KEY `igaImageID` (`igaImageID`,`igaStorageGroupID`), UNIQUE KEY `igaImageID_2` (`igaImageID`,`igaStorageGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'igaID' => 'mediumint(9) NOT NULL',
                 'igaImageID' => 'mediumint(9) NOT NULL',
                 'igaStorageGroupID' => 'mediumint(9) NOT NULL',
-                'igaPrimary' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'igaPrimary' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'imagePartitionTypes' => [
@@ -315,7 +316,7 @@ return [
             ],
         ],
         'images' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `images` ( `imageID` int(11) NOT NULL AUTO_INCREMENT, `imageName` varchar(40) NOT NULL, `imageDesc` longtext NOT NULL DEFAULT \'\', `imagePath` longtext NOT NULL, `imageProtect` mediumint(9) NOT NULL DEFAULT 0, `imageMagnetUri` longtext NOT NULL DEFAULT \'\', `imageDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `imageCreateBy` varchar(50) NOT NULL DEFAULT \'\', `imageBuilding` int(11) NOT NULL DEFAULT 0, `imageSize` varchar(255) NOT NULL DEFAULT \'\', `imageTypeID` mediumint(9) NOT NULL, `imagePartitionTypeID` mediumint(9) NOT NULL, `imageOSID` mediumint(9) NOT NULL, `imageFormat` char(1) DEFAULT NULL, `imageLastDeploy` datetime DEFAULT NULL, `imageCompress` int(11) DEFAULT NULL, `imageEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `imageReplicate` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `imageServerSize` bigint(20) unsigned NOT NULL DEFAULT 0, PRIMARY KEY (`imageID`), UNIQUE KEY `imageName` (`imageName`), KEY `new_index` (`imageName`), KEY `new_index1` (`imageBuilding`), KEY `new_index2` (`imageTypeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `images` ( `imageID` int(11) NOT NULL AUTO_INCREMENT, `imageName` varchar(40) NOT NULL, `imageDesc` longtext NOT NULL DEFAULT \'\', `imagePath` longtext NOT NULL, `imageProtect` mediumint(9) NOT NULL DEFAULT 0, `imageMagnetUri` longtext NOT NULL DEFAULT \'\', `imageDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `imageCreateBy` varchar(50) NOT NULL DEFAULT \'\', `imageBuilding` int(11) NOT NULL DEFAULT 0, `imageSize` varchar(255) NOT NULL DEFAULT \'\', `imageTypeID` mediumint(9) NOT NULL, `imagePartitionTypeID` mediumint(9) NOT NULL, `imageOSID` mediumint(9) NOT NULL, `imageFormat` char(1) DEFAULT NULL, `imageLastDeploy` datetime DEFAULT NULL, `imageCompress` int(11) DEFAULT NULL, `imageEnabled` tinyint(1) NOT NULL DEFAULT 1, `imageReplicate` tinyint(1) NOT NULL DEFAULT 1, `imageServerSize` bigint(20) unsigned NOT NULL DEFAULT 0, `imageArch` varchar(16) DEFAULT NULL, PRIMARY KEY (`imageID`), UNIQUE KEY `imageName` (`imageName`), KEY `new_index` (`imageName`), KEY `new_index1` (`imageBuilding`), KEY `new_index2` (`imageTypeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'imageID' => 'int(11) NOT NULL',
                 'imageName' => 'varchar(40) NOT NULL',
@@ -333,9 +334,10 @@ return [
                 'imageFormat' => 'char(1) DEFAULT NULL',
                 'imageLastDeploy' => 'datetime DEFAULT NULL',
                 'imageCompress' => 'int(11) DEFAULT NULL',
-                'imageEnabled' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
-                'imageReplicate' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
+                'imageEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
+                'imageReplicate' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'imageServerSize' => 'bigint(20) unsigned NOT NULL DEFAULT 0',
+                'imageArch' => 'varchar(16) DEFAULT NULL',
             ],
         ],
         'imageTypes' => [
@@ -427,7 +429,7 @@ return [
             ],
         ],
         'multicastSessions' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `multicastSessions` ( `msID` int(11) NOT NULL AUTO_INCREMENT, `msName` varchar(250) NOT NULL DEFAULT \'\', `msBasePort` int(11) NOT NULL DEFAULT 0, `msLogPath` longtext NOT NULL DEFAULT \'\', `msImage` longtext NOT NULL DEFAULT \'\', `msClients` int(11) NOT NULL DEFAULT 0, `msSessClients` int(11) NOT NULL DEFAULT 0, `msInterface` varchar(250) NOT NULL DEFAULT \'\', `msStartDateTime` datetime DEFAULT NULL, `msPercent` int(11) NOT NULL DEFAULT 0, `msState` int(11) NOT NULL DEFAULT 0, `msCompleteDateTime` datetime DEFAULT NULL, `msIsDD` int(11) NOT NULL DEFAULT 0, `msNFSGroupID` int(11) NOT NULL, `msShutdown` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `msMaxwait` int(11) NOT NULL DEFAULT 0, `msAnon5` varchar(250) NOT NULL DEFAULT \'\', `msSenderPID` int(11) NOT NULL DEFAULT 0, `msSenderNode` int(11) NOT NULL DEFAULT 0, `msSenderStart` datetime DEFAULT NULL, PRIMARY KEY (`msID`), KEY `new_index` (`msNFSGroupID`), KEY `idx_msStartDateTime` (`msStartDateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `multicastSessions` ( `msID` int(11) NOT NULL AUTO_INCREMENT, `msName` varchar(250) NOT NULL DEFAULT \'\', `msBasePort` int(11) NOT NULL DEFAULT 0, `msLogPath` longtext NOT NULL DEFAULT \'\', `msImage` longtext NOT NULL DEFAULT \'\', `msClients` int(11) NOT NULL DEFAULT 0, `msSessClients` int(11) NOT NULL DEFAULT 0, `msInterface` varchar(250) NOT NULL DEFAULT \'\', `msStartDateTime` datetime DEFAULT NULL, `msPercent` int(11) NOT NULL DEFAULT 0, `msState` int(11) NOT NULL DEFAULT 0, `msCompleteDateTime` datetime DEFAULT NULL, `msIsDD` int(11) NOT NULL DEFAULT 0, `msNFSGroupID` int(11) NOT NULL, `msShutdown` tinyint(1) NOT NULL DEFAULT 0, `msMaxwait` int(11) NOT NULL DEFAULT 0, `msAnon5` varchar(250) NOT NULL DEFAULT \'\', `msSenderPID` int(11) NOT NULL DEFAULT 0, `msSenderNode` int(11) NOT NULL DEFAULT 0, `msSenderStart` datetime DEFAULT NULL, PRIMARY KEY (`msID`), KEY `new_index` (`msNFSGroupID`), KEY `idx_msStartDateTime` (`msStartDateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'msID' => 'int(11) NOT NULL',
                 'msName' => 'varchar(250) NOT NULL DEFAULT \'\'',
@@ -443,7 +445,7 @@ return [
                 'msCompleteDateTime' => 'datetime DEFAULT NULL',
                 'msIsDD' => 'int(11) NOT NULL DEFAULT 0',
                 'msNFSGroupID' => 'int(11) NOT NULL',
-                'msShutdown' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'msShutdown' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'msMaxwait' => 'int(11) NOT NULL DEFAULT 0',
                 'msAnon5' => 'varchar(250) NOT NULL DEFAULT \'\'',
                 'msSenderPID' => 'int(11) NOT NULL DEFAULT 0',
@@ -471,7 +473,7 @@ return [
             ],
         ],
         'nfsGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL DEFAULT \'\', `ngmMemberDescription` longtext NOT NULL DEFAULT \'\', `ngmIsMasterNode` char(1) NOT NULL DEFAULT \'\', `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL DEFAULT \'\', `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL DEFAULT \'\', `ngmIsEnabled` char(1) NOT NULL DEFAULT \'\', `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL DEFAULT 0, `ngmBandwidthLimit` int(20) NOT NULL DEFAULT 0, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL DEFAULT \'\', `ngmInterface` varchar(25) NOT NULL DEFAULT \'\', `ngmGraphEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `ngmWebroot` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL DEFAULT \'\', `ngmMemberDescription` longtext NOT NULL DEFAULT \'\', `ngmIsMasterNode` char(1) NOT NULL DEFAULT \'\', `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL DEFAULT \'\', `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL DEFAULT \'\', `ngmIsEnabled` char(1) NOT NULL DEFAULT \'\', `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL DEFAULT 0, `ngmBandwidthLimit` int(20) NOT NULL DEFAULT 0, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL DEFAULT \'\', `ngmInterface` varchar(25) NOT NULL DEFAULT \'\', `ngmGraphEnabled` tinyint(1) NOT NULL DEFAULT 1, `ngmWebroot` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ngmID' => 'int(11) NOT NULL',
                 'ngmMemberName' => 'varchar(250) NOT NULL DEFAULT \'\'',
@@ -493,7 +495,7 @@ return [
                 'ngmPass' => 'varchar(250) NOT NULL',
                 'ngmKey' => 'varchar(250) NOT NULL DEFAULT \'\'',
                 'ngmInterface' => 'varchar(25) NOT NULL DEFAULT \'\'',
-                'ngmGraphEnabled' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
+                'ngmGraphEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'ngmWebroot' => 'longtext NOT NULL DEFAULT \'\'',
             ],
         ],
@@ -546,7 +548,7 @@ return [
             ],
         ],
         'powerManagement' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `powerManagement` ( `pmID` int(11) NOT NULL AUTO_INCREMENT, `pmHostID` int(11) NOT NULL, `pmMin` varchar(50) NOT NULL DEFAULT \'\', `pmHour` varchar(50) NOT NULL DEFAULT \'\', `pmDom` varchar(50) NOT NULL DEFAULT \'\', `pmMonth` varchar(50) NOT NULL DEFAULT \'\', `pmDow` varchar(50) NOT NULL DEFAULT \'\', `pmAction` enum(\'shutdown\',\'reboot\',\'wol\') NOT NULL, `pmOndemand` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', PRIMARY KEY (`pmID`), UNIQUE KEY `cron` (`pmHostID`,`pmMin`,`pmHour`,`pmDom`,`pmMonth`,`pmDow`,`pmAction`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `powerManagement` ( `pmID` int(11) NOT NULL AUTO_INCREMENT, `pmHostID` int(11) NOT NULL, `pmMin` varchar(50) NOT NULL DEFAULT \'\', `pmHour` varchar(50) NOT NULL DEFAULT \'\', `pmDom` varchar(50) NOT NULL DEFAULT \'\', `pmMonth` varchar(50) NOT NULL DEFAULT \'\', `pmDow` varchar(50) NOT NULL DEFAULT \'\', `pmAction` enum(\'shutdown\',\'reboot\',\'wol\') NOT NULL, `pmOndemand` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`pmID`), UNIQUE KEY `cron` (`pmHostID`,`pmMin`,`pmHour`,`pmDom`,`pmMonth`,`pmDow`,`pmAction`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'pmID' => 'int(11) NOT NULL',
                 'pmHostID' => 'int(11) NOT NULL',
@@ -556,7 +558,7 @@ return [
                 'pmMonth' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'pmDow' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'pmAction' => 'enum(\'shutdown\',\'reboot\',\'wol\') NOT NULL',
-                'pmOndemand' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'pmOndemand' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'printerAssoc' => [
@@ -592,7 +594,7 @@ return [
             ],
         ],
         'pxeMenu' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `pxeMenu` ( `pxeID` mediumint(9) NOT NULL AUTO_INCREMENT, `pxeName` varchar(100) NOT NULL, `pxeDesc` longtext NOT NULL DEFAULT \'\', `pxeParams` longtext NOT NULL DEFAULT \'\', `pxeRegOnly` int(11) NOT NULL DEFAULT 0, `pxeArgs` varchar(250) DEFAULT NULL, `pxeDefault` int(11) NOT NULL DEFAULT 0, `pxeHotKeyEnable` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `pxeKeySequence` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`pxeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `pxeMenu` ( `pxeID` mediumint(9) NOT NULL AUTO_INCREMENT, `pxeName` varchar(100) NOT NULL, `pxeDesc` longtext NOT NULL DEFAULT \'\', `pxeParams` longtext NOT NULL DEFAULT \'\', `pxeRegOnly` int(11) NOT NULL DEFAULT 0, `pxeArgs` varchar(250) DEFAULT NULL, `pxeDefault` int(11) NOT NULL DEFAULT 0, `pxeHotKeyEnable` tinyint(1) NOT NULL DEFAULT 0, `pxeKeySequence` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`pxeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'pxeID' => 'mediumint(9) NOT NULL',
                 'pxeName' => 'varchar(100) NOT NULL',
@@ -601,7 +603,7 @@ return [
                 'pxeRegOnly' => 'int(11) NOT NULL DEFAULT 0',
                 'pxeArgs' => 'varchar(250) DEFAULT NULL',
                 'pxeDefault' => 'int(11) NOT NULL DEFAULT 0',
-                'pxeHotKeyEnable' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'pxeHotKeyEnable' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'pxeKeySequence' => 'varchar(255) NOT NULL DEFAULT \'\'',
             ],
         ],
@@ -747,26 +749,26 @@ return [
             ],
         ],
         'snapinGroupAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` ( `sgaID` mediumint(9) NOT NULL AUTO_INCREMENT, `sgaSnapinID` mediumint(9) NOT NULL, `sgaStorageGroupID` mediumint(9) NOT NULL, `sgaPrimary` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', PRIMARY KEY (`sgaID`), UNIQUE KEY `sgaSnapinID` (`sgaSnapinID`,`sgaStorageGroupID`), UNIQUE KEY `sgaStorageGroupID` (`sgaStorageGroupID`,`sgaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` ( `sgaID` mediumint(9) NOT NULL AUTO_INCREMENT, `sgaSnapinID` mediumint(9) NOT NULL, `sgaStorageGroupID` mediumint(9) NOT NULL, `sgaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`sgaID`), UNIQUE KEY `sgaSnapinID` (`sgaSnapinID`,`sgaStorageGroupID`), UNIQUE KEY `sgaStorageGroupID` (`sgaStorageGroupID`,`sgaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sgaID' => 'mediumint(9) NOT NULL',
                 'sgaSnapinID' => 'mediumint(9) NOT NULL',
                 'sgaStorageGroupID' => 'mediumint(9) NOT NULL',
-                'sgaPrimary' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'sgaPrimary' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'snapinJobs' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `snapinJobs` ( `sjID` int(11) NOT NULL AUTO_INCREMENT, `sjHostID` int(11) NOT NULL, `sjStateID` int(11) NOT NULL, `sjAbortOnFail` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `sjCreateTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`sjID`), KEY `new_index` (`sjHostID`), KEY `idx_sjCreateTime` (`sjCreateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `snapinJobs` ( `sjID` int(11) NOT NULL AUTO_INCREMENT, `sjHostID` int(11) NOT NULL, `sjStateID` int(11) NOT NULL, `sjAbortOnFail` tinyint(1) NOT NULL DEFAULT 0, `sjCreateTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`sjID`), KEY `new_index` (`sjHostID`), KEY `idx_sjCreateTime` (`sjCreateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sjID' => 'int(11) NOT NULL',
                 'sjHostID' => 'int(11) NOT NULL',
                 'sjStateID' => 'int(11) NOT NULL',
-                'sjAbortOnFail' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'sjAbortOnFail' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'sjCreateTime' => 'timestamp NOT NULL DEFAULT current_timestamp()',
             ],
         ],
         'snapins' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `snapins` ( `sID` int(11) NOT NULL AUTO_INCREMENT, `sName` varchar(200) NOT NULL, `sDesc` longtext NOT NULL DEFAULT \'\', `sFilePath` longtext NOT NULL, `sArgs` longtext NOT NULL DEFAULT \'\', `sCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `sCreator` varchar(200) NOT NULL DEFAULT \'\', `sReboot` varchar(1) NOT NULL DEFAULT \'\', `sRunWith` varchar(245) NOT NULL DEFAULT \'\', `sRunWithArgs` varchar(200) NOT NULL DEFAULT \'\', `sAnon3` varchar(45) NOT NULL DEFAULT \'\', `snapinProtect` mediumint(9) NOT NULL DEFAULT 0, `sEnabled` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `sReplicate` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `sShutdown` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `sHideLog` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `sTimeout` int(11) NOT NULL DEFAULT 0, `sPackType` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `sHash` varchar(255) NOT NULL DEFAULT \'\', `sSize` bigint(20) NOT NULL DEFAULT 0, PRIMARY KEY (`sID`), UNIQUE KEY `sName` (`sName`), KEY `new_index` (`sName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `snapins` ( `sID` int(11) NOT NULL AUTO_INCREMENT, `sName` varchar(200) NOT NULL, `sDesc` longtext NOT NULL DEFAULT \'\', `sFilePath` longtext NOT NULL, `sArgs` longtext NOT NULL DEFAULT \'\', `sCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `sCreator` varchar(200) NOT NULL DEFAULT \'\', `sReboot` varchar(1) NOT NULL DEFAULT \'\', `sRunWith` varchar(245) NOT NULL DEFAULT \'\', `sRunWithArgs` varchar(200) NOT NULL DEFAULT \'\', `sAnon3` varchar(45) NOT NULL DEFAULT \'\', `snapinProtect` mediumint(9) NOT NULL DEFAULT 0, `sEnabled` tinyint(1) NOT NULL DEFAULT 1, `sReplicate` tinyint(1) NOT NULL DEFAULT 1, `sShutdown` tinyint(1) NOT NULL DEFAULT 0, `sHideLog` tinyint(1) NOT NULL DEFAULT 0, `sTimeout` int(11) NOT NULL DEFAULT 0, `sPackType` tinyint(1) NOT NULL DEFAULT 0, `sHash` varchar(255) NOT NULL DEFAULT \'\', `sSize` bigint(20) NOT NULL DEFAULT 0, PRIMARY KEY (`sID`), UNIQUE KEY `sName` (`sName`), KEY `new_index` (`sName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sID' => 'int(11) NOT NULL',
                 'sName' => 'varchar(200) NOT NULL',
@@ -780,12 +782,12 @@ return [
                 'sRunWithArgs' => 'varchar(200) NOT NULL DEFAULT \'\'',
                 'sAnon3' => 'varchar(45) NOT NULL DEFAULT \'\'',
                 'snapinProtect' => 'mediumint(9) NOT NULL DEFAULT 0',
-                'sEnabled' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
-                'sReplicate' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
-                'sShutdown' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
-                'sHideLog' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'sEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
+                'sReplicate' => 'tinyint(1) NOT NULL DEFAULT 1',
+                'sShutdown' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'sHideLog' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'sTimeout' => 'int(11) NOT NULL DEFAULT 0',
-                'sPackType' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'sPackType' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'sHash' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'sSize' => 'bigint(20) NOT NULL DEFAULT 0',
             ],
@@ -830,7 +832,7 @@ return [
             ],
         ],
         'tasks' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `tasks` ( `taskID` int(11) NOT NULL AUTO_INCREMENT, `taskName` varchar(250) NOT NULL DEFAULT \'\', `taskCreateTime` timestamp NOT NULL DEFAULT current_timestamp(), `taskCheckIn` datetime DEFAULT NULL, `taskHostID` int(11) NOT NULL, `taskImageID` int(11) NOT NULL, `taskStateID` int(11) NOT NULL, `taskIsDebug` mediumint(9) NOT NULL DEFAULT 0, `taskCreateBy` varchar(200) NOT NULL DEFAULT \'\', `taskForce` varchar(1) NOT NULL DEFAULT \'\', `taskScheduledStartTime` datetime DEFAULT NULL, `taskTypeID` mediumint(9) NOT NULL, `taskPCT` int(10) unsigned zerofill NOT NULL DEFAULT 0000000000, `taskBPM` varchar(250) NOT NULL DEFAULT \'\', `taskTimeElapsed` varchar(250) NOT NULL DEFAULT \'\', `taskTimeRemaining` varchar(250) NOT NULL DEFAULT \'\', `taskDataCopied` varchar(250) NOT NULL DEFAULT \'\', `taskPercentText` varchar(250) NOT NULL DEFAULT \'\', `taskDataTotal` varchar(250) NOT NULL DEFAULT \'\', `taskNFSGroupID` int(11) NOT NULL, `taskNFSMemberID` int(11) NOT NULL, `taskNFSFailures` char(1) NOT NULL DEFAULT \'\', `taskLastMemberID` int(11) NOT NULL, `taskWOL` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `taskPassreset` varchar(250) NOT NULL DEFAULT \'\', `taskShutdown` char(1) NOT NULL DEFAULT \'\', `taskBypassBitlocker` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `taskStateChangedTime` datetime DEFAULT NULL, PRIMARY KEY (`taskID`), KEY `new_index` (`taskHostID`), KEY `new_index1` (`taskCheckIn`), KEY `new_index2` (`taskStateID`), KEY `new_index3` (`taskForce`), KEY `new_index4` (`taskTypeID`), KEY `new_index5` (`taskNFSGroupID`), KEY `new_index6` (`taskNFSMemberID`), KEY `new_index7` (`taskNFSFailures`), KEY `new_index8` (`taskLastMemberID`), KEY `idx_taskCreateTime` (`taskCreateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `tasks` ( `taskID` int(11) NOT NULL AUTO_INCREMENT, `taskName` varchar(250) NOT NULL DEFAULT \'\', `taskCreateTime` timestamp NOT NULL DEFAULT current_timestamp(), `taskCheckIn` datetime DEFAULT NULL, `taskHostID` int(11) NOT NULL, `taskImageID` int(11) NOT NULL, `taskStateID` int(11) NOT NULL, `taskIsDebug` mediumint(9) NOT NULL DEFAULT 0, `taskCreateBy` varchar(200) NOT NULL DEFAULT \'\', `taskForce` varchar(1) NOT NULL DEFAULT \'\', `taskScheduledStartTime` datetime DEFAULT NULL, `taskTypeID` mediumint(9) NOT NULL, `taskPCT` int(10) unsigned zerofill NOT NULL DEFAULT 0000000000, `taskBPM` varchar(250) NOT NULL DEFAULT \'\', `taskTimeElapsed` varchar(250) NOT NULL DEFAULT \'\', `taskTimeRemaining` varchar(250) NOT NULL DEFAULT \'\', `taskDataCopied` varchar(250) NOT NULL DEFAULT \'\', `taskPercentText` varchar(250) NOT NULL DEFAULT \'\', `taskDataTotal` varchar(250) NOT NULL DEFAULT \'\', `taskNFSGroupID` int(11) NOT NULL, `taskNFSMemberID` int(11) NOT NULL, `taskNFSFailures` char(1) NOT NULL DEFAULT \'\', `taskLastMemberID` int(11) NOT NULL, `taskWOL` tinyint(1) NOT NULL DEFAULT 0, `taskPassreset` varchar(250) NOT NULL DEFAULT \'\', `taskShutdown` char(1) NOT NULL DEFAULT \'\', `taskBypassBitlocker` tinyint(1) NOT NULL DEFAULT 0, `taskStateChangedTime` datetime DEFAULT NULL, PRIMARY KEY (`taskID`), KEY `new_index` (`taskHostID`), KEY `new_index1` (`taskCheckIn`), KEY `new_index2` (`taskStateID`), KEY `new_index3` (`taskForce`), KEY `new_index4` (`taskTypeID`), KEY `new_index5` (`taskNFSGroupID`), KEY `new_index6` (`taskNFSMemberID`), KEY `new_index7` (`taskNFSFailures`), KEY `new_index8` (`taskLastMemberID`), KEY `idx_taskCreateTime` (`taskCreateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'taskID' => 'int(11) NOT NULL',
                 'taskName' => 'varchar(250) NOT NULL DEFAULT \'\'',
@@ -855,10 +857,10 @@ return [
                 'taskNFSMemberID' => 'int(11) NOT NULL',
                 'taskNFSFailures' => 'char(1) NOT NULL DEFAULT \'\'',
                 'taskLastMemberID' => 'int(11) NOT NULL',
-                'taskWOL' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'taskWOL' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'taskPassreset' => 'varchar(250) NOT NULL DEFAULT \'\'',
                 'taskShutdown' => 'char(1) NOT NULL DEFAULT \'\'',
-                'taskBypassBitlocker' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'taskBypassBitlocker' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'taskStateChangedTime' => 'datetime DEFAULT NULL',
             ],
         ],
@@ -873,7 +875,7 @@ return [
             ],
         ],
         'taskTypes' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `taskTypes` ( `ttID` mediumint(9) NOT NULL AUTO_INCREMENT, `ttName` varchar(30) NOT NULL, `ttDescription` text NOT NULL DEFAULT \'\', `ttIcon` varchar(30) NOT NULL, `ttKernel` varchar(100) NOT NULL DEFAULT \'\', `ttKernelArgs` text NOT NULL DEFAULT \'\', `ttType` enum(\'fog\',\'user\') NOT NULL DEFAULT \'user\', `ttIsAdvanced` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', `ttIsAccess` enum(\'both\',\'host\',\'group\') NOT NULL DEFAULT \'both\', `ttInitrd` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ttID`), UNIQUE KEY `ttName` (`ttName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `taskTypes` ( `ttID` mediumint(9) NOT NULL AUTO_INCREMENT, `ttName` varchar(30) NOT NULL, `ttDescription` text NOT NULL DEFAULT \'\', `ttIcon` varchar(30) NOT NULL, `ttKernel` varchar(100) NOT NULL DEFAULT \'\', `ttKernelArgs` text NOT NULL DEFAULT \'\', `ttType` enum(\'fog\',\'user\') NOT NULL DEFAULT \'user\', `ttIsAdvanced` tinyint(1) NOT NULL DEFAULT 0, `ttIsAccess` enum(\'both\',\'host\',\'group\') NOT NULL DEFAULT \'both\', `ttInitrd` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ttID`), UNIQUE KEY `ttName` (`ttName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ttID' => 'mediumint(9) NOT NULL',
                 'ttName' => 'varchar(30) NOT NULL',
@@ -882,7 +884,7 @@ return [
                 'ttKernel' => 'varchar(100) NOT NULL DEFAULT \'\'',
                 'ttKernelArgs' => 'text NOT NULL DEFAULT \'\'',
                 'ttType' => 'enum(\'fog\',\'user\') NOT NULL DEFAULT \'user\'',
-                'ttIsAdvanced' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'ttIsAdvanced' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'ttIsAccess' => 'enum(\'both\',\'host\',\'group\') NOT NULL DEFAULT \'both\'',
                 'ttInitrd' => 'longtext NOT NULL DEFAULT \'\'',
             ],
@@ -925,7 +927,7 @@ return [
             ],
         ],
         'users' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `users` ( `uId` int(11) NOT NULL AUTO_INCREMENT, `uName` varchar(255) DEFAULT NULL, `uPass` longtext NOT NULL, `uCreateDate` datetime NOT NULL DEFAULT current_timestamp(), `uCreateBy` varchar(255) DEFAULT NULL, `uType` int(11) NOT NULL DEFAULT 0, `uDisplay` varchar(255) NOT NULL DEFAULT \'\', `uAllowAPI` enum(\'0\',\'1\') NOT NULL DEFAULT \'1\', `uAPIToken` varchar(255) NOT NULL DEFAULT \'\', `uAuthSource` varchar(32) NOT NULL DEFAULT \'\', `uAPIOnly` enum(\'0\',\'1\') NOT NULL DEFAULT \'0\', PRIMARY KEY (`uId`), UNIQUE KEY `name` (`uName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `users` ( `uId` int(11) NOT NULL AUTO_INCREMENT, `uName` varchar(255) DEFAULT NULL, `uPass` longtext NOT NULL, `uCreateDate` datetime NOT NULL DEFAULT current_timestamp(), `uCreateBy` varchar(255) DEFAULT NULL, `uType` int(11) NOT NULL DEFAULT 0, `uDisplay` varchar(255) NOT NULL DEFAULT \'\', `uAllowAPI` tinyint(1) NOT NULL DEFAULT 1, `uAPIToken` varchar(255) NOT NULL DEFAULT \'\', `uAuthSource` varchar(32) NOT NULL DEFAULT \'\', `uAPIOnly` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`uId`), UNIQUE KEY `name` (`uName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'uId' => 'int(11) NOT NULL',
                 'uName' => 'varchar(255) DEFAULT NULL',
@@ -934,10 +936,10 @@ return [
                 'uCreateBy' => 'varchar(255) DEFAULT NULL',
                 'uType' => 'int(11) NOT NULL DEFAULT 0',
                 'uDisplay' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'uAllowAPI' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'1\'',
+                'uAllowAPI' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'uAPIToken' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'uAuthSource' => 'varchar(32) NOT NULL DEFAULT \'\'',
-                'uAPIOnly' => 'enum(\'0\',\'1\') NOT NULL DEFAULT \'0\'',
+                'uAPIOnly' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'userTracking' => [
