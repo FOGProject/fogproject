@@ -107,6 +107,10 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "打印机更新！"
+
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run."
 msgstr ""
@@ -938,6 +942,9 @@ msgstr "图像已经存在具有此名称！"
 
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
+
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
 
 #, fuzzy
 msgid "An image with this name already exists!"
@@ -3624,6 +3631,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "主机图片"
+
+#, fuzzy
 msgid "Hosts assigned"
 msgstr "无关联的节点"
 
@@ -3634,6 +3645,10 @@ msgstr "更新打印机"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "在任务主机"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "主机列表"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3936,6 +3951,10 @@ msgid "Imaged For"
 msgstr "成像"
 
 msgid "Images"
+msgstr "图片"
+
+#, fuzzy
+msgid "Images only"
 msgstr "图片"
 
 #, fuzzy
@@ -5645,9 +5664,6 @@ msgstr "无连接来获取管理单元"
 msgid "Not yet seen"
 msgstr ""
 
-msgid "Not yet seen -- set on this host's next PXE boot"
-msgstr ""
-
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
@@ -7023,6 +7039,10 @@ msgstr "服务状态"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "服务器外壳"
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -7056,6 +7076,10 @@ msgstr "选择一个cron类型"
 
 msgid "Select a valid image"
 msgstr "选择一个有效的图像"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "选择一个cron类型"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -8434,6 +8458,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -9506,6 +9533,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9745,7 +9775,10 @@ msgstr "是开放的，但最近没有这个主机"
 msgid "but there are"
 msgstr "有"
 
-msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
+
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"

@@ -2,7 +2,7 @@
 /**
  * A deploy is refused only when the host positively cannot run the image.
  *
- * Image::archCanRun() is the single authority for that question, and it is a
+ * Architecture::canRun() is the single authority for that question, and it is a
  * COMPATIBILITY test, not an equality test. The distinction is the whole
  * reason the method exists:
  *
@@ -41,6 +41,7 @@ $web = $root . '/packages/web';
 require_once $web . '/lib/fog/fogbase.class.php';
 require_once $web . '/lib/fog/fogcontroller.class.php';
 require_once $web . '/lib/fog/image.class.php';
+require_once $web . '/lib/fog/architecture.class.php';
 
 $t = new FogChecks();
 
@@ -63,10 +64,10 @@ $matrix = [
     ['arm64',  'i386',   false, 'arm64 image on an i386 host'],
 ];
 foreach ($matrix as list($img, $host, $want, $why)) {
-    $got = \FOG\Image::archCanRun($img, $host);
+    $got = \FOG\Architecture::canRun($img, $host);
     $t->check(
         sprintf(
-            'archCanRun(%s image -> %s host) is %s -- %s',
+            'canRun(%s image -> %s host) is %s -- %s',
             $img,
             $host,
             $want ? 'allowed' : 'refused',
@@ -84,16 +85,16 @@ foreach ($unknowns as $i => $blank) {
     $shown = var_export($blank, true);
     $t->check(
         "unknown image arch ($shown) against a known host is allowed",
-        \FOG\Image::archCanRun($blank, 'arm64') === true
+        \FOG\Architecture::canRun($blank, 'arm64') === true
     );
     $t->check(
         "unknown host arch ($shown) against a known image is allowed",
-        \FOG\Image::archCanRun('x86_64', $blank) === true
+        \FOG\Architecture::canRun('x86_64', $blank) === true
     );
 }
 $t->check(
     'both sides unknown is allowed',
-    \FOG\Image::archCanRun('', '') === true
+    \FOG\Architecture::canRun('', '') === true
 );
 
 // --- normalisation --------------------------------------------------------
@@ -111,17 +112,17 @@ $aliases = [
 ];
 foreach ($aliases as $raw => $want) {
     $t->check(
-        sprintf("normalizeArch('%s') is '%s'", $raw, $want),
-        \FOG\Image::normalizeArch($raw) === $want
+        sprintf("normalizeName('%s') is '%s'", $raw, $want),
+        \FOG\Architecture::normalizeName($raw) === $want
     );
 }
 $t->check(
-    'normalizeArch leaves an unknown architecture alone rather than guessing',
-    \FOG\Image::normalizeArch('riscv64') === 'riscv64'
+    'normalizeName leaves an unknown architecture alone rather than guessing',
+    \FOG\Architecture::normalizeName('riscv64') === 'riscv64'
 );
 $t->check(
     'an aarch64 image is compatible with an arm64 host after normalisation',
-    \FOG\Image::archCanRun('aarch64', 'arm64') === true
+    \FOG\Architecture::canRun('aarch64', 'arm64') === true
 );
 
 // --- the wiring the relation depends on -----------------------------------
@@ -131,39 +132,85 @@ $imageSrc = (string)file_get_contents($web . '/lib/fog/image.class.php');
 $schemaSrc = (string)file_get_contents($web . '/commons/schema.php');
 $queueSrc = (string)file_get_contents($web . '/lib/reg-task/taskqueue.class.php');
 $menuSrc = (string)file_get_contents($web . '/lib/fog/bootmenu.class.php');
+$archSrc = (string)file_get_contents($web . '/lib/fog/architecture.class.php');
 
 $t->check(
-    "Host maps 'arch' to hostArch",
-    (bool)preg_match("/'arch'\s*=>\s*'hostArch'/", $hostSrc)
+    "Host maps 'archID' to hostArchID",
+    (bool)preg_match("/'archID'\s*=>\s*'hostArchID'/", $hostSrc)
 );
 $t->check(
-    "Image maps 'arch' to imageArch",
-    (bool)preg_match("/'arch'\s*=>\s*'imageArch'/", $imageSrc)
+    "Image maps 'archID' to imageArchID",
+    (bool)preg_match("/'archID'\s*=>\s*'imageArchID'/", $imageSrc)
 );
 $t->check(
-    'schema adds hosts.hostArch',
-    false !== strpos($schemaSrc, 'ADD `hostArch` VARCHAR(16) NULL DEFAULT NULL')
+    'schema creates the architectures lookup table',
+    false !== strpos($schemaSrc, 'CREATE TABLE IF NOT EXISTS `architectures`')
 );
 $t->check(
-    'schema adds images.imageArch',
-    false !== strpos($schemaSrc, 'ADD `imageArch` VARCHAR(16) NULL DEFAULT NULL')
+    'the flag is an enum of both/host/image, mirroring taskTypes.ttIsAccess',
+    false !== strpos(
+        $schemaSrc,
+        "`archIsAccess` enum('both','host','image') NOT NULL DEFAULT 'both'"
+    )
 );
 $t->check(
-    'both columns are added behind an information_schema probe, not bare',
-    substr_count($schemaSrc, "AND `COLUMN_NAME` IN ('hostArch')") === 1
-    && substr_count($schemaSrc, "AND `COLUMN_NAME` IN ('imageArch')") === 1
+    'schema adds hosts.hostArchID',
+    false !== strpos($schemaSrc, 'ADD `hostArchID` mediumint(9) NULL DEFAULT NULL')
 );
 $t->check(
-    'createImagePackage consults archCanRun before creating a deploy task',
-    (bool)preg_match('/archCanRun/', $hostSrc)
+    'schema adds images.imageArchID',
+    false !== strpos($schemaSrc, 'ADD `imageArchID` mediumint(9) NULL DEFAULT NULL')
 );
 $t->check(
-    'the capture path stamps the image with the capturing host arch',
-    (bool)preg_match('/archCanRun|imageArch|set\(\s*\'arch\'/', $queueSrc)
+    'the id columns are added behind an information_schema probe, not bare',
+    false !== strpos($schemaSrc, "AND `COLUMN_NAME` IN (\$quoted)")
+);
+// The drop is only lossless if every value the fleet already holds has a row
+// to point at first. Without the adopt pass it is lossless only because the
+// boot-menu whitelist happens to agree with the seed list, which is a
+// coincidence two edits from now.
+$t->check(
+    'the old strings are adopted into the table before the columns are dropped',
+    strpos($schemaSrc, 'SELECT DISTINCT `hostArch` FROM `hosts`')
+    < strpos($schemaSrc, 'ALTER TABLE `hosts` DROP COLUMN `hostArch`')
+    && strpos($schemaSrc, 'SELECT DISTINCT `imageArch` FROM `images`')
+    < strpos($schemaSrc, 'ALTER TABLE `images` DROP COLUMN `imageArch`')
 );
 $t->check(
-    'the boot path records the observed architecture on the host',
-    (bool)preg_match('/hostArch|set\(\s*\'arch\'/', $menuSrc)
+    'the backfill maps by name before the drop, on both sides',
+    strpos($schemaSrc, 'SET `h`.`hostArchID` = `a`.`archID`')
+    < strpos($schemaSrc, 'ALTER TABLE `hosts` DROP COLUMN `hostArch`')
+    && strpos($schemaSrc, 'SET `i`.`imageArchID` = `a`.`archID`')
+    < strpos($schemaSrc, 'ALTER TABLE `images` DROP COLUMN `imageArch`')
+);
+$t->check(
+    'createImagePackage consults Architecture::canRun before a deploy task',
+    (bool)preg_match('/Architecture::canRun/', $hostSrc)
+);
+$t->check(
+    'the refusal names both architectures, not two ids nobody can read',
+    (bool)preg_match('/\$imageArchName\s*=\s*\$Image->get\(\x27arch\x27\)/', $hostSrc)
+);
+$t->check(
+    'the capture path copies the capturing host arch id onto the image',
+    (bool)preg_match("/set\(\s*'archID',\s*\\\$capturedArchID\s*\)/", $queueSrc)
+);
+$t->check(
+    'the boot path resolves the reported arch to a row before storing it',
+    false !== strpos($menuSrc, 'Architecture::idFromName($raw)')
+);
+// boot.php is unauthenticated by necessity, so this is the only guard between
+// a request body and a stored value. It has to stay a whitelist AND it has to
+// stay non-creating -- either half alone lets an anonymous request decide what
+// architectures this server believes in.
+$t->check(
+    'the boot path still whitelists the raw value before resolving it',
+    false !== strpos($menuSrc, "in_array(\$raw, ['i386', 'x86_64', 'arm64'], true)")
+);
+$t->check(
+    'idFromName never creates a row, so boot.php cannot invent one',
+    false === strpos($archSrc, 'ArchitectureManager')
+    || false === strpos($archSrc, "->set('name'")
 );
 
 // --- the three regressions found on a live server 2026-08-25 -------------
@@ -176,19 +223,21 @@ $listJs = (string)file_get_contents(
 $systemSrc = (string)file_get_contents($web . '/lib/fog/system.class.php');
 
 $t->check(
-    'steps 369/370 are their own column-zero appends, not nested in step 368',
+    'steps 369-372 are their own column-zero appends, not nested in another',
     (bool)preg_match('/^\/\/ 369$\s*^\$this->schema\[\] = \[/m', $schemaSrc)
     && (bool)preg_match('/^\/\/ 370$\s*^\$this->schema\[\] = \[/m', $schemaSrc)
+    && (bool)preg_match('/^\/\/ 371$\s*^\$this->schema\[\] = \[/m', $schemaSrc)
+    && (bool)preg_match('/^\/\/ 372$\s*^\$this->schema\[\] = \[/m', $schemaSrc)
 );
 $t->check(
-    'FOG_SCHEMA reaches 370, so the updater actually offers the new steps',
+    'FOG_SCHEMA reaches 372, so the updater actually offers the new steps',
     (bool)preg_match("/define\('FOG_SCHEMA',\s*(\d+)\)/", $systemSrc, $fs)
-    && (int)$fs[1] >= 370
+    && (int)$fs[1] >= 372
 );
 $t->check(
     'the Architectures page refuses to render against an unmigrated database',
     false !== strpos($paneSrc, "DatabaseManager::tableColumns('hosts')")
-    && false !== strpos($paneSrc, 'hostarch')
+    && false !== strpos($paneSrc, 'hostarchid')
 );
 $t->check(
     'no (array) cast on a query result -- (array)false is [false], one blank row',
@@ -201,6 +250,71 @@ $t->check(
     && false === strpos($listJs, 'targets: 1')
     && false === strpos($listJs, 'targets: 2')
     && false !== strpos($listJs, 'colIndex')
+);
+
+// --- sector size (schema step 371) ---------------------------------------
+// The value FOS already refuses on, finally visible to the server. The parse
+// target is the `sector-size:` line util-linux 2.35+ writes into the sfdisk
+// dump -- the exact line validateImageSectorSize() in funcs.sh reads.
+$dump4k = "label: gpt\n"
+    . "label-id: 3C1B8A0E-1111-4222-8333-444455556666\n"
+    . "device: /dev/nvme0n1\n"
+    . "unit: sectors\n"
+    . "first-lba: 6\n"
+    . "sector-size: 4096\n"
+    . "\n"
+    . "/dev/nvme0n1p1 : start=6, size=32768, type=EF00\n";
+$dump512 = str_replace('sector-size: 4096', 'sector-size: 512', $dump4k);
+// Pre-2.35 dumps have no such line at all. FOS treats that as "allow the
+// deploy rather than guess", so this must read as unknown, never as 512.
+$dumpOld = str_replace("sector-size: 4096\n", '', $dump4k);
+
+$t->check(
+    'a 4Kn dump parses to 4096',
+    \FOG\Image::parseSectorSize($dump4k) === 4096
+);
+$t->check(
+    'a 512-byte dump parses to 512',
+    \FOG\Image::parseSectorSize($dump512) === 512
+);
+$t->check(
+    'a dump with no sector-size line is unknown (0), not assumed 512',
+    \FOG\Image::parseSectorSize($dumpOld) === 0
+);
+$t->check(
+    'an empty dump is unknown rather than an error',
+    \FOG\Image::parseSectorSize('') === 0
+);
+$t->check(
+    'a sector-size mentioned mid-line is not mistaken for the field',
+    \FOG\Image::parseSectorSize("# note: sector-size: 4096 was seen\n") === 0
+);
+$t->check(
+    '4096 is labelled 4Kn',
+    false !== strpos(\FOG\Image::sectorSizeLabel(4096), '4Kn')
+);
+$t->check(
+    '512 is labelled 512n/512e -- the two are not separable from a capture',
+    false !== strpos(\FOG\Image::sectorSizeLabel(512), '512n/512e')
+);
+$t->check(
+    'unknown has no label at all, rather than a misleading default',
+    \FOG\Image::sectorSizeLabel(0) === ''
+);
+$t->check(
+    "Image maps 'sectorsize' to imageSectorSize",
+    (bool)preg_match("/'sectorsize'\s*=>\s*'imageSectorSize'/", $imageSrc)
+);
+$t->check(
+    'schema adds images.imageSectorSize',
+    false !== strpos($schemaSrc, 'ADD `imageSectorSize` INT(11) NULL DEFAULT NULL')
+);
+$t->check(
+    'the capture path reads the dump in the same candidate order as FOS',
+    (bool)preg_match(
+        "/'minimum\.partitions',\s*'partitions',\s*'original\.partitions'/s",
+        $queueSrc
+    )
 );
 
 $t->finish();
