@@ -1578,6 +1578,9 @@ msgstr "Completed"
 msgid "Completed Time"
 msgstr "Completed"
 
+msgid "Computed field. Returned by the API but not a column, and not settable."
+msgstr ""
+
 #, fuzzy
 msgid "Computer Model"
 msgstr "Printer Model"
