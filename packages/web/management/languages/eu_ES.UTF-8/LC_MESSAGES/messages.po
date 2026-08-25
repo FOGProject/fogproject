@@ -9601,6 +9601,9 @@ msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
 msgid "Your database connection appears to be invalid"
 msgstr "Ihre Datenbankverbindung scheint ungültig zu sein"
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
