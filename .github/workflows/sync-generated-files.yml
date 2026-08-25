@@ -5,6 +5,20 @@ name: Sync generated files and version
 # Actions has no cross-repo merge trigger, so something has to live here to react
 # to a merge.
 #
+# WHAT THIS STILL DOES, NOW THAT PR-TIME REGENERATION EXISTS
+#
+# The version, and only the version. tests.yml's `regen` job corrects PSR2
+# formatting and the gettext catalogue on the pull request itself, so by the
+# time a same-repo PR merges those two are already right.
+#
+# The version cannot move to PR time the same way, because it is derived from
+# the commit count since master and the merge commit itself changes that count.
+# Correcting it is therefore still a post-merge job.
+#
+# Consequence worth knowing before you conclude this file is broken: on a
+# well-behaved same-repo PR this run now finds only the version to fix, and its
+# commit says so. A run that reports no change at all is also normal.
+#
 # The pre-commit hook cannot cover this. It is client-side, so a PR merged
 # through GitHub's web UI (squash, merge commit or rebase) never runs it and
 # FOG_VERSION goes stale until the daily sweep fires at 10:10 UTC. This closes
@@ -84,4 +98,17 @@ jobs:
     uses: FOGProject/fog-workflows/.github/workflows/update-lang-fix-psr-and-sync-version.yml@main
     with:
       branch: ${{ github.event.pull_request.base.ref }}
+      # Version only. Translations and PSR2 formatting are corrected on the pull
+      # request before it merges now (tests.yml's `regen` job), so running them
+      # again here can only ever be a no-op -- while still costing a fog-plugins
+      # release download and a full gettext regeneration on every single merge.
+      #
+      # This narrows the MERGE path only. The daily sweep still does all three,
+      # and must: it is the only cover for direct pushes, for merged fork PRs
+      # (which get no secrets, so no PR-time regeneration), and for
+      # rc-*/feature-* branches, which are off this path entirely.
+      #
+      # If PR-time regeneration is ever turned off, flip this back before
+      # removing it -- otherwise nothing corrects formatting until 10:10 UTC.
+      version_only: true
     secrets: inherit

@@ -13,7 +13,33 @@ name: Tests
 #
 # Not a push trigger, and not because of caution: the runaway that put ~30
 # commits on dev-branch in 20 minutes happened because the triggered
-# workflow pushed a commit back here. This one only reads.
+# workflow pushed a commit back here.
+#
+# The `suite` job only reads. The `regen` job below DOES push -- one commit, to
+# the pull request's head branch, after the suite has gone green -- and that
+# push raises `synchronize`, so this file runs again. That is bounded rather
+# than open-ended: both operations it performs are idempotent, so the second
+# run finds nothing to do and pushes nothing. The full argument, and the two
+# runtime circuit breakers that hold even if that argument stops being true,
+# are at the top of fog-workflows' fogproject-pr-regen.yml. Read them before
+# changing either job.
+#
+# THE GUARDS ON `regen` ARE NOT DECORATION
+#
+# Same-repo: `pull_request` withholds secrets from a fork, so there is no App
+# token to mint, the App is not installed on the contributor's account anyway,
+# and pushing to a fork head needs maintainer_can_modify, which is theirs to
+# set. A merged fork PR is picked up by the daily sweep instead, exactly as it
+# is today.
+#
+# Head denylist: workflows for a `pull_request` are read from the merge of head
+# into base, so a PR whose HEAD is a long-lived branch runs this file too.
+# stable-releases.yml opens exactly such a PR (`stable` -> `dev-branch`) to sync
+# a release back. Without this list, widening the base allowlist to dev-branch
+# would have this job push commits onto `stable` -- a branch whose version is
+# owned exclusively by stable-releases.yml. It is unreachable while the base
+# allowlist names only working-1.6; it is here so that stays true when the
+# allowlist grows.
 
 on:
   pull_request:
@@ -35,3 +61,33 @@ jobs:
     # assumed. If required checks are ever added, register the new names.
     name: fogproject
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-tests.yml@main
+
+  # Regenerates the derived files -- PSR2 formatting and the gettext catalogue
+  # -- on this pull request, and pushes one commit to its head branch. All of
+  # the logic is in fog-workflows; what lives here is the POLICY of which pull
+  # requests are eligible, which is branch-local information and is already
+  # where sync-generated-files.yml keeps the identical allowlist.
+  #
+  # `needs: suite` IS the "all current tests passed" gate. A caller job that
+  # `uses:` a reusable workflow succeeds only if every job inside it succeeded,
+  # so this needs no aggregate job on the far side. Note the custom `if:` below
+  # does not weaken it: only always()/!cancelled()/failure() bypass a `needs:`
+  # requirement, so the guard is pure policy on top of "the suite went green".
+  regen:
+    name: regenerate
+    needs: suite
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository
+      && github.event.pull_request.base.ref == 'working-1.6'
+      && !contains(fromJson('["stable", "master", "dev-branch", "working-1.6"]'), github.event.pull_request.head.ref)
+
+    # Least privilege, stated rather than inherited -- the same reasoning as
+    # sync-generated-files.yml next door. Everything the called workflow writes
+    # uses a GitHub App token, so nothing on this path needs a writable
+    # GITHUB_TOKEN, and a called workflow can never hold more permission than
+    # its caller.
+    permissions:
+      contents: read
+
+    uses: FOGProject/fog-workflows/.github/workflows/fogproject-pr-regen.yml@main
+    secrets: inherit
