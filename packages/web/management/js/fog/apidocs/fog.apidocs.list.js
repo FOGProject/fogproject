@@ -17,7 +17,7 @@
  * save a paste, at the cost of writing a live credential into the page for
  * anything with DOM access to read. Use Authorize instead.
  */
-/* global SwaggerUIBundle */
+/* global SwaggerUIBundle, FogRequestSnippets */
 (function () {
     'use strict';
 
@@ -67,8 +67,33 @@
             });
     }
 
+    /**
+     * The snippet panel under an executed request.
+     *
+     * Off by default, and worth turning on here because the reference is the
+     * page an admin lands on to work out how to drive this server from
+     * somewhere else -- the answer being one tab away from the request they
+     * just ran beats reconstructing it from the operation blocks.
+     *
+     * fog.apidocs.snippets.js supplies the generators and the config together,
+     * because the two have to agree: a generator named in the config with no
+     * function behind it is dropped silently. If the file did not load, fall
+     * through to Swagger UI's own three curl tabs rather than rendering
+     * nothing.
+     */
+    function snippetOptions() {
+        if (typeof FogRequestSnippets === 'undefined') {
+            return {};
+        }
+        return {
+            requestSnippetsEnabled: true,
+            requestSnippets: FogRequestSnippets.config(),
+            plugins: [FogRequestSnippets.plugin]
+        };
+    }
+
     function render(specUrl, mount) {
-        SwaggerUIBundle({
+        SwaggerUIBundle(Object.assign({
             url: specUrl,
             // domNode rather than dom_id, because the node this renders into
             // is one we own and keep (see boot()), not the server-rendered
@@ -103,7 +128,7 @@
             // Same-origin, so the browser sends the session cookie and try-it
             // works against this very server.
             withCredentials: true
-        });
+        }, snippetOptions()));
     }
 
     function boot() {
