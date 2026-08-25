@@ -2118,7 +2118,22 @@ class Route extends FOGBase
                     $whereItems['jobID'] = [-1];
                 }
             }
-            if (count($whereItems ?: []) < 1) {
+            // Not under $inputoverride, which the docblock defines as
+            // "override php://input to blank" -- and getsearchbody() reads
+            // php://input and turns any class field it finds there into a
+            // WHERE. The parse_str() branch above was the only thing the
+            // flag suppressed, so every internal Route::getList() call was
+            // still silently filtered by the body of whatever request it
+            // happened to run inside.
+            //
+            // That is not a tidiness point. Plugin::activationBlockers()
+            // lists `plugin` this way to decide whether a plugin may be
+            // switched on, so POST /plugin/{id}/install with an unrelated
+            // body -- {"name":"ldap"} -- listed one row, found the target
+            // was not in it, reported no blockers and installed a plugin
+            // this server refuses to run. Any gate built on a getList() is
+            // defeatable the same way.
+            if (!$inputoverride && count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($class);
             }
 
