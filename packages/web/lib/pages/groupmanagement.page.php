@@ -1504,8 +1504,10 @@ class GroupManagement extends FOGPage
         }
         if (isset($_POST['confirmenforcesend'])) {
             // Tri-state: '' = no change (no-clobber), '1'/'0' = force on all.
-            // hostEnforce is enum('0','1'); pass the STRING, not an int -- an
-            // int indexes the enum (1 -> '0', 0 -> truncation error).
+            // hostEnforce is tinyint(1) since ADR 0028, so a string and an
+            // int now mean the same thing. It stays a string because the
+            // POST value is one and the '' arm has to stay distinguishable
+            // from 0 -- casting would make "no change" mean "disable".
             $enforce = (string)filter_input(INPUT_POST, 'enforce');
             if ($enforce === '1' || $enforce === '0') {
                 self::getClass('HostManager')->update(

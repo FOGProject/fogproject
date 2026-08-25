@@ -7651,3 +7651,152 @@ $this->schema[] = [
     "UPDATE `taskStates` SET `tsIcon`='bookmark' "
     . "WHERE `tsID`=1 AND `tsIcon`='bookmark-o'",
 ];
+// 368
+$this->schema[] = [
+    // Store a boolean as a boolean.
+    //
+    // FOG has spelled its two-state columns `enum('0','1')` since the
+    // beginning, and it has never spelled all of them that way: `sites`
+    // .`siteCatchAll`, `auditLog`.`alRenderable`, `auditChange`.`acRedacted`
+    // and `hosts`.`hostInfoLock` are already tinyint(1). Two conventions for
+    // one idea, and the older of the two is the one with a trap in it.
+    //
+    // WHY THE ENUM IS ACTIVELY DANGEROUS, not merely inconsistent. An
+    // integer written to an ENUM is a MEMBER INDEX, not a value, and these
+    // enums are therefore off by one:
+    //
+    //     0  ->  index 0, the error value: refused under STRICT_TRANS_TABLES
+    //     1  ->  index 1, which is the member '0'  -- i.e. FALSE
+    //     2  ->  index 2, which is the member '1'  -- i.e. TRUE
+    //
+    // So `->set('isEnabled', 1)` means DISABLED if the value ever reaches
+    // the server as an integer rather than a string. FOG survives that only
+    // because PDODB binds every parameter as PDO::PARAM_STR; it is the
+    // reason PDODB::_bind() may not use PDO::PARAM_BOOL, and the reason
+    // Schema::defaultLiteral() exists. tinyint(1) has no such trap: 0 is
+    // false and 1 is true whether it arrives as a string or an integer.
+    // See fogproject#1361 and forum topic 18227.
+    //
+    // 🔴 WHY THIS IS THREE STATEMENTS AND NOT ONE ALTER. A direct
+    // `ALTER TABLE t MODIFY c TINYINT(1)` converts an ENUM BY INDEX, not by
+    // label. Measured on MariaDB 11.8:
+    //
+    //     before:  '0'  '1'  '0'  '1'
+    //     after:    1    2    1    2
+    //
+    // Every false becomes 1 and every true becomes 2 -- both truthy, no
+    // error, nothing logged. That would silently switch on every flag in the
+    // database on upgrade. Going through VARCHAR(1) first converts by LABEL,
+    // and the second ALTER then converts the resulting '0'/'1' strings by
+    // VALUE, which is the wanted mapping. The UPDATE between them exists
+    // because a row still holding the ENUM error value arrives at the
+    // varchar stage as '', which tinyint would refuse.
+    //
+    // WHAT CHANGES FOR CALLERS. PDODB runs with ATTR_EMULATE_PREPARES off,
+    // so mysqlnd hands back native types: these columns read back as the
+    // integer 1 where they used to read back as the string '1', and the REST
+    // API payload changes from "imageEnabled":"1" to "imageEnabled":1.
+    // Deliberate -- see docs/adr/0023. Every reader in the tree tests
+    // truthiness or casts with (string) first; both spellings are unchanged
+    // by this. Downstream consumers that compare the JSON strictly against
+    // "1" are not, which is why it lands in a beta.
+    //
+    // CORE TABLES ONLY. Each bundled plugin owns its own schema (ADR 0009),
+    // so LDAPServers, OIDCProviders and location are converted by their own
+    // steps in FOGProject/fog-plugins rather than reached into from here.
+    //
+    // NOT INCLUDED, deliberately: the char(1)/varchar(1) flags
+    // (`tasks`.`taskShutdown`, `snapins`.`sReboot`, `hosts`.`hostUseAD`).
+    // They look like the same thing and are not -- `hostUseAD` is tri-state,
+    // with '' meaning "inherit" as a third value the form renders, so that
+    // family needs a per-column reading rather than a sweep.
+    function () {
+        $booleans = [
+            'apiTokens' => ['atEnabled'],
+            'hostMAC' => [
+                'hmIgnoreClient', 'hmIgnoreImaging', 'hmPending', 'hmPrimary'
+            ],
+            'hosts' => ['hostEnforce', 'hostPending'],
+            'imageGroupAssoc' => ['igaPrimary'],
+            'images' => ['imageEnabled', 'imageReplicate'],
+            'multicastSessions' => ['msShutdown'],
+            'nfsGroupMembers' => ['ngmGraphEnabled'],
+            'powerManagement' => ['pmOndemand'],
+            'pxeMenu' => ['pxeHotKeyEnable'],
+            'snapinGroupAssoc' => ['sgaPrimary'],
+            'snapinJobs' => ['sjAbortOnFail'],
+            'snapins' => [
+                'sEnabled', 'sHideLog', 'sPackType', 'sReplicate', 'sShutdown'
+            ],
+            'tasks' => ['taskBypassBitlocker', 'taskWOL'],
+            'taskTypes' => ['ttIsAdvanced'],
+            'users' => ['uAllowAPI', 'uAPIOnly'],
+        ];
+
+        foreach ($booleans as $table => $columns) {
+            // Ask the catalogue rather than trusting the list: a column
+            // already converted reads back tinyint and is skipped, so a
+            // re-run is a read and nothing else, and a column someone has
+            // changed to something else entirely is left alone rather than
+            // rewritten.
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty`, "
+                . "`COLUMN_DEFAULT` AS `d` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table",
+                [],
+                [':table' => strtolower($table)]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            $want = array_map('strtolower', $columns);
+            foreach ((array) $rows as $row) {
+                if (!isset($row['c'], $row['ty'])
+                    || !in_array(strtolower($row['c']), $want, true)
+                ) {
+                    continue;
+                }
+                if (!preg_match(
+                    "/^enum\\('0','1'\\)$/i",
+                    trim($row['ty'])
+                )) {
+                    continue;
+                }
+                // MariaDB reports a string default quoted ('1'), MySQL 8
+                // does not (1). Both spellings mean the same member.
+                $default = trim((string) $row['d'], "'");
+                $default = ('1' === $default) ? '1' : '0';
+
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` VARCHAR(1) '
+                        . "NOT NULL DEFAULT '%s'",
+                        $table,
+                        $row['c'],
+                        $default
+                    )
+                );
+                self::$DB->query(
+                    sprintf(
+                        'UPDATE `%s` SET `%s` = \'0\' '
+                        . "WHERE `%s` NOT IN ('0', '1')",
+                        $table,
+                        $row['c'],
+                        $row['c']
+                    )
+                );
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` TINYINT(1) '
+                        . 'NOT NULL DEFAULT %s',
+                        $table,
+                        $row['c'],
+                        $default
+                    )
+                );
+            }
+        }
+
+        return true;
+    },
+];

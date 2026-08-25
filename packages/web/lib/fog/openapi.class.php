@@ -550,9 +550,11 @@ class OpenAPI extends FOGBase
      * Input looks like 'varchar(250) NOT NULL', 'int(11) NOT NULL',
      * "enum('0','1') NOT NULL" or 'longtext DEFAULT NULL'.
      *
-     * tinyint(1) maps to integer rather than boolean on purpose: FOG spells
-     * its booleans enum('0','1') and uses tinyint for genuine small integers,
-     * so the usual MySQL-to-bool shortcut would mistype real data.
+     * tinyint(1) maps to integer rather than boolean on purpose. Since ADR
+     * 0028 tinyint(1) IS how FOG spells a boolean, so the shortcut is no
+     * longer a mistyping -- but the value on the wire is 0/1, not JSON
+     * true/false, because that is what mysqlnd returns for the column.
+     * Documenting it as boolean would describe a payload FOG does not send.
      *
      * @param string $sqlType The column definition.
      *
