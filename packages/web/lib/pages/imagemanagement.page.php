@@ -1606,7 +1606,14 @@ class ImageManagement extends FOGPage
         echo '</tr></thead><tbody>';
         foreach ($rows as $row) {
             $bad = !Architecture::canRun($row['imageArch'] ?? '', $row['hostArch'] ?? '');
-            echo $bad ? '<tr class="table-danger">' : '<tr>';
+            // data-mismatch as well as the class: this table is a DataTable
+            // and redraws its rows when paged, so fog.image.architectures.js
+            // re-applies the highlight from the attribute on every draw. The
+            // class stays for the first paint and for anyone reading the page
+            // with JavaScript off.
+            echo $bad
+                ? '<tr class="table-danger" data-mismatch="1">'
+                : '<tr>';
             echo '<td>' . htmlentities($row['host'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>'
                 . $this->_archCell(
