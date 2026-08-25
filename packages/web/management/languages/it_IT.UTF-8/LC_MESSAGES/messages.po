@@ -108,6 +108,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -150,6 +154,10 @@ msgstr ""
 #, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "hosts"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -986,6 +994,9 @@ msgstr "Approvare MAC selezionati"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -998,6 +1009,10 @@ msgid "Assigned Group Name"
 msgstr "Nome gruppo di archiviazione"
 
 msgid "Assigned Image"
+msgstr "Immagine assegnata"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "Immagine assegnata"
 
 #, fuzzy
@@ -2506,10 +2521,16 @@ msgstr "FOG database è possibile farlo utilizzando"
 msgid "FOG is unable to communicate with the database"
 msgstr "FOG non è in grado di comunicare con il database"
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "server FOG per default nella cartella"
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3487,6 +3508,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts assigned"
+msgstr "Host associato"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "Aggiorna la stampante predefinita"
 
@@ -3737,8 +3762,16 @@ msgid "Image added!"
 msgstr "Immagine aggiunta!"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "Protetta"
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "L'immagine non è valida"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "c'è uno abilitato all'interno di questo gruppo di archiviazione"
 
 msgid "Image is not enabled"
 msgstr "L'immagine non è abilitato"
@@ -5354,6 +5387,9 @@ msgstr "Percorso non disponibile"
 msgid "Nodes"
 msgstr "Nodi"
 
+msgid "None"
+msgstr ""
+
 msgid "Normal Snapin"
 msgstr "Snapin normale"
 
@@ -5387,6 +5423,10 @@ msgstr "Non ammessi qui"
 msgid "Not pinged"
 msgstr "Non sincronizzo"
 
+#, fuzzy
+msgid "Not recorded"
+msgstr "Consigliato"
+
 msgid "Not syncing"
 msgstr "Non sincronizzo"
 
@@ -5395,6 +5435,12 @@ msgstr "Non sincronizzare l'immagine"
 
 msgid "Not syncing Snapin"
 msgstr "Non sincronizzazione gli Snapin"
+
+msgid "Not yet seen"
+msgstr ""
+
+msgid "Not yet seen -- set on this host's next PXE boot"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -7965,6 +8011,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -9333,6 +9382,9 @@ msgstr "ma è fallito di recente per questo host"
 msgid "but there are"
 msgstr "Ci sono"
 
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
+
 msgid "check to ensure your filesystem has enough space"
 msgstr "cerificare che il filesystem abbia spazio sufficiente"
 
@@ -9498,6 +9550,10 @@ msgstr ""
 msgid "host"
 msgstr "host"
 
+#, fuzzy
+msgid "host is"
+msgstr "hosts"
+
 msgid "hosts"
 msgstr "hosts"
 
@@ -9559,6 +9615,10 @@ msgstr "Immagine"
 
 msgid "image file found, file"
 msgstr ""
+
+#, fuzzy
+msgid "image is"
+msgstr "immagini"
 
 msgid "image replication"
 msgstr "replica dell'immagine"
@@ -9682,6 +9742,9 @@ msgstr "Abilitato"
 msgid "minutes"
 msgstr "minuti"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -9751,6 +9814,9 @@ msgstr "Non trovato su questo nodo"
 #, fuzzy
 msgid "not reachable"
 msgstr "Non disponibile"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10343,9 +10409,6 @@ msgstr ""
 
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"
-
-#~ msgid "Host Associated"
-#~ msgstr "Host associato"
 
 #, fuzzy
 #~ msgid "Host Ext"

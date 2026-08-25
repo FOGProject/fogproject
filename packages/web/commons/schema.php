@@ -7734,4 +7734,100 @@ $this->schema[] = [
             ]
         );
     },
+    // 369: hosts.hostArch -- the architecture last observed for this host.
+    //
+    // FOG has always known this and never kept it. iPXE posts `arch` on every
+    // boot (default.ipxe sends ${buildarch} with the cpuid promotion that
+    // lifts a 32-bit build on a 64-bit CPU to x86_64), BootMenu reads it to
+    // pick the kernel, and then it is discarded. So nothing away from a live
+    // boot -- a host edit page, a group kernel assignment, a deploy task --
+    // could know what kind of machine it was dealing with, which is what
+    // BootMenu::_fileFitsArch()'s docblock has been complaining about.
+    //
+    // NULL, not a default. An existing fleet starts unknown and fills in as
+    // machines boot; defaulting to x86_64 would assert a fact nobody
+    // observed, which is the exact error this column exists to prevent.
+    //
+    // VARCHAR, not ENUM: iPXE already builds for riscv64 and loong64, and an
+    // ENUM makes each new architecture a schema migration. The valid set is
+    // enforced in BootMenu where the whitelist already lives.
+    //
+    // Advisory only, and deliberately so. boot.php is unauthenticated by
+    // necessity -- a booting NIC has no credential -- so this value is
+    // attacker-controlled. The boot decision therefore keeps reading the
+    // live request, never this column, and a poisoned value costs a wrong
+    // warning on a form rather than a wrong kernel.
+    //
+    // No index. Written at most once per boot per host, read by pages that
+    // are already fetching the row.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354/355: ADD
+    // COLUMN has no IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and
+    // the column is named in the probe so the installer's grant check still
+    // passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN ('hostArch')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostArch', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostArch` VARCHAR(16) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+    // 370: images.imageArch -- the architecture of the machine this image was
+    // captured from.
+    //
+    // The half that makes the host column worth having. With both sides
+    // recorded, Host::createImagePackage() can refuse a deploy that cannot
+    // work; with only one, it can only ever guess.
+    //
+    // An image cannot discover its own architecture, and does not need to:
+    // a capture requires the host to PXE boot, and step 369's column is
+    // written on that same boot before FOS loads. So by the time
+    // TaskQueue::_moveUpload() runs, the capturing host's architecture is
+    // already recorded and the stamp is a copy, not an inference. No FOS
+    // change and no new endpoint were needed for this.
+    //
+    // NULL for every image captured before this shipped. There is nothing to
+    // backfill from -- an old image's architecture is genuinely unknown --
+    // and the compatibility check treats unknown as "allow" precisely so
+    // upgrading servers keep working.
+    //
+    // Separate step from 369 rather than one doing both tables, so a partial
+    // failure leaves an unambiguous state.
+    //
+    // Guarded closure, same reasoning as 369 above.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'images' "
+            . "AND `COLUMN_NAME` IN ('imageArch')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('imageArch', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageArch` VARCHAR(16) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
 ];

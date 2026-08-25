@@ -108,6 +108,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -150,6 +154,10 @@ msgstr ""
 #, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "host"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -1016,6 +1024,9 @@ msgstr "Approve selected Hosts"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -1028,6 +1039,10 @@ msgid "Assigned Group Name"
 msgstr "Storage Group Name"
 
 msgid "Assigned Image"
+msgstr "Assigned Image"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "Assigned Image"
 
 #, fuzzy
@@ -2578,10 +2593,16 @@ msgstr ""
 msgid "FOG is unable to communicate with the database"
 msgstr ""
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3590,6 +3611,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts assigned"
+msgstr "No node associated"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "Update Printer"
 
@@ -3850,8 +3875,16 @@ msgid "Image added!"
 msgstr "Image Name"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "Protected"
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "Image is not valid"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "Could not find a Storage Node Is there one enabled within this Storage Group"
 
 msgid "Image is not enabled"
 msgstr "Image is not enabled"
@@ -5538,6 +5571,9 @@ msgstr "No hash available"
 msgid "Nodes"
 msgstr "Node"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "Invalid Snapin"
@@ -5572,6 +5608,9 @@ msgstr "Not allowed here"
 msgid "Not pinged"
 msgstr "Installed Plugins"
 
+msgid "Not recorded"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -5581,6 +5620,12 @@ msgstr ""
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "No connection to get snapin"
+
+msgid "Not yet seen"
+msgstr ""
+
+msgid "Not yet seen -- set on this host's next PXE boot"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -8247,6 +8292,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -9658,6 +9706,9 @@ msgstr "is open, but has recently failed for this Host"
 msgid "but there are"
 msgstr "There are"
 
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
+
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
@@ -9833,6 +9884,10 @@ msgid "host"
 msgstr "host"
 
 #, fuzzy
+msgid "host is"
+msgstr "host"
+
+#, fuzzy
 msgid "hosts"
 msgstr "host"
 
@@ -9898,6 +9953,10 @@ msgstr "Image"
 
 msgid "image file found, file"
 msgstr ""
+
+#, fuzzy
+msgid "image is"
+msgstr "Images"
 
 #, fuzzy
 msgid "image replication"
@@ -10029,6 +10088,9 @@ msgstr "Enabled"
 msgid "minutes"
 msgstr "minutes"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10102,6 +10164,9 @@ msgstr "Image not found on node"
 #, fuzzy
 msgid "not reachable"
 msgstr "Not Available"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10708,10 +10773,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "Update Settings"
-
-#, fuzzy
-#~ msgid "Host Associated"
-#~ msgstr "No node associated"
 
 #, fuzzy
 #~ msgid "Host Ext"

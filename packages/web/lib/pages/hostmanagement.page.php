@@ -122,6 +122,11 @@ class HostManagement extends FOGPage
             _('Last Check-In'),
             _('Imaged'),
             _('Assigned Image'),
+            // Next to the assigned image on purpose: those two cells together
+            // are the thing worth checking. The full comparison, including
+            // the image's own architecture, is the Architectures page under
+            // Image Management. See schema step 369.
+            _('Architecture'),
             _('Description')
         );
         array_push(
@@ -130,6 +135,7 @@ class HostManagement extends FOGPage
             ['data-col' => 'lastcheckin'],
             ['data-col' => 'deployed'],
             ['data-col' => 'imageLink'],
+            ['data-col' => 'arch'],
             ['data-col' => 'description']
         );
     }
@@ -1194,6 +1200,37 @@ class HostManagement extends FOGPage
                 _('Host Description'),
                 'description',
                 $description
+            ),
+            // Architecture, read-only. Observed at PXE boot, never chosen:
+            // BootMenu::_recordHostArch() writes it from what the machine
+            // itself reported. Shown here because until schema step 369
+            // nothing on this page could tell an admin that the kernel or
+            // image they were about to pick was wrong for this machine.
+            //
+            // Edit page only. A host being created has never booted, so the
+            // add form and its modal have nothing to show.
+            //
+            // The placeholder carries the unknown case: an empty box reads
+            // as x86 to anyone scanning, which is the assumption this whole
+            // column exists to stop.
+            self::makeLabel(
+                $labelClass,
+                'archdisplay',
+                _('Architecture')
+            ) => self::makeInput(
+                'form-control hostarch-input',
+                'archdisplay',
+                _('Not yet seen -- set on this host\'s next PXE boot'),
+                'text',
+                'archdisplay',
+                Image::normalizeArch($this->obj->get('arch')),
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
             ),
             self::makeLabel(
                 $labelClass,

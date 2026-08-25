@@ -81,6 +81,12 @@ class Host extends FOGController
         // it is displayed, never stored.
         'lastping' => 'hostLastPing',
         'lastcheckin' => 'hostLastCheckin',
+        // The architecture last observed for this host, in iPXE's vocabulary
+        // ('i386', 'x86_64', 'arm64') -- not uname's, so it matches the value
+        // the boot decision is made from. NULL until the host PXE boots once.
+        // Advisory: BootMenu still chooses a kernel from the live request,
+        // never from here. See schema step 369.
+        'arch' => 'hostArch',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',
@@ -1066,6 +1072,41 @@ class Host extends FOGController
                 }
                 if (!$Image->get('isEnabled')) {
                     throw new \Exception(_('Image is not enabled'));
+                }
+                // Refuse a deploy the target cannot possibly boot.
+                //
+                // Capture is exempt: the image is being written from this
+                // host, not run on it, so there is nothing to be incompatible
+                // with -- and it is the capture that gives the image its
+                // architecture in the first place.
+                //
+                // Worth catching here rather than letting it run because the
+                // deploy SUCCEEDS. partclone writes the bytes, the task goes
+                // Complete and every report is green; the disk just holds a
+                // bootloader and binaries the machine cannot execute. The
+                // failure surfaces at the next power-on looking like dead
+                // hardware rather than like the wrong image, which is the
+                // expensive way to find out.
+                //
+                // archCanRun() allows anything it cannot disprove, so this
+                // only fires when both architectures are recorded AND
+                // incompatible. See schema steps 369/370.
+                if (!$isCapture
+                    && !Image::archCanRun(
+                        $Image->get('arch'),
+                        $this->get('arch')
+                    )
+                ) {
+                    throw new \Exception(
+                        sprintf(
+                            '%s: %s %s, %s %s',
+                            _('Image is not compatible with this host'),
+                            _('image is'),
+                            Image::normalizeArch($Image->get('arch')),
+                            _('host is'),
+                            Image::normalizeArch($this->get('arch'))
+                        )
+                    );
                 }
                 // Let plugins pick the group/node before falling back to the
                 // image's primary group. Every other place that resolves a

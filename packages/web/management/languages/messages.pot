@@ -84,6 +84,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -125,6 +129,10 @@ msgstr ""
 
 #, php-format
 msgid "%s does not exist. Re-run the FOG installer."
+msgstr ""
+
+#, php-format
+msgid "%s hosts"
 msgstr ""
 
 #, php-format
@@ -866,6 +874,9 @@ msgstr ""
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -876,6 +887,9 @@ msgid "Assigned Group Name"
 msgstr ""
 
 msgid "Assigned Image"
+msgstr ""
+
+msgid "Assigned image"
 msgstr ""
 
 msgid "Assigned image is invalid"
@@ -2198,10 +2212,16 @@ msgstr ""
 msgid "FOG is unable to communicate with the database"
 msgstr ""
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3050,6 +3070,9 @@ msgstr ""
 msgid "Hosts And Users"
 msgstr ""
 
+msgid "Hosts assigned"
+msgstr ""
+
 msgid "Hosts default:"
 msgstr ""
 
@@ -3274,7 +3297,13 @@ msgstr ""
 msgid "Image added!"
 msgstr ""
 
+msgid "Image architecture"
+msgstr ""
+
 msgid "Image is invalid"
+msgstr ""
+
+msgid "Image is not compatible with this host"
 msgstr ""
 
 msgid "Image is not enabled"
@@ -4702,6 +4731,9 @@ msgstr ""
 msgid "Nodes"
 msgstr ""
 
+msgid "None"
+msgstr ""
+
 msgid "Normal Snapin"
 msgstr ""
 
@@ -4732,6 +4764,9 @@ msgstr ""
 msgid "Not pinged"
 msgstr ""
 
+msgid "Not recorded"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -4739,6 +4774,12 @@ msgid "Not syncing Image"
 msgstr ""
 
 msgid "Not syncing Snapin"
+msgstr ""
+
+msgid "Not yet seen"
+msgstr ""
+
+msgid "Not yet seen -- set on this host's next PXE boot"
 msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
@@ -6992,6 +7033,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -8241,6 +8285,9 @@ msgstr ""
 msgid "but there are"
 msgstr ""
 
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
+
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
@@ -8389,6 +8436,9 @@ msgstr ""
 msgid "host"
 msgstr ""
 
+msgid "host is"
+msgstr ""
+
 msgid "hosts"
 msgstr ""
 
@@ -8441,6 +8491,9 @@ msgid "image"
 msgstr ""
 
 msgid "image file found, file"
+msgstr ""
+
+msgid "image is"
 msgstr ""
 
 msgid "image replication"
@@ -8558,6 +8611,9 @@ msgstr ""
 msgid "minutes"
 msgstr ""
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -8624,6 +8680,9 @@ msgid "not found on this node"
 msgstr ""
 
 msgid "not reachable"
+msgstr ""
+
+msgid "not yet seen"
 msgstr ""
 
 msgid "ntfy Accounts"

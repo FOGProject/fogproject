@@ -918,6 +918,17 @@ abstract class FOGPage extends FOGBase
                     'multicast',
                     _('Multicast Image')
                 );
+                // Architecture spans both tables, so it has no home on a
+                // single image's tabs or a single host's. It hangs here
+                // rather than under Host Management because the question it
+                // answers -- "can this image go to that machine" -- is asked
+                // when choosing an image. See schema steps 369/370.
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'architectures',
+                    _('Architectures')
+                );
                 break;
             case 'host':
                 self::arrayInsertBefore(
