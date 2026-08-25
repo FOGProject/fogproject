@@ -500,8 +500,27 @@ class TaskQueue extends TaskingElement
                 )
             );
         }
-        if ($moved) {
-            self::$FOGSSH->delete($backup);
+        if ($moved && !self::$FOGSSH->delete($backup)) {
+            // Deliberately NOT fatal. By this line the rename above has
+            // already put the captured image at its final path -- the capture
+            // succeeded, and all that is left is removing the previous copy.
+            // Failing the task for that trades a stale directory (disk, which
+            // an admin can reclaim) for a task stuck short of Complete after a
+            // good capture (an hour of imaging, which nobody can reclaim).
+            //
+            // It is not silent either: the run is marked PARTIAL, so the audit
+            // trail names the leftover and says the capture itself was fine.
+            // The likeliest cause is ownership -- .movetmp inherits the
+            // permissions of whatever it was renamed from, and a root-owned
+            // directory cannot be emptied by the storage node's user.
+            Audit::markOutcome(
+                Audit::PARTIAL,
+                sprintf(
+                    '%s: %s',
+                    _('Image captured; previous copy needs manual removal'),
+                    $backup
+                )
+            );
         }
         self::$FOGSSH->sftp_chmod($dest, 0775);
         self::$FOGSSH->disconnect();
@@ -615,7 +634,14 @@ class TaskQueue extends TaskingElement
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
             if (!self::$Host->isValid()) {
-                throw new \Exception('##');
+                // NOT '##'. That string is what FOS reads as success, and it
+                // was thrown here -- so the catch below echoed it verbatim and
+                // FOS moved on satisfied, while the task was never saved and
+                // the host was never updated. A completion that did not happen
+                // must not be reported as one.
+                throw new \Exception(
+                    _('Host is not valid; the task cannot be completed')
+                );
             }
             $updatedHost = self::getClass('HostManager')->update(
                 ['id' => self::$Host->get('id')],
