@@ -946,6 +946,37 @@ class PDODB extends DatabaseManager
         if (is_null($type)) {
             $type = \PDO::PARAM_STR;
         }
+        /*
+         * A PHP boolean bound as a string is the string cast of it, and
+         * (string)false is ''. Every caller reaches this method with the
+         * default PDO::PARAM_STR, so `->set('shutdown', $action ==
+         * 'shutdown')` -- an ordinary comparison, and how the snapin pages
+         * have always spelled it -- stored '' into `snapins`.`sShutdown`,
+         * an enum('0','1'). That is error 1265, "Data truncated for column
+         * 'sShutdown' at row 1", on any server with STRICT_TRANS_TABLES.
+         *
+         * It is the same defect as GH-1245 arriving by a different door.
+         * save()'s emptyValueFor() only recognises null and '' as empty, so
+         * a boolean walks straight past it, and the manager UPDATE path
+         * (HostManager::update() writing `hosts`.`hostInfoLock` from
+         * ->set('tokenlock', false) at the end of every imaging task) never
+         * went through save() at all. Normalising here is the only place
+         * that covers save(), insertBatch(), the manager builders and
+         * hand-written queries at once.
+         *
+         * '0'/'1' rather than PDO::PARAM_BOOL: bound as an integer, 0
+         * against an ENUM is an *index*, and index 0 is the error value --
+         * the same trap Schema::defaultLiteral() exists for. As strings
+         * they are literal enum members, and a numeric column coerces them
+         * to 0/1. Readers are unaffected either way; '0' is falsey in PHP
+         * exactly as '' was.
+         *
+         * A caller that passes an explicit type is left alone -- it has
+         * said what it means.
+         */
+        if (is_bool($value) && $type === \PDO::PARAM_STR) {
+            $value = $value ? '1' : '0';
+        }
         // bindValue() copies the value immediately; bindParam() would bind by
         // reference to a local variable that goes out of scope before execute().
         self::$_queryResult->bindValue($param, $value, $type);
