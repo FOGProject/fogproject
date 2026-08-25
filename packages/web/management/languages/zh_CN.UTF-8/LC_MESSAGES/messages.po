@@ -939,6 +939,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "An image already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 #, fuzzy
 msgid "An image with this name already exists!"
 msgstr "使用此名称的主机名已经存在。"
@@ -7023,6 +7026,10 @@ msgstr "服务状态"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "服务器外壳"
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -8434,6 +8441,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -9744,6 +9754,9 @@ msgstr "是开放的，但最近没有这个主机"
 #, fuzzy
 msgid "but there are"
 msgstr "有"
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
 
 msgid "captured before FOG tracked this. It will be set the next time this image is captured."
 msgstr ""

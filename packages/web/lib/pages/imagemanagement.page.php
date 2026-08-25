@@ -44,6 +44,7 @@ class ImageManagement extends FOGPage
         $this->headerData = [
             _('Image Name'),
             _('Architecture'),
+            _('Sector Size'),
             _('Protected'),
             _('Enabled'),
             _('Captured')
@@ -58,6 +59,7 @@ class ImageManagement extends FOGPage
         $this->attributes = [
             ['data-col' => 'mainlink'],
             ['data-col' => 'arch'],
+            ['data-col' => 'sectorsize'],
             ['data-col' => 'protected'],
             ['data-col' => 'isEnabled'],
             ['data-col' => 'deployed']
@@ -1076,6 +1078,36 @@ class ImageManagement extends FOGPage
         }
         echo '</div>';
         echo '</div>';
+        // Sector size. The other half of "can this image go on that disk",
+        // and the half FOS has been refusing on since ADR-0005 without the
+        // server ever being able to show it.
+        $sectorLabel = Image::sectorSizeLabel($this->obj->get('sectorsize'));
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Sector Size');
+        echo '</h4>';
+        echo '<br/>';
+        echo _('The logical sector size of the disk this image was captured from.');
+        echo ' ';
+        echo _('An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them.');
+        echo '<div class="card-tools float-end">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        if ('' === $sectorLabel) {
+            echo '<span class="text-muted">';
+            echo _('Not recorded');
+            echo ' &mdash; ';
+            echo _('captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured.');
+            echo '</span>';
+        } else {
+            echo '<code>' . htmlentities($sectorLabel, ENT_QUOTES, 'utf-8') . '</code>';
+        }
+        echo '</div>';
+        echo '</div>';
         // Size on server
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
@@ -1336,13 +1368,15 @@ class ImageManagement extends FOGPage
             "SELECT `images`.`imageID` AS `id`, "
             . "`images`.`imageName` AS `image`, "
             . "`images`.`imageArch` AS `imageArch`, "
+            . "`images`.`imageSectorSize` AS `sectorsize`, "
             . "`images`.`imageDateTime` AS `captured`, "
             . "COUNT(`hosts`.`hostID`) AS `assigned` "
             . "FROM `images` "
             . "LEFT OUTER JOIN `hosts` "
             . "ON `hosts`.`hostImage` = `images`.`imageID` "
             . "GROUP BY `images`.`imageID`, `images`.`imageName`, "
-            . "`images`.`imageArch`, `images`.`imageDateTime` "
+            . "`images`.`imageArch`, `images`.`imageSectorSize`, "
+            . "`images`.`imageDateTime` "
             . "ORDER BY `images`.`imageName`"
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $images = is_array($images) ? $images : [];
@@ -1398,6 +1432,7 @@ class ImageManagement extends FOGPage
         echo '<table class="table table-hover"><thead><tr>';
         echo '<th>' . _('Image') . '</th>';
         echo '<th>' . _('Architecture') . '</th>';
+        echo '<th>' . _('Sector Size') . '</th>';
         echo '<th>' . _('Captured') . '</th>';
         echo '<th>' . _('Hosts assigned') . '</th>';
         echo '</tr></thead><tbody>';
@@ -1406,6 +1441,15 @@ class ImageManagement extends FOGPage
             echo '<tr>';
             echo '<td>' . htmlentities($img['image'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>' . $this->_archCell($arch, _('Not recorded')) . '</td>';
+            // Sector size is not compared against anything here: the server
+            // never learns a host disk's sector size, so unlike architecture
+            // there is no mismatch to flag. FOS does that check at deploy.
+            echo '<td>'
+                . $this->_archCell(
+                    Image::sectorSizeLabel($img['sectorsize'] ?? 0),
+                    _('Not recorded')
+                )
+                . '</td>';
             echo '<td>' . htmlentities((string)$img['captured'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>' . (int)$img['assigned'] . '</td>';
             echo '</tr>';

@@ -64,6 +64,30 @@
             targets: colIndex.arch
         });
     }
+    if ('sectorsize' in colIndex) {
+        columnDefs.push({
+            render: function(data, type, row) {
+                if (type !== 'display') {
+                    return data;
+                }
+                // 512n and 512e are not separated: they differ only in
+                // PHYSICAL block size, which no capture records, and they are
+                // interchangeable as deploy targets because only the logical
+                // size governs whether the geometry fits.
+                if (!data) {
+                    return '<span class="text-muted">Not recorded</span>';
+                }
+                if (parseInt(data, 10) === 4096) {
+                    return '<code>4Kn</code>';
+                }
+                if (parseInt(data, 10) === 512) {
+                    return '<code>512n/512e</code>';
+                }
+                return '<code>' + data + '</code>';
+            },
+            targets: colIndex.sectorsize
+        });
+    }
     if ('protected' in colIndex) {
         columnDefs.push({
             responsivePriority: 0,

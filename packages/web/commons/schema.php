@@ -7837,3 +7837,53 @@ $this->schema[] = [
         return true;
     },
 ];
+// 371
+$this->schema[] = [
+    // images.imageSectorSize -- the LOGICAL sector size, in bytes, of the disk
+    // this image was captured from. 512 or 4096; NULL when unknown.
+    //
+    // FOS has refused a cross-sector-size deploy since ADR-0005
+    // (validateImageSectorSize in funcs.sh): partition-table and filesystem
+    // geometry bake in the source disk's logical sector size and cannot be
+    // translated, so deploying a 4Kn image onto a 512-byte disk produces an
+    // unbootable machine. The server has never known any of this, so the
+    // refusal only ever arrives at the client, minutes into a task, as a
+    // failure rather than as something anyone could see beforehand.
+    //
+    // LOGICAL, not physical, and that is the whole distinction that matters.
+    // 512n and 512e both present 512-byte logical sectors and are freely
+    // interchangeable as deploy targets; only 4Kn differs. FOS reads the
+    // source size with `blockdev --getss` (logical) and records it on the
+    // `sector-size:` line of the sfdisk dump, and physical block size is
+    // never persisted at capture -- so 512n and 512e are indistinguishable
+    // here by construction, and separating them would buy nothing.
+    //
+    // NULL for every image captured before this, and for any image whose
+    // sfdisk dump predates util-linux 2.35 and so carries no `sector-size:`
+    // line at all. FOS treats that same absence as "allow the deploy rather
+    // than guess"; nothing here may be stricter than the thing doing the
+    // actual refusing.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354/369/370.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'images' "
+            . "AND `COLUMN_NAME` IN ('imageSectorSize')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('imageSectorSize', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageSectorSize` INT(11) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];

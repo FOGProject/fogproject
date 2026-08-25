@@ -203,4 +203,69 @@ $t->check(
     && false !== strpos($listJs, 'colIndex')
 );
 
+// --- sector size (schema step 371) ---------------------------------------
+// The value FOS already refuses on, finally visible to the server. The parse
+// target is the `sector-size:` line util-linux 2.35+ writes into the sfdisk
+// dump -- the exact line validateImageSectorSize() in funcs.sh reads.
+$dump4k = "label: gpt\n"
+    . "label-id: 3C1B8A0E-1111-4222-8333-444455556666\n"
+    . "device: /dev/nvme0n1\n"
+    . "unit: sectors\n"
+    . "first-lba: 6\n"
+    . "sector-size: 4096\n"
+    . "\n"
+    . "/dev/nvme0n1p1 : start=6, size=32768, type=EF00\n";
+$dump512 = str_replace('sector-size: 4096', 'sector-size: 512', $dump4k);
+// Pre-2.35 dumps have no such line at all. FOS treats that as "allow the
+// deploy rather than guess", so this must read as unknown, never as 512.
+$dumpOld = str_replace("sector-size: 4096\n", '', $dump4k);
+
+$t->check(
+    'a 4Kn dump parses to 4096',
+    \FOG\Image::parseSectorSize($dump4k) === 4096
+);
+$t->check(
+    'a 512-byte dump parses to 512',
+    \FOG\Image::parseSectorSize($dump512) === 512
+);
+$t->check(
+    'a dump with no sector-size line is unknown (0), not assumed 512',
+    \FOG\Image::parseSectorSize($dumpOld) === 0
+);
+$t->check(
+    'an empty dump is unknown rather than an error',
+    \FOG\Image::parseSectorSize('') === 0
+);
+$t->check(
+    'a sector-size mentioned mid-line is not mistaken for the field',
+    \FOG\Image::parseSectorSize("# note: sector-size: 4096 was seen\n") === 0
+);
+$t->check(
+    '4096 is labelled 4Kn',
+    false !== strpos(\FOG\Image::sectorSizeLabel(4096), '4Kn')
+);
+$t->check(
+    '512 is labelled 512n/512e -- the two are not separable from a capture',
+    false !== strpos(\FOG\Image::sectorSizeLabel(512), '512n/512e')
+);
+$t->check(
+    'unknown has no label at all, rather than a misleading default',
+    \FOG\Image::sectorSizeLabel(0) === ''
+);
+$t->check(
+    "Image maps 'sectorsize' to imageSectorSize",
+    (bool)preg_match("/'sectorsize'\s*=>\s*'imageSectorSize'/", $imageSrc)
+);
+$t->check(
+    'schema adds images.imageSectorSize',
+    false !== strpos($schemaSrc, 'ADD `imageSectorSize` INT(11) NULL DEFAULT NULL')
+);
+$t->check(
+    'the capture path reads the dump in the same candidate order as FOS',
+    (bool)preg_match(
+        "/'minimum\.partitions',\s*'partitions',\s*'original\.partitions'/s",
+        $queueSrc
+    )
+);
+
 $t->finish();
