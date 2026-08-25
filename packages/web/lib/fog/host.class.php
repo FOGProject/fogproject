@@ -81,12 +81,14 @@ class Host extends FOGController
         // it is displayed, never stored.
         'lastping' => 'hostLastPing',
         'lastcheckin' => 'hostLastCheckin',
-        // The architecture last observed for this host, in iPXE's vocabulary
-        // ('i386', 'x86_64', 'arm64') -- not uname's, so it matches the value
-        // the boot decision is made from. NULL until the host PXE boots once.
-        // Advisory: BootMenu still chooses a kernel from the live request,
-        // never from here. See schema step 369.
-        'arch' => 'hostArch',
+        // The architecture last observed for this host, as a row in
+        // `architectures` (schema step 372; it was a free-text column in 369).
+        // Stored in iPXE's vocabulary -- not uname's -- so it matches the
+        // value the boot decision is made from. NULL until the host PXE boots
+        // once, or until someone sets it on the edit form for a host that
+        // never will. Advisory either way: BootMenu still chooses a kernel
+        // from the live request, never from here.
+        'archID' => 'hostArchID',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',
@@ -122,7 +124,8 @@ class Host extends FOGController
         'snapinjob',
         'users',
         'fingerprint',
-        'powermanagementtasks'
+        'powermanagementtasks',
+        'arch'
     ];
     /**
      * Database -> Class field relationships
@@ -155,6 +158,11 @@ class Host extends FOGController
             'hostID',
             'id',
             'inventory'
+        ],
+        'Architecture' => [
+            'id',
+            'archID',
+            'arch'
         ]
     ];
 
@@ -1088,23 +1096,28 @@ class Host extends FOGController
                 // hardware rather than like the wrong image, which is the
                 // expensive way to find out.
                 //
-                // archCanRun() allows anything it cannot disprove, so this
-                // only fires when both architectures are recorded AND
-                // incompatible. See schema steps 369/370.
+                // Architecture::canRun() allows anything it cannot disprove,
+                // so this only fires when both architectures are recorded AND
+                // incompatible. See schema steps 369/370/372.
+                //
+                // Both sides are read as NAMES through the relation rather
+                // than compared as ids: two ids being different is not the
+                // question -- i386 and x86_64 are different rows and are
+                // compatible in one direction -- and an id says nothing a
+                // human can read back in the refusal message.
+                $imageArchName = $Image->get('arch')->get('name');
+                $hostArchName = $this->get('arch')->get('name');
                 if (!$isCapture
-                    && !Image::archCanRun(
-                        $Image->get('arch'),
-                        $this->get('arch')
-                    )
+                    && !Architecture::canRun($imageArchName, $hostArchName)
                 ) {
                     throw new \Exception(
                         sprintf(
                             '%s: %s %s, %s %s',
                             _('Image is not compatible with this host'),
                             _('image is'),
-                            Image::normalizeArch($Image->get('arch')),
+                            $imageArchName,
                             _('host is'),
-                            Image::normalizeArch($this->get('arch'))
+                            $hostArchName
                         )
                     );
                 }

@@ -1088,6 +1088,24 @@ class HostManagement extends FOGPage
         );
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image);
+        // The architectures an admin may pick on a HOST, which is what
+        // `architectures.archIsAccess` is for -- the same flag taskTypes uses
+        // to say a task type belongs to hosts, to groups, or to both. An
+        // architecture flagged image-only never appears here.
+        //
+        // buildSelectBox() treats an empty filter as "no filter" and would
+        // then offer every row, so an empty pick list has to be spelled as an
+        // id that matches nothing rather than as nothing.
+        $archID = (
+            filter_input(INPUT_POST, 'archID') ?:
+            ($this->obj->get('archID') ?: '')
+        );
+        $archIds = array_keys(Architecture::pickable('host'));
+        if (count($archIds) < 1) {
+            $archIds = [0];
+        }
+        $archSelector = self::getClass('ArchitectureManager')
+            ->buildSelectBox($archID, 'archID', 'name', $archIds);
         // Either use the passed in or get the objects info.
         $host = (
             filter_input(INPUT_POST, 'host') ?:
@@ -1180,37 +1198,23 @@ class HostManagement extends FOGPage
                 'description',
                 $description
             ),
-            // Architecture, read-only. Observed at PXE boot, never chosen:
+            // Architecture. Normally OBSERVED, not chosen:
             // BootMenu::_recordHostArch() writes it from what the machine
-            // itself reported. Shown here because until schema step 369
-            // nothing on this page could tell an admin that the kernel or
-            // image they were about to pick was wrong for this machine.
+            // itself reported on its last PXE boot, and will overwrite
+            // anything set here on the next one. That precedence is right --
+            // the machine is a better witness than a person -- but it leaves
+            // a gap this picker fills: a host registered through the client,
+            // or imaged from USB, may never PXE boot into a FOG menu at all,
+            // and until it does the deploy refusal has nothing to work with.
             //
-            // Edit page only. A host being created has never booted, so the
-            // add form and its modal have nothing to show.
-            //
-            // The placeholder carries the unknown case: an empty box reads
-            // as x86 to anyone scanning, which is the assumption this whole
-            // column exists to stop.
+            // Edit page only. A host being created has neither booted nor got
+            // anything worth guessing, so the add form and its modal leave it
+            // out rather than inviting a guess at creation time.
             self::makeLabel(
                 $labelClass,
-                'archdisplay',
+                'archID',
                 _('Architecture')
-            ) => self::makeInput(
-                'form-control hostarch-input',
-                'archdisplay',
-                _('Not yet seen -- set on this host\'s next PXE boot'),
-                'text',
-                'archdisplay',
-                Image::normalizeArch($this->obj->get('arch')),
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true,
-                true
-            ),
+            ) => $archSelector,
             self::makeLabel(
                 $labelClass,
                 'key',
@@ -1452,6 +1456,15 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
+        // The blank "- Please select -" option means "not recorded", which is
+        // a real value here and not the absence of one: Architecture::canRun()
+        // reads it as "nothing to contradict" and allows the deploy. Stored
+        // as NULL rather than 0 so it reads the same as a host that has never
+        // been touched.
+        $archID = trim(
+            (string)filter_input(INPUT_POST, 'archID')
+        );
+        $archID = '' === $archID ? null : (int)$archID;
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new \Exception(_('Please enter a valid hostname'));
@@ -1477,6 +1490,7 @@ class HostManagement extends FOGPage
             ->set('biosexit', $bte)
             ->set('efiexit', $ebte)
             ->set('enforce', $enforce)
+            ->set('archID', $archID)
             ->set('productKey', $productKey);
     }
     /**
