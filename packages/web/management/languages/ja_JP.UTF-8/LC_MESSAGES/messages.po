@@ -99,6 +99,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -141,6 +145,10 @@ msgstr ""
 #, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "ホスト"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -975,6 +983,9 @@ msgstr "選択したホストを承認"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -987,6 +998,10 @@ msgid "Assigned Group Name"
 msgstr "ストレージグループ名"
 
 msgid "Assigned Image"
+msgstr "割り当てられたイメージ"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "割り当てられたイメージ"
 
 #, fuzzy
@@ -2489,10 +2504,16 @@ msgstr "FOG データベースは、次を使用して操作できます"
 msgid "FOG is unable to communicate with the database"
 msgstr "FOG はデータベースと通信できません"
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3463,6 +3484,10 @@ msgid "Hosts And Users"
 msgstr "ホストとユーザー"
 
 #, fuzzy
+msgid "Hosts assigned"
+msgstr "関連付けられたホスト"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "ホストを作成しました"
 
@@ -3713,8 +3738,16 @@ msgid "Image added!"
 msgstr "イメージを追加しました！"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "保護済み"
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "イメージが無効です"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "このストレージグループ内に有効なものがあるか"
 
 msgid "Image is not enabled"
 msgstr "イメージが有効ではありません"
@@ -5364,6 +5397,10 @@ msgstr "ここでは許可されていません"
 msgid "Not pinged"
 msgstr "同期していません"
 
+#, fuzzy
+msgid "Not recorded"
+msgstr "保護されていません"
+
 msgid "Not syncing"
 msgstr "同期していません"
 
@@ -5372,6 +5409,13 @@ msgstr "イメージを同期していません"
 
 msgid "Not syncing Snapin"
 msgstr "スナップインを同期していません"
+
+#, fuzzy
+msgid "Not yet seen"
+msgstr "未設定"
+
+msgid "Not yet seen -- set on this host's next PXE boot"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -7932,6 +7976,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -9302,6 +9349,9 @@ msgstr "ただし、このホストでは最近失敗しています"
 msgid "but there are"
 msgstr "ただし、次があります"
 
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
+
 msgid "check to ensure your filesystem has enough space"
 msgstr "ファイルシステムに十分な空き容量があることを確認してください"
 
@@ -9465,6 +9515,10 @@ msgstr "ビットレート"
 msgid "host"
 msgstr "ホスト"
 
+#, fuzzy
+msgid "host is"
+msgstr "ホスト"
+
 msgid "hosts"
 msgstr "ホスト"
 
@@ -9527,6 +9581,10 @@ msgstr "イメージ"
 #, fuzzy
 msgid "image file found, file"
 msgstr "イメージファイルが見つかりました。ファイル: "
+
+#, fuzzy
+msgid "image is"
+msgstr "イメージ"
 
 msgid "image replication"
 msgstr "イメージレプリケーション"
@@ -9649,6 +9707,9 @@ msgstr ""
 msgid "minutes"
 msgstr "分"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -9718,6 +9779,9 @@ msgstr "このノード上に見つかりません"
 #, fuzzy
 msgid "not reachable"
 msgstr "利用不可"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10891,9 +10955,6 @@ msgstr ""
 #~ msgid "Hostname / IP"
 #~ msgstr "ホスト名 / IP"
 
-#~ msgid "Hosts Associated"
-#~ msgstr "関連付けられたホスト"
-
 #~ msgid "I have read"
 #~ msgstr "I have read"
 
@@ -11366,12 +11427,6 @@ msgstr ""
 
 #~ msgid "Not all elements in filter or ports setting are integer"
 #~ msgstr "フィルターまたはポート設定のすべての要素が整数ではありません"
-
-#~ msgid "Not protected"
-#~ msgstr "保護されていません"
-
-#~ msgid "Not set"
-#~ msgstr "未設定"
 
 #~ msgid "Notes"
 #~ msgstr "メモ"

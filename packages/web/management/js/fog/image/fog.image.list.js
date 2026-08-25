@@ -19,6 +19,24 @@
         ],
         columns: [
             {data: 'mainlink'},
+            // Unlike the host grid this column list is not derived from the
+            // table headers, so it has to be kept in step with headerData in
+            // imagemanagement.page.php by hand -- a mismatch makes DataTables
+            // refuse to draw the grid at all.
+            {
+                data: 'arch',
+                render: function(data, type, row) {
+                    // Spelled out rather than blank: an empty cell reads as
+                    // x86 to anyone scanning. Images captured before schema
+                    // step 370 have no architecture recorded.
+                    if (!data) {
+                        return '<span class="text-muted">' +
+                            'Not recorded' +
+                            '</span>';
+                    }
+                    return '<code>' + data + '</code>';
+                }
+            },
             {data: 'protected'},
             {data: 'isEnabled'},
             {data: 'deployed'}

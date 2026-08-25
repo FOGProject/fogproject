@@ -55,7 +55,13 @@ class Image extends FOGController
         'compress' => 'imageCompress',
         'isEnabled' => 'imageEnabled',
         'toReplicate' => 'imageReplicate',
-        'srvsize' => 'imageServerSize'
+        'srvsize' => 'imageServerSize',
+        // The architecture of the machine this image was captured from, in
+        // the same vocabulary as Host's 'arch'. Stamped by
+        // TaskQueue::_moveUpload() when the captured bytes land; NULL for
+        // every image captured before schema step 370, which is why
+        // archCanRun() treats unknown as allowed.
+        'arch' => 'imageArch'
     ];
     /**
      * The required fields
@@ -102,6 +108,81 @@ class Image extends FOGController
             'imagetype'
         ]
     ];
+    /**
+     * Normalises an architecture string to iPXE's vocabulary.
+     *
+     * FOS says `aarch64` (uname -m), iPXE says `arm64` (${buildarch}), and
+     * they mean the same machine. Only one spelling is ever stored -- iPXE's,
+     * because that is the one the boot decision is made from -- so anything
+     * arriving from elsewhere is folded here rather than at each call site.
+     *
+     * @param string $arch the raw value
+     *
+     * @return string the normalised value, '' when unknown
+     */
+    public static function normalizeArch($arch)
+    {
+        $arch = strtolower(trim((string)$arch));
+        switch ($arch) {
+            case 'aarch64':
+                return 'arm64';
+            case 'amd64':
+                return 'x86_64';
+            case 'i486':
+            case 'i586':
+            case 'i686':
+                return 'i386';
+        }
+
+        return $arch;
+    }
+    /**
+     * Whether a host of one architecture can run an image of another.
+     *
+     * COMPATIBILITY, NOT EQUALITY. These are not the same test and the
+     * difference is a deployment people rely on: 32-bit x86 code runs on a
+     * 64-bit x86 CPU, so an i386 image onto an x86_64 host is legitimate and
+     * must not be refused. The reverse is not true, and neither direction of
+     * the ARM/x86 split is -- they are different instruction sets.
+     *
+     *   i386   image -> x86_64 host   allowed  (64-bit hardware runs 32-bit)
+     *   x86_64 image -> i386   host   refused  (64-bit OS, 32-bit-only CPU)
+     *   x86    image -> arm64  host   refused
+     *   arm64  image -> x86    host   refused
+     *
+     * This is the same rule BootMenu::_fileFitsArch() already applies to a
+     * kernel override -- "i386 code runs on x86_64, so a deliberate 32-bit
+     * override is a legitimate choice and is left alone" -- kept in one place
+     * so the two cannot drift and so nobody "simplifies" the i386 case back
+     * into a !== comparison.
+     *
+     * UNKNOWN IS ALLOWED, on either side. Every image captured before schema
+     * step 370 has no architecture, and every host that has not PXE booted
+     * since 369 has none either. Refusing on absence would break working
+     * installs on upgrade day with no evidence at all, so a refusal only ever
+     * fires on two positively observed, positively incompatible facts.
+     *
+     * @param string $imageArch the image's recorded architecture
+     * @param string $hostArch  the target host's recorded architecture
+     *
+     * @return bool
+     */
+    public static function archCanRun($imageArch, $hostArch)
+    {
+        $imageArch = self::normalizeArch($imageArch);
+        $hostArch = self::normalizeArch($hostArch);
+
+        // Either side unknown: nothing to contradict.
+        if ('' === $imageArch || '' === $hostArch) {
+            return true;
+        }
+        if ($imageArch === $hostArch) {
+            return true;
+        }
+
+        // The one asymmetric pair. Everything else that differs cannot run.
+        return 'i386' === $imageArch && 'x86_64' === $hostArch;
+    }
     /**
      * Removes the item from the database
      *

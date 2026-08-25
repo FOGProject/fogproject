@@ -108,6 +108,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -150,6 +154,10 @@ msgstr ""
 #, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "主办"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -1020,6 +1028,9 @@ msgstr "批准选定主机"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -1032,6 +1043,10 @@ msgid "Assigned Group Name"
 msgstr "存储组名称"
 
 msgid "Assigned Image"
+msgstr "分配图像"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "分配图像"
 
 #, fuzzy
@@ -2583,10 +2598,16 @@ msgstr ""
 msgid "FOG is unable to communicate with the database"
 msgstr ""
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3599,6 +3620,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts assigned"
+msgstr "无关联的节点"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "更新打印机"
 
@@ -3859,8 +3884,16 @@ msgid "Image added!"
 msgstr "图片名称"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "受保护"
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "图片无效"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "找不到存储节点是否有什么这个存储组中启用"
 
 msgid "Image is not enabled"
 msgstr "图片未启用"
@@ -5592,6 +5625,9 @@ msgstr "这里不允许"
 msgid "Not pinged"
 msgstr "已安装的插件"
 
+msgid "Not recorded"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -5601,6 +5637,12 @@ msgstr ""
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "无连接来获取管理单元"
+
+msgid "Not yet seen"
+msgstr ""
+
+msgid "Not yet seen -- set on this host's next PXE boot"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -8279,6 +8321,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -9690,6 +9735,9 @@ msgstr "是开放的，但最近没有这个主机"
 msgid "but there are"
 msgstr "有"
 
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
+
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
@@ -9865,6 +9913,10 @@ msgid "host"
 msgstr "主办"
 
 #, fuzzy
+msgid "host is"
+msgstr "主办"
+
+#, fuzzy
 msgid "hosts"
 msgstr "主办"
 
@@ -9930,6 +9982,10 @@ msgstr "图片"
 
 msgid "image file found, file"
 msgstr ""
+
+#, fuzzy
+msgid "image is"
+msgstr "图片"
 
 #, fuzzy
 msgid "image replication"
@@ -10061,6 +10117,9 @@ msgstr "启用"
 msgid "minutes"
 msgstr "分钟"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10134,6 +10193,9 @@ msgstr "图片没有节点发现"
 #, fuzzy
 msgid "not reachable"
 msgstr "不可用"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10740,10 +10802,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "主机描述"
-
-#, fuzzy
-#~ msgid "Host Associated"
-#~ msgstr "无关联的节点"
 
 #, fuzzy
 #~ msgid "Host Ext"

@@ -43,11 +43,13 @@ class ImageManagement extends FOGPage
         parent::__construct($this->name);
         $this->headerData = [
             _('Image Name'),
+            _('Architecture'),
             _('Protected'),
             _('Enabled'),
             _('Captured')
         ];
         $this->attributes = [
+            [],
             [],
             [],
             [],
@@ -1033,6 +1035,40 @@ class ImageManagement extends FOGPage
      */
     public function imageInformation()
     {
+        // Architecture. Read-only on purpose: it is observed, not chosen.
+        // It is stamped from the capturing host when the image is captured
+        // (TaskQueue::_moveUpload), so an editable box here would only ever
+        // let someone assert something the capture already disproved. Images
+        // captured before schema step 370 have none and say so -- a blank
+        // cell reads as x86 to anyone scanning, which is the assumption the
+        // column exists to stop.
+        $imgArch = Image::normalizeArch($this->obj->get('arch'));
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Architecture');
+        echo '</h4>';
+        echo '<br/>';
+        echo _('The architecture of the machine this image was captured from.');
+        echo ' ';
+        echo _('FOG refuses to deploy an image to a host that cannot run it.');
+        echo '<div class="card-tools float-end">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        if ('' === $imgArch) {
+            echo '<span class="text-muted">';
+            echo _('Not recorded');
+            echo ' &mdash; ';
+            echo _('captured before FOG tracked this. It will be set the next time this image is captured.');
+            echo '</span>';
+        } else {
+            echo '<code>' . htmlentities($imgArch, ENT_QUOTES, 'utf-8') . '</code>';
+        }
+        echo '</div>';
+        echo '</div>';
         // Size on server
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
@@ -1228,6 +1264,200 @@ class ImageManagement extends FOGPage
         echo $rendered;
         echo '</form>';
         return ob_get_clean();
+    }
+    /**
+     * One place to see what architecture everything is.
+     *
+     * Architecture is the one property that belongs to a host AND to an image
+     * and only means something when you can see both at once. A per-image tab
+     * cannot show which machines an image is pointed at, and a per-host tab
+     * cannot show whether the image assigned to it is one it could run -- so
+     * a mismatch was invisible from either side, which is how an x86 image
+     * gets assigned to an ARM host and stays that way until somebody deploys.
+     *
+     * Server-rendered rather than a DataTables endpoint: this is a report
+     * read occasionally, not a grid that needs paging and sorting, and three
+     * joined queries answer it outright with no per-row lookups.
+     *
+     * Compatibility is decided by Image::archCanRun(), never re-implemented
+     * here in SQL. It is the same call Host::createImagePackage() refuses on,
+     * so what this page flags and what a deploy rejects cannot drift apart.
+     *
+     * @return void
+     */
+    public function architectures()
+    {
+        $this->title = _('Architectures');
+
+        $rows = self::$DB->query(
+            "SELECT `hosts`.`hostID` AS `id`, `hosts`.`hostName` AS `host`, "
+            . "`hosts`.`hostArch` AS `hostArch`, "
+            . "`images`.`imageName` AS `image`, "
+            . "`images`.`imageArch` AS `imageArch` "
+            . "FROM `hosts` "
+            . "LEFT OUTER JOIN `images` "
+            . "ON `hosts`.`hostImage` = `images`.`imageID` "
+            . "ORDER BY `hosts`.`hostName`"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $rows = (array)$rows;
+
+        $images = self::$DB->query(
+            "SELECT `images`.`imageID` AS `id`, "
+            . "`images`.`imageName` AS `image`, "
+            . "`images`.`imageArch` AS `imageArch`, "
+            . "`images`.`imageDateTime` AS `captured`, "
+            . "COUNT(`hosts`.`hostID`) AS `assigned` "
+            . "FROM `images` "
+            . "LEFT OUTER JOIN `hosts` "
+            . "ON `hosts`.`hostImage` = `images`.`imageID` "
+            . "GROUP BY `images`.`imageID`, `images`.`imageName`, "
+            . "`images`.`imageArch`, `images`.`imageDateTime` "
+            . "ORDER BY `images`.`imageName`"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $images = (array)$images;
+
+        // Counted in PHP off the same rows the table renders, so the summary
+        // and the detail cannot disagree.
+        $byArch = [];
+        $unknownHosts = 0;
+        $mismatched = [];
+        foreach ($rows as $row) {
+            $hostArch = Image::normalizeArch($row['hostArch'] ?? '');
+            if ('' === $hostArch) {
+                $unknownHosts++;
+            } else {
+                if (!isset($byArch[$hostArch])) {
+                    $byArch[$hostArch] = 0;
+                }
+                $byArch[$hostArch]++;
+            }
+            if (!Image::archCanRun($row['imageArch'] ?? '', $row['hostArch'] ?? '')) {
+                $mismatched[] = $row;
+            }
+        }
+        ksort($byArch);
+
+        // --- summary ---------------------------------------------------
+        echo '<div class="row">';
+        foreach ($byArch as $arch => $count) {
+            $this->_archStat($count, sprintf(_('%s hosts'), $arch), false);
+        }
+        $this->_archStat($unknownHosts, _('not yet seen'), false);
+        $this->_archStat(count($mismatched), _('mismatched'), count($mismatched) > 0);
+        echo '</div>';
+
+        if (count($mismatched) > 0) {
+            echo '<div class="alert alert-danger">';
+            echo '<strong>';
+            printf(
+                _('%d host(s) are assigned an image they cannot run.'),
+                count($mismatched)
+            );
+            echo '</strong> ';
+            echo _('FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one.');
+            echo '</div>';
+        }
+
+        // --- images ----------------------------------------------------
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo _('Images');
+        echo '</h4></div>';
+        echo '<div class="card-body table-responsive">';
+        echo '<table class="table table-hover"><thead><tr>';
+        echo '<th>' . _('Image') . '</th>';
+        echo '<th>' . _('Architecture') . '</th>';
+        echo '<th>' . _('Captured') . '</th>';
+        echo '<th>' . _('Hosts assigned') . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ($images as $img) {
+            $arch = Image::normalizeArch($img['imageArch'] ?? '');
+            echo '<tr>';
+            echo '<td>' . htmlentities($img['image'], ENT_QUOTES, 'utf-8') . '</td>';
+            echo '<td>' . $this->_archCell($arch, _('Not recorded')) . '</td>';
+            echo '<td>' . htmlentities((string)$img['captured'], ENT_QUOTES, 'utf-8') . '</td>';
+            echo '<td>' . (int)$img['assigned'] . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div></div>';
+
+        // --- hosts -----------------------------------------------------
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo _('Hosts');
+        echo '</h4></div>';
+        echo '<div class="card-body table-responsive">';
+        echo '<table class="table table-hover"><thead><tr>';
+        echo '<th>' . _('Host') . '</th>';
+        echo '<th>' . _('Architecture') . '</th>';
+        echo '<th>' . _('Assigned image') . '</th>';
+        echo '<th>' . _('Image architecture') . '</th>';
+        echo '</tr></thead><tbody>';
+        foreach ($rows as $row) {
+            $bad = !Image::archCanRun($row['imageArch'] ?? '', $row['hostArch'] ?? '');
+            echo $bad ? '<tr class="table-danger">' : '<tr>';
+            echo '<td>' . htmlentities($row['host'], ENT_QUOTES, 'utf-8') . '</td>';
+            echo '<td>'
+                . $this->_archCell(
+                    Image::normalizeArch($row['hostArch'] ?? ''),
+                    _('Not yet seen')
+                )
+                . '</td>';
+            echo '<td>'
+                . (
+                    $row['image']
+                    ? htmlentities($row['image'], ENT_QUOTES, 'utf-8')
+                    : '<span class="text-muted">' . _('None') . '</span>'
+                )
+                . '</td>';
+            echo '<td>'
+                . $this->_archCell(
+                    Image::normalizeArch($row['imageArch'] ?? ''),
+                    _('Not recorded')
+                )
+                . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div></div>';
+    }
+    /**
+     * One summary tile on the architectures page.
+     *
+     * @param int    $value the number
+     * @param string $label what it counts
+     * @param bool   $warn  render it as a problem
+     *
+     * @return void
+     */
+    private function _archStat($value, $label, $warn)
+    {
+        echo '<div class="col-sm-6 col-md-3">';
+        echo '<div class="small-box ' . ($warn ? 'bg-danger' : 'bg-light') . '">';
+        echo '<div class="inner"><h3>' . (int)$value . '</h3>';
+        echo '<p>' . htmlentities($label, ENT_QUOTES, 'utf-8') . '</p>';
+        echo '</div></div></div>';
+    }
+    /**
+     * An architecture table cell.
+     *
+     * Unknown is spelled out rather than left blank on purpose: an empty cell
+     * reads as x86 to anyone scanning a list, which is the exact assumption
+     * these columns exist to stop.
+     *
+     * @param string $arch    the normalised architecture, '' when unknown
+     * @param string $unknown what to say when it is unknown
+     *
+     * @return string
+     */
+    private function _archCell($arch, $unknown)
+    {
+        if ('' === $arch) {
+            return '<span class="text-muted">'
+                . htmlentities($unknown, ENT_QUOTES, 'utf-8')
+                . '</span>';
+        }
+
+        return '<code>' . htmlentities($arch, ENT_QUOTES, 'utf-8') . '</code>';
     }
     /**
      * Presents the form to created named multicast

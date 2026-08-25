@@ -155,6 +155,56 @@ class BootMenu extends FOGBase
      *
      * @return array the profile for this request
      */
+    /**
+     * Records the architecture this machine just reported.
+     *
+     * FOG has always been told this and never kept it, so nothing away from a
+     * live boot -- a host edit page, a group kernel assignment, a deploy task
+     * -- could know what kind of machine it was dealing with. That is the gap
+     * _fileFitsArch() below has to paper over with a filename guess, and it is
+     * why an x86 image could be sent to an ARM host with nothing able to
+     * object. See schema step 369.
+     *
+     * Three things this deliberately does NOT do:
+     *
+     * 1. It does not trust the profile. _arch() falls back to x86_64 when no
+     *    arch arrives at all, which is right for picking a kernel and wrong
+     *    for recording a fact -- it would stamp x86_64 on every host booting
+     *    an iPXE too old to send the parameter. Only a raw value that IS one
+     *    of the three FOG builds for is stored.
+     *
+     * 2. It does not feed the boot decision. boot.php is unauthenticated by
+     *    necessity, so this value is attacker-controlled; the kernel is still
+     *    chosen from the live request every time. That is what keeps a
+     *    poisoned value costing a wrong warning on a form rather than an
+     *    unbootable machine.
+     *
+     * 3. It does not write unless the value changed. This runs on every PXE
+     *    boot of every host, so the steady state is a comparison.
+     *
+     * @return void
+     */
+    private static function _recordHostArch()
+    {
+        if (!self::$Host instanceof Host || !self::$Host->isValid()) {
+            return;
+        }
+        $raw = strtolower(trim((string)($_REQUEST['arch'] ?? '')));
+        // The whitelist is the point, not a formality: this is the only
+        // guard between an unauthenticated request body and a stored value.
+        if (!in_array($raw, ['i386', 'x86_64', 'arm64'], true)) {
+            return;
+        }
+        if ($raw === strtolower(trim((string)self::$Host->get('arch')))) {
+            return;
+        }
+        self::getClass('HostManager')->update(
+            ['id' => self::$Host->get('id')],
+            '',
+            ['arch' => $raw]
+        );
+        self::$Host->set('arch', $raw);
+    }
     private static function _arch()
     {
         if (null !== self::$_archProfile) {
@@ -396,6 +446,9 @@ class BootMenu extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        // Before anything else uses it: the machine has just told us
+        // what it is, and this is the only moment FOG ever hears it.
+        self::_recordHostArch();
         $arch = self::_arch();
         /**
          * GH: the arch-specific grub binary used to be swapped in AFTER the

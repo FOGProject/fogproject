@@ -108,6 +108,10 @@ msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
 #, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -150,6 +154,10 @@ msgstr ""
 #, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "anfitrião"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -1020,6 +1028,9 @@ msgstr "Aprovar Hosts selecionados"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -1032,6 +1043,10 @@ msgid "Assigned Group Name"
 msgstr "Nome do grupo de armazenamento"
 
 msgid "Assigned Image"
+msgstr "imagem atribuída"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "imagem atribuída"
 
 #, fuzzy
@@ -2583,10 +2598,16 @@ msgstr ""
 msgid "FOG is unable to communicate with the database"
 msgstr ""
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -3599,6 +3620,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts assigned"
+msgstr "No nó associado"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "Atualizar impressora"
 
@@ -3859,8 +3884,16 @@ msgid "Image added!"
 msgstr "Nome da imagem"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "Protegido"
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "A imagem não é válida"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "Não foi possível encontrar um nó de armazenamento Existe um ativado dentro deste grupo de armazenamento"
 
 msgid "Image is not enabled"
 msgstr "A imagem não está habilitado"
@@ -5592,6 +5625,9 @@ msgstr "Não permitido aqui"
 msgid "Not pinged"
 msgstr "Plugins instalados"
 
+msgid "Not recorded"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -5601,6 +5637,12 @@ msgstr ""
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "Sem conexão para obter Snapin"
+
+msgid "Not yet seen"
+msgstr ""
+
+msgid "Not yet seen -- set on this host's next PXE boot"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -8279,6 +8321,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture of the machine this image was captured from."
+msgstr ""
+
 msgid "The archive contains a link."
 msgstr ""
 
@@ -9690,6 +9735,9 @@ msgstr "está aberto, mas recentemente falhou para este alojamento"
 msgid "but there are"
 msgstr "tem"
 
+msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgstr ""
+
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
 
@@ -9865,6 +9913,10 @@ msgid "host"
 msgstr "anfitrião"
 
 #, fuzzy
+msgid "host is"
+msgstr "anfitrião"
+
+#, fuzzy
 msgid "hosts"
 msgstr "anfitrião"
 
@@ -9930,6 +9982,10 @@ msgstr "Imagem"
 
 msgid "image file found, file"
 msgstr ""
+
+#, fuzzy
+msgid "image is"
+msgstr "imagens"
 
 #, fuzzy
 msgid "image replication"
@@ -10061,6 +10117,9 @@ msgstr "ativado"
 msgid "minutes"
 msgstr "minutos"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10134,6 +10193,9 @@ msgstr "Imagem não encontrada no nó"
 #, fuzzy
 msgid "not reachable"
 msgstr "Não disponível"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10740,10 +10802,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "anfitrião Descrição"
-
-#, fuzzy
-#~ msgid "Host Associated"
-#~ msgstr "No nó associado"
 
 #, fuzzy
 #~ msgid "Host Ext"
