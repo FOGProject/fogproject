@@ -337,8 +337,14 @@ class Page extends FOGBase
             // else on the site uses it. Listed before the node's own list.js
             // so it is defined first, though fog.apidocs.list.js no longer
             // depends on that.
+            //
+            // fog.apidocs.snippets.js goes with it, and before the node's own
+            // list.js, because that file reads FogRequestSnippets at render
+            // time to build the try-it snippet tabs. It degrades to Swagger
+            // UI's built-in curl tabs if it is missing rather than failing.
             if ('apidocs' === $node) {
                 $files[] = 'js/swagger-ui-bundle.js';
+                $files[] = 'js/fog/apidocs/fog.apidocs.snippets.js';
             }
         }
         if (isset($filepaths) && $filepaths && !file_exists($filepaths)) {
