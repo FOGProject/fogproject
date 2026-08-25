@@ -468,6 +468,10 @@ msgid "API Documentation"
 msgstr "Ort"
 
 #, fuzzy
+msgid "API Enabled"
+msgstr "ist aktiviert"
+
+#, fuzzy
 msgid "API Only Account"
 msgstr "Slack Accounts"
 
@@ -2833,6 +2837,10 @@ msgid "Files Deleted List"
 msgstr "Datei löschen"
 
 #, fuzzy
+msgid "Filesize"
+msgstr "Dateigröße"
+
+#, fuzzy
 msgid "Filter"
 msgstr "Filter"
 
@@ -4923,6 +4931,10 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "Mass update failed"
 msgstr "Aktualisierung der Rolle fehlgeschlagen"
 
+#, fuzzy
+msgid "Master"
+msgstr "Master-Knoten"
+
 msgid "Master Node"
 msgstr "Master-Knoten"
 
@@ -4934,6 +4946,10 @@ msgstr "Maximale Clients"
 
 msgid "Max Size"
 msgstr "Max. Größe"
+
+#, fuzzy
+msgid "Member"
+msgstr "Mitglieder"
 
 msgid "Members"
 msgstr "Mitglieder"
@@ -5540,6 +5556,9 @@ msgstr "Pfad ist nicht verfügbar"
 msgid "Nodes"
 msgstr "Knoten"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "Normales Snapin"
@@ -5602,6 +5621,10 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr "O/S"
+
+#, fuzzy
+msgid "OS"
 msgstr "O/S"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6260,6 +6283,10 @@ msgstr "Primäre Gruppe"
 
 msgid "Primary MAC"
 msgstr "Primäre MAC"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "Speichergruppe"
 
 msgid "Primary User"
 msgstr "Hauptbenutzer"
@@ -7300,6 +7327,10 @@ msgstr ""
 #, fuzzy
 msgid "Size"
 msgstr "Größe"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "Web-Server"
 
 #, php-format
 msgid "Skipped unknown %s: %s"

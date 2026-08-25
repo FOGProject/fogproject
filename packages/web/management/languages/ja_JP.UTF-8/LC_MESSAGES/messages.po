@@ -445,6 +445,10 @@ msgid "API Documentation"
 msgstr "詳細ドキュメント"
 
 #, fuzzy
+msgid "API Enabled"
+msgstr "有効"
+
+#, fuzzy
 msgid "API Only Account"
 msgstr "Slack アカウント"
 
@@ -2729,6 +2733,9 @@ msgstr "ストレージノードの破棄に失敗しました"
 msgid "Files Deleted List"
 msgstr "ルールの削除に失敗しました"
 
+msgid "Filesize"
+msgstr "ファイルサイズ"
+
 msgid "Filter"
 msgstr "フィルター"
 
@@ -4711,6 +4718,10 @@ msgstr "選択したスナップインを追加"
 msgid "Mass update failed"
 msgstr "ホストの更新に失敗しました"
 
+#, fuzzy
+msgid "Master"
+msgstr "高速"
+
 msgid "Master Node"
 msgstr "マスターノード"
 
@@ -4722,6 +4733,10 @@ msgstr "最大クライアント数"
 
 msgid "Max Size"
 msgstr "最大サイズ"
+
+#, fuzzy
+msgid "Member"
+msgstr "メンバー"
 
 msgid "Members"
 msgstr "メンバー"
@@ -5313,6 +5328,9 @@ msgstr "ノードは利用できません"
 msgid "Nodes"
 msgstr "ノード"
 
+msgid "None"
+msgstr ""
+
 msgid "Normal Snapin"
 msgstr "通常のスナップイン"
 
@@ -5373,6 +5391,10 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr "OS"
+
+#, fuzzy
+msgid "OS"
 msgstr "OS"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6021,6 +6043,10 @@ msgstr "プライマリグループ"
 
 msgid "Primary MAC"
 msgstr "プライマリ MAC アドレス"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "プライマリストレージグループ"
 
 msgid "Primary User"
 msgstr "プライマリユーザー"
@@ -7010,6 +7036,10 @@ msgstr ""
 
 msgid "Size"
 msgstr "サイズ"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "サーバー"
 
 #, php-format
 msgid "Skipped unknown %s: %s"
@@ -10667,9 +10697,6 @@ msgstr ""
 #~ msgid "File must be a csv"
 #~ msgstr "ファイルは CSV である必要があります"
 
-#~ msgid "Filesize"
-#~ msgstr "ファイルサイズ"
-
 #~ msgid "For example, a GPO policy to push"
 #~ msgstr "たとえば、配布するための GPO ポリシー"
 
@@ -12245,9 +12272,6 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "例:"
-
-#~ msgid "faster"
-#~ msgstr "高速"
 
 #~ msgid "for the advanced menu parameters"
 #~ msgstr "詳細メニューパラメーター用"

@@ -470,6 +470,10 @@ msgid "API Documentation"
 msgstr "Acción"
 
 #, fuzzy
+msgid "API Enabled"
+msgstr "habilitado"
+
+#, fuzzy
 msgid "API Only Account"
 msgstr "Añadir nueva cuenta de usuario"
 
@@ -2886,6 +2890,10 @@ msgid "Files Deleted List"
 msgstr "Eliminar los datos del archivo"
 
 #, fuzzy
+msgid "Filesize"
+msgstr "tamaño del archivo"
+
+#, fuzzy
 msgid "Filter"
 msgstr "Archivo"
 
@@ -5036,6 +5044,10 @@ msgid "Mass update failed"
 msgstr "actualización Valoración falló"
 
 #, fuzzy
+msgid "Master"
+msgstr "nodo de almacenamiento"
+
+#, fuzzy
 msgid "Master Node"
 msgstr "nodo de almacenamiento"
 
@@ -5049,6 +5061,10 @@ msgstr "Clientela"
 #, fuzzy
 msgid "Max Size"
 msgstr "Tamaño máximo:"
+
+#, fuzzy
+msgid "Member"
+msgstr "miembros"
 
 msgid "Members"
 msgstr "miembros"
@@ -5666,6 +5682,9 @@ msgstr "No se dispone de hash"
 msgid "Nodes"
 msgstr "Modelo"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "snapin"
@@ -5730,6 +5749,10 @@ msgstr ""
 
 #, fuzzy
 msgid "O/S"
+msgstr "O / S"
+
+#, fuzzy
+msgid "OS"
 msgstr "O / S"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6398,6 +6421,10 @@ msgstr "Actualización de Grupo Primario"
 #, fuzzy
 msgid "Primary MAC"
 msgstr "usuario principal"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "Grupo de almacenamiento"
 
 msgid "Primary User"
 msgstr "usuario principal"
@@ -7452,6 +7479,10 @@ msgstr ""
 #, fuzzy
 msgid "Size"
 msgstr "Tamaño máximo:"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "Servidor web"
 
 #, php-format
 msgid "Skipped unknown %s: %s"
