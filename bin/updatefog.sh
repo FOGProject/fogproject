@@ -39,10 +39,10 @@ done
 export PATH
 
 usage() {
-    echo -e "Usage: $0 [-h?y] [--channel stable|staging|dev] [--branch <name>] [--git-path </path>]"
+    echo -e "Usage: $0 [-h?y] [--channel stable|patches|beta] [--branch <name>] [--git-path </path>]"
     echo -e "\t                 \t\t[--no-revert] [--no-vhost]"
     echo -e "\t-h -? --help\t\tDisplay this info"
-    echo -e "\t      --channel\tUpdate channel to track: stable, staging, or dev"
+    echo -e "\t      --channel\tUpdate channel to track: stable, patches, or beta"
     echo -e "\t               \t\tdefaults to whatever this server already tracks"
     echo -e "\t      --branch\tCheck out an arbitrary branch instead of a channel"
     echo -e "\t               \t\t(e.g. to test a PR/feature branch). One-off: does"
@@ -238,12 +238,16 @@ else
 
     if [[ -z ${FOG_update_channel} ]]; then
         echo " * No update channel configured for this server, and none given via --channel."
-        echo " * Pass --channel stable|staging|dev, or --branch for a one-off checkout."
+        echo " * Pass --channel stable|patches|beta, or --branch for a one-off checkout."
         exit 1
     fi
 
     branch=$(channelToBranch "${FOG_update_channel}") || {
-        echo " * Unknown update channel: ${FOG_update_channel} (expected stable, staging, or dev)"
+        # Names the retired spellings too. They still WORK -- normalizeChannel
+        # folds them -- so anyone who reaches this line has a genuine typo, and
+        # the two vocabularies were confusable enough to be worth a sentence.
+        echo " * Unknown update channel: ${FOG_update_channel} (expected stable, patches, or beta)"
+        echo " * The retired names staging and dev are still accepted, and mean patches and beta."
         exit 1
     }
 
