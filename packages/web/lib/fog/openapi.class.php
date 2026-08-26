@@ -802,6 +802,7 @@ class OpenAPI extends FOGBase
                 );
             }
             $schema = self::_applyModelConstraint($class, $property, $schema);
+            $schema = self::_applyReference($vars, $property, $schema);
             $properties[$property] = $schema;
         }
         // additionalProperties is stated rather than left to the default.
@@ -897,6 +898,86 @@ class OpenAPI extends FOGBase
         }
         return $out;
     }
+    /**
+     * Marks a column that holds another class's id as pointing at it.
+     *
+     * `Image.osID` is emitted as a plain integer with a column name. Nothing
+     * in the document says it holds an `os` id, so a client generated from
+     * it cannot offer completion for the parameter, cannot validate one, and
+     * cannot follow the relationship. Every consumer that wants any of that
+     * has to hand-maintain a list of which column points where -- which is a
+     * copy of something the server already knows, kept somewhere it will go
+     * stale.
+     *
+     * The model declares it. Each one carries
+     * $databaseFieldClassRelationships, e.g. image.class.php:
+     *
+     *     'OS' => ['id', 'osID', 'os']
+     *              ^^^^  ^^^^^^  ^^^^
+     *              their  my      the joined property the route exposes
+     *              key    column
+     *
+     * so the second element is the column to mark and the key is the class
+     * it points at. Derived, like everything else here.
+     *
+     * Emitted as an object rather than a bare class name because the target
+     * key is part of the fact: it is `id` everywhere today, and the map is
+     * where that is stated, so reading it beats assuming it.
+     *
+     * A relationship whose class is not in this document is SKIPPED. Not
+     * every model relation is an exposed route -- and a reference pointing
+     * at a schema the reader cannot resolve is worse than no reference,
+     * exactly as a dangling $ref is.
+     *
+     * @param array  $vars     The reflected class metadata.
+     * @param string $property The property being described.
+     * @param array  $schema   The schema built so far.
+     *
+     * @return array
+     */
+    private static function _applyReference($vars, $property, array $schema)
+    {
+        if (!isset($vars['databaseFieldClassRelationships'])) {
+            return $schema;
+        }
+        $rels = (array)$vars['databaseFieldClassRelationships'];
+        foreach ($rels as $target => $spec) {
+            $spec = (array)$spec;
+            if (count($spec) < 2) {
+                continue;
+            }
+            $mine = strtolower((string)$spec[1]);
+            if ($mine !== strtolower((string)$property)) {
+                continue;
+            }
+            // The map holds both directions, and only one of them is a
+            // foreign key on THIS row:
+            //
+            //   'OS' => ['id', 'osID', 'os']
+            //       their id  <- my osID          outbound, a real FK
+            //   'MACAddressAssociation' => ['hostID', 'id', 'primac']
+            //       their hostID <- my id         inbound, one-to-many
+            //
+            // Without this the inbound half marks `id` -- the primary key,
+            // readOnly in every schema here -- as referencing whichever
+            // class happens to point back at it, which is both wrong and
+            // useless: nothing completes a primary key from its children.
+            if ('id' === strtolower((string)$property)) {
+                continue;
+            }
+            $targetClass = strtolower((string)$target);
+            if (!in_array($targetClass, self::_documentedClasses(), true)) {
+                continue;
+            }
+            $schema['x-fog-references'] = [
+                'class' => $targetClass,
+                'field' => (string)$spec[0]
+            ];
+            break;
+        }
+        return $schema;
+    }
+
     /**
      * What the generic additionalFields sentence above cannot know.
      *
