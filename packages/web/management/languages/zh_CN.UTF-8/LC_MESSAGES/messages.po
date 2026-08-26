@@ -2729,6 +2729,10 @@ msgid "Failed to move uploaded file."
 msgstr "无法删除文件"
 
 #, fuzzy
+msgid "Failed to record task state changes"
+msgstr "无法创建任务"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "连接失败"
 

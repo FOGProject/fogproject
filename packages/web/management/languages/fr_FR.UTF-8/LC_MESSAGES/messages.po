@@ -2730,6 +2730,10 @@ msgid "Failed to move uploaded file."
 msgstr "Impossible de supprimer le fichier"
 
 #, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Impossible de créer la tâche"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "Échec de connexion"
 

@@ -2654,6 +2654,10 @@ msgid "Failed to move uploaded file."
 msgstr "Impossibile eliminare il file"
 
 #, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Impossibile creare un'attività"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "Connessione fallita"
 
