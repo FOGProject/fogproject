@@ -158,12 +158,8 @@ class Host extends FOGController
             'hostID',
             'id',
             'inventory'
-        ],
-        'Architecture' => [
-            'id',
-            'archID',
-            'arch'
         ]
+        // No 'Architecture' entry, deliberately -- see loadArch() below.
     ];
 
     protected $sqlQueryStr = "SELECT `%s`
@@ -564,6 +560,37 @@ class Host extends FOGController
     {
         $mac = new MACAddress($this->get('primac'));
         $this->set('mac', $mac);
+    }
+    /**
+     * Loads the arch additional field
+     *
+     * A lazy load rather than a databaseFieldClassRelationships entry, which
+     * is what it was and what did not work. buildQuery() keys its JOIN map by
+     * lowercase class name, one slot per class. Host relates to Image, Image
+     * relates to Architecture, and Image is declared first -- so Image's
+     * nested join claimed the single 'architecture' slot and Host's own join
+     * off hosts.hostArchID was skipped by the array_key_exists() guard:
+     *
+     *   LEFT OUTER JOIN `architectures`
+     *     ON `architectures`.`archID` = `images`.`imageArchID`
+     *
+     * Reordering the map only moves the problem, because SELECT
+     * `architectures`.* returns ONE row per result row either way -- the join
+     * shape cannot carry a host's architecture and its image's at the same
+     * time without an alias, which the builder has no way to express.
+     *
+     * The visible cost was not the undefined-method fatal that led here. It
+     * was that $this->get('arch') silently answered with the IMAGE's
+     * architecture, so the image/host compatibility guard in getImageMemberFromHostID()
+     * compared the image against itself and could never fire: a host recorded
+     * as arm64 running an i386 image read as i386 on both sides.
+     *
+     * @return void
+     */
+    protected function loadArch()
+    {
+        $arch = new Architecture($this->get('archID'));
+        $this->set('arch', $arch);
     }
     /**
      * Loads any groups this host is in
@@ -2056,6 +2083,21 @@ class Host extends FOGController
     public function getOS()
     {
         return $this->getImage()->getOS()->get('name');
+    }
+    /**
+     * Returns the hosts architecture object
+     *
+     * Named accessor for the same reason getImage() and getOS() are ones:
+     * Route::getter() calls it alongside getImageType()/getOS()/
+     * getStorageGroup() on its neighbouring lines. It was written there
+     * before it existed here, which is the fatal that led to this. The value
+     * comes from loadArch(), not from a join.
+     *
+     * @return Architecture
+     */
+    public function getArch()
+    {
+        return $this->get('arch');
     }
     /**
      * Returns the snapinjob
