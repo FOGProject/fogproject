@@ -310,9 +310,24 @@ class Registration extends FOGBase
      */
     private static function _deployHost($quickReg = false)
     {
-        $stripped = self::stripAndDecode($_POST);
-        $username = filter_var($stripped['username'] ?? '');
-        $password = filter_var($stripped['password'] ?? '');
+        /*
+         * decodeCredential(), NOT stripAndDecode(). stripAndDecodeItem() ends
+         * in \Initiator::e() -- HTML escaping -- so a password containing
+         * & < > " or ' reached passwordValidate() as its entity form and could
+         * never match, which is why an account could sign in from the web UI,
+         * answer '#!ok' at service/checkcredentials.php, and still be told
+         * "Invalid Login" here. This is the same decoder that endpoint uses,
+         * so the two cannot answer differently again. Forums topic 18228.
+         */
+        $readCred = function ($name) {
+            return filter_input(INPUT_POST, $name)
+                ?? filter_input(INPUT_GET, $name)
+                ?? '';
+        };
+        $username = self::decodeCredential($readCred('username'));
+        $password = self::decodeCredential($readCred('password'));
+        $username = (false === $username) ? '' : $username;
+        $password = (false === $password) ? '' : $password;
         $userTest = self::getClass('User')->passwordValidate($username, $password);
         if (!$userTest && !$quickReg) {
             throw new \Exception(
