@@ -122,6 +122,11 @@ class HostManagement extends FOGPage
             _('Last Check-In'),
             _('Imaged'),
             _('Assigned Image'),
+            // Next to the assigned image on purpose: those two cells together
+            // are the thing worth checking. The full comparison, including
+            // the image's own architecture, is the Architectures page under
+            // Image Management. See schema step 369.
+            _('Architecture'),
             _('Description')
         );
         array_push(
@@ -130,6 +135,7 @@ class HostManagement extends FOGPage
             ['data-col' => 'lastcheckin'],
             ['data-col' => 'deployed'],
             ['data-col' => 'imageLink'],
+            ['data-col' => 'arch'],
             ['data-col' => 'description']
         );
     }
@@ -1070,27 +1076,6 @@ class HostManagement extends FOGPage
         );
     }
     /**
-     * Renders a "last seen" timestamp for display.
-     *
-     * NULL means the event has never happened, which is a different fact
-     * from "it happened at the zero date" -- so it gets its own word rather
-     * than an empty box the reader has to interpret. validDate() also
-     * catches the 0000-00-00 spelling, which a column added at step 353
-     * cannot hold but which a hand-edited database still can.
-     *
-     * @param string|null $value The stored datetime, or null.
-     *
-     * @return string
-     */
-    private static function _lastSeenText($value)
-    {
-        if (!$value || !self::validDate($value)) {
-            return _('Never');
-        }
-
-        return self::niceDate($value)->format('Y-m-d H:i:s');
-    }
-    /**
      * Displays the host general tab.
      *
      * @return void
@@ -1103,6 +1088,24 @@ class HostManagement extends FOGPage
         );
         $imageSelector = self::getClass('ImageManager')
             ->buildSelectBox($image);
+        // The architectures an admin may pick on a HOST, which is what
+        // `architectures.archIsAccess` is for -- the same flag taskTypes uses
+        // to say a task type belongs to hosts, to groups, or to both. An
+        // architecture flagged image-only never appears here.
+        //
+        // buildSelectBox() treats an empty filter as "no filter" and would
+        // then offer every row, so an empty pick list has to be spelled as an
+        // id that matches nothing rather than as nothing.
+        $archID = (
+            filter_input(INPUT_POST, 'archID') ?:
+            ($this->obj->get('archID') ?: '')
+        );
+        $archIds = array_keys(Architecture::pickable('host'));
+        if (count($archIds) < 1) {
+            $archIds = [0];
+        }
+        $archSelector = self::getClass('ArchitectureManager')
+            ->buildSelectBox($archID, 'archID', 'name', $archIds);
         // Either use the passed in or get the objects info.
         $host = (
             filter_input(INPUT_POST, 'host') ?:
@@ -1148,7 +1151,7 @@ class HostManagement extends FOGPage
         // Deliberately NOT read from INPUT_POST like every other value here:
         // these two are written by the ping service and by the client
         // check-in, so the object is the only source that can be right.
-        $lastPing = self::_lastSeenText($this->obj->get('lastping'));
+        $lastPing = self::dateOrNever($this->obj->get('lastping'));
         // Say WHICH probe reached it, when the row knows. A timestamp with
         // no method answers "was it up" and leaves "is the service on
         // PINGHOSTPORT running" unanswered, which is the next question
@@ -1163,7 +1166,7 @@ class HostManagement extends FOGPage
                 strtoupper($pingMethod)
             );
         }
-        $lastCheckin = self::_lastSeenText($this->obj->get('lastcheckin'));
+        $lastCheckin = self::dateOrNever($this->obj->get('lastcheckin'));
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -1195,6 +1198,23 @@ class HostManagement extends FOGPage
                 'description',
                 $description
             ),
+            // Architecture. Normally OBSERVED, not chosen:
+            // BootMenu::_recordHostArch() writes it from what the machine
+            // itself reported on its last PXE boot, and will overwrite
+            // anything set here on the next one. That precedence is right --
+            // the machine is a better witness than a person -- but it leaves
+            // a gap this picker fills: a host registered through the client,
+            // or imaged from USB, may never PXE boot into a FOG menu at all,
+            // and until it does the deploy refusal has nothing to work with.
+            //
+            // Edit page only. A host being created has neither booted nor got
+            // anything worth guessing, so the add form and its modal leave it
+            // out rather than inviting a guess at creation time.
+            self::makeLabel(
+                $labelClass,
+                'archID',
+                _('Architecture')
+            ) => $archSelector,
             self::makeLabel(
                 $labelClass,
                 'key',
@@ -1436,6 +1456,15 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
+        // The blank "- Please select -" option means "not recorded", which is
+        // a real value here and not the absence of one: Architecture::canRun()
+        // reads it as "nothing to contradict" and allows the deploy. Stored
+        // as NULL rather than 0 so it reads the same as a host that has never
+        // been touched.
+        $archID = trim(
+            (string)filter_input(INPUT_POST, 'archID')
+        );
+        $archID = '' === $archID ? null : (int)$archID;
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new \Exception(_('Please enter a valid hostname'));
@@ -1461,6 +1490,7 @@ class HostManagement extends FOGPage
             ->set('biosexit', $bte)
             ->set('efiexit', $ebte)
             ->set('enforce', $enforce)
+            ->set('archID', $archID)
             ->set('productKey', $productKey);
     }
     /**
@@ -3485,6 +3515,21 @@ class HostManagement extends FOGPage
      */
     public function edit()
     {
+        // Identity plus the facts you cannot see from the other twenty
+        // tabs: which image is assigned, when it was last imaged, and which
+        // group it belongs to.
+        $primaryGroup = new Group(self::minId($this->obj->get('groups')));
+        $this->notes = [
+            _('Host') => $this->obj->get('name'),
+            _('Primary MAC') => (string)$this->obj->get('mac'),
+            _('Assigned Image') => $this->obj->getImageName(),
+            _('Last Deployed') => self::dateOrNever($this->obj->get('deployed')),
+            _('Primary Group') => (
+                $primaryGroup->isValid() ?
+                $primaryGroup->get('name') :
+                _('None')
+            )
+        ];
         $tabData = [];
 
         // General

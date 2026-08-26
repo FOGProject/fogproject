@@ -291,36 +291,22 @@ abstract class TaskingElement extends FOGBase
     protected function taskLog()
     {
         // ADR 0022 decision 3: this row is now the whole record of an
-        // imaging run, so it carries what imagingLog used to.
+        // imaging run, so it carries what imagingLog used to -- host name,
+        // task type name and image name, denormalized because tasks are
+        // deleted routinely and this row outlives them (schema 341's
+        // reasoning, extended to the image).
         //
-        // Host name and task type name were added to the table by schema 341
-        // but written only on the FOS report rows -- 341's backfill excluded
-        // logType='state' explicitly. That left capture-versus-deploy absent
-        // from exactly the rows a per-event count reads, which is what the
-        // dashboard chart needs now that imagingLog is gone.
+        // The row is built by TaskLog::recordState() rather than here, because
+        // a state transition is not something only a TaskingElement can cause.
+        // Cancellation reaches the tasks table through Task::cancel() and
+        // TaskManager::cancel(), neither of which has a TaskingElement, and so
+        // wrote no row at all -- leaving In-Progress as the last thing the log
+        // ever said about a cancelled task.
         //
-        // All three are denormalized on purpose. The route from this row to
-        // any of them is taskID -> tasks -> hosts/taskTypes/images, and tasks
-        // are deleted routinely -- Route::deletemass('host') cascades to
-        // them. Same reasoning as 341's, extended to the image.
-        $imageName = '';
-        if ($this->imagingTask
-            && $this->Image
-            && $this->Image->isValid()
-        ) {
-            $imageName = $this->Image->get('name');
-        }
-
-        return self::getClass('TaskLog', $this->Task)
-            ->set('taskID', $this->Task->get('id'))
-            ->set('taskStateID', $this->Task->get('stateID'))
-            ->set('createdTime', $this->Task->get('createdTime'))
-            ->set('createdBy', $this->Task->get('createdBy'))
-            ->set('hostID', self::$Host->get('id'))
-            ->set('hostName', self::$Host->get('name'))
-            ->set('taskTypeName', $this->Task->getTaskTypeText())
-            ->set('imageName', $imageName)
-            ->save();
+        // recordState() resolves the host from the task instead of from
+        // self::$Host. For this caller they are the same host; for the cancel
+        // callers there is no request host to resolve.
+        return TaskLog::recordState($this->Task);
     }
 }
 

@@ -107,6 +107,92 @@ mode embed-ca
 is "${WEB_url_proto}|${BOOT_url_proto}|${PKI_web_cert_publicly_trusted}|${BOOT_rebuild_ipxe_with_my_ca}" \
    "https|https|no|yes" "embed-ca: HTTPS netboot via a rebuild"
 
+# --- the mode is answered ONCE ------------------------------------------------
+#
+# promptInstallMode() used to key only on the run-scoped s* shadows, so every
+# interactive upgrade got the four-mode menu again -- and any unrecognised reply
+# INCLUDING A BARE ENTER takes the `standard` default, which _applyInstallMode
+# then wrote over a public-cert or embed-ca server's keys and writeUpdateFile
+# persisted. The prompt reverted the very choice it was asking about.
+#
+# ${FOG_install_mode} is the fix: seeded back into $sinstallMode before
+# _applyInstallMode, so the first guard in promptInstallMode has already
+# returned by the time the menu would print.
+#
+# Replayed, like the migration above, because it is inline in bin/installfog.sh
+# rather than in a function. The replay covers the forced-https line as well as
+# the seed, deliberately -- their ORDER is what the http-only case depends on.
+upgrade() {   # $1 persisted FOG_install_mode, $2 persisted WEB_url_proto, $3 --install-mode flag
+    FOG_install_mode="$1"; WEB_url_proto="$2"; WEB_https_redirect=""
+    PKI_web_cert_publicly_trusted=""; BOOT_rebuild_ipxe_with_my_ca=""; BOOT_url_proto=""
+    sinstallMode="$3"
+    sWEB_https_redirect=""; sPKI_web_cert_publicly_trusted=""
+    sBOOT_rebuild_ipxe_with_my_ca=""; sBOOT_url_proto=""
+    if [[ -z ${WEB_https_redirect} ]]; then
+        [[ ${WEB_url_proto} == https ]] && WEB_https_redirect="yes" || WEB_https_redirect="no"
+    fi
+    WEB_url_proto="https"
+    [[ -z ${PKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted="no"
+    [[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="no"
+    [[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
+    _applyInstallMode
+    if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
+        || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
+        FOG_install_mode=""
+    else
+        FOG_install_mode="$sinstallMode"
+    fi
+}
+
+upgrade "" "http" "http-only"
+is "${FOG_install_mode}|${WEB_url_proto}" "http-only|http" "a chosen mode is recorded"
+
+# The case the docs used to carry a warning for. WEB_url_proto is forced to
+# https unconditionally, so http-only left NO trace in the four keys and could
+# not be recovered from them -- it had to be passed again on every upgrade or it
+# silently reverted. Applying the preset after that line is what fixes it.
+upgrade "http-only" "http" ""
+is "${WEB_url_proto}|${FOG_install_mode}" "http|http-only" "http-only survives an upgrade with no flags"
+
+upgrade "public-cert" "https" ""
+is "${PKI_web_cert_publicly_trusted}|${BOOT_url_proto}" "yes|https" "public-cert survives an upgrade"
+
+upgrade "embed-ca" "https" ""
+is "${BOOT_rebuild_ipxe_with_my_ca}|${BOOT_url_proto}" "yes|https" "embed-ca survives an upgrade"
+
+# A pre-1.6 server has no recorded mode, and must not acquire one: the four keys
+# came through migrateDeprecatedKeys and stand on their own.
+upgrade "" "https" ""
+is "${FOG_install_mode}|${WEB_url_proto}|${BOOT_rebuild_ipxe_with_my_ca}" "|https|no" \
+   "a pre-1.6 upgrade gets no mode and no rebuild"
+
+# A discrete flag CLEARS the mode. This is what keeps ${FOG_install_mode} from
+# becoming the trap _resolveNetbootProto documents: once a flag has moved one of
+# the four keys off its preset, the shape is no longer one of the named modes,
+# and a name left behind would have the NEXT run's _applyInstallMode overwrite
+# the very key that moved. Empty means custom, which is exactly true.
+FOG_install_mode="public-cert"; WEB_url_proto="https"; WEB_https_redirect=""
+PKI_web_cert_publicly_trusted=""; BOOT_rebuild_ipxe_with_my_ca=""; BOOT_url_proto=""
+sinstallMode=""; sWEB_https_redirect=""; sPKI_web_cert_publicly_trusted=""
+sBOOT_url_proto=""; sBOOT_rebuild_ipxe_with_my_ca="no"
+[[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
+_applyInstallMode
+[[ -n ${sBOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca=${sBOOT_rebuild_ipxe_with_my_ca}
+if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
+    || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
+    FOG_install_mode=""
+fi
+is "${FOG_install_mode}|${BOOT_rebuild_ipxe_with_my_ca}" "|no" \
+   "a discrete flag clears the mode and keeps its own value"
+
+# The backstop for the one upgrade the seed cannot cover -- a pre-1.6 server,
+# which has no ${FOG_install_mode} to seed from. Asserted on the source because
+# the behaviour cannot be reached from a test: promptInstallMode also returns
+# early when stdin is not a tty, which it never is here, so a behavioural check
+# would pass whether the guard existed or not.
+guard=$(sed -n '/^promptInstallMode() {/,/^$/p' "$FUNCS" | grep -c 'priorInstall')
+is "$guard" "1" "promptInstallMode is guarded on priorInstall"
+
 # --- netboot transport -------------------------------------------------------
 # $1 publicWebCert, $2 rebuildIpxeWithMyCA, $3 the --netboot-proto FLAG,
 # $4 a value already sitting in .fogsettings, $5 netbootProtoForced.
@@ -210,7 +296,7 @@ for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
     fi
 done
 
-# All 66 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# All 67 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
 # starts being overwritten. That is a behaviour change even though it looks
 # like documentation, so the count is asserted as well as the membership.
@@ -220,18 +306,18 @@ modelKeys="
     DB_external DB_host DB_name DB_password
     DB_user DHCP_dns_server_ip DHCP_enabled DHCP_engine
     DHCP_range_end DHCP_range_start DHCP_router DHCP_service_name
-    FOG_copy_back_old FOG_git_path FOG_install_lang FOG_install_type
-    FOG_installed FOG_os_id FOG_os_name FOG_packages
-    FOG_program_dir FOG_send_reports FOG_update_channel NET_fog_server_ip
-    NET_hostname NET_interface NET_subnet_mask PKI_allowed_domain_names
-    PKI_client_cert_dir PKI_client_encrypt_cert PKI_client_encrypt_key PKI_internal_subnets
-    PKI_root_ca_cert PKI_root_ca_key PKI_san_dns_names PKI_san_ip_addresses
-    PKI_sb_ca_cert PKI_sb_codesign_cert PKI_sb_codesign_key PKI_sb_enabled
-    PKI_web_ca_cert PKI_web_ca_key PKI_web_cert_publicly_trusted PKI_web_external_root_cert
-    PKI_web_trust_chain PKI_web_vhost_cert PKI_web_vhost_key STORAGE_image_share_path
-    STORAGE_rebuild_nfs_exports SVC_firewall_control SVC_password SVC_user
-    WEB_docroot WEB_https_redirect WEB_php_version WEB_root
-    WEB_server_engine WEB_url_proto"
+    FOG_copy_back_old FOG_git_path FOG_install_lang FOG_install_mode
+    FOG_install_type FOG_installed FOG_os_id FOG_os_name
+    FOG_packages FOG_program_dir FOG_send_reports FOG_update_channel
+    NET_fog_server_ip NET_hostname NET_interface NET_subnet_mask
+    PKI_allowed_domain_names PKI_client_cert_dir PKI_client_encrypt_cert PKI_client_encrypt_key
+    PKI_internal_subnets PKI_root_ca_cert PKI_root_ca_key PKI_san_dns_names
+    PKI_san_ip_addresses PKI_sb_ca_cert PKI_sb_codesign_cert PKI_sb_codesign_key
+    PKI_sb_enabled PKI_web_ca_cert PKI_web_ca_key PKI_web_cert_publicly_trusted
+    PKI_web_external_root_cert PKI_web_trust_chain PKI_web_vhost_cert PKI_web_vhost_key
+    STORAGE_image_share_path STORAGE_rebuild_nfs_exports SVC_firewall_control SVC_password
+    SVC_user WEB_docroot WEB_https_redirect WEB_php_version
+    WEB_root WEB_server_engine WEB_url_proto"
 missing=""
 for key in $modelKeys; do
     inlist "$key" "$managed" || missing="$missing $key"

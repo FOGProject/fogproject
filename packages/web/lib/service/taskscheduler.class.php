@@ -130,6 +130,58 @@ class TaskScheduler extends FOGService
                     self::wakeUp($hostMACs);
                 }
             }
+            /*
+             * The two housekeeping sweeps run BEFORE the "no tasks found"
+             * exit below, and that ordering is the point of moving them.
+             *
+             * That exit counts SCHEDULED and power-management tasks -- the
+             * two things the rest of this method acts on -- and throws when
+             * there are none, which ends the pass. The expired-check-in sweep
+             * sat after it, so on any install with no scheduled task and no
+             * power-management task it never ran at all. That is most small
+             * installs, and it is exactly the population reporting tasks
+             * stuck active forever. Neither sweep has anything to do with
+             * whether a schedule exists.
+             */
+            self::outall(
+                ' * '
+                . _('Checking for tasks that can never run...')
+            );
+            $reaped = self::getClass('TaskManager')->reapUnrunnable();
+            foreach ($reaped as $taskID => $why) {
+                self::outall(
+                    sprintf(
+                        ' * %s %d: %s',
+                        _('Marked failed, task'),
+                        $taskID,
+                        $why
+                    )
+                );
+            }
+            if (count($reaped ?: []) < 1) {
+                self::outall(' * ' . _('No unrunnable tasks found.'));
+            }
+            //check for expired check-ins on active Tasks
+            self::outall(
+                ' * '
+                . _('Checking for expired checked-in tasks...')
+            );
+            $used = explode(',', (string)self::getSetting('FOG_USED_TASKS'));
+            $find = [
+                'stateID' => self::getCheckedInState(),
+                'typeID' => $used
+            ];
+            $Tasks = Route::getList('task', $find);
+            foreach ($Tasks as $Task) {
+                if(self::getClass('Task', $Task->id)->expireTaskCheckin()) {
+                    self::outall(
+                        ' * '
+                        . _('Found an expired task, resetting to queued for task of id')
+                        . ': '
+                        . $Task->id
+                    );
+                }
+            }
             // asValue(), not getList(): both counts below come off the
             // envelope, so the envelope has to survive. What this buys is the
             // other half -- a failure raises instead of ending the daemon.
@@ -164,27 +216,6 @@ class TaskScheduler extends FOGService
                 )
             );
             unset($taskCount);
-            //check for expired check-ins on active Tasks
-            self::outall(
-                ' * '
-                . _('Checking for expired checked-in tasks...')
-            );
-            $used = explode(',', (string)self::getSetting('FOG_USED_TASKS'));
-            $find = [
-                'stateID' => self::getCheckedInState(),
-                'typeID' => $used
-            ];
-            $Tasks = Route::getList('task', $find);
-            foreach ($Tasks as $Task) {
-                if(self::getClass('Task', $Task->id)->expireTaskCheckin()) {
-                    self::outall(
-                        ' * '
-                        . _('Found an expired task, resetting to queued for task of id')
-                        . ': '
-                        . $Task->id
-                    );
-                }
-            }
             // Scheduled Tasks
             foreach ($ScheduledTasks->data as $Task) {
                 $Task = self::getClass('ScheduledTask', $Task->id);

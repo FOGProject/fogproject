@@ -177,6 +177,27 @@
         });
     }
 
+    if ('arch' in colIndex) {
+        columnDefs.push({
+            render: function (data, type, row) {
+                if (type !== 'display') {
+                    return data;
+                }
+                // Spelled out rather than blanked, unlike 'deployed' above.
+                // A never-deployed host and a blank cell mean the same thing,
+                // but a blank architecture reads as x86 to anyone scanning a
+                // list -- which is the assumption schema step 369 exists to
+                // stop. NULL here means the host has not PXE booted since the
+                // upgrade, not that it is x86.
+                if (!data) {
+                    return '<span class="text-muted">Not yet seen</span>';
+                }
+                return '<code>' + data + '</code>';
+            },
+            targets: colIndex.arch
+        });
+    }
+
     var table = $('#dataTable').registerTable(onSelect, {
         // Sort on the host name. Named rather than numbered for the same
         // reason columnDefs is: the position moves when a column is added

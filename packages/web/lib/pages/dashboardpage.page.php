@@ -692,24 +692,44 @@ class DashboardPage extends FOGPage
         //
         // Reads taskLog since imagingLog was retired (ADR 0022 decision 3),
         // and the shape changes with it: imagingLog held one row per imaging
-        // run, taskLog holds one per state transition. So this counts
-        // DISTINCT tasks, not rows, or a task that moved through three states
-        // in a day would be three images.
+        // run, taskLog holds one per state transition. So the inner query
+        // folds a task's rows back down to one, or a task that moved through
+        // three states would be three images.
         //
-        // `logImageName <> ''` is what makes a row an imaging one -- it is
-        // written only for tasks carrying an image (TaskingElement::taskLog())
-        // -- and it is why the filter is on that column rather than on a task
-        // type name that a site can rename.
+        // `logImageName <> ''` is what makes a row an imaging one, rather than
+        // a task type name that a site can rename. It is NOT sufficient on its
+        // own: TaskLog::recordState() writes that column on every transition
+        // of an imaging task, cancellation included, so a deploy that was
+        // queued and then cancelled without ever starting carries an image
+        // name on its only row. Counting it says an image was deployed when
+        // no machine was ever touched, so the cancelled state is excluded --
+        // a task cancelled MID-image still has its In-Progress row and still
+        // counts, which is the answer we want.
+        //
+        // MIN() rather than each row's own date, because a run that starts
+        // before midnight and completes after it writes rows on two days and
+        // would otherwise be counted twice. That could not happen while every
+        // row carried the task's createdTime; now that rows are stamped when
+        // the transition happens, "counted by the day they started" has to be
+        // said rather than assumed. The window bounds the inner scan, so a run
+        // whose start is older than the window is attributed to its earliest
+        // transition inside it -- the same day this reported before.
         $rows = self::$DB->query(
-            "SELECT DATE(`createTime`) AS `d`, COUNT(DISTINCT `taskID`) AS `c`
-               FROM `taskLog`
-              WHERE `createTime` BETWEEN :start AND :end
-                AND `logImageName` <> ''
-              GROUP BY DATE(`createTime`)",
+            "SELECT DATE(`started`) AS `d`, COUNT(*) AS `c`
+               FROM (
+                 SELECT `taskID`, MIN(`createTime`) AS `started`
+                   FROM `taskLog`
+                  WHERE `createTime` BETWEEN :start AND :end
+                    AND `logImageName` <> ''
+                    AND `taskStateID` <> :cancelled
+                  GROUP BY `taskID`
+               ) AS `runs`
+              GROUP BY DATE(`started`)",
             [],
             [
                 ':start' => $start->format('Y-m-d H:i:s'),
-                ':end' => $end->format('Y-m-d H:i:s')
+                ':end' => $end->format('Y-m-d H:i:s'),
+                ':cancelled' => self::getCancelledState()
             ]
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $counts = [];

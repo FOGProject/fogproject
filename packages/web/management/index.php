@@ -134,6 +134,66 @@ if (!isset($node) || (!in_array($node, $nodes) && !$currentUser->isValid())) {
             exit;
         }
     }
+    /*
+     * A caller that cannot follow a browser sign-in must not be handed the
+     * sign-in FORM either.
+     *
+     * Gated on X-Requested-With, NOT on !$browserNavigation. Getting that
+     * wrong broke installs: the first shape of this arm answered 401 to
+     * everything that was not a document navigation, and checkWebTier() in
+     * lib/common/functions.sh probes this very URL with a plain tokenless GET
+     * and curl -fL, so it took the 401, saw zero bytes and aborted the install
+     * with "Checking web server serves FOG...Failed!". Its comment says in so
+     * many words that it expects a page to render regardless -- and it is only
+     * one such caller. Monitoring, a hand-rolled curl and the recovery command
+     * this installer prints on failure all want the same thing, and none of
+     * them can be enumerated from here.
+     *
+     * Only an XHR can commit the actual error, which is reading a login form
+     * as a successful save. Everything else either renders the form (exactly
+     * as it did before any of this) or, for a real API client, uses /api/,
+     * which has answered 401 properly all along -- see
+     * tests/api-unauthenticated-401.test.php. So the narrow gate loses nothing
+     * and the wide one silently changed the contract for every machine that
+     * has ever fetched a FOG page.
+     *
+     * The bug itself: execution used to fall through to the login page for
+     * signed-out callers of every kind, so an XHR got the form at HTTP 200
+     * with Content-type: text/html. jQuery treats
+     * 200 as success, so $.apiCall ran its SUCCESS handler with a string body;
+     * $.notifyFromAPI found none of error/info/warning/msg in it and -- until
+     * the matching change in fog.common.js -- fell back to a GREEN toast
+     * reading "Bad Response". The write had been discarded and the UI said it
+     * worked. Reported against the plugin Update button, but this branch is
+     * reached by every ?node= endpoint, so it was every Save on every page.
+     *
+     * 401 with a readable reason instead. That is what the XHR error handler
+     * is for, and $.notifyFromAPI renders it as the red toast the user should
+     * have seen all along.
+     *
+     * The login POST cannot reach this: processMainLogin() answers it through
+     * jsonSend(), which exits.
+     *
+     * FOG_LOCAL_LOGIN is exempt, for the same reason the redirect above exempts
+     * it and not a weaker one. management/login.php defines it and then
+     * requires this file; that page exists so a human can always reach a form
+     * when the provider is down, and answering it with JSON would take the
+     * break-glass page away on exactly the request shape it is there to serve.
+     * A browser sends an Accept naming text/html and would have rendered
+     * anyway -- this makes it true regardless of what the client asks for,
+     * which is what a break-glass path has to be.
+     */
+    if (!defined('FOG_LOCAL_LOGIN') && FOGCore::$ajax) {
+        header('Content-type: application/json');
+        echo json_encode(
+            [
+                'error' => _('Your session has ended. Sign in again.'),
+                'title' => _('Session Expired')
+            ]
+        );
+        http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
+        exit;
+    }
     $Page
         ->setTitle($foglang['Login'])
         ->setSecTitle($foglang['ManagementLogin'])

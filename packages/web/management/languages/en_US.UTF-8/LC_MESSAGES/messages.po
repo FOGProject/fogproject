@@ -107,6 +107,14 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "Printer updated!"
+
+#, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -144,8 +152,16 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "host"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -343,6 +359,9 @@ msgstr "An image already exists with this name!"
 msgid "A menu entry already exists with this name!"
 msgstr "An image already exists with this name!"
 
+msgid "A migration step failed. The plugin is left activated and not marked installed."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "An image already exists with this name!"
@@ -465,6 +484,10 @@ msgid "API Documentation"
 msgstr "Location"
 
 #, fuzzy
+msgid "API Enabled"
+msgstr "Is Enabled"
+
+#, fuzzy
 msgid "API Only Account"
 msgstr "Slack Accounts"
 
@@ -582,6 +605,9 @@ msgstr "Remove selected printers"
 #, fuzzy
 msgid "Activated"
 msgstr "Active"
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
+msgstr ""
 
 msgid "Active"
 msgstr "Active"
@@ -917,6 +943,9 @@ msgstr "An image already exists with this name!"
 msgid "An image already exists with this name!"
 msgstr "An image already exists with this name!"
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 #, fuzzy
 msgid "An image with this name already exists!"
 msgstr "A hostname with that name already exists."
@@ -1006,6 +1035,9 @@ msgstr "Approve selected Hosts"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -1018,6 +1050,10 @@ msgid "Assigned Group Name"
 msgstr "Storage Group Name"
 
 msgid "Assigned Image"
+msgstr "Assigned Image"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "Assigned Image"
 
 #, fuzzy
@@ -1080,10 +1116,6 @@ msgstr "Settings"
 #, fuzzy
 msgid "Auto Logout Time"
 msgstr "Default log out time (in minutes)"
-
-#, fuzzy
-msgid "Automatic Secure Boot enrolment is not available on this server"
-msgstr "There are no images on this server."
 
 msgid "Automatic enrolment (Setup/Custom Mode)"
 msgstr ""
@@ -1184,6 +1216,10 @@ msgstr "Broadcast Updated"
 
 msgid "Browse"
 msgstr ""
+
+#, fuzzy
+msgid "Building the blobs failed."
+msgstr "Load failed: %s"
 
 #, fuzzy
 msgid "Buildroot Version"
@@ -1482,6 +1518,9 @@ msgid "Check this value against what the enrolment tool shows before confirming,
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
+msgstr ""
+
+msgid "Checking for tasks that can never run..."
 msgstr ""
 
 msgid "Checking if I am the group manager"
@@ -2005,6 +2044,10 @@ msgstr "Database update failed"
 #, fuzzy
 msgid "Database schema is already up to date."
 msgstr "Database Schema Installer / Updater"
+
+#, fuzzy
+msgid "Database update required."
+msgstr "Database Update Failed"
 
 msgid "Date"
 msgstr "Date"
@@ -2568,10 +2611,16 @@ msgstr ""
 msgid "FOG is unable to communicate with the database"
 msgstr ""
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -2669,6 +2718,10 @@ msgstr "Failed to connect"
 msgid "Failed to install "
 msgstr "Failed to destroy"
 
+#, fuzzy, php-format
+msgid "Failed to install %s"
+msgstr "Failed to destroy"
+
 #, fuzzy
 msgid "Failed to install logo file"
 msgstr "Failed to destroy"
@@ -2676,6 +2729,14 @@ msgstr "Failed to destroy"
 #, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "Failed to delete file"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Failed to create task"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "Failed to create task"
 
 #, fuzzy
 msgid "Failed to remove"
@@ -2818,6 +2879,10 @@ msgstr "Failed to destroy Storage Node"
 #, fuzzy
 msgid "Files Deleted List"
 msgstr "Delete file data"
+
+#, fuzzy
+msgid "Filesize"
+msgstr "filesize"
 
 #, fuzzy
 msgid "Filter"
@@ -3539,6 +3604,10 @@ msgstr "Host is not valid"
 msgid "Host is not valid!"
 msgstr "Host is not valid"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "Image is protected and cannot be deleted"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3576,12 +3645,24 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "Host Image"
+
+#, fuzzy
+msgid "Hosts assigned"
+msgstr "No node associated"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "Update Printer"
 
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "Hosts in Task"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "Host List"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3836,8 +3917,19 @@ msgid "Image added!"
 msgstr "Image Name"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "Protected"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "Image is not valid"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "Could not find a Storage Node Is there one enabled within this Storage Group"
 
 msgid "Image is not enabled"
 msgstr "Image is not enabled"
@@ -3876,6 +3968,10 @@ msgid "Imaged For"
 msgstr "Imaged"
 
 msgid "Images"
+msgstr "Images"
+
+#, fuzzy
+msgid "Images only"
 msgstr "Images"
 
 #, fuzzy
@@ -4058,11 +4154,11 @@ msgstr "Update"
 msgid "Initrd Update Fail"
 msgstr "Printer update failed!"
 
-#, fuzzy
-msgid "Install"
-msgstr "Installed Plugins"
-
 msgid "Install Plugins"
+msgstr "Install Plugins"
+
+#, fuzzy
+msgid "Install a plugin"
 msgstr "Install Plugins"
 
 #, fuzzy
@@ -4900,8 +4996,16 @@ msgid "Mark selected pending"
 msgstr "Approve selected Hosts"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Load failed: %s"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "User update failed"
+
+#, fuzzy
+msgid "Master"
+msgstr "Master Node"
 
 msgid "Master Node"
 msgstr "Master Node"
@@ -4914,6 +5018,10 @@ msgstr "Max Clients"
 
 msgid "Max Size"
 msgstr "Max Size"
+
+#, fuzzy
+msgid "Member"
+msgstr "Members"
 
 msgid "Members"
 msgstr "Members"
@@ -5410,6 +5518,10 @@ msgid "No plugin tasks to run"
 msgstr "No valid class sent"
 
 #, fuzzy
+msgid "No plugin with that id."
+msgstr "No valid class sent"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Snapin updated"
 
@@ -5478,6 +5590,10 @@ msgid "No type information available for this column."
 msgstr ""
 
 #, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "No valid class sent"
+
+#, fuzzy
 msgid "No valid storage nodes found"
 msgstr "Invalid storage node"
 
@@ -5516,6 +5632,9 @@ msgstr "No hash available"
 msgid "Nodes"
 msgstr "Node"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "Invalid Snapin"
@@ -5550,6 +5669,9 @@ msgstr "Not allowed here"
 msgid "Not pinged"
 msgstr "Installed Plugins"
 
+msgid "Not recorded"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -5559,6 +5681,9 @@ msgstr ""
 #, fuzzy
 msgid "Not syncing Snapin"
 msgstr "No connection to get snapin"
+
+msgid "Not yet seen"
+msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -5578,6 +5703,10 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr "O/S"
+
+#, fuzzy
+msgid "OS"
 msgstr "O/S"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6139,6 +6268,10 @@ msgid "Plugin installed!"
 msgstr "Plugin Name"
 
 #, fuzzy
+msgid "Plugin not found"
+msgstr "Record not found, Error: %s"
+
+#, fuzzy
 msgid "Plugin runner is globally disabled"
 msgstr "Snapin with that name already exists"
 
@@ -6232,6 +6365,10 @@ msgstr "Primary Group"
 
 msgid "Primary MAC"
 msgstr "Primary MAC"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "Storage Group"
 
 msgid "Primary User"
 msgstr "Primary User"
@@ -6452,6 +6589,9 @@ msgid "RX"
 msgstr "RX"
 
 msgid "Re-Transmit Hello Interval"
+msgstr ""
+
+msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
@@ -6923,16 +7063,20 @@ msgstr "Service Status"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "Server Shell"
+
 msgid "Secure Boot"
 msgstr ""
 
 msgid "Secure Boot CA private key"
 msgstr ""
 
-msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
 msgstr ""
 
-msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
+msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
 
 #, fuzzy
@@ -6956,6 +7100,10 @@ msgstr "Select a cron type"
 
 msgid "Select a valid image"
 msgstr "Select a valid image"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "Select a cron type"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -7272,6 +7420,10 @@ msgstr ""
 #, fuzzy
 msgid "Size"
 msgstr "Max Size"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "Web Server"
 
 #, php-format
 msgid "Skipped unknown %s: %s"
@@ -8070,6 +8222,9 @@ msgstr "Task Types"
 msgid "Task activity"
 msgstr "Active"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "Load failed: %s"
@@ -8169,6 +8324,10 @@ msgstr "There are no images on this server."
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
+#, php-format
+msgid "The %s package is not installed and could not be built from source."
+msgstr ""
+
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "This setting defines "
@@ -8219,6 +8378,12 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
+msgstr ""
+
+msgid "The architecture of the machine this image was captured from."
 msgstr ""
 
 msgid "The archive contains a link."
@@ -8324,6 +8489,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -8352,6 +8520,9 @@ msgstr "Directory"
 msgid "The plugin directory does not exist."
 msgstr "Method does not exist"
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin system is disabled"
 msgstr "Donations are disabled"
@@ -8378,6 +8549,9 @@ msgstr ""
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr " no longer exists"
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
+msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr ""
@@ -8463,6 +8637,9 @@ msgid "There is nothing to replicate"
 msgstr "There is nothing to replicate"
 
 msgid "There you can download utilities such as FOG Prep"
+msgstr ""
+
+msgid "These binaries are staged on every install, HTTPS included. An HTTPS web interface has no bearing on netboot, which has its own protocol setting. HTTPS netboot only needs a rebuilt iPXE when the certificate comes from a private CA -- a publicly-issued one on an FQDN needs no rebuild and keeps the signed shim."
 msgstr ""
 
 #, php-format
@@ -8586,6 +8763,9 @@ msgid "This section allows you to upload user defined reports that may not be a 
 msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
+msgstr ""
+
+msgid "This server has not published the automatic Secure Boot enrolment blobs (PK.auth, KEK.auth and db.auth), so automatic enrolment is unavailable. There are three reasons that happens:"
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -9390,6 +9570,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9533,6 +9716,9 @@ msgstr ""
 msgid "Your database connection appears to be invalid"
 msgstr ""
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
@@ -9567,9 +9753,6 @@ msgid "and if the Database service is running"
 msgstr "Check that database is running"
 
 msgid "and node A only has a 5Mbps and you want the speed"
-msgstr ""
-
-msgid "and re-run the installer to enable it"
 msgstr ""
 
 msgid "and set it to master"
@@ -9625,6 +9808,12 @@ msgstr "is open, but has recently failed for this Host"
 #, fuzzy
 msgid "but there are"
 msgstr "There are"
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
+
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
+msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -9756,6 +9945,10 @@ msgstr ""
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr " ago"
+
 msgid "group"
 msgstr "group"
 
@@ -9799,6 +9992,14 @@ msgstr ""
 
 msgid "host"
 msgstr "host"
+
+#, fuzzy
+msgid "host is"
+msgstr "host"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr " no longer exists"
 
 #, fuzzy
 msgid "hosts"
@@ -9868,6 +10069,14 @@ msgid "image file found, file"
 msgstr ""
 
 #, fuzzy
+msgid "image is"
+msgstr "Images"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr " no longer exists"
+
+#, fuzzy
 msgid "image replication"
 msgstr "Image Replicator"
 
@@ -9887,6 +10096,9 @@ msgid "in"
 msgstr "minutes"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy
@@ -9997,6 +10209,9 @@ msgstr "Enabled"
 msgid "minutes"
 msgstr "minutes"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10070,6 +10285,9 @@ msgstr "Image not found on node"
 #, fuzzy
 msgid "not reachable"
 msgstr "Not Available"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -10228,6 +10446,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "task found"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr " no longer exists"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"
@@ -10548,6 +10770,10 @@ msgstr ""
 #~ msgstr "Attempting to ping"
 
 #, fuzzy
+#~ msgid "Automatic Secure Boot enrolment is not available on this server"
+#~ msgstr "There are no images on this server."
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Save Changes"
 
@@ -10678,10 +10904,6 @@ msgstr ""
 #~ msgstr "Update Settings"
 
 #, fuzzy
-#~ msgid "Host Associated"
-#~ msgstr "No node associated"
-
-#, fuzzy
 #~ msgid "Host Ext"
 #~ msgstr "Host List"
 
@@ -10791,6 +11013,10 @@ msgstr ""
 
 #~ msgid "Import Users"
 #~ msgstr "Import Users"
+
+#, fuzzy
+#~ msgid "Install"
+#~ msgstr "Installed Plugins"
 
 #, fuzzy
 #~ msgid "Invalid Type"

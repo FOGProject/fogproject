@@ -155,6 +155,65 @@ class BootMenu extends FOGBase
      *
      * @return array the profile for this request
      */
+    /**
+     * Records the architecture this machine just reported.
+     *
+     * FOG has always been told this and never kept it, so nothing away from a
+     * live boot -- a host edit page, a group kernel assignment, a deploy task
+     * -- could know what kind of machine it was dealing with. That is the gap
+     * _fileFitsArch() below has to paper over with a filename guess, and it is
+     * why an x86 image could be sent to an ARM host with nothing able to
+     * object. See schema step 369.
+     *
+     * Three things this deliberately does NOT do:
+     *
+     * 1. It does not trust the profile. _arch() falls back to x86_64 when no
+     *    arch arrives at all, which is right for picking a kernel and wrong
+     *    for recording a fact -- it would stamp x86_64 on every host booting
+     *    an iPXE too old to send the parameter. Only a raw value that IS one
+     *    of the three FOG builds for is stored.
+     *
+     * 2. It does not feed the boot decision. boot.php is unauthenticated by
+     *    necessity, so this value is attacker-controlled; the kernel is still
+     *    chosen from the live request every time. That is what keeps a
+     *    poisoned value costing a wrong warning on a form rather than an
+     *    unbootable machine.
+     *
+     * 3. It does not write unless the value changed. This runs on every PXE
+     *    boot of every host, so the steady state is a comparison.
+     *
+     * @return void
+     */
+    private static function _recordHostArch()
+    {
+        if (!self::$Host instanceof Host || !self::$Host->isValid()) {
+            return;
+        }
+        $raw = strtolower(trim((string)($_REQUEST['arch'] ?? '')));
+        // The whitelist is the point, not a formality: this is the only
+        // guard between an unauthenticated request body and a stored value.
+        if (!in_array($raw, ['i386', 'x86_64', 'arm64'], true)) {
+            return;
+        }
+        // Resolve to a row rather than storing the string (schema step 372).
+        // idFromName() deliberately never creates one: this is the only
+        // caller that runs unauthenticated, and a row created here would be a
+        // row created by anything that can reach boot.php. 0 means the seed
+        // was deleted, and the right answer to that is to record nothing.
+        $archID = Architecture::idFromName($raw);
+        if ($archID < 1) {
+            return;
+        }
+        if ($archID === (int)self::$Host->get('archID')) {
+            return;
+        }
+        self::getClass('HostManager')->update(
+            ['id' => self::$Host->get('id')],
+            '',
+            ['archID' => $archID]
+        );
+        self::$Host->set('archID', $archID);
+    }
     private static function _arch()
     {
         if (null !== self::$_archProfile) {
@@ -396,6 +455,9 @@ class BootMenu extends FOGBase
     public function __construct()
     {
         parent::__construct();
+        // Before anything else uses it: the machine has just told us
+        // what it is, and this is the only moment FOG ever hears it.
+        self::_recordHostArch();
         $arch = self::_arch();
         /**
          * GH: the arch-specific grub binary used to be swapped in AFTER the
@@ -507,6 +569,16 @@ class BootMenu extends FOGBase
          */
         $webroot = $bootroot;
         $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
+        /**
+         * setmacto is the MAC FOS forces onto whichever interface it manages
+         * to reach us on, so it has to be the MAC iPXE actually booted with.
+         * ${net0/mac} was wrong on any machine whose first enumerated NIC has
+         * no link: iPXE gets its lease over the NIC that does, FOS then
+         * rewrites that NIC to the unplugged one's MAC and the re-DHCP fails.
+         * ${netX} is iPXE's alias for the last opened network device, so it
+         * follows the interface that got us here and still resolves to net0
+         * on a single-NIC machine.
+         */
         $Send['booturl'] = [
             '#!ipxe',
             "set fog-ip $webserver",
@@ -514,7 +586,7 @@ class BootMenu extends FOGBase
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
-            'set setmacto ${net0/mac}',
+            'set setmacto ${netX/mac}',
         ];
         $sysuuid = filter_input(INPUT_POST, 'sysuuid') ?: filter_input(INPUT_GET, 'sysuuid') ?: '';
         if (self::$Host->isValid()) {
@@ -913,9 +985,25 @@ class BootMenu extends FOGBase
      * not tell UEFI from BIOS. Order is not significant to iPXE (these all
      * become POST fields), so one canonical order serves every caller.
      *
-     * The mac1/mac2 lines are conditional because iPXE errors on an unset
+     * The mac1..mac7 lines are conditional because iPXE errors on an unset
      * variable; jumping to :bootme on the first absent NIC is how the
-     * original avoided that, and it is preserved exactly.
+     * original avoided that, and it is preserved exactly. The enumeration
+     * used to stop at net2, which made a host registered under only its
+     * fourth NIC invisible to the lookup in boot.php.
+     *
+     * macboot is ${netX/mac}, iPXE's alias for the device it booted from,
+     * and is an ADDITION to mac0 rather than a replacement -- netX is a
+     * pointer at one of net0..netN, so substituting it would drop net0 from
+     * the set on a machine that booted off net1. boot.php unions every mac*
+     * field and array_unique()s the result, so the overlap is free. It is
+     * emitted above the net1..net7 chain because that chain short-circuits
+     * to :bootme on the first absent interface, which on a single-NIC
+     * machine is net1.
+     *
+     * product/manufacturer/ipxever/filename ride along because _ipxeLog()
+     * keys its lookup on file+product+manufacturer+mac. default.ipxe posts
+     * them; this block did not, so every re-chain failed to match the row
+     * the first request had written and inserted a fresh blank one instead.
      *
      * @param array $params call-specific 'param ...' lines
      * @param bool  $tail   emit the :bootme label and the chain itself.
@@ -932,12 +1020,22 @@ class BootMenu extends FOGBase
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
                 'param platform ${platform}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
             ],
             $params,
             [
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
             ]
         );
         if (!$tail) {

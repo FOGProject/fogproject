@@ -105,6 +105,14 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "Impresora actualiza!"
+
+#, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -142,8 +150,16 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "anfitrión"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -341,6 +357,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A menu entry already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "A migration step failed. The plugin is left activated and not marked installed."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -461,6 +480,10 @@ msgstr ""
 #, fuzzy
 msgid "API Documentation"
 msgstr "Acción"
+
+#, fuzzy
+msgid "API Enabled"
+msgstr "habilitado"
 
 #, fuzzy
 msgid "API Only Account"
@@ -587,6 +610,9 @@ msgstr "Impresora"
 #, fuzzy
 msgid "Activated"
 msgstr "Activo"
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
+msgstr ""
 
 msgid "Active"
 msgstr "Activo"
@@ -931,6 +957,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "An image already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 #, fuzzy
 msgid "An image with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
@@ -1020,6 +1049,9 @@ msgstr "retirar"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -1032,6 +1064,10 @@ msgid "Assigned Group Name"
 msgstr "Nombre del grupo de almacenamiento"
 
 msgid "Assigned Image"
+msgstr "imagen asignado"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "imagen asignado"
 
 #, fuzzy
@@ -1094,10 +1130,6 @@ msgstr "Configuración Tecla"
 #, fuzzy
 msgid "Auto Logout Time"
 msgstr "Por defecto cerrar sesión en el tiempo (en minutos)"
-
-#, fuzzy
-msgid "Automatic Secure Boot enrolment is not available on this server"
-msgstr "No hay grupos en este servidor."
 
 msgid "Automatic enrolment (Setup/Custom Mode)"
 msgstr ""
@@ -1201,6 +1233,10 @@ msgstr "Servicio de Actualización!"
 
 msgid "Browse"
 msgstr ""
+
+#, fuzzy
+msgid "Building the blobs failed."
+msgstr "Carga ha fallado: %s"
 
 #, fuzzy
 msgid "Buildroot Version"
@@ -1498,6 +1534,9 @@ msgid "Check this value against what the enrolment tool shows before confirming,
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
+msgstr ""
+
+msgid "Checking for tasks that can never run..."
 msgstr ""
 
 msgid "Checking if I am the group manager"
@@ -2027,6 +2066,10 @@ msgstr "actualización de la base no"
 #, fuzzy
 msgid "Database schema is already up to date."
 msgstr "Esquema de base de datos del instalador / actualizador"
+
+#, fuzzy
+msgid "Database update required."
+msgstr "actualización de la base no"
 
 msgid "Date"
 msgstr "Fecha"
@@ -2610,10 +2653,16 @@ msgstr ""
 msgid "FOG is unable to communicate with the database"
 msgstr ""
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -2718,6 +2767,10 @@ msgstr "No se ha podido destruir"
 msgid "Failed to install "
 msgstr "No se ha podido destruir"
 
+#, fuzzy, php-format
+msgid "Failed to install %s"
+msgstr "No se ha podido destruir"
+
 #, fuzzy
 msgid "Failed to install logo file"
 msgstr "No se ha podido destruir"
@@ -2725,6 +2778,14 @@ msgstr "No se ha podido destruir"
 #, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "No se pudo crear el usuario"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "No se pudo crear la tarea"
 
 #, fuzzy
 msgid "Failed to remove"
@@ -2870,6 +2931,10 @@ msgstr "No se ha podido destruir nodo de almacenamiento"
 #, fuzzy
 msgid "Files Deleted List"
 msgstr "Eliminar los datos del archivo"
+
+#, fuzzy
+msgid "Filesize"
+msgstr "tamaño del archivo"
 
 #, fuzzy
 msgid "Filter"
@@ -3608,6 +3673,10 @@ msgstr "tipo de tarea no es válida"
 msgid "Host is not valid!"
 msgstr "tipo de tarea no es válida"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "está protegido, no se permite la eliminación"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3646,12 +3715,24 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "nombre de host"
+
+#, fuzzy
+msgid "Hosts assigned"
+msgstr "No nodo asociado"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "Actualizar impresora"
 
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "Anfitriones en tareas"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "ID de host"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3911,8 +3992,19 @@ msgid "Image added!"
 msgstr "Nombre de la imagen"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "Protegido"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "La imagen no está habilitada"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "Grupo de almacenamiento primaria"
 
 msgid "Image is not enabled"
 msgstr "La imagen no está habilitada"
@@ -3955,6 +4047,10 @@ msgstr "Imagen"
 
 #, fuzzy
 msgid "Images"
+msgstr "Imagen"
+
+#, fuzzy
+msgid "Images only"
 msgstr "Imagen"
 
 #, fuzzy
@@ -4139,12 +4235,12 @@ msgstr "Actualizar"
 msgid "Initrd Update Fail"
 msgstr "actualización de la impresora ha fallado!"
 
-#, fuzzy
-msgid "Install"
-msgstr "Instalador inteligente (recomendado)"
-
 msgid "Install Plugins"
 msgstr ""
+
+#, fuzzy
+msgid "Install a plugin"
+msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "Install plugins failed!"
@@ -5014,8 +5110,16 @@ msgid "Mark selected pending"
 msgstr "retirar"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Carga ha fallado: %s"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Master"
+msgstr "nodo de almacenamiento"
 
 #, fuzzy
 msgid "Master Node"
@@ -5031,6 +5135,10 @@ msgstr "Clientela"
 #, fuzzy
 msgid "Max Size"
 msgstr "Tamaño máximo:"
+
+#, fuzzy
+msgid "Member"
+msgstr "miembros"
 
 msgid "Members"
 msgstr "miembros"
@@ -5536,6 +5644,10 @@ msgid "No plugin tasks to run"
 msgstr "Ninguna clase válida enviado"
 
 #, fuzzy
+msgid "No plugin with that id."
+msgstr "Ninguna clase válida enviado"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "Nombre snapin"
 
@@ -5605,6 +5717,10 @@ msgid "No type information available for this column."
 msgstr ""
 
 #, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Ninguna clase válida enviado"
+
+#, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nodo de almacenamiento no válido"
 
@@ -5644,6 +5760,9 @@ msgstr "No se dispone de hash"
 msgid "Nodes"
 msgstr "Modelo"
 
+msgid "None"
+msgstr ""
+
 #, fuzzy
 msgid "Normal Snapin"
 msgstr "snapin"
@@ -5680,6 +5799,9 @@ msgstr ""
 msgid "Not pinged"
 msgstr "Instalador inteligente (recomendado)"
 
+msgid "Not recorded"
+msgstr ""
+
 msgid "Not syncing"
 msgstr ""
 
@@ -5687,6 +5809,9 @@ msgid "Not syncing Image"
 msgstr ""
 
 msgid "Not syncing Snapin"
+msgstr ""
+
+msgid "Not yet seen"
 msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
@@ -5708,6 +5833,10 @@ msgstr ""
 
 #, fuzzy
 msgid "O/S"
+msgstr "O / S"
+
+#, fuzzy
+msgid "OS"
 msgstr "O / S"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -6278,6 +6407,10 @@ msgid "Plugin installed!"
 msgstr "Nombre de la impresora"
 
 #, fuzzy
+msgid "Plugin not found"
+msgstr "Registro no encontrado, error: %s"
+
+#, fuzzy
 msgid "Plugin runner is globally disabled"
 msgstr "Nombre de la impresora"
 
@@ -6372,6 +6505,10 @@ msgstr "Actualización de Grupo Primario"
 #, fuzzy
 msgid "Primary MAC"
 msgstr "usuario principal"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "Grupo de almacenamiento"
 
 msgid "Primary User"
 msgstr "usuario principal"
@@ -6596,6 +6733,9 @@ msgid "RX"
 msgstr "RX"
 
 msgid "Re-Transmit Hello Interval"
+msgstr ""
+
+msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
@@ -7074,16 +7214,20 @@ msgstr "Estado del servicio"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "servidor TFTP"
+
 msgid "Secure Boot"
 msgstr ""
 
 msgid "Secure Boot CA private key"
 msgstr ""
 
-msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
 msgstr ""
 
-msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
+msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
 
 #, fuzzy
@@ -7107,6 +7251,10 @@ msgstr "Seleccione un tipo de cron"
 
 msgid "Select a valid image"
 msgstr "Seleccionar una imagen válida"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "Seleccione un tipo de cron"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -7426,6 +7574,10 @@ msgstr ""
 #, fuzzy
 msgid "Size"
 msgstr "Tamaño máximo:"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "Servidor web"
 
 #, php-format
 msgid "Skipped unknown %s: %s"
@@ -8257,6 +8409,9 @@ msgstr "Tipo de tarea"
 msgid "Task activity"
 msgstr "Activo"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "Carga ha fallado: %s"
@@ -8356,6 +8511,10 @@ msgstr "No hay grupos en este servidor."
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
+#, php-format
+msgid "The %s package is not installed and could not be built from source."
+msgstr ""
+
 msgid "The 'Is Master Node' setting defines which"
 msgstr ""
 
@@ -8404,6 +8563,12 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
+msgstr ""
+
+msgid "The architecture of the machine this image was captured from."
 msgstr ""
 
 msgid "The archive contains a link."
@@ -8510,6 +8675,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -8538,6 +8706,9 @@ msgstr "Directorio"
 msgid "The plugin directory does not exist."
 msgstr "Método no existe"
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin system is disabled"
 msgstr "Ancho por defecto"
@@ -8563,6 +8734,9 @@ msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
 msgid "The selected site no longer exists"
+msgstr ""
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
 msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
@@ -8651,6 +8825,9 @@ msgid "There is nothing to replicate"
 msgstr ""
 
 msgid "There you can download utilities such as FOG Prep"
+msgstr ""
+
+msgid "These binaries are staged on every install, HTTPS included. An HTTPS web interface has no bearing on netboot, which has its own protocol setting. HTTPS netboot only needs a rebuilt iPXE when the certificate comes from a private CA -- a publicly-issued one on an FQDN needs no rebuild and keeps the signed shim."
 msgstr ""
 
 #, php-format
@@ -8772,6 +8949,9 @@ msgid "This section allows you to upload user defined reports that may not be a 
 msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
+msgstr ""
+
+msgid "This server has not published the automatic Secure Boot enrolment blobs (PK.auth, KEK.auth and db.auth), so automatic enrolment is unavailable. There are three reasons that happens:"
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -9575,6 +9755,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9719,6 +9902,9 @@ msgstr ""
 msgid "Your database connection appears to be invalid"
 msgstr ""
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
@@ -9752,9 +9938,6 @@ msgid "and if the Database service is running"
 msgstr "Compruebe que la base de datos se está ejecutando"
 
 msgid "and node A only has a 5Mbps and you want the speed"
-msgstr ""
-
-msgid "and re-run the installer to enable it"
 msgstr ""
 
 msgid "and set it to master"
@@ -9810,6 +9993,12 @@ msgstr "No se ha definido de este alojamiento imagen"
 #, fuzzy
 msgid "but there are"
 msgstr "Existen"
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
+
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
+msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
 msgstr ""
@@ -9942,6 +10131,10 @@ msgstr ""
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr " hace"
+
 msgid "group"
 msgstr "grupo"
 
@@ -9985,6 +10178,14 @@ msgstr ""
 
 msgid "host"
 msgstr "anfitrión"
+
+#, fuzzy
+msgid "host is"
+msgstr "anfitrión"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr "Impresora ya existe"
 
 #, fuzzy
 msgid "hosts"
@@ -10056,6 +10257,14 @@ msgid "image file found, file"
 msgstr ""
 
 #, fuzzy
+msgid "image is"
+msgstr "Imagen"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "nombre de usuario ya existe"
+
+#, fuzzy
 msgid "image replication"
 msgstr "replicador de imagen"
 
@@ -10075,6 +10284,9 @@ msgid "in"
 msgstr "minutos"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy
@@ -10183,6 +10395,9 @@ msgstr "habilitado"
 msgid "minutes"
 msgstr "minutos"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10256,6 +10471,9 @@ msgstr "No se encontró Clase FOGPage para este nodo"
 #, fuzzy
 msgid "not reachable"
 msgstr "No disponible"
+
+msgid "not yet seen"
+msgstr ""
 
 msgid "ntfy Accounts"
 msgstr ""
@@ -10413,6 +10631,9 @@ msgstr ""
 #, fuzzy
 msgid "task found"
 msgstr "tarea para"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"
@@ -10727,6 +10948,10 @@ msgstr ""
 #~ msgstr "Sesión con ese nombre ya existe"
 
 #, fuzzy
+#~ msgid "Automatic Secure Boot enrolment is not available on this server"
+#~ msgstr "No hay grupos en este servidor."
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Guardar cambios"
 
@@ -10863,10 +11088,6 @@ msgstr ""
 #~ msgstr "Descripción del Grupo"
 
 #, fuzzy
-#~ msgid "Host Associated"
-#~ msgstr "No nodo asociado"
-
-#, fuzzy
 #~ msgid "Host Ext"
 #~ msgstr "Hospedadores"
 
@@ -10984,6 +11205,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Users"
 #~ msgstr "Importar"
+
+#, fuzzy
+#~ msgid "Install"
+#~ msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
 #~ msgid "Invalid Type"

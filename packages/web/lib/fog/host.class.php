@@ -81,6 +81,14 @@ class Host extends FOGController
         // it is displayed, never stored.
         'lastping' => 'hostLastPing',
         'lastcheckin' => 'hostLastCheckin',
+        // The architecture last observed for this host, as a row in
+        // `architectures` (schema step 372; it was a free-text column in 369).
+        // Stored in iPXE's vocabulary -- not uname's -- so it matches the
+        // value the boot decision is made from. NULL until the host PXE boots
+        // once, or until someone sets it on the edit form for a host that
+        // never will. Advisory either way: BootMenu still chooses a kernel
+        // from the live request, never from here.
+        'archID' => 'hostArchID',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',
@@ -116,7 +124,8 @@ class Host extends FOGController
         'snapinjob',
         'users',
         'fingerprint',
-        'powermanagementtasks'
+        'powermanagementtasks',
+        'arch'
     ];
     /**
      * Database -> Class field relationships
@@ -150,6 +159,7 @@ class Host extends FOGController
             'id',
             'inventory'
         ]
+        // No 'Architecture' entry, deliberately -- see loadArch() below.
     ];
 
     protected $sqlQueryStr = "SELECT `%s`
@@ -550,6 +560,37 @@ class Host extends FOGController
     {
         $mac = new MACAddress($this->get('primac'));
         $this->set('mac', $mac);
+    }
+    /**
+     * Loads the arch additional field
+     *
+     * A lazy load rather than a databaseFieldClassRelationships entry, which
+     * is what it was and what did not work. buildQuery() keys its JOIN map by
+     * lowercase class name, one slot per class. Host relates to Image, Image
+     * relates to Architecture, and Image is declared first -- so Image's
+     * nested join claimed the single 'architecture' slot and Host's own join
+     * off hosts.hostArchID was skipped by the array_key_exists() guard:
+     *
+     *   LEFT OUTER JOIN `architectures`
+     *     ON `architectures`.`archID` = `images`.`imageArchID`
+     *
+     * Reordering the map only moves the problem, because SELECT
+     * `architectures`.* returns ONE row per result row either way -- the join
+     * shape cannot carry a host's architecture and its image's at the same
+     * time without an alias, which the builder has no way to express.
+     *
+     * The visible cost was not the undefined-method fatal that led here. It
+     * was that $this->get('arch') silently answered with the IMAGE's
+     * architecture, so the image/host compatibility guard in getImageMemberFromHostID()
+     * compared the image against itself and could never fire: a host recorded
+     * as arm64 running an i386 image read as i386 on both sides.
+     *
+     * @return void
+     */
+    protected function loadArch()
+    {
+        $arch = new Architecture($this->get('archID'));
+        $this->set('arch', $arch);
     }
     /**
      * Loads any groups this host is in
@@ -1066,6 +1107,46 @@ class Host extends FOGController
                 }
                 if (!$Image->get('isEnabled')) {
                     throw new \Exception(_('Image is not enabled'));
+                }
+                // Refuse a deploy the target cannot possibly boot.
+                //
+                // Capture is exempt: the image is being written from this
+                // host, not run on it, so there is nothing to be incompatible
+                // with -- and it is the capture that gives the image its
+                // architecture in the first place.
+                //
+                // Worth catching here rather than letting it run because the
+                // deploy SUCCEEDS. partclone writes the bytes, the task goes
+                // Complete and every report is green; the disk just holds a
+                // bootloader and binaries the machine cannot execute. The
+                // failure surfaces at the next power-on looking like dead
+                // hardware rather than like the wrong image, which is the
+                // expensive way to find out.
+                //
+                // Architecture::canRun() allows anything it cannot disprove,
+                // so this only fires when both architectures are recorded AND
+                // incompatible. See schema steps 369/370/372.
+                //
+                // Both sides are read as NAMES through the relation rather
+                // than compared as ids: two ids being different is not the
+                // question -- i386 and x86_64 are different rows and are
+                // compatible in one direction -- and an id says nothing a
+                // human can read back in the refusal message.
+                $imageArchName = $Image->get('arch')->get('name');
+                $hostArchName = $this->get('arch')->get('name');
+                if (!$isCapture
+                    && !Architecture::canRun($imageArchName, $hostArchName)
+                ) {
+                    throw new \Exception(
+                        sprintf(
+                            '%s: %s %s, %s %s',
+                            _('Image is not compatible with this host'),
+                            _('image is'),
+                            $imageArchName,
+                            _('host is'),
+                            $hostArchName
+                        )
+                    );
                 }
                 // Let plugins pick the group/node before falling back to the
                 // image's primary group. Every other place that resolves a
@@ -2002,6 +2083,21 @@ class Host extends FOGController
     public function getOS()
     {
         return $this->getImage()->getOS()->get('name');
+    }
+    /**
+     * Returns the hosts architecture object
+     *
+     * Named accessor for the same reason getImage() and getOS() are ones:
+     * Route::getter() calls it alongside getImageType()/getOS()/
+     * getStorageGroup() on its neighbouring lines. It was written there
+     * before it existed here, which is the fatal that led to this. The value
+     * comes from loadArch(), not from a join.
+     *
+     * @return Architecture
+     */
+    public function getArch()
+    {
+        return $this->get('arch');
     }
     /**
      * Returns the snapinjob

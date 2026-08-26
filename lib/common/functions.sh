@@ -44,28 +44,82 @@ linkIfAbsent() {
     [[ -e $link || -L $link ]] && return 0
     ln -s "$target" "$link" >>$error_log 2>&1
 }
-# Maps a FOG update channel name to the git branch it tracks. Channel names
-# match README.md's "Channel" table (Stable/Staging/Dev), not the informal
-# "dev"/"beta" prose fog-docs used before that table existed -- see
-# FOGProject/fogproject#1012. Codified here so bin/updatefog.sh and
-# lib/common/config.sh share one mapping instead of each guessing at it.
+# ONE channel vocabulary, shared by the update track and the version label.
+#
+# FOG used to have two things called a channel that shared the word and shared
+# nothing else (GH-1279). `fog_update_channel` said stable/staging/dev; the
+# FOG_CHANNEL stamped into system.class.php said Patches/Beta/Release
+# Candidate/Feature. So working-1.6 was simultaneously channel "dev" and channel
+# "Beta", and dev-branch was channel "staging" and channel "Patches". Nothing
+# reconciled them and neither name said which one it was, so the docs
+# contradicted themselves and an admin reading one while configuring the other
+# got it wrong, silently.
+#
+# They are now the same word: the stored value is lowercase, the FOG_CHANNEL
+# label is its title-case form. .githooks/lib/fog-version.sh owns the label end
+# and must be kept in step with the table below; tests/update-channel-vocabulary
+# .test.sh fails if the two drift.
+#
+#   branch        channel   FOG_CHANNEL
+#   stable        stable    Stable
+#   dev-branch    patches   Patches
+#   working-1.6   beta      Beta
+#   rc-*          --        Release Candidate
+#   feature-*     --        Feature
+#
+# The last two have no update channel: nobody tracks a release candidate or a
+# feature branch as a standing preference, so FOG_CHANNEL is a superset rather
+# than a mismatch.
+#
+# WHY THIS DIRECTION, given GH-1012 deliberately chose stable/staging/dev to
+# match README.md's table. That decision was "match README", not "these three
+# words are fixed", so changing README honours it rather than reversing it. And
+# FOG_CHANNEL was already the more accurate half: dev-branch really is the
+# 1.5.x PATCHES line rather than anything staged for stable, and working-1.6
+# really is the 1.6 BETA. Worse, `dev` pointed at working-1.6 while a branch
+# literally named `dev-branch` existed -- an admin who read
+# fog_update_channel='dev' and assumed it tracked dev-branch was wrong, and
+# nothing told them. Aligning the other way would have preserved that.
+#
+# Maps a channel name to the git branch it tracks. Accepts the retired
+# stable/staging/dev spellings so an existing .fogsettings keeps updating; see
+# normalizeChannel().
 channelToBranch() {
-    case "$1" in
+    case "$(normalizeChannel "$1")" in
         stable) echo "stable" ;;
-        staging) echo "dev-branch" ;;
-        dev) echo "working-1.6" ;;
+        patches) echo "dev-branch" ;;
+        beta) echo "working-1.6" ;;
         *) return 1 ;;
     esac
 }
-# The inverse of channelToBranch(), used to derive a sensible fog_update_channel
+# Folds a channel name to its canonical spelling, so exactly one place knows the
+# retired names. Returns 1 for anything unrecognised rather than echoing it
+# back: a caller asking "is this a channel" needs a no, and a typo silently
+# passed through would be resolved as a branch name later and fail further from
+# the cause.
+#
+# The retired spellings are accepted FOREVER, not for a deprecation window.
+# Every server installed before this change carries one in .fogsettings, that
+# file is the admin's own record, and an update that refuses to run because a
+# value was renamed under it would be a far worse outcome than two extra case
+# arms.
+normalizeChannel() {
+    case "$1" in
+        stable) echo "stable" ;;
+        patches|staging) echo "patches" ;;
+        beta|dev) echo "beta" ;;
+        *) return 1 ;;
+    esac
+}
+# The inverse of channelToBranch(), used to derive a sensible FOG_update_channel
 # default from whatever branch happens to be checked out. Echoes nothing for a
 # branch that is not one of the three channels -- a feature/PR branch has no
 # channel, and guessing one would be worse than leaving it for the admin to set.
 branchToChannel() {
     case "$1" in
         stable) echo "stable" ;;
-        dev-branch) echo "staging" ;;
-        working-1.6) echo "dev" ;;
+        dev-branch) echo "patches" ;;
+        working-1.6) echo "beta" ;;
         *) return 1 ;;
     esac
 }
@@ -455,18 +509,161 @@ checkDatabaseConnection() {
 # which is exactly the old behaviour. Rejected: an empty value, an IP literal,
 # localhost (the RHEL/Rocky minimal default, and identical on every node), and
 # anything outside the hostname grammar fog-sign-node-cert enforces.
-_nodeRegistrationName() {
+# The first argument that can actually serve as a certificate/vhost name, or
+# nothing at all (status 1) when none of them can.
+#
+# Rejects, in this order: the empty string; the kernel's literal default
+# "(none)", which is what a machine with no hostname configured reports and
+# which is NOT empty, so every -z test in the tree waves it through; an IP
+# literal; localhost (the RHEL/Rocky minimal default, and identical on every
+# node); and anything outside the hostname grammar fog-sign-node-cert enforces,
+# which is validhostname().
+#
+# One helper rather than a list repeated per caller, for the reason
+# _defaultServerNames() gives above itself: two sites deriving names separately
+# is how a name gets into a certificate that its own CA does not permit. It is
+# also the guard the interactive prompt never had -- see lib/common/newinput.sh,
+# where an unvalidated answer used to reach an OpenSSL config directly.
+#
+# Echoes nothing on failure rather than a fallback, because the two callers want
+# DIFFERENT fallbacks: a node registration wants the address, and the installer
+# wants to ask the admin. Deciding here would take that choice away from both.
+_usableHostname() {
     local n
-    for n in "${NET_hostname}" "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)"; do
+    for n in "$@"; do
         n="${n%.}"
         [[ -z $n ]] && continue
+        [[ ${n,,} == "(none)" ]] && continue
         [[ $n =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] && continue
         [[ ${n,,} == localhost || ${n,,} == localhost.* ]] && continue
-        [[ $n =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]] || continue
+        [[ $(validhostname "$n") -ne 0 ]] && continue
         echo "$n"
         return 0
     done
+    return 1
+}
+# What this MACHINE says its own name is, filtered through _usableHostname --
+# for callers that have to discover the name rather than be told it. Echoes
+# nothing when the machine has no usable name of its own, which is the state
+# this whole cluster of helpers exists to detect.
+#
+# hostnamectl is last and is not redundant with the two before it: it answers on
+# a systemd host whose name is set but not resolvable, which is exactly when
+# `hostname -f` fails. lib/common/input.sh used to reach for it as a fallback
+# and never got the chance, because lib/common/newinput.sh overwrote the
+# suggestion with a bare `hostname -f` a few lines later.
+#
+# stderr is discarded on all three. `hostname -f` on a machine with no
+# resolvable name prints "hostname: Name or service not known", and the
+# installer tees its output to a log admins are asked to attach to bug reports
+# -- so an unsuppressed error here reads as the failure rather than as the
+# reason for the question that follows it.
+_detectedHostname() {
+    _usableHostname "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)" "$(hostnamectl --static 2>/dev/null)"
+}
+_nodeRegistrationName() {
+    local n
+    n=$(_usableHostname "${NET_hostname}") || n=$(_detectedHostname)
+    [[ -n $n ]] && { echo "$n"; return 0; }
     echo "${NET_fog_server_ip}"
+}
+# The name to put in a certificate, guaranteed to be usable as one.
+#
+# ${NET_hostname} is normally it, but three OpenSSL call sites interpolate that
+# value directly and none of them survives a bad one, so none of them may read
+# it raw:
+#
+#   * the Secure Boot signing request's `subjectAltName = DNS:` -- an empty
+#     value makes the whole extension string `DNS:`, which OpenSSL rejects
+#     outright ("X509V3_parse_list:invalid null value"). That aborts the
+#     installer from inside configureHttpd(), which has already stopped the web
+#     server and has not yet reached the createSSLCA() call that restarts it.
+#     The admin sees a dead web server after an update and no mention of a
+#     hostname anywhere.
+#   * the web leaf's `-subj "/CN=..."` -- an empty value is SKIPPED with a
+#     warning and status 0, so the leaf is issued with no commonName at all,
+#     which then poisons _servedCertName() on every later run.
+#   * the platform key's subject, which becomes "FOG Project ()".
+#
+# Unlike _nodeRegistrationName() this never falls back to an address: its
+# callers all need a DNS name specifically, and an IP literal in a DNS SAN is
+# the exact failure the nameConstraints note in createSecureBootIntermediateCA()
+# describes. fogserver is the floor for the reason _defaultServerNames() gives:
+# it is already in every certificate FOG issues.
+_certLeafName() {
+    local n
+    n=$(_usableHostname "${NET_hostname}") || n=$(_detectedHostname)
+    [[ -n $n ]] && { echo "$n"; return 0; }
+    echo "fogserver"
+}
+# Make ${NET_hostname} resolve on this box, so the installer's own calls to
+# itself can reach it.
+#
+# Not cosmetic. checkWebTier() dials $(_servedCertName) over HTTPS and exits on
+# curl status 6 with "the name ... did not resolve from this server", and the
+# schema deploy carries the same hint -- both of which is what an admin sees if
+# the name is set but nothing maps it to an address.
+#
+# Adds nothing when the name already resolves, by any means: a real DNS record
+# is the better answer and this must not shadow it. The address is this server's
+# own, falling back to 127.0.1.1 -- Debian's convention for a machine's own FQDN
+# and the safe choice when NET_fog_server_ip has not been resolved yet.
+_ensureHostsEntry() {
+    local fqdn="$1" short="$2" target line st=0
+    [[ -z $fqdn ]] && return 0
+    getent hosts "$fqdn" >/dev/null 2>&1 && return 0
+    # normalizeIpAddress() has already collapsed this to a single address by the
+    # time the install phase runs, but take the first field regardless -- a
+    # multi-address value here would write an unparseable /etc/hosts line.
+    target=$(echo ${NET_fog_server_ip} | awk '{print $1}')
+    [[ -z $target ]] && target="127.0.1.1"
+    line="${target}\t${fqdn}"
+    [[ -n $short && $short != "$fqdn" ]] && line="${line} ${short}"
+    dots "Adding ${fqdn} to /etc/hosts"
+    printf '%b\n' "$line" >> /etc/hosts 2>>$error_log || st=1
+    errorStat $st
+}
+# Give this machine a hostname when it has none.
+#
+# Runs only when lib/common/newinput.sh found no usable name on the system
+# itself -- a working server is never renamed, which is the promise that prompt
+# has always made. There is simply nothing to preserve in this case, and nothing
+# works until a name exists: see the DNS: note in newinput.sh for what the
+# installer does without one.
+#
+# Deliberately NOT fatal. A container whose UTS namespace belongs to the host
+# cannot set a hostname, and refusing to install there would trade one broken
+# case for another. FOG still issues its certificate for ${NET_hostname}; the
+# admin is told what did not happen and can make the name resolve themselves.
+#
+# hostnamectl first, /etc/hostname + hostname(1) second: Alpine's OpenRC has no
+# hostnamectl at all, and on a systemd host that has it, writing /etc/hostname
+# alone would not take effect until reboot.
+applySystemHostname() {
+    [[ ${hostnameNeedsSystemSet:-0} -eq 1 ]] || return 0
+    [[ -z ${NET_hostname} ]] && return 0
+    local fqdn short st=1
+    fqdn="${NET_hostname}"
+    short="${fqdn%%.*}"
+    dots "Setting this server's hostname to ${short}"
+    if command -v hostnamectl >/dev/null 2>&1; then
+        hostnamectl set-hostname "$short" >>$error_log 2>&1 && st=0
+    fi
+    if [[ $st -ne 0 ]]; then
+        st=0
+        echo "$short" > /etc/hostname 2>>$error_log || st=1
+        hostname "$short" >>$error_log 2>&1 || st=1
+    fi
+    if [[ $st -ne 0 ]]; then
+        echo "Skipped"
+        echo "   This server's hostname could not be set -- no privilege, or a"
+        echo "   container whose hostname belongs to its host. FOG will still"
+        echo "   issue its certificate for '${fqdn}'; make that name resolve to"
+        echo "   this server yourself, or the web UI will not validate."
+    else
+        echo "OK"
+    fi
+    _ensureHostsEntry "$fqdn" "$short"
 }
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
@@ -604,7 +801,13 @@ applyNewInstallDefaults() {
 recordGitUpdateSettings() {
     dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"${FOG_git_path}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${FOG_git_path}\"" ${DB_name} >>$error_log 2>&1
-    mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, staging, or dev.', \"${FOG_update_channel}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${FOG_update_channel}\"" ${DB_name} >>$error_log 2>&1
+    # settingDesc is refreshed too, unlike its two neighbours. The channel
+    # vocabulary changed (GH-1279), and ON DUPLICATE KEY UPDATE touching only
+    # settingValue would leave every server installed before that change showing
+    # "stable, staging, or dev" in the FOG Settings UI forever -- which is the
+    # documentation contradiction the rename exists to end, preserved in the one
+    # place an admin is most likely to read it.
+    mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, patches, or beta.', \"${FOG_update_channel}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingDesc=VALUES(settingDesc), settingValue=\"${FOG_update_channel}\"" ${DB_name} >>$error_log 2>&1
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_EXTRA_SERVER_NAMES', 'Extra vhost/certificate name(s) this server answers to, beyond the primary hostname and detected IPs. Set via --extra-server-name -- editing it here has no effect on the next update.', \"${PKI_san_dns_names}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${PKI_san_dns_names}\"" ${DB_name} >>$error_log 2>&1
     # SERVICE_LOG_PATH used to be an independent control, and nothing kept it
     # in step with where the install actually put its logs. Relocating
@@ -2103,7 +2306,23 @@ configureDefaultiPXEfile() {
         _resolveNetbootHost || return 1
         nbhost="$netboothost"
     fi
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # param manufacturer took ${product} for years, so every ipxeTable row
+    # recorded the model twice and the vendor never once. iPXE exposes the two
+    # as separate SMBIOS settings.
+    #
+    # macboot is ${netX/mac}, iPXE's alias for the device it booted from. It is
+    # NOT a replacement for mac0: netX is a pointer at one of net0..netN, so
+    # swapping it in would drop net0 from the set on a machine that booted off
+    # net1. boot.php unions every mac* field and array_unique()s the result, so
+    # sending both costs nothing when they are the same NIC and guarantees the
+    # booting NIC is present however many NICs the box has. It sits above the
+    # net1..net7 chain because that chain short-circuits to :bootme on the first
+    # absent interface, which on a single-NIC machine is net1.
+    #
+    # The enumeration used to stop at net2. Anything past three NICs was
+    # invisible to the host lookup, so a machine registered under only its
+    # fourth NIC could not be found at all.
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -2361,6 +2580,90 @@ _biosBootFile() {
     else
         echo "undionly.kkpxe"
     fi
+}
+# Is the signed Secure Boot chain actually staged?
+#
+# downloadipxesecureboot is deliberately non-fatal, so an install whose fetch
+# failed has no $tftpdirsrc/secureboot at all. The generated DHCP config names
+# the shim by default, and naming a file TFTP cannot serve breaks every UEFI
+# client on the network -- so that default has to be conditional on the file
+# being there.
+#
+# Reads the STAGING tree, not $tftpdirdst: configureDHCP runs before
+# configureTFTPandPXE's copy loop, so the destination is still empty on a first
+# install (or still holds the previous install's files) at the point this is
+# asked. installfog.sh calls downloadipxesecureboot ahead of configureDHCP
+# precisely so this has an answer -- see the comment at that call site.
+#
+# readlink -f for the same reason downloadipxesecureboot does it: $tftpdirsrc is
+# the relative ../packages/tftp.
+_sbChainStaged() {
+    local src="$(readlink -f "$tftpdirsrc" 2>/dev/null)"
+    [[ -n $src && -f "${src}/secureboot/snponly-shimx64.efi" ]]
+}
+# Which UEFI boot file DHCP should hand out, per architecture.
+#
+# The signed chain is the default for every x86-64 and arm64 UEFI client, not an
+# opt-in for the Secure Boot ones. This used to be emitted commented out, on the
+# reasoning that option 93 carries the client architecture and nothing else, so
+# a DHCP request cannot say whether Secure Boot is on and a site therefore has
+# to opt specific machines in.
+#
+# The premise is true and the conclusion does not follow. shim is an ordinary
+# UEFI application that happens to carry a Microsoft signature: with Secure Boot
+# on the firmware verifies it and it verifies what it loads next; with Secure
+# Boot off the firmware verifies nothing and shim enforces nothing. It simply
+# boots. So the signed chain is a SUPERSET -- it covers the machines that need it
+# and costs the others nothing -- and there is nothing to detect.
+#
+# Why the boot file names the shim and not the loader: ipxe/shim carries a
+# fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
+# "-shim[arch]" infix from the path it was ITSELF fetched from and loads that,
+# out of the same directory. So snponly-shimx64.efi fetches snponly.efi and
+# ipxe-shimx64.efi fetches ipxe.efi -- from one signed binary staged under both
+# names. Do not conclude from `strings` that the loader is hardcoded to
+# ipxe.efi; that is only the DEFAULT_LOADER the patch hooks. Over TFTP the
+# device path carries the filename, so the rename resolves correctly (observed);
+# off an ESP it does not, which is a separate problem handled elsewhere.
+#
+# If this chain loads but the network never comes up, the firmware's own UEFI
+# SNP is at fault -- switch the name to secureboot/ipxe-shimx64.efi for iPXE's
+# built-in drivers. That is a DHCP-only change with nothing renamed
+# server-side, and it is what the commented fallback in the generated config
+# points at.
+#
+# The fallback names are not "unsigned" binaries -- _signLocalIpxe() signs every
+# *.efi in the TFTP root with this server's own leaf. The difference is which
+# trust root the client must already hold: the secureboot/ pair starts from
+# Microsoft's signature and loads on a machine that has never met this server,
+# while snponly.efi needs THIS server's certificate enrolled first. That is the
+# real reason the shim chain is the better default, and it is stronger than
+# "signed vs not".
+#
+# No 32-bit case on purpose: there is no Microsoft-signed ia32 shim to start a
+# chain from and no 32-bit MokManager to enrol one with, so i386-efi clients must
+# have Secure Boot disabled to netboot at all.
+#
+# --boot-delay needs no handling here either. EFI takes its delay from
+# autoexec.ipxe (_applyBootDelay), so unlike _biosBootFile there is no second
+# binary to point at.
+_uefiBootFile() {
+    case "$1" in
+        arm64)
+            if _sbChainStaged; then
+                echo "secureboot/arm64-efi/snponly-shimaa64.efi"
+            else
+                echo "arm64-efi/snponly.efi"
+            fi
+            ;;
+        *)
+            if _sbChainStaged; then
+                echo "secureboot/snponly-shimx64.efi"
+            else
+                echo "snponly.efi"
+            fi
+            ;;
+    esac
 }
 # Write the pre-DHCP sleep into autoexec.ipxe, per --boot-delay.
 #
@@ -2714,6 +3017,16 @@ downloadipxesecureboot() {
         echo " * Could not download $tarball from ${ipxeurl}/${ipxeVer}/"
         echo " * Secure Boot clients will not have a signed chain to boot; every"
         echo " *   other client is unaffected. Re-run the installer to retry."
+        # Said out loud because it changes what the DHCP config written a moment
+        # later contains. UEFI clients normally get the signed shim; with nothing
+        # staged, _uefiBootFile falls back to the unsigned names so the config
+        # cannot name a file TFTP has no copy of. That is the safe outcome, but
+        # it is silent otherwise -- an admin who expected Secure Boot to work
+        # would find the old boot file in a config they did not edit.
+        echo " * Any DHCP configuration written by this run therefore names the"
+        echo " *   TFTP-root UEFI boot files, not secureboot/snponly-shimx64.efi."
+        echo " *   Those are signed with this server's own key, so a Secure Boot"
+        echo " *   client needs that certificate enrolled before it will load one."
         return 0
     fi
     errorStat 0
@@ -2721,8 +3034,15 @@ downloadipxesecureboot() {
 configureTFTPandPXE() {
     # Fills $tftpdirsrc, which is now a staging directory rather than tracked
     # build output, so this has to happen before anything reads from it.
+    #
+    # downloadipxesecureboot is NOT called here. It runs earlier, from
+    # installfog.sh, because configureDHCP has to know whether the signed chain
+    # is staged before it writes a boot filename -- see _sbChainStaged. Both
+    # assets untar additively into the same staging tree (fetchipxeasset only
+    # does mkdir -p + tar -xzf -C, it never clears the destination), so their
+    # relative order does not matter and nothing reads the tree until the copy
+    # loop below.
     downloadipxe || return 1
-    downloadipxesecureboot
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$error_log 2>&1
     [[ ! -d ${tftpdirdst} ]] && mkdir -p $tftpdirdst >>$error_log 2>&1
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$error_log 2>&1
@@ -2762,7 +3082,31 @@ configureTFTPandPXE() {
         # binary lands exactly where a downloaded one would.
         "${buildipxesrc}/buildipxe.sh" "${ipxetrust}" "$(readlink -f $tftpdirsrc)" >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         local buildstat=$?
-        errorStat $buildstat
+        local ipxebuildlog="$workingdir/error_logs/fog_ipxe-build_${version}.log"
+        # errorStat tails $error_log, and this build does not write there -- its
+        # output goes to the file above. Tailing the wrong log printed five lines
+        # of unrelated noise from earlier steps (a DB backup line, the HTML body
+        # of the schema POST) and threw away the exit status, which is the one
+        # value that identifies the failure: buildipxe.sh returns a distinct
+        # status per stage -- 39/41 upstream checkout and patching, 40/48 BIOS,
+        # 79/80/91/95 x86 EFI, 82/93/97 the arm64 cross-compile. Report both, so
+        # a failed build can be diagnosed from what the installer prints instead
+        # of from a file nobody is told to look at.
+        if [[ $buildstat -ne 0 ]]; then
+            echo "Failed! (buildipxe.sh exit $buildstat)"
+            if [[ -z $exitFail ]]; then
+                echo
+                echo " * The iPXE build writes its own log, separate from $error_log."
+                echo " * Full build output: $ipxebuildlog"
+                echo " * Please include that file, and the exit status above, when"
+                echo "   reporting this."
+                echo
+                tail -n 20 "$ipxebuildlog"
+                exit $buildstat
+            fi
+        else
+            errorStat 0
+        fi
         # Recorded only on success, and only after the copy loop below has
         # actually put the result in place -- a stamp written for a build that
         # failed would suppress every retry.
@@ -5139,6 +5483,59 @@ _servedCertName() {
     [[ -n ${NET_hostname} ]] && { echo "${NET_hostname}"; return 0; }
     echo "${NET_fog_server_ip}"
 }
+# The management-portal URLs to print when the install finishes.
+#
+# This used to be one line naming ${NET_fog_server_ip}, which on an HTTPS
+# install is the one address guaranteed to make the browser complain: the
+# certificate is issued for a NAME (see _certLeafName), so reaching the portal
+# by address is a name mismatch every time. The admin's first contact with their
+# new server was a security warning, with nothing on screen to say the name that
+# would have worked.
+#
+# So print both, name first. The address still has to be here -- DNS may not
+# have caught up yet, and it is the only thing that works on a server with no
+# usable name at all -- but as the fallback it is, not as the headline.
+#
+# The name comes from _servedCertName, i.e. the commonName of the certificate
+# actually on disk, rather than from ${NET_hostname}. Those differ on exactly
+# the installs where it matters: an externally-issued or publicly-trusted leaf
+# carries only the names its issuer was asked for, and --public-web-cert is a
+# supported path. Printing a name the certificate does not carry would send the
+# admin to a URL that warns just as loudly as the address, while implying it
+# would not.
+_managementUrls() {
+    local name="" ip="${NET_fog_server_ip}"
+    name=$(_servedCertName)
+    # _servedCertName's own last resort IS the address, so it can hand back the
+    # very thing the fallback line prints. Suppress the name line rather than
+    # printing the same URL twice with different captions.
+    [[ -z $name || $name == "$ip" || $(validip "$name") -eq 0 ]] && name=""
+
+    echo "   This can be done by opening a web browser and going to:"
+    echo
+    [[ -n $name ]] && echo "   ${WEB_url_proto}://${name}${WEB_root}management"
+    echo "   ${WEB_url_proto}://${ip}${WEB_root}management"
+    # The blank line belongs to the explanation, so it is emitted per branch
+    # rather than up front -- an HTTP install with no name has nothing to
+    # explain, and an unconditional echo there just orphans a blank line.
+    if [[ ${WEB_url_proto} == https ]]; then
+        echo
+        if [[ -n $name ]]; then
+            echo "   Use the first one. It is the name this server's certificate is"
+            echo "   issued for, so it is the only one that will not warn. The address"
+            echo "   works too -- useful before DNS catches up -- but the browser will"
+            echo "   object that the certificate names ${name} instead."
+        else
+            echo "   This server has no name in its certificate, only the address, so"
+            echo "   the browser will warn about the certificate every time. Give it a"
+            echo "   resolvable name with --hostname and re-run to fix that."
+        fi
+    elif [[ -n $name ]]; then
+        echo
+        echo "   Either works. The name is ${name}; the address is there for"
+        echo "   before DNS catches up."
+    fi
+}
 # The DNS names a certificate carries as subjectAltName entries.
 #
 # Echoes one per line, nothing at all when the certificate has no
@@ -5895,6 +6292,22 @@ writeUpdateFile() {
         # --- FOG_: install shape, OS records, update channel, install location
         FOG_install_type FOG_os_id FOG_os_name FOG_install_lang FOG_send_reports
         FOG_copy_back_old
+        # FOG_install_mode is which of the four presets the admin picked --
+        # standard / http-only / public-cert / embed-ca -- or empty for a shape
+        # assembled from the discrete transport flags instead.
+        #
+        # A genuine persisted PREFERENCE, like FOG_update_channel and
+        # PKI_sb_enabled rather than like BOOT_url_proto: it is an answer a
+        # person gave, and it has to outlive the run it was given on. Without
+        # it, promptInstallMode() had nothing to check and re-asked on every
+        # interactive upgrade, where a bare Enter takes the `standard` default
+        # and silently reverted a public-cert or embed-ca server.
+        #
+        # It is NOT the model -- the four WEB_/BOOT_/PKI_ keys below are. It is
+        # the preset naming a point in them, which is why any discrete flag
+        # clears it (see installfog.sh) rather than letting a stale name
+        # overwrite the key that moved.
+        FOG_install_mode
         # FOG_installed stays unquoted+numeric in the emitted file to match the
         # historical format (see settingLine below).
         FOG_installed
@@ -6435,15 +6848,48 @@ validateExternalCA() {
     fi
     dots "Validating external CA files (${zone})"
     # The supplied private key must match the supplied intermediate certificate
-    local certmod keymod
-    # Raw modulus, no `openssl md5`: md5 of the empty output an unreadable file
+    local certpub keypub certalgorithm certcurve
+    # Compare the SUBJECT PUBLIC KEY, not an RSA modulus. `openssl rsa -modulus`
+    # only understands RSA, so an EC -- or Ed25519, or RSA-PSS -- CA could never
+    # pair with its own key and the install aborted on a "does not match" that
+    # was not true (GH-1393). `openssl x509 -pubkey` and `openssl pkey -pubout`
+    # emit byte-identical SPKI PEM for every algorithm openssl can load, so ONE
+    # comparison covers all of them.
+    #
+    # Deliberately NOT an algorithm allow-list feeding two per-algorithm
+    # comparisons. A list here has to be edited every time openssl names
+    # something new, and anything it has not heard of hard-fails an install that
+    # would otherwise have worked -- which is how RSA-PSS, supported before this
+    # check existed, briefly stopped working. Nothing downstream cares which
+    # algorithm the CA uses; it only has to sign, and openssl decides that.
+    #
+    # Raw PEM, no `openssl md5`: md5 of the empty output an unreadable file
     # produces is a non-empty hash, so with it two unreadable files "pair".
-    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log)
-    if [[ -z $certmod || -z $keymod || $certmod != "$keymod" ]]; then
+    certpub=$(openssl x509 -pubkey -noout -in "$certsrc" 2>>$error_log)
+    keypub=$(openssl pkey -pubout -in "$keysrc" 2>>$error_log)
+    if [[ -z $certpub || -z $keypub || $certpub != "$keypub" ]]; then
         echo "Failed"
         echo "  The supplied CA private key ($keysrc) does not match the"
         echo "  supplied CA certificate ($certsrc)."
+        exit 1
+    fi
+    # DSA is the one algorithm openssl will happily pair and nothing downstream
+    # will accept: TLS 1.3 removed DSA signatures outright, no current browser
+    # trusts a DSA chain, and iPXE has no DSA at all. It was already refused
+    # before the comparison above became algorithm-agnostic -- as a bogus "key
+    # does not match", because `openssl rsa -modulus` cannot read a DSA key --
+    # so this keeps the outcome and drops the lie about the cause.
+    #
+    # An exact match, not a default-reject arm: a garbage or unreadable
+    # certificate leaves this empty, and that case belongs to the pairing check
+    # above, which names the two files.
+    certalgorithm=$(openssl x509 -noout -text -in "$certsrc" 2>>$error_log         | awk -F': ' '/Public Key Algorithm/ {print $2; exit}')
+    if [[ $certalgorithm == "dsaEncryption" ]]; then
+        echo "Failed"
+        echo "  The supplied CA certificate ($certsrc) uses DSA, which no"
+        echo "  current TLS client accepts -- TLS 1.3 removed DSA signatures"
+        echo "  entirely, and iPXE cannot verify them at all."
+        echo "  Re-issue the CA with an RSA or elliptic curve key."
         exit 1
     fi
     # The supplied intermediate must actually be a CA certificate
@@ -6479,6 +6925,38 @@ validateExternalCA() {
     # exists to prevent.
     PKI_web_external_root_cert="$rootsrc"
     errorStat $?
+    # iPXE's verifier is narrower than openssl's, and THIS certificate is the
+    # one it gets: _resolveIpxeTrust() sets ${ipxetrust} to ${PKI_web_ca_cert},
+    # and buildipxe.sh compiles it in as CERT=/TRUST=. The pinned tag (fog-ipxe
+    # IPXEVER, v2.0.0 at time of writing) carries crypto/rsa.c plus ecdsa.c with
+    # p256.c and p384.c, and nothing else -- no P-521, no EdDSA, no RSASSA-PSS.
+    #
+    # So a CA outside that set is not broken, it is narrower than it looks: the
+    # web UI serves fine and fog-client is satisfied, then HTTPS netboot dies at
+    # boot.php with iPXE's "Permission denied" out of x509.c, with nothing
+    # server-side connecting the two. Say so here, at the moment the CA is
+    # chosen, rather than leaving it to be discovered at a PXE client.
+    #
+    # Advisory and not a rejection: a site that netboots over HTTP, or serves
+    # netboot from a publicly-trusted certificate, is unaffected -- and the
+    # limit is a pinned iPXE version, not a property of the CA.
+    certcurve=$(openssl x509 -pubkey -noout -in "$certsrc" 2>>$error_log         | openssl pkey -pubin -noout -text 2>>$error_log         | awk -F': ' '/NIST CURVE|ASN1 OID/ {print $2; exit}')
+    # openssl >= 1.1.0 prints "NIST CURVE: P-256"; 1.0.2 prints only
+    # "ASN1 OID: prime256v1". Both spellings are accepted so the advisory does
+    # not fire spuriously on an older host.
+    case "${certalgorithm}${certcurve:+/$certcurve}" in
+        rsaEncryption|id-ecPublicKey/P-256|id-ecPublicKey/prime256v1|id-ecPublicKey/P-384|id-ecPublicKey/secp384r1)
+            ;;
+        *)
+            echo
+            echo "  Note: the imported CA uses ${certalgorithm:-an unrecognised algorithm}${certcurve:+ (${certcurve})}."
+            echo "  iPXE can only verify RSA and ECDSA P-256/P-384 signatures, so HTTPS"
+            echo "  netboot will fail against this CA. The web UI and fog-client are"
+            echo "  unaffected. Use HTTP netboot, serve netboot from a publicly-trusted"
+            echo "  certificate, or re-issue the CA with an RSA or EC P-256/P-384 key."
+            echo
+            ;;
+    esac
     # If we are replacing the CA on a server that already issued a server cert, warn
     if [[ -n ${PKI_web_vhost_cert} && -e ${PKI_web_vhost_cert} ]] && \
         ! openssl verify -CAfile "${PKI_web_trust_chain}" "${PKI_web_vhost_cert}" >>$error_log 2>&1; then
@@ -7202,10 +7680,29 @@ _collectPkiNames() {
 # binaries were staged and whether iPXE was rebuilt. Four named modes are
 # honest about a four-dimensional choice in a way one yes/no cannot be.
 #
-# A preset, not a replacement for the model: it writes the same keys
-# --https-redirect/--public-web-cert/--rebuild-ipxe-with-my-ca write, and an
-# admin who passed any of those (or --install-mode) is not asked at all -- they
-# have already answered.
+# A preset, not a replacement for the model: it writes the same
+# --public-web-cert/--rebuild-ipxe-with-my-ca keys those flags write, and an
+# admin who passed any of them (or --install-mode) is not asked at all -- they
+# have already answered. It does NOT touch WEB_https_redirect, despite the
+# --https-redirect shadow being one of the flags checked below; no mode sets or
+# clears the redirect, which is seeded once from a pre-1.6 httpproto=https and
+# is the admin's from then on.
+#
+# ASKED ONCE, which is what $priorInstall enforces. Everything else here is
+# run-scoped -- the s* shadows are this run's flags -- so before that line there
+# was nothing in the guard that could remember an answer, and every interactive
+# upgrade got the menu again. That was not merely repetitive: any unrecognised
+# reply including a bare Enter takes the `standard` default below, and
+# _applyInstallMode then wrote it straight over a public-cert or embed-ca
+# server's keys, which writeUpdateFile persisted. The prompt reverted the very
+# choice it was asking about.
+#
+# $priorInstall rather than $doupdate: the question is "has this machine ever
+# had FOG", and $doupdate answers a different one -- it is 0 for --no-upgrade on
+# a server that has been running for years. A machine that HAS had FOG has
+# either a persisted ${FOG_install_mode} (seeded back into $sinstallMode in
+# installfog.sh, so the first guard above has already returned) or a shape built
+# from discrete flags, and neither is something to re-ask.
 #
 # Guarded on `! -t 0` as well as $autoaccept, following the schema-update prompt
 # in this file: a piped or cron-driven install has no one to answer, and a read
@@ -7213,6 +7710,7 @@ _collectPkiNames() {
 promptInstallMode() {
     [[ -n $sinstallMode ]] && return 0
     [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} || -n ${sBOOT_rebuild_ipxe_with_my_ca} ]] && return 0
+    [[ ${priorInstall:-0} -eq 1 ]] && return 0
     [[ -n $autoaccept || ! -t 0 ]] && return 0
 
     local answer=""
@@ -7250,6 +7748,8 @@ promptInstallMode() {
         *)             sinstallMode="standard" ;;
     esac
     _applyInstallMode
+    # Persisted, so this is the last time the question gets asked.
+    FOG_install_mode="$sinstallMode"
     echo
     echo " * Using install mode: $sinstallMode"
     echo "   web=${WEB_url_proto} netboot=${BOOT_url_proto:-http} redirect=${WEB_https_redirect:-no}"
@@ -7997,7 +8497,7 @@ _createWebLeaf() {
     # never diverge on names, only on subject.
     openssl req -new -sha512 -key "${PKI_web_vhost_key}" -out "${leafdir}/.webLeaf.csr" \
         -config "$(_pkiConfDir)/req.cnf" \
-        -subj "/CN=${NET_hostname}/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
+        -subj "/CN=$(_certLeafName)/O=FOG Project/OU=FOG Web UI" >>$error_log 2>&1 || st=1
     # 5 years: short enough that a compromised leaf key ages out on its own,
     # long enough not to need automatic renewal. renewal-helper (packages/pki)
     # exists for an admin who wants to rotate it sooner.
@@ -8527,23 +9027,35 @@ createSSLCA() {
         [[ -n $sanentries ]] && sanentries="${sanentries}"$'\n'
         sanentries="${sanentries}IP.${sancount} = ${ip}"
     done
-    dnscount=1
+    # Every DNS name in ONE pass from _defaultServerNames(), which already emits
+    # ${NET_hostname} first when there is one.
+    #
+    # DNS.1 used to be hardcoded to ${NET_hostname}, with this loop starting at
+    # DNS.2 and skipping it to avoid a duplicate. That meant an empty hostname
+    # emitted a literal `DNS.1 = ` -- and OpenSSL ACCEPTS that, putting a
+    # zero-length dNSName in the certificate. It signs cleanly and then fails
+    # every `openssl verify` against the DNS nameConstraints both intermediates
+    # carry, which is the silent half of the hazard the note below describes.
+    #
+    # DNS.1 is still not optional. Where a certificate has no DNS SAN at all
+    # OpenSSL falls back to matching the subject CN against those constraints --
+    # and this CN is an IP literal, so a leaf with only IP SANs would be
+    # rejected by its own CA. Nothing is lost by deriving it: _defaultServerNames()
+    # always yields at least fogserver/fog-server, so there is always a DNS.1.
+    dnscount=0
     dnsSanEntries=""
     while IFS= read -r extraname; do
-        [[ -z $extraname || $extraname == "${NET_hostname}" ]] && continue
+        [[ -z $extraname ]] && continue
         dnscount=$((dnscount + 1))
-        dnsSanEntries="${dnsSanEntries}"$'\n'"DNS.${dnscount} = ${extraname}"
+        [[ -n $dnsSanEntries ]] && dnsSanEntries="${dnsSanEntries}"$'\n'
+        dnsSanEntries="${dnsSanEntries}DNS.${dnscount} = ${extraname}"
     done < <(_defaultServerNames)
-    # DNS.1 is not optional. Both intermediates carry DNS name constraints, and
-    # where a certificate has no DNS SAN at all OpenSSL falls back to matching
-    # the subject CN against them -- and this CN is an IP literal. A leaf with
-    # only IP SANs would be rejected by its own CA.
     cat > $(_pkiConfDir)/ca.cnf << EOF
 [v3_ca]
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = ${NET_hostname}$dnsSanEntries
+$dnsSanEntries
 EOF
     # Written unconditionally, unlike historically: the web leaf's CSR is built
     # from it on any run where the name set changed, not only on the run that
@@ -8571,7 +9083,7 @@ OU = FOG Client Communication
 subjectAltName = @alt_names
 [alt_names]
 $sanentries
-DNS.1 = ${NET_hostname}$dnsSanEntries
+$dnsSanEntries
 EOF
 
     # --- Client communication keypair -------------------------------------
@@ -9427,6 +9939,40 @@ EOF
                         a2ensite "001-fog" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         a2dissite "000-default" >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
+                    # After a2ensite, not beside the diffconfig above, and that
+                    # ordering is the whole point on Debian/Ubuntu: the fog
+                    # vhost lives in sites-available and is not part of the
+                    # loaded config until the line above links it. Testing
+                    # earlier would have passed while saying nothing about the
+                    # file just written.
+                    #
+                    # This is the misread the nginx arm already fixed (see
+                    # "Testing nginx configuration" above): the apache arm ends
+                    # in `diffconfig; errorStat $?`, and diffconfig returns 0
+                    # when there is no backup to compare against -- so errorStat
+                    # printed OK for a vhost apache cannot parse and the install
+                    # carried on to die at "Starting and checking status of web
+                    # services", with nothing pointing at the config. GH-650 is
+                    # exactly that failure reaching a user.
+                    #
+                    # The tool is named differently per distro and no distro
+                    # ships the others, so try them in turn rather than casing
+                    # on ${FOG_os_id}: apache2ctl on Debian/Ubuntu, apachectl on
+                    # RHEL/Arch/Alpine, httpd where only the daemon is on PATH.
+                    # None present means nothing to test and nothing to report.
+                    dots "Testing Apache configuration"
+                    local httpdtest=0 httpdtool="" httpdcandidate=""
+                    for httpdcandidate in apache2ctl apachectl httpd; do
+                        if command -v $httpdcandidate >/dev/null 2>&1; then
+                            httpdtool=$httpdcandidate
+                            break
+                        fi
+                    done
+                    if [[ -n $httpdtool ]]; then
+                        $httpdtool -t >> $workingdir/error_logs/fog_error_${version}.log 2>&1
+                        httpdtest=$?
+                    fi
+                    errorStat $httpdtest
                     ;;
             esac
             ;;
@@ -10520,6 +11066,15 @@ createSecureBootIntermediateCA() {
         # booting, discovered at the machines -- shim links OpenSSL and
         # verifies the chain itself. A permitted DNS name here both satisfies
         # the constraint and stops the CN fallback from ever running.
+        #
+        # Resolved into a variable first, and via _certLeafName() rather than
+        # ${NET_hostname} raw. This line was `DNS:${NET_hostname:-$(hostname)}`,
+        # and on a server with no hostname both halves are empty: the extension
+        # string becomes a bare `DNS:`, OpenSSL refuses to parse it, and the
+        # errorStat below kills the installer with the web server already
+        # stopped and not yet restarted. _certLeafName() cannot return empty.
+        local sbSanName
+        sbSanName=$(_certLeafName)
         cat > "${leafdir}/sign.cnf" << EOF
 [ req ]
 distinguished_name = req_dn
@@ -10534,7 +11089,7 @@ OU = FOG Secure Boot
 basicConstraints = critical,CA:FALSE
 extendedKeyUsage = codeSigning
 subjectKeyIdentifier = hash
-subjectAltName   = DNS:${NET_hostname:-$(hostname)}
+subjectAltName   = DNS:${sbSanName}
 EOF
         openssl req -new -sha256 -nodes -newkey rsa:2048 \
             -config "${leafdir}/sign.cnf" -keyout "${leafdir}/sign.key" \
@@ -10810,7 +11365,7 @@ _ensureSecureBootPlatformKeys() {
     # can tell WHICH FOG server owns the platform key it is now carrying. With a
     # generic CN, a site running two FOG servers has no way to tell them apart
     # from the machine that got enrolled.
-    subject="FOG Project (${NET_hostname:-$(hostname)})"
+    subject="FOG Project ($(_certLeafName))"
     # 4096-bit and no extendedKeyUsage: these are trust anchors in a firmware
     # database, not code-signing certificates, and some firmware rejects a PK
     # carrying a codeSigning EKU. 3650 days matches the MOK key -- an expired PK
@@ -11014,8 +11569,32 @@ _publishSecureBootAuthVars() {
     # install rather than leaving stale ones a client would happily enrol: an
     # .auth signed by a key this server no longer holds enrols a platform the
     # server can never update again.
+    #
+    # This used to return in silence, which made it the ONE cause of "automatic
+    # enrolment is unavailable" that produced no diagnostic anywhere -- and it
+    # is the likeliest cause on a server that has efitools installed. An admin
+    # re-running the installer to fix it therefore saw nothing at all, then read
+    # a web page confidently naming a different cause (GH-1266). It says which
+    # of its three reasons applied now, so re-running the installer surfaces it.
     if [[ -z $secureBootPKKey || -z $secureBootKEKKey ]]; then
         rm -f "$helper" "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
+        dots "Publishing Secure Boot variable updates"
+        echo "Skipped"
+        if [[ ${PKI_sb_enabled:-yes} != yes ]]; then
+            echo " * Secure Boot enrolment material is switched off for this"
+            echo "   install (PKI_sb_enabled is not \"yes\"), so no platform keys"
+            echo "   were minted and the automatic enrolment blobs were not"
+            echo "   built. FOS kernels are still signed."
+        elif [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]]; then
+            echo " * No Secure Boot signing key is configured, so there is"
+            echo "   nothing for a platform key to authorise and the automatic"
+            echo "   enrolment blobs were not built."
+        else
+            echo " * The Secure Boot platform keys (PK/KEK) are missing, so the"
+            echo "   automatic enrolment blobs were not built. Generating them"
+            echo "   failed earlier in this run -- see $error_log."
+        fi
+        echo "   The MOK enrolment paths are unaffected."
         return 0
     fi
 
@@ -11047,6 +11626,11 @@ _publishSecureBootAuthVars() {
     install -o root -g root -m 0700 ../packages/secureboot/fog-build-sb-authvars \
         "$helper" >>$error_log 2>&1 || {
         echo "Failed"
+        # The only arm here that used to print a bare "Failed" with no cause,
+        # which is the same complaint as GH-1266 one line down.
+        echo " * Could not install the Secure Boot variable builder to $helper,"
+        echo "   so automatic enrolment will be unavailable. The MOK enrolment"
+        echo "   paths are unaffected. See $error_log."
         return 0
     }
     sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
@@ -12864,8 +13448,21 @@ _resignCustomKernels() {
 _keaBaseClasses() {
     # Piped through sed rather than unquoting the heredoc: the block is JSON and
     # keeping it literal is what stops a stray $ or backtick in a future edit
-    # being expanded by the shell. Only the BIOS name varies -- see _biosBootFile.
-    cat <<'EOFCLS' | sed "s|\"boot-file-name\": \"undionly.kkpxe\"|\"boot-file-name\": \"$(_biosBootFile)\"|"
+    # being expanded by the shell. The BIOS name varies with --boot-delay
+    # (_biosBootFile) and the 64-bit UEFI names with whether the signed chain is
+    # staged (_uefiBootFile).
+    #
+    # The arm64 expression comes first, but the order is not load-bearing: each
+    # pattern matches a whole quote-delimited value, so "snponly.efi" cannot also
+    # match inside "arm64-efi/snponly.efi".
+    #
+    # i386-efi is deliberately absent -- no signed 32-bit shim exists -- and so
+    # is the Apple BSDP class, which lives in _keaAppleClass and serves Intel
+    # Macs over a protocol Secure Boot never enters.
+    cat <<'EOFCLS' | sed \
+        -e "s|\"boot-file-name\": \"undionly.kkpxe\"|\"boot-file-name\": \"$(_biosBootFile)\"|" \
+        -e "s|\"boot-file-name\": \"arm64-efi/snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile arm64)\"|" \
+        -e "s|\"boot-file-name\": \"snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile x64)\"|"
         {
             "name": "FOG-Legacy-BIOS",
             "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
@@ -12908,43 +13505,40 @@ _keaBaseClasses() {
         }
 EOFCLS
 }
-# A Secure Boot class, emitted commented out.
+# The two ways off the default boot file, emitted commented out.
 #
-# Still commented out, but for one reason now rather than two: DHCP option 93
-# carries the client architecture and nothing else, so a request cannot tell us
-# whether Secure Boot is on. A site has to opt specific machines in.
+# This used to be the other way round: the base classes served the unsigned
+# snponly.efi and this block was the Secure Boot opt-in. The signed chain is now
+# the default for every 64-bit UEFI and arm64 client (see _uefiBootFile for why
+# that is a superset rather than a conditional), so what is left to document is
+# how to move away from it.
 #
-# The second reason is gone. This used to point at ipxe-shimx64.efi because
-# upstream published only an all-drivers signed iPXE -- the build that takes the
-# NIC over from the firmware and hangs on some hardware -- and there was no
-# signed snponly equivalent. ipxe/ipxe#1776 closed 2026-08-02 and iPXE 2.0.0
-# ships a signed x86_64-sb/snponly.efi, staged by fog-ipxe since v2.0.0-fog.3.
-# So this now matches what FOG serves every other UEFI client: snponly.
-#
-# Why the boot file names the shim and not the loader: ipxe/shim carries a
-# fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
-# "-shim[arch]" infix from the path it was ITSELF fetched from and loads that,
-# out of the same directory. So snponly-shimx64.efi fetches snponly.efi and
-# ipxe-shimx64.efi fetches ipxe.efi -- from one signed binary staged under both
-# names. Do not conclude from `strings` that the loader is hardcoded to
-# ipxe.efi; that is only the DEFAULT_LOADER the patch hooks.
-#
-# If this chain loads but the network never comes up, the firmware's own UEFI
-# SNP is at fault -- switch the name to secureboot/ipxe-shimx64.efi for iPXE's
-# built-in drivers. That is the fallback the Secure Boot config page documents,
-# and it is purely a DHCP change with nothing to rename server-side.
-#
-# The binaries are staged at $tftpdir/secureboot by downloadipxesecureboot()
-# on every install, so the path below always exists.
-_keaSecureBootClassCommented() {
+# Both are DHCP-only changes. Nothing is renamed server-side: the shim picks its
+# second stage out of its own filename, so both chains sit side by side in one
+# directory and the boot file name alone decides which runs.
+_keaBootFileFallbackComment() {
     cat <<'EOFSBC'
-#        Secure Boot clients. Uncomment, add a leading comma to the entry
-#        above, and narrow the test to the machines whose firmware trusts this
-#        server's certificate -- by subnet, MAC or a client class of your own.
+#        Two alternatives to the boot file above, if you need them. Uncomment
+#        one, add a leading comma to the entry above, and narrow the test to the
+#        affected machines -- by subnet, MAC or a client class of your own.
+#
+#        1. The chain loads but the network never comes up. That is the
+#           firmware's own UEFI SNP driver, not anything signed. Use iPXE's
+#           built-in NIC drivers instead (arm64: secureboot/arm64-efi/ipxe-shimaa64.efi):
 #        {
-#            "name": "FOG-UEFI-64-SecureBoot",
+#            "name": "FOG-UEFI-64-IpxeDrivers",
 #            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
-#            "boot-file-name": "secureboot/snponly-shimx64.efi"
+#            "boot-file-name": "secureboot/ipxe-shimx64.efi"
+#        }
+#
+#        2. You want FOG's own builds rather than upstream's signed pair. They
+#           are in the TFTP root (arm64: arm64-efi/snponly.efi), signed with this
+#           server's key -- so a Secure Boot client will refuse them until that
+#           certificate is enrolled on it:
+#        {
+#            "name": "FOG-UEFI-64-FogBuild",
+#            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+#            "boot-file-name": "snponly.efi"
 #        }
 EOFSBC
 }
@@ -13118,11 +13712,11 @@ writeKeaSample() {
                 { \"name\": \"routers\", \"data\": \"${DHCP_router}\" }"
     [[ $(validip ${DHCP_dns_server_ip}) -eq 0 ]] && optdata="${optdata},
                 { \"name\": \"domain-name-servers\", \"data\": \"${DHCP_dns_server_ip}\" }"
-    # Full reference: base classes + Apple BSDP, plus a commented-out Secure
-    # Boot class. The admin can trim as needed.
+    # Full reference: base classes + Apple BSDP, plus the commented-out
+    # boot-file fallbacks. The admin can trim as needed.
     _writeKeaConfig "$target" "$(_keaBaseClasses),
 $(_keaAppleClass)
-$(_keaSecureBootClassCommented)"
+$(_keaBootFileFallbackComment)"
     if [[ -s $target ]]; then
         echo
         echo " * A sample Kea DHCP config for a dedicated/external DHCP server was"
@@ -13236,23 +13830,23 @@ configureDHCP() {
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-1\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-2\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00008\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-3\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00009\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-ARM64\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00011\";" >> "$dhcptouse"
-            echo "    filename \"arm64-efi/snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile arm64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"SURFACE-PRO-4\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 32) = \"PXEClient:Arch:00007:UNDI:003016\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"Apple-Intel-Netboot\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 14) = \"AAPLBSDPC/i386\";" >> "$dhcptouse"
@@ -13266,17 +13860,30 @@ configureDHCP() {
             echo "        }" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
-            # Secure Boot clients, commented out on purpose -- see the note on
-            # _keaSecureBootClassCommented() for the full reasoning, including
-            # why the boot file names the shim rather than the loader. Option 93
-            # cannot tell us whether Secure Boot is on, so this has to be opted
-            # into per machine rather than applied to every UEFI client.
-            echo "# Secure Boot clients. Uncomment and narrow the match to the machines" >> "$dhcptouse"
-            echo "# whose firmware trusts this server's certificate. Swap snponly- for" >> "$dhcptouse"
-            echo "# ipxe- if the chain loads but the network never comes up." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-SecureBoot\" {" >> "$dhcptouse"
+            # The two ways off the default boot file, commented out. Mirrors
+            # _keaBootFileFallbackComment() -- see the note on _uefiBootFile()
+            # for why the signed chain is the default for every 64-bit UEFI
+            # client rather than a per-machine opt-in, and why the boot file
+            # names the shim rather than the loader.
+            echo "# Two alternatives to the UEFI boot file above, if you need them." >> "$dhcptouse"
+            echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
+            echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
+            echo "#" >> "$dhcptouse"
+            echo "# 1. The chain loads but the network never comes up: that is the firmware's" >> "$dhcptouse"
+            echo "#    own UEFI SNP driver, so use iPXE's built-in drivers instead." >> "$dhcptouse"
+            echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
+            echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
             echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"secureboot/snponly-shimx64.efi\";" >> "$dhcptouse"
+            echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
+            echo "#}" >> "$dhcptouse"
+            echo "#" >> "$dhcptouse"
+            echo "# 2. You want FOG's own builds rather than upstream's signed pair. They" >> "$dhcptouse"
+            echo "#    are in the TFTP root; on arm64, arm64-efi/snponly.efi. They carry" >> "$dhcptouse"
+            echo "#    this server's own signature, so a Secure Boot client refuses them" >> "$dhcptouse"
+            echo "#    until that certificate is enrolled on it." >> "$dhcptouse"
+            echo "#class \"FOG-UEFI-64-FogBuild\" {" >> "$dhcptouse"
+            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+            echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
             echo "#}" >> "$dhcptouse"
             diffconfig "${dhcptouse}"
             # Non-fatal syntax check; ISC has historically started without one.

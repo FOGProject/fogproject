@@ -7651,3 +7651,491 @@ $this->schema[] = [
     "UPDATE `taskStates` SET `tsIcon`='bookmark' "
     . "WHERE `tsID`=1 AND `tsIcon`='bookmark-o'",
 ];
+// 368
+$this->schema[] = [
+    // Store a boolean as a boolean.
+    //
+    // FOG has spelled its two-state columns `enum('0','1')` since the
+    // beginning, and it has never spelled all of them that way: `sites`
+    // .`siteCatchAll`, `auditLog`.`alRenderable`, `auditChange`.`acRedacted`
+    // and `hosts`.`hostInfoLock` are already tinyint(1). Two conventions for
+    // one idea, and the older of the two is the one with a trap in it.
+    //
+    // WHY THE ENUM IS ACTIVELY DANGEROUS, not merely inconsistent. An
+    // integer written to an ENUM is a MEMBER INDEX, not a value, and these
+    // enums are therefore off by one:
+    //
+    //     0  ->  index 0, the error value: refused under STRICT_TRANS_TABLES
+    //     1  ->  index 1, which is the member '0'  -- i.e. FALSE
+    //     2  ->  index 2, which is the member '1'  -- i.e. TRUE
+    //
+    // So `->set('isEnabled', 1)` means DISABLED if the value ever reaches
+    // the server as an integer rather than a string. FOG survives that only
+    // because PDODB binds every parameter as PDO::PARAM_STR; it is the
+    // reason PDODB::_bind() may not use PDO::PARAM_BOOL, and the reason
+    // Schema::defaultLiteral() exists. tinyint(1) has no such trap: 0 is
+    // false and 1 is true whether it arrives as a string or an integer.
+    // See fogproject#1361 and forum topic 18227.
+    //
+    // The migration itself -- and the reason it is three statements per
+    // column rather than one ALTER -- is Schema::enumToTinyint().
+    //
+    // WHAT CHANGES FOR CALLERS. PDODB runs with ATTR_EMULATE_PREPARES off,
+    // so mysqlnd hands back native types: these columns read back as the
+    // integer 1 where they used to read back as the string '1', and the REST
+    // API payload changes from "imageEnabled":"1" to "imageEnabled":1.
+    // Deliberate -- see docs/adr/0028. Every reader in the tree tests
+    // truthiness or casts with (string) first; both spellings are unchanged
+    // by this. Downstream consumers that compare the JSON strictly against
+    // "1" are not, which is why it lands in a beta.
+    //
+    // CORE TABLES ONLY. Each bundled plugin owns its own schema (ADR 0009),
+    // so LDAPServers, OIDCProviders and location are converted by their own
+    // steps in FOGProject/fog-plugins rather than reached into from here.
+    //
+    // NOT INCLUDED, deliberately: the char(1)/varchar(1) flags
+    // (`tasks`.`taskShutdown`, `snapins`.`sReboot`, `hosts`.`hostUseAD`).
+    // They look like the same thing and are not -- `hostUseAD` is tri-state,
+    // with '' meaning "inherit" as a third value the form renders, so that
+    // family needs a per-column reading rather than a sweep.
+    function () {
+        // The conversion itself is Schema::enumToTinyint() -- shared,
+        // because the bundled LDAP, OIDC and location plugins each convert
+        // their own columns from their own schema() (ADR 0009) and the
+        // three-statement rule above must not be re-implemented per caller.
+        return Schema::enumToTinyint(
+            [
+                'apiTokens' => ['atEnabled'],
+                'hostMAC' => [
+                    'hmIgnoreClient',
+                    'hmIgnoreImaging',
+                    'hmPending',
+                    'hmPrimary'
+                ],
+                'hosts' => ['hostEnforce', 'hostPending'],
+                'imageGroupAssoc' => ['igaPrimary'],
+                'images' => ['imageEnabled', 'imageReplicate'],
+                'multicastSessions' => ['msShutdown'],
+                'nfsGroupMembers' => ['ngmGraphEnabled'],
+                'powerManagement' => ['pmOndemand'],
+                'pxeMenu' => ['pxeHotKeyEnable'],
+                'snapinGroupAssoc' => ['sgaPrimary'],
+                'snapinJobs' => ['sjAbortOnFail'],
+                'snapins' => [
+                    'sEnabled',
+                    'sHideLog',
+                    'sPackType',
+                    'sReplicate',
+                    'sShutdown'
+                ],
+                'tasks' => ['taskBypassBitlocker', 'taskWOL'],
+                'taskTypes' => ['ttIsAdvanced'],
+                'users' => ['uAllowAPI', 'uAPIOnly'],
+            ]
+        );
+    },
+];
+// 369
+$this->schema[] = [
+    // hosts.hostArch -- the architecture last observed for this host.
+    //
+    // FOG has always known this and never kept it. iPXE posts `arch` on every
+    // boot (default.ipxe sends ${buildarch} with the cpuid promotion that
+    // lifts a 32-bit build on a 64-bit CPU to x86_64), BootMenu reads it to
+    // pick the kernel, and then it is discarded. So nothing away from a live
+    // boot -- a host edit page, a group kernel assignment, a deploy task --
+    // could know what kind of machine it was dealing with, which is what
+    // BootMenu::_fileFitsArch()'s docblock has been complaining about.
+    //
+    // NULL, not a default. An existing fleet starts unknown and fills in as
+    // machines boot; defaulting to x86_64 would assert a fact nobody
+    // observed, which is the exact error this column exists to prevent.
+    //
+    // VARCHAR, not ENUM: iPXE already builds for riscv64 and loong64, and an
+    // ENUM makes each new architecture a schema migration. The valid set is
+    // enforced in BootMenu where the whitelist already lives.
+    //
+    // Advisory only, and deliberately so. boot.php is unauthenticated by
+    // necessity -- a booting NIC has no credential -- so this value is
+    // attacker-controlled. The boot decision therefore keeps reading the
+    // live request, never this column, and a poisoned value costs a wrong
+    // warning on a form rather than a wrong kernel.
+    //
+    // No index. Written at most once per boot per host, read by pages that
+    // are already fetching the row.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354/355: ADD
+    // COLUMN has no IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and
+    // the column is named in the probe so the installer's grant check still
+    // passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN ('hostArch')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostArch', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostArch` VARCHAR(16) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];
+// 370
+$this->schema[] = [
+    // images.imageArch -- the architecture of the machine this image was
+    // captured from.
+    //
+    // The half that makes the host column worth having. With both sides
+    // recorded, Host::createImagePackage() can refuse a deploy that cannot
+    // work; with only one, it can only ever guess.
+    //
+    // An image cannot discover its own architecture, and does not need to:
+    // a capture requires the host to PXE boot, and step 369's column is
+    // written on that same boot before FOS loads. So by the time
+    // TaskQueue::_moveUpload() runs, the capturing host's architecture is
+    // already recorded and the stamp is a copy, not an inference. No FOS
+    // change and no new endpoint were needed for this.
+    //
+    // NULL for every image captured before this shipped. There is nothing to
+    // backfill from -- an old image's architecture is genuinely unknown --
+    // and the compatibility check treats unknown as "allow" precisely so
+    // upgrading servers keep working.
+    //
+    // Separate step from 369 rather than one doing both tables, so a partial
+    // failure leaves an unambiguous state.
+    //
+    // Guarded closure, same reasoning as 369 above.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'images' "
+            . "AND `COLUMN_NAME` IN ('imageArch')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('imageArch', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageArch` VARCHAR(16) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];
+// 371
+$this->schema[] = [
+    // images.imageSectorSize -- the LOGICAL sector size, in bytes, of the disk
+    // this image was captured from. 512 or 4096; NULL when unknown.
+    //
+    // FOS has refused a cross-sector-size deploy since ADR-0005
+    // (validateImageSectorSize in funcs.sh): partition-table and filesystem
+    // geometry bake in the source disk's logical sector size and cannot be
+    // translated, so deploying a 4Kn image onto a 512-byte disk produces an
+    // unbootable machine. The server has never known any of this, so the
+    // refusal only ever arrives at the client, minutes into a task, as a
+    // failure rather than as something anyone could see beforehand.
+    //
+    // LOGICAL, not physical, and that is the whole distinction that matters.
+    // 512n and 512e both present 512-byte logical sectors and are freely
+    // interchangeable as deploy targets; only 4Kn differs. FOS reads the
+    // source size with `blockdev --getss` (logical) and records it on the
+    // `sector-size:` line of the sfdisk dump, and physical block size is
+    // never persisted at capture -- so 512n and 512e are indistinguishable
+    // here by construction, and separating them would buy nothing.
+    //
+    // NULL for every image captured before this, and for any image whose
+    // sfdisk dump predates util-linux 2.35 and so carries no `sector-size:`
+    // line at all. FOS treats that same absence as "allow the deploy rather
+    // than guess"; nothing here may be stricter than the thing doing the
+    // actual refusing.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354/369/370.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'images' "
+            . "AND `COLUMN_NAME` IN ('imageSectorSize')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('imageSectorSize', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageSectorSize` INT(11) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];
+// 372
+$this->schema[] = [
+    // Architecture becomes a row in a lookup table instead of a string on two
+    // tables. `hosts.hostArch` and `images.imageArch` (steps 369/370) stored
+    // the same three literals in two places with nothing constraining either,
+    // which is not how the rest of this schema models a fixed set of values --
+    // `imageTypes`, `imagePartitionTypes`, `os` and `taskTypes` are all
+    // lookup tables, and the classes reach them through
+    // databaseFieldClassRelationships. Two free-text columns holding an
+    // enumeration is the odd one out, and it was only two steps old.
+    //
+    // `archIsAccess` is `taskTypes.ttIsAccess` wearing different values. There
+    // it says whether a task type may be started from a host, from a group, or
+    // from both; here it says whether an architecture may be picked on a host,
+    // on an image, or on both. It is what makes the table worth normalising
+    // rather than just adding a CHECK constraint: an architecture FOS can
+    // capture but no host in this fleet can boot (or the reverse) is a real
+    // state, and the flag is where an admin says so.
+    //
+    // The columns stay NULLable and the seeds carry no host or image. NULL is
+    // "not recorded" and it has to survive, because Architecture::canRun() treats
+    // unknown on either side as ALLOWED -- every host that has not PXE booted
+    // since step 369 and every image captured before step 370 reads NULL, and
+    // refusing on absence would turn an upgrade into a fleet-wide outage.
+    //
+    // Order inside the closure is load-bearing: seed, then adopt any value the
+    // fleet already holds that the seeds do not cover, then backfill the ids,
+    // and only then drop the strings. The adopt pass is what makes the drop
+    // lossless by construction rather than lossless because the whitelist in
+    // BootMenu::_recordHostArch() happens to agree with the seed list today.
+    function () {
+        $DB = self::$DB;
+        $cols = function ($table, $names) use ($DB) {
+            $quoted = "'" . implode("','", $names) . "'";
+            $have = $DB->query(
+                "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '$table' "
+                . "AND `COLUMN_NAME` IN ($quoted)"
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $found = [];
+            foreach ((array)$have as $row) {
+                if (isset($row['c'])) {
+                    $found[] = $row['c'];
+                }
+            }
+            return $found;
+        };
+
+        $DB->query(
+            "CREATE TABLE IF NOT EXISTS `architectures` ("
+            . "`archID` mediumint(9) NOT NULL AUTO_INCREMENT,"
+            . "`archName` varchar(16) NOT NULL,"
+            . "`archDescription` varchar(255) NOT NULL DEFAULT '',"
+            . "`archIsAccess` enum('both','host','image') NOT NULL DEFAULT 'both',"
+            . "PRIMARY KEY (`archID`),"
+            . "UNIQUE KEY `archName` (`archName`)"
+            . ') ENGINE=InnoDB AUTO_INCREMENT=1'
+            . ' DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci'
+            . ' ROW_FORMAT=DYNAMIC'
+        );
+        // The three iPXE reports. FOS says aarch64 where iPXE says arm64 and
+        // amd64 where iPXE says x86_64; Architecture::normalizeName() folds
+        // those onto these spellings rather than seeding both, so that a host
+        // and an image describing the same machine cannot end up on two rows.
+        $DB->query(
+            "INSERT IGNORE INTO `architectures` "
+            . "(`archID`, `archName`, `archDescription`, `archIsAccess`) "
+            . "VALUES "
+            . "(1, 'i386', '32-bit x86. Runs on 32-bit-only hardware and, "
+            . "unchanged, on x86_64.', 'both'),"
+            . "(2, 'x86_64', '64-bit x86, reported as amd64 by some tools.', "
+            . "'both'),"
+            . "(3, 'arm64', '64-bit ARM, reported as aarch64 by FOS.', 'both')"
+        );
+
+        $hostCols = $cols('hosts', ['hostArch', 'hostArchID']);
+        $imageCols = $cols('images', ['imageArch', 'imageArchID']);
+
+        if (!in_array('hostArchID', $hostCols)) {
+            $DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostArchID` mediumint(9) NULL DEFAULT NULL"
+            );
+        }
+        if (!in_array('imageArchID', $imageCols)) {
+            $DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageArchID` mediumint(9) NULL DEFAULT NULL"
+            );
+        }
+
+        // Adopt, then map, then drop -- per side, because an upgrade that was
+        // interrupted between the two ALTERs above is a state this has to
+        // survive being re-run in.
+        if (in_array('hostArch', $hostCols)) {
+            $DB->query(
+                "INSERT IGNORE INTO `architectures` (`archName`) "
+                . "SELECT DISTINCT `hostArch` FROM `hosts` "
+                . "WHERE `hostArch` IS NOT NULL AND `hostArch` <> ''"
+            );
+            $DB->query(
+                "UPDATE `hosts` `h` "
+                . "JOIN `architectures` `a` ON `a`.`archName` = `h`.`hostArch` "
+                . "SET `h`.`hostArchID` = `a`.`archID` "
+                . "WHERE `h`.`hostArch` IS NOT NULL AND `h`.`hostArch` <> ''"
+            );
+            $DB->query("ALTER TABLE `hosts` DROP COLUMN `hostArch`");
+        }
+        if (in_array('imageArch', $imageCols)) {
+            $DB->query(
+                "INSERT IGNORE INTO `architectures` (`archName`) "
+                . "SELECT DISTINCT `imageArch` FROM `images` "
+                . "WHERE `imageArch` IS NOT NULL AND `imageArch` <> ''"
+            );
+            $DB->query(
+                "UPDATE `images` `i` "
+                . "JOIN `architectures` `a` ON `a`.`archName` = `i`.`imageArch` "
+                . "SET `i`.`imageArchID` = `a`.`archID` "
+                . "WHERE `i`.`imageArch` IS NOT NULL AND `i`.`imageArch` <> ''"
+            );
+            $DB->query("ALTER TABLE `images` DROP COLUMN `imageArch`");
+        }
+
+        return true;
+    },
+];
+// 373
+$this->schema[] = [
+    // Name the state rows too.
+    //
+    // Step 341 gave taskLog its own copy of the host and task type so a row
+    // could still be read after its task was deleted, and backfilled only the
+    // FOS report rows -- `WHERE logType <> 'state'`, explicitly. The reasoning
+    // it gave was that state rows "are meaningless without their task anyway".
+    // That turned out to be wrong twice over: Task Management's log pane shows
+    // them, and the dashboard's per-event count reads them, so a state row
+    // whose task is gone renders as a timestamp with two empty columns beside
+    // it and counts as neither a capture nor a deploy.
+    //
+    // TaskLog::recordState() now writes all three on every transition, which
+    // fixes the future. This is the past: it fills in the rows whose task is
+    // STILL THERE, so they survive that task's eventual deletion instead of
+    // joining the unnamed set later. Rows whose task is already gone cannot be
+    // recovered by anything -- the name died with the host row that held it --
+    // and the log pane renders those with an explicit placeholder rather than
+    // a blank cell.
+    //
+    // Same restricted UPDATE ... JOIN as 341's, with the logType test
+    // inverted, and the same `logHostID IS NULL` guard: a re-run is a no-op and
+    // a row already written by recordState() is not touched.
+    //
+    // A closure rather than a bare statement for the same reason 341's backfill
+    // is one: TaskLog::TYPE_STATE has to be resolved when the step RUNS, not
+    // when this file is included. The schema updater includes schema.php in a
+    // context that shims what a step needs (see tests/schema-upgrade-replay
+    // .test.php) and the FOG classes are not part of it, so a constant read at
+    // array-construction time is a fatal before any step has run.
+    function () {
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "LEFT JOIN `hosts` "
+            . "ON `hosts`.`hostID` = `tasks`.`taskHostID` "
+            . "LEFT JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "SET `taskLog`.`logHostID` = `tasks`.`taskHostID`, "
+            . "`taskLog`.`logHostName` = COALESCE(`hosts`.`hostName`, ''), "
+            . "`taskLog`.`logTaskTypeName` = COALESCE(`taskTypes`.`ttName`, '') "
+            . "WHERE `taskLog`.`logType` = '" . TaskLog::TYPE_STATE . "' "
+            . "AND `taskLog`.`logHostID` IS NULL"
+        );
+
+        return true;
+    },
+];
+
+// 374
+$this->schema[] = [
+    // Widen the stored pxeMenu param blocks past three NICs.
+    //
+    // The mac0/mac1/mac2 enumeration is not only in code -- six of these
+    // blocks ship as `pxeMenu`.`pxeParams` DATA (step 182, and 129 before it),
+    // and _menuOpt() emits whatever the row says verbatim. So fixing
+    // _chainParams() and the installer's default.ipxe leaves every existing
+    // site's menu items still posting at most three MACs, which is what made
+    // a host registered under only its fourth NIC unfindable.
+    //
+    // Two additions per row, matching _chainParams():
+    //   - macboot, ${netX/mac}, the NIC iPXE actually booted from. An
+    //     ADDITION to mac0, not a replacement: netX is a pointer at one of
+    //     net0..netN, so substituting it would drop net0 on a machine that
+    //     booted off net1. boot.php unions every mac* field and array_unique()s
+    //     the result, so the overlap costs nothing. It goes ABOVE the chain
+    //     because the chain short-circuits to :bootme on the first absent
+    //     interface, which on a single-NIC machine is net1.
+    //   - net3..net7, so the enumeration reaches eight interfaces.
+    //
+    // Guarded on the row still matching what we shipped, byte for byte. These
+    // rows are user-writable from iPXE Menu Customization, and a site that has
+    // edited one has made a deliberate choice; an untouched row provably has
+    // not. A customized row keeps its three NICs rather than losing the edit,
+    // and re-running is a no-op because the old value no longer matches.
+    //
+    // A closure rather than seven literal statements: the old and the new
+    // value differ by one line in the middle of a nine-line blob, and writing
+    // both out per menu entry is fourteen near-identical paragraphs in which a
+    // single wrong character silently means "match nothing, change nothing".
+    function () {
+        // pxeName => the boolean flag that row's params block carries.
+        $menus = [
+            'fog.deployimage' => 'qihost',
+            'fog.quickdel' => 'delhost',
+            'fog.keyreg' => 'keyreg',
+            'fog.debug' => 'debugAccess',
+            'fog.multijoin' => 'sessionJoin',
+            'fog.advancedlogin' => 'advLog',
+            'fog.approvehost' => 'approveHost',
+        ];
+        $head = "login\n"
+            . "params\n"
+            . 'param mac0 ${net0/mac}' . "\n"
+            . 'param arch ${arch}' . "\n"
+            . 'param username ${username}' . "\n"
+            . 'param password ${password}' . "\n";
+        $oldTail = 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme'
+            . "\n"
+            . 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme';
+        $newTail = 'isset ${netX/mac} && param macboot ${netX/mac} ||';
+        for ($nic = 1; $nic <= 7; $nic++) {
+            $newTail .= "\n" . sprintf(
+                'isset ${net%1$d/mac} && param mac%1$d ${net%1$d/mac}'
+                . ' || goto bootme',
+                $nic
+            );
+        }
+        foreach ($menus as $pxeName => $flag) {
+            $body = $head . sprintf('param %s 1', $flag) . "\n";
+            self::$DB->query(
+                'UPDATE `pxeMenu` SET `pxeParams` = :new '
+                . 'WHERE `pxeName` = :name AND `pxeParams` = :old',
+                [],
+                [
+                    ':new' => $body . $newTail,
+                    ':name' => $pxeName,
+                    ':old' => $body . $oldTail,
+                ]
+            );
+        }
+
+        return true;
+    },
+];

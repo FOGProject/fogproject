@@ -222,6 +222,10 @@ class Authorization extends FOGBase
         'pendingmacs' => 'host.view',
         'snapinCreateWithFile' => 'snapin.create',
         'uploadSnapinFiles' => 'snapin.create',
+        // The node the web Install button checks, rather than plugin.edit:
+        // installing runs a plugin's schema migrations, which is a
+        // different authority from editing its row.
+        'pluginInstall' => 'plugin.install',
         'settingsCacheView' => 'settings.view',
         'settingsCacheFlush' => 'settings.edit',
         'settingsCacheRefresh' => 'settings.edit'
@@ -237,6 +241,13 @@ class Authorization extends FOGBase
      * @var array
      */
     const API_CLASS_ENTITIES = [
+        // Architectures sit under Image Management, alongside the other two
+        // image lookup tables (imagetype, imagepartitiontype) and os, and are
+        // reached through the same Architectures page -- so they are governed
+        // by the same node rather than by one of their own. A node exists to
+        // be granted separately; nobody grants "may edit the list of CPU
+        // architectures" without also granting image management.
+        'architecture' => 'image',
         'filedeletequeue' => 'task',
         'group' => 'group',
         'groupassociation' => 'group',

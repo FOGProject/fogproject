@@ -284,6 +284,11 @@ class FileDeleter extends FOGService
                             )
                         );
                     } elseif (!self::$FOGSSH->delete($deleteFile)) {
+                        // This branch was unreachable until FOGSSH::delete()
+                        // started answering with a bool: it returned $this,
+                        // which is always truthy, so every failed removal was
+                        // reported below as a successful one and the path was
+                        // dequeued regardless.
                         self::outall(
                             sprintf(
                                 "%s: %s.\n\t -  %s: %s.\n\t - %s.",

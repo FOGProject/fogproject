@@ -161,10 +161,21 @@ uninstallFOG() {
     # enough to trigger a destructive uninstall by accident. --force exists for
     # automation that genuinely means it.
     if [[ $uninstallforce != 1 ]]; then
-        echo "   Type this server's hostname (${NET_hostname}) to proceed, anything else to abort."
+        # NOT ${NET_hostname} raw. That key is allowed to be empty -- an install
+        # done on a server with no hostname records one, and it is carried
+        # forward by every upgrade -- and an empty value turns this guard inside
+        # out: it asks the admin to type nothing, and `$reply != ""` then makes a
+        # bare Enter the answer that PROCEEDS with a destructive uninstall.
+        #
+        # _certLeafName() is the same name the certificate and vhost carry, so
+        # what is asked for is still what the admin sees on this server, and it
+        # can never be empty.
+        local confirmname
+        confirmname=$(_certLeafName)
+        echo "   Type this server's hostname (${confirmname}) to proceed, anything else to abort."
         echo
         read -r -p "   > " reply
-        if [[ $reply != "${NET_hostname}" ]]; then
+        if [[ $reply != "$confirmname" ]]; then
             echo
             echo " * Aborted, nothing was changed."
             echo

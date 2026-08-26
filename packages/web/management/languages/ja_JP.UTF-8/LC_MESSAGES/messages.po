@@ -98,6 +98,14 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "プリンターを更新しました！"
+
+#, php-format
+msgid "%d host(s) are assigned an image they cannot run."
+msgstr ""
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -135,8 +143,16 @@ msgid "%s could not be loaded. Check that %s declares a class of that exact name
 msgstr ""
 
 #, php-format
+msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
+msgstr ""
+
+#, php-format
 msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s hosts"
+msgstr "ホスト"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -325,6 +341,9 @@ msgstr "この名前のスナップインは既に存在します！"
 msgid "A menu entry already exists with this name!"
 msgstr "この名前のユーザーは既に存在します"
 
+msgid "A migration step failed. The plugin is left activated and not marked installed."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "この名前のロールは既に存在します！"
@@ -436,6 +455,10 @@ msgstr "API？"
 #, fuzzy
 msgid "API Documentation"
 msgstr "詳細ドキュメント"
+
+#, fuzzy
+msgid "API Enabled"
+msgstr "有効"
 
 #, fuzzy
 msgid "API Only Account"
@@ -554,6 +577,9 @@ msgstr "選択項目を削除"
 #, fuzzy
 msgid "Activated"
 msgstr "有効"
+
+msgid "Activates the plugin, applies its schema migrations, and records the result -- the same three steps, in the same order, as the Install action in the web UI. Idempotent: migration steps are append-only and are resumed from the count already applied, so calling this on an installed plugin applies only steps it has not seen, which is what the UI calls Upgrade. Setting `installed` through the generic edit route instead is refused: that column records that this operation succeeded, and asserting it without running the migrations leaves the plugin's routes in this document while its tables do not exist."
+msgstr ""
 
 msgid "Active"
 msgstr "有効"
@@ -874,6 +900,9 @@ msgstr "この名前のプリンターは既に存在します！"
 msgid "An image already exists with this name!"
 msgstr "この名前のイメージは既に存在します！"
 
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
+
 #, fuzzy
 msgid "An image with this name already exists!"
 msgstr "その名前のホストは既に存在します"
@@ -961,6 +990,9 @@ msgstr "選択したホストを承認"
 msgid "Architecture"
 msgstr ""
 
+msgid "Architectures"
+msgstr ""
+
 msgid "Area"
 msgstr ""
 
@@ -973,6 +1005,10 @@ msgid "Assigned Group Name"
 msgstr "ストレージグループ名"
 
 msgid "Assigned Image"
+msgstr "割り当てられたイメージ"
+
+#, fuzzy
+msgid "Assigned image"
 msgstr "割り当てられたイメージ"
 
 #, fuzzy
@@ -1034,9 +1070,6 @@ msgstr "整合性設定"
 #, fuzzy
 msgid "Auto Logout Time"
 msgstr "ホスト自動ログアウト"
-
-msgid "Automatic Secure Boot enrolment is not available on this server"
-msgstr ""
 
 msgid "Automatic enrolment (Setup/Custom Mode)"
 msgstr ""
@@ -1128,6 +1161,10 @@ msgstr "ブロードキャストを更新しました！"
 
 msgid "Browse"
 msgstr "参照"
+
+#, fuzzy
+msgid "Building the blobs failed."
+msgstr "読み込みに失敗しました"
 
 #, fuzzy
 msgid "Buildroot Version"
@@ -1422,6 +1459,9 @@ msgid "Check this value against what the enrolment tool shows before confirming,
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
+msgstr ""
+
+msgid "Checking for tasks that can never run..."
 msgstr ""
 
 msgid "Checking if I am the group manager"
@@ -1928,6 +1968,10 @@ msgstr "データベースの保存に失敗しました"
 #, fuzzy
 msgid "Database schema is already up to date."
 msgstr "FOG データベースのスキーマが最新ではありません"
+
+#, fuzzy
+msgid "Database update required."
+msgstr "データベースの更新に失敗しました"
 
 msgid "Date"
 msgstr "日付"
@@ -2475,10 +2519,16 @@ msgstr "FOG データベースは、次を使用して操作できます"
 msgid "FOG is unable to communicate with the database"
 msgstr "FOG はデータベースと通信できません"
 
+msgid "FOG refuses to deploy an image to a host that cannot run it."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
+msgstr ""
+
+msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -2573,6 +2623,10 @@ msgstr "接続に失敗しました"
 msgid "Failed to install "
 msgstr "プラグインのインストールに失敗しました"
 
+#, fuzzy, php-format
+msgid "Failed to install %s"
+msgstr "プラグインのインストールに失敗しました"
+
 #, fuzzy
 msgid "Failed to install logo file"
 msgstr "プラグインのインストールに失敗しました"
@@ -2580,6 +2634,14 @@ msgstr "プラグインのインストールに失敗しました"
 #, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "ファイルの削除に失敗しました"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "タスクの作成に失敗しました"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "タスクの作成に失敗しました"
 
 #, fuzzy
 msgid "Failed to remove"
@@ -2714,6 +2776,9 @@ msgstr "ストレージノードの破棄に失敗しました"
 #, fuzzy
 msgid "Files Deleted List"
 msgstr "ルールの削除に失敗しました"
+
+msgid "Filesize"
+msgstr "ファイルサイズ"
 
 msgid "Filter"
 msgstr "フィルター"
@@ -3406,6 +3471,10 @@ msgstr "ホストが無効です"
 msgid "Host is not valid!"
 msgstr "ホストが無効です"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "イメージは保護されているため削除できません"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3442,12 +3511,24 @@ msgid "Hosts And Users"
 msgstr "ホストとユーザー"
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "ホストとユーザー"
+
+#, fuzzy
+msgid "Hosts assigned"
+msgstr "関連付けられたホスト"
+
+#, fuzzy
 msgid "Hosts default:"
 msgstr "ホストを作成しました"
 
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "タスク内のホスト"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "ホスト Init"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3692,8 +3773,19 @@ msgid "Image added!"
 msgstr "イメージを追加しました！"
 
 #, fuzzy
+msgid "Image architecture"
+msgstr "保護済み"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
+
+#, fuzzy
 msgid "Image is invalid"
 msgstr "イメージが無効です"
+
+#, fuzzy
+msgid "Image is not compatible with this host"
+msgstr "このストレージグループ内に有効なものがあるか"
 
 msgid "Image is not enabled"
 msgstr "イメージが有効ではありません"
@@ -3728,6 +3820,10 @@ msgid "Imaged For"
 msgstr "イメージ処理対象"
 
 msgid "Images"
+msgstr "イメージ"
+
+#, fuzzy
+msgid "Images only"
 msgstr "イメージ"
 
 #, fuzzy
@@ -3894,11 +3990,11 @@ msgstr "Initrd 更新"
 msgid "Initrd Update Fail"
 msgstr "Initrd 更新"
 
-#, fuzzy
-msgid "Install"
-msgstr "インストール"
-
 msgid "Install Plugins"
+msgstr "プラグインをインストール"
+
+#, fuzzy
+msgid "Install a plugin"
 msgstr "プラグインをインストール"
 
 #, fuzzy
@@ -4690,8 +4786,16 @@ msgid "Mark selected pending"
 msgstr "選択したスナップインを追加"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "読み込みに失敗しました"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+msgid "Master"
+msgstr "高速"
 
 msgid "Master Node"
 msgstr "マスターノード"
@@ -4704,6 +4808,10 @@ msgstr "最大クライアント数"
 
 msgid "Max Size"
 msgstr "最大サイズ"
+
+#, fuzzy
+msgid "Member"
+msgstr "メンバー"
 
 msgid "Members"
 msgstr "メンバー"
@@ -5192,6 +5300,10 @@ msgid "No plugin tasks to run"
 msgstr "有効なタスクが見つかりません"
 
 #, fuzzy
+msgid "No plugin with that id."
+msgstr "有効なタスクが見つかりません"
+
+#, fuzzy
 msgid "No plugins selected."
 msgstr "ロールが選択されていません"
 
@@ -5257,6 +5369,10 @@ msgstr "このホストを認証するためのトークンが渡されていま
 msgid "No type information available for this column."
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "新しいタスクは見つかりません"
+
 msgid "No valid storage nodes found"
 msgstr "有効なストレージノードが見つかりません"
 
@@ -5291,6 +5407,9 @@ msgstr "ノードは利用できません"
 msgid "Nodes"
 msgstr "ノード"
 
+msgid "None"
+msgstr ""
+
 msgid "Normal Snapin"
 msgstr "通常のスナップイン"
 
@@ -5324,6 +5443,10 @@ msgstr "ここでは許可されていません"
 msgid "Not pinged"
 msgstr "同期していません"
 
+#, fuzzy
+msgid "Not recorded"
+msgstr "保護されていません"
+
 msgid "Not syncing"
 msgstr "同期していません"
 
@@ -5332,6 +5455,10 @@ msgstr "イメージを同期していません"
 
 msgid "Not syncing Snapin"
 msgstr "スナップインを同期していません"
+
+#, fuzzy
+msgid "Not yet seen"
+msgstr "未設定"
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
@@ -5351,6 +5478,10 @@ msgid "Numeric OS family id the installer recorded. A second encoding of FOG_os_
 msgstr ""
 
 msgid "O/S"
+msgstr "OS"
+
+#, fuzzy
+msgid "OS"
 msgstr "OS"
 
 msgid "OS family name the installer recorded. The stable identifier of the two."
@@ -5906,6 +6037,10 @@ msgid "Plugin installed!"
 msgstr "プラグインをインストールしました！"
 
 #, fuzzy
+msgid "Plugin not found"
+msgstr "ログアウトが見つかりません"
+
+#, fuzzy
 msgid "Plugin runner is globally disabled"
 msgstr "* ホストのPing機能は全体設定で無効になっています"
 
@@ -5995,6 +6130,10 @@ msgstr "プライマリグループ"
 
 msgid "Primary MAC"
 msgstr "プライマリ MAC アドレス"
+
+#, fuzzy
+msgid "Primary Storage Group"
+msgstr "プライマリストレージグループ"
 
 msgid "Primary User"
 msgstr "プライマリユーザー"
@@ -6208,6 +6347,9 @@ msgstr "RX"
 #, fuzzy
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
+
+msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
+msgstr ""
 
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
 msgstr ""
@@ -6653,16 +6795,20 @@ msgstr "設定"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "サーバーシェル"
+
 msgid "Secure Boot"
 msgstr ""
 
 msgid "Secure Boot CA private key"
 msgstr ""
 
-msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the installer skips these binaries, because rebuilding them to trust this server's CA would invalidate the signature that makes them bootable."
+msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
 msgstr ""
 
-msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
+msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
 
 msgid "Secure Boot kernel signing is not configured on this server"
@@ -6684,6 +6830,10 @@ msgstr "Cron タイプを選択してください"
 
 msgid "Select a valid image"
 msgstr "有効なイメージを選択してください"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "選択したログイン"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -6984,6 +7134,10 @@ msgstr ""
 
 msgid "Size"
 msgstr "サイズ"
+
+#, fuzzy
+msgid "Size on Server"
+msgstr "サーバー"
 
 #, php-format
 msgid "Skipped unknown %s: %s"
@@ -7729,6 +7883,9 @@ msgstr "タスクタイプ"
 msgid "Task activity"
 msgstr "有効"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "タスク実行に失敗しました"
@@ -7825,6 +7982,10 @@ msgstr "このサーバーにはイメージがありません"
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
+#, php-format
+msgid "The %s package is not installed and could not be built from source."
+msgstr ""
+
 msgid "The 'Is Master Node' setting defines which"
 msgstr "「マスターノード」設定は、どのノードを"
 
@@ -7874,6 +8035,12 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
+msgstr ""
+
+msgid "The architecture of the machine this image was captured from."
 msgstr ""
 
 msgid "The archive contains a link."
@@ -7977,6 +8144,9 @@ msgstr ""
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
@@ -8006,6 +8176,9 @@ msgstr "ディレクトリ"
 msgid "The plugin directory does not exist."
 msgstr "関数が存在しません"
 
+msgid "The plugin is installed and its schema is up to date."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin system is disabled"
 msgstr "このプラグインはインストールされていません"
@@ -8032,6 +8205,9 @@ msgstr ""
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "選択したプリンターを追加"
+
+msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
+msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
@@ -8115,6 +8291,9 @@ msgstr "レプリケーションする項目はありません"
 
 msgid "There you can download utilities such as FOG Prep"
 msgstr "そこから FOG Prep などのユーティリティをダウンロードできます"
+
+msgid "These binaries are staged on every install, HTTPS included. An HTTPS web interface has no bearing on netboot, which has its own protocol setting. HTTPS netboot only needs a rebuilt iPXE when the certificate comes from a private CA -- a publicly-issued one on an FQDN needs no rebuild and keeps the signed shim."
+msgstr ""
 
 #, php-format
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
@@ -8235,6 +8414,9 @@ msgid "This section allows you to upload user defined reports that may not be a 
 msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
+msgstr ""
+
+msgid "This server has not published the automatic Secure Boot enrolment blobs (PK.auth, KEK.auth and db.auth), so automatic enrolment is unavailable. There are three reasons that happens:"
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -9013,6 +9195,9 @@ msgstr "プラグインを削除しても、割り当てられたキーは保持
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9151,6 +9336,9 @@ msgstr "FOG データベースのスキーマが最新ではありません"
 msgid "Your database connection appears to be invalid"
 msgstr "データベース接続が無効のようです"
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
@@ -9183,9 +9371,6 @@ msgstr "また、データベースサービスが実行中かどうか"
 
 msgid "and node A only has a 5Mbps and you want the speed"
 msgstr "ノード A の帯域が 5 Mbps のみで、その速度に制限したい場合"
-
-msgid "and re-run the installer to enable it"
-msgstr ""
 
 msgid "and set it to master"
 msgstr "そしてマスターに設定します"
@@ -9239,6 +9424,12 @@ msgstr "ただし、このホストでは最近失敗しています"
 
 msgid "but there are"
 msgstr "ただし、次があります"
+
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
+
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
+msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
 msgstr "ファイルシステムに十分な空き容量があることを確認してください"
@@ -9362,6 +9553,10 @@ msgstr "クライアントコンピューター上の機能。"
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr "前"
+
 msgid "group"
 msgstr "グループ"
 
@@ -9402,6 +9597,14 @@ msgstr "ビットレート"
 
 msgid "host"
 msgstr "ホスト"
+
+#, fuzzy
+msgid "host is"
+msgstr "ホスト"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr "選択したプリンターを追加"
 
 msgid "hosts"
 msgstr "ホスト"
@@ -9466,6 +9669,14 @@ msgstr "イメージ"
 msgid "image file found, file"
 msgstr "イメージファイルが見つかりました。ファイル: "
 
+#, fuzzy
+msgid "image is"
+msgstr "イメージ"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "image replication"
 msgstr "イメージレプリケーション"
 
@@ -9483,6 +9694,9 @@ msgid "in"
 msgstr "分"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy
@@ -9587,6 +9801,9 @@ msgstr ""
 msgid "minutes"
 msgstr "分"
 
+msgid "mismatched"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -9656,6 +9873,9 @@ msgstr "このノード上に見つかりません"
 #, fuzzy
 msgid "not reachable"
 msgstr "利用不可"
+
+msgid "not yet seen"
+msgstr ""
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -9809,6 +10029,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "タスクが見つかりました"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr "選択したプリンターを追加"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"
@@ -10600,9 +10824,6 @@ msgstr ""
 #~ msgid "Failed to create snapin path on Master Node"
 #~ msgstr "マスターノード上のスナップインパス作成に失敗しました"
 
-#~ msgid "Failed to create tasking"
-#~ msgstr "タスクの作成に失敗しました"
-
 #~ msgid "Failed to destroy"
 #~ msgstr "破棄に失敗しました"
 
@@ -10634,9 +10855,6 @@ msgstr ""
 
 #~ msgid "File must be a csv"
 #~ msgstr "ファイルは CSV である必要があります"
-
-#~ msgid "Filesize"
-#~ msgstr "ファイルサイズ"
 
 #~ msgid "For example, a GPO policy to push"
 #~ msgstr "たとえば、配布するための GPO ポリシー"
@@ -10832,9 +11050,6 @@ msgstr ""
 #~ msgid "Hostname / IP"
 #~ msgstr "ホスト名 / IP"
 
-#~ msgid "Hosts Associated"
-#~ msgstr "関連付けられたホスト"
-
 #~ msgid "I have read"
 #~ msgstr "I have read"
 
@@ -10942,6 +11157,10 @@ msgstr ""
 #~ msgid "Initrd Name"
 #~ msgstr "Initrd 名"
 
+#, fuzzy
+#~ msgid "Install"
+#~ msgstr "インストール"
+
 #~ msgid "Install / Update Failed!"
 #~ msgstr "インストール/更新に失敗しました！"
 
@@ -10950,9 +11169,6 @@ msgstr ""
 
 #~ msgid "Install Kernel"
 #~ msgstr "カーネルをインストール"
-
-#~ msgid "Install Plugin"
-#~ msgstr "プラグインをインストール"
 
 #~ msgid "Invalid Host Colors"
 #~ msgstr "無効なホストカラー"
@@ -11078,9 +11294,6 @@ msgstr ""
 
 #~ msgid "Login with the FOG credentials and you will see the menu"
 #~ msgstr "FOG の認証情報でログインすると、メニューが表示されます"
-
-#~ msgid "Logout not found"
-#~ msgstr "ログアウトが見つかりません"
 
 #~ msgid "MB Asset"
 #~ msgstr "MB 資産タグ"
@@ -11313,12 +11526,6 @@ msgstr ""
 
 #~ msgid "Not all elements in filter or ports setting are integer"
 #~ msgstr "フィルターまたはポート設定のすべての要素が整数ではありません"
-
-#~ msgid "Not protected"
-#~ msgstr "保護されていません"
-
-#~ msgid "Not set"
-#~ msgstr "未設定"
 
 #~ msgid "Notes"
 #~ msgstr "メモ"
@@ -11654,9 +11861,6 @@ msgstr ""
 
 #~ msgid "Select/Deselect All"
 #~ msgstr "すべて選択/解除"
-
-#~ msgid "Selected Logins"
-#~ msgstr "選択したログイン"
 
 #~ msgid "Selected groups's current activity"
 #~ msgstr "選択したグループの現在のアクティビティ"
@@ -12220,9 +12424,6 @@ msgstr ""
 #~ msgid "e.g."
 #~ msgstr "例:"
 
-#~ msgid "faster"
-#~ msgstr "高速"
-
 #~ msgid "for the advanced menu parameters"
 #~ msgstr "詳細メニューパラメーター用"
 
@@ -12316,10 +12517,6 @@ msgstr ""
 
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
-
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr "選択したプリンターを追加"
 
 #~ msgid "of"
 #~ msgstr "の"

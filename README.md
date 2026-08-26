@@ -23,11 +23,21 @@ FOG uses a versioning schema that follows the general principles of semantic ver
 
 This gives us a Production, Staging, and Dev branches to follow standard devops practices.
 
-| Dev Cycle Stage  | Branches                                                                                                              | Version Property Associated |
-|------------------|-----------------------------------------------------------------------------------------------------------------------| ----------------------------|
-| Production       | stable, master                                                                                                        | Minor and Patch
-| Staging          | dev-branch                                                                                                            | Patch
-| Dev              | working-*, {feature-name}                                                                                             | Major, Minor
+| Dev Cycle Stage  | Channel   | Branches                    | Version Property Associated |
+|------------------|-----------|-----------------------------|-----------------------------|
+| Production       | `stable`  | stable, master              | Minor and Patch |
+| Staging          | `patches` | dev-branch                  | Patch |
+| Dev              | `beta`    | working-*, {feature-name}   | Major, Minor |
+
+The **Channel** column is the value to put in `FOG_update_channel` in
+`.fogsettings`, or to pass to `bin/updatefog.sh --channel`. It is the same word
+as the `FOG_CHANNEL` your server reports, in lowercase — one vocabulary for
+both, so the value you configure and the value you read back agree.
+
+> The earlier spellings `staging` and `dev` mean `patches` and `beta`
+> respectively, and are still accepted so existing servers keep updating. They
+> are no longer the documented names: `dev` in particular pointed at
+> `working-1.6`, not at `dev-branch`, which read as a typo and was not one.
 
 See also: [Version Sync Automation](https://docs.fogproject.org/en/latest/version-sync-automation) for how `FOG_VERSION`/`FOG_CHANNEL` are kept in sync with git state on each branch.
 
@@ -36,8 +46,8 @@ Current version on each of the main branches (updated automatically - see the do
 | Channel | Version |
 |---|---|
 | [`Stable`](https://github.com/FOGProject/fogproject/tree/stable) | [![stable version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/stable.json)](https://github.com/FOGProject/fogproject/tree/stable) |
-| [`Staging`](https://github.com/FOGProject/fogproject/tree/dev-branch) | [![dev-branch version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/dev-branch.json)](https://github.com/FOGProject/fogproject/tree/dev-branch) |
-| [`Dev`](https://github.com/FOGProject/fogproject/tree/working-1.6) | [![working-1.6 version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/working-1.6.json)](https://github.com/FOGProject/fogproject/tree/working-1.6) |
+| [`Patches`](https://github.com/FOGProject/fogproject/tree/dev-branch) | [![dev-branch version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/dev-branch.json)](https://github.com/FOGProject/fogproject/tree/dev-branch) |
+| [`Beta`](https://github.com/FOGProject/fogproject/tree/working-1.6) | [![working-1.6 version](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/FOGProject/fog-workflows/main/badges/working-1.6.json)](https://github.com/FOGProject/fogproject/tree/working-1.6) |
 
 ### Version Format
 

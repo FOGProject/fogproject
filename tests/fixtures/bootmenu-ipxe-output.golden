@@ -3,7 +3,7 @@
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -62,7 +62,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -128,7 +128,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -200,7 +200,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -277,7 +277,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -348,7 +348,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -414,7 +414,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -474,7 +474,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -539,7 +539,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -637,7 +637,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -753,7 +753,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -815,7 +815,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -913,7 +913,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 echo Ignoring host kernel custom-bzImage -- this machine is 64-bit ARM. Using arm_Image.
@@ -1013,7 +1013,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -1112,7 +1112,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 echo Ignoring host init arm_init.cpio.gz -- this machine is 64-bit x86. Using init.xz.
@@ -1218,7 +1218,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 echo Ignoring host kernel evilechopwnedchainhttpxid -- this machine is 64-bit ARM. Using arm_Image.
@@ -1318,7 +1318,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -1421,7 +1421,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1470,7 +1470,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1532,7 +1532,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1603,7 +1603,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1616,13 +1616,23 @@ params
 param mac0 ${net0/mac}
 param arch ${arch}
 param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
 param username ${username}
 param password ${password}
 param menuaccess 1
 param debug 1
 param sysuuid ${uuid}
+isset ${netX/mac} && param macboot ${netX/mac} ||
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
 goto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
@@ -1632,7 +1642,7 @@ chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1645,13 +1655,23 @@ params
 param mac0 ${net0/mac}
 param arch ${arch}
 param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
 param username ${username}
 param password ${password}
 param menuaccess 1
 param debug 1
 param sysuuid ${uuid}
+isset ${netX/mac} && param macboot ${netX/mac} ||
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
 goto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
@@ -1661,7 +1681,7 @@ chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1720,7 +1740,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1779,7 +1799,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1838,7 +1858,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1897,7 +1917,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -1956,7 +1976,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2015,7 +2035,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2074,7 +2094,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2140,7 +2160,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2206,7 +2226,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2266,7 +2286,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2325,7 +2345,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 set arch ${buildarch}
@@ -2423,7 +2443,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
@@ -2433,7 +2453,7 @@ console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2492,7 +2512,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2551,7 +2571,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot apps/fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
@@ -2610,7 +2630,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||

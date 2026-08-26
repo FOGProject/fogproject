@@ -168,6 +168,213 @@ class TaskLog extends FOGController
         }
     }
     /**
+     * Records one task state transition.
+     *
+     * The single definition of what a state row looks like. It used to live
+     * inline in TaskingElement::taskLog(), which meant only the two callers
+     * that go through a TaskingElement -- checkIn() and checkout() -- could
+     * write one. Cancellation does not go through either, so a cancelled task
+     * left no row at all and the last thing the log said about it was
+     * In-Progress, forever.
+     *
+     * The timestamp is the moment of the TRANSITION. taskLog() used to pass the
+     * task's own createdTime, and `createdTime` maps to this row's `createTime`
+     * -- one column, not two -- so every row a task ever wrote carried the
+     * instant the task was created. In-Progress and Complete came out sharing a
+     * timestamp to the second, which is what made the log unreadable: nothing
+     * could be ordered, and repeated transitions looked like duplicates.
+     *
+     * hostName/taskTypeName/imageName are denormalized here for the reason
+     * schema 341 gave: tasks are deleted routinely and this row outlives them.
+     *
+     * @param object $Task the task whose state just changed.
+     *
+     * @return bool|object false if there is no task to record.
+     */
+    public static function recordState($Task)
+    {
+        if (!$Task instanceof Task || !$Task->isValid()) {
+            return false;
+        }
+        $Host = $Task->getHost();
+        $hasHost = ($Host && $Host->isValid());
+        // Only an imaging task has an image; every other type leaves this empty
+        // and the dashboard chart counts rows where it is not.
+        $imageName = '';
+        if ($Task->isImagingTask()) {
+            $Image = $Task->getImage();
+            if ($Image && $Image->isValid()) {
+                $imageName = $Image->get('name');
+            }
+        }
+
+        return self::getClass('TaskLog')
+            ->set('taskID', $Task->get('id'))
+            ->set('taskStateID', $Task->get('stateID'))
+            ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->set('createdBy', $Task->get('createdBy'))
+            ->set('hostID', ($hasHost ? $Host->get('id') : 0))
+            ->set('hostName', ($hasHost ? $Host->get('name') : ''))
+            ->set('taskTypeName', $Task->getTaskTypeText())
+            ->set('imageName', $imageName)
+            ->save();
+    }
+    /**
+     * Records a state transition for many tasks at once.
+     *
+     * recordState()'s bulk sibling, and it exists because the per-object shape
+     * does not survive TaskManager::cancel(). That method cancels every active
+     * task in a group in ONE statement; recording the result by rebuilding each
+     * Task cost five queries apiece -- the reload, the host, the task type, the
+     * image and the INSERT -- so a 300-host group turned a two-statement cancel
+     * into ~1500 queries inside one request.
+     *
+     * Same row, same columns, one SELECT and one batched INSERT (insertBatch()
+     * splits at 500 rows of its own accord, so a very large group costs a
+     * handful rather than one -- still a constant, not a multiple of the
+     * task count). The join is
+     * the denormalization recordState() does by walking relationships: host
+     * name, task type name and image name, copied onto the row because tasks
+     * are deleted routinely and this row outlives them (schema 341's reasoning,
+     * extended to the image).
+     *
+     * Reading `tasks` rather than trusting the ids is what makes this safe to
+     * call after the update: the state written is whatever the row says NOW, so
+     * a task whose state moved concurrently logs the truth rather than what the
+     * caller assumed, and an id that no longer resolves returns no row at all
+     * instead of one claiming a transition. That is the same guarantee
+     * recordState()'s `$Task->isValid()` gate gives, expressed as a join.
+     *
+     * `hostID` comes from the `hosts` join, not from `tasks`.`taskHostID`, so a
+     * task pointing at a deleted host records 0 exactly as recordState() does
+     * rather than a dangling id.
+     *
+     * @param array $taskIDs ids of the tasks whose state just changed.
+     *
+     * @return int how many rows were written.
+     */
+    public static function recordStates($taskIDs)
+    {
+        $ids = [];
+        foreach ((array)$taskIDs as $taskID) {
+            $taskID = (int)$taskID;
+            if ($taskID > 0) {
+                $ids[$taskID] = $taskID;
+            }
+        }
+        if (count($ids) < 1) {
+            return 0;
+        }
+        // Interpolated rather than bound: every element has been through
+        // (int) above, and a bound IN list needs a placeholder per element,
+        // which is what sitescope.class.php does with its site ids for the
+        // same reason.
+        $rows = self::$DB->query(
+            "SELECT `tasks`.`taskID` AS `taskID`, "
+            . "`tasks`.`taskStateID` AS `stateID`, "
+            . "`tasks`.`taskCreateBy` AS `createdBy`, "
+            . "`tasks`.`taskTypeID` AS `typeID`, "
+            . "`hosts`.`hostID` AS `hostID`, "
+            . "COALESCE(`hosts`.`hostName`, '') AS `hostName`, "
+            . "COALESCE(`taskTypes`.`ttName`, '') AS `taskTypeName`, "
+            . "COALESCE(`images`.`imageName`, '') AS `imageName` "
+            . "FROM `tasks` "
+            . "LEFT OUTER JOIN `hosts` "
+            . "ON `hosts`.`hostID` = `tasks`.`taskHostID` "
+            . "LEFT OUTER JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "LEFT OUTER JOIN `images` "
+            . "ON `images`.`imageID` = `tasks`.`taskImageID` "
+            . "WHERE `tasks`.`taskID` IN (" . implode(',', $ids) . ")"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (!count((array)$rows ?: [])) {
+            return 0;
+        }
+        // Which type ids count as imaging, asked of TaskType rather than
+        // written down here or pushed into the SQL above. recordState() gates
+        // the image name on isImagingTask(), and two definitions of "imaging"
+        // that can drift is exactly the kind of thing that makes one row
+        // disagree with another.
+        $TaskType = self::getClass('TaskType');
+        $imagingTypes = self::fastmerge(
+            (array)$TaskType->isDeploy(true),
+            (array)$TaskType->isCapture(true)
+        );
+        // `ip` and `type` as well: recordState() gets both from TaskLog's
+        // constructor, which a batched INSERT never runs, and a bulk-cancelled
+        // row must not be distinguishable from a singly-cancelled one.
+        $fields = [
+            'taskID',
+            'stateID',
+            'ip',
+            'createdTime',
+            'createdBy',
+            'type',
+            'hostID',
+            'hostName',
+            'taskTypeName',
+            'imageName'
+        ];
+        $now = self::niceDate()->format('Y-m-d H:i:s');
+        $values = [];
+        foreach ((array)$rows as $row) {
+            $values[] = [
+                (int)$row['taskID'],
+                (int)$row['stateID'],
+                // Cast, because there is no remote address in a daemon.
+                // filter_input(INPUT_SERVER, 'REMOTE_ADDR') is null under CLI,
+                // `ip` is varchar(15) NOT NULL, and a null bound into a NOT
+                // NULL column is error 1048 on a strict server -- which is
+                // every server since GH-1245 stopped PDODB clearing sql_mode.
+                // TaskManager::cancel() is reached from the multicast manager
+                // and from TaskManager::reapUnrunnable(), both daemons.
+                (string)self::$remoteaddr,
+                $now,
+                (string)$row['createdBy'],
+                self::TYPE_STATE,
+                (int)$row['hostID'],
+                (string)$row['hostName'],
+                (string)$row['taskTypeName'],
+                (
+                    in_array((int)$row['typeID'], $imagingTypes)
+                    ? (string)$row['imageName']
+                    : ''
+                )
+            ];
+        }
+        /*
+         * Caught, because the cancel has already happened.
+         *
+         * insertBatch() THROWS where FOGController::save() returns false, and
+         * the only caller sits inside Route::cancel()'s try -- so an
+         * unhandled failure here would answer a caller whose tasks really were
+         * cancelled with an error, which is the same class of lie the rest of
+         * this change exists to remove. recordState() cannot do this to its
+         * caller and neither should this.
+         *
+         * Not silent: logFault() is where a failure on a path with nobody
+         * signed in gets written, exactly as save()'s own catch does with it.
+         */
+        try {
+            list($insertID, $affected) = self::getClass('TaskLogManager')
+                ->insertBatch($fields, $values);
+            unset($insertID);
+        } catch (\Exception $e) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s',
+                    _('Failed to record task state changes'),
+                    _('Error'),
+                    $e->getMessage()
+                )
+            );
+
+            return 0;
+        }
+
+        return (int)$affected;
+    }
+    /**
      * Gets the task object.
      *
      * @return object

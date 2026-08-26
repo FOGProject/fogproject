@@ -593,6 +593,123 @@ class Schema extends FOGController
         return "''";
     }
     /**
+     * Converts enum('0','1') columns to tinyint(1), preserving every value.
+     *
+     * ADR 0028. FOG spelled its two-state columns enum('0','1') for years,
+     * which put a trap in every one of them: an integer written to an ENUM is
+     * a member INDEX, not a value, so 1 selects the member '0' -- FALSE --
+     * and 0 is the error value STRICT_TRANS_TABLES refuses. tinyint(1) has no
+     * such trap. Core converts its columns in schema step 368; each bundled
+     * plugin converts its own from its own schema() (ADR 0009), and calls
+     * this so there is one implementation of the conversion rather than four.
+     *
+     * 🔴 THREE STATEMENTS, NOT ONE, AND THAT IS NOT OPTIONAL. A direct
+     * `ALTER TABLE t MODIFY c TINYINT(1)` converts an ENUM BY INDEX. Measured
+     * on MariaDB 11.8:
+     *
+     *     before:  '0'  '1'  '0'  '1'
+     *     after:    1    2    1    2
+     *
+     * Every false becomes 1 and every true becomes 2 -- both truthy, no
+     * error, nothing logged, on every upgrading server. VARCHAR(1) first
+     * converts by LABEL; the second ALTER then converts the resulting
+     * '0'/'1' strings by VALUE, which is the wanted mapping. The UPDATE
+     * between the two is not cosmetic either: a row still holding the ENUM
+     * error value from before GH-1245 arrives at the varchar stage as '',
+     * which tinyint refuses, so without it the upgrade fails hard on exactly
+     * the databases that most need repairing.
+     *
+     * Nullability and default are read from the catalogue and carried across
+     * rather than assumed -- LDAPServers.lsAllowAPI is nullable and
+     * lsUseGroupMatch has no default at all, and rewriting either would be a
+     * behaviour change smuggled in by a type change.
+     *
+     * Re-running is a read: a column that is not still exactly
+     * enum('0','1') is skipped, so a converted column is left alone and so is
+     * one an admin has changed to something else.
+     *
+     * @param array $map table name => list of column names.
+     *
+     * @return bool
+     */
+    public static function enumToTinyint(array $map)
+    {
+        foreach ($map as $table => $columns) {
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty`, "
+                . "`COLUMN_DEFAULT` AS `d`, `IS_NULLABLE` AS `n` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table",
+                [],
+                [':table' => strtolower($table)]
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            $want = array_map('strtolower', (array) $columns);
+            foreach ((array) $rows as $row) {
+                if (!isset($row['c'], $row['ty'])
+                    || !in_array(strtolower($row['c']), $want, true)
+                ) {
+                    continue;
+                }
+                if (!preg_match("/^enum\\('0','1'\\)$/i", trim($row['ty']))) {
+                    continue;
+                }
+
+                $nullable = isset($row['n'])
+                    && 0 === strcasecmp((string) $row['n'], 'YES');
+                // MariaDB reports a string default quoted ('1') and reports
+                // "no default" as SQL NULL; MySQL 8 reports the member
+                // unquoted. Trimming the quotes normalises both.
+                $raw = $row['d'];
+                $hasDefault = null !== $raw
+                    && 0 !== strcasecmp((string) $raw, 'NULL');
+                $default = ('1' === trim((string) $raw, "'")) ? '1' : '0';
+
+                $null = $nullable ? 'NULL' : 'NOT NULL';
+                if (!$hasDefault && $nullable) {
+                    $strTail = $null . ' DEFAULT NULL';
+                    $intTail = $null . ' DEFAULT NULL';
+                } elseif (!$hasDefault) {
+                    $strTail = $null;
+                    $intTail = $null;
+                } else {
+                    $strTail = $null . " DEFAULT '" . $default . "'";
+                    $intTail = $null . ' DEFAULT ' . $default;
+                }
+
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` VARCHAR(1) %s',
+                        $table,
+                        $row['c'],
+                        $strTail
+                    )
+                );
+                self::$DB->query(
+                    sprintf(
+                        'UPDATE `%s` SET `%s` = \'0\' '
+                        . "WHERE `%s` IS NOT NULL AND `%s` NOT IN ('0', '1')",
+                        $table,
+                        $row['c'],
+                        $row['c'],
+                        $row['c']
+                    )
+                );
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` TINYINT(1) %s',
+                        $table,
+                        $row['c'],
+                        $intTail
+                    )
+                );
+            }
+        }
+
+        return true;
+    }
+    /**
      * SQL create table syntax
      *
      * @param string $name    What are we calling the table?

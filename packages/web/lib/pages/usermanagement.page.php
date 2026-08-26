@@ -1544,6 +1544,17 @@ class UserManagement extends FOGPage
      */
     public function edit()
     {
+        // "Signs In With" is the same label the General tab uses for
+        // authsource, and it is the one fact here that changes what the
+        // rest of the page will let you do -- an external account has no
+        // Password tab at all.
+        $authSource = trim((string)$this->obj->get('authsource'));
+        $this->notes = [
+            _('User') => $this->obj->get('name'),
+            _('Friendly Name') => $this->obj->get('display'),
+            _('Signs In With') => ($authSource ?: _('FOG')),
+            _('API Enabled') => ($this->obj->get('api') ? _('Yes') : _('No'))
+        ];
         $tabData = [];
 
         // General

@@ -190,3 +190,15 @@ serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname
 # the three known channel branches (e.g. a feature/PR branch, or no git repo
 # at all for a tarball install) rather than guessing.
 [[ -z ${FOG_update_channel} ]] && FOG_update_channel="$(branchToChannel "$(git -C "${FOG_git_path}" rev-parse --abbrev-ref HEAD 2>/dev/null)" 2>/dev/null)"
+# Fold a value stored under the retired stable/staging/dev vocabulary to its
+# canonical spelling (GH-1279), so writeUpdateFile persists the new one and the
+# admin's file stops disagreeing with the docs. Only ever rewrites a value that
+# normalizeChannel RECOGNISES -- anything else is left exactly as found, because
+# an unknown value is either a typo the admin should see or a channel a newer
+# installer knows about, and silently blanking either would be worse than
+# leaving it to fail loudly in channelToBranch.
+if [[ -n ${FOG_update_channel} ]]; then
+    _canonicalChannel="$(normalizeChannel "${FOG_update_channel}" 2>/dev/null)" \
+        && FOG_update_channel="${_canonicalChannel}"
+    unset _canonicalChannel
+fi
