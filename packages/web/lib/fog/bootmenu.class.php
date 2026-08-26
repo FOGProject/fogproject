@@ -395,6 +395,16 @@ class BootMenu extends FOGBase
          */
         $webroot = $bootroot;
         $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
+        /**
+         * setmacto is the MAC FOS forces onto whichever interface it manages
+         * to reach us on, so it has to be the MAC iPXE actually booted with.
+         * ${net0/mac} was wrong on any machine whose first enumerated NIC has
+         * no link: iPXE gets its lease over the NIC that does, FOS then
+         * rewrites that NIC to the unplugged one's MAC and the re-DHCP fails.
+         * ${netX} is iPXE's alias for the last opened network device, so it
+         * follows the interface that got us here and still resolves to net0
+         * on a single-NIC machine.
+         */
         $Send['booturl'] = array(
             '#!ipxe',
             "set fog-ip $webserver",
@@ -402,7 +412,7 @@ class BootMenu extends FOGBase
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
-            'set setmacto ${net0/mac}',
+            'set setmacto ${netX/mac}',
         );
         if (self::$Host->isValid()) {
             $sysuuid = filter_input(INPUT_POST, 'sysuuid')

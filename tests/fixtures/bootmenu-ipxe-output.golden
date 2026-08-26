@@ -3,7 +3,7 @@
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -76,7 +76,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -156,7 +156,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -242,7 +242,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -322,7 +322,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -400,7 +400,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -479,7 +479,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -581,7 +581,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -696,7 +696,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -772,7 +772,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -874,7 +874,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 echo Ignoring host kernel custom-bzImage -- this machine is 64-bit ARM. Using arm_Image.
@@ -982,7 +982,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1089,7 +1089,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 echo Ignoring host init arm_init.cpio.gz -- this machine is x86. Using init.xz.
@@ -1199,7 +1199,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 echo Ignoring host kernel evilechopwnedchainhttpxid -- this machine is 64-bit ARM. Using arm_Image.
@@ -1307,7 +1307,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1414,7 +1414,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1477,7 +1477,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1553,7 +1553,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1639,7 +1639,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1668,7 +1668,7 @@ chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1697,7 +1697,7 @@ chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1770,7 +1770,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1843,7 +1843,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1916,7 +1916,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -1989,7 +1989,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2062,7 +2062,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2135,7 +2135,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2208,7 +2208,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2281,7 +2281,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2361,7 +2361,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2441,7 +2441,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2519,7 +2519,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2592,7 +2592,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2694,7 +2694,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
@@ -2704,7 +2704,7 @@ console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap uk
 set arch ${buildarch}
@@ -2777,7 +2777,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap no-latin1
 set arch ${buildarch}
@@ -2850,7 +2850,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap sr-latin
 set arch ${buildarch}
@@ -2923,7 +2923,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -2996,7 +2996,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot apps/fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
@@ -3069,7 +3069,7 @@ autoboot
 set fog-ip 10.0.0.1
 set fog-webroot fog
 set boot-url http://${fog-ip}/${fog-webroot}
-set setmacto ${net0/mac}
+set setmacto ${netX/mac}
 set storage-ip 10.0.0.1
 set keymap us
 set arch ${buildarch}
