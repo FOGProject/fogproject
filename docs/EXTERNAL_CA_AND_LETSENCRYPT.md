@@ -166,6 +166,20 @@ The installer (working-1.6 and later) can sign FOG's server certificate with a C
 | `--ca-key`  | Intermediate CA **private key** (PEM) | Must match `--ca-cert` |
 | `--ca-root` | **Root** CA certificate (PEM) | `--ca-cert` must verify against this |
 
+**Key algorithms.** Any key OpenSSL can load is accepted -- RSA, RSA-PSS, EC on
+any curve, Ed25519, Ed448 -- because the installer pairs `--ca-key` to
+`--ca-cert` by comparing public keys rather than RSA moduli. The one refusal is
+**DSA**, which TLS 1.3 removed and no current browser trusts.
+
+Accepted is not the same as usable everywhere, though, and the narrow verifier
+is iPXE's. The imported CA is compiled into the iPXE binary, and iPXE verifies
+**RSA and ECDSA P-256/P-384 signatures only** -- no P-521, no Ed25519/Ed448, no
+RSA-PSS. A CA outside that set serves the web UI and satisfies fog-client
+normally, then fails HTTPS netboot at `boot.php`; the installer prints a note
+saying so at import time. See [How iPXE validates
+HTTPS](#how-ipxe-validates-https). **If you netboot over HTTPS, use RSA or EC
+P-256/P-384.**
+
 Enable it with `--external-ca`, or answer the interactive prompt during install:
 
 ```bash
@@ -452,8 +466,13 @@ fog-client installer and reboot PXE clients after the switch.
 
 - **`The supplied CA private key does not match the supplied CA certificate`** —
   `--ca-key` and `--ca-cert` are not a pair. Confirm with:
-  `openssl x509 -noout -modulus -in cert | openssl md5` vs
-  `openssl rsa -noout -modulus -in key | openssl md5`.
+  `openssl x509 -pubkey -noout -in cert` vs `openssl pkey -pubout -in key`;
+  they print identical PEM for a real pair. (Do **not** use `openssl rsa -noout
+  -modulus` — it only reads RSA keys, so it reports a mismatch on an EC or
+  Ed25519 CA that is perfectly well paired.)
+- **`The supplied CA certificate uses DSA`** — DSA is refused deliberately.
+  TLS 1.3 removed DSA signatures entirely and no current browser trusts a DSA
+  chain. Re-issue the CA with an RSA or elliptic curve key.
 - **`The supplied certificate is not a CA certificate`** — `--ca-cert` lacks
   `basicConstraints CA:TRUE`. You passed a leaf, not an intermediate CA.
 - **`The intermediate CA does not verify against the supplied root`** — `--ca-cert`
