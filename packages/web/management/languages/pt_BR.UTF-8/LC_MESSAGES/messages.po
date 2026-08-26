@@ -883,6 +883,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr "Tempo de Checkin"
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "Verificando se eu sou o gerente do grupo"
 
@@ -1866,6 +1869,14 @@ msgstr "Falha ao destruir Nó de Armazenamento"
 
 msgid "Failed to install plugin"
 msgstr "Falha ao instalar plugin"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Falha ao criar tarefa"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "Falha ao descriptografar dados no servidor"
 
 msgid "Failed to save assignment"
 msgstr "Falha ao salvar atribuição"
@@ -3504,6 +3515,10 @@ msgid "Management Username"
 msgstr "Usuário de Gerenciamento"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Tarefa cancelada"
+
+#, fuzzy
 msgid "Mass destroy failed"
 msgstr "Falha ao Destruir"
 
@@ -3954,6 +3969,10 @@ msgstr "Nenhum snapin associado a este grupo como mestre"
 
 msgid "No token passed to authenticate this host"
 msgstr "Nenhum token passado para autenticar este host"
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Nenhuma tarefa nova encontrada"
 
 msgid "No valid Image defined for this host"
 msgstr "Nenhuma Imagem válida definida para este host"
@@ -5679,6 +5698,9 @@ msgstr "Tipo de Tarefa não é válido"
 msgid "Task Types"
 msgstr "Tipos de Tarefa"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "Tarefa forçada a iniciar"
 
@@ -6767,6 +6789,10 @@ msgstr "aqui"
 msgid "host"
 msgstr "host"
 
+#, fuzzy
+msgid "host no longer exists"
+msgstr "não está mais rodando"
+
 msgid "hosts"
 msgstr "hosts"
 
@@ -6835,6 +6861,10 @@ msgstr "imagem"
 
 msgid "image file found, file: "
 msgstr "arquivo de imagem encontrado, arquivo: "
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "não está mais rodando"
 
 msgid "image replication"
 msgstr "replicação de imagem"
@@ -7095,6 +7125,9 @@ msgstr "removido com sucesso!"
 
 msgid "task found"
 msgstr "tarefa encontrada"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"

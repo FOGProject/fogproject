@@ -123,6 +123,36 @@ class TaskScheduler extends FOGService
                     self::wakeUp($hostMACs);
                 }
             }
+            /*
+             * The housekeeping sweep runs BEFORE the "no tasks found" exit
+             * below, and that ordering is the point of putting it here.
+             *
+             * That exit counts SCHEDULED and power-management tasks -- the two
+             * things the rest of this method acts on -- and throws when there
+             * are none, which ends the pass. Anything placed after it never
+             * runs on an install with no scheduled task and no power-
+             * management task. That is most small installs, and it is exactly
+             * the population reporting tasks stuck active forever. Reaping has
+             * nothing to do with whether a schedule exists.
+             */
+            self::outall(
+                ' * '
+                . _('Checking for tasks that can never run...')
+            );
+            $reaped = self::getClass('TaskManager')->reapUnrunnable();
+            foreach ($reaped as $taskID => $why) {
+                self::outall(
+                    sprintf(
+                        ' * %s %d: %s',
+                        _('Marked failed, task'),
+                        $taskID,
+                        $why
+                    )
+                );
+            }
+            if (count($reaped) < 1) {
+                self::outall(' * ' . _('No unrunnable tasks found.'));
+            }
             $findWhere = array(
                 'isActive' => 1
             );

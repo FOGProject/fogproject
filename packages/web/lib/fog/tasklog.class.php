@@ -127,6 +127,153 @@ class TaskLog extends FOGController
         }
     }
     /**
+     * Records one task state transition.
+     *
+     * The single definition of what a state row looks like. It used to live
+     * inline in TaskingElement::taskLog(), which meant only the two callers
+     * that go through a TaskingElement -- checkIn() and checkout() -- could
+     * write one. Cancellation does not go through either, so a cancelled task
+     * left no row at all and the last thing the log said about it was
+     * In-Progress, forever.
+     *
+     * The timestamp is the moment of the TRANSITION. taskLog() passed the
+     * task's own createdTime, and `createdTime` maps to this row's
+     * `createTime` -- one column, not two -- so every row a task ever wrote
+     * carried the instant the task was created. In-Progress and Complete came
+     * out sharing a timestamp to the second, which is what made the log
+     * unreadable: nothing could be ordered and repeated transitions looked
+     * like duplicates.
+     *
+     * hostID/hostName/taskTypeName are deliberately left empty, which is this
+     * branch's existing convention for a state row and the reason the
+     * databaseFields note above gives: a state row is an annotation on its
+     * task and says nothing without it, and this runs on every transition.
+     * The reaper's error rows do fill them, because those outlive the host
+     * they name -- that is the case the columns were added for.
+     *
+     * @param object $Task the task whose state just changed.
+     *
+     * @return bool|object false if there is no task to record.
+     */
+    public static function recordState($Task)
+    {
+        if (!$Task instanceof Task || !$Task->isValid()) {
+            return false;
+        }
+
+        return self::getClass('TaskLog')
+            ->set('taskID', $Task->get('id'))
+            ->set('stateID', $Task->get('stateID'))
+            ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'))
+            ->set('createdBy', $Task->get('createdBy'))
+            ->save();
+    }
+    /**
+     * Records a state transition for many tasks at once.
+     *
+     * recordState()'s bulk sibling, and it exists because the per-object
+     * shape does not survive TaskManager::cancel(). That method cancels every
+     * active task in a group in ONE statement; recording the result by
+     * rebuilding each Task cost a reload and an INSERT apiece, so a 300-host
+     * group turned a two-statement cancel into hundreds of queries inside one
+     * request. Same row, same columns, one SELECT and one batched INSERT.
+     *
+     * Reading `tasks` rather than trusting the ids is what makes this safe to
+     * call after the update: the state written is whatever the row says NOW,
+     * so a task whose state moved concurrently logs the truth rather than
+     * what the caller assumed, and an id that no longer resolves returns no
+     * row at all instead of one claiming a transition. That is the same
+     * guarantee recordState()'s isValid() gate gives, expressed as a query.
+     *
+     * @param array $taskIDs ids of the tasks whose state just changed.
+     *
+     * @return int how many rows were written.
+     */
+    public static function recordStates($taskIDs)
+    {
+        $ids = array();
+        foreach ((array)$taskIDs as $taskID) {
+            $taskID = (int)$taskID;
+            if ($taskID > 0) {
+                $ids[$taskID] = $taskID;
+            }
+        }
+        if (count($ids) < 1) {
+            return 0;
+        }
+        // Interpolated rather than bound: every element has been through
+        // (int) above, and a bound IN list needs a placeholder per element.
+        $rows = self::$DB->query(
+            "SELECT `taskID`, `taskStateID`, `taskCreateBy` "
+            . "FROM `tasks` "
+            . "WHERE `taskID` IN (" . implode(',', $ids) . ")"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (count((array)$rows) < 1) {
+            return 0;
+        }
+        // `ip` and `type` as well: recordState() gets both from TaskLog's
+        // constructor, which a batched INSERT never runs, and a bulk-cancelled
+        // row must not be distinguishable from a singly-cancelled one.
+        $fields = array(
+            'taskID',
+            'stateID',
+            'ip',
+            'createdTime',
+            'createdBy',
+            'type',
+        );
+        $now = self::niceDate()->format('Y-m-d H:i:s');
+        $values = array();
+        foreach ((array)$rows as $row) {
+            $values[] = array(
+                (int)$row['taskID'],
+                (int)$row['taskStateID'],
+                // Cast, because there is no remote address in a daemon.
+                // filter_input(INPUT_SERVER, 'REMOTE_ADDR') is null under CLI,
+                // `ip` is varchar(15) NOT NULL, and a null bound into a NOT
+                // NULL column is error 1048 on a strict server -- which is
+                // every server since GH-1245 stopped PDODB clearing sql_mode.
+                // TaskManager::cancel() is reached from the multicast manager
+                // and from TaskManager::reapUnrunnable(), both daemons.
+                (string)self::$remoteaddr,
+                $now,
+                (string)$row['taskCreateBy'],
+                self::TYPE_STATE,
+            );
+        }
+        /*
+         * Caught, because the cancel has already happened.
+         *
+         * insertBatch() THROWS where FOGController::save() returns false, and
+         * its callers sit inside a try that answers a request -- so an
+         * unhandled failure here would tell a caller whose tasks really were
+         * cancelled that the cancel failed, which is the same class of lie
+         * this change exists to remove. recordState() cannot do that to its
+         * caller and neither should this.
+         *
+         * Not silent: logFault() is where a failure on a path with nobody
+         * signed in gets written, exactly as save()'s own catch does with it.
+         */
+        try {
+            list($insertID, $affected) = self::getClass('TaskLogManager')
+                ->insertBatch($fields, $values);
+            unset($insertID);
+        } catch (Exception $e) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s',
+                    _('Failed to record task state changes'),
+                    _('Error'),
+                    $e->getMessage()
+                )
+            );
+
+            return 0;
+        }
+
+        return (int)$affected;
+    }
+    /**
      * Gets the task object.
      *
      * @return object

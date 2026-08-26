@@ -858,6 +858,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -1833,6 +1836,12 @@ msgid "Failed to destroy Storage Node"
 msgstr ""
 
 msgid "Failed to install plugin"
+msgstr ""
+
+msgid "Failed to record task state changes"
+msgstr ""
+
+msgid "Failed to record why tasks were reaped"
 msgstr ""
 
 msgid "Failed to save assignment"
@@ -3453,6 +3462,9 @@ msgstr ""
 msgid "Management Username"
 msgstr ""
 
+msgid "Marked failed, task"
+msgstr ""
+
 msgid "Mass destroy failed"
 msgstr ""
 
@@ -3898,6 +3910,9 @@ msgid "No snapins associated with this group as master"
 msgstr ""
 
 msgid "No token passed to authenticate this host"
+msgstr ""
+
+msgid "No unrunnable tasks found."
 msgstr ""
 
 msgid "No valid Image defined for this host"
@@ -5614,6 +5629,9 @@ msgstr ""
 msgid "Task Types"
 msgstr ""
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr ""
 
@@ -6694,6 +6712,9 @@ msgstr ""
 msgid "host"
 msgstr ""
 
+msgid "host no longer exists"
+msgstr ""
+
 msgid "hosts"
 msgstr ""
 
@@ -6761,6 +6782,9 @@ msgid "image"
 msgstr ""
 
 msgid "image file found, file: "
+msgstr ""
+
+msgid "image no longer exists"
 msgstr ""
 
 msgid "image replication"
@@ -7021,6 +7045,9 @@ msgid "successfully removed!"
 msgstr ""
 
 msgid "task found"
+msgstr ""
+
+msgid "task type no longer exists"
 msgstr ""
 
 #, php-format

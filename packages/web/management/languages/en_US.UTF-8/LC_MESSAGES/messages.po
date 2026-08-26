@@ -1012,6 +1012,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr "Task Checkin Time"
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2118,6 +2121,14 @@ msgstr "Failed to destroy Storage Node"
 
 msgid "Failed to install plugin"
 msgstr "Failed to install plugin"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Failed to create task"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "Failed to decrypt data"
 
 msgid "Failed to save assignment"
 msgstr "Failed to save assignment"
@@ -3982,6 +3993,10 @@ msgid "Management Username"
 msgstr "Management Username"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Cancelled task"
+
+#, fuzzy
 msgid "Mass destroy failed"
 msgstr "Destroy failed: %s"
 
@@ -4475,6 +4490,10 @@ msgstr "There are no snapins associated with this host"
 
 msgid "No token passed to authenticate this host"
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "No valid class sent"
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -6456,6 +6475,9 @@ msgstr "Task Type is not valid"
 msgid "Task Types"
 msgstr "Task Types"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "Task forced to start"
 
@@ -7687,6 +7709,10 @@ msgid "host"
 msgstr "host"
 
 #, fuzzy
+msgid "host no longer exists"
+msgstr " no longer exists"
+
+#, fuzzy
 msgid "hosts"
 msgstr "host"
 
@@ -7771,6 +7797,10 @@ msgstr "Image"
 
 msgid "image file found, file: "
 msgstr ""
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr " no longer exists"
 
 #, fuzzy
 msgid "image replication"
@@ -8069,6 +8099,9 @@ msgstr "successfully removed"
 
 msgid "task found"
 msgstr "task found"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"

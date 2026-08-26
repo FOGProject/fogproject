@@ -1000,6 +1000,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr "Fecha ya existe"
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2100,6 +2103,14 @@ msgstr "Error al eliminar el nodo de almacenamiento"
 #, fuzzy
 msgid "Failed to install plugin"
 msgstr "Gestión de plugins"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Error al crear la tarea"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "Error al desencriptar los datos"
 
 #, fuzzy
 msgid "Failed to save assignment"
@@ -3984,6 +3995,10 @@ msgid "Management Username"
 msgstr "Usuario"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Tarea"
+
+#, fuzzy
 msgid "Mass destroy failed"
 msgstr "Error al eliminar"
 
@@ -4491,6 +4506,10 @@ msgstr ""
 
 msgid "No token passed to authenticate this host"
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "No se han encontrado tareas"
 
 msgid "No valid Image defined for this host"
 msgstr ""
@@ -6449,6 +6468,9 @@ msgstr "Tipo de tarea no válida"
 msgid "Task Types"
 msgstr "Tarea"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task forced to start"
 msgstr "Gestión de tareas"
@@ -7640,6 +7662,10 @@ msgid "host"
 msgstr "Equipo"
 
 #, fuzzy
+msgid "host no longer exists"
+msgstr "Ya existe este equipo"
+
+#, fuzzy
 msgid "hosts"
 msgstr "Equipos"
 
@@ -7721,6 +7747,10 @@ msgstr "Imagen"
 #, fuzzy
 msgid "image file found, file: "
 msgstr "Archivo"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "El grupo de almacenamiento ya existe"
 
 #, fuzzy
 msgid "image replication"
@@ -8015,6 +8045,9 @@ msgstr "Eliminado"
 #, fuzzy
 msgid "task found"
 msgstr "No hay tareas activas para este equipo"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"
