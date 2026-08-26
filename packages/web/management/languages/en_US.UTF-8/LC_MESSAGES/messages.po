@@ -3593,6 +3593,10 @@ msgstr "Host is not valid"
 msgid "Host is not valid!"
 msgstr "Host is not valid"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "Image is protected and cannot be deleted"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3904,6 +3908,9 @@ msgstr "Image Name"
 #, fuzzy
 msgid "Image architecture"
 msgstr "Protected"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
 
 #, fuzzy
 msgid "Image is invalid"

@@ -420,29 +420,74 @@ class FOGSSH
         return @unlink("ssh2.sftp://{$this->_sftp}{$path}");
     }
     /**
-     * Deletes the item passed
-     * This is the method called for the delete.
+     * Deletes the item passed.
+     *
+     * Bounded, and it answers with a bool.
+     *
+     * THE RECURSION USED TO BE UNBOUNDED. The old shape ended with a bare
+     * `$this->delete($path)` after emptying the directory -- an unconditional
+     * self-call with identical arguments and no test for whether anything had
+     * changed. For a path that exists but CANNOT be removed, every pass
+     * repeated itself exactly: sftp_rmdir failed, sftp_unlink failed,
+     * scanFilesystem() returned [] (it lists files, and a plain file is not a
+     * directory), and delete() called itself again. That recursion had no
+     * termination condition at all; it ran until PHP exhausted memory_limit.
+     *
+     * A PHP memory-exhaustion fatal is NOT catchable, so no catch block
+     * anywhere upstream could see it. TaskQueue::checkout() caught nothing, the
+     * response body was empty, and FOS -- which reads the body and waits for
+     * '##' -- printed "Error returned:" with nothing after it and retried until
+     * it gave up. A capture that had already been renamed into place therefore
+     * never reached Complete.
+     *
+     * How it was reached in the field: `_moveUpload()` renames the previous
+     * image aside to `<image>.movetmp` and deletes it after the new one lands.
+     * That directory keeps the OWNERSHIP of whatever it was renamed from, and a
+     * root-owned 0755 directory cannot be emptied by the storage node's SSH
+     * user -- unlinking a file needs write permission on its parent. So both
+     * primitives failed forever.
+     *
+     * The fix is the missing progress condition, not a depth cap: after
+     * emptying a directory the primitives are retried EXACTLY ONCE, and if the
+     * path is still there we say so instead of asking again.
+     *
+     * Known limitation, unchanged from before and now honest about itself:
+     * scanFilesystem() returns files only, so a tree with nested directories
+     * cannot be emptied by this method and returns false. The old code
+     * responded to that case by recursing forever.
      *
      * @param string $path the item to delete
      *
-     * @return object
+     * @return bool true when the path is gone, false when it is still there
      */
     public function delete($path)
     {
         if (!$this->exists($path)) {
-            return $this;
+            return true;
         }
-        $rmdir = $this->sftp_rmdir($path);
-        $unlink = $this->sftp_unlink($path);
-        if (!$rmdir && !$unlink) {
-            $filelist = $this->scanFilesystem($path);
-            foreach ((array)$filelist as $file) {
-                $this->delete($file);
+        // A directory that is not empty fails both of these, which is the
+        // signal to empty it and try again -- and so does a path that simply
+        // cannot be removed, which is why the retry below happens once.
+        if ($this->sftp_rmdir($path) || $this->sftp_unlink($path)) {
+            return true;
+        }
+        $emptied = true;
+        foreach ((array)$this->scanFilesystem($path) as $file) {
+            if (!$this->delete($file)) {
+                $emptied = false;
             }
-            $this->delete($path);
+        }
+        if (!$emptied) {
+            return false;
+        }
+        if ($this->sftp_rmdir($path) || $this->sftp_unlink($path)) {
+            return true;
         }
 
-        return $this;
+        // Re-checked rather than assumed: another writer may have removed it
+        // while we were working, and reporting a failure for a path that is
+        // gone would send a caller looking for something that is not there.
+        return !$this->exists($path);
     }
 }
 

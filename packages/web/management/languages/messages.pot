@@ -3053,6 +3053,9 @@ msgstr ""
 msgid "Host is not valid!"
 msgstr ""
 
+msgid "Host is not valid; the task cannot be completed"
+msgstr ""
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3320,6 +3323,9 @@ msgid "Image added!"
 msgstr ""
 
 msgid "Image architecture"
+msgstr ""
+
+msgid "Image captured; previous copy needs manual removal"
 msgstr ""
 
 msgid "Image is invalid"

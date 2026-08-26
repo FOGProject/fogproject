@@ -3594,6 +3594,10 @@ msgstr "主机是无效的"
 msgid "Host is not valid!"
 msgstr "主机是无效的"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "图像被保护，不能被删除"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3905,6 +3909,9 @@ msgstr "图片名称"
 #, fuzzy
 msgid "Image architecture"
 msgstr "受保护"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
 
 #, fuzzy
 msgid "Image is invalid"

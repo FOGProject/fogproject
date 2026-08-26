@@ -3459,6 +3459,10 @@ msgstr "ホストが無効です"
 msgid "Host is not valid!"
 msgstr "ホストが無効です"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "イメージは保護されているため削除できません"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3759,6 +3763,9 @@ msgstr "イメージを追加しました！"
 #, fuzzy
 msgid "Image architecture"
 msgstr "保護済み"
+
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
 
 #, fuzzy
 msgid "Image is invalid"
