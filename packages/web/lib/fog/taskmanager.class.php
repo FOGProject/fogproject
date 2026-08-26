@@ -78,11 +78,12 @@ class TaskManager extends FOGManagerController
             ]
         );
         if ($updated) {
-            // Reloaded after the update so each row records the state the task
-            // is now in, not the one it was cancelled out of.
-            foreach ((array)$cancelledIDs as $cancelledID) {
-                TaskLog::recordState(new Task($cancelledID));
-            }
+            // Read back from `tasks` after the update, so each row records the
+            // state the task is now in rather than the one it was cancelled
+            // out of -- and in one SELECT plus one batched INSERT, because
+            // this arm cancels a whole group and rebuilding a Task per id to
+            // write its row cost five queries apiece.
+            TaskLog::recordStates($cancelledIDs);
         }
         $findWhere = [
             'hostID' => $hostIDs,
