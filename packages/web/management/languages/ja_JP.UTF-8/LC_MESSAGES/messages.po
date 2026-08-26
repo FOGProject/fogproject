@@ -1460,6 +1460,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "自身がグループマネージャーか確認しています"
 
@@ -2633,6 +2636,10 @@ msgstr "ファイルの削除に失敗しました"
 
 #, fuzzy
 msgid "Failed to record task state changes"
+msgstr "タスクの作成に失敗しました"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
 msgstr "タスクの作成に失敗しました"
 
 #, fuzzy
@@ -4782,6 +4789,10 @@ msgid "Mark selected pending"
 msgstr "選択したスナップインを追加"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "読み込みに失敗しました"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "ホストの更新に失敗しました"
 
@@ -5360,6 +5371,10 @@ msgstr "このホストを認証するためのトークンが渡されていま
 #, fuzzy
 msgid "No type information available for this column."
 msgstr "このグループで利用可能なアクティビティ情報はありません"
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "新しいタスクは見つかりません"
 
 msgid "No valid storage nodes found"
 msgstr "有効なストレージノードが見つかりません"
@@ -7868,6 +7883,9 @@ msgstr "タスクタイプ"
 msgid "Task activity"
 msgstr "有効"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "タスク実行に失敗しました"
@@ -9528,6 +9546,10 @@ msgstr "クライアントコンピューター上の機能。"
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr "前"
+
 msgid "group"
 msgstr "グループ"
 
@@ -9572,6 +9594,10 @@ msgstr "ホスト"
 #, fuzzy
 msgid "host is"
 msgstr "ホスト"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr "選択したプリンターを追加"
 
 msgid "hosts"
 msgstr "ホスト"
@@ -9640,6 +9666,10 @@ msgstr "イメージファイルが見つかりました。ファイル: "
 msgid "image is"
 msgstr "イメージ"
 
+#, fuzzy
+msgid "image no longer exists"
+msgstr "選択したプリンターを追加"
+
 msgid "image replication"
 msgstr "イメージレプリケーション"
 
@@ -9657,6 +9687,9 @@ msgid "in"
 msgstr "分"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy
@@ -9989,6 +10022,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "タスクが見つかりました"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr "選択したプリンターを追加"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"
@@ -12469,10 +12506,6 @@ msgstr ""
 
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
-
-#, fuzzy
-#~ msgid "no longer exists"
-#~ msgstr "選択したプリンターを追加"
 
 #~ msgid "of"
 #~ msgstr "の"

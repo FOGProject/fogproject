@@ -1300,6 +1300,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2331,6 +2334,9 @@ msgid "Failed to move uploaded file."
 msgstr ""
 
 msgid "Failed to record task state changes"
+msgstr ""
+
+msgid "Failed to record why tasks were reaped"
 msgstr ""
 
 msgid "Failed to remove"
@@ -4229,6 +4235,9 @@ msgstr ""
 msgid "Mark selected pending"
 msgstr ""
 
+msgid "Marked failed, task"
+msgstr ""
+
 msgid "Mass update failed"
 msgstr ""
 
@@ -4736,6 +4745,9 @@ msgid "No token passed to authenticate this host"
 msgstr ""
 
 msgid "No type information available for this column."
+msgstr ""
+
+msgid "No unrunnable tasks found."
 msgstr ""
 
 msgid "No valid storage nodes found"
@@ -6958,6 +6970,9 @@ msgstr ""
 msgid "Task activity"
 msgstr ""
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task failed"
 msgstr ""
 
@@ -8467,6 +8482,9 @@ msgstr ""
 msgid "further cycles"
 msgstr ""
 
+msgid "got"
+msgstr ""
+
 msgid "group"
 msgstr ""
 
@@ -8504,6 +8522,9 @@ msgid "host"
 msgstr ""
 
 msgid "host is"
+msgstr ""
+
+msgid "host no longer exists"
 msgstr ""
 
 msgid "hosts"
@@ -8563,6 +8584,9 @@ msgstr ""
 msgid "image is"
 msgstr ""
 
+msgid "image no longer exists"
+msgstr ""
+
 msgid "image replication"
 msgstr ""
 
@@ -8579,6 +8603,9 @@ msgid "in"
 msgstr ""
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 msgid "in minutes"
@@ -8894,6 +8921,9 @@ msgid "supports FOG up to %s; this server is %s"
 msgstr ""
 
 msgid "task found"
+msgstr ""
+
+msgid "task type no longer exists"
 msgstr ""
 
 #, php-format

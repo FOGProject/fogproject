@@ -77,6 +77,17 @@ abstract class FOGManagerController extends FOGBase
      */
     protected $databaseFieldsRequired = [];
     /**
+     * Required keys whose name ends in ID but which are NOT foreign keys.
+     *
+     * Mirrored from the model for the same reason isValid() carries its own
+     * copy of the rule save() uses: both write paths infer "ends in id, so it
+     * is a foreign key", so both need the model's opt-out or one of them
+     * refuses a string identifier the other accepts.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = [];
+    /**
      * The Class relationships.
      *
      * @var array
@@ -179,6 +190,7 @@ abstract class FOGManagerController extends FOGBase
             'sqlQueryStr',
             'sqlFilterStr',
             'sqlTotalStr',
+            'databaseFieldsNotInt',
         ];
         $this->databaseTable = &$classVars[$classGet[0]];
         $this->databaseFields = &$classVars[$classGet[1]];
@@ -189,6 +201,7 @@ abstract class FOGManagerController extends FOGBase
         $this->sqlQueryStr = &$classVars[$classGet[5]];
         $this->sqlFilterStr = &$classVars[$classGet[6]];
         $this->sqlTotalStr = &$classVars[$classGet[7]];
+        $this->databaseFieldsNotInt = &$classVars[$classGet[8]];
         unset($classGet);
     }
     /**
@@ -924,6 +937,102 @@ abstract class FOGManagerController extends FOGBase
         return is_string($value) ? trim($value) : $value;
     }
     /**
+     * Refuses a batch row whose required foreign key points at nothing.
+     *
+     * FOGController::save() will not write a row whose required *ID field is
+     * not an integer >= 1 -- see its "Required *id must be integer >= 1"
+     * branch. insertBatch() enforced nothing, so the same model validated
+     * itself when written one row at a time and did not when written a
+     * hundred at a time.
+     *
+     * What gets through is a 0. Since GH-1245 the server's own sql_mode
+     * rejects a null or an '' bound into a NOT NULL int, but 0 is a perfectly
+     * legal integer and no layer has an opinion about it -- and a caller
+     * indexing a positional list past its end, or reading an id off an object
+     * that did not load, produces exactly that.
+     *
+     * In `tasks` such a row is permanent and invisible at the same time.
+     * taskStateID still resolves, so the task counts as active for every
+     * "is this live" test in the tree; taskHostID/taskImageID/taskTypeID
+     * match nothing, and because the Active Tasks list renders from
+     * buildQuery()'s LEFT OUTER JOINs those columns come back NULL. The row
+     * shows as "() -" for host and image with no type icon, cannot be
+     * completed by any host, and nothing ever reaps it. Reported as "null
+     * tasks" in forum topics 18228 and 18230.
+     *
+     * Deliberately narrow, because this is a write path with 26 call sites:
+     *
+     *  - Only columns the caller NAMED. A required column the batch is silent
+     *    about is left to columnsRequiringValue() below, which is the
+     *    behaviour every one of those call sites already relies on; turning
+     *    silence into an error is a different change with a different blast
+     *    radius.
+     *  - Only *ID columns. They are the ones whose zero is indistinguishable
+     *    from a value; a required string is caught by the server or by the
+     *    reader either way.
+     *  - Never the model's own primary key. No batch caller supplies it, and
+     *    save() skips it for the same reason.
+     *  - Never a key the model has declared is a string via
+     *    $databaseFieldsNotInt.
+     *
+     * @param array $fields the friendly field names the caller named
+     * @param array $values the rows, positional against $fields
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    private function _assertBatchForeignKeys($fields, $values)
+    {
+        $notInt = array_map(
+            'strtolower',
+            (array)$this->databaseFieldsNotInt
+        );
+        $positions = [];
+        foreach ((array)$this->databaseFieldsRequired as $friendly) {
+            $lower = strtolower($friendly);
+            if ('id' === $lower
+                || 'id' !== substr($lower, -2)
+                || in_array($lower, $notInt, true)
+            ) {
+                continue;
+            }
+            foreach ((array)$fields as $i => $named) {
+                if (strtolower($named) === $lower) {
+                    $positions[$i] = $friendly;
+                }
+            }
+        }
+        if (count($positions ?: []) < 1) {
+            return;
+        }
+        foreach ((array)$values as $rowIndex => $row) {
+            foreach ($positions as $i => $friendly) {
+                $val = isset($row[$i]) ? $row[$i] : null;
+                $valid = filter_var(
+                    $val,
+                    FILTER_VALIDATE_INT,
+                    ['options' => ['min_range' => 1]]
+                );
+                if (false !== $valid) {
+                    continue;
+                }
+                throw new \Exception(
+                    sprintf(
+                        '%s: `%s`.%s %s %d, %s: %s',
+                        self::$foglang['RequiredDB'],
+                        $this->databaseTable,
+                        $friendly,
+                        _('in batch row'),
+                        $rowIndex,
+                        _('got'),
+                        var_export($val, true)
+                    )
+                );
+            }
+        }
+    }
+    /**
      * Inserts data in mass to the database.
      *
      * @param array  $fields the fields to insert into
@@ -944,6 +1053,9 @@ abstract class FOGManagerController extends FOGBase
         if ($valuelength < 1) {
             throw new \Exception(_('No values passed'));
         }
+        // Before the loop below, which rewrites $fields from friendly names
+        // to column names in place.
+        $this->_assertBatchForeignKeys($fields, $values);
         $keys = [];
         foreach ((array) $fields as &$key) {
             $key = $this->databaseFields[$key];
@@ -977,29 +1089,39 @@ abstract class FOGManagerController extends FOGBase
          * on a row that already exists the stored value must stand. Filling
          * settingDesc into the update list would blank the description of
          * every setting on the page the moment anyone pressed save.
+         *
+         * The filled columns and their values are worked out ONCE here; the
+         * placeholders that carry them are named PER ROW, down in the loop.
+         * They were named once too, and the single `:_fill_0` was then
+         * repeated in every VALUES tuple -- which one row survives and two do
+         * not: PDODB sets PDO::ATTR_EMULATE_PREPARES => false, and a real
+         * server-side prepare answers SQLSTATE[HY093] "Invalid parameter
+         * number" to a named parameter used twice. So every batch of two or
+         * more rows into a table with an unnamed NOT NULL column failed
+         * outright, silently to the user: tasking a GROUP of two hosts with
+         * anything that is not a deploy or a multicast (wipe, virus scan,
+         * hardware inventory, password reset, snapins) names none of
+         * `tasks`' four NFS/image columns and so hit this every time.
+         * See background_scripts/prove_batch_fill_duplicate_bind.php.
          */
-        $fillKeys = [];
-        $fillVals = [];
+        $fillCols = [];
         foreach ((array) self::columnsRequiringValue(
             $table ?: $this->databaseTable
         ) as $column => $type) {
             if (in_array(strtolower($column), array_map('strtolower', $keys), true)) {
                 continue;
             }
-            $bind = sprintf('_fill_%d', count($fillKeys));
             $keys[] = $column;
-            $fillKeys[] = sprintf(':%s', $bind);
-            $fillVals[$bind] = self::emptyValueFor(
+            $fillCols[] = self::emptyValueFor(
                 $table ?: $this->databaseTable,
                 $column
             );
         }
         $affectedRows = 0;
         $vals = [];
-        $insertVals = $fillVals;
         $values = array_chunk($values, 500);
         foreach ((array) $values as $ind => &$v) {
-            $insertVals = $fillVals;
+            $insertVals = [];
             foreach ((array) $v as $index => &$value) {
                 $insertKeys = [];
                 foreach ((array) $value as $i => &$val) {
@@ -1016,9 +1138,21 @@ abstract class FOGManagerController extends FOGBase
                     $insertVals[$key] = $val;
                     unset($val);
                 }
+                foreach ($fillCols as $fillIndex => $fillVal) {
+                    $key = sprintf(
+                        '_fill_%d_%d',
+                        $fillIndex,
+                        $index
+                    );
+                    $insertKeys[] = sprintf(
+                        ':%s',
+                        $key
+                    );
+                    $insertVals[$key] = $fillVal;
+                }
                 $vals[] = sprintf(
                     '(%s)',
-                    implode(',', array_merge((array) $insertKeys, $fillKeys))
+                    implode(',', (array) $insertKeys)
                 );
                 unset($value);
             }

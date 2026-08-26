@@ -158,20 +158,32 @@ check(
  * the placeholders, or emitting placeholders without binding, both produce a
  * broken statement rather than a wrong one -- but neither is visible from the
  * column list alone.
+ *
+ * And every ROW needs its own placeholder. The fill bind was named once,
+ * outside the row loop, and the single `:_fill_0` was then repeated in each
+ * VALUES tuple -- which one row survives and two do not: PDODB sets
+ * PDO::ATTR_EMULATE_PREPARES => false, so a real server-side prepare answers
+ * SQLSTATE[HY093] "Invalid parameter number" to a named parameter used twice.
+ * Every batch of two or more rows into a table with an unnamed NOT NULL
+ * column failed outright, which is most of group tasking: the snapin and
+ * generic branches of Group::createImagePackage() name none of `tasks`' four
+ * NFS/image columns. Proved both ways by
+ * background_scripts/prove_batch_fill_duplicate_bind.php.
  */
 check(
     'their placeholders are emitted into every row tuple',
-    false !== strpos($batch, '$fillKeys')
-    && 1 === preg_match(
-        '/array_merge\(\s*\(array\)\s*\$insertKeys,\s*\$fillKeys\s*\)/',
+    1 === preg_match(
+        '/foreach \(\$fillCols as \$fillIndex => \$fillVal\)/',
         $batch
-    ),
+    )
+    && 1 === preg_match('/\$insertVals\[\$key\]\s*=\s*\$fillVal;/', $batch),
     $failures,
     $checks
 );
 check(
-    'and their values are bound for every chunk, not just the first',
-    2 === preg_match_all('/\$insertVals\s*=\s*\$fillVals;/', $batch),
+    'each row binds its own copy, never one shared placeholder',
+    1 === preg_match("/'_fill_%d_%d'/", $batch)
+    && false === strpos($batch, '$fillKeys'),
     $failures,
     $checks
 );

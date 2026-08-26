@@ -321,7 +321,14 @@ class TaskLog extends FOGController
             $values[] = [
                 (int)$row['taskID'],
                 (int)$row['stateID'],
-                self::$remoteaddr,
+                // Cast, because there is no remote address in a daemon.
+                // filter_input(INPUT_SERVER, 'REMOTE_ADDR') is null under CLI,
+                // `ip` is varchar(15) NOT NULL, and a null bound into a NOT
+                // NULL column is error 1048 on a strict server -- which is
+                // every server since GH-1245 stopped PDODB clearing sql_mode.
+                // TaskManager::cancel() is reached from the multicast manager
+                // and from TaskManager::reapUnrunnable(), both daemons.
+                (string)self::$remoteaddr,
                 $now,
                 (string)$row['createdBy'],
                 self::TYPE_STATE,
