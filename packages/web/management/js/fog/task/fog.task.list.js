@@ -452,7 +452,7 @@
           render: function(data, type, row) {
             // A row can genuinely have no name to show: state rows written
             // before schema 341 carry no copy of one, and once their task is
-            // deleted the join has nothing to fall back on either. Schema 369
+            // deleted the join has nothing to fall back on either. Schema 373
             // fills in every such row whose task still exists; the rest are
             // unrecoverable. Say so with a dash rather than leaving the cell
             // empty, which reads as a rendering fault. Dash rather than words

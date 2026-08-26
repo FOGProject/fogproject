@@ -217,12 +217,12 @@ $pdo->exec(
     . " (56,7,'127.0.0.1','fos','error','both gone',999,'deadhost','Deploy'),"
     // written before schema 341: nothing stored, joins must still answer
     . " (10,7,'127.0.0.1','fos','error','pre-341',NULL,'',''),"
-    // a state row written before schema 369: no identity of its own, because
+    // a state row written before schema 373: no identity of its own, because
     // 341's backfill excluded logType='state' explicitly
     . " (10,3,'127.0.0.1','fog','state',NULL,NULL,'',''),"
     // a state row written by TaskLog::recordState(): carries its own identity,
     // and here BOTH its task (11) and its host (101) are gone. This is the row
-    // 341 said could not exist and 369 exists to produce -- the log pane shows
+    // 341 said could not exist and 373 exists to produce -- the log pane shows
     // state rows and the dashboard counts them, so one that cannot name its
     // host or say whether it was a capture is not readable.
     . " (11,3,'127.0.0.1','fog','state',NULL,101,'beta','Upload'),"

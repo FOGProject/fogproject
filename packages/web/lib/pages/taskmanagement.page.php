@@ -572,10 +572,10 @@ class TaskManagement extends FOGPage
      *
      * State rows used to be part of that fallback -- 341's backfill excluded
      * them explicitly, so they never carried a copy at all. They do now:
-     * TaskLog::recordState() writes one on every transition, and schema 369
+     * TaskLog::recordState() writes one on every transition, and schema 373
      * backfilled the existing rows whose task is still there. What is left in
      * the fallback is the historical rows whose task survives, and what no
-     * query can answer is a pre-369 state row whose task is already gone --
+     * query can answer is a pre-373 state row whose task is already gone --
      * the grid renders those with a placeholder.
      *
      * That order is deliberate and not just a null-check: a report is a
