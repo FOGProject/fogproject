@@ -175,6 +175,27 @@ $.escapeHtml = function(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+// A DataTables column definition for a field that is PLAIN TEXT.
+//
+// Route's list formatters return text, not markup, and DataTables writes cell
+// data as HTML unless a column supplies its own render -- so the escape lives
+// here, at the renderer, for every grid alike. Escaping server side instead
+// double-escapes wherever the reader also escapes, which is how the activity
+// viewer came to show `Task &quot;host&quot; (ID 140) was saved`.
+//
+// The t === 'display' guard is load-bearing: the Buttons CSV/copy exports ask
+// for other types, and escaping those would put &amp;/&lt; into the exported
+// file. A column that intentionally emits markup (hostLink, mainlink) is not
+// one of these -- it keeps `{data: field}` and escapes its own interpolations
+// server side.
+$.escapedColumn = function(field) {
+  return {
+    data: field,
+    render: function(d, t) {
+      return t === 'display' ? $.escapeHtml(d === null ? '' : String(d)) : d;
+    }
+  };
+}
 // Windows product-key display mask (mirror of FOGBase::productKeyMask).
 // Empty -> ''. Already-masked (contains a bullet) -> returned unchanged so
 // re-masking a redisplayed value is idempotent. A well-formed Base24 key

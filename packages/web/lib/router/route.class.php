@@ -2645,12 +2645,20 @@ class Route extends FOGBase
                             // ADR 0020 phase 4: the stored name answers when
                             // the host is gone, so a deleted host's rows do
                             // not all render "(41) - " forever.
+                            //
+                            // Escaped HERE, unlike the plain-text columns
+                            // around it, because this column IS markup: the
+                            // reader has to write it as HTML, so it cannot
+                            // escape the name itself. Same shape as the
+                            // hostLink built for the login-history grids.
                             return '<a href="../management/index.php?node=host&'
                                 . 'sub=edit&id='
                                 . $d
                                 . '">'
                                 . '(' . $d . ') - '
-                                . self::_hostLabel($d, $row, $classname)
+                                . \Initiator::e(
+                                    self::_hostLabel($d, $row, $classname)
+                                )
                                 . '</a>';
                         },
                         self::_hostNameOrder($classname)
@@ -3200,7 +3208,7 @@ class Route extends FOGBase
                         // Only a state row has to be assembled.
                         $text = isset($row['logText']) ? (string)$row['logText'] : '';
                         if ('' !== $text) {
-                            return \Initiator::e($text);
+                            return $text;
                         }
                         $host = self::_hostLabel(
                             isset($row['logHostID']) ? $row['logHostID'] : 0,
@@ -3237,30 +3245,29 @@ class Route extends FOGBase
                             // Nothing to say beyond the state. Rows written
                             // before schema 341 backfilled the type name are
                             // the case, and there is no way to recover it.
-                            return \Initiator::e($state);
+                            return $state;
                         }
                         // Spelled out per shape rather than assembled from
                         // fragments: a format string built from a variable
                         // never reaches the catalogue.
                         if ('' !== $image && '' !== $host) {
-                            return \Initiator::e(
-                                sprintf(
-                                    _('%1$s of %2$s on %3$s: %4$s'),
-                                    $what,
-                                    $image,
-                                    $host,
-                                    $state
-                                )
+                            return sprintf(
+                                _('%1$s of %2$s on %3$s: %4$s'),
+                                $what,
+                                $image,
+                                $host,
+                                $state
                             );
                         }
                         if ('' !== $host) {
-                            return \Initiator::e(
-                                sprintf(_('%1$s on %2$s: %3$s'), $what, $host, $state)
+                            return sprintf(
+                                _('%1$s on %2$s: %3$s'),
+                                $what,
+                                $host,
+                                $state
                             );
                         }
-                        return \Initiator::e(
-                            sprintf(_('%1$s: %2$s'), $what, $state)
-                        );
+                        return sprintf(_('%1$s: %2$s'), $what, $state);
                     }
                 ];
                 break;
@@ -3389,10 +3396,22 @@ class Route extends FOGBase
                 // LIKE against. `info` and `subjectLabel` are both still
                 // real columns and both still searchable, which is where a
                 // search for a message or an object name lands.
+                //
+                // PLAIN TEXT, not HTML. It shipped htmlspecialchars()'d and
+                // every reader escapes again, so a host called `- fos-nfs`
+                // read as `Task &quot;- fos-nfs&quot; (ID 140) was saved` in
+                // the grid and in the detail modal. `info`, `createdBy` and
+                // `ip` beside it were never escaped here, so the escape was
+                // also the odd one out. The contract for every data column
+                // in this list is: the API returns text, the renderer
+                // escapes -- which is what registerExportTable(), the audit
+                // grid and the activity grid all already do. A column that
+                // deliberately emits markup (hostLink above) escapes its own
+                // interpolations instead.
                 $columns[] = [
                     'dt' => 'summary',
                     'formatter' => function ($d, $row) {
-                        return \Initiator::e(self::_historySummary($row));
+                        return self::_historySummary($row);
                     }
                 ];
                 break;
@@ -3401,7 +3420,7 @@ class Route extends FOGBase
                     'db' => 'utUserName',
                     'dt' => 'username',
                     'formatter' => function ($d, $row) {
-                        return \Initiator::e($d);
+                        return (string)$d;
                     }
                 ];
                 $columns[] = self::relColumn(
@@ -3409,19 +3428,18 @@ class Route extends FOGBase
                     'hostname',
                     'Host',
                     function ($d, $row) use ($classname) {
-                        return \Initiator::e(
-                            self::_hostLabel($d, $row, $classname)
-                        );
+                        return self::_hostLabel($d, $row, $classname);
                     }
                 );
                 $columns[] = [
                     'db' => 'utAction',
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
-                        // Escaped here rather than in the helper: an
-                        // unrecognised code renders as itself, and the
-                        // summary below escapes the whole sentence once.
-                        return \Initiator::e(self::_userTrackingAction($d));
+                        // An unrecognised code renders as itself, so this can
+                        // carry a value written by an endpoint. Plain text
+                        // like every other data column -- see the note on
+                        // `summary` below.
+                        return self::_userTrackingAction($d);
                     }
                 ];
                 // ADR 0023 item 5: the one-line "what happened" the activity
@@ -3447,21 +3465,20 @@ class Route extends FOGBase
                         // string built from a variable never reaches the
                         // catalogue.
                         if ('' !== $who && '' !== $host) {
-                            return \Initiator::e(
-                                sprintf(_('%1$s: %2$s on %3$s'), $action, $who, $host)
+                            return sprintf(
+                                _('%1$s: %2$s on %3$s'),
+                                $action,
+                                $who,
+                                $host
                             );
                         }
                         if ('' !== $host) {
-                            return \Initiator::e(
-                                sprintf(_('%1$s on %2$s'), $action, $host)
-                            );
+                            return sprintf(_('%1$s on %2$s'), $action, $host);
                         }
                         if ('' !== $who) {
-                            return \Initiator::e(
-                                sprintf(_('%1$s: %2$s'), $action, $who)
-                            );
+                            return sprintf(_('%1$s: %2$s'), $action, $who);
                         }
-                        return \Initiator::e($action);
+                        return $action;
                     }
                 ];
                 break;

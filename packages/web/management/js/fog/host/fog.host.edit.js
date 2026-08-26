@@ -1211,11 +1211,16 @@
     var $hostLoginHist = $('#host-login-history-table');
     var hostHistoryLoginTable = !$hostLoginHist.length ? null :
       $hostLoginHist.registerTable(null, {
+        // Every column escapes. `username` and `description` are written by
+        // the client check-in, so they are attacker-writable, and DataTables
+        // writes cell data as HTML unless a column supplies its own render.
+        // Route returns these as plain text -- the escape is the reader's
+        // job, the same way the inventory report below does it.
         columns: [
-            {data: 'createdTime'},
-            {data: 'action'},
-            {data: 'username'},
-            {data: 'description'}
+            $.escapedColumn('createdTime'),
+            $.escapedColumn('action'),
+            $.escapedColumn('username'),
+            $.escapedColumn('description')
         ],
         order: [
             [0, 'desc']
