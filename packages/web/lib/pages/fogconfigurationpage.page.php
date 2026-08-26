@@ -725,17 +725,24 @@ class FOGConfigurationPage extends FOGPage
                 . 'secureboot/arm64-efi/'
             )
         ) . '</p>';
-        // Stated rather than detected: the web request's own scheme says
-        // nothing about the install's $httpproto, so guessing here would be
-        // worse than telling the admin what to check. See
-        // downloadipxesecureboot() -- an HTTPS install skips the staging
-        // entirely, because a signed binary cannot be rebuilt to carry this
-        // server's CA without invalidating the signature.
+        // This used to say Secure Boot PXE and HTTPS were mutually exclusive,
+        // because downloadipxesecureboot() skipped the staging entirely on an
+        // HTTPS install. It no longer does, and the claim was wrong even then:
+        // upstream iPXE defines CROSSCERT unconditionally, so its signed
+        // binaries validate a publicly-issued certificate with no rebuild and
+        // no embedded CA. Only a private CA forces a choice, and the answer
+        // there is to leave netboot on HTTP -- which has nothing to do with
+        // whether a signed chain is available. See downloadipxesecureboot().
+        //
+        // Stated rather than detected: the web request's own scheme says nothing
+        // about the install's $httpproto or its netboot protocol, so guessing
+        // here would be worse than telling the admin what to check.
         $steps .= '<p>' . _(
-            'Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS '
-            . 'install the installer skips these binaries, because rebuilding '
-            . 'them to trust this server\'s CA would invalidate the signature '
-            . 'that makes them bootable.'
+            'These binaries are staged on every install, HTTPS included. An '
+            . 'HTTPS web interface has no bearing on netboot, which has its own '
+            . 'protocol setting. HTTPS netboot only needs a rebuilt iPXE when '
+            . 'the certificate comes from a private CA -- a publicly-issued one '
+            . 'on an FQDN needs no rebuild and keeps the signed shim.'
         ) . '</p>';
         echo $this->_box(_('What to do next'), $steps);
     }
