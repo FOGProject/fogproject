@@ -2556,8 +2556,16 @@ _sbChainStaged() {
 # server-side, and it is what the commented fallback in the generated config
 # points at.
 #
-# No 32-bit case on purpose: there is no Microsoft-signed ia32 shim and no
-# signed 32-bit iPXE, so i386-efi clients stay on the unsigned binary and must
+# The fallback names are not "unsigned" binaries -- _signLocalIpxe() signs every
+# *.efi in the TFTP root with this server's own leaf. The difference is which
+# trust root the client must already hold: the secureboot/ pair starts from
+# Microsoft's signature and loads on a machine that has never met this server,
+# while snponly.efi needs THIS server's certificate enrolled first. That is the
+# real reason the shim chain is the better default, and it is stronger than
+# "signed vs not".
+#
+# No 32-bit case on purpose: there is no Microsoft-signed ia32 shim to start a
+# chain from and no 32-bit MokManager to enrol one with, so i386-efi clients must
 # have Secure Boot disabled to netboot at all.
 #
 # --boot-delay needs no handling here either. EFI takes its delay from
@@ -2940,7 +2948,9 @@ downloadipxesecureboot() {
         # it is silent otherwise -- an admin who expected Secure Boot to work
         # would find the old boot file in a config they did not edit.
         echo " * Any DHCP configuration written by this run therefore names the"
-        echo " *   unsigned UEFI boot files, not secureboot/snponly-shimx64.efi."
+        echo " *   TFTP-root UEFI boot files, not secureboot/snponly-shimx64.efi."
+        echo " *   Those are signed with this server's own key, so a Secure Boot"
+        echo " *   client needs that certificate enrolled before it will load one."
         return 0
     fi
     errorStat 0
@@ -13274,11 +13284,12 @@ _keaBootFileFallbackComment() {
 #            "boot-file-name": "secureboot/ipxe-shimx64.efi"
 #        }
 #
-#        2. You do not want the signed chain at all. The unsigned binaries are
-#           still in the TFTP root (arm64: arm64-efi/snponly.efi). Clients with
-#           Secure Boot enforcing will refuse these:
+#        2. You want FOG's own builds rather than upstream's signed pair. They
+#           are in the TFTP root (arm64: arm64-efi/snponly.efi), signed with this
+#           server's key -- so a Secure Boot client will refuse them until that
+#           certificate is enrolled on it:
 #        {
-#            "name": "FOG-UEFI-64-Unsigned",
+#            "name": "FOG-UEFI-64-FogBuild",
 #            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
 #            "boot-file-name": "snponly.efi"
 #        }
@@ -13619,10 +13630,11 @@ configureDHCP() {
             echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
             echo "#}" >> "$dhcptouse"
             echo "#" >> "$dhcptouse"
-            echo "# 2. You do not want the signed chain at all. The unsigned binaries are" >> "$dhcptouse"
-            echo "#    still in the TFTP root; on arm64, arm64-efi/snponly.efi. A client" >> "$dhcptouse"
-            echo "#    with Secure Boot enforcing will refuse these." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-Unsigned\" {" >> "$dhcptouse"
+            echo "# 2. You want FOG's own builds rather than upstream's signed pair. They" >> "$dhcptouse"
+            echo "#    are in the TFTP root; on arm64, arm64-efi/snponly.efi. They carry" >> "$dhcptouse"
+            echo "#    this server's own signature, so a Secure Boot client refuses them" >> "$dhcptouse"
+            echo "#    until that certificate is enrolled on it." >> "$dhcptouse"
+            echo "#class \"FOG-UEFI-64-FogBuild\" {" >> "$dhcptouse"
             echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
             echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
             echo "#}" >> "$dhcptouse"
