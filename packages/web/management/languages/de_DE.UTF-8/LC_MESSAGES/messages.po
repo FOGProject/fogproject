@@ -7640,6 +7640,10 @@ msgstr "Von"
 msgid "function on client computers."
 msgstr "wie Dienste auf Clientcomputer funktionieren."
 
+#, fuzzy
+msgid "got"
+msgstr "vor"
+
 msgid "group"
 msgstr "Gruppe"
 
@@ -7782,6 +7786,9 @@ msgstr "Images"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "bildet ab zu einer Speichergruppe"
+
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "in Sekunden"

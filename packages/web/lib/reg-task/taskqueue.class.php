@@ -519,6 +519,26 @@ class TaskQueue extends TaskingElement
             if (!$updatedHost) {
                 throw new Exception(_('Failed to update Host'));
             }
+            /**
+             * Close the imaging log BEFORE the task is marked Complete.
+             *
+             * It used to be the last thing done, after the save below had
+             * already written the Complete state. So a failure here threw
+             * with the task already finished: FOS never saw '##', retried,
+             * and every retry from then on was answered "No Active Task found
+             * for Host" -- on a machine that had in fact imaged perfectly.
+             * The operator sees a host that will not stop rebooting into an
+             * error and a task that is nowhere to be found.
+             *
+             * Written first, a failure leaves the task in progress, which is
+             * the truth: the imaging happened but FOG could not record it,
+             * FOS can retry, and the task is still visible and cancellable.
+             */
+            if ($this->imagingTask) {
+                if (!$this->imageLog(false)) {
+                    throw new Exception(_('Failed to update imaging log'));
+                }
+            }
             if (!$this->Task->save()) {
                 throw new Exception(_('Failed to update Task'));
             }
@@ -532,11 +552,6 @@ class TaskQueue extends TaskingElement
                 );
             if (!$this->taskLog()) {
                 throw new Exception(_('Failed to update task log'));
-            }
-            if ($this->imagingTask) {
-                if (!$this->imageLog(false)) {
-                    throw new Exception(_('Failed to update imaging log'));
-                }
             }
             self::$EventManager->notify(
                 'HOST_IMAGE_COMPLETE',

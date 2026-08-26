@@ -6695,6 +6695,10 @@ msgstr "送信元"
 msgid "function on client computers."
 msgstr "クライアントコンピューター上の機能。"
 
+#, fuzzy
+msgid "got"
+msgstr "前"
+
 msgid "group"
 msgstr "グループ"
 
@@ -6811,6 +6815,9 @@ msgstr "イメージ"
 
 msgid "images to a storage group"
 msgstr "イメージをストレージグループへ"
+
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "秒単位"

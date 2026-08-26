@@ -159,19 +159,32 @@ ibCheck(
     'the filled columns are no longer added to the column list'
 );
 ibCheck(
-    strpos($batch, '$fillKeys') !== false
-    && preg_match(
-        '#array_merge\(\s*\(array\)\s*\$insertKeys,\s*\$fillKeys\s*\)#',
+    preg_match(
+        '#foreach \(\$fillCols as \$fillIndex => \$fillVal\)#',
         $batch
-    ) === 1,
+    ) === 1
+    && preg_match('#\$insertVals\[\$key\]\s*=\s*\$fillVal;#', $batch) === 1,
     'the fill placeholders are no longer emitted into every row tuple, so '
     . 'the column list and the value list would disagree'
 );
+/*
+ * Every ROW needs its own placeholder name. The fill bind used to be named
+ * once, outside the row loop, and the single `:_fill_0` was then repeated in
+ * each VALUES tuple -- which one row survives and two do not: PDODB sets
+ * PDO::ATTR_EMULATE_PREPARES => false, so a real server-side prepare answers
+ * SQLSTATE[HY093] "Invalid parameter number" to a named parameter used twice.
+ * Every batch of two or more rows into a table with an unnamed NOT NULL
+ * column failed outright, which is most of group tasking: the snapin and
+ * generic branches of Group::createImagePackage() name none of `tasks`'
+ * NFS/image columns. Proved both ways by
+ * background_scripts/prove_batch_fill_duplicate_bind.php.
+ */
 ibCheck(
-    preg_match_all('#\$insertVals\s*=\s*\$fillVals;#', $batch) === 2,
-    'the fill values are not re-bound for every chunk. $insertVals is unset '
-    . 'at the end of each chunk, so binding them once covers only the first '
-    . '500 rows and a bigger batch fails on the second'
+    strpos($batch, "'_fill_%d_%d'") !== false
+    && strpos($batch, '$fillKeys') === false,
+    'the fill placeholders are shared between rows again. One name reused '
+    . 'across VALUES tuples is SQLSTATE[HY093] on a real server-side '
+    . 'prepare, so a batch of two or more rows fails outright'
 );
 
 // ---------------------------------------------------------------

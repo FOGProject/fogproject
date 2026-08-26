@@ -6902,6 +6902,10 @@ msgstr "da"
 msgid "function on client computers."
 msgstr "funziona sui computer client."
 
+#, fuzzy
+msgid "got"
+msgstr "fa"
+
 msgid "group"
 msgstr "gruppo"
 
@@ -7019,6 +7023,9 @@ msgstr "immagini"
 
 msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
+
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "in secondi"
