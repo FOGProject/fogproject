@@ -155,8 +155,15 @@ for fn in fetchipxeasset downloadfiles; do
     fi
 done
 
-if joined "$UPD" | grep -q -- '--no-check-certificate'; then
-    bad "$UPD still passes --no-check-certificate"
+# Both spellings. The updater was wget when this assertion was written and is
+# curl now (GHSA-qp3r-8mwm-vg6h needed --proto-redir, which wget has no
+# equivalent for), so a check that only knew --no-check-certificate would have
+# gone quietly vacuous the moment the tool changed -- passing while a -k sat in
+# the file. tests/fogupdater-update-source.test.sh owns the rest of that fix;
+# this line owns verification, as it does for the file above.
+if joined "$UPD" | grep -E '(^|[^-[:alnum:]_])(curl|wget)[[:space:]]' \
+    | grep -qE -- '--insecure|--no-check-certificate|(^|[[:space:]])-[a-zA-Z]*k[a-zA-Z]*([[:space:]]|$)'; then
+    bad "$UPD skips verification -- what it fetches is installed as the FOG server, unattended, as root"
 else
     ok "$UPD verifies TLS"
 fi
