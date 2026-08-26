@@ -6610,15 +6610,48 @@ validateExternalCA() {
     fi
     dots "Validating external CA files (${zone})"
     # The supplied private key must match the supplied intermediate certificate
-    local certmod keymod
-    # Raw modulus, no `openssl md5`: md5 of the empty output an unreadable file
+    local certpub keypub certalgorithm certcurve
+    # Compare the SUBJECT PUBLIC KEY, not an RSA modulus. `openssl rsa -modulus`
+    # only understands RSA, so an EC -- or Ed25519, or RSA-PSS -- CA could never
+    # pair with its own key and the install aborted on a "does not match" that
+    # was not true (GH-1393). `openssl x509 -pubkey` and `openssl pkey -pubout`
+    # emit byte-identical SPKI PEM for every algorithm openssl can load, so ONE
+    # comparison covers all of them.
+    #
+    # Deliberately NOT an algorithm allow-list feeding two per-algorithm
+    # comparisons. A list here has to be edited every time openssl names
+    # something new, and anything it has not heard of hard-fails an install that
+    # would otherwise have worked -- which is how RSA-PSS, supported before this
+    # check existed, briefly stopped working. Nothing downstream cares which
+    # algorithm the CA uses; it only has to sign, and openssl decides that.
+    #
+    # Raw PEM, no `openssl md5`: md5 of the empty output an unreadable file
     # produces is a non-empty hash, so with it two unreadable files "pair".
-    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log)
-    if [[ -z $certmod || -z $keymod || $certmod != "$keymod" ]]; then
+    certpub=$(openssl x509 -pubkey -noout -in "$certsrc" 2>>$error_log)
+    keypub=$(openssl pkey -pubout -in "$keysrc" 2>>$error_log)
+    if [[ -z $certpub || -z $keypub || $certpub != "$keypub" ]]; then
         echo "Failed"
         echo "  The supplied CA private key ($keysrc) does not match the"
         echo "  supplied CA certificate ($certsrc)."
+        exit 1
+    fi
+    # DSA is the one algorithm openssl will happily pair and nothing downstream
+    # will accept: TLS 1.3 removed DSA signatures outright, no current browser
+    # trusts a DSA chain, and iPXE has no DSA at all. It was already refused
+    # before the comparison above became algorithm-agnostic -- as a bogus "key
+    # does not match", because `openssl rsa -modulus` cannot read a DSA key --
+    # so this keeps the outcome and drops the lie about the cause.
+    #
+    # An exact match, not a default-reject arm: a garbage or unreadable
+    # certificate leaves this empty, and that case belongs to the pairing check
+    # above, which names the two files.
+    certalgorithm=$(openssl x509 -noout -text -in "$certsrc" 2>>$error_log         | awk -F': ' '/Public Key Algorithm/ {print $2; exit}')
+    if [[ $certalgorithm == "dsaEncryption" ]]; then
+        echo "Failed"
+        echo "  The supplied CA certificate ($certsrc) uses DSA, which no"
+        echo "  current TLS client accepts -- TLS 1.3 removed DSA signatures"
+        echo "  entirely, and iPXE cannot verify them at all."
+        echo "  Re-issue the CA with an RSA or elliptic curve key."
         exit 1
     fi
     # The supplied intermediate must actually be a CA certificate
@@ -6654,6 +6687,38 @@ validateExternalCA() {
     # exists to prevent.
     PKI_web_external_root_cert="$rootsrc"
     errorStat $?
+    # iPXE's verifier is narrower than openssl's, and THIS certificate is the
+    # one it gets: _resolveIpxeTrust() sets ${ipxetrust} to ${PKI_web_ca_cert},
+    # and buildipxe.sh compiles it in as CERT=/TRUST=. The pinned tag (fog-ipxe
+    # IPXEVER, v2.0.0 at time of writing) carries crypto/rsa.c plus ecdsa.c with
+    # p256.c and p384.c, and nothing else -- no P-521, no EdDSA, no RSASSA-PSS.
+    #
+    # So a CA outside that set is not broken, it is narrower than it looks: the
+    # web UI serves fine and fog-client is satisfied, then HTTPS netboot dies at
+    # boot.php with iPXE's "Permission denied" out of x509.c, with nothing
+    # server-side connecting the two. Say so here, at the moment the CA is
+    # chosen, rather than leaving it to be discovered at a PXE client.
+    #
+    # Advisory and not a rejection: a site that netboots over HTTP, or serves
+    # netboot from a publicly-trusted certificate, is unaffected -- and the
+    # limit is a pinned iPXE version, not a property of the CA.
+    certcurve=$(openssl x509 -pubkey -noout -in "$certsrc" 2>>$error_log         | openssl pkey -pubin -noout -text 2>>$error_log         | awk -F': ' '/NIST CURVE|ASN1 OID/ {print $2; exit}')
+    # openssl >= 1.1.0 prints "NIST CURVE: P-256"; 1.0.2 prints only
+    # "ASN1 OID: prime256v1". Both spellings are accepted so the advisory does
+    # not fire spuriously on an older host.
+    case "${certalgorithm}${certcurve:+/$certcurve}" in
+        rsaEncryption|id-ecPublicKey/P-256|id-ecPublicKey/prime256v1|id-ecPublicKey/P-384|id-ecPublicKey/secp384r1)
+            ;;
+        *)
+            echo
+            echo "  Note: the imported CA uses ${certalgorithm:-an unrecognised algorithm}${certcurve:+ (${certcurve})}."
+            echo "  iPXE can only verify RSA and ECDSA P-256/P-384 signatures, so HTTPS"
+            echo "  netboot will fail against this CA. The web UI and fog-client are"
+            echo "  unaffected. Use HTTP netboot, serve netboot from a publicly-trusted"
+            echo "  certificate, or re-issue the CA with an RSA or EC P-256/P-384 key."
+            echo
+            ;;
+    esac
     # If we are replacing the CA on a server that already issued a server cert, warn
     if [[ -n ${PKI_web_vhost_cert} && -e ${PKI_web_vhost_cert} ]] && \
         ! openssl verify -CAfile "${PKI_web_trust_chain}" "${PKI_web_vhost_cert}" >>$error_log 2>&1; then
