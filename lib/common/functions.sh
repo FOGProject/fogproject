@@ -44,28 +44,82 @@ linkIfAbsent() {
     [[ -e $link || -L $link ]] && return 0
     ln -s "$target" "$link" >>$error_log 2>&1
 }
-# Maps a FOG update channel name to the git branch it tracks. Channel names
-# match README.md's "Channel" table (Stable/Staging/Dev), not the informal
-# "dev"/"beta" prose fog-docs used before that table existed -- see
-# FOGProject/fogproject#1012. Codified here so bin/updatefog.sh and
-# lib/common/config.sh share one mapping instead of each guessing at it.
+# ONE channel vocabulary, shared by the update track and the version label.
+#
+# FOG used to have two things called a channel that shared the word and shared
+# nothing else (GH-1279). `fog_update_channel` said stable/staging/dev; the
+# FOG_CHANNEL stamped into system.class.php said Patches/Beta/Release
+# Candidate/Feature. So working-1.6 was simultaneously channel "dev" and channel
+# "Beta", and dev-branch was channel "staging" and channel "Patches". Nothing
+# reconciled them and neither name said which one it was, so the docs
+# contradicted themselves and an admin reading one while configuring the other
+# got it wrong, silently.
+#
+# They are now the same word: the stored value is lowercase, the FOG_CHANNEL
+# label is its title-case form. .githooks/lib/fog-version.sh owns the label end
+# and must be kept in step with the table below; tests/update-channel-vocabulary
+# .test.sh fails if the two drift.
+#
+#   branch        channel   FOG_CHANNEL
+#   stable        stable    Stable
+#   dev-branch    patches   Patches
+#   working-1.6   beta      Beta
+#   rc-*          --        Release Candidate
+#   feature-*     --        Feature
+#
+# The last two have no update channel: nobody tracks a release candidate or a
+# feature branch as a standing preference, so FOG_CHANNEL is a superset rather
+# than a mismatch.
+#
+# WHY THIS DIRECTION, given GH-1012 deliberately chose stable/staging/dev to
+# match README.md's table. That decision was "match README", not "these three
+# words are fixed", so changing README honours it rather than reversing it. And
+# FOG_CHANNEL was already the more accurate half: dev-branch really is the
+# 1.5.x PATCHES line rather than anything staged for stable, and working-1.6
+# really is the 1.6 BETA. Worse, `dev` pointed at working-1.6 while a branch
+# literally named `dev-branch` existed -- an admin who read
+# fog_update_channel='dev' and assumed it tracked dev-branch was wrong, and
+# nothing told them. Aligning the other way would have preserved that.
+#
+# Maps a channel name to the git branch it tracks. Accepts the retired
+# stable/staging/dev spellings so an existing .fogsettings keeps updating; see
+# normalizeChannel().
 channelToBranch() {
-    case "$1" in
+    case "$(normalizeChannel "$1")" in
         stable) echo "stable" ;;
-        staging) echo "dev-branch" ;;
-        dev) echo "working-1.6" ;;
+        patches) echo "dev-branch" ;;
+        beta) echo "working-1.6" ;;
         *) return 1 ;;
     esac
 }
-# The inverse of channelToBranch(), used to derive a sensible fog_update_channel
+# Folds a channel name to its canonical spelling, so exactly one place knows the
+# retired names. Returns 1 for anything unrecognised rather than echoing it
+# back: a caller asking "is this a channel" needs a no, and a typo silently
+# passed through would be resolved as a branch name later and fail further from
+# the cause.
+#
+# The retired spellings are accepted FOREVER, not for a deprecation window.
+# Every server installed before this change carries one in .fogsettings, that
+# file is the admin's own record, and an update that refuses to run because a
+# value was renamed under it would be a far worse outcome than two extra case
+# arms.
+normalizeChannel() {
+    case "$1" in
+        stable) echo "stable" ;;
+        patches|staging) echo "patches" ;;
+        beta|dev) echo "beta" ;;
+        *) return 1 ;;
+    esac
+}
+# The inverse of channelToBranch(), used to derive a sensible FOG_update_channel
 # default from whatever branch happens to be checked out. Echoes nothing for a
 # branch that is not one of the three channels -- a feature/PR branch has no
 # channel, and guessing one would be worse than leaving it for the admin to set.
 branchToChannel() {
     case "$1" in
         stable) echo "stable" ;;
-        dev-branch) echo "staging" ;;
-        working-1.6) echo "dev" ;;
+        dev-branch) echo "patches" ;;
+        working-1.6) echo "beta" ;;
         *) return 1 ;;
     esac
 }
@@ -747,7 +801,13 @@ applyNewInstallDefaults() {
 recordGitUpdateSettings() {
     dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"${FOG_git_path}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${FOG_git_path}\"" ${DB_name} >>$error_log 2>&1
-    mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, staging, or dev.', \"${FOG_update_channel}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${FOG_update_channel}\"" ${DB_name} >>$error_log 2>&1
+    # settingDesc is refreshed too, unlike its two neighbours. The channel
+    # vocabulary changed (GH-1279), and ON DUPLICATE KEY UPDATE touching only
+    # settingValue would leave every server installed before that change showing
+    # "stable, staging, or dev" in the FOG Settings UI forever -- which is the
+    # documentation contradiction the rename exists to end, preserved in the one
+    # place an admin is most likely to read it.
+    mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_UPDATE_CHANNEL', 'Update channel this server tracks: stable, patches, or beta.', \"${FOG_update_channel}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingDesc=VALUES(settingDesc), settingValue=\"${FOG_update_channel}\"" ${DB_name} >>$error_log 2>&1
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_EXTRA_SERVER_NAMES', 'Extra vhost/certificate name(s) this server answers to, beyond the primary hostname and detected IPs. Set via --extra-server-name -- editing it here has no effect on the next update.', \"${PKI_san_dns_names}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${PKI_san_dns_names}\"" ${DB_name} >>$error_log 2>&1
     # SERVICE_LOG_PATH used to be an independent control, and nothing kept it
     # in step with where the install actually put its logs. Relocating

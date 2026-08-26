@@ -50,6 +50,14 @@ compute_version() {
     channel="$current_channel"
     trunkversion="$current_version"
 
+    # The channel labels below are the title-case form of the SAME vocabulary
+    # lib/common/functions.sh uses for fog_update_channel (GH-1279):
+    #
+    #   stable -> Stable   patches -> Patches   beta -> Beta
+    #
+    # rc and feature have no update channel -- nobody tracks a release candidate
+    # as a standing preference -- so those two labels are this file's alone.
+    # tests/update-channel-vocabulary.test.sh fails if the two halves drift.
     case "$branchon" in
         dev)
             tagversion=$(git describe --tags "$gitcom")
@@ -62,7 +70,14 @@ compute_version() {
             baseversion=${tagversion%.*}
             count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
             trunkversion="${baseversion}.${count}"
-            channel="Patches"
+            # "Stable", not "Patches" -- one channel vocabulary now, shared with
+            # fog_update_channel (GH-1279). stable and dev-branch used to
+            # compute the SAME label while their update channels differed, so
+            # the label could not have distinguished them. Nothing released
+            # changes: stable carries no FOG_CHANNEL line, so the sed in
+            # apply-fog-version.sh matches nothing and writes nothing there.
+            # This is what the commit message and the job summary say.
+            channel="Stable"
             ;;
         working)
             verbegin="${branchend}.0-beta"
