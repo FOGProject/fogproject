@@ -1117,10 +1117,6 @@ msgstr "Settings"
 msgid "Auto Logout Time"
 msgstr "Default log out time (in minutes)"
 
-#, fuzzy
-msgid "Automatic Secure Boot enrolment is not available on this server"
-msgstr "There are no images on this server."
-
 msgid "Automatic enrolment (Setup/Custom Mode)"
 msgstr ""
 
@@ -1220,6 +1216,10 @@ msgstr "Broadcast Updated"
 
 msgid "Browse"
 msgstr ""
+
+#, fuzzy
+msgid "Building the blobs failed."
+msgstr "Load failed: %s"
 
 #, fuzzy
 msgid "Buildroot Version"
@@ -4154,10 +4154,6 @@ msgstr "Update"
 msgid "Initrd Update Fail"
 msgstr "Printer update failed!"
 
-#, fuzzy
-msgid "Install"
-msgstr "Installed Plugins"
-
 msgid "Install Plugins"
 msgstr "Install Plugins"
 
@@ -6595,6 +6591,9 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
+msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
+msgstr ""
+
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
 msgstr ""
 
@@ -7078,6 +7077,9 @@ msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the
 msgstr ""
 
 msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
+msgstr ""
+
+msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
 
 #, fuzzy
@@ -8325,6 +8327,10 @@ msgstr "There are no images on this server."
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
+#, php-format
+msgid "The %s package is not installed and could not be built from source."
+msgstr ""
+
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "This setting defines "
@@ -8757,6 +8763,9 @@ msgid "This section allows you to upload user defined reports that may not be a 
 msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
+msgstr ""
+
+msgid "This server has not published the automatic Secure Boot enrolment blobs (PK.auth, KEK.auth and db.auth), so automatic enrolment is unavailable. There are three reasons that happens:"
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -9744,9 +9753,6 @@ msgid "and if the Database service is running"
 msgstr "Check that database is running"
 
 msgid "and node A only has a 5Mbps and you want the speed"
-msgstr ""
-
-msgid "and re-run the installer to enable it"
 msgstr ""
 
 msgid "and set it to master"
@@ -10764,6 +10770,10 @@ msgstr ""
 #~ msgstr "Attempting to ping"
 
 #, fuzzy
+#~ msgid "Automatic Secure Boot enrolment is not available on this server"
+#~ msgstr "There are no images on this server."
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Save Changes"
 
@@ -11003,6 +11013,10 @@ msgstr ""
 
 #~ msgid "Import Users"
 #~ msgstr "Import Users"
+
+#, fuzzy
+#~ msgid "Install"
+#~ msgstr "Installed Plugins"
 
 #, fuzzy
 #~ msgid "Invalid Type"

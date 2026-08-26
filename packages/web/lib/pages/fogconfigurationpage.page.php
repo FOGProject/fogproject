@@ -558,13 +558,42 @@ class FOGConfigurationPage extends FOGPage
             }
         }
         if (!$haveAuth) {
-            // The installer builds these whenever efitools is present, so a
-            // missing set almost always means that package is not installed.
-            $auto = '<p>' . sprintf(
-                '%s. %s <code>efitools</code> %s.',
-                _('Automatic Secure Boot enrolment is not available on this server'),
-                _('Install'),
-                _('and re-run the installer to enable it')
+            // Reports the CONDITION, not a cause. This used to assert that
+            // efitools was missing, which is only one of three ways the blobs
+            // can be absent -- and the least likely on a server that has the
+            // package installed. A server with efitools present and PK/KEK on
+            // disk still got told to install efitools (GH-1266). The page
+            // cannot see which cause applied; the installer can, and now says
+            // so on every run, so this points there instead of guessing.
+            $auto = '<p>' . _(
+                'This server has not published the automatic Secure Boot '
+                . 'enrolment blobs (PK.auth, KEK.auth and db.auth), so '
+                . 'automatic enrolment is unavailable. There are three '
+                . 'reasons that happens:'
+            ) . '</p>';
+            $auto .= '<ul>';
+            $auto .= '<li>' . _(
+                'Secure Boot enrolment material is switched off for this '
+                . 'install, or no signing key is configured -- so no platform '
+                . 'keys were minted.'
+            ) . '</li>';
+            // One msgid with a placeholder rather than sentence fragments
+            // glued together: a translator needs the whole sentence to word it.
+            $auto .= '<li>' . sprintf(
+                _(
+                    'The %s package is not installed and could not be built '
+                    . 'from source.'
+                ),
+                '<code>efitools</code>'
+            ) . '</li>';
+            $auto .= '<li>' . _(
+                'Building the blobs failed.'
+            ) . '</li>';
+            $auto .= '</ul>';
+            $auto .= '<p>' . _(
+                'Re-run the installer and read what it prints under '
+                . '"Publishing Secure Boot variable updates" -- it names '
+                . 'which of the three applied here.'
             ) . '</p>';
             $auto .= '<p>' . _(
                 'The manual enrolment steps below are unaffected.'
