@@ -643,6 +643,9 @@ class OpenAPI extends FOGBase
     {
         $schemas = [
             'ListEnvelope' => self::_listEnvelopeSchema(),
+            'BulkEditIds' => self::_bulkEditIdsSchema(),
+            'TaskRequest' => self::_taskRequestSchema(),
+            'NamesRequest' => self::_namesRequestSchema(),
             'Error' => [
                 'type' => 'object',
                 'properties' => [
@@ -663,6 +666,11 @@ class OpenAPI extends FOGBase
             $pageRef = self::pageRef($ref);
             $page = substr($pageRef, strrpos($pageRef, '/') + 1);
             $schemas[$page] = self::_pageSchema($ref);
+            // Likewise the join body: same field set as the entity, plus the
+            // ids to apply it to. Registered here for the same reason.
+            $joinRef = self::joinRef($ref);
+            $join = substr($joinRef, strrpos($joinRef, '/') + 1);
+            $schemas[$join] = self::_joinSchema($ref);
         }
         return $schemas;
     }
@@ -1454,17 +1462,8 @@ class OpenAPI extends FOGBase
                         'content' => [
                             'application/json' => [
                                 'schema' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'taskTypeID' => self::_oneOfTypes(['string', 'integer']),
-                                        'taskName' => ['type' => 'string'],
-                                        'shutdown' => self::_oneOfTypes(['string', 'boolean']),
-                                        'debug' => self::_oneOfTypes(['string', 'boolean']),
-                                        'deploySnapins' => self::_oneOfTypes(['string', 'integer', 'boolean']),
-                                        'passreset' => ['type' => 'string'],
-                                        'sessionjoin' => self::_oneOfTypes(['string', 'boolean']),
-                                        'wol' => self::_oneOfTypes(['string', 'boolean'])
-                                    ]
+                                    '$ref' => '#/components/schemas/'
+                                        . 'TaskRequest'
                                 ]
                             ]
                         ]
@@ -1949,25 +1948,108 @@ class OpenAPI extends FOGBase
             'required' => true,
             'content' => [
                 'application/json' => [
-                    'schema' => [
-                        'allOf' => [
-                            ['$ref' => $ref],
-                            [
-                                'type' => 'object',
-                                'required' => ['ids'],
-                                'properties' => [
-                                    'ids' => [
-                                        'type' => 'array',
-                                        'items' => ['type' => 'integer'],
-                                        'description' => _('The objects to '
-                                            . 'apply these values to. An '
-                                            . 'empty or absent list matches '
-                                            . 'nothing and edits nothing.')
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                    'schema' => ['$ref' => self::joinRef($ref)]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * The component ref for the join body of a class.
+     *
+     * `#/components/schemas/Host` -> `#/components/schemas/HostJoin`.
+     *
+     * Same defect and same fix as pageRef(): the body was written inline at
+     * every join route, so it had no name and every generator invented one.
+     *
+     * @param string $ref The entity schema reference.
+     *
+     * @return string
+     */
+    public static function joinRef($ref)
+    {
+        $name = substr((string)$ref, strrpos((string)$ref, '/') + 1);
+        return '#/components/schemas/' . $name . 'Join';
+    }
+
+    /**
+     * The join body for one class: the entity's own fields, plus the ids to
+     * apply them to.
+     *
+     * Still an allOf, unlike the page schema, and deliberately so. A page was
+     * flattened because x-ms-pageable has to find `data` in the schema's own
+     * properties; nothing looks the join body up that way, and allOf is what
+     * keeps this field set from drifting away from the class's own schema.
+     *
+     * What changed is that BOTH branches are now named refs. An allOf whose
+     * second branch is written inline still leaves that branch anonymous, and
+     * a generator names it -- which is how `...JoinPutRequestbodyContent
+     * ApplicationJsonSchemaAllof1` came about. Pointing at BulkEditIds costs
+     * one shared schema and leaves nothing unnamed.
+     *
+     * @param string $ref The entity schema reference.
+     *
+     * @return array
+     */
+    private static function _joinSchema($ref)
+    {
+        return [
+            'allOf' => [
+                ['$ref' => $ref],
+                ['$ref' => '#/components/schemas/BulkEditIds']
+            ]
+        ];
+    }
+
+    /**
+     * The body POST /{class}/{id}/task takes.
+     *
+     * Written inline at the route, which meant one anonymous copy per
+     * tasking class even though every copy was identical. Shared and named,
+     * because the body genuinely is the same body -- queueing a task against
+     * a host and against a group take the same fields.
+     *
+     * @return array
+     */
+    private static function _taskRequestSchema()
+    {
+        return [
+            'type' => 'object',
+            'description' => _('The fields a queued task accepts. '
+                . 'Wake-on-lan is this body with wol set, not a route of '
+                . 'its own.'),
+            'properties' => [
+                'taskTypeID' => self::_oneOfTypes(['string', 'integer']),
+                'taskName' => ['type' => 'string'],
+                'shutdown' => self::_oneOfTypes(['string', 'boolean']),
+                'debug' => self::_oneOfTypes(['string', 'boolean']),
+                'deploySnapins' => self::_oneOfTypes(
+                    ['string', 'integer', 'boolean']
+                ),
+                'passreset' => ['type' => 'string'],
+                'sessionjoin' => self::_oneOfTypes(['string', 'boolean']),
+                'wol' => self::_oneOfTypes(['string', 'boolean'])
+            ]
+        ];
+    }
+
+    /**
+     * The ids half of every join body, shared rather than repeated.
+     *
+     * @return array
+     */
+    private static function _bulkEditIdsSchema()
+    {
+        return [
+            'type' => 'object',
+            'required' => ['ids'],
+            'properties' => [
+                'ids' => [
+                    'type' => 'array',
+                    'items' => ['type' => 'integer'],
+                    'description' => _('The objects to apply these values '
+                        . 'to. An empty or absent list matches nothing and '
+                        . 'edits nothing.')
                 ]
             ]
         ];
@@ -1985,17 +2067,30 @@ class OpenAPI extends FOGBase
             'content' => [
                 'application/json' => [
                     'schema' => [
-                        'type' => 'object',
-                        'required' => ['names'],
-                        'properties' => [
-                            'names' => [
-                                'type' => 'array',
-                                'items' => ['type' => 'string'],
-                                'description' => _('Names to resolve. Each is '
-                                    . 'created if no object already has it.')
-                            ]
-                        ]
+                        '$ref' => '#/components/schemas/NamesRequest'
                     ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * The names half of POST /group/join, named for the same reason as the
+     * rest: written inline it has no name, so a generator invents one.
+     *
+     * @return array
+     */
+    private static function _namesRequestSchema()
+    {
+        return [
+            'type' => 'object',
+            'required' => ['names'],
+            'properties' => [
+                'names' => [
+                    'type' => 'array',
+                    'items' => ['type' => 'string'],
+                    'description' => _('Names to resolve. Each is created '
+                        . 'if no object already has it.')
                 ]
             ]
         ];
