@@ -1520,6 +1520,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2730,6 +2733,10 @@ msgstr "无法删除文件"
 
 #, fuzzy
 msgid "Failed to record task state changes"
+msgstr "无法创建任务"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
 msgstr "无法创建任务"
 
 #, fuzzy
@@ -4994,6 +5001,10 @@ msgid "Mark selected pending"
 msgstr "批准选定主机"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "加载失败： %s"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "用户更新失败"
 
@@ -5582,6 +5593,10 @@ msgstr "没有找到主机定义图片"
 
 msgid "No type information available for this column."
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "发送无有效类"
 
 #, fuzzy
 msgid "No valid storage nodes found"
@@ -8209,6 +8224,9 @@ msgstr "任务类型"
 msgid "Task activity"
 msgstr "活性"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "加载失败： %s"
@@ -9975,6 +9993,10 @@ msgid "host is"
 msgstr "主办"
 
 #, fuzzy
+msgid "host no longer exists"
+msgstr "不复存在"
+
+#, fuzzy
 msgid "hosts"
 msgstr "主办"
 
@@ -10044,6 +10066,10 @@ msgstr ""
 #, fuzzy
 msgid "image is"
 msgstr "图片"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "不复存在"
 
 #, fuzzy
 msgid "image replication"
@@ -10415,6 +10441,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "发现任务"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr "不复存在"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"

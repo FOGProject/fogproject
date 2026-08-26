@@ -1521,6 +1521,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2731,6 +2734,10 @@ msgstr "Impossible de supprimer le fichier"
 
 #, fuzzy
 msgid "Failed to record task state changes"
+msgstr "Impossible de créer la tâche"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
 msgstr "Impossible de créer la tâche"
 
 #, fuzzy
@@ -4995,6 +5002,10 @@ msgid "Mark selected pending"
 msgstr "Approuver hôtes sélectionnés"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Échec du chargement: %s"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "mise à jour de l'utilisateur a échoué"
 
@@ -5583,6 +5594,10 @@ msgstr "Pas d'image définie pour cet hôte"
 
 msgid "No type information available for this column."
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Aucune classe valide envoyé"
 
 #, fuzzy
 msgid "No valid storage nodes found"
@@ -8210,6 +8225,9 @@ msgstr "Types de tâches"
 msgid "Task activity"
 msgstr "actif"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "Échec du chargement: %s"
@@ -9976,6 +9994,10 @@ msgid "host is"
 msgstr "hôte"
 
 #, fuzzy
+msgid "host no longer exists"
+msgstr " n'existe plus"
+
+#, fuzzy
 msgid "hosts"
 msgstr "hôte"
 
@@ -10045,6 +10067,10 @@ msgstr ""
 #, fuzzy
 msgid "image is"
 msgstr "Images"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr " n'existe plus"
 
 #, fuzzy
 msgid "image replication"
@@ -10416,6 +10442,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "tâche trouvée"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr " n'existe plus"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"
