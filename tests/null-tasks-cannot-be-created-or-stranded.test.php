@@ -25,10 +25,14 @@
  *   3. Stranded afterwards. Deleting an image reset hosts.imageID and removed
  *      the imageassociation rows and said nothing about `tasks`.
  *
- * And one that makes a GOOD task look like a lost one: checkout() marked the
- * task Complete before it wrote the imaging log, so a failure writing that
- * log left FOS retrying against a task that was already finished, answered
- * "No Active Task found for Host" forever.
+ * And one that makes a GOOD task look like a lost one, in three layers:
+ * FOGManagerController::find() expanded an explicit null filter into
+ * `col IN ('0',0,NULL,'')`, which is never TRUE for a NULL column, so the
+ * lookup for the open imaging log missed it on EVERY imaging run;
+ * imageLog() then tried to close a row it had had to create by setting only
+ * `finish`, which ImagingLog refuses; and checkout() had already marked the
+ * task Complete, so FOS's retries were answered "No Active Task found for
+ * Host" forever, on a machine that had imaged perfectly.
  *
  * WHAT THIS PINS is the mechanism, not a call site -- a test that walked
  * today's group-tasking branches would go green the moment someone added a
@@ -285,6 +289,64 @@ ntCheck(
     'imageLog()\'s checkout branch no longer completes a row it had to '
     . 'create. ImagingLog requires hostID, start and image, so setting only '
     . 'finish is a guaranteed "Failed to update imaging log"'
+);
+
+// ---------------------------------------------------------------
+// 5. find() honours an explicit null filter.
+// ---------------------------------------------------------------
+/*
+ * This is what actually made the imaging log unfindable, and it is a defect
+ * in the query builder rather than in any caller.
+ *
+ * find() opens by expanding a falsey filter into every stored representation
+ * of "nothing":
+ *
+ *     if (!$value) { $value = array('0', 0, null, ''); }
+ *
+ * GH-1245 added a `null === $value` branch further down that emits IS NULL --
+ * but !null is TRUE, so the expansion above always ran first and that branch
+ * was unreachable. The term emitted for a null filter was
+ * `col IN ('0',0,NULL,'')`, and `NULL IN (...)` evaluates to UNKNOWN in SQL,
+ * never TRUE. So find() could not match a null column at all, and
+ * imageLog()'s `finish => null` lookup missed the open row on every run.
+ *
+ * Pinned by isolating find() and reading the condition on the expansion,
+ * because a check for the IS NULL branch's mere presence passes while the
+ * branch is dead -- which is exactly the state this was in.
+ */
+preg_match('#public function find\(.*?\n    \}\n#s', $man, $m);
+$find = isset($m[0]) ? $m[0] : '';
+ntCheck($find !== '', 'FOGManagerController::find() could not be isolated');
+
+preg_match('#if \(([^)]*!\$value)\) \{\s*\$value = array\(#s', $find, $m);
+$expansion = isset($m[1]) ? $m[1] : '';
+ntCheck(
+    $expansion !== '',
+    'find()\'s falsey-value expansion could not be found, so the guard on it '
+    . 'cannot be read'
+);
+ntCheck(
+    strpos($expansion, 'null !== $value') !== false,
+    'find() expands an explicit null into array(\'0\', 0, null, \'\') and '
+    . 'emits `col IN (...)`, which is never TRUE for a NULL column. Every '
+    . 'find() filtering on null silently matches nothing, and the IS NULL '
+    . 'branch below it is dead code'
+);
+ntCheck(
+    strpos($find, 'null === $value') !== false
+    && strpos($find, 'IS%sNULL') !== false,
+    'find() no longer emits IS NULL for a null filter'
+);
+/*
+ * The expansion itself stays. A filter holding 0, \'\' or false has hundreds
+ * of callers relying on it matching the falsey stored representations, and
+ * narrowing that is a separate change with a far wider blast radius.
+ */
+ntCheck(
+    strpos($find, "\$value = array(\n                        '0',") !== false
+    || preg_match('#\$value = array\(\s*\'0\',\s*0,\s*null,\s*\'\',\s*\);#s', $find),
+    'find() no longer expands a falsey (non-null) filter, which silently '
+    . 'changes what every 0/\'\'/false filter in the tree matches'
 );
 
 ntCheck(

@@ -206,7 +206,27 @@ abstract class FOGManagerController extends FOGBase
             $count = 0;
             foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
-                if (!$value) {
+                /*
+                 * GH-1245 gave find() the `null === $value` branch below, but
+                 * left this expansion above it -- and `!null` is true, so an
+                 * explicit null was turned into the array first and that
+                 * branch could never run. The emitted term was
+                 * `col IN ('0',0,NULL,'')`, which is never TRUE for a column
+                 * holding NULL: SQL evaluates `NULL IN (...)` to unknown. So
+                 * every `find()` filtering on null silently matched nothing.
+                 *
+                 * TaskingElement::imageLog() is where it showed: it looks up
+                 * the open imaging log by `finish => null`, missed it on every
+                 * single deployment, and the caller reported "Failed to update
+                 * imaging log" for a machine that had imaged perfectly (forums
+                 * topic 18228).
+                 *
+                 * Only the null case is taken out of the expansion. A filter
+                 * holding 0, '' or false keeps matching the falsey stored
+                 * representations exactly as before -- that list has hundreds
+                 * of callers and this is not the change to alter them in.
+                 */
+                if (null !== $value && !$value) {
                     $value = array(
                         '0',
                         0,
