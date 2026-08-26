@@ -43,7 +43,7 @@ case $linuxReleaseName_lower in
             if [[ ${WEB_server_engine} == "apache2" ]]; then
                 libapache="libapache2-mod-fastcgi libapache2-mod-php"
             fi
-            FOG_packages="attr build-essential cpp curl g++ gawk gcc gcc-aarch64-linux-gnu genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server php-fpm php php-cli php-curl php-gd php-json php-ldap php-mbstring php-mysql php-ssh2 ${sysvrcconf} tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
+            FOG_packages="attr build-essential cpp curl g++ gawk gcc gcc-aarch64-linux-gnu genisoimage git gzip htmldoc isc-dhcp-server isolinux lftp ${libapache} libc6 libcurl3 liblzma-dev m4 ${db_packages} net-tools nfs-kernel-server openssh-server php-fpm php php-cli php-curl php-gd php-json php-ldap php-mbstring php-mysql php-ssh2 ${sysvrcconf} sudo tar tftpd-hpa tftp-hpa vsftpd wget zlib1g"
         else
             # make sure we update the package list to not use specific version numbers anymore
             FOG_packages=${FOG_packages//php[0-9]\.[0-9]/php}
