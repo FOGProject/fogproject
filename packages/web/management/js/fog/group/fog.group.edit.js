@@ -915,12 +915,17 @@
     var $groupLoginHist = $('#group-login-history-table');
     var groupHistoryLoginTable = !$groupLoginHist.length ? null :
       $groupLoginHist.registerTable(null, {
+        // hostLink stays raw -- it is a server-built <a>, and escaping it
+        // would print the markup literally. Everything beside it is plain
+        // text from Route and escapes here; `username` and `description`
+        // are written by the client check-in. Same split as the inventory
+        // report and the host page's copy of this tab.
         columns: [
             {data: 'hostLink'},
-            {data: 'createdTime'},
-            {data: 'action'},
-            {data: 'username'},
-            {data: 'description'}
+            $.escapedColumn('createdTime'),
+            $.escapedColumn('action'),
+            $.escapedColumn('username'),
+            $.escapedColumn('description')
         ],
         // Host first, because RowGroup only groups correctly when the
         // grouped column is the primary sort -- otherwise a host's rows

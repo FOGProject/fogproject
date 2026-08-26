@@ -52,14 +52,20 @@
             }
           },
           buttons: reportButtons,
+          // Every column escapes. A history row records subject labels that
+          // came from a machine on the network, and DataTables writes cell
+          // data as HTML unless a column supplies its own render. The
+          // display-only guard is load-bearing: the Buttons CSV/copy exports
+          // ask for other types and escaping those would put &amp; into the
+          // exported file. Same shape as registerExportTable().
           columns: [
-            {data: 'createdBy'},
-            {data: 'createdTime'},
+            $.escapedColumn('createdBy'),
+            $.escapedColumn('createdTime'),
             // ADR 0020 phase 4: the server-built sentence, in the reader's
             // language, falling back to the stored prose (`info`) for rows
             // written before phase 3.
-            {data: 'summary'},
-            {data: 'ip'}
+            $.escapedColumn('summary'),
+            $.escapedColumn('ip')
           ],
           rowId: 'id',
           processing: true,
