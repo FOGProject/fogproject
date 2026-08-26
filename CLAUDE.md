@@ -65,6 +65,33 @@ The web root the user edits live is `/var/www/fog/` (symlinked to `/var/www/html
 
 Net effect: a typical commit will also include a `system.class.php` version bump, and often `messages.pot` + `.po` churn and/or PSR-2 reformatting. Expect it; don't be surprised by the extra files.
 
+### `working-1.6` is gated by a branch ruleset
+
+`working-1.6` carries a ruleset (`working-1.6 pull request gate`), so landing work
+there is not a plain `git push`:
+
+- **changes arrive by pull request** — the rule that pins the merge method also
+  requires one, so a direct push is rejected for everyone except the
+  `fog-workflows` App and org admins;
+- **merge commits only** — no squash, no rebase. `FOG_VERSION` is the commit
+  count since `master`, and the PR-time version sync predicts the post-merge
+  count on the assumption that the merge adds exactly one commit. Squash
+  collapses N into one; rebase adds none. Either makes the predicted version
+  wrong;
+- **branches must be up to date before merging**, for the same reason — the base
+  has to be an ancestor of the head or the count is not knowable in advance;
+- **seven `fogproject / …` checks must pass.** `regenerate / …` is deliberately
+  *not* required: it is skipped on fork PRs, and requiring it would leave those
+  unmergeable.
+
+The version you see committed on a PR branch is therefore the one it will carry
+*after* merging, written by the bot before the merge. The post-merge sync in
+`sync-generated-files.yml` is retained as a backstop for the cases the prediction
+cannot cover (a fork PR, an admin bypass, a guard-skipped run); on a well-behaved
+PR it finds nothing to do, which is expected rather than a symptom.
+
+Full reasoning: `docs/development/version-sync-automation.md` in `FOGProject/fog-docs`.
+
 ### Commit authorship
 
 Commits are **authored by the maintainer and co-authored by the agent**, not the
