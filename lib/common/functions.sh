@@ -2246,7 +2246,23 @@ configureDefaultiPXEfile() {
         _resolveNetbootHost || return 1
         nbhost="$netboothost"
     fi
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # param manufacturer took ${product} for years, so every ipxeTable row
+    # recorded the model twice and the vendor never once. iPXE exposes the two
+    # as separate SMBIOS settings.
+    #
+    # macboot is ${netX/mac}, iPXE's alias for the device it booted from. It is
+    # NOT a replacement for mac0: netX is a pointer at one of net0..netN, so
+    # swapping it in would drop net0 from the set on a machine that booted off
+    # net1. boot.php unions every mac* field and array_unique()s the result, so
+    # sending both costs nothing when they are the same NIC and guarantees the
+    # booting NIC is present however many NICs the box has. It sits above the
+    # net1..net7 chain because that chain short-circuits to :bootme on the first
+    # absent interface, which on a single-NIC machine is net1.
+    #
+    # The enumeration used to stop at net2. Anything past three NICs was
+    # invisible to the host lookup, so a machine registered under only its
+    # fourth NIC could not be found at all.
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {

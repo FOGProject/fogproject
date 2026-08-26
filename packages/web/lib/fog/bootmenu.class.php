@@ -985,9 +985,25 @@ class BootMenu extends FOGBase
      * not tell UEFI from BIOS. Order is not significant to iPXE (these all
      * become POST fields), so one canonical order serves every caller.
      *
-     * The mac1/mac2 lines are conditional because iPXE errors on an unset
+     * The mac1..mac7 lines are conditional because iPXE errors on an unset
      * variable; jumping to :bootme on the first absent NIC is how the
-     * original avoided that, and it is preserved exactly.
+     * original avoided that, and it is preserved exactly. The enumeration
+     * used to stop at net2, which made a host registered under only its
+     * fourth NIC invisible to the lookup in boot.php.
+     *
+     * macboot is ${netX/mac}, iPXE's alias for the device it booted from,
+     * and is an ADDITION to mac0 rather than a replacement -- netX is a
+     * pointer at one of net0..netN, so substituting it would drop net0 from
+     * the set on a machine that booted off net1. boot.php unions every mac*
+     * field and array_unique()s the result, so the overlap is free. It is
+     * emitted above the net1..net7 chain because that chain short-circuits
+     * to :bootme on the first absent interface, which on a single-NIC
+     * machine is net1.
+     *
+     * product/manufacturer/ipxever/filename ride along because _ipxeLog()
+     * keys its lookup on file+product+manufacturer+mac. default.ipxe posts
+     * them; this block did not, so every re-chain failed to match the row
+     * the first request had written and inserted a fresh blank one instead.
      *
      * @param array $params call-specific 'param ...' lines
      * @param bool  $tail   emit the :bootme label and the chain itself.
@@ -1004,12 +1020,22 @@ class BootMenu extends FOGBase
                 'param mac0 ${net0/mac}',
                 'param arch ${arch}',
                 'param platform ${platform}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
             ],
             $params,
             [
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
             ]
         );
         if (!$tail) {
