@@ -4573,3 +4573,80 @@ $this->schema[] = array(
         return true;
     },
 );
+
+// 287
+$this->schema[] = array(
+    // Widen the stored pxeMenu param blocks past three NICs.
+    //
+    // The mac0/mac1/mac2 enumeration is not only in code -- six of these
+    // blocks ship as `pxeMenu`.`pxeParams` DATA, and _menuOpt() emits whatever
+    // the row says verbatim. So fixing bootmenu.class.php and the installer's
+    // default.ipxe leaves every existing site's menu items still posting at
+    // most three MACs, which is what made a host registered under only its
+    // fourth NIC unfindable.
+    //
+    // Two additions per row, matching bootmenu.class.php:
+    //   - macboot, ${netX/mac}, the NIC iPXE actually booted from. An
+    //     ADDITION to mac0, not a replacement: netX is a pointer at one of
+    //     net0..netN, so substituting it would drop net0 on a machine that
+    //     booted off net1. boot.php unions every mac* field and array_unique()s
+    //     the result, so the overlap costs nothing. It goes ABOVE the chain
+    //     because the chain short-circuits to :bootme on the first absent
+    //     interface, which on a single-NIC machine is net1.
+    //   - net3..net7, so the enumeration reaches eight interfaces.
+    //
+    // Guarded on the row still matching what we shipped, byte for byte. These
+    // rows are user-writable from iPXE Menu Customization, and a site that has
+    // edited one has made a deliberate choice; an untouched row provably has
+    // not. A customized row keeps its three NICs rather than losing the edit,
+    // and re-running is a no-op because the old value no longer matches.
+    //
+    // A closure rather than seven literal statements: the old and the new
+    // value differ by one line in the middle of a nine-line blob, and writing
+    // both out per menu entry is fourteen near-identical paragraphs in which a
+    // single wrong character silently means "match nothing, change nothing".
+    function () {
+        // pxeName => the boolean flag that row's params block carries.
+        $menus = array(
+            'fog.deployimage' => 'qihost',
+            'fog.quickdel' => 'delhost',
+            'fog.keyreg' => 'keyreg',
+            'fog.debug' => 'debugAccess',
+            'fog.multijoin' => 'sessionJoin',
+            'fog.advancedlogin' => 'advLog',
+            'fog.approvehost' => 'approveHost'
+        );
+        $head = "login\n"
+            . "params\n"
+            . 'param mac0 ${net0/mac}' . "\n"
+            . 'param arch ${arch}' . "\n"
+            . 'param username ${username}' . "\n"
+            . 'param password ${password}' . "\n";
+        $oldTail = 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme'
+            . "\n"
+            . 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme';
+        $newTail = 'isset ${netX/mac} && param macboot ${netX/mac} ||';
+        for ($nic = 1; $nic <= 7; $nic++) {
+            $newTail .= "\n" . sprintf(
+                'isset ${net%1$d/mac} && param mac%1$d ${net%1$d/mac}'
+                . ' || goto bootme',
+                $nic
+            );
+        }
+        foreach ($menus as $pxeName => $flag) {
+            $body = $head . sprintf('param %s 1', $flag) . "\n";
+            self::$DB->query(
+                'UPDATE `pxeMenu` SET `pxeParams` = :new '
+                . 'WHERE `pxeName` = :name AND `pxeParams` = :old',
+                array(),
+                array(
+                    ':new' => $body . $newTail,
+                    ':name' => $pxeName,
+                    ':old' => $body . $oldTail
+                )
+            );
+        }
+
+        return true;
+    }
+);
