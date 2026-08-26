@@ -402,7 +402,7 @@ class BootMenu extends FOGBase
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
-            'set setmacto ${net0/mac}',
+            'set setmacto ${${ifname}/mac}',
         );
         if (self::$Host->isValid()) {
             $sysuuid = filter_input(INPUT_POST, 'sysuuid')
