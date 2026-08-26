@@ -656,6 +656,13 @@ class OpenAPI extends FOGBase
                 continue;
             }
             $schemas[self::schemaName($class)] = $entity;
+            // Every class with an entity also answers list, search and
+            // active, and all three return the same page shape. Registered
+            // beside the entity so the pair cannot drift apart.
+            $ref = '#/components/schemas/' . self::schemaName($class);
+            $pageRef = self::pageRef($ref);
+            $page = substr($pageRef, strrpos($pageRef, '/') + 1);
+            $schemas[$page] = self::_pageSchema($ref);
         }
         return $schemas;
     }
@@ -1815,24 +1822,81 @@ class OpenAPI extends FOGBase
                 'description' => _('A page of results.'),
                 'content' => [
                     'application/json' => [
-                        'schema' => [
-                            'allOf' => [
-                                ['$ref' => '#/components/schemas/ListEnvelope'],
-                                [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'data' => [
-                                            'type' => 'array',
-                                            'items' => ['$ref' => $ref]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
+                        'schema' => ['$ref' => self::pageRef($ref)]
                     ]
                 ]
             ]
         ];
+    }
+
+    /**
+     * The component ref for the page wrapper around a row type.
+     *
+     * `#/components/schemas/Host` -> `#/components/schemas/HostPage`.
+     *
+     * The wrapper used to be written inline at each of the three places a
+     * page is returned, which is legal and unusable: an anonymous schema has
+     * no name, so every code generator invents one. AutoRest called this one
+     * `IPaths8Cd1AsHostGetResponses200ContentApplicationJsonSchema` and put
+     * it in Get-Host's OutputType, where a user reads it.
+     *
+     * @param string $ref The row type's own ref.
+     *
+     * @return string
+     */
+    public static function pageRef($ref)
+    {
+        $name = substr((string)$ref, strrpos((string)$ref, '/') + 1);
+        return '#/components/schemas/' . $name . 'Page';
+    }
+
+    /**
+     * The page wrapper schema for one row type: the shared envelope, plus a
+     * data array of that type.
+     *
+     * Named rather than inline so it is addressable -- by a generator
+     * deciding what to call the model, and by x-ms-pageable, which names the
+     * item property it has to walk.
+     *
+     * @param string $ref The row type's own ref.
+     *
+     * @return array
+     */
+    private static function _pageSchema($ref)
+    {
+        // Flat, not an allOf over ListEnvelope, and the reason is
+        // mechanical rather than stylistic.
+        //
+        // x-ms-pageable names the property holding the rows and the property
+        // holding the link, and a generator then looks both up on the
+        // schema: AutoRest does
+        //
+        //   schema.properties.find(p => p.serializedName === itemName)
+        //
+        // An allOf composition has no properties of its own -- data and
+        // nextUrl each live in a branch -- so that lookup finds nothing and
+        // the generator fails outright. Composing was tried first and
+        // reproduced exactly that.
+        //
+        // Inlining the envelope is also the better shape to read: a page IS
+        // its counts, its link and its rows, and a named type saying so
+        // beats one that says "see the other schema".
+        $envelope = self::_listEnvelopeSchema();
+        $properties = isset($envelope['properties'])
+            ? $envelope['properties']
+            : [];
+        $properties['data'] = [
+            'type' => 'array',
+            'items' => ['$ref' => $ref]
+        ];
+        $out = [
+            'type' => 'object',
+            'properties' => $properties
+        ];
+        if (isset($envelope['description'])) {
+            $out['description'] = $envelope['description'];
+        }
+        return $out;
     }
 
     /**
