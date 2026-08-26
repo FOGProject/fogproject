@@ -3082,7 +3082,31 @@ configureTFTPandPXE() {
         # binary lands exactly where a downloaded one would.
         "${buildipxesrc}/buildipxe.sh" "${ipxetrust}" "$(readlink -f $tftpdirsrc)" >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
         local buildstat=$?
-        errorStat $buildstat
+        local ipxebuildlog="$workingdir/error_logs/fog_ipxe-build_${version}.log"
+        # errorStat tails $error_log, and this build does not write there -- its
+        # output goes to the file above. Tailing the wrong log printed five lines
+        # of unrelated noise from earlier steps (a DB backup line, the HTML body
+        # of the schema POST) and threw away the exit status, which is the one
+        # value that identifies the failure: buildipxe.sh returns a distinct
+        # status per stage -- 39/41 upstream checkout and patching, 40/48 BIOS,
+        # 79/80/91/95 x86 EFI, 82/93/97 the arm64 cross-compile. Report both, so
+        # a failed build can be diagnosed from what the installer prints instead
+        # of from a file nobody is told to look at.
+        if [[ $buildstat -ne 0 ]]; then
+            echo "Failed! (buildipxe.sh exit $buildstat)"
+            if [[ -z $exitFail ]]; then
+                echo
+                echo " * The iPXE build writes its own log, separate from $error_log."
+                echo " * Full build output: $ipxebuildlog"
+                echo " * Please include that file, and the exit status above, when"
+                echo "   reporting this."
+                echo
+                tail -n 20 "$ipxebuildlog"
+                exit $buildstat
+            fi
+        else
+            errorStat 0
+        fi
         # Recorded only on success, and only after the copy loop below has
         # actually put the result in place -- a stamp written for a build that
         # failed would suppress every retry.
