@@ -8151,6 +8151,9 @@ msgstr "Impossibile creare un'attività"
 msgid "The current user is invalid."
 msgstr "Tipo di attività non è valido"
 
+msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
 msgid "The file itself."
 msgstr ""
 
