@@ -8617,6 +8617,9 @@ msgstr "No se pudo crear la tarea"
 msgid "The current user is invalid."
 msgstr "tipo de tarea no es válida"
 
+msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
 msgid "The file itself."
 msgstr ""
 

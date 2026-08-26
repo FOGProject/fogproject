@@ -8088,6 +8088,9 @@ msgstr "タスクの作成に失敗しました"
 msgid "The current user is invalid."
 msgstr ""
 
+msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
 msgid "The file itself."
 msgstr ""
 
