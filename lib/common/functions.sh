@@ -2505,6 +2505,82 @@ _biosBootFile() {
         echo "undionly.kkpxe"
     fi
 }
+# Is the signed Secure Boot chain actually staged?
+#
+# downloadipxesecureboot is deliberately non-fatal, so an install whose fetch
+# failed has no $tftpdirsrc/secureboot at all. The generated DHCP config names
+# the shim by default, and naming a file TFTP cannot serve breaks every UEFI
+# client on the network -- so that default has to be conditional on the file
+# being there.
+#
+# Reads the STAGING tree, not $tftpdirdst: configureDHCP runs before
+# configureTFTPandPXE's copy loop, so the destination is still empty on a first
+# install (or still holds the previous install's files) at the point this is
+# asked. installfog.sh calls downloadipxesecureboot ahead of configureDHCP
+# precisely so this has an answer -- see the comment at that call site.
+#
+# readlink -f for the same reason downloadipxesecureboot does it: $tftpdirsrc is
+# the relative ../packages/tftp.
+_sbChainStaged() {
+    local src="$(readlink -f "$tftpdirsrc" 2>/dev/null)"
+    [[ -n $src && -f "${src}/secureboot/snponly-shimx64.efi" ]]
+}
+# Which UEFI boot file DHCP should hand out, per architecture.
+#
+# The signed chain is the default for every x86-64 and arm64 UEFI client, not an
+# opt-in for the Secure Boot ones. This used to be emitted commented out, on the
+# reasoning that option 93 carries the client architecture and nothing else, so
+# a DHCP request cannot say whether Secure Boot is on and a site therefore has
+# to opt specific machines in.
+#
+# The premise is true and the conclusion does not follow. shim is an ordinary
+# UEFI application that happens to carry a Microsoft signature: with Secure Boot
+# on the firmware verifies it and it verifies what it loads next; with Secure
+# Boot off the firmware verifies nothing and shim enforces nothing. It simply
+# boots. So the signed chain is a SUPERSET -- it covers the machines that need it
+# and costs the others nothing -- and there is nothing to detect.
+#
+# Why the boot file names the shim and not the loader: ipxe/shim carries a
+# fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
+# "-shim[arch]" infix from the path it was ITSELF fetched from and loads that,
+# out of the same directory. So snponly-shimx64.efi fetches snponly.efi and
+# ipxe-shimx64.efi fetches ipxe.efi -- from one signed binary staged under both
+# names. Do not conclude from `strings` that the loader is hardcoded to
+# ipxe.efi; that is only the DEFAULT_LOADER the patch hooks. Over TFTP the
+# device path carries the filename, so the rename resolves correctly (observed);
+# off an ESP it does not, which is a separate problem handled elsewhere.
+#
+# If this chain loads but the network never comes up, the firmware's own UEFI
+# SNP is at fault -- switch the name to secureboot/ipxe-shimx64.efi for iPXE's
+# built-in drivers. That is a DHCP-only change with nothing renamed
+# server-side, and it is what the commented fallback in the generated config
+# points at.
+#
+# No 32-bit case on purpose: there is no Microsoft-signed ia32 shim and no
+# signed 32-bit iPXE, so i386-efi clients stay on the unsigned binary and must
+# have Secure Boot disabled to netboot at all.
+#
+# --boot-delay needs no handling here either. EFI takes its delay from
+# autoexec.ipxe (_applyBootDelay), so unlike _biosBootFile there is no second
+# binary to point at.
+_uefiBootFile() {
+    case "$1" in
+        arm64)
+            if _sbChainStaged; then
+                echo "secureboot/arm64-efi/snponly-shimaa64.efi"
+            else
+                echo "arm64-efi/snponly.efi"
+            fi
+            ;;
+        *)
+            if _sbChainStaged; then
+                echo "secureboot/snponly-shimx64.efi"
+            else
+                echo "snponly.efi"
+            fi
+            ;;
+    esac
+}
 # Write the pre-DHCP sleep into autoexec.ipxe, per --boot-delay.
 #
 # Some switches take several seconds to bring a port out of STP listening or
@@ -2857,6 +2933,14 @@ downloadipxesecureboot() {
         echo " * Could not download $tarball from ${ipxeurl}/${ipxeVer}/"
         echo " * Secure Boot clients will not have a signed chain to boot; every"
         echo " *   other client is unaffected. Re-run the installer to retry."
+        # Said out loud because it changes what the DHCP config written a moment
+        # later contains. UEFI clients normally get the signed shim; with nothing
+        # staged, _uefiBootFile falls back to the unsigned names so the config
+        # cannot name a file TFTP has no copy of. That is the safe outcome, but
+        # it is silent otherwise -- an admin who expected Secure Boot to work
+        # would find the old boot file in a config they did not edit.
+        echo " * Any DHCP configuration written by this run therefore names the"
+        echo " *   unsigned UEFI boot files, not secureboot/snponly-shimx64.efi."
         return 0
     fi
     errorStat 0
@@ -2864,8 +2948,15 @@ downloadipxesecureboot() {
 configureTFTPandPXE() {
     # Fills $tftpdirsrc, which is now a staging directory rather than tracked
     # build output, so this has to happen before anything reads from it.
+    #
+    # downloadipxesecureboot is NOT called here. It runs earlier, from
+    # installfog.sh, because configureDHCP has to know whether the signed chain
+    # is staged before it writes a boot filename -- see _sbChainStaged. Both
+    # assets untar additively into the same staging tree (fetchipxeasset only
+    # does mkdir -p + tar -xzf -C, it never clears the destination), so their
+    # relative order does not matter and nothing reads the tree until the copy
+    # loop below.
     downloadipxe || return 1
-    downloadipxesecureboot
     [[ -d ${tftpdirdst}.prev ]] && rm -rf ${tftpdirdst}.prev >>$error_log 2>&1
     [[ ! -d ${tftpdirdst} ]] && mkdir -p $tftpdirdst >>$error_log 2>&1
     [[ -e ${tftpdirdst}.fogbackup ]] && rm -rf ${tftpdirdst}.fogbackup >>$error_log 2>&1
@@ -13100,8 +13191,21 @@ _resignCustomKernels() {
 _keaBaseClasses() {
     # Piped through sed rather than unquoting the heredoc: the block is JSON and
     # keeping it literal is what stops a stray $ or backtick in a future edit
-    # being expanded by the shell. Only the BIOS name varies -- see _biosBootFile.
-    cat <<'EOFCLS' | sed "s|\"boot-file-name\": \"undionly.kkpxe\"|\"boot-file-name\": \"$(_biosBootFile)\"|"
+    # being expanded by the shell. The BIOS name varies with --boot-delay
+    # (_biosBootFile) and the 64-bit UEFI names with whether the signed chain is
+    # staged (_uefiBootFile).
+    #
+    # The arm64 expression comes first, but the order is not load-bearing: each
+    # pattern matches a whole quote-delimited value, so "snponly.efi" cannot also
+    # match inside "arm64-efi/snponly.efi".
+    #
+    # i386-efi is deliberately absent -- no signed 32-bit shim exists -- and so
+    # is the Apple BSDP class, which lives in _keaAppleClass and serves Intel
+    # Macs over a protocol Secure Boot never enters.
+    cat <<'EOFCLS' | sed \
+        -e "s|\"boot-file-name\": \"undionly.kkpxe\"|\"boot-file-name\": \"$(_biosBootFile)\"|" \
+        -e "s|\"boot-file-name\": \"arm64-efi/snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile arm64)\"|" \
+        -e "s|\"boot-file-name\": \"snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile x64)\"|"
         {
             "name": "FOG-Legacy-BIOS",
             "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00000'",
@@ -13144,43 +13248,39 @@ _keaBaseClasses() {
         }
 EOFCLS
 }
-# A Secure Boot class, emitted commented out.
+# The two ways off the default boot file, emitted commented out.
 #
-# Still commented out, but for one reason now rather than two: DHCP option 93
-# carries the client architecture and nothing else, so a request cannot tell us
-# whether Secure Boot is on. A site has to opt specific machines in.
+# This used to be the other way round: the base classes served the unsigned
+# snponly.efi and this block was the Secure Boot opt-in. The signed chain is now
+# the default for every 64-bit UEFI and arm64 client (see _uefiBootFile for why
+# that is a superset rather than a conditional), so what is left to document is
+# how to move away from it.
 #
-# The second reason is gone. This used to point at ipxe-shimx64.efi because
-# upstream published only an all-drivers signed iPXE -- the build that takes the
-# NIC over from the firmware and hangs on some hardware -- and there was no
-# signed snponly equivalent. ipxe/ipxe#1776 closed 2026-08-02 and iPXE 2.0.0
-# ships a signed x86_64-sb/snponly.efi, staged by fog-ipxe since v2.0.0-fog.3.
-# So this now matches what FOG serves every other UEFI client: snponly.
-#
-# Why the boot file names the shim and not the loader: ipxe/shim carries a
-# fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
-# "-shim[arch]" infix from the path it was ITSELF fetched from and loads that,
-# out of the same directory. So snponly-shimx64.efi fetches snponly.efi and
-# ipxe-shimx64.efi fetches ipxe.efi -- from one signed binary staged under both
-# names. Do not conclude from `strings` that the loader is hardcoded to
-# ipxe.efi; that is only the DEFAULT_LOADER the patch hooks.
-#
-# If this chain loads but the network never comes up, the firmware's own UEFI
-# SNP is at fault -- switch the name to secureboot/ipxe-shimx64.efi for iPXE's
-# built-in drivers. That is the fallback the Secure Boot config page documents,
-# and it is purely a DHCP change with nothing to rename server-side.
-#
-# The binaries are staged at $tftpdir/secureboot by downloadipxesecureboot()
-# on every install, so the path below always exists.
-_keaSecureBootClassCommented() {
+# Both are DHCP-only changes. Nothing is renamed server-side: the shim picks its
+# second stage out of its own filename, so both chains sit side by side in one
+# directory and the boot file name alone decides which runs.
+_keaBootFileFallbackComment() {
     cat <<'EOFSBC'
-#        Secure Boot clients. Uncomment, add a leading comma to the entry
-#        above, and narrow the test to the machines whose firmware trusts this
-#        server's certificate -- by subnet, MAC or a client class of your own.
+#        Two alternatives to the boot file above, if you need them. Uncomment
+#        one, add a leading comma to the entry above, and narrow the test to the
+#        affected machines -- by subnet, MAC or a client class of your own.
+#
+#        1. The chain loads but the network never comes up. That is the
+#           firmware's own UEFI SNP driver, not anything signed. Use iPXE's
+#           built-in NIC drivers instead (arm64: secureboot/arm64-efi/ipxe-shimaa64.efi):
 #        {
-#            "name": "FOG-UEFI-64-SecureBoot",
+#            "name": "FOG-UEFI-64-IpxeDrivers",
 #            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
-#            "boot-file-name": "secureboot/snponly-shimx64.efi"
+#            "boot-file-name": "secureboot/ipxe-shimx64.efi"
+#        }
+#
+#        2. You do not want the signed chain at all. The unsigned binaries are
+#           still in the TFTP root (arm64: arm64-efi/snponly.efi). Clients with
+#           Secure Boot enforcing will refuse these:
+#        {
+#            "name": "FOG-UEFI-64-Unsigned",
+#            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+#            "boot-file-name": "snponly.efi"
 #        }
 EOFSBC
 }
@@ -13354,11 +13454,11 @@ writeKeaSample() {
                 { \"name\": \"routers\", \"data\": \"${DHCP_router}\" }"
     [[ $(validip ${DHCP_dns_server_ip}) -eq 0 ]] && optdata="${optdata},
                 { \"name\": \"domain-name-servers\", \"data\": \"${DHCP_dns_server_ip}\" }"
-    # Full reference: base classes + Apple BSDP, plus a commented-out Secure
-    # Boot class. The admin can trim as needed.
+    # Full reference: base classes + Apple BSDP, plus the commented-out
+    # boot-file fallbacks. The admin can trim as needed.
     _writeKeaConfig "$target" "$(_keaBaseClasses),
 $(_keaAppleClass)
-$(_keaSecureBootClassCommented)"
+$(_keaBootFileFallbackComment)"
     if [[ -s $target ]]; then
         echo
         echo " * A sample Kea DHCP config for a dedicated/external DHCP server was"
@@ -13472,23 +13572,23 @@ configureDHCP() {
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-1\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-2\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00008\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-3\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00009\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-ARM64\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00011\";" >> "$dhcptouse"
-            echo "    filename \"arm64-efi/snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile arm64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"SURFACE-PRO-4\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 32) = \"PXEClient:Arch:00007:UNDI:003016\";" >> "$dhcptouse"
-            echo "    filename \"snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile x64)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"Apple-Intel-Netboot\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 14) = \"AAPLBSDPC/i386\";" >> "$dhcptouse"
@@ -13502,17 +13602,29 @@ configureDHCP() {
             echo "        }" >> "$dhcptouse"
             echo "    }" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
-            # Secure Boot clients, commented out on purpose -- see the note on
-            # _keaSecureBootClassCommented() for the full reasoning, including
-            # why the boot file names the shim rather than the loader. Option 93
-            # cannot tell us whether Secure Boot is on, so this has to be opted
-            # into per machine rather than applied to every UEFI client.
-            echo "# Secure Boot clients. Uncomment and narrow the match to the machines" >> "$dhcptouse"
-            echo "# whose firmware trusts this server's certificate. Swap snponly- for" >> "$dhcptouse"
-            echo "# ipxe- if the chain loads but the network never comes up." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-SecureBoot\" {" >> "$dhcptouse"
+            # The two ways off the default boot file, commented out. Mirrors
+            # _keaBootFileFallbackComment() -- see the note on _uefiBootFile()
+            # for why the signed chain is the default for every 64-bit UEFI
+            # client rather than a per-machine opt-in, and why the boot file
+            # names the shim rather than the loader.
+            echo "# Two alternatives to the UEFI boot file above, if you need them." >> "$dhcptouse"
+            echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
+            echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
+            echo "#" >> "$dhcptouse"
+            echo "# 1. The chain loads but the network never comes up: that is the firmware's" >> "$dhcptouse"
+            echo "#    own UEFI SNP driver, so use iPXE's built-in drivers instead." >> "$dhcptouse"
+            echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
+            echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
             echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"secureboot/snponly-shimx64.efi\";" >> "$dhcptouse"
+            echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
+            echo "#}" >> "$dhcptouse"
+            echo "#" >> "$dhcptouse"
+            echo "# 2. You do not want the signed chain at all. The unsigned binaries are" >> "$dhcptouse"
+            echo "#    still in the TFTP root; on arm64, arm64-efi/snponly.efi. A client" >> "$dhcptouse"
+            echo "#    with Secure Boot enforcing will refuse these." >> "$dhcptouse"
+            echo "#class \"FOG-UEFI-64-Unsigned\" {" >> "$dhcptouse"
+            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+            echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
             echo "#}" >> "$dhcptouse"
             diffconfig "${dhcptouse}"
             # Non-fatal syntax check; ISC has historically started without one.
