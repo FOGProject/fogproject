@@ -1477,6 +1477,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "Controllare se sono il responsabile del gruppo"
 
@@ -2655,6 +2658,10 @@ msgstr "Impossibile eliminare il file"
 
 #, fuzzy
 msgid "Failed to record task state changes"
+msgstr "Impossibile creare un'attività"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
 msgstr "Impossibile creare un'attività"
 
 #, fuzzy
@@ -4826,6 +4833,10 @@ msgid "Mark selected pending"
 msgstr "Approvare MAC selezionati"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Caricamento non riuscito"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "Aggiornamento ruolo non riuscito"
 
@@ -5401,6 +5412,10 @@ msgstr "Nessuna Imagine valida definita per questo host"
 
 msgid "No type information available for this column."
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Non sono stati trovati compiti validi"
 
 msgid "No valid storage nodes found"
 msgstr "Nessun nodo di archiviazione valido trovato"
@@ -7931,6 +7946,9 @@ msgstr "Tipi di attività"
 msgid "Task activity"
 msgstr "Attivo"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "Caricamento non riuscito"
@@ -9636,6 +9654,10 @@ msgstr "host"
 msgid "host is"
 msgstr "hosts"
 
+#, fuzzy
+msgid "host no longer exists"
+msgstr "non è più in esecuzione"
+
 msgid "hosts"
 msgstr "hosts"
 
@@ -9701,6 +9723,10 @@ msgstr ""
 #, fuzzy
 msgid "image is"
 msgstr "immagini"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "non è più in esecuzione"
 
 msgid "image replication"
 msgstr "replica dell'immagine"
@@ -10050,6 +10076,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "compito trovato"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr "non è più in esecuzione"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"

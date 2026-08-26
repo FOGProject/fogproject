@@ -1536,6 +1536,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2778,6 +2781,10 @@ msgstr "No se pudo crear el usuario"
 
 #, fuzzy
 msgid "Failed to record task state changes"
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
 msgstr "No se pudo crear la tarea"
 
 #, fuzzy
@@ -5107,6 +5114,10 @@ msgid "Mark selected pending"
 msgstr "retirar"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Carga ha fallado: %s"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "actualización Valoración falló"
 
@@ -5708,6 +5719,10 @@ msgstr "No se ha definido de este alojamiento imagen"
 
 msgid "No type information available for this column."
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Ninguna clase válida enviado"
 
 #, fuzzy
 msgid "No valid storage nodes found"
@@ -8395,6 +8410,9 @@ msgstr "Tipo de tarea"
 msgid "Task activity"
 msgstr "Activo"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "Carga ha fallado: %s"
@@ -10156,6 +10174,10 @@ msgid "host is"
 msgstr "anfitrión"
 
 #, fuzzy
+msgid "host no longer exists"
+msgstr "Impresora ya existe"
+
+#, fuzzy
 msgid "hosts"
 msgstr "anfitrión"
 
@@ -10227,6 +10249,10 @@ msgstr ""
 #, fuzzy
 msgid "image is"
 msgstr "Imagen"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "nombre de usuario ya existe"
 
 #, fuzzy
 msgid "image replication"
@@ -10592,6 +10618,9 @@ msgstr ""
 #, fuzzy
 msgid "task found"
 msgstr "tarea para"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"

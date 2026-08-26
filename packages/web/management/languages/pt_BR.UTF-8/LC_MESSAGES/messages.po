@@ -1520,6 +1520,9 @@ msgstr ""
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr ""
 
@@ -2730,6 +2733,10 @@ msgstr "Falha ao excluir arquivo"
 
 #, fuzzy
 msgid "Failed to record task state changes"
+msgstr "Falha ao criar tarefa"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
 msgstr "Falha ao criar tarefa"
 
 #, fuzzy
@@ -4994,6 +5001,10 @@ msgid "Mark selected pending"
 msgstr "Aprovar Hosts selecionados"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "Carga falhou: %s"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "atualização do utilizador falhou"
 
@@ -5582,6 +5593,10 @@ msgstr "Sem Imagem definida para este alojamento"
 
 msgid "No type information available for this column."
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Nenhuma classe válida enviada"
 
 #, fuzzy
 msgid "No valid storage nodes found"
@@ -8209,6 +8224,9 @@ msgstr "Tipos de tarefa"
 msgid "Task activity"
 msgstr "Ativo"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 #, fuzzy
 msgid "Task failed"
 msgstr "Carga falhou: %s"
@@ -9971,6 +9989,10 @@ msgid "host is"
 msgstr "anfitrião"
 
 #, fuzzy
+msgid "host no longer exists"
+msgstr " não existe mais"
+
+#, fuzzy
 msgid "hosts"
 msgstr "anfitrião"
 
@@ -10040,6 +10062,10 @@ msgstr ""
 #, fuzzy
 msgid "image is"
 msgstr "imagens"
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr " não existe mais"
 
 #, fuzzy
 msgid "image replication"
@@ -10408,6 +10434,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "tarefa encontrados"
+
+#, fuzzy
+msgid "task type no longer exists"
+msgstr " não existe mais"
 
 #, fuzzy, php-format
 msgid "terminating so it can be restarted"
