@@ -6613,8 +6613,23 @@ validateExternalCA() {
     local certmod keymod
     # Raw modulus, no `openssl md5`: md5 of the empty output an unreadable file
     # produces is a non-empty hash, so with it two unreadable files "pair".
-    certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log)
-    keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log)
+    certalgorithm=$(openssl x509 -in $certsrc -noout -text | grep "Public Key Algorithm" | awk -F ': ' '{print $2}')
+    case $certalgorithm in
+        "rsaEncryption")
+            certmod=$(openssl x509 -noout -modulus -in "$certsrc" 2>>$error_log)
+            keymod=$(openssl rsa -noout -modulus -in "$keysrc" 2>>$error_log)
+            ;;
+        "id-ecPublicKey")
+            certmod=$(openssl x509 -noout -pubkey -in "$certsrc" 2>>$error_log)
+            keymod=$(openssl ec -pubout -in "$keysrc" 2>>$error_log)
+            ;;
+        *)
+            echo "Failed to determine certificate algorithm"
+            echo "  The supplied CA certificate does not use a supported algorithm."
+            echo "  Currently supporte are rsaEncryption and id-ecPublicKey"
+            exit 1
+            ;;
+    esac
     if [[ -z $certmod || -z $keymod || $certmod != "$keymod" ]]; then
         echo "Failed"
         echo "  The supplied CA private key ($keysrc) does not match the"
