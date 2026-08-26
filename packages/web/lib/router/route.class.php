@@ -472,6 +472,7 @@ class Route extends FOGBase
      * @var array
      */
     public static $validClasses = [
+        'architecture',
         'filedeletequeue',
         'group',
         'groupassociation',
@@ -2685,6 +2686,46 @@ class Route extends FOGBase
                                     . '</a>';
                             }
                             return $imageName;
+                        }
+                    );
+                    break;
+                case 'archID':
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common
+                    ];
+                    // Rendered as the NAME, under the `arch` key both grids
+                    // already read (host and image list JS bind their render
+                    // to data-col="arch"). No link: architectures have no
+                    // management node to link to, and one row per instruction
+                    // set is not a page anyone needs to reach from a list.
+                    //
+                    // No `order` override, so the column sorts by id rather
+                    // than alphabetically. Ordering by name would need a
+                    // scalar subquery -- `architectures` is not joined into
+                    // hosts' or images' query string -- to reorder three
+                    // rows, which buys nothing.
+                    $columns[] = self::relColumn(
+                        $real,
+                        'arch',
+                        'Architecture',
+                        function ($d, $row) {
+                            // '' rather than EMPTY_CELL, and deliberately.
+                            // Both grids already render an unrecorded
+                            // architecture themselves -- "Not yet seen" on
+                            // hosts, "Not recorded" on images -- which says
+                            // something an em-dash does not: that the value is
+                            // absent because nothing has observed it, not
+                            // because it is empty. Those renders key off a
+                            // falsy cell, so a muted dash here would suppress
+                            // them and get wrapped in <code> as if it were an
+                            // architecture called "-".
+                            if (!$d) {
+                                return '';
+                            }
+
+                            return (string)self::rel('Architecture', $d)
+                                ->get('name');
                         }
                     );
                     break;
@@ -5345,6 +5386,17 @@ class Route extends FOGBase
                                 $class->get('imagename')
                             ),
                             'imagename' => $class->getImageName(),
+                            // Both spellings, for the same reason imagename
+                            // sits beside image: a caller wanting to know
+                            // what a host IS should not have to reach into a
+                            // nested object for a one-word answer, and a
+                            // caller wanting the row can still have it.
+                            'arch' => self::embed(
+                                $classname,
+                                'arch',
+                                $class->get('arch')
+                            ),
+                            'archname' => $class->getArch()->get('name'),
                             'primac' => $class->get('mac')->__toString(),
                             'macs' => $class->getMyMacs(),
                         ]
@@ -5385,6 +5437,12 @@ class Route extends FOGBase
                             'imageparttypename' => $class->getImagePartitionType()->get(
                                 'name'
                             ),
+                            'arch' => self::embed(
+                                $classname,
+                                'arch',
+                                $class->get('arch')
+                            ),
+                            'archname' => $class->getArch()->get('name'),
                             'osname' => $class->getOS()->get('name'),
                             'storagegroupname' => $class->getStorageGroup()->get('name')
                         ]

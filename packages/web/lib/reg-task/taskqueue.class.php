@@ -500,10 +500,68 @@ class TaskQueue extends TaskingElement
                 )
             );
         }
-        if ($moved) {
-            self::$FOGSSH->delete($backup);
+        if ($moved && !self::$FOGSSH->delete($backup)) {
+            // Deliberately NOT fatal. By this line the rename above has
+            // already put the captured image at its final path -- the capture
+            // succeeded, and all that is left is removing the previous copy.
+            // Failing the task for that trades a stale directory (disk, which
+            // an admin can reclaim) for a task stuck short of Complete after a
+            // good capture (an hour of imaging, which nobody can reclaim).
+            //
+            // It is not silent either: the run is marked PARTIAL, so the audit
+            // trail names the leftover and says the capture itself was fine.
+            // The likeliest cause is ownership -- .movetmp inherits the
+            // permissions of whatever it was renamed from, and a root-owned
+            // directory cannot be emptied by the storage node's user.
+            Audit::markOutcome(
+                Audit::PARTIAL,
+                sprintf(
+                    '%s: %s',
+                    _('Image captured; previous copy needs manual removal'),
+                    $backup
+                )
+            );
         }
         self::$FOGSSH->sftp_chmod($dest, 0775);
+        // Sector size, read out of the image's own sfdisk dump while the
+        // session to the node is still open.
+        //
+        // FOS wrote it there at capture and has refused a cross-sector-size
+        // deploy off the same line since ADR-0005 -- the server simply never
+        // looked. Reading it here rather than having FOS post it means no init
+        // release is needed for the server to know something already on disk.
+        //
+        // Candidate order matches validateImageSectorSize() in funcs.sh
+        // exactly: minimum, then partitions, then the legacy original name.
+        // Two readers of one fact have to agree on WHICH file, or they can
+        // disagree about one image.
+        //
+        // Disk 1 only. A multi-disk capture could in principle mix sector
+        // sizes across disks and one column cannot say so; FOS still checks
+        // every disk at deploy, which is where the refusal actually lives.
+        // This is for showing an operator what they have, not for deciding.
+        $sectorSize = 0;
+        foreach (
+            [
+                'minimum.partitions',
+                'partitions',
+                'original.partitions'
+            ] as $suffix
+        ) {
+            $dump = self::$FOGSSH->readFile(
+                sprintf('%s/d1.%s', $dest, $suffix)
+            );
+            if ('' === $dump) {
+                continue;
+            }
+            $sectorSize = Image::parseSectorSize($dump);
+            if ($sectorSize > 0) {
+                break;
+            }
+        }
+        if ($sectorSize > 0) {
+            $this->Image->set('sectorsize', $sectorSize);
+        }
         self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {
             $this->Image
@@ -520,12 +578,16 @@ class TaskQueue extends TaskingElement
         // endpoint were needed for it.
         //
         // Guarded rather than assumed. A host that somehow reaches here with
-        // no recorded architecture leaves the image NULL, which archCanRun()
-        // reads as "allow" -- the same state every image captured before
-        // schema step 370 is already in.
-        $capturedArch = Image::normalizeArch(self::$Host->get('arch'));
-        if ('' !== $capturedArch) {
-            $this->Image->set('arch', $capturedArch);
+        // no recorded architecture leaves the image NULL, which
+        // Architecture::canRun() reads as "allow" -- the same state every
+        // image captured before schema step 370 is already in.
+        //
+        // The id copies straight across (schema step 372): both sides point
+        // at the same `architectures` row, so there is nothing to normalise
+        // here any more and no way for the two to spell it differently.
+        $capturedArchID = (int)self::$Host->get('archID');
+        if ($capturedArchID > 0) {
+            $this->Image->set('archID', $capturedArchID);
         }
         $this->Image
             ->set(
@@ -615,7 +677,14 @@ class TaskQueue extends TaskingElement
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
             if (!self::$Host->isValid()) {
-                throw new \Exception('##');
+                // NOT '##'. That string is what FOS reads as success, and it
+                // was thrown here -- so the catch below echoed it verbatim and
+                // FOS moved on satisfied, while the task was never saved and
+                // the host was never updated. A completion that did not happen
+                // must not be reported as one.
+                throw new \Exception(
+                    _('Host is not valid; the task cannot be completed')
+                );
             }
             $updatedHost = self::getClass('HostManager')->update(
                 ['id' => self::$Host->get('id')],

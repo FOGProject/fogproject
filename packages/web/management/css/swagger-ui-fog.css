@@ -153,3 +153,29 @@
 [data-bs-theme="dark"] .swagger-ui .topbar {
     background: var(--fog-sui-sunken);
 }
+
+/* The request-snippet tabs.
+ *
+ * Swagger UI writes these colours inline -- a near-white chip for an inactive
+ * tab, a near-black one plus white text for the active tab -- so an override
+ * needs !important to reach them, unlike everything above.
+ *
+ * Left alone the tab strip is the one part of the page that ignores the
+ * toggle: the inactive chips stay near-white, and because the rule above
+ * paints .swagger-ui headings in FOG's dim ink, their labels come out light
+ * grey on near-white and are effectively unreadable. Only the active tab can
+ * be read, which is exactly backwards -- the tabs exist to show what else is
+ * on offer. */
+[data-bs-theme="dark"] .swagger-ui .request-snippets .btn {
+    background-color: var(--fog-sui-raised) !important;
+    border-color: var(--fog-sui-hair) !important;
+}
+[data-bs-theme="dark"] .swagger-ui .request-snippets .btn.active {
+    background-color: var(--fog-sui-sunken) !important;
+}
+[data-bs-theme="dark"] .swagger-ui .request-snippets .btn h4 {
+    color: var(--fog-sui-ink-dim) !important;
+}
+[data-bs-theme="dark"] .swagger-ui .request-snippets .btn.active h4 {
+    color: var(--fog-sui-ink) !important;
+}

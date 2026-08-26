@@ -144,9 +144,24 @@ for key in FOG_install_type NET_interface DHCP_enabled DHCP_router \
         && ok "input.sh reads into ${key}" \
         || bad "nothing reads into ${key} -- its prompt cannot fill it"
 done
-printf '%s\n' "$allReads" | grep -qE "^newinput\.sh:[0-9]+ NET_hostname\$" \
-    && ok "newinput.sh reads into NET_hostname" \
-    || bad "newinput.sh does not read into NET_hostname"
+# NET_hostname is the one prompt that deliberately does NOT read straight into
+# its key, so it is asserted differently from the eight above.
+#
+# What an admin types now passes through _usableHostname() before it is
+# accepted. That is not tidying: this prompt never validated anything from
+# either end, and the value reaches an OpenSSL config directly -- an empty or
+# "(none)" hostname produces `subjectAltName = DNS:`, which openssl refuses,
+# aborting the installer with the web server stopped and not yet restarted.
+#
+# So assert the validation is in the path, and that the bypass has not come
+# back. That the prompt can still FILL the key is checked structurally by test D
+# below, which is what the direct-read assertion was standing in for.
+grep -qE '^[[:space:]]*NET_hostname=\$\(_usableHostname "\$answer"\)' "$REPO/lib/common/newinput.sh" \
+    && ok "newinput.sh validates a typed hostname through _usableHostname" \
+    || bad "newinput.sh accepts a typed hostname without validating it"
+grep -qE '^[[:space:]]*read[[:space:]]+(-r[[:space:]]+)?NET_hostname[[:space:]]*$' "$REPO/lib/common/newinput.sh" \
+    && bad "newinput.sh reads straight into NET_hostname, bypassing validation" \
+    || ok "newinput.sh never reads straight into NET_hostname"
 
 # --- D. no `while [[ -z ${KEY} ]]` loop can spin without a way to fill KEY ---
 # The two storage-node loops hung precisely because the only read inside them

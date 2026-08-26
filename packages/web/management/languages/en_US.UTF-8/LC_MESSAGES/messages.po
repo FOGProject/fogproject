@@ -107,6 +107,10 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "Printer updated!"
+
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run."
 msgstr ""
@@ -938,6 +942,9 @@ msgstr "An image already exists with this name!"
 
 msgid "An image already exists with this name!"
 msgstr "An image already exists with this name!"
+
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
 
 #, fuzzy
 msgid "An image with this name already exists!"
@@ -2034,6 +2041,10 @@ msgstr "Database update failed"
 #, fuzzy
 msgid "Database schema is already up to date."
 msgstr "Database Schema Installer / Updater"
+
+#, fuzzy
+msgid "Database update required."
+msgstr "Database Update Failed"
 
 msgid "Date"
 msgstr "Date"
@@ -3582,6 +3593,10 @@ msgstr "Host is not valid"
 msgid "Host is not valid!"
 msgstr "Host is not valid"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "Image is protected and cannot be deleted"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3619,6 +3634,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "Host Image"
+
+#, fuzzy
 msgid "Hosts assigned"
 msgstr "No node associated"
 
@@ -3629,6 +3648,10 @@ msgstr "Update Printer"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "Hosts in Task"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "Host List"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3886,6 +3909,9 @@ msgstr "Image Name"
 msgid "Image architecture"
 msgstr "Protected"
 
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
+
 #, fuzzy
 msgid "Image is invalid"
 msgstr "Image is not valid"
@@ -3931,6 +3957,10 @@ msgid "Imaged For"
 msgstr "Imaged"
 
 msgid "Images"
+msgstr "Images"
+
+#, fuzzy
+msgid "Images only"
 msgstr "Images"
 
 #, fuzzy
@@ -5640,9 +5670,6 @@ msgstr "No connection to get snapin"
 msgid "Not yet seen"
 msgstr ""
 
-msgid "Not yet seen -- set on this host's next PXE boot"
-msgstr ""
-
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
@@ -7018,6 +7045,10 @@ msgstr "Service Status"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "Server Shell"
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -7051,6 +7082,10 @@ msgstr "Select a cron type"
 
 msgid "Select a valid image"
 msgstr "Select a valid image"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "Select a cron type"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -8320,6 +8355,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
+msgstr ""
+
 msgid "The architecture of the machine this image was captured from."
 msgstr ""
 
@@ -8424,6 +8462,9 @@ msgid "The issuer must be a full URL"
 msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
+msgstr ""
+
+msgid "The logical sector size of the disk this image was captured from."
 msgstr ""
 
 #, php-format
@@ -9498,6 +9539,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9641,6 +9685,9 @@ msgstr ""
 msgid "Your database connection appears to be invalid"
 msgstr ""
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
@@ -9734,7 +9781,10 @@ msgstr "is open, but has recently failed for this Host"
 msgid "but there are"
 msgstr "There are"
 
-msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
+
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"

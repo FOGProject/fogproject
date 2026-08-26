@@ -75,6 +75,15 @@ return [
         ],
     ],
     'tables' => [
+        'architectures' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `architectures` ( `archID` mediumint(9) NOT NULL AUTO_INCREMENT, `archName` varchar(16) NOT NULL, `archDescription` varchar(255) NOT NULL DEFAULT \'\', `archIsAccess` enum(\'both\',\'host\',\'image\') NOT NULL DEFAULT \'both\', PRIMARY KEY (`archID`), UNIQUE KEY `archName` (`archName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'archID' => 'mediumint(9) NOT NULL',
+                'archName' => 'varchar(16) NOT NULL',
+                'archDescription' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'archIsAccess' => 'enum(\'both\',\'host\',\'image\') NOT NULL DEFAULT \'both\'',
+            ],
+        ],
         'apiTokens' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` tinyint(1) NOT NULL DEFAULT 1, `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -245,7 +254,7 @@ return [
             ],
         ],
         'hosts' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) NOT NULL DEFAULT 0, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArch` varchar(16) DEFAULT NULL, PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) NOT NULL DEFAULT 0, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hostID' => 'int(11) NOT NULL',
                 'hostName' => 'varchar(16) NOT NULL',
@@ -282,7 +291,7 @@ return [
                 'hostLastPing' => 'datetime DEFAULT NULL',
                 'hostLastCheckin' => 'datetime DEFAULT NULL',
                 'hostPingMethod' => 'varchar(10) DEFAULT NULL',
-                'hostArch' => 'varchar(16) DEFAULT NULL',
+                'hostArchID' => 'mediumint(9) DEFAULT NULL',
             ],
         ],
         'hostScreenSettings' => [
@@ -316,7 +325,7 @@ return [
             ],
         ],
         'images' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `images` ( `imageID` int(11) NOT NULL AUTO_INCREMENT, `imageName` varchar(40) NOT NULL, `imageDesc` longtext NOT NULL DEFAULT \'\', `imagePath` longtext NOT NULL, `imageProtect` mediumint(9) NOT NULL DEFAULT 0, `imageMagnetUri` longtext NOT NULL DEFAULT \'\', `imageDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `imageCreateBy` varchar(50) NOT NULL DEFAULT \'\', `imageBuilding` int(11) NOT NULL DEFAULT 0, `imageSize` varchar(255) NOT NULL DEFAULT \'\', `imageTypeID` mediumint(9) NOT NULL, `imagePartitionTypeID` mediumint(9) NOT NULL, `imageOSID` mediumint(9) NOT NULL, `imageFormat` char(1) DEFAULT NULL, `imageLastDeploy` datetime DEFAULT NULL, `imageCompress` int(11) DEFAULT NULL, `imageEnabled` tinyint(1) NOT NULL DEFAULT 1, `imageReplicate` tinyint(1) NOT NULL DEFAULT 1, `imageServerSize` bigint(20) unsigned NOT NULL DEFAULT 0, `imageArch` varchar(16) DEFAULT NULL, PRIMARY KEY (`imageID`), UNIQUE KEY `imageName` (`imageName`), KEY `new_index` (`imageName`), KEY `new_index1` (`imageBuilding`), KEY `new_index2` (`imageTypeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `images` ( `imageID` int(11) NOT NULL AUTO_INCREMENT, `imageName` varchar(40) NOT NULL, `imageDesc` longtext NOT NULL DEFAULT \'\', `imagePath` longtext NOT NULL, `imageProtect` mediumint(9) NOT NULL DEFAULT 0, `imageMagnetUri` longtext NOT NULL DEFAULT \'\', `imageDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `imageCreateBy` varchar(50) NOT NULL DEFAULT \'\', `imageBuilding` int(11) NOT NULL DEFAULT 0, `imageSize` varchar(255) NOT NULL DEFAULT \'\', `imageTypeID` mediumint(9) NOT NULL, `imagePartitionTypeID` mediumint(9) NOT NULL, `imageOSID` mediumint(9) NOT NULL, `imageFormat` char(1) DEFAULT NULL, `imageLastDeploy` datetime DEFAULT NULL, `imageCompress` int(11) DEFAULT NULL, `imageEnabled` tinyint(1) NOT NULL DEFAULT 1, `imageReplicate` tinyint(1) NOT NULL DEFAULT 1, `imageServerSize` bigint(20) unsigned NOT NULL DEFAULT 0, `imageSectorSize` int(11) DEFAULT NULL, `imageArchID` mediumint(9) DEFAULT NULL, PRIMARY KEY (`imageID`), UNIQUE KEY `imageName` (`imageName`), KEY `new_index` (`imageName`), KEY `new_index1` (`imageBuilding`), KEY `new_index2` (`imageTypeID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'imageID' => 'int(11) NOT NULL',
                 'imageName' => 'varchar(40) NOT NULL',
@@ -337,7 +346,8 @@ return [
                 'imageEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'imageReplicate' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'imageServerSize' => 'bigint(20) unsigned NOT NULL DEFAULT 0',
-                'imageArch' => 'varchar(16) DEFAULT NULL',
+                'imageSectorSize' => 'int(11) DEFAULT NULL',
+                'imageArchID' => 'mediumint(9) DEFAULT NULL',
             ],
         ],
         'imageTypes' => [

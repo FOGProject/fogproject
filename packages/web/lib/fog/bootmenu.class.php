@@ -195,15 +195,24 @@ class BootMenu extends FOGBase
         if (!in_array($raw, ['i386', 'x86_64', 'arm64'], true)) {
             return;
         }
-        if ($raw === strtolower(trim((string)self::$Host->get('arch')))) {
+        // Resolve to a row rather than storing the string (schema step 372).
+        // idFromName() deliberately never creates one: this is the only
+        // caller that runs unauthenticated, and a row created here would be a
+        // row created by anything that can reach boot.php. 0 means the seed
+        // was deleted, and the right answer to that is to record nothing.
+        $archID = Architecture::idFromName($raw);
+        if ($archID < 1) {
+            return;
+        }
+        if ($archID === (int)self::$Host->get('archID')) {
             return;
         }
         self::getClass('HostManager')->update(
             ['id' => self::$Host->get('id')],
             '',
-            ['arch' => $raw]
+            ['archID' => $archID]
         );
-        self::$Host->set('arch', $raw);
+        self::$Host->set('archID', $archID);
     }
     private static function _arch()
     {

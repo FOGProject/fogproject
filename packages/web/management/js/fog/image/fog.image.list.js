@@ -13,64 +13,116 @@
         disableButtons(disabled);
     }
     disableButtons(true);
+    // Columns and their render targets are both derived from the header
+    // row's data-col attributes, never from literal indexes.
+    //
+    // They used to be literals, and it broke the moment a column was added:
+    // Architecture went in at position 1 and every columnDefs target below it
+    // still pointed at its old number, so the lock render landed on the new
+    // column and the enabled render landed on Protected. Nothing errored --
+    // the grid just showed the wrong icon in the wrong place. Same failure the
+    // host grid documents, same fix.
+    var columns = [],
+        colIndex = {};
+    $('#dataTable thead th').each(function() {
+        var key = $(this).attr('data-col');
+        if (!key) {
+            // Keep the counts equal: DataTables raises "Incorrect column
+            // count" and draws nothing at all if the header row and this
+            // list disagree.
+            if (window.console && console.warn) {
+                console.warn('FOG: image list header with no data-col', this);
+            }
+            columns.push({data: null, defaultContent: ''});
+            return;
+        }
+        colIndex[key] = columns.length;
+        columns.push({data: key});
+    });
+
+    var columnDefs = [];
+    if ('mainlink' in colIndex) {
+        columnDefs.push({
+            responsivePriority: -1,
+            targets: colIndex.mainlink
+        });
+    }
+    if ('arch' in colIndex) {
+        columnDefs.push({
+            render: function(data, type, row) {
+                if (type !== 'display') {
+                    return data;
+                }
+                // Spelled out rather than blank: an empty cell reads as x86
+                // to anyone scanning. Images captured before schema step 370
+                // have no architecture recorded and never will.
+                if (!data) {
+                    return '<span class="text-muted">Not recorded</span>';
+                }
+                return '<code>' + data + '</code>';
+            },
+            targets: colIndex.arch
+        });
+    }
+    if ('sectorsize' in colIndex) {
+        columnDefs.push({
+            render: function(data, type, row) {
+                if (type !== 'display') {
+                    return data;
+                }
+                // 512n and 512e are not separated: they differ only in
+                // PHYSICAL block size, which no capture records, and they are
+                // interchangeable as deploy targets because only the logical
+                // size governs whether the geometry fits.
+                if (!data) {
+                    return '<span class="text-muted">Not recorded</span>';
+                }
+                if (parseInt(data, 10) === 4096) {
+                    return '<code>4Kn</code>';
+                }
+                if (parseInt(data, 10) === 512) {
+                    return '<code>512n/512e</code>';
+                }
+                return '<code>' + data + '</code>';
+            },
+            targets: colIndex.sectorsize
+        });
+    }
+    if ('protected' in colIndex) {
+        columnDefs.push({
+            responsivePriority: 0,
+            render: function(data, type, row) {
+                var lock = '<span class="badge bg-warning"><i class="fas fa-lock fa-1x"></i></span>';
+                var unlock = '<span class="badge bg-danger"><i class="fas fa-unlock fa-fx"></i></span>';
+                if (row.protected > 0) {
+                    return lock;
+                }
+                return unlock;
+            },
+            targets: colIndex.protected
+        });
+    }
+    if ('isEnabled' in colIndex) {
+        columnDefs.push({
+            render: function(data, type, row) {
+                var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
+                var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
+                if (row.isEnabled > 0) {
+                    return enabled;
+                }
+                return disabled;
+            },
+            targets: colIndex.isEnabled
+        });
+    }
+
     var table = $('#dataTable').registerTable(onSelect, {
         order: [
             [0, 'asc']
         ],
-        columns: [
-            {data: 'mainlink'},
-            // Unlike the host grid this column list is not derived from the
-            // table headers, so it has to be kept in step with headerData in
-            // imagemanagement.page.php by hand -- a mismatch makes DataTables
-            // refuse to draw the grid at all.
-            {
-                data: 'arch',
-                render: function(data, type, row) {
-                    // Spelled out rather than blank: an empty cell reads as
-                    // x86 to anyone scanning. Images captured before schema
-                    // step 370 have no architecture recorded.
-                    if (!data) {
-                        return '<span class="text-muted">' +
-                            'Not recorded' +
-                            '</span>';
-                    }
-                    return '<code>' + data + '</code>';
-                }
-            },
-            {data: 'protected'},
-            {data: 'isEnabled'},
-            {data: 'deployed'}
-        ],
+        columns: columns,
         rowId: 'id',
-        columnDefs: [
-            {
-                responsivePriority: -1,
-                targets: 0,
-            },
-            {
-                responsivePriority: 0,
-                render: function(data, type, row) {
-                    var lock = '<span class="badge bg-warning"><i class="fas fa-lock fa-1x"></i></span>';
-                    var unlock = '<span class="badge bg-danger"><i class="fas fa-unlock fa-fx"></i></span>';
-                    if (row.protected > 0) {
-                        return lock;
-                    }
-                    return unlock;
-                },
-                targets: 1
-            },
-            {
-                render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
-                    if (row.isEnabled > 0) {
-                        return enabled;
-                    }
-                    return disabled;
-                },
-                targets: 2
-            }
-        ],
+        columnDefs: columnDefs,
         processing: true,
         serverSide: true,
         ajax: {

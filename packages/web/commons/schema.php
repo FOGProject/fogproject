@@ -7734,7 +7734,10 @@ $this->schema[] = [
             ]
         );
     },
-    // 369: hosts.hostArch -- the architecture last observed for this host.
+];
+// 369
+$this->schema[] = [
+    // hosts.hostArch -- the architecture last observed for this host.
     //
     // FOG has always known this and never kept it. iPXE posts `arch` on every
     // boot (default.ipxe sends ${buildarch} with the cpuid promotion that
@@ -7786,7 +7789,10 @@ $this->schema[] = [
 
         return true;
     },
-    // 370: images.imageArch -- the architecture of the machine this image was
+];
+// 370
+$this->schema[] = [
+    // images.imageArch -- the architecture of the machine this image was
     // captured from.
     //
     // The half that makes the host column worth having. With both sides
@@ -7831,7 +7837,183 @@ $this->schema[] = [
         return true;
     },
 ];
-// 369
+// 371
+$this->schema[] = [
+    // images.imageSectorSize -- the LOGICAL sector size, in bytes, of the disk
+    // this image was captured from. 512 or 4096; NULL when unknown.
+    //
+    // FOS has refused a cross-sector-size deploy since ADR-0005
+    // (validateImageSectorSize in funcs.sh): partition-table and filesystem
+    // geometry bake in the source disk's logical sector size and cannot be
+    // translated, so deploying a 4Kn image onto a 512-byte disk produces an
+    // unbootable machine. The server has never known any of this, so the
+    // refusal only ever arrives at the client, minutes into a task, as a
+    // failure rather than as something anyone could see beforehand.
+    //
+    // LOGICAL, not physical, and that is the whole distinction that matters.
+    // 512n and 512e both present 512-byte logical sectors and are freely
+    // interchangeable as deploy targets; only 4Kn differs. FOS reads the
+    // source size with `blockdev --getss` (logical) and records it on the
+    // `sector-size:` line of the sfdisk dump, and physical block size is
+    // never persisted at capture -- so 512n and 512e are indistinguishable
+    // here by construction, and separating them would buy nothing.
+    //
+    // NULL for every image captured before this, and for any image whose
+    // sfdisk dump predates util-linux 2.35 and so carries no `sector-size:`
+    // line at all. FOS treats that same absence as "allow the deploy rather
+    // than guess"; nothing here may be stricter than the thing doing the
+    // actual refusing.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354/369/370.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'images' "
+            . "AND `COLUMN_NAME` IN ('imageSectorSize')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('imageSectorSize', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageSectorSize` INT(11) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];
+// 372
+$this->schema[] = [
+    // Architecture becomes a row in a lookup table instead of a string on two
+    // tables. `hosts.hostArch` and `images.imageArch` (steps 369/370) stored
+    // the same three literals in two places with nothing constraining either,
+    // which is not how the rest of this schema models a fixed set of values --
+    // `imageTypes`, `imagePartitionTypes`, `os` and `taskTypes` are all
+    // lookup tables, and the classes reach them through
+    // databaseFieldClassRelationships. Two free-text columns holding an
+    // enumeration is the odd one out, and it was only two steps old.
+    //
+    // `archIsAccess` is `taskTypes.ttIsAccess` wearing different values. There
+    // it says whether a task type may be started from a host, from a group, or
+    // from both; here it says whether an architecture may be picked on a host,
+    // on an image, or on both. It is what makes the table worth normalising
+    // rather than just adding a CHECK constraint: an architecture FOS can
+    // capture but no host in this fleet can boot (or the reverse) is a real
+    // state, and the flag is where an admin says so.
+    //
+    // The columns stay NULLable and the seeds carry no host or image. NULL is
+    // "not recorded" and it has to survive, because Architecture::canRun() treats
+    // unknown on either side as ALLOWED -- every host that has not PXE booted
+    // since step 369 and every image captured before step 370 reads NULL, and
+    // refusing on absence would turn an upgrade into a fleet-wide outage.
+    //
+    // Order inside the closure is load-bearing: seed, then adopt any value the
+    // fleet already holds that the seeds do not cover, then backfill the ids,
+    // and only then drop the strings. The adopt pass is what makes the drop
+    // lossless by construction rather than lossless because the whitelist in
+    // BootMenu::_recordHostArch() happens to agree with the seed list today.
+    function () {
+        $DB = self::$DB;
+        $cols = function ($table, $names) use ($DB) {
+            $quoted = "'" . implode("','", $names) . "'";
+            $have = $DB->query(
+                "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = '$table' "
+                . "AND `COLUMN_NAME` IN ($quoted)"
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+            $found = [];
+            foreach ((array)$have as $row) {
+                if (isset($row['c'])) {
+                    $found[] = $row['c'];
+                }
+            }
+            return $found;
+        };
+
+        $DB->query(
+            "CREATE TABLE IF NOT EXISTS `architectures` ("
+            . "`archID` mediumint(9) NOT NULL AUTO_INCREMENT,"
+            . "`archName` varchar(16) NOT NULL,"
+            . "`archDescription` varchar(255) NOT NULL DEFAULT '',"
+            . "`archIsAccess` enum('both','host','image') NOT NULL DEFAULT 'both',"
+            . "PRIMARY KEY (`archID`),"
+            . "UNIQUE KEY `archName` (`archName`)"
+            . ') ENGINE=InnoDB AUTO_INCREMENT=1'
+            . ' DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci'
+            . ' ROW_FORMAT=DYNAMIC'
+        );
+        // The three iPXE reports. FOS says aarch64 where iPXE says arm64 and
+        // amd64 where iPXE says x86_64; Architecture::normalizeName() folds
+        // those onto these spellings rather than seeding both, so that a host
+        // and an image describing the same machine cannot end up on two rows.
+        $DB->query(
+            "INSERT IGNORE INTO `architectures` "
+            . "(`archID`, `archName`, `archDescription`, `archIsAccess`) "
+            . "VALUES "
+            . "(1, 'i386', '32-bit x86. Runs on 32-bit-only hardware and, "
+            . "unchanged, on x86_64.', 'both'),"
+            . "(2, 'x86_64', '64-bit x86, reported as amd64 by some tools.', "
+            . "'both'),"
+            . "(3, 'arm64', '64-bit ARM, reported as aarch64 by FOS.', 'both')"
+        );
+
+        $hostCols = $cols('hosts', ['hostArch', 'hostArchID']);
+        $imageCols = $cols('images', ['imageArch', 'imageArchID']);
+
+        if (!in_array('hostArchID', $hostCols)) {
+            $DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostArchID` mediumint(9) NULL DEFAULT NULL"
+            );
+        }
+        if (!in_array('imageArchID', $imageCols)) {
+            $DB->query(
+                "ALTER TABLE `images` "
+                . "ADD `imageArchID` mediumint(9) NULL DEFAULT NULL"
+            );
+        }
+
+        // Adopt, then map, then drop -- per side, because an upgrade that was
+        // interrupted between the two ALTERs above is a state this has to
+        // survive being re-run in.
+        if (in_array('hostArch', $hostCols)) {
+            $DB->query(
+                "INSERT IGNORE INTO `architectures` (`archName`) "
+                . "SELECT DISTINCT `hostArch` FROM `hosts` "
+                . "WHERE `hostArch` IS NOT NULL AND `hostArch` <> ''"
+            );
+            $DB->query(
+                "UPDATE `hosts` `h` "
+                . "JOIN `architectures` `a` ON `a`.`archName` = `h`.`hostArch` "
+                . "SET `h`.`hostArchID` = `a`.`archID` "
+                . "WHERE `h`.`hostArch` IS NOT NULL AND `h`.`hostArch` <> ''"
+            );
+            $DB->query("ALTER TABLE `hosts` DROP COLUMN `hostArch`");
+        }
+        if (in_array('imageArch', $imageCols)) {
+            $DB->query(
+                "INSERT IGNORE INTO `architectures` (`archName`) "
+                . "SELECT DISTINCT `imageArch` FROM `images` "
+                . "WHERE `imageArch` IS NOT NULL AND `imageArch` <> ''"
+            );
+            $DB->query(
+                "UPDATE `images` `i` "
+                . "JOIN `architectures` `a` ON `a`.`archName` = `i`.`imageArch` "
+                . "SET `i`.`imageArchID` = `a`.`archID` "
+                . "WHERE `i`.`imageArch` IS NOT NULL AND `i`.`imageArch` <> ''"
+            );
+            $DB->query("ALTER TABLE `images` DROP COLUMN `imageArch`");
+        }
+
+        return true;
+    },
+];
+// 373
 $this->schema[] = [
     // Name the state rows too.
     //

@@ -114,6 +114,15 @@ class OpenAPI extends FOGBase
      * @var array
      */
     private static $_classVars = [];
+    /**
+     * Declared class-name casing per route class, memoised. Every schema
+     * name, every $ref and every operationId group asks for it, so a
+     * document that names 53 classes would otherwise reflect each of them
+     * hundreds of times.
+     *
+     * @var array
+     */
+    private static $_classNames = [];
 
     /**
      * Builds the whole document.
@@ -660,7 +669,57 @@ class OpenAPI extends FOGBase
      */
     public static function schemaName($class)
     {
-        return ucfirst((string)$class);
+        return self::className($class);
+    }
+
+    /**
+     * A route class name in the casing its own PHP class declares.
+     *
+     * Route class names are lowercase -- `tasklog`, `storagegroup`,
+     * `usergroupmember` -- because that is what a URL carries. ucfirst()
+     * on one of those gives `Tasklog`, and every generated client then
+     * calls it that: a Tasklog type, a Get-Tasklog command, a
+     * New-Usergroupmember. Nobody writing those by hand would.
+     *
+     * The correct spelling is not a judgement call and does not need a
+     * hand-kept list: the model declares it. PHP class names are
+     * case-insensitive to lookup but ReflectionClass::getShortName()
+     * returns the name as DECLARED, so `tasklog` resolves to the class and
+     * answers `TaskLog`. Same reflection pass the rest of this file already
+     * relies on, same reason -- the server knows, so do not ask anyone to
+     * repeat it.
+     *
+     * Falls back to ucfirst() for a class that will not reflect, which is
+     * the same shape _classVars() already tolerates for a broken plugin.
+     *
+     * @param string $class The lowercase route class name.
+     *
+     * @return string
+     */
+    public static function className($class)
+    {
+        $class = (string)$class;
+        if ('' === $class) {
+            return '';
+        }
+        if (array_key_exists($class, self::$_classNames)) {
+            return self::$_classNames[$class];
+        }
+        $name = ucfirst($class);
+        try {
+            $obj = new \ReflectionClass($class);
+            $short = $obj->getShortName();
+            if ('' !== $short) {
+                $name = $short;
+            }
+        } catch (\Exception $e) {
+            // Keep the ucfirst fallback.
+        } catch (\Error $e) {
+            // A plugin class naming a parent that is not loaded raises
+            // Error rather than Exception. One broken plugin must not
+            // rename every schema in the document.
+        }
+        return self::$_classNames[$class] = $name;
     }
 
     /**
@@ -1269,7 +1328,7 @@ class OpenAPI extends FOGBase
                     self::_idsResponse(),
                     [],
                     self::_namesBody(),
-                    'joinByName' . ucfirst($class)
+                    'JoinByName'
                 );
             }
         }
@@ -1373,20 +1432,49 @@ class OpenAPI extends FOGBase
         array $responses,
         array $parameters = [],
         array $body = [],
-        $operationId = ''
+        $action = ''
     ) {
-        // operationId is derived from the route name, which is right until one
-        // router route serves two different operations. PUT|POST /{class}/join
-        // is registered once, under one name, but the two methods do unrelated
-        // things -- so both would derive the same operationId, and an
-        // operationId has to be unique across the document. The override lets
-        // the pair keep the one route name the router and the permission
-        // lookup know while still being addressable apart.
-        $operationId = ('' !== $operationId)
-            ? $operationId
-            : ('' === $class ? $routeName : $routeName . ucfirst($class));
+        // operationId is `Group_Action`, which is not decoration: it is the
+        // convention every OpenAPI code generator reads names out of.
+        //
+        // AutoRest.PowerShell's configuration says it outright -- "the
+        // operationId-method is the identifier that comes after the
+        // underscore" -- and its verb map turns that half into a cmdlet verb
+        // while the half before it becomes the noun. openapi-generator splits
+        // on the same character to pick an api class and a method name.
+        //
+        // This document used to emit `indivHost`: one word, no separator. So
+        // the group came out empty, the verb map never matched, and the
+        // generator fell back to guessing a verb out of the middle of the
+        // string. It warns when it does -- "Operation indiv/usertracking is
+        // inferred without finding action" -- and what came out the other end
+        // was Invoke-IndivHost from AutoRest and ConvertTo-FogdivHost from
+        // openapi-generator, with no Get-Host anywhere in 567 operations.
+        // `Host_Get` gets Get-Host from both, with no per-operation
+        // configuration at all.
+        //
+        // The route name is NOT what changes. Route::$routes keys on it and
+        // Authorization::resolveApiPermission() looks permissions up by it,
+        // so it stays exactly as the router knows it; only the id derived
+        // from it here is new.
+        //
+        // $action overrides the mapping for a route that serves two
+        // operations: PUT|POST /{class}/join is registered once, under one
+        // name, and the two methods do unrelated things. Everything else is
+        // decided by route name in _operationAction() and _operationGroup(),
+        // so no call site carries naming.
+        $action = ('' !== $action)
+            ? $action
+            : self::_operationAction($routeName);
+        $group = self::_operationGroup($routeName, $class);
+        $operationId = $group . '_' . $action;
         $op = [
-            'tags' => ['' === $class ? 'system' : $class],
+            // One decision, not two. The tag is the group lowercased, so a
+            // fixed route that files itself under `plugin` is tagged plugin
+            // as well -- the tag used to be patched onto the returned array
+            // afterwards, by each route that cared, because $class had to
+            // stay empty for the permission lookup.
+            'tags' => [strtolower($group)],
             'operationId' => $operationId,
             'summary' => $summary,
             'responses' => $responses + self::_errorResponses()
@@ -1405,6 +1493,125 @@ class OpenAPI extends FOGBase
             $op['x-fog-permission'] = $permission;
         }
         return $op;
+    }
+
+    /**
+     * The action half of an operationId, for one router route name.
+     *
+     * The router's vocabulary and a code generator's are not the same, and
+     * this is the one place they are reconciled. `indiv` is a perfectly good
+     * name for the route that returns one row, and it is a useless name to
+     * derive a cmdlet from: no generator knows the word, so all of them guess.
+     * `Get` is in every generator's verb table.
+     *
+     * Thirteen entries cover 528 of the document's 567 operations. What they
+     * produce, through AutoRest's built-in verb map and with no further
+     * configuration:
+     *
+     *   Host_Get        Get-Host        Host_Create     New-Host
+     *   Host_List       Get-Host        Host_Update     Update-Host
+     *   Host_Delete     Remove-Host     Host_Search     Search-Host
+     *   Host_Join       Join-Host       Host_CancelTask Stop-HostTask
+     *
+     * Get and List deliberately differ so that a generator can merge them
+     * into one cmdlet with two parameter sets, which is what Az does and
+     * what `Get-Host -Id 1` versus `Get-Host` should be.
+     *
+     * A route name with no entry keeps its own word, PascalCased. That is
+     * the right default for the fixed routes -- `whoami` and `bandwidth`
+     * describe themselves -- and it means a new route is never silently
+     * mapped to something it is not.
+     *
+     * @param string $routeName The router's name for this route.
+     *
+     * @return string The action half, PascalCase.
+     */
+    private static function _operationAction($routeName)
+    {
+        $map = [
+            // The generic per-class routes. 528 of 567 operations.
+            'indiv' => 'Get',
+            'list' => 'List',
+            'create' => 'Create',
+            'update' => 'Update',
+            'delete' => 'Delete',
+            'search' => 'Search',
+            'join' => 'Join',
+            'count' => 'Count',
+            'ids' => 'ListId',
+            'names' => 'ListName',
+            'task' => 'CreateTask',
+            'cancel' => 'CancelTask',
+            'active' => 'ListActive',
+            // The fixed routes. Their names describe the thing rather than
+            // the doing -- `whoami`, `bandwidth`, `logfiles` -- so left
+            // alone every one of them would land in the generator's
+            // guess-a-verb path, which is the case this whole change exists
+            // to remove. Leading each with a real verb is what makes the
+            // warning count zero rather than sixteen.
+            'status' => 'GetInfo',
+            'openapi' => 'GetOpenapi',
+            'openapiswaggeralias' => 'GetOpenapiAlias',
+            'whoami' => 'GetWhoami',
+            'bandwidth' => 'GetBandwidth',
+            'logfiles' => 'Get',
+            'pendingmacs' => 'ListPendingMac',
+            'kernelupdate' => 'List',
+            'initrdupdate' => 'List',
+            'unisearch' => 'SearchAll',
+            'settingscacheview' => 'Get',
+            'settingscacheflush' => 'Flush',
+            'settingscacherefresh' => 'Refresh',
+            'plugininstall' => 'Install',
+            'snapincreatewithfile' => 'CreateWithFile',
+            'uploadsnapinfiles' => 'UploadSnapinFile'
+        ];
+        $key = strtolower((string)$routeName);
+        return isset($map[$key])
+            ? $map[$key]
+            : ucfirst((string)$routeName);
+    }
+
+    /**
+     * The group half of an operationId, for one router route name.
+     *
+     * For a per-class route it is the class, which is what the reader and
+     * every generator expect: `Host_Get` becomes `Get-Host`.
+     *
+     * A fixed route has no class -- and must not be given one, because
+     * $class is what _permission() resolves against, so inventing one there
+     * would change who may call the route. It gets its noun here instead.
+     * Without this they would all be `System`, and the plugin installer
+     * would generate as Install-SystemPlugin rather than Install-Plugin.
+     *
+     * The tag follows the group, so these also file themselves under the
+     * right heading in a Swagger UI. That used to be patched onto the
+     * finished operation by each route that cared.
+     *
+     * @param string $routeName The router's name for this route.
+     * @param string $class     The lowercase route class name, may be empty.
+     *
+     * @return string The group half, PascalCase.
+     */
+    private static function _operationGroup($routeName, $class)
+    {
+        if ('' !== (string)$class) {
+            return self::className($class);
+        }
+        $map = [
+            'pendingmacs' => 'Host',
+            'logfiles' => 'Logfile',
+            'kernelupdate' => 'Kernel',
+            'initrdupdate' => 'Initrd',
+            'settingscacheview' => 'SettingsCache',
+            'settingscacheflush' => 'SettingsCache',
+            'settingscacherefresh' => 'SettingsCache',
+            'plugininstall' => 'Plugin',
+            'snapincreatewithfile' => 'Snapin',
+            'uploadsnapinfiles' => 'Storagegroup'
+        ];
+        $key = strtolower((string)$routeName);
+        return isset($map[$key]) ? $map[$key] : 'System';
     }
 
     /**
@@ -2081,13 +2288,6 @@ class OpenAPI extends FOGBase
                 ]
             ]
         );
-        // Grouped under plugin rather than system, the same way the two
-        // upload routes are grouped under snapin and storagegroup. _op()
-        // takes the tag from its class argument, which has to stay empty
-        // here so the operation id and the permission lookup both key off
-        // the fixed-route name -- but a reader looking for this opens the
-        // plugin tag, not system.
-        $op['tags'] = ['plugin'];
         return $op;
     }
 
@@ -2217,11 +2417,6 @@ class OpenAPI extends FOGBase
                 ]
             ]
         );
-        // Grouped under snapin rather than system. _op() takes the tag from
-        // its class argument, which has to stay empty here so the operation
-        // id and the permission lookup both key off the fixed-route name,
-        // but a reader looking for this will open the snapin tag.
-        $op['tags'] = ['snapin'];
         return $op;
     }
 
@@ -2279,7 +2474,6 @@ class OpenAPI extends FOGBase
                 ]
             ]
         );
-        $op['tags'] = ['storagegroup'];
         return $op;
     }
 

@@ -44,16 +44,25 @@ class ImageManagement extends FOGPage
         $this->headerData = [
             _('Image Name'),
             _('Architecture'),
+            _('Sector Size'),
             _('Protected'),
             _('Enabled'),
             _('Captured')
         ];
+        // Each <th> carries its DataTables data key, the same contract the
+        // host grid uses. fog.image.list.js builds both its column list and
+        // its columnDefs targets from these rather than from hardcoded
+        // indexes: the renders here used to be pinned to targets 1 and 2, so
+        // inserting Architecture at position 1 slid the lock render onto the
+        // new column and the enabled render onto Protected, silently. Names
+        // cannot slide.
         $this->attributes = [
-            [],
-            [],
-            [],
-            [],
-            []
+            ['data-col' => 'mainlink'],
+            ['data-col' => 'arch'],
+            ['data-col' => 'sectorsize'],
+            ['data-col' => 'protected'],
+            ['data-col' => 'isEnabled'],
+            ['data-col' => 'deployed']
         ];
     }
     /**
@@ -521,6 +530,35 @@ class ImageManagement extends FOGPage
         );
         $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
             ->buildSelectBox($iptID, '', 'id');
+        // The architectures an admin may pick on an IMAGE, which is what
+        // `architectures.archIsAccess` is for -- the same flag taskTypes uses
+        // to say a task type belongs to hosts, to groups, or to both. An
+        // architecture flagged host-only never appears here.
+        //
+        // Editable, unlike the read-only Information card it replaces. A
+        // capture stamps this from the capturing host and always wins, but
+        // every image captured before schema step 370 reads "not recorded"
+        // and keeps reading that until someone recaptures it -- hours of work
+        // to record one fact the admin already knows. Setting it by hand is
+        // how those images join the compatibility check.
+        //
+        // Edit form only. An image being created has been captured from
+        // nothing, so the add form and its modal have nothing to offer but a
+        // guess.
+        //
+        // buildSelectBox() treats an empty filter as "no filter" and would
+        // then offer every row, so an empty pick list has to be spelled as an
+        // id that matches nothing rather than as nothing.
+        $archID = (
+            filter_input(INPUT_POST, 'archID') ?:
+            ($this->obj->get('archID') ?: '')
+        );
+        $archIds = array_keys(Architecture::pickable('image'));
+        if (count($archIds) < 1) {
+            $archIds = [0];
+        }
+        $Architectures = self::getClass('ArchitectureManager')
+            ->buildSelectBox($archID, 'archID', 'name', $archIds);
         $isprot = (
             isset($_POST['isProtected']) ? 'checked' :
             ($this->obj->get('protected') ? 'checked' : '')
@@ -703,6 +741,11 @@ class ImageManagement extends FOGPage
             ) => $ImagePartitionTypes,
             self::makeLabel(
                 $labelClass,
+                'archID',
+                _('Architecture')
+            ) => $Architectures,
+            self::makeLabel(
+                $labelClass,
                 'imagemanage',
                 _('Image Manager')
             ) => $format,
@@ -810,6 +853,15 @@ class ImageManagement extends FOGPage
         $iptID = (int)trim(
             filter_input(INPUT_POST, 'imagepartitiontype')
         );
+        // The blank "- Please select -" option means "not recorded", which is
+        // a real value here and not the absence of one: Architecture::canRun()
+        // reads it as "nothing to contradict" and allows the deploy. Stored as
+        // NULL rather than 0 so it reads the same as an image nobody has ever
+        // touched.
+        $archID = trim(
+            (string)filter_input(INPUT_POST, 'archID')
+        );
+        $archID = '' === $archID ? null : (int)$archID;
         $protected = (int)isset($_POST['isProtected']);
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
@@ -830,6 +882,7 @@ class ImageManagement extends FOGPage
             ->set('path', $path)
             ->set('imageTypeID', $itID)
             ->set('imagePartitionTypeID', $iptID)
+            ->set('archID', $archID)
             ->set('format', $imagemanage)
             ->set('protected', $protected)
             ->set('compress', $compress)
@@ -1035,14 +1088,16 @@ class ImageManagement extends FOGPage
      */
     public function imageInformation()
     {
-        // Architecture. Read-only on purpose: it is observed, not chosen.
-        // It is stamped from the capturing host when the image is captured
-        // (TaskQueue::_moveUpload), so an editable box here would only ever
-        // let someone assert something the capture already disproved. Images
-        // captured before schema step 370 have none and say so -- a blank
-        // cell reads as x86 to anyone scanning, which is the assumption the
-        // column exists to stop.
-        $imgArch = Image::normalizeArch($this->obj->get('arch'));
+        // Architecture. Read-only HERE -- it is stamped from the capturing
+        // host by TaskQueue::_moveUpload(), so what this tab shows is an
+        // observation. The picker on the General tab is for the other case:
+        // an image captured before schema step 370, which has no observation
+        // and never will unless it is recaptured.
+        //
+        // Named rather than blank when unrecorded: a blank cell reads as x86
+        // to anyone scanning, which is the assumption this whole relation
+        // exists to stop.
+        $imgArch = (string)$this->obj->get('arch')->get('name');
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
@@ -1062,10 +1117,40 @@ class ImageManagement extends FOGPage
             echo '<span class="text-muted">';
             echo _('Not recorded');
             echo ' &mdash; ';
-            echo _('captured before FOG tracked this. It will be set the next time this image is captured.');
+            echo _('captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured.');
             echo '</span>';
         } else {
             echo '<code>' . htmlentities($imgArch, ENT_QUOTES, 'utf-8') . '</code>';
+        }
+        echo '</div>';
+        echo '</div>';
+        // Sector size. The other half of "can this image go on that disk",
+        // and the half FOS has been refusing on since ADR-0005 without the
+        // server ever being able to show it.
+        $sectorLabel = Image::sectorSizeLabel($this->obj->get('sectorsize'));
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Sector Size');
+        echo '</h4>';
+        echo '<br/>';
+        echo _('The logical sector size of the disk this image was captured from.');
+        echo ' ';
+        echo _('An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them.');
+        echo '<div class="card-tools float-end">';
+        echo self::$FOGCollapseBox;
+        echo self::$FOGCloseBox;
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        if ('' === $sectorLabel) {
+            echo '<span class="text-muted">';
+            echo _('Not recorded');
+            echo ' &mdash; ';
+            echo _('captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured.');
+            echo '</span>';
+        } else {
+            echo '<code>' . htmlentities($sectorLabel, ENT_QUOTES, 'utf-8') . '</code>';
         }
         echo '</div>';
         echo '</div>';
@@ -1279,7 +1364,7 @@ class ImageManagement extends FOGPage
      * read occasionally, not a grid that needs paging and sorting, and three
      * joined queries answer it outright with no per-row lookups.
      *
-     * Compatibility is decided by Image::archCanRun(), never re-implemented
+     * Compatibility is decided by Architecture::canRun(), never re-implemented
      * here in SQL. It is the same call Host::createImagePackage() refuses on,
      * so what this page flags and what a deploy rejects cannot drift apart.
      *
@@ -1289,32 +1374,69 @@ class ImageManagement extends FOGPage
     {
         $this->title = _('Architectures');
 
+        // Refuse to render against a database that has not been migrated.
+        //
+        // Not hypothetical: this page was reachable on a live 1.6 server
+        // sitting at schema version 368 while FOG_SCHEMA still said 368, so
+        // the updater never offered steps 369/370. The queries below then
+        // failed with 1054 Unknown column, PDODB swallowed the exception and
+        // returned false, and the tables rendered one blank row each -- which
+        // looks like "no data" rather than "broken", and is the worst of both.
+        //
+        // tableColumns() returns [] when it cannot read the table at all, and
+        // its contract is that empty means "don't know", so only a populated
+        // list missing the column counts as proof of an unmigrated database.
+        $hostCols = DatabaseManager::tableColumns('hosts');
+        $imageCols = DatabaseManager::tableColumns('images');
+        if ((count($hostCols) && !in_array('hostarchid', $hostCols))
+            || (count($imageCols) && !in_array('imagearchid', $imageCols))
+        ) {
+            echo '<div class="alert alert-warning">';
+            echo '<strong>' . _('Database update required.') . '</strong> ';
+            echo _('The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page.');
+            echo '</div>';
+            return;
+        }
+
+        // Two more LEFT JOINs onto `architectures` since schema step 372, one
+        // per side. LEFT, not INNER, on all four: a host with no image, or
+        // either side with no architecture recorded, is the ordinary state on
+        // an upgraded server and must still appear in this report -- an INNER
+        // join would quietly hide exactly the rows an admin came here to find.
         $rows = self::$DB->query(
             "SELECT `hosts`.`hostID` AS `id`, `hosts`.`hostName` AS `host`, "
-            . "`hosts`.`hostArch` AS `hostArch`, "
+            . "`ha`.`archName` AS `hostArch`, "
             . "`images`.`imageName` AS `image`, "
-            . "`images`.`imageArch` AS `imageArch` "
+            . "`ia`.`archName` AS `imageArch` "
             . "FROM `hosts` "
             . "LEFT OUTER JOIN `images` "
             . "ON `hosts`.`hostImage` = `images`.`imageID` "
+            . "LEFT OUTER JOIN `architectures` `ha` "
+            . "ON `ha`.`archID` = `hosts`.`hostArchID` "
+            . "LEFT OUTER JOIN `architectures` `ia` "
+            . "ON `ia`.`archID` = `images`.`imageArchID` "
             . "ORDER BY `hosts`.`hostName`"
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-        $rows = (array)$rows;
+        $rows = is_array($rows) ? $rows : [];
 
         $images = self::$DB->query(
             "SELECT `images`.`imageID` AS `id`, "
             . "`images`.`imageName` AS `image`, "
-            . "`images`.`imageArch` AS `imageArch`, "
+            . "`ia`.`archName` AS `imageArch`, "
+            . "`images`.`imageSectorSize` AS `sectorsize`, "
             . "`images`.`imageDateTime` AS `captured`, "
             . "COUNT(`hosts`.`hostID`) AS `assigned` "
             . "FROM `images` "
             . "LEFT OUTER JOIN `hosts` "
             . "ON `hosts`.`hostImage` = `images`.`imageID` "
+            . "LEFT OUTER JOIN `architectures` `ia` "
+            . "ON `ia`.`archID` = `images`.`imageArchID` "
             . "GROUP BY `images`.`imageID`, `images`.`imageName`, "
-            . "`images`.`imageArch`, `images`.`imageDateTime` "
+            . "`ia`.`archName`, `images`.`imageSectorSize`, "
+            . "`images`.`imageDateTime` "
             . "ORDER BY `images`.`imageName`"
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-        $images = (array)$images;
+        $images = is_array($images) ? $images : [];
 
         // Counted in PHP off the same rows the table renders, so the summary
         // and the detail cannot disagree.
@@ -1322,7 +1444,7 @@ class ImageManagement extends FOGPage
         $unknownHosts = 0;
         $mismatched = [];
         foreach ($rows as $row) {
-            $hostArch = Image::normalizeArch($row['hostArch'] ?? '');
+            $hostArch = Architecture::normalizeName($row['hostArch'] ?? '');
             if ('' === $hostArch) {
                 $unknownHosts++;
             } else {
@@ -1331,7 +1453,7 @@ class ImageManagement extends FOGPage
                 }
                 $byArch[$hostArch]++;
             }
-            if (!Image::archCanRun($row['imageArch'] ?? '', $row['hostArch'] ?? '')) {
+            if (!Architecture::canRun($row['imageArch'] ?? '', $row['hostArch'] ?? '')) {
                 $mismatched[] = $row;
             }
         }
@@ -1358,23 +1480,111 @@ class ImageManagement extends FOGPage
             echo '</div>';
         }
 
+        // --- the architectures themselves ------------------------------
+        // Where `archIsAccess` is actually set. Same shape as
+        // taskTypes.ttIsAccess, which the Task Type Edit plugin exposes on
+        // each task type's own form; there is no architecture management node
+        // to hang a form off, and adding one to carry three rows would be a
+        // node, a menu entry, a list grid and a permission entry for a table
+        // nobody adds to. It lives here instead, on the page that already
+        // exists to answer "what architectures does this server know about".
+        //
+        // Name is not editable. It is not a label -- BootMenu matches the
+        // string iPXE reports against it, and Architecture::normalizeName()
+        // folds FOS's spellings onto it -- so renaming a row would silently
+        // stop hosts from ever matching it again. Adding and removing rows is
+        // out for the same reason: an architecture FOG cannot boot or capture
+        // is not made real by a row saying so.
+        $Archs = Route::getList('architecture', false, 'AND', 'name');
+        echo self::makeFormTag(
+            '',
+            'architectures-form',
+            '../management/index.php?node=image&sub=architectures',
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo _('Architectures');
+        echo '</h4><br/>';
+        echo _('Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose.');
+        echo '</div>';
+        echo '<div class="card-body table-responsive">';
+        // NOT a DataTable, unlike the two report tables below, and it must not
+        // become one: every row here is a pair of form inputs, and DataTables
+        // removes the rows it has paged away from the DOM -- so anything past
+        // page one would silently stop being submitted. Three rows need no
+        // paging anyway.
+        echo '<table class="table table-hover"><thead><tr>';
+        echo '<th>' . _('Architecture') . '</th>';
+        echo '<th>' . _('Description') . '</th>';
+        echo '<th>' . _('Selectable on') . '</th>';
+        echo '</tr></thead><tbody>';
+        $accessLabels = [
+            'both' => _('Hosts and images'),
+            'host' => _('Hosts only'),
+            'image' => _('Images only')
+        ];
+        foreach ((array)$Archs as $Arch) {
+            $aid = (int)$Arch->id;
+            echo '<tr>';
+            echo '<td><code>'
+                . htmlentities((string)$Arch->name, ENT_QUOTES, 'utf-8')
+                . '</code></td>';
+            echo '<td><input type="text" class="form-control" name="description['
+                . $aid
+                . ']" value="'
+                . htmlentities((string)$Arch->description, ENT_QUOTES, 'utf-8')
+                . '"/></td>';
+            echo '<td><select class="form-control" name="access[' . $aid . ']">';
+            foreach ($accessLabels as $value => $label) {
+                echo '<option value="' . $value . '"'
+                    . ($value === (string)$Arch->access ? ' selected' : '')
+                    . '>'
+                    . htmlentities($label, ENT_QUOTES, 'utf-8')
+                    . '</option>';
+            }
+            echo '</select></td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        echo self::makeButton(
+            'architectures-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        );
+        echo '</div></div>';
+        echo '</form>';
+
         // --- images ----------------------------------------------------
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header"><h4 class="card-title">';
         echo _('Images');
         echo '</h4></div>';
         echo '<div class="card-body table-responsive">';
-        echo '<table class="table table-hover"><thead><tr>';
+        echo '<table id="architectures-images" class="table table-hover">';
+        echo '<thead><tr>';
         echo '<th>' . _('Image') . '</th>';
         echo '<th>' . _('Architecture') . '</th>';
+        echo '<th>' . _('Sector Size') . '</th>';
         echo '<th>' . _('Captured') . '</th>';
         echo '<th>' . _('Hosts assigned') . '</th>';
         echo '</tr></thead><tbody>';
         foreach ($images as $img) {
-            $arch = Image::normalizeArch($img['imageArch'] ?? '');
+            $arch = Architecture::normalizeName($img['imageArch'] ?? '');
             echo '<tr>';
             echo '<td>' . htmlentities($img['image'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>' . $this->_archCell($arch, _('Not recorded')) . '</td>';
+            // Sector size is not compared against anything here: the server
+            // never learns a host disk's sector size, so unlike architecture
+            // there is no mismatch to flag. FOS does that check at deploy.
+            echo '<td>'
+                . $this->_archCell(
+                    Image::sectorSizeLabel($img['sectorsize'] ?? 0),
+                    _('Not recorded')
+                )
+                . '</td>';
             echo '<td>' . htmlentities((string)$img['captured'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>' . (int)$img['assigned'] . '</td>';
             echo '</tr>';
@@ -1387,19 +1597,27 @@ class ImageManagement extends FOGPage
         echo _('Hosts');
         echo '</h4></div>';
         echo '<div class="card-body table-responsive">';
-        echo '<table class="table table-hover"><thead><tr>';
+        echo '<table id="architectures-hosts" class="table table-hover">';
+        echo '<thead><tr>';
         echo '<th>' . _('Host') . '</th>';
         echo '<th>' . _('Architecture') . '</th>';
         echo '<th>' . _('Assigned image') . '</th>';
         echo '<th>' . _('Image architecture') . '</th>';
         echo '</tr></thead><tbody>';
         foreach ($rows as $row) {
-            $bad = !Image::archCanRun($row['imageArch'] ?? '', $row['hostArch'] ?? '');
-            echo $bad ? '<tr class="table-danger">' : '<tr>';
+            $bad = !Architecture::canRun($row['imageArch'] ?? '', $row['hostArch'] ?? '');
+            // data-mismatch as well as the class: this table is a DataTable
+            // and redraws its rows when paged, so fog.image.architectures.js
+            // re-applies the highlight from the attribute on every draw. The
+            // class stays for the first paint and for anyone reading the page
+            // with JavaScript off.
+            echo $bad
+                ? '<tr class="table-danger" data-mismatch="1">'
+                : '<tr>';
             echo '<td>' . htmlentities($row['host'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>'
                 . $this->_archCell(
-                    Image::normalizeArch($row['hostArch'] ?? ''),
+                    Architecture::normalizeName($row['hostArch'] ?? ''),
                     _('Not yet seen')
                 )
                 . '</td>';
@@ -1412,13 +1630,68 @@ class ImageManagement extends FOGPage
                 . '</td>';
             echo '<td>'
                 . $this->_archCell(
-                    Image::normalizeArch($row['imageArch'] ?? ''),
+                    Architecture::normalizeName($row['imageArch'] ?? ''),
                     _('Not recorded')
                 )
                 . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
+    }
+    /**
+     * Saves the per-architecture flags from the Architectures page.
+     *
+     * Only `access` and `description` are writable. The name is the string
+     * BootMenu matches an iPXE report against, so renaming a row would stop
+     * hosts matching it with no error anywhere; rows cannot be added or
+     * removed here for the same reason. See architectures().
+     *
+     * @return void
+     */
+    public function architecturesPost()
+    {
+        self::checkAuthAndCSRF();
+        $access = (array)filter_input(
+            INPUT_POST,
+            'access',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $descriptions = (array)filter_input(
+            INPUT_POST,
+            'description',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $valid = ['both', 'host', 'image'];
+        $saved = 0;
+        foreach ($access as $id => $value) {
+            $id = (int)$id;
+            // A value outside the enum is skipped rather than clamped to a
+            // default: MySQL stores an unknown enum member as '' with only a
+            // warning, and '' matches neither side of the pickable() query,
+            // so a typo'd POST would quietly remove an architecture from both
+            // pickers with nothing on screen to say why.
+            if ($id < 1 || !in_array($value, $valid, true)) {
+                continue;
+            }
+            $Arch = self::getClass('Architecture', $id);
+            if (!$Arch->isValid()) {
+                continue;
+            }
+            $Arch->set('access', $value);
+            if (array_key_exists($id, $descriptions)) {
+                $Arch->set('description', trim((string)$descriptions[$id]));
+            }
+            $Arch->save();
+            $saved++;
+        }
+        self::setMessage(
+            sprintf(_('%d architecture(s) updated.'), $saved),
+            _('Architectures'),
+            'success'
+        );
+        self::redirect('../management/index.php?node=image&sub=architectures');
     }
     /**
      * One summary tile on the architectures page.
@@ -1431,10 +1704,27 @@ class ImageManagement extends FOGPage
      */
     private function _archStat($value, $label, $warn)
     {
+        // A card, not AdminLTE's `small-box`. small-box is built for a
+        // saturated background with white text forced on top of it, so
+        // `bg-light` -- the only neutral in that family -- paints a near-white
+        // box that the dark theme then writes its light text onto, and the
+        // number is invisible. Nothing else in FOG used small-box, so there
+        // was no house tile to inherit a fix from.
+        //
+        // The card idiom below is the one the Images and Hosts cards on this
+        // same page already use. The theme styles cards in both modes, so this
+        // needs no colour of its own and cannot drift from the rest of the
+        // page. Only the warning tile takes a colour, and it takes it from
+        // card-danger, which forces its own contrast.
         echo '<div class="col-sm-6 col-md-3">';
-        echo '<div class="small-box ' . ($warn ? 'bg-danger' : 'bg-light') . '">';
-        echo '<div class="inner"><h3>' . (int)$value . '</h3>';
-        echo '<p>' . htmlentities($label, ENT_QUOTES, 'utf-8') . '</p>';
+        echo '<div class="card '
+            . ($warn && $value > 0 ? 'card-danger' : 'card-primary')
+            . ' card-outline">';
+        echo '<div class="card-body text-center">';
+        echo '<h3 class="mb-0">' . (int)$value . '</h3>';
+        echo '<p class="mb-0 text-muted">'
+            . htmlentities($label, ENT_QUOTES, 'utf-8')
+            . '</p>';
         echo '</div></div></div>';
     }
     /**

@@ -102,6 +102,10 @@ msgstr ""
 msgid "%1$s: %2$s on %3$s"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d architecture(s) updated."
+msgstr "Drucker aktualisiert!"
+
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run."
 msgstr ""
@@ -934,6 +938,9 @@ msgstr "Dieser Benutzername ist bereits vorhanden!"
 
 msgid "An image already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
+
+msgid "An image cannot be deployed to a disk with a different logical sector size -- partition and filesystem geometry cannot be translated between them."
+msgstr ""
 
 #, fuzzy
 msgid "An image with this name already exists!"
@@ -2032,6 +2039,10 @@ msgstr "Datenbankspeicherung fehlgeschlagen"
 #, fuzzy
 msgid "Database schema is already up to date."
 msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
+
+#, fuzzy
+msgid "Database update required."
+msgstr "Datenbankupdate fehlgeschlagen"
 
 msgid "Date"
 msgstr "Datum"
@@ -3581,6 +3592,10 @@ msgstr "Host ist nicht gültig"
 msgid "Host is not valid!"
 msgstr "Host ist nicht gültig"
 
+#, fuzzy
+msgid "Host is not valid; the task cannot be completed"
+msgstr "Image ist geschützt und kann nicht gelöscht werden"
+
 msgid "Host login records are kept forever"
 msgstr ""
 
@@ -3618,6 +3633,10 @@ msgid "Hosts And Users"
 msgstr ""
 
 #, fuzzy
+msgid "Hosts and images"
+msgstr "Host-Image"
+
+#, fuzzy
 msgid "Hosts assigned"
 msgstr "zugeordneter Host"
 
@@ -3628,6 +3647,10 @@ msgstr "Standarddrucker aktualisieren"
 #, fuzzy
 msgid "Hosts in tasking"
 msgstr "Hosts im Task-Prozess"
+
+#, fuzzy
+msgid "Hosts only"
+msgstr "Host Init"
 
 #, fuzzy
 msgid "Hosts:"
@@ -3885,6 +3908,9 @@ msgstr "Image hinzugefügt"
 msgid "Image architecture"
 msgstr "Geschützt"
 
+msgid "Image captured; previous copy needs manual removal"
+msgstr ""
+
 #, fuzzy
 msgid "Image is invalid"
 msgstr "Image ist nicht gültig"
@@ -3930,6 +3956,10 @@ msgid "Imaged For"
 msgstr "Imaged für"
 
 msgid "Images"
+msgstr "Images"
+
+#, fuzzy
+msgid "Images only"
 msgstr "Images"
 
 #, fuzzy
@@ -5644,9 +5674,6 @@ msgstr "Snapin wird nicht synchronisiert"
 msgid "Not yet seen"
 msgstr ""
 
-msgid "Not yet seen -- set on this host's next PXE boot"
-msgstr ""
-
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
 msgstr ""
 
@@ -7022,6 +7049,10 @@ msgstr "Service-Status"
 msgid "Seconds before the client gives up. 0 is no timeout."
 msgstr ""
 
+#, fuzzy
+msgid "Sector Size"
+msgstr "Server-Shell"
+
 msgid "Secure Boot"
 msgstr ""
 
@@ -7055,6 +7086,10 @@ msgstr "Wählen Sie einen Crontyp"
 
 msgid "Select a valid image"
 msgstr "Wählen Sie ein gültiges Abbild"
+
+#, fuzzy
+msgid "Selectable on"
+msgstr "Wählen Sie einen Crontyp"
 
 #, fuzzy
 msgid "Selected tasks cancelled!"
@@ -8326,6 +8361,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
+msgstr ""
+
 msgid "The architecture of the machine this image was captured from."
 msgstr ""
 
@@ -8431,6 +8469,9 @@ msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
 msgstr "Der Schlüssel wird registrierten Hosts zugewiesen, wenn"
+
+msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
 
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
@@ -9505,6 +9546,9 @@ msgstr "Wenn das Plugin entfernt wird, verbleibt der zugewiesene"
 msgid "Where to get help and guides"
 msgstr "Wo bekomme ich Hilfe?"
 
+msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
+msgstr ""
+
 msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
@@ -9647,6 +9691,9 @@ msgstr "Ihr FOG-Datenbankschema ist nicht aktuell"
 msgid "Your database connection appears to be invalid"
 msgstr "Ihre Datenbankverbindung scheint ungültig zu sein"
 
+msgid "Your session has ended. Sign in again."
+msgstr ""
+
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
@@ -9742,7 +9789,10 @@ msgstr "ist offen, aber ist vor kurzem für diesen Host fehlgeschlagen"
 msgid "but there are"
 msgstr "Es gibt"
 
-msgid "captured before FOG tracked this. It will be set the next time this image is captured."
+msgid "captured before FOG tracked this, or by a FOS build whose partition dump predates the sector-size field. It will be set the next time this image is captured."
+msgstr ""
+
+msgid "captured before FOG tracked this. Set it on the General tab, or it will be set the next time this image is captured."
 msgstr ""
 
 msgid "check to ensure your filesystem has enough space"
