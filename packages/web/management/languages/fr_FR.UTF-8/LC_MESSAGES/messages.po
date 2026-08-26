@@ -6761,6 +6761,10 @@ msgstr "de"
 msgid "function on client computers."
 msgstr "fonctionnent sur les ordinateurs clients."
 
+#, fuzzy
+msgid "got"
+msgstr "depuis"
+
 msgid "group"
 msgstr "groupe"
 
@@ -6877,6 +6881,9 @@ msgstr "images"
 
 msgid "images to a storage group"
 msgstr "images vers un groupe de stockage"
+
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "en secondes"

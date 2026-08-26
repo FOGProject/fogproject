@@ -6652,6 +6652,9 @@ msgstr ""
 msgid "function on client computers."
 msgstr ""
 
+msgid "got"
+msgstr ""
+
 msgid "group"
 msgstr ""
 
@@ -6767,6 +6770,9 @@ msgid "images"
 msgstr ""
 
 msgid "images to a storage group"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 msgid "in seconds"

@@ -6723,6 +6723,10 @@ msgstr "从"
 msgid "function on client computers."
 msgstr "在客户端计算机上运行的功能."
 
+#, fuzzy
+msgid "got"
+msgstr "前"
+
 msgid "group"
 msgstr "群组"
 
@@ -6839,6 +6843,9 @@ msgstr "镜像"
 
 msgid "images to a storage group"
 msgstr "存储组镜像"
+
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "几秒钟内"

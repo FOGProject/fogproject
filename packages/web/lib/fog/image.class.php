@@ -120,6 +120,41 @@ class Image extends FOGController
             );
         self::getClass('ImageAssociationManager')
             ->destroy($find);
+        /**
+         * Cancel the tasks that were still going to use it.
+         *
+         * Resetting hosts.imageID and dropping the associations said nothing
+         * about `tasks`, so a queued or in-progress task kept pointing at an
+         * image row that no longer exists. taskStateID still resolves, so
+         * every "is this task live" test in the tree counts it as active, but
+         * the LEFT OUTER JOIN behind the Active Tasks list returns NULL for
+         * every image column and the row draws as "() -" with no type icon.
+         * No host can finish it either -- TaskingElement cannot build the
+         * Image -- and nothing reaps it, so it stays forever. Reported as
+         * "null tasks" in forum topics 18228 and 18230.
+         *
+         * Cancelled rather than deleted, unlike the host case: a host delete
+         * takes its task history with it because the subject of that history
+         * is gone, but the hosts survive an image delete and their finished
+         * tasks are still their imaging record. Only the live ones are stuck.
+         *
+         * Through TaskManager::cancel() rather than a bare state update: it
+         * also reissues the host's token, unwinds any multicast session
+         * behind the task and cancels the snapin jobs riding on it.
+         */
+        $activeImageTaskIDs = self::getSubObjectIDs(
+            'Task',
+            array(
+                'imageID' => $this->get('id'),
+                'stateID' => self::fastmerge(
+                    (array)self::getQueuedStates(),
+                    (array)self::getProgressState()
+                )
+            )
+        );
+        if (count($activeImageTaskIDs) > 0) {
+            self::getClass('TaskManager')->cancel($activeImageTaskIDs);
+        }
         self::$HookManager
             ->processEvent(
                 'DESTROY_IMAGE',

@@ -593,20 +593,25 @@ class Group extends FOGController
             } elseif ($TaskType->isDeploy()) {
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
-                $imageIDs = self::getSubObjectIDs(
-                    'Host',
-                    array(
-                        'id' => $hostIDs,
-                    ),
-                    'imageID',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
-                if (!is_array($imageIDs)) {
-                    $imageIDs = array($imageIDs);
+                /**
+                 * Map each host to ITS OWN image.
+                 *
+                 * $hostIDs is the group's membership in id order; the image
+                 * list was a separate lookup ordered by host NAME, and the
+                 * two were then zipped positionally. So unless the group's
+                 * hosts happened to sort the same way both times, every task
+                 * got somebody else's image -- and a host without an image
+                 * shortened the list, which made $imageIDs[$i] undefined for
+                 * the tail of the group and wrote a 0 into tasks.taskImageID.
+                 * A task pointing at image 0 shows as "() -" in Active Tasks
+                 * and can never complete. Forum topics 18228 and 18230.
+                 */
+                $imageMap = array();
+                foreach ((array)self::getClass('HostManager')->find(
+                    array('id' => $hostIDs)
+                ) as &$Host) {
+                    $imageMap[$Host->get('id')] = $Host->get('imageID');
+                    unset($Host);
                 }
                 $batchFields = array(
                     'name',
@@ -633,7 +638,9 @@ class Group extends FOGController
                         $TaskType->get('id'),
                         $StorageNode->get('id'),
                         $wol,
-                        $imageIDs[$i],
+                        isset($imageMap[$hostIDs[$i]])
+                            ? $imageMap[$hostIDs[$i]]
+                            : 0,
                         $shutdown,
                         $debug,
                         $passreset,

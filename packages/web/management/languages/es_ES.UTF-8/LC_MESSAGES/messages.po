@@ -7593,6 +7593,10 @@ msgid "function on client computers."
 msgstr "Configuración del cliente"
 
 #, fuzzy
+msgid "got"
+msgstr "Cerrar sesión"
+
+#, fuzzy
 msgid "group"
 msgstr "Grupo"
 
@@ -7729,6 +7733,9 @@ msgstr "Imágenes"
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Añadir grupo de almacenamiento"
+
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr ""
