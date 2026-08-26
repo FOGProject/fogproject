@@ -5358,6 +5358,59 @@ _servedCertName() {
     [[ -n ${NET_hostname} ]] && { echo "${NET_hostname}"; return 0; }
     echo "${NET_fog_server_ip}"
 }
+# The management-portal URLs to print when the install finishes.
+#
+# This used to be one line naming ${NET_fog_server_ip}, which on an HTTPS
+# install is the one address guaranteed to make the browser complain: the
+# certificate is issued for a NAME (see _certLeafName), so reaching the portal
+# by address is a name mismatch every time. The admin's first contact with their
+# new server was a security warning, with nothing on screen to say the name that
+# would have worked.
+#
+# So print both, name first. The address still has to be here -- DNS may not
+# have caught up yet, and it is the only thing that works on a server with no
+# usable name at all -- but as the fallback it is, not as the headline.
+#
+# The name comes from _servedCertName, i.e. the commonName of the certificate
+# actually on disk, rather than from ${NET_hostname}. Those differ on exactly
+# the installs where it matters: an externally-issued or publicly-trusted leaf
+# carries only the names its issuer was asked for, and --public-web-cert is a
+# supported path. Printing a name the certificate does not carry would send the
+# admin to a URL that warns just as loudly as the address, while implying it
+# would not.
+_managementUrls() {
+    local name="" ip="${NET_fog_server_ip}"
+    name=$(_servedCertName)
+    # _servedCertName's own last resort IS the address, so it can hand back the
+    # very thing the fallback line prints. Suppress the name line rather than
+    # printing the same URL twice with different captions.
+    [[ -z $name || $name == "$ip" || $(validip "$name") -eq 0 ]] && name=""
+
+    echo "   This can be done by opening a web browser and going to:"
+    echo
+    [[ -n $name ]] && echo "   ${WEB_url_proto}://${name}${WEB_root}management"
+    echo "   ${WEB_url_proto}://${ip}${WEB_root}management"
+    # The blank line belongs to the explanation, so it is emitted per branch
+    # rather than up front -- an HTTP install with no name has nothing to
+    # explain, and an unconditional echo there just orphans a blank line.
+    if [[ ${WEB_url_proto} == https ]]; then
+        echo
+        if [[ -n $name ]]; then
+            echo "   Use the first one. It is the name this server's certificate is"
+            echo "   issued for, so it is the only one that will not warn. The address"
+            echo "   works too -- useful before DNS catches up -- but the browser will"
+            echo "   object that the certificate names ${name} instead."
+        else
+            echo "   This server has no name in its certificate, only the address, so"
+            echo "   the browser will warn about the certificate every time. Give it a"
+            echo "   resolvable name with --hostname and re-run to fix that."
+        fi
+    elif [[ -n $name ]]; then
+        echo
+        echo "   Either works. The name is ${name}; the address is there for"
+        echo "   before DNS catches up."
+    fi
+}
 # The DNS names a certificate carries as subjectAltName entries.
 #
 # Echoes one per line, nothing at all when the certificate has no

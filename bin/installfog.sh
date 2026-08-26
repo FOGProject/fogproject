@@ -1504,9 +1504,7 @@ while [[ -z $blGo ]]; do
                     echo "   the information listed below.  The login information"
                     echo "   is only if this is the first install."
                     echo
-                    echo "   This can be done by opening a web browser and going to:"
-                    echo
-                    echo "   ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}management"
+                    _managementUrls
                     echo
                     echo "   Default User Information"
                     echo "   Username: fog"
