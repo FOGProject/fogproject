@@ -102,18 +102,27 @@ $readParam = function ($name) {
 };
 
 try {
-    $username = $readParam('username');
-    $username = base64_decode($username, true);
-    if (!is_string($username)) {
+    /*
+     * Through FOGBase::decodeCredential(), which is this decode lifted out so
+     * Registration::_fullReg() can share it. The two validate the SAME
+     * credential for the SAME caller, and them disagreeing was the bug:
+     * _fullReg() ran the value through stripAndDecode(), whose closing
+     * Initiator::e() HTML-escapes it, so this endpoint answered '#!ok' for a
+     * password that registration then rejected as "Invalid Login".
+     * Forums topic 18228.
+     *
+     * The false-is-not-base64 arm is kept exactly as it was, throwing before
+     * $recordBadAttempt(), so a malformed field still does not count toward
+     * the lockout.
+     */
+    $username = FOGCore::decodeCredential($readParam('username'));
+    if (false === $username) {
         throw new Exception('#!il');
     }
-    $username = trim($username);
-    $password = $readParam('password');
-    $password = base64_decode($password, true);
-    if (!is_string($password)) {
+    $password = FOGCore::decodeCredential($readParam('password'));
+    if (false === $password) {
         throw new Exception('#!il');
     }
-    $password = trim($password);
     $userTest = FOGCore::getClass('User')
         ->passwordValidate($username, $password);
     if (!$userTest) {

@@ -139,13 +139,36 @@ class Registration extends FOGBase
             if (self::$Host->isValid()) {
                 return;
             }
+            /*
+             * NOT through stripAndDecode(), which is what this used to read.
+             * That helper rewrites $_REQUEST in place and its last step is
+             * Initiator::e() -- HTML escaping -- so a password containing
+             * & < > " or ' reached passwordValidate() as its entity form and
+             * could never match. That is why an account could sign in from
+             * the web UI, answer '#!ok' at service/checkcredentials.php, and
+             * still be told "Invalid Login" here. Forums topic 18228.
+             *
+             * decodeCredential() is the same decode that endpoint uses, so
+             * the two cannot answer differently again; and filter_input()
+             * reads PHP's original request data rather than the superglobal
+             * stripAndDecode() rewrites, so this does not depend on running
+             * before that call. getHostItem() reads the mac the same way and
+             * for the same reason.
+             */
+            $readCred = function ($name) {
+                return filter_input(INPUT_POST, $name)
+                    ?? filter_input(INPUT_GET, $name)
+                    ?? '';
+            };
+            $username = self::decodeCredential($readCred('username'));
+            $password = self::decodeCredential($readCred('password'));
+            $username = (false === $username) ? '' : $username;
+            $password = (false === $password) ? '' : $password;
             self::stripAndDecode($_REQUEST);
             $productKey = trim(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
             if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                 throw new Exception(_('Invalid product key supplied'));
             }
-            $username = isset($_REQUEST['username']) ? $_REQUEST['username'] : '';
-            $password = isset($_REQUEST['password']) ? $_REQUEST['password'] : '';
             $host = isset($_REQUEST['host']) ? $_REQUEST['host'] : '';
             $host = (
                 self::getClass('Host')->isHostnameSafe($host) ?

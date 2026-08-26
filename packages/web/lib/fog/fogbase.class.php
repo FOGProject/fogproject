@@ -2623,6 +2623,55 @@ abstract class FOGBase
         return substr($string, $ini, $len);
     }
     /**
+     * Decodes a credential FOS sent base64-encoded.
+     *
+     * NOT stripAndDecode(), which is what the registration path used to use.
+     * That helper finishes with Initiator::e() -- HTML escaping, which is
+     * right for a value about to be rendered into a page and wrong for one
+     * about to be compared against a password hash. A password containing
+     * & < > " or ' arrived at password_verify() as its entity form and could
+     * never match, so those accounts could not register-with-deploy while
+     * working perfectly in the web UI, which does not go through that helper.
+     * Forums topic 18228.
+     *
+     * STRICT decoding, unlike stripAndDecode()'s. base64_decode() without
+     * $strict silently drops every character outside the alphabet and always
+     * "succeeds", so a corrupted field became a plausible wrong credential
+     * rather than a refused one.
+     *
+     * Shared rather than written out twice because service/checkcredentials.php
+     * validates the SAME credential for the SAME caller. The two disagreeing is
+     * the bug: that endpoint answered '#!ok' for a password registration then
+     * rejected.
+     *
+     * @param mixed $value the raw request value
+     *
+     * @return string|bool the decoded credential, or false if it was not
+     *                     valid base64
+     */
+    public static function decodeCredential($value)
+    {
+        /*
+         * Restore '+' from ' ' before decoding, exactly as stripAndDecode()
+         * has always done. '+' is in the base64 alphabet and a bare '+' in a
+         * urlencoded body decodes back to a space, so a credential whose
+         * encoding contains one arrives corrupted. A space is never valid
+         * base64, so the swap is lossless -- and without it the strict decode
+         * below would REFUSE those credentials rather than mangle them, which
+         * is a worse failure than the one being fixed.
+         */
+        $value = str_replace(' ', '+', trim((string) ($value ?? '')));
+        $decoded = base64_decode($value, true);
+        if (!is_string($decoded)) {
+            return false;
+        }
+
+        // Trimmed to match checkcredentials.php. Both ends must agree, and a
+        // credential that differs only by surrounding whitespace is not one
+        // anybody can type reliably at the FOS prompt anyway.
+        return trim($decoded);
+    }
+    /**
      * Strips and decodes items.
      *
      * @param mixed $item the item to strip and decode
