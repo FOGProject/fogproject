@@ -883,6 +883,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr "登录时间"
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "请组管理员检查"
 
@@ -1866,6 +1869,14 @@ msgstr "未能摧毁存储节点"
 
 msgid "Failed to install plugin"
 msgstr "无法安装插件"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "无法创建任务"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "数据解密失败"
 
 msgid "Failed to save assignment"
 msgstr "无法保存分配"
@@ -3504,6 +3515,10 @@ msgid "Management Username"
 msgstr "管理用户名"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "取消任务"
+
+#, fuzzy
 msgid "Mass destroy failed"
 msgstr "销毁失败"
 
@@ -3954,6 +3969,10 @@ msgstr "无主Snapin与此群组关联"
 
 msgid "No token passed to authenticate this host"
 msgstr "未传递令牌以验证此主机"
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "无新任务"
 
 msgid "No valid Image defined for this host"
 msgstr "此主机未定义有效镜像"
@@ -5679,6 +5698,9 @@ msgstr "任务状态无效"
 msgid "Task Types"
 msgstr "任务类型"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "任务强行启动"
 
@@ -6762,6 +6784,10 @@ msgstr "这里"
 msgid "host"
 msgstr "主机"
 
+#, fuzzy
+msgid "host no longer exists"
+msgstr "不再运行"
+
 msgid "hosts"
 msgstr "主机"
 
@@ -6830,6 +6856,10 @@ msgstr "镜像"
 
 msgid "image file found, file: "
 msgstr "镜像文件检索结果："
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "不再运行"
 
 msgid "image replication"
 msgstr "镜像复制"
@@ -7087,6 +7117,9 @@ msgstr "成功移除!"
 
 msgid "task found"
 msgstr "发现任务"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"

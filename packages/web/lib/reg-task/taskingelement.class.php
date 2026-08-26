@@ -243,12 +243,17 @@ abstract class TaskingElement extends FOGBase
      */
     protected function taskLog()
     {
-        return self::getClass('TaskLog', $this->Task)
-            ->set('taskID', $this->Task->get('id'))
-            ->set('taskStateID', $this->Task->get('stateID'))
-            ->set('createdTime', $this->Task->get('createdTime'))
-            ->set('createdBy', $this->Task->get('createdBy'))
-            ->save();
+        // The row is built by TaskLog::recordState() rather than here, because
+        // a state transition is not something only a TaskingElement can cause.
+        // Cancellation reaches the tasks table through Task::cancel() and
+        // TaskManager::cancel(), neither of which has a TaskingElement, and so
+        // wrote no row at all -- leaving In-Progress as the last thing the log
+        // ever said about a cancelled task.
+        //
+        // It also stamps the row with the moment of the transition rather than
+        // the task's createdTime, which is what this line used to pass. See
+        // recordState() for why that made the log unorderable.
+        return TaskLog::recordState($this->Task);
     }
     /**
      * Creates the image log record for the task/host.

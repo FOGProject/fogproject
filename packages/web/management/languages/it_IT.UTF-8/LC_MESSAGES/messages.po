@@ -912,6 +912,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr "Orario Checkin"
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "Controllare se sono il responsabile del gruppo"
 
@@ -1922,6 +1925,14 @@ msgstr "Impossibile per distruggere il nodo di archiviazione"
 
 msgid "Failed to install plugin"
 msgstr "Impossibile installare plug-in"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Impossibile creare un'attività"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "Impossibile decifrare i dati"
 
 msgid "Failed to save assignment"
 msgstr "Impossibile salvare l'assegnazione"
@@ -3591,6 +3602,10 @@ msgid "Management Username"
 msgstr "Gestione utente"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "compito Annullato"
+
+#, fuzzy
 msgid "Mass destroy failed"
 msgstr "Deistruzione fallita"
 
@@ -4046,6 +4061,10 @@ msgstr "Nessun snapins associato a questo gruppo come master"
 
 msgid "No token passed to authenticate this host"
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "Non sono stati trovati compiti validi"
 
 msgid "No valid Image defined for this host"
 msgstr "Nessuna Imagine valida definita per questo host"
@@ -5829,6 +5848,9 @@ msgstr "Task Type non è valido"
 msgid "Task Types"
 msgstr "Tipi di attività"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "Task forzato a partire"
 
@@ -6942,6 +6964,10 @@ msgstr "qui"
 msgid "host"
 msgstr "host"
 
+#, fuzzy
+msgid "host no longer exists"
+msgstr "non è più in esecuzione"
+
 msgid "hosts"
 msgstr "hosts"
 
@@ -7010,6 +7036,10 @@ msgstr "Immagine"
 
 msgid "image file found, file: "
 msgstr ""
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "non è più in esecuzione"
 
 msgid "image replication"
 msgstr "replica dell'immagine"
@@ -7274,6 +7304,9 @@ msgstr "rimosso con successo"
 
 msgid "task found"
 msgstr "compito trovato"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"

@@ -873,6 +873,9 @@ msgstr ""
 msgid "Checkin Time"
 msgstr "チェックイン時刻"
 
+msgid "Checking for tasks that can never run..."
+msgstr ""
+
 msgid "Checking if I am the group manager"
 msgstr "自身がグループマネージャーか確認しています"
 
@@ -1855,6 +1858,14 @@ msgstr "ストレージノードの破棄に失敗しました"
 
 msgid "Failed to install plugin"
 msgstr "プラグインのインストールに失敗しました"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "タスクの作成に失敗しました"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "サーバー上のデータ復号に失敗しました"
 
 msgid "Failed to save assignment"
 msgstr "割り当ての保存に失敗しました"
@@ -3484,6 +3495,10 @@ msgid "Management Username"
 msgstr "管理ユーザー名"
 
 #, fuzzy
+msgid "Marked failed, task"
+msgstr "キャンセルされたタスク"
+
+#, fuzzy
 msgid "Mass destroy failed"
 msgstr "解除に失敗しました"
 
@@ -3933,6 +3948,10 @@ msgstr "このグループにマスターとして関連付けられたスナッ
 
 msgid "No token passed to authenticate this host"
 msgstr "このホストを認証するためのトークンが渡されていません"
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "新しいタスクは見つかりません"
 
 msgid "No valid Image defined for this host"
 msgstr "このホストに有効なイメージが定義されていません"
@@ -5652,6 +5671,9 @@ msgstr "タスクタイプが無効です"
 msgid "Task Types"
 msgstr "タスクタイプ"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "タスクを強制開始しました"
 
@@ -6734,6 +6756,10 @@ msgstr "ここ"
 msgid "host"
 msgstr "ホスト"
 
+#, fuzzy
+msgid "host no longer exists"
+msgstr "現在は実行されていません"
+
 msgid "hosts"
 msgstr "ホスト"
 
@@ -6802,6 +6828,10 @@ msgstr "イメージ"
 
 msgid "image file found, file: "
 msgstr "イメージファイルが見つかりました。ファイル: "
+
+#, fuzzy
+msgid "image no longer exists"
+msgstr "現在は実行されていません"
 
 msgid "image replication"
 msgstr "イメージレプリケーション"
@@ -7059,6 +7089,9 @@ msgstr "正常に削除しました！"
 
 msgid "task found"
 msgstr "タスクが見つかりました"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"
