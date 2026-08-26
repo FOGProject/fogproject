@@ -8467,6 +8467,9 @@ msgstr ""
 msgid "further cycles"
 msgstr ""
 
+msgid "got"
+msgstr ""
+
 msgid "group"
 msgstr ""
 
@@ -8579,6 +8582,9 @@ msgid "in"
 msgstr ""
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 msgid "in minutes"

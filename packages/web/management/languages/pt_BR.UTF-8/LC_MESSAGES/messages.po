@@ -9922,6 +9922,10 @@ msgstr ""
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr " atrás"
+
 msgid "group"
 msgstr "grupo"
 
@@ -10061,6 +10065,9 @@ msgid "in"
 msgstr "minutos"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy

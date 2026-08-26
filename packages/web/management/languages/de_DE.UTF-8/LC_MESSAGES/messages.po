@@ -9928,6 +9928,10 @@ msgstr "wie Dienste auf Clientcomputer funktionieren."
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr "vor"
+
 msgid "group"
 msgstr "Gruppe"
 
@@ -10067,6 +10071,9 @@ msgid "in"
 msgstr "Minuten"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy

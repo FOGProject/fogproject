@@ -9528,6 +9528,10 @@ msgstr "クライアントコンピューター上の機能。"
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr "前"
+
 msgid "group"
 msgstr "グループ"
 
@@ -9657,6 +9661,9 @@ msgid "in"
 msgstr "分"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy
