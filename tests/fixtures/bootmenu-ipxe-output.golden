@@ -1651,6 +1651,10 @@ prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the me
 login
 params
 param mac0 ${net0/mac}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
 param arch ${arch}
 param platform ${platform}
 param username ${username}
@@ -1658,8 +1662,14 @@ param password ${password}
 param menuaccess 1
 param debug 1
 param sysuuid ${uuid}
+isset ${netX/mac} && param macboot ${netX/mac} ||
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 
@@ -1680,6 +1690,10 @@ prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the me
 login
 params
 param mac0 ${net0/mac}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
 param arch ${arch}
 param platform ${platform}
 param username ${username}
@@ -1687,8 +1701,14 @@ param password ${password}
 param menuaccess 1
 param debug 1
 param sysuuid ${uuid}
+isset ${netX/mac} && param macboot ${netX/mac} ||
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 
