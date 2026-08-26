@@ -452,6 +452,15 @@ class Image extends FOGController
         return $this->get('imagepartitiontype');
     }
     /**
+     * Returns the Architecture object
+     *
+     * @return Architecture
+     */
+    public function getArch()
+    {
+        return $this->get('arch');
+    }
+    /**
      * Returns the partition type
      *
      * @return string
