@@ -7103,6 +7103,43 @@ class Route extends FOGBase
                         '',
                         ['imageID' => 0]
                     );
+                    // Cancel the tasks that were still going to use it.
+                    //
+                    // A queued or in-progress task pointing at an image that
+                    // no longer exists can never finish: TaskingElement
+                    // cannot build the Image, so the host is turned away at
+                    // check-in and the task sits in Active Tasks forever.
+                    // Worse, it is unreadable while it sits there -- the
+                    // list renders from buildQuery()'s LEFT OUTER JOINs, so
+                    // the dead imageID yields NULL for every image column
+                    // and the row shows "() -" with no name to act on.
+                    // Reported as "null tasks" in forum topics 18228/18230.
+                    //
+                    // Cancelled rather than added to $removeItems, which is
+                    // where the host case puts its tasks. Deleting a host
+                    // takes its history with it because the subject of that
+                    // history is gone; deleting an image does not -- the
+                    // HOSTS survive, and their finished tasks are still
+                    // their imaging record. Only the live ones are stuck.
+                    //
+                    // TaskManager::cancel() rather than a state update: it
+                    // is what already reissues the host token, unwinds any
+                    // multicast session behind the task and records the
+                    // state change in the task log.
+                    $activeImageTaskIDs = self::getIds(
+                        'task',
+                        [
+                            'imageID' => $itemIDs,
+                            'stateID' => self::fastmerge(
+                                (array)self::getQueuedStates(),
+                                (array)self::getProgressState()
+                            )
+                        ]
+                    );
+                    if (count($activeImageTaskIDs ?: [])) {
+                        self::getClass('TaskManager')
+                            ->cancel($activeImageTaskIDs);
+                    }
                     $removeItems = [
                         'imageassociation' => $findWhere
                     ];

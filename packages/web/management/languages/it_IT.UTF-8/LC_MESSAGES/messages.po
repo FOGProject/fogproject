@@ -9591,6 +9591,10 @@ msgstr "funziona sui computer client."
 msgid "further cycles"
 msgstr ""
 
+#, fuzzy
+msgid "got"
+msgstr "fa"
+
 msgid "group"
 msgstr "gruppo"
 
@@ -9719,6 +9723,9 @@ msgid "in"
 msgstr "minuti"
 
 msgid "in Hz"
+msgstr ""
+
+msgid "in batch row"
 msgstr ""
 
 #, fuzzy
