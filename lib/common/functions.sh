@@ -11391,8 +11391,32 @@ _publishSecureBootAuthVars() {
     # install rather than leaving stale ones a client would happily enrol: an
     # .auth signed by a key this server no longer holds enrols a platform the
     # server can never update again.
+    #
+    # This used to return in silence, which made it the ONE cause of "automatic
+    # enrolment is unavailable" that produced no diagnostic anywhere -- and it
+    # is the likeliest cause on a server that has efitools installed. An admin
+    # re-running the installer to fix it therefore saw nothing at all, then read
+    # a web page confidently naming a different cause (GH-1266). It says which
+    # of its three reasons applied now, so re-running the installer surfaces it.
     if [[ -z $secureBootPKKey || -z $secureBootKEKKey ]]; then
         rm -f "$helper" "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
+        dots "Publishing Secure Boot variable updates"
+        echo "Skipped"
+        if [[ ${PKI_sb_enabled:-yes} != yes ]]; then
+            echo " * Secure Boot enrolment material is switched off for this"
+            echo "   install (PKI_sb_enabled is not \"yes\"), so no platform keys"
+            echo "   were minted and the automatic enrolment blobs were not"
+            echo "   built. FOS kernels are still signed."
+        elif [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]]; then
+            echo " * No Secure Boot signing key is configured, so there is"
+            echo "   nothing for a platform key to authorise and the automatic"
+            echo "   enrolment blobs were not built."
+        else
+            echo " * The Secure Boot platform keys (PK/KEK) are missing, so the"
+            echo "   automatic enrolment blobs were not built. Generating them"
+            echo "   failed earlier in this run -- see $error_log."
+        fi
+        echo "   The MOK enrolment paths are unaffected."
         return 0
     fi
 
@@ -11424,6 +11448,11 @@ _publishSecureBootAuthVars() {
     install -o root -g root -m 0700 ../packages/secureboot/fog-build-sb-authvars \
         "$helper" >>$error_log 2>&1 || {
         echo "Failed"
+        # The only arm here that used to print a bare "Failed" with no cause,
+        # which is the same complaint as GH-1266 one line down.
+        echo " * Could not install the Secure Boot variable builder to $helper,"
+        echo "   so automatic enrolment will be unavailable. The MOK enrolment"
+        echo "   paths are unaffected. See $error_log."
         return 0
     }
     sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1

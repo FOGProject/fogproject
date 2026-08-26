@@ -1117,10 +1117,6 @@ msgstr "设置"
 msgid "Auto Logout Time"
 msgstr "默认注销时间（分钟）"
 
-#, fuzzy
-msgid "Automatic Secure Boot enrolment is not available on this server"
-msgstr "有此服务器上没有图像。"
-
 msgid "Automatic enrolment (Setup/Custom Mode)"
 msgstr ""
 
@@ -1220,6 +1216,10 @@ msgstr "广播更新"
 
 msgid "Browse"
 msgstr ""
+
+#, fuzzy
+msgid "Building the blobs failed."
+msgstr "加载失败： %s"
 
 #, fuzzy
 msgid "Buildroot Version"
@@ -4155,10 +4155,6 @@ msgstr "更新"
 msgid "Initrd Update Fail"
 msgstr "打印机更新失败！"
 
-#, fuzzy
-msgid "Install"
-msgstr "已安装的插件"
-
 msgid "Install Plugins"
 msgstr "安装插件"
 
@@ -6596,6 +6592,9 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
+msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
+msgstr ""
+
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
 msgstr ""
 
@@ -7079,6 +7078,9 @@ msgid "Secure Boot PXE and HTTPS are mutually exclusive: on an HTTPS install the
 msgstr ""
 
 msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
+msgstr ""
+
+msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
 
 #, fuzzy
@@ -8326,6 +8328,10 @@ msgstr "有此服务器上没有图像。"
 msgid "The \"CSV (All)\" button exports every item that matches the current search to a CSV file (the whole list, not just what is on screen). The Copy, Excel and Print buttons act only on the rows currently loaded in the table."
 msgstr ""
 
+#, php-format
+msgid "The %s package is not installed and could not be built from source."
+msgstr ""
+
 #, fuzzy
 msgid "The 'Is Master Node' setting defines which"
 msgstr "此设置定义"
@@ -8758,6 +8764,9 @@ msgid "This section allows you to upload user defined reports that may not be a 
 msgstr ""
 
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
+msgstr ""
+
+msgid "This server has not published the automatic Secure Boot enrolment blobs (PK.auth, KEK.auth and db.auth), so automatic enrolment is unavailable. There are three reasons that happens:"
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -9745,9 +9754,6 @@ msgid "and if the Database service is running"
 msgstr "检查数据库运行"
 
 msgid "and node A only has a 5Mbps and you want the speed"
-msgstr ""
-
-msgid "and re-run the installer to enable it"
 msgstr ""
 
 msgid "and set it to master"
@@ -10765,6 +10771,10 @@ msgstr ""
 #~ msgstr "尝试ping"
 
 #, fuzzy
+#~ msgid "Automatic Secure Boot enrolment is not available on this server"
+#~ msgstr "有此服务器上没有图像。"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "保存更改"
 
@@ -11008,6 +11018,10 @@ msgstr ""
 
 #~ msgid "Import Users"
 #~ msgstr "导入用户"
+
+#, fuzzy
+#~ msgid "Install"
+#~ msgstr "已安装的插件"
 
 #, fuzzy
 #~ msgid "Invalid Type"
