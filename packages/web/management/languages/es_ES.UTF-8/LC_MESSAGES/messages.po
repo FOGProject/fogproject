@@ -2777,6 +2777,10 @@ msgid "Failed to move uploaded file."
 msgstr "No se pudo crear el usuario"
 
 #, fuzzy
+msgid "Failed to record task state changes"
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "No se ha podido destruir"
 

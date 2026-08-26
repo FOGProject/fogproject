@@ -8013,3 +8013,52 @@ $this->schema[] = [
         return true;
     },
 ];
+// 373
+$this->schema[] = [
+    // Name the state rows too.
+    //
+    // Step 341 gave taskLog its own copy of the host and task type so a row
+    // could still be read after its task was deleted, and backfilled only the
+    // FOS report rows -- `WHERE logType <> 'state'`, explicitly. The reasoning
+    // it gave was that state rows "are meaningless without their task anyway".
+    // That turned out to be wrong twice over: Task Management's log pane shows
+    // them, and the dashboard's per-event count reads them, so a state row
+    // whose task is gone renders as a timestamp with two empty columns beside
+    // it and counts as neither a capture nor a deploy.
+    //
+    // TaskLog::recordState() now writes all three on every transition, which
+    // fixes the future. This is the past: it fills in the rows whose task is
+    // STILL THERE, so they survive that task's eventual deletion instead of
+    // joining the unnamed set later. Rows whose task is already gone cannot be
+    // recovered by anything -- the name died with the host row that held it --
+    // and the log pane renders those with an explicit placeholder rather than
+    // a blank cell.
+    //
+    // Same restricted UPDATE ... JOIN as 341's, with the logType test
+    // inverted, and the same `logHostID IS NULL` guard: a re-run is a no-op and
+    // a row already written by recordState() is not touched.
+    //
+    // A closure rather than a bare statement for the same reason 341's backfill
+    // is one: TaskLog::TYPE_STATE has to be resolved when the step RUNS, not
+    // when this file is included. The schema updater includes schema.php in a
+    // context that shims what a step needs (see tests/schema-upgrade-replay
+    // .test.php) and the FOG classes are not part of it, so a constant read at
+    // array-construction time is a fatal before any step has run.
+    function () {
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "LEFT JOIN `hosts` "
+            . "ON `hosts`.`hostID` = `tasks`.`taskHostID` "
+            . "LEFT JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "SET `taskLog`.`logHostID` = `tasks`.`taskHostID`, "
+            . "`taskLog`.`logHostName` = COALESCE(`hosts`.`hostName`, ''), "
+            . "`taskLog`.`logTaskTypeName` = COALESCE(`taskTypes`.`ttName`, '') "
+            . "WHERE `taskLog`.`logType` = '" . TaskLog::TYPE_STATE . "' "
+            . "AND `taskLog`.`logHostID` IS NULL"
+        );
+
+        return true;
+    },
+];

@@ -2330,6 +2330,9 @@ msgstr ""
 msgid "Failed to move uploaded file."
 msgstr ""
 
+msgid "Failed to record task state changes"
+msgstr ""
+
 msgid "Failed to remove"
 msgstr ""
 

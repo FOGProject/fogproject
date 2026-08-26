@@ -2729,6 +2729,10 @@ msgid "Failed to move uploaded file."
 msgstr "Falha ao excluir arquivo"
 
 #, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Falha ao criar tarefa"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "Falhou ao conectar"
 

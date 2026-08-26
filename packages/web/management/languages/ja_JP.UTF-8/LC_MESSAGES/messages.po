@@ -2632,6 +2632,10 @@ msgid "Failed to move uploaded file."
 msgstr "ファイルの削除に失敗しました"
 
 #, fuzzy
+msgid "Failed to record task state changes"
+msgstr "タスクの作成に失敗しました"
+
+#, fuzzy
 msgid "Failed to remove"
 msgstr "作成に失敗しました"
 
@@ -10775,9 +10779,6 @@ msgstr ""
 
 #~ msgid "Failed to create snapin path on Master Node"
 #~ msgstr "マスターノード上のスナップインパス作成に失敗しました"
-
-#~ msgid "Failed to create tasking"
-#~ msgstr "タスクの作成に失敗しました"
 
 #~ msgid "Failed to destroy"
 #~ msgstr "破棄に失敗しました"
