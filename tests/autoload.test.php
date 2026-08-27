@@ -217,9 +217,23 @@ foreach ($sample as $name => $kind) {
  */
 $mismatched = [];
 $declares = [];
-foreach (Initiator::classFileList() as $path) {
+/*
+ * Both scans, because the property is the same one and the floor below is
+ * only honest if it covers the whole tree. classFileList() is the six
+ * *.<type>.php suffixes -- the 46 discovery-named files, the generated
+ * config.class.php and every plugin file. srcFileList() is core's PSR-4
+ * tree, where "filename == declared name" is not a convention but the
+ * autoloading contract itself. Before the move to src/ this loop saw ~250
+ * files; without the second scan it sees 49 on a tree with no plugins
+ * fetched, which is what CI runs.
+ */
+$scanned = array_merge(
+    array_values(Initiator::classFileList()),
+    array_values(Initiator::srcFileList())
+);
+foreach ($scanned as $path) {
     $stem = preg_replace(
-        '#\.(report|event|class|hook|page|task)\.php$#',
+        '#\.(report|event|class|hook|page|task)?\.?php$#',
         '',
         basename($path)
     );
