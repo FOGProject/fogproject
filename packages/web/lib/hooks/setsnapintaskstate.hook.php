@@ -14,6 +14,8 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+
 /**
  * Sets snapin task states
  *

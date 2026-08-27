@@ -53,6 +53,10 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGBase;
+use FOG\Base\FOGCore;
+use FOG\Items\TaskLog;
+
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('db-failure');

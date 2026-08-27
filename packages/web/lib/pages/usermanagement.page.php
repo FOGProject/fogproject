@@ -13,6 +13,12 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Base\FOGPage;
+use FOG\Items\APIToken;
+use FOG\Items\User;
+use FOG\Router\HTTPResponseCodes;
+
 /**
  * User management page.
  *

@@ -13,6 +13,13 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Exception\UploadException;
+use FOG\Items\Snapin;
+use FOG\Items\StorageGroup;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Snapin management page
  *

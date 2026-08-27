@@ -31,6 +31,8 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGBase;
+
 $root = dirname(__DIR__);
 $web = $root . '/packages/web';
 $failures = [];

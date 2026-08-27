@@ -33,6 +33,9 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\Authorization;
+use FOG\Auth\SiteScope;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -83,7 +86,13 @@ function check($label, $cond, array &$failures, &$checks)
     }
 }
 
-foreach (['Authorization', 'SiteScope', 'Host'] as $needed) {
+foreach (
+    [
+        \FOG\Auth\Authorization::class,
+        \FOG\Auth\SiteScope::class,
+        \FOG\Items\Host::class,
+    ] as $needed
+) {
     if (!class_exists($needed, true)) {
         fwrite(STDERR, "FAIL: $needed does not resolve\n");
         exit(1);
@@ -142,11 +151,11 @@ class FakeHookManager
     }
 }
 
-$dbProp = new \ReflectionProperty('FOGBase', 'DB');
+$dbProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'DB');
 $dbProp->setAccessible(true);
-$hookProp = new \ReflectionProperty('FOGBase', 'HookManager');
+$hookProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'HookManager');
 $hookProp->setAccessible(true);
-$permProp = new \ReflectionProperty('Authorization', '_permCache');
+$permProp = new \ReflectionProperty(\FOG\Auth\Authorization::class, '_permCache');
 $permProp->setAccessible(true);
 
 /**

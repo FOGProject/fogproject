@@ -33,6 +33,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Audit\Retention;
+
 $root = dirname(__DIR__);
 $webroot = $root . '/packages/web';
 $init = $webroot . '/commons/init.php';
@@ -84,7 +86,7 @@ function check($label, $cond, array &$failures, &$checks)
     }
 }
 
-if (!class_exists('Retention', true)) {
+if (!class_exists(\FOG\Audit\Retention::class, true)) {
     fwrite(STDERR, "FAIL: Retention did not resolve\n");
     exit(1);
 }

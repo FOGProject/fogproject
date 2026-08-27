@@ -15,6 +15,18 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Base\FOGPage;
+use FOG\Items\Architecture;
+use FOG\Items\Group;
+use FOG\Items\Host;
+use FOG\Items\MACAddress;
+use FOG\Items\Setting;
+use FOG\Items\TaskType;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+use FOG\Util\FOGCron;
+
 /**
  * Host management page
  *

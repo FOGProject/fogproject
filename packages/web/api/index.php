@@ -13,5 +13,7 @@
 
 declare(strict_types=1);
 
+use FOG\Router\Route;
+
 require '../commons/base.inc.php';
 new Route();

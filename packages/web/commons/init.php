@@ -14,6 +14,8 @@ declare(strict_types=1);
  * @link     https://fogproject.org
  */
 
+use FOG\Base\System;
+
 /*
  * Composer's PSR-4 loader for FOG\ => packages/web/src.
  *
@@ -163,12 +165,33 @@ class Initiator
         $allpaths = array_unique(array_map('dirname', self::classFileList()));
         set_include_path(implode(PATH_SEPARATOR, $allpaths) . PATH_SEPARATOR . get_include_path());
         spl_autoload_extensions('.class.php,.page.php,.event.php,.hook.php,.report.php,.task.php');
-        // Fast path: an O(1) class-name => file map (see self::autoload). The
-        // built-in autoloader is kept registered behind it as a fallback so any
-        // class not yet in the (TTL-cached) map still resolves by include_path
-        // probe exactly as before.
+        // An O(1) class-name => file map (see self::autoload), replacing the
+        // built-in spl_autoload()'s include_path probe.
+        //
+        // The built-in used to sit BEHIND this as a fallback, for a class not
+        // yet in the (TTL-cached) map. It is deliberately gone, and removing
+        // it is a security fix rather than a tidy-up.
+        //
+        // autoload() refuses a bare CORE name -- core is namespaced now and no
+        // longer re-exports itself globally (ADR 0013 §2). A refusal is only a
+        // `return`, though, and PHP then carries on down the chain. The
+        // built-in probes include_path by basename, include_path is built from
+        // the same scan that feeds the classMap, and that scan covers the
+        // plugin roots. So a plugin shipping class/host.class.php answered the
+        // bare `Host` the moment core stopped answering it -- a plugin
+        // silently supplying a core class to any caller the qualification
+        // sweep missed. Core winning the classMap collision cannot help here:
+        // core is not in that map at all, so there is no collision to resolve.
+        // Proven by tests/psr4-bridge.test.php, whose probe plugin answered
+        // for exactly one commit.
+        //
+        // What the fallback covered, it no longer needs to. include_path and
+        // the map are both derived from classFileList(), so the only thing the
+        // probe could find that the map could not is a file added to an
+        // already-scanned directory since the cache was written -- and that
+        // window is closed at both ends: Plugin::install() calls
+        // forgetClassFileList(), and the cache expires on FILELIST_TTL anyway.
         spl_autoload_register([self::class, 'autoload']);
-        spl_autoload_register();
 
         // Last in the chain on purpose -- see the method.
         self::_registerPluginAutoloaders();
@@ -921,62 +944,49 @@ class Initiator
         }
         $key = strtolower($class);
 
-        // Core, under src/, is asked FIRST -- before the classMap, which is
-        // the plugin roots and the discovery-named files. Two reasons, and
-        // the second is the load-bearing one:
+        // Core, under src/, is answered FIRST -- before the classMap, which is
+        // the plugin roots and the discovery-named files. Two reasons, and the
+        // second is the load-bearing one:
         //
-        //   1. It is where core lives now, so it is where core should be
-        //      found. A miss falls straight through at the cost of one
-        //      isset().
+        //   1. It is where core lives now, so it is where core is looked for.
+        //      A miss falls straight through at the cost of one isset().
         //   2. It is the ONLY thing keeping a plugin from shadowing a core
         //      class. The classMap's core-wins rule works by comparing two
-        //      candidates for one key -- and once core is not in that map
+        //      candidates for one key -- and core is not in that map, so
         //      there is no second candidate to prefer. A plugin shipping
         //      class/host.class.php would be the sole claimant for "host"
-        //      and would win outright, which is exactly what the collision
-        //      rule below exists to prevent. Order restores the guarantee
-        //      that rule used to provide.
+        //      and would win outright. Answering here, and RETURNING rather
+        //      than falling through, is what restores the guarantee that
+        //      rule used to provide.
+        //
+        // What it no longer does is satisfy the request. Every file under
+        // src/ used to end with class_alias(__NAMESPACE__ . '\X', 'X'), so
+        // including it declared the bare name too and the lookup succeeded.
+        // Those 202 aliases are gone (ADR 0013 §2): core is reached by its
+        // qualified name, from a `use` import or via FOGBase::qualify(), and
+        // a bare core name is a reference that was missed by the sweep.
+        //
+        // So this arm exists purely to turn that into a legible error. The
+        // symptom otherwise is "Class \"Host\" not found" pointing at the
+        // caller, or -- worse, and silently -- a plugin's own host.class.php
+        // being loaded in core's place.
         //
         // Bare names only. A namespaced request is Composer's job and it
         // already ran, at file scope, ahead of this autoloader.
         if (strpos($class, '\\') === false) {
-            $src = self::srcFileList();
-            if (isset($src[$key])) {
-                // include_once and then ask, rather than aliasing anything
-                // ourselves. The file ends with its own class_alias() (ADR
-                // 0013), so loading it declares BOTH the namespaced name and
-                // the bare one, and this function never has to know or guess
-                // which namespace the file used.
-                //
-                // That is what keeps this forward-compatible. Building the
-                // name here as BRIDGE_NS . $canonical would hard-code "every
-                // scanned file is core", and break the day a plugin declares
-                // FOGPlugin\Ldap\LdapManager and something asks for the bare
-                // LdapManager. It is also what lets the namespaces change
-                // underneath this without the bridge changing at all.
-                include_once $src[$key];
-                if (class_exists($class, false)
-                    || interface_exists($class, false)
-                    || trait_exists($class, false)
-                ) {
-                    return;
-                }
-                // Loaded, and the bare name still is not declared: the file
-                // is missing the class_alias its own tests require. Say so --
-                // the symptom is otherwise a class-not-found pointing at the
-                // caller rather than at the file.
+            $map = self::srcClassMap();
+            if (isset($map[$key])) {
                 error_log(
                     sprintf(
-                        'FOG autoloader: %s declares no global alias for "%s", '
-                        . 'so the bare name does not resolve. Every file under '
-                        . 'src/ must end with class_alias(__NAMESPACE__ . '
-                        . '\'\\%s\', \'%s\'); -- see ADR 0013.',
-                        $src[$key],
+                        'FOG autoloader: "%s" is a core class and core is no '
+                        . 'longer aliased into the global namespace. Use %s '
+                        . '-- either as a `use` import or fully qualified. '
+                        . 'See ADR 0013.',
                         $class,
-                        $class,
-                        $class
+                        $map[$key]
                     )
                 );
+                return;
             }
         }
 
@@ -998,28 +1008,31 @@ class Initiator
     }
 
     /**
-     * Resolve a FOG\<Name> request to the still-global <Name> and alias it.
+     * Resolve a flat FOG\<Name> request that Composer cannot answer.
      *
-     * Nothing in the tree is namespaced yet, so `FOG\User` currently misses
-     * everywhere and does so silently. autoload()'s map is keyed on a
-     * lowercased basename, and no basename can contain a backslash, so
-     * `fog\user` is never a key; the bare spl_autoload() registered behind it
-     * then converts the separator to a directory and probes for
-     * `fog/user.class.php`, which no include_path entry holds. No error, no
-     * log line, just a class-not-found at the call site.
+     * Composer maps the FOG\ prefix onto src/, so `FOG\Base\FOGPage` is
+     * found as src/Base/FOGPage.php and never reaches this method. Two shapes
+     * still do:
      *
-     * This makes the namespaced spelling work ahead of the files themselves
-     * moving, so call sites and plugin code can be written forward-compatibly
-     * now and the eventual migration is not also a flag day for every caller.
-     * class_alias produces one class entry under two names, so `instanceof`,
-     * `new`, Reflection and every getClass() consumer see a single type.
-     * (get_class() still reports the DECLARED name -- that asymmetry is why
-     * namespacing the models is a separate problem from bridging their names,
-     * and why this is safe while that is not.)
+     *   1. The 46 discovery-named files under lib/ -- the pages, hooks,
+     *      reports and the one event. They declare `namespace FOG;` flat, so
+     *      `FOG\ReportManagement` maps to src/ReportManagement.php, which
+     *      does not exist. PSR-4 does not do discovery and these files stay
+     *      where FOGPageManager::loadPageClasses() and EventManager::load()
+     *      can derive their class name from basename($file), so this is the
+     *      only thing that answers a `use FOG\ReportManagement;` import.
+     *      That is why this method OUTLIVED the alias retirement it was
+     *      originally written to precede: the plan (docs/composer-psr4-plan.md)
+     *      said to delete it alongside the 202 class_alias lines, and doing so
+     *      breaks every core file that imports one of the 46.
+     *   2. A miscased request. PHP class names are case-insensitive and
+     *      Composer's PSR-4 prefix match is not, so `fog\host` gets here even
+     *      though `FOG\Items\Host` would not.
      *
-     * Flat names only. A nested request such as FOG\Model\Host is the shape
-     * the real migration will use, and answering it here by guessing at the
-     * last segment would resolve two different future classes to one file.
+     * Flat names only. A nested request such as FOG\Items\Host is either
+     * Composer's (it exists) or genuinely absent; answering it here by
+     * guessing at the last segment would resolve two different classes to one
+     * file.
      *
      * @param string $class The namespaced class being autoloaded.
      *
@@ -1038,12 +1051,25 @@ class Initiator
         // src/ before the classMap, for the same reason autoload() checks it
         // first for the bare spelling: core no longer appears in the classMap
         // at all, so a plugin shipping class/host.class.php would otherwise be
-        // the sole claimant for FOG\Host and win outright. Composer answers
-        // the exactly-cased FOG\Host before this method ever runs; this arm is
-        // what catches every other casing, which PHP permits and which
-        // Composer's PSR-4 prefix match does not.
-        $src = self::srcFileList();
-        $file = $src[$key] ?? (self::$classMap[$key] ?? null);
+        // the sole claimant for FOG\Host and win outright.
+        //
+        // A core class under src/ is never FLAT, though -- every one of them
+        // sits in a bucket, so FOG\Host is a wrong spelling of FOG\Items\Host
+        // rather than a name to resolve. Say which it should have been and
+        // return, which both diagnoses it and holds the shadowing guarantee.
+        $map = self::srcClassMap();
+        if (isset($map[$key])) {
+            error_log(
+                sprintf(
+                    'FOG autoloader: "%s" is not a class. Core is namespaced '
+                    . 'per bucket under src/; use %s. See ADR 0013.',
+                    $class,
+                    $map[$key]
+                )
+            );
+            return;
+        }
+        $file = self::$classMap[$key] ?? null;
         if ($file === null) {
             return;
         }

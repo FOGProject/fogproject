@@ -401,7 +401,14 @@ abstract class FOGPage extends FOGBase
             $this->additionalFields
                 = $classVars['additionalFields'];
             unset($classVars);
-            $this->obj = new $this->childClass($id);
+            // Qualified at the point of instantiation, not on the property.
+            // $childClass is also a LABEL -- it is lowercased into element
+            // names, concatenated into titles, used as a hook payload key and
+            // passed to Route::listem()/deletemass(), all of which want the
+            // short name. `new $string` is the one use that resolves from the
+            // global namespace, and core no longer lives there (ADR 0013 §2).
+            $childClass = self::qualify($this->childClass);
+            $this->obj = new $childClass($id);
             if (isset($id)) {
                 if ($id === 0 || !is_numeric($id) || !$this->obj->isValid()) {
                     unset($this->obj);
@@ -4409,7 +4416,8 @@ abstract class FOGPage extends FOGBase
             ];
             $fileinfo = pathinfo($_FILES['file']['name']);
             $ext = $fileinfo['extension'];
-            $Item = new $this->childClass();
+            $childClass = self::qualify($this->childClass);
+            $Item = new $childClass();
             $mime = $_FILES['file']['type'];
             if (!in_array($mime, $mimes)) {
                 if ($ext !== 'csv') {
@@ -4721,7 +4729,8 @@ abstract class FOGPage extends FOGBase
                             $arr
                         );
                         $numSuccess++;
-                        $Item = new $this->childClass();
+                        $childClass = self::qualify($this->childClass);
+                        $Item = new $childClass();
                     } else {
                         $numFailed++;
                     }
@@ -5891,11 +5900,3 @@ abstract class FOGPage extends FOGBase
         exit;
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\FOGPage', 'FOGPage');

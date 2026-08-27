@@ -13,6 +13,11 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Base\FOGPage;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * The activity log viewer.
  *

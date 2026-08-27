@@ -12,6 +12,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Client\RegisterClient;
+
 /**
  * Passes the legacy and new client
  * host register information.  Particularly

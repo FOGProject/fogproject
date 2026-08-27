@@ -15,6 +15,8 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+
 /**
  * Module management page
  *

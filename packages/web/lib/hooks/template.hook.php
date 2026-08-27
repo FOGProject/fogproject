@@ -13,6 +13,8 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+
 /**
  * Template for others to work from.
  *

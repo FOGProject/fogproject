@@ -13,6 +13,9 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Router\HTTPResponseCodes;
+
 /**
  * Printer management page.
  *

@@ -13,6 +13,9 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+use FOG\Router\Route;
+
 /**
  * Change host name hook.
  *

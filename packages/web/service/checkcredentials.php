@@ -10,6 +10,10 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Audit\Audit;
+use FOG\Base\FOGCore;
+
 /**
  * Checks credentials for init based calls
  *

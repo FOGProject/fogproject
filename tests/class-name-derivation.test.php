@@ -39,6 +39,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGBase;
+
 $root = dirname(__DIR__);
 chdir($root);
 

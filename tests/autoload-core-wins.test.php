@@ -272,11 +272,14 @@ check(
  *    a class name that does not match its filename, and a databaseFields
  *    key that does not match what assocSetter derives from Site.
  */
+// Named by their FQCN: core is PSR-4 under src/ and no longer re-exports
+// itself into the global namespace (ADR 0013 §2), so the bare spellings
+// resolve to nothing.
 $models = [
-    'SiteHostMember' => ['siteHostMembers', 'hostID'],
-    'SiteUserMember' => ['siteUserMembers', 'userID'],
-    'SiteGroupMember' => ['siteGroupMembers', 'groupID'],
-    'SiteUserGroupMember' => ['siteUserGroupMembers', 'usergroupID'],
+    'FOG\\Items\\SiteHostMember' => ['siteHostMembers', 'hostID'],
+    'FOG\\Items\\SiteUserMember' => ['siteUserMembers', 'userID'],
+    'FOG\\Items\\SiteGroupMember' => ['siteGroupMembers', 'groupID'],
+    'FOG\\Items\\SiteUserGroupMember' => ['siteUserGroupMembers', 'usergroupID'],
 ];
 foreach ($models as $class => $spec) {
     if (!class_exists($class, true)) {
@@ -288,7 +291,7 @@ foreach ($models as $class => $spec) {
     $ref = new \ReflectionClass($class);
     check(
         "$class extends FOGController",
-        $ref->isSubclassOf('FOGController'),
+        $ref->isSubclassOf(\FOG\Base\FOGController::class),
         $failures,
         $checks
     );
@@ -323,7 +326,9 @@ foreach ($models as $class => $spec) {
         $checks
     );
 
-    $mgr = $class . 'Manager';
+    // The manager lives in the Managers bucket, not alongside the model.
+    $mgr = 'FOG\\Managers\\'
+        . substr($class, strrpos($class, '\\') + 1) . 'Manager';
     check(
         "$mgr resolves",
         class_exists($mgr, true),

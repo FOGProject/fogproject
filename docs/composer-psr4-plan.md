@@ -839,3 +839,26 @@ So the sequence is:
   `Initiator`.
 
 Doing those in any other order removes the net before the work it is holding.
+
+**Done 2026-08-27, and the last bullet was wrong.** `Initiator::
+_bridgeNamespaced()` **stays**. The 46 discovery-named classes under `lib/`
+declare a flat `namespace FOG;` and keep their own `class_alias`, because
+`FOGPageManager::loadPageClasses()` and `EventManager::load()` derive the class
+name from `basename($file)` and PSR-4 does not do discovery. Composer maps
+`FOG\` onto `src/`, so a core file's `use FOG\ReportManagement;` resolves to
+`src/ReportManagement.php`, which does not exist — the bridge is the only thing
+that answers it.
+
+Removing something else turned out to be necessary instead: the built-in
+`spl_autoload()` registered behind `Initiator::autoload()`. A refusal is only a
+`return`, so PHP carried on to that fallback, which probes include_path by
+basename — and include_path covers the plugin roots. A plugin shipping
+`class/host.class.php` answered the bare `Host` the moment core stopped
+answering it.
+
+Two more string-driven sites the "fully qualify the strings first" step missed,
+both silent and both access-adjacent: `Authorization::_scopeClassVars()`
+(`class_exists($node)`, so object scoping loses its model) and `PluginRunner`
+(`is_subclass_of($class, 'PluginTask')` — a class name in a string names the
+GLOBAL class, so every plugin task is skipped). Full account in ADR 0013's
+2026-08-27 amendment.

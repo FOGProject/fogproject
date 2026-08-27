@@ -16,6 +16,8 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+
 /**
  * Client Management Page
  *

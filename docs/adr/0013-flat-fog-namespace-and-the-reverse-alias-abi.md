@@ -4,7 +4,7 @@
 
 accepted
 
-## Amended 2026-08-27 — decision 1 is superseded, decision 2 stands
+## Amended 2026-08-27 — decisions 1 and 2 are both superseded
 
 **Decision 1 (a flat `FOG\` namespace) no longer holds.** Every class under
 `packages/web/src/` now declares `namespace FOG\<Bucket>;` matching the
@@ -13,14 +13,90 @@ directory it sits in: `FOG\Items\Host`, `FOG\Managers\HostManager`,
 `tests/namespaced-tree.test.php`, enforces the file's directory and its
 namespace agreeing.
 
-**Decision 2 (the reverse alias as the 1.6 plugin ABI) is unchanged and is the
-reason this was safe.** `class_alias(__NAMESPACE__ . '\Host', 'Host')` still
-exports the bare global name from wherever the class now lives, so every
-plugin `extends Host`, every `getClass('Host')` literal and every one of
-`Route::$validClasses`' 52 lowercase strings resolves exactly as before.
-Verified: `fog-plugins` contains **zero** `FOG\`-qualified references — its 168
-`extends` are all bare names — so no plugin is affected by the namespace change
-at all, and `$host instanceof \Host` still holds against a `FOG\Items\Host`.
+**Decision 2 (the reverse alias as the 1.6 plugin ABI) is retired.** All 202
+`class_alias()` trailers under `packages/web/src/` are deleted. Core is
+reachable only by its namespaced name. This is the clause being reversed:
+
+> This alias is **the 1.6 plugin ABI.** It is supported for all of 1.6.
+> Removing it is a breaking change and cannot happen before 1.7.
+
+Reversed because 1.6.0 is unreleased. There is no shipped 1.6 for the promise
+to have been made to, and carrying a compatibility shim through a major version
+for compatibility with nothing is a cost with no payer. Nothing else in this
+ADR freezes the plugin contract.
+
+**What replaced it, in order of how much work each was:**
+
+- Core names its own dependencies with `use` imports — 211 of them across 92
+  files in `lib/`, `commons/`, `service/`, `api/`, `management/` and
+  `packages/service`. Imports rather than inline qualification because the
+  volume is lopsided: one `lib/` file carries 165 references to
+  `HTTPResponseCodes`.
+- `FOGBase::qualify()` translates a bare short name to its FQCN for the
+  string-driven paths, which `use` cannot reach: `getClass()`'s ~350 literals,
+  `FOGController::getManager()`, `Route::_newEntity()` for `$validClasses`'
+  52 lowercase strings, and `FOGPage`'s `$childClass`.
+- `fog-plugins` qualifies every reference to a core class — 574 across 163
+  files, pinned by `tests/core-references-are-qualified.test.php`, which needs
+  no fogproject checkout to run.
+
+**Three things the retirement broke that nothing was watching, all found by
+running it rather than by reading it.** They are the reason this is written
+down as more than a version bump:
+
+1. `Authorization::_scopeClassVars()` resolved a node to its model with a bare
+   `class_exists($node)`. Without the alias it is simply false, `$vars` stays
+   null, and `objectInScope()` has no table to test against — access control
+   that cannot find its own model, silently, with nothing logged.
+2. `PluginRunner` filtered tasks with `is_subclass_of($class, 'PluginTask')`.
+   A class name **in a string** is resolved as written, with no namespace
+   applied and no `use` consulted, so the literal named the global
+   `\PluginTask`. Without the alias every plugin task is silently skipped.
+3. The built-in `spl_autoload()` was registered behind `Initiator::autoload()`
+   as a fallback. `autoload()` refusing a bare core name is only a `return`,
+   and PHP then carries on down the chain — where the built-in probes
+   include_path by basename, and include_path covers the plugin roots. So a
+   plugin shipping `class/host.class.php` answered the bare `Host` the moment
+   core stopped answering it. Core winning the classMap collision does not
+   help: core is not in that map at all, so there is no collision to resolve.
+   The fallback is removed; see decision 2b.
+
+**One thing the plan got wrong, which is the load-bearing correction.**
+`docs/composer-psr4-plan.md` said to delete "the 202 `class_alias` lines and
+the reverse bridge arm from `Initiator`". The bridge arm
+(`Initiator::_bridgeNamespaced()`) **stays**. The 46 discovery-named classes
+under `lib/` — 26 pages, 10 hooks, 9 reports, 1 event — declare a flat
+`namespace FOG;` and keep their own `class_alias`, because
+`FOGPageManager::loadPageClasses()` and `EventManager::load()` derive the class
+name from `basename($file)` and PSR-4 does not do discovery. Composer maps
+`FOG\` onto `src/`, so `use FOG\ReportManagement;` in a core file resolves to
+`src/ReportManagement.php`, which does not exist. The bridge is what answers
+it, and deleting it breaks every core file that imports one of the 46.
+
+### 2b. The built-in `spl_autoload()` fallback is removed
+
+`Initiator::__construct()` no longer calls the bare `spl_autoload_register()`.
+See failure 3 above: with core absent from both the classMap and the global
+namespace, that fallback was a plugin's route to supplying a core class.
+
+What it covered, it no longer needs to. `include_path` and the classMap are
+both derived from `classFileList()`, so the only thing the probe could find
+that the map could not is a file added to an already-scanned directory since
+the cache was written — and that window is closed at both ends:
+`Plugin::install()` calls `forgetClassFileList()`, and the cache expires on
+`FILELIST_TTL` regardless.
+
+### What plugin authors have to change
+
+`extends Host` becomes `extends \FOG\Items\Host`, or a `use` import.
+`getClass('Host')` is unaffected — that string goes through
+`FOGBase::qualify()`. A plugin's own classes stay in the global namespace and
+are still found by basename (ADR 0009), and `class_alias` on a plugin's own
+page class is still **required**, because that is how
+`loadPageClasses()` finds it.
+
+The error is legible rather than a class-not-found at the call site: the
+autoloader recognises a bare core name and says which FQCN to use.
 
 ### The argument against nesting was wrong, and this is the correction
 
@@ -124,6 +200,10 @@ class_alias(__NAMESPACE__ . '\Host', 'Host');
 
 This alias is **the 1.6 plugin ABI.** It is supported for all of 1.6. Removing
 it is a breaking change and cannot happen before 1.7.
+
+> **Superseded 2026-08-27.** Retired before 1.6.0 shipped; see the amendment at
+> the top of this file. The alias survives only on the 46 discovery-named
+> files under `lib/`, where `loadPageClasses()` requires it.
 
 ### 3. Three files are never converted
 

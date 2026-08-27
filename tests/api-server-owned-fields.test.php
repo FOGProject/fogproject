@@ -45,6 +45,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Router\Route;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -108,11 +110,11 @@ class ServerOwnedStubObj
     }
 }
 
-$hooks = new \ReflectionProperty('FOGBase', 'HookManager');
+$hooks = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'HookManager');
 $hooks->setAccessible(true);
 $hooks->setValue(null, new ServerOwnedStubHooks());
 
-$refuse = new \ReflectionMethod('Route', '_refuseServerOwned');
+$refuse = new \ReflectionMethod(\FOG\Router\Route::class, '_refuseServerOwned');
 $refuse->setAccessible(true);
 
 /*

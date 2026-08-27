@@ -31,6 +31,11 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGCore;
+use FOG\Base\Hook;
+use FOG\Net\Ping;
+use FOG\Router\Route;
+
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('ping-alive');

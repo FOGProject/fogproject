@@ -33,6 +33,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGCore;
+
 require __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('tasklog-records-cancel');

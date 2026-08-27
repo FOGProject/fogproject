@@ -13,6 +13,11 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Items\StorageNode;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Displays the storage group information.
  *

@@ -36,6 +36,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGCore;
+
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('grid-header-columns');
