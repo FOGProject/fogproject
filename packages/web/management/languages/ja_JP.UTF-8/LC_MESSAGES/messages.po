@@ -921,7 +921,10 @@ msgstr ""
 msgid "An ou already exists with this name!"
 msgstr "この名前のグループは既に存在します！"
 
-msgid "An unpaged array."
+msgid "An unpaged list of values."
+msgstr ""
+
+msgid "An unpaged list."
 msgstr ""
 
 msgid "Annually"
@@ -1899,6 +1902,9 @@ msgstr "ジョブ作成時刻"
 
 msgid "Created by FOG Reg on"
 msgstr "FOG Reg により作成:"
+
+msgid "Created. No body is returned."
+msgstr ""
 
 msgid "Created. The body is the new snapin, the same shape as GET /snapin/{id}."
 msgstr ""
@@ -5586,9 +5592,8 @@ msgstr "再起動後、新しいノードの検出を試みます"
 msgid "One IP or CIDR range per line (or comma separated)"
 msgstr ""
 
-#, fuzzy
-msgid "One id per name, in the order given."
-msgstr "リクエストにはファイル名が必要です"
+msgid "One entry per row. The element shape follows the requested fields: a scalar when a single column is projected, an object when several are."
+msgstr ""
 
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr "\"snapinfiles[]\" マルチパートフィールドを使用して、1 つ以上のファイルをアップロードする必要があります"
@@ -5796,10 +5801,6 @@ msgid "Pending MAC addresses"
 msgstr "保留中 MAC アドレス"
 
 msgid "Pending MACs"
-msgstr "保留中 MAC アドレス"
-
-#, fuzzy
-msgid "Pending MACs."
 msgstr "保留中 MAC アドレス"
 
 msgid "Pending Mac List"
@@ -11552,6 +11553,10 @@ msgstr ""
 #~ msgid "Old clients are the clients that came with FOG"
 #~ msgstr "古いクライアントは、FOG に同梱されていたクライアントです"
 
+#, fuzzy
+#~ msgid "One id per name, in the order given."
+#~ msgstr "リクエストにはファイル名が必要です"
+
 #~ msgid "Only Assigned Printers"
 #~ msgstr "割り当てられたプリンターのみ"
 
@@ -11632,6 +11637,10 @@ msgstr ""
 
 #~ msgid "Pending MAC Export"
 #~ msgstr "保留中 MAC アドレスをエクスポート"
+
+#, fuzzy
+#~ msgid "Pending MACs."
+#~ msgstr "保留中 MAC アドレス"
 
 #~ msgid "Perform Immediately?"
 #~ msgstr "すぐに実行しますか？"

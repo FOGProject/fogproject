@@ -964,7 +964,10 @@ msgstr ""
 msgid "An ou already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
-msgid "An unpaged array."
+msgid "An unpaged list of values."
+msgstr ""
+
+msgid "An unpaged list."
 msgstr ""
 
 msgid "Annually"
@@ -1976,6 +1979,9 @@ msgstr "由...制作"
 
 msgid "Created by FOG Reg on"
 msgstr "创建者FOG上注册"
+
+msgid "Created. No body is returned."
+msgstr ""
 
 msgid "Created. The body is the new snapin, the same shape as GET /snapin/{id}."
 msgstr ""
@@ -5813,7 +5819,7 @@ msgstr ""
 msgid "One IP or CIDR range per line (or comma separated)"
 msgstr ""
 
-msgid "One id per name, in the order given."
+msgid "One entry per row. The element shape follows the requested fields: a scalar when a single column is projected, an object when several are."
 msgstr ""
 
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
@@ -6026,10 +6032,6 @@ msgid "Pending MAC addresses"
 msgstr "MAC地址列表"
 
 msgid "Pending MACs"
-msgstr "待定的MAC"
-
-#, fuzzy
-msgid "Pending MACs."
 msgstr "待定的MAC"
 
 #, fuzzy
@@ -11102,6 +11104,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Pause"
 #~ msgstr "用户"
+
+#, fuzzy
+#~ msgid "Pending MACs."
+#~ msgstr "待定的MAC"
 
 #, fuzzy
 #~ msgid "Performing ping"

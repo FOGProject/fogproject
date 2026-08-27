@@ -978,7 +978,10 @@ msgstr ""
 msgid "An ou already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
-msgid "An unpaged array."
+msgid "An unpaged list of values."
+msgstr ""
+
+msgid "An unpaged list."
 msgstr ""
 
 msgid "Annually"
@@ -1995,6 +1998,9 @@ msgid "Created Time"
 msgstr "Creado"
 
 msgid "Created by FOG Reg on"
+msgstr ""
+
+msgid "Created. No body is returned."
 msgstr ""
 
 msgid "Created. The body is the new snapin, the same shape as GET /snapin/{id}."
@@ -5942,7 +5948,7 @@ msgstr ""
 msgid "One IP or CIDR range per line (or comma separated)"
 msgstr ""
 
-msgid "One id per name, in the order given."
+msgid "One entry per row. The element shape follows the requested fields: a scalar when a single column is projected, an object when several are."
 msgstr ""
 
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
@@ -6159,10 +6165,6 @@ msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
 msgid "Pending MACs"
-msgstr "macs pendientes"
-
-#, fuzzy
-msgid "Pending MACs."
 msgstr "macs pendientes"
 
 #, fuzzy
@@ -11283,6 +11285,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Pause"
 #~ msgstr "Usuario"
+
+#, fuzzy
+#~ msgid "Pending MACs."
+#~ msgstr "macs pendientes"
 
 #~ msgid "Printer Alias"
 #~ msgstr "impresora Alias"
