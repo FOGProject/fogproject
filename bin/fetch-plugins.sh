@@ -23,7 +23,7 @@ pluginsurl="${pluginsurl:-${pluginsgit}/releases/download}"
 cwd="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root="$(dirname "$cwd")"
 dest="$root/packages/web/lib/plugins"
-system="$root/packages/web/lib/fog/system.class.php"
+system="$root/packages/web/src/Base/System.php"
 
 # Same extraction the installer uses for FOG_IPXE_VERSION, so the pin has one
 # spelling and one home.

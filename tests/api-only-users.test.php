@@ -57,7 +57,7 @@ $userSrc = file_get_contents($web . '/src/Items/User.php');
 $authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $schemaSrc = file_get_contents($web . '/commons/schema.php');
 $manifestSrc = file_get_contents($web . '/commons/schema-expected.php');
-$sysSrc = file_get_contents($web . '/lib/fog/system.class.php');
+$sysSrc = file_get_contents($web . '/src/Base/System.php');
 $pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
 
 // ---------------------------------------------------------------------------

@@ -68,7 +68,7 @@ require __DIR__ . '/lib/fog-schema-collector.php';
 
 $root = dirname(__DIR__) . '/packages/web';
 $schemaFile = $root . '/commons/schema.php';
-$systemFile = $root . '/lib/fog/system.class.php';
+$systemFile = $root . '/src/Base/System.php';
 
 foreach ([$schemaFile, $systemFile] as $path) {
     if (!is_readable($path)) {

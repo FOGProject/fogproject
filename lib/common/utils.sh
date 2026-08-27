@@ -50,7 +50,13 @@ case ${FOG_os_id} in
         ;;
 esac
 [[ ! -d $webdirdest ]] && handleError "    No fog web directory found" 3
-[[ -f ${webdirdest}lib/fog/system.class.php ]] && configpath=${webdirdest}lib/fog/system.class.php || configpath=${webdirdest}lib/fog/system.class.php
+# Reads the tree ALREADY INSTALLED, which on an upgrade is whatever the
+# previous release laid down -- so both spellings have to be tried. Core
+# became PSR-4 on working-1.6 and the version file moved from
+# lib/fog/system.class.php to src/Base/System.php; a server installed before
+# that still has the old one, and this is the file that tells us so.
+configpath=${webdirdest}src/Base/System.php
+[[ ! -f $configpath ]] && configpath=${webdirdest}lib/fog/system.class.php
 [[ ! -f $configpath ]] && handleError "    No config file found" 4
 OS=$(uname -s)
 [[ $OS =~ ^[^Ll][^Ii][^Nn][^Uu][^Xx]$ ]] && handleError "    We only support these utilities on Linux OS's" 6

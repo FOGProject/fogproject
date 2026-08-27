@@ -14,7 +14,10 @@ read -r os_name os_version <<< $(lsb_release -ir | cut -d':' -f2 | sed -e 's/^[[
 [[ -z $fogprogramdir && -r /etc/fog/fog.conf ]] && source /etc/fog/fog.conf
 [[ -z $fogprogramdir ]] && fogprogramdir="/opt/fog"
 source ${fogprogramdir%/}/.fogsettings
-system_class_php=${WEB_docroot}/${WEB_root}/lib/fog/system.class.php
+# Both spellings: this cron job reads the installed web tree, and the version
+# file moved to src/Base/System.php when core became PSR-4 on working-1.6.
+system_class_php=${WEB_docroot}/${WEB_root}/src/Base/System.php
+[[ ! -f ${system_class_php} ]] && system_class_php=${WEB_docroot}/${WEB_root}/lib/fog/system.class.php
 fog_version=$(cat ${system_class_php} | grep FOG_VERSION | cut -d',' -f2 | cut -d"'" -f2)
 
 # Construct correct mysql options.

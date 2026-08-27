@@ -28,7 +28,7 @@
 # Pinned in system.class.php alongside FOG_CLIENT_VERSION, for the same reason:
 # a given FOG release ships a known iPXE, and bumping it is a deliberate edit
 # rather than whatever happened to be tagged the day someone installed.
-[[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $ipxeVer ]] && ipxeVer="$(awk -F\' /"define\('FOG_IPXE_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php 2>/dev/null | tr -d '[[:space:]]')"
 [[ -z $ipxeVer ]] && ipxeVer="v2.0.0-fog.6"
 # The bundled plugins are a separate repository too (ADR 0009), pinned and
 # fetched exactly like iPXE above. packages/web/lib/plugins is therefore a
@@ -38,7 +38,7 @@
 # what a developer wanting plugins in a fresh clone uses.
 [[ -z $pluginsgit ]] && pluginsgit="https://github.com/FOGProject/fog-plugins"
 [[ -z $pluginsurl ]] && pluginsurl="${pluginsgit}/releases/download"
-[[ -z $pluginsVer ]] && pluginsVer="$(awk -F\' /"define\('FOG_PLUGINS_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $pluginsVer ]] && pluginsVer="$(awk -F\' /"define\('FOG_PLUGINS_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php 2>/dev/null | tr -d '[[:space:]]')"
 [[ -z $pluginsVer ]] && pluginsVer="v1.6.0"
 # Bounds for every network fetch the installer makes, and the answer
 # checkInternetConnection works out for the fetches that follow it. Overridable

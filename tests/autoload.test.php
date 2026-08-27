@@ -308,7 +308,7 @@ if ($bridged) {
 // In diagnostic mode say WHICH FOG was probed. "the bridge is missing" is
 // only actionable next to the version that is missing it.
 $version = '';
-$sys = $webroot . '/lib/fog/system.class.php';
+$sys = $webroot . '/src/Base/System.php';
 if ($diagnostic && is_readable($sys)
     && preg_match("/FOG_VERSION',\s*'([^']+)'/", file_get_contents($sys), $vm)
 ) {

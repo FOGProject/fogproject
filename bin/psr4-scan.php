@@ -71,19 +71,20 @@ const EXCLUDE = [
 /**
  * Has a home in the taxonomy, but is not moved by THIS work.
  *
- * System's path is hard-wired in 11 shell and git-hook sites here and 3 in
- * FOGProject/fog-workflows -- including fog-version.sh and
- * apply-fog-version.sh, which gate every commit and push in this repository.
- * Moving it before the workflows can find it either way wedges the repo
- * against its own fix, so it goes in a separate PR after the fog-workflows
- * change, per ADR 0009's release-ordering rule.
+ * Empty, and deliberately kept: a class parked here is reported by --check
+ * rather than hidden, so a deferral stays a decision someone took rather than
+ * a file that got missed.
  *
- * Reported by --check rather than hidden, so this stays a decision someone
- * took rather than a file that got missed.
+ * System was the only entry. Its path was hard-wired in 14 shell and git-hook
+ * sites here and 3 in FOGProject/fog-workflows -- including fog-version.sh and
+ * apply-fog-version.sh, which gate every commit and push in this repository --
+ * so it moved after the fog-workflows change could find it either way, per ADR
+ * 0009's release-ordering rule. The one consumer that could not be fixed ahead
+ * of the move is the FOGUpdater already installed on a beta server, which
+ * fetches the old path from raw.githubusercontent.com; see F-49 in
+ * docs/refactor-facts.md for why that break was accepted rather than shimmed.
  */
-const DEFERRED = [
-    'System' => 'moves with the fog-workflows change; see the plan',
-];
+const DEFERRED = [];
 
 /**
  * The 51 classes the parent chain cannot place.

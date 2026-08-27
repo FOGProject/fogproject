@@ -85,7 +85,7 @@ if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ "linux" ]]; then
     exit 2 # Fail OS Check
 fi
 
-[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php | tr -d '[[:space:]]')"
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)

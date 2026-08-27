@@ -220,7 +220,7 @@ $paneSrc = (string)file_get_contents($web . '/lib/pages/imagemanagement.page.php
 $listJs = (string)file_get_contents(
     $web . '/management/js/fog/image/fog.image.list.js'
 );
-$systemSrc = (string)file_get_contents($web . '/lib/fog/system.class.php');
+$systemSrc = (string)file_get_contents($web . '/src/Base/System.php');
 
 $t->check(
     'steps 369-372 are their own column-zero appends, not nested in another',

@@ -42,7 +42,7 @@ $pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
 $jsSrc = file_get_contents(
     $web . '/management/js/fog/user/fog.user.list.js'
 );
-$sysSrc = file_get_contents($web . '/lib/fog/system.class.php');
+$sysSrc = file_get_contents($web . '/src/Base/System.php');
 
 // Header cells, comments stripped so a `_(` inside one is not counted.
 preg_match('/headerData = \[(.*?)\n\s*\];/s', $pageSrc, $m);
