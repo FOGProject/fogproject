@@ -5286,6 +5286,30 @@ class Config
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
     errorStat $?
+    # This file holds ${DB_password}, both FTP passwords (${SVC_password}, and
+    # the storage node account the same value backs) and the schema bootstrap
+    # token. It is written by a plain redirect, so without this it lands at
+    # whatever umask root is carrying -- 0644 on every distro we support -- and
+    # every local account on the server can read all of them. The FTP
+    # credential is fleet-wide, not per-server.
+    #
+    # Same reasoning as .fogsettings, which is 0600 for two of the same
+    # secrets. This one is not 0600 because it is read by PHP rather than by
+    # the installer: the web tier includes it on every request, and the chown
+    # below hands it to ${apacheuser}.
+    #
+    # Kept at 0640 to match the 1.6 line rather than tightened to 0600, which
+    # would also work here -- every 1.5 daemon runs as root, so the web user is
+    # the only non-root reader. Divergence between the two installers over one
+    # bit is not worth an unnoticed reader (a site script, a plugin's cron)
+    # breaking on the line people actually run in production.
+    #
+    # Set here rather than left to the chown -R at the end of this function: a
+    # mode is only meaningful once the group is right, and a failure between
+    # the two should not leave a window where it is neither.
+    chown ${apacheuser}:${apacheuser} "${webdirdest}/lib/fog/config.class.php" >>$error_log 2>&1
+    chmod 0640 "${webdirdest}/lib/fog/config.class.php" >>$error_log 2>&1
+    errorStat $?
     dots "Creating paths file"
     # GH-850: hand the installer's $fogprogramdir to the PHP runtime so
     # FOG_BASE_DIR is a real value rather than an assumption. FOGPage's Secure
