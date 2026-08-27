@@ -13,6 +13,10 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * The audit log viewer.
  *

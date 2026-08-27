@@ -14,6 +14,8 @@ declare(strict_types=1);
  * @link     https://fogproject.org
  */
 
+use FOG\Router\HTTPResponseCodes;
+
 require_once 'base.inc.php';
 http_response_code(HTTPResponseCodes::HTTP_PERMANENT_REDIRECT);
 header('Location: ../management/index.php', true, HTTPResponseCodes::HTTP_PERMANENT_REDIRECT);

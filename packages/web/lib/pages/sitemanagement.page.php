@@ -13,6 +13,8 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+
 /**
  * Site management page.
  *

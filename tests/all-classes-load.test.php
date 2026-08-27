@@ -196,6 +196,16 @@ function _declaredClasses()
     foreach ($files as $file) {
         $tokens = token_get_all(file_get_contents($file));
         $count = count($tokens);
+        // The namespace the file declares, so the name collected below is the
+        // one the file actually produces. Core no longer re-exports itself
+        // globally (ADR 0013 §2), so a bare `Host` collected from
+        // src/Items/Host.php would be a class this tree does not declare and
+        // the check would fail for all 202 of them -- while a genuinely broken
+        // file would be indistinguishable from the rest.
+        $ns = '';
+        if (preg_match('/^\s*namespace\s+([^;{]+)/m', file_get_contents($file), $nm)) {
+            $ns = trim($nm[1]) . '\\';
+        }
         for ($i = 0; $i < $count; $i++) {
             if (!is_array($tokens[$i])
                 || !in_array(
@@ -230,7 +240,7 @@ function _declaredClasses()
                 && is_array($tokens[$j])
                 && T_STRING === $tokens[$j][0]
             ) {
-                $out[] = ['name' => $tokens[$j][1], 'file' => $file];
+                $out[] = ['name' => $ns . $tokens[$j][1], 'file' => $file];
             }
         }
     }

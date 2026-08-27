@@ -243,15 +243,31 @@ class SchemaCollector extends SchemaStub
 
 spl_autoload_register(
     function ($class) {
-        // schema.php is global-namespaced, so anything carrying a separator is
-        // not a name it could have written and not ours to invent.
-        if (strpos($class, '\\') !== false) {
+        // Namespaced names are stubbed too, in their own namespace.
+        //
+        // schema.php used to be able to name only global classes, because
+        // core re-exported every one of them there. It now carries `use
+        // FOG\Items\Schema;` and friends (ADR 0013 §2), so `Schema::` in
+        // that file means FOG\Items\Schema and a global stub answers
+        // nothing -- the collector died on the file's second line.
+        //
+        // The stub is declared where the name says it lives, and still
+        // extends the one global SchemaStub, so every shimmed method stays in
+        // one place regardless of which namespace asked for it.
+        if (!preg_match(
+            '/^[A-Za-z_][A-Za-z0-9_]*(?:\\\\[A-Za-z_][A-Za-z0-9_]*)*$/',
+            $class
+        )) {
             return;
         }
-        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $class)) {
+        $pos = strrpos($class, '\\');
+        if (false === $pos) {
+            eval("class {$class} extends SchemaStub {}");
             return;
         }
-        eval("class {$class} extends SchemaStub {}");
+        $ns = substr($class, 0, $pos);
+        $short = substr($class, $pos + 1);
+        eval("namespace {$ns}; class {$short} extends \\SchemaStub {}");
     }
 );
 

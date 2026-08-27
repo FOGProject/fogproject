@@ -52,6 +52,12 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\Authorization;
+use FOG\Auth\SiteScope;
+use FOG\Base\FOGCore;
+use FOG\Base\Hook;
+use FOG\Router\Route;
+
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
 // ---------------------------------------------------------------------------
@@ -452,7 +458,7 @@ foreach ([['host', $hostBlocked], ['user', $userBlocked]] as list($class, $block
  * 42, and a hand-thrown Exception defaults to 0 -- either one reaching
  * breakHead() as a status is a worse answer than the catch-all it replaced.
  */
-$sendCaught = new \ReflectionMethod('Route', '_sendCaught');
+$sendCaught = new \ReflectionMethod(\FOG\Router\Route::class, '_sendCaught');
 $sendCaught->setAccessible(true);
 foreach ([['42S22', 406], [0, 406], [399, 406], [404, 404], [600, 406]] as list($raised, $want)) {
     $got = null;

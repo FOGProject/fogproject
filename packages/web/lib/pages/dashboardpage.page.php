@@ -13,6 +13,15 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Base\FOGPage;
+use FOG\Db\DatabaseManager;
+use FOG\Items\History;
+use FOG\Items\StorageGroup;
+use FOG\Items\StorageNode;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Presents the home/dashboard page.
  *

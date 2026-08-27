@@ -174,10 +174,3 @@ trait Listener
         }
     }
 }
-
-/*
- * Compatibility alias, for the same reason every other name in this tree has
- * one: a plugin writing `use Listener;` unqualified keeps working.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\Listener', 'Listener');

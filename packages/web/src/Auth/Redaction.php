@@ -309,11 +309,3 @@ class Redaction extends FOGBase
         self::$_map = null;
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\Redaction', 'Redaction');

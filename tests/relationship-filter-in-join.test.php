@@ -36,6 +36,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGCore;
+
 require __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('relfilter');
@@ -141,7 +143,13 @@ $classes = [
 $pluginOwned = ['OUAssociation'];
 $pluginsFetched = is_dir(dirname(__DIR__) . '/packages/web/lib/plugins');
 foreach ($classes as $class) {
-    if (!class_exists($class)) {
+    // Resolved through qualify(), which is exactly what relFilterBuild()'s
+    // getClass() call does below -- so the existence check and the thing it
+    // guards cannot disagree about which class a short name means. Core is
+    // namespaced under src/ and no longer aliased into the global namespace
+    // (ADR 0013 §2); the short names are kept here because they are also the
+    // labels in every message this loop writes.
+    if (!class_exists(\FOG\Base\FOGBase::qualify($class))) {
         if (in_array($class, $pluginOwned, true) && !$pluginsFetched) {
             echo "  SKIP  $class is plugin-provided and lib/plugins is not"
                 . " fetched here\n";

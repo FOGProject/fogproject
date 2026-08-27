@@ -93,11 +93,3 @@ class Mysqldump extends \Ifsnop\Mysqldump\Mysqldump
         parent::__construct($dsn, $user, $pass, $dumpSettings, $pdoSettings);
     }
 }
-
-/*
- * Compatibility alias, as every other core class carries. getClass() looks
- * the name up as a string through ReflectionClass, so it resolves against
- * the global table regardless of the caller's namespace; the three call
- * sites say 'Mysqldump' and keep working unchanged. See docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\Mysqldump', 'Mysqldump');

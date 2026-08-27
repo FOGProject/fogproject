@@ -230,7 +230,14 @@ class PluginRunner extends FOGService
                 // and call run() on it. The check is on the base class, so
                 // the only thing that can be loaded here is something written
                 // to be a task.
-                if (!is_subclass_of($class, 'PluginTask')) {
+                // PluginTask::class, not the string 'PluginTask'. A class
+                // name in a string is resolved as written, with no namespace
+                // applied and no `use` consulted, so the literal named the
+                // GLOBAL \PluginTask -- which existed only while core
+                // re-exported itself there (ADR 0013 §2). Without the alias
+                // the test is false for every task and the runner silently
+                // skips all of them.
+                if (!is_subclass_of($class, PluginTask::class)) {
                     self::outall(
                         sprintf(
                             ' * %s: %s/%s',
@@ -433,11 +440,3 @@ class PluginRunner extends FOGService
         );
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\PluginRunner', 'PluginRunner');

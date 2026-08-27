@@ -13,6 +13,10 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Prints the history of all items.
  *

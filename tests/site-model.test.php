@@ -23,6 +23,9 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\Authorization;
+use FOG\Router\Route;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -79,14 +82,14 @@ function check($label, $cond, array &$failures, &$checks)
  *    autoloader prefers core, but this pins which file actually won so a
  *    lingering plugin cannot quietly supply the model.
  */
-if (!class_exists('Site', true)) {
+if (!class_exists(\FOG\Items\Site::class, true)) {
     fwrite(STDERR, "FAIL: Site does not resolve\n");
     exit(1);
 }
-$ref = new \ReflectionClass('Site');
+$ref = new \ReflectionClass(\FOG\Items\Site::class);
 check(
     'Site extends FOGController',
-    $ref->isSubclassOf('FOGController'),
+    $ref->isSubclassOf(\FOG\Base\FOGController::class),
     $failures,
     $checks
 );
@@ -174,7 +177,7 @@ check(
 );
 check(
     'Site::loadCatchall() exists, so load() still populates the flag',
-    method_exists('Site', 'loadCatchall'),
+    method_exists(\FOG\Items\Site::class, 'loadCatchall'),
     $failures,
     $checks
 );
@@ -229,12 +232,12 @@ foreach (
  */
 check(
     'SiteManager resolves',
-    class_exists('SiteManager', true),
+    class_exists(\FOG\Managers\SiteManager::class, true),
     $failures,
     $checks
 );
-if (class_exists('SiteManager', true)) {
-    $mref = new \ReflectionClass('SiteManager');
+if (class_exists(\FOG\Managers\SiteManager::class, true)) {
+    $mref = new \ReflectionClass(\FOG\Managers\SiteManager::class);
     check(
         'SiteManager resolves to core, not to a plugin copy',
         false === strpos($mref->getFileName(), DIRECTORY_SEPARATOR . 'plugins'),

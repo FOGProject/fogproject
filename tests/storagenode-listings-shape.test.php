@@ -63,7 +63,7 @@ if (false === $from || false === $to || $to <= $from) {
 }
 $block = substr($getfiles, $from, $to - $from);
 
-if (!class_exists('FOGCore')) {
+if (!class_exists(\FOG\Base\FOGCore::class)) {
     eval(
         'class FOGCore { public static function fastmerge(...$a) { $o = [];'
         . ' foreach ($a as $x) { $o = array_merge($o, (array)$x); } return $o; } }'

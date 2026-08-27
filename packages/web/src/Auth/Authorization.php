@@ -1796,15 +1796,22 @@ class Authorization extends FOGBase
             return self::$_scopeClassVars[$node];
         }
         $vars = null;
-        // The BARE name, which is what getClass() on the next line resolves.
-        // This used to read __NAMESPACE__ . '\\' . $node and worked only
-        // because the tree was flat: after Move 2 that builds FOG\Auth\host,
-        // which nothing declares, so the guard would be permanently false and
-        // every object-scope lookup would silently return null. A string
-        // argument to class_exists() is not namespace-prefixed, so the bare
-        // name reaches the autoloader and the class_alias at the foot of the
-        // model's file answers it.
-        if (class_exists($node, true)) {
+        // Resolved through qualify(), which is the same lookup getClass()
+        // performs on the next line, so the guard and the call cannot disagree
+        // about which class a node names.
+        //
+        // Two wrong spellings have already been here. __NAMESPACE__ . '\\'
+        // . $node builds FOG\Auth\host, which nothing declares. The BARE
+        // $node worked only while every model re-exported itself globally --
+        // once those aliases went (ADR 0013 §2) it stopped resolving too.
+        //
+        // Both fail the same way, and it is the dangerous way: class_exists()
+        // is simply false, $vars stays null, and objectInScope() then has no
+        // table to test against. Nothing is logged and nothing errors. Access
+        // control that cannot find its own model must never look like access
+        // control that ran.
+        $qualified = self::qualify($node);
+        if (class_exists($qualified, true)) {
             $props = self::getClass($node, '', true);
             if (!empty($props['databaseTable'])
                 && !empty($props['databaseFields']['id'])
@@ -2656,11 +2663,3 @@ class Authorization extends FOGBase
         self::resetCache();
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\Authorization', 'Authorization');

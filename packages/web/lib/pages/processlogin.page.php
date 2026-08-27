@@ -13,6 +13,11 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Items\User;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Processes the current login.
  *

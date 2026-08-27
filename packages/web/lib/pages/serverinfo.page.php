@@ -13,6 +13,10 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Items\MACAddress;
+use FOG\Items\StorageNode;
+
 /**
  * Presents server information when clicked.
  *

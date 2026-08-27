@@ -22,6 +22,8 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+
 /**
  * Just allows user to add in any logs they feel they need on the log viewer.
  *

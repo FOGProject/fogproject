@@ -10,6 +10,11 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Audit\Audit;
+use FOG\Base\FOGCore;
+use FOG\Items\Inventory;
+
 /**
  * Inventory, stores the host inventory.
  *

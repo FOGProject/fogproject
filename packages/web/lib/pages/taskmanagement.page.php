@@ -13,6 +13,13 @@
 
 namespace FOG;
 
+use FOG\Base\FOGManagerController;
+use FOG\Base\FOGPage;
+use FOG\Items\TaskLog;
+use FOG\Items\TaskType;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Displays tasks to the user.
  *

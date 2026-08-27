@@ -10,6 +10,11 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+use FOG\Items\StorageNode;
+use FOG\Router\Route;
+
 /**
  * Issues web and code-signing certificates to registered storage nodes.
  *

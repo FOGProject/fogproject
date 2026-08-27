@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\TaskHandling\TaskError;
+
 /**
  * Receives a report that FOS could not finish a task.
  *

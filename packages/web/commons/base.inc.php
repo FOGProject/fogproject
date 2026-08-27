@@ -11,6 +11,8 @@ declare(strict_types=1);
  * @link     https://fogproject.org
  */
 
+use FOG\Base\LoadGlobals;
+
 // The empty needle must short-circuit to true, matching PHP 8's str_contains()
 // -- "" is contained in every string. It cannot be left to strpos(), which on
 // 7.4 rejects an empty needle with a warning and returns false; that is what

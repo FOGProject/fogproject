@@ -3987,9 +3987,9 @@ class Route extends FOGBase
      *
      * The route binds `:class` from a URL segment matched against
      * $validClasses, so what arrives here is a bare lowercase name -- 'host',
-     * not 'FOG\Items\Host'. It resolves today only because every file under
-     * src/ ends in a class_alias() re-exporting itself globally (ADR 0013
-     * §2), and retiring those aliases is queued work.
+     * not 'FOG\Items\Host'. `new $string` resolves from the global namespace,
+     * where core no longer is (ADR 0013 §2), so the name has to be qualified
+     * before it is instantiated.
      *
      * Qualifying at DISPATCH instead would be wrong, which is why this sits
      * here and not in runMatches(). The same $class is an identifier as well
@@ -8514,11 +8514,3 @@ class Route extends FOGBase
         }
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\Route', 'Route');
