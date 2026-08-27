@@ -10,6 +10,11 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+use FOG\Router\Route;
+use FOG\Util\FOGLogPaths;
+
 /**
  * Get's files stored as requested
  *

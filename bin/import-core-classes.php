@@ -17,6 +17,11 @@
  *   service/   global namespace, one bare `new X(...)` per entry point.
  *   api/
  *   management/
+ *   status/      the node and fog-client endpoints -- bandwidth, getfiles,
+ *   maintenance/ gethash, hostgetkey, newtoken, create_update_node. Added
+ *   client/      after the first sweep missed them: they are not under
+ *                service/ and are easy to forget precisely because nothing
+ *                in the test suite drives them.
  *
  * This adds `use FOG\<Bucket>\<Name>;` so each bare name resolves to the
  * import instead. Imports rather than inline qualification because the
@@ -76,7 +81,8 @@ foreach (['pages', 'hooks', 'reports', 'events'] as $dir) {
 $targets = [
     $web . '/lib/pages', $web . '/lib/hooks', $web . '/lib/reports',
     $web . '/lib/events', $web . '/commons', $web . '/service', $web . '/api',
-    $web . '/management', $repo . '/packages/service', $repo . '/tests',
+    $web . '/management', $web . '/status', $web . '/maintenance',
+    $web . '/client', $repo . '/packages/service', $repo . '/tests',
 ];
 
 /**
@@ -229,8 +235,14 @@ foreach ($targets as $target) {
                 1
             );
         }
-        // Fold a duplicated blank line the insertion may have created.
+        // Fold a duplicated blank line the insertion may have created, then
+        // guarantee one AFTER the block. The insert puts a newline after the
+        // last `use`, which is a blank line only when the following line was
+        // itself blank -- in a global-namespace file the class docblock
+        // usually butts straight up against the anchor, so without this the
+        // block and the docblock end up adjacent.
         $src = preg_replace("/\n{3,}/", "\n\n", $src);
+        $src = preg_replace('/^(use [^;\n]+;\n)(?!use |\n)/m', "$1\n", $src, 1);
         file_put_contents($path, $src);
     }
 }
