@@ -1,11 +1,11 @@
 <?php
 /**
- * Renders one BootMenu scenario and prints the resulting iPXE script.
+ * Renders one IpxeBootMenu scenario and prints the resulting iPXE script.
  *
  * Run as a child process by bootmenu-ipxe-output.test.php. It is a separate
- * process because several BootMenu paths end in exit() -- noMenu() and the
+ * process because several IpxeBootMenu paths end in exit() -- noMenu() and the
  * tasking path among them -- which a single-process runner could not survive,
- * and because BootMenu caches the architecture profile in a static
+ * and because IpxeBootMenu caches the architecture profile in a static
  * (self::$_archProfile) that a second scenario in the same process would
  * inherit.
  *
@@ -55,7 +55,7 @@ if (!defined('BASEPATH')) {
 }
 
 /*
- * Several BootMenu paths end in exit(), so the only reliable place to clean
+ * Several IpxeBootMenu paths end in exit(), so the only reliable place to clean
  * up the scenario's temp tree is a shutdown handler.
  */
 register_shutdown_function(
@@ -231,10 +231,10 @@ if (!empty($scenario['hooks'])) {
      * and report the payloads instead.
      */
     ob_start();
-    new \FOG\BootMenu();
+    new \FOG\IpxeBootMenu();
     ob_end_clean();
     echo json_encode(FOGBase::$HookManager->fired, JSON_PRETTY_PRINT), "\n";
     exit(0);
 }
 
-new \FOG\BootMenu();
+new \FOG\IpxeBootMenu();

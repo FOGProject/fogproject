@@ -86,7 +86,7 @@ class Host extends FOGController
         // Stored in iPXE's vocabulary -- not uname's -- so it matches the
         // value the boot decision is made from. NULL until the host PXE boots
         // once, or until someone sets it on the edit form for a host that
-        // never will. Advisory either way: BootMenu still chooses a kernel
+        // never will. Advisory either way: IpxeBootMenu still chooses a kernel
         // from the live request, never from here.
         'archID' => 'hostArchID',
         'biosexit' => 'hostExitBios',
@@ -1150,7 +1150,7 @@ class Host extends FOGController
                 }
                 // Let plugins pick the group/node before falling back to the
                 // image's primary group. Every other place that resolves a
-                // node for a host -- TaskingElement and BootMenu -- already
+                // node for a host -- TaskingElement and IpxeBootMenu -- already
                 // fires this, but tasking never did, so the Location plugin
                 // had no say in where a task was pointed. For multicast that
                 // was decisive: the session is stamped below with the node's

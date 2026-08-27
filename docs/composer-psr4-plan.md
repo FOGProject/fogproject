@@ -309,28 +309,43 @@ and the directory walk never notices.
 They get a namespace line and an updated alias. They do not move and they are
 not renamed.
 
-### `BootMenu` becomes `IpxeBootMenu` — but not in this work
+### `BootMenu` became `IpxeBootMenu`
 
-The class builds the iPXE menu and nothing else; the generic name has been
+The class builds the iPXE menu and nothing else; the generic name had been
 telling readers otherwise for years. Spelling is `IpxeBootMenu`, not
 `iPXEBootMenu`: PSR-1 wants StudlyCaps, and `Ipxe` / `IpxeManager` already set
 the house spelling.
 
-`VERIFIED` — 39 references across 13 core files and one plugin
-(`capone/hooks/addbootmenuitem.hook.php`). The `BootMenu` mentions in
-`commons/schema.php` and `lib/fog/schema.class.php` are **comments**, and the
-`BOOT_MENU_*` hook event names do not carry the class name — so this is a code
-rename, not a data migration.
+Done in its own commit after the directory move, with **no back-alias**. Two
+things the earlier estimate here got wrong, both found by re-running its own
+verification command against the moved tree:
+
+- **"39 references across 13 core files"** counted substrings. `addBootMenuItem`,
+  `AddBootMenuItem`, the `BOOT_MENU_*` event names and `$foglang['PXEBootMenu']`
+  all match `BootMenu` and none of them is the class. The real declared-name
+  references were **three**: the declaration, its `class_alias`, and
+  `new BootMenu()` in `service/ipxe/boot.php`. Everything else was comments and
+  test-harness prose.
+- **"and one plugin (`capone/hooks/addbootmenuitem.hook.php`)"** was the same
+  error. That file names `AddBootMenuItem` (its own hook class) and the
+  `BOOT_MENU_ITEM` event; it never references this class. **No `fog-plugins`
+  release was needed**, so ADR 0009's cross-repo ordering rule did not apply.
+
+`VERIFIED` — the `get_class()` producer sweep #1099 established the pattern for
+is a **no-op** here: `IpxeBootMenu` contains no `get_class`, `__CLASS__`,
+`::class` or `shortName()`, and nothing in core asks for it by string
+(`getClass('BootMenu')`, a `bootmenu` literal, a DB row). So the rename could
+not leak into data, and the only risk was a missed call site — which is why the
+alias was renamed rather than kept as a back-compat shim.
 
 ```
-grep -rln 'BootMenu' --include=*.php packages/web /home/telliott/fog-plugins | grep -v vendor
-grep -rn 'BootMenu' packages/web/commons/schema.php | head    # all comments
+grep -rn 'get_class\|__CLASS__\|::class\|shortName' packages/web/src/Boot/IpxeBootMenu.php   # nothing
+grep -rn "getClass('Boot\|'bootmenu'" packages/web --include=*.php | grep -v vendor            # nothing
 ```
 
-It gets **its own commit**, separate from both moves, with no back-alias — a
-rename buried inside a 202-file `git mv` is invisible to review, and it changes
-a *declared* name, so it needs the `get_class()` producer sweep that #1099
-established the pattern for.
+The three `tests/**/bootmenu-*.php` files keep their names. They describe the
+subject under test, which is still "the boot menu", and renaming them would add
+diff noise to a commit whose value is being small enough to review whole.
 
 ---
 

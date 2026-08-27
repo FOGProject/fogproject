@@ -571,7 +571,7 @@ class TaskQueue extends TaskingElement
         // Stamp the image with the architecture of the machine that made it.
         //
         // An image cannot discover its own architecture, and does not have
-        // to: a capture requires the host to PXE boot, and BootMenu records
+        // to: a capture requires the host to PXE boot, and IpxeBootMenu records
         // hostArch on that same boot before FOS even loads. So by the time
         // this runs the capturing host's architecture is already known and
         // this is a copy, not an inference -- no FOS change and no new

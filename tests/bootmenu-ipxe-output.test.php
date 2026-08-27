@@ -1,8 +1,8 @@
 <?php
 /**
- * Characterization test for the iPXE script BootMenu emits.
+ * Characterization test for the iPXE script IpxeBootMenu emits.
  *
- * BootMenu has no return value worth checking: every screen is an array of
+ * IpxeBootMenu has no return value worth checking: every screen is an array of
  * strings that _parseMe() flattens straight to stdout, and that stdout IS the
  * iPXE program the client runs. So the only meaningful assertion is a byte
  * comparison of the emitted script.
@@ -18,7 +18,7 @@
  *   - whether a plugin's value survives to the emitted script;
  *   - that no host secret reaches this unauthenticated endpoint.
  *
- * Each scenario runs in its own process: several BootMenu paths end in exit(),
+ * Each scenario runs in its own process: several IpxeBootMenu paths end in exit(),
  * and the architecture profile is memoised in a static that would leak between
  * scenarios sharing a process.
  *
@@ -33,7 +33,7 @@
 $root = dirname(__DIR__);
 $renderer = __DIR__ . '/lib/bootmenu-render.php';
 $golden = __DIR__ . '/fixtures/bootmenu-ipxe-output.golden';
-$classFile = $root . '/packages/web/src/Boot/BootMenu.php';
+$classFile = $root . '/packages/web/src/Boot/IpxeBootMenu.php';
 
 $update = in_array('--update', $argv, true);
 $againstAt = array_search('--against', $argv, true);
@@ -47,7 +47,7 @@ if (!is_file($classFile)) {
 }
 
 /*
- * The matrix. Each entry names a branch of BootMenu that renders differently,
+ * The matrix. Each entry names a branch of IpxeBootMenu that renders differently,
  * so a change that moves any of these bytes shows up as a diff rather than as
  * a client that silently fails to boot.
  *
@@ -241,7 +241,7 @@ $scenarios = [
  *
  * @param string $renderer  path to the renderer
  * @param array  $scenario  the scenario definition
- * @param string $classFile the BootMenu source under test
+ * @param string $classFile the IpxeBootMenu source under test
  *
  * @return string the emitted iPXE script, plus any stderr
  */

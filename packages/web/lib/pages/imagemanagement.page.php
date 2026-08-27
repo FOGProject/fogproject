@@ -1499,7 +1499,7 @@ class ImageManagement extends FOGPage
         // nobody adds to. It lives here instead, on the page that already
         // exists to answer "what architectures does this server know about".
         //
-        // Name is not editable. It is not a label -- BootMenu matches the
+        // Name is not editable. It is not a label -- IpxeBootMenu matches the
         // string iPXE reports against it, and Architecture::normalizeName()
         // folds FOS's spellings onto it -- so renaming a row would silently
         // stop hosts from ever matching it again. Adding and removing rows is
@@ -1652,7 +1652,7 @@ class ImageManagement extends FOGPage
      * Saves the per-architecture flags from the Architectures page.
      *
      * Only `access` and `description` are writable. The name is the string
-     * BootMenu matches an iPXE report against, so renaming a row would stop
+     * IpxeBootMenu matches an iPXE report against, so renaming a row would stop
      * hosts matching it with no error anywhere; rows cannot be added or
      * removed here for the same reason. See architectures().
      *

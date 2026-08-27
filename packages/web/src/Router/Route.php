@@ -699,7 +699,7 @@ class Route extends FOGBase
         /**
          * GH-529: the paths below were written as literal '/fog/...', so at a
          * custom webroot none of them matched. Anchor them to the configured
-         * webroot instead, normalised the same way BootMenu does since the
+         * webroot instead, normalised the same way IpxeBootMenu does since the
          * setting turns up with and without either slash.
          *
          * Every mismatch here fails closed -- a wrong or empty setting makes

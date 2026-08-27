@@ -54,7 +54,7 @@ arrived*, not a configured value. For the netboot path this is not an oversight,
 it is the mechanism:
 
 The installer writes `default.ipxe` with `chain <BOOT_url_proto>://…/boot.php`.
-`BootMenu` then builds the whole menu, the `web=` kernel argument and every
+`IpxeBootMenu` then builds the whole menu, the `web=` kernel argument and every
 `${boot-url}` from `self::$httpproto` — so the entire boot sequence inherits the
 protocol iPXE arrived on, with no PHP configuration at all. Replacing that with
 a configured `WEB_url_proto` would break every HTTPS-web / HTTP-netboot install.
@@ -80,14 +80,14 @@ directories**, not one.
 | --- | --- | --- |
 | 0 | `tftp://${next-server}/default.ipxe` | the embedded/autoexec script |
 | 1 | `<BOOT_url_proto>://<server><WEB_root>service/ipxe/boot.php` | `default.ipxe`, written by the installer |
-| 2 | `${boot-url}/service/ipxe/` → `grub.exe`, `refind.conf`, `refind*.efi`, `bg.png` / `bgdark.png`, `advanced.php` | `BootMenu` |
+| 2 | `${boot-url}/service/ipxe/` → `grub.exe`, `refind.conf`, `refind*.efi`, `bg.png` / `bgdark.png`, `advanced.php` | `IpxeBootMenu` |
 | 3 | the kernel (`bzImage`) and init (`init.xz`) | **relative** — iPXE resolves them against `boot.php`'s own URI, so they inherit the netboot scheme with no PHP involvement |
-| 4 | `${boot-url}/service/secureboot/MOK.der` (`imgfetch`), `mmx64.efi` / `arm64-efi/mmaa64.efi` (`chain`) | `BootMenu`'s Secure Boot entries |
+| 4 | `${boot-url}/service/secureboot/MOK.der` (`imgfetch`), `mmx64.efi` / `arm64-efi/mmaa64.efi` (`chain`) | `IpxeBootMenu`'s Secure Boot entries |
 | 5 | `web=<proto>://<host><WEB_root>/` | handed to **FOS**, not fetched by iPXE |
 
 >[!important]
 >**`<host>` is not one value.** Step 1's host is written by the installer; steps
->2, 4 and 5's come from the `FOG_WEB_HOST` DB row, read by `BootMenu`; step 3's
+>2, 4 and 5's come from the `FOG_WEB_HOST` DB row, read by `IpxeBootMenu`; step 3's
 >is inherited from step 1 because the URLs are relative. Nothing used to compare
 >the two — step 1 was `${NET_hostname}` and could be a short label, while
 >`FOG_WEB_HOST` was seeded from `${NET_fog_server_ip}` and never rewritten, so an HTTPS

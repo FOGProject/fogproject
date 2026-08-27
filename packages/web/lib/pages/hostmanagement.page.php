@@ -1199,7 +1199,7 @@ class HostManagement extends FOGPage
                 $description
             ),
             // Architecture. Normally OBSERVED, not chosen:
-            // BootMenu::_recordHostArch() writes it from what the machine
+            // IpxeBootMenu::_recordHostArch() writes it from what the machine
             // itself reported on its last PXE boot, and will overwrite
             // anything set here on the next one. That precedence is right --
             // the machine is a better witness than a person -- but it leaves
