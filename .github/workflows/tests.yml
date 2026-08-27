@@ -160,6 +160,6 @@ jobs:
     #     queued. Testing this SHA would be testing a tree that no longer
     #     exists. An empty value (regen skipped) reads as not-'true' and lets
     #     the suite run, which is what fork and dev-branch pull requests need.
-    if: ${{ !cancelled() && needs.regen.outputs.pushed != 'true' }}
+    if: ${{ !cancelled() }}
 
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-tests.yml@main
