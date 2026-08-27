@@ -1303,7 +1303,7 @@ updateDB() {
                 # anyone who can read it is already root.
                 echo " * If you cannot log in there, the schema can be deployed"
                 echo "   directly using the token in:"
-                echo "     ${webdirdest}lib/fog/config.class.php"
+                echo "     ${webdirdest}commons/config.class.php"
                 echo "   (the FOG_SCHEMA_INSTALL_TOKEN line), with:"
                 echo "     curl -X POST -H \"X-Fog-Install-Token: <token>\" \\"
                 echo "       -d \"schemaupdate=1\" \\"
@@ -6021,12 +6021,22 @@ EOF
     dots "Setting up ${SVC_user} password"
     if [[ -z ${SVC_password} ]]; then
         # if we don't have a password from .fogsettings we check config.class.php as well
-        if [[ -r $webdirdest/lib/fog/config.class.php ]]; then
+        #
+        # Reads the tree ALREADY INSTALLED, which on an upgrade is whatever the
+        # previous release laid down -- so both locations have to be tried, the
+        # same way utils.sh does for System.php. Config is generated into
+        # commons/ now, beside fogpaths.php, the installer's other generated
+        # runtime file; it used to go to lib/fog/, a directory that existed for
+        # nothing else once core moved to src/.
+        configsrc=${webdirdest}commons/config.class.php
+        [[ ! -r $configsrc ]] && configsrc=${webdirdest}lib/fog/config.class.php
+        if [[ -r $configsrc ]]; then
             # extract password from old style config
-            SVC_password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $webdirdest/lib/fog/config.class.php | grep -v "^$")
+            SVC_password=$(awk -F '"' -e '/TFTP_FTP_PASSWORD/,/);/{print $2}' $configsrc | grep -v "^$")
             # if that didn't get us the password we try again new style
-            [[ -z ${SVC_password} ]] && SVC_password=$(awk -F "'" -e '/TFTP_FTP_PASSWORD/{print $4}' $webdirdest/lib/fog/config.class.php)
+            [[ -z ${SVC_password} ]] && SVC_password=$(awk -F "'" -e '/TFTP_FTP_PASSWORD/{print $4}' $configsrc)
         fi
+        unset configsrc
     fi
     checkPasswordChars "${SVC_password}"
     cnt=0
@@ -10394,14 +10404,22 @@ configureHttpd() {
             # lib/plugins/<name>/class/, and are the plugin release's to
             # manage, not this loop's.
             #
-            # config.class.php is the one keep. It is GENERATED into lib/fog/
-            # later in this function and so is never present in $webdirsrc,
-            # which would otherwise classify it as retired.
+            # There is no longer a keep here, and removing it was the point.
+            # config.class.php is GENERATED and so is never in $webdirsrc, which
+            # is why it needed one -- but it is generated into commons/ now, and
+            # this loop only walks $webdirdest/lib. So the generated file is out
+            # of reach of the sweep by construction rather than by exception.
+            #
+            # What that leaves under lib/fog/ is the PREVIOUS install's config,
+            # and it has to go. Left behind it is a file holding that install's
+            # DATABASE_PASSWORD, both FTP passwords and its
+            # FOG_SCHEMA_INSTALL_TOKEN, sitting readable in the web root while a
+            # different file is the one actually being used. Nothing reads it,
+            # nothing reports it, and it survives every future upgrade.
             dots "Removing retired class files from the old web folder"
             local relpath
             while IFS= read -r -d '' i; do
                 relpath="${i#$webdirdest/}"
-                [[ ${relpath} == lib/fog/config.class.php ]] && continue
                 [[ -e ${webdirsrc}/${relpath} ]] && continue
                 rm -f "$i" >>$error_log 2>&1
             done < <(find "$webdirdest/lib" -maxdepth 2 -type f -name '*.class.php' -print0 2>>$error_log)
@@ -10632,7 +10650,7 @@ class Config
         define('FOG_CAPTUREIGNOREPAGEHIBER', true);
         define('FOG_THEME', 'default/fog.css');
     }
-}" > "${webdirdest}/lib/fog/config.class.php"
+}" > "${webdirdest}/commons/config.class.php"
     errorStat $?
     dots "Creating paths file"
     # GH-850: hand the installer's $fogprogramdir to the PHP runtime so

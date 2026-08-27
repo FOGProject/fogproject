@@ -26,11 +26,21 @@
 #   2. a class file it still ships is left alone. The obvious wrong
 #      implementation deletes every *.class.php it finds, which takes
 #      lib/router/altorouter.class.php with it;
-#   3. lib/fog/config.class.php survives. It is generated later in
-#      configureHttpd() and is never in $webdirsrc, so a rule asked purely of
-#      the source tree classifies it as retired. Deleting it is survivable --
-#      it is rewritten a few steps on -- but only by luck, and the keep is
-#      cheaper than the reasoning.
+#   3. a PREVIOUS install's lib/fog/config.class.php is removed, and the
+#      generated commons/config.class.php is not touched. This used to be the
+#      other way round -- the loop carried an explicit keep for
+#      lib/fog/config.class.php, because Config was generated there and so was
+#      never in $webdirsrc. Config is generated into commons/ now, beside
+#      fogpaths.php, and commons/ is outside this loop's find root, so the
+#      exception is gone and the generated file is out of reach by
+#      construction.
+#
+#      What is left under lib/fog/ on an upgraded server is the PREVIOUS
+#      install's config, holding that install's DATABASE_PASSWORD, both FTP
+#      passwords and its FOG_SCHEMA_INSTALL_TOKEN. Left behind it sits readable
+#      in the web root while a different file is the one actually in use, and
+#      it survives every future upgrade. Removing it is the point of dropping
+#      the keep, so it is pinned here rather than left implied.
 #
 # Plus the bundled-plugin boundary: a plugin's class files sit one level
 # deeper, at lib/plugins/<name>/class/, and belong to the fog-plugins release
@@ -113,8 +123,13 @@ echo stale > "$webdirdest/lib/db/pdodb.class.php"
 echo stale > "$webdirdest/lib/fog/system.class.php"
 # A name with a space, because the loop reads null-delimited for a reason.
 echo stale > "$webdirdest/lib/fog/old thing.class.php"
-# Generated into lib/fog/ later in configureHttpd(); never in $webdirsrc.
-echo generated > "$webdirdest/lib/fog/config.class.php"
+# The PREVIOUS install's config, in the location Config used to be generated
+# into. Retired: it is not in $webdirsrc and nothing regenerates it there.
+echo stale > "$webdirdest/lib/fog/config.class.php"
+# The generated config, where configureHttpd() writes it now. Outside this
+# loop's find root, so it must come through untouched.
+mkdir -p "$webdirdest/commons"
+echo generated > "$webdirdest/commons/config.class.php"
 # A bundled plugin's own class file, one level deeper.
 echo plugin > "$webdirdest/lib/plugins/site/class/site.class.php"
 
@@ -136,8 +151,11 @@ check "a retired name containing a space is removed too" \
 check "a class file the release still ships is left alone" \
     "$([[ -s $webdirdest/lib/router/altorouter.class.php ]]; echo $?)"
 
-check "the generated config.class.php survives" \
-    "$([[ -s $webdirdest/lib/fog/config.class.php ]]; echo $?)"
+check "a previous install's lib/fog/config.class.php is removed" \
+    "$([[ ! -e $webdirdest/lib/fog/config.class.php ]]; echo $?)"
+
+check "the generated commons/config.class.php survives" \
+    "$([[ -s $webdirdest/commons/config.class.php ]]; echo $?)"
 
 check "a bundled plugin's class file is not this loop's to delete" \
     "$([[ -s $webdirdest/lib/plugins/site/class/site.class.php ]]; echo $?)"
