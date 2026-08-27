@@ -2490,11 +2490,33 @@ function fogSizeScroller(dt) {
   // becomes visible, when the real row widths exist. One-shot per table (flagged
   // on the settings object); the resize path runs on already-aligned rows so it
   // never needs this. Bound before measure() so it catches measure()'s redraw.
+  //
+  // Deferred a macrotask rather than run inside the draw, for the same reason
+  // the shown.bs.tab handler is: during the draw the layout is not final yet.
+  // Scroller sizes its viewport for a whole page of rows before the ajax has
+  // said how many there really are, so the scroll body is still overflowing at
+  // that moment. DataTables reserves the scrollbar's width on the header when it
+  // sees that -- a padding-right on .dt-scroll-headInner -- and it never takes
+  // the reservation back on its own. One tick later the row count is settled,
+  // the body no longer overflows, and the same call computes a padding of zero.
+  //
+  // Measured on a one-row snapin list: padding-right stuck at 15px with the body
+  // not overflowing, leaving the header 15px narrower than its rows (1540 against
+  // 1555) and the column boundaries walking out -5, -8, -12, -15 across four
+  // columns. Invisible wherever scrollbars are the overlay kind that occupy no
+  // width, which is why it shows on a desktop browser and not in headless.
   var settings = dt.settings()[0];
   if (settings && !settings._fogPostShowAdjusted) {
     settings._fogPostShowAdjusted = true;
     dt.one('draw.dt.fogScroller', function() {
-      dt.columns.adjust();
+      setTimeout(function() {
+        // The whole sizing pass, not just columns.adjust(): the height this
+        // function sets is itself an input to whether the body overflows, so
+        // re-deciding the height and the columns together is what makes the
+        // reservation and the actual scrollbar agree. Re-entry is safe --
+        // _fogPostShowAdjusted is already set, so this does not rebind.
+        fogSizeScroller(dt);
+      }, 0);
     });
   }
   // Recompute Scroller's virtual viewport for the new height (measure() also
