@@ -3983,6 +3983,41 @@ class Route extends FOGBase
         }
     }
     /**
+     * Instantiates one of $validClasses by its bare route name.
+     *
+     * The route binds `:class` from a URL segment matched against
+     * $validClasses, so what arrives here is a bare lowercase name -- 'host',
+     * not 'FOG\Items\Host'. It resolves today only because every file under
+     * src/ ends in a class_alias() re-exporting itself globally (ADR 0013
+     * §2), and retiring those aliases is queued work.
+     *
+     * Qualifying at DISPATCH instead would be wrong, which is why this sits
+     * here and not in runMatches(). The same $class is an identifier as well
+     * as a class reference: every caller below computes
+     * `$classname = strtolower($class)` first, and that string feeds
+     * listem()'s validation against $validClasses, $emitClassname, the HTML
+     * name=/id= attributes, and Authorization::resolveApiPermission().
+     * $validClasses holds bare lowercase names, and 'fog\items\host' is not
+     * a member of it -- the same trap FOGManagerController's __construct
+     * documents. So the bare name stays the identifier and only the
+     * instantiation is qualified.
+     *
+     * Not used by the two `new $class($id)` calls in edit() and create()
+     * that follow a successful save(). By that point $class holds the saved
+     * OBJECT, not its name, and `new $object` is alias-independent already.
+     *
+     * @param string $class the bare class name the route matched
+     * @param mixed  $id    the id to construct with, or null for an empty one
+     *
+     * @return object
+     */
+    private static function _newEntity(string $class, $id = null)
+    {
+        $fqcn = self::qualify($class);
+
+        return null === $id ? new $fqcn() : new $fqcn($id);
+    }
+    /**
      * Displays the individual item.
      *
      * @param string $class The class to work with.
@@ -3997,7 +4032,7 @@ class Route extends FOGBase
             // Recorded for printer(): a single-entity payload is flat and does
             // not name its own class.
             self::$emitClassname = $classname;
-            $class = new $class($id);
+            $class = self::_newEntity($class, $id);
             if (!$class->isValid()) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_NOT_FOUND
@@ -4053,7 +4088,7 @@ class Route extends FOGBase
                 '',
                 true
             );
-            $class = new $class($id);
+            $class = self::_newEntity($class, $id);
             if (!$class->isValid()) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_NOT_FOUND
@@ -4344,7 +4379,7 @@ class Route extends FOGBase
     public static function task($class, $id)
     {
         $classname = strtolower($class);
-        $class = new $class($id);
+        $class = self::_newEntity($class, $id);
         if (!$class->isValid()) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_NOT_FOUND
@@ -4411,7 +4446,7 @@ class Route extends FOGBase
                 '',
                 true
             );
-            $class = new $class;
+            $class = self::_newEntity($class);
 
             $vars = json_decode(
                 file_get_contents(
@@ -4815,7 +4850,7 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $class = new $class($id);
+            $class = self::_newEntity($class, $id);
             // The states a task can be cancelled FROM. This is the same
             // allowlist every "is this task live" test in the tree uses --
             // Host::loadTask() and getActiveTaskCount() both ask for exactly
@@ -5005,7 +5040,7 @@ class Route extends FOGBase
             );
             $find = [];
             $classname = $class;
-            $class = new $class;
+            $class = self::_newEntity($class);
             foreach ($classVars['databaseFields'] as &$key) {
                 $key = $class->key($key);
                 if (isset($vars->$key)) {

@@ -210,6 +210,55 @@ if ($unresolved) {
     );
 }
 
+/*
+ * ------------------------------------------------------------------
+ * 4. Route instantiates its entities through Route::_newEntity().
+ *
+ * The router binds `:class` from a URL segment matched against
+ * $validClasses, so a bare lowercase name reaches indiv(), edit(), task(),
+ * create(), cancel() and getsearchbody(). `new $class` on that name works
+ * only through the compatibility alias.
+ *
+ * Two `new $class($id)` calls legitimately remain, in edit() and create()
+ * after a successful save(): $class holds the saved OBJECT by then, and
+ * `new $object` never consulted an alias. So this cannot be a count or a
+ * grep for `new $class` -- it has to know which of the two $class is.
+ *
+ * Resolved by walking back to the variable's last assignment inside its own
+ * function: assigned from new/_newEntity means an object and is fine;
+ * reaching the parameter list means a bare string that bypassed the helper.
+ * ------------------------------------------------------------------
+ */
+$routeFile = $web . '/src/Router/Route.php';
+$routeLines = explode("\n", file_get_contents($routeFile));
+foreach ($routeLines as $i => $line) {
+    if (!preg_match('/=\s*new\s+\$(\w+)\s*[;(]/', $line, $m)) {
+        continue;
+    }
+    $var = $m[1];
+    // Walk back to the enclosing function, noting the last assignment.
+    $origin = 'parameter';
+    for ($j = $i - 1; $j >= 0; $j--) {
+        if (preg_match('/^\s*(?:public|protected|private)\s.*function\s/', $routeLines[$j])) {
+            break;
+        }
+        if (preg_match('/\$' . $var . '\s*=\s*(new\s|self::_newEntity\()/', $routeLines[$j])) {
+            $origin = 'object';
+            break;
+        }
+    }
+    if ('object' !== $origin) {
+        $fails[] = sprintf(
+            'src/Router/Route.php:%d instantiates $%s directly from the bare '
+            . 'route name. Bare names resolve only through the compatibility '
+            . 'alias -- use self::_newEntity($%s[, $id])',
+            $i + 1,
+            $var,
+            $var
+        );
+    }
+}
+
 if (count($fails)) {
     fwrite(STDERR, 'FAIL:' . PHP_EOL);
     foreach ($fails as $fail) {
@@ -220,7 +269,8 @@ if (count($fails)) {
 
 printf(
     "ok: qualify() resolves %d cases, %d src/ classes map to the namespace "
-    . "they declare, and all %d getClass() literals resolve without an alias\n",
+    . "they declare, all %d getClass() literals resolve without an alias, and "
+    . "Route instantiates only objects directly\n",
     count($expect),
     count($srcMap),
     count($literals)
