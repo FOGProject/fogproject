@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Auth;
+
+use FOG\Base\FOGBase;
+use FOG\Base\HookManager;
+use FOG\Router\Route;
 
 /**
  * Decides whether a field's VALUE may be written down.

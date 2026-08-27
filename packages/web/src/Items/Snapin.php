@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Base\FOGController;
+use FOG\Exception\SnapinSaveException;
+use FOG\Exception\UploadException;
+use FOG\Router\Route;
 
 /**
  * The snapin object.

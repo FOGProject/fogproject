@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Audit;
+
+use FOG\Auth\Redaction;
+use FOG\Base\FOGBase;
+use FOG\Items\AuditLog;
+use FOG\Items\User;
 
 /**
  * Writes the audit trail.

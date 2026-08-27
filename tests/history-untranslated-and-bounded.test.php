@@ -158,7 +158,7 @@ $t->check(
  */
 $t->check(
     'History::summary() is public static',
-    is_callable(['FOG\History', 'summary'])
+    is_callable(['FOG\Items\History', 'summary'])
 );
 $route = $web . '/src/Router/Route.php';
 $routeSummary = methodBody($route, 'private static function _historySummary(');
@@ -179,9 +179,9 @@ $t->check(
 );
 
 // And the renderer still works, which is the thing all three depend on.
-$rendered = \FOG\History::summary(
+$rendered = \FOG\Items\History::summary(
     [
-        'hType' => \FOG\History::TYPE_UPDATE,
+        'hType' => \FOG\Items\History::TYPE_UPDATE,
         'hSubjectType' => 'host',
         'hSubjectID' => 7,
         'hSubjectLabel' => 'bench-7',
@@ -195,7 +195,7 @@ $t->check(
 );
 $t->check(
     'an unframed row still falls back to the stored text',
-    'legacy prose' === \FOG\History::summary(['hText' => 'legacy prose'])
+    'legacy prose' === \FOG\Items\History::summary(['hText' => 'legacy prose'])
 );
 
 /*
@@ -204,10 +204,10 @@ $t->check(
  */
 $t->check(
     'FOGBase declares a per-request cap',
-    defined('FOG\FOGBase::LOG_HISTORY_MAX')
+    defined('FOG\Base\FOGBase::LOG_HISTORY_MAX')
 );
-$max = defined('FOG\FOGBase::LOG_HISTORY_MAX')
-    ? constant('FOG\FOGBase::LOG_HISTORY_MAX')
+$max = defined('FOG\Base\FOGBase::LOG_HISTORY_MAX')
+    ? constant('FOG\Base\FOGBase::LOG_HISTORY_MAX')
     : 0;
 $t->check(
     'the cap is a positive int, and generous enough not to ration real logging',

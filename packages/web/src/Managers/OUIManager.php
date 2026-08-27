@@ -11,7 +11,9 @@
  * @link     https://fogproject.rog
  */
 
-namespace FOG;
+namespace FOG\Managers;
+
+use FOG\Base\FOGManagerController;
 
 /**
  * The oui manager class.

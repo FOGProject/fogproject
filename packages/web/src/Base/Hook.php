@@ -16,7 +16,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
 
 /**
  * Hooks allow customization between different aspects.

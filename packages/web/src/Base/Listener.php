@@ -26,7 +26,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
 
 /**
  * What a hook and an event both are, and nothing else.

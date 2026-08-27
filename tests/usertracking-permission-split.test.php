@@ -148,7 +148,7 @@ foreach (['host', 'group'] as $node) {
  *    arrives in must resolve, and anything else must fall back to `report`
  *    so an uploaded custom report behaves as it always has.
  */
-$m = new \ReflectionMethod('FOG\\Authorization', '_reportNode');
+$m = new \ReflectionMethod('FOG\\Auth\\Authorization', '_reportNode');
 $m->setAccessible(true);
 $reportNode = function ($rawSub) use ($m) {
     return $m->invoke(null, $rawSub);

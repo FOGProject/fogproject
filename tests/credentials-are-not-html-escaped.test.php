@@ -127,7 +127,7 @@ $cases = [
     'an accented character' => 'motdepasse' . chr(0xC3) . chr(0xA9),
 ];
 foreach ($cases as $label => $plain) {
-    $seen = \FOG\FOGBase::decodeCredential(base64_encode($plain));
+    $seen = \FOG\Base\FOGBase::decodeCredential(base64_encode($plain));
     if ($seen !== $plain) {
         $fails[] = sprintf(
             'decodeCredential() mangled a password containing %s: sent %s, got %s',
@@ -145,10 +145,10 @@ foreach ($cases as $label => $plain) {
  * turns a mangled login into a REFUSED one, which is a worse regression than
  * the bug being fixed. 'fg>aaP1' encodes to 'Zmc+YWFQMQ=='.
  */
-if (\FOG\FOGBase::decodeCredential('Zmc+YWFQMQ==') !== 'fg>aaP1') {
+if (\FOG\Base\FOGBase::decodeCredential('Zmc+YWFQMQ==') !== 'fg>aaP1') {
     $fails[] = "decodeCredential() failed on base64 containing a '+'";
 }
-if (\FOG\FOGBase::decodeCredential('Zmc YWFQMQ==') !== 'fg>aaP1') {
+if (\FOG\Base\FOGBase::decodeCredential('Zmc YWFQMQ==') !== 'fg>aaP1') {
     $fails[] = "decodeCredential() did not restore a '+' that arrived as a space";
 }
 
@@ -158,7 +158,7 @@ if (\FOG\FOGBase::decodeCredential('Zmc YWFQMQ==') !== 'fg>aaP1') {
  * became a plausible wrong credential rather than a refused one.
  */
 foreach (['not!valid!base64!', '@@@@', "Zm9n\x00YQ=="] as $junk) {
-    if (false !== \FOG\FOGBase::decodeCredential($junk)) {
+    if (false !== \FOG\Base\FOGBase::decodeCredential($junk)) {
         $fails[] = 'decodeCredential() accepted ' . var_export($junk, true)
             . ' instead of refusing it -- the decode is not strict';
     }
@@ -173,7 +173,7 @@ foreach (['not!valid!base64!', '@@@@', "Zm9n\x00YQ=="] as $junk) {
  * the escaping is still there, and decodeCredential() is a genuinely different
  * path rather than an alias for it.
  */
-if (false === strpos(\FOG\FOGBase::stripAndDecodeItem(base64_encode('a<b&c')), '&lt;')) {
+if (false === strpos(\FOG\Base\FOGBase::stripAndDecodeItem(base64_encode('a<b&c')), '&lt;')) {
     $fails[] = 'stripAndDecodeItem() no longer HTML-escapes -- the credential fix'
         . ' must not have been made by weakening the shared sanitiser';
 }

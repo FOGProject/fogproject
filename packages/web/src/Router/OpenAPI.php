@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Router;
+
+use FOG\Auth\Authorization;
+use FOG\Base\FOGBase;
+use FOG\Db\SchemaReconciler;
 
 /**
  * OpenAPI description of the FOG REST API, generated from FOG's own metadata.

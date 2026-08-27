@@ -102,7 +102,7 @@ $t->check(
 /*
  * 3. The gate. This is the one that fails dangerously rather than visibly.
  */
-$nodes = constant('FOG\Authorization::REPORT_NODES');
+$nodes = constant('FOG\Auth\Authorization::REPORT_NODES');
 $t->check(
     'the report is listed in REPORT_NODES rather than inheriting `report`',
     array_key_exists($slug, (array)$nodes)

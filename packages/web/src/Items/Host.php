@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Base\FOGController;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
 
 /**
  * The host object (main item FOG deals with

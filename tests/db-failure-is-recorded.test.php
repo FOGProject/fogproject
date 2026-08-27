@@ -240,7 +240,7 @@ $before = fogLogContents();
 $writesBefore = $db->writes;
 try {
     FogTestHarness::callStatic(
-        'FOG\TaskError',
+        'FOG\TaskHandling\TaskError',
         '_logRow',
         [$task, TaskLog::TYPE_ERROR, 'save-failure fos report']
     );
@@ -295,7 +295,7 @@ $db->rejectReads = false;
 $db->rejectCatalog = true;
 $before = fogLogContents();
 FogTestHarness::callStatic(
-    'FOG\FOGController',
+    'FOG\Base\FOGController',
     '_loadPluginColumnTypes',
     ['a_plugin_table_not_in_the_manifest']
 );
@@ -341,8 +341,8 @@ $db->rejectReads = true;
 // passes the mutation that guts the definition, so this drives the actual
 // method: with no query result to read, fetch() raises internally, catches,
 // and must leave the message on ->error rather than dropping it.
-$realDb = (new \ReflectionClass('FOG\PDODB'))->newInstanceWithoutConstructor();
-$qr = new \ReflectionProperty('FOG\PDODB', '_queryResult');
+$realDb = (new \ReflectionClass('FOG\Db\PDODB'))->newInstanceWithoutConstructor();
+$qr = new \ReflectionProperty('FOG\Db\PDODB', '_queryResult');
 $qr->setAccessible(true);
 $qr->setValue(null, null);
 $realDb->error = false;

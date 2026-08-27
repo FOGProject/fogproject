@@ -12,7 +12,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Util;
 
 /**
  * Creates the timer item so we know when

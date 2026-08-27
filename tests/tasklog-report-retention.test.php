@@ -56,7 +56,7 @@ $t = new FogChecks();
 $t->check(
     'TaskLog declares the three identity fields',
     (function () {
-        $p = new \ReflectionProperty('FOG\TaskLog', 'databaseFields');
+        $p = new \ReflectionProperty('FOG\Items\TaskLog', 'databaseFields');
         $p->setAccessible(true);
         $fields = $p->getValue(FOGCore::getClass('TaskLog'));
         return isset($fields['hostID'], $fields['hostName'], $fields['taskTypeName'])
@@ -77,7 +77,7 @@ $host = FOGCore::getClass('Host')
  * fake connection cannot populate. Overridden so this half stays about what
  * _logRow() DOES with the type, not about how a task finds one.
  */
-class RetentionTask extends \FOG\Task
+class RetentionTask extends \FOG\Items\Task
 {
     public function getTaskTypeText()
     {
@@ -103,7 +103,7 @@ $db->responder = function ($sql, $params) use (&$insert, &$bound) {
     return null;
 };
 
-$m = new \ReflectionMethod('FOG\TaskError', '_logRow');
+$m = new \ReflectionMethod('FOG\TaskHandling\TaskError', '_logRow');
 $m->setAccessible(true);
 $m->invoke(null, $task, 'error', 'partclone died');
 $db->responder = null;

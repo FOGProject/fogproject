@@ -11,7 +11,13 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\TaskHandling;
+
+use FOG\Audit\Audit;
+use FOG\Items\Image;
+use FOG\Items\StorageNode;
+use FOG\Items\TaskType;
+use FOG\Router\Route;
 
 /**
  * The queue handling system for FOG's checkin/checkout processes.

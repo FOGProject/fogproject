@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Boot;
+
+use FOG\Base\FOGBase;
 
 /**
  * Wake on lan management class.

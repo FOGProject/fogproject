@@ -11,7 +11,13 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Audit\Audit;
+use FOG\Auth\Authorization;
+use FOG\Auth\SiteScope;
+use FOG\Base\FOGController;
+use FOG\Router\Route;
 
 /**
  * Handler of the user as authenticated

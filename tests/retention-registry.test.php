@@ -254,7 +254,7 @@ foreach ($shrinks as $case) {
  * 4. Identifiers are validated, not interpolated on trust. The registry is
  *    extensible by a plugin hook, and a table name is not bindable.
  */
-$ident = new \ReflectionMethod('FOG\\Retention', '_ident');
+$ident = new \ReflectionMethod('FOG\\Audit\\Retention', '_ident');
 $ident->setAccessible(true);
 $bad = ['audit`Log', 'auditLog; DROP TABLE hosts', 'audit Log', '', 'a-b'];
 foreach ($bad as $name) {

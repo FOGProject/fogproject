@@ -8,5 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'Ifsnop\\' => array($vendorDir . '/ifsnop/mysqldump-php/src/Ifsnop'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
-    'FOG\\' => array($baseDir . '/src', $baseDir . '/src/Items', $baseDir . '/src/Managers', $baseDir . '/src/Base', $baseDir . '/src/Service', $baseDir . '/src/Client', $baseDir . '/src/Net', $baseDir . '/src/Db', $baseDir . '/src/Auth', $baseDir . '/src/Audit', $baseDir . '/src/TaskHandling', $baseDir . '/src/Boot', $baseDir . '/src/Router', $baseDir . '/src/Util', $baseDir . '/src/Exception'),
+    'FOG\\' => array($baseDir . '/src'),
 );

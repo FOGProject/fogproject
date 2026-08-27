@@ -338,7 +338,7 @@ $cases = [
 ];
 foreach ($cases as $label => $case) {
     list($stored, $proposed, $want) = $case;
-    $got = \FOG\Authorization::externalUsersGiven($stored, $proposed);
+    $got = \FOG\Auth\Authorization::externalUsersGiven($stored, $proposed);
     sort($got);
     sort($want);
     if ($got !== $want) {

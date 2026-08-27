@@ -10,7 +10,7 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-namespace FOG;
+namespace FOG\Service;
 
 /**
  * Snapin replicator service.

@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
 
 /**
  * The core elements accessible for all else

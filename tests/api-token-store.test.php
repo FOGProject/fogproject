@@ -108,7 +108,7 @@ $t->check(
 );
 
 // Behavioural, not just textual: drive the real function through $_SERVER.
-$cred = new \ReflectionMethod('FOG\\Route', '_bearerCredential');
+$cred = new \ReflectionMethod('FOG\\Router\\Route', '_bearerCredential');
 $cred->setAccessible(true);
 
 $sample = 'fog_' . str_repeat('ab', 64);

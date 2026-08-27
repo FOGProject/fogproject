@@ -146,7 +146,7 @@ foreach (
         'TYPE_LOG'
     ] as $const
 ) {
-    $name = 'FOG\History::' . $const;
+    $name = 'FOG\Items\History::' . $const;
     $t->check("History::$const is defined", defined($name));
     if (defined($name)) {
         $types[] = constant($name);

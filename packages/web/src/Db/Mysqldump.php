@@ -14,7 +14,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Db;
 
 /**
  * Mysqldump, FOG's database dumper.

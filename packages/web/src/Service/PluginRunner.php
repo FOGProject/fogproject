@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Base\PluginTask;
+use FOG\Items\Plugin;
+use FOG\Router\Route;
 
 /**
  * Runs background work declared by installed, active plugins.

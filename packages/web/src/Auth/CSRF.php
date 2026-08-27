@@ -13,7 +13,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Auth;
 
 /**
  * CSRF, hopefully more secure handling centralized.

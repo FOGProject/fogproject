@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Base\FOGController;
 
 /**
  * Membership association between site -> user links.

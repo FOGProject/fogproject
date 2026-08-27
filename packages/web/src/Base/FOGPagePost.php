@@ -22,7 +22,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+use FOG\Util\FOGCron;
 
 trait FOGPagePost
 {

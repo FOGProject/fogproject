@@ -623,10 +623,10 @@ $t->check(
 // made Route::getItem() hand redacted objects to internal callers while
 // Route::getList() handed whole ones. See
 // tests/api-nested-secret-strip.test.php for the full set.
-$nestedProp = new \ReflectionProperty('FOG\\Route', 'nestedClasses');
+$nestedProp = new \ReflectionProperty('FOG\\Router\\Route', 'nestedClasses');
 $nestedProp->setAccessible(true);
 $nestedProp->setValue(null, ['task' => ['storagenode' => 'storagenode']]);
-$emitClass = new \ReflectionProperty('FOG\\Route', 'emitClassname');
+$emitClass = new \ReflectionProperty('FOG\\Router\\Route', 'emitClassname');
 $emitClass->setAccessible(true);
 $emitClass->setValue(null, 'task');
 

@@ -86,32 +86,32 @@ $_SERVER['QUERY_STRING'] = 'filter=' . rawurlencode('name=probe');
  * runMatches() for named routes only, so with nothing captured this returns
  * unchanged.
  */
-FOG\Route::takeRequestFilter();
-$boot = FOG\Route::handleWhereItems(false, 'hookevent');
+FOG\Router\Route::takeRequestFilter();
+$boot = FOG\Router\Route::handleWhereItems(false, 'hookevent');
 $t->check(
     'with no route dispatched, false is returned unchanged',
     false === $boot
 );
 
 // Everything below is the dispatched case, so capture as runMatches() would.
-FOG\Route::captureRequestFilter('list');
-$fromFalse = FOG\Route::handleWhereItems(false, 'host');
+FOG\Router\Route::captureRequestFilter('list');
+$fromFalse = FOG\Router\Route::handleWhereItems(false, 'host');
 $t->check(
     'false (listem default) picks the query filter up',
     is_array($fromFalse) && isset($fromFalse['name'])
         && 'probe' === $fromFalse['name']
 );
 
-FOG\Route::captureRequestFilter('names');
-$fromEmpty = FOG\Route::handleWhereItems([], 'host');
+FOG\Router\Route::captureRequestFilter('names');
+$fromEmpty = FOG\Router\Route::handleWhereItems([], 'host');
 $t->check(
     'an empty array (names/ids default) picks it up too',
     is_array($fromEmpty) && isset($fromEmpty['name'])
         && 'probe' === $fromEmpty['name']
 );
 
-FOG\Route::captureRequestFilter('list');
-$internal = FOG\Route::handleWhereItems(['id' => [7, 8, 9]], 'host');
+FOG\Router\Route::captureRequestFilter('list');
+$internal = FOG\Router\Route::handleWhereItems(['id' => [7, 8, 9]], 'host');
 $t->check(
     'a NON-EMPTY array is left exactly as passed',
     $internal === ['id' => [7, 8, 9]]
@@ -121,8 +121,8 @@ $t->check(
     !isset($internal['name'])
 );
 
-FOG\Route::captureRequestFilter('list');
-$segment = FOG\Route::handleWhereItems('name=fromsegment', 'host');
+FOG\Router\Route::captureRequestFilter('list');
+$segment = FOG\Router\Route::handleWhereItems('name=fromsegment', 'host');
 $t->check(
     'the path segment still wins over the query string',
     is_array($segment) && isset($segment['name'])
@@ -133,24 +133,24 @@ $t->check(
  * 2b. A route that does not advertise a filter cannot be given one, and the
  *     capture is consumed rather than left lying around for the next call.
  */
-FOG\Route::captureRequestFilter('search');
-$searchArgs = FOG\Route::handleWhereItems(false, 'host');
+FOG\Router\Route::captureRequestFilter('search');
+$searchArgs = FOG\Router\Route::handleWhereItems(false, 'host');
 $t->check(
     'search does not capture a filter',
     false === $searchArgs
 );
 
-FOG\Route::captureRequestFilter('list');
-FOG\Route::handleWhereItems(false, 'host');
-$second = FOG\Route::handleWhereItems(false, 'host');
+FOG\Router\Route::captureRequestFilter('list');
+FOG\Router\Route::handleWhereItems(false, 'host');
+$second = FOG\Router\Route::handleWhereItems(false, 'host');
 $t->check(
     'the filter is consumed once, so nested internal calls see nothing',
     false === $second
 );
 
 unset($_SERVER['QUERY_STRING']);
-FOG\Route::captureRequestFilter('list');
-$none = FOG\Route::handleWhereItems(false, 'host');
+FOG\Router\Route::captureRequestFilter('list');
+$none = FOG\Router\Route::handleWhereItems(false, 'host');
 $t->check(
     'with no filter anywhere, false is returned unchanged',
     false === $none
@@ -160,7 +160,7 @@ $t->check(
  * 3. The document. Generated per request, so it is built here rather than
  *    read off disk.
  */
-$doc = FogTestHarness::callStatic('FOG\OpenAPI', 'document');
+$doc = FogTestHarness::callStatic('FOG\Router\OpenAPI', 'document');
 $t->check(
     'the document generated',
     is_array($doc) && isset($doc['paths'], $doc['components'])
@@ -195,7 +195,7 @@ function opHasFilter(array $op)
 $wantFilter = 0;
 $missing = [];
 $searchWithFilter = [];
-foreach ((array)FOG\Route::$validClasses as $class) {
+foreach ((array)FOG\Router\Route::$validClasses as $class) {
     $class = strtolower($class);
     foreach (['', '/count', '/names', '/ids'] as $suffix) {
         $path = '/' . $class . $suffix;

@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Managers;
+
+use FOG\Base\FOGManagerController;
 
 /**
  * Image association manager class

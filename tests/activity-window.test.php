@@ -54,7 +54,7 @@ $t = new FogChecks();
 
 $root = dirname(__DIR__);
 
-$mapMethod = new \ReflectionMethod('FOG\ActivityWindow', '_map');
+$mapMethod = new \ReflectionMethod('FOG\Audit\ActivityWindow', '_map');
 $mapMethod->setAccessible(true);
 $map = (array)$mapMethod->invoke(null);
 
@@ -82,7 +82,7 @@ $t->check(
 );
 $t->check(
     'sources() reports the same set',
-    \FOG\ActivityWindow::sources() === array_keys($expected)
+    \FOG\Audit\ActivityWindow::sources() === array_keys($expected)
 );
 
 // 2. One column set, one order, every arm.

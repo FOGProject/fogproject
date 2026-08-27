@@ -47,18 +47,18 @@ $hook = new class {
     {
     }
 };
-$bind = new \ReflectionProperty('FOG\FOGBase', 'HookManager');
+$bind = new \ReflectionProperty('FOG\Base\FOGBase', 'HookManager');
 $bind->setAccessible(true);
 $bind->setValue(null, $hook);
 
 $fails = [];
 
-$sanitize = new \ReflectionMethod('FOG\TaskError', '_sanitize');
+$sanitize = new \ReflectionMethod('FOG\TaskHandling\TaskError', '_sanitize');
 $sanitize->setAccessible(true);
 $clean = function ($raw) use ($sanitize) {
     return $sanitize->invoke(null, $raw);
 };
-$refl = new \ReflectionClass('FOG\TaskError');
+$refl = new \ReflectionClass('FOG\TaskHandling\TaskError');
 $maxReason = $refl->getConstant('MAX_REASON');
 $maxText = $refl->getConstant('MAX_TEXT');
 $max = $maxText;
@@ -112,7 +112,7 @@ if (false === strpos($clean("Failed \xC3\x28 to mount\nsecond line"), "\n")) {
 // themselves. A newline in a chat message lets a caller forge a second one;
 // a newline in fosreports.log breaks the one-entry-per-line property `tail`
 // depends on.
-$flatten = new \ReflectionMethod('FOG\TaskError', '_flatten');
+$flatten = new \ReflectionMethod('FOG\TaskHandling\TaskError', '_flatten');
 $flatten->setAccessible(true);
 $flat = $flatten->invoke(null, $multi);
 if (false !== strpos($flat, "\n")) {
@@ -255,7 +255,7 @@ if (substr_count($src, "echo '##';") !== 1) {
 // 1. The constant and the seeded row must agree, or a failed task points at a
 //    taskStates row that does not exist: it renders blank and cannot be
 //    filtered for.
-$failed = \FOG\TaskState::getFailedState();
+$failed = \FOG\Items\TaskState::getFailedState();
 if ($failed !== 6) {
     $fails[] = "TaskState::getFailedState() returns $failed; the schema seeds"
         . ' tsID 6, and the two have to be the same number';
@@ -309,20 +309,20 @@ if (false === strpos($src, 'error_log(')) {
 
 // ------------------------------------------------------- type, row, file
 
-$types = (new \ReflectionClass('FOG\TaskError'))->getConstant('TYPES');
+$types = (new \ReflectionClass('FOG\TaskHandling\TaskError'))->getConstant('TYPES');
 if (!is_array($types)
-    || ($types['warning'] ?? null) !== \FOG\TaskLog::TYPE_WARNING
-    || ($types['error'] ?? null) !== \FOG\TaskLog::TYPE_ERROR
+    || ($types['warning'] ?? null) !== \FOG\Items\TaskLog::TYPE_WARNING
+    || ($types['error'] ?? null) !== \FOG\Items\TaskLog::TYPE_ERROR
 ) {
     $fails[] = 'the endpoint does not map both report types onto TaskLog types';
 }
 
-$readType = new \ReflectionMethod('FOG\TaskError', '_reportedType');
+$readType = new \ReflectionMethod('FOG\TaskHandling\TaskError', '_reportedType');
 $readType->setAccessible(true);
 // filter_input has nothing to read under CLI, so this exercises the fallback:
 // no type at all must mean error, never warning. A FOS too old to send one is
 // only ever reporting a failure.
-if ($readType->invoke(null) !== \FOG\TaskLog::TYPE_ERROR) {
+if ($readType->invoke(null) !== \FOG\Items\TaskLog::TYPE_ERROR) {
     $fails[] = 'a report with no type is not treated as an error, so an older'
         . ' FOS reporting a real failure fires nothing';
 }
@@ -368,7 +368,7 @@ if (false === $mark || false === $imaging || $mark > $imaging) {
 }
 
 // The model has to be able to hold what the endpoint writes.
-$fields = (new \ReflectionClass('FOG\TaskLog'))
+$fields = (new \ReflectionClass('FOG\Items\TaskLog'))
     ->getDefaultProperties()['databaseFields'] ?? [];
 foreach (['type' => 'logType', 'text' => 'logText'] as $key => $column) {
     if (($fields[$key] ?? null) !== $column) {
@@ -380,13 +380,13 @@ foreach (['type' => 'logType', 'text' => 'logText'] as $key => $column) {
 // The log file goes in its own subdirectory, and that subdirectory has to be
 // one FOGLogPaths knows about or the Log Viewer can neither list nor read it
 // -- the two fail differently, which is why the class exists.
-$subdir = (new \ReflectionClass('FOG\TaskError'))->getConstant('LOG_SUBDIR');
-if (!in_array($subdir, \FOG\FOGLogPaths::FOG_SUBDIRS, true)) {
+$subdir = (new \ReflectionClass('FOG\TaskHandling\TaskError'))->getConstant('LOG_SUBDIR');
+if (!in_array($subdir, \FOG\Util\FOGLogPaths::FOG_SUBDIRS, true)) {
     $fails[] = "the report log lives in '$subdir', which FOGLogPaths does not"
         . ' list, so the Log Viewer cannot offer it';
 }
 $reachable = false;
-foreach (\FOG\FOGLogPaths::readable() as $dir) {
+foreach (\FOG\Util\FOGLogPaths::readable() as $dir) {
     if (substr($dir, -strlen($subdir . DS)) === $subdir . DS) {
         $reachable = true;
     }

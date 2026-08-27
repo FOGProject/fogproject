@@ -10,7 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Router\Route;
 
 /**
  * Shared per-item file scanning for images and snapins.
@@ -135,15 +137,21 @@ abstract class FOGItemScanner extends FOGService
     /**
      * The fully-qualified model class.
      *
-     * Built from __NAMESPACE__ rather than relying on the global
-     * compatibility alias, which only exists once the class has been
-     * loaded -- and nothing here guarantees that it has been.
+     * Qualified rather than relying on the global compatibility alias,
+     * which only exists once the class has been loaded -- and nothing
+     * here guarantees that it has been.
+     *
+     * The bucket is named rather than taken from __NAMESPACE__: the
+     * models live in FOG\Items and this class lives in FOG\Service, so
+     * before Move 2 the two happened to coincide in a flat tree and no
+     * longer do. Building a COLLABORATOR's name from the CALLER's
+     * namespace is the mistake; it produced FOG\Service\Image.
      *
      * @return string
      */
     protected function modelClass()
     {
-        return __NAMESPACE__ . '\\' . $this->d('model');
+        return 'FOG\\Items\\' . $this->d('model');
     }
     /**
      * Initializes the scanner.

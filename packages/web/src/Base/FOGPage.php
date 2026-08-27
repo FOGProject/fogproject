@@ -12,7 +12,16 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Auth\Authorization;
+use FOG\Items\Group;
+use FOG\Items\Host;
+use FOG\Items\Image;
+use FOG\Items\Site;
+use FOG\Items\Snapin;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
 
 /**
  * Presents many defaults for the pages and is

@@ -43,7 +43,7 @@ $t = new FogChecks();
  * about what recordState() DOES with them. Same technique, and the same
  * reason, as RetentionTask in tests/tasklog-report-retention.test.php.
  */
-class TransitionTask extends \FOG\Task
+class TransitionTask extends \FOG\Items\Task
 {
     public $stubHost;
     public $stubImage;
@@ -105,7 +105,7 @@ $insert = '';
 $bound = [];
 // Checked rather than assumed, so a tree without the method reports a failure
 // instead of dying with a fatal halfway through the file.
-if (!method_exists('FOG\TaskLog', 'recordState')) {
+if (!method_exists('FOG\Items\TaskLog', 'recordState')) {
     $t->check('TaskLog::recordState() exists', false);
     $t->finish();
 }
@@ -116,7 +116,7 @@ $db->responder = function ($sql, $params) use (&$insert, &$bound) {
     }
     return null;
 };
-\FOG\TaskLog::recordState($task);
+\FOG\Items\TaskLog::recordState($task);
 $db->responder = null;
 
 if ($t->check('recordState() issues an INSERT against taskLog', '' !== $insert)) {

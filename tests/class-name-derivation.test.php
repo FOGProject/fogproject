@@ -5,10 +5,10 @@
  *
  * PHP resolves a class *reference* whether it is namespaced or not, and the
  * compatibility aliases Phase 3 adds mean `new Host` keeps working after
- * Host becomes FOG\Host. So every consumer of a class name is safe. What is
+ * Host becomes FOG\Items\Host. So every consumer of a class name is safe. What is
  * not safe is the other direction: get_class(), __CLASS__ and ::class report
  * the DECLARED name, never the alias, so the moment a class moves into a
- * namespace every one of them starts returning 'FOG\Host'.
+ * namespace every one of them starts returning 'FOG\Items\Host'.
  *
  * FOG uses those strings as data in at least five places -- a database
  * column name, a switch case, an HTML name= attribute, a Route::$validClasses
@@ -183,7 +183,7 @@ if ($converted < MIN_CONVERTED) {
 require_once $root . '/packages/web/src/Base/FOGBase.php';
 
 $cases = [
-    ['FOG\\Host', 'Host', 'namespaced name'],
+    ['FOG\\Items\\Host', 'Host', 'namespaced name'],
     ['Host', 'Host', 'global name (today\'s tree)'],
     ['FOG\\Deep\\Ns\\Host', 'Host', 'nested namespace'],
     ['\\Host', 'Host', 'leading separator'],

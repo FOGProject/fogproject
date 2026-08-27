@@ -95,6 +95,7 @@ if (0 === count($paths)) {
 $pending = [];
 $converted = 0;
 $qualified = 0;
+$rebucketed = 0;
 $skipped = 0;
 
 foreach ($paths as $path) {
@@ -121,6 +122,42 @@ foreach ($paths as $path) {
         $src = convert($src, $info);
         $converted++;
         printf("converted %-58s %s\n", $path, $info['name']);
+    }
+
+    // Third question, added by Move 2: a file under src/<Bucket>/ must declare
+    // namespace FOG\<Bucket>. Without this the tool is blind to the only
+    // mistake the bucketed layout makes possible -- a class whose namespace
+    // and directory disagree. That file still loads, because Composer maps
+    // the namespace and never looks at where the file actually sits, so it
+    // resolves under a name no other file expects and every `use` of it
+    // fatals. Verified blind before this existed: moving Host to
+    // namespace FOG\Managers left --check reporting "nothing left to do".
+    $want = bucketNamespace($path);
+    if (null !== $want) {
+        $have = declaredNamespace($src);
+        if ($have !== $want) {
+            if ('--check' === $mode) {
+                $pending[] = sprintf(
+                    '%s  -- declares `namespace %s;` but sits in %s, so it must declare `namespace %s;`',
+                    $path,
+                    $have ?? '(none)',
+                    dirname($path),
+                    $want
+                );
+                continue;
+            }
+            if (null !== $have) {
+                $src = preg_replace(
+                    '/^namespace\s+' . preg_quote($have, '/') . '\s*;/m',
+                    'namespace ' . $want . ';',
+                    $src,
+                    1
+                );
+                file_put_contents($path, $src);
+                $rebucketed++;
+                printf("rebucketed %-57s %s -> %s\n", $path, $have, $want);
+            }
+        }
     }
 
     // Second pass, and it runs on ALREADY-converted files too. See
@@ -165,9 +202,10 @@ if ('--check' === $mode) {
 }
 
 printf(
-    "\n%d converted, %d reference(s) qualified, %d skipped\n",
+    "\n%d converted, %d reference(s) qualified, %d rebucketed, %d skipped\n",
     $converted,
     $qualified,
+    $rebucketed,
     $skipped
 );
 exit(0);
@@ -437,4 +475,68 @@ function declaredIn($file)
         }
     }
     return $names;
+}
+
+/**
+ * The namespace a file's location requires, or null if its location says
+ * nothing.
+ *
+ * Only packages/web/src/<Bucket>/<Class>.php is constrained. Everything else
+ * -- commons/, lib/pages, lib/hooks, the plugin roots -- keeps the flat
+ * `namespace FOG;` that ADR 0013 describes, because nothing maps those
+ * directories to a namespace.
+ *
+ * Derived from the path rather than from a table, so moving a class between
+ * buckets needs no edit here.
+ *
+ * @param string $path the file, repo-relative
+ *
+ * @return string|null
+ */
+function bucketNamespace($path)
+{
+    $prefix = 'packages/web/src/';
+    if (0 !== strpos($path, $prefix)) {
+        return null;
+    }
+    $rest = substr($path, strlen($prefix));
+    $parts = explode('/', $rest);
+    if (2 !== count($parts)) {
+        return null;
+    }
+    return NS . '\\' . $parts[0];
+}
+
+/**
+ * The namespace a file declares, or null.
+ *
+ * Tokenized rather than matched, so a `namespace` inside a string or a
+ * docblock cannot answer for the real one.
+ *
+ * @param string $src the file's contents
+ *
+ * @return string|null
+ */
+function declaredNamespace($src)
+{
+    $tokens = token_get_all($src);
+    $count = count($tokens);
+    for ($i = 0; $i < $count; $i++) {
+        if (!is_array($tokens[$i]) || T_NAMESPACE !== $tokens[$i][0]) {
+            continue;
+        }
+        $name = '';
+        for ($j = $i + 1; $j < $count; $j++) {
+            $t = $tokens[$j];
+            if (';' === $t || '{' === $t) {
+                break;
+            }
+            if (is_array($t) && T_WHITESPACE === $t[0]) {
+                continue;
+            }
+            $name .= is_array($t) ? $t[1] : $t;
+        }
+        return '' === $name ? null : $name;
+    }
+    return null;
 }

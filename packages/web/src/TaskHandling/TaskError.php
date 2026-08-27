@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\TaskHandling;
+
+use FOG\Audit\Audit;
+use FOG\Base\FOGBase;
+use FOG\Items\TaskLog;
+use FOG\Items\TaskState;
 
 /**
  * Records that FOS could not finish a task, and tells anyone listening.

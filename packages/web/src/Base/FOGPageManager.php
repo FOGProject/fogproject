@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Auth\Authorization;
 
 /**
  * Manages and presents the page items

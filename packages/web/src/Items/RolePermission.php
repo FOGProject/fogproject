@@ -11,7 +11,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Auth\Authorization;
+use FOG\Base\FOGController;
 
 /**
  * Permission granted to a role.

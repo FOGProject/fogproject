@@ -13,7 +13,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
 
 /**
  * System, the basic system layout.

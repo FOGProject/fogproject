@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Auth\Authorization;
+use FOG\Base\FOGController;
+use FOG\Router\Route;
 
 /**
  * Role — native role-based access control.

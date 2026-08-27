@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
 
 /**
  * Tells the client if there's a task waiting for the host

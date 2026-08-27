@@ -11,7 +11,7 @@
  * @link     https://fogproject.org/
  */
 
-namespace FOG;
+namespace FOG\Router;
 
 /**
  * Builds the response codes.

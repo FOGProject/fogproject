@@ -11,7 +11,32 @@
  * @link     https://fogproject.org/
  */
 
-namespace FOG;
+namespace FOG\Router;
+
+use FOG\Audit\Audit;
+use FOG\Auth\Authorization;
+use FOG\Auth\CSRF;
+use FOG\Auth\Redaction;
+use FOG\Auth\SiteScope;
+use FOG\Base\FOGBase;
+use FOG\Base\FOGController;
+use FOG\Base\FOGCore;
+use FOG\Base\FOGManagerController;
+use FOG\Db\DatabaseManager;
+use FOG\Items\APIToken;
+use FOG\Items\Group;
+use FOG\Items\History;
+use FOG\Items\Host;
+use FOG\Items\Inventory;
+use FOG\Items\MACAddress;
+use FOG\Items\Plugin;
+use FOG\Items\Snapin;
+use FOG\Items\StorageNode;
+use FOG\Items\Task;
+use FOG\Items\UserTracking;
+use FOG\Managers\PXEMenuOptionsManager;
+use FOG\Net\Ping;
+use FOG\Util\FOGCron;
 
 class Route extends FOGBase
 {

@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Router\Route;
 
 /**
  * Handles file deletetion queued tasks.

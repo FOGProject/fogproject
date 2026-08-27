@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
+
+use FOG\Items\UserTracking;
 
 /**
  * Logs the user who logged in

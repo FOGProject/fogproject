@@ -11,7 +11,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Items\MulticastSession;
+use FOG\Router\Route;
 
 /**
  * Multicast task generator/finder

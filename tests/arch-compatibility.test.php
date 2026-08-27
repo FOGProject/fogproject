@@ -64,7 +64,7 @@ $matrix = [
     ['arm64',  'i386',   false, 'arm64 image on an i386 host'],
 ];
 foreach ($matrix as list($img, $host, $want, $why)) {
-    $got = \FOG\Architecture::canRun($img, $host);
+    $got = \FOG\Items\Architecture::canRun($img, $host);
     $t->check(
         sprintf(
             'canRun(%s image -> %s host) is %s -- %s',
@@ -85,16 +85,16 @@ foreach ($unknowns as $i => $blank) {
     $shown = var_export($blank, true);
     $t->check(
         "unknown image arch ($shown) against a known host is allowed",
-        \FOG\Architecture::canRun($blank, 'arm64') === true
+        \FOG\Items\Architecture::canRun($blank, 'arm64') === true
     );
     $t->check(
         "unknown host arch ($shown) against a known image is allowed",
-        \FOG\Architecture::canRun('x86_64', $blank) === true
+        \FOG\Items\Architecture::canRun('x86_64', $blank) === true
     );
 }
 $t->check(
     'both sides unknown is allowed',
-    \FOG\Architecture::canRun('', '') === true
+    \FOG\Items\Architecture::canRun('', '') === true
 );
 
 // --- normalisation --------------------------------------------------------
@@ -113,16 +113,16 @@ $aliases = [
 foreach ($aliases as $raw => $want) {
     $t->check(
         sprintf("normalizeName('%s') is '%s'", $raw, $want),
-        \FOG\Architecture::normalizeName($raw) === $want
+        \FOG\Items\Architecture::normalizeName($raw) === $want
     );
 }
 $t->check(
     'normalizeName leaves an unknown architecture alone rather than guessing',
-    \FOG\Architecture::normalizeName('riscv64') === 'riscv64'
+    \FOG\Items\Architecture::normalizeName('riscv64') === 'riscv64'
 );
 $t->check(
     'an aarch64 image is compatible with an arm64 host after normalisation',
-    \FOG\Architecture::canRun('aarch64', 'arm64') === true
+    \FOG\Items\Architecture::canRun('aarch64', 'arm64') === true
 );
 
 // --- the wiring the relation depends on -----------------------------------
@@ -271,35 +271,35 @@ $dumpOld = str_replace("sector-size: 4096\n", '', $dump4k);
 
 $t->check(
     'a 4Kn dump parses to 4096',
-    \FOG\Image::parseSectorSize($dump4k) === 4096
+    \FOG\Items\Image::parseSectorSize($dump4k) === 4096
 );
 $t->check(
     'a 512-byte dump parses to 512',
-    \FOG\Image::parseSectorSize($dump512) === 512
+    \FOG\Items\Image::parseSectorSize($dump512) === 512
 );
 $t->check(
     'a dump with no sector-size line is unknown (0), not assumed 512',
-    \FOG\Image::parseSectorSize($dumpOld) === 0
+    \FOG\Items\Image::parseSectorSize($dumpOld) === 0
 );
 $t->check(
     'an empty dump is unknown rather than an error',
-    \FOG\Image::parseSectorSize('') === 0
+    \FOG\Items\Image::parseSectorSize('') === 0
 );
 $t->check(
     'a sector-size mentioned mid-line is not mistaken for the field',
-    \FOG\Image::parseSectorSize("# note: sector-size: 4096 was seen\n") === 0
+    \FOG\Items\Image::parseSectorSize("# note: sector-size: 4096 was seen\n") === 0
 );
 $t->check(
     '4096 is labelled 4Kn',
-    false !== strpos(\FOG\Image::sectorSizeLabel(4096), '4Kn')
+    false !== strpos(\FOG\Items\Image::sectorSizeLabel(4096), '4Kn')
 );
 $t->check(
     '512 is labelled 512n/512e -- the two are not separable from a capture',
-    false !== strpos(\FOG\Image::sectorSizeLabel(512), '512n/512e')
+    false !== strpos(\FOG\Items\Image::sectorSizeLabel(512), '512n/512e')
 );
 $t->check(
     'unknown has no label at all, rather than a misleading default',
-    \FOG\Image::sectorSizeLabel(0) === ''
+    \FOG\Items\Image::sectorSizeLabel(0) === ''
 );
 $t->check(
     "Image maps 'sectorsize' to imageSectorSize",

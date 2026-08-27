@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Db\DatabaseManager;
+use FOG\Items\Schema;
+use FOG\Router\Route;
 
 /**
  * FOG Manager Controller, main object mass getter.

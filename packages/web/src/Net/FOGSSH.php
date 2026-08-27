@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Net;
+
+use FOG\Base\FOGCore;
 
 /**
  * Handles FTP connections and operations for FOG

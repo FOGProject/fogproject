@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Audit\Retention;
 
 /**
  * Ages out the tables that record what happened.

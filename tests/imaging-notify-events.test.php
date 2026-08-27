@@ -98,12 +98,12 @@ $bare = function ($class) {
     return (new \ReflectionClass($class))->newInstanceWithoutConstructor();
 };
 
-$hostProp = new \ReflectionProperty('FOG\FOGBase', 'Host');
+$hostProp = new \ReflectionProperty('FOG\Base\FOGBase', 'Host');
 $hostProp->setAccessible(true);
-$emProp = new \ReflectionProperty('FOG\FOGBase', 'EventManager');
+$emProp = new \ReflectionProperty('FOG\Base\FOGBase', 'EventManager');
 $emProp->setAccessible(true);
 
-$method = new \ReflectionMethod('FOG\TaskQueue', '_notifyImagingOutcome');
+$method = new \ReflectionMethod('FOG\TaskHandling\TaskQueue', '_notifyImagingOutcome');
 $method->setAccessible(true);
 
 /**
@@ -126,13 +126,13 @@ $run = function ($imaging, $capture, $image, $reason = '') use (
     $emProp->setValue(null, $spy);
     $hostProp->setValue(null, new NamedStub('labhost'));
 
-    $tq = $bare('FOG\TaskQueue');
+    $tq = $bare('FOG\TaskHandling\TaskQueue');
     foreach ([
         'imagingTask' => $imaging,
         'Task' => new TaskStub($capture, $capture ? 'Upload' : 'Deploy'),
         'Image' => $image,
     ] as $name => $value) {
-        $p = new \ReflectionProperty('FOG\TaskingElement', $name);
+        $p = new \ReflectionProperty('FOG\TaskHandling\TaskingElement', $name);
         $p->setAccessible(true);
         $p->setValue($tq, $value);
     }

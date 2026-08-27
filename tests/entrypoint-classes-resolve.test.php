@@ -84,6 +84,15 @@ if (!is_file($classmapFile)) {
 }
 $classmap = require $classmapFile;
 
+// Indexed by SHORT name. Since Move 2 the classmap keys are bucketed
+// (FOG\Items\Host, not FOG\Items\Host) while an entry point still writes the bare
+// global name that each class re-exports through its class_alias, so the two
+// only meet on the last segment.
+$byShort = [];
+foreach (array_keys($classmap) as $fqn) {
+    $byShort[substr($fqn, (int)strrpos($fqn, '\\') + 1)] = $fqn;
+}
+
 echo "1. every bare `new X(` in a service/api entry point names a real class\n";
 
 $files = [];
@@ -119,8 +128,8 @@ foreach ($files as $file) {
             ok("$rel -> $name (known missing, 565caa40c -- endpoint is dead)");
             continue;
         }
-        if (isset($classmap['FOG\\' . $name])) {
-            ok("$rel -> $name");
+        if (isset($byShort[$name])) {
+            ok("$rel -> $name (" . $byShort[$name] . ')');
             continue;
         }
         bad("$rel instantiates $name, which no class in src/ declares");
@@ -137,7 +146,7 @@ foreach (KNOWN_MISSING as $rel => $name) {
         ok("$rel is gone, so its exemption can go too");
         continue;
     }
-    if (isset($classmap['FOG\\' . $name])) {
+    if (isset($byShort[$name])) {
         bad("$rel: $name exists again -- drop it from KNOWN_MISSING");
         continue;
     }

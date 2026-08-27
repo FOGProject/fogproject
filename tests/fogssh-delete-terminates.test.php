@@ -44,7 +44,7 @@ $t = new FogChecks();
 /**
  * A fake remote filesystem with per-path removal permission.
  */
-class FakeSshFs extends \FOG\FOGSSH
+class FakeSshFs extends \FOG\Net\FOGSSH
 {
     /** @var array path => 'file'|'dir' */
     public $tree = [];

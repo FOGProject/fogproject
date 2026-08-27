@@ -12,7 +12,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Audit;
+
+use FOG\TaskHandling\TaskingElement;
 
 /**
  * If a node fails with a host we write the information
