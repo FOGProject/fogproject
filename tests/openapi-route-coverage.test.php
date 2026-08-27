@@ -50,8 +50,8 @@ const ALLOWED = [
 ];
 
 $root = dirname(__DIR__);
-$routeFile = $root . '/packages/web/lib/router/route.class.php';
-$specFile = $root . '/packages/web/lib/fog/openapi.class.php';
+$routeFile = $root . '/packages/web/src/Router/Route.php';
+$specFile = $root . '/packages/web/src/Router/OpenAPI.php';
 
 foreach ([$routeFile, $specFile] as $file) {
     if (!is_readable($file)) {

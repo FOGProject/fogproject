@@ -99,7 +99,7 @@ foreach ($tables as $table => $def) {
 // --- 2 & 3. the conversion keeps its three statements ----------------------
 // The SQL lives in Schema::enumToTinyint(), shared so that core step 368 and
 // the three bundled plugins that convert their own columns cannot drift.
-$schemaClass = (string) file_get_contents($web . '/lib/fog/schema.class.php');
+$schemaClass = (string) file_get_contents($web . '/src/Items/Schema.php');
 $method = '';
 if (preg_match(
     '#public static function enumToTinyint\(array \$map\)\s*\{(.*?)\n    \}#s',

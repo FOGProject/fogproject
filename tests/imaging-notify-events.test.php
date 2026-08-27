@@ -216,7 +216,7 @@ if (($calls[0]['data']['ImageName'] ?? null) !== '') {
 // The notify used to sit outside the imagingTask guard and outside any
 // deploy/capture branch. Assert on the source too: driving the method proves
 // the method is right, not that checkout() still calls it.
-$src = file_get_contents($web . '/lib/reg-task/taskqueue.class.php');
+$src = file_get_contents($web . '/src/TaskHandling/TaskQueue.php');
 if (false === strpos($src, '$this->_notifyImagingOutcome();')) {
     $fails[] = 'checkout() no longer announces a completed imaging task';
 }

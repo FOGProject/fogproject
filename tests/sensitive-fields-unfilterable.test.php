@@ -29,8 +29,8 @@
  */
 
 $webroot = dirname(__DIR__) . '/packages/web';
-$routeFile = $webroot . '/lib/router/route.class.php';
-$mgrFile = $webroot . '/lib/fog/fogmanagercontroller.class.php';
+$routeFile = $webroot . '/src/Router/Route.php';
+$mgrFile = $webroot . '/src/Base/FOGManagerController.php';
 
 foreach ([$routeFile, $mgrFile] as $needed) {
     if (!is_readable($needed)) {

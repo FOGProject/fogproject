@@ -90,7 +90,7 @@ function methodBody($file, $sig)
  * ----------------------------------------------------------------------
  * 1. The writers pass untranslated outcome clauses.
  */
-$controller = $web . '/lib/fog/fogcontroller.class.php';
+$controller = $web . '/src/Base/FOGController.php';
 $helper = methodBody($controller, 'private function _historyText(');
 $t->check(
     'FOGController::_historyText() exists',
@@ -160,7 +160,7 @@ $t->check(
     'History::summary() is public static',
     is_callable(['FOG\History', 'summary'])
 );
-$route = $web . '/lib/router/route.class.php';
+$route = $web . '/src/Router/Route.php';
 $routeSummary = methodBody($route, 'private static function _historySummary(');
 $t->check(
     'Route delegates rather than keeping a second copy',
@@ -214,7 +214,7 @@ $t->check(
     is_int($max) && $max >= 20
 );
 $logBody = methodBody(
-    $web . '/lib/fog/fogbase.class.php',
+    $web . '/src/Base/FOGBase.php',
     'public static function log('
 );
 $t->check(
@@ -238,7 +238,7 @@ $t->check(
     'the cap is not applied to logHistory() itself',
     false === strpos(
         methodBody(
-            $web . '/lib/fog/fogbase.class.php',
+            $web . '/src/Base/FOGBase.php',
             'protected static function logHistory('
         ),
         'LOG_HISTORY_MAX'
@@ -252,7 +252,7 @@ $t->check(
  *    $logbrow slot, leaving $level at its default of 1 against a $curlog of
  *    0 -- so a level gate would have dropped the login rows.
  */
-$user = file_get_contents($web . '/lib/fog/user.class.php');
+$user = file_get_contents($web . '/src/Items/User.php');
 $t->check(
     "user.class.php no longer passes \$this in log()'s \$logbrow slot",
     false === strpos($user, "            0,\n            0,\n            \$this,\n            0\n        );")

@@ -148,7 +148,7 @@ deleters="$(grep -rn 'rm .*fog_login\|unlink(.*fog_login' \
     || bad "and nothing deletes an existing one ($deleters)"
 
 # The replacement has to be real, or this is just removal.
-AUDIT="$REPO/packages/web/lib/fog/user.class.php"
+AUDIT="$REPO/packages/web/src/Items/User.php"
 grep -q "Audit::record\|Audit::" "$AUDIT" \
     && ok "the credential funnel still records refusals to auditLog" \
     || bad "the credential funnel still records refusals to auditLog"

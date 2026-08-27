@@ -27,7 +27,7 @@
  */
 
 $repo = dirname(__DIR__);
-$routeFile = $repo . '/packages/web/lib/router/route.class.php';
+$routeFile = $repo . '/packages/web/src/Router/Route.php';
 $funcsFile = $repo . '/lib/common/functions.sh';
 
 $fails = [];

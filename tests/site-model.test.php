@@ -373,7 +373,7 @@ if (class_exists('SiteManagement', true)) {
 }
 
 $listJs = $webroot . '/management/js/fog/site/fog.site.list.js';
-$routeSrc = file_get_contents($webroot . '/lib/router/route.class.php');
+$routeSrc = file_get_contents($webroot . '/src/Router/Route.php');
 check(
     'the site list JS exists',
     is_readable($listJs),

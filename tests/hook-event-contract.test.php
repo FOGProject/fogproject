@@ -242,7 +242,7 @@ if (!$sub->hasListeners('CHAR_SUBCLASS')) {
         . ' the shape that took every hook in the system down once already';
 }
 if (false !== strpos(
-    file_get_contents($web . '/lib/fog/eventmanager.class.php'),
+    file_get_contents($web . '/src/Base/EventManager.php'),
     'switch (self::shortName'
 )) {
     $fails[] = 'register() identifies its own subclasses by name again';
@@ -415,7 +415,7 @@ if (false === strpos($objLog, 'object')) {
 // The cases above seed the name cache, so they say nothing about whether
 // notify() still records names it has not seen. Without that the notifyevents
 // table stops filling and the notification plugins lose their event list.
-$notifySrc = file_get_contents($web . '/lib/fog/eventmanager.class.php');
+$notifySrc = file_get_contents($web . '/src/Base/EventManager.php');
 $notifyBody = substr($notifySrc, strpos($notifySrc, 'public function notify('));
 $notifyBody = substr($notifyBody, 0, strpos($notifyBody, 'public function load('));
 if (false === strpos($notifyBody, '_recordEventName(')) {
@@ -515,7 +515,7 @@ try {
 // The cases above drive the helper directly, so they say nothing about whether
 // load() still uses it. Assert both: that load() asks the helper, and that the
 // source-text regex has not come back beside it.
-$loader = file_get_contents($web . '/lib/fog/eventmanager.class.php');
+$loader = file_get_contents($web . '/src/Base/EventManager.php');
 $loadBody = substr($loader, strpos($loader, 'public function load()'));
 if (false === strpos($loadBody, '_declaresActive(')) {
     $fails[] = 'load() no longer decides activation through _declaresActive(),'
@@ -615,7 +615,7 @@ if (count($pluginHook->seen) !== 1) {
 
 // The path substring is gone from the dispatcher entirely, and with it the
 // per-listener ReflectionClass that existed only to feed it.
-$dispatchSrc = file_get_contents($web . '/lib/fog/hookmanager.class.php');
+$dispatchSrc = file_get_contents($web . '/src/Base/HookManager.php');
 if (false !== strpos($dispatchSrc, "'plugins'")) {
     $fails[] = 'processEvent() decides activation from the file path again';
 }

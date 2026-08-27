@@ -156,7 +156,7 @@ if (count($tables) < 1) {
 // ---------------------------------------------------------------
 // 1. The base class still consults the model's list.
 // ---------------------------------------------------------------
-$controller = file_get_contents($web . '/lib/fog/fogcontroller.class.php');
+$controller = file_get_contents($web . '/src/Base/FOGController.php');
 $squashed = preg_replace('#\s+#', '', $controller);
 
 $gate = 'protected$databaseFieldsNotInt=[];';
@@ -296,7 +296,7 @@ foreach ($iter as $file) {
 // ---------------------------------------------------------------
 // 3. The known casualty is actually declared.
 // ---------------------------------------------------------------
-$inventory = file_get_contents($web . '/lib/fog/inventory.class.php');
+$inventory = file_get_contents($web . '/src/Items/Inventory.php');
 $checks++;
 if (!in_array(
     'sysuuid',

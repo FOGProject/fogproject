@@ -174,7 +174,7 @@ if ($t->check('recordState() issues an INSERT against taskLog', '' !== $insert))
  * dies if there is no tasking), so the method cannot be reached by building it.
  */
 $element = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/reg-task/taskingelement.class.php'
+    dirname(__DIR__) . '/packages/web/src/TaskHandling/TaskingElement.php'
 );
 
 $body = '';

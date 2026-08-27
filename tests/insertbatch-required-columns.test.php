@@ -44,13 +44,13 @@ function check($what, $ok, &$failures, &$checks)
 }
 
 $base = (string) file_get_contents(
-    "$root/packages/web/lib/fog/fogbase.class.php"
+    "$root/packages/web/src/Base/FOGBase.php"
 );
 $ctl = (string) file_get_contents(
-    "$root/packages/web/lib/fog/fogcontroller.class.php"
+    "$root/packages/web/src/Base/FOGController.php"
 );
 $man = (string) file_get_contents(
-    "$root/packages/web/lib/fog/fogmanagercontroller.class.php"
+    "$root/packages/web/src/Base/FOGManagerController.php"
 );
 
 /*

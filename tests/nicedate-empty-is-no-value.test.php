@@ -39,7 +39,7 @@ $checks = 0;
 // ---------------------------------------------------------------
 // 1. Behaviour: empty, null and the zero date all mean the same thing.
 // ---------------------------------------------------------------
-require_once $web . '/lib/fog/fogbase.class.php';
+require_once $web . '/src/Base/FOGBase.php';
 
 $zero = FOGBase::niceDate('0000-00-00 00:00:00')->format('Y-m-d H:i:s');
 foreach ([['', "empty string"], [null, 'null']] as $case) {

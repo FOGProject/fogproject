@@ -312,8 +312,67 @@ class FOGPageManager extends FOGBase
             ) {
                 continue;
             }
+            // The same two failure shapes FOGBase::startClassFromFiles()
+            // already guards, for the same reason -- and the consequence is
+            // worse here, because this runs on the way to rendering EVERY
+            // page rather than only while registering listeners.
+            //
+            // get_class_vars() on a name no class declares is an uncaught
+            // TypeError in PHP 8, thrown out of FOGPageManager's constructor,
+            // which management/index.php builds before it can render
+            // anything. So one bad file is a bodyless 500 on the whole admin
+            // UI, not just on that plugin's own page -- and deleting the file
+            // does NOT clear it, because the class-file list is a TTL-cached
+            // snapshot that keeps naming it for up to five more minutes.
+            //
+            // Reachable from outside the tree since ADR 0009: a third-party
+            // plugin whose page file does not declare the class its name
+            // promises (a namespace with no class_alias back to the global
+            // name is the easy way to get there) takes the whole UI down for
+            // everyone, and the only way out is a shell. Observed exactly
+            // that way while verifying the PSR-4 move -- a probe plugin
+            // uploaded through Plugin Management, 500 on every page, and the
+            // fix was rm plus clearing /opt/fog/cache/filelist.*.json.
+            //
+            // Skipped and logged rather than swallowed, and error_log() for
+            // the reasons startClassFromFiles() sets out: a page that does
+            // not register is a feature that silently stops happening, and
+            // this can run before FOG can write its own log.
+            if (!is_file($file)) {
+                error_log(
+                    sprintf(
+                        'FOG loadPageClasses: %s is in the cached class file'
+                        . ' list but no longer exists; skipping %s. Harmless'
+                        . ' if a plugin was just updated -- the list refreshes'
+                        . ' on its own.',
+                        $file,
+                        $className
+                    )
+                );
+                continue;
+            }
+            if (!class_exists($className)) {
+                error_log(
+                    sprintf(
+                        'FOG loadPageClasses: %s does not declare %s, so its'
+                        . ' page cannot be registered. A page file must'
+                        . ' declare a class named after the file, reachable'
+                        . ' under that bare name -- a namespaced class needs'
+                        . ' class_alias(__NAMESPACE__ . \'\\%s\', \'%s\');'
+                        . ' see ADR 0013.',
+                        $file,
+                        $className,
+                        $className,
+                        $className
+                    )
+                );
+                continue;
+            }
             $vals = get_class_vars($className);
-            if ($vals['node'] !== trim($node)) {
+            // ?? null, not a bare read: a class with no $node property is an
+            // undefined-key warning here, and the answer is the same as a
+            // mismatch -- this is not the page being asked for.
+            if (($vals['node'] ?? null) !== trim($node)) {
                 continue;
             }
             unset($vals);

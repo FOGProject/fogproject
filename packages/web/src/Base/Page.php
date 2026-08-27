@@ -480,7 +480,16 @@ class Page extends FOGBase
                 // buildMainMenuItems() directly (PluginManagement::sidebarAjax)
                 // rather than relying on the constructor having run it.
                 FOGPage::buildMainMenuItems($this->menu, $this->menuHook);
-                include '../management/other/index.php';
+                // BASEPATH-anchored, not relative. A bare
+                // '../management/other/index.php' resolved only because
+                // include_path was built from the dirnames of the class
+                // files (commons/init.php), and lib/fog/.. happened to land
+                // on packages/web. After the PSR-4 move no include_path
+                // entry makes '..' land there, and PHP's remaining fallback
+                // is the CALLING script's directory -- which happens to work
+                // from management/index.php and api/index.php and is luck,
+                // not design. This is what it always meant.
+                include BASEPATH . 'management' . DS . 'other' . DS . 'index.php';
                 break;
             case 1:
                 $userValid = (int)self::$FOGUser->isValid();

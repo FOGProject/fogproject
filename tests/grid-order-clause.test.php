@@ -31,7 +31,7 @@ $root = rtrim(
     '/'
 );
 
-$target = $root . '/lib/fog/fogmanagercontroller.class.php';
+$target = $root . '/src/Base/FOGManagerController.php';
 if (!is_file($target)) {
     fwrite(STDERR, "FAIL: no such file: $target\n");
     exit(1);

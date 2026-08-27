@@ -98,7 +98,7 @@ foreach ($apache[1] as $i => $flags) {
 // 2. Route::queryParam() is public and still falls back.
 // ---------------------------------------------------------------
 $route = file_get_contents(
-    $root . '/packages/web/lib/router/route.class.php'
+    $root . '/packages/web/src/Router/Route.php'
 );
 $squashed = preg_replace('#\s+#', '', $route);
 

@@ -117,7 +117,7 @@ if (count($inserts)) {
  * a transition the database never took is worse than one that misses it.
  */
 $source = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/fog/task.class.php'
+    dirname(__DIR__) . '/packages/web/src/Items/Task.php'
 );
 $cancelBody = '';
 if (preg_match('#public function cancel\(\).*?\n    \}\n#s', $source, $m)) {
@@ -270,7 +270,7 @@ if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
             '#try\s*\{.*?insertBatch\(.*?\}\s*catch\s*\(#s',
             file_get_contents(
                 dirname(__DIR__)
-                . '/packages/web/lib/fog/tasklog.class.php'
+                . '/packages/web/src/Items/TaskLog.php'
             )
         )
     );
@@ -293,7 +293,7 @@ if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
  * TaskManager::cancel(): the ordering.
  */
 $manager = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/fog/taskmanager.class.php'
+    dirname(__DIR__) . '/packages/web/src/Managers/TaskManager.php'
 );
 $bulkBody = '';
 if (preg_match(

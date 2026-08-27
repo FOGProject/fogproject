@@ -30,7 +30,7 @@ $root = dirname(__DIR__);
 chdir($root);
 
 $fails = [];
-$file = 'packages/web/lib/router/route.class.php';
+$file = 'packages/web/src/Router/Route.php';
 $src = (string)file_get_contents($file);
 
 /*
@@ -171,7 +171,7 @@ if (!preg_match(
  *    in the payload.
  */
 $openapi = (string)file_get_contents(
-    'packages/web/lib/fog/openapi.class.php'
+    'packages/web/src/Router/OpenAPI.php'
 );
 if (!preg_match('#case \'storagenode\':.*?expand=all#s', $openapi)) {
     $fails[] = 'OpenAPI no longer records that storagenode images and'
@@ -190,7 +190,7 @@ if (!preg_match('#case \'storagenode\':.*?expand=all#s', $openapi)) {
  *    moved to Route::getIds().
  */
 $storagenode = (string)file_get_contents(
-    'packages/web/lib/fog/storagenode.class.php'
+    'packages/web/src/Items/StorageNode.php'
 );
 if (preg_match('/function getImages\(\).*?\n    \}/s', $storagenode, $m)) {
     if (!preg_match("/getIds\(\s*'image'/", $m[0])) {

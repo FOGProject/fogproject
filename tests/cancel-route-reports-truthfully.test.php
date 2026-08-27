@@ -29,8 +29,8 @@
 $root = dirname(__DIR__);
 $web = $root . '/packages/web';
 
-$route = file_get_contents($web . '/lib/router/route.class.php');
-$openapi = file_get_contents($web . '/lib/fog/openapi.class.php');
+$route = file_get_contents($web . '/src/Router/Route.php');
+$openapi = file_get_contents($web . '/src/Router/OpenAPI.php');
 
 $fails = [];
 

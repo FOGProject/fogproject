@@ -92,9 +92,9 @@ function probeMethod($src, $method)
     return '';
 }
 
-$group = probeSource($web . '/lib/fog/storagegroup.class.php');
-$node = probeSource($web . '/lib/fog/storagenode.class.php');
-$urls = probeSource($web . '/lib/fog/fogurlrequests.class.php');
+$group = probeSource($web . '/src/Items/StorageGroup.php');
+$node = probeSource($web . '/src/Items/StorageNode.php');
+$urls = probeSource($web . '/src/Net/FOGURLRequests.php');
 
 // ---------------------------------------------------------------
 // 1. Neither selector may throw when the group has nodes.

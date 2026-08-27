@@ -26,7 +26,7 @@
  * before the schema is known good) and are free to change without this line
  * changing with them.
  *
- * Textual rather than by execution: lib/db/databasemanager.class.php cannot
+ * Textual rather than by execution: src/Db/DatabaseManager.php cannot
  * be loaded without a database and the config constants, which is what every
  * other schema-adjacent test in this directory works around the same way.
  *
@@ -35,7 +35,7 @@
  */
 
 $path = dirname(__DIR__)
-    . '/packages/web/lib/db/databasemanager.class.php';
+    . '/packages/web/src/Db/DatabaseManager.php';
 
 if (!is_readable($path)) {
     fwrite(STDERR, "FAIL: cannot read $path\n");
@@ -54,7 +54,7 @@ if (!preg_match('/\$okayFiles\s*=\s*\[(.*?)\n\s*\];/s', $src, $block)) {
     fwrite(
         STDERR,
         "FAIL: could not find the \$okayFiles literal in\n"
-        . "  lib/db/databasemanager.class.php. If it was renamed or moved,\n"
+        . "  src/Db/DatabaseManager.php. If it was renamed or moved,\n"
         . "  update this test -- but check first that backup_db.php is still\n"
         . "  exempt from the stale-schema redirect, which is what it guards.\n"
     );

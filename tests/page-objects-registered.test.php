@@ -32,7 +32,7 @@
 
 $webroot = dirname(__DIR__) . '/packages/web';
 $pageDir = $webroot . '/lib/pages';
-$pageBase = $webroot . '/lib/fog/fogpage.class.php';
+$pageBase = $webroot . '/src/Base/FOGPage.php';
 
 foreach ([$pageDir, $pageBase] as $needed) {
     if (!file_exists($needed)) {

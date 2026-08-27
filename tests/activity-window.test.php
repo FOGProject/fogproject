@@ -75,7 +75,7 @@ $t->check(
     'and imagingLog is not among them, having been retired',
     false === strpos(
         (string)file_get_contents(
-            $root . '/packages/web/lib/fog/activitywindow.class.php'
+            $root . '/packages/web/src/Audit/ActivityWindow.php'
         ),
         'imagingLog'
     )

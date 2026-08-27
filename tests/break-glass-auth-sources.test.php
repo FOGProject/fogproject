@@ -38,8 +38,8 @@ $root = dirname(__DIR__);
 chdir($root);
 
 $fails = [];
-$userFile = 'packages/web/lib/fog/user.class.php';
-$authFile = 'packages/web/lib/fog/authorization.class.php';
+$userFile = 'packages/web/src/Items/User.php';
+$authFile = 'packages/web/src/Auth/Authorization.php';
 
 /**
  * Source text of one method, comments and whitespace stripped.

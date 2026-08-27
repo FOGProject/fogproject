@@ -282,7 +282,7 @@ check(
  * 5. The refusal, textually: the audit row is written BEFORE the delete and
  *    a table whose row did not store is skipped rather than swept.
  */
-$src = (string) file_get_contents($webroot . '/lib/fog/retention.class.php');
+$src = (string) file_get_contents($webroot . '/src/Audit/Retention.php');
 // Scoped to sweep()'s own body. Searching the whole file compares the FIRST
 // Audit::record() in it -- which belongs to permitSettingChange() and is
 // declared earlier -- against the delete, so the ordering would read as
@@ -351,7 +351,7 @@ check(
  * caller in a daemon that is about something else -- reopens exactly that.
  */
 $runner = (string) file_get_contents(
-    $webroot . '/lib/service/retentionrunner.class.php'
+    $webroot . '/src/Service/RetentionRunner.php'
 );
 check(
     'FOGRetentionRunner calls Retention::sweep()',
@@ -368,7 +368,7 @@ check(
     $checks
 );
 $plugin = (string) file_get_contents(
-    $webroot . '/lib/service/pluginrunner.class.php'
+    $webroot . '/src/Service/PluginRunner.php'
 );
 check(
     'the plugin runner no longer sweeps',

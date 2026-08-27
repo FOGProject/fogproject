@@ -32,7 +32,7 @@ $root = dirname(__DIR__);
 $pages = $root . '/packages/web/lib/pages';
 $roleFile = $pages . '/rolemanagement.page.php';
 $ugFile = $pages . '/usergroupmanagement.page.php';
-$postFile = $root . '/packages/web/lib/fog/fogpagepost.class.php';
+$postFile = $root . '/packages/web/src/Base/FOGPagePost.php';
 
 foreach ([$roleFile, $ugFile, $postFile] as $needed) {
     if (!is_readable($needed)) {

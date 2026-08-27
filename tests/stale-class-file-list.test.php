@@ -104,7 +104,7 @@ check(
 // closed. A guard that reports nothing in the only situation it fires in is
 // not a guard.
 $src = (string)file_get_contents(
-    $webroot . '/lib/fog/fogbase.class.php'
+    $webroot . '/src/Base/FOGBase.php'
 );
 $body = '';
 if (preg_match(

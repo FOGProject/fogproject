@@ -14,7 +14,7 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
-$file = $argv[1] ?? dirname(__DIR__) . '/packages/web/lib/fog/bootmenu.class.php';
+$file = $argv[1] ?? dirname(__DIR__) . '/packages/web/src/Boot/BootMenu.php';
 
 if (!is_readable($file)) {
     fwrite(STDERR, "FAIL: cannot read $file\n");

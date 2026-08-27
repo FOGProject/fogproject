@@ -368,7 +368,7 @@ check(
 // ---------------------------------------------------------------------
 
 $svc = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/service/pinghosts.class.php'
+    dirname(__DIR__) . '/packages/web/src/Service/PingHosts.php'
 );
 
 check(

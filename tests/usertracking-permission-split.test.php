@@ -234,7 +234,7 @@ foreach ($tabPages as $page => $tabId) {
  * they only stay one if nothing goes back to a literal.
  */
 $model = (string) file_get_contents(
-    "$root/packages/web/lib/fog/usertracking.class.php"
+    "$root/packages/web/src/Items/UserTracking.php"
 );
 $consts = [
     'ACTION_LOGOUT' => '0',
@@ -254,7 +254,7 @@ foreach ($consts as $name => $value) {
 }
 
 $client = (string) file_get_contents(
-    "$root/packages/web/lib/client/usertrack.class.php"
+    "$root/packages/web/src/Client/UserTrack.php"
 );
 preg_match('/\$actions\s*=\s*\[(.*?)\]/s', $client, $m);
 $map = isset($m[1]) ? $m[1] : '';
@@ -275,7 +275,7 @@ check(
 );
 
 $route = (string) file_get_contents(
-    "$root/packages/web/lib/router/route.class.php"
+    "$root/packages/web/src/Router/Route.php"
 );
 // The switch moved out of the column definition into
 // Route::_userTrackingAction() when ADR 0023 item 5 gave the activity

@@ -53,8 +53,8 @@ FogTestHarness::boot('api-only-users');
 $t = new FogChecks();
 
 $web = dirname(__DIR__) . '/packages/web';
-$userSrc = file_get_contents($web . '/lib/fog/user.class.php');
-$authSrc = file_get_contents($web . '/lib/fog/authorization.class.php');
+$userSrc = file_get_contents($web . '/src/Items/User.php');
+$authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $schemaSrc = file_get_contents($web . '/commons/schema.php');
 $manifestSrc = file_get_contents($web . '/commons/schema-expected.php');
 $sysSrc = file_get_contents($web . '/lib/fog/system.class.php');

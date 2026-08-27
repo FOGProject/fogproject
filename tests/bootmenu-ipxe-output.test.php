@@ -33,7 +33,7 @@
 $root = dirname(__DIR__);
 $renderer = __DIR__ . '/lib/bootmenu-render.php';
 $golden = __DIR__ . '/fixtures/bootmenu-ipxe-output.golden';
-$classFile = $root . '/packages/web/lib/fog/bootmenu.class.php';
+$classFile = $root . '/packages/web/src/Boot/BootMenu.php';
 
 $update = in_array('--update', $argv, true);
 $againstAt = array_search('--against', $argv, true);

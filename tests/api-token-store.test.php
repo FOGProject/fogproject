@@ -59,8 +59,8 @@ FogTestHarness::boot('api-token-store');
 $t = new FogChecks();
 
 $web = dirname(__DIR__) . '/packages/web';
-$modelSrc = file_get_contents($web . '/lib/fog/apitoken.class.php');
-$routeSrc = file_get_contents($web . '/lib/router/route.class.php');
+$modelSrc = file_get_contents($web . '/src/Items/APIToken.php');
+$routeSrc = file_get_contents($web . '/src/Router/Route.php');
 $schemaSrc = file_get_contents($web . '/commons/schema.php');
 $pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
 
@@ -300,7 +300,7 @@ $t->check(
         $pageSrc
     )
 );
-$mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
+$mgrSrc = file_get_contents($web . '/src/Managers/APITokenManager.php');
 $t->check(
     'forUser() filters on the owner column',
     (bool)preg_match('/WHERE `atUserID` = :uid/', $mgrSrc)
@@ -375,11 +375,11 @@ $t->check(
 // own permission node -- and the pane is only as good as the four things
 // below, each of which fails silently if it regresses.
 // ---------------------------------------------------------------------------
-$authSrc = file_get_contents($web . '/lib/fog/authorization.class.php');
+$authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $configSrc = file_get_contents(
     $web . '/lib/pages/fogconfigurationpage.page.php'
 );
-$auditSrc = file_get_contents($web . '/lib/fog/audit.class.php');
+$auditSrc = file_get_contents($web . '/src/Audit/Audit.php');
 $paneJs = file_get_contents(
     $web . '/management/js/fog/about/fog.about.apitokens.js'
 );
@@ -425,7 +425,7 @@ $t->check(
 // means "these and no others". Pinned in detail by
 // tests/apitoken-grid-and-scope.test.php; kept here so this file cannot
 // pass while the pane has gone back to asking SiteScope.
-$mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
+$mgrSrc = file_get_contents($web . '/src/Managers/APITokenManager.php');
 $t->check(
     'the pane bounds what it shows by object scope',
     false !== strpos($mgrSrc, 'Authorization::scopedObjectIDs')
@@ -530,7 +530,7 @@ $t->check(
 // from the sidebar for exactly this reason; secureBoot carries a comment
 // about it. Both files are checked so the two lists cannot drift apart
 // again.
-$subMenuLive = file_get_contents($web . '/lib/fog/fogpage.class.php');
+$subMenuLive = file_get_contents($web . '/src/Base/FOGPage.php');
 $subMenuHook = file_get_contents($web . '/lib/hooks/submenudata.hook.php');
 $t->check(
     "the API Tokens entry is in FOGPage::_buildSubMenuItems(), the list the "

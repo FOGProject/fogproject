@@ -938,6 +938,77 @@ php /home/telliott/scripts/background_scripts/probe_perf2_classes.php < /dev/nul
 # storagegroup 36 q/row, storagenode 12.5, imaginglog 1.09 -- all model-side
 ```
 
+### F-47 — `new $string` resolves from the GLOBAL namespace, so the ORM's name derivations work through the alias, not through the flat namespace
+
+`FOGController::getManager()` builds `self::shortName($this).'Manager'` and calls
+`new $man`. PHP does **not** apply the current namespace to a class name held in
+a variable — a string is always resolved as fully qualified. So inside
+`namespace FOG;` that lookup asks for a *global* `HostManager`, which exists only
+because `hostmanager.class.php` ends with `class_alias(__NAMESPACE__ . '\HostManager',
+'HostManager')`. The same is true of `FOGManagerController::__construct()`'s
+inverse derivation, of `FOGBase::getClass()`'s `new \ReflectionClass($class)`, and
+of every one of `Route::$validClasses`' 52 lowercase strings.
+
+Two consequences, in opposite directions.
+
+**ADR 0013's mechanical argument for a flat namespace does not hold as stated.**
+It says `Host` + `'Manager'` gives `HostManager` under a flat namespace and
+`Model\HostManager` under a split one. `shortName()` strips the namespace
+(`fogbase.class.php:543-548`), so a split namespace yields the bare
+`HostManager` too — and *neither* shape resolves without the alias. The
+derivation is indifferent to the namespace layout. ADR 0013's other reasons for
+flat (the Phase 0.2 bridge refusing nested names, `docs/plugin-development.md`
+having told authors to write `FOG\Host`, and 226 chances to hand-file a class
+into an invented taxonomy) are untouched by this and are why the decision still
+stands. This narrows the rationale; it does not reverse the decision.
+
+**Removing the `class_alias` lines is much larger than a reference sweep.** Every
+string-driven instantiation in the tree breaks the moment the global name goes,
+whatever the namespace shape — not only the 168 bare-name `extends` in
+`fog-plugins` and `Route::$validClasses`, but `getManager()`, the
+`FOGManagerController` inverse, and all ~350 `getClass()` literals. Any plan for
+that work has to make the strings fully qualified first, as its own step, and
+that step is the work.
+
+```
+php -r '
+namespace FOG;
+class HostManager {}
+$s = "HostManager";
+try { new $s; echo "resolved\n"; } catch (\Throwable $e) { echo $e->getMessage(), "\n"; }
+\class_alias(__NAMESPACE__ . "\HostManager", "HostManager");
+echo \get_class(new $s), "\n";
+'
+# Class "HostManager" not found
+# FOG\HostManager
+sed -n '543,548p;1778,1785p' packages/web/lib/fog/fogbase.class.php   # shortName
+sed -n '1778,1785p' packages/web/lib/fog/fogcontroller.class.php      # getManager
+```
+
+### F-48 — `FOG\Auth\OidcProvider` does not exist, and ADR 0013's use of it as an example is contradicted by ADR 0014
+
+ADR 0013's closing rule — *"flat for the migrated legacy tree, nested for new
+subsystems in `src/`"* — illustrates itself with `FOG\Auth\OidcProvider`. No
+such class has ever been written, in core or in `fog-plugins`; the name appears
+only in three planning documents. And the subsystem it names is not core code:
+ADR 0014 §2 is titled *"OIDC ships as a plugin, in `FOGProject/fog-plugins`"*,
+and the real implementation is ten `*.class.php` files under
+`fog-plugins/oidc/class/`.
+
+Consequence: `packages/web/src/` has **no** nested subsystem today, and the
+worked example anyone reads ADR 0013 for points at the one place a class like
+that must not go. Taken at face value it puts plugin code inside core's
+namespace, which is the shadowing ADR 0009 refuses by construction. The rule
+itself stands; it needs a real example, and there is not one yet.
+
+```
+grep -rn 'OidcProvider' --include='*.php' packages /home/telliott/fog-plugins | grep -v vendor   # nothing
+grep -rln 'OidcProvider' docs/                 # refactor-phase3-plan.md, adr/0013-*, composer-psr4-plan.md
+find /home/telliott/fog-plugins/oidc -name '*.class.php' | wc -l    # 10
+sed -n '72p' docs/adr/0014-authentication-seams-in-core-identity-providers-as-plugins.md
+# ### 2. OIDC ships as a plugin, in `FOGProject/fog-plugins`
+```
+
 ---
 
 ## How to add an entry

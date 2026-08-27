@@ -115,7 +115,7 @@ $handled = '#^(datetime|timestamp|date|(tiny|small|medium|big)?int|enum|set)\b#i
 $stringy = '#^((var)?char|(tiny|medium|long)?(text|blob)|varbinary|binary)\b#i';
 
 $reachable = 0;
-foreach (glob($web . '/lib/fog/*.class.php') as $file) {
+foreach (glob($web . '/src/*/*.php') as $file) {
     $clean = evStripComments(file_get_contents($file));
     if (!preg_match('#\$databaseTable\s*=\s*[\'"](\w+)[\'"]#', $clean, $m)) {
         continue;
@@ -200,7 +200,7 @@ if ($reachable < 200) {
 // tasking a group's snapins while saving a host was fine. Everything below is
 // unchanged in substance; only the file it is read from moved.
 $controllerSrc = evStripComments(
-    file_get_contents($web . '/lib/fog/fogbase.class.php')
+    file_get_contents($web . '/src/Base/FOGBase.php')
 );
 $squashed = preg_replace('#\s+#', '', $controllerSrc);
 
@@ -245,7 +245,7 @@ if (false === $seed || false === $query || $seed > $query) {
 // The clear does not come back.
 // ---------------------------------------------------------------
 $checks++;
-$pdodb = evStripComments(file_get_contents($web . '/lib/db/pdodb.class.php'));
+$pdodb = evStripComments(file_get_contents($web . '/src/Db/PDODB.php'));
 if (preg_match('#SET\s+SESSION\s+sql_mode#i', $pdodb)) {
     $failures[] = 'PDODB sets a session sql_mode again. FOG ran for nine '
         . 'years with the server\'s checks off; every value it stored was '
@@ -260,7 +260,7 @@ if (preg_match('#SET\s+SESSION\s+sql_mode#i', $pdodb)) {
 // reads a FOG_LOG_* setting, which is a query. Without the guard one failed
 // statement recursed until the PHP worker died on memory, reporting nothing.
 $checks++;
-$fogbase = evStripComments(file_get_contents($web . '/lib/fog/fogbase.class.php'));
+$fogbase = evStripComments(file_get_contents($web . '/src/Base/FOGBase.php'));
 if (!preg_match('#static\s+\$inWriteLog\s*=\s*false\s*;#', $fogbase)
     || !preg_match('#if\s*\(\s*\$inWriteLog\s*\)\s*\{\s*return\s*;#', $fogbase)
 ) {

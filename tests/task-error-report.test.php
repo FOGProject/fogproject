@@ -186,7 +186,7 @@ if ('' !== $clean('   ') || '' !== $clean('')) {
 
 // --------------------------------------------------------------- the class
 
-$src = file_get_contents($web . '/lib/reg-task/taskerror.class.php');
+$src = file_get_contents($web . '/src/TaskHandling/TaskError.php');
 
 // The split only exists if the SHORT bound is applied at the notification and
 // nowhere earlier. Cut at the top instead and both halves shrink together,

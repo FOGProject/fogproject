@@ -69,9 +69,9 @@ function check($what, $ok, &$failures, &$checks)
     }
 }
 
-$man = reapStrip("$root/packages/web/lib/fog/taskmanager.class.php");
-$log = reapStrip("$root/packages/web/lib/fog/tasklog.class.php");
-$sched = reapStrip("$root/packages/web/lib/service/taskscheduler.class.php");
+$man = reapStrip("$root/packages/web/src/Managers/TaskManager.php");
+$log = reapStrip("$root/packages/web/src/Items/TaskLog.php");
+$sched = reapStrip("$root/packages/web/src/Service/TaskScheduler.php");
 
 /* ------------------------------------------------------------- 1. the sweep */
 

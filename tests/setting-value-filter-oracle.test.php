@@ -35,7 +35,7 @@
  */
 
 $webroot = dirname(__DIR__) . '/packages/web';
-$routeFile = $webroot . '/lib/router/route.class.php';
+$routeFile = $webroot . '/src/Router/Route.php';
 
 if (!is_readable($routeFile)) {
     fwrite(STDERR, "FAIL: cannot read $routeFile\n");

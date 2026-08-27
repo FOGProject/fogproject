@@ -45,7 +45,7 @@ REPO="$(cd "$HERE/.." && pwd)"
 WEB="$REPO/packages/web"
 SNIPPETS="$WEB/management/js/fog/apidocs/fog.apidocs.snippets.js"
 LIST="$WEB/management/js/fog/apidocs/fog.apidocs.list.js"
-PAGE="$WEB/lib/fog/page.class.php"
+PAGE="$WEB/src/Base/Page.php"
 
 [[ -f $SNIPPETS ]] || { echo "ERROR: $SNIPPETS not found" >&2; exit 1; }
 

@@ -120,7 +120,7 @@ $exempt = [
         . 'compares on it, and NULL satisfies no comparison',
 ];
 
-$models = glob($web . '/lib/fog/*.class.php');
+$models = glob($web . '/src/*/*.php');
 $dateFields = 0;
 foreach ($models as $file) {
     $clean = dcStripComments(file_get_contents($file));
@@ -206,10 +206,10 @@ if ($dateFields < 25) {
 // ---------------------------------------------------------------
 $allowed = [
     // The one place that defines what an empty date means.
-    'packages/web/lib/fog/fogbase.class.php',
+    'packages/web/src/Base/FOGBase.php',
     // Reads BOTH spellings, because an upgraded server carries both until
     // schema step 344 has run.
-    'packages/web/lib/reg-task/taskqueue.class.php',
+    'packages/web/src/TaskHandling/TaskQueue.php',
 ];
 $dirs = new \RecursiveIteratorIterator(
     new \RecursiveDirectoryIterator($web . '/lib', \FilesystemIterator::SKIP_DOTS)

@@ -62,9 +62,23 @@ if (empty($manifest['tables'])) {
  * $databaseFields nor $databaseFieldsRequired inherits its parent's.
  */
 $raw = [];
-$files = new \RecursiveIteratorIterator(
-    new \RecursiveDirectoryIterator($root . '/lib')
-);
+/*
+ * Two roots since core moved to PSR-4: core models live under src/, and
+ * lib/ still holds the plugin tree (and the two unconverted router files).
+ * Both carry models, so both have to be walked.
+ */
+$roots = [];
+foreach (['/src', '/lib'] as $sub) {
+    if (is_dir($root . $sub)) {
+        $roots[] = $root . $sub;
+    }
+}
+$files = new \AppendIterator();
+foreach ($roots as $dir) {
+    $files->append(
+        new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir))
+    );
+}
 foreach ($files as $file) {
     if (!$file->isFile() || 'php' !== $file->getExtension()) {
         continue;

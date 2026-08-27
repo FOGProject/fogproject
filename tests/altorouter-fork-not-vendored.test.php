@@ -4,7 +4,7 @@
  *
  * lib/router/altorouter.class.php carries upstream's name, authorship and
  * MIT license, and a commented-out `namespace AltoRouter;` at the top. That
- * makes it look exactly like lib/db/mysqldump.class.php did before 1.6.0 --
+ * makes it look exactly like src/Db/Mysqldump.php did before 1.6.0 --
  * a hand-copy waiting for its Packagist release. It is not. Measured
  * against every upstream tag and against master, 324 of 357 code lines
  * differ, and three separate comments in this repository said otherwise
@@ -35,7 +35,7 @@
 
 $root = dirname(__DIR__);
 $router = $root . '/packages/web/lib/router/altorouter.class.php';
-$route = $root . '/packages/web/lib/router/route.class.php';
+$route = $root . '/packages/web/src/Router/Route.php';
 
 foreach ([$router, $route] as $needed) {
     if (!is_readable($needed)) {

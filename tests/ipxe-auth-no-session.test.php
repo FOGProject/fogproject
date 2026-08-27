@@ -82,7 +82,7 @@ function methodTokens($file, $method)
     return null;
 }
 
-$userFile = 'packages/web/lib/fog/user.class.php';
+$userFile = 'packages/web/src/Items/User.php';
 
 // 1. Both halves of the split must exist.
 foreach (['authenticate', 'establishSession', 'validatePw'] as $m) {
@@ -123,7 +123,7 @@ if (null !== $body) {
  */
 $browserless = array_merge(
     glob('packages/web/service/ipxe/*.php') ?: [],
-    ['packages/web/lib/fog/bootmenu.class.php']
+    ['packages/web/src/Boot/BootMenu.php']
 );
 foreach ($browserless as $file) {
     if (!is_readable($file)) {

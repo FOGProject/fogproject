@@ -111,7 +111,7 @@ foreach ($files as $file) {
             continue;
         }
         // shortName() is itself the one legitimate raw caller.
-        if ('packages/web/lib/fog/fogbase.class.php' === $file
+        if ('packages/web/src/Base/FOGBase.php' === $file
             && false !== strpos($line, 'is_object($class) ? get_class($class)')
         ) {
             continue;
@@ -180,7 +180,7 @@ if ($converted < MIN_CONVERTED) {
 }
 
 // The helper's own behaviour, on the two shapes every call site uses.
-require_once $root . '/packages/web/lib/fog/fogbase.class.php';
+require_once $root . '/packages/web/src/Base/FOGBase.php';
 
 $cases = [
     ['FOG\\Host', 'Host', 'namespaced name'],
