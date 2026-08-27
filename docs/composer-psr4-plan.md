@@ -613,8 +613,25 @@ walks them, and stale `.hook.php` / `.page.php` files from a prior release come
 back and re-register — a feature silently reappearing.
 
 Prune retired core paths from the restored backup. This is a pre-existing
-latent problem for any dropped file; this move is what makes 202 of them stale
+latent problem for any dropped file; this move is what makes 201 of them stale
 at once.
+
+**Done, and the shape it took.** Asked of the source tree rather than named,
+for the reason `retired_web_other` gives one directory further in: a hand-kept
+list of retired paths drifts from what is shipped, and that drift is the bug
+the list was added to fix. So any `lib/<dir>/*.class.php` in the restored tree
+that `$webdirsrc` does not also ship is deleted, between the restore and the
+new tree being laid over it. `maxdepth 2` keeps a bundled plugin's
+`lib/plugins/<name>/class/` out of it — that is the plugin release's to
+manage. `lib/fog/config.class.php` is the one keep, because it is generated
+into that directory later in the same function and so is never in
+`$webdirsrc`.
+
+`tests/oldcopy-retires-moved-classes.test.sh` lifts the loop out and runs it
+against a fixture, the same way `tests/webroot-preserved-files.test.sh` does.
+Six checks, each confirmed by mutation: dropping the still-shipped guard,
+inverting it, dropping the config keep, widening the maxdepth, and moving the
+block after the new-tree copy each turn exactly the expected check red.
 
 `messages.pot` needs no thought: `update-language.sh` uses `--no-location` and
 `msgcat --sort-output`, and its `find` already covers `src/`.

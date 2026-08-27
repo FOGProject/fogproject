@@ -10369,6 +10369,43 @@ configureHttpd() {
                     mv "$i" "$(dirname "$i")/$(basename "$i" | tr 'A-Z' 'a-z')" >>$error_log 2>&1
                 done
             errorStat $?
+            # A class file the new release DROPPED is still in the backup, and
+            # the copy above puts it straight back -- the same problem
+            # retired_web_other solves for management/other/ further down this
+            # function. It has been latent for any dropped class file. The
+            # PSR-4 move makes 201 of them stale in a single release, because
+            # every lib/**/*.class.php that held a core class now ships as
+            # src/<Bucket>/<Class>.php instead.
+            #
+            # Left behind they are not merely clutter. autoload() answers a
+            # bare class name out of src/ BEFORE it consults the scanned class
+            # map, so the classes themselves are inert -- but
+            # Initiator::classFileList() still walks these files, they still
+            # enter that map, and they are still on the include_path built
+            # from its dirnames. A file that is only reachable on servers
+            # which happen to have upgraded with --oldcopy is the definition
+            # of a difference between two installs with nothing to say so.
+            #
+            # Asked of the source tree rather than named, for the reason given
+            # at retired_web_other: a hand-kept list of retired paths drifts
+            # from what is actually shipped, and that drift is the bug that
+            # list was added to fix. maxdepth 2 keeps this to lib/<dir>/<file>
+            # -- a bundled plugin's class files are one level deeper, at
+            # lib/plugins/<name>/class/, and are the plugin release's to
+            # manage, not this loop's.
+            #
+            # config.class.php is the one keep. It is GENERATED into lib/fog/
+            # later in this function and so is never present in $webdirsrc,
+            # which would otherwise classify it as retired.
+            dots "Removing retired class files from the old web folder"
+            local relpath
+            while IFS= read -r -d '' i; do
+                relpath="${i#$webdirdest/}"
+                [[ ${relpath} == lib/fog/config.class.php ]] && continue
+                [[ -e ${webdirsrc}/${relpath} ]] && continue
+                rm -f "$i" >>$error_log 2>&1
+            done < <(find "$webdirdest/lib" -maxdepth 2 -type f -name '*.class.php' -print0 2>>$error_log)
+            errorStat $?
         fi
     fi
     dots "Copying new files to web folder"
