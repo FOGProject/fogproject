@@ -1031,7 +1031,7 @@ class StorageNodeManagement extends FOGPage
                 'text',
                 'apikey',
                 $apikey,
-                true
+                false
             )
             . '<div class="form-text">'
             . _(
