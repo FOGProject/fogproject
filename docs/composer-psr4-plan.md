@@ -652,6 +652,42 @@ edits together.
 **No schema change. No database migration. Nothing irreversible.** Every
 commit is a `git mv` or a file edit.
 
+**Run, against a shadow tree booted on the live lab database.** Two probes,
+both in `~/scripts/background_scripts/`, neither of which writes to
+`/var/www` or to the live `/opt/fog/cache`:
+
+- `psr4_shadow_boot_probe.php` boots `origin/working-1.6` and this branch from
+  two shadow trees and prints what each one *derived* from where files live:
+  discovery (26 pages, 10 hooks, 1 event, 9 reports — plus the plugin tree's),
+  all 52 `Route::$validClasses` resolving and pairing with their managers
+  through `getManager()`'s string arithmetic, the `include_path`, and four
+  live table reads plus a model loaded through the ORM. **The only diff is
+  the version string and four now-empty `lib/` directories leaving the
+  include_path.** Nothing in the tree does a path-relative include, so that
+  shrink reaches nothing.
+- `psr4_plugin_shadow_probe.php` puts two plugins under a redirected
+  `FOG_PLUGIN_DIR`: an ordinary one, which loads under both spellings as one
+  type, and one shipping `class/host.class.php`. Core's `src/Items/Host.php`
+  wins, `Host(1)` still loads through the ORM, and discovery sees both.
+
+  **The collision is reachable, which is the part worth writing down.**
+  Swapping the two arms in `autoload()` so the classMap is consulted first
+  makes `FOG\Host` resolve to the plugin's stub — the supply-chain shape ADR
+  0009's collision rule exists to refuse. `tests/psr4-bridge.test.php` goes
+  red under the same mutation (3 of 18).
+
+  It only bites if the **bare** name is asked first. Composer answers the
+  exactly-cased `FOG\Host` out of `src/` without this autoloader running at
+  all, and the file's own `class_alias()` then declares the bare name — so a
+  probe that asks the namespaced spelling first reports a pass it did not
+  earn, which is what the first draft of that probe did. `getClass()`,
+  `Route::$validClasses` and every plugin `extends Host` ask for the bare
+  name, so the ordering rule is protecting the path that is actually used.
+
+Still outstanding, because it needs a deploy: the plugin arriving through the
+**UI installer** rather than being placed on disk, which is the half that
+exercises the class-file-list invalidation on install (ADR 0009).
+
 The gate, in order of what is most likely to break quietly:
 
 1. **A plugin installs through the UI into `/opt/fog/plugins` and loads.**
