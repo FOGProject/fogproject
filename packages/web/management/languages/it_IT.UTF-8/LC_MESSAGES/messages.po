@@ -1680,6 +1680,10 @@ msgstr "Impossibile leggere il file temporaneo"
 msgid "Could not read file from tmp folder."
 msgstr "Impossibile leggere il file tmp."
 
+#, fuzzy
+msgid "Could not read local file"
+msgstr "Impossibile leggere il file temporaneo"
+
 msgid "Could not read snapin file"
 msgstr "Impossibile leggere il file snapin"
 

@@ -25,6 +25,18 @@ namespace FOG;
 class FOGSSH
 {
     /**
+     * How much of a file put() holds in memory at once.
+     *
+     * 256KB is a compromise, not a magic number: the ssh2 layer wraps each
+     * write in its own packet, so a tiny chunk turns a large upload into a very
+     * large number of round trips, while a huge one gives back the memory
+     * ceiling this exists to stay under. Whatever is chosen here, the memory
+     * cost of an upload stops depending on the size of the file.
+     *
+     * @var int
+     */
+    const CHUNK_SIZE = 262144;
+    /**
      * The default data layout
      *
      * @var array
@@ -326,6 +338,23 @@ class FOGSSH
     /**
      * Puts the files from one place to another remotely/Uploads the file
      *
+     * Copied in fixed-size chunks rather than read whole. This used to be a
+     * file_get_contents() of the local file followed by one fwrite(), which
+     * charges the entire file to PHP's memory_limit -- so uploading a snapin
+     * larger than that limit was a fatal error rather than a slow upload, and
+     * the only thing the admin saw was "Allowed memory size of 268435456 bytes
+     * exhausted (tried to allocate 623026208 bytes)" in the web server log. The
+     * file size that breaks it is whatever memory_limit happens to be, which is
+     * why this reads as a distro-specific fault and is not one.
+     *
+     * The loop is written out rather than handed to stream_copy_to_stream()
+     * because a write to an ssh2.sftp:// stream is not guaranteed to consume
+     * everything offered: a short write has to be resumed at the right offset,
+     * and a silently truncated upload is worse than a failed one -- the snapin
+     * would be stored with the hash and size of the file that was MEANT to
+     * arrive, so the client would fetch it, fail its checksum, and never say
+     * why.
+     *
      * @param string $localfile  The local file to put on the remote
      * @param string $remotefile The place/name the file is being placed.
      *
@@ -335,19 +364,49 @@ class FOGSSH
     public function put($localfile, $remotefile)
     {
         $sftp = $this->_sftp;
-        $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');
-        if (!$stream) {
-            throw new \Exception(_("Could not open file"). ": $remotefile");
-        }
-        $data_to_send = @file_get_contents($localfile);
-        if (false === $data_to_send) {
+        $in = @fopen($localfile, 'rb');
+        if (!$in) {
             throw new \Exception(_("Could not open local file"). ": $localfile");
         }
-        if (false === @fwrite($stream, $data_to_send)) {
-            throw new \Exception(_("Could not send data from file"). ": $localfile");
+        $stream = @fopen("ssh2.sftp://$sftp$remotefile", 'w');
+        if (!$stream) {
+            @fclose($in);
+            throw new \Exception(_("Could not open file"). ": $remotefile");
         }
-
-        @fclose($stream);
+        try {
+            while (!feof($in)) {
+                $chunk = @fread($in, self::CHUNK_SIZE);
+                if (false === $chunk) {
+                    throw new \Exception(
+                        _("Could not read local file"). ": $localfile"
+                    );
+                }
+                // A zero-length read at a point feof() has not yet flagged is
+                // the end of the file for every stream this is used with; only
+                // treat it as one when feof() agrees, so a genuine read error
+                // reported as '' cannot masquerade as a complete upload.
+                if ('' === $chunk) {
+                    if (feof($in)) {
+                        break;
+                    }
+                    throw new \Exception(
+                        _("Could not read local file"). ": $localfile"
+                    );
+                }
+                for ($sent = 0, $len = strlen($chunk); $sent < $len;) {
+                    $wrote = @fwrite($stream, substr($chunk, $sent));
+                    if (false === $wrote || $wrote === 0) {
+                        throw new \Exception(
+                            _("Could not send data from file"). ": $localfile"
+                        );
+                    }
+                    $sent += $wrote;
+                }
+            }
+        } finally {
+            @fclose($in);
+            @fclose($stream);
+        }
     }
     /**
      * Scan all files as it's likely a directory.
