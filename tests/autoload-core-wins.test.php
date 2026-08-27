@@ -25,6 +25,19 @@
  * than a coin flip -- and it is why core's Site lands in the same commit as
  * the FOG_PLUGINS_VERSION bump that removes the plugin's copy, not before.
  *
+ * Scope note, once core moves to src/ (docs/composer-psr4-plan.md). This test
+ * keeps guarding the classMap's core-wins rule, and that rule keeps mattering:
+ * the classMap still holds the 46 discovery-named files and the generated
+ * config.class.php, none of which move. What it stops covering is the classes
+ * that DO move, because a core file that is no longer in the map cannot win a
+ * collision inside it -- for those, the guarantee is provided by ORDER
+ * instead, and tests/psr4-bridge.test.php is the half that holds it.
+ *
+ * Two halves, then, and they are not interchangeable: this one says the map
+ * prefers core, that one says the map is not consulted for a core class in
+ * the first place. Deleting either leaves a plugin able to shadow some part
+ * of core.
+ *
  * DB-free, same shape as autoload.test.php: the Initiator constructor only
  * registers the autoloader, so the cache dir is redirected somewhere
  * throwaway and startInit() -- the part that needs MySQL -- is never called.

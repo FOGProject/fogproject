@@ -448,6 +448,54 @@ first**, then the two-file move plus the 11 shell/hook edits in one PR.
 
 ---
 
+## Components outside `packages/web` that this touches
+
+The move is confined to `packages/web`, but four things reach into it by
+absolute path. This is the whole list, so it does not have to be re-derived.
+
+| Component | Needs a change? | When |
+|---|---|---|
+| `bin/psr4-scan.php` TABLE | on every new class | standing, gated by `tests/psr4-layout.test.php` |
+| `lib/common/functions.sh` — `--oldcopy` restore | **yes** | Commit 5 |
+| `.githooks/{pre-commit,pre-push,lib/fog-version.sh,lib/apply-fog-version.sh}` | **yes**, `System` only | `System` PR |
+| `bin/{installfog,updatefog,fetch-plugins}.sh`, `lib/common/{config,utils,functions}.sh` | **yes**, `System` only | `System` PR |
+| `FOGProject/fog-workflows` (3 sites) | **yes**, `System` only | **before** the `System` PR |
+| `bin/schema-manifest.php`, `bin/fog-node-key.php` | no — they read `Config`, which stays | — |
+| `copybacktrunk.sh` (git → web) | no | — |
+| `c2svn.sh` (web → git) | no, but see the warning below | — |
+| `.githooks/lib/update-language.sh` | no | — |
+| `.php-cs-fixer` via `psrfix()` | no | — |
+
+`VERIFIED` — the two that look like they should need a change and do not:
+
+- **`copybacktrunk.sh` is an exclude-list rsync with `--delete`, not an
+  allowlist** (`:247`), so `src/` deploys with no edit and the old
+  `lib/**/*.class.php` are deleted from the docroot on the first deploy after
+  the move. Its two `lib/fog/config.class.php` references (`:177` exclude,
+  `:253` re-copy) are about the *generated* Config, which does not move — this
+  is the "source moves, generated files stay" line paying for itself.
+- **`update-language.sh` already covers `src/`**: its find is
+  `packages/web/ -name '*.php' -not -path '*/vendor/*'`, and `--no-location`
+  plus `msgcat --sort-output` mean the move produces no `.pot` churn at all.
+  Confirmed: `grep -c '^#: ' messages.pot` is 0.
+
+**Warning worth stating once.** `c2svn.sh` rsyncs `/var/www/fog/ → packages/web`
+with `--delete` and only two excludes (`:61`). CLAUDE.md already says never run
+it after `copybacktrunk.sh`; after this move the consequence is much larger than
+before — run from a server that has not been redeployed, it deletes `src/` out
+of the repository and restores every `lib/**/*.class.php`. It is not a script
+that needs changing; it is a script that needs the existing rule obeyed.
+
+The `System` sequencing is the only genuinely cross-repository ordering, and it
+is ADR 0009's rule unchanged: **`fog-workflows` first**, teaching the three
+sites to find `System` at either path (the same shape as the existing
+`composer_tree` probe at `fogproject-tests.yml:183`), and only then the move
+here. Reversed, `fog-version.sh` runs under `set -e` and greps a file that is
+not there, which wedges every commit and push in this repository — including
+the one that would fix it.
+
+---
+
 ## The commit sequence
 
 Tree green after each.
@@ -474,10 +522,23 @@ No files move. Reversible: delete one file.
 - **consulted before the classMap**, so core cannot be shadowed;
 - `src/` folded into the existing scan, cache key and `forgetClassFileList()`.
 
-Tests: rewrite `tests/autoload-core-wins.test.php` against the new mechanism;
-new `tests/psr4-bridge.test.php` covering namespaced / bare / lowercase
-resolution, basename uniqueness across `src/`, and a plugin file named after a
-core class failing to shadow it.
+Tests: new `tests/psr4-bridge.test.php` covering namespaced / bare / lowercase
+resolution, the fall-through to plugin-only classes, the missing-alias
+diagnostic, cache round-trip and invalidation, and a plugin file named after a
+core class failing to shadow it. It runs against a miniature tree in the temp
+directory rather than `packages/web`, because it deliberately creates a plugin
+file named after a core class and leaving one of those in a real tree is the
+defect under test.
+
+**Correction to an earlier draft of this plan**, which said
+`tests/autoload-core-wins.test.php` would be *rewritten* against the new
+mechanism. It should not be, and the two tests are not interchangeable. The
+classMap's core-wins rule keeps mattering after the move, because the map
+still holds the 46 discovery-named files and the generated `config.class.php`;
+that test keeps guarding it. What it stops covering is the classes that move,
+for which the guarantee is ORDER rather than preference — and that is what the
+new test holds. Deleting either leaves a plugin able to shadow some part of
+core. A scope note in the old test now says so.
 
 No files move — the bridge is inert until something is in `src/`. Reversible.
 
