@@ -1785,10 +1785,12 @@ abstract class FOGController extends FOGBase
      */
     public function getManager()
     {
-        // Short name: a partially namespaced tree can have FOG\Host while
-        // HostManager is still global, so derive the bare name and let the
-        // autoloader (and, after Phase 3, the compatibility alias) resolve it.
-        $man = self::shortName($this).'Manager';
+        // shortName() is deliberate: FOG\Items\Host's manager is
+        // FOG\Managers\HostManager, a different bucket, so the name has to
+        // be rebuilt from the bare one rather than derived from __NAMESPACE__.
+        // qualify() then puts it back in its own namespace, which is what
+        // stops this depending on the compatibility alias.
+        $man = self::qualify(self::shortName($this).'Manager');
         return new $man;
     }
     /**
