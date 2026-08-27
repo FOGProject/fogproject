@@ -121,7 +121,7 @@ if (!preg_match('#default:\s*\$types = \$reports;#', $endpoint[0] ?? '')) {
 // every declared field, so a writer that sets no type stores ''. The model
 // has to supply it, or every state row written after schema 338 is missing
 // from the 'state' filter -- which is the one view built to show them.
-$model = file_get_contents($web . '/lib/fog/tasklog.class.php');
+$model = file_get_contents($web . '/src/Items/TaskLog.php');
 if (!preg_match(
     '#__construct.*?get\(\'type\'\).*?set\(\'type\', self::TYPE_STATE\)#s',
     $model

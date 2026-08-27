@@ -78,7 +78,7 @@ $t->check(
 $t->check(
     'and nothing loads one',
     false === strpos(
-        file_get_contents($web . '/lib/fog/page.class.php'),
+        file_get_contents($web . '/src/Base/Page.php'),
         'v4-shims'
     )
 );
@@ -352,7 +352,7 @@ $t->check(
 // hard failure: it means the methods were renamed and somebody should look,
 // not that the check should quietly pass.
 // ---------------------------------------------------------------------------
-$taskTypeSrc = file_get_contents($web . '/lib/fog/tasktype.class.php');
+$taskTypeSrc = file_get_contents($web . '/src/Items/TaskType.php');
 $from = strpos($taskTypeSrc, '    private static $_faIcons');
 $to = strpos($taskTypeSrc, '     * Returns the icon for this task or type.');
 $to = false === $to ? false : strrpos(substr($taskTypeSrc, 0, $to), '    /**');

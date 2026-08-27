@@ -130,7 +130,7 @@ foreach ([['POST', '/host'], ['PUT', '/host/5'], ['DELETE', '/host/5']] as $c) {
  * openapi.class.php.
  */
 $openapi = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/fog/openapi.class.php'
+    dirname(__DIR__) . '/packages/web/src/Router/OpenAPI.php'
 );
 $t->check(
     'OpenAPI derives writability from Route::writableClasses()',

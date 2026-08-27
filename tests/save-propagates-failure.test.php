@@ -36,7 +36,7 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
-$dir = dirname(__DIR__) . '/packages/web/lib/fog';
+$dir = dirname(__DIR__) . '/packages/web/src';
 if (!is_dir($dir)) {
     fwrite(STDERR, "FAIL: cannot read $dir\n");
     exit(1);
@@ -45,7 +45,7 @@ if (!is_dir($dir)) {
 $failures = [];
 $checked = 0;
 
-foreach (glob($dir . '/*.class.php') as $file) {
+foreach (glob($dir . '/*/*.php') as $file) {
     $src = file_get_contents($file);
     $name = basename($file);
 

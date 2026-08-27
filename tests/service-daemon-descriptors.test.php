@@ -62,13 +62,13 @@ abstract class FOGService
     public static $zzz = 0;
 }
 
-$svcdir = dirname(__DIR__) . '/packages/web/lib/service';
-require_once $svcdir . '/fogreplicator.class.php';
-require_once $svcdir . '/imagereplicator.class.php';
-require_once $svcdir . '/snapinreplicator.class.php';
-require_once $svcdir . '/fogitemscanner.class.php';
-require_once $svcdir . '/imagesize.class.php';
-require_once $svcdir . '/snapinhash.class.php';
+$svcdir = dirname(__DIR__) . '/packages/web/src/Service';
+require_once $svcdir . '/FOGReplicator.php';
+require_once $svcdir . '/ImageReplicator.php';
+require_once $svcdir . '/SnapinReplicator.php';
+require_once $svcdir . '/FOGItemScanner.php';
+require_once $svcdir . '/ImageSize.php';
+require_once $svcdir . '/SnapinHash.php';
 
 $failures = [];
 $checks = 0;
@@ -247,14 +247,14 @@ foreach ($expected as $class => $want) {
 // and keeps covering a key added later.
 
 $bases = [
-    'FOG\ImageReplicator' => 'fogreplicator',
-    'FOG\SnapinReplicator' => 'fogreplicator',
-    'FOG\ImageSize' => 'fogitemscanner',
-    'FOG\SnapinHash' => 'fogitemscanner'
+    'FOG\ImageReplicator' => 'FOGReplicator',
+    'FOG\SnapinReplicator' => 'FOGReplicator',
+    'FOG\ImageSize' => 'FOGItemScanner',
+    'FOG\SnapinHash' => 'FOGItemScanner'
 ];
 $baseSrc = '';
 foreach (array_unique($bases) as $file) {
-    $src = file_get_contents($svcdir . '/' . $file . '.class.php');
+    $src = file_get_contents($svcdir . '/' . $file . '.php');
     $baseSrc .= $src;
     preg_match_all(
         "/(?:\\\$this->_?d)\('([a-zA-Z]+)'(?:,\s*'([a-zA-Z]+)')?\)/",
@@ -269,7 +269,7 @@ foreach ($expected as $class => $want) {
     $desc = descriptorOf($class);
     preg_match_all(
         "/(?:\\\$this->_?d)\('([a-zA-Z]+)'(?:,\s*'([a-zA-Z]+)')?\)/",
-        file_get_contents($svcdir . '/' . $bases[$class] . '.class.php'),
+        file_get_contents($svcdir . '/' . $bases[$class] . '.php'),
         $m,
         PREG_SET_ORDER
     );
@@ -293,9 +293,9 @@ foreach ($expected as $class => $want) {
 
 // --- the msgids stay literal ----------------------------------------------
 
-foreach (['imagereplicator', 'snapinreplicator', 'imagesize', 'snapinhash'] as $file) {
-    $src = file_get_contents($svcdir . '/' . $file . '.class.php');
-    $short = ucfirst($file);
+foreach (['ImageReplicator', 'SnapinReplicator', 'ImageSize', 'SnapinHash'] as $file) {
+    $src = file_get_contents($svcdir . '/' . $file . '.php');
+    $short = $file;
     check(
         $short . ' builds no msgid from a variable',
         !preg_match('/_\(\s*[^\'")]*\$/', $src)

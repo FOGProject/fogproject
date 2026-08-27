@@ -42,7 +42,7 @@
 
 $root = dirname(__DIR__);
 $web = $root . '/packages/web';
-$routeFile = $web . '/lib/router/route.class.php';
+$routeFile = $web . '/src/Router/Route.php';
 $manifestFile = $web . '/commons/schema-expected.php';
 
 foreach ([$routeFile, $manifestFile] as $file) {

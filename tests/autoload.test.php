@@ -177,7 +177,7 @@ $failures = [];
  */
 if (!class_exists('Mysqldump')) {
     $failures[] = 'Mysqldump did not resolve; either the FOG class map has '
-        . 'lost lib/db/mysqldump.class.php or commons/init.php is no longer '
+        . 'lost src/Db/Mysqldump.php or commons/init.php is no longer '
         . "requiring vendor/autoload.php, so the parent class it extends "
         . 'cannot be found';
 } elseif (!is_subclass_of('Mysqldump', 'Ifsnop\Mysqldump\Mysqldump')) {

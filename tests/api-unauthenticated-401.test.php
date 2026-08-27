@@ -45,7 +45,7 @@ FogTestHarness::boot('api-unauthenticated-401');
 $t = new FogChecks();
 
 $web = dirname(__DIR__) . '/packages/web';
-$routeSrc = file_get_contents($web . '/lib/router/route.class.php');
+$routeSrc = file_get_contents($web . '/src/Router/Route.php');
 
 $bodyOf = function ($src, $signature, $len = 6000) {
     $at = strpos($src, $signature);

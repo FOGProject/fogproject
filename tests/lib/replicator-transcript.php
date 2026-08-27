@@ -296,12 +296,20 @@ abstract class FOGService
 }
 
 $class = $argv[1] ?? 'ImageReplicator';
-$dir = $argv[2] ?? (dirname(__DIR__, 2) . '/packages/web/lib/service');
+$dir = $argv[2] ?? (dirname(__DIR__, 2) . '/packages/web/src/Service');
 
-if (is_readable($dir . '/fogreplicator.class.php')) {
-    require_once $dir . '/fogreplicator.class.php';
+if (is_readable($dir . '/FOGReplicator.php')) {
+    require_once $dir . '/FOGReplicator.php';
 }
-require_once $dir . '/' . strtolower($class) . '.class.php';
+// PSR-4: the basename is the class name exactly, no lowercasing and no
+// .class.php suffix. The old spelling is still accepted so the "check out an
+// older tree into /tmp and diff the transcripts" workflow in this file's
+// header keeps working across the move.
+if (is_readable($dir . '/' . $class . '.php')) {
+    require_once $dir . '/' . $class . '.php';
+} else {
+    require_once $dir . '/' . strtolower($class) . '.class.php';
+}
 
 $scenarios = [
     'globally disabled' => [

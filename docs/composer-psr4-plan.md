@@ -540,11 +540,34 @@ for which the guarantee is ORDER rather than preference — and that is what the
 new test holds. Deleting either leaves a plugin able to shadow some part of
 core. A scope note in the old test now says so.
 
+**Second correction, found once files were actually in `src/`.** The reverse
+arm alone is not the whole bridge. `_bridgeNamespaced()` answers a *namespaced*
+request whose casing Composer will not match — PHP class names are
+case-insensitive, Composer's PSR-4 prefix match is not, so `fog\Image` reaches
+FOG's autoloader — and it resolved that against the classMap only. Once core
+left the map, every non-canonical casing of a core class stopped resolving, and
+a plugin shipping `class/host.class.php` became the sole claimant for
+`fog\Host`. It now consults `srcFileList()` first and the classMap second, for
+exactly the ordering reason the bare arm does. Caught by
+`tests/autoload.test.php`'s existing `class_exists('fog\Image')` check, which
+is the only place in the suite that probes a non-canonical namespace casing.
+
 No files move — the bridge is inert until something is in `src/`. Reversible.
 
 ### Commit 2 — the move
 
-202 `git mv`, zero content edits, plus **one** real edit:
+**Correction, made while doing it: Commits 2, 3 and 4 are one commit, not
+three.** The split below was written as though each stage left a tree someone
+could check out. It does not. The moves alone leave every `require` in `tests/`
+pointing at a path that no longer exists and Composer's classmap naming files
+that are gone; the test rewrite alone points at files that have not moved yet.
+Each intermediate state is red, which breaks this plan's own "green after every
+commit" gate and makes a bisect through the middle of the migration useless.
+They are one atomic change — the moves, the `page.class.php` anchor,
+`composer.json`, `composer dump-autoload -o`, and the test-path rewrite —
+and the rest of this section describes what that one commit contains.
+
+201 `git mv`, zero content edits, plus **one** real edit:
 `lib/fog/page.class.php:483` does `include '../management/other/index.php'`,
 which resolves today only because `include_path` is built from the dirnames of
 class files (`init.php:163`) and `lib/fog/..` lands on `packages/web/`. After
@@ -557,7 +580,7 @@ walk and EXCLUDE list follow the tree.
 
 Reversible: `git mv` back.
 
-### Commit 3 — test paths
+### Also in Commit 2 — test paths
 
 `VERIFIED` — **86 test files** carry **183** occurrences of
 `lib/<dir>/<name>.class.php`. Rewritten mechanically from Commit 0's manifest.
@@ -567,7 +590,7 @@ grep -rlE "lib/(fog|db|client|service|reg-task|router)/[a-z0-9_-]+\.class\.php" 
 grep -rhoE "lib/(fog|db|client|service|reg-task|router)/[a-z0-9_-]+\.class\.php" tests/ | wc -l  # 183
 ```
 
-### Commit 4 — regenerate
+### Also in Commit 2 — regenerate
 
 `composer dump-autoload`. Churn is confined to `packages/web/vendor/composer/*`,
 which CI reports rather than enforces.

@@ -234,7 +234,7 @@ check(
     $checks
 );
 $logPaths = readOrEmpty(
-    $root . '/packages/web/lib/fog/foglogpaths.class.php'
+    $root . '/packages/web/src/Util/FOGLogPaths.php'
 );
 check(
     "FOGLogPaths::FOG_SUBDIRS carries 'retention'",
@@ -279,7 +279,7 @@ check(
     $checks
 );
 $class = readOrEmpty(
-    $root . '/packages/web/lib/service/retentionrunner.class.php'
+    $root . '/packages/web/src/Service/RetentionRunner.php'
 );
 check(
     'the service class exists and extends FOGService',

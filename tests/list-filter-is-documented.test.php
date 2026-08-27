@@ -51,7 +51,7 @@ FogTestHarness::fakeDb();
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
-$openapi = file_get_contents($web . '/lib/fog/openapi.class.php');
+$openapi = file_get_contents($web . '/src/Router/OpenAPI.php');
 
 /*
  * 1. The wrong syntax is gone. Pinned as a literal because this is the

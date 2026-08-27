@@ -143,7 +143,7 @@ foreach (['/snapins', '/images', '/n1/images', '/n2/images'] as $dir) {
 // ---------------------------------------------------------------------------
 // 2. _getData(): the filtered listing must still encode as a JSON list.
 // ---------------------------------------------------------------------------
-$node = (string)file_get_contents($web . '/lib/fog/storagenode.class.php');
+$node = (string)file_get_contents($web . '/src/Items/StorageNode.php');
 if (!preg_match('#return array_values\(\s*preg_grep\((.*?)\)\s*\);#s', $node, $rm)) {
     fwrite(
         STDERR,

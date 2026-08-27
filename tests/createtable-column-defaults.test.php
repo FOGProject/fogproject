@@ -114,8 +114,8 @@ function ptGrabMethod($src, $name)
     return false;
 }
 
-$schemaSrc = file_get_contents($web . '/lib/fog/schema.class.php');
-$managerSrc = file_get_contents($web . '/lib/fog/fogmanagercontroller.class.php');
+$schemaSrc = file_get_contents($web . '/src/Items/Schema.php');
+$managerSrc = file_get_contents($web . '/src/Base/FOGManagerController.php');
 
 // ---------------------------------------------------------------
 // 1. defaultLiteral() renders a value as SQL, and knows an expression.

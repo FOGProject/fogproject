@@ -94,7 +94,7 @@ function credCode($path)
     return $out;
 }
 
-$regPath = $webroot . '/lib/reg-task/registration.class.php';
+$regPath = $webroot . '/src/Boot/Registration.php';
 $ccPath = $webroot . '/service/checkcredentials.php';
 $reg = credCode($regPath);
 $cc = credCode($ccPath);

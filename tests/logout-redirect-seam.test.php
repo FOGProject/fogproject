@@ -30,9 +30,9 @@
  * Exit 0 = pass, 1 = fail.
  */
 $root = dirname(__DIR__);
-$user = $root . '/packages/web/lib/fog/user.class.php';
+$user = $root . '/packages/web/src/Items/User.php';
 $index = $root . '/packages/web/management/index.php';
-$base = $root . '/packages/web/lib/fog/fogbase.class.php';
+$base = $root . '/packages/web/src/Base/FOGBase.php';
 
 $pass = 0;
 $fail = 0;

@@ -252,7 +252,7 @@ $updaterSkip = fogParseSkipErrs(
     'skiperrs'
 );
 $reconcilerSkip = fogParseSkipErrs(
-    $root . '/lib/fog/schemareconciler.class.php',
+    $root . '/src/Db/SchemaReconciler.php',
     '_skiperrs'
 );
 

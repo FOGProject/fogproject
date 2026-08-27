@@ -20,7 +20,7 @@
  *
  * If this test fails, do not edit the fixture until you have run:
  *
- *   git show <before>:packages/web/lib/service/imagereplicator.class.php \
+ *   git show <before>:packages/web/src/Service/ImageReplicator.php \
  *     > /tmp/old/imagereplicator.class.php
  *   php tests/lib/replicator-transcript.php ImageReplicator /tmp/old
  *

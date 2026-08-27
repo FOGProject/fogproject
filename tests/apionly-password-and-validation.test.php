@@ -173,7 +173,7 @@ $t->check(
 $t->check(
     'renderAddForm() still emits that wrapper',
     false !== strpos(
-        file_get_contents($web . '/lib/fog/fogpage.class.php'),
+        file_get_contents($web . '/src/Base/FOGPage.php'),
         '<div class="row mb-3">'
     )
 );

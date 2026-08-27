@@ -115,7 +115,7 @@ foreach ($expected as $class => $map) {
  *    actor column instead of reusing utUserName.
  */
 $track = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/client/usertrack.class.php'
+    dirname(__DIR__) . '/packages/web/src/Client/UserTrack.php'
 );
 $t->check(
     'UserTrack::json() does not set createdBy itself',
@@ -166,7 +166,7 @@ $t->check(
  * without a type would otherwise pass simply by not being looked at.
  */
 $controller = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/fog/fogcontroller.class.php'
+    dirname(__DIR__) . '/packages/web/src/Base/FOGController.php'
 );
 $calls = preg_match_all('/self::logHistory\(/', $controller);
 $t->check(
@@ -193,7 +193,7 @@ foreach (
 }
 
 $base = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/fog/fogbase.class.php'
+    dirname(__DIR__) . '/packages/web/src/Base/FOGBase.php'
 );
 $t->check(
     'FOGBase::log() writes History::TYPE_LOG',

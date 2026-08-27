@@ -45,7 +45,7 @@ FogTestHarness::fakeDb();
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
-$routeFile = $web . '/lib/router/route.class.php';
+$routeFile = $web . '/src/Router/Route.php';
 $src = file_get_contents($routeFile);
 
 /**
@@ -214,7 +214,7 @@ $t->check(
  * two must test the same thing -- if they drift, the document starts
  * advertising operations that answer nothing again.
  */
-$openapi = file_get_contents($web . '/lib/fog/openapi.class.php');
+$openapi = file_get_contents($web . '/src/Router/OpenAPI.php');
 $isSearchable = searchMethodBody(
     $openapi,
     'private static function _isSearchable($class)'

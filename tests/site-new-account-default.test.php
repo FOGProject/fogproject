@@ -78,7 +78,7 @@ $check = function ($label, $cond) use (&$failures, &$checks) {
     }
 };
 
-$user = $read('lib/fog/user.class.php');
+$user = $read('src/Items/User.php');
 $save = $bodyOf($user, 'public function save(');
 
 if (null === $save) {
@@ -122,7 +122,7 @@ $check(
  * present: catchAllID() is what it preselects, and sitesInUse() is what
  * decides whether preselecting is appropriate at all.
  */
-$render = $read('lib/fog/fogpagerender.class.php');
+$render = $read('src/Base/FOGPageRender.php');
 $field = $bodyOf($render, 'protected static function siteAddField(');
 $check(
     'FOGPageRender::siteAddField() is gone',
@@ -152,7 +152,7 @@ if (null !== $field) {
  * granted, which is the bug this whole file is about, reintroduced from
  * the other end.
  */
-$post = $read('lib/fog/fogpagepost.class.php');
+$post = $read('src/Base/FOGPagePost.php');
 $addPost = $bodyOf($post, 'protected function siteAddPost(');
 $check(
     'FOGPagePost::siteAddPost() is gone',

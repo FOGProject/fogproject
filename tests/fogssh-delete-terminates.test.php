@@ -13,7 +13,7 @@
  * Observed in the field as:
  *
  *   PHP Fatal error: Allowed memory size of 268435456 bytes exhausted
- *   in lib/fog/fogssh.class.php on line 336
+ *   in src/Net/FOGSSH.php on line 336
  *
  * once per FOS retry. A memory-exhaustion fatal is not catchable, so
  * TaskQueue::checkout()'s catch never ran, the response body was empty, and FOS

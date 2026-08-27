@@ -31,7 +31,7 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
-$src = __DIR__ . '/../packages/web/lib/service/fogservice.class.php';
+$src = __DIR__ . '/../packages/web/src/Service/FOGService.php';
 $code = file_get_contents($src);
 if (false === $code) {
     fwrite(STDERR, "cannot read $src\n");

@@ -37,7 +37,7 @@ $root = dirname(__DIR__);
 chdir($root);
 
 $fails = [];
-$file = 'packages/web/lib/fog/fogurlrequests.class.php';
+$file = 'packages/web/src/Net/FOGURLRequests.php';
 $src = (string)file_get_contents($file);
 
 /*

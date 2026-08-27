@@ -35,7 +35,7 @@
  */
 
 $routeFile = dirname(__DIR__)
-    . '/packages/web/lib/router/route.class.php';
+    . '/packages/web/src/Router/Route.php';
 
 if (!is_readable($routeFile)) {
     fwrite(STDERR, "FAIL: cannot read $routeFile\n");

@@ -10,7 +10,7 @@
  *
  * Usage: php tests/lib/scanner-transcript.php <class> [<dir>]
  *   class  ImageSize | SnapinHash
- *   dir    directory holding the *.class.php files, for running an older
+ *   dir    directory holding the daemon class files, for running an older
  *          copy of the daemon against the same stubs
  */
 
@@ -297,12 +297,22 @@ abstract class FOGService
 }
 
 $class = $argv[1] ?? 'ImageSize';
-$dir = $argv[2] ?? (dirname(__DIR__, 2) . '/packages/web/lib/service');
+$dir = $argv[2] ?? (dirname(__DIR__, 2) . '/packages/web/src/Service');
 
-if (is_readable($dir . '/fogitemscanner.class.php')) {
+if (is_readable($dir . '/FOGItemScanner.php')) {
+    require_once $dir . '/FOGItemScanner.php';
+} elseif (is_readable($dir . '/fogitemscanner.class.php')) {
     require_once $dir . '/fogitemscanner.class.php';
 }
-require_once $dir . '/' . strtolower($class) . '.class.php';
+// PSR-4: the basename is the class name exactly, no lowercasing and no
+// .class.php suffix. The old spelling is still accepted so the "check out an
+// older tree into /tmp and diff the transcripts" workflow in this file's
+// header keeps working across the move.
+if (is_readable($dir . '/' . $class . '.php')) {
+    require_once $dir . '/' . $class . '.php';
+} else {
+    require_once $dir . '/' . strtolower($class) . '.class.php';
+}
 
 // One file that is really there and one that is not. The missing one is the
 // whole point: SnapinHash used to hash_file() it, get false, and save false.

@@ -981,10 +981,19 @@ class Initiator
             return;
         }
         $key = strtolower($short);
-        if (!isset(self::$classMap[$key])) {
+        // src/ before the classMap, for the same reason autoload() checks it
+        // first for the bare spelling: core no longer appears in the classMap
+        // at all, so a plugin shipping class/host.class.php would otherwise be
+        // the sole claimant for FOG\Host and win outright. Composer answers
+        // the exactly-cased FOG\Host before this method ever runs; this arm is
+        // what catches every other casing, which PHP permits and which
+        // Composer's PSR-4 prefix match does not.
+        $src = self::srcFileList();
+        $file = $src[$key] ?? (self::$classMap[$key] ?? null);
+        if ($file === null) {
             return;
         }
-        include_once self::$classMap[$key];
+        include_once $file;
         // Phase 3: the file may declare the namespaced name ITSELF, and then
         // alias the global one back the other way. There is nothing left to
         // bridge in that case, and aliasing again would be a "Cannot declare

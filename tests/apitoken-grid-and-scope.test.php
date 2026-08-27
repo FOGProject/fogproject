@@ -42,11 +42,11 @@ FogTestHarness::boot('apitoken-grid-and-scope');
 $t = new FogChecks();
 
 $web = dirname(__DIR__) . '/packages/web';
-$mgrSrc = file_get_contents($web . '/lib/fog/apitokenmanager.class.php');
-$tokSrc = file_get_contents($web . '/lib/fog/apitoken.class.php');
+$mgrSrc = file_get_contents($web . '/src/Managers/APITokenManager.php');
+$tokSrc = file_get_contents($web . '/src/Items/APIToken.php');
 $cfgSrc = file_get_contents($web . '/lib/pages/fogconfigurationpage.page.php');
 $usrSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
-$authSrc = file_get_contents($web . '/lib/fog/authorization.class.php');
+$authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $jsSrc = file_get_contents(
     $web . '/management/js/fog/about/fog.about.apitokens.js'
 );

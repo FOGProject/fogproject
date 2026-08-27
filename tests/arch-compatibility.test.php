@@ -38,10 +38,10 @@ require __DIR__ . '/lib/fog-test-harness.php';
 $root = dirname(__DIR__);
 $web = $root . '/packages/web';
 
-require_once $web . '/lib/fog/fogbase.class.php';
-require_once $web . '/lib/fog/fogcontroller.class.php';
-require_once $web . '/lib/fog/image.class.php';
-require_once $web . '/lib/fog/architecture.class.php';
+require_once $web . '/src/Base/FOGBase.php';
+require_once $web . '/src/Base/FOGController.php';
+require_once $web . '/src/Items/Image.php';
+require_once $web . '/src/Items/Architecture.php';
 
 $t = new FogChecks();
 
@@ -127,12 +127,12 @@ $t->check(
 
 // --- the wiring the relation depends on -----------------------------------
 // Without these the method is correct and never consulted.
-$hostSrc = (string)file_get_contents($web . '/lib/fog/host.class.php');
-$imageSrc = (string)file_get_contents($web . '/lib/fog/image.class.php');
+$hostSrc = (string)file_get_contents($web . '/src/Items/Host.php');
+$imageSrc = (string)file_get_contents($web . '/src/Items/Image.php');
 $schemaSrc = (string)file_get_contents($web . '/commons/schema.php');
-$queueSrc = (string)file_get_contents($web . '/lib/reg-task/taskqueue.class.php');
-$menuSrc = (string)file_get_contents($web . '/lib/fog/bootmenu.class.php');
-$archSrc = (string)file_get_contents($web . '/lib/fog/architecture.class.php');
+$queueSrc = (string)file_get_contents($web . '/src/TaskHandling/TaskQueue.php');
+$menuSrc = (string)file_get_contents($web . '/src/Boot/BootMenu.php');
+$archSrc = (string)file_get_contents($web . '/src/Items/Architecture.php');
 
 $t->check(
     "Host maps 'archID' to hostArchID",

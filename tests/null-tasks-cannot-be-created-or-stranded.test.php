@@ -50,10 +50,10 @@ function check($what, $ok, &$failures, &$checks)
 }
 
 $man = (string) file_get_contents(
-    "$root/packages/web/lib/fog/fogmanagercontroller.class.php"
+    "$root/packages/web/src/Base/FOGManagerController.php"
 );
 $route = (string) file_get_contents(
-    "$root/packages/web/lib/router/route.class.php"
+    "$root/packages/web/src/Router/Route.php"
 );
 
 /* ---------------------------------------------------------------- 1. guard */

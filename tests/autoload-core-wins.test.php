@@ -112,9 +112,9 @@ $isPlugin = function ($path) use ($m) {
 $base = rtrim(BASEPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 $cases = [
     // path                                          => is it plugin code?
-    $base . 'lib/fog/host.class.php'                 => false,
-    $base . 'lib/fog/site.class.php'                 => false,
-    $base . 'lib/router/route.class.php'             => false,
+    $base . 'src/Items/Host.php'                 => false,
+    $base . 'src/Items/Site.php'                 => false,
+    $base . 'src/Router/Route.php'             => false,
     $base . 'lib/pages/hostmanagement.page.php'      => false,
     $base . 'lib/plugins/site/class/site.class.php'  => true,
     $base . 'lib/plugins/x/class/authorization.class.php' => true,
@@ -134,11 +134,11 @@ foreach ($cases as $path => $expected) {
  * 2. A path that merely CONTAINS the word plugins is not plugin code. The
  *    classifier decides whether a file may shadow a core class, so a
  *    substring match here would hand that right to any core file whose name
- *    happened to mention plugins -- lib/fog/pluginmanager.class.php, for one.
+ *    happened to mention plugins -- src/Managers/PluginManager.php, for one.
  */
 check(
-    'lib/fog/pluginmanager.class.php is core, not plugin',
-    $isPlugin($base . 'lib/fog/pluginmanager.class.php') === false,
+    'src/Managers/PluginManager.php is core, not plugin',
+    $isPlugin($base . 'src/Managers/PluginManager.php') === false,
     $failures,
     $checks
 );
@@ -178,9 +178,20 @@ $build = function (array $list) use ($fileList, $classMap) {
     return $classMap->getValue();
 };
 
-$corePath = $base . 'lib/fog/site.class.php';
-$bundled = $base . 'lib/plugins/site/class/site.class.php';
-$external = FOG_PLUGIN_DIR . '/mine/class/site.class.php';
+/*
+ * The core half of the collision is a DISCOVERY-named file, deliberately.
+ * A src/ file is not in the classMap at all -- the map is keyed on a
+ * basename with one of the six *.<type>.php suffixes stripped, and
+ * src/Items/Site.php has none of them -- so a src/ path here would key as
+ * "site.php", collide with nothing, and turn this into a test that passes
+ * without exercising the rule. The classes that still live in the map are
+ * exactly the ones this rule still protects: the 46 discovery-named files
+ * and the generated config.class.php. For the moved classes the guarantee
+ * is ORDER, and tests/psr4-bridge.test.php holds that half.
+ */
+$corePath = $base . 'lib/pages/sitemanagement.page.php';
+$bundled = $base . 'lib/plugins/site/class/sitemanagement.class.php';
+$external = FOG_PLUGIN_DIR . '/mine/class/sitemanagement.class.php';
 
 $order = [
     'bundled plugin walked first' => [$bundled, $corePath],
@@ -191,7 +202,7 @@ foreach ($order as $label => $list) {
     $map = $build($list);
     check(
         "core wins when the $label",
-        ($map['site'] ?? null) === $corePath,
+        ($map['sitemanagement'] ?? null) === $corePath,
         $failures,
         $checks
     );

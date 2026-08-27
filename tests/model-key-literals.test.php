@@ -79,7 +79,7 @@ const MIN_LITERALS = 400;
  * creation path, which is not this test's call to make.
  */
 $exempt = [
-    'packages/web/lib/fog/host.class.php' => [
+    'packages/web/src/Items/Host.php' => [
         'tasktype',
         'TaskState',
         'StorageGroup',

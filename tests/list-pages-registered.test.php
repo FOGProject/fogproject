@@ -33,7 +33,7 @@
 
 $webroot = dirname(__DIR__) . '/packages/web';
 $jsRoot = $webroot . '/management/js/fog';
-$baseFile = $webroot . '/lib/fog/fogbase.class.php';
+$baseFile = $webroot . '/src/Base/FOGBase.php';
 
 foreach ([$jsRoot, $baseFile] as $needed) {
     if (!file_exists($needed)) {

@@ -35,7 +35,7 @@ $root = dirname(__DIR__);
 chdir($root);
 
 $fails = [];
-$baseFile = 'packages/web/lib/fog/fogbase.class.php';
+$baseFile = 'packages/web/src/Base/FOGBase.php';
 $base = (string)file_get_contents($baseFile);
 
 /*
@@ -548,7 +548,7 @@ if (!preg_match(
  * given away. isFogHost() is the one answer all three key off.
  */
 $requests = (string)file_get_contents(
-    'packages/web/lib/fog/fogurlrequests.class.php'
+    'packages/web/src/Net/FOGURLRequests.php'
 );
 if (!preg_match(
     '#if \(\$isFogHost\) \{.*?nodeSignatureHeaders\(#s',
@@ -573,7 +573,7 @@ if (false === strpos($requests, 'CURLOPT_CUSTOMREQUEST')) {
  * configuration page has to drop the row rather than render it.
  */
 $route = (string)file_get_contents(
-    'packages/web/lib/router/route.class.php'
+    'packages/web/src/Router/Route.php'
 );
 if (!preg_match(
     '#\$sensitiveSettings = \[.*?\'FOG_NODE_API_KEY\'.*?\];#s',

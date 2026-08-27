@@ -258,7 +258,7 @@ if (is_callable($badge)) {
  * time one of them is edited.
  */
 $service = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/service/pinghosts.class.php'
+    dirname(__DIR__) . '/packages/web/src/Service/PingHosts.php'
 );
 check(
     'the service decides lastping through Ping::isAlive()',
@@ -277,7 +277,7 @@ check(
 );
 
 $route = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/router/route.class.php'
+    dirname(__DIR__) . '/packages/web/src/Router/Route.php'
 );
 check(
     'the grid formatter decides through Ping::isAlive()',

@@ -35,8 +35,8 @@
  */
 
 $root = dirname(__DIR__);
-$page = $root . '/packages/web/lib/fog/fogpage.class.php';
-$site = $root . '/packages/web/lib/fog/site.class.php';
+$page = $root . '/packages/web/src/Base/FOGPage.php';
+$site = $root . '/packages/web/src/Items/Site.php';
 
 foreach ([$page, $site] as $needed) {
     if (!is_readable($needed)) {

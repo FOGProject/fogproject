@@ -104,7 +104,7 @@ foreach (['/management', '/api'] as $dir) {
 
 // 3. The predicate must still be gated on the constant. Without this the
 //    two checks above pass while guarding nothing.
-$auth = $web . '/lib/fog/authorization.class.php';
+$auth = $web . '/src/Auth/Authorization.php';
 if (!is_readable($auth)) {
     $failures[] = 'cannot read ' . $auth;
 } elseif (!preg_match(

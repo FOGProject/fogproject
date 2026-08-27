@@ -87,16 +87,16 @@ function bStripComments($src)
 }
 
 $pdoSrc = bStripComments(
-    (string) file_get_contents("$root/packages/web/lib/db/pdodb.class.php")
+    (string) file_get_contents("$root/packages/web/src/Db/PDODB.php")
 );
 $manSrc = bStripComments(
     (string) file_get_contents(
-        "$root/packages/web/lib/fog/fogmanagercontroller.class.php"
+        "$root/packages/web/src/Base/FOGManagerController.php"
     )
 );
 $ctlSrc = bStripComments(
     (string) file_get_contents(
-        "$root/packages/web/lib/fog/fogcontroller.class.php"
+        "$root/packages/web/src/Base/FOGController.php"
     )
 );
 

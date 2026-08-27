@@ -359,7 +359,7 @@ check(
 // Every embed inside getter() has to go through embed(); a raw
 // ->get()->get() would produce exactly the unregistered case above.
 $src = file_get_contents(
-    dirname(__DIR__) . '/packages/web/lib/router/route.class.php'
+    dirname(__DIR__) . '/packages/web/src/Router/Route.php'
 );
 $gs = strpos($src, 'public static function getter($classname, $class)');
 $depth = 0;

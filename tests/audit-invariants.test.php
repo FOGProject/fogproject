@@ -74,10 +74,10 @@ function methodBody($src, $sig)
 }
 
 $controller = (string) @file_get_contents(
-    $web . '/lib/fog/fogcontroller.class.php'
+    $web . '/src/Base/FOGController.php'
 );
-$audit = (string) @file_get_contents($web . '/lib/fog/audit.class.php');
-$route = (string) @file_get_contents($web . '/lib/router/route.class.php');
+$audit = (string) @file_get_contents($web . '/src/Audit/Audit.php');
+$route = (string) @file_get_contents($web . '/src/Router/Route.php');
 
 foreach ([$controller, $audit, $route] as $needed) {
     if ('' === $needed) {
@@ -138,7 +138,7 @@ foreach ($files as $file) {
     }
 }
 $checks++;
-$allowed = 'packages/web/lib/fog/audit.class.php';
+$allowed = 'packages/web/src/Audit/Audit.php';
 $stray = array_diff_key($constructors, [$allowed => true]);
 if (count($stray)) {
     $failures[] = 'AuditChange is constructed outside Audit::changes(), in: '
@@ -215,7 +215,7 @@ foreach (['History', 'AuditLog', 'AuditChange'] as $cls) {
  * edit the OUI table" the same grant.
  */
 $authz = (string) @file_get_contents(
-    $root . '/packages/web/lib/fog/authorization.class.php'
+    $root . '/packages/web/src/Auth/Authorization.php'
 );
 $checks++;
 if (false === strpos($authz, "'audit' => ['view', 'manage']")) {
@@ -241,7 +241,7 @@ if (false === strpos($authz, "'audit' => ['view', 'manage']")) {
  * this reason and is where the omission happened.
  */
 $fogpage = (string) @file_get_contents(
-    $root . '/packages/web/lib/fog/fogpage.class.php'
+    $root . '/packages/web/src/Base/FOGPage.php'
 );
 $checks++;
 if (false === strpos($fogpage, "unset(\$menu['add'], \$menu['import']);")
@@ -273,10 +273,10 @@ if (preg_match(
  * authorization".
  */
 $machinePaths = [
-    'packages/web/lib/reg-task/registration.class.php' => 'host.register',
-    'packages/web/lib/reg-task/taskqueue.class.php' => 'task.start',
-    'packages/web/lib/reg-task/taskerror.class.php' => 'task.failed',
-    'packages/web/lib/reg-task/blame.class.php' => 'task.blamed',
+    'packages/web/src/Boot/Registration.php' => 'host.register',
+    'packages/web/src/TaskHandling/TaskQueue.php' => 'task.start',
+    'packages/web/src/TaskHandling/TaskError.php' => 'task.failed',
+    'packages/web/src/Audit/Blame.php' => 'task.blamed',
     'packages/web/service/inventory.php' => 'host.inventory',
 ];
 foreach ($machinePaths as $path => $type) {
@@ -325,10 +325,10 @@ if (false !== strpos($progress, 'Audit::record')) {
  * the accessor -- one class along.
  */
 $route = (string) @file_get_contents(
-    $root . '/packages/web/lib/router/route.class.php'
+    $root . '/packages/web/src/Router/Route.php'
 );
 $redaction = (string) @file_get_contents(
-    $root . '/packages/web/lib/fog/redaction.class.php'
+    $root . '/packages/web/src/Auth/Redaction.php'
 );
 $map = '';
 if (preg_match(
@@ -416,7 +416,7 @@ if (preg_match(
     '#public static function requirePagePermission\(.*?
     \}#s',
     (string) @file_get_contents(
-        $root . '/packages/web/lib/fog/authorization.class.php'
+        $root . '/packages/web/src/Auth/Authorization.php'
     ),
     $m
 )) {

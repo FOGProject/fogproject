@@ -64,7 +64,7 @@ abstract class FOGBase
 }
 
 require_once dirname(__DIR__)
-    . '/packages/web/lib/service/fogservice.class.php';
+    . '/packages/web/src/Service/FOGService.php';
 
 /**
  * Concrete handle on the abstract service.
@@ -380,9 +380,9 @@ check(
 // The product wiring, so this file fails if the answer stops being used.
 
 $taskFile = dirname(__DIR__)
-    . '/packages/web/lib/service/multicasttask.class.php';
+    . '/packages/web/src/Service/MulticastTask.php';
 $mgrFile = dirname(__DIR__)
-    . '/packages/web/lib/service/multicastmanager.class.php';
+    . '/packages/web/src/Service/MulticastManager.php';
 $task = file_get_contents($taskFile);
 $mgr = file_get_contents($mgrFile);
 

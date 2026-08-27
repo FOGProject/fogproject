@@ -248,7 +248,7 @@ foreach ($cases as $case => $spec) {
  * 4. Both entry points are wired to it, and edit() no longer re-sets what
  *    the body did not send.
  */
-$route = file_get_contents($webroot . '/lib/router/route.class.php');
+$route = file_get_contents($webroot . '/src/Router/Route.php');
 
 $bodyOf = function ($src, $needle) {
     $start = strpos($src, $needle);

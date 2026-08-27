@@ -127,7 +127,7 @@ const MIN_MODELS = 40;
 function models($webroot)
 {
     $files = array_merge(
-        (array) glob($webroot . '/lib/fog/*.class.php'),
+        (array) glob($webroot . '/src/*/*.php'),
         (array) glob($webroot . '/lib/plugins/*/*.class.php'),
         (array) glob($webroot . '/lib/plugins/*/*/*.class.php')
     );
@@ -141,7 +141,12 @@ function models($webroot)
         if (!count($keys[1])) {
             continue;
         }
-        $class = strtolower(basename($file, '.class.php'));
+        // Two spellings since core moved to PSR-4: src/Items/Host.php and a
+        // plugin's class/ldap.class.php. basename($file, '.class.php') is a
+        // no-op on the first and would leave the key as "host.php".
+        $class = strtolower(
+            preg_replace('#\.(class\.)?php$#', '', basename($file))
+        );
         $out[$class] = array_map('strtolower', $keys[1]);
     }
 

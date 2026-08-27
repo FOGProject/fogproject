@@ -49,7 +49,7 @@ $t = new FogChecks();
 $root = dirname(__DIR__);
 $web = $root . '/packages/web';
 $common = file_get_contents($web . '/management/js/fog/fog.common.js');
-$page = file_get_contents($web . '/lib/fog/page.class.php');
+$page = file_get_contents($web . '/src/Base/Page.php');
 
 // ---------------------------------------------------------------------------
 // 1. The dependency is gone.
