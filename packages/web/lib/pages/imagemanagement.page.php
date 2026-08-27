@@ -1038,6 +1038,16 @@ class ImageManagement extends FOGPage
             _('Size on Server') => self::formatByteSize($this->obj->get('srvsize')),
             _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name')
         ];
+        // Info-card notes that mirror a General-tab control, so the card
+        // tracks the form instead of going stale until the next page
+        // load. Keys must match $notes exactly; notes left out here (the
+        // association counts, and anything no control on this page can
+        // change) keep their server-rendered value.
+        $this->noteSources = [
+            _('Image') => '#image',
+            _('OS') => '#os',
+            _('Image Type') => '#imagetype'
+        ];
         $tabData = [];
 
         $tabData[] = [

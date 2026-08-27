@@ -1555,6 +1555,15 @@ class UserManagement extends FOGPage
             _('Signs In With') => ($authSource ?: _('FOG')),
             _('API Enabled') => ($this->obj->get('api') ? _('Yes') : _('No'))
         ];
+        // Info-card notes that mirror a General-tab control, so the card
+        // tracks the form instead of going stale until the next page
+        // load. Keys must match $notes exactly; notes left out here (the
+        // association counts, and anything no control on this page can
+        // change) keep their server-rendered value.
+        $this->noteSources = [
+            _('User') => '#user',
+            _('Friendly Name') => '#display'
+        ];
         $tabData = [];
 
         // General

@@ -3162,7 +3162,73 @@ function reinitialize() {
   wireImportForm();
   setupPasswordReveal();
   setupUniversalSearch();
+  setupInfoCard();
 };
+
+/**
+ * Keep the edit page's info card in step with the form under it.
+ *
+ * The card summarises the record you are editing, and it used to be rendered
+ * once and left alone -- so changing Max Clients on the General tab left the
+ * card still showing the old number until a full page reload. It is sticky, so
+ * that stale number follows you down the page.
+ *
+ * The mapping is declared server side (FOGPage::$noteSources) and arrives as
+ * data-note-src on the note's value div, so nothing here is page-specific and
+ * any edit page gets this by declaring the mapping. A note with no data-note-src
+ * is left exactly as the server drew it, which is what pages want for values no
+ * control on the page can change.
+ *
+ * Deliberately no initial repaint: until you touch a control, the server's
+ * value is the truthful one. Painting on load would let a client-side reading
+ * of the control quietly replace a value the server had normalised (the image
+ * path, for one, comes back with its trailing slash trimmed).
+ */
+function setupInfoCard() {
+  var card = $('#edit-info-card');
+  if (!card.length) {
+    return;
+  }
+  card.find('[data-note-src]').each(function() {
+    var note = $(this),
+      src = $(note.data('note-src'));
+    if (!src.length) {
+      return;
+    }
+    function read() {
+      if (src.is(':checkbox')) {
+        return src.prop('checked') ?
+          note.data('note-on') :
+          note.data('note-off');
+      }
+      if (src.is('select')) {
+        // The pickers append " - (id)" to an option's visible text so two
+        // same-named items can be told apart; data-label is the bare name,
+        // which is what the server rendered into the card. Fall back to the
+        // text for a hand-built select that carries no data-label.
+        var opt = src.find('option:selected');
+        return opt.data('label') !== undefined ? opt.data('label') : opt.text();
+      }
+      return src.val();
+    }
+    // The card is torn down and rebuilt with the page on every AJAX nav, but
+    // the CONTROL may not be (a modal-injected form reuses ids), so namespace
+    // the binding and clear it first rather than stacking one per visit.
+    src.off('.fogInfoCard').on('input.fogInfoCard change.fogInfoCard',
+      function() {
+        var value = read();
+        value = (value === undefined || value === null) ? '' : String(value);
+        value = value.trim();
+        if (value === '') {
+          // Same em dash the server draws for an empty note, so clearing a
+          // field looks like an empty value rather than a broken card.
+          note.html('<span class="text-muted">&mdash;</span>');
+          return;
+        }
+        note.text(value);
+      });
+  });
+}
 
 // Select2 builds its search inputs with neither id/name nor a label, tripping
 // the browser's "form field should have an id or name" autofill advisory and the

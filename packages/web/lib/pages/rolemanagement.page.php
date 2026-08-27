@@ -600,6 +600,14 @@ class RoleManagement extends FOGPage
             _('Users') => (string)count((array)$this->obj->get('users')),
             _('User Groups') => (string)count((array)$this->obj->get('usergroups'))
         ];
+        // Info-card notes that mirror a General-tab control, so the card
+        // tracks the form instead of going stale until the next page
+        // load. Keys must match $notes exactly; notes left out here (the
+        // association counts, and anything no control on this page can
+        // change) keep their server-rendered value.
+        $this->noteSources = [
+            _('Role') => '#role'
+        ];
         $tabData = [];
 
         // General
