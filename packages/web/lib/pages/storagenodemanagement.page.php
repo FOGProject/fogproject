@@ -357,11 +357,16 @@ class StorageNodeManagement extends FOGPage
                 $sslpath,
                 true
             ),
-            // Node FTP User/Password
+            // The system account FOG signs in as ON the node. Named
+            // "FTP User"/"FTP Password" until now, which described only half
+            // of what it does: the replicators use it for FTP transfers, and
+            // this page's own save-time reachability check uses it for an SSH
+            // login. It is a service account on the node, not a FOG web user,
+            // so it is named for what it is rather than for one protocol.
             self::makeLabel(
                 $labelClass,
                 'user',
-                _('Storage Node FTP User')
+                _('Node Service Account')
             ) => self::makeInput(
                 'form-control storagenodeuser-input',
                 'user',
@@ -374,7 +379,7 @@ class StorageNodeManagement extends FOGPage
             self::makeLabel(
                 $labelClass,
                 'pass',
-                _('Storage Node FTP Password')
+                _('Node Service Account Password')
             ) => '<div class="input-group">'
             . self::makeInput(
                 'form-control storagenodepass-input',
@@ -980,11 +985,16 @@ class StorageNodeManagement extends FOGPage
                 $sslpath,
                 true
             ),
-            // Node FTP User/Password
+            // The system account FOG signs in as ON the node. Named
+            // "FTP User"/"FTP Password" until now, which described only half
+            // of what it does: the replicators use it for FTP transfers, and
+            // this page's own save-time reachability check uses it for an SSH
+            // login. It is a service account on the node, not a FOG web user,
+            // so it is named for what it is rather than for one protocol.
             self::makeLabel(
                 $labelClass,
                 'user',
-                _('Storage Node FTP User')
+                _('Node Service Account')
             ) => self::makeInput(
                 'form-control storagenodeuser-input',
                 'user',
@@ -997,7 +1007,7 @@ class StorageNodeManagement extends FOGPage
             self::makeLabel(
                 $labelClass,
                 'pass',
-                _('Storage Node FTP Password')
+                _('Node Service Account Password')
             ) => '<div class="input-group">'
             . self::makeInput(
                 'form-control storagenodepass-input',
@@ -1007,6 +1017,14 @@ class StorageNodeManagement extends FOGPage
                 'pass',
                 $pass,
                 true
+            )
+            . '</div>'
+            . '<div class="form-text">'
+            . _(
+                'The account on the node itself that FOG signs in as, over '
+                . 'SSH to check the node is reachable and over FTP to move '
+                . 'images and snapins. Created by the installer, normally '
+                . '"fogproject". This is not a FOG web user.'
             )
             . '</div>',
             // Only needed when the peer is a full FOG server with its own

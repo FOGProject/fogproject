@@ -5626,6 +5626,13 @@ msgid "Node Offline"
 msgstr ""
 
 #, fuzzy
+msgid "Node Service Account"
+msgstr "Versão"
+
+msgid "Node Service Account Password"
+msgstr ""
+
+#, fuzzy
 msgid "Node Version"
 msgstr "Versão"
 
@@ -7838,16 +7845,8 @@ msgid "Storage Node Enabled"
 msgstr "Nome Storage Node"
 
 #, fuzzy
-msgid "Storage Node FTP Password"
-msgstr "Nó de Armazenamento senha"
-
-#, fuzzy
 msgid "Storage Node FTP Path"
 msgstr "IP nó de armazenamento"
-
-#, fuzzy
-msgid "Storage Node FTP User"
-msgstr "Nó de armazenamento do usuário"
 
 msgid "Storage Node IP"
 msgstr "IP nó de armazenamento"
@@ -8383,6 +8382,9 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
@@ -11196,6 +11198,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "Nó de Armazenamento Criado"
+
+#, fuzzy
+#~ msgid "Storage Node FTP Password"
+#~ msgstr "Nó de Armazenamento senha"
+
+#, fuzzy
+#~ msgid "Storage Node FTP User"
+#~ msgstr "Nó de armazenamento do usuário"
 
 #, fuzzy
 #~ msgid "Task run time"
