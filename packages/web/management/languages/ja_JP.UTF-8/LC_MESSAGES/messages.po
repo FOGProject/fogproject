@@ -3000,9 +3000,6 @@ msgstr "グラフ有効"
 msgid "Graphical"
 msgstr "グラフィカル"
 
-msgid "Green FOG"
-msgstr "Green FOG"
-
 msgid "Group"
 msgstr "グループ"
 
@@ -10900,6 +10897,9 @@ msgstr ""
 
 #~ msgid "Goto task list"
 #~ msgstr "タスク一覧へ移動"
+
+#~ msgid "Green FOG"
+#~ msgstr "Green FOG"
 
 #~ msgid "Group Bios Exit Type"
 #~ msgstr "グループ BIOS 終了方法"

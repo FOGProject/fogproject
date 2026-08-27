@@ -3111,9 +3111,6 @@ msgstr "Diagramm aktiviert"
 msgid "Graphical"
 msgstr "Grafisch"
 
-msgid "Green FOG"
-msgstr "Green FOG"
-
 msgid "Group"
 msgstr "Gruppe"
 
@@ -10918,6 +10915,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "Neustarten"
+
+#~ msgid "Green FOG"
+#~ msgstr "Green FOG"
 
 #, fuzzy
 #~ msgid "Group Mappings"
