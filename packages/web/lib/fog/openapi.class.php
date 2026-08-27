@@ -646,6 +646,7 @@ class OpenAPI extends FOGBase
             'BulkEditIds' => self::_bulkEditIdsSchema(),
             'TaskRequest' => self::_taskRequestSchema(),
             'NamesRequest' => self::_namesRequestSchema(),
+            'ValueList' => self::_valueListSchema(),
             'Error' => [
                 'type' => 'object',
                 'properties' => [
@@ -2113,7 +2114,12 @@ class OpenAPI extends FOGBase
     }
 
     /**
-     * An array of ids.
+     * What POST /{class}/join answers with, which is nothing.
+     *
+     * This used to be documented as an array of ids. It never was one:
+     * Route::joining() ends at `self::sendResponse($code)` with no body
+     * argument, so the route has always replied 201 and closed. A generated
+     * client was being told to wait for a list that does not arrive.
      *
      * @return array
      */
@@ -2121,15 +2127,7 @@ class OpenAPI extends FOGBase
     {
         return [
             '201' => [
-                'description' => _('One id per name, in the order given.'),
-                'content' => [
-                    'application/json' => [
-                        'schema' => [
-                            'type' => 'array',
-                            'items' => ['type' => 'integer']
-                        ]
-                    ]
-                ]
+                'description' => _('Created. No body is returned.')
             ]
         ];
     }
@@ -2182,7 +2180,7 @@ class OpenAPI extends FOGBase
     }
 
     /**
-     * Routes that answer with a bare array rather than the list envelope.
+     * Routes that answer with an unpaged list rather than a full page.
      *
      * @return array
      */
@@ -2190,11 +2188,61 @@ class OpenAPI extends FOGBase
     {
         return [
             '200' => [
-                'description' => _('An unpaged array.'),
+                'description' => _('An unpaged list.'),
                 'content' => [
                     'application/json' => [
-                        'schema' => ['type' => 'array', 'items' => ['type' => 'object']]
+                        'schema' => [
+                            '$ref' => '#/components/schemas/ValueList'
+                        ]
                     ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * What /ids, /names and the other unpaged routes answer with.
+     *
+     * The rows sit under `data`, which is where every list route already
+     * puts them. These routes used to answer with a bare top-level array,
+     * and a bare array cannot be described to a code generator.
+     *
+     * It is not a naming problem, and that was worth being certain of
+     * before changing a wire format. Five response shapes were generated
+     * and compiled: an inline array, a $ref to a NAMED top-level array
+     * schema, an inline array whose items are a named object, an array of
+     * integers, and an object wrapping the array. The first four fail
+     * identically; only the wrapper compiles. AutoRest emits no model for a
+     * top-level array in any form, falls back to the only named schema on
+     * the operation -- Error -- and then writes `.Count`, `[0]` and
+     * `foreach` against it. 108 operations, 333 compile errors, out of a
+     * generation run that reported zero warnings.
+     *
+     * The generated code is otherwise identical either way: it walks
+     * `result` for an array and `result.Data` for a wrapper, and only needs
+     * a property to walk. A PowerShell caller sees no difference, because
+     * the cmdlet unwraps `data` itself and writes the rows to the pipeline.
+     *
+     * The element type stays `object`. Route::ids() projects whatever
+     * getField names, one column or several, so a row is a scalar or an
+     * object depending on the request. Narrowing it here would be a guess
+     * that is wrong half the time.
+     *
+     * @return array
+     */
+    private static function _valueListSchema()
+    {
+        return [
+            'type' => 'object',
+            'description' => _('An unpaged list of values.'),
+            'properties' => [
+                'data' => [
+                    'type' => 'array',
+                    'description' => _('One entry per row. The element '
+                        . 'shape follows the requested fields: a scalar '
+                        . 'when a single column is projected, an object '
+                        . 'when several are.'),
+                    'items' => ['type' => 'object']
                 ]
             ]
         ];
@@ -2280,10 +2328,20 @@ class OpenAPI extends FOGBase
                         '200' => [
                             'description' => _('SQL dump.'),
                             'content' => [
+                                // No 'format' => 'binary'. A dump is SQL
+                                // text, so a plain string is the honest
+                                // declaration -- and binary is the half
+                                // AutoRest cannot model: it writes
+                                // File.WriteAllBytes(path, result) with
+                                // result typed as the error schema.
+                                // Measured across five variants: the
+                                // content type is irrelevant, and
+                                // application/sql, application/octet-stream
+                                // and text/plain all compile once the
+                                // binary format is dropped.
                                 'application/sql' => [
                                     'schema' => [
-                                        'type' => 'string',
-                                        'format' => 'binary'
+                                        'type' => 'string'
                                     ]
                                 ]
                             ]
@@ -2350,9 +2408,13 @@ class OpenAPI extends FOGBase
                     'pendingmacs',
                     _('Pending MAC addresses'),
                     '',
-                    $json(
-                        ['type' => 'array', 'items' => ['type' => 'object']],
-                        _('Pending MACs.')
+                    // Route::pendingmacs() delegates straight to
+                    // Route::listem(), so this route has always answered
+                    // with a full page. The bare array documented here was
+                    // simply wrong about its own server.
+                    self::_listResponse(
+                        '#/components/schemas/'
+                        . self::schemaName('macaddressassociation')
                     )
                 )
             ],
@@ -2363,7 +2425,7 @@ class OpenAPI extends FOGBase
                     _('Kernels present on disk'),
                     '',
                     $json(
-                        ['type' => 'array', 'items' => ['type' => 'object']],
+                        ['$ref' => '#/components/schemas/ValueList'],
                         _('Kernels.')
                     )
                 )
@@ -2375,7 +2437,7 @@ class OpenAPI extends FOGBase
                     _('Init images present on disk'),
                     '',
                     $json(
-                        ['type' => 'array', 'items' => ['type' => 'object']],
+                        ['$ref' => '#/components/schemas/ValueList'],
                         _('Init images.')
                     )
                 )

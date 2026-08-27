@@ -6538,7 +6538,10 @@ class Route extends FOGBase
                 }
                 unset($val);
             }
-            self::$data = $data;
+            // Wrapped in `data`, like every list route already is. See
+            // OpenAPI::_rawArrayResponse() for why a bare top-level array
+            // cannot be described to a code generator.
+            self::$data = ['data' => $data];
         } catch (\Exception $e) {
             self::_sendCaught($e);
         }
@@ -7888,7 +7891,10 @@ class Route extends FOGBase
                 unset($val);
             }
 
-            self::$data = $data;
+            // Wrapped in `data`, like every list route already is. See
+            // OpenAPI::_rawArrayResponse() for why a bare top-level array
+            // cannot be described to a code generator.
+            self::$data = ['data' => $data];
         } catch (\Exception $e) {
             self::_sendCaught($e);
         }
@@ -8230,7 +8236,14 @@ class Route extends FOGBase
             'https://api.github.com/repos/FOGProject/fos/releases'
         );
 
-        self::$data = self::kernelOrInitJson(json_decode($assetsInfo[0]), 'kernel');
+        // Wrapped in `data`, like every list route already is. See
+        // OpenAPI::_rawArrayResponse().
+        self::$data = [
+            'data' => self::kernelOrInitJson(
+                json_decode($assetsInfo[0]),
+                'kernel'
+            )
+        ];
     }
     /**
      * Presents the Initrd listing from github
@@ -8244,7 +8257,14 @@ class Route extends FOGBase
             'https://api.github.com/repos/FOGProject/fos/releases'
         );
 
-        self::$data = self::kernelOrInitJson(json_decode($assetsInfo[0]), 'initrd');
+        // Wrapped in `data`, like every list route already is. See
+        // OpenAPI::_rawArrayResponse().
+        self::$data = [
+            'data' => self::kernelOrInitJson(
+                json_decode($assetsInfo[0]),
+                'initrd'
+            )
+        ];
     }
     /**
      * Return node's log files.
