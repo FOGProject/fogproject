@@ -8433,6 +8433,9 @@ msgstr "无法创建任务"
 msgid "The current user is invalid."
 msgstr "任务类型无效"
 
+msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
 msgid "The file itself."
 msgstr ""
 
