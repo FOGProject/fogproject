@@ -389,11 +389,10 @@ Commit 1 does not preclude it.
 
 | | Count | Where |
 |---|---|---|
-| Move | **202** | `lib/{fog,db,client,service,reg-task,router}/*.class.php` → `src/<same>/<Class>.php` |
+| Move | **202** | `lib/{fog,db,client,service,reg-task,router}/*.class.php` → `src/<same>/<Class>.php`, `System` included |
 | Stay — ADR 0013 exclusions | 2 | `lib/router/altorouter.class.php`, `altotransformer.class.php` — upstream name, authorship, MIT licence |
 | Stay — HARD, discovery-named | 46 | 26 `.page.php`, 10 `.hook.php`, 9 `.report.php`, 1 `.event.php` |
 | Stay — generated | 1 | `lib/fog/config.class.php` |
-| Stay — sequenced separately | 1 | `lib/fog/system.class.php` (see below) |
 
 `VERIFIED` — the 46 discovery-named files are reached only through
 `FOGBase::fileitems()`, which has exactly three call sites, all of which derive

@@ -93,16 +93,27 @@ else
     handleError " * Unrecognized release channel '$channel' -- set updatebranch in .fogsettings to choose what to track" 9
 fi
 echo " * Update channel: ${channel:-unknown} (tracking branch $branch)"
-# The version of a branch is the FOG_VERSION its own system.class.php defines,
-# read with the same awk utils.sh uses on the installed copy -- so "latest" and
+# The version of a branch is the FOG_VERSION its own System.php defines, read
+# with the same awk utils.sh uses on the installed copy -- so "latest" and
 # "running" are the same number produced the same way. This replaces the POST
 # to fogproject.org/version/index.php, which returned JSON for stable and dev
 # only: it had no answer for the beta channel, and it was a second service that
 # had to be kept in step with the branches by hand.
-versionurl="https://raw.githubusercontent.com/FOGProject/fogproject/${branch}/packages/web/lib/fog/system.class.php"
-requireHttps "$versionurl"
+#
+# Two paths, new first. Core became PSR-4 on working-1.6, so the file moved
+# from packages/web/lib/fog/system.class.php to packages/web/src/Base/System.php.
+# dev-branch and stable have not been ported and this one script tracks all
+# three, so both spellings are asked for. Nothing is published at the old path
+# to make this work -- the fallback is here, not a compatibility file in the
+# tree -- and it goes when the last tracked branch has moved.
 dots "Checking latest version"
-latest=$(fetch "$versionurl" - 2>/dev/null | awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' | tr -d '[[:space:]]')
+latest=""
+for versionpath in packages/web/src/Base/System.php packages/web/lib/fog/system.class.php; do
+    versionurl="https://raw.githubusercontent.com/FOGProject/fogproject/${branch}/${versionpath}"
+    requireHttps "$versionurl"
+    latest=$(fetch "$versionurl" - 2>/dev/null | awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' | tr -d '[[:space:]]')
+    [[ -n $latest ]] && break
+done
 if [[ -z $latest ]]; then
     echo "Failed"
     handleError " * Could not determine the latest FOG version for branch $branch" 1
@@ -169,8 +180,13 @@ echo
 # returns normally, which reads as success, is a defect this tree has met
 # repeatedly (#1215/#1216).
 verifyPayload() {
-    local dir="$1" expect="$2" unpacked=""
-    unpacked=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$dir/packages/web/lib/fog/system.class.php" 2>/dev/null | tr -d '[[:space:]]')
+    local dir="$1" expect="$2" unpacked="" candidate=""
+    # Both spellings, for the reason given at the version lookup above: the
+    # downloaded branch may or may not have moved System yet.
+    for candidate in packages/web/src/Base/System.php packages/web/lib/fog/system.class.php; do
+        unpacked=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$dir/$candidate" 2>/dev/null | tr -d '[[:space:]]')
+        [[ -n $unpacked ]] && break
+    done
     [[ $unpacked == $expect ]] && return 0
     echo " * Downloaded package reports version '${unpacked:-none}', expected '$expect'" >&2
     return 1

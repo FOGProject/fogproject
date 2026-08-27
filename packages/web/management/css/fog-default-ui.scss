@@ -9,7 +9,7 @@
 //
 //   npx sass --style=compressed fog-default-ui.scss fog-default-ui.min.css
 //
-// and bump FOG_BCACHE_VER in lib/fog/system.class.php so browsers refetch it.
+// and bump FOG_BCACHE_VER in src/Base/System.php so browsers refetch it.
 //
 // THEMING: the palette below is authored as SASS variables (compile-time) and
 // then PROMOTED to CSS custom properties on :root (runtime). Rules reference

@@ -220,7 +220,7 @@ linuxReleaseName_lower="${FOG_os_name,,}"
 # writeUpdateFile() (functions.sh) refreshes the "## Version:" comment line in
 # .fogsettings as a side effect; installfog.sh derives this the same way at
 # its own top, but updatefog.sh never sources that far into it.
-[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php | tr -d '[[:space:]]')"
 
 [[ -n $sgitpath ]] && FOG_git_path="$sgitpath"
 

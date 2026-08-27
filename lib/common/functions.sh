@@ -10782,7 +10782,7 @@ _installerTmpDir() {
 downloadfiles() {
     local copypath="" tmpdir=""
     dots "Downloading kernel, init and fog-client binaries"
-    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/lib/fog/system.class.php | tr -d '[[:space:]]')"
+    clientVer="$(awk -F\' /"define\('FOG_CLIENT_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php | tr -d '[[:space:]]')"
     fosURL="https://github.com/FOGProject/fos/releases/download"
     # Bounded like every other fetch here. This one takes --max-time as well as
     # --connect-timeout because it is a few KB of JSON, not a tarball, so there

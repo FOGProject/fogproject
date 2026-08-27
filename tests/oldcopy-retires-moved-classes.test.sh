@@ -25,7 +25,7 @@
 #      tree -- the whole point;
 #   2. a class file it still ships is left alone. The obvious wrong
 #      implementation deletes every *.class.php it finds, which takes
-#      lib/router/altorouter.class.php and lib/fog/system.class.php with it;
+#      lib/router/altorouter.class.php with it;
 #   3. lib/fog/config.class.php survives. It is generated later in
 #      configureHttpd() and is never in $webdirsrc, so a rule asked purely of
 #      the source tree classifies it as retired. Deleting it is survivable --
@@ -98,16 +98,19 @@ mkdir -p "$webdirdest/lib/fog" "$webdirdest/lib/router" \
     "$webdirdest/lib/db" "$webdirdest/lib/plugins/site/class"
 
 # What the NEW release ships under lib/. Everything else moved to src/.
-: > "$webdirsrc/lib/fog/system.class.php"
 : > "$webdirsrc/lib/router/altorouter.class.php"
 : > "$webdirsrc/src/Items/Host.php"
 
 # What the pre-wipe backup put back.
-echo old > "$webdirdest/lib/fog/system.class.php"
 echo old > "$webdirdest/lib/router/altorouter.class.php"
-# Retired by the PSR-4 move: these are src/Items/Host.php and src/Db/PDODB.php now.
+# Retired by the PSR-4 move: these are src/Items/Host.php, src/Db/PDODB.php and
+# src/Base/System.php now. system.class.php is here rather than in the "still
+# shipped" set on purpose -- it is the file the installed FOGUpdater reads, so
+# leaving a stale copy behind would let a half-upgraded server keep answering
+# with the old version (F-49).
 echo stale > "$webdirdest/lib/fog/host.class.php"
 echo stale > "$webdirdest/lib/db/pdodb.class.php"
+echo stale > "$webdirdest/lib/fog/system.class.php"
 # A name with a space, because the loop reads null-delimited for a reason.
 echo stale > "$webdirdest/lib/fog/old thing.class.php"
 # Generated into lib/fog/ later in configureHttpd(); never in $webdirsrc.
@@ -124,14 +127,14 @@ fog_retire_class_files
 
 check "a class file the release no longer ships is removed" \
     "$([[ ! -e $webdirdest/lib/fog/host.class.php \
-        && ! -e $webdirdest/lib/db/pdodb.class.php ]]; echo $?)"
+        && ! -e $webdirdest/lib/db/pdodb.class.php \
+        && ! -e $webdirdest/lib/fog/system.class.php ]]; echo $?)"
 
 check "a retired name containing a space is removed too" \
     "$([[ ! -e "$webdirdest/lib/fog/old thing.class.php" ]]; echo $?)"
 
 check "a class file the release still ships is left alone" \
-    "$([[ -s $webdirdest/lib/fog/system.class.php \
-        && -s $webdirdest/lib/router/altorouter.class.php ]]; echo $?)"
+    "$([[ -s $webdirdest/lib/router/altorouter.class.php ]]; echo $?)"
 
 check "the generated config.class.php survives" \
     "$([[ -s $webdirdest/lib/fog/config.class.php ]]; echo $?)"

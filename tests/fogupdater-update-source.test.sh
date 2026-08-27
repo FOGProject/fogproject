@@ -257,13 +257,24 @@ verify_case() {
 
 tmp=$(mktemp -d) || { echo "cannot create a temp directory"; exit 1; }
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/good/packages/web/lib/fog" "$tmp/wrong/packages/web/lib/fog" "$tmp/empty"
-printf "        define('FOG_VERSION', '1.6.0-beta.4108');\n" > "$tmp/good/packages/web/lib/fog/system.class.php"
-printf "        define('FOG_VERSION', '1.5.10.2254');\n"     > "$tmp/wrong/packages/web/lib/fog/system.class.php"
+# Two trees per case, because verifyPayload has to read either spelling: core
+# became PSR-4 on working-1.6 and System moved to packages/web/src/Base, while
+# dev-branch and stable still ship packages/web/lib/fog/system.class.php. A
+# probe that only ever tried one path would pass every check below with the
+# other branch silently unverifiable.
+mkdir -p "$tmp/good/packages/web/src/Base"  "$tmp/wrong/packages/web/src/Base" \
+         "$tmp/goodold/packages/web/lib/fog" "$tmp/wrongold/packages/web/lib/fog" \
+         "$tmp/empty"
+printf "        define('FOG_VERSION', '1.6.0-beta.4108');\n" > "$tmp/good/packages/web/src/Base/System.php"
+printf "        define('FOG_VERSION', '1.5.10.2254');\n"     > "$tmp/wrong/packages/web/src/Base/System.php"
+printf "        define('FOG_VERSION', '1.5.10.2254');\n"     > "$tmp/goodold/packages/web/lib/fog/system.class.php"
+printf "        define('FOG_VERSION', '1.6.0-beta.4108');\n" > "$tmp/wrongold/packages/web/lib/fog/system.class.php"
 
-verify_case "$tmp/good"  "1.6.0-beta.4108" 0 "accepts the version it resolved"
-verify_case "$tmp/wrong" "1.6.0-beta.4108" 1 "refuses a package built from another branch"
-verify_case "$tmp/empty" "1.6.0-beta.4108" 1 "refuses a tree with no system.class.php"
+verify_case "$tmp/good"     "1.6.0-beta.4108" 0 "accepts the version it resolved (src/Base/System.php)"
+verify_case "$tmp/wrong"    "1.6.0-beta.4108" 1 "refuses a package built from another branch (src/Base/System.php)"
+verify_case "$tmp/goodold"  "1.5.10.2254"     0 "accepts the version it resolved (lib/fog/system.class.php)"
+verify_case "$tmp/wrongold" "1.5.10.2254"     1 "refuses a package built from another branch (lib/fog/system.class.php)"
+verify_case "$tmp/empty"    "1.6.0-beta.4108" 1 "refuses a tree with neither spelling"
 
 # The extraction directory is emptied first. Untarring over a previous run left
 # files that upstream had deleted in the tree that then got installed.

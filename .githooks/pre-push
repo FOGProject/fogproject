@@ -21,7 +21,7 @@
 # Where those two are not close, guess in favour of the push.
 
 project_dir=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
-system_file="$project_dir/packages/web/lib/fog/system.class.php"
+system_file="$project_dir/packages/web/src/Base/System.php"
 [ -f "$system_file" ] || exit 0
 
 head_sha=$(git rev-parse HEAD 2>/dev/null) || exit 0
@@ -69,7 +69,7 @@ printf 'pre-push: correct value into HEAD with:\n' >&2
 printf 'pre-push:\n' >&2
 printf "pre-push:   sh .githooks/lib/apply-fog-version.sh '%s' '%s' \\\\\n" \
     "$expected" "$channel" >&2
-printf 'pre-push:     && git add packages/web/lib/fog/system.class.php \\\n' >&2
+printf 'pre-push:     && git add packages/web/src/Base/System.php \\\n' >&2
 printf 'pre-push:     && git commit --amend --no-edit --no-verify\n' >&2
 printf 'pre-push:\n' >&2
 printf 'pre-push: --no-verify on the amend is what stops pre-commit adding the\n' >&2

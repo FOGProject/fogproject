@@ -6,7 +6,7 @@
 # can skip writing/committing entirely when nothing needs to change,
 # instead of always writing and checking `git diff` afterward.
 #
-# Deliberately does NOT touch packages/web/lib/fog/system.class.php or any
+# Deliberately does NOT touch packages/web/src/Base/System.php or any
 # other file - purely a function of git state, so it's safe to run ad hoc
 # (locally or in CI) without leaving a dirty working tree behind. Pair with
 # apply-fog-version.sh to actually write the result somewhere.
@@ -23,7 +23,7 @@
 set -e
 
 project_dir=$(git rev-parse --show-toplevel)
-system_file="$project_dir/packages/web/lib/fog/system.class.php"
+system_file="$project_dir/packages/web/src/Base/System.php"
 
 gitbranch="${1:-$(git branch --show-current)}"
 mode="${2:-0}"

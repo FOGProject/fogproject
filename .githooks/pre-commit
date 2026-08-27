@@ -160,7 +160,7 @@ psrfix
 
 
 # Define the path to the system file
-system_file="$project_dir/packages/web/lib/fog/system.class.php"
+system_file="$project_dir/packages/web/src/Base/System.php"
 
 # Recompute FOG_VERSION/FOG_CHANNEL for the current branch. The formula is
 # shared with fog-workflows' CI check (see .githooks/lib/fog-version.sh) so

@@ -439,7 +439,7 @@ in this repository may lean on. It was leaned on four times in the first draft
 of `docs/hook-event-plan.md` and was wrong every time.
 ```
 grep -n 'supported for all of 1.6' docs/adr/0013-flat-fog-namespace-and-the-reverse-alias-abi.md
-grep -n "FOG_VERSION" packages/web/lib/fog/system.class.php   # 1.6.0-beta.NNNN, channel Beta
+grep -n "FOG_VERSION" packages/web/src/Base/System.php   # 1.6.0-beta.NNNN, channel Beta
 ```
 
 ### F-24 — Why the plugin force-activation exists, from the maintainer
@@ -1037,6 +1037,36 @@ grep -n 'raw.githubusercontent' /opt/fog/utils/FOGUpdater/fogupdater.sh   # 102,
 curl -so /dev/null -w '%{http_code}\n' https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/packages/web/lib/fog/system.class.php   # 200 today
 curl -so /dev/null -w '%{http_code}\n' https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/packages/web/src/Base/System.php        # 404 today
 ```
+
+**Resolved 2026-08-27: moved anyway, no shim.** The break was traced through
+the whole install surface first, and it is narrower than the paragraph above
+suggests. `utils/reporting/report.sh` and everything under `bin/`, `lib/` and
+`.githooks/` self-heal: `installUtilities()` (`lib/common/functions.sh:6044`)
+`rm -rf`s and re-copies both `$fogprogramdir/utils` and `$fogprogramdir/lib` on
+every install, and the rest run from the tarball being installed. The only site that runs from the
+old copy *before* the upgrade is the version lookup above, plus the
+`verifyPayload` that reads the same path out of the extracted tarball.
+
+So the realised cost is: a Beta-channel server upgrading through the bundled
+updater gets one loud, non-destructive failure -- nothing is downloaded and
+nothing is changed -- and recovers with a clone and `installfog.sh`, after
+which the new updater is installed and it cannot recur. `stable` and
+`dev-branch` are unaffected until they are ported.
+
+The alternative was a compatibility file left at the old path carrying only
+`define('FOG_VERSION', ...)`. Rejected: it is a `*.class.php` declaring no
+class, so `Initiator::classFileList()` and the filename/class gate in
+`tests/autoload.test.php` would each need a permanent exemption,
+`apply-fog-version.sh` would become a two-file writer needing a drift gate, and
+it could never be removed -- all to avoid a failure that is loud, harmless and
+self-healing, in the one directory this migration exists to empty.
+
+Both `fogupdater.sh` sites now probe `packages/web/src/Base/System.php` first
+and fall back to the old path, because this one script tracks `working-1.6`,
+`dev-branch` and `stable` and only the first has moved. `lib/common/utils.sh`
+and `utils/reporting/report.sh` probe both for the same reason against the
+INSTALLED tree, which on an upgrade is whatever the previous release laid down.
+The fallbacks go when the last tracked branch has moved.
 
 ---
 

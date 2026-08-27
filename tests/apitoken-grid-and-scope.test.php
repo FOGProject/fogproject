@@ -50,7 +50,7 @@ $authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $jsSrc = file_get_contents(
     $web . '/management/js/fog/about/fog.about.apitokens.js'
 );
-$sysSrc = file_get_contents($web . '/lib/fog/system.class.php');
+$sysSrc = file_get_contents($web . '/src/Base/System.php');
 
 // Every source check runs against a comment-stripped copy: the comments
 // here deliberately name the very things being searched for, so without
