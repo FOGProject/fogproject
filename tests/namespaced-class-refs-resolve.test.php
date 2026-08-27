@@ -35,7 +35,7 @@ $web = dirname(__DIR__) . '/packages/web';
  * of the PSR-4 tree.
  */
 $flat = [];
-$walk = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($web . '/lib'));
+$walk = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($web . '/lib'));
 foreach ($walk as $file) {
     if (!$file->isFile()
         || !preg_match('/\.(class|page|hook|report|event)\.php$/', $file->getFilename())
@@ -53,7 +53,7 @@ foreach ($walk as $file) {
 
 /** Short names declared under src/, i.e. resolvable from a sibling bucket. */
 $bucketed = [];
-$walk = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($web . '/src'));
+$walk = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($web . '/src'));
 foreach ($walk as $file) {
     if ($file->isFile() && 'php' === $file->getExtension()) {
         $bucketed[$file->getBasename('.php')] = $file->getPathname();
