@@ -22,7 +22,7 @@
  *     upgrade into a fleet-wide outage. A refusal must rest on two observed
  *     facts, never on a missing one.
  *
- * The same rule is stated in prose in BootMenu::_fileFitsArch()'s docblock
+ * The same rule is stated in prose in IpxeBootMenu::_fileFitsArch()'s docblock
  * for kernel overrides. Two copies of a rule drift, so the pin below also
  * checks the caller wiring is present: the field mappings that give the
  * relation something to read, and the refusal site that acts on it.
@@ -131,7 +131,7 @@ $hostSrc = (string)file_get_contents($web . '/src/Items/Host.php');
 $imageSrc = (string)file_get_contents($web . '/src/Items/Image.php');
 $schemaSrc = (string)file_get_contents($web . '/commons/schema.php');
 $queueSrc = (string)file_get_contents($web . '/src/TaskHandling/TaskQueue.php');
-$menuSrc = (string)file_get_contents($web . '/src/Boot/BootMenu.php');
+$menuSrc = (string)file_get_contents($web . '/src/Boot/IpxeBootMenu.php');
 $archSrc = (string)file_get_contents($web . '/src/Items/Architecture.php');
 
 $t->check(

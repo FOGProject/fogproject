@@ -123,7 +123,7 @@ if (null !== $body) {
  */
 $browserless = array_merge(
     glob('packages/web/service/ipxe/*.php') ?: [],
-    ['packages/web/src/Boot/BootMenu.php']
+    ['packages/web/src/Boot/IpxeBootMenu.php']
 );
 foreach ($browserless as $file) {
     if (!is_readable($file)) {

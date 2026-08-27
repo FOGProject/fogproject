@@ -4885,11 +4885,11 @@ $this->schema[] = [
     //
     // pxeID 14 is the next free id: 1-13 are already taken (8 and 13 were
     // later removed by name in earlier schema steps, but their ids are not
-    // reused). BootMenu::_menuOpt() keys its special-cased (non-kernel-chain)
+    // reused). IpxeBootMenu::_menuOpt() keys its special-cased (non-kernel-chain)
     // items on this id the same way it already does for 1 (fog.local), 2
     // (fog.memtest) and 11 (fog.advanced).
     //
-    // No pxeArgs/pxeParams: this item never reaches BootMenu's default
+    // No pxeArgs/pxeParams: this item never reaches IpxeBootMenu's default
     // (login + kernel chain) branch, so neither is read.
     "INSERT IGNORE INTO `pxeMenu` "
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
@@ -4906,9 +4906,9 @@ $this->schema[] = [
     // reused.
     //
     // Empty ttKernel/ttKernelArgs: this task type never reaches the
-    // generic kernel-chain path in BootMenu::getTasking() -- it is
+    // generic kernel-chain path in IpxeBootMenu::getTasking() -- it is
     // special-cased there, the same way ttID 4 (Memtest) already is, to
-    // reuse BootMenu::_enrollSecureBootChoice() instead. Leaving
+    // reuse IpxeBootMenu::_enrollSecureBootChoice() instead. Leaving
     // ttKernelArgs empty also avoids accidentally matching the
     // type=/mode= regex fallbacks TaskType::isDeploy()/isCapture()/etc.
     // use for tasks created before those columns existed.
@@ -4950,7 +4950,7 @@ $this->schema[] = [
     // capable thing.
     //
     // ttKernelArgs goes from '' to 'mode=enrollsb' -- that is what routes it
-    // down the generic kernel-chain path in BootMenu::getTasking() now that the
+    // down the generic kernel-chain path in IpxeBootMenu::getTasking() now that the
     // _enrollSecureBootChoice() special case for this type is gone. PXE menu
     // item 14 and _enrollSecureBootChoice() itself both stay: chaining straight
     // to MokManager is still how a technician answers a pending request, or
@@ -4997,7 +4997,7 @@ $this->schema[] = [
     // admin's entry -- this UPDATE would have rewritten its description.
     // Safe to key by name here rather than add yet another step: this
     // shipped one commit ago and FOG_SCHEMA was never bumped past it, so no
-    // server has run it. See BootMenu::_menuOpt() and
+    // server has run it. See IpxeBootMenu::_menuOpt() and
     // Schema::seedRequiredRows(), which key on the same name.
     "UPDATE `pxeMenu` SET "
     . "`pxeDesc`='Enroll Secure Boot Key (MOK attended setup)' "
@@ -5008,7 +5008,7 @@ $this->schema[] = [
     // Exposes task type 25's mode=enrollsb (schema step 323) directly on
     // the PXE menu, so a technician standing at a machine already in Setup
     // Mode does not have to leave the console to schedule a task. Falls
-    // through BootMenu::_menuOpt()'s default kernel-chain branch exactly
+    // through IpxeBootMenu::_menuOpt()'s default kernel-chain branch exactly
     // like the existing mode=autoreg/mode=onlydebug/mode=sysinfo items --
     // no special case needed there.
     //
@@ -5018,7 +5018,7 @@ $this->schema[] = [
     // a machine needing its Secure Boot key enrolled has usually never
     // registered yet.
     //
-    // BootMenu::printDefault() additionally hides this item unless
+    // IpxeBootMenu::printDefault() additionally hides this item unless
     // PK.auth/KEK.auth/db.auth all exist in service/secureboot/ -- without
     // them mode=enrollsb's auto-enrol path has nothing valid to write.
     "INSERT IGNORE INTO `pxeMenu` "
@@ -5771,7 +5771,7 @@ $this->schema[] = [
     // could not then boot the next UEFI boot entry itself: `sanboot` on EFI did
     // nothing useful, so leaving FOG meant chainloading a whole third-party boot
     // manager over HTTP to do it. iPXE grew UEFI sanboot support, and
-    // BootMenu::__construct()'s 'sanboot' entry already drives it --
+    // IpxeBootMenu::__construct()'s 'sanboot' entry already drives it --
     // `sanboot --drive 0` boots \EFI\Boot\bootx64.efi, with 0x80/0x81/0x82
     // behind it -- so the third party is no longer buying anything.
     //
@@ -5793,7 +5793,7 @@ $this->schema[] = [
     // not chosen -- nobody picked it, it was simply what step 192 wrote -- so
     // moving it is completing the default change rather than overriding a
     // decision. Anything else an admin selected is left alone, and per-host
-    // `hosts`.`hostExitEfi` is not touched at all: BootMenu reads the host
+    // `hosts`.`hostExitEfi` is not touched at all: IpxeBootMenu reads the host
     // field FIRST and only falls back to this setting, so an explicit per-host
     // choice still wins.
     //
@@ -7741,11 +7741,11 @@ $this->schema[] = [
     //
     // FOG has always known this and never kept it. iPXE posts `arch` on every
     // boot (default.ipxe sends ${buildarch} with the cpuid promotion that
-    // lifts a 32-bit build on a 64-bit CPU to x86_64), BootMenu reads it to
+    // lifts a 32-bit build on a 64-bit CPU to x86_64), IpxeBootMenu reads it to
     // pick the kernel, and then it is discarded. So nothing away from a live
     // boot -- a host edit page, a group kernel assignment, a deploy task --
     // could know what kind of machine it was dealing with, which is what
-    // BootMenu::_fileFitsArch()'s docblock has been complaining about.
+    // IpxeBootMenu::_fileFitsArch()'s docblock has been complaining about.
     //
     // NULL, not a default. An existing fleet starts unknown and fills in as
     // machines boot; defaulting to x86_64 would assert a fact nobody
@@ -7753,7 +7753,7 @@ $this->schema[] = [
     //
     // VARCHAR, not ENUM: iPXE already builds for riscv64 and loong64, and an
     // ENUM makes each new architecture a schema migration. The valid set is
-    // enforced in BootMenu where the whitelist already lives.
+    // enforced in IpxeBootMenu where the whitelist already lives.
     //
     // Advisory only, and deliberately so. boot.php is unauthenticated by
     // necessity -- a booting NIC has no credential -- so this value is
@@ -7916,7 +7916,7 @@ $this->schema[] = [
     // fleet already holds that the seeds do not cover, then backfill the ids,
     // and only then drop the strings. The adopt pass is what makes the drop
     // lossless by construction rather than lossless because the whitelist in
-    // BootMenu::_recordHostArch() happens to agree with the seed list today.
+    // IpxeBootMenu::_recordHostArch() happens to agree with the seed list today.
     function () {
         $DB = self::$DB;
         $cols = function ($table, $names) use ($DB) {

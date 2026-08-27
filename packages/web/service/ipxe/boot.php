@@ -79,4 +79,4 @@ FOGCore::getHostItem(
     false,
     $mac
 );
-new BootMenu();
+new IpxeBootMenu();

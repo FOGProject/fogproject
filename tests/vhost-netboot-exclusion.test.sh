@@ -23,7 +23,7 @@
 #
 #   1. Both netboot-reachable directories are excluded, in BOTH web servers.
 #      service/ipxe/ is the obvious one. service/secureboot/ is not, and was
-#      missing: BootMenu imgfetches MOK.der and chains mmx64.efi /
+#      missing: IpxeBootMenu imgfetches MOK.der and chains mmx64.efi /
 #      arm64-efi/mmaa64.efi out of it, so Secure Boot enrolment was being
 #      redirected onto an HTTPS iPXE could not validate.
 #   2. ca.cert.der is reachable over plain HTTP in BOTH web servers. Apache has

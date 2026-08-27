@@ -1,8 +1,8 @@
 <?php
 /**
- * A stub FOG runtime just large enough to render BootMenu's iPXE output.
+ * A stub FOG runtime just large enough to render IpxeBootMenu's iPXE output.
  *
- * BootMenu extends FOGBase and reaches storage only through FOGBase's statics
+ * IpxeBootMenu extends FOGBase and reaches storage only through FOGBase's statics
  * and the Route facade, so replacing those two replaces the entire world it
  * can see. Nothing here talks to MySQL, the network, or the filesystem outside
  * a caller-supplied BASEPATH, which is what lets the boot menu be rendered
@@ -13,7 +13,7 @@
  *
  * 1. getSetting() has two shapes. A string key returns one value or null; an
  *    array of keys returns one entry per key IN THE ORDER ASKED FOR, null for
- *    a row that does not exist. BootMenu destructures the array form
+ *    a row that does not exist. IpxeBootMenu destructures the array form
  *    positionally with list(), so both the ordering and the never-skip rule
  *    are load-bearing. The stub reproduces them, and additionally throws on a
  *    key with no fixture: silently returning null for an unknown setting would
@@ -27,7 +27,7 @@
  *    that fails on an airplane.
  *
  * Everything lives in namespace FOG because bootmenu.class.php does; the
- * class_alias at the foot of that file then re-exports BootMenu globally
+ * class_alias at the foot of that file then re-exports IpxeBootMenu globally
  * exactly as it does in production.
  *
  * Not a mock framework by design: the house style is a plain PHP script with
@@ -43,7 +43,7 @@ if (!defined('DS')) {
 /*
  * Route rows are plain stdClass objects, created with (object)[...].
  *
- * Not a class with __get: BootMenu::generateIpxeItems() builds its iPXE
+ * Not a class with __get: IpxeBootMenu::generateIpxeItems() builds its iPXE
  * output by iterating the row -- foreach ($object as $property => $value) --
  * which only sees genuinely public properties. A row backed by a private
  * array with an accessor iterates as empty, so every `set hostname ...` line
@@ -139,12 +139,12 @@ class StubModel
 }
 
 /**
- * MAC list stub. BootMenu stringifies this when logging the request.
+ * MAC list stub. IpxeBootMenu stringifies this when logging the request.
  */
 class StubMac extends StubModel
 {
     /**
-     * Renders the MAC as BootMenu expects.
+     * Renders the MAC as IpxeBootMenu expects.
      *
      * @return string
      */
@@ -181,12 +181,12 @@ class StubTask extends StubModel
 }
 
 /**
- * Host stub, with the nested objects BootMenu reaches through.
+ * Host stub, with the nested objects IpxeBootMenu reaches through.
  */
 class StubHost extends StubModel
 {
     /**
-     * Reads a field, materialising the nested objects BootMenu expects.
+     * Reads a field, materialising the nested objects IpxeBootMenu expects.
      *
      * @param string $key the field to read
      *
@@ -309,7 +309,7 @@ class Route
     public static $rows = [];
     /**
      * Filters fixture rows the way Route would for the equality-on-a-field
-     * cases BootMenu uses. An array filter value means "field IN (...)".
+     * cases IpxeBootMenu uses. An array filter value means "field IN (...)".
      *
      * @param string $class     the class to query
      * @param mixed  $findWhere the filter
@@ -386,7 +386,7 @@ class Route
         return $rows ? $rows[0] : null;
     }
     /**
-     * Field names BootMenu must not echo into an iPXE script. Kept small and
+     * Field names IpxeBootMenu must not echo into an iPXE script. Kept small and
      * real: generateIpxeItems() uses it to decide what to omit.
      *
      * @return array
@@ -423,7 +423,7 @@ class Route
 }
 
 /**
- * The stub FOGBase. BootMenu's entire view of the system is these members
+ * The stub FOGBase. IpxeBootMenu's entire view of the system is these members
  * plus Route.
  */
 class FOGBase
@@ -483,7 +483,7 @@ class FOGBase
         return is_string($key) ? $out[0] : $out;
     }
     /**
-     * Factory for the classes BootMenu asks for by name.
+     * Factory for the classes IpxeBootMenu asks for by name.
      *
      * @param string $class the class name
      *

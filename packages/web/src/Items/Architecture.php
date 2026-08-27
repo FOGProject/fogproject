@@ -154,7 +154,7 @@ class Architecture extends FOGController
      * The id of the row holding this name, or 0.
      *
      * Deliberately does NOT create a missing row. The busiest caller is
-     * BootMenu::_recordHostArch(), which runs on an unauthenticated request
+     * IpxeBootMenu::_recordHostArch(), which runs on an unauthenticated request
      * (boot.php has to be reachable before a host has any identity), so a row
      * created here would be a row created by anything that can reach the boot
      * menu. 0 reads as "not recorded", which is a state the schema and

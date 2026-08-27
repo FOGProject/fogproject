@@ -1,10 +1,10 @@
 <?php
 /**
- * Boot menu for the fog pxe system
+ * iPXE boot menu for the FOG PXE system
  *
  * PHP version 7.4+
  *
- * @category Bootmenu
+ * @category IpxeBootMenu
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -14,15 +14,18 @@
 namespace FOG;
 
 /**
- * Boot menu for the fog pxe system
+ * iPXE boot menu for the FOG PXE system
  *
- * @category Bootmenu
+ * Named for what it builds: an iPXE script, and nothing else. The generic
+ * name it carried until 1.6.0-beta told readers otherwise for years.
+ *
+ * @category IpxeBootMenu
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class BootMenu extends FOGBase
+class IpxeBootMenu extends FOGBase
 {
     /**
      * The kernel string
@@ -2860,4 +2863,4 @@ class BootMenu extends FOGBase
  * unqualified through this, so no call site had to be edited.
  * Supported for all of 1.6; see docs/adr/0013.
  */
-class_alias(__NAMESPACE__ . '\\BootMenu', 'BootMenu');
+class_alias(__NAMESPACE__ . '\\IpxeBootMenu', 'IpxeBootMenu');

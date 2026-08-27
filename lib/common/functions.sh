@@ -822,7 +822,7 @@ recordGitUpdateSettings() {
 # Keeps FOG_WEB_HOST in step with the name netboot uses.
 #
 # A boot is two hops with two host sources. default.ipxe names the server for
-# the fetch of boot.php; BootMenu builds everything after it -- the iPXE menu,
+# the fetch of boot.php; IpxeBootMenu builds everything after it -- the iPXE menu,
 # the kernel's web= argument, the Secure Boot MOK.der and mmx64.efi -- from this
 # row. The row is seeded from ${NET_fog_server_ip} on a fresh schema deploy and was then
 # never written again, so a fresh public-cert install pointed all of those at
@@ -5605,7 +5605,7 @@ _certServesName() {
 # The single name HTTPS netboot addresses this server by. Sets $netboothost.
 #
 # Not local, on purpose. A boot is two hops with two host sources: default.ipxe
-# names the server for the fetch of boot.php, and BootMenu builds every URL
+# names the server for the fetch of boot.php, and IpxeBootMenu builds every URL
 # after it from the FOG_WEB_HOST row. Those two used to be ${NET_hostname} and a DB
 # setting with nothing comparing them, which is the defect this fixes -- so
 # configureDefaultiPXEfile and recordNetbootWebHost read one variable and cannot
@@ -9436,11 +9436,11 @@ EOF
                         #                       kernel and init (fetched
                         #                       relative to boot.php's own URI),
                         #                       refind, grub, the menu artwork.
-                        #   service/secureboot/ MOK.der, which BootMenu imgfetches
+                        #   service/secureboot/ MOK.der, which IpxeBootMenu imgfetches
                         #                       so MokManager can enrol it from
                         #                       memory, and mmx64.efi /
                         #                       arm64-efi/mmaa64.efi, which it
-                        #                       chains. See BootMenu's Secure
+                        #                       chains. See IpxeBootMenu's Secure
                         #                       Boot entries.
                         #
                         # Everything else FOS reaches under ${web} is fetched by
@@ -9704,7 +9704,7 @@ EOF
                         # path iPXE ITSELF fetches must not be redirected to an
                         # HTTPS it cannot validate, and that is two directories
                         # -- service/ipxe/ and service/secureboot/, the latter
-                        # because BootMenu imgfetches MOK.der and chains
+                        # because IpxeBootMenu imgfetches MOK.der and chains
                         # mmx64.efi / arm64-efi/mmaa64.efi out of it.
                         #
                         # The conditions go immediately before the rule they
@@ -11173,7 +11173,7 @@ _ensureSecureBootKeys() {
     #
     # What the opt-out turns off is ENROLMENT -- publishing MOK.der and the
     # PK/KEK/db variable updates, and with them the PXE menu entry, which
-    # BootMenu gates on service/secureboot/MOK.der existing
+    # IpxeBootMenu gates on service/secureboot/MOK.der existing
     # (bootmenu.class.php:2089). It does not turn off SIGNING, because an
     # appended PE signature is inert on a machine booting with Secure Boot off
     # -- which is every machine on an opted-out server -- and costs nothing.
@@ -11448,7 +11448,7 @@ _publishSecureBootKit() {
     #
     # ${PKI_sb_enabled}=0 lands here too, and this is the second of the two places the
     # opt-out is applied. Declining Secure Boot means declining ENROLMENT: no
-    # MOK.der, and so no PXE menu entry either, since BootMenu gates that on
+    # MOK.der, and so no PXE menu entry either, since IpxeBootMenu gates that on
     # this file existing (bootmenu.class.php:2089). The binaries are still
     # signed -- see _ensureSecureBootKeys for why signing is not part of what
     # the flag turns off.
@@ -11479,7 +11479,7 @@ _publishSecureBootKit() {
     fi
     cp -f ../packages/secureboot/fog-enroll-mok.sh "${kitdir}/" >>$error_log 2>&1
     cp -f ../packages/secureboot/fog-enroll-mok.desktop "${kitdir}/" >>$error_log 2>&1
-    # MokManager, for the "Enroll Secure Boot Key" PXE menu item. BootMenu
+    # MokManager, for the "Enroll Secure Boot Key" PXE menu item. IpxeBootMenu
     # chains to it over $_booturl, which is the WEB root
     # (http://<server>/fog/service) -- but downloadipxesecureboot stages these
     # binaries under $tftpdirdst/secureboot, which the web server does not

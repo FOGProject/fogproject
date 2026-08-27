@@ -931,7 +931,7 @@ class Schema extends FOGController
      *
      * Seeded WITHOUT a primary key value. pxeMenu.pxeID is auto_increment
      * and the table is user-writable, so hardcoding "the next free id" is
-     * only correct on a pristine install -- see BootMenu::_menuOpt(), which
+     * only correct on a pristine install -- see IpxeBootMenu::_menuOpt(), which
      * matches these rows by name for the same reason.
      *
      * @return array Table => ['key' => identity column, 'rows' => name => cols]
