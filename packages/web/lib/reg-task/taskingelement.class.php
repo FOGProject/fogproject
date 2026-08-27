@@ -185,14 +185,10 @@ abstract class TaskingElement extends FOGBase
     public static function getlisting($classname)
     {
         try {
-            // asValue(): names() has no wrapper of its own, and its payload
-            // is a bare list with no envelope to unwrap. This is here so a
-            // failure raises into the caller rather than ending the response.
-            $names = Route::asValue(
-                function () use ($classname) {
-                    Route::names($classname);
-                }
-            );
+            // getNames(): names() answers with its rows under a `data`
+            // envelope, and this wants the rows. It raises on failure into
+            // the caller rather than ending the response, as asValue() did.
+            $names = Route::getNames($classname);
             if (count($names ?: []) <= 0) {
                 throw new \Exception(
                     sprintf(

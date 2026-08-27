@@ -140,15 +140,10 @@ class PingHosts extends FOGService
                 }
                 self::outall(" |\t$ip");
             }
-            // asValue(): names() has no wrapper of its own -- its payload is
-            // a bare list, not a paginated envelope, so there is nothing to
-            // unwrap. This is here for the other half, so a failure raises
-            // rather than ending the daemon.
-            $hosts = Route::asValue(
-                function () {
-                    Route::names('host');
-                }
-            );
+            // getNames(): names() answers with its rows under a `data`
+            // envelope, and this wants the rows. It also raises on failure
+            // rather than ending the daemon, as asValue() did.
+            $hosts = Route::getNames('host');
             $hostCount = count($hosts);
             self::outall(
                 sprintf(

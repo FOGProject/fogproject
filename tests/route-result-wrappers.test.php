@@ -77,7 +77,7 @@ if (!class_exists('Route')) {
 
 $ref = new \ReflectionClass('Route');
 
-foreach (['getList', 'getItem', 'asValue', 'objectify'] as $method) {
+foreach (['getList', 'getItem', 'getIds', 'getNames', 'asValue', 'objectify', 'unwrapData'] as $method) {
     if (!$ref->hasMethod($method)) {
         $failures[] = "Route::$method() is missing";
     }
@@ -162,8 +162,10 @@ expect(
     json_encode($got)
 );
 
-// A bare list payload -- names() reports this shape -- stays a list, so the
-// count() in pinghosts reads the same.
+// A bare list payload stays a list. No core route reports this shape any
+// more -- ids() and names() carry the `data` envelope now -- but a plugin
+// route setting Route::$data itself still does, and asValue() is the generic
+// wrapper it reaches for.
 $got = Route::asValue(
     function () use ($dataProp) {
         $dataProp->setValue(null, ['a', 'b', 'c']);
@@ -174,6 +176,38 @@ expect($failures, 'asValue bare list count', 3, count($got));
 
 // Route::$data must be cleared, or the next caller inherits this result.
 expect($failures, 'asValue clears Route::$data', '', $dataProp->getValue());
+
+// ---- 1c. unwrapData() drops the envelope and only the envelope -----------
+
+// getIds()/getNames() answer ~220 internal call sites, all of which want the
+// rows. ids() and names() emit them under `data` because that is what a code
+// generator can model; unwrapData() is the one place the two meet, and both
+// directions matter. Dropping too little hands every caller a one-element
+// list whose member is the answer -- silent, and the bug this closed.
+// Dropping too much (treating any single-key array as an envelope) would eat
+// a legitimate row.
+$unwrap = $ref->getMethod('unwrapData');
+$unwrap->setAccessible(true);
+
+$cases = [
+    'envelope of rows'      => [['data' => [['id' => '1'], ['id' => '2']]], [['id' => '1'], ['id' => '2']]],
+    'envelope of scalars'   => [['data' => ['1', '2']], ['1', '2']],
+    'empty envelope'        => [['data' => []], []],
+    'envelope holding null' => [['data' => null], []],
+    'bare list passthrough' => [['1', '2'], ['1', '2']],
+    'bare empty list'       => [[], []],
+    'row carrying no data'  => [[['id' => '1']], [['id' => '1']]],
+    'cleared to a string'   => ['', []],
+    'null payload'          => [null, []],
+];
+foreach ($cases as $label => list($input, $want)) {
+    expect(
+        $failures,
+        "unwrapData($label)",
+        json_encode($want),
+        json_encode($unwrap->invoke(null, $input))
+    );
+}
 
 // ---- 2. the rethrow guard ------------------------------------------------
 

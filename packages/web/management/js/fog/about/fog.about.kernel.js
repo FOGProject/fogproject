@@ -9,6 +9,11 @@
       cache: false,
       dataType: 'json',
       success: function(data, textStatus, jqXHR) {
+        // The route answers with the releases under `data`, the same
+        // envelope every list route uses. DataTables' `data` option takes
+        // the rows themselves, so hand it the rows -- tolerating both
+        // shapes, as the host list's group typeahead does.
+        var rows = (data && data.data) ? data.data : data;
         function onSelect(selected) {
           var disabled = selected.count() == 0;
           downloadSelected.prop('disabled', disabled);
@@ -16,7 +21,7 @@
         var downloadModal = $('#downloadModal'),
           confirmDownloadBtn = $('#confirmDownload'),
           table = $('#dataTable').registerTable(onSelect, {
-            data: data,
+            data: rows,
             select: {
               style: 'single'
             },

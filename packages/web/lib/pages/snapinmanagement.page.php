@@ -1585,15 +1585,11 @@ class SnapinManagement extends FOGPage
                 ]
             ));
         }
-        // asValue(): names() has no wrapper of its own, and its payload is
-        // a bare list with nothing to unwrap.
-        $storagegroupNames = Route::asValue(
-            function () use ($storagegroupsAssigned) {
-                Route::names(
-                    'storagegroup',
-                    ['id' => $storagegroupsAssigned]
-                );
-            }
+        // getNames(): names() answers with its rows under a `data`
+        // envelope, and this wants the rows.
+        $storagegroupNames = Route::getNames(
+            'storagegroup',
+            ['id' => $storagegroupsAssigned]
         );
         foreach ($storagegroupNames as &$storagegroup) {
             $storagegroups[$storagegroup->id] = $storagegroup->name;

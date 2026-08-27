@@ -7,9 +7,9 @@
  * `$databaseFields` and against nothing else: the column exists, therefore
  * hand it over. `unfilterableFields()`, the list that refuses the same caller
  * FILTERING on `sec_tok`, was never consulted, and the emitter could not make
- * up the difference -- this route answers with a bare array of scalars
- * carrying no '_lang' stamp, so `stripSensitivePayload()` resolves an empty
- * classname and returns the payload untouched.
+ * up the difference -- this route answers with an array of scalars carrying
+ * no '_lang' stamp, so `stripSensitivePayload()` resolves an empty classname
+ * and returns the payload untouched.
  *
  *   GET /fog/host/ids/id=1/sec_tok  -> the host's plaintext fog-client token
  *
@@ -243,9 +243,19 @@ foreach ([['host', $hostBlocked], ['user', $userBlocked]] as [$cls, $blocked]) {
         Route::ids($cls, 'id=1', $field);
         $out = Route::$data;
         Route::getData();
+        // Through the envelope, not around it. ids() answers with the rows
+        // under `data` -- so counting $out itself counts the envelope, which
+        // is 1 whether the guard held or not and would pass on a leak.
+        check(
+            "ids($cls, …, $field) answers with the data envelope",
+            is_array($out) && array_key_exists('data', $out),
+            $failures,
+            $checks
+        );
+        $rows = (is_array($out) && isset($out['data'])) ? $out['data'] : null;
         check(
             "ids($cls, …, $field) returns no rows",
-            is_array($out) && count($out) === 0,
+            is_array($rows) && count($rows) === 0,
             $failures,
             $checks
         );
@@ -283,14 +293,73 @@ foreach ([['host', 'id'], ['host', 'name'], ['host', 'ip'], ['user', 'name']] as
         $checks
     );
     // And still returns what the query produced. "Runs a query" alone would
-    // pass for a guard that queries and then discards.
+    // pass for a guard that queries and then discards. Read through the
+    // envelope for the reason given in 2: `count($out)` is 1 for an envelope
+    // holding no rows at all.
+    $rows = (is_array($out) && isset($out['data'])) ? $out['data'] : null;
     check(
         "ids($cls, …, $field) still returns its rows",
-        is_array($out) && count($out) === 1,
+        is_array($rows)
+        && count($rows) === 1
+        && FakeDB::SENTINEL === reset($rows),
         $failures,
         $checks
     );
 }
+
+/*
+ * 3b. The internal wrappers hand back the ROWS, not the envelope.
+ *
+ *     `ids()` and `names()` answer on the wire with their rows under `data`,
+ *     because a bare top-level array cannot be described to a code generator
+ *     (see OpenAPI::_rawArrayResponse()). That envelope is the wire format;
+ *     an internal caller wants the rows, and there are ~220 of them --
+ *     HookManager::processEvent() array_flip()s the result, deletemass()
+ *     uses it as a WHERE value, TaskManager::cancel() passes it to an IN.
+ *     None of them error on the wrong shape. They read null and carry on,
+ *     which is the failure mode getRows() was written to end.
+ *
+ *     Asserted behaviourally, against the same FakeDB: the row that comes
+ *     back is the SENTINEL the fake produced, so a wrapper that returned the
+ *     envelope, an empty list, or a hard-coded value cannot pass.
+ */
+$ids = Route::getIds('host', 'id=1', 'name');
+check(
+    'getIds() returns the rows, not the data envelope',
+    is_array($ids)
+    && !array_key_exists('data', $ids)
+    && count($ids) === 1
+    && FakeDB::SENTINEL === reset($ids),
+    $failures,
+    $checks
+);
+check(
+    'getIds() clears Route::$data behind it',
+    '' === Route::$data,
+    $failures,
+    $checks
+);
+// A blocked field still yields no rows through the wrapper -- the refusal
+// arm sets the same envelope, so unwrapping must not turn [] into [[]].
+check(
+    'getIds() on a refused field returns no rows',
+    [] === Route::getIds('host', 'id=1', 'sec_tok'),
+    $failures,
+    $checks
+);
+// names() projects id and name together, so its rows are objects and every
+// call site reads $row->name. The fake answers with a SENTINEL per selected
+// column, which is enough to see the shape survive.
+$names = Route::getNames('host');
+check(
+    'getNames() returns the rows, not the data envelope',
+    is_array($names)
+    && count($names) === 1
+    && is_object(reset($names))
+    && FakeDB::SENTINEL === reset($names)->name,
+    $failures,
+    $checks
+);
 
 /*
  * 4. `sensitiveFieldMap()` is re-entrant.

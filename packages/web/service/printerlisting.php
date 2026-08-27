@@ -30,16 +30,12 @@ define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
 try {
-    // asValue(): names() has no wrapper, and its payload is a bare list with
-    // no envelope to unwrap. What this buys is that a router failure raises
-    // into the catch below and the client gets "#!np" -- rather than reaching
-    // breakHead()'s exit, which sends a non-2xx the client reads as a
-    // transport failure. See ADR 0011.
-    $printernames = Route::asValue(
-        function () {
-            Route::names('printer');
-        }
-    );
+    // getNames(): names() answers with its rows under a `data` envelope, and
+    // this wants the rows. A router failure still raises into the catch below
+    // and the client gets "#!np" -- rather than reaching breakHead()'s exit,
+    // which sends a non-2xx the client reads as a transport failure. See
+    // ADR 0011.
+    $printernames = Route::getNames('printer');
     if (count((array)$printernames) < 1) {
         throw new \Exception("#!np\n");
     }

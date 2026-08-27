@@ -36,15 +36,20 @@
                 },
                 dataType: 'json',
                 processResults: function(data, params) {
+                    // /names now answers with the rows under `data`, the
+                    // same envelope every list route uses. Tolerate both
+                    // shapes so this page keeps working against a server
+                    // that has not been updated yet.
+                    var rows = (data && data.data) ? data.data : data;
                     return {
-                        results: $.map(data, function(item) {
+                        results: $.map(rows, function(item) {
                             return {
                                 id: item.id || item.name,
                                 name: item.name,
                                 text: item.name
                             };
                         }),
-                        totals: data.length
+                        totals: rows.length
                     };
                 }
             },
