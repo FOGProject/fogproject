@@ -61,21 +61,16 @@ const PLUGIN_PROVIDED = [
 /**
  * Entry points that reference a class this tree does not contain.
  *
- * These four are orphans of 565caa40c "Remove legacy client stuff": the commit
- * removed UserCleaner, UpdateClient, GF and ALOBG and left their callers in
- * place, so each of these endpoints has been a guaranteed fatal error on every
- * request since. They are exempted rather than fixed because deciding between
- * deleting the endpoint and restoring the class is not this test's call.
+ * Empty, and meant to stay that way. It held four orphans of 565caa40c
+ * "Remove legacy client stuff" -- that commit removed UserCleaner,
+ * UpdateClient, GF and ALOBG and left their callers in place, so each of
+ * those endpoints was a guaranteed fatal on every request until the four
+ * files were deleted.
  *
  * THIS LIST MUST ONLY EVER SHRINK. An addition means a live endpoint was just
  * broken; fix the endpoint instead.
  */
-const KNOWN_MISSING = [
-    'service/usercleanup-users.php' => 'UserCleaner',
-    'service/updates.php'           => 'UpdateClient',
-    'service/greenfog.php'          => 'GF',
-    'service/alo-bg.php'            => 'ALOBG',
-];
+const KNOWN_MISSING = [];
 
 $classmapFile = $web . '/vendor/composer/autoload_classmap.php';
 if (!is_file($classmapFile)) {
