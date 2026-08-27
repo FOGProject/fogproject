@@ -1716,6 +1716,10 @@ msgid "Could not notify"
 msgstr "Konnte nicht benachrichtigen"
 
 #, fuzzy
+msgid "Could not open an SSH connection to"
+msgstr "Temporäre Datei konnte nicht gelesen werden."
+
+#, fuzzy
 msgid "Could not open file"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
 
@@ -5624,6 +5628,13 @@ msgid "Node Offline"
 msgstr ""
 
 #, fuzzy
+msgid "Node Service Account"
+msgstr "Version"
+
+msgid "Node Service Account Password"
+msgstr ""
+
+#, fuzzy
 msgid "Node Version"
 msgstr "Version"
 
@@ -7837,16 +7848,8 @@ msgid "Storage Node Enabled"
 msgstr "Speicherknoten hinzugefügt"
 
 #, fuzzy
-msgid "Storage Node FTP Password"
-msgstr "Speicherknoten Passwort"
-
-#, fuzzy
 msgid "Storage Node FTP Path"
 msgstr "Speicherknoten-IP"
-
-#, fuzzy
-msgid "Storage Node FTP User"
-msgstr "Speicherknoten Benutzername"
 
 msgid "Storage Node IP"
 msgstr "Speicherknoten-IP"
@@ -8386,6 +8389,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
+msgstr ""
+
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
 msgstr ""
 
@@ -8506,6 +8512,12 @@ msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must 
 msgstr ""
 
 msgid "The manual enrolment steps below are unaffected."
+msgstr ""
+
+msgid "The node did not answer on the network"
+msgstr ""
+
+msgid "The node refused the SSH login for"
 msgstr ""
 
 msgid "The node trying to be used is currently"
@@ -8713,6 +8725,9 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
+msgstr ""
+
+msgid "This is a transport failure -- no credentials were sent -- so check sshd on the node."
 msgstr ""
 
 #, php-format
@@ -11214,6 +11229,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node Associated"
 #~ msgstr "Speicherknoten erstellt"
+
+#, fuzzy
+#~ msgid "Storage Node FTP Password"
+#~ msgstr "Speicherknoten Passwort"
+
+#, fuzzy
+#~ msgid "Storage Node FTP User"
+#~ msgstr "Speicherknoten Benutzername"
 
 #, fuzzy
 #~ msgid "Task is not an imaging task"

@@ -431,9 +431,45 @@ trait FOGPageRender
      *
      * @return void
      */
+    /**
+     * Builds the data- attributes tying one info-card note to a form control.
+     *
+     * Accepts either a bare CSS selector, or an array carrying the two labels
+     * a checkbox toggles between:
+     *
+     *     '#maxClients'
+     *     ['sel' => '#isMaster', 'on' => _('Master'), 'off' => _('Member')]
+     *
+     * The on/off labels are built here rather than in JS because they are
+     * translated strings -- gettext runs server side, and a msgid assembled in
+     * JS would never make it into the .pot.
+     *
+     * @param mixed $source One entry from $this->noteSources, or null.
+     *
+     * @return string The attributes, leading space included, or ''.
+     */
+    protected static function noteSourceAttrs($source)
+    {
+        if (is_string($source)) {
+            $source = ['sel' => $source];
+        }
+        if (!is_array($source) || !($source['sel'] ?? '')) {
+            return '';
+        }
+        $attrs = ' data-note-src="' . \Initiator::e($source['sel']) . '"';
+        foreach (['on', 'off'] as $state) {
+            if (isset($source[$state])) {
+                $attrs .= ' data-note-' . $state . '="'
+                    . \Initiator::e($source[$state]) . '"';
+            }
+        }
+        return $attrs;
+    }
+
     protected function renderInfoCard()
     {
         $notes = (array)$this->notes;
+        $sources = (array)$this->noteSources;
         // Mirrors PLUGINS_INJECT_TABDATA in tabFields(): a plugin that adds
         // a tab to a core page can add its line here too. 1.5's equivalent
         // rode SUB_MENULINK_DATA, which 1.6 repurposed for the sidebar node
@@ -442,6 +478,7 @@ trait FOGPageRender
             'EDIT_INFO_DATA',
             [
                 'notes' => &$notes,
+                'noteSources' => &$sources,
                 'obj' => &$this->obj
             ]
         );
@@ -457,7 +494,14 @@ trait FOGPageRender
             echo '<div class="small text-secondary text-uppercase">';
             echo \Initiator::e($label);
             echo '</div>';
-            echo '<div class="fw-semibold">';
+            // Where the page has told us which control this note mirrors,
+            // hand the selector to the client so it can repaint the note as
+            // the control changes. Without this the card silently disagrees
+            // with the form as soon as you type in it, and only a full page
+            // reload puts it right.
+            echo '<div class="fw-semibold"' . self::noteSourceAttrs(
+                $sources[$label] ?? null
+            ) . '>';
             // An em dash rather than dropping the entry: a host with no
             // deploy date is telling you something, and a card whose fields
             // come and go is harder to read than one that always says the

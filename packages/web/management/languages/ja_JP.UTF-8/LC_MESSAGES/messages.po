@@ -1646,6 +1646,10 @@ msgid "Could not notify"
 msgstr "通知できませんでした"
 
 #, fuzzy
+msgid "Could not open an SSH connection to"
+msgstr "スナップインファイルを読み取れませんでした"
+
+#, fuzzy
 msgid "Could not open file"
 msgstr "スナップインファイルを読み取れませんでした"
 
@@ -5398,6 +5402,13 @@ msgid "Node Offline"
 msgstr "ノードはオフラインです"
 
 #, fuzzy
+msgid "Node Service Account"
+msgstr "Slack アカウントを追加"
+
+msgid "Node Service Account Password"
+msgstr ""
+
+#, fuzzy
 msgid "Node Version"
 msgstr "バージョン"
 
@@ -7519,16 +7530,8 @@ msgid "Storage Node Enabled"
 msgstr "ストレージノードを追加しました！"
 
 #, fuzzy
-msgid "Storage Node FTP Password"
-msgstr "ストレージノードパスワード"
-
-#, fuzzy
 msgid "Storage Node FTP Path"
 msgstr "ストレージノード IP"
-
-#, fuzzy
-msgid "Storage Node FTP User"
-msgstr "ストレージノードユーザー名"
 
 msgid "Storage Node IP"
 msgstr "ストレージノード IP"
@@ -8037,6 +8040,9 @@ msgstr ""
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
+msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
+msgstr ""
+
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
 msgstr ""
 
@@ -8155,6 +8161,13 @@ msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must 
 msgstr ""
 
 msgid "The manual enrolment steps below are unaffected."
+msgstr ""
+
+#, fuzzy
+msgid "The node did not answer on the network"
+msgstr "このノードはオンラインではないようです"
+
+msgid "The node refused the SSH login for"
 msgstr ""
 
 msgid "The node trying to be used is currently"
@@ -8360,6 +8373,9 @@ msgstr "これは一度だけ実行されるタスクであり、現在は実行
 
 msgid "This is a single run task that should run now."
 msgstr "これは一度だけ実行されるタスクであり、現在実行される予定です。"
+
+msgid "This is a transport failure -- no credentials were sent -- so check sshd on the node."
+msgstr ""
 
 #, php-format
 msgid "This is currently in %d sites (%s). Saving here replaces them all with the single site selected below. Use the site's own page to keep more than one."
@@ -10327,9 +10343,6 @@ msgstr ""
 #~ msgid "Add Rules"
 #~ msgstr "ルールを追加"
 
-#~ msgid "Add Slack Account"
-#~ msgstr "Slack アカウントを追加"
-
 #~ msgid "Add Snapins"
 #~ msgstr "スナップインを追加"
 
@@ -11988,6 +12001,14 @@ msgstr ""
 
 #~ msgid "Storage Group update failed!"
 #~ msgstr "ストレージグループの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Storage Node FTP Password"
+#~ msgstr "ストレージノードパスワード"
+
+#, fuzzy
+#~ msgid "Storage Node FTP User"
+#~ msgstr "ストレージノードユーザー名"
 
 #~ msgid "Storage Node General"
 #~ msgstr "ストレージノード全般"

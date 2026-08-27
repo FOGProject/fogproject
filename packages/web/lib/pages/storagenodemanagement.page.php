@@ -357,11 +357,16 @@ class StorageNodeManagement extends FOGPage
                 $sslpath,
                 true
             ),
-            // Node FTP User/Password
+            // The system account FOG signs in as ON the node. Named
+            // "FTP User"/"FTP Password" until now, which described only half
+            // of what it does: the replicators use it for FTP transfers, and
+            // this page's own save-time reachability check uses it for an SSH
+            // login. It is a service account on the node, not a FOG web user,
+            // so it is named for what it is rather than for one protocol.
             self::makeLabel(
                 $labelClass,
                 'user',
-                _('Storage Node FTP User')
+                _('Node Service Account')
             ) => self::makeInput(
                 'form-control storagenodeuser-input',
                 'user',
@@ -374,7 +379,7 @@ class StorageNodeManagement extends FOGPage
             self::makeLabel(
                 $labelClass,
                 'pass',
-                _('Storage Node FTP Password')
+                _('Node Service Account Password')
             ) => '<div class="input-group">'
             . self::makeInput(
                 'form-control storagenodepass-input',
@@ -980,11 +985,16 @@ class StorageNodeManagement extends FOGPage
                 $sslpath,
                 true
             ),
-            // Node FTP User/Password
+            // The system account FOG signs in as ON the node. Named
+            // "FTP User"/"FTP Password" until now, which described only half
+            // of what it does: the replicators use it for FTP transfers, and
+            // this page's own save-time reachability check uses it for an SSH
+            // login. It is a service account on the node, not a FOG web user,
+            // so it is named for what it is rather than for one protocol.
             self::makeLabel(
                 $labelClass,
                 'user',
-                _('Storage Node FTP User')
+                _('Node Service Account')
             ) => self::makeInput(
                 'form-control storagenodeuser-input',
                 'user',
@@ -997,7 +1007,7 @@ class StorageNodeManagement extends FOGPage
             self::makeLabel(
                 $labelClass,
                 'pass',
-                _('Storage Node FTP Password')
+                _('Node Service Account Password')
             ) => '<div class="input-group">'
             . self::makeInput(
                 'form-control storagenodepass-input',
@@ -1007,6 +1017,14 @@ class StorageNodeManagement extends FOGPage
                 'pass',
                 $pass,
                 true
+            )
+            . '</div>'
+            . '<div class="form-text">'
+            . _(
+                'The account on the node itself that FOG signs in as, over '
+                . 'SSH to check the node is reachable and over FTP to move '
+                . 'images and snapins. Created by the installer, normally '
+                . '"fogproject". This is not a FOG web user.'
             )
             . '</div>',
             // Only needed when the peer is a full FOG server with its own
@@ -1031,7 +1049,7 @@ class StorageNodeManagement extends FOGPage
                 'text',
                 'apikey',
                 $apikey,
-                true
+                false
             )
             . '<div class="form-text">'
             . _(
@@ -1093,20 +1111,50 @@ class StorageNodeManagement extends FOGPage
         $pass = trim(
             filter_input(INPUT_POST, 'pass')
         );
+        // Three unrelated things can fail here -- the node can be off the
+        // network, its SSH service can refuse the handshake, or the account
+        // can be rejected -- and this used to report all three as
+        // "Unable to connect using ip, user, and/or password provided!".
+        // That names the password for a failure the password was never
+        // involved in: a handshake that never completed presented no
+        // credentials at all. Reported by Tom after an ssh2_connect -43
+        // ("failed getting banner") on a node whose password was correct
+        // and merely contained a '>', which made it look like an escaping
+        // bug. Say which stage actually failed instead.
+        $warning = '';
         $testavail = self::$FOGURLRequests->isAvailable($ip);
-        $warning = !array_shift($testavail);
-        if (!$warning) {
+        if (!array_shift($testavail)) {
+            $warning = sprintf(
+                '%s: %s',
+                _('The node did not answer on the network'),
+                $ip
+            );
+        } else {
             self::$FOGSSH->username = $user;
             self::$FOGSSH->password = $pass;
             self::$FOGSSH->host = $ip;
-            $warning = !self::$FOGSSH->connect();
-        }
-        if ($warning) {
-            $warning = _(
-                'Unable to connect using ip, user, and/or password provided!'
-            );
-        } else {
-            self::$FOGSSH->disconnect();
+            if (!self::$FOGSSH->connect()) {
+                if (self::$FOGSSH->lastFailure() === 'login') {
+                    $warning = sprintf(
+                        '%s: %s@%s',
+                        _('The node refused the SSH login for'),
+                        $user,
+                        $ip
+                    );
+                } else {
+                    $warning = sprintf(
+                        '%s: %s. %s',
+                        _('Could not open an SSH connection to'),
+                        $ip,
+                        _(
+                            'This is a transport failure -- no credentials '
+                            . 'were sent -- so check sshd on the node.'
+                        )
+                    );
+                }
+            } else {
+                self::$FOGSSH->disconnect();
+            }
         }
         $bandwidth = trim(
             filter_input(INPUT_POST, 'bandwidth')
@@ -1270,6 +1318,20 @@ class StorageNodeManagement extends FOGPage
             ),
             _('Image Path') => $this->obj->get('path'),
             _('Max Clients') => (string)$this->obj->get('maxClients')
+        ];
+        // Every note here mirrors a General-tab control, so the card can track
+        // the form instead of going stale until the next page load. Keys must
+        // match $notes exactly.
+        $this->noteSources = [
+            _('Storage Node') => '#storagenode',
+            _('Storage Group') => '#storagegroupID',
+            _('Role') => [
+                'sel' => '#isMaster',
+                'on' => _('Master'),
+                'off' => _('Member')
+            ],
+            _('Image Path') => '#path',
+            _('Max Clients') => '#maxClients'
         ];
         $tabData = [];
 

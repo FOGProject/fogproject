@@ -144,6 +144,49 @@ $fog-row-hover:           #eef4f9; // table-hover rows
   background-color: var(--fog-canvas);
 }
 
+// ---------------------------------------------------------------------------
+// Edit-page info card
+//
+// The card names the record you are editing and carries the few facts you
+// cannot see from whichever tab you are on -- which is exactly the context you
+// lose first when a tab body is a full-height DataTables grid and you scroll
+// past it. So it sticks to the top of the scroll instead of leaving with the
+// rest of the page.
+//
+// Sticky rather than fixed: fixed leaves a hole where the card used to be and
+// has to be measured against the header by hand, whereas sticky keeps the card
+// in flow and only pins it once it reaches the top. top:0 because the header is
+// only sticky itself below 768px (see the mobile chrome block further down),
+// where this card is also the widest thing on screen and worth the pin most.
+//
+// The z-index clears Bootstrap's own in-flow content but stays well below the
+// modal/backdrop layer (1050+) and Select2's dropdown (1056 in the BS5 theme),
+// so an open dropdown from a tab still paints over the card rather than
+// disappearing behind it.
+// ---------------------------------------------------------------------------
+#edit-info-card {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+// AdminLTE 4 gives <main class="app-main"> `overflow: auto` for its
+// layout-fixed mode. On this install main never actually scrolls (nothing
+// constrains its height, so the WINDOW is the scroller) -- but an ancestor with
+// overflow:auto is still a scroll container, and position:sticky resolves
+// against the nearest one. So the rule above pins the card to a box that never
+// moves, which looks exactly like sticky being ignored: measured on the host
+// edit page, the card's top went to -579px at scrollY 892.
+//
+// Neutralising that container only where the card exists is enough, and :has()
+// keeps it off every other page. Checked on the storage node and host edit
+// pages: document.scrollWidth is unchanged at 1280 either way, so main's
+// overflow-x was not holding anything in. Where :has() is unsupported the card
+// simply scrolls away as it did before -- no layout damage.
+.app-main:has(#edit-info-card) {
+  overflow: visible;
+}
+
 // Boxes: coherent radius + soft elevation instead of AdminLTE's flat 1px frame.
 .box {
   border-radius: var(--fog-radius);

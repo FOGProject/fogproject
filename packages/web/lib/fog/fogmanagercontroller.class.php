@@ -1447,6 +1447,11 @@ abstract class FOGManagerController extends FOGBase
                         ''
                     )
                 )
+                // The visible text carries the id so two same-named items
+                // can be told apart in the picker; data-label is the bare
+                // name, for anything that needs to ECHO the choice rather
+                // than offer it (the edit page's info card).
+                . ' data-label="' . \Initiator::e($Item->name) . '"'
                 . '>'
                 . \Initiator::e($Item->name)
                 . ' - (' . \Initiator::e($Item->id) . ')'

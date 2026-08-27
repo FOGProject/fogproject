@@ -73,6 +73,27 @@ class FOGSSH
      */
     private $_currentLoginHash;
     /**
+     * Which stage of connect() failed, if one did.
+     *
+     * Either 'connect' (the handshake never completed) or 'login' (the server
+     * answered and refused the credentials). connect() returns a bare false
+     * for both, so without this the caller cannot tell a transport problem
+     * from a wrong password. FOGFTP already carries the same pair for the
+     * same reason; this mirrors it.
+     *
+     * @var string
+     */
+    private $_lastFailure = '';
+    /**
+     * Which stage of the last connect() failed.
+     *
+     * @return string 'connect', 'login', or '' when it succeeded.
+     */
+    public function lastFailure()
+    {
+        return $this->_lastFailure;
+    }
+    /**
      * Sets the variable for us to use later.
      *
      * @param string $key   The key to set.
@@ -170,6 +191,7 @@ class FOGSSH
         $autologin = true,
         $connectmethod = 'ssh2_connect'
     ) {
+        $this->_lastFailure = '';
         try {
             $this->_currentConnectionHash = password_hash(
                 print_r($this->data, 1),
@@ -192,14 +214,17 @@ class FOGSSH
                     $port = $this->port;
                 }
             }
+            $this->_lastFailure = 'connect';
             $this->_link = ssh2_connect($host, $port);
             if ($this->_link === false) {
                 trigger_error(_('SSH Connection Failed'), E_USER_NOTICE);
                 $this->ssherror($this->data);
             }
             if ($autologin) {
+                $this->_lastFailure = 'login';
                 $this->login();
             }
+            $this->_lastFailure = '';
             $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (\Exception $e) {
             FOGCore::error($e->getMessage());
