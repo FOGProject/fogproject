@@ -13,6 +13,9 @@
 
 namespace FOG;
 
+use FOG\Audit\ActivityWindow;
+use FOG\Router\HTTPResponseCodes;
+
 /**
  * What ran, and when it started and finished.
  *

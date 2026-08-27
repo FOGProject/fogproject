@@ -40,6 +40,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\SiteScope;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -93,7 +95,7 @@ function check($label, $cond, array &$failures, &$checks)
     }
 }
 
-if (!class_exists('SiteScope', true)) {
+if (!class_exists(\FOG\Auth\SiteScope::class, true)) {
     fwrite(STDERR, "FAIL: SiteScope does not resolve\n");
     exit(1);
 }
@@ -139,7 +141,7 @@ class FakeDB
     }
 }
 
-$dbProp = new \ReflectionProperty('FOGBase', 'DB');
+$dbProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'DB');
 $dbProp->setAccessible(true);
 
 /**

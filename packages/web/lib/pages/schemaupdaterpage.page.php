@@ -13,6 +13,12 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Db\DatabaseManager;
+use FOG\Db\SchemaReconciler;
+use FOG\Items\Schema;
+use FOG\Router\HTTPResponseCodes;
+
 /**
  * Handles the display of schema and schema updating in general.
  *

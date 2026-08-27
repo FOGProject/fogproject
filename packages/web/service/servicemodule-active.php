@@ -11,6 +11,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Client\ServiceModule;
+
 /**
  * Legacy client uses this to find out
  * if the module checked is usable.

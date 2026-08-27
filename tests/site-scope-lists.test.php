@@ -25,6 +25,9 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\Authorization;
+use FOG\Auth\SiteScope;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -106,9 +109,9 @@ class FakeDB
     }
 }
 
-$dbProp = new \ReflectionProperty('FOGBase', 'DB');
+$dbProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'DB');
 $dbProp->setAccessible(true);
-$permProp = new \ReflectionProperty('Authorization', '_permCache');
+$permProp = new \ReflectionProperty(\FOG\Auth\Authorization::class, '_permCache');
 $permProp->setAccessible(true);
 
 $scenario = function (array $tables, array $perms) use ($dbProp, $permProp) {

@@ -1,34 +1,47 @@
 <?php
 /**
- * Bare class names still resolve once core lives under src/, and a plugin
- * still cannot shadow a core class.
+ * Core resolves by its NAMESPACED name only, and a plugin still cannot shadow
+ * a core class.
  *
- * Commit 1 of docs/composer-psr4-plan.md. Composer's loader claims the FOG\
- * prefix and answers nothing else, so the moment core leaves Initiator's
- * classMap a request for the BARE name `Host` has no answer -- and bare names
- * are how FOGProject/fog-plugins inherits from core 168 times and how all 52
- * entries in Route::$validClasses resolve. autoload() therefore grew a second,
- * opposite arm. This is what holds it.
+ * docs/composer-psr4-plan.md. Composer's loader claims the FOG\ prefix and
+ * answers nothing else, so once core left Initiator's classMap a request for
+ * the BARE name `Host` had no answer. For one release cycle every file under
+ * src/ ended in class_alias(__NAMESPACE__ . '\X', 'X') and the bare spelling
+ * kept working. Those 202 aliases are now gone (ADR 0013 §2), and this is
+ * what holds what replaced them.
  *
- * Two properties, and the second is the one that is easy to lose:
+ * Four properties. The third is the one that is easy to lose and the fourth
+ * is the one the retirement nearly took with it:
  *
- *   1. `Host`, `host` and `HOST` all resolve to the class in src/. The map is
- *      keyed on the lowercased basename because that is the only spelling
- *      every caller agrees on.
- *   2. The src/ arm runs BEFORE the classMap. The classMap's core-wins rule
- *      works by preferring one of two candidates for a key -- and once core
- *      is not in that map, a plugin shipping class/host.class.php is the only
- *      candidate and wins outright. Order is now the whole of that guarantee,
- *      so reordering these two lookups is a privilege escalation with no
- *      other symptom.
+ *   1. The namespaced name resolves, through Composer, from the bucket the
+ *      file sits in. FOG\Items\ProbeAlpha, not FOG\ProbeAlpha.
+ *   2. The bare name does NOT resolve, in any spelling. This is the whole
+ *      point of the retirement, and an accidental alias anywhere would make
+ *      every other check here pass for the wrong reason.
+ *   3. A plugin shipping class/probealpha.class.php STILL cannot answer a
+ *      bare `ProbeAlpha`. Core is not in the classMap, so that plugin file
+ *      is the only candidate for the key and would win outright -- the
+ *      autoloader recognises the name as core's and refuses rather than
+ *      falling through. Losing that is a privilege escalation with no other
+ *      symptom, and note it is now a REFUSAL rather than a preference: the
+ *      old ordering guarantee has nothing left to order.
+ *   4. A FLAT FOG\<Name> still resolves when a flat FOG\<Name> is what the
+ *      file declares. The 46 discovery-named classes under lib/ -- pages,
+ *      hooks, reports, the one event -- are `namespace FOG;` and stay there,
+ *      because FOGPageManager::loadPageClasses() derives their class name
+ *      from basename($file) and PSR-4 does not do discovery. Composer maps
+ *      FOG\ onto src/, so `use FOG\ReportManagement;` in a core file is
+ *      answered by Initiator::_bridgeNamespaced() and by nothing else. The
+ *      plan said to delete that bridge alongside the aliases; doing so breaks
+ *      every core file that imports one of the 46.
  *
  * Runs against a MINIATURE tree in the system temp directory -- a copy of
- * commons/init.php with its own src/ and lib/plugins/ -- rather than against
- * packages/web. Initiator derives BASEPATH from its own location, so a copied
- * init.php gets a BASEPATH of the copy, and the probe classes never touch the
- * repository. That matters more than tidiness here: this test deliberately
- * creates a plugin file NAMED AFTER a core class, and leaving one of those in
- * a real tree is the exact defect under test.
+ * commons/init.php with its own src/, lib/pages/ and lib/plugins/ -- rather
+ * than against packages/web. Initiator derives BASEPATH from its own location,
+ * so a copied init.php gets a BASEPATH of the copy, and the probe classes
+ * never touch the repository. That matters more than tidiness here: this test
+ * deliberately creates a plugin file NAMED AFTER a core class, and leaving one
+ * of those in a real tree is the exact defect under test.
  *
  * DB-free: Initiator's constructor only registers the autoloader. It is
  * startInit() that reaches MySQL, and it is never called.
@@ -57,8 +70,8 @@ register_shutdown_function(
     }
 );
 
-foreach (['commons', 'src/Items', 'src/Base', 'lib/plugins/probeplug/class',
-          'cache', 'log', 'extplugins'] as $d) {
+foreach (['commons', 'src/Items', 'src/Base', 'lib/pages',
+          'lib/plugins/probeplug/class', 'cache', 'log', 'extplugins'] as $d) {
     if (!@mkdir($tmp . '/' . $d, 0700, true) && !is_dir($tmp . '/' . $d)) {
         fwrite(STDERR, "FAIL: cannot create $tmp/$d\n");
         exit(1);
@@ -79,8 +92,8 @@ if (!@copy($web . '/commons/init.php', $tmp . '/commons/init.php')) {
  */
 file_put_contents(
     $tmp . '/src/Items/ProbeAlpha.php',
-    "<?php\nnamespace FOG;\nclass ProbeAlpha { public static function who() { return 'core'; } }\n"
-    . "class_alias(__NAMESPACE__ . '\\ProbeAlpha', 'ProbeAlpha');\n"
+    "<?php\nnamespace FOG\\Items;\n"
+    . "class ProbeAlpha { public static function who() { return 'core'; } }\n"
 );
 file_put_contents(
     $tmp . '/lib/plugins/probeplug/class/probealpha.class.php',
@@ -95,12 +108,23 @@ file_put_contents(
     "<?php\nclass ProbeOnlyPlugin { }\n"
 );
 /*
- * A src/ file that forgets its class_alias. ADR 0013 requires one; this is
- * what a reader gets when it is missing.
+ * A second core class, in a DIFFERENT bucket. srcClassMap() derives the
+ * namespace from the parent directory name, so one bucket cannot prove it.
  */
 file_put_contents(
-    $tmp . '/src/Base/ProbeNoAlias.php',
-    "<?php\nnamespace FOG;\nclass ProbeNoAlias { }\n"
+    $tmp . '/src/Base/ProbeBeta.php',
+    "<?php\nnamespace FOG\\Base;\nclass ProbeBeta { }\n"
+);
+/*
+ * A discovery-named page, standing in for the 46 under lib/. Flat
+ * `namespace FOG;` plus its own class_alias back to the global name -- which
+ * is NOT the retired kind. FOGPageManager::loadPageClasses() looks the class
+ * up by basename, so these files keep theirs.
+ */
+file_put_contents(
+    $tmp . '/lib/pages/probediscovered.page.php',
+    "<?php\nnamespace FOG;\nclass ProbeDiscovered { }\n"
+    . "class_alias(__NAMESPACE__ . '\\ProbeDiscovered', 'ProbeDiscovered');\n"
 );
 
 define('FOG_CACHE_DIR', $tmp . '/cache');
@@ -118,7 +142,7 @@ new Initiator();
 if (is_readable($web . '/vendor/composer/ClassLoader.php')) {
     require_once $web . '/vendor/composer/ClassLoader.php';
     $loader = new \Composer\Autoload\ClassLoader();
-    $loader->setPsr4('FOG\\', [$tmp . '/src', $tmp . '/src/Items', $tmp . '/src/Base']);
+    $loader->setPsr4('FOG\\', [$tmp . '/src']);
     $loader->register(true);
 }
 
@@ -140,7 +164,7 @@ $fileOf = function ($class) {
 // 1. The src/ scan finds the files and keys them lowercased.
 $map = Initiator::srcFileList();
 check('srcFileList finds ProbeAlpha', isset($map['probealpha']), $failures, $checks);
-check('srcFileList finds ProbeNoAlias', isset($map['probenoalias']), $failures, $checks);
+check('srcFileList finds ProbeBeta', isset($map['probebeta']), $failures, $checks);
 check(
     'srcFileList keys are lowercased',
     $map === array_change_key_case($map, CASE_LOWER),
@@ -148,44 +172,98 @@ check(
     $checks
 );
 
-// 2. Every spelling of a bare name resolves, and to the SAME type.
-foreach (['ProbeAlpha', 'probealpha', 'PROBEALPHA'] as $spelling) {
-    check("bare '$spelling' resolves", class_exists($spelling), $failures, $checks);
-}
+// 1b. srcClassMap turns those into FQCNs, taking the namespace from the
+// bucket directory. FOGBase::qualify() is this map, and every string-driven
+// instantiation left in core -- getClass(), Route::_newEntity(),
+// FOGPage's $childClass -- resolves through it.
+$classMap = Initiator::srcClassMap();
 check(
-    'all three spellings are one type',
-    class_exists('ProbeAlpha')
-    && (new \ReflectionClass('probealpha'))->getName()
-       === (new \ReflectionClass('PROBEALPHA'))->getName(),
+    'srcClassMap qualifies into the Items bucket',
+    ($classMap['probealpha'] ?? null) === 'FOG\\Items\\ProbeAlpha',
+    $failures,
+    $checks
+);
+check(
+    'srcClassMap qualifies into the Base bucket',
+    ($classMap['probebeta'] ?? null) === 'FOG\\Base\\ProbeBeta',
     $failures,
     $checks
 );
 
-// 3. THE ONE THAT MATTERS. Core wins over a plugin file of the same name.
+// 2. The bare name does not resolve, in any spelling.
+//
+// First, because that is the decision. Second, because every check below it
+// would pass for the wrong reason if an alias crept back in -- check 3 in
+// particular reads "core answered, not the plugin" and an alias makes that
+// true without the autoloader having refused anything.
+foreach (['ProbeAlpha', 'probealpha', 'PROBEALPHA'] as $spelling) {
+    check("bare '$spelling' does NOT resolve", !class_exists($spelling), $failures, $checks);
+}
+
+// 3. THE ONE THAT MATTERS. A plugin file named after a core class cannot
+// answer the bare name either -- the refusal in check 2 has to be a refusal,
+// not a fall-through to lib/plugins.
 check(
-    'bare ProbeAlpha resolves to src/, not to the plugin',
-    $fileOf('ProbeAlpha') === $tmp . '/src/Items/ProbeAlpha.php',
+    'the plugin file did not answer bare ProbeAlpha',
+    null === $fileOf('ProbeAlpha'),
+    $failures,
+    $checks
+);
+
+// 4. The namespaced name resolves, from its bucket, to the core file.
+check(
+    'FOG\Items\ProbeAlpha resolves',
+    class_exists('FOG\Items\ProbeAlpha'),
     $failures,
     $checks
 );
 check(
     'and it is the core implementation that answers',
-    class_exists('ProbeAlpha') && ProbeAlpha::who() === 'core',
+    class_exists('FOG\Items\ProbeAlpha')
+    && \FOG\Items\ProbeAlpha::who() === 'core',
     $failures,
     $checks
 );
-
-// 4. The namespaced spelling is the same type -- one class, two names.
 check(
-    'FOG\ProbeAlpha is the same type as bare ProbeAlpha',
-    class_exists('FOG\ProbeAlpha')
-    && (new \ReflectionClass('FOG\ProbeAlpha'))->getName()
-       === (new \ReflectionClass('ProbeAlpha'))->getName(),
+    'and it is the src/ file, not the plugin one',
+    $fileOf('FOG\Items\ProbeAlpha') === $tmp . '/src/Items/ProbeAlpha.php',
     $failures,
     $checks
 );
 
-// 5. The arm falls through: a plugin-only class still resolves via classMap.
+// 5. A FLAT FOG\<Name> for a BUCKETED core class is a wrong spelling, not a
+// name to resolve. Refused, for the same shadowing reason as check 3.
+check(
+    'flat FOG\ProbeAlpha does not resolve',
+    !class_exists('FOG\ProbeAlpha'),
+    $failures,
+    $checks
+);
+
+// 6. A FLAT FOG\<Name> that a lib/ file actually DECLARES does resolve.
+// This is the arm the plan said to delete; `use FOG\ReportManagement;` in
+// core has no other answer. See the header.
+check(
+    'FOG\ProbeDiscovered resolves through the bridge',
+    class_exists('FOG\ProbeDiscovered'),
+    $failures,
+    $checks
+);
+check(
+    'and it is the lib/pages file that declared it',
+    $fileOf('FOG\ProbeDiscovered') === $tmp . '/lib/pages/probediscovered.page.php',
+    $failures,
+    $checks
+);
+check(
+    'and its own class_alias still exports the bare name, which is what '
+    . 'FOGPageManager::loadPageClasses() looks up',
+    class_exists('ProbeDiscovered'),
+    $failures,
+    $checks
+);
+
+// 7. The arm falls through: a plugin-only class still resolves via classMap.
 check(
     'a plugin-only class still resolves',
     class_exists('ProbeOnlyPlugin'),
@@ -200,21 +278,7 @@ check(
     $checks
 );
 
-// 6. A src/ file with no class_alias does not silently half-work.
-check(
-    'namespaced name resolves without the alias',
-    class_exists('FOG\ProbeNoAlias'),
-    $failures,
-    $checks
-);
-check(
-    'but the bare name does not',
-    !class_exists('ProbeNoAlias'),
-    $failures,
-    $checks
-);
-
-// 7. The map is memoised, and forgetting it clears both maps and both caches.
+// 8. The map is memoised, and forgetting it clears both maps and both caches.
 $cacheFile = FOG_CACHE_DIR . '/srcmap.' . md5($tmp . '/src') . '.json';
 check('the src map is persisted', is_file($cacheFile), $failures, $checks);
 check(

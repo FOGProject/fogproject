@@ -25,6 +25,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\Authorization;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -78,7 +80,7 @@ function check($label, $cond, array &$failures, &$checks)
     }
 }
 
-if (!class_exists('Authorization', true)) {
+if (!class_exists(\FOG\Auth\Authorization::class, true)) {
     fwrite(STDERR, "FAIL: Authorization did not resolve\n");
     exit(1);
 }

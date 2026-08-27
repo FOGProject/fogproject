@@ -13,6 +13,8 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+
 /**
  * The Bootmenu Management Page
  *

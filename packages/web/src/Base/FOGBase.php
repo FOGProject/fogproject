@@ -571,12 +571,14 @@ abstract class FOGBase
      * Resolves a bare core class name to its fully qualified name.
      *
      * Every FOG class under src/ is namespaced, but almost nothing that
-     * NAMES one is: `getClass('Host')`, `new $short.'Manager'` and the 52
-     * lowercase strings in Route::$validClasses all spell the bare name.
-     * They resolve today only because each file under src/ ends in a
-     * class_alias() re-exporting itself into the global namespace
-     * (ADR 0013 §2). This is the one place that translation happens, so
-     * retiring those aliases does not mean editing every caller.
+     * NAMES one is: `getClass('Host')`, `new $short.'Manager'`, the 52
+     * lowercase strings in Route::$validClasses and FOGPage's $childClass all
+     * spell the bare name. `new $string` and a class name in a string resolve
+     * from the GLOBAL namespace -- `use` is not consulted and the enclosing
+     * namespace is not applied -- so they worked only while each file under
+     * src/ ended in a class_alias() re-exporting itself there. Those aliases
+     * are retired (ADR 0013 §2), and this is the one place the translation
+     * happens, so retiring them did not mean editing every caller.
      *
      * Three things pass through untouched, each on purpose:
      *
@@ -4153,7 +4155,13 @@ abstract class FOGBase
                     $strlen
                 )
             );
-            if (class_exists($className, false)) {
+            // qualify()d: this is a "have we loaded this file's class
+            // already" short circuit, and a core class loaded under its
+            // namespaced name does not answer to its bare basename now that
+            // the global aliases are gone. Left bare it is merely wasteful
+            // rather than wrong -- the include below is include_once -- but
+            // it would stop short-circuiting for every core file in the list.
+            if (class_exists(self::qualify($className), false)) {
                 continue;
             }
             // The file list is a TTL-cached snapshot (Initiator::
@@ -5471,11 +5479,3 @@ abstract class FOGBase
         error_log($contents);
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\FOGBase', 'FOGBase');

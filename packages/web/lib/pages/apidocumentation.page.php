@@ -16,6 +16,9 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Router\Route;
+
 /**
  * API Documentation Page
  *

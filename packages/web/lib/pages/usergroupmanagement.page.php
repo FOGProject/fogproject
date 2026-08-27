@@ -13,6 +13,11 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Auth\SiteScope;
+use FOG\Base\FOGPage;
+use FOG\Router\HTTPResponseCodes;
+
 /**
  * User group management page — native role-based access control.
  *

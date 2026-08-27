@@ -14,6 +14,10 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+use FOG\Router\Route;
+
 /**
  * Get version, used for multiple things.
  * The new fog client uses this to tell a client to update.

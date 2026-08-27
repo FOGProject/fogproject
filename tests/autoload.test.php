@@ -38,7 +38,9 @@
  * other check still asserts: they are invariants of any tree that boots.
  *
  * Four things are checked:
- *   1. A representative class from each scan root resolves.
+ *   1. A representative class from each scan root resolves, by the name its
+ *      own file declares -- namespaced for core under src/, bare for the
+ *      discovery-named files under lib/ and for plugins.
  *   2. Composer's autoloader is registered and reaches vendor/. Mysqldump
  *      is the proof: it is a FOG class whose parent lives in a package, so
  *      it cannot resolve unless both loaders are in the chain and in the
@@ -52,18 +54,25 @@
  *      the basename and none of them parses source for a `class` token, so
  *      a file that breaks this is invisible to hooks, events, pages and
  *      reports while looking perfectly fine.
- *   4. Whether a namespaced name resolves. See EXPECT_BRIDGE below.
+ *   4. The shape of what resolves and what does not. See EXPECT_BRIDGE.
  *
  * Usage: php tests/autoload.test.php [path/to/packages/web]
  * Exit status 0 = pass, 1 = fail.
  */
 
 /*
- * Flipped by the commit that adds the FOG\ bridge to Initiator::autoload().
- * Before it, `FOG\Items\Host` misses silently: the map is keyed on a lowercased
- * basename so `fog\host` can never be a key, and the bare spl_autoload()
- * behind it probes for `fog/host.class.php`, which no include_path entry
- * holds. After it, `FOG\Items\Host` resolves to the same class entry as `Host`.
+ * Flipped by the commit that added the FOG\ bridge to Initiator::autoload(),
+ * and kept because the bridge is still there and still load-bearing -- just
+ * for a narrower job than it started with.
+ *
+ * It began as a shim: nothing was namespaced, so `FOG\Host` was answered by
+ * finding host.class.php and aliasing it. Core is now PSR-4 under src/ and
+ * Composer answers FOG\Items\Host directly. What is left for the bridge is
+ * the 46 discovery-named classes under lib/ -- pages, hooks, reports, the one
+ * event -- which declare a FLAT `namespace FOG;` and stay there, because
+ * FOGPageManager::loadPageClasses() derives the class name from
+ * basename($file) and PSR-4 does not do discovery. Composer maps FOG\ onto
+ * src/, so a core file's `use FOG\ReportManagement;` has no other answer.
  *
  * This constant existing rather than the assertion simply being deleted is
  * the point: the flip is the bridge's regression test.
@@ -175,37 +184,55 @@ $failures = [];
  * missing is silent until somebody takes a backup -- a fatal on a page that
  * has already sent its headers, which is a bodyless 500.
  */
-if (!class_exists('Mysqldump')) {
-    $failures[] = 'Mysqldump did not resolve; either the FOG class map has '
-        . 'lost src/Db/Mysqldump.php or commons/init.php is no longer '
+if (!class_exists('FOG\\Db\\Mysqldump')) {
+    $failures[] = 'FOG\\Db\\Mysqldump did not resolve; either Composer is no '
+        . 'longer mapping FOG\\ onto src/, or commons/init.php is no longer '
         . "requiring vendor/autoload.php, so the parent class it extends "
         . 'cannot be found';
-} elseif (!is_subclass_of('Mysqldump', 'Ifsnop\Mysqldump\Mysqldump')) {
-    $failures[] = 'Mysqldump resolved but is not a subclass of '
+} elseif (!is_subclass_of('FOG\\Db\\Mysqldump', 'Ifsnop\\Mysqldump\\Mysqldump')) {
+    $failures[] = 'FOG\\Db\\Mysqldump resolved but is not a subclass of '
         . 'Ifsnop\Mysqldump\Mysqldump; the Composer package has been '
         . 're-vendored by hand, which is what ADR 0013 exists to prevent';
 }
 
 // 1. One name per scan root, plus the two base classes everything descends
 // from and the two traits FOGPage is built out of.
+//
+// Named as each file names ITSELF. Core moved to src/ under a namespace per
+// bucket and no longer re-exports itself globally (ADR 0013 §2), so the bare
+// spellings this list used to carry now resolve to nothing -- which is the
+// decision, not a regression. The discovery-named classes under lib/ keep
+// their own class_alias and so keep answering bare, because
+// FOGPageManager::loadPageClasses() looks them up that way.
 $sample = [
-    'Host'                => 'class',   // lib/fog
-    'HostManager'         => 'class',   // lib/fog, manager
-    'FOGBase'             => 'class',   // lib/fog, root of the hierarchy
-    'FOGController'       => 'class',
-    'FOGPagePost'         => 'trait',   // lib/fog, mixed-case filename
-    'HostManagement'      => 'class',   // lib/pages
-    'UserGroupManagement' => 'class',   // lib/pages, mixed-case filename
-    'PDODB'               => 'class',   // lib/db
-    'Route'               => 'class',   // lib/router
-    'FOGClient'           => 'class',   // lib/client
-    'TaskScheduler'       => 'class',   // lib/service
-    'Registration'        => 'class',   // lib/reg-task
+    'FOG\\Items\\Host'             => 'class',   // src/Items
+    'FOG\\Managers\\HostManager'   => 'class',   // src/Managers
+    'FOG\\Base\\FOGBase'           => 'class',   // src/Base, root of the hierarchy
+    'FOG\\Base\\FOGController'     => 'class',
+    'FOG\\Base\\FOGPagePost'       => 'trait',   // src/Base, mixed-case filename
+    'HostManagement'                => 'class',   // lib/pages, discovery-named
+    'UserGroupManagement'           => 'class',   // lib/pages, mixed-case filename
+    'FOG\\Db\\PDODB'               => 'class',   // src/Db
+    'FOG\\Router\\Route'           => 'class',   // src/Router
+    'FOG\\Client\\FOGClient'       => 'class',   // src/Client
+    'FOG\\Service\\TaskScheduler'  => 'class',   // src/Service
+    'FOG\\Boot\\Registration'      => 'class',   // src/Boot
 ];
 foreach ($sample as $name => $kind) {
     $exists = $kind === 'trait' ? trait_exists($name) : class_exists($name);
     if (!$exists) {
         $failures[] = "$name did not resolve through the autoloader";
+    }
+}
+
+// 1b. And the bare spellings of the core ones do NOT resolve. Without this
+// every check above would pass just as happily with the aliases restored,
+// which is the state this whole pass exists to leave behind.
+foreach (['Host', 'HostManager', 'FOGBase', 'PDODB', 'Route'] as $bare) {
+    if (class_exists($bare)) {
+        $failures[] = "bare $bare resolved; core is aliased into the global "
+            . 'namespace again (ADR 0013 §2 retired those aliases), so a '
+            . 'plugin or an unswept caller can reach core by its short name';
     }
 }
 
@@ -262,33 +289,41 @@ foreach ($mismatched as $m) {
     $failures[] = "filename/class mismatch: $m";
 }
 
-// 4. The bridge. Asserted against the checkout, reported against a server:
-// a server legitimately runs an older FOG than the tree you are standing in,
-// and failing over that would make the diagnostic mode useless.
-$bridged = class_exists('FOG\Items\Host');
+// 4. The bridge, and the shape of what it does and does not answer. Asserted
+// against the checkout, reported against a server: a server legitimately runs
+// an older FOG than the tree you are standing in, and failing over that would
+// make the diagnostic mode useless.
+//
+// Probed with a discovery-named class, not with a model. FOG\Items\Host is
+// Composer's job now and proves nothing about the bridge; FOG\HostManagement
+// is the flat spelling only the bridge can serve.
+$bridged = class_exists('FOG\HostManagement');
 if (!$diagnostic && $bridged !== EXPECT_BRIDGE) {
     $failures[] = EXPECT_BRIDGE
-        ? 'FOG\Items\Host did not resolve; the Initiator::autoload() bridge is '
-            . 'missing or no longer aliases short names'
-        : 'FOG\Items\Host resolved unexpectedly; if the bridge has landed, flip '
-            . 'EXPECT_BRIDGE at the top of this file';
+        ? 'FOG\HostManagement did not resolve; Initiator::_bridgeNamespaced() '
+            . 'is missing or no longer answers the flat FOG\<Name> spelling '
+            . 'the 46 discovery-named classes under lib/ are declared with. '
+            . 'Every core file carrying a `use FOG\<Name>;` import for one of '
+            . 'them is broken by that'
+        : 'FOG\HostManagement resolved unexpectedly; if the bridge has landed, '
+            . 'flip EXPECT_BRIDGE at the top of this file';
 }
 if ($bridged) {
-    // An alias, not a second class: same class entry, so `instanceof` and
-    // every getClass()/Reflection consumer see one type. get_class() still
-    // reports the declared name -- that asymmetry is why namespacing the
-    // models is a separate problem from bridging their names.
-    $refFqcn = new \ReflectionClass('FOG\Items\Host');
-    $refShort = new \ReflectionClass('Host');
-    if ($refFqcn->getName() !== $refShort->getName()) {
-        $failures[] = 'FOG\Items\Host resolves to a different class entry than '
-            . 'Host (' . $refFqcn->getName() . ' vs ' . $refShort->getName()
-            . '); it should be an alias, not a copy';
+    // The flat name and the bare one are one class entry, because the lib/
+    // file's own class_alias() makes them so -- that alias is what
+    // FOGPageManager::loadPageClasses() resolves and is NOT among the 202
+    // retired by ADR 0013 §2.
+    $refFlat = new \ReflectionClass('FOG\HostManagement');
+    $refShort = new \ReflectionClass('HostManagement');
+    if ($refFlat->getName() !== $refShort->getName()) {
+        $failures[] = 'FOG\HostManagement resolves to a different class entry '
+            . 'than HostManagement (' . $refFlat->getName() . ' vs '
+            . $refShort->getName() . '); it should be an alias, not a copy';
     }
     if (!trait_exists('FOG\Base\FOGPagePost')) {
-        $failures[] = 'the bridge does not carry traits';
+        $failures[] = 'Composer does not carry traits';
     }
-    if (!class_exists('fog\Image')) {
+    if (!class_exists('fog\HostManagement')) {
         $failures[] = 'the bridge is case-sensitive on the namespace prefix; '
             . 'PHP class names are not';
     }
@@ -302,6 +337,15 @@ if ($bridged) {
     if (class_exists('Vendor\Host')) {
         $failures[] = 'the bridge answered for a foreign namespace; a '
             . 'plugin\'s Vendor\Host must not silently become core Host';
+    }
+    // A flat FOG\<Name> for a class that lives in a BUCKET under src/ is a
+    // wrong spelling, not a name to bridge. Answering it would put core back
+    // within reach of a name no file declares, and -- because core is absent
+    // from the classMap -- would hand the key to any plugin shipping
+    // class/host.class.php.
+    if (class_exists('FOG\Host')) {
+        $failures[] = 'the bridge answered FOG\Host; core is namespaced per '
+            . 'bucket, so only FOG\Items\Host names that class';
     }
 }
 

@@ -13,6 +13,15 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Db\DatabaseManager;
+use FOG\Items\Architecture;
+use FOG\Items\Image;
+use FOG\Items\MulticastSession;
+use FOG\Items\StorageGroup;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Image management page
  *

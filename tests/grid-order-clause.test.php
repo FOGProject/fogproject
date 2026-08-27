@@ -26,6 +26,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\FOGManagerController;
+
 $root = rtrim(
     $argv[1] ?? dirname(__DIR__) . '/packages/web',
     '/'

@@ -13,6 +13,19 @@
 
 namespace FOG;
 
+use FOG\Audit\Retention;
+use FOG\Auth\Authorization;
+use FOG\Base\FOGBase;
+use FOG\Base\FOGManagerController;
+use FOG\Base\FOGPage;
+use FOG\Exception\UploadException;
+use FOG\Items\APIToken;
+use FOG\Items\Image;
+use FOG\Items\Setting;
+use FOG\Managers\SettingManager;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * The FOG Configuration Page display.
  *

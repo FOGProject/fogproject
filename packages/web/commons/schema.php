@@ -10,6 +10,11 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Db\DatabaseManager;
+use FOG\Items\Schema;
+use FOG\Items\TaskLog;
+
 /**
  * Schema layout for creating the database.
  *

@@ -50,6 +50,30 @@
  */
 
 /**
+ * Where a FOG install keeps its generated config.class.php.
+ *
+ * Two spellings, because this reads a tree that is ALREADY INSTALLED and a
+ * server legitimately runs an older release than the script. Config is
+ * generated into commons/ now -- beside fogpaths.php, the installer's other
+ * generated runtime file -- and used to go to lib/fog/, a directory that
+ * existed for nothing else once core moved to src/.
+ *
+ * @param string $root The web root of the FOG install.
+ *
+ * @return string|null the path, or null when neither exists
+ */
+function fogNodeKeyConfigPath($root)
+{
+    $root = rtrim($root, '/');
+    foreach (['/commons/config.class.php', '/lib/fog/config.class.php'] as $rel) {
+        if (file_exists($root . $rel)) {
+            return $root . $rel;
+        }
+    }
+    return null;
+}
+
+/**
  * Loads the DB constants out of a FOG install's config.class.php.
  *
  * Same reader as bin/schema-manifest.php, and for the same reason: the
@@ -62,8 +86,8 @@
  */
 function fogNodeKeyConnect($root)
 {
-    $config = rtrim($root, '/') . '/lib/fog/config.class.php';
-    if (!file_exists($config)) {
+    $config = fogNodeKeyConfigPath($root);
+    if ($config === null) {
         fwrite(STDERR, "No config.class.php under $root\n");
         fwrite(STDERR, "Pass the web root with --web /path/to/fog\n");
         exit(1);
@@ -158,7 +182,7 @@ if (null !== $set) {
 
 if ($root === '') {
     foreach ($roots as $candidate) {
-        if (file_exists($candidate . '/lib/fog/config.class.php')) {
+        if (fogNodeKeyConfigPath($candidate) !== null) {
             $root = $candidate;
             break;
         }

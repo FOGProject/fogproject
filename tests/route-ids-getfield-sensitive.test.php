@@ -44,6 +44,10 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Base\EventManager;
+use FOG\Base\HookManager;
+use FOG\Router\Route;
+
 $webroot = dirname(__DIR__) . '/packages/web';
 $init = $webroot . '/commons/init.php';
 if (!is_readable($init)) {
@@ -175,7 +179,7 @@ class FakeDB
 }
 
 $db = new FakeDB();
-$dbProp = new \ReflectionProperty('FOGBase', 'DB');
+$dbProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'DB');
 $dbProp->setAccessible(true);
 
 // LoadGlobals is what normally builds these, and it needs a real database.
@@ -184,10 +188,10 @@ $dbProp->setAccessible(true);
 // HookManager::processEvent()'s own getIds() call. It loads nothing: the
 // plugin dir is the empty temp dir above and every core hook ships
 // $active = false.
-$hmProp = new \ReflectionProperty('FOGBase', 'HookManager');
+$hmProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'HookManager');
 $hmProp->setAccessible(true);
 $hmProp->setValue(null, new HookManager());
-$emProp = new \ReflectionProperty('FOGBase', 'EventManager');
+$emProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'EventManager');
 $emProp->setAccessible(true);
 $emProp->setValue(null, new EventManager());
 
@@ -374,10 +378,10 @@ check(
  *    Proven by clearing the memo and asking again from scratch. A regression
  *    exhausts memory rather than failing, which is loud enough.
  */
-$mapProp = new \ReflectionProperty('Route', '_sensitiveMap');
+$mapProp = new \ReflectionProperty(\FOG\Router\Route::class, '_sensitiveMap');
 $mapProp->setAccessible(true);
 $mapProp->setValue(null, null);
-$knownProp = new \ReflectionProperty('HookManager', 'knownEvents');
+$knownProp = new \ReflectionProperty(\FOG\Base\HookManager::class, 'knownEvents');
 $knownProp->setAccessible(true);
 $knownProp->setValue(null, null);
 Route::ids('host', 'id=1', 'sec_tok');

@@ -14,6 +14,10 @@ declare(strict_types=1);
  * @version  1.1
  */
 
+use FOG\Auth\Authorization;
+use FOG\Auth\CSRF;
+use FOG\Base\FOGPage;
+
 // Not an entry point: this is the page shell, included by Page::render()
 // with the application already booted, which is what makes the self::
 // references below resolve. It nonetheless sits under the document root

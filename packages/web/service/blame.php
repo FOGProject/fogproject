@@ -10,6 +10,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Audit\Blame;
+
 /**
  * Sets the blame of a storage node thats problematic.
  *

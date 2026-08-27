@@ -52,8 +52,17 @@
  */
 function connect($root)
 {
-    $config = $root . '/lib/fog/config.class.php';
-    if (!file_exists($config)) {
+    // Two spellings: this reads an ALREADY INSTALLED tree and a server
+    // legitimately runs an older release than the script. Config is generated
+    // into commons/ now, beside fogpaths.php; it used to go to lib/fog/.
+    $config = null;
+    foreach (['/commons/config.class.php', '/lib/fog/config.class.php'] as $rel) {
+        if (file_exists(rtrim($root, '/') . $rel)) {
+            $config = rtrim($root, '/') . $rel;
+            break;
+        }
+    }
+    if ($config === null) {
         fwrite(STDERR, "No config.class.php under $root\n");
         exit(1);
     }

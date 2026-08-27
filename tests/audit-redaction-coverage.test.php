@@ -59,6 +59,9 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Auth\Redaction;
+use FOG\Router\Route;
+
 $root = dirname(__DIR__);
 $webroot = $root . '/packages/web';
 chdir($root);
@@ -100,7 +103,7 @@ if (!defined('FOG_PLUGIN_DIR')) {
 require_once $init;
 new Initiator();
 
-foreach (['Redaction', 'Route'] as $needed) {
+foreach ([\FOG\Auth\Redaction::class, \FOG\Router\Route::class] as $needed) {
     if (!class_exists($needed, true)) {
         fwrite(STDERR, "FAIL: $needed did not resolve\n");
         exit(1);

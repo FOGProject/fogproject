@@ -22,6 +22,8 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
+use FOG\Router\Route;
+
 $web = dirname(__DIR__) . '/packages/web';
 $init = $web . '/commons/init.php';
 
@@ -70,12 +72,12 @@ function expect(array &$failures, $label, $want, $got)
     }
 }
 
-if (!class_exists('Route')) {
+if (!class_exists(\FOG\Router\Route::class)) {
     fwrite(STDERR, "FAIL: Route did not autoload\n");
     exit(1);
 }
 
-$ref = new \ReflectionClass('Route');
+$ref = new \ReflectionClass(\FOG\Router\Route::class);
 
 foreach (['getList', 'getItem', 'getIds', 'getNames', 'asValue', 'objectify', 'unwrapData'] as $method) {
     if (!$ref->hasMethod($method)) {
@@ -229,12 +231,12 @@ define('FOG_PLUGIN_DIR', $tmp . '/plugins');
 ini_set('session.save_path', $tmp);
 require %s;
 new Initiator();
-$r = new ReflectionClass('Route');
+$r = new ReflectionClass(\FOG\Router\Route::class);
 $d = $r->getProperty('_rethrowDepth');
 $d->setAccessible(true);
 $d->setValue(null, 1);
 try {
-    Route::sendResponse(406, 'probe');
+    \FOG\Router\Route::sendResponse(406, 'probe');
     echo 'MARKER:noraise';
 } catch (RuntimeException $e) {
     echo 'MARKER:raised:' . $e->getMessage() . ':' . $e->getCode();
@@ -245,7 +247,7 @@ try {
 // Eleven daemon sites now go through it, so it has to carry the guard itself.
 $d->setValue(null, 0);
 try {
-    Route::asValue(function () { Route::sendResponse(406, 'inner'); });
+    \FOG\Router\Route::asValue(function () { \FOG\Router\Route::sendResponse(406, 'inner'); });
     echo ' MARKER2:noraise';
 } catch (RuntimeException $e) {
     echo ' MARKER2:raised:' . $e->getMessage();

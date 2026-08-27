@@ -13,6 +13,8 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+
 /**
  * Change host name hook.
  *

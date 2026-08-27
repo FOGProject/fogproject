@@ -13,6 +13,8 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+
 /**
  * Alters the boot task to make a custom entry.
  *

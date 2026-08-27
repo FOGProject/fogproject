@@ -11,6 +11,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Client\HostnameChanger;
+
 /**
  * This is used by the client to determine
  * domain joining and changing hostname.

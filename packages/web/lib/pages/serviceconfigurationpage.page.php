@@ -14,6 +14,10 @@
 
 namespace FOG;
 
+use FOG\Base\FOGPage;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Configure global level module/services.
  * These are things like hostname changer, display, etc...

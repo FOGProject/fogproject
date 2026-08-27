@@ -14,6 +14,9 @@ declare(strict_types=1);
  * @version  1.1
  */
 
+use FOG\Base\FOGCore;
+use FOG\Router\HTTPResponseCodes;
+
 /*
  * The web UI is the one entry point that needs a session created for a
  * visitor who arrives without a cookie -- the login form's CSRF token has to

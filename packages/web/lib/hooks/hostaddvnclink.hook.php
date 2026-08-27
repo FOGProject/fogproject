@@ -13,6 +13,8 @@
 
 namespace FOG;
 
+use FOG\Base\Hook;
+
 /**
  * Add host VNC link
  *

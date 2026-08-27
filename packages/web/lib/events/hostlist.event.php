@@ -14,6 +14,8 @@
 
 namespace FOG;
 
+use FOG\Base\Event;
+
 /**
  * Host list event
  *

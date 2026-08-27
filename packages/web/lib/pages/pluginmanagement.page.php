@@ -13,6 +13,12 @@
 
 namespace FOG;
 
+use FOG\Auth\Authorization;
+use FOG\Base\FOGPage;
+use FOG\Items\Plugin;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * Plugin management page
  *

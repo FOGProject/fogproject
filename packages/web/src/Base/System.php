@@ -62,7 +62,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.4245');
+        define('FOG_VERSION', '1.6.0-beta.4253');
         define('FOG_CHANNEL', 'Beta');
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php, and it must never fall BELOW that element
@@ -108,7 +108,7 @@ class System
         // installer reads this to pick which release to download, so a given
         // FOG release ships a known set of plugins rather than whatever the
         // default branch held on the day someone installed.
-        define('FOG_PLUGINS_VERSION', 'v1.6.17');
+        define('FOG_PLUGINS_VERSION', 'v1.6.18');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already
@@ -130,11 +130,3 @@ class System
         }
     }
 }
-
-/*
- * Compatibility alias. Every consumer of this class' name -- core,
- * bundled plugins and third-party plugins alike -- keeps working
- * unqualified through this, so no call site had to be edited.
- * Supported for all of 1.6; see docs/adr/0013.
- */
-class_alias(__NAMESPACE__ . '\\System', 'System');

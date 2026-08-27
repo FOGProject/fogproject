@@ -13,6 +13,9 @@
 
 namespace FOG;
 
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
+
 /**
  * File Deleter report
  *

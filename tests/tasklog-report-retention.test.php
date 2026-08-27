@@ -38,6 +38,8 @@
  * Exit status 0 = pass or skip, 1 = fail.
  */
 
+use FOG\Base\FOGCore;
+
 require __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('tasklog-retention');

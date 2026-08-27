@@ -288,8 +288,9 @@ check(
     $checks
 );
 check(
-    'and keeps the unqualified alias every plugin ABI expects (ADR 0013)',
-    false !== strpos($class, "class_alias(__NAMESPACE__ . '\\\\RetentionRunner'"),
+    'and declares itself in the FOG\\Service namespace, with no global alias',
+    false !== strpos($class, 'namespace FOG\\Service;')
+    && false === strpos($class, 'class_alias('),
     $failures,
     $checks
 );

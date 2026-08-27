@@ -447,6 +447,47 @@ unchanged.
 
 The line this draws is worth stating: **source moves, generated files stay.**
 
+**Amended 2026-08-27 — it moved, to `commons/`, and the line above is why.**
+
+The decision it was weighed against at the time was `src/Base/Config.php`, and
+that is still the wrong answer for exactly the reason given: `*config.class.php`
+is a GLOB, it matches at any path, and a PSR-4 destination needs a hand-written
+path entry protecting `DATABASE_PASSWORD`, both FTP passwords and
+`FOG_SCHEMA_INSTALL_TOKEN`. What the original text missed is that those are not
+the only two options.
+
+`commons/config.class.php` keeps every property the "stay" argument was
+protecting -- the glob still matches with no `.gitignore` edit, the file stays
+out of the PSR-4 tree, it stays global-namespaced so `new Config()` in
+`init.php` needs no import, and `Initiator::_scanClassFiles()` walks `commons/`
+(it excludes only `service/` and `vendor/`) so the classMap keys it `config`
+exactly as before. And it puts the file beside `fogpaths.php`, the installer's
+*other* generated runtime file, which has lived in `commons/` since GH-850.
+
+What changed to make the move worth doing at all: after the PSR-4 move
+`packages/web/lib/fog/` held nothing but `index.php`. A whole directory, kept
+alive for one generated file.
+
+So the line survives with a second clause: **source moves, generated files
+stay -- and generated files live in `commons/`.**
+
+Sites this touched, none of them optional:
+
+| Where | What |
+|---|---|
+| `functions.sh` heredoc | write destination |
+| `functions.sh` `--oldcopy` sweep | the explicit KEEP is **deleted**, so a previous install's config is removed rather than preserved |
+| `functions.sh` `SVC_password` fallback | reads an installed tree, so it tries both spellings |
+| `functions.sh` post-install banner | the path printed with the schema token |
+| `bin/fog-node-key.php`, `bin/schema-manifest.php` | both read an installed tree; both try `commons/` then `lib/fog/` |
+| `tests/oldcopy-retires-moved-classes.test.sh` | inverted: pins that the old path is REMOVED and `commons/` is untouched |
+| `tests/generated-config-is-untracked.test.sh` | new, and it reads the write path out of `functions.sh` rather than naming it |
+
+The `--oldcopy` keep is the one that mattered. Left in place it preserves the
+previous install's config -- that install's database password and schema token,
+readable in the web root, while a different file is the one actually in use,
+surviving every future upgrade.
+
 ### `System` moves in its own PR, after `fog-workflows`
 
 `VERIFIED` — its path is hard-wired in **11 functional sites** in this
@@ -839,3 +880,26 @@ So the sequence is:
   `Initiator`.
 
 Doing those in any other order removes the net before the work it is holding.
+
+**Done 2026-08-27, and the last bullet was wrong.** `Initiator::
+_bridgeNamespaced()` **stays**. The 46 discovery-named classes under `lib/`
+declare a flat `namespace FOG;` and keep their own `class_alias`, because
+`FOGPageManager::loadPageClasses()` and `EventManager::load()` derive the class
+name from `basename($file)` and PSR-4 does not do discovery. Composer maps
+`FOG\` onto `src/`, so a core file's `use FOG\ReportManagement;` resolves to
+`src/ReportManagement.php`, which does not exist — the bridge is the only thing
+that answers it.
+
+Removing something else turned out to be necessary instead: the built-in
+`spl_autoload()` registered behind `Initiator::autoload()`. A refusal is only a
+`return`, so PHP carried on to that fallback, which probes include_path by
+basename — and include_path covers the plugin roots. A plugin shipping
+`class/host.class.php` answered the bare `Host` the moment core stopped
+answering it.
+
+Two more string-driven sites the "fully qualify the strings first" step missed,
+both silent and both access-adjacent: `Authorization::_scopeClassVars()`
+(`class_exists($node)`, so object scoping loses its model) and `PluginRunner`
+(`is_subclass_of($class, 'PluginTask')` — a class name in a string names the
+GLOBAL class, so every plugin task is skipped). Full account in ADR 0013's
+2026-08-27 amendment.

@@ -34,6 +34,10 @@
  * at the top level only, so a helper in tests/lib/ is invisible to it.
  */
 
+use FOG\Base\EventManager;
+use FOG\Base\FOGCore;
+use FOG\Base\HookManager;
+
 /**
  * One prepared statement's worth of canned rows.
  */
@@ -393,9 +397,33 @@ class FogTestHarness
      *
      * @return void
      */
+    /**
+     * Resolve a short core class name to its namespaced one.
+     *
+     * The reflection helpers below take a class NAME as a string, and every
+     * call site in the suite passes the short one -- setStatic('FOGBase', ...)
+     * reads as what it is in a way that FOG\Base\FOGBase does not. Core is no
+     * longer aliased into the global namespace (ADR 0013 §2), so a string has
+     * to be resolved rather than merely reflected on.
+     *
+     * FOGBase::qualify() is the same lookup production code uses -- getClass()
+     * and Route::_newEntity() both go through it -- so the harness cannot
+     * accept a name the application would reject, and a name that is not
+     * core's (a test's own fixture class, a plugin double) is returned
+     * untouched and reflects exactly as before.
+     *
+     * @param string $class the short or already-qualified class name
+     *
+     * @return string
+     */
+    private static function _resolve($class)
+    {
+        return \FOG\Base\FOGBase::qualify((string)$class);
+    }
+
     public static function setStatic($class, $property, $value)
     {
-        $p = new \ReflectionProperty($class, $property);
+        $p = new \ReflectionProperty(self::_resolve($class), $property);
         $p->setAccessible(true);
         $p->setValue(null, $value);
     }
@@ -410,7 +438,7 @@ class FogTestHarness
      */
     public static function getStatic($class, $property)
     {
-        $p = new \ReflectionProperty($class, $property);
+        $p = new \ReflectionProperty(self::_resolve($class), $property);
         $p->setAccessible(true);
         return $p->getValue();
     }
@@ -426,7 +454,7 @@ class FogTestHarness
      */
     public static function callStatic($class, $method, array $args = [])
     {
-        $m = new \ReflectionMethod($class, $method);
+        $m = new \ReflectionMethod(self::_resolve($class), $method);
         $m->setAccessible(true);
         return $m->invokeArgs(null, $args);
     }
