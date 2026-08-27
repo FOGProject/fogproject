@@ -1720,6 +1720,10 @@ msgid "Could not notify"
 msgstr "Impossible de lire le fichier tmp."
 
 #, fuzzy
+msgid "Could not open an SSH connection to"
+msgstr "Impossible de lire le fichier temporaire"
+
+#, fuzzy
 msgid "Could not open file"
 msgstr "Impossible de lire le fichier temporaire"
 
@@ -8504,6 +8508,12 @@ msgstr ""
 msgid "The manual enrolment steps below are unaffected."
 msgstr ""
 
+msgid "The node did not answer on the network"
+msgstr ""
+
+msgid "The node refused the SSH login for"
+msgstr ""
+
 msgid "The node trying to be used is currently"
 msgstr ""
 
@@ -8708,6 +8718,9 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
+msgstr ""
+
+msgid "This is a transport failure -- no credentials were sent -- so check sshd on the node."
 msgstr ""
 
 #, php-format

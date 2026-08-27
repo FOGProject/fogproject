@@ -1093,20 +1093,50 @@ class StorageNodeManagement extends FOGPage
         $pass = trim(
             filter_input(INPUT_POST, 'pass')
         );
+        // Three unrelated things can fail here -- the node can be off the
+        // network, its SSH service can refuse the handshake, or the account
+        // can be rejected -- and this used to report all three as
+        // "Unable to connect using ip, user, and/or password provided!".
+        // That names the password for a failure the password was never
+        // involved in: a handshake that never completed presented no
+        // credentials at all. Reported by Tom after an ssh2_connect -43
+        // ("failed getting banner") on a node whose password was correct
+        // and merely contained a '>', which made it look like an escaping
+        // bug. Say which stage actually failed instead.
+        $warning = '';
         $testavail = self::$FOGURLRequests->isAvailable($ip);
-        $warning = !array_shift($testavail);
-        if (!$warning) {
+        if (!array_shift($testavail)) {
+            $warning = sprintf(
+                '%s: %s',
+                _('The node did not answer on the network'),
+                $ip
+            );
+        } else {
             self::$FOGSSH->username = $user;
             self::$FOGSSH->password = $pass;
             self::$FOGSSH->host = $ip;
-            $warning = !self::$FOGSSH->connect();
-        }
-        if ($warning) {
-            $warning = _(
-                'Unable to connect using ip, user, and/or password provided!'
-            );
-        } else {
-            self::$FOGSSH->disconnect();
+            if (!self::$FOGSSH->connect()) {
+                if (self::$FOGSSH->lastFailure() === 'login') {
+                    $warning = sprintf(
+                        '%s: %s@%s',
+                        _('The node refused the SSH login for'),
+                        $user,
+                        $ip
+                    );
+                } else {
+                    $warning = sprintf(
+                        '%s: %s. %s',
+                        _('Could not open an SSH connection to'),
+                        $ip,
+                        _(
+                            'This is a transport failure -- no credentials '
+                            . 'were sent -- so check sshd on the node.'
+                        )
+                    );
+                }
+            } else {
+                self::$FOGSSH->disconnect();
+            }
         }
         $bandwidth = trim(
             filter_input(INPUT_POST, 'bandwidth')
