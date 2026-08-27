@@ -80,21 +80,11 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 
   (Class names in code are PascalCase; the files on disk are all‑lowercase.)
 
-  **Namespaced spellings work too.** `FOG\Host` resolves to the same class as
-  `Host` — the autoloader falls back to the short name and `class_alias`es the
-  result. One class entry under two names, so `instanceof`, `new`, Reflection
-  and `FOGBase::getClass()` all see a single type.
+  **That rule is about YOUR files.** Core is not found this way any more — it
+  lives under `packages/web/src/` and is reached by its fully qualified name.
+  See §7a, which is the one thing to read before writing any class.
 
-  Nothing in FOG is namespaced yet; this exists so plugin code written today
-  survives the migration when it happens. Either spelling is correct for all of
-  1.6, and bare `Host` is the one to use if your plugin must also run on 1.6
-  betas before this landed. Two limits worth knowing: only the flat `FOG\<Name>`
-  form is bridged (`FOG\Model\Host` deliberately does not resolve), and your own
-  namespace is never touched — a `Vendor\Host` in your plugin stays yours and
-  will not silently become core's `Host`.
-
-  This does **not** change the filename rule above. `FOG\Host` is found by
-  looking up `host`, so the file is still `host.class.php`.
+  The filename rule is unchanged and still applies to every file you ship.
 - **Routing.** The whole UI is driven by `?node=<x>&sub=<y>&id=<n>`. `node` maps
   to a page class (`helloworld` → `HelloWorldManagement`, matched by its
   `public $node = 'helloworld'`), and `sub` maps to a method on it
@@ -196,7 +186,7 @@ existed keeps working untouched.
 ### 4.2 Model — `class/helloworld.class.php`
 
 ```php
-class HelloWorld extends FOGController
+class HelloWorld extends \FOG\Base\FOGController
 {
     protected $databaseTable = 'helloWorld';
     protected $databaseFields = [
@@ -218,11 +208,14 @@ The manager owns table creation and **schema evolution**. This is the most
 important part to get right, so it gets its own section (§5). The shape:
 
 ```php
-class HelloWorldManager extends FOGManagerController
+class HelloWorldManager extends \FOG\Base\FOGManagerController
 {
     public $tablename = 'helloWorld';
 
-    public function createSql() { return Schema::createTable(/* … */); }
+    public function createSql()
+    {
+        return \FOG\Items\Schema::createTable(/* … */);
+    }
 
     public function schema()
     {
@@ -234,7 +227,7 @@ class HelloWorldManager extends FOGManagerController
 
     public function install()
     {
-        $res = Schema::applyUpdates($this->schema(), 0);
+        $res = \FOG\Items\Schema::applyUpdates($this->schema(), 0);
         return $res['error'] === null;
     }
 }
@@ -242,7 +235,7 @@ class HelloWorldManager extends FOGManagerController
 
 ### 4.4 Page — `pages/helloworldmanagement.page.php`
 
-The page extends `FOGPage`, declares `public $node = 'helloworld'`, and sets the
+The page extends `\FOG\Base\FOGPage`, declares `public $node = 'helloworld'`, and sets the
 list columns in its constructor:
 
 ```php
@@ -289,12 +282,12 @@ public function addPost()
     try {
         // validate, then build + save the model …
         if (!$obj->save()) { $serverFault = true; throw new Exception(_('…')); }
-        $code = HTTPResponseCodes::HTTP_CREATED;
+        $code = \FOG\Router\HTTPResponseCodes::HTTP_CREATED;
         $msg  = json_encode(['msg' => _('…'), 'title' => _('…')]);
     } catch (Exception $e) {
         $code = $serverFault
-            ? HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR   // 500 = our fault
-            : HTTPResponseCodes::HTTP_BAD_REQUEST;            // 400 = bad input
+            ? \FOG\Router\HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            : \FOG\Router\HTTPResponseCodes::HTTP_BAD_REQUEST;
         $msg  = json_encode(['error' => $e->getMessage(), 'title' => _('…')]);
     }
     http_response_code($code);
@@ -314,7 +307,7 @@ matching `*GeneralPost()` that mutates `$this->obj` before the shared `save()`.
 
 ### 4.5 Hooks — `hooks/*.hook.php`
 
-Each hook is a small class extending `Hook`, with `public $node`, that registers
+Each hook is a small class extending `\FOG\Base\Hook`, with `public $node`, that registers
 callbacks **in its constructor**. Use `registerInstalled()` — it applies the
 "only when this plugin is installed" guard for you and takes an ordered list of
 `[event, method]` pairs:
@@ -508,47 +501,124 @@ Global configuration lives in the `globalSettings` table.
 
 ## 7a. Class names and the `FOG\` namespace
 
-Since 1.6 beta, FOG's own classes are declared in the **`FOG\`** namespace —
-`FOG\Host`, `FOG\FOGController`, `FOG\Hook`. Every one of them is also aliased
-back into the global namespace, so **your plugin keeps working exactly as it is**
-(ADR 0013).
+**Read this before you write a class.** Core moved to PSR-4 under
+`packages/web/src/` and is now reachable **only by its fully qualified name**.
+Bare `FOGController`, `Host`, `Hook` no longer resolve to anything.
 
-`class MyHook extends Hook`, `new Host($id)`, `$obj instanceof Host`,
-`self::getClass('HelloWorldManager')`, `is_subclass_of($c, 'PluginTask')` — all
-of these resolve through the alias, unchanged, on every version of 1.6. The
-aliases are the 1.6 plugin ABI and are supported for the whole of 1.6.
+### The rule
 
-Two things to know:
+**Stay in the global namespace. Reference core by its FQCN, with a leading
+backslash.** That is what every one of the bundled plugins does:
 
-- **`FOG\Foo` is the forward-compatible spelling.** Prefer it in new code. Bare
-  `Foo` works for all of 1.6 and is what to write if you also support earlier
-  1.6 betas.
+```php
+class HelloWorld           extends \FOG\Base\FOGController {}
+class HelloWorldManager    extends \FOG\Base\FOGManagerController {}
+class HelloWorldManagement extends \FOG\Base\FOGPage {}
+class AddHelloWorldMenuItem extends \FOG\Base\Hook {}
+class HelloWorldHeartbeat  extends \FOG\Base\PluginTask {}
+```
 
-- **⚠️ `get_class($this)` now returns `FOG\Foo`, not `Foo`.** If your plugin
-  *produces* a class name and then uses it as data — compares it to a literal,
-  builds a database column name or an array key from it, puts it in a filename
-  or a log line — it must be updated. Use `FOGBase::shortName()`:
+The names are **bucketed**, matching the directory they live in — there is no
+flat `FOG\Host`. The ones a plugin actually reaches for:
 
-  ```php
-  // Before: 'FOG\HelloWorld' on 1.6, and the comparison silently fails.
-  if (get_class($this) === 'HelloWorld') { /* ... */ }
+| Bare name you used to write | Now |
+|---|---|
+| `FOGController` | `\FOG\Base\FOGController` |
+| `FOGManagerController` | `\FOG\Base\FOGManagerController` |
+| `FOGPage` | `\FOG\Base\FOGPage` |
+| `Hook` / `Event` | `\FOG\Base\Hook` / `\FOG\Base\Event` |
+| `PluginTask` | `\FOG\Base\PluginTask` |
+| `FOGBase` / `FOGCore` | `\FOG\Base\FOGBase` / `\FOG\Base\FOGCore` |
+| `Route` | `\FOG\Router\Route` |
+| `HTTPResponseCodes` | `\FOG\Router\HTTPResponseCodes` |
+| `Schema` | `\FOG\Items\Schema` |
+| `Authorization` | `\FOG\Auth\Authorization` |
+| `Host`, `Image`, `User`, `TaskType`, … | `\FOG\Items\<Name>` |
+| `HostManager`, `TaskTypeManager`, … | `\FOG\Managers\<Name>Manager` |
 
-  // After: 'HelloWorld' on every version, namespaced or not.
-  if (self::shortName($this) === 'HelloWorld') { /* ... */ }
-  ```
+A `use` import at the top of a global-namespace file works too, and is the
+better shape if you name a class many times:
 
-  `shortName()` accepts an object or a class-name string, strips any namespace
-  prefix, and is a no-op on a name that has none — so the same code is correct
-  before and after.
+```php
+use FOG\Base\FOGController;
 
-  This is the **only** source-level change 1.6 asks of a plugin, and it affects
-  only plugins that *produce* a class name. Consuming one — which is what nearly
-  all plugin code does — needs no change at all.
+class HelloWorld extends FOGController {}
+```
 
-**Deprecation window.** The global aliases are supported for all of 1.6. The
-earliest they could be reviewed for removal is 1.7, with at least one minor
-release of notice before it happens. Adopting `FOG\` names now costs nothing and
-removes the question later.
+Both are correct. The FQCN form is what the bundled plugins use, so copying one
+of them gets you the house style.
+
+### ⚠️ If you declare a namespace, you must alias yourself back
+
+The autoloader finds a **page, hook, event, report or task** by lowercasing the
+filename and expecting a class of that exact name. Those files are discovered,
+not imported — nothing ever writes their name in a `use` statement. So if you
+put one in your own namespace, the class FOG looks for does not exist and your
+page silently never registers.
+
+If you want a namespace, end each such file the way core's own `lib/pages/`
+files do:
+
+```php
+namespace Vendor\HelloWorld;
+
+class HelloWorldManagement extends \FOG\Base\FOGPage { /* ... */ }
+
+class_alias(__NAMESPACE__ . '\\HelloWorldManagement', 'HelloWorldManagement');
+```
+
+Model and manager classes are reached through `FOGBase::getClass('HelloWorld')`,
+which resolves by short name, so they have the same requirement.
+
+**The simplest correct answer is not to declare a namespace at all**, which is
+why none of the bundled plugins do.
+
+### What the failure looks like
+
+A bare core name does not fail quietly. `Initiator::autoload()` recognises it
+and writes one line before giving up:
+
+```
+FOG autoloader: "FOGController" is a core class and core is no longer aliased
+into the global namespace. Use FOG\Base\FOGController -- either as a `use`
+import or fully qualified. See ADR 0013.
+```
+
+and the request then dies with `Class "FOGController" not found`. The flat
+spelling gets its own line:
+
+```
+FOG autoloader: "FOG\Host" is not a class. Core is namespaced per bucket
+under src/; use FOG\Items\Host. See ADR 0013.
+```
+
+If a plugin written against an earlier 1.6 beta has stopped loading, that log
+line is why, and this section is the fix.
+
+### `get_class($this)` returns a namespaced name
+
+Unchanged advice, and still the one thing that bites plugins which *produce* a
+class name rather than consume one — comparing it to a literal, building a
+column name or an array key from it, putting it in a filename or a log line:
+
+```php
+// Wrong: 'FOG\Items\Host', and the comparison silently fails.
+if (get_class($obj) === 'Host') { /* ... */ }
+
+// Right: 'Host', namespaced or not.
+if (self::shortName($obj) === 'Host') { /* ... */ }
+```
+
+`FOGBase::shortName()` takes an object or a class-name string, strips any
+namespace prefix, and is a no-op on a name that has none.
+
+### History
+
+ADR 0013 originally kept a `class_alias()` in every core file re-exporting it
+into the global namespace, and called that alias the 1.6 plugin ABI. **All 202
+were deleted before 1.6.0 shipped and the ADR is amended accordingly** — there
+was no released 1.6 for the promise to have been made to, and carrying the shim
+through a major version bought compatibility with nothing.
 
 ## 7b. Composer dependencies
 
@@ -900,6 +970,14 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
 
 - **`CREATE TABLE IF NOT EXISTS` never alters a live table.** Add columns via a
   new `schema()` step, not by editing `createSql()`.
+- **Core is FQCN-only.** `extends FOGController` is a fatal error, not a
+  deprecation — see §7a. The autoloader logs one line naming the class and the
+  name to use before the request dies, so check the error log first.
+- **A namespace of your own means aliasing yourself back.** Pages, hooks,
+  events, reports and tasks are found by filename and must declare exactly that
+  class name in the global namespace. Put one in a namespace without a
+  `class_alias()` and it never registers — no error, the feature simply is not
+  there. §7a has the shape. Not declaring a namespace avoids the whole question.
 - **Filename = `strtolower(ClassName)` + suffix.** A mismatch means the class
   won't autoload. Silently, for most classes — but not for your manager:
   install refuses outright if `class/<name>manager.class.php` exists and does
