@@ -30,15 +30,10 @@ define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
 try {
-    // asValue(): names() has no wrapper, and its payload is a bare list with
-    // no envelope to unwrap. What this buys is that a router failure raises
-    // into the catch below rather than reaching breakHead()'s exit. See
-    // ADR 0011.
-    $groupnames = Route::asValue(
-        function () {
-            Route::names('group');
-        }
-    );
+    // getNames(): names() answers with its rows under a `data` envelope, and
+    // this wants the rows. It also raises a router failure into the catch
+    // below rather than reaching breakHead()'s exit. See ADR 0011.
+    $groupnames = Route::getNames('group');
     if (count((array)$groupnames) < 1) {
         throw new \Exception(
             _('There are no groups on this server')

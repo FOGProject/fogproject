@@ -4715,15 +4715,11 @@ class HostManagement extends FOGPage
                 ]
             ));
         }
-        // asValue(): names() has no wrapper of its own, and its payload is a
-        // bare list with nothing to unwrap.
-        $printerNames = Route::asValue(
-            function () use ($printersAssigned) {
-                Route::names(
-                    'printer',
-                    ['id' => $printersAssigned]
-                );
-            }
+        // getNames(): names() answers with its rows under a `data`
+        // envelope, and this wants the rows.
+        $printerNames = Route::getNames(
+            'printer',
+            ['id' => $printersAssigned]
         );
         foreach ($printerNames as $printer) {
             $printers[$printer->id] = $printer->name;

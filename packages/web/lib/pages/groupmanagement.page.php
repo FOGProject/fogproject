@@ -2839,14 +2839,10 @@ class GroupManagement extends FOGPage
                 ]
             ));
         }
-        // asValue(): names() has no wrapper -- its payload is a bare list
-        // with no envelope to unwrap -- so this is here for the other half,
-        // a failure raising rather than ending the page.
-        $printerNames = Route::asValue(
-            function () {
-                Route::names('printer');
-            }
-        );
+        // getNames(): names() answers with its rows under a `data`
+        // envelope, and this wants the rows. It raises on failure rather
+        // than ending the page, as asValue() did.
+        $printerNames = Route::getNames('printer');
         foreach ($printerNames as &$printer) {
             $printers[$printer->id] = $printer->name;
             unset($printer);

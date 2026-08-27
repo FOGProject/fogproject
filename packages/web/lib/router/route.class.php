@@ -4903,7 +4903,9 @@ class Route extends FOGBase
                         $classman = $class->getManager();
                         $find = self::getsearchbody($classname);
                         $find['stateID'] = $states;
-                        $ids = self::ids($classname, $find);
+                        // getIds(), not ids(): ids() sets Route::$data and
+                        // returns void, so this handed cancel() a null.
+                        $ids = self::getIds($classname, $find);
                         // A search that matches nothing stays a 200. This arm
                         // is a bulk filter, and matching no rows is a
                         // legitimate result for one; the 409s in this method
@@ -6352,7 +6354,10 @@ class Route extends FOGBase
                         'Route::ids: refusing a setting filter on value.'
                         . ' Returning no rows.'
                     );
-                    self::$data = [];
+                    // The same `data` envelope the success path emits, so
+                    // ids() has exactly one output shape and getIds() has
+                    // exactly one thing to unwrap.
+                    self::$data = ['data' => []];
                     return;
                 }
                 self::sendResponse(
@@ -6444,7 +6449,10 @@ class Route extends FOGBase
                             implode(', ', $blocked)
                         )
                     );
-                    self::$data = [];
+                    // The same `data` envelope the success path emits, so
+                    // ids() has exactly one output shape and getIds() has
+                    // exactly one thing to unwrap.
+                    self::$data = ['data' => []];
                     return;
                 }
                 self::sendResponse(
@@ -6801,6 +6809,15 @@ class Route extends FOGBase
      * json_encode/json_decode round-trip getData() incurs, for the
      * common `Route::ids(...); json_decode(Route::getData())` idiom.
      *
+     * Unwraps the `data` envelope ids() now emits, exactly as getList()
+     * unwraps listem()'s. The envelope is the WIRE format -- it exists so a
+     * code generator can name the response schema -- and an internal caller
+     * wants the rows, not the shape they are posted in. Without this every
+     * one of the ~220 call sites walks a one-element array whose single
+     * member is the list it asked for: no error, just null for every field.
+     * That is the failure getRows() below was written to end, and it has now
+     * shipped four times.
+     *
      * @param string $class      The class to get list of.
      * @param array  $whereItems The items to filter.
      * @param mixed  $getField   The field to get, or an array of fields, in
@@ -6821,7 +6838,68 @@ class Route extends FOGBase
         self::ids($class, $whereItems, $getField, $operator, $orderby);
         $data = self::$data;
         self::$data = '';
+        return self::unwrapData($data);
+    }
+    /**
+     * Returns the matching names directly as a PHP object list.
+     *
+     * The names() counterpart of getIds(), and it exists for the same reason
+     * getIds() does: names() answers on the wire with a `data` envelope, and
+     * every internal caller wants the rows. Nine call sites used to reach
+     * names() through asValue() with a comment saying there was no envelope
+     * to unwrap; that stopped being true the moment the wire format changed,
+     * and one wrapper is what stops it silently becoming untrue again.
+     *
+     * Rows come back as stdClass, as asValue() gave them, so the callers'
+     * `$row->id` / `$row->name` reads are unchanged.
+     *
+     * Failures rethrow rather than ending the response; see asValue().
+     *
+     * @param string $class      The class to get the names of.
+     * @param array  $whereItems The items to filter.
+     * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    How to order the returned values.
+     *
+     * @return array
+     */
+    public static function getNames(
+        $class,
+        $whereItems = [],
+        $operator = 'AND',
+        $orderby = 'name'
+    ) {
+        $data = self::asValue(
+            function () use ($class, $whereItems, $operator, $orderby) {
+                self::names($class, $whereItems, $operator, $orderby);
+            }
+        );
+        if (is_object($data) && isset($data->data)) {
+            $data = $data->data;
+        }
         return is_array($data) ? $data : [];
+    }
+    /**
+     * Strips the `data` envelope off a route payload.
+     *
+     * Tolerates both shapes deliberately. The internal wrappers are the only
+     * callers and they run against whatever the route in front of them
+     * emits, so a route that has not been given an envelope -- or a plugin
+     * still shipping the old shape -- keeps working rather than returning a
+     * one-element list nobody notices.
+     *
+     * @param mixed $data The payload as the route left it.
+     *
+     * @return array
+     */
+    private static function unwrapData($data)
+    {
+        if (!is_array($data)) {
+            return [];
+        }
+        if (array_key_exists('data', $data)) {
+            return is_array($data['data']) ? $data['data'] : [];
+        }
+        return $data;
     }
     /**
      * Returns a list's rows directly as a PHP array.
@@ -7029,8 +7107,11 @@ class Route extends FOGBase
                 file_get_contents('php://input')
             );
 
-            self::ids($classname, $whereItems);
-            $itemIDs = json_decode(Route::getData(), true);
+            // getIds(), not ids()+getData(): the payload carries a `data`
+            // envelope now, and decoding it whole leaves $itemIDs holding
+            // the envelope rather than the ids -- which every cascade below
+            // then uses as a WHERE value.
+            $itemIDs = self::getIds($classname, $whereItems);
             // Lockout guard. Only at the outermost call: the cascade below
             // re-enters deletemass() for each dependent table, and those
             // intermediate states are part of one operation that has
