@@ -38,22 +38,39 @@ from the start.
 
 ### Sync Scripts
 
-There are two scripts that sync between the **git repo** (`~/fogproject/`) and the **live web server** (`/var/www/fog/` or `/var/www/html/fog-1.6/`).
+Two scripts sync between the **git repo** (`~/fogproject/`) and the **live web
+server** (`/var/www/fog/`, symlinked to `/var/www/html/fog-1.6/`). Both live in
+[`FOGProject/fog-community-scripts`](https://github.com/FOGProject/fog-community-scripts);
+neither is part of this repo, and **what they are installed as locally is up to
+whoever installed them** — do not assume a path. `command -v` first, and check
+the machine's own notes.
 
-**`/usr/local/bin/copybacktrunk.sh`** — Git → Web (deploy for live testing)
+**`CopyBackTrunk/copybacktrunk.sh`** — Git → Web (deploy for live testing)
 - rsync's `~/fogproject/packages/web/` → `/var/www/html/fog-{ver}/`
-- Copies config, sets symlinks, permissions, and regenerates SSL cert
+- Copies the generated config into place, sets symlinks and permissions, and
+  regenerates the SSL cert
 - Use this after editing in the git repo to deploy and test changes live
 - Usage: `copybacktrunk.sh "" "" "1.6"`
 
-**`/usr/local/bin/copytosvn.sh`** — Web → Git (pull live edits back)
-- rsync's `/var/www/fog/` → `~/fogproject/packages/web/`
+**`CopyToSVN/copytosvn.sh`** — Web → Git (pull live edits back)
+- rsync's the webroot → `~/fogproject/packages/web/`
 - Use this ONLY after editing files directly on the live web server
-- Also updates language `.pot`/`.po` files via `xgettext`/`msgmerge`
-- Strips generated/runtime files (`config.class.php`, cache, ssl certs, logs)
-- **Do NOT run this after `copybacktrunk.sh`** — it will overwrite git with the web copy
+- Strips generated and runtime files: the config, cache, SSL certs, the
+  published CA, compiled `.mo` files, and the Secure Boot signed artifacts
+- **Do NOT run this after `copybacktrunk.sh`** — it will overwrite git with the
+  web copy
+- It does **not** touch the `.pot`/`.po` files, run php-cs-fixer or rewrite
+  `FOG_VERSION` any more. All three moved to `.githooks/pre-commit`, which does
+  them scoped to the files staged for that one commit instead of across the
+  whole live webroot. A doc or a memory still saying otherwise is describing a
+  copy from before 2026-08.
 
-The web root the user edits live is `/var/www/fog/` (symlinked to `/var/www/html/fog-1.6/`).
+**Neither script may move a Secure Boot signed artifact in either direction.**
+`installfog.sh` countersigns the deployed kernels and `refind*.efi` with the
+server's own key, so pulling one into the checkout publishes that key's output
+as though it were the upstream source, and deploying the repo copy over a signed
+one strips the countersignature and stops Secure Boot clients booting. Both
+scripts exclude them; `test-signed-artifacts-excluded.sh` in that repo pins it.
 
 ### Pre-commit hook (IMPORTANT — explains "files I didn't touch" in commits)
 
