@@ -1301,6 +1301,20 @@ class StorageNodeManagement extends FOGPage
             _('Image Path') => $this->obj->get('path'),
             _('Max Clients') => (string)$this->obj->get('maxClients')
         ];
+        // Every note here mirrors a General-tab control, so the card can track
+        // the form instead of going stale until the next page load. Keys must
+        // match $notes exactly.
+        $this->noteSources = [
+            _('Storage Node') => '#storagenode',
+            _('Storage Group') => '#storagegroupID',
+            _('Role') => [
+                'sel' => '#isMaster',
+                'on' => _('Master'),
+                'off' => _('Member')
+            ],
+            _('Image Path') => '#path',
+            _('Max Clients') => '#maxClients'
+        ];
         $tabData = [];
 
         // General

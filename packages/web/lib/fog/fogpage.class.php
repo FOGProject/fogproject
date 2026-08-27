@@ -71,6 +71,19 @@ abstract class FOGPage extends FOGBase
      */
     public $notes = [];
     /**
+     * Which form control, if any, each info-card note mirrors.
+     *
+     * Keyed by the same label as $notes. A value is either a CSS selector for
+     * the control, or ['sel' => selector, 'on' => label, 'off' => label] for a
+     * checkbox. Purely presentational: renderInfoCard() emits them as data-
+     * attributes and the shared JS repaints that note as the control changes,
+     * so the card stops disagreeing with the form the moment you edit a field.
+     * A note with no entry here simply stays at its server-rendered value.
+     *
+     * @var array
+     */
+    public $noteSources = [];
+    /**
      * Table header data
      *
      * @var array
@@ -4794,7 +4807,7 @@ abstract class FOGPage extends FOGBase
         );
         foreach ($items as $id => &$item) {
             printf(
-                '<option value="%s"%s>%s</option>',
+                '<option value="%s"%s data-label="%s">%s</option>',
                 (
                     $useidsel ?
                     \Initiator::e($id) :
@@ -4811,6 +4824,9 @@ abstract class FOGPage extends FOGBase
                         ''
                     )
                 ),
+                // Bare label, without the " - (id)" the picker adds below,
+                // for anything echoing the choice rather than offering it.
+                \Initiator::e($item),
                 (
                     $addidtodisplay ?
                     \Initiator::e($item) . ' - (' . \Initiator::e($id) . ')' :
