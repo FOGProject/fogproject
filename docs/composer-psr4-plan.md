@@ -684,9 +684,42 @@ both in `~/scripts/background_scripts/`, neither of which writes to
   `Route::$validClasses` and every plugin `extends Host` ask for the bare
   name, so the ordering rule is protecting the path that is actually used.
 
-Still outstanding, because it needs a deploy: the plugin arriving through the
-**UI installer** rather than being placed on disk, which is the half that
-exercises the class-file-list invalidation on install (ADR 0009).
+**Run again on the DEPLOYED tree** (`1.6.0-beta.4200`), which is the only
+place the bundled plugin root exists — `lib/plugins` is gitignored staging in
+the checkout, filled by `bin/fetch-plugins.sh`.
+
+- All 10 UI pages and all 7 grids render and return rows; every REST route
+  answers 200 (`/fog/<route>`, not `/fog/api/<route>` — the `api/index.php`
+  script is what the vhost rewrites *to*, and a first pass reading 501 was
+  the probe using the wrong path, not a regression).
+- All 15 bundled plugins are discovered under both roots and all 63 of their
+  class files resolve (`psr4_live_plugin_discovery.php`).
+- The six that are installed and active — ldap, location, ntfy, oidc, ou,
+  windowskey — each render their page, appear in the sidebar (their menu hook
+  fired) and answer on their own REST class (their `API_VALID_CLASSES` hook
+  fired). Three separate failure modes, checked separately.
+
+**The gate ADR 0009 names, run end to end.** `helloworld` was bundled but not
+installed. Before: its page 308s, no sidebar entry, `/helloworld` 501. After
+activate + install through the UI's own actions, **on the very next request,
+same session, no restart and no TTL wait**: page 200, sidebar entry present,
+`/helloworld` 200. That is `installdb()` running the schema, the class-file
+list being invalidated, the plugin's classes autoloading and both its hooks
+registering — the consequence note in ADR 0009 that says a freshly installed
+plugin otherwise stays invisible for the length of the TTL while everything
+downstream silently no-ops and reports success. The lab was put back
+afterwards (`psr4_revert_helloworld.sh`); the `helloWorld` table stays,
+because uninstall is forward-only by design.
+
+Still outstanding: **uploading an archive** through the UI into
+`/opt/fog/plugins`, as opposed to activating one already on disk. That needs
+ADR 0009's root half — `bin/fog-plugin-uploads.sh enable`, which makes the
+external root web-writable — and it is a deliberate root act the application
+cannot grant itself. Everything the PSR-4 move could plausibly break in that
+path (external-root discovery, autoloading from it, core winning a name
+collision against it) is covered above and by `psr4_plugin_shadow_probe.php`;
+what is left untested is the archive handling itself, which the move does not
+touch.
 
 The gate, in order of what is most likely to break quietly:
 
