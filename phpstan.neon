@@ -1,0 +1,87 @@
+# PHPStan configuration for fogproject.
+#
+# The gate is on NEW errors only. Everything the tree reports today is captured
+# in phpstan-baseline.neon, so this fails a pull request when it ADDS a problem
+# and stays quiet about the ones already there. Regenerate the baseline with:
+#
+#   composer install                # root, not packages/web -- see composer.json
+#   vendor/bin/phpstan analyse --memory-limit=2G --generate-baseline
+#
+# PHPStan is a ROOT dev dependency on purpose. packages/web/vendor is committed
+# and installed --no-dev, so putting a static analyser in it would ship one to
+# every FOG server. The repo root is never deployed -- copybacktrunk.sh rsyncs
+# packages/web/ and the installer does not read the root -- so this arrangement
+# makes that impossible by construction rather than by remembering a flag.
+#
+# The version is pinned EXACTLY (2.2.9, not ^2.2) with composer.lock committed.
+# PHPStan adds rules in minor releases, so a floating constraint would turn an
+# unrelated pull request red with findings nobody introduced.
+
+parameters:
+    level: 5
+
+    # Without this, FIXING a baselined error fails the build: PHPStan reports
+    # `ignore.unmatched` for the baseline entry that no longer matches, which is
+    # the exact opposite of "the number can only go down". Verified 2026-08-27 by
+    # deleting the duplicate array key in src/Items/Image.php -- exit 1 with the
+    # default, exit 0 with this.
+    #
+    # The cost is that an entry for an already-fixed error lingers silently, so
+    # the baseline drifts above reality until it is regenerated. That is the
+    # right trade: a stale-but-passing baseline beats a build that punishes fixes.
+    reportUnmatchedIgnoredErrors: false
+
+    # A RANGE, not a single target, because FOG has to run on all of it: the
+    # floor is 7.4 (packages/web/composer.json pins platform.php, commons/init.php
+    # documents it) and servers run 8.1-8.3. PHPStan reports anything that is a
+    # problem on ANY version in the range.
+    #
+    # Neither endpoint alone is right, and the difference is not cosmetic:
+    #   - only an 8.x target sees the ftp_*() resource-to-object change (PHP 8.1),
+    #     which is eight real findings in src/Net/FOGFTP.php on every running server
+    #   - only a 7.4 target reports ini_set() with a non-string and spl_object_id()
+    #     on a curl resource, both of which PHP 8 made correct
+    phpVersion:
+        min: 70400
+        max: 80300
+
+    paths:
+        - packages/web/src
+        - packages/web/lib
+        - packages/web/commons
+        - packages/web/api
+        - packages/web/management
+        - packages/web/client
+        - packages/web/maintenance
+        - packages/web/status
+        - packages/web/index.php
+        - packages/service
+        - bin
+
+    # tests/ is deliberately NOT analysed yet. Its 144 files reach core by bare
+    # global name and build FOG objects without the runtime bootstrap, so at
+    # level 1 they produce 198 errors of which 104 are class.notFound and 59 are
+    # arguments.count -- all one problem ("PHPStan is not booting FOG") wearing
+    # 163 different hats. Baselining that would make the baseline actively
+    # misleading. Bring tests/ in as a second pass with its own config.
+
+    excludePaths:
+        analyseAndScan:
+            # The shipped application's dependencies. Analysing them reports
+            # other people's code and would swamp the baseline.
+            - packages/web/vendor
+            # Gitignored staging directory that bin/fetch-plugins.sh fills from
+            # the fog-plugins release (ADR 0009). A fresh clone does not have it,
+            # so it MUST be marked optional with (?) or PHPStan refuses to start
+            # rather than skipping a missing exclude.
+            - packages/web/lib/plugins (?)
+
+    bootstrapFiles:
+        # Gives PHPStan the vendored classes (firebase/php-jwt, ifsnop/mysqldump)
+        # without it having to analyse them.
+        - packages/web/vendor/autoload.php
+        # The constants FOG defines at runtime -- see the file's own header.
+        - build/phpstan/constants.stub.php
+
+includes:
+    - phpstan-baseline.neon

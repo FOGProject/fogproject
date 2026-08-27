@@ -1,0 +1,17 @@
+{
+    "name": "fogproject/fogproject-dev",
+    "description": "Development tooling for the FOG Project repository. NOT the application -- see packages/web/composer.json for what actually ships.",
+    "type": "project",
+    "license": "GPL-3.0-only",
+    "homepage": "https://fogproject.org",
+    "support": {
+        "issues": "https://github.com/FOGProject/fogproject/issues"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "2.2.9"
+    },
+    "config": {
+        "optimize-autoloader": false,
+        "sort-packages": true
+    }
+}

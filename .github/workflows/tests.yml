@@ -163,3 +163,58 @@ jobs:
     if: ${{ !cancelled() }}
 
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-tests.yml@main
+
+  # Static analysis. Fails only on errors this pull request ADDS -- everything
+  # the tree reported when it was introduced is captured in
+  # phpstan-baseline.neon, so the count can only go down. See phpstan.neon for
+  # why the level, the phpVersion range and reportUnmatchedIgnoredErrors are
+  # what they are.
+  #
+  # NOT a called workflow, unlike its two siblings. fog-workflows is shared with
+  # fog-plugins, and this gate is fogproject-specific: the baseline, the paths
+  # and the constants stub are all properties of this tree. Keeping it local
+  # means adding it does not touch a workflow another repository consumes.
+  #
+  # Runs alongside `suite` rather than gating it -- same `needs`/`if` pair, for
+  # the same reason. It has to see the tree regen will actually leave behind,
+  # since regen runs php-cs-fixer over this pull request's own files.
+  #
+  # NOT YET A REQUIRED CONTEXT. The ruleset "working-1.6 pull request gate"
+  # requires seven `fogproject / ...` checks and this is not one of them, so a
+  # failure here blocks nothing. That is deliberate for the first few pull
+  # requests. Promoting it means adding `Tests / phpstan` to the ruleset -- and
+  # note the context name is `Tests / <job name>` here, not `fogproject / ...`,
+  # because this job is declared inline rather than called.
+  phpstan:
+    name: phpstan
+    needs: regen
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+
+    # Read-only. This job never writes to the repository -- unlike regen, which
+    # is the only thing on this path that pushes.
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # 8.3 is what RUNS the analyser; it is unrelated to the 7.4-8.3 range
+      # phpstan.neon analyses AGAINST. PHPStan reasons about the target version
+      # from configuration, not from the interpreter it happens to be under.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      # The ROOT composer.json, not packages/web's. It holds phpstan as the only
+      # dev dependency, pinned exactly, and installs to a root vendor/ that is
+      # gitignored and never deployed.
+      - name: Install the pinned analyser
+        run: composer install --no-interaction --no-progress
+
+      # 2G because the 128M default crashes a parallel worker and reports it as
+      # "Child process error: PHPStan process crashed", which reads like a tool
+      # fault rather than a configuration one.
+      - name: Analyse
+        run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=github
