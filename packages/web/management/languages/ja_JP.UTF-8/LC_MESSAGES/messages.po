@@ -1664,6 +1664,10 @@ msgstr "スナップインファイルを読み取れませんでした"
 msgid "Could not read file from tmp folder."
 msgstr "一時ファイルを読み取れませんでした。"
 
+#, fuzzy
+msgid "Could not read local file"
+msgstr "スナップインファイルを読み取れませんでした"
+
 msgid "Could not read snapin file"
 msgstr "スナップインファイルを読み取れませんでした"
 

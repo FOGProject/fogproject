@@ -137,7 +137,7 @@
             ]
         });
 
-        // No shown.bs.tab handler of its own: fogBindScrollerAutosize() in
+        // No shown.bs.tab handler of its own: fogBindTableAutosize() in
         // fog.common.js already re-measures every Scroller table one macrotask
         // after a tab is shown, which is what every other in-tab grid here
         // relies on. This card originally passed scroller:false and adjusted

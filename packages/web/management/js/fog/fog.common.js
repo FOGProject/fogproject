@@ -2508,7 +2508,43 @@ function fogSizeScroller(dt) {
   // until the columns are adjusted once it becomes visible.
   dt.columns.adjust();
 }
-function fogSizeAllScrollers() {
+/**
+ * Re-sync every initialized table to the width (and, for Scroller tables, the
+ * height) it now has.
+ *
+ * A scrolling table is TWO tables: DataTables puts the header in its own
+ * .dt-scroll-head table and pins that table's width in a style attribute, while
+ * the body table is width:100%. Nothing keeps the two in step by itself, so any
+ * change to the container's width leaves the header at its old pixel width and
+ * the body at the new one -- and because makeColumnsResizable() has switched
+ * both to table-layout:fixed over a shared set of colgroup widths, the body's
+ * surplus is shared out across its columns while the header's is not. The
+ * result is a header whose column boundaries no longer line up with the rows
+ * beneath them. columns.adjust() re-measures and rewrites both.
+ */
+/**
+ * Hand a table's columns back to the browser, so the next columns.adjust() is a
+ * real re-measure rather than a re-run of the numbers it already had.
+ *
+ * makeColumnsResizable() writes explicit px widths into every colgroup and puts
+ * table-layout:fixed over the top. Those widths are a floor: a table whose cols
+ * add up to 1796px cannot be measured at 1546px, so adjusting into a NARROWER
+ * container leaves the table its old width and it simply overflows. (Widening
+ * appears to work only because the body table is width:100% and grows anyway --
+ * which is the very mismatch this whole path exists to fix.)
+ *
+ * Nothing is lost by clearing them. The hand-set layout is remembered as
+ * per-column SHARES, and the column-sizing event that columns.adjust() fires
+ * runs makeColumnsResizable() again, which re-seeds against the new width and
+ * re-applies those shares -- so a dragged column keeps its proportion of the
+ * table across the resize.
+ */
+function fogReleaseColWidths(node) {
+  fogTableParts(node).tables
+    .removeClass('fog-table-fixed')
+    .find('colgroup > col').css('width', '');
+}
+function fogAdjustAllTables() {
   if (!$.fn.dataTable || !$.fn.dataTable.isDataTable) {
     return;
   }
@@ -2517,28 +2553,67 @@ function fogSizeAllScrollers() {
   // bundled 2.x/3.x build ("tables(...).every is not a function") and silently
   // aborted the entire post-show resize path on every shown.bs.tab.
   $('table.dataTable').each(function() {
-    if ($.fn.dataTable.isDataTable(this)) {
-      fogSizeScroller($(this).DataTable());
+    if (!$.fn.dataTable.isDataTable(this)) {
+      return;
     }
+    var dt = $(this).DataTable(),
+      init = (dt && typeof dt.init === 'function') ? dt.init() : null;
+    // Null init: a node the table.dataTable selector matches but that isn't a
+    // table of its own (the scrollY cloned header). Nothing to size.
+    if (!init) {
+      return;
+    }
+    if (init.scroller) {
+      // Height as well as width, and it does its own visibility check -- so
+      // only release the widths once we know it will act on them.
+      if ($(this).is(':visible')) {
+        fogReleaseColWidths(this);
+      }
+      fogSizeScroller(dt);
+      return;
+    }
+    // A paged table has no scroll body to measure, but it still needs its
+    // columns re-adjusted -- and one sitting in a hidden tab measures zero, so
+    // adjusting it there would write the zero widths in as fact.
+    if (!$(this).is(':visible')) {
+      return;
+    }
+    fogReleaseColWidths(this);
+    dt.columns.adjust();
   });
 }
-function fogBindScrollerAutosize() {
+function fogBindTableAutosize() {
   if ($.fn.dataTable.__fogScrollerBound) {
-    return; // window/tab handlers only need binding once per page
+    return; // window/tab/observer handlers only need binding once per page
   }
   $.fn.dataTable.__fogScrollerBound = true;
   var debounce;
-  $(window).on('resize.fogScroller', function() {
+  function adjustSoon() {
     clearTimeout(debounce);
-    debounce = setTimeout(fogSizeAllScrollers, 150);
-  });
+    debounce = setTimeout(fogAdjustAllTables, 150);
+  }
+  $(window).on('resize.fogScroller', adjustSoon);
+  // The sidebar is the other thing that changes a table's width, and it does it
+  // without a window resize: AdminLTE's push-menu toggle only adds/removes
+  // body.sidebar-collapse, and the content area follows via a CSS transition.
+  // So watch the content box itself rather than the window -- that covers the
+  // toggle, AL4's own responsive collapse at the sidebar breakpoint, and any
+  // other layout change that moves the edge, without this code having to know
+  // about any of them. Observing the container (whose width comes from the
+  // layout, not from what we write inside it) plus the debounce above means an
+  // adjust cannot feed itself: the transition's intermediate widths coalesce
+  // into one pass at the settled width.
+  var main = document.querySelector('.app-main');
+  if (main && typeof ResizeObserver === 'function') {
+    new ResizeObserver(adjustSoon).observe(main);
+  }
   // In-tab tables (edit pages) measure as zero-height while hidden; size them
   // once their tab is shown. Defer a tick: inside shown.bs.tab the revealed
   // tab's layout isn't final, so a synchronous columns.adjust() sizes against
   // a stale (~zero) width and leaves the header/body split misaligned until
   // the next redraw. One macrotask later the layout is settled.
   $(document).on('shown.bs.tab.fogScroller', function () {
-    setTimeout(fogSizeAllScrollers, 0);
+    setTimeout(fogAdjustAllTables, 0);
   });
 }
 // DataTables' default errMode alerts "DataTables warning: table id=X - Ajax
@@ -2604,7 +2679,7 @@ $.fn.registerTable = function(onSelect, opts) {
   // init, where Scroller's scrollY measures a display:none table as zero width
   // and the split header/body columns start misaligned. They still use infinite
   // scroll for UI consistency with the top-level lists: the shown.bs.tab handler
-  // in fogBindScrollerAutosize() re-measures (scroller.measure) and re-syncs the
+  // in fogBindTableAutosize() re-measures (scroller.measure) and re-syncs the
   // columns (columns.adjust) once the tab is visible, which is the first moment
   // the real widths exist. Selection/association is unaffected by deferRender —
   // checkbox toggles POST per-row immediately ($.checkItemUpdate) and bulk
@@ -2719,10 +2794,15 @@ $.fn.registerTable = function(onSelect, opts) {
     }, 0);
   }
 
+  // Keep every table sized to its container on resize, sidebar toggle and tab
+  // show. Bound for paged tables too, not just Scroller ones: the header/body
+  // split that goes out of alignment is created by scrollX/scrollY, but a paged
+  // table still carries the fixed colgroup widths makeColumnsResizable() wrote
+  // at the old container width and needs the same re-adjust.
+  fogBindTableAutosize();
   if (infiniteScroll) {
-    // Size the scroll body to fill the available height now (deferred so the
-    // table is laid out in the DOM first) and keep it sized on resize/tab show.
-    fogBindScrollerAutosize();
+    // Size the scroll body to fill the available height now, deferred so the
+    // table is laid out in the DOM first.
     setTimeout(function() { fogSizeScroller(table); }, 0);
   }
 

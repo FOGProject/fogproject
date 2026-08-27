@@ -1485,6 +1485,9 @@ msgstr ""
 msgid "Could not read file from tmp folder."
 msgstr ""
 
+msgid "Could not read local file"
+msgstr ""
+
 msgid "Could not read snapin file"
 msgstr ""
 

@@ -1735,6 +1735,10 @@ msgid "Could not read file from tmp folder."
 msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
+msgid "Could not read local file"
+msgstr "Temporäre Datei konnte nicht gelesen werden."
+
+#, fuzzy
 msgid "Could not read snapin file"
 msgstr "Snapin-Datei konnte nicht gelesen werden."
 

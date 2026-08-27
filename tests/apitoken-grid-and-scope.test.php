@@ -452,16 +452,19 @@ foreach ([
 }
 // It inits inside a hidden tab, where DataTables measures zero column widths,
 // so something has to re-measure once the tab is shown. That something is
-// fogBindScrollerAutosize() in fog.common.js, which every other in-tab grid
-// relies on -- and it only handles SCROLLER tables: fogSizeScroller() returns
-// early on !init.scroller. So opting out of Scroller here silently opts out
-// of the resize path too, and the header renders sized against a zero-width
-// table (one column squeezed to a single character, its title stacked
-// vertically). A hand-rolled shown.bs.tab handler is not the fix either: run
-// synchronously it measures before the revealed tab's layout is final, which
-// is exactly why the shared one defers a macrotask.
+// fogBindTableAutosize() in fog.common.js, which every other in-tab grid relies
+// on. It once covered SCROLLER tables only -- fogSizeScroller() returns early
+// on !init.scroller -- so opting out of Scroller here silently opted out of the
+// resize path too, and the header rendered sized against a zero-width table
+// (one column squeezed to a single character, its title stacked vertically).
+// fogAdjustAllTables() now handles the paged case as well, so that particular
+// trap is closed; the assertion below stays because this grid should still look
+// like every other one, not because breaking it would be silent again. A
+// hand-rolled shown.bs.tab handler is still not the fix: run synchronously it
+// measures before the revealed tab's layout is final, which is exactly why the
+// shared one defers a macrotask.
 $t->check(
-    'the tab grid stays a Scroller table, so the shared resize path covers it',
+    'the tab grid stays a Scroller table, like every other grid here',
     false === strpos($usrJsStripped, 'scroller: false')
 );
 $t->check(
@@ -474,7 +477,7 @@ $t->check(
 $t->check(
     'the shared handler it depends on is still there and still deferred',
     (bool)preg_match(
-        "/shown\.bs\.tab\.fogScroller[^}]*setTimeout\(fogSizeAllScrollers, 0\)/s",
+        "/shown\.bs\.tab\.fogScroller[^}]*setTimeout\(fogAdjustAllTables, 0\)/s",
         $common
     )
 );
