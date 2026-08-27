@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Db;
+
+use FOG\Base\FOGBase;
 
 /**
  * Repairs a database whose structure has fallen behind this release.

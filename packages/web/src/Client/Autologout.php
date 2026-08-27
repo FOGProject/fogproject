@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
 
 /**
  * Handles auto log information as requested.

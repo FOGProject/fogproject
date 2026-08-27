@@ -11,7 +11,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Audit\Audit;
+use FOG\Base\FOGController;
 
 /**
  * One hashed API token belonging to one user.

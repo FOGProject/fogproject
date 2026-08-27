@@ -221,7 +221,7 @@ $t->check(
 // ---------------------------------------------------------------------------
 // 6. The decision half, executed.
 // ---------------------------------------------------------------------------
-$given = ['FOG\\Authorization', 'apiOnlyUsersGiven'];
+$given = ['FOG\\Auth\\Authorization', 'apiOnlyUsersGiven'];
 $t->check(
     'apiOnlyUsersGiven() is callable without a database',
     is_callable($given)

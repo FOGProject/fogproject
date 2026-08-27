@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Auth;
+
+use FOG\Base\FOGBase;
 
 /**
  * Resolves whether an object is inside a user's site scope.

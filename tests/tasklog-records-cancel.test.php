@@ -46,7 +46,7 @@ $t = new FogChecks();
  * Same technique, and the same reason, as RetentionTask in
  * tests/tasklog-report-retention.test.php.
  */
-class CancelTask extends \FOG\Task
+class CancelTask extends \FOG\Items\Task
 {
     public $stubHost;
 
@@ -200,7 +200,7 @@ $db->responder = function ($sql, $params) use (
     }
     return null;
 };
-\FOG\TaskLog::recordStates([7, 8]);
+\FOG\Items\TaskLog::recordStates([7, 8]);
 $db->responder = null;
 
 if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
@@ -238,7 +238,7 @@ if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
     );
     $t->check(
         'a state row is typed as one',
-        in_array(\FOG\TaskLog::TYPE_STATE, $bulkBound, true)
+        in_array(\FOG\Items\TaskLog::TYPE_STATE, $bulkBound, true)
     );
     $t->check(
         "an imaging task's image is recorded",

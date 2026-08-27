@@ -187,7 +187,7 @@ $cases = [
     str_repeat('a', 33)      => 'unknown',
 ];
 foreach ($cases as $in => $want) {
-    $got = \FOG\User::normalizeAuthSource($in);
+    $got = \FOG\Items\User::normalizeAuthSource($in);
     if ($got !== $want) {
         $fails[] = sprintf(
             'User::normalizeAuthSource(%s) returned %s, expected %s',
@@ -199,7 +199,7 @@ foreach ($cases as $in => $want) {
 }
 
 // 32 characters is the boundary, and it is on the allowed side of it.
-if ('unknown' === \FOG\User::normalizeAuthSource(str_repeat('a', 32))) {
+if ('unknown' === \FOG\Items\User::normalizeAuthSource(str_repeat('a', 32))) {
     $fails[] = 'User::normalizeAuthSource() rejects a 32-character slug;'
         . ' the documented limit is 32, not 31';
 }
@@ -207,7 +207,7 @@ if ('unknown' === \FOG\User::normalizeAuthSource(str_repeat('a', 32))) {
 // 5. No session, no provenance -- and no notice for reading a key that is
 //    not there. Every caller of this reads it on requests that may have no
 //    session at all.
-if ('' !== \FOG\User::sessionAuthSource()) {
+if ('' !== \FOG\Items\User::sessionAuthSource()) {
     $fails[] = 'User::sessionAuthSource() returned a value with no active'
         . ' session';
 }

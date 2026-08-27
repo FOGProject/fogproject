@@ -13,9 +13,14 @@
  */
 
 require_once __DIR__ . '/bootmenu-harness.php';
+// Publishes the harness's flat FOG\ stubs -- FOGBase, Route, StorageNode,
+// PXEMenuOptions -- under the bucket names both this file's `use` lines and
+// IpxeBootMenu's own imports expect since Move 2. Must run before the first
+// use of a bucketed name, not just before the class under test is required.
+require_once __DIR__ . '/stub-buckets.php';
 
-use FOG\FOGBase;
-use FOG\Route;
+use FOG\Base\FOGBase;
+use FOG\Router\Route;
 use FOG\StubHookManager;
 use FOG\StubHost;
 
@@ -231,10 +236,10 @@ if (!empty($scenario['hooks'])) {
      * and report the payloads instead.
      */
     ob_start();
-    new \FOG\IpxeBootMenu();
+    new \FOG\Boot\IpxeBootMenu();
     ob_end_clean();
     echo json_encode(FOGBase::$HookManager->fired, JSON_PRETTY_PRINT), "\n";
     exit(0);
 }
 
-new \FOG\IpxeBootMenu();
+new \FOG\Boot\IpxeBootMenu();

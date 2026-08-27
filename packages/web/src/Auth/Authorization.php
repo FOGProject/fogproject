@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Auth;
+
+use FOG\Audit\Audit;
+use FOG\Base\FOGBase;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
 
 /**
  * Authorization service — native role-based permission checks.
@@ -1791,7 +1796,15 @@ class Authorization extends FOGBase
             return self::$_scopeClassVars[$node];
         }
         $vars = null;
-        if (class_exists(__NAMESPACE__ . '\\' . $node, true)) {
+        // The BARE name, which is what getClass() on the next line resolves.
+        // This used to read __NAMESPACE__ . '\\' . $node and worked only
+        // because the tree was flat: after Move 2 that builds FOG\Auth\host,
+        // which nothing declares, so the guard would be permanently false and
+        // every object-scope lookup would silently return null. A string
+        // argument to class_exists() is not namespace-prefixed, so the bare
+        // name reaches the autoloader and the class_alias at the foot of the
+        // model's file answers it.
+        if (class_exists($node, true)) {
             $props = self::getClass($node, '', true);
             if (!empty($props['databaseTable'])
                 && !empty($props['databaseFields']['id'])

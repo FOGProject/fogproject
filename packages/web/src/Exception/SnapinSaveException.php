@@ -15,7 +15,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Exception;
 
 class SnapinSaveException extends \RuntimeException
 {

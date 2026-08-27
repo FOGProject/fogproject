@@ -11,7 +11,18 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Boot;
+
+use FOG\Base\FOGBase;
+use FOG\Items\Architecture;
+use FOG\Items\Host;
+use FOG\Items\Image;
+use FOG\Items\MulticastSession;
+use FOG\Items\MulticastSessionAssociation;
+use FOG\Items\PXEMenuOptions;
+use FOG\Items\StorageNode;
+use FOG\Items\TaskType;
+use FOG\Router\Route;
 
 /**
  * iPXE boot menu for the FOG PXE system

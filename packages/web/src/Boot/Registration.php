@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Boot;
+
+use FOG\Audit\Audit;
+use FOG\Base\FOGBase;
+use FOG\Items\TaskType;
+use FOG\Router\Route;
 
 /**
  * Performs host registration

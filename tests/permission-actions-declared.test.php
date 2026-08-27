@@ -92,7 +92,7 @@ if (!defined('FOG_PLUGIN_DIR')) {
 require_once $init;
 new Initiator();
 
-$reg = FOG\Authorization::coreRegistry();
+$reg = FOG\Auth\Authorization::coreRegistry();
 
 /*
  * The pairs the router actually defines. Route::defineRoutes() gives the read
@@ -105,20 +105,20 @@ $reg = FOG\Authorization::coreRegistry();
 $readRoutes = ['list', 'indiv', 'search', 'count', 'names', 'ids'];
 $writeRoutes = ['create', 'join', 'update', 'delete'];
 $pairs = [];
-foreach (FOG\Route::$validClasses as $class) {
+foreach (FOG\Router\Route::$validClasses as $class) {
     foreach ($readRoutes as $route) {
         $pairs[] = [$route, $class];
     }
 }
-foreach (FOG\Route::writableClasses() as $class) {
+foreach (FOG\Router\Route::writableClasses() as $class) {
     foreach ($writeRoutes as $route) {
         $pairs[] = [$route, $class];
     }
 }
-foreach (FOG\Route::$validTaskingClasses as $class) {
+foreach (FOG\Router\Route::$validTaskingClasses as $class) {
     $pairs[] = ['task', $class];
 }
-foreach (FOG\Route::$validActiveTasks as $class) {
+foreach (FOG\Router\Route::$validActiveTasks as $class) {
     $pairs[] = ['cancel', $class];
     $pairs[] = ['active', $class];
 }
@@ -140,7 +140,7 @@ $found = [];
 foreach ($pairs as $pair) {
     list($route, $class) = $pair;
     $checks++;
-    $perm = FOG\Authorization::resolveApiPermission($route, $class);
+    $perm = FOG\Auth\Authorization::resolveApiPermission($route, $class);
     if (null === $perm || 0 === strpos($perm, 'unmapped.')) {
         continue;
     }
@@ -172,14 +172,14 @@ foreach ($found as $perm => $where) {
  * declared action again, because declaring is the OTHER way to satisfy this
  * test.
  */
-foreach (FOG\Route::$readOnlyClasses as $class) {
+foreach (FOG\Router\Route::$readOnlyClasses as $class) {
     $checks++;
-    if (in_array($class, FOG\Route::writableClasses(), true)) {
+    if (in_array($class, FOG\Router\Route::writableClasses(), true)) {
         $failures[] = "$class is in Route::\$readOnlyClasses and still in "
             . 'writableClasses(), so the write routes expand over it anyway.';
     }
     $checks++;
-    if (!in_array($class, FOG\Route::$validClasses, true)) {
+    if (!in_array($class, FOG\Router\Route::$validClasses, true)) {
         $failures[] = "$class is in Route::\$readOnlyClasses but not in "
             . '$validClasses, so it is not served at all -- the read side is '
             . 'the reason it is on the read-only list rather than removed.';

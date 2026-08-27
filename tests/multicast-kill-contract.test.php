@@ -28,6 +28,9 @@
 
 namespace FOG;
 
+// The probe below extends the real class, which Move 2 put in FOG\Service.
+use FOG\Service\FOGService;
+
 if (!function_exists('proc_open') || !function_exists('posix_kill')) {
     fwrite(STDERR, "SKIP: proc_open/posix_kill unavailable\n");
     exit(0);
@@ -62,6 +65,11 @@ if (0 !== $psRet) {
 abstract class FOGBase
 {
 }
+
+// Publishes the FOGBase stub above as FOG\Base\FOGBase, which is the name
+// FOGService imports since Move 2. See the file for why this is derived from
+// the tree rather than hardcoded.
+require_once __DIR__ . '/lib/stub-buckets.php';
 
 require_once dirname(__DIR__)
     . '/packages/web/src/Service/FOGService.php';

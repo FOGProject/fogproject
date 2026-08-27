@@ -13,7 +13,19 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Auth\Authorization;
+use FOG\Auth\CSRF;
+use FOG\Db\DatabaseManager;
+use FOG\Db\SchemaReconciler;
+use FOG\Items\History;
+use FOG\Items\Host;
+use FOG\Items\MACAddress;
+use FOG\Items\TaskState;
+use FOG\Items\User;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
 
 /**
  * FOGBase, the base class for pretty much all of fog.

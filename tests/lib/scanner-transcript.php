@@ -229,7 +229,7 @@ abstract class FOGService
         // strrpos() answers false for an unqualified name, and false + 1
         // is 1 -- which silently chopped the first letter off every class
         // in this transcript. The old daemons pass 'Image', the new ones
-        // pass 'FOG\Image', so both shapes have to work.
+        // pass 'FOG\Items\Image', so both shapes have to work.
         $at = strrpos($class, '\\');
         $short = false === $at ? $class : substr($class, $at + 1);
         return new ModelStub($short, (int)$data);
@@ -300,6 +300,9 @@ $class = $argv[1] ?? 'ImageSize';
 $dir = $argv[2] ?? (dirname(__DIR__, 2) . '/packages/web/src/Service');
 
 if (is_readable($dir . '/FOGItemScanner.php')) {
+    // Publishes the FOGService stub above as FOG\Service\FOGService,
+    // the name FOGItemScanner extends since Move 2.
+    require_once dirname(__DIR__) . '/lib/stub-buckets.php';
     require_once $dir . '/FOGItemScanner.php';
 } elseif (is_readable($dir . '/fogitemscanner.class.php')) {
     require_once $dir . '/fogitemscanner.class.php';
@@ -346,7 +349,13 @@ foreach ($scenarios as $name => $state) {
     foreach ($state as $key => $value) {
         Scenario::${$key} = $value;
     }
-    $fqcn = __NAMESPACE__ . '\\' . $class;
+    // Bucketed first, flat as the fallback: Move 2 put the daemons in
+    // FOG\Service, and the flat spelling keeps the "diff this transcript
+    // against an older checkout" workflow in this file's header working.
+    $fqcn = 'FOG\\Service\\' . $class;
+    if (!class_exists($fqcn, false)) {
+        $fqcn = __NAMESPACE__ . '\\' . $class;
+    }
     $svc = new $fqcn();
     printf("=== %s :: %s ===\n", $class, $name);
     printf("log=%s dev=%s zzz=%s\n", $svc::$log, $svc::$dev, $svc::$zzz);

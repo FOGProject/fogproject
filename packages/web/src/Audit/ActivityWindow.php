@@ -11,7 +11,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Audit;
+
+use FOG\Base\FOGBase;
+use FOG\Items\TaskState;
 
 /**
  * Everything that ran in a time window, across every work-item table.

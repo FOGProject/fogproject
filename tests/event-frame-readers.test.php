@@ -132,7 +132,7 @@ $t->check('history has a summary column with a formatter', is_callable($summary)
 
 if (is_callable($summary)) {
     $structured = [
-        'hType' => \FOG\History::TYPE_UPDATE,
+        'hType' => \FOG\Items\History::TYPE_UPDATE,
         'hSubjectType' => 'host',
         'hSubjectID' => 42,
         'hSubjectLabel' => 'lab-01',
@@ -153,10 +153,10 @@ if (is_callable($summary)) {
     $seen = [];
     foreach (
         [
-            \FOG\History::TYPE_UPDATE,
-            \FOG\History::TYPE_UPDATE_FAILED,
-            \FOG\History::TYPE_DELETE,
-            \FOG\History::TYPE_DELETE_FAILED
+            \FOG\Items\History::TYPE_UPDATE,
+            \FOG\Items\History::TYPE_UPDATE_FAILED,
+            \FOG\Items\History::TYPE_DELETE,
+            \FOG\Items\History::TYPE_DELETE_FAILED
         ] as $type
     ) {
         $row = $structured;
@@ -184,7 +184,7 @@ if (is_callable($summary)) {
     $cases = [
         'a legacy row with no type' => ['hType' => ''],
         'a TYPE_LOG row, which has no subject' => [
-            'hType' => \FOG\History::TYPE_LOG,
+            'hType' => \FOG\Items\History::TYPE_LOG,
             'hSubjectType' => '',
             'hSubjectID' => null
         ],
@@ -246,7 +246,7 @@ $t->check('usertracking has a summary formatter', is_callable($utSummary));
 if (is_callable($utSummary)) {
     FogTestHarness::setStatic('Route', 'relCache', []);
     $out = $utSummary(null, [
-        'utAction' => \FOG\UserTracking::ACTION_LOGIN,
+        'utAction' => \FOG\Items\UserTracking::ACTION_LOGIN,
         'utUserName' => 'jsmith',
         'utHostID' => 41,
         'utHostName' => 'lab-01'
@@ -258,7 +258,7 @@ if (is_callable($utSummary)) {
     // A service start has no person. The clause has to drop rather than
     // render an empty one.
     $out = $utSummary(null, [
-        'utAction' => \FOG\UserTracking::ACTION_SERVICE_START,
+        'utAction' => \FOG\Items\UserTracking::ACTION_SERVICE_START,
         'utUserName' => '',
         'utHostID' => 41,
         'utHostName' => 'lab-01'

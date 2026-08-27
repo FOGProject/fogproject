@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Managers;
+
+use FOG\Base\FOGManagerController;
+use FOG\Items\TaskLog;
+use FOG\Items\TaskType;
+use FOG\Router\Route;
 
 /**
  * Task manager class.

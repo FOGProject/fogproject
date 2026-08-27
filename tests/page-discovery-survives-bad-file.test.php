@@ -140,7 +140,7 @@ ini_set('error_log', $quiet);
 
 // newInstanceWithoutConstructor: the real constructor does session, database
 // and hook work this has nothing to say about.
-$ref = new \ReflectionClass('FOG\FOGPageManager');
+$ref = new \ReflectionClass('FOG\Base\FOGPageManager');
 $mgr = $ref->newInstanceWithoutConstructor();
 $nodes = $ref->getProperty('_nodes');
 $nodes->setAccessible(true);

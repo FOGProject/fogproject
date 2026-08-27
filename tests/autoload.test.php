@@ -60,10 +60,10 @@
 
 /*
  * Flipped by the commit that adds the FOG\ bridge to Initiator::autoload().
- * Before it, `FOG\Host` misses silently: the map is keyed on a lowercased
+ * Before it, `FOG\Items\Host` misses silently: the map is keyed on a lowercased
  * basename so `fog\host` can never be a key, and the bare spl_autoload()
  * behind it probes for `fog/host.class.php`, which no include_path entry
- * holds. After it, `FOG\Host` resolves to the same class entry as `Host`.
+ * holds. After it, `FOG\Items\Host` resolves to the same class entry as `Host`.
  *
  * This constant existing rather than the assertion simply being deleted is
  * the point: the flip is the bridge's regression test.
@@ -265,12 +265,12 @@ foreach ($mismatched as $m) {
 // 4. The bridge. Asserted against the checkout, reported against a server:
 // a server legitimately runs an older FOG than the tree you are standing in,
 // and failing over that would make the diagnostic mode useless.
-$bridged = class_exists('FOG\Host');
+$bridged = class_exists('FOG\Items\Host');
 if (!$diagnostic && $bridged !== EXPECT_BRIDGE) {
     $failures[] = EXPECT_BRIDGE
-        ? 'FOG\Host did not resolve; the Initiator::autoload() bridge is '
+        ? 'FOG\Items\Host did not resolve; the Initiator::autoload() bridge is '
             . 'missing or no longer aliases short names'
-        : 'FOG\Host resolved unexpectedly; if the bridge has landed, flip '
+        : 'FOG\Items\Host resolved unexpectedly; if the bridge has landed, flip '
             . 'EXPECT_BRIDGE at the top of this file';
 }
 if ($bridged) {
@@ -278,14 +278,14 @@ if ($bridged) {
     // every getClass()/Reflection consumer see one type. get_class() still
     // reports the declared name -- that asymmetry is why namespacing the
     // models is a separate problem from bridging their names.
-    $refFqcn = new \ReflectionClass('FOG\Host');
+    $refFqcn = new \ReflectionClass('FOG\Items\Host');
     $refShort = new \ReflectionClass('Host');
     if ($refFqcn->getName() !== $refShort->getName()) {
-        $failures[] = 'FOG\Host resolves to a different class entry than '
+        $failures[] = 'FOG\Items\Host resolves to a different class entry than '
             . 'Host (' . $refFqcn->getName() . ' vs ' . $refShort->getName()
             . '); it should be an alias, not a copy';
     }
-    if (!trait_exists('FOG\FOGPagePost')) {
+    if (!trait_exists('FOG\Base\FOGPagePost')) {
         $failures[] = 'the bridge does not carry traits';
     }
     if (!class_exists('fog\Image')) {

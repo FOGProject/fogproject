@@ -359,7 +359,7 @@ $behaviour = [
     ['host', 'description', false],
     // Case and namespace forms callers actually arrive with.
     ['Host', 'adpass', true],
-    ['FOG\\Host', 'ADPASS', true],
+    ['FOG\\Items\\Host', 'ADPASS', true],
     // Nothing is not a secret.
     ['host', '', false],
 ];

@@ -299,6 +299,9 @@ $class = $argv[1] ?? 'ImageReplicator';
 $dir = $argv[2] ?? (dirname(__DIR__, 2) . '/packages/web/src/Service');
 
 if (is_readable($dir . '/FOGReplicator.php')) {
+    // Publishes the FOGService stub above as FOG\Service\FOGService,
+    // the name FOGReplicator extends since Move 2.
+    require_once dirname(__DIR__) . '/lib/stub-buckets.php';
     require_once $dir . '/FOGReplicator.php';
 }
 // PSR-4: the basename is the class name exactly, no lowercasing and no
@@ -356,7 +359,13 @@ foreach ($scenarios as $name => $state) {
     foreach ($state as $key => $value) {
         Scenario::${$key} = $value;
     }
-    $fqcn = __NAMESPACE__ . '\\' . $class;
+    // Bucketed first, flat as the fallback: Move 2 put the daemons in
+    // FOG\Service, and the flat spelling keeps the "diff this transcript
+    // against an older checkout" workflow in this file's header working.
+    $fqcn = 'FOG\\Service\\' . $class;
+    if (!class_exists($fqcn, false)) {
+        $fqcn = __NAMESPACE__ . '\\' . $class;
+    }
     $svc = new $fqcn();
     printf("=== %s :: %s ===\n", $class, $name);
     printf("log=%s dev=%s zzz=%s\n", $svc::$log, $svc::$dev, $svc::$zzz);

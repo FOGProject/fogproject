@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
+
+use FOG\Items\SnapinTask;
+use FOG\Items\StorageGroup;
+use FOG\Items\StorageNode;
+use FOG\Router\Route;
 
 /**
  * Handles snapins for the host

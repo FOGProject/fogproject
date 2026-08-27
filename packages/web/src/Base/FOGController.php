@@ -14,7 +14,15 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Audit\Audit;
+use FOG\Auth\Authorization;
+use FOG\Items\AuditChange;
+use FOG\Items\AuditLog;
+use FOG\Items\History;
+use FOG\Items\Plugin;
+use FOG\Router\Route;
 
 /**
  * FOGController, individual SQL getters/setters.

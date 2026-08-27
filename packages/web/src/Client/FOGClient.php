@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
+
+use FOG\Base\FOGBase;
+use FOG\Items\Host;
+use FOG\Router\Route;
 
 /**
  * Base element for client services

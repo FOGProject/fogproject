@@ -11,7 +11,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Managers;
+
+use FOG\Auth\Authorization;
+use FOG\Base\FOGManagerController;
 
 /**
  * API token manager.

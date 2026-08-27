@@ -14,7 +14,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
 
 /**
  * Allows Events and defines how they operate.

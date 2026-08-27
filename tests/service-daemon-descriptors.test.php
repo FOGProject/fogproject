@@ -62,6 +62,10 @@ abstract class FOGService
     public static $zzz = 0;
 }
 
+// Publishes the FOGService stub above as FOG\Service\FOGService, the name
+// FOGReplicator and FOGItemScanner extend since Move 2.
+require_once __DIR__ . '/lib/stub-buckets.php';
+
 $svcdir = dirname(__DIR__) . '/packages/web/src/Service';
 require_once $svcdir . '/FOGReplicator.php';
 require_once $svcdir . '/ImageReplicator.php';
@@ -132,7 +136,7 @@ function descriptorOf($class)
 // --- the tables, as they stood before the base existed ---------------------
 
 $expected = [
-    'FOG\ImageReplicator' => [
+    'FOG\Service\ImageReplicator' => [
         'sleeptime' => 'IMAGEREPSLEEPTIME',
         'prefix' => 'IMAGEREPLICATOR',
         'log' => 'fogreplicator.log',
@@ -151,7 +155,7 @@ $expected = [
             'notSyncing' => 'Not syncing Image'
         ]
     ],
-    'FOG\SnapinReplicator' => [
+    'FOG\Service\SnapinReplicator' => [
         'sleeptime' => 'SNAPINREPSLEEPTIME',
         'prefix' => 'SNAPINREPLICATOR',
         'log' => 'fogsnapinrep.log',
@@ -170,7 +174,7 @@ $expected = [
             'notSyncing' => 'Not syncing Snapin'
         ]
     ],
-    'FOG\ImageSize' => [
+    'FOG\Service\ImageSize' => [
         'sleeptime' => 'IMAGESIZESLEEPTIME',
         'prefix' => 'IMAGESIZE',
         'log' => 'fogimagesize.log',
@@ -194,7 +198,7 @@ $expected = [
             'getting' => 'Getting image size for'
         ]
     ],
-    'FOG\SnapinHash' => [
+    'FOG\Service\SnapinHash' => [
         'sleeptime' => 'SNAPINHASHSLEEPTIME',
         'prefix' => 'SNAPINHASH',
         'log' => 'fogsnapinhash.log',
@@ -247,10 +251,10 @@ foreach ($expected as $class => $want) {
 // and keeps covering a key added later.
 
 $bases = [
-    'FOG\ImageReplicator' => 'FOGReplicator',
-    'FOG\SnapinReplicator' => 'FOGReplicator',
-    'FOG\ImageSize' => 'FOGItemScanner',
-    'FOG\SnapinHash' => 'FOGItemScanner'
+    'FOG\Service\ImageReplicator' => 'FOGReplicator',
+    'FOG\Service\SnapinReplicator' => 'FOGReplicator',
+    'FOG\Service\ImageSize' => 'FOGItemScanner',
+    'FOG\Service\SnapinHash' => 'FOGItemScanner'
 ];
 $baseSrc = '';
 foreach (array_unique($bases) as $file) {

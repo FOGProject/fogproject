@@ -11,7 +11,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Util;
 
 /**
  * The one place that knows which directories hold FOG's logs.

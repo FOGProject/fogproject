@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\TaskHandling;
+
+use FOG\Base\FOGBase;
+use FOG\Items\StorageNode;
+use FOG\Items\TaskLog;
+use FOG\Router\Route;
 
 /**
  * The tasking element base class.

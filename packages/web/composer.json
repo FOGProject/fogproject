@@ -16,23 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "FOG\\": [
-                "src/",
-                "src/Items/",
-                "src/Managers/",
-                "src/Base/",
-                "src/Service/",
-                "src/Client/",
-                "src/Net/",
-                "src/Db/",
-                "src/Auth/",
-                "src/Audit/",
-                "src/TaskHandling/",
-                "src/Boot/",
-                "src/Router/",
-                "src/Util/",
-                "src/Exception/"
-            ]
+            "FOG\\": "src/"
         }
     },
     "config": {

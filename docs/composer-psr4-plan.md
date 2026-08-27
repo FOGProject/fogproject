@@ -192,11 +192,19 @@ relative class name to each in turn and takes the first hit. **The directory is
 not part of the class name**, so `FOG\Host` stays `FOG\Host`, the file stays
 `Host.php`, and nothing that produces or consumes a class name changes.
 
-**Move 2 (separate work).** Flip each file's namespace to match the directory it
-is already in, collapse the map to a single `"FOG\\": "src/"`, add the 291
-`use` lines, update the aliases. **Zero file moves** — `src/Items/Host.php`
-declaring `namespace FOG\Items;` under a single `src/` root resolves to the
-same path it is already at.
+**Move 2 (done, 2026-08-27).** Flip each file's namespace to match the directory
+it is already in, collapse the map to a single `"FOG\\": "src/"`, add the
+`use` lines. **Zero file moves** — `src/Items/Host.php` declaring
+`namespace FOG\Items;` under a single `src/` root resolves to the same path it
+is already at.
+
+The estimate of 291 `use` lines came out at **325 across 178 of the 202 files**;
+the other 24 reference nothing outside their own bucket. 245 same-bucket
+references needed nothing at all. **The aliases did not need updating**:
+`class_alias(__NAMESPACE__ . '\X', 'X')` re-exports the bare name from wherever
+the class now lives, so decision 2 of ADR 0013 carried through untouched — see
+that ADR's 2026-08-27 amendment, which also corrects the reason this move was
+thought to be expensive.
 
 Each commit is then exactly one *kind* of change, which is the whole point. If a
 page stops rendering after move 1 it is the autoloader; after move 2 it is a

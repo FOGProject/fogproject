@@ -11,7 +11,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Audit;
+
+use FOG\Base\FOGBase;
+use FOG\Base\HookManager;
 
 /**
  * Ages rows out of the tables that record what happened.

@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Service\PluginRunner;
 
 /**
  * Base class for background work a plugin declares.

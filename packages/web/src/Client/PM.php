@@ -11,7 +11,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
+
+use FOG\Router\Route;
 
 /**
  * Powermanagement Client information

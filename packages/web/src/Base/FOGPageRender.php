@@ -22,7 +22,13 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Auth\Authorization;
+use FOG\Auth\SiteScope;
+use FOG\Items\TaskType;
+use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
 
 trait FOGPageRender
 {

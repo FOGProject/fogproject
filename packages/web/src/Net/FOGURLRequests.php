@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Net;
+
+use FOG\Auth\CSRF;
+use FOG\Base\FOGBase;
+use FOG\Router\Route;
 
 /**
  * Processes URL requests for our needs.

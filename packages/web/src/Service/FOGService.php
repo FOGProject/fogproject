@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Base\FOGBase;
+use FOG\Db\DatabaseManager;
+use FOG\Router\Route;
 
 /**
  * Handles the fog linux services

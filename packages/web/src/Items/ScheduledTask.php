@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Base\FOGController;
+use FOG\Util\FOGCron;
+use FOG\Util\Timer;
 
 /**
  * Scheduled task class.

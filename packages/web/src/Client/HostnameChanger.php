@@ -12,7 +12,7 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Client;
 
 /**
  * Sends the client with the hostname and domain

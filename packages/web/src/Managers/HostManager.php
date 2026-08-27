@@ -11,7 +11,11 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Managers;
+
+use FOG\Base\FOGManagerController;
+use FOG\Items\Host;
+use FOG\Router\Route;
 
 /**
  * Manager class for Hosts.

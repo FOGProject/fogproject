@@ -40,13 +40,13 @@ FogTestHarness::boot('nested-secret-strip');
 // declaration reads below need a database to answer.
 FogTestHarness::fakeDb();
 
-use FOG\Route;
+use FOG\Router\Route;
 
 $failures = [];
 
-$nestedProp = new \ReflectionProperty('FOG\\Route', 'nestedClasses');
+$nestedProp = new \ReflectionProperty('FOG\\Router\\Route', 'nestedClasses');
 $nestedProp->setAccessible(true);
-$emitProp = new \ReflectionProperty('FOG\\Route', 'emitClassname');
+$emitProp = new \ReflectionProperty('FOG\\Router\\Route', 'emitClassname');
 $emitProp->setAccessible(true);
 
 /**
@@ -300,11 +300,11 @@ check(
 // the registry by hand and asserting only on the walk left the single most
 // important mutation alive: deleting embed()'s registration line passed the
 // whole file.
-$embedMethod = new \ReflectionMethod('FOG\\Route', 'embed');
+$embedMethod = new \ReflectionMethod('FOG\\Router\\Route', 'embed');
 $embedMethod->setAccessible(true);
 $nestedProp->setValue(null, []);
 
-$sn = new FOG\StorageNode();
+$sn = new FOG\Items\StorageNode();
 $embedded = $embedMethod->invoke(null, 'task', 'storagenode', $sn);
 $recorded = $nestedProp->getValue();
 check(
@@ -318,7 +318,7 @@ check('embed() still returns the serialized child', is_array($embedded));
 // makes a wrong registration impossible, and the storagegroup grid's
 // masternode column depends on it.
 $nestedProp->setValue(null, []);
-$embedMethod->invoke(null, 'storagegroup', 'masternode', new FOG\StorageNode());
+$embedMethod->invoke(null, 'storagegroup', 'masternode', new FOG\Items\StorageNode());
 $derived = $nestedProp->getValue();
 check(
     'embed() derives the class from the object, not from the key name',

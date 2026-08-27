@@ -12,7 +12,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Service;
+
+use FOG\Net\Ping;
+use FOG\Router\Route;
 
 /**
  * Gets the current ping code of each host and

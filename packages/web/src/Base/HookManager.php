@@ -12,7 +12,9 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Router\Route;
 
 /**
  * HookManager handles registering and loading

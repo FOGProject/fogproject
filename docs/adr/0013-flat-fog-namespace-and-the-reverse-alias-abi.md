@@ -4,6 +4,72 @@
 
 accepted
 
+## Amended 2026-08-27 — decision 1 is superseded, decision 2 stands
+
+**Decision 1 (a flat `FOG\` namespace) no longer holds.** Every class under
+`packages/web/src/` now declares `namespace FOG\<Bucket>;` matching the
+directory it sits in: `FOG\Items\Host`, `FOG\Managers\HostManager`,
+`FOG\Db\PDODB`. `bin/namespace-fog-classes.php --check`, wired into
+`tests/namespaced-tree.test.php`, enforces the file's directory and its
+namespace agreeing.
+
+**Decision 2 (the reverse alias as the 1.6 plugin ABI) is unchanged and is the
+reason this was safe.** `class_alias(__NAMESPACE__ . '\Host', 'Host')` still
+exports the bare global name from wherever the class now lives, so every
+plugin `extends Host`, every `getClass('Host')` literal and every one of
+`Route::$validClasses`' 52 lowercase strings resolves exactly as before.
+Verified: `fog-plugins` contains **zero** `FOG\`-qualified references — its 168
+`extends` are all bare names — so no plugin is affected by the namespace change
+at all, and `$host instanceof \Host` still holds against a `FOG\Items\Host`.
+
+### The argument against nesting was wrong, and this is the correction
+
+The section *"Why flat, when mirroring the directories is the obvious
+instinct"* rests on `FOGController::getManager()`:
+
+> Under a flat namespace, `Host` + `'Manager'` gives `HostManager`, which
+> resolves. Under a split one it gives `Model\HostManager`, which does not
+> exist.
+
+**It does not.** `FOGBase::shortName()` (`src/Base/FOGBase.php:543`) is
+`strrpos($name, '\\')` and returns everything after the LAST separator, so
+`shortName($this)` on a `FOG\Items\Host` returns `Host`, not
+`FOG\Items\Host`. The concatenation yields the bare `HostManager`, a string,
+and `new $man` resolves a string from the GLOBAL namespace — where decision 2's
+alias has put it. `FOGManagerController`'s inverse `preg_replace('#_?Manager$#',
+'', ...)` is fed the same short name and is equally unaffected. Neither
+derivation ever saw a namespace, under either layout.
+
+So the price the ADR declined to pay was never charged. No derivation had to be
+taught to move between namespaces, and the two new instances of the
+assembled-string bug class it feared were not created.
+
+### What DID break, which the ADR did not anticipate
+
+Three sites built a **collaborator's** name from the **caller's**
+`__NAMESPACE__`, which is only correct while every class shares one namespace:
+
+| Site | Built | Should be |
+|---|---|---|
+| `Auth/Authorization.php:1799` | `FOG\Auth\host` | the bare `$node` |
+| `Service/FOGReplicator.php:126` | `FOG\Service\Image` | `FOG\Items\Image` |
+| `Service/FOGItemScanner.php:148` | `FOG\Service\Image` | `FOG\Items\Image` |
+
+The `Authorization` one is the instructive failure: `class_exists()` would have
+been permanently false, so `_scopeClassVars()` would have silently returned
+null on every object-scope lookup, with no error anywhere. The other two fatal
+loudly and the suite caught them. That asymmetry — a guard that fails closed and
+says nothing, next to two that crash — is the same shape as #1215/#1216, and it
+is the reason `__NAMESPACE__` is now used for exactly one thing in `src/`:
+a file naming ITSELF, in its own `class_alias`. All 202 remaining uses are that.
+
+The rule from *"Where this does not apply"* survives inverted: the tree is now
+nested throughout `src/`, and `__NAMESPACE__` concatenation is the construct
+that must not appear, not the layout.
+
+Removing the aliases remains a separate, later decision; nothing here touches
+the *"supported for all of 1.6"* clause in decision 2.
+
 ## Context
 
 Phase 3 of the refactor moves FOG's 226 class files into a namespace. Two

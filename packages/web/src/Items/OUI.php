@@ -11,7 +11,9 @@
  * @link     https://fogproject.rog
  */
 
-namespace FOG;
+namespace FOG\Items;
+
+use FOG\Base\FOGController;
 
 /**
  * The oui class.

@@ -236,14 +236,14 @@ $t->check(
  *    helper needs, checked against the live class list rather than a copy.
  */
 $checked = 0;
-foreach ((array)FOG\Route::$validClasses as $class) {
-    $vars = FOG\FOGCore::getClass($class, '', true);
+foreach ((array)FOG\Router\Route::$validClasses as $class) {
+    $vars = FOG\Base\FOGCore::getClass($class, '', true);
     if (!is_array($vars) || !isset($vars['databaseFields'])) {
         continue;
     }
     $checked++;
     $hasName = isset($vars['databaseFields']['name']);
-    $method = new \ReflectionMethod('FOG\OpenAPI', '_isSearchable');
+    $method = new \ReflectionMethod('FOG\Router\OpenAPI', '_isSearchable');
     $method->setAccessible(true);
     $t->check(
         "$class: the document and the helper agree on searchability",

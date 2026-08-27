@@ -11,7 +11,12 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Base;
+
+use FOG\Db\DatabaseManager;
+use FOG\Items\User;
+use FOG\Net\FOGFTP;
+use FOG\Net\FOGSSH;
 
 /**
  * Loads our global values

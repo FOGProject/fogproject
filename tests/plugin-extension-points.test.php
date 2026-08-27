@@ -71,11 +71,11 @@ class StubHookManager
 }
 
 $stub = new StubHookManager();
-$hook = new \ReflectionProperty('FOG\FOGBase', 'HookManager');
+$hook = new \ReflectionProperty('FOG\Base\FOGBase', 'HookManager');
 $hook->setAccessible(true);
 $hook->setValue(null, $stub);
 
-$cache = new \ReflectionProperty('FOG\Route', '_pluginRoutes');
+$cache = new \ReflectionProperty('FOG\Router\Route', '_pluginRoutes');
 $cache->setAccessible(true);
 
 /**
@@ -89,7 +89,7 @@ $offer = function (array $routes) use ($stub, $cache) {
     $stub->routes = $routes;
     $cache->setValue(null, null);
     $out = [];
-    foreach (\FOG\Route::pluginRoutes() as $r) {
+    foreach (\FOG\Router\Route::pluginRoutes() as $r) {
         $out[$r['name']] = $r;
     }
     return $out;
@@ -97,15 +97,15 @@ $offer = function (array $routes) use ($stub, $cache) {
 
 // ---------------------------------------------------------- the mount point
 
-if ('/ext/' !== \FOG\Route::PLUGIN_ROUTE_PREFIX) {
+if ('/ext/' !== \FOG\Router\Route::PLUGIN_ROUTE_PREFIX) {
     $fails[] = 'the plugin route prefix moved; the rest of this test, and the'
         . ' guarantee that plugin paths cannot collide with core ones, is'
         . ' written around /ext/';
 }
-$classes = new \ReflectionProperty('FOG\Route', 'validClasses');
+$classes = new \ReflectionProperty('FOG\Router\Route', 'validClasses');
 $classes->setAccessible(true);
 $valid = array_map('strtolower', (array) $classes->getValue());
-if (in_array(trim(\FOG\Route::PLUGIN_ROUTE_PREFIX, '/'), $valid, true)) {
+if (in_array(trim(\FOG\Router\Route::PLUGIN_ROUTE_PREFIX, '/'), $valid, true)) {
     $fails[] = 'an API class is now named after the plugin route mount point,'
         . ' so core CRUD routes and plugin routes share a path prefix -- the'
         . ' collision the reserved mount point exists to prevent';
@@ -206,14 +206,14 @@ if (isset($got['ext:callback']) && 'public' !== $got['ext:callback']['auth']) {
 // replay that step and then ask Authorization the question the dispatcher asks.
 foreach ($got as $r) {
     if ('public' === $r['auth']) {
-        \FOG\Authorization::declareRoutePermission($r['name'], null);
+        \FOG\Auth\Authorization::declareRoutePermission($r['name'], null);
     } elseif (null !== $r['permission']) {
-        \FOG\Authorization::declareRoutePermission($r['name'], $r['permission']);
+        \FOG\Auth\Authorization::declareRoutePermission($r['name'], $r['permission']);
     }
 }
 
 $resolved = function ($name) {
-    return \FOG\Authorization::resolveApiPermission($name, '');
+    return \FOG\Auth\Authorization::resolveApiPermission($name, '');
 };
 
 // THE assertion. A route that declared no permission must not be allowed.
@@ -241,11 +241,11 @@ if (null !== $resolved('ext:callback')) {
 }
 
 // A plugin must not be able to redeclare a core route's permission.
-\FOG\Authorization::declareRoutePermission('status', 'demo.edit');
+\FOG\Auth\Authorization::declareRoutePermission('status', 'demo.edit');
 if (null !== $resolved('status')) {
     $fails[] = "a plugin overwrote a core route's permission";
 }
-\FOG\Authorization::declareRoutePermission('list', null);
+\FOG\Auth\Authorization::declareRoutePermission('list', null);
 if (null === $resolved('list')) {
     $fails[] = 'a plugin turned off the permission check on core\'s list route';
 }
@@ -268,12 +268,12 @@ $stub->exemptNodes = [
     '  OidcStart  ',    // same as the first once trimmed and lowered
     '',                 // noise
 ];
-$exemptCache = new \ReflectionProperty('FOG\Authorization', '_exemptNodes');
+$exemptCache = new \ReflectionProperty('FOG\Auth\Authorization', '_exemptNodes');
 $exemptCache->setAccessible(true);
 $exemptCache->setValue(null, null);
-$exempt = \FOG\Authorization::exemptNodes();
+$exempt = \FOG\Auth\Authorization::exemptNodes();
 
-foreach (\FOG\Authorization::EXEMPT_NODES as $core) {
+foreach (\FOG\Auth\Authorization::EXEMPT_NODES as $core) {
     if (!in_array($core, $exempt, true)) {
         $fails[] = "core exempt node $core was lost when plugin entries were"
             . ' merged';

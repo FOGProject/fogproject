@@ -58,18 +58,18 @@ $eventClasses = ['history', 'tasklog', 'usertracking'];
 foreach ($eventClasses as $class) {
     $t->check(
         "$class is on Route::\$readOnlyClasses",
-        in_array($class, (array)FOG\Route::$readOnlyClasses, true)
+        in_array($class, (array)FOG\Router\Route::$readOnlyClasses, true)
     );
     // The read side is the reason these are listed rather than removed
     // from $validClasses outright: the activity viewer, History_Report,
     // Task Management's log pane and the Login History tabs all read them.
     $t->check(
         "$class is still served for reading",
-        in_array($class, (array)FOG\Route::$validClasses, true)
+        in_array($class, (array)FOG\Router\Route::$validClasses, true)
     );
     $t->check(
         "$class is excluded from writableClasses()",
-        !in_array($class, (array)FOG\Route::writableClasses(), true)
+        !in_array($class, (array)FOG\Router\Route::writableClasses(), true)
     );
 }
 
@@ -77,10 +77,10 @@ foreach ($eventClasses as $class) {
  * The router itself. This is the assertion that survives someone changing
  * how the lists are combined.
  */
-$prop = new \ReflectionProperty('FOG\Route', 'router');
+$prop = new \ReflectionProperty('FOG\Router\Route', 'router');
 $prop->setAccessible(true);
 $prop->setValue(null, new \AltoRouter([], ''));
-$define = new \ReflectionMethod('FOG\Route', 'defineRoutes');
+$define = new \ReflectionMethod('FOG\Router\Route', 'defineRoutes');
 $define->setAccessible(true);
 $define->invoke(null);
 $router = $prop->getValue();

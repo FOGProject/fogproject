@@ -44,7 +44,7 @@ $fails = [];
 /**
  * A hook that records what it was handed, so dispatch can be observed.
  */
-class CharHook extends \FOG\Hook
+class CharHook extends \FOG\Base\Hook
 {
     public $name = 'CharHook';
     public $node = 'demo';
@@ -60,7 +60,7 @@ class CharHook extends \FOG\Hook
 /**
  * An event listener that records the event it was notified of.
  */
-class CharEvent extends \FOG\Event
+class CharEvent extends \FOG\Base\Event
 {
     public $name = 'CharEvent';
     public $active = true;
@@ -135,7 +135,7 @@ $logged = function ($manager, $event, $listener) {
 
 // ------------------------------------------------- registering against hooks
 
-$hm = $bare('FOG\HookManager');
+$hm = $bare('FOG\Base\HookManager');
 $hook = $bare('CharHook');
 
 if ('' !== $escapes($hm, 'CHAR_OK', [$hook, 'fire'])) {
@@ -230,7 +230,7 @@ if (false === strpos($msg, 'object')) {
 // returning normally, so a subclass of either manager registered nothing and
 // said so only in a log line nobody reads. Each manager now answers for its
 // own shapes through an override point.
-class CharManager extends \FOG\HookManager
+class CharManager extends \FOG\Base\HookManager
 {
 }
 $sub = $bare('CharManager');
@@ -250,7 +250,7 @@ if (false !== strpos(
 
 // ------------------------------------------------ registering against events
 
-$em = $bare('FOG\EventManager');
+$em = $bare('FOG\Base\EventManager');
 $event = $bare('CharEvent');
 
 if ('' !== $escapes($em, 'CHAR_EVT', $event)) {
@@ -282,14 +282,14 @@ if (false === stripos($hookRefusal, 'hook')) {
 // F-18, third part (#1203). The inheritance itself is gone: Hook extends
 // FOGBase and takes the shared listener boilerplate from the Listener trait.
 // `instanceof Event` now answers what it always meant to.
-if ($hook instanceof \FOG\Event) {
+if ($hook instanceof \FOG\Base\Event) {
     $fails[] = 'Hook is still an Event, so `instanceof Event` still cannot'
         . ' tell a hook from an event listener';
 }
 // The boilerplate that came with the parent has to still be there, or every
 // hook in every plugin loses its activation flag.
 foreach (['active', 'logLevel', 'logToFile', 'logToBrowser'] as $prop) {
-    if (!property_exists('FOG\Hook', $prop)) {
+    if (!property_exists('FOG\Base\Hook', $prop)) {
         $fails[] = "a hook lost \$$prop when it stopped extending Event";
     }
 }
@@ -298,9 +298,9 @@ foreach (['active', 'logLevel', 'logToFile', 'logToBrowser'] as $prop) {
 // writes a history row -- so a hook that lost the trait would not fail, it
 // would quietly call the wrong one. hookdebugger and template both call
 // self::log(). A trait method's declaring class is the class that used it.
-$hookLog = (new \ReflectionMethod('FOG\Hook', 'log'))
+$hookLog = (new \ReflectionMethod('FOG\Base\Hook', 'log'))
     ->getDeclaringClass()->getName();
-if ('FOG\Hook' !== $hookLog) {
+if ('FOG\Base\Hook' !== $hookLog) {
     $fails[] = 'Hook::log() resolves to ' . $hookLog . ', not the Listener'
         . ' trait -- a hook calling self::log() now writes a history row';
 }
@@ -310,7 +310,7 @@ if ('FOG\Hook' !== $hookLog) {
 // into whatever output was being produced -- including a client protocol reply
 // the fog-client parses positionally. A listener that does nothing should do
 // nothing.
-if (!(new \ReflectionMethod('FOG\Event', 'onEvent'))->isPublic()) {
+if (!(new \ReflectionMethod('FOG\Base\Event', 'onEvent'))->isPublic()) {
     $fails[] = 'Event::onEvent() is no longer the public default dispatch target';
 }
 // Invoked on an EVENT, not a hook. It used to be handed $hook, which was
@@ -320,7 +320,7 @@ if (!(new \ReflectionMethod('FOG\Event', 'onEvent'))->isPublic()) {
 // body must write nothing -- and reflection on the declaring class still runs
 // that body rather than CharEvent's override.
 ob_start();
-(new \ReflectionMethod('FOG\Event', 'onEvent'))->invoke($event, 'CHAR_PRINTED', []);
+(new \ReflectionMethod('FOG\Base\Event', 'onEvent'))->invoke($event, 'CHAR_PRINTED', []);
 $printed = ob_get_clean();
 if ('' !== $printed) {
     $fails[] = 'Event::onEvent() writes to the response by default: '
@@ -329,7 +329,7 @@ if ('' !== $printed) {
 // The one shipped core event does not override it, which is what made the
 // default reachable from code we ship.
 if ((new \ReflectionMethod('FOG\HostList', 'onEvent'))->getDeclaringClass()
-    ->getName() !== 'FOG\Event'
+    ->getName() !== 'FOG\Base\Event'
 ) {
     $fails[] = 'HostList now defines onEvent(); the note above is stale';
 }
@@ -339,7 +339,7 @@ if ((new \ReflectionMethod('FOG\HostList', 'onEvent'))->getDeclaringClass()
 // The name-recording cache is what makes notify() reachable from a test at
 // all: it used to ask the notifyevents table on every call, before any guard
 // and before anything a test could intercept.
-$knownNotify = new \ReflectionProperty('FOG\EventManager', 'knownNotifyEvents');
+$knownNotify = new \ReflectionProperty('FOG\Base\EventManager', 'knownNotifyEvents');
 $knownNotify->setAccessible(true);
 $knownNotify->setValue(null, [
     'CHAR_NOTIFY' => true,
@@ -347,7 +347,7 @@ $knownNotify->setValue(null, [
     'CHAR_NOTIFY_NOBODY' => true,
 ]);
 
-$em2 = $bare('FOG\EventManager');
+$em2 = $bare('FOG\Base\EventManager');
 $heard = $bare('CharEvent');
 $em2->register('CHAR_NOTIFY', $heard);
 if (true !== $em2->notify('CHAR_NOTIFY', ['payload' => 1])) {
@@ -432,13 +432,13 @@ if (false !== strpos($notifyBody, "getClass('NotifyEventManager')")) {
 // PHP 8 the property read on an array warned, yielded null, every listener was
 // skipped, and the method returned TRUE having invoked nothing. It now refuses,
 // audibly, rather than reporting success for work it did not do.
-$declares = (new \ReflectionMethod('FOG\HookManager', 'notify'))
+$declares = (new \ReflectionMethod('FOG\Base\HookManager', 'notify'))
     ->getDeclaringClass()->getName();
-if ('FOG\HookManager' !== $declares) {
+if ('FOG\Base\HookManager' !== $declares) {
     $fails[] = 'HookManager inherits notify() again, which cannot read its own'
         . ' listener shape and reports success anyway';
 }
-$hmN = $bare('FOG\HookManager');
+$hmN = $bare('FOG\Base\HookManager');
 $notified = $bare('CharHook');
 $hmN->register('CHAR_HM_NOTIFY', [$notified, 'fire']);
 $hmN->logLevel = 9;
@@ -465,7 +465,7 @@ if (false === stripos($refusal, 'processEvent')) {
 // expression over the file's source text, so it turned on whitespace and case
 // and could not tell a comment from code. It now reads the declared default of
 // $active off the class. Same six variants, and the property wins every time.
-$decl = new \ReflectionMethod('FOG\EventManager', '_declaresActive');
+$decl = new \ReflectionMethod('FOG\Base\EventManager', '_declaresActive');
 $decl->setAccessible(true);
 
 $variants = [
@@ -485,7 +485,7 @@ foreach ($variants as list($tag, $line, $active)) {
     $path = $tmp . '/hooks/' . strtolower($class) . '.hook.php';
     file_put_contents(
         $path,
-        "<?php\nclass $class extends \\FOG\\Hook\n{\n"
+        "<?php\nclass $class extends \\FOG\\Base\\Hook\n{\n"
         . "    public \$node = 'demo';\n"
         . ('' === $line ? '' : "    $line\n")
         . "    public function fire(\$a) {}\n}\n"
@@ -535,8 +535,8 @@ if (false !== strpos($loader, 'active' . chr(92) . 's?=')) {
 // first -- reordering the blocks silently made every HookManager load
 // .event.php. Each manager now declares what it loads.
 foreach ([
-    'FOG\\EventManager' => ['.event.php', 'events'],
-    'FOG\\HookManager' => ['.hook.php', 'hooks'],
+    'FOG\\Base\\EventManager' => ['.event.php', 'events'],
+    'FOG\\Base\\HookManager' => ['.hook.php', 'hooks'],
 ] as $class => list($ext, $dir)) {
     $obj = $bare($class);
     foreach (['fileExtension' => $ext, 'fileDirectory' => $dir] as $prop => $want) {
@@ -568,7 +568,7 @@ if (false !== strpos($loadBody, 'instanceof')) {
 // carries the substring.
 file_put_contents(
     $tmp . '/plugins/demo/hooks/charplugin.hook.php',
-    "<?php\nclass CharPluginHook extends \\FOG\\Hook\n{\n"
+    "<?php\nclass CharPluginHook extends \\FOG\\Base\\Hook\n{\n"
     . "    public \$name = 'CharPluginHook';\n"
     . "    public \$node = 'demo';\n"
     . "    public \$active = false;\n"
@@ -578,12 +578,12 @@ file_put_contents(
 );
 require $tmp . '/plugins/demo/hooks/charplugin.hook.php';
 
-$known = new \ReflectionProperty('FOG\HookManager', 'knownEvents');
+$known = new \ReflectionProperty('FOG\Base\HookManager', 'knownEvents');
 $known->setAccessible(true);
 $known->setValue(null, ['CHAR_DISPATCH' => true, 'CHAR_CORE_DISPATCH' => true]);
 
 $pluginHook = $bare('CharPluginHook');
-$hm2 = $bare('FOG\HookManager');
+$hm2 = $bare('FOG\Base\HookManager');
 $hm2->register('CHAR_DISPATCH', [$pluginHook, 'fire']);
 $hm2->processEvent('CHAR_DISPATCH', ['payload' => 1]);
 if (count($pluginHook->seen) !== 0) {
@@ -639,7 +639,7 @@ if (!isset($hook->seen[0]['event']) || 'CHAR_DISPATCH' !== $hook->seen[0]['event
 // one took the server down. Both listener shapes are supported; the owner is
 // what carries $active, so admitting closures needed no new activation rule.
 $closureSaw = [];
-$hm3 = $bare('FOG\HookManager');
+$hm3 = $bare('FOG\Base\HookManager');
 $hm3->register('CHAR_CLOSURE_OK', function ($arguments) use (&$closureSaw) {
     $closureSaw[] = $arguments;
 });
@@ -664,7 +664,7 @@ if (count($closureSaw) !== 1) {
 
 // A closure written inside a hook is bound to that hook, so the hook's $active
 // governs it -- the same rule as [$this, 'method'], not a second one.
-class CharClosureHook extends \FOG\Hook
+class CharClosureHook extends \FOG\Base\Hook
 {
     public $name = 'CharClosureHook';
     public $node = 'demo';

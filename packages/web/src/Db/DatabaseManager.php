@@ -13,7 +13,10 @@
  * @link     https://fogproject.org
  */
 
-namespace FOG;
+namespace FOG\Db;
+
+use FOG\Base\FOGCore;
+use FOG\Router\HTTPResponseCodes;
 
 /**
  * Database Manager Handles communication from fog to db class.
