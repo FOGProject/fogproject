@@ -4774,6 +4774,12 @@ msgstr ""
 msgid "Node Offline"
 msgstr ""
 
+msgid "Node Service Account"
+msgstr ""
+
+msgid "Node Service Account Password"
+msgstr ""
+
 msgid "Node Version"
 msgstr ""
 
@@ -6654,13 +6660,7 @@ msgstr ""
 msgid "Storage Node Enabled"
 msgstr ""
 
-msgid "Storage Node FTP Password"
-msgstr ""
-
 msgid "Storage Node FTP Path"
-msgstr ""
-
-msgid "Storage Node FTP User"
 msgstr ""
 
 msgid "Storage Node IP"
@@ -7105,6 +7105,9 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."

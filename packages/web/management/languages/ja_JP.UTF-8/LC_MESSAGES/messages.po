@@ -5402,6 +5402,13 @@ msgid "Node Offline"
 msgstr "ノードはオフラインです"
 
 #, fuzzy
+msgid "Node Service Account"
+msgstr "Slack アカウントを追加"
+
+msgid "Node Service Account Password"
+msgstr ""
+
+#, fuzzy
 msgid "Node Version"
 msgstr "バージョン"
 
@@ -7523,16 +7530,8 @@ msgid "Storage Node Enabled"
 msgstr "ストレージノードを追加しました！"
 
 #, fuzzy
-msgid "Storage Node FTP Password"
-msgstr "ストレージノードパスワード"
-
-#, fuzzy
 msgid "Storage Node FTP Path"
 msgstr "ストレージノード IP"
-
-#, fuzzy
-msgid "Storage Node FTP User"
-msgstr "ストレージノードユーザー名"
 
 msgid "Storage Node IP"
 msgstr "ストレージノード IP"
@@ -8039,6 +8038,9 @@ msgid "The ID token was issued to someone else"
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
+msgstr ""
+
+msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
@@ -10341,9 +10343,6 @@ msgstr ""
 #~ msgid "Add Rules"
 #~ msgstr "ルールを追加"
 
-#~ msgid "Add Slack Account"
-#~ msgstr "Slack アカウントを追加"
-
 #~ msgid "Add Snapins"
 #~ msgstr "スナップインを追加"
 
@@ -12002,6 +12001,14 @@ msgstr ""
 
 #~ msgid "Storage Group update failed!"
 #~ msgstr "ストレージグループの更新に失敗しました！"
+
+#, fuzzy
+#~ msgid "Storage Node FTP Password"
+#~ msgstr "ストレージノードパスワード"
+
+#, fuzzy
+#~ msgid "Storage Node FTP User"
+#~ msgstr "ストレージノードユーザー名"
 
 #~ msgid "Storage Node General"
 #~ msgstr "ストレージノード全般"
