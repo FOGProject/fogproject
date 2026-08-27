@@ -390,6 +390,16 @@ class Initiator
     private static ?array $srcMap = null;
 
     /**
+     * In-process map of lowercased class name => fully qualified name.
+     *
+     * Derived from $srcMap's paths rather than scanned separately: under
+     * PSR-4 the FQCN IS the path, so src/Items/Host.php is FOG\Items\Host
+     * and nothing else. Deriving it means one walk, one cache and one
+     * collision rule serving both maps.
+     */
+    private static ?array $srcClassMap = null;
+
+    /**
      * Every autoloadable source file under BASEPATH (*.class.php, *.page.php,
      * *.event.php, *.hook.php, *.report.php, *.task.php).
      *
@@ -445,6 +455,7 @@ class Initiator
         self::$fileList = null;
         self::$classMap = null;
         self::$srcMap = null;
+        self::$srcClassMap = null;
         @unlink(
             FOG_CACHE_DIR . DS . 'filelist.'
             . md5(implode('|', self::_scanRoots())) . '.json'
@@ -534,6 +545,49 @@ class Initiator
         $map = array_filter($map);
         self::_writeFileListCache($cacheFile, $map);
         return self::$srcMap = $map;
+    }
+
+    /**
+     * Every class under src/, by lowercased short name => fully qualified name.
+     *
+     * The bare name is what the tree actually says. 520 `getClass('X')`
+     * literals, `FOGController::getManager()`'s `new $short.'Manager'` and
+     * all 52 lowercase entries in Route::$validClasses name a class without
+     * a namespace, and every one of them resolves today only because each
+     * file under src/ ends in a class_alias() re-exporting itself globally
+     * (ADR 0013 §2). Retiring those aliases means the bare name has to
+     * become a qualified one somewhere, and this map is that somewhere --
+     * one lookup, rather than editing 520 call sites.
+     *
+     * Derived from srcFileList(), so it inherits that scan, its cache, its
+     * TTL and its refusal to serve a name two files both claim. Under PSR-4
+     * the path IS the name: src/<Bucket>/<Class>.php is FOG\<Bucket>\<Class>.
+     *
+     * Only src/ is covered, and deliberately. The 46 discovery-named classes
+     * under lib/ carry their own class_alias and are not part of the alias
+     * set being retired; plugins are global-namespace by design (ADR 0009)
+     * and must keep resolving as bare names. Both fall through untouched --
+     * see FOGBase::qualify().
+     *
+     * A useful side effect: because this is built from FOG's own tree rather
+     * than from Composer's classmap, a vendored package sharing a short name
+     * with a core class cannot win. `Mysqldump` is the live example --
+     * FOG\Db\Mysqldump and Ifsnop\Mysqldump\Mysqldump collide in the
+     * classmap and do not collide here.
+     *
+     * @return array<string, string> lowercased short name => FQCN.
+     */
+    public static function srcClassMap(): array
+    {
+        if (self::$srcClassMap !== null) {
+            return self::$srcClassMap;
+        }
+        $map = [];
+        foreach (self::srcFileList() as $short => $path) {
+            $map[$short] = 'FOG\\' . basename(dirname($path)) . '\\'
+                . basename($path, '.php');
+        }
+        return self::$srcClassMap = $map;
     }
 
     /**

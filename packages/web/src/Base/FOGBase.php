@@ -568,6 +568,46 @@ abstract class FOGBase
         return self::shortName($this);
     }
     /**
+     * Resolves a bare core class name to its fully qualified name.
+     *
+     * Every FOG class under src/ is namespaced, but almost nothing that
+     * NAMES one is: `getClass('Host')`, `new $short.'Manager'` and the 52
+     * lowercase strings in Route::$validClasses all spell the bare name.
+     * They resolve today only because each file under src/ ends in a
+     * class_alias() re-exporting itself into the global namespace
+     * (ADR 0013 §2). This is the one place that translation happens, so
+     * retiring those aliases does not mean editing every caller.
+     *
+     * Three things pass through untouched, each on purpose:
+     *
+     *  - a plugin class, which is global-namespace by design (ADR 0009) and
+     *    is resolved by Initiator::autoload() from a directory that did not
+     *    exist at build time;
+     *  - a name src/ does not declare at all -- \DateTimeZone reaches here
+     *    from a real caller, and the 46 discovery-named classes under lib/
+     *    carry their own aliases;
+     *  - a name that is already qualified. That needs no guard of its own:
+     *    the map is keyed on lowercased SHORT names, so 'fog\items\host'
+     *    matches nothing and falls through. An explicit early return for it
+     *    was written first and removed -- mutation testing showed deleting
+     *    it changed no behaviour, which is the definition of a branch
+     *    describing a case that cannot happen.
+     *
+     * Passing an unknown name through rather than failing is what keeps this
+     * a widening of resolution rather than a narrowing: no name that
+     * resolved before stops resolving.
+     *
+     * @param string $class the class name, bare or qualified
+     *
+     * @return string the FQCN where src/ declares one, else $class unchanged
+     */
+    public static function qualify(string $class): string
+    {
+        $map = \Initiator::srcClassMap();
+        return $map[strtolower($class)] ?? $class;
+    }
+
+    /**
      * Returns the class after verifying reflection of the class.
      *
      * @param string $class the name of the class to load
@@ -595,6 +635,11 @@ abstract class FOGBase
         if ($lClass === 'reflectionclass') {
             return new \ReflectionClass(count($args ?: []) === 1 ? $args[0] : $args);
         }
+
+        // Bare core name -> FQCN, so the ~520 literal callers stop depending
+        // on the compatibility alias. A plugin name, a built-in and an
+        // already-qualified name all pass through unchanged.
+        $class = self::qualify($class);
 
         // Initiate Reflection item.
         $obj = new \ReflectionClass($class);
