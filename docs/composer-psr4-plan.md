@@ -711,15 +711,39 @@ downstream silently no-ops and reports success. The lab was put back
 afterwards (`psr4_revert_helloworld.sh`); the `helloWorld` table stays,
 because uninstall is forward-only by design.
 
-Still outstanding: **uploading an archive** through the UI into
-`/opt/fog/plugins`, as opposed to activating one already on disk. That needs
-ADR 0009's root half — `bin/fog-plugin-uploads.sh enable`, which makes the
-external root web-writable — and it is a deliberate root act the application
-cannot grant itself. Everything the PSR-4 move could plausibly break in that
-path (external-root discovery, autoloading from it, core winning a name
-collision against it) is covered above and by `psr4_plugin_shadow_probe.php`;
-what is left untested is the archive handling itself, which the move does not
-touch.
+**Uploading an archive**, with both of ADR 0009's switches on. A throwaway
+third-party plugin — `psr4probe`, a manifest, a model, a manager, a hook and
+a page — was tarred, uploaded through Plugin Management, staged (checksum and
+manifest returned for confirmation), committed into `/opt/fog/plugins`,
+discovered, activated and installed. On the next request its page rendered
+**from the external root**, its sidebar entry appeared and its REST class
+answered.
+
+The page is the interesting part. It is a GLOBAL-namespace class doing
+`extends FOGPage` and `self::getClass('Host', 1)` — bare core names, the
+spelling all 168 inheritances in `fog-plugins` use — and it printed
+`Host(1) is test` off the live database. After the move a bare core name
+resolves only through the reverse arm in `Initiator::autoload()`, so that
+one line is the arm working from outside the web tree entirely.
+
+Everything was removed afterwards and the lab put back: plugin uninstalled
+and forgotten, files deleted, `psr4probe` table dropped,
+`FOG_PLUGIN_UI_INSTALL_ENABLED` back to `0`. The root switch is Tom's to
+revoke (`bin/fog-plugin-uploads.sh disable`).
+
+### What that found
+
+The first upload had a mis-declared page class — `namespace FOG; class
+Psr4ProbeManagement` with no `class_alias` back — and it **took the whole
+admin UI down**: `get_class_vars()` on a name nothing declares is an uncaught
+TypeError out of `FOGPageManager`'s constructor, so every page 500'd with an
+empty body, not just the plugin's. Deleting the files did not fix it either,
+because the class-file list is TTL-cached and kept naming them.
+
+Pre-existing, not caused by the move, but reachable from outside the
+repository since ADR 0009 and now fixed here with the same two guards
+`startClassFromFiles()` already carries — see
+`tests/page-discovery-survives-bad-file.test.php`.
 
 The gate, in order of what is most likely to break quietly:
 
