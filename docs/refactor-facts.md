@@ -1009,6 +1009,35 @@ sed -n '72p' docs/adr/0014-authentication-seams-in-core-identity-providers-as-pl
 # ### 2. OIDC ships as a plugin, in `FOGProject/fog-plugins`
 ```
 
+### F-49 — Moving `System` breaks `fogupdater` on every server already installed
+
+`utils/FOGUpdater/fogupdater.sh:102` resolves "what is the latest version of
+this branch" by fetching
+`raw.githubusercontent.com/FOGProject/fogproject/<branch>/packages/web/lib/fog/system.class.php`
+and awking `FOG_VERSION` out of it. On the Beta channel `<branch>` is
+`working-1.6`. That file is installed to `$fogprogramdir/utils/` -- verified on
+this box at `/opt/fog/utils/FOGUpdater/fogupdater.sh` -- so **every server
+already running a 1.6 beta carries the old path baked in.**
+
+Consequence, and it is the reason this is a fact rather than a task: the break
+is not repairable by shipping a fix. A server whose updater cannot resolve the
+version cannot use the updater to fetch the updater that could. It errors with
+"Could not determine the latest FOG version for branch working-1.6" and the
+only way forward is a tarball and `installfog.sh` by hand. Fixing
+`fogupdater.sh` to probe both paths is necessary and is not sufficient; it only
+helps servers that have already taken the fix.
+
+This is the whole of the cost of moving `System`, and nothing else in the
+migration has this shape: every other consumer of a moved file ships in the
+same tarball as the file.
+
+```
+sed -n '102p' utils/FOGUpdater/fogupdater.sh
+grep -n 'raw.githubusercontent' /opt/fog/utils/FOGUpdater/fogupdater.sh   # 102, old path
+curl -so /dev/null -w '%{http_code}\n' https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/packages/web/lib/fog/system.class.php   # 200 today
+curl -so /dev/null -w '%{http_code}\n' https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/packages/web/src/Base/System.php        # 404 today
+```
+
 ---
 
 ## How to add an entry
