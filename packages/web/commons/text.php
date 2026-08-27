@@ -144,7 +144,6 @@ $foglang['TaskReboot'] = _('Task Reboot');
 $foglang['UserCleanup'] = _('User Cleanup');
 $foglang['UserTracker'] = _('User Tracker');
 $foglang['SelManager'] = _('%s Manager');
-$foglang['GreenFOG'] = _('Green FOG');
 $foglang['DirectoryCleaner'] = _('Directory Cleaner');
 $foglang['MACAddrList'] = _('MAC Address List');
 $foglang['FOGSettings'] = _('FOG Settings');

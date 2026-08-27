@@ -3066,7 +3066,6 @@ class GroupManagement extends FOGPage
         $notWhere = [
             'clientupdater',
             'dircleanup',
-            'greenfog',
             'usercleanup'
         ];
         $keys = array_diff($keys, $notWhere);

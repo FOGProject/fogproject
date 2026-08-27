@@ -8139,3 +8139,54 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 375
+$this->schema[] = [
+    // Green FOG's configuration outlives Green FOG itself.
+    //
+    // The module's server endpoint went with 565caa40c "Remove legacy client
+    // stuff", which deleted the GF class and left service/greenfog.php calling
+    // it -- a guaranteed fatal on every request until that file was deleted
+    // too.
+    //
+    // Most of the surface was already inert, in two independent ways that
+    // both predate this step: FOGBase::getGlobalModuleStatus() builds the
+    // module list from a HARDCODED $services array that has never listed
+    // greenfog, and the host, group and service-configuration pages each
+    // carried it in a $notWhere exclusion list on top of that. So there has
+    // been no per-host or per-group Green FOG toggle to tick for some time.
+    //
+    // One thing was not inert. FOG_CLIENT_GREENFOG_ENABLED still had a
+    // globalSettings row, under its own "FOG Client - Green Fog" category,
+    // so FOG Configuration rendered a real checkbox that saved a real value
+    // that nothing has read since the module was removed. That is the same
+    // failure FOG_PLUGINSYS_DIR was removed for in step 326: a setting that
+    // lies is worse than no setting.
+    //
+    // The `modules` row and its moduleStatusByHost answers go with it. They
+    // are what the exclusion lists existed to hide, and those lists are
+    // removed in the same commit -- keeping the row would put Green FOG back
+    // in the group and host module lists, which build their keys from this
+    // table rather than from $services.
+    //
+    // Deleted rather than left as dead rows because the module cannot come
+    // back: there is no GF class to restore. Ordered with the per-host
+    // answers first, so no window exists where a row references a module id
+    // nothing declares. Both are keyed on an exact value, so neither can take
+    // anything else with it.
+    //
+    // msModuleID is a VARCHAR. Step 34 seeded these rows with the short name
+    // and a later step rewrote them to the numeric id, so a server upgraded
+    // across that boundary can hold either spelling; both are matched.
+    //
+    // The seed steps that created all three are deliberately NOT edited.
+    // schema.php is a replay log, and step 326 set the precedent -- it
+    // deletes FOG_PLUGINSYS_DIR while leaving the INSERT that creates it at
+    // line 749 intact. A fresh install creates these and then removes them
+    // one step later, which costs nothing and keeps the history readable.
+    "DELETE FROM `moduleStatusByHost` "
+    . "WHERE `msModuleID` IN ('5', 'greenfog')",
+    "DELETE FROM `modules` WHERE `short_name` = 'greenfog'",
+    "DELETE FROM `globalSettings` "
+    . "WHERE `settingKey` = 'FOG_CLIENT_GREENFOG_ENABLED'",
+];

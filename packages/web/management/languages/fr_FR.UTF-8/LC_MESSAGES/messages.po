@@ -3114,9 +3114,6 @@ msgstr "Graphique Enabled"
 msgid "Graphical"
 msgstr "Graphique"
 
-msgid "Green FOG"
-msgstr "FOG vert"
-
 msgid "Group"
 msgstr "Groupe"
 
@@ -10904,6 +10901,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "Réinitialiser"
+
+#~ msgid "Green FOG"
+#~ msgstr "FOG vert"
 
 #, fuzzy
 #~ msgid "Group Mappings"

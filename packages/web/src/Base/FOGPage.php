@@ -3223,9 +3223,6 @@ abstract class FOGPage extends FOGBase
             $array = [];
             foreach ($globalModules as $index => $key) {
                 switch ($key) {
-                    case 'greenfog':
-                        $class='GF';
-                        continue 2;
                     case 'powermanagement':
                         $class='PM';
                         break;

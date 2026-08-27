@@ -3913,7 +3913,6 @@ class HostManagement extends FOGPage
         $notWhere = [
             'clientupdater',
             'dircleanup',
-            'greenfog',
             'usercleanup'
         ];
 

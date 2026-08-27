@@ -2073,7 +2073,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
             'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => true,
             'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => true,
-            'FOG_CLIENT_GREENFOG_ENABLED' => true,
             'FOG_CLIENT_HOSTREGISTER_ENABLED' => true,
             'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => true,
             'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => true,

@@ -3113,9 +3113,6 @@ msgstr "图启用"
 msgid "Graphical"
 msgstr "图形"
 
-msgid "Green FOG"
-msgstr "绿雾"
-
 msgid "Group"
 msgstr "组"
 
@@ -10903,6 +10900,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "重启"
+
+#~ msgid "Green FOG"
+#~ msgstr "绿雾"
 
 #, fuzzy
 #~ msgid "Group Mappings"

@@ -67,7 +67,6 @@ class ServiceConfigurationPage extends FOGPage
         $notWhere = [
             'clientupdater',
             'dircleanup',
-            'greenfog',
             'usercleanup'
         ];
         $modkeys = array_keys(self::getGlobalModuleStatus());

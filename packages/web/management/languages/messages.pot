@@ -2662,9 +2662,6 @@ msgstr ""
 msgid "Graphical"
 msgstr ""
 
-msgid "Green FOG"
-msgstr ""
-
 msgid "Group"
 msgstr ""
 
