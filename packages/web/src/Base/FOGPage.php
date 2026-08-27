@@ -20,6 +20,7 @@ use FOG\Items\Host;
 use FOG\Items\Image;
 use FOG\Items\Site;
 use FOG\Items\Snapin;
+use FOG\ReportManagement;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 

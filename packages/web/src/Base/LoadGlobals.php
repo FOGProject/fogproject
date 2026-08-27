@@ -13,6 +13,7 @@
 
 namespace FOG\Base;
 
+use FOG\DashboardPage;
 use FOG\Db\DatabaseManager;
 use FOG\Items\User;
 use FOG\Net\FOGFTP;
