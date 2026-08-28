@@ -82,6 +82,10 @@ FOGBase::$settings = array_merge(
     [
         'FOG_ADVANCED_MENU_LOGIN' => '0',
         'FOG_BOOT_EXIT_TYPE' => 'sanboot',
+        'FOG_CAPTUREIGNOREPAGEHIBER' => '0',
+        'FOG_CAPTURERESIZEPCT' => '5',
+        'FOG_CHANGE_HOSTNAME_EARLY' => '0',
+        'FOG_DISABLE_CHKDSK' => '1',
         'FOG_EFI_BOOT_EXIT_TYPE' => 'refind_efi',
         'FOG_IMAGE_LIST_MENU' => '0',
         'FOG_IPXE_BG_FILE' => 'bg.png',
@@ -101,6 +105,8 @@ FOGBase::$settings = array_merge(
         'FOG_KEYMAP' => '',
         'FOG_KEY_SEQUENCE' => '',
         'FOG_MEMTEST_KERNEL' => 'memtest.bin',
+        'FOG_MULTICAST_RENDEZVOUS' => '',
+        'FOG_PIGZ_COMP' => '6',
         'FOG_NO_MENU' => '0',
         'FOG_PXE_ADVANCED' => '0',
         'FOG_PXE_BOOT_IMAGE' => 'init.xz',
@@ -110,10 +116,12 @@ FOGBase::$settings = array_merge(
         'FOG_PXE_MENU_HIDDEN' => '0',
         'FOG_PXE_MENU_TIMEOUT' => '3',
         'FOG_REGISTRATION_ENABLED' => '1',
+        'FOG_TFTP_HOST' => '10.0.0.1',
         'FOG_TFTP_PXE_KERNEL' => 'bzImage',
         'FOG_TFTP_PXE_KERNEL_32' => 'bzImage32',
         'FOG_TFTP_PXE_KERNEL_ARM' => 'arm_Image',
         'FOG_WEB_HOST' => '10.0.0.1',
+        'FOG_WIPE_TIMEOUT' => '10',
         'FOG_WEB_ROOT' => '/fog/',
     ],
     (array)($scenario['settings'] ?? [])
@@ -227,6 +235,16 @@ FOGBase::$HookManager = new StubHookManager(
 $_REQUEST = (array)($scenario['request'] ?? []);
 $_GET = $_REQUEST;
 
+/*
+ * There is no autoloader here -- the harness requires the class file by path
+ * -- so the abstract half of the menu has to be loaded first. Sourced from
+ * the same directory as the class under test rather than hardcoded, so a
+ * renderer living anywhere else still finds it.
+ */
+$baseFile = dirname($classFile) . '/BootMenuBase.php';
+if (is_file($baseFile)) {
+    require_once $baseFile;
+}
 require_once $classFile;
 
 if (!empty($scenario['hooks'])) {

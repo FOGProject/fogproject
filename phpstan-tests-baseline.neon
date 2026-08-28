@@ -321,7 +321,13 @@ parameters:
 		-
 			message: '#^Access to an undefined static property FOG\\Route\:\:\$rows\.$#'
 			identifier: staticProperty.notFound
-			count: 2
+			count: 3
+			path: tests/lib/bootmenu-harness.php
+
+		-
+			message: '#^Parameter \#1 \$class of class FOG\\Image constructor expects string, array given\.$#'
+			identifier: argument.type
+			count: 1
 			path: tests/lib/bootmenu-harness.php
 
 		-

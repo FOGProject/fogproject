@@ -95,6 +95,208 @@ $scenarios = [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
         'host' => ['id' => 1, 'name' => 'testhost'],
     ],
+
+    /*
+     * Tasking. Everything above renders the MENU -- every one of those
+     * scenarios carries an invalid task so getTasking() falls straight
+     * through to printDefault(), which left the ~360 lines that build a
+     * task's kernel arguments with no characterization at all. These cover
+     * the branches that decide what FOS is told to do, because a wrong
+     * argument here is a client that boots and then images the wrong thing.
+     */
+    'task-deploy' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 1,
+                'tasktype' => [
+                    'id' => 1,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'kernelArgs' => 'type=down',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
+    /*
+     * A shutdown asked for by extraargs ALONE -- the task type's own
+     * kernelArgs deliberately do not mention it, so the render can only
+     * emit shutdown=1 by reading _extraArgs() and passing it through
+     * _wantsShutdown(). Both halves are then gated: an extraargs of
+     * 'shutdown=1 mode=debug' is exactly the shape that stripos()'s
+     * reversed arguments used to miss, and only a bare 'shutdown=1' ever
+     * worked, by accident. Nothing else in this file renders that
+     * argument, so without this scenario the pair is unexercised.
+     */
+    'task-deploy-shutdown' => [
+        'request' => [
+            'arch' => 'x86_64',
+            'platform' => 'bios',
+            'extraargs' => 'shutdown=1 mode=debug',
+        ],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 1,
+                'tasktype' => [
+                    'id' => 1,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'kernelArgs' => 'type=down',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
+    'task-capture' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 2,
+                'capture' => true,
+                'tasktype' => [
+                    'id' => 2,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'capture' => true,
+                    'kernelArgs' => 'type=up',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
+    'task-deploy-arm64' => [
+        'request' => ['arch' => 'arm64', 'platform' => 'efi'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 1,
+                'tasktype' => [
+                    'id' => 1,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'kernelArgs' => 'type=down',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
+    'task-deploy-debug' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 1,
+                'tasktype' => [
+                    'id' => 1,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'kernelArgs' => 'type=down mode=debug',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
+    'task-non-imaging' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 12,
+                'tasktype' => [
+                    'id' => 12,
+                    'imaging' => false,
+                    'initneeded' => true,
+                    'kernelArgs' => 'mode=wipe',
+                ],
+                'image' => ['id' => 1, 'osID' => 50, 'path' => 'testimage'],
+            ],
+        ],
+    ],
+    'task-snapin-falls-to-menu' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => ['id' => 1, 'typeID' => 13, 'snapin' => true],
+        ],
+    ],
+    'task-image-ignored' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'imageignored' => true,
+            'task' => [
+                'id' => 1,
+                'typeID' => 1,
+                'tasktype' => [
+                    'id' => 1,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'kernelArgs' => 'type=down',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
     'registered-efi-mok-authvars' => [
         'request' => ['arch' => 'x86_64', 'platform' => 'efi'],
         'host' => ['id' => 1, 'name' => 'testhost'],

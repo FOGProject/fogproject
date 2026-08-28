@@ -2539,6 +2539,48 @@ parameters:
 			path: packages/web/src/Base/System.php
 
 		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
+			message: '#^Negated boolean expression is always true\.$#'
+			identifier: booleanNot.alwaysTrue
+			count: 2
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
+			message: '#^Parameter \#1 \$str of function trim expects string, object given\.$#'
+			identifier: argument.type
+			count: 3
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
+			message: '#^Result of \|\| is always true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 2
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
+			message: '#^Variable \$chkdsk in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
+			message: '#^Variable \$clamav in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 1
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
+			message: '#^Variable \$ip might not be defined\.$#'
+			identifier: variable.undefined
+			count: 3
+			path: packages/web/src/Boot/BootMenuBase.php
+
+		-
 			message: '#^Call to function is_numeric\(\) with int\<0, max\> will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -2569,21 +2611,9 @@ parameters:
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
-			count: 2
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
@@ -2596,12 +2626,6 @@ parameters:
 			message: '#^Parameter \#1 \$key of static method FOG\\Base\\FOGBase\:\:arrayInsertAfter\(\) expects string, int\<0, max\> given\.$#'
 			identifier: argument.type
 			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
-			message: '#^Parameter \#1 \$str of function trim expects string, object given\.$#'
-			identifier: argument.type
-			count: 3
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
@@ -2620,30 +2644,6 @@ parameters:
 			message: '#^Property FOG\\Boot\\IpxeBootMenu\:\:\$_shutdown is never written, only read\.$#'
 			identifier: property.onlyRead
 			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
-			message: '#^Result of \|\| is always true\.$#'
-			identifier: booleanOr.alwaysTrue
-			count: 2
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
-			message: '#^Variable \$chkdsk in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
-			message: '#^Variable \$clamav in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
-			message: '#^Variable \$ip might not be defined\.$#'
-			identifier: variable.undefined
-			count: 3
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
@@ -4532,18 +4532,6 @@ parameters:
 
 		-
 			message: '#^Method FOG\\Router\\Route\:\:getsearchbody\(\) should return array but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Method FOG\\Router\\Route\:\:getter\(\) should return array\|object but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Method FOG\\Router\\Route\:\:getter\(\) should return array\|object but return statement is missing\.$#'
 			identifier: return.missing
 			count: 1
 			path: packages/web/src/Router/Route.php
