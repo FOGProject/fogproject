@@ -178,6 +178,206 @@ class StubTask extends StubModel
     {
         return (bool)$this->get('snapin');
     }
+    /**
+     * Whether the task itself is a capture.
+     *
+     * Separate from TaskType::isCapture() on purpose -- getTasking() consults
+     * both, and a scenario needs to be able to disagree between them to reach
+     * the getMasterStorageNode() branch.
+     *
+     * @return bool
+     */
+    public function isCapture()
+    {
+        return (bool)$this->get('capture');
+    }
+    /**
+     * Returns the task's type.
+     *
+     * @return TaskType
+     */
+    public function getTaskType()
+    {
+        return new TaskType((array)($this->data['tasktype'] ?? []));
+    }
+    /**
+     * Returns the image being deployed or captured.
+     *
+     * @return Image
+     */
+    public function getImage()
+    {
+        return new Image((array)($this->data['image'] ?? []));
+    }
+}
+
+/**
+ * Task type stub.
+ *
+ * The four is*() predicates are what steer getTasking(): whether an init is
+ * needed at all, whether a storage node is resolved as master or optimal, and
+ * whether the multicast session lookup runs.
+ */
+class TaskType extends StubModel
+{
+    /**
+     * Whether the type images a disk.
+     *
+     * @return bool
+     */
+    public function isImagingTask()
+    {
+        return (bool)$this->get('imaging');
+    }
+    /**
+     * Whether the type is multicast.
+     *
+     * @return bool
+     */
+    public function isMulticast()
+    {
+        return (bool)$this->get('multicast');
+    }
+    /**
+     * Whether the type needs FOS booted.
+     *
+     * @return bool
+     */
+    public function isInitNeededTasking()
+    {
+        return (bool)$this->get('initneeded');
+    }
+    /**
+     * Whether the type captures rather than deploys.
+     *
+     * @return bool
+     */
+    public function isCapture()
+    {
+        return (bool)$this->get('capture');
+    }
+}
+
+/**
+ * Image stub, with the two type lookups getTasking() chains through.
+ */
+class Image extends StubModel
+{
+    /**
+     * Returns the image type (mps, mpa, n).
+     *
+     * @return StubModel
+     */
+    public function getImageType()
+    {
+        return new StubModel(['id' => 1, 'type' => $this->get('imagetype')]);
+    }
+    /**
+     * Returns the partition type (all, mbr, ...).
+     *
+     * A string, not an object: the real Image::getPartitionType() is
+     * getImagePartitionType()->get('type'), and getTasking() concatenates the
+     * result straight into imgPartitionType=. Returning an object here makes
+     * the render die with "could not be converted to string", which is how
+     * this was found.
+     *
+     * @return string
+     */
+    public function getPartitionType()
+    {
+        return (string)$this->get('partitiontype');
+    }
+    /**
+     * Returns the group a deploy reads from.
+     *
+     * @return StorageGroup
+     */
+    public function getStorageGroup()
+    {
+        return new StorageGroup(['id' => 1, 'name' => 'default']);
+    }
+    /**
+     * Returns the group a capture writes to.
+     *
+     * @return StorageGroup
+     */
+    public function getPrimaryStorageGroup()
+    {
+        return new StorageGroup(['id' => 1, 'name' => 'default', 'primary' => true]);
+    }
+}
+
+/**
+ * Storage group stub.
+ *
+ * Both getters return the same node deliberately: which one getTasking()
+ * calls is the behaviour under test, and the golden shows it through the
+ * storage= argument rather than through the node's identity.
+ */
+class StorageGroup extends StubModel
+{
+    /**
+     * The node a deploy reads from.
+     *
+     * @return StorageNode
+     */
+    public function getOptimalStorageNode()
+    {
+        return new StorageNode(1);
+    }
+    /**
+     * The node a capture writes to.
+     *
+     * @return StorageNode
+     */
+    public function getMasterStorageNode()
+    {
+        return new StorageNode(1);
+    }
+}
+
+/**
+ * Multicast session stub.
+ */
+class MulticastSession extends StubModel
+{
+}
+
+/**
+ * Multicast session association stub, looked up by id from the fixture rows.
+ */
+class MulticastSessionAssociation extends StubModel
+{
+    /**
+     * Looks the association up by id.
+     *
+     * @param int $id the association id
+     */
+    public function __construct($id = 0)
+    {
+        $found = [];
+        foreach ((array)(Route::$rows['multicastsessionassociation'] ?? []) as $assoc) {
+            if (($assoc->id ?? null) == $id) {
+                $found = (array)$assoc;
+                break;
+            }
+        }
+        parent::__construct($found);
+    }
+    /**
+     * Returns the session this association points at.
+     *
+     * @return MulticastSession
+     */
+    public function getMulticastSession()
+    {
+        return new MulticastSession(
+            [
+                'id' => $this->get('msID'),
+                'image' => $this->get('image'),
+            ]
+        );
+    }
 }
 
 /**
@@ -220,6 +420,20 @@ class StubHost extends StubModel
     public function getImage()
     {
         return new StubModel((array)($this->data['image'] ?? []));
+    }
+    /**
+     * Every MAC on the host.
+     *
+     * Read on the tasking path only, where it becomes the mac= kernel
+     * argument. Defaults to the host's primary so a scenario that does not
+     * care about multi-NIC still renders.
+     *
+     * @return array
+     */
+    public function getMyMacs()
+    {
+        return (array)($this->data['macs']
+            ?? [$this->data['mac'] ?? '00:11:22:33:44:55']);
     }
 }
 
