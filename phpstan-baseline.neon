@@ -31,6 +31,12 @@ parameters:
 			path: bin/psr4-scan.php
 
 		-
+			message: '#^Constant DATABASE_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: bin/verify-plugin-install-nondestructive.php
+
+		-
 			message: '#^Path in require\(\) "/commons/base\.inc\.php" is not a file or it does not exist\.$#'
 			identifier: require.fileNotFound
 			count: 1
@@ -99,6 +105,18 @@ parameters:
 		-
 			message: '#^Calling self\:\:getSetting\(\) outside of class scope\.$#'
 			identifier: outOfClass.self
+			count: 1
+			path: packages/web/commons/schema.php
+
+		-
+			message: '#^Constant STORAGE_FTP_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 2
+			path: packages/web/commons/schema.php
+
+		-
+			message: '#^Constant TFTP_FTP_PASSWORD not found\.$#'
+			identifier: constant.notFound
 			count: 1
 			path: packages/web/commons/schema.php
 
@@ -958,6 +976,12 @@ parameters:
 			message: '#^Access to an undefined property FOG\\SchemaUpdaterPage\:\:\$schema\.$#'
 			identifier: property.notFound
 			count: 4
+			path: packages/web/lib/pages/schemaupdaterpage.page.php
+
+		-
+			message: '#^Constant FOG_SCHEMA_INSTALL_TOKEN not found\.$#'
+			identifier: constant.notFound
+			count: 1
 			path: packages/web/lib/pages/schemaupdaterpage.page.php
 
 		-
@@ -2083,12 +2107,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Negated boolean expression is always true\.$#'
-			identifier: booleanNot.alwaysTrue
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Offset string does not exist on ''ABCDEFGHIJKLMNOPQRS…''\.$#'
 			identifier: offsetAccess.notFound
 			count: 1
@@ -2191,12 +2209,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Result of \|\| is always true\.$#'
-			identifier: booleanOr.alwaysTrue
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Static property FOG\\Base\\FOGBase\:\:\$TimeZone \(object\) does not accept string\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -2217,7 +2229,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 2
+			count: 1
 			path: packages/web/src/Base/FOGBase.php
 
 		-
@@ -3263,6 +3275,12 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: packages/web/src/Db/DatabaseManager.php
+
+		-
+			message: '#^Constant DATABASE_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: packages/web/src/Db/Mysqldump.php
 
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
