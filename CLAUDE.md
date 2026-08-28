@@ -109,6 +109,36 @@ PR it finds nothing to do, which is expected rather than a symptom.
 
 Full reasoning: `docs/development/version-sync-automation.md` in `FOGProject/fog-docs`.
 
+### The `phpstan` check is two passes — run both, unscoped
+
+One check-run named `phpstan`, one job, **two steps**. Run both before pushing:
+
+```
+vendor/bin/phpstan analyse --memory-limit=2G --no-progress
+vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G --no-progress
+```
+
+`phpstan analyse <one file>` is not a smaller version of either. Naming a path
+overrides the config's own `paths`, so a scoped run skips the whole `tests/`
+pass and passes for reasons the real command never touches. The two live in the
+same job on purpose: the ruleset requires the single context `phpstan`, so
+neither pass can be required without the other.
+
+The second pass analyses `tests/` against `phpstan-tests-baseline.neon`, and
+**that baseline counts occurrences, not lines.** Adding a second use of an
+already-baselined pattern fails the build on an entry nobody touched:
+
+```
+Ignored error pattern ... is expected to occur 2 times, but occurred 3 times
+```
+
+Bump that entry's `count:`; don't regenerate the baseline, which would sweep up
+unrelated drift. Note this is the opposite direction from
+`reportUnmatchedIgnoredErrors: false`, which exists so that *fixing* a baselined
+error does not fail the build — nothing guards the over-count, so it is the one
+you find in CI. (#1448: one added `Route::$rows` write in
+`tests/lib/bootmenu-render.php` took a count from 2 to 3.)
+
 ### Commit authorship
 
 Commits are **authored by the maintainer and co-authored by the agent**, not the
