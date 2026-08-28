@@ -1695,6 +1695,10 @@ msgid "Could not create the staging directory."
 msgstr "无法创建管理单元工作"
 
 #, fuzzy
+msgid "Could not create tmp file."
+msgstr "无法读取tmp文件。"
+
+#, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "找不到存储节点，有一个图像，此组内启用？"
 
@@ -2530,6 +2534,10 @@ msgstr "完成"
 
 msgid "Export Configuration"
 msgstr "导出配置"
+
+#, fuzzy
+msgid "Export Failed"
+msgstr "图片更新"
 
 #, fuzzy
 msgid "Export LDAP Servers"
@@ -8041,6 +8049,10 @@ msgid "Sync finished - "
 msgstr ""
 
 #, fuzzy
+msgid "System"
+msgstr "系统类型"
+
+#, fuzzy
 msgid "System Log"
 msgstr "系统类型"
 
@@ -9700,6 +9712,10 @@ msgstr ""
 
 msgid "You do not have permission to change site grants."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to export the database."
+msgstr "没有连接到数据库"
 
 msgid "You do not have permission to issue API tokens."
 msgstr ""

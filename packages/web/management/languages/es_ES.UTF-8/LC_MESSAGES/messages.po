@@ -1714,6 +1714,10 @@ msgstr "No se pudo crear Complemento de empleo"
 msgid "Could not create the staging directory."
 msgstr "No se pudo crear Complemento de empleo"
 
+#, fuzzy
+msgid "Could not create tmp file."
+msgstr "No se pudo leer el archivo tmp."
+
 msgid "Could not find a Storage Node in this group"
 msgstr ""
 
@@ -2567,6 +2571,10 @@ msgstr "impresora iPrint"
 #, fuzzy
 msgid "Export Configuration"
 msgstr "Configuración"
+
+#, fuzzy
+msgid "Export Failed"
+msgstr "imagen actualizada"
 
 #, fuzzy
 msgid "Export LDAP Servers"
@@ -8220,6 +8228,10 @@ msgid "Sync finished - "
 msgstr ""
 
 #, fuzzy
+msgid "System"
+msgstr "Tipo de sistema"
+
+#, fuzzy
 msgid "System Log"
 msgstr "Tipo de sistema"
 
@@ -9883,6 +9895,10 @@ msgstr ""
 
 msgid "You do not have permission to change site grants."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to export the database."
+msgstr "Haga clic en el botón para exportar la base de datos."
 
 msgid "You do not have permission to issue API tokens."
 msgstr ""

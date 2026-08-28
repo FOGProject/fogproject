@@ -1692,6 +1692,10 @@ msgid "Could not create the staging directory."
 msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
 
 #, fuzzy
+msgid "Could not create tmp file."
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
 msgid "Could not find a Storage Node in this group"
 msgstr "In dieser Gruppe wurde kein Speicherknoten gefunden"
 
@@ -2528,6 +2532,10 @@ msgstr "Export vollständig"
 
 msgid "Export Configuration"
 msgstr "Konfiguration exportieren"
+
+#, fuzzy
+msgid "Export Failed"
+msgstr "Image aktualisiert"
 
 #, fuzzy
 msgid "Export LDAP Servers"
@@ -8046,6 +8054,10 @@ msgid "Sync finished - "
 msgstr ""
 
 #, fuzzy
+msgid "System"
+msgstr "System Tools"
+
+#, fuzzy
 msgid "System Log"
 msgstr "System Tools"
 
@@ -9705,6 +9717,10 @@ msgstr ""
 
 msgid "You do not have permission to change site grants."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to export the database."
+msgstr "Keine Verbindung zur Datenbank"
 
 msgid "You do not have permission to issue API tokens."
 msgstr ""

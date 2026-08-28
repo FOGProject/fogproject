@@ -1625,6 +1625,10 @@ msgstr "スナップインジョブの作成に失敗しました"
 msgid "Could not create the staging directory."
 msgstr "スナップインジョブの作成に失敗しました"
 
+#, fuzzy
+msgid "Could not create tmp file."
+msgstr "一時ファイルを読み取れませんでした。"
+
 msgid "Could not find a Storage Node in this group"
 msgstr "このグループ内にストレージノードが見つかりません"
 
@@ -2444,6 +2448,10 @@ msgstr "エクスポートが完了しました"
 
 msgid "Export Configuration"
 msgstr "構成をエクスポート"
+
+#, fuzzy
+msgid "Export Failed"
+msgstr "インポートに失敗しました"
 
 #, fuzzy
 msgid "Export LDAP Servers"
@@ -7716,6 +7724,10 @@ msgid "Sync finished - "
 msgstr ""
 
 #, fuzzy
+msgid "System"
+msgstr "システムツール"
+
+#, fuzzy
 msgid "System Log"
 msgstr "システムツール"
 
@@ -9315,6 +9327,10 @@ msgstr "少なくとも 1 つのグループを関連付ける必要がありま
 
 #, fuzzy
 msgid "You do not have permission to change site grants."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
+#, fuzzy
+msgid "You do not have permission to export the database."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 #, fuzzy

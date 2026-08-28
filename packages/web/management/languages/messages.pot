@@ -1452,6 +1452,9 @@ msgstr ""
 msgid "Could not create the staging directory."
 msgstr ""
 
+msgid "Could not create tmp file."
+msgstr ""
+
 msgid "Could not find a Storage Node in this group"
 msgstr ""
 
@@ -2157,6 +2160,9 @@ msgid "Export Complete"
 msgstr ""
 
 msgid "Export Configuration"
+msgstr ""
+
+msgid "Export Failed"
 msgstr ""
 
 msgid "Export LDAP Servers"
@@ -6820,6 +6826,9 @@ msgstr ""
 msgid "Sync finished - "
 msgstr ""
 
+msgid "System"
+msgstr ""
+
 msgid "System Log"
 msgstr ""
 
@@ -8270,6 +8279,9 @@ msgid "You do not have permission to change provider group associations."
 msgstr ""
 
 msgid "You do not have permission to change site grants."
+msgstr ""
+
+msgid "You do not have permission to export the database."
 msgstr ""
 
 msgid "You do not have permission to issue API tokens."
