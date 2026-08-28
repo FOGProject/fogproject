@@ -197,7 +197,19 @@ class Schema extends FOGController
     ) {
         $orig_exec_time = ini_get('max_execution_time');
         set_time_limit(0);
-        $file = '/tmp/fog_backup_tmp.sql';
+        // A fixed path in /tmp was three bugs at once (GH-1410): the dump
+        // holds every credential in the deployment and the default umask
+        // made it world-readable for the duration; two concurrent exports
+        // clobbered each other; and fopen() follows symlinks, so a
+        // pre-planted symlink at a guessable name was a write-as-web-user
+        // primitive. tempnam() creates the file 0600 and unpredictably
+        // named, and Mysqldump's own fopen(...,'wb') truncates rather than
+        // recreating it, so the mode survives.
+        $file = tempnam(sys_get_temp_dir(), 'fog_backup_');
+        if (false === $file) {
+            throw new \Exception(_('Could not create tmp file.'));
+        }
+        chmod($file, 0600);
         if (!$backup_name) {
             $backup_name = sprintf(
                 'fog_backup_%s.sql',

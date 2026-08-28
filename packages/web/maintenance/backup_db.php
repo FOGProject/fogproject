@@ -39,7 +39,15 @@ unset($_remoteIp, $_serverIp);
 
 $backup_name = 'fog_backup_'
     . FOGCore::formatTime('now', 'Ymd_His');
-$tmpfile = '/tmp/' . $backup_name;
+// Not a fixed name under the system temp dir: this dumps every credential
+// in the deployment, and a guessable path is world-readable under the
+// default umask, collides with a concurrent run, and is a symlink target
+// -- fopen() follows one. Same fix as Schema::exportdb() (GH-1410).
+$tmpfile = tempnam(sys_get_temp_dir(), 'fog_backup_');
+if (false === $tmpfile) {
+    throw new \Exception(_('Could not create tmp file.'));
+}
+chmod($tmpfile, 0600);
 $data = '';
 FOGCore::getClass('Mysqldump')->start($tmpfile);
 if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
