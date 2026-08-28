@@ -5410,14 +5410,34 @@ class Route extends FOGBase
      * @param string $classname The name of the class.
      * @param object $class     The class to work with.
      *
-     * @return object|array
+     * @return object|array|null null when $class is not of $classname -- the
+     *                           bare `return;` in the type guard below. The
+     *                           docblock said object|array until GH-1442,
+     *                           which is why nothing downstream ever tested
+     *                           for the null it has always been able to
+     *                           return.
      */
     public static function getter($classname, $class)
     {
         self::$getterDepth++;
         try {
-            if (!$class instanceof $classname) {
-                return;
+            // qualify() before the test, because $classname is the BARE
+            // lowercase name ('storagenode') everything on this router speaks,
+            // while the entity is FOG\Items\StorageNode. A class name held in
+            // a string resolves from the GLOBAL namespace, so this guard only
+            // ever passed while each file under src/ re-exported itself there
+            // with class_alias(). Those aliases were retired (ADR 0013 §2) and
+            // this guard was missed, so from that commit it was false for every
+            // class: getter() returned null, and indiv() emitted `null` with a
+            // 200 for EVERY single-entity GET. Silent, because returning null
+            // from a serializer is indistinguishable from a serializer that ran.
+            //
+            // qualify() passes an unknown name through unchanged, so a plugin
+            // class -- global-namespace by design (ADR 0009) -- still matches
+            // itself, and so does an already-qualified name.
+            $fqcn = self::qualify($classname);
+            if (!$class instanceof $fqcn) {
+                return null;
             }
             switch ($classname) {
                 case 'host':
@@ -5847,6 +5867,11 @@ class Route extends FOGBase
             return $data;
         } catch (\Exception $e) {
             self::_sendCaught($e);
+            // Reached only when sendResponse() does not end the request --
+            // an internal caller running under _rethrowDepth. Explicit,
+            // because falling off the end here is the same silent null the
+            // type guard above used to produce.
+            return null;
         } finally {
             self::$getterDepth--;
         }
