@@ -118,3 +118,11 @@ skills-lock.json
 # packages/tftp above. A fresh clone has no plugins until that script is run,
 # which the installer does for you.
 /packages/web/lib/plugins/
+
+# Root-level dev tooling (PHPStan). Anchored with a leading slash so it matches
+# ONLY the repo root -- packages/web/vendor is the shipped application's
+# dependency tree and stays tracked. Nothing here reaches a FOG server:
+# copybacktrunk.sh rsyncs packages/web/ and the installer never reads the repo
+# root, so a static analyser cannot be deployed by accident.
+/vendor/
+/.phpstan-cache/
