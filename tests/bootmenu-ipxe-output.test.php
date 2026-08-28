@@ -129,6 +129,45 @@ $scenarios = [
             ],
         ],
     ],
+    /*
+     * A shutdown asked for by extraargs ALONE -- the task type's own
+     * kernelArgs deliberately do not mention it, so the render can only
+     * emit shutdown=1 by reading _extraArgs() and passing it through
+     * _wantsShutdown(). Both halves are then gated: an extraargs of
+     * 'shutdown=1 mode=debug' is exactly the shape that stripos()'s
+     * reversed arguments used to miss, and only a bare 'shutdown=1' ever
+     * worked, by accident. Nothing else in this file renders that
+     * argument, so without this scenario the pair is unexercised.
+     */
+    'task-deploy-shutdown' => [
+        'request' => [
+            'arch' => 'x86_64',
+            'platform' => 'bios',
+            'extraargs' => 'shutdown=1 mode=debug',
+        ],
+        'host' => [
+            'id' => 1,
+            'name' => 'testhost',
+            'task' => [
+                'id' => 1,
+                'typeID' => 1,
+                'tasktype' => [
+                    'id' => 1,
+                    'imaging' => true,
+                    'initneeded' => true,
+                    'kernelArgs' => 'type=down',
+                ],
+                'image' => [
+                    'id' => 1,
+                    'osID' => 50,
+                    'path' => 'testimage',
+                    'format' => 5,
+                    'imagetype' => 'mps',
+                    'partitiontype' => 'all',
+                ],
+            ],
+        ],
+    ],
     'task-capture' => [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
         'host' => [

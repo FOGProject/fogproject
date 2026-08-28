@@ -149,6 +149,7 @@ const TABLE = [
     'FOGURLRequests' => 'Net',
     'Ping' => 'Net',
     'FOGRollingURL' => 'Net',
+    'BootMenuBase' => 'Boot',
     'IpxeBootMenu' => 'Boot',
     'Registration' => 'Boot',
     'WakeOnLan' => 'Boot',

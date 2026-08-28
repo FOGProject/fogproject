@@ -235,6 +235,16 @@ FOGBase::$HookManager = new StubHookManager(
 $_REQUEST = (array)($scenario['request'] ?? []);
 $_GET = $_REQUEST;
 
+/*
+ * There is no autoloader here -- the harness requires the class file by path
+ * -- so the abstract half of the menu has to be loaded first. Sourced from
+ * the same directory as the class under test rather than hardcoded, so a
+ * renderer living anywhere else still finds it.
+ */
+$baseFile = dirname($classFile) . '/BootMenuBase.php';
+if (is_file($baseFile)) {
+    require_once $baseFile;
+}
 require_once $classFile;
 
 if (!empty($scenario['hooks'])) {

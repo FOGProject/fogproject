@@ -644,6 +644,18 @@ kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 w
 imgfetch init.xz
 boot
 
+########## task-deploy-shutdown ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=00:11:22:33:44:55 ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 irqpoll hostname=testhost chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5 PIGZ_COMP=-6 shutdown=1 type=down
+imgfetch init.xz
+boot
+
 ########## task-capture ##########
 #!ipxe
 set fog-ip 10.0.0.1
