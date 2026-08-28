@@ -1,6 +1,6 @@
 <?php
 /**
- * Renders one IpxeBootMenu scenario and prints the resulting iPXE script.
+ * Renders one boot-menu scenario and prints the resulting boot config.
  *
  * Run as a child process by bootmenu-ipxe-output.test.php. It is a separate
  * process because several IpxeBootMenu paths end in exit() -- noMenu() and the
@@ -9,7 +9,7 @@
  * (self::$_archProfile) that a second scenario in the same process would
  * inherit.
  *
- * Usage: php bootmenu-render.php <scenario-json> <path-to-bootmenu.class.php>
+ * Usage: php bootmenu-render.php <scenario-json> <path-to-menu-class.php>
  */
 
 require_once __DIR__ . '/bootmenu-harness.php';
@@ -247,6 +247,13 @@ if (is_file($baseFile)) {
 }
 require_once $classFile;
 
+/*
+ * Derived from the filename rather than hardcoded, so the same harness renders
+ * either bootloader. PSR-4 already requires the basename to match the declared
+ * class exactly (bin/psr4-scan.php --check enforces it), so this cannot drift.
+ */
+$menuClass = '\\FOG\\Boot\\' . basename($classFile, '.php');
+
 if (!empty($scenario['hooks'])) {
     /*
      * Hook-payload mode: what a plugin receives is not visible in the emitted
@@ -254,10 +261,10 @@ if (!empty($scenario['hooks'])) {
      * and report the payloads instead.
      */
     ob_start();
-    new \FOG\Boot\IpxeBootMenu();
+    new $menuClass();
     ob_end_clean();
     echo json_encode(FOGBase::$HookManager->fired, JSON_PRETTY_PRINT), "\n";
     exit(0);
 }
 
-new \FOG\Boot\IpxeBootMenu();
+new $menuClass();

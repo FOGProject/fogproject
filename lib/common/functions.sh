@@ -9439,8 +9439,8 @@ EOF
                         # iPXE's own fetches -- otherwise it lands right back
                         # on the HTTPS it cannot validate and boot fails.
                         #
-                        # The rule is "every path iPXE ITSELF fetches", which is
-                        # two directories, not one:
+                        # The rule is "every path a BOOTLOADER itself fetches",
+                        # which is three directories, not one:
                         #
                         #   service/ipxe/       boot.php, advanced.php, the
                         #                       kernel and init (fetched
@@ -9453,6 +9453,16 @@ EOF
                         #                       chains. See IpxeBootMenu's Secure
                         #                       Boot entries.
                         #
+                        #   service/uboot/      boot.php, for ARM boards that
+                        #                       cannot run iPXE at all. U-Boot's
+                        #                       `wget` is HTTP-only with no TLS
+                        #                       whatsoever, so it cannot even
+                        #                       FAIL a validation -- a 308 to
+                        #                       https simply ends the boot. The
+                        #                       comment below about a FOS fetch
+                        #                       dropping -k is the same trap;
+                        #                       this is that trap arriving.
+                        #
                         # Everything else FOS reaches under ${web} is fetched by
                         # curl -Lks, which follows the redirect and skips
                         # verification, so it survives one. That tolerance is
@@ -9460,7 +9470,7 @@ EOF
                         # fetch ever drops -k, its path has to be added here too.
                         if [[ ${BOOT_url_proto} != https ]]; then
                             local nbdir
-                            for nbdir in ipxe secureboot; do
+                            for nbdir in ipxe secureboot uboot; do
                                 echo "    location ^~ ${WEB_root}service/${nbdir}/ {" >> "$etcconf"
                                 echo "        root ${WEB_docroot};" >> "$etcconf"
                                 echo "        index index.php;" >> "$etcconf"
@@ -9711,11 +9721,13 @@ EOF
                         # 2017. Apache's MergeSlashes normally hides it, which
                         # is why it went unreported for so long.
                         # See the nginx branch for the full reasoning: every
-                        # path iPXE ITSELF fetches must not be redirected to an
-                        # HTTPS it cannot validate, and that is two directories
-                        # -- service/ipxe/ and service/secureboot/, the latter
-                        # because IpxeBootMenu imgfetches MOK.der and chains
-                        # mmx64.efi / arm64-efi/mmaa64.efi out of it.
+                        # path a BOOTLOADER itself fetches must not be
+                        # redirected to an HTTPS it cannot validate, and that is
+                        # three directories -- service/ipxe/, service/secureboot/
+                        # (IpxeBootMenu imgfetches MOK.der and chains mmx64.efi /
+                        # arm64-efi/mmaa64.efi out of it) and service/uboot/,
+                        # whose caller is U-Boot's HTTP-only `wget` and so cannot
+                        # follow the redirect at all.
                         #
                         # The conditions go immediately before the rule they
                         # guard, since RewriteCond applies only to the next
@@ -9724,7 +9736,7 @@ EOF
                         # only when the request is for neither directory.
                         if [[ ${BOOT_url_proto} != https ]]; then
                             local nbdir
-                            for nbdir in ipxe secureboot; do
+                            for nbdir in ipxe secureboot uboot; do
                                 echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"
                             done
                         fi

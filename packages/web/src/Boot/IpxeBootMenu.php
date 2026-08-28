@@ -1163,44 +1163,7 @@ class IpxeBootMenu extends BootMenuBase
      */
     protected function _printTasking($kernelArgsArray)
     {
-        /**
-         * An entry is either a plain string that is always included, or a
-         * ['value' => ..., 'active' => ...] pair that is included only when
-         * active. Both then get the same debug rewrite, which is why the
-         * two branches this replaces were identical apart from where the
-         * string came from.
-         *
-         * By value, not by reference: the old loop took &$arg over a
-         * (array) cast and unset() the reference inside the body, which
-         * does nothing useful here and is a trap the moment anyone writes
-         * through it -- the cast produces a temporary, so the write lands
-         * nowhere.
-         */
-        $kernelArgs = [];
-        foreach ((array)$kernelArgsArray as $arg) {
-            if (is_array($arg)) {
-                if (empty($arg['value']) || empty($arg['active'])) {
-                    continue;
-                }
-                $arg = $arg['value'];
-            }
-            if (empty($arg)) {
-                continue;
-            }
-            $kernelArgs[] = preg_replace(
-                '#mode=debug|mode=onlydebug#i',
-                'isdebug=yes',
-                $arg
-            );
-        }
-        $kernelArgs = implode(
-            ' ',
-            array_values(
-                array_unique(
-                    array_filter($kernelArgs)
-                )
-            )
-        );
+        $kernelArgs = self::flattenKernelArgs($kernelArgsArray);
         $Send['task'][(
             self::$Host->isValid() ?
             self::$Host->get('task')->get('typeID') :
