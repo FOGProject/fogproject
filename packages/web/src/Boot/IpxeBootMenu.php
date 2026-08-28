@@ -876,7 +876,6 @@ class IpxeBootMenu extends BootMenuBase
                     trim($StorageNode->get('ip'))
                 )
             ];
-            $this->_parseMe($Send);
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
                 trim($StorageNode->get('ip')),
@@ -884,6 +883,18 @@ class IpxeBootMenu extends BootMenuBase
                 trim($StorageNode->get('ip'))
             );
         }
+        /**
+         * Outside the guard above, which it used to sit inside. This is the
+         * only _parseMe() in the constructor and it flushes the whole header
+         * -- '#!ipxe' first of all, then fog-ip, fog-webroot, boot-url,
+         * setmacto and the host/inventory variables. An install with no
+         * enabled storage node therefore emitted a script with no shebang,
+         * which iPXE rejects outright: not a menu missing its imaging
+         * options, but a machine that does not boot, and no clue on screen
+         * as to why. Only storage-ip is genuinely conditional, so only
+         * storage-ip is built under the condition.
+         */
+        $this->_parseMe($Send);
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '

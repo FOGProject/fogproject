@@ -678,6 +678,29 @@ $checks = [
             'set nevermind',
         ],
     ],
+    /*
+     * The constructor's only _parseMe() used to sit inside
+     * `if ($StorageNode->isValid())`, so an install with no enabled storage
+     * node emitted no header at all -- no '#!ipxe', which iPXE rejects
+     * outright, so the machine does not boot rather than booting to a menu
+     * with imaging missing. Asserted on the shebang and on a host variable,
+     * because those are what the guard was swallowing; storage-ip is
+     * genuinely conditional and is refuted here to pin that the fix moved
+     * the flush out rather than moving the condition off.
+     */
+    'the header is emitted even with no storage node' => [
+        'scenario' => [
+            'host' => ['id' => 1, 'name' => 'testhost'],
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'noStorageNode' => true,
+        ],
+        'expectLine' => [
+            '#!ipxe',
+            'set hostname testhost',
+            'set boot-url ',
+        ],
+        'refuteLine' => ['set storage-ip'],
+    ],
 ];
 
 $checkFailures = [];

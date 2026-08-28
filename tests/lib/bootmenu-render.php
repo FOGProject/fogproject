@@ -214,6 +214,15 @@ Route::$rows = [
 ];
 
 /*
+ * An install with no enabled storage node at all. Rare but reachable -- a
+ * half-finished install, or every node disabled -- and it used to decide
+ * whether the constructor emitted its header, '#!ipxe' included.
+ */
+if (!empty($scenario['noStorageNode'])) {
+    Route::$rows['storagenode'] = [];
+}
+
+/*
  * The host row Route::getItem('host', id) returns, which generateIpxeItems()
  * turns into `set ...` lines. Scenario-supplied extra columns land here too,
  * so a scenario can plant a secret field and assert it never reaches iPXE.
