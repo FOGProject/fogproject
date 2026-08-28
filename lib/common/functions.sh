@@ -10651,7 +10651,11 @@ class Config
         define('FOG_THEME', 'default/fog.css');
     }
 }" > "${webdirdest}/commons/config.class.php"
-    errorStat $?
+    # "skipOk", because this step is not finished until the permissions below
+    # are set: the OK belongs to the errorStat after them, not to this one.
+    # A failure here still aborts loudly -- that is the half skipOk does not
+    # touch.
+    errorStat $? "skipOk"
     # This file holds ${DB_password}, both FTP passwords (${SVC_password}, and
     # the storage node account the same value backs) and the per-install schema
     # bootstrap token generated above. It is written by a plain redirect, so
