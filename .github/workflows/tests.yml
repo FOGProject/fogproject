@@ -226,3 +226,9 @@ jobs:
       # fault rather than a configuration one.
       - name: Analyse
         run: vendor/bin/phpstan analyse --memory-limit=2G --no-progress --error-format=github
+
+      # A second pass with its own config and its own baseline. Same job
+      # rather than its own, so the ruleset context stays the single name
+      # `phpstan` and neither pass can be required without the other.
+      - name: Analyse tests
+        run: vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G --no-progress --error-format=github

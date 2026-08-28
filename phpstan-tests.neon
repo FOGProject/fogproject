@@ -1,0 +1,69 @@
+# PHPStan configuration for tests/ -- a SECOND pass, separate from phpstan.neon.
+#
+# It is separate rather than another entry in the main config's `paths` because
+# the two are analysing different kinds of program and need different rules
+# about what counts as noise. The application is one program. tests/ is 180-odd
+# INDEPENDENT scripts that happen to share a directory, each run on its own by
+# run-all.sh, and PHPStan has no way to analyse them that way -- it sees one
+# global namespace containing all of them at once.
+#
+# Run it the same way, pointing at this file:
+#
+#   composer install
+#   vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G
+#
+# Regenerate its baseline with --generate-baseline=phpstan-tests-baseline.neon.
+#
+# The convention in tests/ is deliberately out of scope here: this pass adapts
+# to the tests as they are written, it does not ask them to change.
+
+parameters:
+    level: 5
+
+    # Same reasoning as phpstan.neon: without it, FIXING a baselined finding
+    # fails the build.
+    reportUnmatchedIgnoredErrors: false
+
+    # Same range as the application. A test that only runs correctly on one end
+    # of the supported range is a test that lies on the other end.
+    phpVersion:
+        min: 70400
+        max: 80300
+
+    paths:
+        - tests
+
+    ignoreErrors:
+        # Two STRUCTURAL blind spots, ignored by identifier rather than
+        # baselined, because they are permanent properties of how these tests
+        # are written and not a backlog anyone will ever burn down.
+        #
+        # 1. Fixtures are built with eval(). Several tests stand up a probe
+        #    class from a source string so they can exercise shipped code
+        #    against a stub -- ScopeProbe in setting-value-filter-oracle,
+        #    NodeSigProbe in node-signature-auth, FOGTest\Svc in
+        #    service-proclist-cleanup. PHPStan cannot see inside eval() and
+        #    never will, so every use of those classes reads as unknown. That
+        #    was 147 of the 407 findings at level 5.
+        -
+            identifier: class.notFound
+            path: tests/*
+        # 2. Each test file declares its own global helpers -- check(),
+        #    fail(), and friends -- with the signature that file needs. Run
+        #    standalone that is correct. Analysed together they collide, and
+        #    PHPStan measures every call against whichever declaration it saw
+        #    first: "Function check invoked with 2 parameters, 4 required",
+        #    59 times, none of them a real defect. Fixing this would mean
+        #    changing the tests/*.test.php convention, which is not this
+        #    pass's business.
+        -
+            identifier: arguments.count
+            path: tests/*
+
+    bootstrapFiles:
+        # So a test that names a real FOG class resolves it.
+        - packages/web/vendor/autoload.php
+        - build/phpstan/constants.stub.php
+
+includes:
+    - phpstan-tests-baseline.neon

@@ -58,12 +58,10 @@ parameters:
         - packages/service
         - bin
 
-    # tests/ is deliberately NOT analysed yet. Its 144 files reach core by bare
-    # global name and build FOG objects without the runtime bootstrap, so at
-    # level 1 they produce 198 errors of which 104 are class.notFound and 59 are
-    # arguments.count -- all one problem ("PHPStan is not booting FOG") wearing
-    # 163 different hats. Baselining that would make the baseline actively
-    # misleading. Bring tests/ in as a second pass with its own config.
+    # tests/ is analysed by phpstan-tests.neon, not here. It needs two
+    # ignoreErrors rules this config must not carry -- see that file's header
+    # for why eval()'d fixtures and per-file global helpers make a shared
+    # config the wrong shape.
 
     excludePaths:
         analyseAndScan:
