@@ -214,6 +214,19 @@ Route::$rows = [
 ];
 
 /*
+ * The inventory row Route::getList('inventory', ...) returns. Its columns go
+ * through the same generateIpxeItems() as the host's, and the two records
+ * share names -- the inventory list joins the host name in as `hostname` --
+ * so a scenario needs to be able to plant one to exercise that overlap.
+ */
+if (!empty($scenario['inventoryRow'])) {
+    Route::$rows['inventory'][] = (object)array_merge(
+        ['id' => 1, 'hostID' => $scenario['host']['id'] ?? 1],
+        (array)$scenario['inventoryRow']
+    );
+}
+
+/*
  * An install with no enabled storage node at all. Rare but reachable -- a
  * half-finished install, or every node disabled -- and it used to decide
  * whether the constructor emitted its header, '#!ipxe' included.

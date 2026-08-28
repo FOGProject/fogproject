@@ -701,6 +701,35 @@ $checks = [
         ],
         'refuteLine' => ['set storage-ip'],
     ],
+    /*
+     * The host and the inventory are separate records read by the same
+     * emitter, and they share column names: Route's inventory list joins the
+     * host name in as `hostname` for the Inventory grid, and the host record
+     * supplies the same variable from its own `name`. Both were emitted.
+     *
+     * An iPXE `set` is last-wins, so this was not merely a duplicate line --
+     * the value the menu ended up using came from whichever record happened
+     * to be read second. The inventory's `hostname` is given a DIFFERENT
+     * value here on purpose: asserting only that the line appears once would
+     * pass with the wrong record winning, which is the half that actually
+     * matters.
+     */
+    'the host wins a variable the inventory also supplies' => [
+        'scenario' => [
+            'host' => ['id' => 1, 'name' => 'testhost'],
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'inventoryRow' => [
+                'hostname' => 'staleinventoryname',
+                'sysman' => 'ACME',
+            ],
+        ],
+        'expectLine' => [
+            "\nset hostname testhost\n",
+            "\nset sysman ACME\n",
+        ],
+        'expectCount' => ['set hostname ' => 1],
+        'refuteLine' => ['staleinventoryname'],
+    ],
 ];
 
 $checkFailures = [];
@@ -744,6 +773,23 @@ foreach ($checks as $label => $check) {
     foreach ((array)($check['refuteLine'] ?? []) as $needle) {
         if (false !== strpos($raw, $needle)) {
             $checkFailures[] = "$label: '$needle' must NOT appear";
+        }
+    }
+    /*
+     * For a variable two records can both supply. expectLine only proves the
+     * right value is present somewhere; iPXE `set` is last-wins, so the
+     * count is what proves the loser was not emitted after the winner.
+     */
+    foreach ((array)($check['expectCount'] ?? []) as $needle => $want) {
+        $have = substr_count($raw, $needle);
+        if ($have !== $want) {
+            $checkFailures[] = sprintf(
+                "%s: '%s' appears %d time(s), expected %d",
+                $label,
+                $needle,
+                $have,
+                $want
+            );
         }
     }
 }
