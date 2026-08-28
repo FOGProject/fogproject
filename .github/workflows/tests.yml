@@ -182,9 +182,17 @@ jobs:
   # NOT YET A REQUIRED CONTEXT. The ruleset "working-1.6 pull request gate"
   # requires seven `fogproject / ...` checks and this is not one of them, so a
   # failure here blocks nothing. That is deliberate for the first few pull
-  # requests. Promoting it means adding `Tests / phpstan` to the ruleset -- and
-  # note the context name is `Tests / <job name>` here, not `fogproject / ...`,
-  # because this job is declared inline rather than called.
+  # requests.
+  #
+  # PROMOTING IT MEANS ADDING THE CONTEXT `phpstan` -- exactly that, with no
+  # prefix. Verified against the check-runs API rather than guessed, because
+  # the two naming schemes on this workflow look inconsistent and are not: a
+  # CALLED workflow's check run is named `<caller job name> / <called job
+  # name>`, which is where `fogproject / tests (PHP 8.3)` comes from (the
+  # `suite:` job is named `fogproject`). An INLINE job's check run is just its
+  # own name. So this one is `phpstan` while its two siblings carry prefixes.
+  # Adding `Tests / phpstan` would orphan the context and park every pull
+  # request on "Expected -- waiting for status to be reported".
   phpstan:
     name: phpstan
     needs: regen
