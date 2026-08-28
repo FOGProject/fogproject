@@ -70,6 +70,8 @@ class UbootBootMenu extends BootMenuBase
 
     /**
      * Builds and emits the config for whatever this host should do next.
+     *
+     * @return void
      */
     public function __construct()
     {
@@ -132,11 +134,18 @@ class UbootBootMenu extends BootMenuBase
         );
         $StorageNode = new StorageNode($StorageNodeID);
         if ($StorageNode->isValid()) {
+            /*
+             * Cast before trim(). StorageNode::get() is documented as
+             * returning object, so the un-cast form is the same finding
+             * IpxeBootMenu carries three times in the phpstan baseline --
+             * copying it here would just be copying a known wart.
+             */
+            $nodeIp = trim((string)$StorageNode->get('ip'));
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
-                trim($StorageNode->get('ip')),
-                trim($StorageNode->get('path'), '/'),
-                trim($StorageNode->get('ip'))
+                $nodeIp,
+                trim((string)$StorageNode->get('path'), '/'),
+                $nodeIp
             );
         }
 
