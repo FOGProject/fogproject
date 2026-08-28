@@ -211,7 +211,7 @@
             [('mainlink' in colIndex ? colIndex.mainlink : 0), 'asc']
         ],
         // lastping/lastcheckin need no render: both arrive already formatted
-        // by the server, or as an em dash when the host has never been seen.
+        // by the server, or empty when the host has never been seen.
         columns: columns,
         rowId: 'id',
         columnDefs: columnDefs,

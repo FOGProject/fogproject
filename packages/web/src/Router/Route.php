@@ -45,6 +45,12 @@ class Route extends FOGBase
      * Muted em-dash used to render an empty list cell (no value / no
      * associated entity) consistently across every entity list.
      *
+     * MARKUP -- so it belongs only in a column that already emits markup
+     * and escapes its own interpolations (the *Link anchors). A plain data
+     * column must return '' instead: its consumers escape, so the span
+     * arrives on screen as literal text, and it is the value the CSV/Excel
+     * export writes back out. See the 'mem' and date arms below.
+     *
      * @var string
      */
     const EMPTY_CELL = '<span class="text-muted">&mdash;</span>';
@@ -2538,7 +2544,25 @@ class Route extends FOGBase
                             if (self::validDate($d)) {
                                 return self::niceDate($d)->format('Y-m-d H:i:s');
                             }
-                            return self::EMPTY_CELL;
+                            // '' rather than EMPTY_CELL: these are data
+                            // columns, and every escaping consumer printed
+                            // the span as literal text instead of a dash.
+                            // registerExportTable() escapes each of these
+                            // (host, image, group, snapin and user exports
+                            // all carry createdTime, and host carries
+                            // deployed/lastping/lastcheckin), and the same
+                            // value is what the CSV/Excel export hands back
+                            // to importPost() -- which maps createdTime and
+                            // deployed straight onto datetime columns, so a
+                            // placeholder here is not round-trippable.
+                            // It also silently defeated GH-1245: the host
+                            // list blanks a never-deployed cell by testing
+                            // !data, and a span is truthy.
+                            //
+                            // The placeholder is a display decision and is
+                            // already made client-side, per column -- blank
+                            // for 'deployed', "Not yet seen" for 'arch'.
+                            return '';
                         }
                     ];
                     break;
@@ -2791,7 +2815,17 @@ class Route extends FOGBase
                         'dt' => $common,
                         'formatter' => function ($d, $row) {
                             if (!$d) {
-                                return self::EMPTY_CELL;
+                                // '' rather than EMPTY_CELL, same reason as
+                                // the date arm above. The Inventory Report
+                                // binds this column through
+                                // render.text(), so a host that has never
+                                // reported its memory printed the raw
+                                // <span class="text-muted">&mdash;</span>
+                                // in the cell -- and in the Copy/CSV/Excel
+                                // exports beside it. Blank matches every
+                                // other unreported inventory column on that
+                                // report.
+                                return '';
                             }
                             return Inventory::getMemory($d);
                         }
