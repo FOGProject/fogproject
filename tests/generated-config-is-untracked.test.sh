@@ -64,7 +64,19 @@ check "no config.class.php is tracked (found $tracked)" \
     "$([ "$tracked" -eq 0 ]; echo $?)"
 
 # The constants themselves, in case one is ever pasted into a tracked file.
-leaked=$(git grep -lE "define\('(DATABASE_PASSWORD|STORAGE_FTP_PASSWORD|FOG_SCHEMA_INSTALL_TOKEN)'" \
+#
+# DERIVED from the installer's own heredoc, for the same reason the destination
+# above is: a hardcoded list passes happily after someone adds a fifth secret,
+# which is the failure this exists to catch. It was already wrong when written
+# -- the list named three and functions.sh writes four, so a tracked file
+# defining TFTP_FTP_PASSWORD would have gone unnoticed.
+secrets=$(grep -oE "define\('[A-Z_]*(PASSWORD|TOKEN|SECRET)[A-Z_]*'" \
+    lib/common/functions.sh \
+    | sed -e "s/^define('//" -e "s/'$//" | sort -u | paste -sd '|' -)
+check "the installer's secret list was found (got '$secrets')" \
+    "$([ -n "$secrets" ]; echo $?)"
+
+leaked=$(git grep -lE "define\('($secrets)'" \
     -- ':!lib/common/functions.sh' ':!tests/' 2>/dev/null | head -5)
 check "no tracked file defines the generated secrets${leaked:+ ($leaked)}" \
     "$([ -z "$leaked" ]; echo $?)"
