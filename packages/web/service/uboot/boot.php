@@ -20,9 +20,12 @@ use FOG\Boot\UbootBootMenu;
  * The board's own U-Boot fetches this over HTTP with its MAC in the query
  * string and feeds the answer to `sysboot`:
  *
- *   setenv fogurl http://<fogserver>/fog/service/uboot/boot.php?mac=${ethaddr}
- *   wget ${loadaddr} ${fogurl}
- *   sysboot ${loadaddr} any ${filesize}
+ *   wget ${pxefile_addr_r} http://<fog>/fog/service/uboot/boot.php?mac=${ethaddr}
+ *   pxe boot ${pxefile_addr_r}
+ *
+ * `pxe boot`, not `sysboot`: the former interprets a config already in memory,
+ * the latter reads one off a filesystem on a block device. See
+ * docs/UBOOT_ARM_BOOT.md.
  *
  * GET, not POST, because that is all U-Boot's `wget` can issue -- which is
  * also why there is no mac0..mac7 union as service/ipxe/boot.php has. A board

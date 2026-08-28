@@ -44,14 +44,28 @@ FOG does not write files to disk for this and does not manage
 and it is a few lines of U-Boot:
 
 ```
-setenv fogurl http://<fogserver>/fog/service/uboot/boot.php?mac=${ethaddr}
 dhcp
-wget ${loadaddr} ${fogurl}
-sysboot ${loadaddr} any ${filesize}
+setenv pxefile_addr_r 0x02000000
+wget ${pxefile_addr_r} http://<fogserver>/fog/service/uboot/boot.php?mac=${ethaddr}
+pxe boot ${pxefile_addr_r}
 ```
 
 Put that in `bootcmd`, or in a `boot.scr` of your own, or type it at the U-Boot
-prompt to try it once. Substitute the load address your board actually uses.
+prompt to try it once. Substitute the addresses your board actually uses.
+
+`pxe boot` is the command that interprets a config **already in memory**, which
+is what `wget` just put there. `sysboot` is the other one you will see in
+extlinux documentation, and it is not this: it reads the config off a
+filesystem on a block device. Picking `sysboot` here is the most likely reason
+for "it fetched something and then did nothing".
+
+`pxe boot` also expects `kernel_addr_r`, `ramdisk_addr_r` and `fdt_addr_r` to
+be set. Most board configs set all three already; `printenv` is the check.
+
+Older U-Boot builds have a `wget` that takes `<server-ip>:<path>` rather than a
+full URL, and some have no `wget` at all (it needs `CONFIG_CMD_WGET`). If yours
+is one of those, the fallback is to stage the config over TFTP yourself, which
+is the `pxelinux.cfg` route this deliberately avoids -- see below.
 
 Three things stay yours because they are properties of the board, not of FOG:
 
@@ -67,8 +81,17 @@ Three things stay yours because they are properties of the board, not of FOG:
 ## Things that will catch you out
 
 - **`wget` needs `httpd` reachable, not TFTP.** U-Boot's `wget` is HTTP-only
-  and has no TLS, so the URL is `http://`, not `https://`. If FOG is
-  HTTPS-only, that is the thing to solve first.
+  and has no TLS, so the URL is `http://`, not `https://`. FOG's installer
+  already exempts `service/uboot/` from its HTTP-to-HTTPS redirect for exactly
+  this reason -- but only when netboot is configured for HTTP. If your netboot
+  transport is HTTPS, U-Boot cannot reach this endpoint at all, and that is the
+  thing to solve first.
+
+- **FOG stays stateless, so there is no `pxelinux.cfg` to write.** That is
+  deliberate: files on disk drift from what is queued in the database, and
+  something then has to reap them when a task completes. If your U-Boot cannot
+  do HTTP at all you will have to stage a config over TFTP by hand, and at that
+  point you are maintaining the drift yourself.
 - **`${ethaddr}` must be set.** Some boards populate it from the firmware,
   some do not. If it is empty, FOG gets no MAC, finds no host, and correctly
   answers `localboot`. Check with `printenv ethaddr` before blaming FOG.
