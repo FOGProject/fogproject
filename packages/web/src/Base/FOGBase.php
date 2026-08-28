@@ -1402,6 +1402,27 @@ abstract class FOGBase
         if (!in_array($status, [301, 302, 303, 307, 308], true)) {
             $status = 308;
         }
+        /*
+         * A redirect issued while serving an AJAX page load (?contentOnly=1)
+         * is followed by the XHR transparently, so whatever the TARGET
+         * renders is what lands in #ajaxPageWrapper. Without the flag the
+         * target renders the whole page -- sidebar, header, the lot -- inside
+         * that wrapper, and the user sees the menu twice. Reported against
+         * Reports -> History Report, which redirects to the activity viewer
+         * (ADR 0023), but it is the same for every redirect a menu click can
+         * reach: a permission denial bouncing to ?node=home, objectNotFound
+         * bouncing to a node's list, the schema updater.
+         *
+         * Relative targets only. An absolute URL is leaving this application
+         * -- OIDC single logout, a configured login/logout redirect -- and
+         * must not have a FOG query parameter bolted onto it.
+         */
+        if (filter_input(INPUT_GET, 'contentOnly')
+            && false === strpos($url, '://')
+            && false === strpos($url, 'contentOnly=')
+        ) {
+            $url .= (false === strpos($url, '?') ? '?' : '&') . 'contentOnly=1';
+        }
         header("Location: $url", true, $status);
         exit;
     }
