@@ -140,7 +140,7 @@ class Task extends TaskType
     /**
      * Returns cutoff timing
      *
-     * @return DateTimeImmutable
+     * @return \DateTime|false
      */
     private static function cutoff()
     {

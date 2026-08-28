@@ -1763,7 +1763,7 @@ abstract class FOGBase
      * @param mixed $date The date stamp, defaults to now if not set
      * @param bool  $utc  Whether to use utc timezone or not
      *
-     * @return DateTime
+     * @return \DateTime
      */
     public static function niceDate($date = 'now', $utc = false)
     {
@@ -1948,7 +1948,7 @@ abstract class FOGBase
      *
      * @throws Exception
      *
-     * @return DateTime
+     * @return string
      */
     protected static function diff($start, $end, $ago = false)
     {
