@@ -151,6 +151,7 @@ const TABLE = [
     'FOGRollingURL' => 'Net',
     'BootMenuBase' => 'Boot',
     'IpxeBootMenu' => 'Boot',
+    'UbootBootMenu' => 'Boot',
     'Registration' => 'Boot',
     'WakeOnLan' => 'Boot',
     'TaskingElement' => 'TaskHandling',

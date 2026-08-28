@@ -21,11 +21,14 @@
 #
 # Three things are pinned:
 #
-#   1. Both netboot-reachable directories are excluded, in BOTH web servers.
+#   1. Every netboot-reachable directory is excluded, in BOTH web servers.
 #      service/ipxe/ is the obvious one. service/secureboot/ is not, and was
 #      missing: IpxeBootMenu imgfetches MOK.der and chains mmx64.efi /
 #      arm64-efi/mmaa64.efi out of it, so Secure Boot enrolment was being
-#      redirected onto an HTTPS iPXE could not validate.
+#      redirected onto an HTTPS iPXE could not validate. service/uboot/ is
+#      the third, and the least forgiving of the three: U-Boot's `wget` is
+#      HTTP-only with no TLS at all, so it cannot fail a validation -- a 308
+#      simply ends the boot with nothing on screen.
 #   2. ca.cert.der is reachable over plain HTTP in BOTH web servers. Apache has
 #      had this exemption since GH-529; nginx never did, which made fetching
 #      the CA require already trusting the CA.
@@ -65,7 +68,7 @@ echo "vhost netboot exclusion:"
 #    directory names so the two branches cannot drift apart -- if this
 #    assertion is what broke, the fix is to add the directory to the loop, not
 #    to relax the test.
-want 2 'for nbdir in ipxe secureboot; do' \
+want 2 'for nbdir in ipxe secureboot uboot; do' \
     "both web servers iterate the same netboot-reachable directory set"
 
 want 1 'location ^~ ${WEB_root}service/${nbdir}/ {' \
