@@ -357,7 +357,7 @@ parameters:
 		-
 			message: '#^Access to an undefined static property FOG\\Router\\Route\:\:\$rows\.$#'
 			identifier: staticProperty.notFound
-			count: 3
+			count: 4
 			path: tests/lib/bootmenu-render.php
 
 		-

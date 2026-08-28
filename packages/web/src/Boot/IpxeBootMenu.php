@@ -374,10 +374,23 @@ class IpxeBootMenu extends BootMenuBase
     /**
      * Builds the std class property and value items as appropriate
      *
-     * @param object $object
+     * $seen carries the iPXE variable names already emitted, so a caller
+     * making more than one call in a row does not emit the same `set` twice.
+     * It is needed because the host and the inventory are separate records
+     * that share column names: `Route::getList('inventory')` joins the host
+     * name in as `hostname` for the Inventory grid, and the host record
+     * supplies the same variable from its own `name`. Both were emitted, and
+     * an iPXE `set` is last-wins, so the value the menu actually used came
+     * from whichever record was read second rather than from the host.
+     * First occurrence wins here, and the host is read first, which is the
+     * right precedence: the host record is the authority on its own name.
+     *
+     * @param object $object the record to build variables from
+     * @param array  $seen   variable names already emitted, updated in place
+     *
      * @return array
      */
-    public static function generateIpxeItems($object)
+    public static function generateIpxeItems($object, array &$seen = [])
     {
         $ignore_keys = [
             'description',
@@ -454,7 +467,14 @@ class IpxeBootMenu extends BootMenuBase
                     if ('' === $safe) {
                         continue;
                     }
-                    $output[] = "set {$property}{$count} {$safe}";
+                    // $count advances only on an emission, so the indices
+                    // stay contiguous for a consumer walking macs0..macsN.
+                    $name = "{$property}{$count}";
+                    if (isset($seen[$name])) {
+                        continue;
+                    }
+                    $seen[$name] = true;
+                    $output[] = "set {$name} {$safe}";
                     $count++;
                 }
             } else {
@@ -465,6 +485,10 @@ class IpxeBootMenu extends BootMenuBase
                 if ('' === $safe) {
                     continue;
                 }
+                if (isset($seen[$property])) {
+                    continue;
+                }
+                $seen[$property] = true;
                 $output[] = "set {$property} {$safe}";
             }
         }
@@ -695,8 +719,13 @@ class IpxeBootMenu extends BootMenuBase
             // reaching breakHead()'s exit, which on a boot request means the
             // machine gets a truncated iPXE script instead of a menu.
             $host = Route::getItem('host', self::$Host->get('id'));
+            // Shared across both calls, host first. The inventory list joins
+            // the host name in as `hostname` for the Inventory grid, so both
+            // records offer that variable and an iPXE `set` is last-wins --
+            // the menu was reading the inventory's copy, not the host's.
+            $seen = [];
             if ($host) {
-                $host_items = self::generateIpxeItems($host);
+                $host_items = self::generateIpxeItems($host, $seen);
                 foreach ($host_items as $item) {
                     $Send['hostinfo'][] = $item;
                 }
@@ -706,7 +735,7 @@ class IpxeBootMenu extends BootMenuBase
                 ['hostID' => self::$Host->get('id')]
             );
             if (!empty($inventory)) {
-                $inventory_items = self::generateIpxeItems($inventory[0]);
+                $inventory_items = self::generateIpxeItems($inventory[0], $seen);
                 foreach ($inventory_items as $item) {
                     $Send['inventoryinfo'][] = $item;
                 }
