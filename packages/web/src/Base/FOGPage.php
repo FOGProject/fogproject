@@ -188,6 +188,21 @@ abstract class FOGPage extends FOGBase
      */
     protected $childClass = '';
     /**
+     * The entity this page is acting on -- an instance of $childClass,
+     * assigned in _init().
+     *
+     * Declared because it was previously created on the fly: PHP 8.2
+     * deprecates dynamic properties and PHP 9 makes them an error, and
+     * every page construction was hitting that. Deliberately left without
+     * a native type -- _init() calls unset($this->obj) when the id does
+     * not resolve, and a typed property would then throw on read rather
+     * than warning, which is a different behaviour from the one this code
+     * has always had.
+     *
+     * @var mixed
+     */
+    protected $obj;
+    /**
      * The report place holder
      *
      * @var string

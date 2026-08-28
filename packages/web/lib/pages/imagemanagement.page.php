@@ -86,7 +86,7 @@ class ImageManagement extends FOGPage
      *
      * @param StorageGroup $StorageGroup the group to resolve a node for
      *
-     * @return StorageNode|null
+     * @return \FOG\Items\StorageNode|null
      */
     private function _displayStorageNode($StorageGroup)
     {

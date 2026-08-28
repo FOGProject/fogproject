@@ -108,7 +108,7 @@ class Route extends FOGBase
     /**
      * AltoRouter object container.
      *
-     * @var AltoRouter
+     * @var \AltoRouter
      */
     public static $router = null;
     /**

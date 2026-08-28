@@ -46,6 +46,20 @@
  * tree. Left in place: they are part of the fork's shape and removing them
  * is a separate decision from correcting what this file is.
  *
+ * The seven verb methods below are provided by __call(), which prepends the
+ * uppercased verb and forwards to map(). They are declared as @method so the
+ * chained route table in Route::defineRoutes() can be analysed statically --
+ * without them every ->get()/->post() in that table reads as a call to an
+ * undefined method.
+ *
+ * @method AltoRouter get(string $route, mixed $target, string|null $name = null)
+ * @method AltoRouter put(string $route, mixed $target, string|null $name = null)
+ * @method AltoRouter head(string $route, mixed $target, string|null $name = null)
+ * @method AltoRouter post(string $route, mixed $target, string|null $name = null)
+ * @method AltoRouter patch(string $route, mixed $target, string|null $name = null)
+ * @method AltoRouter delete(string $route, mixed $target, string|null $name = null)
+ * @method AltoRouter options(string $route, mixed $target, string|null $name = null)
+ *
  * @category AltoRouter
  * @package  AltoRouter
  * @author   Danny van Kooten <no@email.given>

@@ -85,7 +85,7 @@ class FOGCron extends FOGBase
      * @param string $cron    the cron to parse
      * @param bool   $lastrun show the last run time
      *
-     * @return string
+     * @return int unix timestamp -- every caller feeds it to setTimestamp()
      */
     public static function parse($cron, $lastrun = false)
     {
@@ -176,8 +176,8 @@ class FOGCron extends FOGBase
                 }
             }
             return $Start->setTime(
-                $Start->format('H'),
-                $Start->format('i'),
+                (int) $Start->format('H'),
+                (int) $Start->format('i'),
                 0
             )->getTimestamp();
         } while (true);
@@ -317,7 +317,8 @@ class FOGCron extends FOGBase
     /**
      * Check the time to see if it should be run now
      *
-     * @param DateTime $time the datetime to test
+     * @param int $time unix timestamp to test -- this is what parse()
+     *                  returns and what Timer passes in, not a DateTime
      *
      * @return bool
      */

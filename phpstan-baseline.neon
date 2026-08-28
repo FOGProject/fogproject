@@ -229,12 +229,6 @@ parameters:
 			path: packages/web/lib/pages/clientmanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\DashboardPage\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 9
-			path: packages/web/lib/pages/dashboardpage.page.php
-
-		-
 			message: '#^Call to function unset\(\) contains undefined variable \$SystemUptime\.$#'
 			identifier: unset.variable
 			count: 1
@@ -249,12 +243,6 @@ parameters:
 		-
 			message: '#^Call to function unset\(\) contains undefined variable \$tftp\.$#'
 			identifier: unset.variable
-			count: 2
-			path: packages/web/lib/pages/dashboardpage.page.php
-
-		-
-			message: '#^Call to method setTime\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
 			count: 2
 			path: packages/web/lib/pages/dashboardpage.page.php
 
@@ -292,12 +280,6 @@ parameters:
 			message: '#^Call to function unset\(\) contains undefined variable \$val\.$#'
 			identifier: unset.variable
 			count: 1
-			path: packages/web/lib/pages/fogconfigurationpage.page.php
-
-		-
-			message: '#^Call to method getTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
 			path: packages/web/lib/pages/fogconfigurationpage.page.php
 
 		-
@@ -365,12 +347,6 @@ parameters:
 			identifier: variable.undefined
 			count: 11
 			path: packages/web/lib/pages/fogconfigurationpage.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\GroupManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 58
-			path: packages/web/lib/pages/groupmanagement.page.php
 
 		-
 			message: '#^Constructor of class FOG\\GroupManagement has an unused parameter \$name\.$#'
@@ -466,12 +442,6 @@ parameters:
 			message: '#^Access to an undefined property FOG\\HostManagement\:\:\$exitNorm\.$#'
 			identifier: property.notFound
 			count: 5
-			path: packages/web/lib/pages/hostmanagement.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\HostManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 109
 			path: packages/web/lib/pages/hostmanagement.page.php
 
 		-
@@ -577,21 +547,9 @@ parameters:
 			path: packages/web/lib/pages/hostmanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\ImageManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 40
-			path: packages/web/lib/pages/imagemanagement.page.php
-
-		-
 			message: '#^Binary operation "\*" between array\|string and 60 results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
-			path: packages/web/lib/pages/imagemanagement.page.php
-
-		-
-			message: '#^Call to method get\(\) on an unknown class FOG\\StorageNode\.$#'
-			identifier: class.notFound
-			count: 2
 			path: packages/web/lib/pages/imagemanagement.page.php
 
 		-
@@ -603,12 +561,6 @@ parameters:
 		-
 			message: '#^Expression on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.expr
-			count: 1
-			path: packages/web/lib/pages/imagemanagement.page.php
-
-		-
-			message: '#^Method FOG\\ImageManagement\:\:_displayStorageNode\(\) has invalid return type FOG\\StorageNode\.$#'
-			identifier: class.notFound
 			count: 1
 			path: packages/web/lib/pages/imagemanagement.page.php
 
@@ -667,22 +619,10 @@ parameters:
 			path: packages/web/lib/pages/imagemanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\IpxeManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 14
-			path: packages/web/lib/pages/ipxemanagement.page.php
-
-		-
 			message: '#^Constructor of class FOG\\IpxeManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
 			path: packages/web/lib/pages/ipxemanagement.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\ModuleManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 10
-			path: packages/web/lib/pages/modulemanagement.page.php
 
 		-
 			message: '#^Constructor of class FOG\\ModuleManagement has an unused parameter \$name\.$#'
@@ -701,12 +641,6 @@ parameters:
 			identifier: method.void
 			count: 1
 			path: packages/web/lib/pages/modulemanagement.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\PluginManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 8
-			path: packages/web/lib/pages/pluginmanagement.page.php
 
 		-
 			message: '#^Constructor of class FOG\\PluginManagement has an unused parameter \$name\.$#'
@@ -751,12 +685,6 @@ parameters:
 			path: packages/web/lib/pages/pluginmanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\PrinterManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 27
-			path: packages/web/lib/pages/printermanagement.page.php
-
-		-
 			message: '#^Constructor of class FOG\\PrinterManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
@@ -790,12 +718,6 @@ parameters:
 			message: '#^Call to function is_array\(\) with \*NEVER\* will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
-			path: packages/web/lib/pages/processlogin.page.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
 			path: packages/web/lib/pages/processlogin.page.php
 
 		-
@@ -883,12 +805,6 @@ parameters:
 			path: packages/web/lib/pages/reportmanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\RoleManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 20
-			path: packages/web/lib/pages/rolemanagement.page.php
-
-		-
 			message: '#^Constructor of class FOG\\RoleManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
@@ -953,12 +869,6 @@ parameters:
 			identifier: include.fileNotFound
 			count: 1
 			path: packages/web/lib/pages/schemaupdaterpage.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\ServerInfo\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 7
-			path: packages/web/lib/pages/serverinfo.page.php
 
 		-
 			message: '#^Constructor of class FOG\\ServerInfo has an unused parameter \$name\.$#'
@@ -1051,12 +961,6 @@ parameters:
 			path: packages/web/lib/pages/serviceconfigurationpage.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\SiteManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 16
-			path: packages/web/lib/pages/sitemanagement.page.php
-
-		-
 			message: '#^Constructor of class FOG\\SiteManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
@@ -1103,12 +1007,6 @@ parameters:
 			identifier: method.void
 			count: 6
 			path: packages/web/lib/pages/sitemanagement.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\SnapinManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 42
-			path: packages/web/lib/pages/snapinmanagement.page.php
 
 		-
 			message: '#^Method FOG\\SnapinManagement\:\:_maker\(\) with return type void returns string\|false but should not return anything\.$#'
@@ -1165,12 +1063,6 @@ parameters:
 			path: packages/web/lib/pages/snapinmanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\StorageGroupManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 39
-			path: packages/web/lib/pages/storagegroupmanagement.page.php
-
-		-
 			message: '#^Constructor of class FOG\\StorageGroupManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
@@ -1205,12 +1097,6 @@ parameters:
 			identifier: variable.undefined
 			count: 1
 			path: packages/web/lib/pages/storagegroupmanagement.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\StorageNodeManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 41
-			path: packages/web/lib/pages/storagenodemanagement.page.php
 
 		-
 			message: '#^Constructor of class FOG\\StorageNodeManagement has an unused parameter \$name\.$#'
@@ -1279,12 +1165,6 @@ parameters:
 			path: packages/web/lib/pages/taskmanagement.page.php
 
 		-
-			message: '#^Access to an undefined property FOG\\UserGroupManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 17
-			path: packages/web/lib/pages/usergroupmanagement.page.php
-
-		-
 			message: '#^Constructor of class FOG\\UserGroupManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1
@@ -1313,12 +1193,6 @@ parameters:
 			identifier: method.void
 			count: 3
 			path: packages/web/lib/pages/usergroupmanagement.page.php
-
-		-
-			message: '#^Access to an undefined property FOG\\UserManagement\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 39
-			path: packages/web/lib/pages/usermanagement.page.php
 
 		-
 			message: '#^Constructor of class FOG\\UserManagement has an unused parameter \$name\.$#'
@@ -1391,18 +1265,6 @@ parameters:
 			identifier: method.void
 			count: 1
 			path: packages/web/lib/reports/product_keys.report.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/lib/reports/run_history.report.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/lib/reports/run_history.report.php
 
 		-
 			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
@@ -1561,18 +1423,6 @@ parameters:
 			path: packages/web/management/other/index.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Audit/Blame.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Audit/Retention.php
-
-		-
 			message: '#^Call to function is_array\(\) with null will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
@@ -1661,12 +1511,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: packages/web/src/Auth/Authorization.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Base/Event.php
 
 		-
 			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
@@ -1795,30 +1639,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Call to method diff\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 15
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Cloning object of an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Comparison operation "\<" between int\<1, max\> and 1 is always false\.$#'
 			identifier: smaller.alwaysFalse
 			count: 1
@@ -1909,18 +1729,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:diff\(\) has invalid return type FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:diff\(\) should return FOG\\Base\\DateTime but returns string\.$#'
-			identifier: return.type
-			count: 7
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Method FOG\\Base\\FOGBase\:\:fileitems\(\) should return string but returns array\<int, list\>\.$#'
 			identifier: return.type
 			count: 1
@@ -1964,18 +1772,6 @@ parameters:
 
 		-
 			message: '#^Method FOG\\Base\\FOGBase\:\:getMasterInterface\(\) should return string but returns false\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:niceDate\(\) has invalid return type FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:niceDate\(\) should return FOG\\Base\\DateTime but returns DateTime\.$#'
 			identifier: return.type
 			count: 1
 			path: packages/web/src/Base/FOGBase.php
@@ -2407,12 +2203,6 @@ parameters:
 			path: packages/web/src/Base/FOGPage.php
 
 		-
-			message: '#^Access to an undefined property FOG\\Base\\FOGPage\:\:\$obj\.$#'
-			identifier: property.notFound
-			count: 31
-			path: packages/web/src/Base/FOGPage.php
-
-		-
 			message: '#^Call to an undefined method FOG\\Base\\FOGPage\:\:_addFields\(\)\.$#'
 			identifier: method.notFound
 			count: 2
@@ -2421,18 +2211,6 @@ parameters:
 		-
 			message: '#^Call to function unset\(\) contains undefined variable \$actionbox\.$#'
 			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Base/FOGPage.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Base/FOGPage.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
 			count: 1
 			path: packages/web/src/Base/FOGPage.php
 
@@ -2686,12 +2464,6 @@ parameters:
 			message: '#^Access to an undefined property FOG\\Base\\Hook\:\:\$node\.$#'
 			identifier: property.notFound
 			count: 4
-			path: packages/web/src/Base/Hook.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
 			path: packages/web/src/Base/Hook.php
 
 		-
@@ -2977,12 +2749,6 @@ parameters:
 			path: packages/web/src/Client/FOGClient.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Client/FOGClient.php
-
-		-
 			message: '#^Instanceof between FOG\\Items\\Host and FOG\\Items\\Host will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
 			count: 1
@@ -3037,12 +2803,6 @@ parameters:
 			path: packages/web/src/Client/ServiceModule.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Client/SnapinClient.php
-
-		-
 			message: '#^Instanceof between null and FOG\\Items\\StorageGroup will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 2
@@ -3095,12 +2855,6 @@ parameters:
 			identifier: booleanAnd.alwaysFalse
 			count: 4
 			path: packages/web/src/Client/SnapinClient.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Client/UserTrack.php
 
 		-
 			message: '#^PHPDoc tag @throws with type FOG\\Client\\Exception is not subtype of Throwable$#'
@@ -3373,12 +3127,6 @@ parameters:
 			path: packages/web/src/Items/Group.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Items/Group.php
-
-		-
 			message: '#^Cannot access property \$id on int\.$#'
 			identifier: property.nonObject
 			count: 5
@@ -3484,12 +3232,6 @@ parameters:
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 2
-			path: packages/web/src/Items/Host.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 4
 			path: packages/web/src/Items/Host.php
 
 		-
@@ -3721,18 +3463,6 @@ parameters:
 			path: packages/web/src/Items/Module.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 4
-			path: packages/web/src/Items/MulticastSession.php
-
-		-
-			message: '#^Call to method getTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/MulticastSession.php
-
-		-
 			message: '#^Method FOG\\Items\\MulticastSession\:\:cancel\(\) with return type void returns mixed but should not return anything\.$#'
 			identifier: return.void
 			count: 1
@@ -3833,12 +3563,6 @@ parameters:
 			identifier: ternary.alwaysFalse
 			count: 1
 			path: packages/web/src/Items/Role.php
-
-		-
-			message: '#^Call to method setTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/ScheduledTask.php
 
 		-
 			message: '#^Method FOG\\Items\\ScheduledTask\:\:cancel\(\) should return bool but returns object\.$#'
@@ -4117,42 +3841,6 @@ parameters:
 			path: packages/web/src/Items/StorageNode.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 7
-			path: packages/web/src/Items/Task.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/Task.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Items\\DateTimeImmutable\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/Task.php
-
-		-
-			message: '#^Cloning object of an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/Task.php
-
-		-
-			message: '#^Cloning object of an unknown class FOG\\Items\\DateTimeImmutable\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/Task.php
-
-		-
-			message: '#^Method FOG\\Items\\Task\:\:cutoff\(\) has invalid return type FOG\\Items\\DateTimeImmutable\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/Task.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 4
@@ -4165,28 +3853,10 @@ parameters:
 			path: packages/web/src/Items/Task.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Items/TaskLog.php
-
-		-
 			message: '#^Left side of && is always true\.$#'
 			identifier: booleanAnd.leftAlwaysTrue
 			count: 2
 			path: packages/web/src/Items/TaskLog.php
-
-		-
-			message: '#^Call to method getTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Items/User.php
-
-		-
-			message: '#^Call to method setTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Items/User.php
 
 		-
 			message: '#^Left side of && is always true\.$#'
@@ -4229,12 +3899,6 @@ parameters:
 			identifier: isset.variable
 			count: 1
 			path: packages/web/src/Items/User.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Items/UserAuth.php
 
 		-
 			message: '#^Method FOG\\Items\\UserGroup\:\:destroy\(\) should return bool but returns object\.$#'
@@ -4321,12 +3985,6 @@ parameters:
 			path: packages/web/src/Managers/HostManager.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 3
-			path: packages/web/src/Managers/MulticastSessionManager.php
-
-		-
 			message: '#^Static property FOG\\Base\\FOGBase\:\:\$selected \(bool\|int\) does not accept string\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -4343,24 +4001,6 @@ parameters:
 			identifier: staticMethod.void
 			count: 1
 			path: packages/web/src/Managers/ScheduledTaskManager.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Managers/SnapinJobManager.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Managers/SnapinTaskManager.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Managers/TaskManager.php
 
 		-
 			message: '#^Access to an undefined property FOG\\Net\\FOGFTP\:\:\$host\.$#'
@@ -4837,30 +4477,6 @@ parameters:
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Call to method map\(\) on an unknown class FOG\\Router\\AltoRouter\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Call to method match\(\) on an unknown class FOG\\Router\\AltoRouter\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Call to method setTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
 			message: '#^Default value of the parameter \#2 \$msg \(false\) of method FOG\\Router\\Route\:\:sendResponse\(\) is incompatible with type int\.$#'
 			identifier: parameter.defaultValue
 			count: 1
@@ -4993,12 +4609,6 @@ parameters:
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Property FOG\\Router\\Route\:\:\$router has unknown class FOG\\Router\\AltoRouter as its type\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
 			message: '#^Result of static method FOG\\Router\\Route\:\:deletemass\(\) \(void\) is used\.$#'
 			identifier: staticMethod.void
 			count: 1
@@ -5091,12 +4701,6 @@ parameters:
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
-			count: 1
-			path: packages/web/src/Service/FOGService.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
 			count: 1
 			path: packages/web/src/Service/FOGService.php
 
@@ -5221,24 +4825,6 @@ parameters:
 			path: packages/web/src/Service/FileDeleter.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 4
-			path: packages/web/src/Service/FileDeleter.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Service/FileDeleter.php
-
-		-
-			message: '#^Cloning object of an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Service/FileDeleter.php
-
-		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
 			count: 1
@@ -5263,12 +4849,6 @@ parameters:
 			path: packages/web/src/Service/FileDeleter.php
 
 		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Service/MulticastManager.php
-
-		-
 			message: '#^Cannot call method getID\(\) on int\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -5277,12 +4857,6 @@ parameters:
 		-
 			message: '#^Cannot call method getTaskIDs\(\) on int\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: packages/web/src/Service/MulticastManager.php
-
-		-
-			message: '#^Cloning object of an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
 			count: 1
 			path: packages/web/src/Service/MulticastManager.php
 
@@ -5337,12 +4911,6 @@ parameters:
 		-
 			message: '#^Call to function unset\(\) contains undefined variable \$filelist\.$#'
 			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Service/MulticastTask.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
 			count: 1
 			path: packages/web/src/Service/MulticastTask.php
 
@@ -5431,18 +4999,6 @@ parameters:
 			path: packages/web/src/Service/MulticastTask.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Service/PingHosts.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Service/PingHosts.php
-
-		-
 			message: '#^PHPDoc tag @throws with type FOG\\Service\\Exception is not subtype of Throwable$#'
 			identifier: throws.notThrowable
 			count: 1
@@ -5461,22 +5017,10 @@ parameters:
 			path: packages/web/src/Service/PingHosts.php
 
 		-
-			message: '#^Call to method getTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 3
-			path: packages/web/src/Service/PluginRunner.php
-
-		-
 			message: '#^Static property FOG\\Service\\PluginRunner\:\:\$_runnerOn \(int\) does not accept array\|string\.$#'
 			identifier: assign.propertyType
 			count: 1
 			path: packages/web/src/Service/PluginRunner.php
-
-		-
-			message: '#^Call to method getTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Service/RetentionRunner.php
 
 		-
 			message: '#^Static property FOG\\Service\\RetentionRunner\:\:\$_runnerOn \(int\) does not accept array\|string\.$#'
@@ -5509,18 +5053,6 @@ parameters:
 			'''
 			identifier: array.duplicateKey
 			count: 1
-			path: packages/web/src/TaskHandling/TaskQueue.php
-
-		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 7
-			path: packages/web/src/TaskHandling/TaskQueue.php
-
-		-
-			message: '#^Call to method getTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
 			path: packages/web/src/TaskHandling/TaskQueue.php
 
 		-
@@ -5596,30 +5128,6 @@ parameters:
 			path: packages/web/src/TaskHandling/TaskingElement.php
 
 		-
-			message: '#^Call to method format\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 3
-			path: packages/web/src/Util/FOGCron.php
-
-		-
-			message: '#^Call to method modify\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 6
-			path: packages/web/src/Util/FOGCron.php
-
-		-
-			message: '#^Call to method setTime\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Util/FOGCron.php
-
-		-
-			message: '#^Call to method setTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Util/FOGCron.php
-
-		-
 			message: '#^PHPDoc tag @throws with type FOG\\Util\\Exception is not subtype of Throwable$#'
 			identifier: throws.notThrowable
 			count: 1
@@ -5638,22 +5146,10 @@ parameters:
 			path: packages/web/src/Util/FOGCron.php
 
 		-
-			message: '#^Parameter \$time of method FOG\\Util\\FOGCron\:\:shouldRunCron\(\) has invalid type FOG\\Util\\DateTime\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/Util/FOGCron.php
-
-		-
 			message: '#^Ternary operator condition is always true\.$#'
 			identifier: ternary.alwaysTrue
 			count: 3
 			path: packages/web/src/Util/FOGCron.php
-
-		-
-			message: '#^Call to method setTimestamp\(\) on an unknown class FOG\\Base\\DateTime\.$#'
-			identifier: class.notFound
-			count: 2
-			path: packages/web/src/Util/Timer.php
 
 		-
 			message: '#^If condition is always true\.$#'
