@@ -3866,11 +3866,18 @@ abstract class FOGBase
         $size = filesize($path);
         if (is_dir($path)) {
             $size = 0;
-            $di = new \RecursiveDirectoryIterator($path);
-            $rii = new \RecursiveIteratorIterator(
-                $di,
+            // SKIP_DOTS is a RecursiveDirectoryIterator flag, not a
+            // RecursiveIteratorIterator mode. Passing it as the mode left the
+            // directory iterator including '.' and '..', so their inode sizes
+            // (and every subdirectory's) were added to the total, and the
+            // mode -- 4096, not LEAVES_ONLY -- stopped the walk descending at
+            // all. A FOG image is a directory, so both errors hit image sizing
+            // and replication's size comparison.
+            $di = new \RecursiveDirectoryIterator(
+                $path,
                 \FilesystemIterator::SKIP_DOTS
             );
+            $rii = new \RecursiveIteratorIterator($di);
             foreach ($rii as $file) {
                 $size += filesize($file);
             }

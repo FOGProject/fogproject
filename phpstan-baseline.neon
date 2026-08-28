@@ -265,12 +265,6 @@ parameters:
 			path: packages/web/lib/pages/dashboardpage.page.php
 
 		-
-			message: '#^Method FOG\\DashboardPage\:\:testUrls\(\) should return array but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: packages/web/lib/pages/dashboardpage.page.php
-
-		-
 			message: '#^Static property FOG\\DashboardPage\:\:\$_tftp is never read, only written\.$#'
 			identifier: property.onlyWritten
 			count: 1
@@ -325,12 +319,6 @@ parameters:
 			path: packages/web/lib/pages/fogconfigurationpage.page.php
 
 		-
-			message: '#^Method FOG\\FOGConfigurationPage\:\:_jsonExit\(\) should always throw an exception or terminate script execution but doesn''t do that\.$#'
-			identifier: return.never
-			count: 1
-			path: packages/web/lib/pages/fogconfigurationpage.page.php
-
-		-
 			message: '#^Offset ''FOG_PXE_HIDDENMENU…''\|''FOG_PXE_MENU_TIMEOUT'' on array\{FOG_PXE_HIDDENMENU_TIMEOUT\: true, FOG_PXE_MENU_TIMEOUT\: true\} in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.offset
 			count: 1
@@ -361,19 +349,7 @@ parameters:
 			path: packages/web/lib/pages/fogconfigurationpage.page.php
 
 		-
-			message: '#^Variable \$code might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/lib/pages/fogconfigurationpage.page.php
-
-		-
 			message: '#^Variable \$ip might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/lib/pages/fogconfigurationpage.page.php
-
-		-
-			message: '#^Variable \$msg might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: packages/web/lib/pages/fogconfigurationpage.page.php
@@ -469,12 +445,6 @@ parameters:
 			path: packages/web/lib/pages/groupmanagement.page.php
 
 		-
-			message: '#^Undefined variable\: \$buttons$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/lib/pages/groupmanagement.page.php
-
-		-
 			message: '#^Variable \$printers might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -519,12 +489,6 @@ parameters:
 		-
 			message: '#^Method FOG\\HostManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: packages/web/lib/pages/hostmanagement.page.php
-
-		-
-			message: '#^Method FOG\\HostManagement\:\:getHostDefaultPrinters\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
 			count: 1
 			path: packages/web/lib/pages/hostmanagement.page.php
 
@@ -595,12 +559,6 @@ parameters:
 			path: packages/web/lib/pages/hostmanagement.page.php
 
 		-
-			message: '#^Undefined variable\: \$buttons$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/lib/pages/hostmanagement.page.php
-
-		-
 			message: '#^Variable \$code might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -657,12 +615,6 @@ parameters:
 		-
 			message: '#^Method FOG\\ImageManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: packages/web/lib/pages/imagemanagement.page.php
-
-		-
-			message: '#^Method FOG\\ImageManagement\:\:getImagePrimaryStoragegroups\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
 			count: 1
 			path: packages/web/lib/pages/imagemanagement.page.php
 
@@ -747,12 +699,6 @@ parameters:
 		-
 			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
 			identifier: method.void
-			count: 1
-			path: packages/web/lib/pages/modulemanagement.page.php
-
-		-
-			message: '#^Undefined variable\: \$buttons$#'
-			identifier: variable.undefined
 			count: 1
 			path: packages/web/lib/pages/modulemanagement.page.php
 
@@ -1165,18 +1111,6 @@ parameters:
 			path: packages/web/lib/pages/snapinmanagement.page.php
 
 		-
-			message: '#^Call to method getMessage\(\) on an unknown class FOG\\SnapinSaveException\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/lib/pages/snapinmanagement.page.php
-
-		-
-			message: '#^Caught class FOG\\SnapinSaveException not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/lib/pages/snapinmanagement.page.php
-
-		-
 			message: '#^Method FOG\\SnapinManagement\:\:_maker\(\) with return type void returns string\|false but should not return anything\.$#'
 			identifier: return.void
 			count: 1
@@ -1185,12 +1119,6 @@ parameters:
 		-
 			message: '#^Method FOG\\SnapinManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: packages/web/lib/pages/snapinmanagement.page.php
-
-		-
-			message: '#^Method FOG\\SnapinManagement\:\:getSnapinPrimaryStoragegroups\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
 			count: 1
 			path: packages/web/lib/pages/snapinmanagement.page.php
 
@@ -1263,12 +1191,6 @@ parameters:
 		-
 			message: '#^Method FOG\\StorageGroupManagement\:\:getStorageNodesList\(\) with return type void returns mixed but should not return anything\.$#'
 			identifier: return.void
-			count: 1
-			path: packages/web/lib/pages/storagegroupmanagement.page.php
-
-		-
-			message: '#^Method FOG\\StorageGroupManagement\:\:getStoragegroupMasterStoragenodes\(\) should return string but return statement is missing\.$#'
-			identifier: return.missing
 			count: 1
 			path: packages/web/lib/pages/storagegroupmanagement.page.php
 
@@ -2179,12 +2101,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Parameter \#2 \$mode of class RecursiveIteratorIterator constructor expects 0\|1\|2, 4096 given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Parameter \#2 \$start of function substr expects int, float given\.$#'
 			identifier: argument.type
 			count: 1
@@ -2695,24 +2611,6 @@ parameters:
 			path: packages/web/src/Base/FOGPage.php
 
 		-
-			message: '#^Undefined variable\: \$buttons$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Base/FOGPage.php
-
-		-
-			message: '#^Undefined variable\: \$delNeeded$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Base/FOGPage.php
-
-		-
-			message: '#^Undefined variable\: \$id_field$#'
-			identifier: variable.undefined
-			count: 2
-			path: packages/web/src/Base/FOGPage.php
-
-		-
 			message: '#^Variable \$storagegroups might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -2817,18 +2715,6 @@ parameters:
 		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: packages/web/src/Base/LoadGlobals.php
-
-		-
-			message: '#^Undefined variable\: \$sub$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Base/LoadGlobals.php
-
-		-
-			message: '#^Variable \$sub in isset\(\) is never defined\.$#'
-			identifier: isset.variable
 			count: 1
 			path: packages/web/src/Base/LoadGlobals.php
 
@@ -2971,12 +2857,6 @@ parameters:
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
-			message: '#^Undefined variable\: \$mac$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Boot/IpxeBootMenu.php
-
-		-
 			message: '#^Variable \$chkdsk in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.variable
 			count: 1
@@ -3028,12 +2908,6 @@ parameters:
 			message: '#^Parameter \#3 \$pad_string of function str_pad expects string, int given\.$#'
 			identifier: argument.type
 			count: 2
-			path: packages/web/src/Boot/Registration.php
-
-		-
-			message: '#^Undefined variable\: \$autuRegSysName$#'
-			identifier: variable.undefined
-			count: 1
 			path: packages/web/src/Boot/Registration.php
 
 		-
@@ -3787,12 +3661,6 @@ parameters:
 			path: packages/web/src/Items/Host.php
 
 		-
-			message: '#^Array has 2 duplicate keys with value ''size'' \(''size'', ''size''\)\.$#'
-			identifier: array.duplicateKey
-			count: 1
-			path: packages/web/src/Items/Image.php
-
-		-
 			message: '#^Comparison operation "\<" between 1 and 1 is always false\.$#'
 			identifier: smaller.alwaysFalse
 			count: 1
@@ -4051,12 +3919,6 @@ parameters:
 			path: packages/web/src/Items/Schema.php
 
 		-
-			message: '#^Undefined variable\: \$orig_term_time$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Items/Schema.php
-
-		-
 			message: '#^Call to function unset\(\) contains undefined variable \$viewop\.$#'
 			identifier: unset.variable
 			count: 1
@@ -4135,12 +3997,6 @@ parameters:
 			path: packages/web/src/Items/StorageGroup.php
 
 		-
-			message: '#^Comparison operation "\<" between int\<1, max\> and 1 is always false\.$#'
-			identifier: smaller.alwaysFalse
-			count: 1
-			path: packages/web/src/Items/StorageGroup.php
-
-		-
 			message: '#^Loose comparison using \=\= between null and null will always evaluate to true\.$#'
 			identifier: equal.alwaysTrue
 			count: 1
@@ -4157,18 +4013,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: packages/web/src/Items/StorageGroup.php
-
-		-
-			message: '#^Access to undefined constant FOG\\Items\\TaskType\:\:DEPLOY_CAPTURE\.$#'
-			identifier: classConstant.notFound
-			count: 1
-			path: packages/web/src/Items/StorageNode.php
-
-		-
-			message: '#^Comparison operation "\<" between int\<1, max\> and 1 is always false\.$#'
-			identifier: smaller.alwaysFalse
-			count: 1
-			path: packages/web/src/Items/StorageNode.php
 
 		-
 			message: '#^Comparison operation "\<" between object and 1 results in an error\.$#'
@@ -4345,12 +4189,6 @@ parameters:
 			path: packages/web/src/Items/User.php
 
 		-
-			message: '#^Call to sprintf contains 2 placeholders, 3 values given\.$#'
-			identifier: argument.sprintf
-			count: 1
-			path: packages/web/src/Items/User.php
-
-		-
 			message: '#^Left side of && is always true\.$#'
 			identifier: booleanAnd.leftAlwaysTrue
 			count: 1
@@ -4493,24 +4331,6 @@ parameters:
 			identifier: assign.propertyType
 			count: 1
 			path: packages/web/src/Managers/PXEMenuOptionsManager.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 2
-			path: packages/web/src/Managers/PowerManagementManager.php
-
-		-
-			message: '#^Undefined variable\: \$template$#'
-			identifier: variable.undefined
-			count: 2
-			path: packages/web/src/Managers/PowerManagementManager.php
-
-		-
-			message: '#^Variable \$template in isset\(\) is never defined\.$#'
-			identifier: isset.variable
-			count: 1
-			path: packages/web/src/Managers/PowerManagementManager.php
 
 		-
 			message: '#^Method FOG\\Managers\\ScheduledTaskManager\:\:cancel\(\) should return bool but returns null\.$#'
@@ -5062,12 +4882,6 @@ parameters:
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
 			count: 2
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Instantiated class FOG\\Router\\Snapinjob not found\.$#'
-			identifier: class.notFound
-			count: 1
 			path: packages/web/src/Router/Route.php
 
 		-

@@ -1091,6 +1091,11 @@ abstract class FOGPage extends FOGBase
                 header('Content-Type: application/json');
                 Route::listem($this->childClass);
                 $data = Route::getData();
+                // Initialised to match indexDivDisplay()'s parameter default.
+                // It was passed by reference while undeclared in this scope;
+                // nothing here reads it back, so the key is kept for the
+                // listeners that expect it rather than being made meaningful.
+                $delNeeded = false;
                 self::$HookManager->processEvent(
                     'AJAX_DATA_DISPLAY_CHANGE',
                     [
@@ -1702,14 +1707,13 @@ abstract class FOGPage extends FOGBase
                         $tablestr .= '<tr class="'
                             . strtolower($node)
                             . '" '
+                            // $id_field was never declared in this scope, so
+                            // isset($rowData[$id_field]) read $rowData[''] and
+                            // was always false -- the whole expression has only
+                            // ever been the 'id' test below. Kept as it behaved.
                             . (
-                                isset($rowData['id']) || isset($rowData[$id_field]) ?
-                                'id="'
-                                . (
-                                    isset($rowData['id']) ?
-                                    $rowData['id'] . '"' :
-                                    $rowData[$id_field] . '"'
-                                ) :
+                                isset($rowData['id']) ?
+                                'id="' . $rowData['id'] . '"' :
                                 ''
                             )
                             . '>';
@@ -2148,6 +2152,24 @@ abstract class FOGPage extends FOGBase
             return $fields;
         }
         $ucclass = strtoupper($this->childClass);
+        // Build the buttons BEFORE the hook fires. They used to be created
+        // after it and assigned with '=', so the listener was handed an
+        // undefined variable by reference and anything it contributed was
+        // unconditionally overwritten before the footer was echoed. Compare
+        // IMPORT_FIELDS below, which has always done it in this order.
+        $buttons = '';
+        if ($ownElement) {
+            $buttons = self::makeButton(
+                'ad-send',
+                _('Update'),
+                'btn btn-primary float-end'
+            )
+            . self::makeButton(
+                'ad-clear',
+                _('Clear Fields'),
+                'btn btn-danger float-start'
+            );
+        }
         self::$HookManager->processEvent(
             "{$ucclass}_EDIT_AD_FIELDS",
             [
@@ -2184,16 +2206,6 @@ abstract class FOGPage extends FOGBase
         }
         echo $rendered;
         if ($ownElement) {
-            $buttons = self::makeButton(
-                'ad-send',
-                _('Update'),
-                'btn btn-primary float-end'
-            );
-            $buttons .= self::makeButton(
-                'ad-clear',
-                _('Clear Fields'),
-                'btn btn-danger float-start'
-            );
             echo '</div>';
             echo '<div class="card-footer">';
             echo $buttons;

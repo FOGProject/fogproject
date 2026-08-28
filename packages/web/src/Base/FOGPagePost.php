@@ -41,7 +41,11 @@ trait FOGPagePost
      * @param int    $code The HTTP status code to send.
      * @param string $body The response body (already JSON-encoded).
      *
-     * @return void
+     * Annotated void until 1.6.0-beta, which made every caller look like it
+     * fell through -- including FOGConfigurationPage::_jsonExit(), which is
+     * itself declared as never returning.
+     *
+     * @return never
      */
     protected static function jsonSend($code, $body)
     {

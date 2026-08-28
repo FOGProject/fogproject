@@ -572,8 +572,7 @@ class User extends FOGController
             sprintf(
                 '%s %s.',
                 $this->get('name'),
-                _('user failed to login'),
-                $this->get('name')
+                _('user failed to login')
             ),
             0,
             0,

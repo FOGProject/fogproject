@@ -1557,6 +1557,18 @@ class IpxeBootMenu extends FOGBase
         $chkdsk = $chkdsk == 1 ? 0 : 1;
         $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
+        // $mac was never assigned in this method, so every false tasking
+        // booted FOS with an empty mac= kernel argument. Resolved the same
+        // way getTasking() does it: a false tasking is by definition a host
+        // that may not be registered, and getHostItem() leaves an invalid
+        // Host(0) rather than null, so isValid() is the test.
+        $mac = self::$Host->isValid()
+            ? self::$Host->get('mac')
+            : (string) (
+                filter_input(INPUT_GET, 'mac')
+                ?: filter_input(INPUT_POST, 'mac')
+                ?: ''
+            );
         $kernelArgsArray = [
             "mac=$mac",
             "ftp=$ftp",

@@ -60,15 +60,14 @@ class PowerManagementManager extends FOGManagerController
             printf(
                 '<option value="%s"%s>%s</option>',
                 \Initiator::e(trim($val)),
+                // A $template arm used to sit in front of this, testing a
+                // variable this method never had -- getActionSelect() takes
+                // $selected, $array and $id. isset() made it permanently
+                // false, so $selected has always been the only test.
                 (
-                    (isset($template) && $template !== false)
-                    && trim($template) === trim($val) ?
+                    trim($selected) === trim($val) ?
                     ' selected' :
-                    (
-                        trim($selected) === trim($val) ?
-                        ' selected' :
-                        ''
-                    )
+                    ''
                 ),
                 \Initiator::e($text)
             );

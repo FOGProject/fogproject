@@ -31,6 +31,7 @@ use FOG\Items\Inventory;
 use FOG\Items\MACAddress;
 use FOG\Items\Plugin;
 use FOG\Items\Snapin;
+use FOG\Items\SnapinJob;
 use FOG\Items\StorageNode;
 use FOG\Items\Task;
 use FOG\Items\UserTracking;
@@ -5658,7 +5659,7 @@ class Route extends FOGBase
                     $snapinjob = $class->get('snapinjob');
                     $hasJob = is_object($snapinjob) && $snapinjob->isValid();
                     $sj = $hasJob
-                        ? new Snapinjob($snapinjob->get('id'))
+                        ? new SnapinJob($snapinjob->get('id'))
                         : null;
                     $host = $hasJob
                         ? new Host($snapinjob->get('hostID'))

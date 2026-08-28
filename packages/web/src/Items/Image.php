@@ -50,7 +50,6 @@ class Image extends FOGController
         'imageTypeID' => 'imageTypeID',
         'imagePartitionTypeID' => 'imagePartitionTypeID',
         'osID' => 'imageOSID',
-        'size' => 'imageSize',
         'deployed' => 'imageLastDeploy',
         'format' => 'imageFormat',
         'magnet' => 'imageMagnetUri',
