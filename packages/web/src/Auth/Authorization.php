@@ -220,7 +220,7 @@ class Authorization extends FOGBase
         // than left to the unknown-route fallback so the intent is recorded.
         'openapi' => null,
         'openapiSwaggerAlias' => null,
-        'export' => 'settings.edit',
+        'export' => 'system.export',
         'kernelUpdate' => 'settings.view',
         'initrdUpdate' => 'settings.view',
         'logfiles' => 'settings.view',
@@ -494,7 +494,37 @@ class Authorization extends FOGBase
             // create/delete are the plugin ROW, which is how one is switched
             // on and off; they were routable and undeclared, which had the
             // effect of making the lesser power the harder one to grant.
-            'plugin' => ['view', 'create', 'edit', 'delete', 'install']
+            'plugin' => ['view', 'create', 'edit', 'delete', 'install'],
+            // The whole-database dump, split out of settings.edit (GH-1410).
+            // It is not a settings read: the dump is every row of all 70
+            // tables, so it hands over users.uPass and uAPIToken,
+            // apiTokens.atHash, userAuths' hashes, every host's
+            // hostSecToken and hostADPass, nfsGroupMembers' credentials and
+            // every globalSettings value -- FOG_NODE_API_KEY and the LDAP
+            // bind password included. It is the one route that bypasses the
+            // API's own data protection: unfilterableFields() refuses
+            // token/password filters, maskSensitiveSetting() strips values
+            // by name, and Route::$sensitiveSettings says of
+            // FOG_NODE_API_KEY that "it is a shared HMAC secret, so it must
+            // not be readable over REST". This returns it in the clear.
+            //
+            // So it is a credential multiplier rather than a data read:
+            // compromise of one token yields every credential in the
+            // deployment, plus persistence that survives rotating the token
+            // that got in. "May change a setting" is not self-evidently
+            // "may take a copy of every secret in the estate", and SIX page
+            // nodes already map onto settings.edit.
+            //
+            // Deny by default, exactly as `activity` and `audit.manage`
+            // were introduced: no schema step seeds it, so only a holder of
+            // '*' has it until an administrator grants it. A role holding
+            // settings.edit and nothing else LOSES the export on upgrade,
+            // which is the point of the change.
+            //
+            // It also fixes the audit trail as a side effect: _auditGate()
+            // records the permission string, so the row now says the whole
+            // database left the server instead of saying settings.edit.
+            'system' => ['export']
         ];
     }
     /**

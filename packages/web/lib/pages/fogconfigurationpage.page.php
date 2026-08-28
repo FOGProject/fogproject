@@ -3821,11 +3821,17 @@ class FOGConfigurationPage extends FOGPage
             . '</div>'
         ];
 
-        $buttons = self::makeButton(
-            'exportdb',
-            _('Export'),
-            'btn btn-primary float-end'
-        );
+        // The button follows the grant, the way the Login History tab does:
+        // a role that cannot export should not be shown the control that
+        // fails. The check in configPost() is the gate; this is the display.
+        $buttons = '';
+        if (Authorization::can('system.export')) {
+            $buttons = self::makeButton(
+                'exportdb',
+                _('Export'),
+                'btn btn-primary float-end'
+            );
+        }
         $buttons .= self::makeButton(
             'importdb',
             _('Import'),
@@ -3871,9 +3877,35 @@ class FOGConfigurationPage extends FOGPage
         $serverFault = false;
         try {
             if (isset($_POST['toExport'])) {
+                // The UI's own dump is the same authority as
+                // GET /system/export -- same tables, same credentials --
+                // so it takes the same permission (GH-1410). Checked here
+                // rather than by the node/sub map because this one POST
+                // endpoint serves both export and import, and only the
+                // export half is a credential census; `about` aliases to
+                // `settings`, so the map would put both on settings.edit.
+                if (!Authorization::can('system.export')) {
+                    $this->_jsonExit(
+                        HTTPResponseCodes::HTTP_FORBIDDEN,
+                        [
+                            'error' => _('You do not have permission to '
+                                . 'export the database.'),
+                            'title' => _('Export Failed')
+                        ]
+                    );
+                }
                 $backup_name = 'fog_backup_'
                     . self::formatTime('now', 'Ymd_His');
-                $tmpfile = '/tmp/' . $backup_name;
+                // Not a fixed name under the system temp dir keyed on
+                // $backup_name: that is guessable to the second,
+                // world-readable under the default umask, and fopen()
+                // follows symlinks. Same three defects as
+                // Schema::exportdb() had -- see the comment there.
+                $tmpfile = tempnam(sys_get_temp_dir(), 'fog_backup_');
+                if (false === $tmpfile) {
+                    throw new \Exception(_('Could not create tmp file.'));
+                }
+                chmod($tmpfile, 0600);
                 $data = '';
                 self::getClass('Mysqldump')->start($tmpfile);
                 if (!file_exists($tmpfile) || !is_readable($tmpfile)) {

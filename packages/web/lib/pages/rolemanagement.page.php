@@ -79,7 +79,12 @@ class RoleManagement extends FOGPage
             'service' => _('Client Settings'),
             'settings' => _('FOG Settings'),
             'report' => _('Reports'),
-            'plugin' => _('Plugins')
+            'plugin' => _('Plugins'),
+            // Adding system.export puts a new row and a new one-checkbox
+            // column in this matrix. Labelled so neither reads as the
+            // ucfirst() fallback -- `install` and `manage` already rely on
+            // it, but a grant this wide should not be introduced that way.
+            'system' => _('System')
         ];
     }
     /**
@@ -94,7 +99,8 @@ class RoleManagement extends FOGPage
             'create' => _('Create'),
             'edit' => _('Edit'),
             'delete' => _('Delete'),
-            'task' => _('Task')
+            'task' => _('Task'),
+            'export' => _('Export')
         ];
     }
     /**

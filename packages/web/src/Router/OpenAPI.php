@@ -2343,7 +2343,17 @@ class OpenAPI extends FOGBase
                                 // application/sql, application/octet-stream
                                 // and text/plain all compile once the
                                 // binary format is dropped.
-                                'application/sql' => [
+                                //
+                                // text/plain because that is what the server
+                                // actually sends (Schema::exportdb()), so
+                                // anything written against the live route has
+                                // been built around it. application/sql is the
+                                // more correct description -- it is registered,
+                                // RFC 6922 -- but changing the wire contract to
+                                // match the document breaks working consumers,
+                                // and correcting the document breaks none
+                                // (GH-1410 item 4).
+                                'text/plain' => [
                                     'schema' => [
                                         'type' => 'string'
                                     ]
