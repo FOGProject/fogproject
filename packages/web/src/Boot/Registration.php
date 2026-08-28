@@ -467,10 +467,15 @@ class Registration extends FOGBase
                             0,
                             STR_PAD_LEFT
                         );
+                        // Was $autuRegSysName -- a typo, so this passed null
+                        // and the loop produced an empty hostname on the first
+                        // collision. isHostnameSafe() then rejected it and
+                        // quick registration fell back to the MAC-derived name
+                        // instead of incrementing to the next free number.
                         $hostname = str_replace(
                             $paddingString,
                             $paddedInsert,
-                            $autuRegSysName
+                            $autoRegSysName
                         );
                     }
                     self::setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);

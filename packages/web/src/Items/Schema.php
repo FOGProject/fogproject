@@ -222,7 +222,10 @@ class Schema extends FOGController
             }
             fclose($fh);
             ini_set('max_execution_time', $orig_exec_time);
-            ini_set('request_terminate_timeout', $orig_term_time);
+            // No request_terminate_timeout restore: nothing here changes it,
+            // it is a php-fpm pool directive rather than a runtime-settable
+            // ini, and the line that restored it passed $orig_term_time --
+            // a variable this method never captured.
             if (file_exists($file)) {
                 unlink($file);
             }

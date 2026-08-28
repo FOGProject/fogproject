@@ -4405,6 +4405,12 @@ class HostManagement extends FOGPage
                 $this->scheduleTypeFields($labelClass, $isdebug, $type)
             );
 
+            // $buttons is echoed below, after the rendered fields. It was
+            // passed here by reference while being neither initialised nor
+            // rendered, so the argument this hook advertises did nothing and
+            // said nothing. Empty by default -- the modal's own Create button
+            // lives in its static footer, not in this fragment.
+            $buttons = '';
             self::$HookManager->processEvent(
                 'HOST_CREATE_TASKING',
                 [
@@ -4425,6 +4431,7 @@ class HostManagement extends FOGPage
                 true
             );
             echo $rendered;
+            echo $buttons;
             echo '</form>';
             $msg = json_encode(
                 [

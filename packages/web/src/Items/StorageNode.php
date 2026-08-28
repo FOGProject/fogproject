@@ -405,11 +405,24 @@ class StorageNode extends FOGController
      */
     protected function loadUsedtasks()
     {
-        $used = explode(',', self::getSetting('FOG_USED_TASKS'));
+        // explode() always returns at least one element -- on an unset or
+        // blank setting it returns [''] -- so the old `count($used) < 1`
+        // guard could never be true and this fallback had never run. Which
+        // is just as well: TaskType::DEPLOY_CAPTURE does not exist, so
+        // reaching it would have been fatal. 1/15/17 is what the setting
+        // ships as (schema step 142) and what StorageGroup falls back to.
+        $used = array_values(
+            array_filter(
+                explode(',', (string) self::getSetting('FOG_USED_TASKS')),
+                static function ($taskTypeId) {
+                    return trim($taskTypeId) !== '';
+                }
+            )
+        );
         if (count($used) < 1) {
             $used = [
                 TaskType::DEPLOY,
-                TaskType::DEPLOY_CAPTURE,
+                TaskType::DEPLOY_DEBUG,
                 TaskType::DEPLOY_NO_SNAPINS
             ];
         }

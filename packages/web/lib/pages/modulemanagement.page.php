@@ -285,7 +285,7 @@ class ModuleManagement extends FOGPage
             )
         ];
 
-        $buttons .= self::makeButton(
+        $buttons = self::makeButton(
             'general-send',
             _('Update'),
             'btn btn-primary float-end'

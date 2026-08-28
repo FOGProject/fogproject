@@ -13,7 +13,6 @@
 
 namespace FOG\Base;
 
-use FOG\DashboardPage;
 use FOG\Db\DatabaseManager;
 use FOG\Items\User;
 use FOG\Net\FOGFTP;
@@ -65,18 +64,18 @@ class LoadGlobals extends FOGBase
         $GLOBALS['currentUser'] = new User($userID);
         $GLOBALS['HookManager']->load();
         $GLOBALS['EventManager']->load();
-        $subs = [
-            'configure',
-            'authorize',
-            'requestClientInfo'
-        ];
-        if (in_array(isset($sub) ? $sub : '', $subs)) {
-            new DashboardPage();
-            unset($subs);
-            exit;
-        }
+        // A vestigial copy of the configure/authorize/requestClientInfo
+        // dispatch used to sit here, guarded by isset($sub) on a variable
+        // this scope never declared -- so it has never run, on this branch
+        // or on 1.5. That was load-bearing. Initiator::startInit() populates
+        // the global $sub from GET/POST *before* base.inc.php constructs
+        // LoadGlobals, so adding the `global $sub;` that the isset() invites
+        // would have made the branch live and answered all three subs with a
+        // dashboard render plus exit -- pre-empting FOGPage::_init(), which
+        // dispatches exactly these three to their real handlers
+        // (FOGPage::requestClientInfo() and friends). Removed rather than
+        // commented so the trap cannot be sprung by tidying it.
         self::$_loadedglobals = true;
-        unset($subs);
     }
     /**
      * Initializes directly.

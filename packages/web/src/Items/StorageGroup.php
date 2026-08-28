@@ -115,7 +115,17 @@ class StorageGroup extends FOGController
      */
     protected function loadUsedtasks()
     {
-        $used = explode(',', self::getSetting('FOG_USED_TASKS'));
+        // Same unreachable guard as StorageNode::loadUsedtasks() -- see the
+        // comment there. 1/15/17 are DEPLOY, DEPLOY_DEBUG and
+        // DEPLOY_NO_SNAPINS, matching the setting's shipped default.
+        $used = array_values(
+            array_filter(
+                explode(',', (string) self::getSetting('FOG_USED_TASKS')),
+                static function ($taskTypeId) {
+                    return trim($taskTypeId) !== '';
+                }
+            )
+        );
         if (count($used) < 1) {
             $used = [
                 1,

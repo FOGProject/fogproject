@@ -14,6 +14,7 @@
 namespace FOG;
 
 use FOG\Base\FOGPage;
+use FOG\Exception\SnapinSaveException;
 use FOG\Exception\UploadException;
 use FOG\Items\Snapin;
 use FOG\Items\StorageGroup;
