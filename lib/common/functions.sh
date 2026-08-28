@@ -10652,6 +10652,30 @@ class Config
     }
 }" > "${webdirdest}/commons/config.class.php"
     errorStat $?
+    # This file holds ${DB_password}, both FTP passwords (${SVC_password}, and
+    # the storage node account the same value backs) and the per-install schema
+    # bootstrap token generated above. It is written by a plain redirect, so
+    # without this it lands at whatever umask root is carrying -- 0644 on every
+    # distro we support. Every local account on the server could then read all
+    # of them, and the FTP credential is fleet-wide, not per-server.
+    #
+    # Same reasoning as .fogsettings, which is chmod 0600 for the same two
+    # passwords. This one cannot be 0600: unlike .fogsettings it is read by
+    # PHP rather than by the installer -- the web tier includes it on every
+    # request, and FOGPluginRunner and FOGRetentionRunner are the two daemons
+    # that run as ${apacheuser} instead of root. Group read is what keeps all
+    # three working, which is why the owner is set here and not left to the
+    # chown -R at the end of this function: the mode is only meaningful once
+    # the group is right, and a failure between the two should not leave a
+    # window where it is neither.
+    #
+    # Storage nodes take this path too -- configureMinHttpd() calls this
+    # function before stubbing out the management UI -- and a node's copy
+    # carries the MASTER's database password, so the node case is the one that
+    # matters most.
+    chown ${apacheuser}:${apacheuser} "${webdirdest}/commons/config.class.php" >>$error_log 2>&1
+    chmod 0640 "${webdirdest}/commons/config.class.php" >>$error_log 2>&1
+    errorStat $?
     dots "Creating paths file"
     # GH-850: hand the installer's $fogprogramdir to the PHP runtime so
     # FOG_BASE_DIR is no longer a hardcoded string in system.class.php.
