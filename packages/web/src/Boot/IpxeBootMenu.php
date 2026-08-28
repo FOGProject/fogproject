@@ -423,7 +423,21 @@ class IpxeBootMenu extends BootMenuBase
         }
         $output = [];
         foreach ($object as $property => $value) {
-            if (in_array($property, $ignore_keys) or is_object($value) or !$value) {
+            /**
+             * Absent, not merely falsy. '0' is falsy in PHP and meaningful
+             * in iPXE, and skipping it meant a host with enforce=0 emitted
+             * no `set enforce` at all -- indistinguishable from a host where
+             * the field does not apply. Conditional menus in iPXE are built
+             * on isset/iseq, so a flag that cannot be read as false is a
+             * flag that cannot be branched on, which is half of what GH-572
+             * asked for.
+             */
+            if (in_array($property, $ignore_keys)
+                || is_object($value)
+                || null === $value
+                || '' === $value
+                || [] === $value
+            ) {
                 continue;
             }
             if (is_array($value)) {
@@ -436,18 +450,75 @@ class IpxeBootMenu extends BootMenuBase
                     if (!is_scalar($item)) {
                         continue;
                     }
-                    $output[] = "set {$property}{$count} {$item}";
+                    $safe = self::_setSafe($item);
+                    if ('' === $safe) {
+                        continue;
+                    }
+                    $output[] = "set {$property}{$count} {$safe}";
                     $count++;
                 }
             } else {
                 if ($property == 'name') {
                     $property = 'host' . $property;
                 }
-                $output[] = "set {$property} {$value}";
+                $safe = self::_setSafe($value);
+                if ('' === $safe) {
+                    continue;
+                }
+                $output[] = "set {$property} {$safe}";
             }
         }
 
         return $output;
+    }
+    /**
+     * Makes a value safe to interpolate into an iPXE `set` line.
+     *
+     * The same threat as _echoSafe() below, over a different character set.
+     * An iPXE script is newline-delimited commands with `&&` and `||` as
+     * in-line separators, and Initiator::sanitizeOutput() collapses a RUN of
+     * whitespace to its first character rather than removing newlines -- so a
+     * newline, or a bare `&&`, inside a value ends the `set` and begins a new
+     * command that iPXE then runs.
+     *
+     * Which is reachable: boot.php is unauthenticated by necessity, and
+     * service/inventory.php authenticates by MAC alone, so the values these
+     * lines carry are not all under an admin's control. Unsanitized, a
+     * stored separator ended the `set` and left whatever followed it running
+     * as its own command -- emitted above the menu, so before the operator
+     * sees anything.
+     *
+     * `$`, `{` and `}` go for a lesser reason: iPXE expands ${...} at use, so
+     * a stored value could otherwise read back another variable in the menu.
+     *
+     * A whitelist is not usable here the way it is for _echoSafe(). Those
+     * values are architecture names and filenames; these are SMBIOS strings,
+     * image names, memory sizes and dates, which legitimately carry spaces,
+     * slashes, commas and colons. So what is removed is exactly iPXE's own
+     * syntax, and the value is length-capped so one long field cannot push
+     * the rest of the menu off screen.
+     *
+     * @param mixed $value the value to render
+     *
+     * @return string
+     */
+    private static function _setSafe($value)
+    {
+        /**
+         * Before the cast, not after: (string)false is '' and would be
+         * dropped by the caller's empty check, silently reintroducing the
+         * very omission the falsy guard above was widened to fix.
+         */
+        if (is_bool($value)) {
+            $value = (int)$value;
+        }
+        $value = preg_replace(
+            '/[\x00-\x1F\x7F&|${}]/',
+            '',
+            (string)$value
+        );
+
+        return trim(substr((string)$value, 0, 255));
     }
     /**
      * Initializes the boot menu class
