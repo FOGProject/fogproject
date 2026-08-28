@@ -135,7 +135,8 @@ jobs:
     # (PHP 7.4)`, `fogproject / tests (PHP 8.3)`, `fogproject / vendor matches
     # composer.lock`, `fogproject / schema on mariadb:10.5`, `fogproject /
     # schema on mariadb:11.8`, `fogproject / schema on mysql:8.0` and
-    # `fogproject / release pins resolve`. Renaming this job, or a job inside
+    # `fogproject / release pins resolve` -- plus `phpstan`, which is an inline
+    # job below and so carries no prefix. Renaming this job, or a job inside
     # fogproject-tests.yml, silently orphans a required context and parks every
     # pull request on "Expected -- waiting for status to be reported". Update
     # the ruleset in the same change.
@@ -179,20 +180,31 @@ jobs:
   # the same reason. It has to see the tree regen will actually leave behind,
   # since regen runs php-cs-fixer over this pull request's own files.
   #
-  # NOT YET A REQUIRED CONTEXT. The ruleset "working-1.6 pull request gate"
-  # requires seven `fogproject / ...` checks and this is not one of them, so a
-  # failure here blocks nothing. That is deliberate for the first few pull
-  # requests.
+  # A REQUIRED CONTEXT since 2026-08-28, after four consecutive green pull
+  # requests (#1437, #1438, #1439, #1440). The ruleset "working-1.6 pull
+  # request gate" now requires eight checks: the seven `fogproject / ...` ones
+  # the `suite:` comment lists, and this one.
   #
-  # PROMOTING IT MEANS ADDING THE CONTEXT `phpstan` -- exactly that, with no
-  # prefix. Verified against the check-runs API rather than guessed, because
-  # the two naming schemes on this workflow look inconsistent and are not: a
-  # CALLED workflow's check run is named `<caller job name> / <called job
-  # name>`, which is where `fogproject / tests (PHP 8.3)` comes from (the
-  # `suite:` job is named `fogproject`). An INLINE job's check run is just its
-  # own name. So this one is `phpstan` while its two siblings carry prefixes.
-  # Adding `Tests / phpstan` would orphan the context and park every pull
-  # request on "Expected -- waiting for status to be reported".
+  # THE CONTEXT IS `phpstan` -- exactly that, with no prefix. Verified against
+  # the check-runs API rather than guessed, because the two naming schemes on
+  # this workflow look inconsistent and are not: a CALLED workflow's check run
+  # is named `<caller job name> / <called job name>`, which is where
+  # `fogproject / tests (PHP 8.3)` comes from (the `suite:` job is named
+  # `fogproject`). An INLINE job's check run is just its own name. So this one
+  # is `phpstan` while its two siblings carry prefixes. Renaming this job to
+  # anything else -- or the ruleset to `Tests / phpstan` -- orphans the context
+  # and parks every pull request on "Expected -- waiting for status to be
+  # reported".
+  #
+  # Safe to require on fork pull requests, which is why it could be promoted
+  # and `regen` cannot: this job only checks out and reads, so nothing about it
+  # depends on write permissions a fork's token does not have. `regen` pushes,
+  # is skipped on forks, and must therefore stay optional forever.
+  #
+  # It stays a gate that can only be satisfied, never one that grows: the job
+  # fails only on errors a pull request ADDS, because everything the tree
+  # reported at introduction is in phpstan-baseline.neon. Requiring it is what
+  # stops that baseline quietly growing again.
   phpstan:
     name: phpstan
     needs: regen
