@@ -3,18 +3,23 @@
  * The bare names FOG uses to instantiate its own classes must resolve from
  * the src/ class map, not from the compatibility aliases.
  *
- * Every file under packages/web/src/ ends in a class_alias() re-exporting
- * itself into the global namespace (ADR 0013 §2). That alias is what makes
- * `getClass('Host')` work: the tree names its classes bare in ~520 literals,
- * in FOGController::getManager()'s `new $short.'Manager'`, and in all 52
- * lowercase entries of Route::$validClasses.
+ * Core is addressed by string in ~440 places -- ~380 `getClass('Literal')`
+ * calls, FOGController::getManager()'s `new $short.'Manager'`, and all of
+ * Route::$validClasses, which spells its entries in lowercase. None of that
+ * is visible to a static analyser or to a compiler: it resolves at runtime,
+ * from the global namespace, ignoring `use` imports entirely.
  *
- * Retiring those aliases is queued work (docs/composer-psr4-plan.md). The
- * step that makes it tractable is a single translation point --
- * Initiator::srcClassMap() supplying the names and FOGBase::qualify()
- * applying them -- so the 520 callers never need editing. This test covers
- * that point, and the list in part 3 is the work still outstanding before
- * the aliases can actually go.
+ * Every file under packages/web/src/ USED to end in a class_alias()
+ * re-exporting itself globally, which is what made those strings resolve.
+ * All 202 were deleted in 1ecf0255d and ADR 0013 §2 is amended accordingly,
+ * so the single translation point is now the only thing holding them up:
+ * Initiator::srcClassMap() supplies the names, FOGBase::qualify() applies
+ * them, and the ~440 callers were never edited.
+ *
+ * That makes this test load-bearing rather than transitional. A rename under
+ * src/ that misses a string call site cannot fail to compile and cannot be
+ * caught by PHPStan -- phpstan.neon analyses this tree and is blind to all
+ * of it. It fails here or it fails in production.
  *
  * Usage: php tests/getclass-resolves-without-aliases.test.php
  * Exit status 0 = pass, 1 = fail.
