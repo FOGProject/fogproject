@@ -13,7 +13,6 @@
 
 namespace FOG;
 
-use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
 /**
@@ -34,7 +33,7 @@ class Pending_MAC_List extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Pending MAC Addresses');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('Host Name'),
@@ -48,7 +47,7 @@ class Pending_MAC_List extends ReportManagement
         echo '<div class="card">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
-        echo _('Pending MAC Addresses');
+        echo $this->title;
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
@@ -57,20 +56,25 @@ class Pending_MAC_List extends ReportManagement
         echo '</div>';
     }
     /**
-     * Display list of history items.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         Route::listem(
             'macaddressassociation',
             ['pending' => [1]]
         );
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo Route::getData();
-        exit;
+
+        // Decoded rather than echoed straight through, because exportAll()
+        // needs the rows as data and Route hands its payload back encoded.
+        // getList() re-encodes; that round trip costs a fraction of the
+        // query it wraps and buys one read path instead of two.
+        return (array) json_decode(Route::getData(), true);
     }
 }
 

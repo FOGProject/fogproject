@@ -2914,10 +2914,6 @@ msgid "File Delete Queue"
 msgstr "无法删除文件"
 
 #, fuzzy
-msgid "File Deleter"
-msgstr "无法删除文件"
-
-#, fuzzy
 msgid "File Not Found"
 msgstr "图标文件未找到"
 
@@ -3524,10 +3520,6 @@ msgstr "帮助和引导"
 msgid "History Items"
 msgstr "主机ID"
 
-#, fuzzy
-msgid "History Report"
-msgstr "主机ID"
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3765,9 +3757,6 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "主机"
-
-msgid "Hosts And Users"
-msgstr ""
 
 #, fuzzy
 msgid "Hosts and images"
@@ -5386,7 +5375,7 @@ msgid "Monthly"
 msgstr "每月一次"
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -6242,10 +6231,6 @@ msgstr "MAC地址列表"
 msgid "Pending MACs"
 msgstr "待定的MAC"
 
-#, fuzzy
-msgid "Pending Mac List"
-msgstr "待淅淅沥沥"
-
 msgid "Pending Registered Hosts"
 msgstr "待注册主机"
 
@@ -6691,10 +6676,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Product Key"
-msgstr "主机产品密钥"
-
-#, fuzzy
-msgid "Product Keys"
 msgstr "主机产品密钥"
 
 msgid "Progress"
@@ -11232,6 +11213,10 @@ msgstr ""
 #~ msgstr "无法更新/创建图像日志"
 
 #, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "无法删除文件"
+
+#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "我不是雾Web服务器"
 
@@ -11265,6 +11250,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "主机描述"
+
+#, fuzzy
+#~ msgid "History Report"
+#~ msgstr "主机ID"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -11464,6 +11453,10 @@ msgstr ""
 #~ msgstr "待定的MAC"
 
 #, fuzzy
+#~ msgid "Pending Mac List"
+#~ msgstr "待淅淅沥沥"
+
+#, fuzzy
 #~ msgid "Performing ping"
 #~ msgstr "尝试ping"
 
@@ -11473,6 +11466,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "打印机别名"
+
+#, fuzzy
+#~ msgid "Product Keys"
+#~ msgstr "主机产品密钥"
 
 #, fuzzy
 #~ msgid "Remove Selected"

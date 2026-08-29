@@ -1109,7 +1109,7 @@ abstract class FOGPage extends FOGBase
                                 $reportlink,
                                 base64_encode($report)
                             )
-                        ] = _(ucwords(strtolower($report)));
+                        ] = ReportManagement::titleFor($report);
                     }
                 }
                 $menu['upload'] = _('Import Reports');

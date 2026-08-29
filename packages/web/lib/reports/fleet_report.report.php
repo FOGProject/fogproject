@@ -15,14 +15,13 @@ namespace FOG;
 
 use FOG\Audit\FleetStats;
 use FOG\Audit\ReportWindow;
-use FOG\Router\HTTPResponseCodes;
 
 /**
  * How current the fleet is, and which machines have fallen behind.
  *
- * ADR 0030's fleet subject. Host List, the report next to this one, answers
- * "what machines exist"; this answers "which of them need attention", which
- * is a question FOG could only be asked one host at a time.
+ * ADR 0030's fleet subject. Host Management's own list answers "what
+ * machines exist"; this answers "which of them need attention", which is a
+ * question FOG could only be asked one host at a time.
  *
  * THE WINDOW MEANS SOMETHING DIFFERENT HERE and the page says so out loud.
  * On every other report it selects events that happened between two dates.
@@ -62,7 +61,7 @@ class Fleet_Report extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Fleet Report');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('Host'),
@@ -105,6 +104,11 @@ class Fleet_Report extends ReportManagement
                     . 'Everything else is measured back from the end date.'
                 )
             )
+        );
+
+        echo self::renderReportCap(
+            $totals['truncated'],
+            FleetStats::MAX_ROWS
         );
 
         echo self::renderStatTiles(
@@ -185,13 +189,15 @@ class Fleet_Report extends ReportManagement
         echo '</div>';
     }
     /**
-     * Serves the rows.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
         $rows = FleetStats::hosts($start, $end);
 
@@ -214,9 +220,16 @@ class Fleet_Report extends ReportManagement
             ];
         }
 
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(['data' => $data]);
-        exit;
+        // A capped fetch is not a complete answer, and a CSV taken from
+        // one looks exactly like a complete file once it is on disk. The
+        // flag rides in the envelope so ReportManagement::exportAll() can
+        // write the cap into the download's name. `>=` rather than `>`
+        // because the rollup slices at MAX_ROWS and cannot see what it
+        // dropped; the name it produces is true either way.
+        return [
+            'data' => $data,
+            'truncated' => count($rows) >= FleetStats::MAX_ROWS
+        ];
     }
     /**
      * A stored date, or the word for not having one.

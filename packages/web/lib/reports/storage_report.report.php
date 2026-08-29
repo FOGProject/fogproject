@@ -15,7 +15,6 @@ namespace FOG;
 
 use FOG\Audit\ReportWindow;
 use FOG\Audit\StorageStats;
-use FOG\Router\HTTPResponseCodes;
 
 /**
  * How much the image estate weighs, and where it is meant to live.
@@ -66,7 +65,7 @@ class Storage_Report extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Storage Report');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('Image'),
@@ -119,6 +118,11 @@ class Storage_Report extends ReportManagement
                     . 'been deployed since it opened.'
                 )
             )
+        );
+
+        echo self::renderReportCap(
+            $totals['truncated'],
+            StorageStats::MAX_ROWS
         );
 
         echo self::renderStatTiles(
@@ -228,13 +232,15 @@ class Storage_Report extends ReportManagement
         echo '</div>';
     }
     /**
-     * Serves the rows.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
         $rows = StorageStats::images($start, $end);
 
@@ -265,9 +271,16 @@ class Storage_Report extends ReportManagement
             ];
         }
 
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(['data' => $data]);
-        exit;
+        // A capped fetch is not a complete answer, and a CSV taken from
+        // one looks exactly like a complete file once it is on disk. The
+        // flag rides in the envelope so ReportManagement::exportAll() can
+        // write the cap into the download's name. `>=` rather than `>`
+        // because the rollup slices at MAX_ROWS and cannot see what it
+        // dropped; the name it produces is true either way.
+        return [
+            'data' => $data,
+            'truncated' => count($rows) >= StorageStats::MAX_ROWS
+        ];
     }
 }
 

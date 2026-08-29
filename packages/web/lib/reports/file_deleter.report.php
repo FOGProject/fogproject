@@ -13,7 +13,6 @@
 
 namespace FOG;
 
-use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
 /**
@@ -34,7 +33,7 @@ class File_Deleter extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Files Deleted List');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('File Path Name'),
@@ -75,17 +74,22 @@ class File_Deleter extends ReportManagement
         echo '</div>';
     }
     /**
-     * Display list of history items.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         Route::listem('filedeletequeue');
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo Route::getData();
-        exit;
+
+        // Decoded rather than echoed straight through, because exportAll()
+        // needs the rows as data and Route hands its payload back encoded.
+        // getList() re-encodes; that round trip costs a fraction of the
+        // query it wraps and buys one read path instead of two.
+        return (array) json_decode(Route::getData(), true);
     }
 }
 

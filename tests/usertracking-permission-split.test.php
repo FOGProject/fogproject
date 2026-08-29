@@ -168,7 +168,6 @@ $cases = [
     'file&f=' . base64_encode('HOSTS AND USERS') => 'usertracking',
     // Any other report keeps the report node.
     'file&f=' . base64_encode('imaging log') => 'report',
-    'file&f=' . base64_encode('host list') => 'report',
     // Not base64 at all: selects no report, must not resolve to one.
     'file&f=????' => 'report',
     '' => 'report',

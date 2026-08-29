@@ -1246,12 +1246,6 @@ parameters:
 			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
 			identifier: method.void
 			count: 1
-			path: packages/web/lib/reports/host_list.report.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
 			path: packages/web/lib/reports/hosts_and_users.report.php
 
 		-

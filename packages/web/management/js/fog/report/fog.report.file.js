@@ -1,7 +1,9 @@
 (function($) {
-  // reportButtons is defined globally in fog.common.js and shared with the
-  // plugin report tables (registerReportTable), so every report toolbar is
-  // identical.
+  // reportFileButtons is defined globally in fog.common.js -- reportButtons
+  // plus the "CSV (All)" full export -- so every core report toolbar is
+  // identical. reportButtons alone is what the audit and activity grids and
+  // the plugin report tables (registerReportTable) wear; see fog.common.js
+  // for why those do not take the export button.
   var reportString = window.atob(Common.f);
 
   // The endpoint for a report whose window lives in the page URL.
@@ -41,7 +43,7 @@
               return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
             }
           },
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'path'},
             {data: 'pathtype'},
@@ -73,7 +75,7 @@
               return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
             }
           },
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           // Every column escapes. A history row records subject labels that
           // came from a machine on the network, and DataTables writes cell
           // data as HTML unless a column supplies its own render. The
@@ -100,53 +102,6 @@
           }
         });
       break;
-      // Host List
-    case 'host list':
-      var hostTable = $('#hostlist-table'),
-        table = hostTable.registerTable(null, {
-          order: [
-            [0, 'asc'],
-            [2, 'desc']
-          ],
-          buttons: reportButtons,
-          columns: [
-            {data: 'mainlink'},
-            {data: 'primac'},
-            {data: 'deployed'},
-            {data: 'imageLink'},
-            {data: 'name'}
-          ],
-          columnDefs: [
-            {
-              orderData: [4],
-              targets: [0]
-            },
-            {
-              render: function (data, type, row) {
-                if (type !== 'display') {
-                  return data;
-                }
-                return (data || '') + macVendorIcon(row.primac_vendor);
-              },
-              targets: [1]
-            },
-            {
-              targets: [4],
-              visible: false,
-              searchable: false
-            }
-          ],
-          rowId: 'id',
-          processing: true,
-          serverSide: true,
-          select: false,
-          ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f,
-            type: 'post'
-          }
-        });
-      break;
       // Hosts and users
     case 'hosts and users':
       var userloginTable = $('#userlogin-table'),
@@ -154,7 +109,7 @@
           order: [
             [1, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'username', render: $.fn.dataTable.render.text()},
             {data: 'hostLink'},
@@ -193,7 +148,7 @@
           order: [
             [0, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'hostLink'},
             {data: 'mac'}
@@ -236,6 +191,11 @@
           order: [
             [0, 'asc']
           ],
+          // reportButtons, NOT reportFileButtons: the whole content of
+          // this report is the secret it masks. The DataTables CSV button
+          // exports the DISPLAYED value, so it writes the mask; a full
+          // server-side export would write the keys in the clear, which is
+          // a disclosure change nobody asked for.
           buttons: reportButtons.concat([
             {
               text: '<i class="far fa-eye"></i> Reveal keys',
@@ -291,7 +251,7 @@
           order: [
             [0, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'mainlink'},
             {data: 'file'},
@@ -325,7 +285,7 @@
           order: [
             [3, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           // Every column escapes. A run's label is a task or snapin name,
           // which an operator types and a plugin can set, and DataTables
           // writes cell data as HTML unless a column supplies its own
@@ -363,7 +323,7 @@
           order: [
             [3, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'hostName', render: $.fn.dataTable.render.text()},
             {data: 'imageName', render: $.fn.dataTable.render.text()},
@@ -394,7 +354,7 @@
           order: [
             [2, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'snapin', render: $.fn.dataTable.render.text()},
             {data: 'hostName', render: $.fn.dataTable.render.text()},
@@ -427,7 +387,7 @@
           order: [
             [3, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'hostName', render: $.fn.dataTable.render.text()},
             {data: 'imageName', render: $.fn.dataTable.render.text()},
@@ -452,7 +412,7 @@
           order: [
             [0, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           // Aisle 019: every field below is fed by the UNAUTHENTICATED inventory
           // submission surface (service/ipxe/boot.php and the inventory service),
           // and DataTables writes cell data as HTML by default -- so a stored
@@ -528,7 +488,7 @@
           order: [
             [7, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'imageName', render: $.fn.dataTable.render.text()},
             {data: 'size', render: $.fn.dataTable.render.text()},
@@ -567,7 +527,7 @@
           order: [
             [0, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           // Every column escapes. An audit row records an ATTEMPTED
           // username and a subject label, both of which can come from an
           // unauthenticated request, and DataTables writes cell data as

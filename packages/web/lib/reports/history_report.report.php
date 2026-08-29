@@ -14,7 +14,6 @@
 namespace FOG;
 
 use FOG\Auth\Authorization;
-use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
 /**
@@ -57,7 +56,7 @@ class History_Report extends ReportManagement
             );
         }
 
-        $this->title = _('Full History');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('User'),
@@ -75,7 +74,7 @@ class History_Report extends ReportManagement
         echo '<div class="card">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
-        echo _('Full History');
+        echo $this->title;
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
@@ -84,17 +83,22 @@ class History_Report extends ReportManagement
         echo '</div>';
     }
     /**
-     * Display list of history items.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         Route::listem('history');
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo Route::getData();
-        exit;
+
+        // Decoded rather than echoed straight through, because exportAll()
+        // needs the rows as data and Route hands its payload back encoded.
+        // getList() re-encodes; that round trip costs a fraction of the
+        // query it wraps and buys one read path instead of two.
+        return (array) json_decode(Route::getData(), true);
     }
 }
 

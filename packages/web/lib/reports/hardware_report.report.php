@@ -15,7 +15,6 @@ namespace FOG;
 
 use FOG\Audit\InventoryStats;
 use FOG\Audit\ReportWindow;
-use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
 /**
@@ -69,7 +68,7 @@ class Hardware_Report extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Hardware Report');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('Host Name'),
@@ -284,28 +283,22 @@ class Hardware_Report extends ReportManagement
         echo '</div>';
     }
     /**
-     * Serves the rows.
+     * The rows this report serves.
      *
-     * Route::listem(), the same call Inventory Report made, rather than a
-     * rollup method. That keeps the grid SERVER-SIDE: it pages, sorts and
-     * searches in SQL over the whole table, where a client-side grid would
-     * have to fetch every row first. On a fleet of any size that is the
-     * difference between a report and a download.
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
      *
-     * It is also why this grid is not filtered by the window. The window
-     * here is an as-of date for the charts above; the record itself is
-     * current by definition, and paging it through a date filter would
-     * answer a question nobody asked.
-     *
-     * @return void
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         Route::listem('inventory');
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo Route::getData();
-        exit;
+
+        // Decoded rather than echoed straight through, because exportAll()
+        // needs the rows as data and Route hands its payload back encoded.
+        // getList() re-encodes; that round trip costs a fraction of the
+        // query it wraps and buys one read path instead of two.
+        return (array) json_decode(Route::getData(), true);
     }
     /**
      * One breakdown as a doughnut, which is the same shape four times.

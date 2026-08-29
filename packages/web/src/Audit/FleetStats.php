@@ -296,7 +296,8 @@ class FleetStats extends WindowedStats
      * @param \DateTimeInterface $start Inclusive lower bound, FOG's clock.
      * @param \DateTimeInterface $end   The as-of date, FOG's clock.
      *
-     * @return array hosts, never, current, noInventory, noCheckin, pending
+     * @return array hosts, never, current, noInventory, noCheckin,
+     *               pending, truncated
      */
     public static function totals(
         \DateTimeInterface $start,
@@ -310,6 +311,11 @@ class FleetStats extends WindowedStats
             'pending'] as $k) {
             $out[$k] = (int)($row[$k] ?? 0);
         }
+        // The tiles describe the whole fleet; hosts() is capped at MAX_ROWS.
+        // Saying so here is what lets the page warn, and what keeps a CSV
+        // export from looking complete when it is not. `hosts` is a true
+        // count off the database, so the comparison is exact.
+        $out['truncated'] = $out['hosts'] > self::MAX_ROWS;
 
         return $out;
     }
