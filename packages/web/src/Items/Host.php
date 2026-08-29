@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Boot\SecureBootState;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -93,6 +94,30 @@ class Host extends FOGController
         // never will. Advisory either way: IpxeBootMenu still chooses a kernel
         // from the live request, never from here.
         'archID' => 'hostArchID',
+        // The Secure Boot ledger, in two halves that are deliberately not
+        // one thing (schema steps 376 and 377).
+        //
+        // sbstate is OBSERVED: what iPXE told us on the last PXE boot, in
+        // FOG\Boot\SecureBootState's vocabulary, stamped with the server's
+        // own clock. Never editable, in the UI or over the API -- it is a
+        // report, not a claim, and Route::$serverOwnedFields refuses a write
+        // to either field.
+        //
+        // sbenrolled and its two companions are ASSERTED: a record that an
+        // enrolment happened, which IS editable because a technician with a
+        // USB stick is one of the three ways it happens and the only one FOG
+        // cannot observe. sbenrollcert is the SHA-256 of what was enrolled,
+        // so "does this host trust the certificate I serve today" is
+        // answerable rather than inferred from a date.
+        //
+        // Advisory, both halves. Every value here originates in an
+        // unauthenticated boot request or a text box. Nothing reads them as
+        // a security control -- see ADR 0029.
+        'sbstate' => 'hostSbState',
+        'sbstatetime' => 'hostSbStateTime',
+        'sbenrolled' => 'hostSbEnrolled',
+        'sbenrollcert' => 'hostSbEnrollCert',
+        'sbenrollvia' => 'hostSbEnrollVia',
         'biosexit' => 'hostExitBios',
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',
@@ -1100,6 +1125,38 @@ class Host extends FOGController
                     case TaskType::ALL_SNAPINS:
                         $this->_cancelJobsSnapinsForHost();
                         break;
+                }
+            }
+            // Refuse a Secure Boot enrolment the target cannot run.
+            //
+            // This is the payoff for schema step 376, and it is the same
+            // shape of argument as the architecture check further down: the
+            // task does not fail loudly on an enforcing machine, it fails by
+            // the machine never booting FOS at all. The admin sees a host
+            // that PXE booted, refused the kernel, and rebooted -- which
+            // looks like a broken image or a broken network, not like a task
+            // that was never eligible.
+            //
+            // ADR 0008 states this constraint in the task's own description,
+            // which is the last thing an admin reads before scheduling. That
+            // was the only enforcement there could be while nothing recorded
+            // what a machine was; now something does, so it is checked.
+            //
+            // Advisory data, deliberately used for an advisory purpose. The
+            // value comes from an unauthenticated boot request, so this is
+            // NOT a security control and must never become one -- a host that
+            // spoofed "disabled" earns itself a task that cannot work, which
+            // is exactly what happens today with no record at all. See ADR
+            // 0029. What it is NOT allowed to do is refuse on a guess:
+            // isEnrolmentTarget() lets UNKNOWN through, so an upgraded server
+            // whose fleet has not PXE booted yet behaves exactly as it does
+            // now, and only a positively-reported bad state is refused.
+            if (TaskType::ENROLL_SECUREBOOT == $TaskType->id) {
+                $sbRefusal = SecureBootState::refusalReason(
+                    $this->get('sbstate')
+                );
+                if ('' !== $sbRefusal) {
+                    throw new \Exception($sbRefusal);
                 }
             }
             $Image = $this->getImage();

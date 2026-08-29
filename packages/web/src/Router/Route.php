@@ -22,6 +22,7 @@ use FOG\Base\FOGBase;
 use FOG\Base\FOGController;
 use FOG\Base\FOGCore;
 use FOG\Base\FOGManagerController;
+use FOG\Boot\SecureBootState;
 use FOG\Db\DatabaseManager;
 use FOG\Items\APIToken;
 use FOG\Items\Group;
@@ -411,6 +412,24 @@ class Route extends FOGBase
             'prev_sec_tok',
             'sec_time',
             'token',
+            // Written by FOGPingHosts and by the client's own check-in. The
+            // host form has always disabled these two inputs and its comment
+            // has always called them server-owned, but the API never
+            // refused them, so "server-owned" was a property of one form
+            // rather than of the field. Two enforcement points for one rule
+            // is how they drift.
+            'lastping',
+            'lastcheckin',
+            // The observed half of the Secure Boot ledger (schema step 376).
+            // This is the field the HARD constraint in ADR 0029 is about: it
+            // is a REPORT of what a machine said, so a caller asserting it
+            // would be asserting an observation nobody made. The enrolment
+            // record next to it -- sbenrolled, sbenrollcert, sbenrollvia --
+            // is deliberately NOT here, because a technician who enrolled a
+            // certificate from a USB stick is the only source for that fact
+            // and has to be able to type it.
+            'sbstate',
+            'sbstatetime',
         ],
         'user' => [
             'token',
@@ -2537,6 +2556,13 @@ class Route extends FOGBase
                     // click its header.
                 case 'lastping':
                 case 'lastcheckin':
+                    // The two Secure Boot datetimes ride the same formatter.
+                    // sbstatetime is server-stamped, sbenrolled is
+                    // hand-editable, and neither needs its own rendering --
+                    // what distinguishes them is sbstate and sbenrollvia
+                    // beside them, which are their own columns.
+                case 'sbstatetime':
+                case 'sbenrolled':
                     $columns[] = [
                         'db' => $real,
                         'dt' => $common,
@@ -2563,6 +2589,56 @@ class Route extends FOGBase
                             // already made client-side, per column -- blank
                             // for 'deployed', "Not yet seen" for 'arch'.
                             return '';
+                        }
+                    ];
+                    break;
+                case 'sbstate':
+                    // The raw stored word, alongside the rendered label
+                    // below -- the same two-columns-from-one-db-field shape
+                    // pingstatus uses. It carries no header, so it is data in
+                    // the JSON rather than a visible column (primac_vendor
+                    // rides along the same way), and it exists because the
+                    // client needs the value to colour the badge: a DataTables
+                    // row is keyed by the `dt` names, so the db column is not
+                    // reachable there, and deriving the state back out of a
+                    // TRANSLATED label would break in every locale but one.
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'sbstatecode',
+                        'formatter' => function ($d, $row) {
+                            return SecureBootState::isKnown($d)
+                                ? (string)$d
+                                : '';
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            // PLAIN TEXT, no badge, unlike pingstatus below.
+                            // This column is in the host export, and
+                            // registerExportTable() escapes each cell, so a
+                            // <span> here is printed as literal markup in
+                            // the CSV -- the GH-1446 failure exactly. The
+                            // colour is a display decision and is made
+                            // client-side in fog.host.list.js, which is
+                            // where the existing comment on the datetime
+                            // formatter above says such decisions belong.
+                            //
+                            // label() renders NULL and any unrecognised
+                            // value as "Never reported" rather than as a
+                            // blank cell. A blank would read as "no Secure
+                            // Boot", which is the one wrong answer that
+                            // makes a host look like a valid enrolment
+                            // target.
+                            //
+                            // Note the search box matches the STORED word
+                            // ('disabled'), not this label, because the LIKE
+                            // is applied to the column. That is deliberate:
+                            // the stored words are FOS's own vocabulary and
+                            // are what the Secure Boot configuration page
+                            // and the logs use.
+                            return SecureBootState::label($d);
                         }
                     ];
                     break;

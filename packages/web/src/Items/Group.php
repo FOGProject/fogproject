@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Boot\SecureBootState;
 use FOG\Router\Route;
 
 /**
@@ -812,6 +813,56 @@ class Group extends FOGController
         } else {
             if ($TaskType->id != TaskType::WAKE_UP) {
                 $hostIDs = $this->get('hosts');
+                // Drop members the Secure Boot enrolment task cannot run on.
+                //
+                // The same refusal Host::createImagePackage() makes, at the
+                // only other place it can be made: a non-imaging group task
+                // never calls that method -- it batch-inserts straight over
+                // the member ids -- so a check written only there covers the
+                // single-host path and silently misses every group.
+                //
+                // FILTERS rather than throwing, which is the one way this
+                // deliberately differs from the single-host case. A group is
+                // a mixed bag by nature and ADR 0008 gives ttIsAccess='both'
+                // precisely so a batch in the same state can be scheduled at
+                // once; refusing the whole group because one member came back
+                // from a firmware change with Secure Boot already on would
+                // make the group path useless for the case it exists for.
+                //
+                // Unreported members are KEPT, matching isEnrolmentTarget():
+                // nothing is known until a host PXE boots, and silently
+                // dropping every not-yet-seen host would empty the group on
+                // the first day this shipped.
+                //
+                // Only reads a value each host reported about itself, so the
+                // worst a spoofed state does is add or remove that one host
+                // from its own task. See ADR 0029.
+                if (TaskType::ENROLL_SECUREBOOT == $TaskType->id) {
+                    $eligible = [];
+                    foreach ((array)$hostIDs as $hostID) {
+                        $Host = new Host($hostID);
+                        if (!$Host->isValid()) {
+                            continue;
+                        }
+                        if (SecureBootState::isEnrolmentTarget(
+                            $Host->get('sbstate')
+                        )) {
+                            $eligible[] = $hostID;
+                        }
+                    }
+                    if (count($eligible) < 1) {
+                        throw new \Exception(
+                            _(
+                                'No host in this group can run Secure Boot '
+                                . 'enrolment. Every member last reported a '
+                                . 'firmware state the task cannot work on -- '
+                                . 'see the Secure Boot column on the host '
+                                . 'list.'
+                            )
+                        );
+                    }
+                    $hostIDs = $eligible;
+                }
                 $hostCount = count($hostIDs ?: []);
                 $batchFields = [
                     'name',

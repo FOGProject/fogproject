@@ -203,6 +203,70 @@
         });
     }
 
+    if ('sbstate' in colIndex) {
+        columnDefs.push({
+            render: function (data, type, row) {
+                // Display only -- sort, search and the CSV export all get the
+                // server's plain text back untouched. A badge baked into the
+                // value is the GH-1446 failure: registerExportTable() escapes
+                // each cell, so the markup lands in the CSV as literal text.
+                if (type !== 'display') {
+                    return data;
+                }
+                // Colour carries the same meaning the enrolment task acts on,
+                // so the grid and the refusal cannot tell different stories:
+                // green is ready to enrol unattended, blue is enrollable with
+                // someone at the machine, red cannot run the task at all, and
+                // grey is "we have never heard from this host" -- which is
+                // deliberately not the same grey-as-harmless as the others,
+                // because unknown is allowed through with a warning.
+                var raw = String(row.sbstatecode || '');
+                var tone = 'secondary';
+                if (raw === 'setup') {
+                    tone = 'success';
+                } else if (raw === 'disabled') {
+                    tone = 'info';
+                } else if (raw === 'enforcing') {
+                    tone = 'danger';
+                } else if (raw === 'nonefi' || raw === 'noefivars') {
+                    tone = 'warning';
+                }
+                if (!raw) {
+                    return '<span class="text-muted">' + (data || '') +
+                        '</span>';
+                }
+                return '<span class="badge bg-' + tone + '">' +
+                    (data || '') + '</span>';
+            },
+            targets: colIndex.sbstate
+        });
+    }
+    if ('sbenrolled' in colIndex) {
+        columnDefs.push({
+            render: function (data, type, row) {
+                if (type !== 'display') {
+                    return data;
+                }
+                // Blank, not "Never": an empty enrolment cell next to a
+                // populated Secure Boot cell already reads as "not enrolled",
+                // and the word would crowd a column most fleets never look at.
+                if (!data) {
+                    return '';
+                }
+                // A staged MOK request is NOT an enrolment and must not read
+                // as one -- the machine will not boot with Secure Boot on
+                // until someone confirms it at the MokManager screen. The
+                // date alone would say the opposite.
+                if (String(row.sbenrollvia || '') === 'mok-pending') {
+                    return data +
+                        ' <span class="badge bg-warning">pending</span>';
+                }
+                return data;
+            },
+            targets: colIndex.sbenrolled
+        });
+    }
+
     var table = $('#dataTable').registerTable(onSelect, {
         // Sort on the host name. Named rather than numbered for the same
         // reason columnDefs is: the position moves when a column is added

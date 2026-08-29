@@ -8195,3 +8195,205 @@ $this->schema[] = [
     "DELETE FROM `globalSettings` "
     . "WHERE `settingKey` = 'FOG_CLIENT_GREENFOG_ENABLED'",
 ];
+
+// 376
+$this->schema[] = [
+    // hosts.hostSbState -- what this machine last told us about its own
+    // Secure Boot posture, and when we heard it.
+    //
+    // ADR 0008 scopes the Secure Boot enrolment task to machines that are
+    // NOT currently enforcing, because a machine that is enforcing will not
+    // boot FOS and so cannot run the task that would make it trust us. Until
+    // now there was no way to find those machines: an admin guessed, and a
+    // wrong guess staged a certificate on a box where the task could never
+    // run. This is the column that turns that constraint from something a
+    // technician remembers into something the server can check.
+    //
+    // Reported by iPXE, on every PXE boot, not by FOS. That is the whole
+    // point of siting it here: FOS runs when someone schedules a task, which
+    // may be months away or never, whereas iPXE runs every time the machine
+    // netboots. Same reasoning as step 369's hostArch, and the value arrives
+    // on the same request.
+    //
+    // The six values are FOG\Boot\SecureBootState's constants, five of which
+    // are FOS's own sbState() names taken verbatim
+    // (usr/share/fog/lib/secureboot-funcs.sh) so the two reporters cannot
+    // drift into two vocabularies for one fact:
+    //
+    //   unknown    nothing has reported yet -- server-side only
+    //   nonefi     booted BIOS/CSM; Secure Boot is not a concept here
+    //   noefivars  UEFI, but the variables could not be read
+    //   setup      Setup Mode -- db is writable, enrolment is unattended
+    //   enforcing  User Mode, Secure Boot ON  -- the task cannot run
+    //   disabled   User Mode, Secure Boot OFF -- the ADR 0008 case
+    //
+    // setup and disabled are NOT collapsed into one "off". Turning Secure
+    // Boot off leaves the platform key in place, so db still refuses a
+    // write; only Setup Mode accepts one. fog.enrollsb branches on exactly
+    // that, and it is the difference between an enrolment that finishes with
+    // nobody at the keyboard and one that needs a human at MokManager.
+    //
+    // NULL, not a default, and read as "unknown". An existing fleet starts
+    // unreported and fills in as machines boot. Defaulting to anything else
+    // would assert a fact nobody observed -- and "disabled" is the dangerous
+    // direction specifically, because it is the value that makes a host look
+    // like a valid enrolment target.
+    //
+    // VARCHAR, not ENUM: ENUM makes every new state a schema migration, and
+    // an int written to an ENUM is a member INDEX rather than a value, which
+    // this project has been bitten by before. The valid set is enforced in
+    // SecureBootState, where the parsing already lives.
+    //
+    // ADVISORY ONLY, and this is the constraint that matters most. boot.php
+    // is unauthenticated by necessity -- a booting NIC has no credential --
+    // so this value is attacker-controlled. Nothing may ever read it as a
+    // security control: it exists for targeting, filtering and display. The
+    // worst a spoofed "disabled" buys is a wasted task, and a spoofed
+    // "enforcing" buys nothing at all. See ADR 0029.
+    //
+    // hostSbStateTime is stamped by the server from its own clock, never
+    // taken from the request. A client-supplied timestamp on a
+    // client-supplied observation is two lies for the price of one, and the
+    // question this column answers -- "how stale is this?" -- is only
+    // meaningful in the server's own time base.
+    //
+    // No index on either. Written at most once per boot per host, read by
+    // pages that are already fetching the row -- the same trade as
+    // hostLastPing in 353 and hostArch in 369.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354/355/369: ADD
+    // COLUMN has no IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and
+    // every column is named in the probe so the installer's grant check
+    // still passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN ('hostSbState', 'hostSbStateTime')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostSbState', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostSbState` VARCHAR(16) NULL DEFAULT NULL"
+            );
+        }
+        if (!in_array('hostSbStateTime', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostSbStateTime` DATETIME NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];
+
+// 377
+$this->schema[] = [
+    // hosts.hostSbEnrolled / hostSbEnrollCert / hostSbEnrollVia -- the record
+    // of an enrolment having been PERFORMED.
+    //
+    // The other half of 376, and a different kind of fact. 376 is an
+    // observation: the machine said what it was, and nobody may edit it.
+    // This is a record of an action, and it IS editable, because one of the
+    // three ways a certificate gets enrolled cannot write it itself.
+    //
+    //   db      fog.enrollsb wrote the platform's db in Setup Mode. Finished
+    //           on the machine, nobody at the keyboard.
+    //   mok     a MOK request was staged AND has since been confirmed.
+    //   manual  a technician enrolled it from a USB stick. Hand-entered;
+    //           there is no path by which FOG could learn this.
+    //
+    // and the fourth value, which is why this is not a boolean:
+    //
+    //   mok-pending  a MOK request was staged and NOT yet confirmed.
+    //
+    // That distinction is load-bearing and easy to lose. fog.enrollsb has
+    // three exits -- already-trusted, enrolled-via-db, and staged-a-MOK --
+    // and all three currently end with the same argument-free completion
+    // POST, so the server cannot tell them apart. Writing "enrolled" on a
+    // staged MOK would be a lie an admin acts on: they would turn Secure
+    // Boot on in firmware and the machine would stop booting, because
+    // nothing has confirmed the key at MokManager yet. So FOS reports which
+    // branch it took, and until it does, this column stays NULL rather than
+    // guessing.
+    //
+    // hostSbEnrollCert is the SHA-256 of the enrolled certificate, colon-
+    // formatted and upper case -- 95 characters. It is here because "was
+    // this machine ever enrolled" is not the question an admin has. The
+    // question is "does this machine trust the certificate I am serving
+    // today", and an enrolment date alone goes stale in silence when the
+    // certificate rotates: FOG has PKI zones, a multi-server CA, and certs
+    // that expire.
+    //
+    // Both sides of that comparison already exist and already agree, which
+    // is why this costs one column and no new computation.
+    // FOGConfigurationPage::secureBoot() renders
+    // strtoupper(implode(':', str_split(hash_file('sha256', $certfile), 2)))
+    // and FOS's sbCertFingerprint() is `sha256sum | toupper | colon-split`
+    // over the same DER file. The check is string equality.
+    //
+    // Editable, deliberately, and therefore carrying even less authority
+    // than 376's observation -- a human typed it. Same rule applies: display
+    // and targeting only, never a security control. See ADR 0029.
+    //
+    // Last write wins when sources disagree, with no precedence rule. A
+    // technician correcting a wrong machine-written record is legitimate,
+    // and a rule that let the machine outrank the human would create a value
+    // nobody could fix. What makes that safe is showing provenance rather
+    // than arbitrating it: hostSbEnrollVia is rendered next to the date, so
+    // "enrolled 2026-03-14 (entered by hand)" and "(reported by task)" are
+    // visibly different claims.
+    //
+    // VARCHAR(95) sized to the value, not rounded up: 32 bytes as two hex
+    // digits each plus 31 separators. A wider column would silently accept
+    // something that is not a SHA-256 fingerprint.
+    //
+    // No index. Read on the host page and in the grid, both of which already
+    // have the row.
+    //
+    // Separate step from 376 rather than one doing both halves, so a partial
+    // failure leaves an unambiguous state -- same reasoning as 369/370.
+    //
+    // Guarded closure, same as 376 above.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'hosts' "
+            . "AND `COLUMN_NAME` IN "
+            . "('hostSbEnrolled', 'hostSbEnrollCert', 'hostSbEnrollVia')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('hostSbEnrolled', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostSbEnrolled` DATETIME NULL DEFAULT NULL"
+            );
+        }
+        if (!in_array('hostSbEnrollCert', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostSbEnrollCert` VARCHAR(95) NULL DEFAULT NULL"
+            );
+        }
+        if (!in_array('hostSbEnrollVia', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `hosts` "
+                . "ADD `hostSbEnrollVia` VARCHAR(16) NULL DEFAULT NULL"
+            );
+        }
+
+        return true;
+    },
+];

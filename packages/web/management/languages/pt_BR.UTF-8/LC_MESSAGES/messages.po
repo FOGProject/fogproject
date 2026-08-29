@@ -87,6 +87,10 @@ msgstr ""
 msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%1$s (as of %2$s)"
+msgstr "Impressora já existe"
+
 #, php-format
 msgid "%1$s of %2$s on %3$s: %4$s"
 msgstr ""
@@ -2417,6 +2421,18 @@ msgstr ""
 msgid "Engineer"
 msgstr "Engenheiro"
 
+msgid "Enrolled Certificate (SHA-256)"
+msgstr ""
+
+msgid "Enrolled Via"
+msgstr ""
+
+msgid "Enrolled Via must be one of: db, trusted, mok, mok-pending, manual"
+msgstr ""
+
+msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
+msgstr ""
+
 msgid "Enrolment kit"
 msgstr ""
 
@@ -4730,6 +4746,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Legacy BIOS (no Secure Boot)"
+msgstr ""
+
 msgid "Level"
 msgstr ""
 
@@ -5343,6 +5362,10 @@ msgstr ""
 msgid "Never - do not verify (insecure)"
 msgstr ""
 
+#, fuzzy
+msgid "Never reported"
+msgstr "Inventário"
+
 msgid "Never returned by the API."
 msgstr ""
 
@@ -5457,6 +5480,9 @@ msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "No groups are being created or selected"
+msgstr ""
+
+msgid "No host in this group can run Secure Boot enrolment. Every member last reported a firmware state the task cannot work on -- see the Secure Boot column on the host list."
 msgstr ""
 
 msgid "No hosts are assigned an image"
@@ -6935,6 +6961,9 @@ msgstr ""
 msgid "Running Windows"
 msgstr "executando a Versão"
 
+msgid "SB Enrolled"
+msgstr ""
+
 msgid "SHA-256"
 msgstr ""
 
@@ -7093,11 +7122,27 @@ msgstr "Shell servidor"
 msgid "Secure Boot"
 msgstr ""
 
+msgid "Secure Boot (reported)"
+msgstr ""
+
 msgid "Secure Boot CA private key"
+msgstr ""
+
+msgid "Secure Boot Enrolled"
+msgstr ""
+
+msgid "Secure Boot OFF"
+msgstr ""
+
+msgid "Secure Boot ON"
 msgstr ""
 
 msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
 msgstr ""
+
+#, fuzzy
+msgid "Secure Boot enrolment date is not a valid date"
+msgstr "Não há imagens neste servidor."
 
 msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
@@ -7295,6 +7340,9 @@ msgstr "foi atualizado com sucesso"
 #, fuzzy
 msgid "Settings update failed!"
 msgstr "Configurações atualizadas"
+
+msgid "Setup Mode (unattended enrolment)"
+msgstr ""
 
 msgid "Setup Mode -- shown as \"Custom\" or \"Custom mode\" in most firmware menus -- is the state a machine is in when its platform key has been cleared, and it is the only state in which these databases can be written. Turning Secure Boot OFF is not the same thing and does not help: a machine with Secure Boot disabled still has a platform key, and still refuses the write. Look for \"Custom mode\", \"Erase all Secure Boot settings\" or \"Clear Secure Boot keys\" in the firmware."
 msgstr ""
@@ -8715,6 +8763,15 @@ msgstr ""
 msgid "This host has finished deploying image %s."
 msgstr ""
 
+msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enrol into."
+msgstr ""
+
+msgid "This host last reported Secure Boot as ON. It does not trust this server's kernel yet, so it cannot boot FOS to run the task at all. Turn Secure Boot off in its firmware first, or enrol from local media."
+msgstr ""
+
+msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8989,6 +9046,9 @@ msgstr "Evento deve ser uma string"
 
 msgid "Type"
 msgstr "Digitar"
+
+msgid "UEFI, state unreadable"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to Authenticate"
@@ -10602,6 +10662,9 @@ msgstr "Não disponível"
 msgid "unchanged for"
 msgstr "fotografada"
 
+msgid "unrecorded"
+msgstr ""
+
 msgid "up"
 msgstr ""
 
@@ -10806,10 +10869,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Attempting to ping host"
 #~ msgstr "A tentativa de executar ping"
-
-#, fuzzy
-#~ msgid "Automatic Secure Boot enrolment is not available on this server"
-#~ msgstr "Não há imagens neste servidor."
 
 #, fuzzy
 #~ msgid "Bulk Changes"
