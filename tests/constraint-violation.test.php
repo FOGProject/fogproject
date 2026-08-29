@@ -305,4 +305,37 @@ $t->check(
     null === $thrown
 );
 
+/*
+ * The spec has to list the status the route now answers.
+ *
+ * A client generated from an OpenAPI document handles the responses the
+ * document names. Delete answered 200-or-error for FOG's whole history and
+ * the spec said so; it can now answer 409, and a generated client meeting an
+ * undocumented status either throws or -- worse -- treats it as a generic
+ * failure and drops the sentence that says what to do about it.
+ *
+ * Read out of the emitted document rather than grepped out of the source:
+ * the responses are assembled by _op() from several helpers, so the source
+ * saying `_conflictResponse(` proves the call exists, not that a 409 came
+ * out the other end for THIS operation.
+ */
+$doc = \FOG\Router\OpenAPI::document();
+$deleteOp = $doc['paths']['/host/{id}']['delete'] ?? null;
+$t->check(
+    'the delete operation exists in the emitted document',
+    is_array($deleteOp)
+);
+$t->check(
+    'and it documents the 409 a refused delete now answers',
+    isset($deleteOp['responses']['409'])
+);
+$t->check(
+    'the 409 description says what a caller should do, not just that it failed',
+    isset($deleteOp['responses']['409']['description'])
+    && false !== strpos(
+        $deleteOp['responses']['409']['description'],
+        'retry'
+    )
+);
+
 $t->finish();
