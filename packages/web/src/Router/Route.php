@@ -423,7 +423,7 @@ class Route extends FOGBase
             // The observed half of the Secure Boot ledger (schema step 376).
             // This is the field the HARD constraint in ADR 0029 is about: it
             // is a REPORT of what a machine said, so a caller asserting it
-            // would be asserting an observation nobody made. The enrolment
+            // would be asserting an observation nobody made. The enrollment
             // record next to it -- sbenrolled, sbenrollcert, sbenrollvia --
             // is deliberately NOT here, because a technician who enrolled a
             // certificate from a USB stick is the only source for that fact
@@ -2598,7 +2598,7 @@ class Route extends FOGBase
                     // pingstatus uses. It carries no header, so it is data in
                     // the JSON rather than a visible column (primac_vendor
                     // rides along the same way), and it exists because the
-                    // client needs the value to colour the badge: a DataTables
+                    // client needs the value to color the badge: a DataTables
                     // row is keyed by the `dt` names, so the db column is not
                     // reachable there, and deriving the state back out of a
                     // TRANSLATED label would break in every locale but one.
@@ -2620,16 +2620,16 @@ class Route extends FOGBase
                             // registerExportTable() escapes each cell, so a
                             // <span> here is printed as literal markup in
                             // the CSV -- the GH-1446 failure exactly. The
-                            // colour is a display decision and is made
+                            // color is a display decision and is made
                             // client-side in fog.host.list.js, which is
                             // where the existing comment on the datetime
                             // formatter above says such decisions belong.
                             //
-                            // label() renders NULL and any unrecognised
+                            // label() renders NULL and any unrecognized
                             // value as "Never reported" rather than as a
                             // blank cell. A blank would read as "no Secure
                             // Boot", which is the one wrong answer that
-                            // makes a host look like a valid enrolment
+                            // makes a host look like a valid enrollment
                             // target.
                             //
                             // Note the search box matches the STORED word
@@ -2661,7 +2661,7 @@ class Route extends FOGBase
                         'db' => $real,
                         'dt' => 'sbenrollfresh',
                         'formatter' => function ($d, $row) {
-                            return SecureBootState::enrolmentFreshness($d);
+                            return SecureBootState::enrollmentFreshness($d);
                         }
                     ];
                     $columns[] = [

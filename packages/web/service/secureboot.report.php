@@ -1,6 +1,6 @@
 <?php
 /**
- * FOS reports what a Secure Boot enrolment actually did.
+ * FOS reports what a Secure Boot enrollment actually did.
  *
  * PHP version 7.4+
  *
@@ -18,7 +18,7 @@ use FOG\Items\TaskType;
 use FOG\Router\Route;
 
 /**
- * FOS reports what a Secure Boot enrolment actually did.
+ * FOS reports what a Secure Boot enrollment actually did.
  *
  * WHY THIS EXISTS AND IS NOT PART OF THE COMPLETION POST
  *
@@ -38,7 +38,7 @@ use FOG\Router\Route;
  * So the outcome is reported explicitly, by the only party that knows it,
  * before the completion POST. A separate endpoint rather than extra fields on
  * Post_Wipe.php because that script is shared by every non-imaging task and
- * has no business growing an enrolment vocabulary.
+ * has no business growing an enrollment vocabulary.
  *
  * ADVISORY, like every other machine entry point. This writes the editable
  * half of the ledger (schema step 377), which an administrator can type into
@@ -47,10 +47,10 @@ use FOG\Router\Route;
  *
  * It is still narrowed to what it needs to be, because "advisory" is not a
  * reason to accept a write from anywhere: the host must have a Secure Boot
- * enrolment task actually in flight. That is true by construction when FOS
+ * enrollment task actually in flight. That is true by construction when FOS
  * calls this -- the task is what booted it -- and it means an arbitrary
- * caller who knows a MAC cannot stamp an enrolment onto a host that was never
- * asked to enrol.
+ * caller who knows a MAC cannot stamp an enrollment onto a host that was never
+ * asked to enroll.
  *
  * Answers 200 with a plain-text body in every case, including refusal. A
  * non-2xx from a FOS script is invisible to the caller and reads as a
@@ -109,7 +109,7 @@ if (!$Task->isValid()
 //
 // 'trusted' stays 'trusted' rather than collapsing into 'db': it means the
 // machine already trusted this certificate when the task ran, and nothing
-// observed how it got there. It is an enrolment fact worth keeping -- it is
+// observed how it got there. It is an enrollment fact worth keeping -- it is
 // the one result that would otherwise be lost entirely -- but it is not a
 // record of this server enrolling anything.
 //
@@ -128,7 +128,7 @@ if (!array_key_exists($result, $map)) {
 }
 
 // Shape-checked for the same reason the form is, and through the same
-// normaliser: this value's whole purpose is to be compared against the
+// normalizer: this value's whole purpose is to be compared against the
 // server's own fingerprint, and a comparison against something that is not a
 // SHA-256 can only ever be false -- silently, and looking exactly like "this
 // host trusts an older certificate".

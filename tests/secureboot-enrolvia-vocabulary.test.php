@@ -1,8 +1,8 @@
 <?php
 /**
- * The enrolment-provenance vocabulary must be the same in both writers.
+ * The enrollment-provenance vocabulary must be the same in both writers.
  *
- * `hostSbEnrollVia` records HOW a Secure Boot enrolment happened, and two
+ * `hostSbEnrollVia` records HOW a Secure Boot enrollment happened, and two
  * unrelated files write it:
  *
  *   - `service/secureboot.report.php` maps the word FOS sends onto the word
@@ -13,7 +13,7 @@
  * Neither can see the other, and the failure when they drift is silent in the
  * direction that matters. If the endpoint learns to store a word the form does
  * not accept, an administrator who opens that host and presses Update --
- * having changed nothing about the enrolment -- gets an exception on a value
+ * having changed nothing about the enrollment -- gets an exception on a value
  * the server itself wrote. The reverse, a form word the endpoint never emits,
  * is harmless, so only one direction is a hard failure here.
  *
@@ -122,16 +122,16 @@ foreach ($stored as $word) {
 // point of the asserted half of ADR 0029.
 if (!in_array('manual', $allowed, true)) {
     $problems[] = "the host form no longer accepts 'manual'. That is the only"
-        . ' value recording an enrolment done by hand at the machine, which is'
+        . ' value recording an enrollment done by hand at the machine, which is'
         . ' the path ADR 0029 makes the asserted half editable for.';
 }
 
 // 'mok-pending' must be storable, and a staged request must not become 'mok'.
-// A staged MOK is not an enrolment (ADR 0029 decision 6), and the host grid
+// A staged MOK is not an enrollment (ADR 0029 decision 6), and the host grid
 // keys its "pending" badge on exactly this string.
 if (!in_array('mok-pending', $stored, true)) {
     $problems[] = 'service/secureboot.report.php no longer stores'
-        . " 'mok-pending'. A staged MOK request recorded as an enrolment is a"
+        . " 'mok-pending'. A staged MOK request recorded as an enrollment is a"
         . ' lie an administrator acts on -- they turn Secure Boot on and the'
         . ' machine stops booting.';
 }
