@@ -13,6 +13,7 @@
 
 namespace FOG;
 
+use FOG\Audit\ImagingStats;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Db\DatabaseManager;
@@ -351,14 +352,14 @@ class DashboardPage extends FOGPage
         echo _('90 Days');
         echo '</a>';
         echo '&nbsp;&nbsp;';
-        echo '<a href="#" id="graph-day-filters-90" class='
+        echo '<a href="#" id="graph-day-filters-183" class='
             . '"type-days graph-days" rel="'
             . $sixmonth
             . '">';
         echo _('6 Months');
         echo '</a>';
         echo '&nbsp;&nbsp;';
-        echo '<a href="#" id="graph-day-filters-90" class='
+        echo '<a href="#" id="graph-day-filters-365" class='
             . '"type-days graph-days" rel="'
             . $oneyears
             . '">';
@@ -602,72 +603,36 @@ class DashboardPage extends FOGPage
         if ($days < 1) {
             $days = 30;
         }
+        // On FOG's clock, which is what ImagingStats requires and why the
+        // bounds are built here with niceDate() rather than date(). The
+        // widest view this page offers is a year, inside the class' cap.
         $start = self::niceDate()
             ->setTime(00, 00, 00)
             ->modify("-$days days");
         $end = self::niceDate()
             ->setTime(23, 59, 59);
-        // One grouped query instead of a COUNT per day (was up to 365 queries
-        // for the "1 Year" view). Images are counted by the day they started.
-        //
-        // Reads taskLog since imagingLog was retired (ADR 0022 decision 3),
-        // and the shape changes with it: imagingLog held one row per imaging
-        // run, taskLog holds one per state transition. So the inner query
-        // folds a task's rows back down to one, or a task that moved through
-        // three states would be three images.
-        //
-        // `logImageName <> ''` is what makes a row an imaging one, rather than
-        // a task type name that a site can rename. It is NOT sufficient on its
-        // own: TaskLog::recordState() writes that column on every transition
-        // of an imaging task, cancellation included, so a deploy that was
-        // queued and then canceled without ever starting carries an image
-        // name on its only row. Counting it says an image was deployed when
-        // no machine was ever touched, so the canceled state is excluded --
-        // a task canceled MID-image still has its In-Progress row and still
-        // counts, which is the answer we want.
-        //
-        // MIN() rather than each row's own date, because a run that starts
-        // before midnight and completes after it writes rows on two days and
-        // would otherwise be counted twice. That could not happen while every
-        // row carried the task's createdTime; now that rows are stamped when
-        // the transition happens, "counted by the day they started" has to be
-        // said rather than assumed. The window bounds the inner scan, so a run
-        // whose start is older than the window is attributed to its earliest
-        // transition inside it -- the same day this reported before.
-        $rows = self::$DB->query(
-            "SELECT DATE(`started`) AS `d`, COUNT(*) AS `c`
-               FROM (
-                 SELECT `taskID`, MIN(`createTime`) AS `started`
-                   FROM `taskLog`
-                  WHERE `createTime` BETWEEN :start AND :end
-                    AND `logImageName` <> ''
-                    AND `taskStateID` <> :canceled
-                  GROUP BY `taskID`
-               ) AS `runs`
-              GROUP BY DATE(`started`)",
-            [],
-            [
-                ':start' => $start->format('Y-m-d H:i:s'),
-                ':end' => $end->format('Y-m-d H:i:s'),
-                ':canceled' => self::getCancelledState()
-            ]
-        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-        $counts = [];
-        foreach ((array)$rows as $row) {
-            $counts[$row['d']] = (int)$row['c'];
-        }
-        // Emit a continuous, zero-filled series so every day has a point.
-        $int = new \DateInterval('P1D');
-        $period = new \DatePeriod($start, $int, $end);
+        // ADR 0030 decision 3. The three rules for counting an imaging run
+        // out of taskLog -- fold a task's transition rows to one, exclude
+        // the cancelled state, attribute to the earliest -- used to be
+        // written out here, which made this method their definition as well
+        // as their only caller. They are ImagingStats' now, tested there,
+        // and the zero-filled series comes back already continuous.
         $data = [];
-        foreach ($period as $date) {
-            $key = $date->format('Y-m-d');
+        foreach (ImagingStats::runsPerDay($start, $end) as $point) {
+            // Chart.js wants milliseconds and a pair per point; that is this
+            // page's shape and stays here, while the counting does not.
+            //
+            // niceDate() rather than strtotime(), for the reason the whole
+            // rollup exists: strtotime() resolves a bare date in PHP's
+            // default timezone while every bound above is on FOG's, so the
+            // points would be plotted however far apart the two clocks are
+            // from the window that produced them. Silent, and visible only
+            // as a graph shifted by a day at the edges.
             $data[] = [
-                ($date->getTimestamp() * 1000),
-                isset($counts[$key]) ? $counts[$key] : 0
+                (self::niceDate($point['date'])->getTimestamp() * 1000),
+                $point['count']
             ];
         }
-        unset($counts, $rows, $int, $period);
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
     }
     /**
