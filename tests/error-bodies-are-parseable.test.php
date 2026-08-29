@@ -195,4 +195,93 @@ $t->check(
     && false !== strpos((string)($body['error'] ?? ''), 'for key')
 );
 
+/*
+ * A failure must not be keyed on `msg`.
+ *
+ * This is the half that has nothing to do with parsing and everything to do
+ * with what the user is told. $.notifyFromAPI() decides the toast color from
+ * WHICH key the body carries, and its `msg` branch sets `type = 'success'`:
+ *
+ *     if (res.error)   { type = 'error';   msg = res.error; }
+ *     ...
+ *     if (res.msg)     { type = 'success'; msg = res.msg;   }
+ *
+ * So a 4xx answering {"msg": ...} is drawn GREEN. The cancel route did
+ * exactly that: it built its 409 by hand with the same shape the 200 uses,
+ * on the reasoning that notifyFromAPI reads it either way -- true, and it
+ * reads it as a success. A request that canceled nothing reported that it
+ * worked, which is the very failure Route::cancel()'s 409 was added to
+ * prevent (GH-1215), reintroduced one layer out in the display.
+ *
+ * Driven, not grepped: the point is the emitted body, and _notCancellable()
+ * is reached through sendResponse() like everything else here.
+ */
+$notCancellable = static function ($reason) {
+    $m = new \ReflectionMethod('FOG\Router\Route', '_notCancellable');
+    $m->setAccessible(true);
+    try {
+        $m->invoke(null, $reason);
+    } catch (\RuntimeException $r) {
+        return $r;
+    }
+    return null;
+};
+
+$raised = $notCancellable('Host has no active task to cancel');
+$t->check(
+    'a refused cancel still ends the response, with 409',
+    null !== $raised && 409 === $raised->getCode()
+);
+$body = null === $raised ? null : json_decode($raised->getMessage(), true);
+$t->check(
+    'a refused cancel is keyed on `error`, which is what colors it a failure',
+    is_array($body)
+    && ($body['error'] ?? null) === 'Host has no active task to cancel'
+);
+$t->check(
+    'and NOT on `msg`, which notifyFromAPI would draw as a green success',
+    is_array($body) && !isset($body['msg'])
+);
+
+/*
+ * The same rule, over the whole emitted document rather than one route.
+ *
+ * A hand-built response is where this goes wrong -- the generic operations
+ * all funnel through _sendCaught() and cannot -- so the gate has to look at
+ * every error status the spec describes, not at the one route known to have
+ * had the bug. Anything 4xx or 5xx whose schema names `msg` is telling a
+ * client to read a key the UI treats as success.
+ */
+// document() reflects every model's fields, which reads the schema through
+// the DB. Nothing here depends on the rows -- only on the shapes the
+// document declares.
+FogTestHarness::fakeDb();
+
+$doc = \FOG\Router\OpenAPI::document();
+$greenErrors = [];
+foreach (($doc['paths'] ?? []) as $path => $ops) {
+    foreach ((array)$ops as $verb => $op) {
+        if (!is_array($op) || !isset($op['responses'])) {
+            continue;
+        }
+        foreach ($op['responses'] as $status => $resp) {
+            if ((int)$status < 400) {
+                continue;
+            }
+            $props = $resp['content']['application/json']['schema']
+                ['properties'] ?? null;
+            if (is_array($props) && isset($props['msg'])) {
+                $greenErrors[] = strtoupper($verb) . ' ' . $path
+                    . ' -> ' . $status;
+            }
+        }
+    }
+}
+$t->check(
+    'no error response in the document is keyed on `msg` ('
+    . (count($greenErrors) ? implode('; ', array_slice($greenErrors, 0, 4)) : 'none')
+    . ')',
+    $greenErrors === []
+);
+
 $t->finish();
