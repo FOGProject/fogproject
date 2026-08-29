@@ -234,6 +234,41 @@ class Retention extends FOGBase
         return $new < $old;
     }
     /**
+     * The globalSettings row id behind a settings key.
+     *
+     * The audit rows here name a SETTING, and a subject is a type, an id and
+     * a label -- so `setting#496` and the key belong together, the same way
+     * every other audited edit carries both. This caller is handed a
+     * settings POST rather than a Setting, so the id has to be read.
+     *
+     * One indexed lookup on settingKey, and only on a path that runs when a
+     * retention window actually moves -- not on every settings save.
+     *
+     * IT MAY NOT THROW, and that is the whole reason it is a method. This
+     * runs inside Decision 10's HARD constraint: a shrink that cannot be
+     * recorded must be REFUSED, so an exception raised while decorating the
+     * record would turn a settings save into a 500 and, worse, do it from
+     * the code that exists to protect the record. An unresolvable key
+     * degrades to 0, which reads as "id unknown" -- the label still names
+     * the setting, so nothing identifying is lost.
+     *
+     * @param string $key the globalSettings key
+     *
+     * @return int the setting's id, or 0 when it could not be read
+     */
+    private static function _settingID($key)
+    {
+        try {
+            $setting = self::getClass('Setting')
+                ->set('name', $key)
+                ->load('name');
+
+            return (int)$setting->get('id');
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+    /**
      * May this retention window change go ahead?
      *
      * ADR 0021 Decision 10, and the HARD constraint behind it: anything that
@@ -259,9 +294,11 @@ class Retention extends FOGBase
             return true;
         }
         $shrink = self::isShrink($old, $new);
+        $settingID = self::_settingID($key);
         $audit = Audit::record([
             'type' => self::WINDOW_CHANGE,
             'subjectType' => 'setting',
+            'subjectID' => $settingID,
             'subjectLabel' => $key,
             'permission' => 'audit.manage',
             'renderable' => 1
@@ -280,14 +317,15 @@ class Retention extends FOGBase
             // that moved is globalSettings.settingValue like any other. The
             // label column exists now, so the workaround comes out.
             //
-            // subjectID 0 because this caller has the key and not the row:
-            // it is handed a settings POST, not a Setting. It used to store
-            // the AUDIT row's own id here, which is not a setting id and
-            // pointed at whatever setting happened to hold that number.
+            // subjectID is the globalSettings row's own id, looked up from
+            // the key -- the SUBJECT'S id, not the audit row's. It used to
+            // store the audit row's id here, which is a number from a
+            // different table that happens to fit the column and so points
+            // at whatever setting holds it.
             $stored = Audit::changes(
                 $audit,
                 'Setting',
-                0,
+                $settingID,
                 ['value' => [(int)$old, (int)$new]],
                 $key
             ) > 0;

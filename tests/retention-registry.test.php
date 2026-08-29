@@ -321,6 +321,47 @@ check(
 );
 
 /*
+ * 5b. The audit rows name the SETTING, by its own id.
+ *
+ * Scoped to permitSettingChange()'s body. It used to store the audit row's
+ * own id as the subject id -- a number from a different table that fits the
+ * column and so points at whatever setting happens to hold it, which is
+ * wrong in a way nothing can detect after the fact. The subject id must come
+ * from the lookup, and the lookup must not be able to throw: this runs inside
+ * Decision 10, where an exception raised while decorating the record would
+ * turn a settings save into a 500 from the code protecting the record.
+ */
+$permitStart = strpos($src, 'public static function permitSettingChange(');
+$permitEnd = $permitStart === false
+    ? false
+    : strpos($src, "\n    /**", $permitStart);
+$permit = ($permitStart === false || $permitEnd === false)
+    ? ''
+    : substr($src, $permitStart, $permitEnd - $permitStart);
+check(
+    'permitSettingChange() reads the setting id from the key',
+    '' !== $permit
+    && false !== strpos($permit, '$settingID = self::_settingID($key)'),
+    $failures,
+    $checks
+);
+check(
+    'permitSettingChange() never uses the audit row id as the subject id',
+    '' !== $permit && false === strpos($permit, "\$audit->get('id')"),
+    $failures,
+    $checks
+);
+check(
+    '_settingID() cannot throw',
+    false !== strpos($src, 'private static function _settingID($key)')
+    && false !== strpos($src, '} catch (\\Exception $e) {
+            return 0;
+        }'),
+    $failures,
+    $checks
+);
+
+/*
  * 6. The settings page gates the windows on audit.manage, both ways: the
  *    field is not rendered without it and a post is refused without it.
  */
