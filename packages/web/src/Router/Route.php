@@ -23,6 +23,7 @@ use FOG\Base\FOGController;
 use FOG\Base\FOGCore;
 use FOG\Base\FOGManagerController;
 use FOG\Boot\SecureBootState;
+use FOG\Db\ConstraintViolation;
 use FOG\Db\DatabaseManager;
 use FOG\Items\APIToken;
 use FOG\Items\Group;
@@ -7702,7 +7703,48 @@ class Route extends FOGBase
                 $orderby
             );
 
-            return self::$DB->query($sqlResult['sql'], [], $sqlResult['params']);
+            $result = self::$DB->query(
+                $sqlResult['sql'],
+                [],
+                $sqlResult['params']
+            );
+            // A rejected DELETE is swallowed by PDODB -- it records the
+            // failure on ->error and returns ITSELF, which is truthy. This
+            // arm used to `return` that object directly, so a delete the
+            // server refused answered 200 with the row still there, and the
+            // UI drew a success toast over it. Unreachable until ADR 0031
+            // gave the database something to refuse with; reachable now.
+            //
+            // 409, not the default 406: the request was well formed and the
+            // caller may legitimately retry it once whatever is referring to
+            // the record is gone. _sendCaught() honors a 4xx/5xx code on
+            // the exception and falls back to 406 otherwise.
+            //
+            // The status keys off isRefusal(), NOT off whether explain()
+            // found words for it -- those are separate questions. A refusal
+            // naming a constraint the map does not describe is still a
+            // conflict and still retryable; only its wording degrades. Any
+            // OTHER error here (a lock timeout, a lost connection) is not a
+            // conflict and correctly falls through to 406.
+            if (self::$DB->error) {
+                $error = (string)self::$DB->error;
+                $explained = ConstraintViolation::explain(
+                    $error,
+                    ConstraintViolation::label($classVars['databaseTable'])
+                );
+                throw new \Exception(
+                    $explained ?? $error,
+                    ConstraintViolation::isRefusal($error)
+                        ? HTTPResponseCodes::HTTP_CONFLICT
+                        : 0
+                );
+            }
+
+            // The query result, not self::$DB -- they are the same object,
+            // PDODB::query() returning $this, but returning what the call
+            // gave back keeps this arm's value identical to what it was
+            // before the check above was added.
+            return $result;
         } catch (\Exception $e) {
             self::_sendCaught($e);
         } finally {

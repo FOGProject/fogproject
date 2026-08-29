@@ -133,6 +133,7 @@ const TABLE = [
     'DatabaseManager' => 'Db',
     'Mysqldump' => 'Db',
     'SchemaReconciler' => 'Db',
+    'ConstraintViolation' => 'Db',
     'Route' => 'Router',
     'OpenAPI' => 'Router',
     'HTTPResponseCodes' => 'Router',
