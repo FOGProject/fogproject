@@ -207,7 +207,7 @@ foreach ((array)FOG\Router\Route::$validClasses as $class) {
             $missing[] = $path;
         }
     }
-    // search() cannot honour a filter -- it passes its matched ids down as
+    // search() cannot honor a filter -- it passes its matched ids down as
     // a non-empty array, which the guard above deliberately protects. So
     // advertising one there would recreate the exact defect being fixed.
     foreach ((array)$doc['paths'] as $path => $item) {
@@ -229,7 +229,7 @@ $t->check(
     count($missing) < 1
 );
 $t->check(
-    'no search operation advertises a filter it cannot honour',
+    'no search operation advertises a filter it cannot honor',
     count($searchWithFilter) < 1
 );
 

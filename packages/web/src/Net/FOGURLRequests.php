@@ -848,7 +848,7 @@ class FOGURLRequests extends FOGBase
             $timeout = 1;
         }
         // When no port is passed the probe falls back to the ssh port, so it
-        // has to honour FOG_SSH_PORT the same way FOGSSH::connect() does.
+        // has to honor FOG_SSH_PORT the same way FOGSSH::connect() does.
         // Assuming 22 made every node look offline on installs that moved ssh
         // (forums 18210). Only looked up when it can actually be needed.
         $sshPort = 0;

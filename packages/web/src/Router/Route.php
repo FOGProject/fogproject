@@ -4707,7 +4707,7 @@ class Route extends FOGBase
                             isset($vars->macs) ? (array)$vars->macs : []
                         );
                     }
-                    // edit() honours 'primac' but create() did not, and 'primac'
+                    // edit() honors 'primac' but create() did not, and 'primac'
                     // is an additionalFields entry derived from the
                     // MACAddressAssociation join rather than a real column, so
                     // the databaseFields loop above skips it too. The result was

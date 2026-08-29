@@ -75,7 +75,7 @@ function collectFiles($root, array $paths)
         // checked, and a bare listing cannot see it. That gap let a new test
         // file ship a bare ReflectionClass -- green locally, red the moment
         // the merge made it tracked. --exclude-standard keeps .gitignore
-        // honoured, so vendor/ and lib/plugins stay out.
+        // honored, so vendor/ and lib/plugins stay out.
         $out = [];
         exec(
             'git -C ' . escapeshellarg($root)

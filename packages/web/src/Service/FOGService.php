@@ -892,7 +892,7 @@ abstract class FOGService extends FOGBase
      * The replication script passed to `lftp -e` is parsed by lftp, not by
      * a shell, so shell escaping is the wrong tool for it (and was actively
      * harmful -- see replicate_items). lftp treats a double-quoted string as
-     * one word and honours backslash escapes inside it, so escaping the
+     * one word and honors backslash escapes inside it, so escaping the
      * backslash and the double quote is sufficient to keep a path with
      * spaces, quotes or metacharacters from splitting into extra lftp
      * commands. Introduced with GHSA-2hqx-5ffg-w4c3.

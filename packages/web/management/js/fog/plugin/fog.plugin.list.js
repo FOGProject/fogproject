@@ -40,7 +40,7 @@
     // Fixed layout, clipping and column resizing all come from registerTable()
     // now -- every list page gets them, so there is nothing to set up here.
     // This page's header widths (18/32/10/20/10/10, set in
-    // pluginmanagement.page) are what the fixed layout then honours, instead
+    // pluginmanagement.page) are what the fixed layout then honors, instead
     // of the longest Description dictating the whole table.
     var table = $('#dataTable').registerTable(onSelect, {
         // This list has only six short columns and a small, fixed row set,

@@ -20,7 +20,7 @@
  * FOGPageRender.class.php and UserGroupManagement.page.php got in.
  *
  * Case is irrelevant to resolution either way -- the autoloader lowercases
- * both sides -- so this costs nothing to honour.
+ * both sides -- so this costs nothing to honor.
  *
  * Scope note: PSR-4 files under packages/web/src/ and packages/web/vendor/
  * are `Foo.php`, not `Foo.class.php`, so they match none of these suffixes

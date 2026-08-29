@@ -200,7 +200,7 @@ $t->check(
     )
 );
 $t->check(
-    'adminExistsGiven() honours interactiveOnly',
+    'adminExistsGiven() honors interactiveOnly',
     (bool)preg_match(
         "/if \(!empty\(\\\$changes\['interactiveOnly'\]\)\) \{\s*"
         . "\\\$users = array_diff\(\\\$users, self::_apiOnlyUsers\(\\\$changes\)\);/s",

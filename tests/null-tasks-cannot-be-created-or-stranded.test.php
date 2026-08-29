@@ -138,7 +138,7 @@ check(
     $checks
 );
 check(
-    'it honours the model\'s $databaseFieldsNotInt opt-out',
+    'it honors the model\'s $databaseFieldsNotInt opt-out',
     false !== strpos($guard, '$this->databaseFieldsNotInt'),
     $failures,
     $checks

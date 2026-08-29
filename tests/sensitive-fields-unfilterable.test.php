@@ -112,7 +112,7 @@ if (null === $assert) {
         . 'for';
 }
 
-// 4. The grid path marks those columns unsearchable, and filter() honours it.
+// 4. The grid path marks those columns unsearchable, and filter() honors it.
 //    Not removed from the column list: listem() is shared with the web tier
 //    and product_keys.report.php needs productKey to report anything.
 $checks++;
@@ -133,9 +133,9 @@ if (null === $filter) {
     // on the isset(), which appears exactly once per guard -- the guard
     // names $column['nosearch'] twice, so counting that would still pass
     // with one whole loop unguarded.
-    $honoured = substr_count($filter, "isset(\$column['nosearch'])");
-    if ($honoured < 2) {
-        $failures[] = "filter() honours nosearch in $honoured of its 2 "
+    $honored = substr_count($filter, "isset(\$column['nosearch'])");
+    if ($honored < 2) {
+        $failures[] = "filter() honors nosearch in $honored of its 2 "
             . 'search loops. Both build a LIKE from a client-named column, '
             . 'so a gap in either one reopens the whole thing.';
     }
