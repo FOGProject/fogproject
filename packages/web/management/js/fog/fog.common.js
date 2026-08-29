@@ -2905,10 +2905,28 @@ function fogSizeScroller(dt) {
       }, 0);
     });
   }
-  // Recompute Scroller's virtual viewport for the new height (measure() also
-  // redraws). Guarded in case Scroller isn't attached for some reason.
+  // Recompute Scroller's virtual viewport for the new height.
+  //
+  // measure() redraws unless told not to, and on a server-side table a redraw
+  // is a full round trip plus a re-render of every loaded row. This function
+  // runs at least three times on a normal page load -- the deferred first pass
+  // below registerTable(), the one-shot post-draw re-adjust above, and the
+  // .app-main ResizeObserver firing once the rows have changed the layout --
+  // so honoring the default cost the host list four identical fetches of the
+  // same 86 rows and ~2.4s before the grid settled, against 22ms of server
+  // time. Measured 2026-08-29 on 10.255.20.1.
+  //
+  // The only thing measure() changes that a redraw is needed for is the page
+  // length: viewportRows * displayBuffer, derived from the height just set. So
+  // measure without redrawing, and redraw only when the new height genuinely
+  // asks for MORE rows than are already loaded. A shorter viewport needs none
+  // -- the rows for it are already there.
   if (dt.scroller && typeof dt.scroller.measure === 'function') {
-    dt.scroller.measure();
+    var lenBefore = dt.page.len();
+    dt.scroller.measure(false);
+    if (dt.page.len() > lenBefore) {
+      dt.draw(false);
+    }
   }
   // Re-sync the scrollY header/body column widths. measure() only recomputes
   // the virtual viewport height, so a table first laid out in a hidden tab
