@@ -1243,6 +1243,9 @@ msgstr "Carga falhou: %s"
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
@@ -4019,6 +4022,10 @@ msgid "Images only"
 msgstr "imagens"
 
 #, fuzzy
+msgid "Images used"
+msgstr "fotografada"
+
+#, fuzzy
 msgid "Imaging"
 msgstr "imagiologia Log"
 
@@ -4042,8 +4049,16 @@ msgid "Imaging Over the last"
 msgstr "Imagem Ao longo dos últimos 30 dias"
 
 #, fuzzy
+msgid "Imaging Report"
+msgstr "imagiologia Log"
+
+#, fuzzy
 msgid "Imaging Started"
 msgstr "Hospedar História Imagiologia"
+
+#, fuzzy
+msgid "Imaging runs"
+msgstr "imagiologia Log"
 
 msgid "Import"
 msgstr "Importar"
@@ -5003,6 +5018,10 @@ msgstr "impressora de rede"
 msgid "Machine Details"
 msgstr "Detalhe Snapin Retorno"
 
+#, fuzzy
+msgid "Machines imaged"
+msgstr "imagem atribuída"
+
 msgid "Main Menu"
 msgstr "Menu principal"
 
@@ -5241,6 +5260,10 @@ msgstr "valor do mês não é válido"
 
 msgid "Monthly"
 msgstr "Por mês"
+
+#, php-format
+msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgstr ""
 
 msgid "Most Frequent Host IDs"
 msgstr ""
@@ -6968,6 +6991,16 @@ msgstr ""
 #, fuzzy
 msgid "Running Windows"
 msgstr "executando a Versão"
+
+msgid "Runs"
+msgstr ""
+
+#, fuzzy
+msgid "Runs by image"
+msgstr "imagens"
+
+msgid "Runs per day"
+msgstr ""
 
 msgid "SB Enrolled"
 msgstr ""

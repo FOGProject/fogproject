@@ -1260,6 +1260,9 @@ msgstr "Carga ha fallado: %s"
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
@@ -4096,6 +4099,10 @@ msgid "Images only"
 msgstr "Imagen"
 
 #, fuzzy
+msgid "Images used"
+msgstr "Nombre de la imagen"
+
+#, fuzzy
 msgid "Imaging"
 msgstr "Transferencia de imágenes Entrar"
 
@@ -4120,8 +4127,16 @@ msgid "Imaging Over the last"
 msgstr "Imaging lo largo de los últimos 30 días"
 
 #, fuzzy
+msgid "Imaging Report"
+msgstr "Transferencia de imágenes Entrar"
+
+#, fuzzy
 msgid "Imaging Started"
 msgstr "Lista de host"
+
+#, fuzzy
+msgid "Imaging runs"
+msgstr "Transferencia de imágenes Entrar"
 
 msgid "Import"
 msgstr "Importar"
@@ -5111,6 +5126,10 @@ msgid "Machine Details"
 msgstr ""
 
 #, fuzzy
+msgid "Machines imaged"
+msgstr "imagen asignado"
+
+#, fuzzy
 msgid "Main Menu"
 msgstr "Ocultar menú"
 
@@ -5358,6 +5377,10 @@ msgstr "tipo de tarea no es válida"
 
 msgid "Monthly"
 msgstr "Mensual"
+
+#, php-format
+msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgstr ""
 
 msgid "Most Frequent Host IDs"
 msgstr ""
@@ -7115,6 +7138,16 @@ msgstr ""
 #, fuzzy
 msgid "Running Windows"
 msgstr "ejecutando la versión"
+
+msgid "Runs"
+msgstr ""
+
+#, fuzzy
+msgid "Runs by image"
+msgstr "Imagen"
+
+msgid "Runs per day"
+msgstr ""
 
 msgid "SB Enrolled"
 msgstr ""

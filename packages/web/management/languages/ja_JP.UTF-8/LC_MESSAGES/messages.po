@@ -1188,6 +1188,9 @@ msgstr "読み込みに失敗しました"
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
@@ -3870,6 +3873,10 @@ msgid "Images only"
 msgstr "イメージ"
 
 #, fuzzy
+msgid "Images used"
+msgstr "使用中のイメージ"
+
+#, fuzzy
 msgid "Imaging"
 msgstr "イメージログ"
 
@@ -3890,8 +3897,16 @@ msgstr "イメージログ"
 msgid "Imaging Over the last"
 msgstr "過去 30 日間のイメージ処理"
 
+#, fuzzy
+msgid "Imaging Report"
+msgstr "イメージログ"
+
 msgid "Imaging Started"
 msgstr "イメージ処理を開始しました"
+
+#, fuzzy
+msgid "Imaging runs"
+msgstr "イメージログ"
 
 msgid "Import"
 msgstr "インポート"
@@ -4793,6 +4808,10 @@ msgstr "ネットワークインストーラー"
 msgid "Machine Details"
 msgstr "マシン詳細"
 
+#, fuzzy
+msgid "Machines imaged"
+msgstr "割り当てられたイメージ"
+
 msgid "Main Menu"
 msgstr "メインメニュー"
 
@@ -5028,6 +5047,10 @@ msgstr "月の値が無効です"
 
 msgid "Monthly"
 msgstr "毎月"
+
+#, php-format
+msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgstr ""
 
 msgid "Most Frequent Host IDs"
 msgstr ""
@@ -6702,6 +6725,16 @@ msgstr ""
 
 msgid "Running Windows"
 msgstr "Windows 実行中"
+
+msgid "Runs"
+msgstr ""
+
+#, fuzzy
+msgid "Runs by image"
+msgstr "イメージ"
+
+msgid "Runs per day"
+msgstr ""
 
 msgid "SB Enrolled"
 msgstr ""

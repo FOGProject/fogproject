@@ -1063,6 +1063,9 @@ msgstr ""
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
@@ -3416,6 +3419,9 @@ msgstr ""
 msgid "Images only"
 msgstr ""
 
+msgid "Images used"
+msgstr ""
+
 msgid "Imaging"
 msgstr ""
 
@@ -3434,7 +3440,13 @@ msgstr ""
 msgid "Imaging Over the last"
 msgstr ""
 
+msgid "Imaging Report"
+msgstr ""
+
 msgid "Imaging Started"
+msgstr ""
+
+msgid "Imaging runs"
 msgstr ""
 
 msgid "Import"
@@ -4239,6 +4251,9 @@ msgstr ""
 msgid "Machine Details"
 msgstr ""
 
+msgid "Machines imaged"
+msgstr ""
+
 msgid "Main Menu"
 msgstr ""
 
@@ -4438,6 +4453,10 @@ msgid "Month value is not valid"
 msgstr ""
 
 msgid "Monthly"
+msgstr ""
+
+#, php-format
+msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -5923,6 +5942,15 @@ msgid "Run With interpreter."
 msgstr ""
 
 msgid "Running Windows"
+msgstr ""
+
+msgid "Runs"
+msgstr ""
+
+msgid "Runs by image"
+msgstr ""
+
+msgid "Runs per day"
 msgstr ""
 
 msgid "SB Enrolled"

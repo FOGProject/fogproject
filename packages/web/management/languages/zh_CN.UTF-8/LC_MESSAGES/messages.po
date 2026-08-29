@@ -1243,6 +1243,9 @@ msgstr "加载失败： %s"
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
@@ -4019,6 +4022,10 @@ msgid "Images only"
 msgstr "图片"
 
 #, fuzzy
+msgid "Images used"
+msgstr "成像"
+
+#, fuzzy
 msgid "Imaging"
 msgstr "成像测井"
 
@@ -4042,8 +4049,16 @@ msgid "Imaging Over the last"
 msgstr "成像在过去30天"
 
 #, fuzzy
+msgid "Imaging Report"
+msgstr "成像测井"
+
+#, fuzzy
 msgid "Imaging Started"
 msgstr "主持人成像历史"
+
+#, fuzzy
+msgid "Imaging runs"
+msgstr "成像测井"
 
 msgid "Import"
 msgstr "进口"
@@ -5003,6 +5018,10 @@ msgstr "网络打印机"
 msgid "Machine Details"
 msgstr "管理单元返回详细"
 
+#, fuzzy
+msgid "Machines imaged"
+msgstr "分配图像"
+
 msgid "Main Menu"
 msgstr "主菜单"
 
@@ -5241,6 +5260,10 @@ msgstr "一个月值无效"
 
 msgid "Monthly"
 msgstr "每月一次"
+
+#, php-format
+msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgstr ""
 
 msgid "Most Frequent Host IDs"
 msgstr ""
@@ -6968,6 +6991,16 @@ msgstr ""
 #, fuzzy
 msgid "Running Windows"
 msgstr "运行版本"
+
+msgid "Runs"
+msgstr ""
+
+#, fuzzy
+msgid "Runs by image"
+msgstr "图片"
+
+msgid "Runs per day"
+msgstr ""
 
 msgid "SB Enrolled"
 msgstr ""
