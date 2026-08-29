@@ -416,6 +416,71 @@ foreach (array_diff($expected, $actual) as $missing) {
         . ' A constraint that ships disabled is one FOG is not enforcing';
 }
 
+// ---------------------------------------------------------------------------
+// The prose that quotes the map must be recomputed from the map.
+//
+// ADR 0031's Status paragraph and the survey's Phase D both state a count of
+// declared relationships. Those numbers are what a reviewer reads FIRST and
+// they are the part with no mechanism behind them -- the map is executable
+// and cannot drift, but a sentence about the map silently can. It did: the
+// Status paragraph sat at "40 of 87 declared; the remaining 47 still ship
+// disabled" through six more groups and all five plugins, understating the
+// work by half and pointing a reader at 47 pending constraints that did not
+// exist.
+//
+// Matching on the digits rather than on the whole sentence deliberately: the
+// prose around them should stay free to be rewritten, and only the claim
+// about quantity is being pinned.
+$declared = count(array_filter($map, static function ($r) {
+    return !empty($r['enabled']);
+}));
+$total = count($map);
+$plugin = count(array_filter($map, static function ($r) {
+    return !empty($r['enabled']) && !is_int($r['group'] ?? null);
+}));
+
+$prose = [
+    'docs/adr/0031-referential-integrity-is-declared-in-the-database.md' => [
+        '#\*\*(\d+) of the map\'s (\d+) relationships are declared\.\*\*#',
+        [$declared, $total],
+        'the declared/total count in the Status paragraph',
+    ],
+    'docs/development/foreign-keys.md' => [
+        '#(\d+) of the map\'s (\d+) relationships live in them#',
+        [$plugin, $total],
+        'the plugin/total count in Phase D',
+    ],
+];
+
+foreach ($prose as $relative => $spec) {
+    list($pattern, $want, $what) = $spec;
+    $checked++;
+    $path = $root . '/' . $relative;
+    $text = is_readable($path) ? file_get_contents($path) : '';
+    if ('' === $text) {
+        $failures[] = "$relative could not be read, so $what is unverified";
+        continue;
+    }
+    if (!preg_match($pattern, $text, $m)) {
+        $failures[] = "$relative no longer states $what in the form this test"
+            . ' pins. Restate it, or move the pin -- an unpinned count is the'
+            . ' one that goes stale';
+        continue;
+    }
+    $got = [(int)$m[1], (int)$m[2]];
+    if ($got !== $want) {
+        $failures[] = sprintf(
+            '%s states %d of %d for %s; the map says %d of %d',
+            $relative,
+            $got[0],
+            $got[1],
+            $what,
+            $want[0],
+            $want[1]
+        );
+    }
+}
+
 if (count($failures)) {
     echo "FAIL: " . count($failures) . " problem(s).\n\n";
     foreach ($failures as $f) {

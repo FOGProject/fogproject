@@ -2,15 +2,29 @@
 
 ## Status
 
-accepted -- steps 0 through 5 implemented on `working-1.6`: the machinery,
-schema 380 (column widening), schema 381 (the orphan sweep), schema 382
-(host-owned junctions and satellites, 14 constraints), schema 383 (identity:
-users, roles, user groups and sites, 21) and schema 384 (storage: groups,
-nodes, image and snapin assoc, 5). 40 of 87 declared; the remaining 47 still
-ship disabled and land group by group.
+accepted, and implemented in full. Core landed on `working-1.6` as schema
+380 through 390: the machinery, 380 (column widening), 381 (the orphan
+sweep), 382 (host-owned junctions and satellites, 14 constraints), 383
+(identity: users, roles, user groups and sites, 21), 384 (storage junctions,
+5), 385 (retiring one of those five, whose action the map had since
+corrected), 386 (the `0` sentinel becomes NULL), 387 (a sweep for the one
+group 5 relationship that becomes a CASCADE), 388 (configuration references,
+12), 389 (a repair for the four rows group 6 cannot be declared over) and 390
+(tasks and work, 16). The five plugin groups -- location 4, ou 2, windowskey
+2, ldap 6, oidc 8 -- are declared in core's map and applied by a step in each
+plugin's own `schema()` in `FOGProject/fog-plugins`.
 
-The planned step 6 -- `deletemass()` gaining `storagegroup`/`storagenode`
-cases -- was dropped after step 5 measured it as unnecessary: the database
+**89 of the map's 105 relationships are declared.** The other 16 are not
+pending work: they carry action `none`, which the map's docblock defines as a
+decision rather than an omission. Nine are audit rows, which MUST NOT
+constrain the thing they record (ADR 0021, `schema.php` step 341); seven are
+polymorphic columns whose target table is chosen by a sibling column, where
+no constraint is expressible at all. Nothing in the map is waiting on a
+future step.
+
+The plan's step 6 -- `deletemass()` gaining `storagegroup`/`storagenode`
+cases -- was dropped after its step 5 (schema 384) measured it as
+unnecessary: the database
 now cascades everything such a case would delete, and a storage node has no
 CASCADE children at all. Sequencing 5 before 6 was what made that a
 measurement rather than a guess.
