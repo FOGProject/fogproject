@@ -169,7 +169,7 @@ if (!preg_match(
 // belongs on the two operations that can return it and not in the shared
 // _errorResponses() map, which is what the third check below holds.
 if (!preg_match(
-    '#private static function _conflictResponse\(\$description\).*?\'409\'#s',
+    '#private static function _conflictResponse\(\$description.*?\'409\'#s',
     $openapi
 )) {
     $fails[] = 'openapi.class.php has no 409 response helper';

@@ -1313,7 +1313,12 @@ class OpenAPI extends FOGBase
                     _('Another record still refers to this one and the '
                         . 'database refused the delete. The message names '
                         . 'what is holding it; retry once that is reassigned '
-                        . 'or removed.')
+                        . 'or removed.'),
+                    // `error`, not `msg`: this one is raised as an exception
+                    // and emitted by _sendCaught(), which uses the router's
+                    // error shape. The cancel route builds its 409 by hand
+                    // and keeps `msg`.
+                    'error'
                 )
             );
         }
@@ -2192,7 +2197,7 @@ class OpenAPI extends FOGBase
      *
      * @return array
      */
-    private static function _conflictResponse($description)
+    private static function _conflictResponse($description, $property = 'msg')
     {
         return [
             '409' => [
@@ -2201,7 +2206,7 @@ class OpenAPI extends FOGBase
                     'application/json' => [
                         'schema' => [
                             'type' => 'object',
-                            'properties' => ['msg' => ['type' => 'string']]
+                            'properties' => [$property => ['type' => 'string']]
                         ]
                     ]
                 ]
