@@ -117,7 +117,7 @@ msgid "%d architecture(s) updated."
 msgstr "Imprimante mis à jour!"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -165,8 +165,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "hôte"
+msgid "%s images"
+msgstr "Images"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -4930,6 +4930,9 @@ msgstr "mise à jour de l'imprimante a échoué!"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 msgid "Login"
 msgstr "S'identifier"
 
@@ -5444,9 +5447,6 @@ msgid "No active tasks to cancel for this group"
 msgstr "Aucune tâche active trouvée pour Host"
 
 msgid "No activity information available for this group"
-msgstr ""
-
-msgid "No activity recorded yet"
 msgstr ""
 
 #, fuzzy
@@ -6678,9 +6678,6 @@ msgstr "Recevoir"
 #, fuzzy
 msgid "Recent"
 msgstr "Recevoir"
-
-msgid "Recent Activity"
-msgstr ""
 
 #, fuzzy
 msgid "Record not found"
@@ -9596,9 +9593,6 @@ msgstr "Version"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Gestion de localisation"
@@ -9876,6 +9870,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "Impossible de lire le fichier temporaire"
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
@@ -10396,9 +10394,6 @@ msgstr "Image not found sur le noeud"
 msgid "not reachable"
 msgstr "Indisponible"
 
-msgid "not yet seen"
-msgstr ""
-
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "Comptes Slack"
@@ -10741,6 +10736,10 @@ msgstr ""
 
 msgid "{node}"
 msgstr ""
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "hôte"
 
 #, fuzzy
 #~ msgid "A filter must be specified"

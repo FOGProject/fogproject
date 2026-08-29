@@ -107,7 +107,7 @@ msgid "%d architecture(s) updated."
 msgstr "プリンターを更新しました！"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -155,8 +155,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "ホスト"
+msgid "%s images"
+msgstr "イメージ"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -4722,6 +4722,9 @@ msgstr "サイトの更新に失敗しました！"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 msgid "Login"
 msgstr "ログイン"
 
@@ -5228,10 +5231,6 @@ msgstr "このホストの実行中タスクは見つかりません"
 
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
-
-#, fuzzy
-msgid "No activity recorded yet"
-msgstr "完了時刻は記録されていません"
 
 #, fuzzy
 msgid "No archive was uploaded."
@@ -6431,9 +6430,6 @@ msgstr "受信"
 #, fuzzy
 msgid "Recent"
 msgstr "パーセント"
-
-msgid "Recent Activity"
-msgstr ""
 
 msgid "Record not found"
 msgstr "レコードが見つかりません"
@@ -9224,9 +9220,6 @@ msgstr "バージョン"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 msgid "WOL Broadcast Management"
 msgstr "WOL ブロードキャスト管理"
 
@@ -9491,6 +9484,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "強制終了できませんでした"
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr "FOG がインターネットへ接続を試みるため"
@@ -9984,9 +9981,6 @@ msgstr "このノード上に見つかりません"
 msgid "not reachable"
 msgstr "利用不可"
 
-msgid "not yet seen"
-msgstr ""
-
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack アカウント"
@@ -10333,6 +10327,10 @@ msgstr ""
 #, php-format
 #~ msgid "%s ID %s is not valid"
 #~ msgstr "%s ID %s は無効です"
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "ホスト"
 
 #~ msgid "<p>Dependencies: port TCP 445 open in the client side"
 #~ msgstr "<p>依存関係: クライアント側で TCP ポート 445 が開放されている必要があります"
@@ -11569,6 +11567,10 @@ msgstr ""
 
 #~ msgid "No Site"
 #~ msgstr "サイトなし"
+
+#, fuzzy
+#~ msgid "No activity recorded yet"
+#~ msgstr "完了時刻は記録されていません"
 
 #~ msgid "No connection available"
 #~ msgstr "利用可能な接続がありません"
