@@ -29,6 +29,9 @@
 require __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('report-titles');
+// A connection, because reportTitles() now fires REPORT_TITLE_DATA and
+// HookManager::processEvent() reads (and records) the event name.
+FogTestHarness::fakeDb();
 
 use FOG\ReportManagement;
 
