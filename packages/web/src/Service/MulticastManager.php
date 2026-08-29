@@ -574,7 +574,7 @@ class MulticastManager extends FOGService
                             );
                             continue;
                         }
-                        $jobcancelled = $jobcompleted = false;
+                        $jobcanceled = $jobcompleted = false;
                         $runningTask = self::_getMCExistingTask(
                             $KnownTasks,
                             $curTask
@@ -583,7 +583,7 @@ class MulticastManager extends FOGService
                         $find = [];
                         $find['id'] = $taskIDs;
                         $find['stateID'] = self::getCancelledState();
-                        $inTaskCancelledIDs = Route::getIds(
+                        $inTaskCanceledIDs = Route::getIds(
                             'task',
                             $find
                         );
@@ -593,14 +593,14 @@ class MulticastManager extends FOGService
                             $find
                         );
                         $Session = $runningTask->getSess();
-                        $SessCancelled = $Session->get('stateID')
+                        $SessCanceled = $Session->get('stateID')
                             == self::getCancelledState();
                         $SessCompleted = $Session->get('stateID')
                             == self::getCompleteState();
-                        if ($SessCancelled
-                            || count($inTaskCancelledIDs) > 0
+                        if ($SessCanceled
+                            || count($inTaskCanceledIDs) > 0
                         ) {
-                            $jobcancelled = true;
+                            $jobcanceled = true;
                         }
                         if ($SessCompleted
                             || (count($inTaskCompletedIDs) > 0
@@ -609,7 +609,7 @@ class MulticastManager extends FOGService
                         ) {
                             $jobcompleted = true;
                         }
-                        if (!$jobcancelled && !$jobcompleted) {
+                        if (!$jobcanceled && !$jobcompleted) {
                             // Capture status (running flag AND exit code) in
                             // ONE call -- proc_get_status only reports the real
                             // exit code on the first call after the process
@@ -698,7 +698,7 @@ class MulticastManager extends FOGService
                                 );
                                 $completeTasks[] = $runningTask;
                             }
-                            if ($jobcancelled) {
+                            if ($jobcanceled) {
                                 self::outall(
                                     sprintf(
                                         $startStr,

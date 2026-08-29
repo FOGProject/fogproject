@@ -13,7 +13,7 @@
 #      run, which is precisely the set an admin is most likely to have
 #      replaced: snponly.efi, ipxe.efi, undionly.kkpxe.
 #   2. A local rebuild wrote over the downloaded binaries in the same staging
-#      tree, so afterwards no pristine copy existed anywhere.
+#      tree, so afterward no pristine copy existed anywhere.
 #   3. buildipxe.sh is a cold 8-make rebuild every invocation -- 10-25 minutes
 #      on every install AND update -- with nothing recording what was already
 #      built, so it ran again to reproduce identical bytes.

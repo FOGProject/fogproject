@@ -182,7 +182,7 @@ sudo ./installfog.sh --web-ca-cert /root/webca/webca.pem \
 
 Unpacking as root keeps `webca.key` unreadable to other accounts; it stays on
 this server permanently, so where it lands matters. Remove the tarball from your
-home directory afterwards.
+home directory afterward.
 
 `--external-ca` is not needed; any one of the three implies it. You pass these
 **once** — the files are imported into the web zone and later upgrades reuse the

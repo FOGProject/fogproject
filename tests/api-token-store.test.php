@@ -107,7 +107,7 @@ $t->check(
     false === strpos($credBody, 'base64_decode')
 );
 
-// Behavioural, not just textual: drive the real function through $_SERVER.
+// Behavioral, not just textual: drive the real function through $_SERVER.
 $cred = new \ReflectionMethod('FOG\\Router\\Route', '_bearerCredential');
 $cred->setAccessible(true);
 

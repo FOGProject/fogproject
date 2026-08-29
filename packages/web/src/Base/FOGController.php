@@ -1363,7 +1363,7 @@ abstract class FOGController extends FOGBase
                 // The header is the only record a delete leaves, so without
                 // this it says that somebody exercised host.delete and not
                 // which host -- and the row is gone, so nothing can recover
-                // it afterwards. Identified here rather than at the gate
+                // it afterward. Identified here rather than at the gate
                 // because this is where the label is still in hand, and it
                 // reads the same two fields the history line above does so
                 // the two cannot disagree.

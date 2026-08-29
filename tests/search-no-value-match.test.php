@@ -87,7 +87,7 @@ if (!$matchesValue) {
  * The grid path needs the same treatment and cannot borrow the same code:
  * unisearch() has the term and the row in one loop, while a DataTables list
  * builds its payload in FOGManagerController::complex() and only gets it
- * back afterwards. So Route::_applySettingValueScope() does it on the
+ * back afterward. So Route::_applySettingValueScope() does it on the
  * returned rows, and these pin the three properties that make it correct
  * rather than merely present.
  */

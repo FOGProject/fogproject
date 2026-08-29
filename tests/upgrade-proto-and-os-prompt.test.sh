@@ -20,7 +20,7 @@
 #    is not told; the redirect simply stops happening.
 #
 #    Nothing reads WEB_url_proto between the two points and it is assigned
-#    unconditionally afterwards, so the default is removed rather than reordered.
+#    unconditionally afterward, so the default is removed rather than reordered.
 #
 # 2. THE OS-CHOICE PROMPT IGNORED THE ANSWER.
 #
@@ -65,7 +65,7 @@ grep -q 'WEB_url_proto="\$httpproto"' "$INSTALLER" \
     && ok "A: the httpproto seed is still present" \
     || bad "A: the httpproto seed is gone -- nothing carries the old value across"
 grep -q '^WEB_url_proto="https"$' "$INSTALLER" \
-    && ok "A: WEB_url_proto is still assigned unconditionally afterwards" \
+    && ok "A: WEB_url_proto is still assigned unconditionally afterward" \
     || bad "A: nothing sets WEB_url_proto after the migration -- removing the default would leave it empty"
 
 # --- B. behavior: a pre-1.6 server that had -S keeps its redirect ----------

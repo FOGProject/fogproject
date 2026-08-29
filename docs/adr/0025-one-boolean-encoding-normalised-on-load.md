@@ -63,7 +63,7 @@ Normalization runs **after** the flag shadows in `bin/installfog.sh`. Every
 source of a value has fed in by that point — the value `.fogsettings` persisted,
 the value the rename seed block copied off a pre-1.6 key, and the value a flag
 set this run — and the flag layer was itself the worst offender for mixed
-encodings. Normalising earlier would leave whatever the flags assigned
+encodings. Normalizing earlier would leave whatever the flags assigned
 unconverted. `lib/common/input.sh` and `newinput.sh` are sourced later still and
 write `yes`/`no` directly.
 
@@ -74,7 +74,7 @@ wrong one. `.fogsettings` is a file administrators edit by hand, and every
 FOG document that says "set `X=1`" is still out there. An old encoding can
 therefore arrive at any time — not only on the upgrade that renamed things.
 
-Normalising on load is idempotent by construction, so it is also
+Normalizing on load is idempotent by construction, so it is also
 self-repairing, and it answers ADR 0024's objection directly: `writeUpdateFile()`
 only ever sees `yes`/`no`, so the key migration stays a copy. Nothing has to
 know whether it is running for the first time.

@@ -3497,7 +3497,7 @@ abstract class FOGBase
         return TaskState::getFailedState();
     }
     /**
-     * Normalises a value to a re-indexed list of positive integer ids.
+     * Normalizes a value to a re-indexed list of positive integer ids.
      *
      * Casts to an array, intval's every element, drops anything <= 0 (blank,
      * 0, or negative ids that would otherwise seed phantom association rows or

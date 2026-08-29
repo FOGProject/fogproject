@@ -1106,7 +1106,7 @@ abstract class FOGPage extends FOGBase
                 header('Content-Type: application/json');
                 Route::listem($this->childClass);
                 $data = Route::getData();
-                // Initialised to match indexDivDisplay()'s parameter default.
+                // Initialized to match indexDivDisplay()'s parameter default.
                 // It was passed by reference while undeclared in this scope;
                 // nothing here reads it back, so the key is kept for the
                 // listeners that expect it rather than being made meaningful.
@@ -1226,7 +1226,7 @@ abstract class FOGPage extends FOGBase
         );
     }
     /**
-     * Normalises a webroot into the bare path used to build URLs.
+     * Normalizes a webroot into the bare path used to build URLs.
      *
      * GH-529: pages used to build server and storage-node URLs with a literal
      * '/fog/', so nothing reached a FOG installed anywhere else. The webroot
@@ -4715,7 +4715,7 @@ abstract class FOGPage extends FOGBase
                         // one (addGroup + setPrimaryGroup); the importer did not,
                         // so guarantee it here by associating the lowest storage
                         // group as primary. Without this the image cannot be
-                        // viewed afterwards (getStorageGroup has no primary to
+                        // viewed afterward (getStorageGroup has no primary to
                         // resolve).
                         if ($Item instanceof Image
                             && Route::getCount(

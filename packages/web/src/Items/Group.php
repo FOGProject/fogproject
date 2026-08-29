@@ -268,7 +268,7 @@ class Group extends FOGController
             // therefore land at sequence 0, which sorts them ahead of every
             // deliberately ordered snapin (Host::loadSnapins orders by
             // sequence ASC, and createSnapinTasking numbers the tasks in that
-            // order). Number them per host afterwards instead.
+            // order). Number them per host afterward instead.
             //
             // Host::save() used to sweep these up incidentally -- its
             // appendSnapinSequence() gate was always true, because

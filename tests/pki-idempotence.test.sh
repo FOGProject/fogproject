@@ -143,8 +143,8 @@ EOF
     return 0
 }
 
-# --- the artefacts a second run must not touch -------------------------------
-artefacts() {
+# --- the artifacts a second run must not touch -------------------------------
+artifacts() {
     printf '%s\n' \
         "${PKI_client_cert_dir}/CA/.fogCA.pem|root CA certificate" \
         "$fogprogramdir/pki/root/ca/.fogCA.key|root CA private key" \
@@ -184,7 +184,7 @@ first_run_log_size=$(wc -c < "$error_log")
 
 # Snapshot everything that exists after the first pass. Anything absent is
 # named rather than passed over: this driver is a stand-in for createSSLCA, so
-# an artefact that stopped being produced would otherwise silently drop out of
+# an artifact that stopped being produced would otherwise silently drop out of
 # the comparison and the test would keep reporting a pass over fewer files.
 declare -A BEFORE=()
 present=0
@@ -196,15 +196,15 @@ while IFS='|' read -r path label; do
     else
         absent="${absent}${absent:+, }${label}"
     fi
-done < <(artefacts)
+done < <(artifacts)
 [[ -n $absent ]] && printf '  note  not produced by this driver: %s\n' "$absent"
 
 if [[ $present -eq 0 ]]; then
-    bad "the first pass created no PKI artefacts at all -- check $error_log"
+    bad "the first pass created no PKI artifacts at all -- check $error_log"
     printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
     exit 1
 fi
-ok "first pass created $present PKI artefact(s)"
+ok "first pass created $present PKI artifact(s)"
 
 # The whole point: run it again against the same tree.
 pki_pass
@@ -221,9 +221,9 @@ while IFS='|' read -r path label; do
         bad "$label was REGENERATED on the second run ($path)"
         changed=$((changed + 1))
     fi
-done < <(artefacts)
+done < <(artifacts)
 
-[[ $changed -eq 0 ]] && ok "no long-lived artefact changed on the second run"
+[[ $changed -eq 0 ]] && ok "no long-lived artifact changed on the second run"
 
 # The stamp is what makes the web leaf's re-issue decision, so prove it is
 # doing the work rather than the leaf surviving by accident: change the name

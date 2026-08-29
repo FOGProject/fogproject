@@ -540,7 +540,7 @@ class UserManagement extends FOGPage
              * able to sign in without a directory.
              *
              * The warning is not boilerplate. Whether the account can
-             * still sign in through its provider afterwards depends on how
+             * still sign in through its provider afterward depends on how
              * that provider works, and core cannot tell which kind this is:
              * a provider that vouches through USER_LOGGING_IN (LDAP) is
              * refused once the stamp is gone, because passwordValidate()
@@ -557,7 +557,7 @@ class UserManagement extends FOGPage
                 _('Return To Local Login')
                 . '<br/>('
                 . sprintf(
-                    _('lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterwards'),
+                    _('lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterward'),
                     \Initiator::e($authSource)
                 )
                 . ')'

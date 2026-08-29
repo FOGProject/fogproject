@@ -30,7 +30,7 @@
  *   from any other cause -- an admin deleting a plugin by hand, an NFS lag --
  *   costs one missing listener rather than the whole server.
  *
- * Behavioural for the second, source-level for the first: the installer half
+ * Behavioral for the second, source-level for the first: the installer half
  * is one line of shell inside a 9000-line function that needs a live install
  * to run, and the comment says which is which rather than dressing one up as
  * the other.

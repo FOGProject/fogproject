@@ -193,7 +193,7 @@ serviceList="$initdMCfullname $initdIRfullname $initdSRfullname $initdSDfullname
 # Fold a value stored under the retired stable/staging/dev vocabulary to its
 # canonical spelling (GH-1279), so writeUpdateFile persists the new one and the
 # admin's file stops disagreeing with the docs. Only ever rewrites a value that
-# normalizeChannel RECOGNISES -- anything else is left exactly as found, because
+# normalizeChannel RECOGNIZES -- anything else is left exactly as found, because
 # an unknown value is either a typo the admin should see or a channel a newer
 # installer knows about, and silently blanking either would be worse than
 # leaving it to fail loudly in channelToBranch.

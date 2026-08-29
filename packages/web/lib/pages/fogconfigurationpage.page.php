@@ -420,7 +420,7 @@ class FOGConfigurationPage extends FOGPage
             $warn .= '</ul><p>' . _(
                 'Re-run the installer, which restricts them to root. If this '
                 . 'persists, check that nothing else is widening permissions on '
-                . 'the snapins directory afterwards.'
+                . 'the snapins directory afterward.'
             ) . '</p>';
             echo $this->_box(_('Private keys are readable by the web server'), $warn, ['color' => 'danger']);
         }
@@ -651,7 +651,7 @@ class FOGConfigurationPage extends FOGPage
             $auto .= '<p>' . _(
                 'That is one visit to the firmware screen per machine, once, '
                 . 'and it can be the same visit that turns Secure Boot on '
-                . 'afterwards.'
+                . 'afterward.'
             ) . '</p>';
             $auto .= '<p><strong>' . _('What gets enrolled') . '</strong></p>';
             $auto .= '<p>' . _(
@@ -1791,7 +1791,7 @@ class FOGConfigurationPage extends FOGPage
      * because this is the one action here that produces a plaintext
      * credential and hands it to somebody who is not its owner. The audit
      * row generate() writes carries the owner as subject and the issuer as
-     * createdBy, so that asymmetry is legible afterwards.
+     * createdBy, so that asymmetry is legible afterward.
      *
      * @return void
      */
@@ -2785,7 +2785,7 @@ class FOGConfigurationPage extends FOGPage
                 $vars
             );
             $combined = $vars + $_POST + $_FILES;
-            // Initialised before the loop, like the two sibling savers above.
+            // Initialized before the loop, like the two sibling savers above.
             // The body has three `continue` paths that skip the append, and
             // $combined can be empty, so a post that changes nothing left
             // $items undefined -- and the count below reads it, which is a
@@ -3712,7 +3712,7 @@ class FOGConfigurationPage extends FOGPage
 
         $this->title = _('FOG Log Viewer');
 
-        // One self-relabelling toggle, not a pause/resume pair -- pausing the
+        // One self-relabeling toggle, not a pause/resume pair -- pausing the
         // live tail destroys nothing so Pause never belonged on the left, and
         // only ever one of the two was pressable. Labels are the shared
         // "Pause/Resume Reload" pair so this button reads identically to the

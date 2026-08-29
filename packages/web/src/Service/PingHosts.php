@@ -372,7 +372,7 @@ class PingHosts extends FOGService
                 // the same as a successful connection. A refused connection
                 // is a TCP RST from the host's own kernel, so the machine is
                 // demonstrably up and merely has nothing listening on the
-                // port. Ping::isAlive() owns that judgement for both this
+                // port. Ping::isAlive() owns that judgment for both this
                 // and the host grid; see its docblock for the full list.
                 //
                 // A failure must leave the previous value alone --

@@ -419,7 +419,7 @@ Three findings from building it, all worth carrying into 2.4b:
   yet, so the #1113 gate correctly declines to start one. The `state`, `nonce`
   and PKCE verifier need somewhere to live, so the two browser-facing handlers
   call `session_start()` themselves — a handler mid-redirect knows it is a
-  browser, which is exactly the judgement the gate exists to stop *browser-less*
+  browser, which is exactly the judgment the gate exists to stop *browser-less*
   callers making. Documented in `docs/plugin-development.md` §7c rather than
   added to the route contract as a flag.
 - **The rules belong in the model, not the page.** The REST API reaches the

@@ -15,7 +15,7 @@
  *      certificates, and there the setting bought nothing and cost the
  *      ability to notice a substituted response. Downloading a kernel is
  *      the sharpest case: the file lands on disk and is booted by every
- *      machine that images afterwards.
+ *      machine that images afterward.
  *   2. The signed-in administrator's PHP session id (and the CSRF token)
  *      were attached to every request. They are there so a node's status
  *      endpoint can authorize the call; sending them to a third party is a

@@ -131,7 +131,7 @@ Two structural properties of `_applySiteScope` that any proposal must address:
    `recordsTotal` and `recordsFiltered` to the size of the filtered page.
    `SiteScope::allInScopeIDs()`'s own docblock
    (`sitescope.class.php:419-423`) says callers must push the boundary into
-   the query "rather than fetching a page and discarding rows afterwards —
+   the query "rather than fetching a page and discarding rows afterward —
    discarding rows leaves the row COUNTS describing objects the user cannot
    see". The one core caller does the thing that docblock forbids. Defect
    **SCOPE-2**; it is fail-closed, so it hides rows rather than leaking them,

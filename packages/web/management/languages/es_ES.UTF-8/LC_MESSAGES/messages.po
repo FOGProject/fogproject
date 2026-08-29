@@ -6796,7 +6796,7 @@ msgstr ""
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
-msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterwards."
+msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterward."
 msgstr ""
 
 msgid "Read a server log"
@@ -8567,7 +8567,7 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "That identity provider is not enabled"
 msgstr "La imagen no está habilitada"
 
-msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterwards."
+msgid "That is one visit to the firmware screen per machine, once, and it can be the same visit that turns Secure Boot on afterward."
 msgstr ""
 
 msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
@@ -10476,7 +10476,7 @@ msgid "legacy fog-user-token header and HTTP Basic; not needed for fog_ bearer t
 msgstr ""
 
 #, php-format
-msgid "lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterwards"
+msgid "lets this account use a FOG password again; sign-in through %s may stop working, so set a password straight afterward"
 msgstr ""
 
 msgid "limited to 1Mbps on that node"

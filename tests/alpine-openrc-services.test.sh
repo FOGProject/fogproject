@@ -339,7 +339,7 @@ has   "$alpinearm" "FOG_MANAGED_BEGIN"  "U4. the block is marker-delimited, so a
 #    Restart=always / RestartSec=1 / StartLimitIntervalSec=0, so on systemd
 #    nobody ever sees it. OpenRC supervises nothing by default, so at boot
 #    every FOG daemon died within a second of mariadb still starting and
-#    stayed dead -- while starting one by hand afterwards worked, which is
+#    stayed dead -- while starting one by hand afterward worked, which is
 #    what made this read as an rc-update problem rather than a restart one.
 nosupervise=""; nodborder=""
 for f in "$INITD"/*; do

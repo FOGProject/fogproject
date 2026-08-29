@@ -19,14 +19,14 @@ use FOG\Base\HookManager;
 /**
  * Ages rows out of the tables that record what happened.
  *
- * ONE MECHANISM, NOT FOUR. Four tables need ageing out and they arrived from
+ * ONE MECHANISM, NOT FOUR. Four tables need aging out and they arrived from
  * three directions -- `auditLog` from ADR 0021, `history` and `userTracking`
  * from ADR 0023. ADR 0022 deferred `imagingLog` here and then retired the
  * table instead; `taskLog` inherited the question, grows faster, and is the
  * fourth entry -- added by schema 357, which also removed the orphaned
  * `FOG_IMAGINGLOG_RETENTION_DAYS` row that survived its table and had been
  * rendering on the settings page doing nothing for anyone who set it.
- * Built per-table that would be four sweeps ageing four tables with four
+ * Built per-table that would be four sweeps aging four tables with four
  * bugs, so what exists is a registry of table => setting => date column and
  * one sweep that walks it. A fifth table is a registry entry.
  *
@@ -85,7 +85,7 @@ class Retention extends FOGBase
      * The tables core itself ages out.
      *
      * `date` is the column the window is measured against. Pick one that is
-     * always written: ageing by a column that can be empty keeps those rows
+     * always written: aging by a column that can be empty keeps those rows
      * forever, and an unfinished run is exactly the set somebody is most
      * likely to be looking for. (`imagingLog` was the entry that made this
      * worth saying, and it is retired -- ADR 0022 decision 3.)

@@ -245,7 +245,7 @@ class TaskManagement extends FOGPage
             'btn btn-danger cancel-selected float-start',
             $props
         );
-        // One self-relabelling toggle, not a pause/resume pair -- pausing the
+        // One self-relabeling toggle, not a pause/resume pair -- pausing the
         // auto-refresh destroys nothing so it never belonged on the left with
         // Cancel Selected, and only ever one of the two was pressable. It is
         // the sole right-side button here, so it takes primary.
@@ -821,7 +821,7 @@ class TaskManagement extends FOGPage
         );
 
         $complete = (int)self::getCompleteState();
-        $cancelled = (int)self::getCancelledState();
+        $canceled = (int)self::getCancelledState();
         // Failed has to be here or it is in no pane at all: it is not an
         // active state, so the active pane excludes it by construction, and
         // this is the only view of finished tasks there is.
@@ -831,13 +831,13 @@ class TaskManagement extends FOGPage
                 $states = [$complete];
                 break;
             case 'cancelled':
-                $states = [$cancelled];
+                $states = [$canceled];
                 break;
             case 'failed':
                 $states = [$failed];
                 break;
             default:
-                $states = [$complete, $cancelled, $failed];
+                $states = [$complete, $canceled, $failed];
         }
         $where = "`tasks`.`taskStateID` IN ("
             . implode(',', $states)

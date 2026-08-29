@@ -248,7 +248,7 @@ A symlink to `$tftpdirdst` was the first design. Three things killed it:
    every enforcing host (Alma/Rocky/RHEL/Fedora), while working fine on
    Debian/Ubuntu/Arch/Alpine, which ship no SELinux. That is the same failure
    GH-963 fixed in the other direction, where `tftpd_t` could not read
-   `default_t`. Relabelling to `public_content_t` would fix it, but widens the
+   `default_t`. Relabeling to `public_content_t` would fix it, but widens the
    tree to ftpd, rsync and samba to serve a feature needing none of them, and
    means editing a recent security fix. Files created under `$webdirdest`
    inherit the web root's own label and need no policy change.
@@ -572,7 +572,7 @@ alongside is purely additive if the other case ever turns up.
 `_copyIpxeTree()` records a sha256 of every file it lays down in
 `${tftpdirdst}/.fog-ipxe-manifest`, so a later run can tell FOG's copy from one
 the admin replaced. `_signLocalIpxe()` re-signs those `.efi` **in place**
-afterwards and never re-stamped. On the *second* install of a Secure Boot server
+afterward and never re-stamped. On the *second* install of a Secure Boot server
 every `.efi` compares unequal: FOG stops updating its own binaries and reports
 all 45 as admin-modified, every run, permanently.
 

@@ -517,7 +517,7 @@ class DashboardPage extends FOGPage
         // card is a window onto ?node=activity, so anyone who cannot open
         // that page must not read its rows from the dashboard instead.
         if (Authorization::can('activity.view')) {
-            // Bound in the QUERY. These tables have nothing ageing them out
+            // Bound in the QUERY. These tables have nothing aging them out
             // and grow for the life of the install, so "fetch and show ten"
             // is not the same thing as "fetch ten".
             // The frame columns, not just the prose. ADR 0020 decision 5's

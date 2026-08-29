@@ -299,7 +299,7 @@ class SchemaReconciler extends FOGBase
             // BASEPATH/fog_schema_update_error.log, for two reasons. That
             // file lives in the WEB ROOT, so anything readable written there
             // is servable -- the updater keeps it safe only by chmod'ing it
-            // to 0200 afterwards, which also means an administrator cannot
+            // to 0200 afterward, which also means an administrator cannot
             // read back the record of what their upgrade restructured
             // without root. And plain error_log() is what the rest of the
             // codebase uses; the schema updater's write-only file is the

@@ -117,7 +117,7 @@ class SchemaUpdaterPage extends FOGPage
             //
             // Sending them through logout is also the honest sequence: it
             // ends the session that cannot do this, and the login form they
-            // land on afterwards is the wired one. Logout survives the
+            // land on afterward is the wired one. Logout survives the
             // stale-schema redirect for exactly this reason (see the
             // carve-out in DatabaseManager::establish()).
             if (self::$FOGUser && self::$FOGUser->isValid()) {

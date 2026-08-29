@@ -308,7 +308,7 @@ name, and it is why the new column stores the name rather than an id.
 - Existing rows are **dropped, not migrated**. Backfilling them into `taskLog`
   needs a task id `imagingLog` does not store, which is precisely the defect
   the original 3a existed to add. Building that in order to throw the table
-  away afterwards is work for nothing. The cost is the history on installs
+  away afterward is work for nothing. The cost is the history on installs
   that have it, and the images-per-day chart reading empty for the window
   predating the change.
 

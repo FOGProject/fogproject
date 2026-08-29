@@ -115,7 +115,7 @@ abstract class FOGService extends FOGBase
             ]
         );
         $StorageNodes = [];
-        // Initialised up front because it is handed to the hook below by
+        // Initialized up front because it is handed to the hook below by
         // reference. A server that masters no node never entered the loop,
         // so $MasterIDs auto-vivified to null, and the Location plugin's
         // alterMasters() then called fastmerge() with it -- `array + null`,

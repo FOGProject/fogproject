@@ -23,7 +23,7 @@
  *   - a catch-all member must be allowed without consulting membership,
  *     because the catch-all is a flag rather than a list. If it were
  *     satisfied by enumerating members it would look identical on upgrade
- *     day and then silently stop covering hosts registered afterwards.
+ *     day and then silently stop covering hosts registered afterward.
  *
  * So the assertions check the issued SQL, not just the boolean. A short
  * circuit that returns the right answer for the wrong reason -- by falling
@@ -148,7 +148,7 @@ $dbProp->setAccessible(true);
  * Installs a scenario. $tables declares what the database holds; the
  * responder translates SiteScope's queries against it.
  *
- * Recognising each query by a fragment unique to it keeps the fake honest:
+ * Recognizing each query by a fragment unique to it keeps the fake honest:
  * if SiteScope ever stops issuing one of these, the scenario answers 0 or
  * [] rather than silently agreeing, and the expectations below fail.
  */
@@ -296,7 +296,7 @@ check(
  * 1b. The catch-all id, and putting a user in it. This is what stops a
  *     brand new account being the only one on the server in no site --
  *     step 333 enrolled everybody who existed on upgrade day, and User
- *     ::save() applies the same rule to everybody created afterwards.
+ *     ::save() applies the same rule to everybody created afterward.
  */
 $db = $scenario(['siteCount' => 0, 'catchAllID' => 11]);
 check(

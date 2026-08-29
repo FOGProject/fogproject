@@ -49,7 +49,7 @@ class SnapinJobManager extends FOGManagerController
      * snapin that no longer exists. Both delete paths hit this --
      * Snapin::destroy() and deletemass()'s `case 'snapin'` -- so it was never
      * an API-only fault. The give-away was in the old body: $findWhere and
-     * $cancelled were both computed and then thrown away, which is the direct
+     * $canceled were both computed and then thrown away, which is the direct
      * job update that was meant to be here and never was.
      *
      * So the job is now canceled directly. That works with or without tasks,
@@ -68,7 +68,7 @@ class SnapinJobManager extends FOGManagerController
         if (!count($snapinjobids)) {
             return true;
         }
-        $cancelled = self::getCancelledState();
+        $canceled = self::getCancelledState();
         $activeStates = self::fastmerge(
             (array) self::getQueuedStates(),
             (array) self::getProgressState()
@@ -98,7 +98,7 @@ class SnapinJobManager extends FOGManagerController
         $this->update(
             ['id' => $toCancel],
             '',
-            ['stateID' => $cancelled]
+            ['stateID' => $canceled]
         );
         // A host sitting on a snapin-ONLY task has nothing left to do once its
         // job is canceled, so the task goes with it. SnapinTaskManager already
@@ -139,7 +139,7 @@ class SnapinJobManager extends FOGManagerController
                     ['id' => $hostTasks],
                     '',
                     [
-                        'stateID' => $cancelled,
+                        'stateID' => $canceled,
                         'stateChangedTime' => self::niceDate()
                             ->format('Y-m-d H:i:s')
                     ]

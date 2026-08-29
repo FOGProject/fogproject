@@ -829,7 +829,7 @@ class MulticastTask extends FOGService
             ' --nopointopoint',
         ];
         $buildcmd = array_values(array_filter($buildcmd));
-        // Initialised up front because the LVM scan below reads it before
+        // Initialized up front because the LVM scan below reads it before
         // adding its placeholder. An image directory where nothing matched
         // -- every partition split, or a stray directory -- reached that
         // array_diff() with $filelist never assigned, which is an

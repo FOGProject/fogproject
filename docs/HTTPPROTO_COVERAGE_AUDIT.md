@@ -126,14 +126,14 @@ under the netboot guard — the client that needs it trusts nothing yet, which h
 nothing to do with which transport netboot uses. Redirecting it would make
 fetching the CA require already trusting the CA.
 
-## A3. PKI artefacts and how long each one lives
+## A3. PKI artifacts and how long each one lives
 
 Three lifetime classes. The distinction matters because re-issuing something in
 the first class orphans whatever already trusts it.
 
 ### Create-once — never re-issued while the file exists
 
-| Artefact | What breaks if it churns |
+| Artifact | What breaks if it churns |
 | --- | --- |
 | Root CA certificate and key | fog-client pins this as `ca.cert.der`; re-minting orphans every registered client at once |
 | Client-communication key and leaf | every client encrypts to that public half |
@@ -388,7 +388,7 @@ decouples `httpproto` from what the web server enforces.
 
 ## B3. Item 3 — is anything long-lived regenerated per run?
 
-**No — the class is clean.** Every artefact in Part A §A3's first table is
+**No — the class is clean.** Every artifact in Part A §A3's first table is
 guarded on its own existence, and the web leaf is guarded by the SAN stamp. The
 per-run writes are ephemeral configs, derived concatenations, or republished
 copies of create-once material.

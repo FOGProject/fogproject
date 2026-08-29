@@ -23,7 +23,7 @@
  *     repairing the truthiness test ALONE made five CREATE TABLE statements
  *     fail outright.
  *
- * WHICH COLUMNS KEEP THEIR TEETH is not a judgement call and not a list kept
+ * WHICH COLUMNS KEEP THEIR TEETH is not a judgment call and not a list kept
  * by hand: FOGManagerController already holds the model's
  * $databaseFieldsRequired, resolved up the inheritance chain by its
  * constructor. Three kinds of column stay bare -- the primary key and

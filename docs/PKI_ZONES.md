@@ -235,7 +235,7 @@ application could read the key the entire installation trusts. It also ran
 install.
 
 `$PKI_client_cert_dir` is now excluded from that recursion and the permissions are applied
-afterwards, from `_hardenPkiPermissions`:
+afterward, from `_hardenPkiPermissions`:
 
 | File | Mode | Why |
 |---|---|---|

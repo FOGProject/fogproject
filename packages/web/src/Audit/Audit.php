@@ -88,7 +88,7 @@ class Audit extends FOGBase
     /*
      * API token lifecycle (ADR 0027). Recorded because the credential
      * itself cannot be: the table holds only a hash, so once a token is
-     * gone there is no artefact left to reason about. These rows are the
+     * gone there is no artifact left to reason about. These rows are the
      * only record that it ever existed, who minted it and who took it away.
      *
      * TOKEN_ISSUED carries the OWNER as its subject and the issuer as
@@ -311,7 +311,7 @@ class Audit extends FOGBase
         ) {
             return;
         }
-        // A denial is final. Nothing that happens afterwards can turn
+        // A denial is final. Nothing that happens afterward can turn
         // "refused" into "failed", and letting it would lose the only row
         // that says somebody was turned away.
         if (self::DENIED === self::$_current->get('outcome')) {

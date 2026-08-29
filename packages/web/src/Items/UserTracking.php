@@ -62,7 +62,7 @@ class UserTracking extends FOGController
         // been. This is schema 341's denormalized label generalized to this
         // table: Route::deletemass('host') leaves userTracking rows in
         // place, and until now they rendered a blank host name forever
-        // afterwards because the grid resolved the name live from an id
+        // afterward because the grid resolved the name live from an id
         // that no longer pointed anywhere.
         'subjectLabel' => 'utHostName'
     ];

@@ -833,7 +833,7 @@ class IpxeBootMenu extends BootMenuBase
             'FOG_PXE_MENU_HIDDEN',
             'FOG_PXE_MENU_TIMEOUT',
             // Named by the architecture profile rather than fetching all
-            // six and choosing afterwards, so there is exactly one place
+            // six and choosing afterward, so there is exactly one place
             // that decides which kernel an architecture boots.
             $arch['kernelKey'],
             $arch['initKey'],
@@ -1929,7 +1929,7 @@ class IpxeBootMenu extends BootMenuBase
      *                      which message it is looking at
      * @param array  $lines the message, without the trailing sleep
      * @param int    $sleep seconds to leave it on screen
-     * @param bool   $chain chain back into the menu afterwards
+     * @param bool   $chain chain back into the menu afterward
      *
      * @return void
      */

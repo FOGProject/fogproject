@@ -23,7 +23,7 @@ The task that would enroll the key cannot run on the machine that needs it.
 
 **Machines that currently have Secure Boot off and are going to have it turned
 on.** That is a real and common case — many sites disable Secure Boot precisely
-so they can use FOG, and want it back on afterwards.
+so they can use FOG, and want it back on afterward.
 
 For those, the task stages the certificate with no USB stick, no Ubuntu live
 image and no fingerprint transcription; the technician confirms once at
