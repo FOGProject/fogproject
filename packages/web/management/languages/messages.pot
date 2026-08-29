@@ -92,7 +92,7 @@ msgid "%d architecture(s) updated."
 msgstr ""
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -140,7 +140,7 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, php-format
-msgid "%s hosts"
+msgid "%s images"
 msgstr ""
 
 #, php-format
@@ -4619,9 +4619,6 @@ msgstr ""
 msgid "No activity information available for this group"
 msgstr ""
 
-msgid "No activity recorded yet"
-msgstr ""
-
 msgid "No archive was uploaded."
 msgstr ""
 
@@ -5674,9 +5671,6 @@ msgid "Receive"
 msgstr ""
 
 msgid "Recent"
-msgstr ""
-
-msgid "Recent Activity"
 msgstr ""
 
 msgid "Record not found"
@@ -8182,9 +8176,6 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 msgid "WOL Broadcast Management"
 msgstr ""
 
@@ -8430,6 +8421,9 @@ msgid "answering \"does not exist\" for a read that never ran"
 msgstr ""
 
 msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "architecture not recorded"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -8881,9 +8875,6 @@ msgid "not found on this node"
 msgstr ""
 
 msgid "not reachable"
-msgstr ""
-
-msgid "not yet seen"
 msgstr ""
 
 msgid "ntfy Accounts"

@@ -116,7 +116,7 @@ msgid "%d architecture(s) updated."
 msgstr "Printer updated!"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -164,8 +164,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "host"
+msgid "%s images"
+msgstr "Images"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -5443,9 +5443,6 @@ msgstr "No Active Task found for Host"
 msgid "No activity information available for this group"
 msgstr ""
 
-msgid "No activity recorded yet"
-msgstr ""
-
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "No file was uploaded"
@@ -6675,9 +6672,6 @@ msgstr "Receive"
 #, fuzzy
 msgid "Recent"
 msgstr "Receive"
-
-msgid "Recent Activity"
-msgstr ""
 
 #, fuzzy
 msgid "Record not found"
@@ -9593,9 +9587,6 @@ msgstr "Version"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Location Management"
@@ -9873,6 +9864,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "Could not read temp file"
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
@@ -10393,9 +10388,6 @@ msgstr "Image not found on node"
 msgid "not reachable"
 msgstr "Not Available"
 
-msgid "not yet seen"
-msgstr ""
-
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack Accounts"
@@ -10738,6 +10730,10 @@ msgstr ""
 
 msgid "{node}"
 msgstr ""
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "host"
 
 #, fuzzy
 #~ msgid "A filter must be specified"

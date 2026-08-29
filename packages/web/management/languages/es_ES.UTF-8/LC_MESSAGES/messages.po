@@ -114,7 +114,7 @@ msgid "%d architecture(s) updated."
 msgstr "Impresora actualiza!"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -162,8 +162,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "anfitrión"
+msgid "%s images"
+msgstr "Imagen"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -5565,9 +5565,6 @@ msgstr "No se encontró Clase FOGPage para este nodo"
 msgid "No activity information available for this group"
 msgstr ""
 
-msgid "No activity recorded yet"
-msgstr ""
-
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "Ningún archivo fue subido"
@@ -6819,9 +6816,6 @@ msgstr "retirar"
 #, fuzzy
 msgid "Recent"
 msgstr "retirar"
-
-msgid "Recent Activity"
-msgstr ""
 
 #, fuzzy
 msgid "Record not found"
@@ -9778,9 +9772,6 @@ msgstr "Versión"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Sin administración de la impresora"
@@ -10057,6 +10048,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "No se pudo leer el archivo temporal"
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
@@ -10578,9 +10573,6 @@ msgstr "No se encontró Clase FOGPage para este nodo"
 msgid "not reachable"
 msgstr "No disponible"
 
-msgid "not yet seen"
-msgstr ""
-
 msgid "ntfy Accounts"
 msgstr ""
 
@@ -10919,6 +10911,10 @@ msgstr ""
 
 msgid "{node}"
 msgstr ""
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "anfitrión"
 
 #, fuzzy
 #~ msgid "A filter must be specified"

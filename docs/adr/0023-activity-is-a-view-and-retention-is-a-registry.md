@@ -5,7 +5,9 @@
 accepted
 
 Items 1-4, 6 and 7 of the sequencing table below are implemented on
-`working-1.6`. Item 1 (the `report` node split) was signed off separately,
+`working-1.6`, except that item 3 -- the dashboard card -- was removed again on
+2026-08-29 at the maintainer's request. Decisions 2 and 3 are withdrawn with it
+and marked as such in place; everything else stands. Item 1 (the `report` node split) was signed off separately,
 because it narrows an existing grant: a role holding `report.view` loses user
 tracking on deploy and is re-granted deliberately. Item 6 landed with ADR
 0021's merge 8 rather than separately, since the sweep it needed was the same
@@ -170,6 +172,16 @@ hidden.
 
 ### 2. The dashboard card does not poll
 
+**Withdrawn 2026-08-29 — the card is removed.** Decisions 2 and 3 described a
+card that no longer exists. Nothing about the reasoning below turned out to be
+wrong; the card simply did not earn the space it took on the dashboard, and the
+maintainer withdrew the request that put it there. The `?node=activity` viewer
+is unaffected — it was never fed by the card — and the reasoning is kept rather
+than deleted because it is the argument to re-read if a card is ever proposed
+again: any such card renders once and schedules nothing.
+
+The rest of this section is the original text.
+
 The periodic charts poll because disk usage changes continuously and
 independently of anyone looking at it. Activity does not: it changes when
 somebody does something, and on most FOG servers the person looking at the
@@ -184,6 +196,9 @@ If it is ever polled, `POLL_SLOW` and the `nextSlow()` alignment are the right
 cadence to adopt, and the ADR 0012 guard is mandatory rather than advisory.
 
 ### 3. The card's query is bounded explicitly, not by `MAX_ROWS`
+
+**Withdrawn 2026-08-29 with decision 2** — there is no card query to bound.
+The rule it states still binds any unbounded read of these tables.
 
 `MAX_ROWS` is a 10,000-row backstop for an unpaginated grid. A card showing
 ten rows asks for ten, with `LIMIT` in the query. Relying on the backstop to
@@ -325,7 +340,7 @@ take a third table.
 |---|---|---|
 | 1 | Split the `report` node so `usertracking` is not readable under the same grant as an imaging report | nothing — **access-control change, needs signoff** |
 | 2 | `?node=activity` viewer: frame columns, `source` filter with one value, explicit `LIMIT`, grid + client-filled modal | nothing |
-| 3 | Dashboard card, ten rows, no timer | 2 |
+| 3 | ~~Dashboard card, ten rows, no timer~~ — shipped, then **removed 2026-08-29** (decisions 2 and 3 withdrawn) | 2 |
 | 4 | `History_Report` redirects to the viewer; class and endpoint stay | 2 |
 | 5 | Additional sources appear in the filter | ADR 0020 phases 2–4 — **shipped** |
 | 6 | Retention registry + sweep + per-table settings | **ADR 0021 `auditLog` merged** |
@@ -338,7 +353,8 @@ either companion ADR. 6 and 7 are gated, deliberately.
 
 - One page answers "what happened", for every source, instead of one report
   per table.
-- The dashboard gains a card and no new timer.
+- ~~The dashboard gains a card and no new timer.~~ The card was removed on
+  2026-08-29; the dashboard is unchanged by this ADR.
 - A `report.view` holder stops getting a movement log for named employees as a
   side effect. Signed off and shipped as item 1; a role holding `report.view`
   loses user tracking on deploy and is re-granted deliberately.

@@ -111,7 +111,7 @@ msgid "%d architecture(s) updated."
 msgstr "Drucker aktualisiert!"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -159,8 +159,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "Hosts"
+msgid "%s images"
+msgstr "Images"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -5445,9 +5445,6 @@ msgstr "Keinen aktiven Task gefunden für Host"
 msgid "No activity information available for this group"
 msgstr ""
 
-msgid "No activity recorded yet"
-msgstr ""
-
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "Keine Datei wurde hochgeladen"
@@ -6678,9 +6675,6 @@ msgstr "Erhalten"
 #, fuzzy
 msgid "Recent"
 msgstr "Erhalten"
-
-msgid "Recent Activity"
-msgstr ""
 
 #, fuzzy
 msgid "Record not found"
@@ -9598,9 +9592,6 @@ msgstr "Version"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Standortverwaltung"
@@ -9880,6 +9871,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "Temporäre Datei konnte nicht gelesen werden."
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr "da der FOG versuchen wird, mit dem Internet zu verbinden, "
@@ -10401,9 +10396,6 @@ msgstr "auf diesem Knoten nicht gefunden"
 msgid "not reachable"
 msgstr "Nicht verfügbar"
 
-msgid "not yet seen"
-msgstr ""
-
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack Accounts"
@@ -10748,6 +10740,10 @@ msgstr "setzen Sie die Bandbreite auf diesem Knoten auf 1000."
 
 msgid "{node}"
 msgstr ""
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "Hosts"
 
 #, fuzzy
 #~ msgid "A filter must be specified"

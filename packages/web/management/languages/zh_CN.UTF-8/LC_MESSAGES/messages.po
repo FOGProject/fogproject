@@ -116,7 +116,7 @@ msgid "%d architecture(s) updated."
 msgstr "打印机更新！"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -164,8 +164,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "主办"
+msgid "%s images"
+msgstr "图片"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -5444,9 +5444,6 @@ msgstr "发现主机没有活动任务"
 msgid "No activity information available for this group"
 msgstr ""
 
-msgid "No activity recorded yet"
-msgstr ""
-
 #, fuzzy
 msgid "No archive was uploaded."
 msgstr "没有文件被上传"
@@ -6676,9 +6673,6 @@ msgstr "接收"
 #, fuzzy
 msgid "Recent"
 msgstr "接收"
-
-msgid "Recent Activity"
-msgstr ""
 
 #, fuzzy
 msgid "Record not found"
@@ -9594,9 +9588,6 @@ msgstr "版"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "位置管理"
@@ -9874,6 +9865,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "无法读取临时文件"
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr ""
@@ -10394,9 +10389,6 @@ msgstr "图片没有节点发现"
 msgid "not reachable"
 msgstr "不可用"
 
-msgid "not yet seen"
-msgstr ""
-
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "斯莱克账户"
@@ -10739,6 +10731,10 @@ msgstr ""
 
 msgid "{node}"
 msgstr ""
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "主办"
 
 #, fuzzy
 #~ msgid "A filter must be specified"

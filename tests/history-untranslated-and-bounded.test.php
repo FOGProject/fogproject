@@ -170,14 +170,16 @@ $t->check(
     && false !== strpos($routeSummary, 'History::summary($row)')
     && false === strpos($routeSummary, 'switch ($type)')
 );
+// The dashboard used to carry a Recent Activity card, which was the second
+// reader History::summary() was extracted for. It was removed as not earning
+// its place on the dashboard; the activity grid is the reader that remains.
+// Pinned so the card cannot come back reading `hText` raw -- the untranslated
+// column this whole test exists about.
 $dash = file_get_contents($web . '/lib/pages/dashboardpage.page.php');
 $t->check(
-    'the dashboard card renders the summary, not the raw column',
-    false !== strpos($dash, 'History::summary($row)')
-);
-$t->check(
-    'the dashboard card selects the frame columns it needs',
-    false !== strpos($dash, '`hType`, `hSubjectType`, `hSubjectID`, `hSubjectLabel`')
+    'the dashboard does not read the history table at all',
+    false === strpos($dash, '`history`')
+    && false === strpos($dash, "hText")
 );
 
 // And the renderer still works, which is the thing all three depend on.
