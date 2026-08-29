@@ -17,9 +17,12 @@
  * tree and reaches nobody. That is the failure this exists to catch, and it
  * is silent in exactly the way a stale asset always is.
  *
- * The cache version is checked with it: a corrected stylesheet behind an
- * unbumped FOG_BCACHE_VER is served from the browser's cache, which looks
- * identical to not having made the change at all.
+ * The cache version is checked with it, though it is hygiene rather than
+ * correctness: a corrected stylesheet behind an unbumped FOG_BCACHE_VER is
+ * served from the browser's cache until a hard refresh or the entry
+ * expires. That is an annoyance for whoever hits it, not a broken install
+ * -- worth a one-digit bump so nobody has to know to press ctrl-shift-R,
+ * not worth treating as a defect.
  *
  * Usage: php tests/card-header-description.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -94,8 +97,8 @@ $t->check(
  *
  * 331 rather than 330: #1471 landed a different edit to this same
  * stylesheet under 330 while this branch was open, so 330 no longer
- * distinguishes the two. A browser holding #1471's copy at ver=330 would
- * serve it back rather than fetch this one.
+ * distinguishes the two, and a browser holding #1471's copy would keep
+ * serving it until a hard refresh.
  */
 $ver = 0;
 if (preg_match("/define\('FOG_BCACHE_VER', (\d+)\)/", $sys, $m2)) {
