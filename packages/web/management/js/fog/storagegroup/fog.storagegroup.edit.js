@@ -294,10 +294,17 @@
     // STORAGE NODE TAB
 
     // Storage Node Associations
+    // allowRemove: false -- a node's group is a column on the node, not a link
+    // row, so it can be moved but not unset. Adding it to another group is the
+    // move; StorageGroup::removeNode() throws and the database refuses the
+    // write besides. Without this the checkbox of an already-associated node
+    // would still post confirmdel when unticked, which is a second removal
+    // path the hidden button does not close.
     var storagegroupStoragenodesTable = $.registerAssociationTab({
         slug: 'storagegroup-storagenode',
         item: 'storagenode',
         sub: 'getStoragenodesList',
+        allowRemove: false,
         afterCommit: function() {
             setTimeout(storagegroupStoragenodeMasterSelectorUpdate, 1000);
         }

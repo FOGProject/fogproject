@@ -426,6 +426,9 @@ msgstr "グループを選択してください。"
 msgid "A storage node already exists with this name!"
 msgstr "この名前のロールは既に存在します！"
 
+msgid "A storage node always belongs to exactly one storage group. Adding a node here MOVES it into this group from wherever it is now; a group with no nodes left is fine. To take a node out of this group, add it to the group it should be in instead."
+msgstr ""
+
 msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
 msgstr ""
 
