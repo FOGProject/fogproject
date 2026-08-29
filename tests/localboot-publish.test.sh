@@ -453,10 +453,13 @@ is "$(grep -c '^#sleep 10' "$L")" "1" \
    "the pre-DHCP sleep ships commented out, ready to uncomment"
 is "$(grep -c '^sleep ' "$L")" "0" \
    "no delay is active when --boot-delay was not given"
-if grep -q 'FOG-BOOT-DELAY-BEGIN' "$L"; then
-    bad "the sentinel block is present with no delay configured"
+# Sentinels on BOTH arms, which is what lets the next install replace one block
+# whether the delay is being set, changed or cleared. They used to be written
+# only around a live sleep, so the commented arm could not be replaced at all.
+if grep -q 'FOG-BOOT-DELAY-BEGIN' "$L" && grep -q 'FOG-BOOT-DELAY-END' "$L"; then
+    ok "the commented arm is bracketed by the sentinels too"
 else
-    ok "no sentinel block without --boot-delay"
+    bad "the commented arm is written without the sentinels that replace it"
 fi
 BOOT_dhcp_delay_seconds=15
 _publishLocalBootFiles >/dev/null
