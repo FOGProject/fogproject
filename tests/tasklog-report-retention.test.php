@@ -207,33 +207,48 @@ $pdo->exec("INSERT INTO `taskStates` VALUES (3,'In Progress','fa-play'),(7,'Fail
 $pdo->exec("INSERT INTO `taskTypes` VALUES (1,'Deploy','fa-download'),(2,'Upload','fa-upload')");
 $pdo->exec("INSERT INTO `hosts` VALUES (100,'alpha'),(102,'gamma')");
 $pdo->exec("INSERT INTO `tasks` VALUES (10,100,1)");
-$pdo->exec(
-    "INSERT INTO `taskLog`"
-    . " (`taskID`,`taskStateID`,`ip`,`createdBy`,`logType`,`logText`,"
-    . "`logHostID`,`logHostName`,`logTaskTypeName`) VALUES"
+// ONE ARRAY, not one SQL literal, so the row count is DERIVED rather than
+// written down a second time and left to drift. It drifted: the count below
+// said six while seven rows were inserted -- the "renamed" row was added
+// without bumping it -- and the assertion had been red on every machine with
+// a database since. Nothing caught it because CI runs this file with no
+// FOG_TEST_DSN, so only the writer half has ever run there.
+// createdBy carried per row rather than hardcoded: FOS writes the error
+// reports and FOG writes the state rows, and flattening that would lose a
+// distinction the fixture is documenting.
+$fixtures = [
     // task alive, host alive
-    . " (10,7,'127.0.0.1','fos','error','live',100,'alpha','Deploy'),"
+    [10, 7, 'fos', 'error', 'live', 100, 'alpha', 'Deploy'],
     // task deleted, host still there -- the link must survive
-    . " (55,7,'127.0.0.1','fos','error','task gone',102,'gamma','Upload'),"
+    [55, 7, 'fos', 'error', 'task gone', 102, 'gamma', 'Upload'],
     // task deleted and host deleted -- the report is all that is left
-    . " (56,7,'127.0.0.1','fos','error','both gone',999,'deadhost','Deploy'),"
+    [56, 7, 'fos', 'error', 'both gone', 999, 'deadhost', 'Deploy'],
     // written before schema 341: nothing stored, joins must still answer
-    . " (10,7,'127.0.0.1','fos','error','pre-341',NULL,'',''),"
+    [10, 7, 'fos', 'error', 'pre-341', null, '', ''],
     // a state row written before schema 373: no identity of its own, because
     // 341's backfill excluded logType='state' explicitly
-    . " (10,3,'127.0.0.1','fog','state',NULL,NULL,'',''),"
+    [10, 3, 'fog', 'state', null, null, '', ''],
     // a state row written by TaskLog::recordState(): carries its own identity,
     // and here BOTH its task (11) and its host (101) are gone. This is the row
     // 341 said could not exist and 373 exists to produce -- the log pane shows
     // state rows and the dashboard counts them, so one that cannot name its
     // host or say whether it was a capture is not readable.
-    . " (11,3,'127.0.0.1','fog','state',NULL,101,'beta','Upload'),"
+    [11, 3, 'fog', 'state', null, 101, 'beta', 'Upload'],
     // the host has since been RENAMED: host 100 is 'alpha' now and the
     // report was written when it was 'oldname'. The stored copy has to win,
     // or the fallback is really just a null-check and the record is not
     // historical at all.
-    . " (10,7,'127.0.0.1','fos','error','renamed',100,'oldname','Deploy')"
+    [10, 7, 'fos', 'error', 'renamed', 100, 'oldname', 'Deploy'],
+];
+$ins = $pdo->prepare(
+    "INSERT INTO `taskLog`"
+    . " (`taskID`,`taskStateID`,`ip`,`createdBy`,`logType`,`logText`,"
+    . "`logHostID`,`logHostName`,`logTaskTypeName`)"
+    . " VALUES (?,?,'127.0.0.1',?,?,?,?,?,?)"
 );
+foreach ($fixtures as $row) {
+    $ins->execute($row);
+}
 
 $fromMethod = new \ReflectionMethod('FOG\TaskManagement', '_logQueryFrom');
 $fromMethod->setAccessible(true);
@@ -248,7 +263,11 @@ foreach ($rows as $row) {
     $by[$row['logText']] = $row;
 }
 
-$t->check('all six fixture rows came back', 6 === count($rows));
+// Against the fixture list rather than a literal, for the reason above.
+$t->check(
+    'every fixture row came back',
+    count($fixtures) === count($rows)
+);
 
 // The ordering inside the COALESCE, not just its presence.
 $t->check(
