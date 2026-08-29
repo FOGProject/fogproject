@@ -208,7 +208,7 @@ has "$written" "http://10.0.0.1/fog/service/ipxe/boot.php" \
 # O2. The Secure Boot ledger's whole supply of data is these two lines. Nothing
 #     else asks a machine what its firmware state is, so if they are dropped --
 #     by a rebase, or by someone tidying the echo -- every host silently reads
-#     "never reported" for ever, the enrolment task's target check goes back to
+#     "never reported" for ever, the enrollment task's target check goes back to
 #     allowing everything, and there is no error anywhere to say so.
 #
 #     Asserted against the WRITTEN FILE and against the exact iPXE spelling,
@@ -219,7 +219,7 @@ has "$written" "http://10.0.0.1/fog/service/ipxe/boot.php" \
 has "$written" 'param secureboot ${efi/SecureBoot}' \
     "O2: default.ipxe reports the Secure Boot variable"
 has "$written" 'param setupmode ${efi/SetupMode}' \
-    "O2b: ...and Setup Mode, which is what says whether enrolment is unattended"
+    "O2b: ...and Setup Mode, which is what says whether enrollment is unattended"
 
 # O3. Order matters for one reason: the mac1..mac7 chain below short-circuits
 #     to :bootme on the first absent interface, so anything emitted after it is

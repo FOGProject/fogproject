@@ -8201,7 +8201,7 @@ $this->schema[] = [
     // hosts.hostSbState -- what this machine last told us about its own
     // Secure Boot posture, and when we heard it.
     //
-    // ADR 0008 scopes the Secure Boot enrolment task to machines that are
+    // ADR 0008 scopes the Secure Boot enrollment task to machines that are
     // NOT currently enforcing, because a machine that is enforcing will not
     // boot FOS and so cannot run the task that would make it trust us. Until
     // now there was no way to find those machines: an admin guessed, and a
@@ -8223,21 +8223,21 @@ $this->schema[] = [
     //   unknown    nothing has reported yet -- server-side only
     //   nonefi     booted BIOS/CSM; Secure Boot is not a concept here
     //   noefivars  UEFI, but the variables could not be read
-    //   setup      Setup Mode -- db is writable, enrolment is unattended
+    //   setup      Setup Mode -- db is writable, enrollment is unattended
     //   enforcing  User Mode, Secure Boot ON  -- the task cannot run
     //   disabled   User Mode, Secure Boot OFF -- the ADR 0008 case
     //
     // setup and disabled are NOT collapsed into one "off". Turning Secure
     // Boot off leaves the platform key in place, so db still refuses a
     // write; only Setup Mode accepts one. fog.enrollsb branches on exactly
-    // that, and it is the difference between an enrolment that finishes with
+    // that, and it is the difference between an enrollment that finishes with
     // nobody at the keyboard and one that needs a human at MokManager.
     //
     // NULL, not a default, and read as "unknown". An existing fleet starts
     // unreported and fills in as machines boot. Defaulting to anything else
     // would assert a fact nobody observed -- and "disabled" is the dangerous
     // direction specifically, because it is the value that makes a host look
-    // like a valid enrolment target.
+    // like a valid enrollment target.
     //
     // VARCHAR, not ENUM: ENUM makes every new state a schema migration, and
     // an int written to an ENUM is a member INDEX rather than a value, which
@@ -8297,7 +8297,7 @@ $this->schema[] = [
 // 377
 $this->schema[] = [
     // hosts.hostSbEnrolled / hostSbEnrollCert / hostSbEnrollVia -- the record
-    // of an enrolment having been PERFORMED.
+    // of an enrollment having been PERFORMED.
     //
     // The other half of 376, and a different kind of fact. 376 is an
     // observation: the machine said what it was, and nobody may edit it.
@@ -8328,7 +8328,7 @@ $this->schema[] = [
     // formatted and upper case -- 95 characters. It is here because "was
     // this machine ever enrolled" is not the question an admin has. The
     // question is "does this machine trust the certificate I am serving
-    // today", and an enrolment date alone goes stale in silence when the
+    // today", and an enrollment date alone goes stale in silence when the
     // certificate rotates: FOG has PKI zones, a multi-server CA, and certs
     // that expire.
     //

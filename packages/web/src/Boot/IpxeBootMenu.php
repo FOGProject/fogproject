@@ -221,7 +221,7 @@ class IpxeBootMenu extends BootMenuBase
      *
      * The same seam as _recordHostArch() and for the same reason: this is the
      * only moment FOG hears it. FOS could report it too -- and does, when the
-     * enrolment task runs -- but FOS runs when someone schedules a task, which
+     * enrollment task runs -- but FOS runs when someone schedules a task, which
      * for most hosts is never. iPXE runs on every PXE boot.
      *
      * The classification lives in SecureBootState so that the one place the

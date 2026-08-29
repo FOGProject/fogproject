@@ -495,7 +495,7 @@ class FOGConfigurationPage extends FOGPage
         // compare against.
         //
         // Read through SecureBootState rather than computed here, so that the
-        // string on this page and the string each host's enrolment record is
+        // string on this page and the string each host's enrollment record is
         // compared against are the same string by construction. They agreed
         // when both were written out longhand; "they agree today" is not the
         // same property as "they cannot disagree".
