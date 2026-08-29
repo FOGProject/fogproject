@@ -223,6 +223,43 @@ $columns = [
     ['db' => 'hostMembers', 'dt' => 'members', 'removeFromQuery' => true],
 ];
 
+/**
+ * A DataTables request carrying per-column header-box searches.
+ *
+ * @param array $searches Column 'dt' name => the box's wire value
+ * @param array $columns  The grid's column definitions
+ *
+ * @return array
+ */
+function colRequest(array $searches, array $columns)
+{
+    $request = ['columns' => []];
+    foreach ($columns as $column) {
+        $request['columns'][] = [
+            'data' => $column['dt'],
+            'searchable' => 'true',
+            'search' => ['value' => $searches[$column['dt']] ?? ''],
+        ];
+    }
+    return $request;
+}
+
+/**
+ * The wire value a header box sends: condition, separator, then values.
+ *
+ * @param string $condition The condition key
+ * @param array  $values    Zero, one or two values
+ *
+ * @return string
+ */
+function colValue($condition, array $values = [])
+{
+    return implode(
+        FOGManagerController::COLUMN_SEARCH_SEPARATOR,
+        array_merge([$condition], $values)
+    );
+}
+
 $cases = [];
 
 /* -- the guards ------------------------------------------------------- */
@@ -470,6 +507,85 @@ $cases[] = [
             : "expected " . FOGManagerController::SEARCHBUILDER_MAX_CRITERIA
                 . " terms, got $count";
     },
+];
+
+/* -- the per-column header boxes -------------------------------------- */
+
+// The header row sends its condition inline, through the SAME builder the
+// Filter panel's payload uses -- so these cases are really asserting that the
+// second transport is not a second filter language with its own escaping,
+// date handling and guards to get wrong.
+
+$cases[] = [
+    'name' => 'a header box with no condition still means contains',
+    'request' => colRequest(['name' => 'lab'], $columns),
+    'expect' => "WHERE `hostName` LIKE '%lab%'",
+];
+
+$cases[] = [
+    'name' => 'a header box can ask for starts-with',
+    'request' => colRequest(['name' => colValue('starts', ['lab'])], $columns),
+    'expect' => "WHERE `hostName` LIKE 'lab%' ESCAPE '\\\\'",
+];
+
+$cases[] = [
+    'name' => 'a header box can ask for exactly',
+    'request' => colRequest(['name' => colValue('=', ['lab01'])], $columns),
+    'expect' => "WHERE `hostName` = 'lab01'",
+];
+
+$cases[] = [
+    'name' => 'a header box on a date column gets the whole-day arithmetic',
+    'request' => colRequest(
+        ['deployed' => colValue('<', ['2026-08-29'])],
+        $columns
+    ),
+    'expect' => "WHERE (`hostDeployed` >= '1000-01-01 00:00:00'"
+        . " AND `hostDeployed` < '2026-08-29 00:00:00')",
+];
+
+$cases[] = [
+    'name' => 'a header box cannot ask for a condition the type does not offer',
+    'request' => colRequest(['name' => colValue('<', ['m'])], $columns),
+    'expect' => '',
+];
+
+$cases[] = [
+    'name' => 'a header box cannot match a nosearch column',
+    'request' => colRequest(
+        ['token' => colValue('contains', ['abc'])],
+        $columns
+    ),
+    'expect' => '',
+];
+
+$cases[] = [
+    'name' => 'a header box cannot match a computed column',
+    'request' => colRequest(['members' => colValue('=', ['3'])], $columns),
+    'expect' => '',
+];
+
+$cases[] = [
+    'name' => 'a header box escapes a LIKE wildcard in the value',
+    'request' => colRequest(
+        ['name' => colValue('contains', ['100%'])],
+        $columns
+    ),
+    'expect' => "WHERE `hostName` LIKE '%100\\%%' ESCAPE '\\\\'",
+];
+
+$cases[] = [
+    'name' => 'header boxes on two columns are ANDed',
+    'request' => colRequest(
+        [
+            'name' => colValue('starts', ['lab']),
+            'id' => colValue('>', ['10']),
+        ],
+        $columns
+    ),
+    // Emitted in grid-column order (id before name), not request order.
+    'expect' => "WHERE `hostID` > '10'"
+        . " AND `hostName` LIKE 'lab%' ESCAPE '\\\\'",
 ];
 
 $failures = [];

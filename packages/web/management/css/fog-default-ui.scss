@@ -913,6 +913,66 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
 // NOT yet themed (intentionally — first pass; tune/extend after live review):
 // pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
 // ===========================================================================
+// -- Per-column search row ---------------------------------------------
+// A second header row of boxes, one per filterable column, built by
+// fogColumnSearchRow() in fog.common.js and revealed by the Column search
+// button. Hidden by default: the Filter panel already covers this ground, so
+// a permanently-present row of boxes would be redundant chrome costing
+// vertical space on every grid in the product.
+//
+// The cells are built fresh rather than cloned, so they carry none of the
+// title row's sort affordances -- nothing here should look clickable.
+tr.fog-colsearch-row {
+  display: none;
+}
+.fog-colsearch-on tr.fog-colsearch-row {
+  display: table-row;
+}
+// In scrolling mode DataTables keeps a sizing-only copy of the header in the
+// scroll body and re-clones the whole thead into it on every redraw, our row
+// included. The builder drops that copy on its next pass; this keeps the
+// transient one out of the tab order (and out of the width it measures) in
+// the meantime. It is never the visible header -- that one lives in
+// div.dt-scroll-head.
+div.dt-scroll-body tr.fog-colsearch-row,
+div.dataTables_scrollBody tr.fog-colsearch-row {
+  display: none !important;
+}
+th.fog-colsearch-cell {
+  padding: 4px 6px;
+  vertical-align: middle;
+  cursor: default;
+}
+div.fog-colsearch {
+  display: flex;
+  // Wrapping is the point. A grid here runs from a 60px ID column to a wide
+  // host name, and side by side in the narrow ones leaves a box too thin to
+  // type in; wrapping puts the picker above its box exactly where there is no
+  // room for both, and leaves the wide columns on one line.
+  flex-wrap: wrap;
+  gap: 2px;
+  align-items: center;
+
+  select.fog-colsearch-mode {
+    flex: 0 1 auto;
+    width: auto;
+    min-width: 3.5em;
+    max-width: 100%;
+    font-size: .7rem;
+    // The labels are deliberately terse (the readable form is the option's
+    // title); this keeps the browser's own drop-arrow off them.
+    padding: 1px 1.2rem 1px 4px;
+    background-position: right 3px center;
+  }
+  input.fog-colsearch-input {
+    flex: 1 1 4em;
+    min-width: 0;
+    width: auto;
+    font-size: .7rem;
+    padding: 1px 4px;
+  }
+}
+
 @mixin fog-dark-theme {
   // -- dark palette --
   // Native BS5/AL4 dark mode: data-bs-theme="dark" on <html> activates
@@ -1250,6 +1310,22 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
   // semantic color yet (an empty Value box, a disabled row).
   div.dtsb-searchBuilder .dtsb-greyscale {
     border-color: var(--fog-border) !important;
+  }
+
+  // -- per-column search row --
+  // color-scheme for the same reason the length menu carries it: it is what
+  // makes the browser paint the native <option> popup and the date picker's
+  // own calendar dark, which no background-color can reach.
+  div.fog-colsearch select.fog-colsearch-mode,
+  div.fog-colsearch input.fog-colsearch-input {
+    background-color: var(--fog-input-bg);
+    border-color: var(--fog-input-border);
+    color: var(--fog-text);
+    color-scheme: dark;
+  }
+  div.fog-colsearch input.fog-colsearch-input:disabled {
+    background-color: var(--fog-surface-2);
+    color: var(--fog-text-muted);
   }
 
   // -- DataTables wrapper controls --

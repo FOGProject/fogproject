@@ -18,6 +18,212 @@ function fogMulticastClients(joined, expected) {
   return joined + ' / ' + expected;
 }
 
+/**
+ * Builds one column's search control: a condition picker and a value box.
+ *
+ * The picker is a native <select> rather than a Bootstrap dropdown on
+ * purpose. In scrolling mode DataTables moves the header into
+ * div.dt-scroll-head, which clips its overflow -- a dropdown-menu opened in
+ * there is cut off at the header's own height. A native select's popup is
+ * drawn by the browser outside the document, so it cannot be clipped by any
+ * ancestor.
+ *
+ * A date column gets type="date" so the browser supplies its own calendar;
+ * that also means the value arrives as YYYY-MM-DD, which is exactly the whole
+ * day the server's date conditions are written around.
+ *
+ * @param {number} index the column's DataTables index
+ * @param {string} type  the server-derived type: string, num or date
+ *
+ * @return {jQuery} the control
+ */
+function fogColumnSearchControl(index, type) {
+  var conditions = columnSearchConditions[type] || columnSearchConditions.string,
+    // A plain flex row rather than Bootstrap's .input-group: the group's
+    // joined-borders rules assume its children never wrap, and these have to
+    // -- FOG's grids run from a 60px ID column to a wide name, and a control
+    // that cannot wrap leaves the narrow ones with an unusably thin box.
+    group = $('<div class="fog-colsearch"/>'),
+    mode = $('<select class="form-select form-select-sm fog-colsearch-mode"/>'),
+    box = $('<input class="form-control form-control-sm fog-colsearch-input"/>'),
+    i;
+  box.attr('type', type === 'date' ? 'date' : 'text');
+  for (i = 0; i < conditions.length; i++) {
+    mode.append(
+      $('<option/>')
+        .attr('value', conditions[i].v)
+        .attr('title', conditions[i].t)
+        .text(conditions[i].s)
+    );
+  }
+  return group.attr('data-column', index).append(mode).append(box);
+}
+
+/**
+ * Reads one control and pushes it into that column's DataTables search.
+ *
+ * The wire value is the condition, the separator, then what was typed. An
+ * empty box clears the column instead of searching for nothing -- except for
+ * the two conditions that HAVE no value ("is empty" / "is not empty"), where
+ * the empty box is the whole point, so the box is disabled and the condition
+ * alone is sent.
+ *
+ * @param {object} api   the DataTables API for the table
+ * @param {jQuery} group one .fog-colsearch control
+ *
+ * @return {void}
+ */
+function fogColumnSearchApply(api, group) {
+  var index = parseInt(group.attr('data-column'), 10),
+    condition = group.find('select.fog-colsearch-mode').val(),
+    box = group.find('input.fog-colsearch-input'),
+    valueless = condition === 'null' || condition === '!null',
+    wire;
+  box.prop('disabled', valueless);
+  if (valueless) {
+    wire = condition + columnSearchSeparator;
+  } else if (box.val() === '') {
+    wire = '';
+  } else {
+    wire = condition + columnSearchSeparator + box.val();
+  }
+  if (api.column(index).search() !== wire) {
+    api.column(index).search(wire).draw();
+  }
+}
+
+/**
+ * Clears every column search when the row is hidden.
+ *
+ * A filter you cannot see is indistinguishable from missing data, so hiding
+ * the row has to mean unfiltering rather than merely concealing why the grid
+ * is short. Redraws only if something was actually cleared.
+ *
+ * @param {object} api the DataTables API for the table
+ *
+ * @return {void}
+ */
+function fogColumnSearchSync(api) {
+  var container = $(api.table().container()),
+    cleared = false;
+  if (container.hasClass('fog-colsearch-on')) {
+    return;
+  }
+  container.find('div.fog-colsearch').each(function() {
+    var group = $(this),
+      index = parseInt(group.attr('data-column'), 10);
+    group.find('input.fog-colsearch-input').val('').prop('disabled', false);
+    group.find('select.fog-colsearch-mode').prop('selectedIndex', 0);
+    if (api.column(index).search() !== '') {
+      api.column(index).search('');
+      cleared = true;
+    }
+  });
+  if (cleared) {
+    api.draw();
+  }
+}
+
+/**
+ * Repopulates the boxes from the searches the table is actually running.
+ *
+ * The row is rebuilt on every draw, so the DOM is not where a column search
+ * lives -- DataTables' own column state is. Without this the boxes would go
+ * blank the moment the first filtered response came back, while the grid
+ * stayed filtered.
+ *
+ * @param {object} api the DataTables API for the table
+ *
+ * @return {void}
+ */
+function fogColumnSearchRestore(api) {
+  $(api.table().container()).find('div.fog-colsearch').each(function() {
+    var group = $(this),
+      index = parseInt(group.attr('data-column'), 10),
+      search = api.column(index).search(),
+      parts;
+    if (search === '') {
+      return;
+    }
+    // Never write over the box being typed in: this runs when the response to
+    // that very keystroke arrives.
+    if (group.find(':focus').length) {
+      return;
+    }
+    parts = search.split(columnSearchSeparator);
+    if (parts.length < 2) {
+      // Set by something other than this row -- a plain contains-anywhere
+      // search, which is what column().search() has always meant.
+      group.find('input.fog-colsearch-input').val(search);
+      return;
+    }
+    group.find('select.fog-colsearch-mode').val(parts[0]);
+    group
+      .find('input.fog-colsearch-input')
+      .val(parts[1])
+      .prop('disabled', parts[0] === 'null' || parts[0] === '!null');
+  });
+}
+
+/**
+ * Builds, or rebuilds, the search row beneath a table's header.
+ *
+ * Cloned from the title row rather than generated from the column list: the
+ * header only holds cells for VISIBLE columns, so cloning is what keeps the
+ * boxes lined up with the columns they belong to without tracking visibility
+ * separately. Rebuilt whenever that changes.
+ *
+ * Columns the server will not match on -- a checkbox, an action link, a
+ * computed count, a value the emitter strips -- get an empty cell rather than
+ * a box, for the same reason they are left out of the Filter panel: a control
+ * that silently does nothing reads as the feature being broken.
+ *
+ * @param {object} api   the DataTables API for the table
+ * @param {object} types the server's _searchtypes map
+ *
+ * @return {void}
+ */
+function fogColumnSearchRow(api, types) {
+  var header = $(api.table().header()),
+    title = header.find('tr').not('.fog-colsearch-row').first(),
+    visible = api.columns(':visible').indexes().toArray(),
+    columns = api.settings()[0].aoColumns,
+    existing = header.find('tr.fog-colsearch-row'),
+    signature = visible.join(','),
+    row;
+  // In scrolling mode DataTables keeps a second, sizing-only copy of the
+  // header in the scroll body and clones the whole thead into it -- our row
+  // included. That copy is collapsed to zero height, so it is invisible
+  // rather than a doubled row, but it is still a live set of controls with
+  // the same data-column values, reachable by keyboard and going stale the
+  // moment anything is typed in the real one. Only the header the API points
+  // at is ours; drop any other copy.
+  $(api.table().container())
+    .find('tr.fog-colsearch-row')
+    .not(existing)
+    .remove();
+  // Rebuild only when the row is actually gone or now describes the wrong
+  // columns. This runs on every response and on every width recalculation,
+  // and replacing the row unconditionally would take the focus out of the box
+  // the user is typing in the moment their own search came back.
+  if (existing.length && existing.attr('data-columns') === signature) {
+    return;
+  }
+  existing.remove();
+  row = $('<tr class="fog-colsearch-row"/>').attr('data-columns', signature);
+  title.children().each(function(position) {
+    var cell = $('<th class="fog-colsearch-cell"/>'),
+      index = visible[position],
+      key = index === undefined ? null : columns[index].data,
+      type = key !== null && key in types ? types[key] : false;
+    if (type) {
+      cell.append(fogColumnSearchControl(index, type));
+    }
+    row.append(cell);
+  });
+  header.append(row);
+}
+
 var shouldReAuth,
   reAuthModal,
   deleteConfirmButton,
@@ -45,6 +251,73 @@ var shouldReAuth,
           _: '<i class="fas fa-filter"></i> Filter (%d)'
         }
       }
+    }
+  },
+  // Per-column boxes in a second header row, as an alternative front end to
+  // the same filtering. Both controls end up in the same server code path --
+  // the box sends its condition inline, and FOGManagerController::filter()
+  // hands it to the same criterion builder a Filter-panel rule goes through
+  // -- so there is one set of guards, one escaping rule and one piece of
+  // whole-day date arithmetic, not two. They stack: a box and a panel rule
+  // are ANDed, which is why the row does not try to stay in sync with the
+  // panel's state. There is nothing to sync.
+  //
+  // The condition each column offers comes from what the column IS, exactly
+  // as the panel's does, and the vocabularies below mirror
+  // FOGManagerController::$_sbConditions. The server re-validates every one
+  // against the column's real SQL type, so this list is a convenience, never
+  // a trust boundary.
+  //
+  // Labels are terse because they sit in a select inside a header cell; the
+  // readable form is the option's title, which the browser shows on hover.
+  columnSearchConditions = {
+    string: [
+      { v: 'contains', s: 'has', t: 'contains' },
+      { v: '=', s: 'is', t: 'is exactly' },
+      { v: 'starts', s: 'a…', t: 'starts with' },
+      { v: 'ends', s: '…z', t: 'ends with' },
+      { v: '!contains', s: '!has', t: 'does not contain' },
+      { v: '!=', s: 'is not', t: 'is not' },
+      { v: 'null', s: 'empty', t: 'is empty' },
+      { v: '!null', s: 'set', t: 'is not empty' }
+    ],
+    num: [
+      { v: '=', s: '=', t: 'equals' },
+      { v: '!=', s: '\u2260', t: 'does not equal' },
+      { v: '>', s: '>', t: 'greater than' },
+      { v: '>=', s: '\u2265', t: 'at least' },
+      { v: '<', s: '<', t: 'less than' },
+      { v: '<=', s: '\u2264', t: 'at most' },
+      { v: 'null', s: 'empty', t: 'is empty' },
+      { v: '!null', s: 'set', t: 'is not empty' }
+    ],
+    date: [
+      { v: '=', s: 'on', t: 'on that day' },
+      { v: '>', s: 'after', t: 'after that day' },
+      { v: '<', s: 'before', t: 'before that day' },
+      { v: '!=', s: 'not on', t: 'not on that day' },
+      { v: 'null', s: 'never', t: 'never set' },
+      { v: '!null', s: 'set', t: 'is set' }
+    ]
+  },
+  // Separates the condition from its value on the wire. Matches
+  // FOGManagerController::COLUMN_SEARCH_SEPARATOR. The ASCII unit separator
+  // cannot be typed into a box, so a value a user really entered can never be
+  // mistaken for this form; a box with no separator in it keeps DataTables'
+  // historical contains-anywhere meaning, which is what every other caller of
+  // column().search() in FOG relies on.
+  columnSearchSeparator = '\u001f',
+  // Starts disabled and is enabled once the first response proves the server
+  // can type the columns -- a client-side table sends no _searchtypes, and a
+  // row of boxes that filtered on nothing but "contains" would be a different
+  // feature wearing the same clothes.
+  columnSearchButton = {
+    name: 'colsearch',
+    enabled: false,
+    text: '<i class="fas fa-magnifying-glass-chart"></i> Column search',
+    action: function(e, dt) {
+      $(dt.table().container()).toggleClass('fog-colsearch-on');
+      fogColumnSearchSync(dt);
     }
   },
   exportButtons = [
@@ -78,6 +351,7 @@ var shouldReAuth,
       text: '<i class="fas fa-print"></i> Print'
     },
     searchBuilderButton,
+    columnSearchButton,
     {
       extend: 'colvis',
       text: '<i class="fas fa-table-columns"></i> Column Visibility'
@@ -111,6 +385,7 @@ var shouldReAuth,
       text: '<i class="fas fa-print"></i> Print'
     },
     searchBuilderButton,
+    columnSearchButton,
     {
       extend: 'colvis',
       text: '<i class="fas fa-table-columns"></i> Column Visibility'
@@ -2846,6 +3121,7 @@ $.fn.registerTable = function(onSelect, opts) {
         text: '<i class="far fa-square"></i> Deselect All'
       },
       searchBuilderButton,
+      columnSearchButton,
       {
         text: '<i class="fas fa-arrows-rotate"></i> Refresh',
         action: function(e, dt, node, config) {
@@ -2965,9 +3241,75 @@ $.fn.registerTable = function(onSelect, opts) {
       // SearchBuilder re-reads it every time it draws a rule's column list.
       settings._searchBuilder.c.columns = searchable;
     }
+
+    // The other front end onto the same filtering: a row of boxes under the
+    // header. Built here for the same reason the types are applied here --
+    // this response is the first moment the server has said what each column
+    // is, and a box whose condition list did not match its column would be
+    // offering filters the server then drops.
+    //
+    // Rebuilt on every response rather than once: DataTables re-renders the
+    // header whenever it recalculates widths, and in scrolling mode the
+    // header lives in a clone, so the row cannot be assumed to have survived.
+    // The values are carried across from the DataTables column state, which
+    // is the thing that actually holds the search.
+    var api = new $.fn.dataTable.Api(settings);
+    // Stashed so the column-visibility rebuild has them; that fires with no
+    // response of its own.
+    settings._fogSearchTypes = types;
+    fogColumnSearchRow(api, types);
+    fogColumnSearchRestore(api);
+    api.buttons('colsearch:name').enable();
   });
 
   var table = $(this).DataTable(opts);
+
+  // Delegated off the table's container so the handlers survive the row being
+  // rebuilt -- which it is on every draw, and again whenever a column is
+  // shown or hidden. 'input' rather than 'change' so typing filters as you go;
+  // debounced because each keystroke is a server round trip.
+  var columnSearchTimer = null;
+  $(table.table().container())
+    .off('.fogcolsearch')
+    .on('change.fogcolsearch', 'select.fog-colsearch-mode', function() {
+      fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
+    })
+    .on('change.fogcolsearch', 'input.fog-colsearch-input[type="date"]', function() {
+      fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
+    })
+    .on('input.fogcolsearch', 'input.fog-colsearch-input[type="text"]', function() {
+      var group = $(this).closest('div.fog-colsearch');
+      clearTimeout(columnSearchTimer);
+      columnSearchTimer = setTimeout(function() {
+        fogColumnSearchApply(table, group);
+      }, 400);
+    })
+    .on('keydown.fogcolsearch', 'input.fog-colsearch-input', function(e) {
+      if (e.which !== 13) {
+        return;
+      }
+      // Enter means "now", not "also submit the form this table sits in".
+      e.preventDefault();
+      clearTimeout(columnSearchTimer);
+      fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
+    });
+
+  // A hidden column's box has to go with it, and the remaining boxes have to
+  // re-line-up: the header only carries cells for visible columns, so every
+  // box after the hidden one would otherwise be pointed one column off.
+  // column-visibility for the obvious reason; column-sizing because
+  // DataTables re-renders the header (and in scrolling mode re-clones it)
+  // whenever it recalculates widths, which drops anything appended to it.
+  // Both are cheap when nothing has changed -- the builder returns early if
+  // the row it finds already describes the right columns.
+  table.on('column-visibility.dt column-sizing.dt', function() {
+    var types = table.settings()[0]._fogSearchTypes;
+    if (!types) {
+      return;
+    }
+    fogColumnSearchRow(table, types);
+    fogColumnSearchRestore(table);
+  });
 
   if (columnResize) {
     var tableNode = $(this);
