@@ -3702,6 +3702,9 @@ msgstr "ogni ora"
 msgid "Hours field is invalid"
 msgstr "il valore ora non è valido"
 
+msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
+msgstr ""
+
 msgid "I am not the fog web server"
 msgstr "Io non sono il server web fog"
 

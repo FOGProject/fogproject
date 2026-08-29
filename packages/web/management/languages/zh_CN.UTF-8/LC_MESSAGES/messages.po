@@ -3807,6 +3807,9 @@ msgstr "每小时"
 msgid "Hours field is invalid"
 msgstr "小时值无效"
 
+msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
+msgstr ""
+
 msgid "I am not the fog web server"
 msgstr "我不是雾Web服务器"
 
