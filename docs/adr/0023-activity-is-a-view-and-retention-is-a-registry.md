@@ -252,7 +252,7 @@ The request asked whether applying a default on upgrade is "exactly what a
 privacy control should do, or a nasty surprise". It is both, and the split is
 along install age:
 
-- **New installs default to a bounded value.** Data minimisation is the right
+- **New installs default to a bounded value.** Data minimization is the right
   default for data nobody has chosen to keep, and an admin who wants forever
   can say so.
 - **Upgrades default to `0`, keep forever**, and surface a dashboard notice
@@ -263,7 +263,7 @@ Silently deleting on upgrade is wrong for a specific reason, not a squeamish
 one: the administrator never chose to hold this data *or* to delete it, and
 some of them are under a legal obligation to retain it. A privacy control that
 destroys evidence someone is required to keep is not a privacy win. Making the
-choice visible and unavoidable achieves minimisation without making it for
+choice visible and unavoidable achieves minimization without making it for
 them.
 
 The recommended new-install default is **365 days**. It is long enough to

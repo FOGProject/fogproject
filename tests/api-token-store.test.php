@@ -322,7 +322,7 @@ $jsSrc = file_get_contents(
 //     only suppresses the native submit; every card is wired by hand in its
 //     page's JS, and an unwired one renders perfectly and does nothing.
 $t->check(
-    'the token grid is initialised in JS',
+    'the token grid is initialized in JS',
     false !== strpos($jsSrc, "$('#user-apitoken-table').registerTable(")
 );
 $t->check(

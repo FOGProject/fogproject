@@ -29,7 +29,7 @@
  * is what this file is. It is STRUCTURAL and needs no database: the defect is
  * in the SQL text, so the SQL text is what it reads -- and so it runs in CI,
  * where there is no server to drive rows through. dev-branch, which got the
- * same fix later, carries this file plus a behavioural counterpart that does
+ * same fix later, carries this file plus a behavioral counterpart that does
  * drive real rows.
  *
  * Usage: php tests/relationship-filter-in-join.test.php

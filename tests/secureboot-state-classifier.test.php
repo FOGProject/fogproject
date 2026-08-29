@@ -57,14 +57,14 @@ $checks = 0;
  *
  * A CLOSURE over the two counters, not a global function with `global`
  * statements, and both halves of that matter for the second PHPStan pass --
- * which analyses all of tests/ as one unit:
+ * which analyzes all of tests/ as one unit:
  *
  *   - fourteen other files here declare a global check() with four different
  *     signatures, and a fifteenth merges with them into errors about
  *     parameters this file does not have;
  *   - a counter mutated through `global` is invisible to PHPStan, so the
  *     final `$failures > 0` reads as "always false" -- which would have made
- *     this file report a pass whatever it found, had the analyser not said so.
+ *     this file report a pass whatever it found, had the analyzer not said so.
  *
  * @param string $what     what is being asserted
  * @param mixed  $expected the expected value

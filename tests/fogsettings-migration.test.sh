@@ -19,7 +19,7 @@
 # only runs at the very end of an install.
 #
 # The migration is EXTRACTED FROM lib/common/functions.sh AND EVALUATED here
-# rather than copied. A hand-copied replay is how a test passes while the behaviour is
+# rather than copied. A hand-copied replay is how a test passes while the behavior is
 # wrong, which is the failure mode install-settings-resolution.test.sh already
 # documents for the httpsRedirect migration.
 #

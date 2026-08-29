@@ -956,7 +956,7 @@ class PDODB extends DatabaseManager
          * 'sShutdown' at row 1", on any server with STRICT_TRANS_TABLES.
          *
          * It is the same defect as GH-1245 arriving by a different door.
-         * save()'s emptyValueFor() only recognises null and '' as empty, so
+         * save()'s emptyValueFor() only recognizes null and '' as empty, so
          * a boolean walks straight past it, and the manager UPDATE path
          * (HostManager::update() writing `hosts`.`hostInfoLock` from
          * ->set('tokenlock', false) at the end of every imaging task) never

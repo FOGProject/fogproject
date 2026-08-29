@@ -41,7 +41,7 @@ class MulticastSessionManager extends FOGManagerController
          */
         $findWhere = ['id' => (array)$multicastsessionids];
         /**
-         * Get the current id for cancelled state.
+         * Get the current id for canceled state.
          */
         $cancelled = self::getCancelledState();
         /**
@@ -53,7 +53,7 @@ class MulticastSessionManager extends FOGManagerController
             'taskID'
         );
         /**
-         * Set tasks to cancelled as the main session was cancelled.
+         * Set tasks to canceled as the main session was canceled.
          */
         self::getClass('TaskManager')
             ->update(
@@ -66,7 +66,7 @@ class MulticastSessionManager extends FOGManagerController
                 ]
             );
         /*
-         * Set our cancelled state
+         * Set our canceled state
          */
         $this->update(
             $findWhere,

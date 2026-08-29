@@ -18,7 +18,7 @@
  *      machine that images afterwards.
  *   2. The signed-in administrator's PHP session id (and the CSRF token)
  *      were attached to every request. They are there so a node's status
- *      endpoint can authorise the call; sending them to a third party is a
+ *      endpoint can authorize the call; sending them to a third party is a
  *      credential handed over for no purpose.
  *
  * Both are now decided by the URL's host rather than by the caller, so a

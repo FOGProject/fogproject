@@ -419,7 +419,7 @@ class User extends FOGController
     /**
      * Reduce a caller-supplied auth source to something safe to record.
      *
-     * Normalised, not trusted: the value reaches the history table and a
+     * Normalized, not trusted: the value reaches the history table and a
      * session key, and a provider plugin supplies it. Anything that is not a
      * plain slug is recorded as unknown rather than passed through, because
      * "we do not know how this session was made" is a fact worth keeping and

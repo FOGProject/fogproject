@@ -167,7 +167,7 @@ $scenario = function (array $tables) use ($dbProp) {
                 $hit = in_array($uid, (array)($tables['catchAll'] ?? []), true);
                 return ['cnt' => $hit ? 1 : 0];
             }
-            // The catch-all's id. Recognised before the plain count for the
+            // The catch-all's id. Recognized before the plain count for the
             // same reason -- both read `sites`.
             if (false !== strpos($sql, 'IS NOT NULL LIMIT 1')) {
                 return ['cnt' => (int)($tables['catchAllID'] ?? 0)];
@@ -306,7 +306,7 @@ check(
     $checks
 );
 check(
-    'joinCatchAll enrols the user',
+    'joinCatchAll enrolls the user',
     SiteScope::joinCatchAll(4) === true,
     $failures,
     $checks
@@ -343,7 +343,7 @@ $db = $scenario(
     ['siteCount' => 0, 'catchAllID' => 11, 'insertErrors' => true]
 );
 check(
-    'a failed enrolment reports failure rather than claiming success',
+    'a failed enrollment reports failure rather than claiming success',
     SiteScope::joinCatchAll(4) === false,
     $failures,
     $checks
@@ -677,7 +677,7 @@ check(
 /*
  * 12. Inherited membership. A site reaches a user directly, through a user
  *     group, or through a role -- and a role reaches a user two ways, so
- *     four arms. These cases prove the behaviour; case 13 pins the SQL,
+ *     four arms. These cases prove the behavior; case 13 pins the SQL,
  *     because the fake answers one union query and cannot tell which arm
  *     produced a row.
  */

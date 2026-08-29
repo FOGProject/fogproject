@@ -110,7 +110,7 @@ class SnapinClient extends FOGClient
                     'jobID' => $SnapinJob->get('id')
                 ];
                 // getList() sets inputoverride, which the old call left off.
-                // That is the one behaviour change here and it is deliberate:
+                // That is the one behavior change here and it is deliberate:
                 // this runs inside the client's POST, so without it listem()
                 // parses php://input -- and folds in ?length/?start -- and a
                 // request carrying either would silently truncate the snapin

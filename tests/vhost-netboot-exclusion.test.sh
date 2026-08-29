@@ -24,7 +24,7 @@
 #   1. Every netboot-reachable directory is excluded, in BOTH web servers.
 #      service/ipxe/ is the obvious one. service/secureboot/ is not, and was
 #      missing: IpxeBootMenu imgfetches MOK.der and chains mmx64.efi /
-#      arm64-efi/mmaa64.efi out of it, so Secure Boot enrolment was being
+#      arm64-efi/mmaa64.efi out of it, so Secure Boot enrollment was being
 #      redirected onto an HTTPS iPXE could not validate. service/uboot/ is
 #      the third, and the least forgiving of the three: U-Boot's `wget` is
 #      HTTP-only with no TLS at all, so it cannot fail a validation -- a 308

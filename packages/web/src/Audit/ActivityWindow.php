@@ -188,7 +188,7 @@ class ActivityWindow extends FOGBase
         $map = self::_map();
         if (count($sources) > 0) {
             // Whitelisted rather than filtered into the SQL: a source name
-            // becomes a table name here, so an unrecognised one is dropped
+            // becomes a table name here, so an unrecognized one is dropped
             // and never reaches the query.
             $map = array_intersect_key($map, array_flip($sources));
         }

@@ -133,7 +133,7 @@ rebuilds, such as under the web root: without the copy it would be deleted
 mid-install.
 
 >[!note]
->**`--no-secure-boot` declines enrolment, not signatures.** It stops the server
+>**`--no-secure-boot` declines enrollment, not signatures.** It stops the server
 >publishing `MOK.der` and the `PK`/`KEK`/`db` variable updates, and with them the
 >*Enroll Secure Boot Key* PXE menu entry, which is gated on `MOK.der` existing.
 >The signing key is still generated and the binaries are still signed.
@@ -141,7 +141,7 @@ mid-install.
 >That is deliberate: an appended PE signature is inert on a machine booting with
 >Secure Boot **off** — which is every machine on a server that passed this flag —
 >so signing costs nothing. Leaving the binaries unsigned instead would only mean
->that the day you do enrol, or move one of these files onto a machine that
+>that the day you do enroll, or move one of these files onto a machine that
 >already has Secure Boot on, the file is useless and nothing on the server can
 >fix it short of a re-install.
 
@@ -170,7 +170,7 @@ contents are its top level, and holds one folder per boot route —
 `fog-ipxe\`, `secureboot-upstream\`, `secureboot-fog\`, `refind\`, plus
 `-customca\` variants where this server rebuilt iPXE with its own CA.
 
-**How to choose a folder, boot it, and enrol this server's certificate is
+**How to choose a folder, boot it, and enroll this server's certificate is
 documented at [Local ESP boot](https://docs.fogproject.org/local-esp-boot)**, with
 the capability matrix per Secure Boot state. This page covers only what the
 installer does to these files, which is the part that concerns preservation.

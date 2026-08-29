@@ -4317,7 +4317,7 @@ $this->schema[] = [
 // 300
 $this->schema[] = [
     // Tasks never recorded when they reached their current state, so the
-    // task list's Recent view had nothing to sort completed/cancelled work
+    // task list's Recent view had nothing to sort completed/canceled work
     // by. Stamped on every state transition (Task::set + the mass-update
     // cancel/complete paths). NULL for rows that last changed state before
     // this upgrade; readers fall back to
@@ -4679,7 +4679,7 @@ $this->schema[] = [
     . "join credentials and the product key). Enter a comma separated list of "
     . "imaging networks in CIDR form and/or individual addresses, for example "
     . "10.0.0.0/8,192.168.5.20. Leave empty to allow any source, which is the "
-    . "default and matches the behaviour of earlier versions.','','Security')",
+    . "default and matches the behavior of earlier versions.','','Security')",
 ];
 // 316
 $this->schema[] = [
@@ -4772,7 +4772,7 @@ $this->schema[] = count($columnhostSecTokenPrev ?: []) ? [] : [
     // exit was an administrator pressing Reset Encryption Data.
     //
     // One generation of history closes that gap. A client whose reply went
-    // missing re-presents its previous token, is recognised, and is handed the
+    // missing re-presents its previous token, is recognized, and is handed the
     // current one again. The grace is retired as soon as the client proves it
     // holds the current token, so a stolen token does not stay valid
     // indefinitely.
@@ -4922,8 +4922,8 @@ $this->schema[] = [
     . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
     . "VALUES "
     . "(25, 'Enroll Secure Boot Key', 'Enroll Secure Boot Key will "
-    . "chain the client straight to the Secure Boot enrolment menu "
-    . "so a technician can enrol this FOG server\'s MOK without "
+    . "chain the client straight to the Secure Boot enrollment menu "
+    . "so a technician can enroll this FOG server\'s MOK without "
     . "hunting for it in the PXE boot menu. A technician still has "
     . "to be at the console: MokManager gives up after about 10 "
     . "seconds with no keypress and boots normally, and reboots if "
@@ -4932,7 +4932,7 @@ $this->schema[] = [
 ];
 // 323
 $this->schema[] = [
-    // Redefines task type 25 so it BOOTS FOS and performs the enrolment, rather
+    // Redefines task type 25 so it BOOTS FOS and performs the enrollment, rather
     // than chaining the client to MokManager and leaving it there.
     //
     // Step 322 above shipped it as "Enroll Secure Boot Key": a schedulable
@@ -4941,7 +4941,7 @@ $this->schema[] = [
     // answer before FOS could touch EFI variables at all. It can now, and the
     // two are for the same job, so this supersedes it rather than sitting
     // alongside it -- two near-identically named task types with different
-    // behaviour is a support burden nobody needs.
+    // behavior is a support burden nobody needs.
     //
     // Updated in a NEW step rather than by editing 322 in place: 322 has already
     // run on every 1.6 beta server, and a server does not re-run a step it has
@@ -4959,7 +4959,7 @@ $this->schema[] = [
     // _enrollSecureBootChoice() special case for this type is gone. PXE menu
     // item 14 and _enrollSecureBootChoice() itself both stay: chaining straight
     // to MokManager is still how a technician answers a pending request, or
-    // enrols from local FAT media on a machine FOS cannot boot.
+    // enrolls from local FAT media on a machine FOS cannot boot.
     //
     // ttIsAdvanced drops from '1' to '0': the old row hid behind Advanced
     // because it stranded the client at a firmware screen. This one completes on
@@ -4990,7 +4990,7 @@ $this->schema[] = [
     // Distinguishes pxeID 14 from the unattended item added in step 325
     // below. It has always chained straight to MokManager for a technician
     // to drive by hand; the plain "Enroll Secure Boot Key" name stopped
-    // being enough once there is a second, unattended way to enrol from
+    // being enough once there is a second, unattended way to enroll from
     // the same menu.
     //
     // A new step, not an edit to step 321: that INSERT has already run on
@@ -5025,7 +5025,7 @@ $this->schema[] = [
     //
     // IpxeBootMenu::printDefault() additionally hides this item unless
     // PK.auth/KEK.auth/db.auth all exist in service/secureboot/ -- without
-    // them mode=enrollsb's auto-enrol path has nothing valid to write.
+    // them mode=enrollsb's auto-enroll path has nothing valid to write.
     "INSERT IGNORE INTO `pxeMenu` "
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
     . "VALUES "
@@ -5706,7 +5706,7 @@ $this->schema[] = [
     //
     // It is a foreign key to `tasks`.`taskID`, an int(11), but the column
     // was mediumtext. The values are numeric only because
-    // FOGController::save() coerces them on the way in -- a behaviour of the
+    // FOGController::save() coerces them on the way in -- a behavior of the
     // PHP layer, not a constraint of the database -- and three things follow
     // from the type:
     //
@@ -5878,7 +5878,7 @@ $this->schema[] = [
     // was working on it, and the host could not be re-tasked because it still
     // held an active task. Somebody had to notice and cancel it by hand.
     //
-    // Not reusing Cancelled (5), which was the alternative. Cancelled means
+    // Not reusing Canceled (5), which was the alternative. Canceled means
     // an administrator stopped it; losing the difference between "somebody
     // stopped this" and "this broke" costs the operator the one fact they are
     // looking at the task list to find.
@@ -6277,7 +6277,7 @@ $this->schema[] = [
     //
     // Inert at this step. Nothing writes either table and neither is in
     // Route::$validClasses, so this ships as storage and a setting and
-    // changes no behaviour anywhere. The writers arrive in later merges.
+    // changes no behavior anywhere. The writers arrive in later merges.
     //
     // Every column is named explicitly rather than derived, because a
     // schema step that does not name its columns has broken the
@@ -6290,7 +6290,7 @@ $this->schema[] = [
     // and it is the reason that table cannot be trusted -- two identical
     // actions in the same second collapse into one row, silently, through
     // save()'s INSERT ... ON DUPLICATE KEY UPDATE. An audit trail that
-    // discards a row because it resembles its neighbour is not one. The
+    // discards a row because it resembles its neighbor is not one. The
     // volume argument that key was invented for is answered by retention
     // (FOG_AUDIT_RETENTION_DAYS below) and by not auditing reads at all.
     //
@@ -6490,7 +6490,7 @@ $this->schema[] = [
     // WHY THIS CANNOT BREAK A WORKING WRITE. An INSERT that names the column
     // is unaffected; a default applies only to an omitted column. An INSERT
     // that omits it currently FAILS outright on a strict server, so there is
-    // no working behaviour to change. On a non-strict server it currently
+    // no working behavior to change. On a non-strict server it currently
     // gets the server's implicit coercion -- and the defaults chosen here are
     // exactly that coercion ('' for text, 0 for integers, the first member
     // for an enum), which is the same rule FOGBase::emptyValueFor() applies.
@@ -7332,7 +7332,7 @@ $this->schema[] = [
     // An opt-out, not an opt-in. ICMP is the better probe -- it asks "is
     // this machine up" rather than "does this machine run the one service
     // we guessed at" -- so it is on by default and a server that wants the
-    // old behaviour turns it off.
+    // old behavior turns it off.
     //
     // The reason to have the switch at all is that a fleet-wide echo sweep
     // every PINGHOSTSLEEPTIME seconds looks like a host sweep to an IDS,
@@ -7906,7 +7906,7 @@ $this->schema[] = [
     // `archIsAccess` is `taskTypes.ttIsAccess` wearing different values. There
     // it says whether a task type may be started from a host, from a group, or
     // from both; here it says whether an architecture may be picked on a host,
-    // on an image, or on both. It is what makes the table worth normalising
+    // on an image, or on both. It is what makes the table worth normalizing
     // rather than just adding a CHECK constraint: an architecture FOS can
     // capture but no host in this fleet can boot (or the reverse) is a real
     // state, and the flag is where an admin says so.

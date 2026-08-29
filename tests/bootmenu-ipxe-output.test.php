@@ -521,7 +521,7 @@ if ($broken) {
 }
 
 /*
- * Behaviour checks the golden cannot express.
+ * Behavior checks the golden cannot express.
  *
  * Each renders a scenario and asserts on something other than the exact bytes:
  * what a plugin was handed, whether a plugin's value survived, or whether a
@@ -794,14 +794,14 @@ foreach ($checks as $label => $check) {
     }
 }
 if ($checkFailures) {
-    fwrite(STDERR, "\nFAIL: behaviour checks\n");
+    fwrite(STDERR, "\nFAIL: behavior checks\n");
     foreach ($checkFailures as $f) {
         fwrite(STDERR, "  $f\n");
     }
     exit(1);
 }
 printf(
-    "bootmenu-ipxe-output: %d behaviour checks passed\n",
+    "bootmenu-ipxe-output: %d behavior checks passed\n",
     count($checks)
 );
 

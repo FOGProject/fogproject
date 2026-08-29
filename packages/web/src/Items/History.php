@@ -145,7 +145,7 @@ class History extends FOGController
      *     boundary instead.
      *   - a TYPE_LOG row, which has no subject: FOGBase::log() takes a
      *     string and has no object in hand.
-     *   - a type this does not recognise, which is what a plugin writing
+     *   - a type this does not recognize, which is what a plugin writing
      *     its own code looks like.
      *
      * The failure types deliberately do not try to carry the error text.
@@ -154,7 +154,7 @@ class History extends FOGController
      *
      * The subject's class is NOT translated. It is an identifier, it is
      * what the prose has always shown, and it is not in any message
-     * catalogue.
+     * catalog.
      *
      * @param array $row The raw database row.
      *
@@ -172,7 +172,7 @@ class History extends FOGController
         }
         $class = ucfirst($class);
         // Each arm spells its whole msgid out. A format string built from a
-        // variable never reaches the catalogue -- xgettext reads source, not
+        // variable never reaches the catalog -- xgettext reads source, not
         // runtime -- so the sentence has to be a literal per case.
         if ('' !== $label) {
             switch ($type) {

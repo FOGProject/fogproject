@@ -31,7 +31,7 @@ class MACAddress extends FOGBase
      *
      * Accepts the three formats a mac may arrive in: colon or hyphen
      * separated octets, twelve bare hex digits, or dot separated quads.
-     * Public so code that needs to recognise a mac without building a
+     * Public so code that needs to recognize a mac without building a
      * MACAddress (see FOGBase::stripAndDecodeMac) shares this one definition.
      *
      * @var string

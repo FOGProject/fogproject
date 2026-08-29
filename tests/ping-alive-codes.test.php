@@ -204,7 +204,7 @@ if (is_callable($badge)) {
     };
 
     check(
-        'code 0 renders as Online, in the success colour',
+        'code 0 renders as Online, in the success color',
         false !== strpos($render(0), 'Online')
         && false !== strpos($render(0), 'bg-success'),
         $failures,

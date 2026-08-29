@@ -636,10 +636,10 @@ class Schema extends FOGController
      * which tinyint refuses, so without it the upgrade fails hard on exactly
      * the databases that most need repairing.
      *
-     * Nullability and default are read from the catalogue and carried across
+     * Nullability and default are read from the catalog and carried across
      * rather than assumed -- LDAPServers.lsAllowAPI is nullable and
      * lsUseGroupMatch has no default at all, and rewriting either would be a
-     * behaviour change smuggled in by a type change.
+     * behavior change smuggled in by a type change.
      *
      * Re-running is a read: a column that is not still exactly
      * enum('0','1') is skipped, so a converted column is left alone and so is
@@ -677,7 +677,7 @@ class Schema extends FOGController
                     && 0 === strcasecmp((string) $row['n'], 'YES');
                 // MariaDB reports a string default quoted ('1') and reports
                 // "no default" as SQL NULL; MySQL 8 reports the member
-                // unquoted. Trimming the quotes normalises both.
+                // unquoted. Trimming the quotes normalizes both.
                 $raw = $row['d'];
                 $hasDefault = null !== $raw
                     && 0 !== strcasecmp((string) $raw, 'NULL');

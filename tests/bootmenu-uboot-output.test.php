@@ -286,7 +286,7 @@ if ($fails) {
     exit(1);
 }
 
-printf("bootmenu-uboot-output: %d behaviour checks passed\n", count($expect));
+printf("bootmenu-uboot-output: %d behavior checks passed\n", count($expect));
 
 $expected = file_get_contents($golden);
 if ($expected === $actual) {

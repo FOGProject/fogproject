@@ -302,7 +302,7 @@ abstract class TaskingElement extends FOGBase
         // Cancellation reaches the tasks table through Task::cancel() and
         // TaskManager::cancel(), neither of which has a TaskingElement, and so
         // wrote no row at all -- leaving In-Progress as the last thing the log
-        // ever said about a cancelled task.
+        // ever said about a canceled task.
         //
         // recordState() resolves the host from the task instead of from
         // self::$Host. For this caller they are the same host; for the cancel

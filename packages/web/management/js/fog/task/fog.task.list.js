@@ -79,7 +79,7 @@
     return $('#active-tasks-table').registerTable(paneOnSelect(pane), {
       // Infinite-scroll (Scroller) for UI consistency with the other lists, but
       // with deferRender explicitly OFF for this table only. It polls every 5s and
-      // frequently transitions to zero rows (task cancelled/completed); with
+      // frequently transitions to zero rows (task canceled/completed); with
       // deferRender on, DataTables caches the last window's row node and Scroller
       // leaves it -- striped progress bar and all -- orphaned in the fixed-height
       // scroll body on the empty draw, beneath "No data available in table".

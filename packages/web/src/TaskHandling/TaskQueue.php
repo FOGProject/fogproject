@@ -44,8 +44,8 @@ class TaskQueue extends TaskingElement
      *
      * If the host's most recent matching-type task is already in the Complete
      * state and was checked in recently, reply with '##' (the success token
-     * the client waits for) and stop. Genuinely cancelled tasks move to the
-     * Cancelled state - not Complete - so real cancellations still fall
+     * the client waits for) and stop. Genuinely canceled tasks move to the
+     * Canceled state - not Complete - so real cancellations still fall
      * through and error exactly as before.
      *
      * Must be static: it is called before TaskQueue is constructed, because
@@ -589,7 +589,7 @@ class TaskQueue extends TaskingElement
         // image captured before schema step 370 is already in.
         //
         // The id copies straight across (schema step 372): both sides point
-        // at the same `architectures` row, so there is nothing to normalise
+        // at the same `architectures` row, so there is nothing to normalize
         // here any more and no way for the two to spell it differently.
         $capturedArchID = (int)self::$Host->get('archID');
         if ($capturedArchID > 0) {

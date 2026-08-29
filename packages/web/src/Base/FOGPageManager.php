@@ -152,7 +152,7 @@ class FOGPageManager extends FOGBase
                 // below, which called get_class($class) with $class still
                 // unassigned -- on PHP 8 a TypeError, uncaught, so an unknown
                 // node returned a bare HTTP 500 with an empty body. Matching
-                // the old 308-to-dashboard keeps the behaviour users and any
+                // the old 308-to-dashboard keeps the behavior users and any
                 // stale bookmarks already expect.
                 self::redirect('../management/index.php');
             }

@@ -20,7 +20,7 @@
  *   account reaching a break-glass path still made this particular session
  *   somehow, and that is the fact being recorded here.
  *
- * The behavioural half of establishSession() cannot be exercised without a
+ * The behavioral half of establishSession() cannot be exercised without a
  * database -- it writes a history row and runs the logged-in bookkeeping --
  * so the pure part was pulled out into User::normalizeAuthSource() and is
  * tested for real below. The rest is pinned statically.
@@ -94,7 +94,7 @@ function methodSource($file, $method)
 }
 
 // 1. establishSession() stamps the session with the provenance, and does it
-//    through the normaliser rather than with whatever it was handed.
+//    through the normalizer rather than with whatever it was handed.
 $body = methodSource($userFile, 'establishSession');
 if (null === $body) {
     $fails[] = 'User::establishSession() is missing';
@@ -113,7 +113,7 @@ if (null === $body) {
 }
 
 // 2. validatePw() must still call establishSession() with no argument. That
-//    default is the whole no-behaviour-change claim for the password path:
+//    default is the whole no-behavior-change claim for the password path:
 //    every existing caller keeps the meaning it already had.
 $pw = methodSource($userFile, 'validatePw');
 if (null !== $pw && false === strpos($pw, 'establishSession()')) {
@@ -140,7 +140,7 @@ if (null !== $out
 }
 
 /*
- * 4. The normaliser, for real. Booting the autoloader is enough to reach it
+ * 4. The normalizer, for real. Booting the autoloader is enough to reach it
  *    -- Initiator's constructor only registers the autoloader, and this is
  *    a pure static method, so no database is involved. FOG_CACHE_DIR and
  *    friends are redirected into a throwaway directory first; see the long

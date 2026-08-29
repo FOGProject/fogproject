@@ -42,7 +42,7 @@
 # that its own documentation satisfies is not a gate. (Same failure the
 # no-session-for-browserless and network-fetch-bounded gates hit.)
 #
-# No root, no network, no FOG install. The behavioural section builds a
+# No root, no network, no FOG install. The behavioral section builds a
 # throwaway CA in a temp directory and points $fogprogramdir at it.
 #
 # Exit status 0 = pass, 1 = fail.
@@ -248,7 +248,7 @@ else
 fi
 
 echo
-echo "4. the helper behaves (behavioural)"
+echo "4. the helper behaves (behavioral)"
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT

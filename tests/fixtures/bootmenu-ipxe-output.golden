@@ -189,7 +189,7 @@ echo be ready before it appears.
 echo If it is not listed there, have MOK.der on a
 echo FAT-formatted USB stick in this machine instead.
 sleep 8
-chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrolment menu. && sleep 5 && goto MENU
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrollment menu. && sleep 5 && goto MENU
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
@@ -262,7 +262,7 @@ echo be ready before it appears.
 echo If it is not listed there, have MOK.der on a
 echo FAT-formatted USB stick in this machine instead.
 sleep 8
-chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrolment menu. && sleep 5 && goto MENU
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrollment menu. && sleep 5 && goto MENU
 :fog.enrollsecurebootunattended
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
 imgfetch init.xz
@@ -1011,7 +1011,7 @@ echo be ready before it appears.
 echo If it is not listed there, have MOK.der on a
 echo FAT-formatted USB stick in this machine instead.
 sleep 8
-chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrolment menu. && sleep 5 && goto MENU
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrollment menu. && sleep 5 && goto MENU
 :fog.enrollsecurebootunattended
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
 imgfetch init.xz

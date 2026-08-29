@@ -90,7 +90,7 @@ if ($handlers !== count($m[1])) {
     fwrite(STDERR, "FAIL: parser missed a route registration\n");
     fwrite(STDERR, "  handler arrays: $handlers, names read: " . count($m[1]) . "\n");
     fwrite(STDERR, "  A route is probably registered in a shape this test does\n");
-    fwrite(STDERR, "  not recognise. Fix the pattern here, not the router.\n");
+    fwrite(STDERR, "  not recognize. Fix the pattern here, not the router.\n");
     exit(1);
 }
 if (count($served) < 1) {

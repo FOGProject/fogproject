@@ -31,7 +31,7 @@ consulted *after* the verb check has already passed. Core owns the seam; the
   `$id < 1` (list/create/mass — nothing to scope yet), true for unrestricted
   users, otherwise fires the `OBJECT_SCOPE_CHECK` hook with a
   `&$allowed` (default true) and returns it. With no listener the boundary
-  does not exist and behaviour is unchanged.
+  does not exist and behavior is unchanged.
 - "Unrestricted" (`Authorization::isUnrestricted`) = an implicit admin (no
   role) **or** a holder of global `*`. These bypass scoping entirely.
 - Four choke points enforce it:

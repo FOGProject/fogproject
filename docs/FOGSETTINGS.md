@@ -199,7 +199,7 @@ This branch exists because the merge above *cannot* do that run. On it every old
 key is deprecated and every new key is absent, so the merge would strip all 79
 lines and append 66 at the end: the category blocks and the `## Derived` marker
 would describe nothing, and the file would read as a pile of appended keys after
-its own footer. The rewrite carries every **unrecognised** line through into a
+its own footer. The rewrite carries every **unrecognized** line through into a
 trailing section — hand-set keys and an admin's own comments survive only because
 something preserves what it does not manage, and a plain fresh write does not.
 
@@ -290,7 +290,7 @@ disabled one.
 `_normalizeBool()` maps `yes|y|1|true|on|enabled` and the negatives, in any
 case, onto `yes`/`no`. Two things it deliberately does not do:
 
-- **An unrecognised value is left alone**, not guessed at. Turning a typo into
+- **An unrecognized value is left alone**, not guessed at. Turning a typo into
   `no` is how a deliberate setting disappears with nothing to show why.
 - **Empty stays empty.** The prompt loops are `while [[ -z ${KEY} ]]`, so
   collapsing unset into `no` would stop every prompt firing.

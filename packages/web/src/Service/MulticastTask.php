@@ -688,7 +688,7 @@ class MulticastTask extends FOGService
             // one directly, which is what guarantees two sessions cannot
             // land on the same address. Without a pool this falls back to
             // deriving an offset from the portbase, wrapped by the session
-            // cap -- the historical behaviour, and the reason
+            // cap -- the historical behavior, and the reason
             // FOG_MULTICAST_MAX_SESSIONS ended up doubling as a modulus.
             $pool = MulticastSession::portPool();
             $index = array_search((int)$this->getPortBase(), $pool, true);
@@ -1048,7 +1048,7 @@ class MulticastTask extends FOGService
         // MulticastTask, so any subclass override is silently ignored. No
         // subclass ships today, but it makes the method untestable in
         // isolation -- an override is skipped and the real one queries
-        // whatever session is loaded. Behaviour in the daemon is unchanged.
+        // whatever session is loaded. Behavior in the daemon is unchanged.
         $partid = $this->getPartitions();
         if ($partid < 1) {
             $filelist = array_values((array)$filelist);
@@ -1228,7 +1228,7 @@ class MulticastTask extends FOGService
     /**
      * Clears the persisted sender ownership for this session.
      *
-     * Called once the sender is gone (killed, completed or cancelled) so
+     * Called once the sender is gone (killed, completed or canceled) so
      * startup reconciliation does not later mistake a stale row for a live
      * orphan. senderstart is deliberately left alone: nothing reads it while
      * senderpid is 0, and keeping it records when the sender last ran.

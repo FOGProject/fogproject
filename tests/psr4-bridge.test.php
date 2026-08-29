@@ -21,7 +21,7 @@
  *   3. A plugin shipping class/probealpha.class.php STILL cannot answer a
  *      bare `ProbeAlpha`. Core is not in the classMap, so that plugin file
  *      is the only candidate for the key and would win outright -- the
- *      autoloader recognises the name as core's and refuses rather than
+ *      autoloader recognizes the name as core's and refuses rather than
  *      falling through. Losing that is a privilege escalation with no other
  *      symptom, and note it is now a REFUSAL rather than a preference: the
  *      old ordering guarantee has nothing left to order.

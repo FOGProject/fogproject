@@ -1014,7 +1014,7 @@ class Group extends FOGController
                 // absent and the task lands with a jobID of 0 -- and range()
                 // makes that worse, because range(0, -1) counts DOWN and hands
                 // back [0, -1]. A task is only reachable through its job, so
-                // such a row can never be shown, run or cancelled; it just
+                // such a row can never be shown, run or canceled; it just
                 // sits there, and until #895 it took the snapin task list down
                 // with it. One jobID-0 row on the 1.6 lab box is what put us
                 // onto this.

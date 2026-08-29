@@ -57,7 +57,7 @@ $results = [];
 /**
  * Record one assertion and echo its result.
  *
- * Named uniquely rather than check(): tests/ is analysed as one program by
+ * Named uniquely rather than check(): tests/ is analyzed as one program by
  * phpstan-tests.neon, and a global check() collides with the dozens of
  * other files that declare their own.
  *

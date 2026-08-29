@@ -7,7 +7,7 @@
  * Extracted verbatim from FOGPage so the controller base stops growing
  * without bound. A trait's methods compile into the using class exactly as
  * if declared there (same $this, same access to inherited statics like
- * self::$HookManager), so behaviour is identical and every existing call
+ * self::$HookManager), so behavior is identical and every existing call
  * site keeps resolving unchanged. The file carries the `.class.php` suffix
  * so the existing filename-keyed autoloader resolves `use FOGPagePost;`
  * with no autoloader change. Its basename is lowercase like every other

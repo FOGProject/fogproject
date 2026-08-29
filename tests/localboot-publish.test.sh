@@ -45,7 +45,7 @@
 #      and the binary in each archive matches the arch the archive is named for.
 #   4. The degraded shapes still produce something useful rather than failing:
 #      an HTTPS-only install stages no secureboot/, and a server may hold no
-#      enrolment material.
+#      enrollment material.
 #   5. _restampIpxeManifest keeps .fog-ipxe-manifest matching the bytes on disk
 #      after signing rewrites them. Without it _copyIpxeTree reports all 45
 #      .efi as admin-modified on the SECOND install of a Secure Boot server and
@@ -278,7 +278,7 @@ is "$(mq "$MAN" paths | tr '\n' ' ')" \
    "fog-esp-arm64${EXT} fog-esp-i386${EXT} fog-esp-x86_64${EXT} " \
    "one archive per architecture, and no delay variants"
 
-# Nothing loose. The whole point of the reorganisation.
+# Nothing loose. The whole point of the reorganization.
 is "$(find "$BOOT" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')" "0" \
    "the published directory has no subdirectories at all"
 is "$(find "$BOOT" -name '*.efi' | wc -l | tr -d ' ')" "0" \
@@ -376,7 +376,7 @@ is "$(cat "$X/secureboot-fog/snponly.efi")" "ipxe.efi" \
 is "$(cat "$X/secureboot-fog/snponly-shimx64.efi")" "secureboot/snponly-shimx64.efi" \
    "secureboot-fog/ still carries upstream's real shims"
 [[ -f $X/secureboot-fog/mmx64.efi && -f $X/secureboot-fog/MOK.der ]] \
-    && ok "secureboot-fog/ carries MokManager and MOK.der, so enrolment is possible from it"
+    && ok "secureboot-fog/ carries MokManager and MOK.der, so enrollment is possible from it"
 is "$(cat "$X/fog-ipxe/fogsnponly.efi")" "snponly.efi" \
    "FOG's snponly ships under the fog prefix in fog-ipxe/ instead"
 
@@ -516,8 +516,8 @@ for s in autoexec.ipxe fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe;
 done
 is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot-upstream/snponly-shimx64.efi)" "shim" \
    "the shim is still described as a shim from its new path"
-is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot-upstream/MOK.der)" "enrolment-cert" \
-   "MOK.der is still described as the enrolment certificate from its new path"
+is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" secureboot-upstream/MOK.der)" "enrollment-cert" \
+   "MOK.der is still described as the enrollment certificate from its new path"
 is "$(mq "$MAN" filerole "fog-esp-x86_64${EXT}" refind/refind.efi)" "chainloader" \
    "rEFInd is described as the local-boot chainloader"
 is "$(mq "$MAN" filesigned "fog-esp-x86_64${EXT}" refind/refind.conf)" "False" \
@@ -692,16 +692,16 @@ fi
 is "$(cat "$WORK/nostock/fog-ipxe/fogipxe.efi" 2>/dev/null)" "ipxe.efi" \
    "without a rebuild fog-ipxe/ takes the tree root, which is then the generic set"
 
-# --- a server with no enrolment material at all ------------------------------
+# --- a server with no enrollment material at all ------------------------------
 mk_web "$webdirdest" no
 _publishLocalBootFiles >/dev/null
-is "$(mq "$MAN" count)" "3" "a server publishing no enrolment material still succeeds"
+is "$(mq "$MAN" count)" "3" "a server publishing no enrollment material still succeeds"
 rm -rf "$WORK/e"; extract "$BOOT/fog-esp-x86_64${EXT}" "$WORK/e"
 E="$WORK/e"
 if [[ -e $E/secureboot-upstream/MOK.der || -e $E/secureboot-upstream/db.auth ]]; then
-    bad "enrolment material appeared on a server that publishes none"
+    bad "enrollment material appeared on a server that publishes none"
 else
-    ok "no enrolment material when the server has none to give"
+    ok "no enrollment material when the server has none to give"
 fi
 [[ -f $E/fog-ipxe/fogipxe.efi ]] && ok "the boot binaries ship regardless"
 

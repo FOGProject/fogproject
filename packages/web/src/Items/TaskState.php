@@ -132,7 +132,7 @@ class TaskState extends FOGController
         return $completeState;
     }
     /**
-     * Gets the literal cancelled stated
+     * Gets the literal canceled stated
      *
      * @return int
      */
@@ -154,8 +154,8 @@ class TaskState extends FOGController
      * and the host could not be re-tasked because it still held an active
      * task.
      *
-     * Not Cancelled, which was the alternative and is the one thing this
-     * must not be confused with -- Cancelled means an administrator stopped
+     * Not Canceled, which was the alternative and is the one thing this
+     * must not be confused with -- Canceled means an administrator stopped
      * it. Losing the difference between "somebody stopped this" and "this
      * broke" is exactly the distinction an operator needs at the moment
      * they are looking at the task list.

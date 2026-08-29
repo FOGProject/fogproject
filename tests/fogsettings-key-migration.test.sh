@@ -183,7 +183,7 @@ harness() {
         [ "$mode" = "skip" ] || migrateDeprecatedKeys
 
         # Step 4a: what doOSSpecificIncludes does with FOG_os_id. Same shape as
-        # the real case statement -- a recognised id picks a distro, anything
+        # the real case statement -- a recognized id picks a distro, anything
         # else is the "Sorry, answer not recognized" arm.
         case ${FOG_os_id} in
             1) distro="Redhat"; webdirdest="${WEB_docroot}fog/"; tftpdirdst="/tftpboot" ;;
@@ -233,7 +233,7 @@ IFS='|' read -r distro guard osid osname iface dbuser docroot guard_glob <<EOF
 $out
 EOF
 
-is  'old format: the distro is recognised'          "$distro" "Redhat"
+is  'old format: the distro is recognized'          "$distro" "Redhat"
 is  'old format: FOG_os_id migrates from $osid'     "$osid"   "1"
 is  'old format: FOG_os_name migrates from $osname' "$osname" "Redhat"
 is  'old format: NET_interface migrates'            "$iface"  "eno1"
@@ -254,7 +254,7 @@ IFS='|' read -r distro guard osid osname iface dbuser docroot guard_glob <<EOF
 $(harness "$tmp/new.fogsettings")
 EOF
 
-is  'new format: the distro is recognised'  "$distro" "Redhat"
+is  'new format: the distro is recognized'  "$distro" "Redhat"
 is  'new format: FOG_os_id is untouched'    "$osid"   "1"
 is  'new format: DB_user is untouched'      "$dbuser" "fogmaster"
 is  'new format: WEB_docroot is untouched'  "$docroot" "/var/www/html/"
@@ -291,7 +291,7 @@ is  'the guarded form does not'                                     "$guard"    
 # The consumer is doOSSpecificIncludes, which cases on ${FOG_os_id} -- not
 # merely the first line that MENTIONS the key. installfog.sh defaults
 # FOG_os_id to "" near its top, long before .fogsettings is read, and that is
-# an initialisation rather than a read of a migrated value. Anchoring on the
+# an initialization rather than a read of a migrated value. Anchoring on the
 # real consumer keeps this lint precise instead of merely strict.
 # ---------------------------------------------------------------------------
 

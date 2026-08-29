@@ -170,7 +170,7 @@ case ${FOG_install_type} in
                 *)
                     # Cleared so the loop re-prompts. Before the read targeted
                     # this key it was always empty here and always matched ""
-                    # above, so an unrecognised answer could not survive; now it
+                    # above, so an unrecognized answer could not survive; now it
                     # can, and a non-empty one would end the loop.
                     DHCP_enabled=""
                     echo "  Invalid input, please try again."
@@ -268,7 +268,7 @@ case ${FOG_install_type} in
                     ;;
                 *)
                     # See the DHCP_enabled loop above: cleared so an
-                    # unrecognised answer re-prompts instead of ending the loop.
+                    # unrecognized answer re-prompts instead of ending the loop.
                     FOG_install_lang=""
                     echo "  Invalid input, please try again."
                     ;;
@@ -311,5 +311,5 @@ esac
 # consequences instead of hidden behind one yes/no. Two prompts covering the
 # same ground could also contradict each other.
 #
-# (The old text pointed at wiki.fogproject.org, which has been retired in favour
+# (The old text pointed at wiki.fogproject.org, which has been retired in favor
 # of docs.fogproject.org.)

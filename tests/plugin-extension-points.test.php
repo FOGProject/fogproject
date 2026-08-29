@@ -83,7 +83,7 @@ $cache->setAccessible(true);
  *
  * @param array $routes Declarations as a plugin would supply them.
  *
- * @return array Normalised routes, keyed by their registered name.
+ * @return array Normalized routes, keyed by their registered name.
  */
 $offer = function (array $routes) use ($stub, $cache) {
     $stub->routes = $routes;
@@ -187,7 +187,7 @@ foreach (['ext:silent', 'ext:guarded', 'ext:callback'] as $name) {
     }
 }
 if (isset($got['ext:guarded']) && 'POST' !== $got['ext:guarded']['method']) {
-    $fails[] = 'method was not normalised to upper case';
+    $fails[] = 'method was not normalized to upper case';
 }
 foreach (['ext:silent', 'ext:typo', 'ext:paramPublic'] as $name) {
     if (isset($got[$name]) && 'required' !== $got[$name]['auth']) {

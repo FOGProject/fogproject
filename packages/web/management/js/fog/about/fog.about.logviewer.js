@@ -103,7 +103,7 @@
     getLogData(ip, file, selectedLines, reverseChecked);
   });
 
-  // Pause/resume the tail. One button, relabelled by the shared helper.
+  // Pause/resume the tail. One button, relabeled by the shared helper.
   $.registerReloadToggle(reloadToggle, {
     onPause: function() {
       if (logTimer) {

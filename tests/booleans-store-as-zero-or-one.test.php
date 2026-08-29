@@ -14,7 +14,7 @@
  * with STRICT_TRANS_TABLES.
  *
  * It is GH-1245 arriving by a different door. save()'s emptyValueFor() only
- * recognises null and '' as empty, so a boolean walks past it untouched; and
+ * recognizes null and '' as empty, so a boolean walks past it untouched; and
  * the two builders in FOGManagerController called trim() first, which casts
  * before it trims, so false was already '' by the time it reached the binder.
  * The manager path is the one that ends every imaging task -- TaskQueue does
@@ -25,7 +25,7 @@
  * ->set() calls that currently pass a boolean would go green the moment
  * someone wrote another one, which is precisely how this arrived.
  *
- *   1. PDODB::_bind() normalises a boolean, as a STRING, before binding.
+ *   1. PDODB::_bind() normalizes a boolean, as a STRING, before binding.
  *   2. It does not reach for PDO::PARAM_BOOL/PARAM_INT to do it: bound as an
  *      integer, 0 against an ENUM is an *index*, and index 0 is the error
  *      value -- the same trap Schema::defaultLiteral() exists for.
@@ -35,7 +35,7 @@
  *      the boolean survives as far as the binder.
  *
  * DB-free: this reads the source, like insertbatch-required-columns. The
- * behaviour is proved against a live strict server, through the real ORM,
+ * behavior is proved against a live strict server, through the real ORM,
  * by background_scripts/prove_boolean_column_writes.php.
  *
  * Usage: php tests/booleans-store-as-zero-or-one.test.php
@@ -100,7 +100,7 @@ $ctlSrc = bStripComments(
     )
 );
 
-// --- 1. the binder normalises, and does it before bindValue() -------------
+// --- 1. the binder normalizes, and does it before bindValue() -------------
 $bindBody = '';
 if (preg_match(
     '#private static function _bind\([^)]*\)\s*\{(.*?)\n    \}#s',
@@ -128,7 +128,7 @@ bcheck(
 $boolPos = strpos($bindBody, 'is_bool($value)');
 $callPos = strpos($bindBody, 'bindValue(');
 bcheck(
-    'PDODB::_bind() normalises BEFORE it binds',
+    'PDODB::_bind() normalizes BEFORE it binds',
     $boolPos !== false && $callPos !== false && $boolPos < $callPos,
     $failures,
     $checks

@@ -29,7 +29,7 @@
  * a real "no subject" (ADR 0021), multicastSessions.msSenderPID defaults to 0
  * meaning "not running", and nfsFailures.nfDateTime defaults to the current
  * timestamp. In each the default is unreachable through the ORM, which
- * refuses the write first, so it is defence in depth rather than a hole.
+ * refuses the write first, so it is defense in depth rather than a hole.
  * An earlier revision of this test failed on all four, which is how the
  * distinction got noticed.
  *

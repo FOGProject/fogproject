@@ -96,7 +96,7 @@ page class is still **required**, because that is how
 `loadPageClasses()` finds it.
 
 The error is legible rather than a class-not-found at the call site: the
-autoloader recognises a bare core name and says which FQCN to use.
+autoloader recognizes a bare core name and says which FQCN to use.
 
 ### The argument against nesting was wrong, and this is the correction
 
@@ -256,7 +256,7 @@ $this->childClass = preg_replace('#_?Manager$#', '', self::shortName($this));
 
 Under a flat namespace, `Host` + `'Manager'` gives `HostManager`, which resolves.
 Under a split one it gives `Model\HostManager`, which does not exist — on the
-most-travelled path in the ORM, run by every model and every manager.
+most-traveled path in the ORM, run by every model and every manager.
 
 That could be fixed, by teaching both derivations to move between namespaces.
 But doing so would *create* two new instances of the exact bug class Phase 3

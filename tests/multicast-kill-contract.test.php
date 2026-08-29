@@ -48,7 +48,7 @@ if (!defined('SIGTERM') || !defined('SIGKILL')) {
     exit(0);
 }
 // killAll() shells out to ps to walk the process tree, and returns without
-// signalling anything if it is missing.
+// signaling anything if it is missing.
 exec('command -v ps', $psOut, $psRet);
 if (0 !== $psRet) {
     fwrite(STDERR, "SKIP: no ps on PATH\n");

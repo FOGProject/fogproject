@@ -60,9 +60,9 @@ done
 # unset into "no" would stop every prompt firing and silently answer for the
 # admin.
 is "$(_normalizeBool "")" "" "empty stays empty (prompt loops depend on it)"
-# An unrecognised value is left alone rather than guessed at. Turning a typo
+# An unrecognized value is left alone rather than guessed at. Turning a typo
 # into "no" is how a deliberate setting disappears with nothing to show why.
-is "$(_normalizeBool "maybe")" "maybe" "an unrecognised value is left untouched"
+is "$(_normalizeBool "maybe")" "maybe" "an unrecognized value is left untouched"
 is "$(_normalizeBool "2")" "2" "an out-of-range number is left untouched"
 
 # --- C. idempotence ----------------------------------------------------------

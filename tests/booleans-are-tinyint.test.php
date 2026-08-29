@@ -158,7 +158,7 @@ btCheck(
 btCheck(
     'enumToTinyint() carries the column\'s nullability across rather than '
     . 'assuming NOT NULL -- LDAPServers.lsAllowAPI is nullable, and rewriting '
-    . 'that would be a behaviour change smuggled in by a type change',
+    . 'that would be a behavior change smuggled in by a type change',
     false !== strpos($method, 'IS_NULLABLE'),
     $failures,
     $checks

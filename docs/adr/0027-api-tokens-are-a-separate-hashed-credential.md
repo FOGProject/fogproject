@@ -117,7 +117,7 @@ that must reach the tokens.
 ## Alternatives considered
 
 **Hash `uAPIToken` in place.** Rejected. It stops the UI re-displaying the
-token, which is a behaviour change to a credential people rely on being able to
+token, which is a behavior change to a credential people rely on being able to
 re-read, and it forces the migration choice described above. It also conflates
 "make the API transport modern" with "make token storage safe" — two changes
 with different risk profiles.

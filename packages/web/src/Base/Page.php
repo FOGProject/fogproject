@@ -145,9 +145,9 @@ class Page extends FOGBase
      * The bar for this list is that the script has NO side effects at
      * execution time. jscolor.js deliberately is NOT here despite looking
      * similar: it scans the DOM for .jscolor inputs when it runs, so loading
-     * it once would leave the storage node edit page with no colour pickers
+     * it once would leave the storage node edit page with no color pickers
      * the second time it is opened. If in doubt, leave a script out -- the
-     * cost of being wrong is silent, and it is missing behaviour rather than
+     * cost of being wrong is silent, and it is missing behavior rather than
      * a visible error.
      *
      * @var array

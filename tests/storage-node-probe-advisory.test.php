@@ -134,7 +134,7 @@ if ($fallback === '') {
     $checks++;
     if (strpos($fallback, 'error_log(') === false) {
         $failures[] = '_fallbackNode() no longer logs, so a degraded pick is '
-            . 'silent -- which is the 1.5 behaviour this replaced';
+            . 'silent -- which is the 1.5 behavior this replaced';
     }
     $checks++;
     if (strpos($fallback, 'self::error(') !== false) {

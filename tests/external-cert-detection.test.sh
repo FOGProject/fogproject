@@ -102,7 +102,7 @@ out=$(_detectExternalCertManagement) && ok "D: fires on a leaf that does not cha
 #
 #    This one assertion is necessarily structural: it is about the ORDER
 #    createSSLCA consults things in, and the only way to observe that
-#    behaviourally is to run createSSLCA, which mints the vhost, writes under
+#    behaviorally is to run createSSLCA, which mints the vhost, writes under
 #    /etc and restarts services. The predicate itself is exercised for real
 #    below -- which is the part that used to be missing entirely.
 if awk '/Detect-then-LINK/,/_warnExternalCertTooling/' "$FUNCS" | grep -q '! _externallyManagedLeaf'; then
@@ -213,7 +213,7 @@ for k in PKI_web_vhost_cert PKI_web_vhost_key; do
 done
 
 # J. No prompt on the detect path. Under -y there is nobody to answer, and that
-#    is precisely the run that used to do the damage, so the safe behaviour must
+#    is precisely the run that used to do the damage, so the safe behavior must
 #    be the default rather than an answer to a question.
 if awk '/Detect-then-LINK/,/_warnExternalCertTooling/' "$FUNCS" | grep -qE '(^|[^_[:alnum:]])read($|[[:space:]])'; then
     bad "J: the detect path prompts, so an unattended run cannot benefit"

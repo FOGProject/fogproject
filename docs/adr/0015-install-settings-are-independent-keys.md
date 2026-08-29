@@ -18,7 +18,7 @@ visible, not less. Only the spellings moved.
 
 Nothing in its name says the last two, and an admin setting `-S/--force-https`
 was not choosing them. The bindings were an accident of implementation that
-hardened into behaviour, and each one caused a distinct failure:
+hardened into behavior, and each one caused a distinct failure:
 
 - `downloadipxe()` skipped the release asset on any HTTPS install, so such a
   server never had a pristine copy of the published binaries.

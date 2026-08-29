@@ -175,7 +175,7 @@ sh tests/run-all.sh
 
 ### PR B — the four-arm query
 
-`SiteScope::userSiteIDs()` only. This is the commit that changes behaviour, and
+`SiteScope::userSiteIDs()` only. This is the commit that changes behavior, and
 it is one method so a bisect lands on it.
 
 Extend `tests/site-scope.test.php`, which already asserts the **issued SQL and
@@ -245,7 +245,7 @@ can't-lose-access change in the same PR as a might-lose-access one.
 **None.** Two `CREATE TABLE IF NOT EXISTS` and no data movement — nothing is
 read, rewritten or deleted. A revert leaves two unused tables.
 
-There is no upgrade-day behaviour change: both tables start empty, every arm but
+There is no upgrade-day behavior change: both tables start empty, every arm but
 the first returns nothing, and `userSiteIDs()` answers exactly what it answers
 today until an administrator creates a grant.
 

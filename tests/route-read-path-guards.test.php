@@ -17,7 +17,7 @@
  * `return;` inserted above the refusal leaves all three in place.
  * `site-scope-lists.test.php` exercises `Authorization::scopedObjectIDs()`
  * exhaustively -- the SUPPLIER of scope ids -- and never names `Route`.
- * `listem-envelope.test.php` is a caller-side lint. So the behaviour was
+ * `listem-envelope.test.php` is a caller-side lint. So the behavior was
  * unpinned in exactly the file nobody can review by reading.
  *
  * This drives the real functions against `tests/lib/fog-test-harness.php`,
@@ -40,7 +40,7 @@
  *     `API_MASSDATA_MAPPING`. Section 6 stays green without it, because
  *     listem() already scoped. It only protects rows a plugin added in
  *     between -- so that is what section 6b asserts.
- *   - Pinning `stripSensitivePayload()`'s behaviour does not pin the
+ *   - Pinning `stripSensitivePayload()`'s behavior does not pin the
  *     emitter's CALL to it. That mutation went uncaught until `printer()`
  *     itself was driven through `asValue()`.
  *
@@ -621,7 +621,7 @@ $t->check(
 // lookups this DB-free fixture cannot serve. It no longer has to be: the
 // strip happens at the emitter now, over the class registry embed() fills
 // in, and stripSensitivePayload() takes plain arrays. So this is the real
-// behaviour rather than a regex over the shape of a line.
+// behavior rather than a regex over the shape of a line.
 //
 // Why the move: getter()'s per-level strip only ever reached embeds built
 // by recursing into getter(). The ones that were a plain ->get() -- task's
@@ -745,7 +745,7 @@ FogTestHarness::setStatic('Route', 'emitClassname', '');
  * And the EMITTER actually calls it. Everything above pins what
  * stripSensitivePayload() does; none of it notices if printer() stops calling
  * it, which is the whole failure mode this file was written for -- pinning a
- * function's behaviour is not pinning its use.
+ * function's behavior is not pinning its use.
  *
  * printer() ends the response, so it is driven through asValue(): with a
  * result wrapper on the stack sendResponse() raises instead of exiting, and
@@ -779,7 +779,7 @@ $t->check(
 
 /*
  * An UNSTAMPED payload is returned untouched. This is not an aspiration, it
- * is today's behaviour, and it is pinned deliberately: it is why SEC-1 --
+ * is today's behavior, and it is pinned deliberately: it is why SEC-1 --
  * ids() handing back any column named in the URL -- had to be closed at the
  * input rather than at the emitter. If this ever starts stripping, the
  * argument in docs/route-listem-plan.md's commit 0 changes and someone should
@@ -813,7 +813,7 @@ $t->check('an ordinary setting keeps its value', 'bzImage' === ($plainSetting['v
  * 6. Row side: the site boundary, driven end to end through listem().
  *
  *    Through listem() and not by calling _applySiteScope() directly, because
- *    a decomposition can preserve the behaviour of a method nobody calls any
+ *    a decomposition can preserve the behavior of a method nobody calls any
  *    more. That is the mutation this whole file exists for.
  *
  *    scopedObjectIDs() answers three ways and two of them are falsy:

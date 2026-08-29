@@ -9,7 +9,7 @@
 # at their own files -- the exception a model whose premise is "say where the
 # cert is" cannot have.
 #
-# Three behaviours, and the difference between them is the whole point:
+# Three behaviors, and the difference between them is the whole point:
 #
 #   half a pair          REFUSED. A certificate without its key locks out every
 #                        registered host, and the failure surfaces per host as a

@@ -38,7 +38,7 @@ if (!is_file($classFile)) {
 
 /*
  * BASEPATH decides which Secure Boot branches render: MOK.der gates the
- * attended enrol inside _enrollSecureBootChoice(), and PK/KEK/db.auth gate
+ * attended enroll inside _enrollSecureBootChoice(), and PK/KEK/db.auth gate
  * whether _filterMenus() shows the unattended one at all. Point it at a
  * scenario-owned temp directory so every combination is reachable without
  * touching a real install.

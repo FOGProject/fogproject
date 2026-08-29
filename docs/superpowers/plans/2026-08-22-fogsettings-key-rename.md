@@ -21,7 +21,7 @@ thing. **79 managed keys → 66.**
 **Architecture:** `.fogsettings` is *sourced*, so a key name **is** a shell
 variable name — the rename is necessarily a codebase-wide variable rewrite
 (753 references across just 25 of the 79 keys; expect 1000+ in total). That
-rewrite is the deliverable, not a cost to minimise. The organising idea is
+rewrite is the deliverable, not a cost to minimize. The organizing idea is
 `_linkCanonical()` (`lib/common/functions.sh`), already documented as *"Make $2
 resolve to $1, so FOG can keep referencing a fixed path while the real file lives
 wherever the admin keeps it."* Each setting names a **canonical path in FOG's own
@@ -46,7 +46,7 @@ Tests are standalone shell harnesses under `tests/`, run via `tests/run-all.sh`.
   sourced. Writing the real variable directly is silently discarded on upgrade —
   that bug has shipped at least three times (`-E`, `-s`/`-e`, `-S`).
 - Adding a key to `managedKeys` turns a hand-set key into a managed one, so the
-  admin's value starts being overwritten. That is a behaviour change even when it
+  admin's value starts being overwritten. That is a behavior change even when it
   looks like documentation.
 - Related: `docs/FOGSETTINGS.md` (mechanics and the four key kinds),
   `docs/adr/0015-install-settings-are-independent-keys.md`,
@@ -206,14 +206,14 @@ is back on the table. Not decided; flagged.
 ## Sequencing across sessions
 
 Real parallelism is narrow: the rename is concentrated in `functions.sh` and
-`installfog.sh`, and most behaviour changes land in `functions.sh` too. Splitting
+`installfog.sh`, and most behavior changes land in `functions.sh` too. Splitting
 the rename by category would have every session fighting the same file.
 
 | Track | Files | When |
 |---|---|---|
 | 1 — `-K`/`-C` client break | `functions.sh`, one function | **Merge before track 2 branches** |
 | 2 — mechanical rename | `functions.sh`, `installfog.sh`, `newinput.sh`, distro configs, tests | Alone |
-| 3 — behaviour changes | same | After 2 merges |
+| 3 — behavior changes | same | After 2 merges |
 | 4 — fog-docs | different repo | Fully parallel |
 | 5 — PHP whoami + OpenAPI | `route.class.php`, `openapi.class.php` | Parallel; contract is the five new pub-file names |
 
@@ -341,7 +341,7 @@ strips all 79 lines and appends 66 at the end. The category blocks and the
 as a pile of appended keys after its own footer.
 
 So a recognizable file carrying only pre-rename keys now gets a **one-time
-canonical rewrite**, which also carries every *unrecognised* line through. That
+canonical rewrite**, which also carries every *unrecognized* line through. That
 second half matters as much: hand-set keys (`inetConnectTimeout`,
 `storageLocationCapture`, `ftppasvmin`/`max`, `mcastportmin`/`max`) and an admin's
 own comments survive only because something preserves what it does not manage,
@@ -379,7 +379,7 @@ membership half of what it was for is covered properly instead:
 - `tests/fogsettings-migration.test.sh` (new) **extracts the seed block from the
   installer and evaluates it** rather than replaying it by hand, then runs
   `writeUpdateFile()` over a synthesized pre-rename file. A hand-copied replay is
-  how a test passes while the behaviour is wrong.
+  how a test passes while the behavior is wrong.
 - `tests/whoami-keys-in-step.test.php` (new) binds `Route::WHOAMI_KEYS` to the
   pub-file loop — `docs/FOGSETTINGS.md` said in as many words that nothing did.
 

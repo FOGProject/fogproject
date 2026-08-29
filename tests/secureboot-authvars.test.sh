@@ -149,7 +149,7 @@ grep -qx "$(sha256sum "$WORK/keys/KEK.der" | awk '{print $1}')" "$WORK/kcerts" |
 
 # --- 4. the signing chain the UEFI spec requires ---
 #
-# db must be authorised by KEK and KEK by PK, or this server can never update an
+# db must be authorized by KEK and KEK by PK, or this server can never update an
 # already-enrolled client's db again -- it would have stranded every machine it
 # enrolled. Checked by which signer certificate the PKCS#7 blob carries.
 python3 - "$WORK" > "$WORK/chain" 2>/dev/null <<'PY'

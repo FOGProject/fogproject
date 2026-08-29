@@ -181,7 +181,7 @@ if ($converted < MIN_CONVERTED) {
     $fail = true;
 }
 
-// The helper's own behaviour, on the two shapes every call site uses.
+// The helper's own behavior, on the two shapes every call site uses.
 require_once $root . '/packages/web/src/Base/FOGBase.php';
 
 $cases = [
@@ -215,7 +215,7 @@ if ($fail) {
 
 printf(
     "ok: %d derivation site(s) via shortName(), %d marked consumer(s), "
-    . "%d file(s) scanned, 6 behaviour case(s)\n",
+    . "%d file(s) scanned, 6 behavior case(s)\n",
     $converted,
     $consumers,
     count($files)

@@ -28,7 +28,7 @@
  * branch it did not know about, which is exactly how this arrived.
  *
  * DB-free: this reads the source, like insertbatch-required-columns. The
- * behaviour is proved against the live database by
+ * behavior is proved against the live database by
  * background_scripts/prove_batch_fk_guard.php and
  * background_scripts/prove_image_delete_cancels_tasks.php -- the second of
  * which fails on an unpatched tree, which is what makes it a gate.
@@ -224,7 +224,7 @@ check(
 );
 
 /*
- * TaskManager::cancel() rather than a bare state update: cancelling a task
+ * TaskManager::cancel() rather than a bare state update: canceling a task
  * also has to reissue the host's token, unwind any multicast session behind
  * it and record the transition in the task log. A state UPDATE does none of
  * those and looks identical in the list.

@@ -323,7 +323,7 @@ foreach ([['host', 'id'], ['host', 'name'], ['host', 'ip'], ['user', 'name']] as
  *     None of them error on the wrong shape. They read null and carry on,
  *     which is the failure mode getRows() was written to end.
  *
- *     Asserted behaviourally, against the same FakeDB: the row that comes
+ *     Asserted behaviorally, against the same FakeDB: the row that comes
  *     back is the SENTINEL the fake produced, so a wrapper that returned the
  *     envelope, an empty list, or a hard-coded value cannot pass.
  */

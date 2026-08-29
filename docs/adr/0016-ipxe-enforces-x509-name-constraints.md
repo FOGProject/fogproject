@@ -39,7 +39,7 @@ verifier FOG can patch, and UEFI firmware is not.
 table knows five extensions: `basicConstraints`, `keyUsage`, `extKeyUsage`,
 `authorityInfoAccess` and `subjectAltName`. `nameConstraints` is not among them,
 and `x509_parse_extension()` refuses any critical extension it does not
-recognise:
+recognize:
 
 ```c
 if ( ! extension ) {
@@ -78,7 +78,7 @@ The patch lives in `FOGProject/fog-ipxe` under `patches/`, applied by
 `buildipxe.sh` after its `git reset --hard`, against the pinned upstream tag.
 fog-ipxe overlays configuration onto a pristine upstream checkout rather than
 forking it; `patches/` is the one place a C change may live, and it earns that
-only when upstream cannot yet supply the behaviour and FOG cannot ship without
+only when upstream cannot yet supply the behavior and FOG cannot ship without
 it. Because the pin is a fixed tag the patch cannot rot between builds.
 
 ### Enforcement is per path, not per issuer
