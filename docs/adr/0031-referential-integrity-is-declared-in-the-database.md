@@ -10,17 +10,26 @@ sweep), 382 (host-owned junctions and satellites, 14 constraints), 383
 corrected), 386 (the `0` sentinel becomes NULL), 387 (a sweep for the one
 group 5 relationship that becomes a CASCADE), 388 (configuration references,
 12), 389 (a repair for the four rows group 6 cannot be declared over) and 390
-(tasks and work, 16). The five plugin groups -- location 4, ou 2, windowskey
-2, ldap 6, oidc 8 -- are declared in core's map and applied by a step in each
-plugin's own `schema()` in `FOGProject/fog-plugins`.
+(tasks and work, 16). The seven plugin groups -- location 4, ou 2,
+windowskey 2, ldap 6, oidc 8, capone 2, subnetgroup 1 -- are declared in
+core's map and applied by a step in each plugin's own `schema()` in
+`FOGProject/fog-plugins`.
 
-**89 of the map's 105 relationships are declared.** The other 16 are not
+**92 of the map's 108 relationships are declared.** The other 16 are not
 pending work: they carry action `none`, which the map's docblock defines as a
 decision rather than an omission. Nine are audit rows, which MUST NOT
 constrain the thing they record (ADR 0021, `schema.php` step 341); seven are
 polymorphic columns whose target table is chosen by a sibling column, where
 no constraint is expressible at all. Nothing in the map is waiting on a
 future step.
+
+`capone` and `subnetgroup` were added later than the other five, and only
+because they were looked for: the classification gate reads
+`commons/schema-expected.php`, which is 70 CORE tables, so nothing ever
+required a decision about a plugin table's id columns. `capone.cImageID`,
+`capone.cOSID` and `subnetgroup.sgGroupID` had simply never been classified.
+The gate that closes that lives in the plugin repo, which is the only side
+that knows its own tables -- see decision 8.
 
 The plan's step 6 -- `deletemass()` gaining `storagegroup`/`storagenode`
 cases -- was dropped after its step 5 (schema 384) measured it as
