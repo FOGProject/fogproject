@@ -185,8 +185,23 @@ class FogFakeDb
         'MAIN_MENU_DATA',
     ];
 
-    /** @var bool PDODB exposes this and DatabaseManager reads it. */
+    /**
+     * Last error, matching PDODB::$error: false when the statement
+     * succeeded, the driver's message when it did not. Typed the same way
+     * on purpose -- a fake that can only ever say "fine" cannot stand in
+     * for the real one in a test about what happens when it is not.
+     *
+     * @var bool|string
+     */
     public $error = false;
+
+    /**
+     * Last error code, matching PDODB::$errorCode. SchemaReconciler reads
+     * it to decide whether a failure is one of the tolerated duplicates.
+     *
+     * @var bool|int|string
+     */
+    public $errorCode = false;
 
     /** @var array every statement passed to query(), in order */
     public $log = [];
@@ -265,9 +280,20 @@ class FogFakeDb
         return 1;
     }
 
+    /**
+     * Row count the next affectedRows() reports.
+     *
+     * Settable because a sweep's only operator-visible evidence is the count
+     * in its log line, and a hardcoded 0 makes "swept nothing" and "never
+     * counted" indistinguishable from a test.
+     *
+     * @var int
+     */
+    public $affected = 0;
+
     public function affectedRows()
     {
-        return 0;
+        return (int)$this->affected;
     }
 
     public function sqlerror()

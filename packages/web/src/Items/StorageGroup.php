@@ -469,29 +469,39 @@ class StorageGroup extends FOGController
         return $this;
     }
     /**
-     * Removes nodes from this storage group
+     * Removes nodes from this storage group.
+     *
+     * A storage node always belongs to a group. A group may have no nodes;
+     * a node may not have no group -- it carries the hostname, credentials,
+     * paths and interface that a group is only a name for, and FOG has no
+     * way to read or replicate one that is in no group.
+     *
+     * This wrote `ngmGroupID = 0` and left the node exactly there: invisible
+     * in every group, still in the storage node list, and pointing at an
+     * nfsGroups row that has never existed. Schema step 388 declares the
+     * column ON DELETE RESTRICT, so the same write is now refused by the
+     * database at 1452 -- which is correct, but surfaces to the
+     * administrator as a raw SQL error with no explanation.
+     *
+     * So it is refused here instead, with the reason. Moving a node to
+     * another group is the operation that was wanted; it is `addNode()` on
+     * the destination, which rewrites ngmGroupID in one step and never
+     * passes through a group-less state.
      *
      * @param array $removeArray the nodes to remove
+     *
+     * @throws \Exception always
      *
      * @return object
      */
     public function removeNode($removeArray)
     {
-        self::getClass('StorageNodeManager')
-            ->update(
-                [
-                    'id' => $removeArray,
-                    'storagegroupID' => $this->get('id')
-                ],
-                '',
-                [
-                    'storagegroupID' => 0
-                ]
-            );
-        $this->loadAllnodes();
-        $this->loadEnabledNodes();
-        $this->loadUsedtasks();
-        return $this;
+        unset($removeArray);
+        throw new \Exception(
+            _('A storage node must belong to a storage group. Add it to the'
+            . ' group you want it in instead; that moves it, and a group'
+            . ' with no nodes left is fine.')
+        );
     }
     /**
      * Adds images to this object

@@ -448,6 +448,9 @@ msgstr "存储组中删除"
 msgid "A storage node already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
+msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
+msgstr ""
+
 #, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -1718,6 +1721,10 @@ msgstr "错误：无法下载内核"
 msgid "Confirm you would like to download a new kernel"
 msgstr "错误：无法下载内核"
 
+#, php-format
+msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
+msgstr ""
+
 #, fuzzy
 msgid "Copy from existing"
 msgstr "无法创建打印机"
@@ -1794,6 +1801,10 @@ msgstr "无法读取临时文件"
 #, fuzzy
 msgid "Could not read snapin file"
 msgstr "无法读取tmp文件。"
+
+#, fuzzy
+msgid "Could not read the database structure"
+msgstr "无法创建管理单元工作"
 
 msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
 msgstr ""
@@ -2230,6 +2241,10 @@ msgstr "删除所选"
 
 msgid "Deleted"
 msgstr "已删除"
+
+#, php-format
+msgid "Deleted %1$d multicast session(s) with no storage group"
+msgstr ""
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -3051,6 +3066,10 @@ msgstr ""
 
 msgid "Force"
 msgstr "力"
+
+#, fuzzy
+msgid "Foreign key preparation"
+msgstr "图像复制"
 
 #, fuzzy
 msgid "Forget selected"
@@ -6920,6 +6939,14 @@ msgstr "删除选定snapins"
 msgid "Removed"
 msgstr "去除"
 
+#, php-format
+msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Removing Key"
 msgstr "设置键"
@@ -6933,6 +6960,10 @@ msgstr ""
 #, fuzzy
 msgid "Rename or remove one of them."
 msgstr "无法更新任务"
+
+#, php-format
+msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
+msgstr ""
 
 #, fuzzy
 msgid "Replicates"
@@ -7132,6 +7163,9 @@ msgstr "管理单元运行带有参数"
 msgid "Run With interpreter."
 msgstr ""
 
+msgid "Run bin/fk-orphan-scan.php to find the rows."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "运行版本"
@@ -7241,6 +7275,9 @@ msgid "Schema reconcile"
 msgstr ""
 
 msgid "Schema row seed"
+msgstr ""
+
+msgid "Schema sweep"
 msgstr ""
 
 #, fuzzy
@@ -10274,6 +10311,10 @@ msgid "for user"
 msgstr ""
 
 #, fuzzy
+msgid "foreign key(s) could not be added"
+msgstr "无法读取临时文件"
+
+#, fuzzy
 msgid "found"
 msgstr "未找到"
 
@@ -10709,6 +10750,9 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "row(s)"
 msgstr ""
 
 #, fuzzy

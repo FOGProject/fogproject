@@ -618,7 +618,10 @@ class Group extends FOGController
                     ->set('logpath', $Image->get('path'))
                     ->set('image', $Image->get('id'))
                     ->set('interface', $StorageNode->get('interface'))
-                    ->set('stateID', 0)
+                    // A session that has not started names no state. NULL
+                    // rather than 0 since schema step 386 -- taskStates
+                    // has no row with tsID 0.
+                    ->set('stateID', null)
                     ->set('starttime', $now->format('Y-m-d H:i:s'))
                     ->set('percent', 0)
                     ->set('isDD', $Image->get('imageTypeID'))

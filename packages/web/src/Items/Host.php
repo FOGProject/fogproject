@@ -1116,6 +1116,24 @@ class Host extends FOGController
                                 ->set('hostID', $this->get('hostID'))
                                 ->set('name', _('Multiple Snapin -- orig Single'))
                                 ->set('typeID', TaskType::ALL_SNAPINS);
+                            // A task reached here is normally a NEW one --
+                            // the branch above cancels any live non-imaging
+                            // task and replaces it with an empty object, and
+                            // a live imaging task has already thrown. Three
+                            // fields and a save() therefore INSERTS, and
+                            // taskStateID was not among them: save()'s
+                            // optional-*id branch filled it with 0, which is
+                            // not a taskStates row, so the task never showed
+                            // in Active Tasks and never ran. Schema step 389
+                            // turns that into a visible 1452 rather than a
+                            // silent dud; this is the actual fix.
+                            //
+                            // Guarded rather than unconditional so that an
+                            // existing task being converted keeps whatever
+                            // state it is already in.
+                            if (!$Task->get('stateID')) {
+                                $Task->set('stateID', self::getQueuedState());
+                            }
                             if (!$Task->save()) {
                                 $serverFault = true;
                                 throw new \Exception(_('Unable to update task'));
@@ -1427,7 +1445,10 @@ class Host extends FOGController
                         ->set('logpath', $this->getImage()->get('path'))
                         ->set('image', $this->getImage()->get('id'))
                         ->set('interface', $StorageNode->get('interface'))
-                        ->set('stateID', 0)
+                        // A session that has not started names no state. NULL
+                        // rather than 0 since schema step 386 -- taskStates
+                        // has no row with tsID 0.
+                        ->set('stateID', null)
                         ->set('starttime', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('percent', 0)
                         ->set('isDD', $this->getImage()->get('imageTypeID'))

@@ -1941,7 +1941,10 @@ class ImageManagement extends FOGPage
             ->set('name', $sessionname)
             ->set('port', MulticastSession::allocatePort())
             ->set('image', $Image->get('id'))
-            ->set('stateID', 0)
+            // A session that has not started names no state. NULL
+            // rather than 0 since schema step 386 -- taskStates
+            // has no row with tsID 0.
+            ->set('stateID', null)
             ->set('sessclients', $sessioncount)
             ->set('isDD', $Image->get('imageTypeID'))
             ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
