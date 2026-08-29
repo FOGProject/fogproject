@@ -16,9 +16,9 @@
  *   - the permission. Reports share the `report` node by default, which is
  *     the defect ADR 0023 opens with; this one is task activity and must
  *     resolve to `task`. Getting that wrong widens access silently.
- *   - the menu label must be registered for xgettext, because the labels are
- *     built from filenames at runtime and a runtime-built msgid never
- *     reaches the catalog.
+ *   - the menu label must be a row in ReportManagement::reportTitles(),
+ *     because a label built from the file name at runtime is a msgid
+ *     xgettext never sees and a spelling nobody chose.
  *
  * What this canNOT check is that getList() RUNS. It did not, the first time:
  * `TaskStateManager->find()` does not exist in 1.6 and a call to it is a
@@ -75,7 +75,10 @@ $wanted = [];
 $at = strpos($js, "case '" . $label . "':");
 if (false !== $at) {
     $block = substr($js, $at, strpos($js, 'break;', $at) - $at);
-    if (preg_match_all("/\{data: '([a-zA-Z]+)'\}/", $block, $m)) {
+    // The key only; a column may also carry a render, and every one of
+    // these now does -- run labels come off the network and DataTables
+    // writes cell data as HTML without one.
+    if (preg_match_all("/\{data: '([a-zA-Z]+)'/", $block, $m)) {
         $wanted = $m[1];
     }
 }
@@ -113,14 +116,14 @@ $t->check(
 );
 
 /*
- * 4. The menu label reaches the catalog. The labels are built from
- *    filenames at runtime, so xgettext sees nothing unless the literal is
- *    written out in _reportNamesForTranslation().
+ * 4. The menu label is a row in ReportManagement's map rather than
+ *    ucwords() of the file name -- which is also what keeps the msgid in
+ *    the catalog, since a runtime-built one never reaches it.
  */
-$page = file_get_contents($web . '/lib/pages/reportmanagement.page.php');
+$titles = \FOG\ReportManagement::reportTitles();
 $t->check(
-    "the menu label is registered for xgettext",
-    false !== strpos($page, "_('Run History');")
+    'the menu label comes from ReportManagement::reportTitles()',
+    ($titles['run history'] ?? '') === _('Run History')
 );
 
 /*
@@ -153,19 +156,56 @@ $t->check(
  * window and answers a question nobody asked. Found in the lab, where the
  * two clocks were five hours apart and a task created seconds earlier did
  * not appear in a window ending "now".
+ *
+ * The parsing moved to ReportWindow when the Imaging Report needed the same
+ * three decisions (ADR 0030 decision 1), so the rules are pinned THERE and
+ * what is pinned here is that this report still goes through it. Pinning
+ * only the delegation would leave the rules unguarded; pinning only the
+ * class would not notice this report growing its own copy back.
  */
+$window = $web . '/src/Audit/ReportWindow.php';
+$t->check('the shared window parser exists', is_readable($window));
+$wsrc = is_readable($window) ? file_get_contents($window) : '';
+// Both bounds, anchored as whole expressions. A substring search for
+// `self::niceDate()` is satisfied by the START branch alone, so swapping
+// only the END branch to PHP's clock -- which is exactly the half-shifted
+// window the lab found -- would pass it.
 $t->check(
-    'the window uses niceDate(), FOG\'s clock',
-    false !== strpos($src, 'self::niceDate()')
+    'the END bound is built with niceDate(), FOG\'s clock',
+    1 === preg_match(
+        "/\\\$end = '' === \\\$given\['end'\]\s*\?\s*self::niceDate\(\)"
+        . "\s*:\s*self::niceDate\(\\\$given\['end'\]\);/",
+        $wsrc
+    )
 );
 $t->check(
-    'and does NOT fall back to PHP\'s date()/time() for the bounds',
-    false === strpos($src, 'return [date($fmt')
-    && false === strpos($src, '$e = time();')
+    'and so is the START bound, default included',
+    1 === preg_match(
+        "/\\\$start = '' === \\\$given\['start'\]\s*\?\s*"
+        . "self::niceDate\(\)->modify\(.*?\)\s*:\s*"
+        . "self::niceDate\(\\\$given\['start'\]\);/s",
+        $wsrc
+    )
+);
+$t->check(
+    'and no bound is constructed on PHP\'s clock instead',
+    false === strpos($wsrc, 'new \DateTime')
+    && false === strpos($wsrc, 'new \DateTimeImmutable')
+    && 1 !== preg_match('/[^_a-z]date\(/', $wsrc)
+    && 1 !== preg_match('/[^_a-z]time\(\)/', $wsrc)
 );
 $t->check(
     'a malformed bound is dropped rather than passed to BETWEEN',
-    false !== strpos($src, 'false === strtotime($v)')
+    false !== strpos($wsrc, 'false === strtotime($v)')
+);
+$t->check(
+    'reversed bounds are swapped rather than returned empty',
+    false !== strpos($wsrc, 'if ($start > $end)')
+);
+$t->check(
+    'this report reads its window through that parser, not its own copy',
+    false !== strpos($src, 'ReportWindow::stringsFromRequest(')
+    && false === strpos($src, 'strtotime($v)')
 );
 
 $t->finish();

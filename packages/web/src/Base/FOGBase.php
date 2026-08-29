@@ -1898,12 +1898,46 @@ abstract class FOGBase
         return self::humanify($diff / 31536000, 'year');
     }
     /**
+     * validDate(), expressed in SQL, for one column.
+     *
+     * The same question as validDate() asked of the server instead of of
+     * PHP, and here for the same reason: there is ONE definition of what an
+     * empty date is, and getting it half right -- NULL but not the zero
+     * date, or the other way round -- produces a plausible number rather
+     * than an error. Both spellings have to be covered because an upgraded
+     * server carries both until schema step 344 has run.
+     *
+     * Concatenated, not bound: a column name is not a value, so it cannot
+     * be a placeholder. Callers pass a literal column reference they wrote
+     * themselves -- never anything off a request.
+     *
+     * @param string $column a fully qualified, backtick-quoted column
+     *
+     * @return string a SQL boolean expression, already parenthesised
+     */
+    protected static function noDateSql($column)
+    {
+        return "($column IS NULL OR $column = '0000-00-00 00:00:00')";
+    }
+    /**
      * Checks if the time passed is valid or not.
+     *
+     * FALSY FOR EVERY FORM OF "no date": '', NULL, an unparseable string,
+     * and both spellings of the zero date ('0000-00-00' and
+     * '0000-00-00 00:00:00'). That makes it the one definition of what an
+     * empty date means, which is why
+     * tests/date-columns-nullable.test.php fails a 0000-00-00 literal
+     * written anywhere else.
+     *
+     * It returns a DateTime rather than true on the way through, so it
+     * reads as a predicate and is usable as one. The tag said `object`,
+     * which claimed it could never be falsy and made every truth test on
+     * it look redundant to a static analyzer.
      *
      * @param mixed $date   the date to use
      * @param mixed $format the format to test
      *
-     * @return object
+     * @return bool|\DateTime false when the value is not a usable date
      */
     protected static function validDate($date, $format = '')
     {

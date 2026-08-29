@@ -266,6 +266,9 @@ msgstr ""
 msgid "30 Minutes"
 msgstr "30 minuti"
 
+msgid "31 to 90 days"
+msgstr ""
+
 #, fuzzy
 msgid "5 Minutes"
 msgstr "2 minuti"
@@ -281,6 +284,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "91 to 365 days"
 msgstr ""
 
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
@@ -340,6 +346,9 @@ msgstr ""
 
 msgid "A host already exists with this name!"
 msgstr "Un host già esiste con questo nome!"
+
+msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
+msgstr ""
 
 msgid "A host with that name already exists"
 msgstr "Un nome host con questo nome esiste già"
@@ -781,6 +790,10 @@ msgid "Additional Icon Elements"
 msgstr "MAC aggiuntivi"
 
 #, fuzzy
+msgid "Address"
+msgstr "Indirizzo IP"
+
+#, fuzzy
 msgid "Administrative actions"
 msgstr "Gruppo amministrativo"
 
@@ -866,6 +879,14 @@ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
 msgid "All rights reserved."
 msgstr ""
+
+#, fuzzy
+msgid "Allocated"
+msgstr "Host associato"
+
+#, fuzzy
+msgid "Allocated bytes per storage group"
+msgstr "Immagini in un gruppo di archiviazione"
 
 msgid "Allow API"
 msgstr ""
@@ -1066,6 +1087,10 @@ msgid "Audit Log"
 msgstr ""
 
 #, fuzzy
+msgid "Audit Report"
+msgstr "Active Directory"
+
+#, fuzzy
 msgid "Audit entry"
 msgstr "Active Directory"
 
@@ -1204,7 +1229,13 @@ msgstr "Caricamento non riuscito"
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
+msgstr ""
+
+msgid "Bytes"
 msgstr ""
 
 #, fuzzy
@@ -1352,6 +1383,9 @@ msgstr ""
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossibile affidare attività ad host in attesa"
+
+msgid "Capability"
+msgstr ""
 
 #, fuzzy
 msgid "Capone"
@@ -1559,6 +1593,9 @@ msgid "Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure B
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Code"
 msgstr ""
 
 #, fuzzy
@@ -1958,6 +1995,10 @@ msgstr "pianificazione cron"
 msgid "Cross platform, more secure, faster, and much easier on the server. Espeically when your organization has many hosts"
 msgstr ""
 
+#, fuzzy
+msgid "Currency"
+msgstr "Current Records"
+
 msgid "Current Records"
 msgstr "Current Records"
 
@@ -2032,6 +2073,9 @@ msgstr "Giorno del valore del mese non è valido"
 
 msgid "Day of week value is not valid"
 msgstr "Giorno della settimana il valore non è valido"
+
+msgid "Days"
+msgstr ""
 
 #, fuzzy
 msgid "Deactivate plugins failed!"
@@ -2144,6 +2188,10 @@ msgstr "Descrizione"
 
 msgid "Destroy failed"
 msgstr "Deistruzione fallita"
+
+#, fuzzy
+msgid "Details"
+msgstr "Dettagli della macchina"
 
 msgid "Device must be a string"
 msgstr "Dispositivo deve essere una stringa"
@@ -2449,6 +2497,21 @@ msgstr "Event data deve essere un array"
 msgid "Event must be a string"
 msgstr "Evento deve essere una stringa"
 
+#, fuzzy
+msgid "Event types"
+msgstr "Evento"
+
+#, fuzzy
+msgid "Events"
+msgstr "Evento"
+
+#, fuzzy
+msgid "Events by account"
+msgstr "Slack Accounts"
+
+msgid "Events per day"
+msgstr ""
+
 msgid "Every API token on this server. Tokens are stored hashed &mdash; a token cannot be shown again after it is issued, so this page can revoke one but never recover it."
 msgstr ""
 
@@ -2752,6 +2815,10 @@ msgstr "Impossibile aggiornare / creare registro dell'attività"
 msgid "Failed to write file to disk"
 msgstr "Impossibile scrivere file su disco"
 
+#, fuzzy
+msgid "Failures by snapin"
+msgstr "Impossibile aggiungere lo snapin"
+
 msgid "Fields and types must have equal count"
 msgstr "Campo e tipo devono avere lo stesso conteggio"
 
@@ -2766,10 +2833,6 @@ msgstr "File"
 
 #, fuzzy
 msgid "File Delete Queue"
-msgstr "Impossibile eliminare il file"
-
-#, fuzzy
-msgid "File Deleter"
 msgstr "Impossibile eliminare il file"
 
 #, fuzzy
@@ -2872,6 +2935,10 @@ msgid "First row is a header"
 msgstr ""
 
 #, fuzzy
+msgid "Fleet Report"
+msgstr "rapporto"
+
+#, fuzzy
 msgid "Flush Settings Cache"
 msgstr "Impostazioni FOG"
 
@@ -2945,6 +3012,9 @@ msgid "Free Memory"
 msgstr "Memoria libera"
 
 msgid "FreeIPA"
+msgstr ""
+
+msgid "Freshness"
 msgstr ""
 
 msgid "Friendly Name"
@@ -3255,6 +3325,9 @@ msgstr "gruppi"
 msgid "Groups cannot create capture tasks"
 msgstr "e non può essere catturato"
 
+msgid "Growth"
+msgstr ""
+
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "Codice di errore"
@@ -3285,6 +3358,10 @@ msgid "Hard Drive Serial Number"
 msgstr "Numero di serie"
 
 msgid "Hardware Information"
+msgstr "Informazioni sull'hardware"
+
+#, fuzzy
+msgid "Hardware Report"
 msgstr "Informazioni sull'hardware"
 
 msgid "Hash"
@@ -3346,10 +3423,6 @@ msgstr "Aiuto e guida"
 
 #, fuzzy
 msgid "History Items"
-msgstr "Grafico storico"
-
-#, fuzzy
-msgid "History Report"
 msgstr "Grafico storico"
 
 msgid "Hits / Misses / Queries"
@@ -3581,9 +3654,6 @@ msgstr ""
 msgid "Hosts"
 msgstr "host"
 
-msgid "Hosts And Users"
-msgstr ""
-
 #, fuzzy
 msgid "Hosts and images"
 msgstr "immagine host"
@@ -3603,6 +3673,9 @@ msgstr "Host in attività"
 #, fuzzy
 msgid "Hosts only"
 msgstr "Host Init"
+
+msgid "Hosts registered per day"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts:"
@@ -3894,12 +3967,24 @@ msgstr "Imaged by"
 msgid "Imaged For"
 msgstr "Immagini per"
 
+#, fuzzy
+msgid "Imaged in range"
+msgstr "Image manager"
+
 msgid "Images"
 msgstr "immagini"
 
 #, fuzzy
+msgid "Images added per day"
+msgstr "Immagine aggiunta!"
+
+#, fuzzy
 msgid "Images only"
 msgstr "immagini"
+
+#, fuzzy
+msgid "Images used"
+msgstr "Immagine utilizzata"
 
 #, fuzzy
 msgid "Imaging"
@@ -3925,8 +4010,16 @@ msgid "Imaging Over the last"
 msgstr "Imaging Negli ultimi 30 giorni"
 
 #, fuzzy
+msgid "Imaging Report"
+msgstr "Imaging Log"
+
+#, fuzzy
 msgid "Imaging Started"
 msgstr "Host Imaging Storia"
+
+#, fuzzy
+msgid "Imaging runs"
+msgstr "Imaging Log"
 
 msgid "Import"
 msgstr "Importare"
@@ -4290,6 +4383,10 @@ msgstr "Classe non valido"
 msgid "Invalid upload."
 msgstr "Classe non valido"
 
+#, fuzzy
+msgid "Inventoried"
+msgstr "Inventario"
+
 msgid "Inventory"
 msgstr "Inventario"
 
@@ -4302,15 +4399,11 @@ msgid "Inventory Edits"
 msgstr "Inventario"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "Inventario"
-
-#, fuzzy
-msgid "Inventory Report"
-msgstr "Inventario"
-
-#, fuzzy
 msgid "Inventory Static"
+msgstr "Inventario"
+
+#, fuzzy
+msgid "Inventory recorded per day"
 msgstr "Inventario"
 
 #, fuzzy
@@ -4555,6 +4648,10 @@ msgstr "LDAP Servers"
 msgid "Language"
 msgstr "Lingua"
 
+#, fuzzy
+msgid "Largest images"
+msgstr "immagini"
+
 msgid "Last Captured"
 msgstr "Ultima cattura"
 
@@ -4581,8 +4678,19 @@ msgstr "Riuscito"
 msgid "Last Used"
 msgstr "Ultima cattura"
 
+msgid "Last check-in"
+msgstr ""
+
+#, fuzzy
+msgid "Last deployed"
+msgstr "Ultima Distribuita"
+
 msgid "Last flush"
 msgstr ""
+
+#, fuzzy
+msgid "Last imaged"
+msgstr "immagini"
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -4688,6 +4796,10 @@ msgstr "Listener deve essere un array o un oggetto"
 
 msgid "Listener must be an array or an object"
 msgstr "Listener deve essere un array o un oggetto"
+
+#, fuzzy
+msgid "Lists"
+msgstr "Elenca"
 
 msgid "Load Average"
 msgstr "Carico medio"
@@ -4835,6 +4947,14 @@ msgstr "Installazione via rete"
 msgid "Machine Details"
 msgstr "Dettagli della macchina"
 
+#, fuzzy
+msgid "Machines"
+msgstr "Immagine assegnata"
+
+#, fuzzy
+msgid "Machines imaged"
+msgstr "Immagine assegnata"
+
 msgid "Main Menu"
 msgstr "Menu principale"
 
@@ -4844,6 +4964,10 @@ msgstr "Regole di associazione"
 
 msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
 msgstr ""
+
+#, fuzzy
+msgid "Make and model"
+msgstr "Aggiorna la stampante predefinita"
 
 #, fuzzy
 msgid "Make default"
@@ -4864,6 +4988,10 @@ msgstr "Gestione delle password"
 
 msgid "Management Username"
 msgstr "Gestione utente"
+
+#, fuzzy
+msgid "Manufacturers"
+msgstr "CPU del produttore"
 
 #, fuzzy
 msgid "Mark selected client ignore"
@@ -4997,6 +5125,10 @@ msgid "Model"
 msgstr "Modello"
 
 #, fuzzy
+msgid "Models"
+msgstr "Modello"
+
+#, fuzzy
 msgid "Module"
 msgstr "Nome Modulo"
 
@@ -5070,6 +5202,10 @@ msgstr "valore del mese non è valido"
 
 msgid "Monthly"
 msgstr "Mensile"
+
+#, php-format
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
+msgstr ""
 
 msgid "Most Frequent Host IDs"
 msgstr ""
@@ -5203,6 +5339,10 @@ msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
+
+#, fuzzy
+msgid "Never imaged"
+msgstr "Inventario"
 
 #, fuzzy
 msgid "Never reported"
@@ -5351,6 +5491,10 @@ msgstr "Nessun immagine specificata"
 
 msgid "No images associated with this group as master"
 msgstr "Nessuna immagine associata a questo gruppo come master"
+
+#, fuzzy
+msgid "No inventory"
+msgstr "Inventario"
 
 msgid "No items found"
 msgstr "Nessun elemento trovato"
@@ -5549,6 +5693,10 @@ msgstr "Non sincronizzo"
 
 #, fuzzy
 msgid "Not recorded"
+msgstr "Consigliato"
+
+#, fuzzy
+msgid "Not reported"
 msgstr "Consigliato"
 
 msgid "Not syncing"
@@ -5795,6 +5943,9 @@ msgstr "Altro Tag # 2"
 msgid "Outcome"
 msgstr ""
 
+msgid "Over a year"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -5885,10 +6036,6 @@ msgstr "Indirizzo MAC"
 msgid "Pending MACs"
 msgstr "sospeso MAC"
 
-#, fuzzy
-msgid "Pending Mac List"
-msgstr "Mac in attesa"
-
 msgid "Pending Registered Hosts"
 msgstr "In attesa di host registrati"
 
@@ -5911,6 +6058,9 @@ msgstr "Mac in attesa"
 
 msgid "Pending..."
 msgstr "In attesa di..."
+
+msgid "People"
+msgstr ""
 
 #, fuzzy
 msgid "Permission"
@@ -6313,12 +6463,11 @@ msgstr "Percorso chiave privata non trovata"
 msgid "Private keys are readable by the web server"
 msgstr "chiave privata non leggibile"
 
-#, fuzzy
-msgid "Product Key"
-msgstr "Host Product Key"
+msgid "Processors"
+msgstr ""
 
 #, fuzzy
-msgid "Product Keys"
+msgid "Product Key"
 msgstr "Host Product Key"
 
 msgid "Progress"
@@ -6476,6 +6625,14 @@ msgstr "Record non trovato"
 msgid "Recorded By"
 msgstr ""
 
+#, fuzzy
+msgid "Recorded in range"
+msgstr "Record non trovato"
+
+#, fuzzy
+msgid "Records"
+msgstr "Current Records"
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -6490,8 +6647,14 @@ msgstr "Stato servizio"
 msgid "Refresh the settings cache"
 msgstr "Stato servizio"
 
+msgid "Refused"
+msgstr ""
+
 msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
 msgstr ""
+
+msgid "Registered"
+msgstr "Registrato"
 
 msgid "Registered Hosts"
 msgstr "host registrati"
@@ -6559,6 +6722,10 @@ msgstr ""
 #, fuzzy
 msgid "Rename or remove one of them."
 msgstr "Impossibile aggiornare compito"
+
+#, fuzzy
+msgid "Replicates"
+msgstr "Replicando"
 
 msgid "Replicating"
 msgstr "Replicando"
@@ -6750,6 +6917,19 @@ msgstr ""
 
 msgid "Running Windows"
 msgstr "Running Windows"
+
+msgid "Runs"
+msgstr ""
+
+msgid "Runs and failures per day"
+msgstr ""
+
+#, fuzzy
+msgid "Runs by image"
+msgstr "immagini"
+
+msgid "Runs per day"
+msgstr ""
 
 msgid "SB Enrolled"
 msgstr ""
@@ -7270,6 +7450,9 @@ msgstr "Dimensione"
 msgid "Size on Server"
 msgstr "Server web"
 
+msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
+msgstr ""
+
 #, php-format
 msgid "Skipped unknown %s: %s"
 msgstr ""
@@ -7410,6 +7593,10 @@ msgid "Snapin Replicator"
 msgstr "Snapin Replicator"
 
 #, fuzzy
+msgid "Snapin Report"
+msgstr "Snapin Replicator"
+
+#, fuzzy
 msgid "Snapin Run Order"
 msgstr "Snapin Avvia con"
 
@@ -7456,6 +7643,10 @@ msgid "Snapin jobs"
 msgstr "snapins"
 
 #, fuzzy
+msgid "Snapin runs"
+msgstr "Argomenti Snapin"
+
+#, fuzzy
 msgid "Snapin tasks"
 msgstr "Hash snap-in"
 
@@ -7474,6 +7665,10 @@ msgstr "Snapins già distribuiti a questo host"
 msgid "Snapins run in this order. The order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task; otherwise it sets the order snapins are sent."
 msgstr ""
 
+#, fuzzy
+msgid "Snapins used"
+msgstr "Usato Snapin"
+
 msgid "So if you are trying to transmit to remote node A"
 msgstr "Quindi, se stai cercando di trasmettere al nodo remoto A"
 
@@ -7487,6 +7682,9 @@ msgid "Space variable must be boolean"
 msgstr "La variabile spazio deve essere boolean"
 
 msgid "Specified download URL not allowed!"
+msgstr ""
+
+msgid "Stale"
 msgstr ""
 
 #, fuzzy
@@ -7745,6 +7943,14 @@ msgstr "Nodo di archiviazione aggiornato!"
 msgid "Storage Nodes"
 msgstr "Storage Node"
 
+#, fuzzy
+msgid "Storage Report"
+msgstr "Grafico storico"
+
+#, fuzzy
+msgid "Storage nodes"
+msgstr "Storage Node"
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -7813,6 +8019,10 @@ msgstr "Solo Sottoalbero"
 #, fuzzy
 msgid "Subtree and Below"
 msgstr "Sottoalbero e inferiore"
+
+#, fuzzy
+msgid "Succeeded"
+msgstr "Importazione riuscita"
 
 #, fuzzy
 msgid "Success."
@@ -8052,6 +8262,10 @@ msgid "Task starting"
 msgstr "Attività iniziata"
 
 #, fuzzy
+msgid "Task state"
+msgstr "Attività iniziata"
+
+#, fuzzy
 msgid "Task state added!"
 msgstr "Aggiunta tipo attività riuscita!"
 
@@ -8208,6 +8422,9 @@ msgid "The archive is larger than the %s limit."
 msgstr ""
 
 msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
+msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -8666,6 +8883,9 @@ msgstr "Tempo"
 msgid "Time Already Exists"
 msgstr "Ora esiste già"
 
+msgid "Time since last imaged"
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -8849,6 +9069,14 @@ msgstr "Tra impostazioni host e globali"
 #, fuzzy
 msgid "Unable to update task"
 msgstr "Impossibile aggiornare compito"
+
+#, fuzzy
+msgid "Unassigned"
+msgstr "Host associato"
+
+#, fuzzy
+msgid "Unattributed"
+msgstr "Attributo nome utente"
 
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
 msgstr ""
@@ -9349,6 +9577,9 @@ msgstr ""
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
 
+msgid "Where it lives"
+msgstr ""
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "Dove ottenere aiuto"
@@ -9425,6 +9656,9 @@ msgid "Windows keys is a plugin that associates product keys"
 msgstr "Tasti di Windows è un plugin che associa le chiavi di prodotto"
 
 msgid "Wipes"
+msgstr ""
+
+msgid "Within 30 days"
 msgstr ""
 
 msgid "Yearly"
@@ -10614,6 +10848,10 @@ msgstr ""
 #~ msgstr "Impossibile aggiornare / creare log immagine"
 
 #, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "Impossibile eliminare il file"
+
+#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Io non sono il server web fog"
 
@@ -10649,6 +10887,10 @@ msgstr ""
 
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"
+
+#, fuzzy
+#~ msgid "History Report"
+#~ msgstr "Grafico storico"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -10771,6 +11013,14 @@ msgstr ""
 #~ msgstr "Tipo non valido"
 
 #, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "Inventario"
+
+#, fuzzy
+#~ msgid "Inventory Report"
+#~ msgstr "Inventario"
+
+#, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "Server LDAP"
 
@@ -10792,6 +11042,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Login failed"
 #~ msgstr "Caricamento non riuscito"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "CPU del produttore"
 
 #, fuzzy
 #~ msgid "Module Associated"
@@ -10838,6 +11092,10 @@ msgstr ""
 #~ msgstr "sospeso MAC"
 
 #, fuzzy
+#~ msgid "Pending Mac List"
+#~ msgstr "Mac in attesa"
+
+#, fuzzy
 #~ msgid "Performing ping"
 #~ msgstr "Il tentativo di ping"
 
@@ -10847,11 +11105,16 @@ msgstr ""
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
 
+#, fuzzy
+#~ msgid "Product Keys"
+#~ msgstr "Host Product Key"
+
+#, fuzzy
+#~ msgid "Recorded"
+#~ msgstr "Consigliato"
+
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Registro deve essere gestito da hook o eventi"
-
-#~ msgid "Registered"
-#~ msgstr "Registrato"
 
 #, fuzzy
 #~ msgid "Remove Selected"
@@ -10914,6 +11177,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+#~ msgid "Serial"
+#~ msgstr "Sistema seriale"
 
 #, fuzzy
 #~ msgid "Server facts."

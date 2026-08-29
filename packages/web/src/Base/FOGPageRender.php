@@ -1098,4 +1098,255 @@ trait FOGPageRender
         // browser drops the inner one and the create posts nothing.
         echo $createModal;
     }
+    /**
+     * The window picker every report shares.
+     *
+     * A GET FORM, and the range is part of the URL on purpose: a report
+     * someone is going to paste into a ticket has to survive being pasted,
+     * and a range held only in JS state does not. That is ADR 0030
+     * decision 1.
+     *
+     * IT CANNOT RELY ON THE BROWSER'S OWN SUBMIT. `disableFormDefaults()`
+     * in fog.common.js binds submit -> preventDefault on EVERY form on the
+     * page, so the native GET never runs and clicking Show does nothing at
+     * all -- no error, no request, no change. The form is marked
+     * `data-report-window` and fog.report.panels.js navigates on submit.
+     * The first cut of this helper shipped without that and the control
+     * was inert on every report.
+     *
+     * `step="1"` IS LOAD-BEARING, not decoration. A datetime-local input
+     * defaults to step=60, which makes any value carrying a non-zero
+     * SECONDS component fail HTML5 constraint validation -- and an invalid
+     * form fires no submit event at all, so the button is simply dead. The
+     * default window ends at "now", so the emitted value carries the
+     * current second and the control was born invalid on 59 page loads out
+     * of 60. That is what "I change the date and click Show and nothing
+     * happens" was: no request, no error, no console message.
+     *
+     * The alternative was truncating the displayed value to the minute,
+     * which was rejected: the URL is the source of truth and is meant to be
+     * pasted, so a control showing a different range from the one in effect
+     * breaks the thing the range is in the URL FOR -- and truncating the
+     * end bound would silently drop up to 59 seconds of events.
+     *
+     * EVERY PARAMETER THAT ADDRESSES THE PAGE IS A HIDDEN FIELD, because a
+     * GET submit REPLACES the query string rather than merging into it.
+     * `f` IS the report -- the menu is built from the file names in
+     * lib/reports, so it is the only thing telling index.php which class to
+     * load -- and `sub` is what distinguishes the report from the report
+     * index. Dropping either lands on Report Management, which reads as the
+     * form having wiped the page.
+     *
+     * @param string $slug  id prefix for the form and its fields
+     * @param string $start current lower bound, 'Y-m-d H:i:s'
+     * @param string $end   current upper bound, 'Y-m-d H:i:s'
+     * @param string $extra already-escaped markup for report-specific
+     *                      controls, dropped in before the submit button
+     *
+     * @return string
+     */
+    public static function renderReportWindow(
+        $slug,
+        $start,
+        $end,
+        $extra = ''
+    ) {
+        ob_start();
+        printf(
+            '<form method="get" action="../management/index.php" '
+            . 'class="row g-3 mb-3" id="%s-form" data-report-window="1">'
+            . '<input type="hidden" name="node" value="report">'
+            . '<input type="hidden" name="sub" value="file">'
+            . '<input type="hidden" name="f" value="%s">',
+            \Initiator::e($slug),
+            \Initiator::e((string) filter_input(INPUT_GET, 'f'))
+        );
+        foreach (['start' => _('From'), 'end' => _('To')] as $key => $label) {
+            echo '<div class="col-md-3">';
+            echo self::makeLabel(
+                'col-form-label',
+                $slug . '-' . $key,
+                $label
+            );
+            printf(
+                '<input type="datetime-local" class="form-control" '
+                . 'step="1" id="%s-%s" name="%s" value="%s">',
+                \Initiator::e($slug),
+                \Initiator::e($key),
+                \Initiator::e($key),
+                // datetime-local wants the ISO 'T' separator; a space-
+                // separated value is simply ignored by the control, which
+                // then renders blank and posts nothing.
+                \Initiator::e(
+                    str_replace(' ', 'T', 'start' === $key ? $start : $end)
+                )
+            );
+            echo '</div>';
+        }
+        echo $extra;
+        echo '<div class="col-md-2 d-flex align-items-end">';
+        echo self::makeButton(
+            $slug . '-go',
+            _('Show'),
+            'btn btn-primary float-end',
+            'type="submit"'
+        );
+        echo '</div>';
+        echo '</form>';
+
+        return ob_get_clean();
+    }
+    /**
+     * The banner an ADR 0030 report shows when its rows hit the cap.
+     *
+     * EVERY NUMBER ON THESE PAGES IS COMPUTED OFF THE CAPPED SET, so a
+     * silent cap makes the tiles quietly wrong for exactly the busy fleets
+     * that most need them right -- and, since the CSV export is the same
+     * fold, hands out a file that looks complete and is not.
+     *
+     * Shared rather than written per report. The imaging and snapin reports
+     * each had their own copy of this sentence and the other four had none,
+     * which is how "some reports warn you" became a thing that was true.
+     *
+     * The wording carries no noun, deliberately. "%s runs" would have to be
+     * built at runtime to say "hosts" on the fleet report, and a msgid
+     * assembled at runtime never matches the literal xgettext extracted --
+     * so it would silently stop translating. "Rows" is what every one of
+     * them shows.
+     *
+     * @param bool $truncated whether the source hit its cap
+     * @param int  $max       the cap that was hit
+     *
+     * @return string the alert markup, or '' when nothing was cut
+     */
+    public static function renderReportCap($truncated, $max)
+    {
+        if (!$truncated) {
+            return '';
+        }
+
+        return sprintf(
+            '<div class="alert alert-warning">%s</div>',
+            \Initiator::e(
+                sprintf(
+                    _(
+                        'More than %s rows match this range. Everything '
+                        . 'below covers the first %s only -- narrow the '
+                        . 'dates for exact figures.'
+                    ),
+                    number_format((int) $max),
+                    number_format((int) $max)
+                )
+            )
+        );
+    }
+    /**
+     * A row of headline numbers.
+     *
+     * CARDS, NOT AdminLTE's `small-box`. small-box paints a near-white
+     * `bg-light` behind its own text; under the dark theme the text turns
+     * light and the number becomes invisible against it. The outline card
+     * takes the theme's own surface color, so it works in both. Lifted
+     * from ImageManagement::_archStat(), which found this the hard way.
+     *
+     * @param array $tiles ordered list of ['value' =>, 'label' =>,
+     *                     'warn' => bool]. `warn` paints the card red when
+     *                     the value is above zero -- for counts that are
+     *                     bad news rather than progress.
+     * @param int   $cols  bootstrap columns each tile occupies at md and up
+     *
+     * @return string
+     */
+    public static function renderStatTiles(array $tiles, $cols = 3)
+    {
+        ob_start();
+        echo '<div class="row">';
+        foreach ($tiles as $tile) {
+            $value = $tile['value'] ?? 0;
+            $warn = !empty($tile['warn']) && (float)$value > 0;
+            printf(
+                '<div class="col-sm-6 col-md-%d">'
+                . '<div class="card %s card-outline">'
+                . '<div class="card-body text-center">'
+                . '<h3 class="mb-0">%s</h3>'
+                . '<p class="mb-0 text-muted">%s</p>'
+                . '</div></div></div>',
+                (int)$cols,
+                $warn ? 'card-danger' : 'card-primary',
+                // Formatted, not cast: a fleet report counting tens of
+                // thousands of runs is unreadable as a bare integer, and
+                // number_format is locale-independent here by design --
+                // the grid below it is not localized either.
+                //
+                // One decimal place only when the value has one. A rate
+                // tile is a genuine fraction -- three runs across a month
+                // is 0.1 a day -- and number_format's default of zero
+                // decimals rounds that to "0", which reads as "no imaging
+                // happened" directly beside a tile saying three runs did.
+                \Initiator::e(
+                    is_numeric($value)
+                        ? number_format(
+                            (float)$value,
+                            (float)$value == (int)(float)$value ? 0 : 1
+                        )
+                        : (string)$value
+                ),
+                \Initiator::e((string)($tile['label'] ?? ''))
+            );
+        }
+        echo '</div>';
+
+        return ob_get_clean();
+    }
+    /**
+     * One chart, with its data alongside it.
+     *
+     * THE SERIES IS EMBEDDED, NOT FETCHED. The dashboard's charts poll
+     * because their subject is live; a report's window is fixed and already
+     * in the URL, so a second round trip would re-run the same aggregation
+     * to draw the same picture. Embedding it also means the chart and the
+     * grid beneath it are rendered from one request and cannot disagree.
+     *
+     * A `type="application/json"` block rather than an inline assignment:
+     * the browser does not execute it, so nothing here can become script
+     * however the values are shaped, and JSON_HEX_TAG closes the one way a
+     * string could end the block early.
+     *
+     * @param string $id     unique element id for this panel
+     * @param string $title  translated card title
+     * @param array  $chart  ['type' =>, 'labels' => [], 'series' => [
+     *                       ['label' =>, 'data' => []] ]]
+     * @param int    $cols   bootstrap columns at md and up
+     * @param int    $height chart height in pixels
+     *
+     * @return string
+     */
+    public static function renderChartPanel(
+        $id,
+        $title,
+        array $chart,
+        $cols = 6,
+        $height = 260
+    ) {
+        ob_start();
+        printf(
+            '<div class="col-md-%d">'
+            . '<div class="card card-primary card-outline">'
+            . '<div class="card-header"><h3 class="card-title">%s</h3></div>'
+            . '<div class="card-body">'
+            . '<div class="fog-report-chart" id="%s" '
+            . 'data-chart-height="%d"></div>'
+            . '<script type="application/json" id="%s-data">%s</script>'
+            . '</div></div></div>',
+            (int)$cols,
+            \Initiator::e((string)$title),
+            \Initiator::e((string)$id),
+            (int)$height,
+            \Initiator::e((string)$id),
+            json_encode($chart, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
+                | JSON_HEX_QUOT)
+        );
+
+        return ob_get_clean();
+    }
 }

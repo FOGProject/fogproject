@@ -96,6 +96,90 @@ var shouldReAuth,
       }
     }
   ],
+  // Full export for a report table. Same role as the "CSV (All)" button on
+  // the management export screen, and named identically because it solves the
+  // identical problem: the DataTables export buttons beside it can only see
+  // rows the browser is holding, which on a serverSide report is ONE PAGE.
+  // Clicking CSV on a report with fifty thousand rows behind it produced a
+  // file of twenty-five that looked exactly like a complete one.
+  //
+  // POSTED rather than navigated to, and that is the point. Route::listem()
+  // reads its DataTables request -- search, sort, columns -- from php://input
+  // and from nothing else, so a GET export carries an empty body and would
+  // quietly ignore the search box. Posting the grid's own dt.ajax.params()
+  // means the server answers the identical question it answers for the grid,
+  // with length forced to -1 (bounded by MAX_ROWS server side, and the file
+  // name says so when it bites).
+  //
+  // Submitted through the native form.submit(), which fires no submit event.
+  // That is deliberate on both sides: disableFormDefaults() preventDefaults
+  // every form on the page, and bootstrap-csrf.js hangs the _csrf field off
+  // that same event -- so the token is appended here by hand rather than
+  // relying on a listener that is deliberately not going to run.
+  reportCsvAllButton = {
+    text: '<i class="far fa-file-excel"></i> CSV (All)',
+    titleAttr: 'Export every row this report returns, not just this page',
+    action: function(e, dt, node, config) {
+      // The window (start/end/sources[]) rides on the page URL and the
+      // report reads it from there, so it stays on the action's query
+      // string; only the three that address the endpoint are restated.
+      var params = new URLSearchParams(window.location.search);
+      params.set('node', 'report');
+      params.set('sub', 'exportAll');
+      params.set('f', Common.f);
+
+      var body = new URLSearchParams($.param(dt.ajax.params() || {}));
+      body.set('start', '0');
+      body.set('length', '-1');
+      // The columns as the user has them: colvis choices and order carry
+      // into the file, with the on-screen heading as the CSV heading.
+      dt.columns(':visible').every(function() {
+        body.append('cols[]', this.dataSrc());
+        body.append('heads[]', $(this.header()).text().trim());
+      });
+      var meta = document.querySelector('meta[name="csrf-token"]');
+      body.append('_csrf', meta ? meta.getAttribute('content') || '' : '');
+
+      var form = document.createElement('form');
+      form.method = 'post';
+      form.action = '../management/index.php?' + params.toString();
+      body.forEach(function(value, key) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
+  },
+  // The report toolbar with the full export folded in beside the plain CSV,
+  // so the pair reads as "what I am looking at" and "all of it".
+  //
+  // Placed by FINDING the csv button rather than at a fixed index, so
+  // reordering reportButtons cannot silently move this somewhere that reads
+  // as unrelated to it.
+  //
+  // A SEPARATE ARRAY, not an addition to reportButtons, because that one is
+  // also worn by the audit and activity grids -- which are their own nodes,
+  // have no `f`, and are not reports. registerReportTable() (plugin reports)
+  // keeps the plain toolbar too: a plugin report that has not implemented
+  // reportRows() would answer this button with an empty file, and a button
+  // that silently produces nothing is the bug being fixed, not a feature.
+  reportFileButtons = (function() {
+    var at = 0;
+    reportButtons.some(function(button, i) {
+      if (button.extend === 'csv') {
+        at = i + 1;
+        return true;
+      }
+      return false;
+    });
+    return reportButtons.slice(0, at)
+      .concat([reportCsvAllButton], reportButtons.slice(at));
+  })(),
   $_GET,
   Common;
 /**

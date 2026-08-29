@@ -1,8 +1,32 @@
 (function($) {
-  // reportButtons is defined globally in fog.common.js and shared with the
-  // plugin report tables (registerReportTable), so every report toolbar is
-  // identical.
+  // reportFileButtons is defined globally in fog.common.js -- reportButtons
+  // plus the "CSV (All)" full export -- so every core report toolbar is
+  // identical. reportButtons alone is what the audit and activity grids and
+  // the plugin report tables (registerReportTable) wear; see fog.common.js
+  // for why those do not take the export button.
   var reportString = window.atob(Common.f);
+
+  // The endpoint for a report whose window lives in the page URL.
+  //
+  // The page's OWN query string carries the window (start, end, and for Run
+  // History sources[]) and getList has to see it -- but it also carries
+  // node, sub and f, and appending it wholesale put `sub=file` AFTER
+  // `sub=getList`. PHP takes the last occurrence of a repeated key, so every
+  // request re-rendered the report page and DataTables was handed HTML at
+  // HTTP 200. That is what the "runhistory-table / HTTP 200 - <div class=..."
+  // toast was.
+  //
+  // Built through URLSearchParams so there are no repeated keys to resolve
+  // at all: the window params ride along untouched (set() replaces only the
+  // three named, and sources[] is left as the repeated key it is), and the
+  // three that address the endpoint are stated once.
+  function windowedUrl() {
+    var params = new URLSearchParams(window.location.search);
+    params.set('node', 'report');
+    params.set('sub', 'getList');
+    params.set('f', Common.f);
+    return '../management/index.php?' + params.toString();
+  }
 
   // This will call our respective calls
   // to report the requested data.
@@ -19,7 +43,7 @@
               return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
             }
           },
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'path'},
             {data: 'pathtype'},
@@ -51,7 +75,7 @@
               return moment(row.createdTime, moment.ISO_8601).format('MMM DD YYYY');
             }
           },
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           // Every column escapes. A history row records subject labels that
           // came from a machine on the network, and DataTables writes cell
           // data as HTML unless a column supplies its own render. The
@@ -78,53 +102,6 @@
           }
         });
       break;
-      // Host List
-    case 'host list':
-      var hostTable = $('#hostlist-table'),
-        table = hostTable.registerTable(null, {
-          order: [
-            [0, 'asc'],
-            [2, 'desc']
-          ],
-          buttons: reportButtons,
-          columns: [
-            {data: 'mainlink'},
-            {data: 'primac'},
-            {data: 'deployed'},
-            {data: 'imageLink'},
-            {data: 'name'}
-          ],
-          columnDefs: [
-            {
-              orderData: [4],
-              targets: [0]
-            },
-            {
-              render: function (data, type, row) {
-                if (type !== 'display') {
-                  return data;
-                }
-                return (data || '') + macVendorIcon(row.primac_vendor);
-              },
-              targets: [1]
-            },
-            {
-              targets: [4],
-              visible: false,
-              searchable: false
-            }
-          ],
-          rowId: 'id',
-          processing: true,
-          serverSide: true,
-          select: false,
-          ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f,
-            type: 'post'
-          }
-        });
-      break;
       // Hosts and users
     case 'hosts and users':
       var userloginTable = $('#userlogin-table'),
@@ -132,7 +109,7 @@
           order: [
             [1, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
             {data: 'username', render: $.fn.dataTable.render.text()},
             {data: 'hostLink'},
@@ -164,14 +141,278 @@
           }
         });
       break;
-      // Inventory Report
-    case 'inventory report':
-      var inventoryTable = $('#inventory-table'),
-        table = inventoryTable.registerTable(null, {
+      // Pending MAC
+    case 'pending mac list':
+      var pendingMacTable = $('#pendingmac-table'),
+        table = pendingMacTable.registerTable(null, {
           order: [
             [0, 'asc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostLink'},
+            {data: 'mac'}
+          ],
+          columnDefs: [
+            {
+              render: function (data, type, row) {
+                if (type !== 'display') {
+                  return data;
+                }
+                return (data || '') + macVendorIcon(row.mac_vendor);
+              },
+              targets: [1]
+            }
+          ],
+          rowGroup: {
+            dataSrc: 'hostLink'
+          },
+          rowId: 'id',
+          processing: true,
+          serverSide: true,
+          select: false,
+          ajax: {
+            url: '../management/index.php?node=report&sub=getList&f='
+            + Common.f,
+            type: 'post'
+          }
+        });
+      break;
+      // Product Keys
+    case 'product keys':
+      // Keys are masked by default (5x5 with the middle three groups
+      // bulleted). The reveal button flips this closure flag and redraws;
+      // both the column and the row-group header honour it. The full key is
+      // still present in the JSON payload, so this guards shoulder-surfing,
+      // not a determined viewer.
+      var revealKeys = false;
+      var hostTable = $('#hostkeys-table'),
+        table = hostTable.registerTable(null, {
+          order: [
+            [0, 'asc']
+          ],
+          // reportButtons, NOT reportFileButtons: the whole content of
+          // this report is the secret it masks. The DataTables CSV button
+          // exports the DISPLAYED value, so it writes the mask; a full
+          // server-side export would write the keys in the clear, which is
+          // a disclosure change nobody asked for.
+          buttons: reportButtons.concat([
+            {
+              text: '<i class="far fa-eye"></i> Reveal keys',
+              action: function(e, dt, node, config) {
+                revealKeys = !revealKeys;
+                $(node).html(
+                  revealKeys
+                    ? '<i class="far fa-eye-slash"></i> Hide keys'
+                    : '<i class="far fa-eye"></i> Reveal keys'
+                );
+                dt.draw(false);
+              }
+            }
+          ]),
+          columns: [
+            {data: 'mainlink'},
+            {data: 'primac'},
+            {
+              data: 'productKey',
+              render: function(data, type) {
+                if (type !== 'display') {
+                  return data;
+                }
+                return revealKeys
+                  ? $.escapeHtml(data)
+                  : $.escapeHtml($.productKeyMask(data));
+              }
+            }
+          ],
+          rowGroup: {
+            dataSrc: 'productKey',
+            startRender: function(rows, group) {
+              return revealKeys
+                ? $.escapeHtml(group)
+                : $.escapeHtml($.productKeyMask(group));
+            }
+          },
+          rowId: 'id',
+          processing: true,
+          serverSide: true,
+          select: false,
+          ajax: {
+            url: '../management/index.php?node=report&sub=getList&f='
+            + Common.f,
+            type: 'post'
+          }
+        });
+      break;
+      // Snapin List
+    case 'snapin list':
+      var snapinTable = $('#snapinlist-table'),
+        table = snapinTable.registerTable(null, {
+          order: [
+            [0, 'asc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'mainlink'},
+            {data: 'file'},
+            {data: 'args'}
+          ],
+          rowId: 'id',
+          processing: true,
+          serverSide: true,
+          select: false,
+          ajax: {
+            url: '../management/index.php?node=report&sub=getList&f='
+            + Common.f,
+            type: 'post'
+          }
+        });
+      break;
+      // Run History
+      //
+      // The one report here that is NOT serverSide. ActivityWindow returns
+      // a plain array with its own row cap and the real filter is the date
+      // range, so there is no server-side protocol to speak -- see the
+      // class docblock in lib/reports/run_history.report.php.
+      //
+      // The range and the source ticks live in the page URL, so they are
+      // forwarded to getList verbatim rather than re-read from the form:
+      // whatever the server rendered the form from is what the table asks
+      // for, and the two cannot drift.
+    case 'run history':
+      var runTable = $('#runhistory-table'),
+        table = runTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportFileButtons,
+          // Every column escapes. A run's label is a task or snapin name,
+          // which an operator types and a plugin can set, and DataTables
+          // writes cell data as HTML unless a column supplies its own
+          // render. The display-only guard inside render.text() keeps the
+          // Buttons CSV/copy exports unescaped -- same shape as the history
+          // and inventory reports above.
+          columns: [
+            {data: 'source', render: $.fn.dataTable.render.text()},
+            {data: 'label', render: $.fn.dataTable.render.text()},
+            {data: 'host', render: $.fn.dataTable.render.text()},
+            {data: 'startedAt', render: $.fn.dataTable.render.text()},
+            {data: 'endedAt', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Imaging Report
+      //
+      // Not serverSide, for the same reason: the rows are the bounded fold
+      // ImagingStats already ran to draw the charts above them, so paging
+      // them server side would be a second query answering a slightly
+      // different question. Every column is plain text out of `taskLog`,
+      // including names typed by whoever created the image, so every column
+      // escapes.
+    case 'imaging report':
+      var imagingTable = $('#imaging-table'),
+        table = imagingTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'imageName', render: $.fn.dataTable.render.text()},
+            {data: 'taskTypeName', render: $.fn.dataTable.render.text()},
+            {data: 'started', render: $.fn.dataTable.render.text()},
+            {data: 'ended', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()},
+            {data: 'createdBy', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Snapin Report
+      //
+      // Not serverSide, like the imaging report: the rows are the same
+      // bounded window the charts above them were drawn from. Every column
+      // is plain text out of snapinTasks -- the details string is whatever
+      // the snapin wrote to stdout, so it escapes like the rest.
+    case 'snapin report':
+      var snapinReportTable = $('#snapinreport-table'),
+        table = snapinReportTable.registerTable(null, {
+          order: [
+            [2, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'snapin', render: $.fn.dataTable.render.text()},
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'completed', render: $.fn.dataTable.render.text()},
+            {data: 'outcome', render: $.fn.dataTable.render.text()},
+            {data: 'code', render: $.fn.dataTable.render.text()},
+            {data: 'details', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Fleet Report
+      //
+      // Ordered by the Days column DESCENDING, which is the report: the
+      // machines somebody has to act on are the stalest, and "Never" is
+      // the string the server sends for a host that has none. It sorts
+      // above every number under DataTables' string ordering, which is
+      // where it belongs -- the server sends it already ordered that way
+      // and this keeps it there through a redraw.
+    case 'fleet report':
+      var fleetTable = $('#fleetreport-table'),
+        table = fleetTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'imageName', render: $.fn.dataTable.render.text()},
+            {data: 'lastDeploy', render: $.fn.dataTable.render.text()},
+            {data: 'ageDays', render: $.fn.dataTable.render.text()},
+            {data: 'lastCheckin', render: $.fn.dataTable.render.text()},
+            {data: 'created', render: $.fn.dataTable.render.text()},
+            {data: 'hasInventory', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'hardware report':
+      var hardwareTable = $('#hardwarereport-table'),
+        table = hardwareTable.registerTable(null, {
+          order: [
+            [0, 'asc']
+          ],
+          buttons: reportFileButtons,
           // Aisle 019: every field below is fed by the UNAUTHENTICATED inventory
           // submission surface (service/ipxe/boot.php and the inventory service),
           // and DataTables writes cell data as HTML by default -- so a stored
@@ -241,163 +482,71 @@
           }
         });
       break;
-      // Pending MAC
-    case 'pending mac list':
-      var pendingMacTable = $('#pendingmac-table'),
-        table = pendingMacTable.registerTable(null, {
+    case 'storage report':
+      var storageTable = $('#storagereport-table'),
+        table = storageTable.registerTable(null, {
           order: [
-            [0, 'asc']
+            [7, 'desc']
           ],
-          buttons: reportButtons,
+          buttons: reportFileButtons,
           columns: [
-            {data: 'hostLink'},
-            {data: 'mac'}
+            {data: 'imageName', render: $.fn.dataTable.render.text()},
+            {data: 'size', render: $.fn.dataTable.render.text()},
+            {data: 'groups', render: $.fn.dataTable.render.text()},
+            {data: 'replicate', render: $.fn.dataTable.render.text()},
+            {data: 'enabled', render: $.fn.dataTable.render.text()},
+            {data: 'created', render: $.fn.dataTable.render.text()},
+            {data: 'lastDeploy', render: $.fn.dataTable.render.text()},
+            {data: 'bytes', render: $.fn.dataTable.render.text()}
           ],
+          // "9 GiB" sorts above "10 GiB" as a string, so the size column
+          // orders on the raw byte count in the hidden column beside it.
           columnDefs: [
             {
-              render: function (data, type, row) {
-                if (type !== 'display') {
-                  return data;
-                }
-                return (data || '') + macVendorIcon(row.mac_vendor);
-              },
+              orderData: [7],
               targets: [1]
-            }
-          ],
-          rowGroup: {
-            dataSrc: 'hostLink'
-          },
-          rowId: 'id',
-          processing: true,
-          serverSide: true,
-          select: false,
-          ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f,
-            type: 'post'
-          }
-        });
-      break;
-      // Product Keys
-    case 'product keys':
-      // Keys are masked by default (5x5 with the middle three groups
-      // bulleted). The reveal button flips this closure flag and redraws;
-      // both the column and the row-group header honour it. The full key is
-      // still present in the JSON payload, so this guards shoulder-surfing,
-      // not a determined viewer.
-      var revealKeys = false;
-      var hostTable = $('#hostkeys-table'),
-        table = hostTable.registerTable(null, {
-          order: [
-            [0, 'asc']
-          ],
-          buttons: reportButtons.concat([
+            },
             {
-              text: '<i class="far fa-eye"></i> Reveal keys',
-              action: function(e, dt, node, config) {
-                revealKeys = !revealKeys;
-                $(node).html(
-                  revealKeys
-                    ? '<i class="far fa-eye-slash"></i> Hide keys'
-                    : '<i class="far fa-eye"></i> Reveal keys'
-                );
-                dt.draw(false);
-              }
+              targets: [7],
+              visible: false,
+              searchable: false
             }
-          ]),
-          columns: [
-            {data: 'mainlink'},
-            {data: 'primac'},
-            {
-              data: 'productKey',
-              render: function(data, type) {
-                if (type !== 'display') {
-                  return data;
-                }
-                return revealKeys
-                  ? $.escapeHtml(data)
-                  : $.escapeHtml($.productKeyMask(data));
-              }
-            }
-          ],
-          rowGroup: {
-            dataSrc: 'productKey',
-            startRender: function(rows, group) {
-              return revealKeys
-                ? $.escapeHtml(group)
-                : $.escapeHtml($.productKeyMask(group));
-            }
-          },
-          rowId: 'id',
-          processing: true,
-          serverSide: true,
-          select: false,
-          ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f,
-            type: 'post'
-          }
-        });
-      break;
-      // Snapin List
-    case 'snapin list':
-      var snapinTable = $('#snapinlist-table'),
-        table = snapinTable.registerTable(null, {
-          order: [
-            [0, 'asc']
-          ],
-          buttons: reportButtons,
-          columns: [
-            {data: 'mainlink'},
-            {data: 'file'},
-            {data: 'args'}
-          ],
-          rowId: 'id',
-          processing: true,
-          serverSide: true,
-          select: false,
-          ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f,
-            type: 'post'
-          }
-        });
-      break;
-      // Run History
-      //
-      // The one report here that is NOT serverSide. ActivityWindow returns
-      // a plain array with its own row cap and the real filter is the date
-      // range, so there is no server-side protocol to speak -- see the
-      // class docblock in lib/reports/run_history.report.php.
-      //
-      // The range and the source ticks live in the page URL, so they are
-      // forwarded to getList verbatim rather than re-read from the form:
-      // whatever the server rendered the form from is what the table asks
-      // for, and the two cannot drift.
-    case 'run history':
-      var runTable = $('#runhistory-table'),
-        table = runTable.registerTable(null, {
-          order: [
-            [3, 'desc']
-          ],
-          buttons: reportButtons,
-          columns: [
-            {data: 'source'},
-            {data: 'label'},
-            {data: 'host'},
-            {data: 'startedAt'},
-            {data: 'endedAt'},
-            {data: 'state'}
           ],
           processing: true,
           serverSide: false,
           select: false,
           ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f
-            + (window.location.search
-              ? '&' + window.location.search.replace(/^\?/, '')
-              : ''),
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'audit report':
+      var auditTable = $('#auditreport-table'),
+        table = auditTable.registerTable(null, {
+          order: [
+            [0, 'desc']
+          ],
+          buttons: reportFileButtons,
+          // Every column escapes. An audit row records an ATTEMPTED
+          // username and a subject label, both of which can come from an
+          // unauthenticated request, and DataTables writes cell data as
+          // HTML unless a column supplies its own render.
+          columns: [
+            {data: 'at', render: $.fn.dataTable.render.text()},
+            {data: 'actor', render: $.fn.dataTable.render.text()},
+            {data: 'source', render: $.fn.dataTable.render.text()},
+            {data: 'ip', render: $.fn.dataTable.render.text()},
+            {data: 'type', render: $.fn.dataTable.render.text()},
+            {data: 'subject', render: $.fn.dataTable.render.text()},
+            {data: 'permission', render: $.fn.dataTable.render.text()},
+            {data: 'outcome', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
             type: 'post'
           }
         });

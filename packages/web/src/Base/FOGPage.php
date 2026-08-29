@@ -878,6 +878,14 @@ abstract class FOGPage extends FOGBase
         if ($hasChildren) {
             echo '<ul class="nav nav-treeview">';
             foreach ($subItems as $subItem => $text) {
+                // A '#'-prefixed key is a section label, not a destination.
+                // AdminLTE's own idiom for one inside a nav; rendered here
+                // rather than as a disabled link so it is not focusable and
+                // screen readers do not announce it as something to click.
+                if (0 === strpos((string) $subItem, '#')) {
+                    echo '<li class="nav-header">' . $text . '</li>';
+                    continue;
+                }
                 echo '<li class="nav-item">';
                 echo '<a class="nav-link ajax-page-link'
                     . ($activelink && $sub == $subItem ? ' active' : '')
@@ -896,6 +904,57 @@ abstract class FOGPage extends FOGBase
         }
         echo '</li>';
     }
+    /**
+     * Drop section labels that have nothing left under them.
+     *
+     * A '#'-prefixed key is a heading rather than a destination, and it
+     * must go with its contents. This is not cosmetic: the report menu
+     * resolves a permission PER REPORT (Authorization::_reportNode), so a
+     * role holding only host.view keeps Fleet and Hardware and loses the
+     * other five -- and a bare "Reports" heading over an empty gap reads as
+     * a rendering fault rather than as a permission working.
+     *
+     * A label's span runs to the NEXT label, and only a real report link
+     * keeps it alive. Both halves matter: "Import Reports" sits after the
+     * last group, so counting any surviving key would keep an empty
+     * section, and a label immediately followed by another label has an
+     * empty span rather than borrowing the next one's contents.
+     *
+     * Public and pure so it can be exercised with a canned menu. It was
+     * inline, where the only thing a test could do was assert that the
+     * source still contained it -- which passes with the whole block
+     * disabled.
+     *
+     * @param array $menu link => label, in render order
+     *
+     * @return array the same menu without its empty sections
+     */
+    public static function pruneEmptyMenuSections(array $menu)
+    {
+        $keys = array_keys($menu);
+        $count = count($keys);
+        foreach ($keys as $i => $key) {
+            if (0 !== strpos((string) $key, '#')) {
+                continue;
+            }
+            $kept = false;
+            for ($j = $i + 1; $j < $count; $j++) {
+                if (0 === strpos((string) $keys[$j], '#')) {
+                    break;
+                }
+                if (0 === strpos((string) $keys[$j], 'file&f=')) {
+                    $kept = true;
+                    break;
+                }
+            }
+            if (!$kept) {
+                unset($menu[$key]);
+            }
+        }
+
+        return $menu;
+    }
+
     /**
      * Creates the sub menu items.
      *
@@ -1021,18 +1080,37 @@ abstract class FOGPage extends FOGBase
                 );
                 break;
             case 'report':
+                // Two kinds of screen under one menu, labeled as two.
+                // Reports are aggregations over a window; Lists are the row
+                // dumps, several of which are the right answer to "give me
+                // the rows" and are not going anywhere. See ADR 0030 and
+                // ReportManagement::AGGREGATIONS.
+                //
+                // A HEADER IS A KEY STARTING WITH '#', which is a sub name
+                // no report can have -- `f` is base64 and every other sub is
+                // alphanumeric. Keeping the array `link => label` matters:
+                // SUB_MENULINK_DATA hands it to plugins below, and they
+                // iterate it expecting strings.
                 $reportlink = "file&f=";
                 $menu = [];
-                foreach (ReportManagement::loadCustomReports() as &$report) {
-                    $item = _(ucwords(strtolower($report)));
-                    $menu[
-                        sprintf(
-                            '%s%s',
-                            $reportlink,
-                            base64_encode($report)
-                        )
-                    ] = $item;
-                    unset($report, $item);
+                $groups = [
+                    '#reports' => self::$foglang['Reports'],
+                    '#lists' => _('Lists')
+                ];
+                foreach (ReportManagement::groupedReports() as $key => $set) {
+                    if ([] === $set) {
+                        continue;
+                    }
+                    $menu['#' . $key] = $groups['#' . $key];
+                    foreach ($set as $report) {
+                        $menu[
+                            sprintf(
+                                '%s%s',
+                                $reportlink,
+                                base64_encode($report)
+                            )
+                        ] = ReportManagement::titleFor($report);
+                    }
                 }
                 $menu['upload'] = _('Import Reports');
         }
@@ -1087,11 +1165,20 @@ abstract class FOGPage extends FOGBase
         // create, multicast -> task, etc.). Presentation only -- dispatch
         // enforcement lives in FOGPageManager::render().
         foreach (array_keys($menu) as $subKey) {
+            // A '#' key is a section label with no destination, so there is
+            // no permission to resolve for it. Left in here and pruned
+            // below instead, once it is known whether anything survived
+            // under it.
+            if (0 === strpos((string) $subKey, '#')) {
+                continue;
+            }
             $perm = Authorization::resolvePagePermission($node, $subKey, false);
             if (!Authorization::can($perm)) {
                 unset($menu[$subKey]);
             }
         }
+
+        $menu = self::pruneEmptyMenuSections($menu);
 
         // A lone "List All X" is not a sub-menu. It expands the parent to
         // offer one child that goes where the parent already goes, so it
@@ -5151,6 +5238,10 @@ abstract class FOGPage extends FOGBase
      *
      * @param mixed      $tabData The tabs we are going to build out.
      * @param int|object $obj     The object to pass in, -1 = current node + id.
+     *                            Anything falsy means there is no object, which
+     *                            skips the hook and plugin-injection blocks --
+     *                            that is what a report passes, having no entity
+     *                            for a plugin tab to attach to.
      *
      * @return string
      */

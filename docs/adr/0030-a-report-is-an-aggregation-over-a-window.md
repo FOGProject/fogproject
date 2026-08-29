@@ -2,13 +2,20 @@
 
 ## Status
 
-proposed
+accepted
 
 Decision 4 (the permission model) and decision 5 (the `taskLog` index) were
 signed off by the maintainer on 2026-08-29 ahead of the rest, decision 4
 because it is an access-control choice and decision 5 because it is a defect
-that stands on its own. Step 379 is implemented on `working-1.6`; nothing
-else here is.
+that stands on its own.
+
+All six sequencing items are implemented on `working-1.6`. This moved from
+`proposed` to `accepted` when item 6 landed, because the claim it was waiting
+on held: the last five reports reused the panel helpers unchanged, and the
+only additions the helpers needed were a shared `WindowedStats` base and one
+bug fix in the window control. What did NOT hold is recorded under
+"What item 6 found" below -- two of the six subjects are not naturally
+windowed at all, which the scope table did not anticipate.
 
 ## Context
 
@@ -237,3 +244,83 @@ the event logs. Rollups are not events and do not share a column set.
 | 4 | Panel render helper + the shared JS module | The abstraction, validated against exactly one report |
 | 5 | Imaging report, with its `REPORT_NODES` entry | The pattern-setter |
 | 6 | The remaining five, one rollup and one class each | Cheap by construction, or step 4 was wrong |
+
+Item 6 landed as one change: `FleetStats`, `InventoryStats`, `StorageStats`,
+`SnapinStats` and `AuditStats` with `Fleet_Report`, `Hardware_Report`,
+`Storage_Report`, `Snapin_Report` and `Audit_Report` over them.
+
+Items 4 and 5 landed together, deliberately. This ADR's own context records
+that `ActivityWindow` "shipped without a caller, which is how a helper rots";
+building the panel helper with nothing consuming it would have repeated that
+exactly, so the imaging report is what the helper was shaped against rather
+than what it was shaped for.
+
+What item 4 turned out to be, for item 6 to reuse:
+
+| Piece | Where |
+|---|---|
+| `ReportWindow` | `src/Audit/` — reads `start`/`end` off the URL on FOG's clock, drops a malformed bound, swaps a reversed pair. Each report supplies only its own default range |
+| `renderReportWindow()` | `FOGPageRender` — the From/To form, with an `$extra` slot for report-specific controls (Run History's source ticks) |
+| `renderStatTiles()` | `FOGPageRender` — the headline row, lifted from `ImageManagement::_archStat()` |
+| `renderChartPanel()` | `FOGPageRender` — a card, a container, and the series in a `type="application/json"` block beside it |
+| `fog.report.panels.js` | Draws every container on the page. No requests: a report's window is fixed and already in the URL, so re-fetching would re-run the same aggregation and give the chart a chance to disagree with the grid |
+| `tabFields($tabData, 0)` | The existing nav-tabs builder. A falsy object skips its entity hooks, so reports needed no second tab implementation |
+
+## What item 6 found
+
+Item 6 was the test of item 4, so what it found is the part worth keeping.
+
+**The helpers were reusable; the missing piece was underneath them.** Not one
+of `renderReportWindow()`, `renderStatTiles()`, `renderChartPanel()` or
+`fog.report.panels.js` needed changing to carry five more reports. What did
+need extracting was the layer below: every rollup was repeating a daily zero
+fill, a top-N fold and a window clamp, and all three fail silently when they
+are wrong -- a missing day is a straight line, a missing fold is an
+unreadable chart, a missing clamp is a query nobody bounded. Those became
+`WindowedStats`, and `ImagingStats` was reparented onto it. Extracted at the
+SECOND rollup rather than the fifth, deliberately: copying a trap four times
+is how it stops being fixed in one place.
+
+`WindowedStats::readWindow()` binds only the placeholders a statement
+actually names, because two of the six statements need neither bound and
+PDO rejects a bound parameter that does not appear.
+
+**Two subjects are not events, and the window means something different for
+them.** The scope table treated all six alike. Fleet staleness, hardware
+census and storage are STATES: "this machine has not been imaged since
+March" is true of a machine that did nothing in the window, so selecting
+rows by date would exclude exactly the rows the report is about. For those
+three the window's END is an as-of date and its START is what counts as
+current or recent. That is a real difference in what one control means, so
+each of those pages says it in a sentence under the picker rather than
+leaving it implicit -- a control that means two things on two reports is
+worse than no control.
+
+**Two silent failures, both found only by looking at the rendered page.**
+Neither raised anything anywhere:
+
+- A named placeholder cannot be repeated in one statement under native
+  prepares. `FleetStats` did it, PDODB logged and returned false,
+  `readWindow()` cast that to an empty array, the zero fill turned the empty
+  result into five buckets, and the chart drew five zeros beside a tile
+  saying 86 hosts. Now gated for every rollup by
+  `FogReportWiring::checkSql()`, over any static builder named `*Sql`.
+- A `datetime-local` input defaults to `step=60`, so a value carrying a
+  non-zero seconds component fails HTML5 constraint validation -- and an
+  invalid form fires NO submit event. The default window ends at "now", so
+  the picker was born invalid on 59 page loads out of 60 and the Show button
+  did nothing at all, with no request and no console message. Two more
+  things were wrong with the same control: `disableFormDefaults()` in
+  `fog.common.js` preventDefaults every form on the page, so the browser's
+  own navigation was never going to run either; and a GET submit REPLACES
+  the query string rather than merging into it, so `sub` had to be a hidden
+  field or the submit landed on Report Management. All three are gated by
+  `FogReportWiring::checkWindowControl()`, which renders the real control
+  and asserts the invariant rather than the attribute.
+
+**The permission mapping held, and one entry is not a convenience.**
+`Audit_Report` resolves to `audit` because an audit row necessarily
+discloses attempted usernames -- ADR 0021's reason for giving `audit.view`
+its own permission. Serving those rows under the default `report` node would
+have handed that to every report holder, which is decision 4's defect in its
+sharpest form rather than a tidy narrowing.

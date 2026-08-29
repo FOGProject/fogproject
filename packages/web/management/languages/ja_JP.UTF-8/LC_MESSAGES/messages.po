@@ -258,6 +258,9 @@ msgstr ""
 msgid "30 Minutes"
 msgstr "30分"
 
+msgid "31 to 90 days"
+msgstr ""
+
 #, fuzzy
 msgid "5 Minutes"
 msgstr "2分"
@@ -273,6 +276,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "91 to 365 days"
 msgstr ""
 
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
@@ -330,6 +336,9 @@ msgstr ""
 
 msgid "A host already exists with this name!"
 msgstr "この名前のホストは既に存在します！"
+
+msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
+msgstr ""
 
 msgid "A host with that name already exists"
 msgstr "その名前のホストは既に存在します"
@@ -765,6 +774,10 @@ msgid "Additional Icon Elements"
 msgstr "追加のアイコン要素"
 
 #, fuzzy
+msgid "Address"
+msgstr "IP アドレス"
+
+#, fuzzy
 msgid "Administrative actions"
 msgstr "ホスト登録"
 
@@ -851,6 +864,14 @@ msgstr "帯域幅は 0 より大きい数値で指定してください"
 
 msgid "All rights reserved."
 msgstr ""
+
+#, fuzzy
+msgid "Allocated"
+msgstr "関連付けられたホスト"
+
+#, fuzzy
+msgid "Allocated bytes per storage group"
+msgstr "イメージをストレージグループへ"
 
 msgid "Allow API"
 msgstr ""
@@ -1051,6 +1072,10 @@ msgid "Audit Log"
 msgstr ""
 
 #, fuzzy
+msgid "Audit Report"
+msgstr "Active Directory"
+
+#, fuzzy
 msgid "Audit entry"
 msgstr "Active Directory"
 
@@ -1188,7 +1213,13 @@ msgstr "読み込みに失敗しました"
 msgid "Button Icon"
 msgstr ""
 
+msgid "By"
+msgstr ""
+
 msgid "Bypass Bitlocker Detection"
+msgstr ""
+
+msgid "Bytes"
 msgstr ""
 
 #, fuzzy
@@ -1335,6 +1366,9 @@ msgstr ""
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"
+
+msgid "Capability"
+msgstr ""
 
 #, fuzzy
 msgid "Capone"
@@ -1543,6 +1577,9 @@ msgid "Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure B
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Code"
 msgstr ""
 
 #, fuzzy
@@ -1942,6 +1979,10 @@ msgstr "Cron スケジュール"
 msgid "Cross platform, more secure, faster, and much easier on the server. Espeically when your organization has many hosts"
 msgstr ""
 
+#, fuzzy
+msgid "Currency"
+msgstr "現在のレコード"
+
 msgid "Current Records"
 msgstr "現在のレコード"
 
@@ -2016,6 +2057,9 @@ msgstr "月の日付の値が無効です"
 
 msgid "Day of week value is not valid"
 msgstr "曜日の値が無効です"
+
+msgid "Days"
+msgstr ""
 
 #, fuzzy
 msgid "Deactivate plugins failed!"
@@ -2128,6 +2172,10 @@ msgstr "説明"
 
 msgid "Destroy failed"
 msgstr "解除に失敗しました"
+
+#, fuzzy
+msgid "Details"
+msgstr "マシン詳細"
 
 msgid "Device must be a string"
 msgstr "デバイスは文字列で指定してください"
@@ -2432,6 +2480,21 @@ msgstr "イベントデータは配列である必要があります"
 msgid "Event must be a string"
 msgstr "イベントは文字列で指定してください"
 
+#, fuzzy
+msgid "Event types"
+msgstr "イベント"
+
+#, fuzzy
+msgid "Events"
+msgstr "イベント"
+
+#, fuzzy
+msgid "Events by account"
+msgstr "Slack アカウント"
+
+msgid "Events per day"
+msgstr ""
+
 msgid "Every API token on this server. Tokens are stored hashed &mdash; a token cannot be shown again after it is issued, so this page can revoke one but never recover it."
 msgstr ""
 
@@ -2731,6 +2794,10 @@ msgstr "タスクログの更新または作成に失敗しました"
 msgid "Failed to write file to disk"
 msgstr "ディスクへのファイル書き込みに失敗しました"
 
+#, fuzzy
+msgid "Failures by snapin"
+msgstr "スナップインの追加に失敗しました"
+
 msgid "Fields and types must have equal count"
 msgstr "フィールドとタイプの数は一致している必要があります"
 
@@ -2746,10 +2813,6 @@ msgstr "ファイル"
 #, fuzzy
 msgid "File Delete Queue"
 msgstr "ルールを削除しました"
-
-#, fuzzy
-msgid "File Deleter"
-msgstr "削除"
 
 msgid "File Not Found"
 msgstr "ファイルが見つかりません"
@@ -2846,6 +2909,10 @@ msgid "First row is a header"
 msgstr ""
 
 #, fuzzy
+msgid "Fleet Report"
+msgstr "レポートを作成しますか？"
+
+#, fuzzy
 msgid "Flush Settings Cache"
 msgstr "FOG 設定"
 
@@ -2921,6 +2988,9 @@ msgstr "空きメモリ"
 #, fuzzy
 msgid "FreeIPA"
 msgstr "空き"
+
+msgid "Freshness"
+msgstr ""
 
 msgid "Friendly Name"
 msgstr "表示名"
@@ -3227,6 +3297,9 @@ msgstr "グループ"
 msgid "Groups cannot create capture tasks"
 msgstr "また、キャプチャできません"
 
+msgid "Growth"
+msgstr ""
+
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "エラーコード"
@@ -3258,6 +3331,10 @@ msgstr "ハードディスクシリアル番号"
 
 msgid "Hardware Information"
 msgstr "ハードウェア情報"
+
+#, fuzzy
+msgid "Hardware Report"
+msgstr "レポートを作成しますか？"
 
 msgid "Hash"
 msgstr "ハッシュ"
@@ -3319,9 +3396,6 @@ msgstr "ヘルプとガイド"
 #, fuzzy
 msgid "History Items"
 msgstr "履歴 ID"
-
-msgid "History Report"
-msgstr "履歴レポート"
 
 msgid "Hits / Misses / Queries"
 msgstr ""
@@ -3550,9 +3624,6 @@ msgstr "ロケーションは既に存在します。再試行してください
 msgid "Hosts"
 msgstr "ホスト"
 
-msgid "Hosts And Users"
-msgstr "ホストとユーザー"
-
 #, fuzzy
 msgid "Hosts and images"
 msgstr "ホストとユーザー"
@@ -3572,6 +3643,9 @@ msgstr "タスク内のホスト"
 #, fuzzy
 msgid "Hosts only"
 msgstr "ホスト Init"
+
+msgid "Hosts registered per day"
+msgstr ""
 
 #, fuzzy
 msgid "Hosts:"
@@ -3862,12 +3936,24 @@ msgstr "イメージ処理実行者"
 msgid "Imaged For"
 msgstr "イメージ処理対象"
 
+#, fuzzy
+msgid "Imaged in range"
+msgstr "イメージ管理"
+
 msgid "Images"
 msgstr "イメージ"
 
 #, fuzzy
+msgid "Images added per day"
+msgstr "イメージを追加しました！"
+
+#, fuzzy
 msgid "Images only"
 msgstr "イメージ"
+
+#, fuzzy
+msgid "Images used"
+msgstr "使用中のイメージ"
 
 #, fuzzy
 msgid "Imaging"
@@ -3890,8 +3976,16 @@ msgstr "イメージログ"
 msgid "Imaging Over the last"
 msgstr "過去 30 日間のイメージ処理"
 
+#, fuzzy
+msgid "Imaging Report"
+msgstr "イメージログ"
+
 msgid "Imaging Started"
 msgstr "イメージ処理を開始しました"
+
+#, fuzzy
+msgid "Imaging runs"
+msgstr "イメージログ"
 
 msgid "Import"
 msgstr "インポート"
@@ -4248,6 +4342,10 @@ msgstr "無効なステータスペイロードです"
 msgid "Invalid upload."
 msgstr "無効なステータスペイロードです"
 
+#, fuzzy
+msgid "Inventoried"
+msgstr "インベントリ"
+
 msgid "Inventory"
 msgstr "インベントリ"
 
@@ -4260,15 +4358,12 @@ msgid "Inventory Edits"
 msgstr "インベントリ"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "インベントリ"
-
-msgid "Inventory Report"
-msgstr "インベントリレポート"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "インベントリ"
+
+#, fuzzy
+msgid "Inventory recorded per day"
+msgstr "インベントリレポート"
 
 msgid "Is Advanced"
 msgstr "詳細"
@@ -4511,6 +4606,10 @@ msgstr "LDAP サーバー"
 msgid "Language"
 msgstr "言語"
 
+#, fuzzy
+msgid "Largest images"
+msgstr "イメージ"
+
 msgid "Last Captured"
 msgstr "最終キャプチャ"
 
@@ -4540,8 +4639,20 @@ msgstr "タスクを正常に設定しました"
 msgid "Last Used"
 msgstr "最終キャプチャ"
 
+#, fuzzy
+msgid "Last check-in"
+msgstr "タスクチェックイン日"
+
+#, fuzzy
+msgid "Last deployed"
+msgstr "最終展開"
+
 msgid "Last flush"
 msgstr ""
+
+#, fuzzy
+msgid "Last imaged"
+msgstr "イメージ"
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -4648,6 +4759,10 @@ msgstr "2 番目のパラメーターは array(class,function) 形式である�
 
 msgid "Listener must be an array or an object"
 msgstr "リスナーは配列またはオブジェクトである必要があります"
+
+#, fuzzy
+msgid "Lists"
+msgstr "一覧"
 
 msgid "Load Average"
 msgstr "システム負荷"
@@ -4793,6 +4908,14 @@ msgstr "ネットワークインストーラー"
 msgid "Machine Details"
 msgstr "マシン詳細"
 
+#, fuzzy
+msgid "Machines"
+msgstr "割り当てられたイメージ"
+
+#, fuzzy
+msgid "Machines imaged"
+msgstr "割り当てられたイメージ"
+
 msgid "Main Menu"
 msgstr "メインメニュー"
 
@@ -4802,6 +4925,10 @@ msgstr "メインの関連付け"
 
 msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
 msgstr ""
+
+#, fuzzy
+msgid "Make and model"
+msgstr "空欄の場合は既定値"
 
 #, fuzzy
 msgid "Make default"
@@ -4822,6 +4949,10 @@ msgstr "管理パスワード"
 
 msgid "Management Username"
 msgstr "管理ユーザー名"
+
+#, fuzzy
+msgid "Manufacturers"
+msgstr "MB 製造元"
 
 msgid "Mark selected client ignore"
 msgstr ""
@@ -4956,6 +5087,10 @@ msgid "Model"
 msgstr "モデル"
 
 #, fuzzy
+msgid "Models"
+msgstr "モデル"
+
+#, fuzzy
 msgid "Module"
 msgstr "モジュール MD5"
 
@@ -5028,6 +5163,10 @@ msgstr "月の値が無効です"
 
 msgid "Monthly"
 msgstr "毎月"
+
+#, php-format
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
+msgstr ""
 
 msgid "Most Frequent Host IDs"
 msgstr ""
@@ -5162,6 +5301,10 @@ msgstr ""
 
 msgid "Never - do not verify (insecure)"
 msgstr ""
+
+#, fuzzy
+msgid "Never imaged"
+msgstr "新しいイメージ"
 
 #, fuzzy
 msgid "Never reported"
@@ -5310,6 +5453,10 @@ msgstr "イメージが指定されていません"
 
 msgid "No images associated with this group as master"
 msgstr "このグループにマスターとして関連付けられたイメージはありません"
+
+#, fuzzy
+msgid "No inventory"
+msgstr "インベントリ"
 
 msgid "No items found"
 msgstr "項目が見つかりません"
@@ -5507,6 +5654,10 @@ msgstr "同期していません"
 
 #, fuzzy
 msgid "Not recorded"
+msgstr "保護されていません"
+
+#, fuzzy
+msgid "Not reported"
 msgstr "保護されていません"
 
 msgid "Not syncing"
@@ -5758,6 +5909,9 @@ msgstr "その他タグ #2"
 msgid "Outcome"
 msgstr ""
 
+msgid "Over a year"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -5848,9 +6002,6 @@ msgstr "保留中 MAC アドレス"
 msgid "Pending MACs"
 msgstr "保留中 MAC アドレス"
 
-msgid "Pending Mac List"
-msgstr "保留中の MAC 一覧"
-
 msgid "Pending Registered Hosts"
 msgstr "保留中の登録済みホスト"
 
@@ -5873,6 +6024,9 @@ msgstr "保留中 MAC アドレス"
 
 msgid "Pending..."
 msgstr "保留中..."
+
+msgid "People"
+msgstr ""
 
 #, fuzzy
 msgid "Permission"
@@ -6276,11 +6430,11 @@ msgstr "秘密鍵のパスが見つかりません"
 msgid "Private keys are readable by the web server"
 msgstr "秘密鍵を読み取れません"
 
+msgid "Processors"
+msgstr ""
+
 #, fuzzy
 msgid "Product Key"
-msgstr "プロダクトキー"
-
-msgid "Product Keys"
 msgstr "プロダクトキー"
 
 msgid "Progress"
@@ -6437,6 +6591,14 @@ msgstr "レコードが見つかりません"
 msgid "Recorded By"
 msgstr ""
 
+#, fuzzy
+msgid "Recorded in range"
+msgstr "レコードが見つかりません"
+
+#, fuzzy
+msgid "Records"
+msgstr "現在のレコード"
+
 msgid "Redirect Login To This Provider"
 msgstr ""
 
@@ -6450,8 +6612,15 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr "FOG 設定"
 
+#, fuzzy
+msgid "Refused"
+msgstr "使用済み"
+
 msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
 msgstr ""
+
+msgid "Registered"
+msgstr "登録済み"
 
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
@@ -6518,6 +6687,10 @@ msgstr ""
 
 msgid "Rename or remove one of them."
 msgstr ""
+
+#, fuzzy
+msgid "Replicates"
+msgstr "レプリケーションを実行しますか？"
 
 msgid "Replicating"
 msgstr "レプリケーション中"
@@ -6702,6 +6875,19 @@ msgstr ""
 
 msgid "Running Windows"
 msgstr "Windows 実行中"
+
+msgid "Runs"
+msgstr ""
+
+msgid "Runs and failures per day"
+msgstr ""
+
+#, fuzzy
+msgid "Runs by image"
+msgstr "イメージ"
+
+msgid "Runs per day"
+msgstr ""
 
 msgid "SB Enrolled"
 msgstr ""
@@ -7214,6 +7400,9 @@ msgstr "サイズ"
 msgid "Size on Server"
 msgstr "サーバー"
 
+msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
+msgstr ""
+
 #, php-format
 msgid "Skipped unknown %s: %s"
 msgstr ""
@@ -7353,6 +7542,10 @@ msgid "Snapin Replicator"
 msgstr "スナップインレプリケーター"
 
 #, fuzzy
+msgid "Snapin Report"
+msgstr "スナップインレプリケーター"
+
+#, fuzzy
 msgid "Snapin Run Order"
 msgstr "スナップイン戻りコード"
 
@@ -7399,6 +7592,10 @@ msgid "Snapin jobs"
 msgstr "スナップイン"
 
 #, fuzzy
+msgid "Snapin runs"
+msgstr "スナップイン引数"
+
+#, fuzzy
 msgid "Snapin tasks"
 msgstr "スナップインハッシュ"
 
@@ -7417,6 +7614,10 @@ msgstr "スナップインは既にこのホストに展開されています"
 msgid "Snapins run in this order. The order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task; otherwise it sets the order snapins are sent."
 msgstr ""
 
+#, fuzzy
+msgid "Snapins used"
+msgstr "使用中のスナップイン"
+
 msgid "So if you are trying to transmit to remote node A"
 msgstr "そのため、リモートノード A に送信しようとしている場合"
 
@@ -7432,6 +7633,9 @@ msgstr "Space 変数はブール値である必要があります"
 
 msgid "Specified download URL not allowed!"
 msgstr "指定されたダウンロード URL は許可されていません！"
+
+msgid "Stale"
+msgstr ""
 
 #, fuzzy
 msgid "Start Download Fail"
@@ -7687,6 +7891,14 @@ msgstr "ストレージノードを更新しました！"
 msgid "Storage Nodes"
 msgstr "ストレージノード"
 
+#, fuzzy
+msgid "Storage Report"
+msgstr "レポートを作成しますか？"
+
+#, fuzzy
+msgid "Storage nodes"
+msgstr "ストレージノード"
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -7752,6 +7964,10 @@ msgstr "サブツリーのみ"
 
 msgid "Subtree and Below"
 msgstr "サブツリー以下"
+
+#, fuzzy
+msgid "Succeeded"
+msgstr "インポートに成功しました"
 
 #, fuzzy
 msgid "Success."
@@ -7987,6 +8203,10 @@ msgid "Task starting"
 msgstr "タスクを開始しました"
 
 #, fuzzy
+msgid "Task state"
+msgstr "タスクを開始しました"
+
+#, fuzzy
 msgid "Task state added!"
 msgstr "タスク状態を追加しました！"
 
@@ -8143,6 +8363,9 @@ msgid "The archive is larger than the %s limit."
 msgstr ""
 
 msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
+msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -8603,6 +8826,9 @@ msgstr "時刻"
 msgid "Time Already Exists"
 msgstr "この時刻は既に存在します"
 
+msgid "Time since last imaged"
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -8783,6 +9009,14 @@ msgstr "更新できません"
 #, fuzzy
 msgid "Unable to update task"
 msgstr "タスクの更新に失敗しました"
+
+#, fuzzy
+msgid "Unassigned"
+msgstr "関連付けられたホスト"
+
+#, fuzzy
+msgid "Unattributed"
+msgstr "ユーザー名属性"
 
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
 msgstr ""
@@ -9287,6 +9521,9 @@ msgstr ""
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは保持されます"
 
+msgid "Where it lives"
+msgstr ""
+
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
@@ -9355,6 +9592,9 @@ msgid "Windows keys is a plugin that associates product keys"
 msgstr "Windows キーは、プロダクトキーを関連付けるプラグインです"
 
 msgid "Wipes"
+msgstr ""
+
+msgid "Within 30 days"
 msgstr ""
 
 msgid "Yearly"
@@ -10644,9 +10884,6 @@ msgstr ""
 #~ msgid "Create New iPXE Menu Entry"
 #~ msgstr "新しい iPXE メニューエントリを作成"
 
-#~ msgid "Create Report?"
-#~ msgstr "レポートを作成しますか？"
-
 #~ msgid "Create Rule?"
 #~ msgstr "ルールを作成しますか？"
 
@@ -10955,6 +11192,10 @@ msgstr ""
 #~ msgid "Failed to upload \"%s\" to Master Node"
 #~ msgstr "\"%s\" のマスターノードへのアップロードに失敗しました"
 
+#, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "削除"
+
 #~ msgid "File Integrity Management"
 #~ msgstr "ファイル整合性管理"
 
@@ -11063,6 +11304,9 @@ msgstr ""
 #~ msgid "History Info"
 #~ msgstr "履歴情報"
 
+#~ msgid "History Report"
+#~ msgstr "履歴レポート"
+
 #~ msgid "History Time"
 #~ msgstr "履歴時刻"
 
@@ -11161,6 +11405,9 @@ msgstr ""
 
 #~ msgid "Hostname / IP"
 #~ msgstr "ホスト名 / IP"
+
+#~ msgid "Hosts And Users"
+#~ msgstr "ホストとユーザー"
 
 #~ msgid "I have read"
 #~ msgstr "I have read"
@@ -11327,6 +11574,13 @@ msgstr ""
 #~ msgid "Invalid user and/or channel passed"
 #~ msgstr "無効なユーザーまたはチャンネルが渡されました"
 
+#, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "インベントリ"
+
+#~ msgid "Inventory Report"
+#~ msgstr "インベントリレポート"
+
 #~ msgid "Is Restricted User "
 #~ msgstr "制限付きユーザー "
 
@@ -11410,9 +11664,6 @@ msgstr ""
 #~ msgid "MB Asset"
 #~ msgstr "MB 資産タグ"
 
-#~ msgid "MB Manufacturer"
-#~ msgstr "MB 製造元"
-
 #~ msgid "MB Serial"
 #~ msgstr "MB シリアル"
 
@@ -11437,6 +11688,10 @@ msgstr ""
 #, php-format
 #~ msgid "Malformed upload for \"%s\""
 #~ msgstr "\"%s\" のアップロード形式が不正です"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "MB 製造元"
 
 #~ msgid "Max"
 #~ msgstr "最大"
@@ -11518,9 +11773,6 @@ msgstr ""
 
 #~ msgid "New Host"
 #~ msgstr "新しいホスト"
-
-#~ msgid "New Image"
-#~ msgstr "新しいイメージ"
 
 #~ msgid "New LDAP Server"
 #~ msgstr "新しい LDAP サーバー"
@@ -11738,6 +11990,9 @@ msgstr ""
 #~ msgid "Pending MACs."
 #~ msgstr "保留中 MAC アドレス"
 
+#~ msgid "Pending Mac List"
+#~ msgstr "保留中の MAC 一覧"
+
 #~ msgid "Perform Immediately?"
 #~ msgstr "すぐに実行しますか？"
 
@@ -11829,6 +12084,9 @@ msgstr ""
 #~ msgid "Printer name already exists"
 #~ msgstr "このプリンター名は既に存在します"
 
+#~ msgid "Product Keys"
+#~ msgstr "プロダクトキー"
+
 #~ msgid "Quarantine"
 #~ msgstr "隔離"
 
@@ -11841,11 +12099,12 @@ msgstr ""
 #~ msgid "Rebranding element has been successfully updated!"
 #~ msgstr "ブランド設定を更新しました！"
 
+#, fuzzy
+#~ msgid "Recorded"
+#~ msgstr "保護されていません"
+
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "登録はフックまたはイベントから管理する必要があります"
-
-#~ msgid "Registered"
-#~ msgstr "登録済み"
 
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "返却担当者のイニシャル"
@@ -11894,9 +12153,6 @@ msgstr ""
 
 #~ msgid "Replay from journal"
 #~ msgstr "ジャーナルから再実行"
-
-#~ msgid "Replicate?"
-#~ msgstr "レプリケーションを実行しますか？"
 
 #~ msgid "Requires templates to process"
 #~ msgstr "処理するテンプレートが必要です"
@@ -12037,9 +12293,6 @@ msgstr ""
 
 #~ msgid "Site Control Management"
 #~ msgstr "サイト制御管理"
-
-#~ msgid "Snapin Args"
-#~ msgstr "スナップイン引数"
 
 #~ msgid "Snapin Created"
 #~ msgstr "スナップインを作成しました"
