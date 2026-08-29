@@ -440,10 +440,11 @@ function fogBindTimezonePicker() {
     fogPrefStore('display.timezone', chosen, function(storeErr) {
       if (storeErr) {
         button.prop('disabled', false);
-        $.notify(
-          {message: 'Could not save your timezone'},
-          {type: 'danger'}
-        );
+        // notifyFromAPI, not notify: the latter does not exist here, and
+        // calling it would throw on the one path that exists to report a
+        // failure -- leaving the button disabled with nothing on screen and
+        // only a console error to say why.
+        $.notifyFromAPI(storeErr.responseJSON, storeErr);
         return;
       }
       window.location.reload();
