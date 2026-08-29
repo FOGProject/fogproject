@@ -53,7 +53,7 @@ the `commLeaf` branch in `certDecrypt()` are all gone. There is one layout.
 `$snapindir`, and `configureSnapins()` chowns that tree to
 `$username:$apacheuser` at 775 — *after* `createSSLCA`, so any permission set
 during certificate creation was silently reverted later in the same install.
-Fixed by pruning `$sslpath` from the recursion and hardening afterwards, from
+Fixed by pruning `$sslpath` from the recursion and hardening afterward, from
 `_hardenPkiPermissions`. The **Certificates** page under FOG Configuration
 re-runs the check from inside PHP, which is the only place it can be answered
 honestly.

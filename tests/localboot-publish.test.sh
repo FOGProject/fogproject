@@ -196,7 +196,7 @@ mk_tree() {
 }
 
 mk_web() {
-    local root="$1" withenrol="$2" withrefind="${3:-yes}" n
+    local root="$1" withenroll="$2" withrefind="${3:-yes}" n
     rm -rf "$root"
     mkdir -p "${root}/service/ipxe" "${root}/service/secureboot"
     for n in bzImage bzImage32 arm_Image init.xz init_32.xz arm_init.cpio.gz; do
@@ -211,7 +211,7 @@ mk_web() {
             printf '%s' "$n" > "${root}/service/ipxe/${n}"
         done
     fi
-    if [[ $withenrol == yes ]]; then
+    if [[ $withenroll == yes ]]; then
         for n in MOK.der PK.auth KEK.auth db.auth \
                  fog-enroll-mok.sh fog-enroll-mok.desktop; do
             printf '%s' "$n" > "${root}/service/secureboot/${n}"

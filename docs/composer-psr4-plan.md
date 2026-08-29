@@ -258,7 +258,7 @@ What the multi-root map costs, honestly:
 ## The taxonomy
 
 Derived where it can be, hand-filed where it cannot. **151 of 202 fall out of
-the parent chain with no judgement at all** — which is the fact that reopens
+the parent chain with no judgment at all** — which is the fact that reopens
 ADR 0013's "202 chances to file a class in the wrong bucket".
 
 `VERIFIED` — bucket sizes and the derivation:
@@ -771,7 +771,7 @@ list being invalidated, the plugin's classes autoloading and both its hooks
 registering — the consequence note in ADR 0009 that says a freshly installed
 plugin otherwise stays invisible for the length of the TTL while everything
 downstream silently no-ops and reports success. The lab was put back
-afterwards (`psr4_revert_helloworld.sh`); the `helloWorld` table stays,
+afterward (`psr4_revert_helloworld.sh`); the `helloWorld` table stays,
 because uninstall is forward-only by design.
 
 **Uploading an archive**, with both of ADR 0009's switches on. A throwaway
@@ -789,7 +789,7 @@ spelling all 168 inheritances in `fog-plugins` use — and it printed
 resolves only through the reverse arm in `Initiator::autoload()`, so that
 one line is the arm working from outside the web tree entirely.
 
-Everything was removed afterwards and the lab put back: plugin uninstalled
+Everything was removed afterward and the lab put back: plugin uninstalled
 and forgotten, files deleted, `psr4probe` table dropped,
 `FOG_PLUGIN_UI_INSTALL_ENABLED` back to `0`. The root switch is Tom's to
 revoke (`bin/fog-plugin-uploads.sh disable`).
@@ -846,7 +846,7 @@ The completeness check actually wanted is item 3 above — exact, not heuristic,
 one command. And `tests/all-classes-load.test.php` already *declares* every
 class in a child process, which is stronger than resolving it.
 
-PHPStan gets **cheaper and better** afterwards: PSR-4 with one class per file
+PHPStan gets **cheaper and better** afterward: PSR-4 with one class per file
 means its config is `autoload: psr-4` pointing at `composer.json`, instead of
 `scanDirectories` over 250 files with five non-standard suffixes. Separate
 work, with its own baseline decision, sequenced after.

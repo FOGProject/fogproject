@@ -46,7 +46,7 @@ class SnapinTaskManager extends FOGManagerController
         /**
          * Get our canceled state id
          */
-        $cancelled = self::getCancelledState();
+        $canceled = self::getCancelledState();
         /**
          * Get any snapin job IDs
          */
@@ -69,7 +69,7 @@ class SnapinTaskManager extends FOGManagerController
             $findWhere,
             '',
             [
-                'stateID' => $cancelled,
+                'stateID' => $canceled,
                 'complete'=> self::formatTime('now', 'Y-m-d H:i:s')
             ]
         );
@@ -112,7 +112,7 @@ class SnapinTaskManager extends FOGManagerController
                 ->update(
                     ['id' => (array)$snapinJobIDs],
                     '',
-                    ['stateID' => $cancelled]
+                    ['stateID' => $canceled]
                 );
         }
         /**
@@ -124,7 +124,7 @@ class SnapinTaskManager extends FOGManagerController
                     ['id' => (array)$hostTasksToCancel],
                     '',
                     [
-                        'stateID' => $cancelled,
+                        'stateID' => $canceled,
                         'stateChangedTime' => self::niceDate()
                             ->format('Y-m-d H:i:s')
                     ]

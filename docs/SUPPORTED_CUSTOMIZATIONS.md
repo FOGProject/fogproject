@@ -17,7 +17,7 @@ rather than left for you to discover.
 
 Everything preserved automatically is copied to
 `/opt/fog/customizations/` (strictly, `$fogprogramdir/customizations`) before
-the web tree is rebuilt, and copied back afterwards. That directory is
+the web tree is rebuilt, and copied back afterward. That directory is
 outside the web root, which is why it survives — the installer rebuilds
 `/var/www/html/fog` wholesale on every run.
 

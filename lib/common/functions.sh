@@ -782,7 +782,7 @@ updateStorageNodeCredentials() {
 # The UPDATE is conditioned on the current value being '0' as well, so a
 # re-run cannot walk over a window an admin has since chosen.
 #
-# 365 days is a judgement, not a derived figure: long enough to answer "who was
+# 365 days is a judgment, not a derived figure: long enough to answer "who was
 # on this machine last year", short enough that the table does not grow without
 # bound, and a round number to reason about. Upgrades stay at 0 and get a
 # dashboard notice instead -- see DashboardPage::_userTrackingRetentionNotice().
@@ -2144,7 +2144,7 @@ installFOGServices() {
         chmod 0755 $fogprogramdir/plugins >>$error_log 2>&1
     else
         # Uploads are enabled here, so the web tier writes as well as reads and
-        # needs the _rw_ label. Relabelling to the read-only type would break
+        # needs the _rw_ label. Relabeling to the read-only type would break
         # uploads on an enforcing host with nothing but an AVC denial to say so.
         plugincontext="httpd_sys_rw_content_t"
     fi
@@ -2750,7 +2750,7 @@ _applyBootDelay() {
         echo "   DHCP points it at 10secdelay/, which is exactly 10 seconds."
     fi
 }
-# Remove the EFI artefacts that v2.0.0-fog.8 stopped shipping.
+# Remove the EFI artifacts that v2.0.0-fog.8 stopped shipping.
 #
 # Two trees are stale after the EMBED-less change, and _copyIpxeTree() cannot
 # clear either of them -- it only ever writes, so anything a release stops
@@ -2963,7 +2963,7 @@ downloadplugins() {
     # The bundled plugins are a release of FOGProject/fog-plugins now, not a
     # tree in this repository (ADR 0009). Fetched into packages/web/lib/plugins
     # BEFORE configureHttpd lays the web package, because that is the copy the
-    # web root is made from -- fetching afterwards would put them somewhere
+    # web root is made from -- fetching afterward would put them somewhere
     # nothing reads and the next upgrade's rm -rf would take them anyway.
     #
     # The work lives in bin/fetch-plugins.sh rather than here so a developer
@@ -3102,7 +3102,7 @@ configureTFTPandPXE() {
         echo
         prepareiPXEsource || return 1
         # Before the build, while the staging tree still holds what the release
-        # asset unpacked. Afterwards these bytes no longer exist anywhere.
+        # asset unpacked. Afterward these bytes no longer exist anywhere.
         _preserveStockIpxe
         dots "Compiling iPXE binaries trusting your SSL certificate"
         _resolveIpxeTrust
@@ -6549,7 +6549,7 @@ writeUpdateFile() {
         # admin passing the flags again -- an upgrade that silently replaced
         # signed kernels with unsigned ones is the main way this setup breaks.
         #
-        # PKI_sb_ca_cert is the certificate endpoints ENROL, which is not always
+        # PKI_sb_ca_cert is the certificate endpoints ENROLL, which is not always
         # the one that signs. Persisted so an admin who supplied their own Secure
         # Boot intermediate does not have to re-pass it on every later run -- and
         # so a rotated signing leaf keeps pointing at the same enrolled CA.
@@ -7654,7 +7654,7 @@ _collectPkiNames() {
     local needRoot=0 needWeb=0 needSB=0
     [[ ! -f ${PKI_root_ca_cert} ]] && needRoot=1
     [[ ! -f "$(_pkiZoneDir web)/ca/.fogWebCA.pem" ]] && needWeb=1
-    # Not conditional on ${PKI_sb_enabled}: that flag declines ENROLMENT, not signing,
+    # Not conditional on ${PKI_sb_enabled}: that flag declines ENROLLMENT, not signing,
     # so the Secure Boot CA is minted on every server. See _ensureSecureBootKeys.
     [[ ! -f "$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem" ]] && needSB=1
     [[ $needRoot -eq 0 && $needWeb -eq 0 && $needSB -eq 0 ]] && return 0
@@ -7820,7 +7820,7 @@ _resolveNetbootProto() {
     # That marker is the fix. This used to return early on any non-empty
     # ${BOOT_url_proto} -- and ${BOOT_url_proto} is persisted, so a value this function
     # DERIVED on one run was indistinguishable from one an admin forced, and
-    # short-circuited every run afterwards. The consequence was reported from a
+    # short-circuited every run afterward. The consequence was reported from a
     # live server: an install resolved http, wrote it down, and the admin then
     # declared PKI_web_cert_publicly_trusted="yes" and watched it be read and ignored, because
     # BOOT_url_proto=http was already in the file. Nothing said so -- the summary
@@ -11258,7 +11258,7 @@ _ensureSecureBootKeys() {
     # ${PKI_sb_enabled}=0 is deliberately NOT handled here any more, and the keys are
     # minted for an opted-out server exactly as for any other.
     #
-    # What the opt-out turns off is ENROLMENT -- publishing MOK.der and the
+    # What the opt-out turns off is ENROLLMENT -- publishing MOK.der and the
     # PK/KEK/db variable updates, and with them the PXE menu entry, which
     # IpxeBootMenu gates on service/secureboot/MOK.der existing
     # (bootmenu.class.php:2089). It does not turn off SIGNING, because an
@@ -11534,7 +11534,7 @@ _publishSecureBootKit() {
     # byte-identical to before.
     #
     # ${PKI_sb_enabled}=0 lands here too, and this is the second of the two places the
-    # opt-out is applied. Declining Secure Boot means declining ENROLMENT: no
+    # opt-out is applied. Declining Secure Boot means declining ENROLLMENT: no
     # MOK.der, and so no PXE menu entry either, since IpxeBootMenu gates that on
     # this file existing (bootmenu.class.php:2089). The binaries are still
     # signed -- see _ensureSecureBootKeys for why signing is not part of what
@@ -11991,7 +11991,7 @@ _resignKernels() {
 #
 # The symptom is deceptive, which is why this went unnoticed: imaging itself
 # works perfectly -- iPXE is signed, the kernel is signed by _resignKernels --
-# and the machine only fails afterwards, on the way to the disk. It reads as a
+# and the machine only fails afterward, on the way to the disk. It reads as a
 # bootloader or partitioning problem, not a Secure Boot one. Reported on the
 # forum against 1.6.3200 (topic 18217), where the reporter fixed it by hand.
 #
@@ -12987,7 +12987,7 @@ NIC's IPv4 setting is not DHCP, no SNP device exists at all -- so snp and snponl
 builds find nothing, and the firmware will not offer a UEFI PXE boot option
 either. On OVMF/KVM: Device Manager -> Network Device List -> pick the NIC ->
 IPv4 Network Configuration -> tick Enable DHCP -> SAVE WITH F10. The device and
-the PXE option both appear afterwards.
+the PXE option both appear afterward.
 
 Then, if it is really the binary, pick a different one:
 
@@ -13066,7 +13066,7 @@ fi)
           uefi.secureBoot.dbDefault.file0 = "MOK.der"
       On an existing VM, uefi.allowAuthBypass = "TRUE" lets you add it through
       the firmware UI. Hand the UI MOK.der -- NOT the .auth files; those are a
-      different kind of artefact and a firmware menu cannot read them.
+      different kind of artifact and a firmware menu cannot read them.
 
       APPEND, do not replace. Replacing db drops Microsoft's certificates and
       Windows stops booting.

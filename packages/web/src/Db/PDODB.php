@@ -960,7 +960,7 @@ class PDODB extends DatabaseManager
          * a boolean walks straight past it, and the manager UPDATE path
          * (HostManager::update() writing `hosts`.`hostInfoLock` from
          * ->set('tokenlock', false) at the end of every imaging task) never
-         * went through save() at all. Normalising here is the only place
+         * went through save() at all. Normalizing here is the only place
          * that covers save(), insertBatch(), the manager builders and
          * hand-written queries at once.
          *

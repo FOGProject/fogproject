@@ -43,7 +43,7 @@ class MulticastSessionManager extends FOGManagerController
         /**
          * Get the current id for canceled state.
          */
-        $cancelled = self::getCancelledState();
+        $canceled = self::getCancelledState();
         /**
          * Get sessions's associated task IDs (if any)
          */
@@ -60,7 +60,7 @@ class MulticastSessionManager extends FOGManagerController
                 ['id' => $taskIDs],
                 '',
                 [
-                    'stateID' => $cancelled,
+                    'stateID' => $canceled,
                     'checkInTime' => self::niceDate()->format('Y-m-d H:i:s'),
                     'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
                 ]
@@ -72,7 +72,7 @@ class MulticastSessionManager extends FOGManagerController
             $findWhere,
             '',
             [
-                'stateID' => $cancelled,
+                'stateID' => $canceled,
                 'name' => '',
                 'clients' => 0,
                 'completetime' => self::niceDate()->format('Y-m-d H:i:s')

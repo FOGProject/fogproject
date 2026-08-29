@@ -1705,7 +1705,7 @@ abstract class FOGManagerController extends FOGBase
      * mandatory, and under the server's own sql_mode any INSERT omitting one
      * fails with error 1364.
      *
-     * WHICH COLUMNS KEEP THEIR TEETH. Not a judgement call, and not a list
+     * WHICH COLUMNS KEEP THEIR TEETH. Not a judgment call, and not a list
      * kept by hand -- FOG already states it, and this class already holds the
      * statement: $databaseFieldsRequired, resolved up the model's inheritance
      * chain by the constructor. Three kinds of column are left bare:

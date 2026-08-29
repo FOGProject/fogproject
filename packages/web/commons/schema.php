@@ -5511,7 +5511,7 @@ $this->schema[] = [
     // catch-all means "no restriction", not "these particular objects" --
     // it is a flag that scope resolution short circuits on. An enumerated
     // membership list would look identical on the day of the upgrade and
-    // then quietly rot: the first host registered afterwards would belong
+    // then quietly rot: the first host registered afterward would belong
     // to no site and so be invisible to everyone, which is a migration
     // that appears to work and fails on day two, during the most common
     // operation FOG performs.
@@ -5925,7 +5925,7 @@ $this->schema[] = [
     // was written against, 9 of 56 rows were already orphaned that way.
     //
     // Host name is the first thing anyone searches a failure by, and it is
-    // the field that cannot be recovered afterwards -- by the time the join
+    // the field that cannot be recovered afterward -- by the time the join
     // fails, the host row is gone too. The point of GH-1206 is that a failure
     // message is findable later instead of arriving as a phone photo of a
     // wrapped console, and a foreign key to a routinely-deleted row cannot
@@ -6035,7 +6035,7 @@ $this->schema[] = [
     //
     // Upgrading a server does not rewrite existing tables. So on a box taken
     // across that boundary, every table that already existed keeps
-    // utf8mb3_general_ci and every table created afterwards comes out
+    // utf8mb3_general_ci and every table created afterward comes out
     // utf8mb3_uca1400_ai_ci -- and nothing reports it. It stays silent until
     // a VARCHAR join crosses the boundary, at which point it is `Illegal mix
     // of collations`. Most of FOG's joins are int-keyed and would never show
@@ -6479,7 +6479,7 @@ $this->schema[] = [
     // schema still shows it -- 53 optional longtext columns, not one of them
     // carrying a default.
     //
-    // WHICH COLUMNS. Not a judgement call: FOG already states its intent in
+    // WHICH COLUMNS. Not a judgment call: FOG already states its intent in
     // each model's $databaseFieldsRequired, and this is that statement made
     // true in the database. Of the 417 columns that are NOT NULL, carry no
     // DEFAULT and are not AUTO_INCREMENT, 163 stay exactly as they are --
@@ -7194,7 +7194,7 @@ $this->schema[] = [
     // a composite whose leading column is the text.
     //
     // The firehose that index was built for is bounded at the WRITER now
-    // rather than by discarding rows afterwards; see FOGBase::log().
+    // rather than by discarding rows afterward; see FOGBase::log().
     //
     // 3. `hText` VARCHAR(255) back to TEXT.
     //
@@ -8471,7 +8471,7 @@ $this->schema[] = [
     // the scan gets worse exactly where the reports get used.
     //
     // Single column, not composite. The rollups filter further --
-    // `logImageName <> ''`, `taskStateID <> cancelled` -- but neither is an
+    // `logImageName <> ''`, `taskStateID <> canceled` -- but neither is an
     // equality, so neither is usable as a leading or trailing key part. The
     // range on createTime is what has to be found; the rest is a filter over
     // the rows it returns.

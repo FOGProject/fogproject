@@ -209,7 +209,7 @@ class SiteScope extends FOGBase
      * Exists because a user created after the migration would otherwise be
      * the only account on the server in no site at all. Step 333 enrolled
      * every account that existed on upgrade day; this is the same rule
-     * applied to the ones created afterwards, and it lives here rather than
+     * applied to the ones created afterward, and it lives here rather than
      * in each of the four creation paths (the add page, the add modal, a
      * REST POST, and the ldap plugin's auto-provision on first login)
      * because only the last of those involves anybody clicking anything.
@@ -511,7 +511,7 @@ class SiteScope extends FOGBase
      *
      * The list counterpart of inScope(). Callers use it to push the
      * boundary into the query that builds a list, rather than fetching a
-     * page and discarding rows afterwards -- discarding rows leaves the
+     * page and discarding rows afterward -- discarding rows leaves the
      * row COUNTS describing objects the user cannot see, which both looks
      * broken and tells them how much exists outside their scope.
      *

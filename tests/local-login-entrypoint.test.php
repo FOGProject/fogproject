@@ -167,7 +167,7 @@ if (!is_file($loginFile)) {
 
     /*
      * The constant is what index.php reads, so it has to be defined BEFORE
-     * index.php runs. Defining it afterwards is the mutation that looks
+     * index.php runs. Defining it afterward is the mutation that looks
      * entirely fine in review and does nothing whatsoever.
      */
     $defineAt = strpos($login, "define('FOG_LOCAL_LOGIN',true);");

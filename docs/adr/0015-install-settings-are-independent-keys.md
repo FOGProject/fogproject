@@ -161,6 +161,6 @@ HSTS attached to a value that now defaults to `https`, turning it on everywhere
 
 - Tracking issue: FOGProject/fogproject#1116
 - Phase 1 audit: `docs/HTTPPROTO_COVERAGE_AUDIT.md` (coverage, the netboot fetch
-  set, PKI artefact lifetimes, and the trust model)
+  set, PKI artifact lifetimes, and the trust model)
 - Phase 2: FOGProject/fogproject#1119
 - `docs/EXTERNAL_CA_AND_LETSENCRYPT.md` — the `CROSSCERT` research

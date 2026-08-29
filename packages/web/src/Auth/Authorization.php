@@ -1309,7 +1309,7 @@ class Authorization extends FOGBase
      * listeners keep the contract they were written against: flip
      * 'allowed' to false to deny an object core would have allowed. What
      * changed is that the core site decision is combined with AND
-     * afterwards, so a listener can deny past core but cannot GRANT past
+     * afterward, so a listener can deny past core but cannot GRANT past
      * it -- for a security boundary the composition has to be deny-wins,
      * or a plugin could hand out another site's hosts by setting a flag.
      *
@@ -1395,7 +1395,7 @@ class Authorization extends FOGBase
      * catch-all site -- the same short circuits objectInScope() applies,
      * so single objects and lists cannot disagree about who is scoped.
      *
-     * A plugin's own boundary is composed in afterwards, by INTERSECTION:
+     * A plugin's own boundary is composed in afterward, by INTERSECTION:
      * either side may narrow, neither may widen. See _pluginScopeIDs().
      *
      * @param string   $node   the node being listed
@@ -1428,7 +1428,7 @@ class Authorization extends FOGBase
      * For callers that can push the boundary into the query instead of
      * filtering rows the database has already chosen. A paginated list must:
      * the LIMIT is applied before any post-filter runs, so filtering
-     * afterwards empties pages while later pages still hold rows the user may
+     * afterward empties pages while later pages still hold rows the user may
      * see, and leaves the counts describing objects they may not.
      *
      * Tri-state, and the falsy value is the permissive one on purpose. `null`
@@ -1441,7 +1441,7 @@ class Authorization extends FOGBase
      * scopedObjectIDs() rather than restated here, and the membership rule
      * itself is shared inside SiteScope. Neither can drift from the other.
      *
-     * A plugin's own boundary is composed in afterwards with AND: either
+     * A plugin's own boundary is composed in afterward with AND: either
      * side may narrow, neither may widen. See _pluginScopeWhere().
      *
      * @param string   $node   the node being listed
@@ -1615,7 +1615,7 @@ class Authorization extends FOGBase
      * meaning "nothing" must say so in SQL. Treating '' as deny-all would
      * make an accidental '' deny; treating it as a boundary would emit
      * `WHERE ()`, a syntax error. Reading it as no-answer is the only
-     * option that fails towards the id-list path rather than towards
+     * option that fails toward the id-list path rather than toward
      * either a broken query or a silent policy change.
      *
      * $idExpr is the caller's own id column, already quoted and qualified,
@@ -2536,7 +2536,7 @@ class Authorization extends FOGBase
      *
      * adminExistsGiven() takes proposed FULL lists, not deltas, so for the
      * rows being deleted we look up every owner they touch and return what
-     * that owner would still hold afterwards. Owners not named here are
+     * that owner would still hold afterward. Owners not named here are
      * left alone by the simulation, which is why only the affected ones
      * need computing.
      *

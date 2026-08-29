@@ -47,9 +47,9 @@ not announce themselves when broken:
 
 - fold a task's rows back down to one, or a task that moved through three
   states is three images;
-- exclude the cancelled state, because `TaskLog::recordState()` writes
+- exclude the canceled state, because `TaskLog::recordState()` writes
   `logImageName` on every transition of an imaging task including its
-  cancellation, so a deploy queued and cancelled without ever starting still
+  cancellation, so a deploy queued and canceled without ever starting still
   carries an image name;
 - attribute a run to `MIN(createTime)`, or a run that starts before midnight
   and finishes after it is counted on two days.
@@ -119,7 +119,7 @@ class, and `DashboardPage::get30day()` becomes a **caller** of it rather than
 the definition of it. Its comment moves with the code.
 
 The test pins them by mutation, not by inspection: remove the `GROUP BY`,
-remove the cancelled-state exclusion, swap `MIN(createTime)` for the row's
+remove the canceled-state exclusion, swap `MIN(createTime)` for the row's
 own — each has to turn a fixture's count red. A count assertion that has only
 ever been green is evidence about nothing, and this is the specific place
 where a broken query still returns a plausible number.
@@ -166,7 +166,7 @@ server and the one with the longest retention window under ADR 0023 — so the
 scan gets worse exactly where the reports will be used.
 
 Single column rather than composite: the rollups filter further
-(`logImageName <> ''`, `taskStateID <> cancelled`) but neither is an
+(`logImageName <> ''`, `taskStateID <> canceled`) but neither is an
 equality, so neither is usable as a key part. Finding the range is the job.
 
 ## Scope

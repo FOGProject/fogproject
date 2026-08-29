@@ -91,7 +91,7 @@ foreach ($bucketed as $path) {
         if (!isset($flat[$name]) || isset($imports[$name]) || isset($bucketed[$name])) {
             continue;
         }
-        // Neighbours with whitespace and comments skipped -- `new Foo` has a
+        // Neighbors with whitespace and comments skipped -- `new Foo` has a
         // T_WHITESPACE between the two, so a naive $tokens[$i - 1] never sees
         // the T_NEW and the reference reads as harmless.
         $prev = null;

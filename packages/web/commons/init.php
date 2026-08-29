@@ -310,7 +310,7 @@ class Initiator
         // Created by the installer, but created here too so an install whose
         // installer predates this still gets a working private store rather
         // than falling back and keeping the 24-minute bug. 0700 before any
-        // session file can land in it, never afterwards.
+        // session file can land in it, never afterward.
         if (!is_dir(FOG_SESSION_DIR)) {
             @mkdir(FOG_SESSION_DIR, 0700, true);
         }

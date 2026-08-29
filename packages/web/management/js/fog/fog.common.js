@@ -4,7 +4,7 @@
  * msClients is -1 or -2 until the first host checks in, which is a sentinel
  * meaning "nobody yet", not a count. Showing it raw made 0-of-30 and
  * 29-of-30 indistinguishable. msSessClients is 0 for sessions created
- * without an expected size, which have no total to count towards.
+ * without an expected size, which have no total to count toward.
  */
 function fogMulticastClients(joined, expected) {
   joined = parseInt(joined, 10);

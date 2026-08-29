@@ -274,7 +274,7 @@ better.
 Use `acme.sh`, `certbot`, or whatever your site already runs, on your own
 schedule. Point its install/renew hook at the two paths FOG's vhost reads —
 `$PKI_web_vhost_cert` and `$PKI_web_vhost_key` from `/opt/fog/.fogsettings` — and reload the
-web server afterwards. For example, with `acme.sh`:
+web server afterward. For example, with `acme.sh`:
 
 ```bash
 acme.sh --issue --server https://step-ca.internal/acme/acme/directory \

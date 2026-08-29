@@ -53,7 +53,7 @@ grep -q 'chmod 0750 \$servicelogs/faults' "$FUNCS" \
 if grep -E 'chmod +0?7[0-9]?5 +\$servicelogs/faults' "$FUNCS" | grep -qv 'chmod 0750'; then
     bad "something chmods \$servicelogs/faults world-readable"
 else
-    ok "nothing relaxes the fault log directory afterwards"
+    ok "nothing relaxes the fault log directory afterward"
 fi
 
 printf '%s: %d passed, %d failed\n' "$(basename "$0")" "$PASS" "$FAIL"

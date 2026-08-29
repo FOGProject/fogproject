@@ -91,7 +91,7 @@ if (2 !== substr_count($multi, "\n")) {
         . ' trace arrives as one unreadable line -- the reason MAX_TEXT was'
         . ' widened in the first place';
 }
-// Exact, because stripping the CR without NORMALISING it first turns every
+// Exact, because stripping the CR without NORMALIZING it first turns every
 // CRLF into "space + newline": a trailing space on every line of a report
 // from a machine that ends lines the DOS way, which is most of them.
 if ("a\nb" !== $clean("a\r\nb")) {
@@ -286,7 +286,7 @@ if (false === strpos($page, 'self::getFailedState()')) {
     $fails[] = "Task Management's Recent pane does not know about the Failed"
         . ' state, so a failed task appears in no pane at all';
 }
-if (!preg_match('#\$states = \[\$complete, \$cancelled, \$failed\]#', $page)) {
+if (!preg_match('#\$states = \[\$complete, \$canceled, \$failed\]#', $page)) {
     $fails[] = 'the Recent pane\'s default state set leaves out Failed, so a'
         . ' failed task is only found by picking a filter for it';
 }

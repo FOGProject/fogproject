@@ -334,7 +334,7 @@ if (0 !== stripos($create, 'CREATE TEMPORARY TABLE')) {
 }
 $pdo->exec($create);
 
-$CANCELLED = 5;
+$CANCELED = 5;
 $INPROGRESS = 3;
 $COMPLETE = 4;
 
@@ -350,12 +350,12 @@ $rows = [
     [1, $COMPLETE,   '2026-03-01 09:21:00', 'win11'],
     // Rule 2a, the 2nd. Queued and canceled without ever starting: its
     // only row carries an image name and no machine was touched.
-    [2, $CANCELLED,  '2026-03-02 10:00:00', 'win11'],
-    // Rule 2b, the 3rd. Cancelled MID image. The In-Progress row survives
+    [2, $CANCELED,  '2026-03-02 10:00:00', 'win11'],
+    // Rule 2b, the 3rd. Canceled MID image. The In-Progress row survives
     // the exclusion, so this counts -- the exclusion is on the ROW, not on
     // the task, and that difference is the whole of the rule.
     [3, $INPROGRESS, '2026-03-03 11:00:00', 'win11'],
-    [3, $CANCELLED,  '2026-03-03 11:05:00', 'win11'],
+    [3, $CANCELED,  '2026-03-03 11:05:00', 'win11'],
     // Rule 3, the 4th into the 5th. Starts at 23:50, finishes at 00:10.
     [4, $INPROGRESS, '2026-03-04 23:50:00', 'ubuntu'],
     [4, $COMPLETE,   '2026-03-05 00:10:00', 'ubuntu'],
@@ -382,7 +382,7 @@ foreach ($rows as $r) {
 $params = [
     ':start' => '2026-03-01 00:00:00',
     ':end' => '2026-03-07 23:59:59',
-    ':canceled' => $CANCELLED
+    ':canceled' => $CANCELED
 ];
 foreach (array_keys($params) as $name) {
     if (false === strpos($sql, $name)) {

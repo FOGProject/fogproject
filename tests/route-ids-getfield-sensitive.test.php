@@ -16,7 +16,7 @@
  * on `host.view`, the same permission as reading the list. Also ADPass,
  * productKey, user.password and user.token.
  *
- * BEHAVIOURAL, not a source grep, and that distinction is the point of the
+ * BEHAVIORAL, not a source grep, and that distinction is the point of the
  * file. The sibling `sensitive-fields-unfilterable.test.php` asserts that the
  * deciding functions CALL `unfilterableFields()` -- which is the right thing
  * for it to assert and is not a net: inserting `return;` at the top of

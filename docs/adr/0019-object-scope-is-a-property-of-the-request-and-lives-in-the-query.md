@@ -41,7 +41,7 @@ described objects the user may not see.
 
 `SiteScope::allInScopeIDs()`'s own docblock already said what to do —
 "push the boundary into the query that builds a list, rather than fetching a
-page and discarding rows afterwards — discarding rows leaves the row COUNTS
+page and discarding rows afterward — discarding rows leaves the row COUNTS
 describing objects the user cannot see" — and the one core caller did the
 opposite.
 

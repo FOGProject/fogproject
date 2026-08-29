@@ -41,7 +41,7 @@ class FileDeleteQueueManager extends FOGManagerController
      */
     public function cancel($filedeletequeueids)
     {
-        $cancelled = self::getCancelledState();
+        $canceled = self::getCancelledState();
         $notComplete = self::fastmerge(
             (array)self::getQueuedStates(),
             (array)self::getProgressState()
@@ -55,7 +55,7 @@ class FileDeleteQueueManager extends FOGManagerController
             '',
             [
                 'completedTime' => self::formatTime('now', 'Y-m-d H:i:s'),
-                'stateID' => $cancelled
+                'stateID' => $canceled
             ]
         );
     }

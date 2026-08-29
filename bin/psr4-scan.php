@@ -10,7 +10,7 @@
  *      is the move: PSR-4 requires the basename to match the declared name
  *      exactly, and FOG's filenames match it only case-insensitively.
  *   2. The TAXONOMY -- which directory a class lands in. 151 of 202 fall out
- *      of the parent chain with no judgement (a model is `extends
+ *      of the parent chain with no judgment (a model is `extends
  *      FOGController`, a manager is `extends FOGManagerController`); the
  *      remaining 51 are a hand-filed table below, and it is deliberately a
  *      table in code rather than a convention in prose, so that a class

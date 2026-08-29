@@ -17,7 +17,7 @@ A scan of the four files (`eventmanager`, `hookmanager`, `event`, `hook`) found
 thirteen defects, recorded as F-11 through F-26 in `docs/refactor-facts.md` and
 argued in `docs/hook-event-plan.md`. Most were fixed without anything
 observable changing. Five were decisions, because fixing them changes what a
-plugin can rely on, and four of those leave no trace in the code afterwards —
+plugin can rely on, and four of those leave no trace in the code afterward —
 which is what this ADR is for.
 
 Three findings frame the rest:

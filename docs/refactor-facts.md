@@ -562,7 +562,7 @@ sed -n '775p' packages/web/lib/fog/fogmanagercontroller.class.php    # 'data' =>
 Measured in a copy of the live tree with a statement-counting shim in
 `PDODB::query()` and `FOGManagerController::sqlexec()`. GH-707's
 `rel()`/`primeRel()` fix is holding for the plain path and was never applied to
-the expand branch, which was written afterwards. `EXPAND_MAX_ITEMS` (2500)
+the expand branch, which was written afterward. `EXPAND_MAX_ITEMS` (2500)
 clamps the page size and its comment says it bounds memory; memory is ~25 KiB a
 row, so the clamp permits ~50,000 statements. Queries, not memory, are the
 binding constraint.

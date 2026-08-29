@@ -227,7 +227,7 @@ usage() {
     echo -e "\t                       \t\t\tkernels for UEFI Secure Boot"
     echo -e "\t      --secure-boot-cert\tCertificate matching --secure-boot-key"
     echo -e "\t                        \t\t\t(both are required together)"
-    echo -e "\t      --no-secure-boot\t\tDo not publish Secure Boot ENROLMENT"
+    echo -e "\t      --no-secure-boot\t\tDo not publish Secure Boot ENROLLMENT"
     echo -e "\t                      \t\t\tmaterial: no MOK.der, no PK/KEK/db.auth,"
     echo -e "\t                      \t\t\tand no 'Enroll Secure Boot Key' menu"
     echo -e "\t                      \t\t\tentry. Binaries are still signed -- a"
@@ -292,7 +292,7 @@ while :; do
             ;;
         --fogprogramdir)
             # GH-850: the FOG base directory. Needed on a FIRST install to a
-            # non-default path; afterwards /etc/fog/fog.conf remembers it, so
+            # non-default path; afterward /etc/fog/fog.conf remembers it, so
             # upgrades do not have to repeat the flag.
             if [[ -n "${2}" ]] && [[ "${2}" == /* ]]; then
                 sfogprogramdir="${2%/}"
@@ -796,7 +796,7 @@ resolvedfoggitpath="${FOG_git_path}"
 # a server that had been running httpproto=https reached the redirect migration
 # holding http and came out with WEB_https_redirect=no -- its redirect switched
 # off by the upgrade, silently. Nothing reads WEB_url_proto between here and that
-# seed, and it is assigned unconditionally afterwards, so leaving it unset costs
+# seed, and it is assigned unconditionally afterward, so leaving it unset costs
 # nothing.
 [[ -z $externalca ]] && externalca="no"
 [[ -z ${DB_name} ]] && DB_name="fog"

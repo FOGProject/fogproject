@@ -130,7 +130,7 @@ class History extends FOGController
      *
      * `history` stored its prose pre-translated at write
      * time -- `sprintf('%s %s: %s ...', _('ID'), ...)` -- so a row written
-     * by a German-speaking operator read as German to everyone afterwards,
+     * by a German-speaking operator read as German to everyone afterward,
      * and the same field label had two spellings in one English install
      * because two of the four writers used `_('NAME')` and two `_('Name')`.
      * Phase 3 gave the row a machine-readable type and subject; this turns

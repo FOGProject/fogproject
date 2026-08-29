@@ -233,7 +233,7 @@ and the reason is that those are two different features:
 
 - **Retention** is a policy: one number, applied continuously, no UI beyond
   the setting. This is what comparable admin tooling offers, and the shape is
-  near-universal — a single age, not a date-range builder. (Judgement plus
+  near-universal — a single age, not a date-range builder. (Judgment plus
   general practice; I have not verified specific products' defaults and am not
   going to assert numbers for them.)
 - **Manual purge** is an administrator deleting a chosen set of records on a
@@ -284,7 +284,7 @@ them.
 The recommended new-install default is **365 days**. It is long enough to
 answer "who was on this machine last year", short enough that the table does
 not grow unboundedly, and it is a round number an admin can reason about. It
-is a judgement, not a derived figure.
+is a judgment, not a derived figure.
 
 ### 8. Every retention deletion is audited, and audit gates the whole feature
 
@@ -308,7 +308,7 @@ else recording that the purge occurred, is the wrong order to build in.
 ### 9. `inventory.iPrimaryUser` gets a different control, and it is out of scope here
 
 It is personal data, so it belongs in the sweep above — but `inventory` is a
-current-state table with `UNIQUE KEY (iHostID)`, one row per host. Ageing it
+current-state table with `UNIQUE KEY (iHostID)`, one row per host. Aging it
 out by date would delete the inventory, not the person's name.
 
 The control it needs is the ability to clear the field, and a decision about

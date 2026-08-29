@@ -20,7 +20,7 @@
  *      not an integer >= 1; FOGManagerController::insertBatch() enforced
  *      nothing, so the same model was validated one row at a time and not a
  *      hundred at a time. A 0 is legal to the server under any sql_mode.
- *   2. Stranded afterwards. Deleting an image reset hosts.imageID and removed
+ *   2. Stranded afterward. Deleting an image reset hosts.imageID and removed
  *      the imageassociation rows and said nothing about `tasks`.
  *
  * WHAT THIS PINS is the mechanism, not a call site -- a test that walked

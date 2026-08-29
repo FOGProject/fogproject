@@ -282,8 +282,8 @@ class ActivityManagement extends FOGPage
      * so DataTables' start/length become a real SQL LIMIT and an unpaginated
      * request is capped at MAX_ROWS with `truncated` stamped on the envelope.
      * The bound is in the query. Nothing here fetches a full table and trims
-     * it afterwards, which is the thing ADR 0023 forbids -- these tables have
-     * nothing ageing them out and grow for the life of the install.
+     * it afterward, which is the thing ADR 0023 forbids -- these tables have
+     * nothing aging them out and grow for the life of the install.
      *
      * @return void
      */

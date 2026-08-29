@@ -38,7 +38,7 @@ class TaskManager extends FOGManagerController
      */
     public function cancel($taskids)
     {
-        $cancelled = self::getCancelledState();
+        $canceled = self::getCancelledState();
         $notComplete = self::fastmerge(
             (array)self::getQueuedStates(),
             (array)self::getProgressState()
@@ -70,7 +70,7 @@ class TaskManager extends FOGManagerController
         // gone. Route::cancel() sends the group arm and the task arm here, so
         // without this a bulk cancel left every one of its tasks reading
         // In-Progress in the log -- the same hole Task::cancel() had.
-        $cancelledIDs = Route::getIds(
+        $canceledIDs = Route::getIds(
             'task',
             $findWhere
         );
@@ -78,7 +78,7 @@ class TaskManager extends FOGManagerController
             $findWhere,
             '',
             [
-                'stateID' => $cancelled,
+                'stateID' => $canceled,
                 'stateChangedTime' => self::niceDate()->format('Y-m-d H:i:s')
             ]
         );
@@ -88,7 +88,7 @@ class TaskManager extends FOGManagerController
             // out of -- and in one SELECT plus one batched INSERT, because
             // this arm cancels a whole group and rebuilding a Task per id to
             // write its row cost five queries apiece.
-            TaskLog::recordStates($cancelledIDs);
+            TaskLog::recordStates($canceledIDs);
         }
         $findWhere = [
             'hostID' => $hostIDs,
@@ -175,7 +175,7 @@ class TaskManager extends FOGManagerController
      * such rows -- two All Snapins, one Enroll Secure Boot -- every one of
      * them correct. So the image is only asked about for an imaging type.
      *
-     * FAILED, NOT CANCELLED. Canceled means an administrator stopped it.
+     * FAILED, NOT CANCELED. Canceled means an administrator stopped it.
      * Losing the difference between "somebody stopped this" and "this broke"
      * is exactly the distinction an operator needs at the moment they are
      * looking at the task list. Same reasoning as TaskState::getFailedState()

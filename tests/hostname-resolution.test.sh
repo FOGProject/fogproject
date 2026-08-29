@@ -53,7 +53,7 @@ check() { [[ $1 == "$2" ]] && ok "$3" || bad "$3 (expected '$2', got '$1')"; }
 hasnt() { [[ $1 != *"$2"* ]] && ok "$3" || bad "$3 (unexpectedly found '$2')"; }
 
 # The stubs below shadow hostname/hostnamectl on PATH. Applied by assignment and
-# undone afterwards rather than inside a ( subshell ): a subshell gets its own
+# undone afterward rather than inside a ( subshell ): a subshell gets its own
 # copy of PASS/FAIL, so every assertion made in one is counted nowhere and a
 # failure inside it cannot fail the run.
 REALPATH="$PATH"

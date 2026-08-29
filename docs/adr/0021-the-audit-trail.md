@@ -450,7 +450,7 @@ bumping `FOG_SCHEMA` in the same step or the insert is silently skipped.
 > Nothing else in this decision moves.
 
 **The sweep is generic, not `auditLog`-specific** (amended per ADR 0023).
-Three tables need ageing out and they arrived from three directions:
+Three tables need aging out and they arrived from three directions:
 `auditLog` here, `history` and `userTracking` in ADR 0023, and `imagingLog`
 in ADR 0022 — which defers to this mechanism explicitly. So what the sweep's
 daemon (`FOGRetentionRunner` per ADR 0026) walks is a **retention registry**
@@ -459,7 +459,7 @@ date column, core-registered and extensible by a plugin through a hook, the
 same shape as the permission registry. `FOG_AUDIT_RETENTION_DAYS` becomes the
 first entry rather than the only one, and a fourth table is a registry entry
 instead of a second sweep. Building it per-table would produce three sweeps
-ageing three tables with three bugs.
+aging three tables with three bugs.
 
 ### 10. Shrinking the audit trail is itself audited, and refused if it cannot be
 

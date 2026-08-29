@@ -23,7 +23,7 @@ standalone. That is a better transport — one header, RFC 6750, what every
 client and generated SDK expects — and it is correct that a 512-bit CSPRNG
 secret does not need a chaperone. But it changed the value of a leaked
 `uAPIToken` from half a credential to a whole one, and two disclosure paths
-were found immediately afterwards (GH-1325, GH-1326): the management export
+were found immediately afterward (GH-1325, GH-1326): the management export
 emitted `uAPIToken` and the password hash in the clear, and a single-entity
 `GET /fog/user/{id}` returned both.
 

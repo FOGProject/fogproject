@@ -188,7 +188,7 @@ foreach ($core as $table => $entry) {
  * FOG_IMAGINGLOG_RETENTION_DAYS is the worked example and the reason this
  * check exists: step 347 inserted it, ADR 0022 decision 3 dropped the table
  * from under it, and the row stayed -- rendering on the settings page,
- * accepting a number, ageing out nothing. It is not enough to check that the
+ * accepting a number, aging out nothing. It is not enough to check that the
  * registry no longer names imagingLog (above); the failure was a setting with
  * NO registry entry, which nothing else here would notice. Schema 357 deletes
  * the row and carries its value to FOG_TASKLOG_RETENTION_DAYS.

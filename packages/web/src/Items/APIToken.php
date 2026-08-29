@@ -272,7 +272,7 @@ class APIToken extends FOGController
     /**
      * Deletes this token, recording it first.
      *
-     * Recorded before the destroy because afterwards there is nothing left
+     * Recorded before the destroy because afterward there is nothing left
      * to read the owner and name off, and nothing else in the system
      * remembers that this token existed. What that ordering costs, and why
      * the row is shaped the way it is, is in audit() below.

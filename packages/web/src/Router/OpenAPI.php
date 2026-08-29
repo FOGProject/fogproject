@@ -701,7 +701,7 @@ class OpenAPI extends FOGBase
      * calls it that: a Tasklog type, a Get-Tasklog command, a
      * New-Usergroupmember. Nobody writing those by hand would.
      *
-     * The correct spelling is not a judgement call and does not need a
+     * The correct spelling is not a judgment call and does not need a
      * hand-kept list: the model declares it. PHP class names are
      * case-insensitive to lookup but ReflectionClass::getShortName()
      * returns the name as DECLARED, so `tasklog` resolves to the class and
@@ -1564,7 +1564,7 @@ class OpenAPI extends FOGBase
             // One decision, not two. The tag is the group lowercased, so a
             // fixed route that files itself under `plugin` is tagged plugin
             // as well -- the tag used to be patched onto the returned array
-            // afterwards, by each route that cared, because $class had to
+            // afterward, by each route that cared, because $class had to
             // stay empty for the permission lookup.
             'tags' => [strtolower($group)],
             'operationId' => $operationId,

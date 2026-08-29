@@ -8,8 +8,8 @@
  *
  * It is NOT a migration gate that goes away once the move lands. The scan
  * reads lib/ and src/ together and reports a class already at its target as
- * done, so this keeps asserting the same four invariants afterwards -- and
- * the one that matters most only bites afterwards, when someone adds a class:
+ * done, so this keeps asserting the same four invariants afterward -- and
+ * the one that matters most only bites afterward, when someone adds a class:
  *
  *   1. One type per file. PSR-4 can address only the first; a second resolves
  *      as a side effect of loading the first, which is how mysqldump.class.php

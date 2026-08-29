@@ -613,7 +613,7 @@ class DashboardPage extends FOGPage
             ->setTime(23, 59, 59);
         // ADR 0030 decision 3. The three rules for counting an imaging run
         // out of taskLog -- fold a task's transition rows to one, exclude
-        // the cancelled state, attribute to the earliest -- used to be
+        // the canceled state, attribute to the earliest -- used to be
         // written out here, which made this method their definition as well
         // as their only caller. They are ImagingStats' now, tested there,
         // and the zero-filled series comes back already continuous.
