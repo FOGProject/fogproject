@@ -2048,11 +2048,16 @@ class Route extends FOGBase
         // toast red: notifyFromAPI() types a body carrying `msg` as a
         // SUCCESS, which is the wrong color for anything reaching here.
         //
-        // Encoded here rather than in sendResponse() because six callers
-        // already pass their own encoded body and would be double-encoded,
-        // and because sendResponse() re-raises rather than emitting when a
-        // result wrapper is on the stack (ADR 0011) -- a daemon catching
-        // that should keep the plain sentence, not a JSON document.
+        // Encoded here rather than in sendResponse() for two reasons. Six
+        // callers already pass their own encoded body and would be
+        // double-encoded. And sendResponse() re-raises rather than emitting
+        // when a result wrapper is on the stack (ADR 0011): encoding there
+        // would wrap every re-raise, including the inner ones that carry a
+        // plain sentence and are handled in this class rather than sent, so
+        // a daemon reading a failure through asValue() would get a JSON
+        // document where it used to get the reason. Anything that reaches
+        // THIS function is on its way out as a response, which is the point
+        // at which a body is the right shape.
         // ...unless the message IS already an encoded body. sendResponse()
         // re-raises rather than emitting when a result wrapper is on the
         // stack (ADR 0011), and it does that by putting the BODY into a
