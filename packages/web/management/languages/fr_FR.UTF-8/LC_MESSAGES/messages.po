@@ -449,6 +449,9 @@ msgstr "Groupe de stockage supprimé"
 msgid "A storage node already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
+msgid "A storage node always belongs to exactly one storage group. Adding a node here MOVES it into this group from wherever it is now; a group with no nodes left is fine. To take a node out of this group, add it to the group it should be in instead."
+msgstr ""
+
 msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
 msgstr ""
 
@@ -1005,6 +1008,9 @@ msgstr "Annuellement"
 msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
 msgstr ""
 
+msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
+msgstr ""
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1471,6 +1477,10 @@ msgid "Capone added!"
 msgstr "Nom snapin"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "Emplacements"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "mise à jour a échoué Snapin"
 
@@ -1583,6 +1593,9 @@ msgstr ""
 msgid "Checking if I am the group manager"
 msgstr ""
 
+msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
+msgstr ""
+
 #, fuzzy
 msgid "Class"
 msgstr "les tâches"
@@ -1606,6 +1619,9 @@ msgstr "Clair"
 #, fuzzy
 msgid "Clear Fields"
 msgstr "clairement toute l'histoire"
+
+msgid "Clear one of your preferences"
+msgstr ""
 
 msgid "Click"
 msgstr "Cliquez"
@@ -2332,6 +2348,10 @@ msgstr "Nom d'utilisateur"
 msgid "Display With"
 msgstr "Afficher"
 
+#, fuzzy
+msgid "Display timezone"
+msgstr "Nom d'utilisateur"
+
 msgid "Do not list on menu"
 msgstr "Ne pas inscrire sur le menu"
 
@@ -2526,6 +2546,9 @@ msgstr "Type d'imprimante"
 msgid "Equipment Loan"
 msgstr "prêt d'équipement"
 
+msgid "Equivalent to storing an empty value."
+msgstr ""
+
 msgid "Error"
 msgstr "Erreur"
 
@@ -2612,6 +2635,9 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "Aucun fichier a été téléchargé"
+
+msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
+msgstr ""
 
 #, fuzzy
 msgid "Existence check failed"
@@ -5829,12 +5855,19 @@ msgid "No unrunnable tasks found."
 msgstr "Aucune classe valide envoyé"
 
 #, fuzzy
+msgid "No user in session"
+msgstr "Version"
+
+#, fuzzy
 msgid "No valid storage nodes found"
 msgstr "nœud de stockage non valide"
 
 #, fuzzy
 msgid "No valid tasks found"
 msgstr "Aucune classe valide envoyé"
+
+msgid "No value supplied; use DELETE to clear"
+msgstr ""
 
 msgid "No values passed"
 msgstr "Aucune valeur passées"
@@ -6059,6 +6092,9 @@ msgstr ""
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Erreur, est une image associée à cet hôte"
+
+msgid "One preference."
+msgstr ""
 
 msgid "Online"
 msgstr ""
@@ -6584,6 +6620,9 @@ msgstr ""
 msgid "PowerShell x64 Script"
 msgstr ""
 
+msgid "Preference key or value is not storable"
+msgstr ""
+
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
@@ -6841,6 +6880,9 @@ msgid "Re-run the installer, which restricts them to root. If this persists, che
 msgstr ""
 
 msgid "Read a server log"
+msgstr ""
+
+msgid "Read one of your preferences"
 msgstr ""
 
 #, fuzzy
@@ -7222,6 +7264,9 @@ msgstr "Connexion FTP a échoué"
 msgid "SSL Path"
 msgstr "SSL Chemin"
 
+msgid "Save"
+msgstr ""
+
 msgid "Save Changes"
 msgstr "Sauvegarder les modifications"
 
@@ -7437,6 +7482,10 @@ msgstr "serveur Shell"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "Server default (%s)"
+msgstr "Informations générales"
+
 msgid "Server facts. Every field is a string, and is empty rather than absent when the installer has not published it yet."
 msgstr ""
 
@@ -7546,6 +7595,9 @@ msgstr "Nom du groupe de stockage"
 #, fuzzy
 msgid "Set failed"
 msgstr "mise à jour du service n'a pas"
+
+msgid "Set your display timezone"
+msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -8268,6 +8320,9 @@ msgstr "ID d'hôte"
 msgid "Storage nodes"
 msgstr "nœud de stockage"
 
+msgid "Store one of your preferences"
+msgstr ""
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -8758,7 +8813,13 @@ msgstr ""
 msgid "The archive must hold exactly one plugin directory."
 msgstr ""
 
+msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
+msgstr ""
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
+msgstr ""
+
+msgid "The calling user's preferences."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -8884,6 +8945,15 @@ msgid "The plugin system is disabled"
 msgstr "Les dons sont désactivés"
 
 msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
+
+msgid "The preference key. Namespaced by its consumer -- a grid's saved state is stored under \"dt.<table id>\" -- so that two features cannot collide on one name."
+msgstr ""
+
+msgid "The preference was cleared."
+msgstr ""
+
+msgid "The preference was stored."
 msgstr ""
 
 msgid "The primary mac associated is"
@@ -10106,6 +10176,9 @@ msgid "Your database connection appears to be invalid"
 msgstr ""
 
 msgid "Your session has ended. Sign in again."
+msgstr ""
+
+msgid "Your stored preferences"
 msgstr ""
 
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
@@ -11606,10 +11679,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Serial"
 #~ msgstr "Serial System"
-
-#, fuzzy
-#~ msgid "Server facts."
-#~ msgstr "Informations générales"
 
 #, fuzzy
 #~ msgid "Site Association"

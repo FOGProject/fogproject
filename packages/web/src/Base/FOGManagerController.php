@@ -278,6 +278,70 @@ abstract class FOGManagerController extends FOGBase
      *
      * @return array Formatted data in a row based format
      */
+    /**
+     * Re-labels a grid's date cells in the zone the viewer reads in.
+     *
+     * Grid cells are raw stored values -- dataOutput() copies them straight
+     * out of the row unless the column declares a formatter -- so without this
+     * a user's chosen timezone would apply on every form and detail page and
+     * nowhere on the lists, which is where the timestamps people actually read
+     * live. The column types are the ones already computed for the client's
+     * search UI, so nothing extra is derived to do it.
+     *
+     * NOT applied to REST responses. A script reading hostLastDeploy wants one
+     * stable answer, not one that depends on whose token it used; per-caller
+     * values would break consumers silently, and the values carry no zone
+     * marker to disambiguate them. The UI is the human surface and this is a
+     * human preference.
+     *
+     * A no-op whenever the display and storage zones agree, which is every
+     * account that has not chosen a preference.
+     *
+     * @param array $rows  Rows as dataOutput() built them.
+     * @param array $types The per-column search types, keyed as the rows are.
+     *
+     * @return array
+     */
+    public static function displayDates($rows, $types)
+    {
+        if (self::displayTimeZone()->getName()
+            === self::storageTimeZone()->getName()
+        ) {
+            return $rows;
+        }
+        if (class_exists('\\FOG\\Router\\Route')
+            && \FOG\Router\Route::$apiRequest
+        ) {
+            return $rows;
+        }
+        $dateKeys = [];
+        foreach ((array)$types as $key => $type) {
+            if ($type === 'date') {
+                $dateKeys[] = $key;
+            }
+        }
+        if (!$dateKeys) {
+            return $rows;
+        }
+        foreach ($rows as &$row) {
+            foreach ($dateKeys as $key) {
+                if (!isset($row[$key]) || '' === trim((string)$row[$key])) {
+                    continue;
+                }
+                // validDate() keeps the zero date -- "this never happened" --
+                // out of it. Shifting one moves it across a day boundary and
+                // changes how the cell renders for no reason.
+                if (!self::validDate($row[$key])) {
+                    continue;
+                }
+                $row[$key] = self::toDisplay((string)$row[$key])
+                    ->format('Y-m-d H:i:s');
+            }
+        }
+        unset($row);
+
+        return $rows;
+    }
     public static function dataOutput($columns, $data)
     {
         $out = [];
@@ -1131,11 +1195,19 @@ abstract class FOGManagerController extends FOGBase
         // (which use both) worked. Found against the running server; the first
         // cut of the gate rendered the bindings into the SQL text and so could
         // not see it. The gate now also asserts every binding is referenced.
-        $lower = $dates[0] . ' 00:00:00';
+        // Both bounds are converted from the zone the VIEWER is reading in to
+        // the zone the column is stored in. The user picked a day off a
+        // calendar that matches what the grid showed them, so "on 29 August"
+        // has to mean their 29th -- not the server's, which near midnight is a
+        // different day and quietly returns the wrong rows. A no-op for every
+        // account that has not chosen a display zone.
+        $lower = self::displayToStorage($dates[0] . ' 00:00:00');
         // The exclusive upper bound: midnight starting the day AFTER the last
         // date named. One date makes it that date's own midnight, so "=" is
         // the whole of one day and "after" starts at the next.
-        $upper = self::_sbNextDay($between ? $dates[1] : $dates[0]);
+        $upper = self::displayToStorage(
+            self::_sbNextDay($between ? $dates[1] : $dates[0])
+        );
         switch ($condition) {
             case '=':
             case 'between':
@@ -1357,7 +1429,12 @@ abstract class FOGManagerController extends FOGBase
             'truncated' => !$countOnly
                 && self::$_capped
                 && intval($recordsFiltered) > self::MAX_ROWS,
-            'data' => $countOnly ? [] : self::dataOutput($columns, $data),
+            'data' => $countOnly
+                ? []
+                : self::displayDates(
+                    self::dataOutput($columns, $data),
+                    self::searchTypes($table, $columns)
+                ),
             // How each column may be filtered, for the client's search UI.
             // Server-derived because a server-side grid hands the browser one
             // page, and page one is not enough to tell a date column from a

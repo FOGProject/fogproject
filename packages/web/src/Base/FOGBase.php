@@ -215,11 +215,35 @@ abstract class FOGBase
      */
     protected static $HookManager;
     /**
-     * The default timezone for all of fog to use.
+     * The zone stored datetimes are written in and read back as.
+     *
+     * NOT a display setting, whatever the name suggests. niceDate() uses it to
+     * INTERPRET a stored string, and the 34 sites that write a timestamp
+     * produce it through the same call, so this is the zone the database is in.
+     * Changing it therefore re-labels every row that already exists rather
+     * than re-presenting it -- which is why moving storage to UTC is a
+     * migration, not a settings change.
      *
      * @var object
      */
     protected static $TimeZone;
+    /**
+     * The zone datetimes are SHOWN in, resolved once per request.
+     *
+     * Separate from $TimeZone so a user can be shown times in their own zone
+     * without changing what is stored. Null until first use; see
+     * displayTimeZone().
+     *
+     * @var \DateTimeZone|null
+     */
+    private static $_displayTimeZone = null;
+    /**
+     * The user preference holding a viewer's chosen display zone.
+     *
+     * An empty or absent value means "use the install default", which is what
+     * every account has until someone deliberately chooses otherwise.
+     */
+    const TIMEZONE_PREF = 'display.timezone';
     /**
      * The logged in user.
      *
@@ -1786,6 +1810,123 @@ abstract class FOGBase
      *
      * @return \DateTime
      */
+    /**
+     * The zone stored datetimes are written in and interpreted as.
+     *
+     * @return \DateTimeZone
+     */
+    public static function storageTimeZone()
+    {
+        if (empty(self::$TimeZone)) {
+            return new \DateTimeZone('UTC');
+        }
+        try {
+            return new \DateTimeZone(self::$TimeZone);
+        } catch (\Exception $e) {
+            // An unusable name must not take out every page that shows a date.
+            return new \DateTimeZone('UTC');
+        }
+    }
+    /**
+     * The zone datetimes are SHOWN in for whoever is asking.
+     *
+     * The signed-in user's own preference if they have set one, otherwise
+     * FOG_TZ_INFO, which stays the install-wide default. Resolved once per
+     * request and cached: this is consulted for every date on a page, and the
+     * preference is a database read.
+     *
+     * Resolved lazily rather than in setEnv() on purpose -- the acting user is
+     * not known that early, and a lazy read has no ordering to get wrong.
+     *
+     * @return \DateTimeZone
+     */
+    public static function displayTimeZone()
+    {
+        if (null !== self::$_displayTimeZone) {
+            return self::$_displayTimeZone;
+        }
+        self::$_displayTimeZone = self::storageTimeZone();
+        $user = self::$FOGUser;
+        // Matches the house guard used wherever the shell asks the same
+        // question: unset before LoadGlobals has run, and invalid for anyone
+        // not signed in -- a background service, or the login page itself.
+        if (!$user || !$user->isValid()) {
+            return self::$_displayTimeZone;
+        }
+        try {
+            $pref = self::getClass('UserPrefManager')
+                ->fetch((int)$user->get('id'), self::TIMEZONE_PREF);
+        } catch (\Exception $e) {
+            // A preference store that cannot be read is not a reason to stop
+            // rendering dates; the install-wide default still applies.
+            return self::$_displayTimeZone;
+        }
+        if ('' === trim((string)$pref)) {
+            return self::$_displayTimeZone;
+        }
+        try {
+            self::$_displayTimeZone = new \DateTimeZone(trim((string)$pref));
+        } catch (\Exception $e) {
+            // A stored name the platform no longer knows -- a retired zone, or
+            // a tzdata that moved underneath us. Fall back rather than throw.
+        }
+        return self::$_displayTimeZone;
+    }
+    /**
+     * Turns a datetime the VIEWER typed into one the database can be
+     * compared against.
+     *
+     * The inverse of toDisplay(), and it exists so filtering stays honest: a
+     * grid that shows times in the viewer's zone but filters them in the
+     * storage zone answers a different question than the one on screen, and
+     * near midnight it silently returns the wrong day.
+     *
+     * A no-op whenever the two zones are the same, which is every account
+     * that has not chosen a preference.
+     *
+     * @param string $value 'Y-m-d H:i:s' as the viewer means it.
+     *
+     * @return string 'Y-m-d H:i:s' as the database holds it.
+     */
+    public static function displayToStorage($value)
+    {
+        $display = self::displayTimeZone();
+        $storage = self::storageTimeZone();
+        if ($display->getName() === $storage->getName()) {
+            return (string)$value;
+        }
+        try {
+            $date = new \DateTime((string)$value, $display);
+        } catch (\Exception $e) {
+            // Not a date we can read: hand it back untouched rather than
+            // inventing a bound. The caller's own validation still applies.
+            return (string)$value;
+        }
+        return $date->setTimezone($storage)->format('Y-m-d H:i:s');
+    }
+    /**
+     * Reads a stored datetime and returns it in the viewer's zone.
+     *
+     * Interpretation and presentation are two different questions and this is
+     * the only place that answers both: the value is read in the STORAGE zone,
+     * because that is the zone it was written in, then moved to the DISPLAY
+     * zone. Formatting the result gives the same wall-clock time the storer
+     * meant, expressed where the viewer is.
+     *
+     * @param mixed $date The stored value, or a DateTime.
+     *
+     * @return \DateTime
+     */
+    public static function toDisplay($date = 'now')
+    {
+        $out = $date instanceof \DateTime ? clone $date : self::niceDate($date);
+        // A zero or invalid date carries no instant to convert, and shifting
+        // one can push it across a day boundary and change how it renders.
+        if (!self::validDate($out)) {
+            return $out;
+        }
+        return $out->setTimezone(self::displayTimeZone());
+    }
     public static function niceDate($date = 'now', $utc = false)
     {
         /*
@@ -1817,15 +1958,10 @@ abstract class FOGBase
         // if ($date !== 'now' && (!self::validDate($date))) {
         //      $date = 'now';
         // }
-        if ($utc || empty(self::$TimeZone)) {
-            $tz = new \DateTimeZone('UTC');
-        } else {
-            try {
-                $tz = new \DateTimeZone(self::$TimeZone);
-            } catch (\Exception $e) {
-                $tz = new \DateTimeZone('UTC');
-            }
-        }
+        // The STORAGE zone, deliberately: this call interprets a value that
+        // has already been written, and is also what the write sites format
+        // through. Presentation is a separate question -- see toDisplay().
+        $tz = $utc ? new \DateTimeZone('UTC') : self::storageTimeZone();
         //Added try catch to catch when an invalid date is being brought in
         try {
             $niceDate = new \DateTime($date, $tz);
@@ -1850,6 +1986,17 @@ abstract class FOGBase
         if (!$time instanceof \DateTime) {
             $time = self::niceDate($time, $utc);
         }
+        // Everything below this line is OUTPUT, so it happens in the viewer's
+        // zone -- unless the caller asked for UTC explicitly, which is a
+        // request for a specific zone and not a display preference.
+        //
+        // $now moves with it. The "today / yesterday / runs today" branches
+        // compare calendar days, and comparing a day in one zone against a day
+        // in another is how a timestamp ends up labeled "Ran Yesterday" on
+        // the same afternoon it happened.
+        if (!$utc) {
+            $time = self::toDisplay($time);
+        }
         if ($format) {
             if (!self::validDate($time)) {
                 return _('No Data');
@@ -1857,7 +2004,9 @@ abstract class FOGBase
 
             return $time->format($format);
         }
-        $now = self::niceDate('now', $utc);
+        $now = $utc
+            ? self::niceDate('now', true)
+            : self::toDisplay('now');
         // Get difference of the current to supplied.
         $diff = $now->format('U') - $time->format('U');
         $absolute = abs($diff);
@@ -1958,10 +2107,7 @@ abstract class FOGBase
         if (!$format) {
             $format = 'm/d/Y';
         }
-        if (empty(self::$TimeZone)) {
-            self::$TimeZone = 'UTC';
-        }
-        $tz = new \DateTimeZone(self::$TimeZone);
+        $tz = self::storageTimeZone();
 
         return \DateTime::createFromFormat(
             $format,

@@ -670,12 +670,33 @@ class StorageGroupManagement extends FOGPage
     public function storagegroupStoragenodes()
     {
         // Storage Node Associations
+        //
+        // No Remove here, and the help block says why. A node's group is a
+        // column on the node (nfsGroupMembers.ngmGroupID), not a link row, so
+        // there is nothing to dissociate -- only somewhere else to point it.
+        // Removing used to write ngmGroupID = 0, which left the node in no
+        // group at all: invisible in every group, still in the storage node
+        // list, and unreachable by getOptimalStorageNode() and
+        // getMasterStorageNode(), both of which start from a group. Schema
+        // step 388 declares the column RESTRICT, so that write is now refused
+        // by the database as well as by StorageGroup::removeNode().
+        //
+        // Adding is the move: addNode() rewrites ngmGroupID in one step and
+        // never passes through a group-less state, so a node is taken from
+        // whatever group it was in by adding it to this one.
         $this->renderAssocTab(
             'storagegroup-storagenode',
             _('Storage Group Storage Node Associations'),
             _('Storage Node Name'),
             'storagenode',
-            'btn btn-primary float-end'
+            'btn btn-primary float-end',
+            _('A storage node always belongs to exactly one storage group.'
+            . ' Adding a node here MOVES it into this group from wherever it'
+            . ' is now; a group with no nodes left is fine. To take a node out'
+            . ' of this group, add it to the group it should be in instead.'),
+            '',
+            '',
+            false
         );
 
         $props = ' method="post" action="'

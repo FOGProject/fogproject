@@ -137,6 +137,14 @@ unset($this->stylesheets);
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="#" id="tzToggle" class="nav-link" role="button"
+                           data-bs-toggle="modal" data-bs-target="#tzModal"
+                           title="<?= _('Set your display timezone'); ?>"
+                           aria-label="<?= _('Set your display timezone'); ?>">
+                            <i class="far fa-clock"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket"></i> <?= _('Logout'); ?></a>
                     </li>
                 </ul>
@@ -216,6 +224,60 @@ if (in_array(strtolower($pageLength), ['search', 'list'])) {
                 <?= FOGPage::makeInput('pageLength', 'pageLength', '', 'hidden', 'pageLength', self::getSetting('FOG_VIEW_DEFAULT_SCREEN')); ?>
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
+                <?php
+                // Where the REST API lives, for the JS that stores a user's
+                // preferences. Normalized exactly as Route::defineRoutes()
+                // normalizes it, from the same setting, so the path the
+                // browser calls and the path the router answers on cannot
+                // drift -- FOG_WEB_ROOT is installer-settable and is not
+                // always '/fog/'.
+                $apiBase = trim((string)self::getSetting('FOG_WEB_ROOT'), '/');
+$apiBase = '/' . ($apiBase === '' ? '' : $apiBase . '/');
+?>
+                <?= FOGPage::makeInput('apiBase', 'apiBase', '', 'hidden', 'apiBase', $apiBase); ?>
+                <?php
+                // Display-timezone picker. Lives in the shell rather than on a
+                // page of its own because every signed-in user must be able to
+                // reach it, including one holding no role at all -- there is no
+                // self-service node today and adding one would mean widening
+                // the exempt-node list, which is an access-control change this
+                // does not need: the preference route is already reachable by
+                // any authenticated user and can only ever address that user's
+                // own row.
+                //
+                // The zone list comes from the platform's own tzdata, so it
+                // cannot drift from what DateTimeZone will accept back.
+                $tzDefault = (string)self::getSetting('FOG_TZ_INFO');
+if ('' === trim($tzDefault)) {
+    $tzDefault = ini_get('date.timezone') ?: 'UTC';
+}
+$tzList = \DateTimeZone::listIdentifiers();
+?>
+                <div class="modal fade" id="tzModal" tabindex="-1" aria-labelledby="tzModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="tzModalLabel"><?= _('Display timezone'); ?></h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= _('Close'); ?>"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-body-secondary small">
+                                    <?= _('Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else.'); ?>
+                                </p>
+                                <select class="form-select" id="tzSelect" aria-label="<?= _('Display timezone'); ?>">
+                                    <option value=""><?= sprintf(_('Server default (%s)'), Initiator::e($tzDefault)); ?></option>
+                                    <?php foreach ($tzList as $tzName): ?>
+                                    <option value="<?= Initiator::e($tzName); ?>"><?= Initiator::e($tzName); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary float-start" data-bs-dismiss="modal"><?= _('Cancel'); ?></button>
+                                <button type="button" class="btn btn-primary" id="tzSave"><?= _('Save'); ?></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <?php
         // No-role warning: with deny-by-default a user holding zero roles
         // can reach nothing but the exempt nodes (dashboard, logout), and

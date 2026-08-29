@@ -238,6 +238,9 @@ foreach ($map as $rel) {
  * Group 3 -- storage: groups, nodes, image and snapin assoc, schema step 384.
  * Group 5 -- configuration references, schema step 388.
  * Group 6 -- tasks and active work, schema step 390.
+ * Group 7 -- user preferences, schema step 392. The only group whose table
+ *   was created by the release that constrains it, so the only one with no
+ *   orphan sweep before it.
  * Groups 'location', 'ou', 'windowskey', 'ldap', 'oidc', 'capone' and
  *   'subnetgroup' -- the plugin tables, each applied by a step appended to
  *   that plugin's own schema() in the fog-plugins repo, not by a core step.
@@ -320,6 +323,8 @@ $expected = [
     'multicastSessions.msState',
     'multicastSessionsAssoc.msID',
     'multicastSessionsAssoc.tID',
+    // Group 7
+    'userPrefs.upUserID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

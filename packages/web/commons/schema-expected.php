@@ -916,6 +916,17 @@ return [
                 'uaPasswordHash' => 'varchar(255) NOT NULL DEFAULT \'\'',
             ],
         ],
+        'userPrefs' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `userPrefs` ( `upID` int(11) NOT NULL AUTO_INCREMENT, `upUserID` int(11) NOT NULL DEFAULT 0, `upKey` varchar(190) NOT NULL DEFAULT \'\', `upValue` longtext DEFAULT NULL, `upCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `upModifiedTime` datetime DEFAULT NULL, PRIMARY KEY (`upID`), UNIQUE KEY `upUserKey` (`upUserID`,`upKey`), KEY `upUserID` (`upUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'upID' => 'int(11) NOT NULL',
+                'upUserID' => 'int(11) NOT NULL DEFAULT 0',
+                'upKey' => 'varchar(190) NOT NULL DEFAULT \'\'',
+                'upValue' => 'longtext DEFAULT NULL',
+                'upCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'upModifiedTime' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'userCleanup' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `userCleanup` ( `ucID` int(11) NOT NULL AUTO_INCREMENT, `ucName` varchar(254) NOT NULL DEFAULT \'\', PRIMARY KEY (`ucID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [

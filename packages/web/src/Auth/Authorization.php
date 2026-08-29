@@ -237,6 +237,13 @@ class Authorization extends FOGBase
         'bandwidth' => null,
         'whoami' => null,
         'unisearch' => null,
+        // A user's own preferences. null is "authenticated is enough", the
+        // same as whoami above, and for the same reason: neither route can
+        // address anything but the caller. The user id comes from the
+        // session and the path has no place to put a different one, so there
+        // is no object here for an object permission to be about.
+        'userprefs' => null,
+        'userpref' => null,
         // The API description, and its swagger.json alias. Public for the
         // same reason status/info are: a client should be able to discover
         // what it is talking to before it has credentials. Both expose only

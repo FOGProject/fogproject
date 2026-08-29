@@ -1384,6 +1384,23 @@ class Route extends FOGBase
             '/system/export',
             [__CLASS__, 'export'],
             'export'
+        )->get(
+            // Every preference the CALLER holds, in one request. The saved
+            // state of a dozen grids is a dozen keys, and a page that had to
+            // ask for them one at a time would spend a round trip per table
+            // before it could draw any of them.
+            '/system/userprefs',
+            [__CLASS__, 'userprefs'],
+            'userprefs'
+        )->map(
+            // One preference of the CALLER's. Note there is no user in the
+            // path and no way to put one there: the id comes from the
+            // session, so this route cannot address anybody else's row. That
+            // is what lets it carry no permission beyond being signed in.
+            'GET|POST|PUT|DELETE',
+            '/system/userpref/[*:key]',
+            [__CLASS__, 'userpref'],
+            'userpref'
         )->map(
             'GET|POST',
             '/[search|unisearch]/[*:item]/[i:limit]?',
@@ -2090,6 +2107,114 @@ class Route extends FOGBase
                     JSON_INVALID_UTF8_SUBSTITUTE
                 )
         );
+    }
+    /**
+     * Answers with every preference the calling user holds.
+     *
+     * @return void
+     */
+    public static function userprefs()
+    {
+        self::$data = [
+            'prefs' => self::getClass('UserPrefManager')->fetchAll(
+                (int)self::$FOGUser->get('id')
+            ),
+            'msg' => _('success')
+        ];
+    }
+    /**
+     * Reads, writes or clears one preference of the calling user's.
+     *
+     * The user is taken from the session and never from the request, so
+     * there is no addressable way to reach another user's row -- which is
+     * why the route needs no permission beyond authentication, the same
+     * shape as whoami.
+     *
+     * The value is stored uninterpreted. It comes from a browser and the
+     * only thing that ever reads it is the same browser code that wrote it,
+     * so parsing it here would buy nothing and would couple the server to a
+     * client library's internals. It is bounded instead: an oversized value
+     * is refused rather than truncated, because a truncated saved state is
+     * indistinguishable from a corrupt one at the point it is read back.
+     *
+     * @param string $key the preference key
+     *
+     * @return void
+     */
+    public static function userpref($key)
+    {
+        $key = trim((string)$key);
+        $userID = (int)self::$FOGUser->get('id');
+        if ($userID < 1) {
+            // Belt and braces: the router authenticates before dispatching,
+            // so this is unreachable. Storing against user 0 if it ever were
+            // reachable would make one shared pile of preferences visible to
+            // everybody, so it fails closed rather than defaulting.
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                json_encode(['error' => _('No user in session')])
+            );
+
+            return;
+        }
+        $method = strtoupper(self::$reqmethod ?: 'GET');
+        if ($method === 'GET') {
+            self::$data = [
+                'key' => $key,
+                'value' => self::getClass('UserPrefManager')
+                    ->fetch($userID, $key),
+                'msg' => _('success')
+            ];
+
+            return;
+        }
+        $value = '';
+        if ($method !== 'DELETE') {
+            // Accept both spellings a browser might send: a JSON body, which
+            // is what fetch() sends by default, and a form field, which is
+            // what jQuery sends.
+            //
+            // ABSENT AND EMPTY ARE NOT THE SAME THING. An empty value is the
+            // documented way to clear a preference, so a request that carries
+            // no value at all must not be read as one: PHP populates $_POST
+            // only for a form-encoded POST, so a form-encoded PUT arrives with
+            // nothing in either spelling and would otherwise DELETE the
+            // preference it was sent to update, and answer 200 having done it.
+            $supplied = false;
+            $body = file_get_contents('php://input');
+            $decoded = json_decode((string)$body, true);
+            if (is_array($decoded) && array_key_exists('value', $decoded)) {
+                $value = (string)$decoded['value'];
+                $supplied = true;
+            } elseif (null !== filter_input(INPUT_POST, 'value')) {
+                $value = (string)filter_input(INPUT_POST, 'value');
+                $supplied = true;
+            }
+            if (!$supplied) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    json_encode(
+                        ['error' => _('No value supplied; use DELETE to clear')]
+                    )
+                );
+
+                return;
+            }
+        }
+        if (!self::getClass('UserPrefManager')->store($userID, $key, $value)) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(
+                    ['error' => _('Preference key or value is not storable')]
+                )
+            );
+
+            return;
+        }
+        self::$data = [
+            'key' => $key,
+            'msg' => _('success')
+        ];
     }
     /**
      * Presents status to show up or down state.

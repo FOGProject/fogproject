@@ -426,6 +426,9 @@ msgstr "グループを選択してください。"
 msgid "A storage node already exists with this name!"
 msgstr "この名前のロールは既に存在します！"
 
+msgid "A storage node always belongs to exactly one storage group. Adding a node here MOVES it into this group from wherever it is now; a group with no nodes left is fine. To take a node out of this group, add it to the group it should be in instead."
+msgstr ""
+
 msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
 msgstr ""
 
@@ -961,6 +964,9 @@ msgstr "毎年"
 msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
 msgstr ""
 
+msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
+msgstr ""
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1412,6 +1418,10 @@ msgid "Capone added!"
 msgstr "スナップインを追加しました！"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "ロケーション"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "スナップインの更新に失敗しました！"
 
@@ -1523,6 +1533,9 @@ msgstr ""
 msgid "Checking if I am the group manager"
 msgstr "自身がグループマネージャーか確認しています"
 
+msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
+msgstr ""
+
 msgid "Class"
 msgstr "クラス"
 
@@ -1543,6 +1556,9 @@ msgstr "クリア"
 
 msgid "Clear Fields"
 msgstr "フィールドをクリア"
+
+msgid "Clear one of your preferences"
+msgstr ""
 
 msgid "Click"
 msgstr "クリック"
@@ -2247,6 +2263,10 @@ msgstr "グラフ有効"
 msgid "Display With"
 msgstr "表示"
 
+#, fuzzy
+msgid "Display timezone"
+msgstr "グラフ有効"
+
 msgid "Do not list on menu"
 msgstr "メニューに表示しない"
 
@@ -2443,6 +2463,9 @@ msgstr "プリンタータイプ"
 msgid "Equipment Loan"
 msgstr "機器貸出"
 
+msgid "Equivalent to storing an empty value."
+msgstr ""
+
 msgid "Error"
 msgstr "エラー"
 
@@ -2526,6 +2549,9 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "ファイルはアップロードされませんでした"
+
+msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
+msgstr ""
 
 #, fuzzy
 msgid "Existence check failed"
@@ -5608,11 +5634,18 @@ msgstr "このグループで利用可能なアクティビティ情報はあり
 msgid "No unrunnable tasks found."
 msgstr "新しいタスクは見つかりません"
 
+#, fuzzy
+msgid "No user in session"
+msgstr "バージョン"
+
 msgid "No valid storage nodes found"
 msgstr "有効なストレージノードが見つかりません"
 
 msgid "No valid tasks found"
 msgstr "有効なタスクが見つかりません"
+
+msgid "No value supplied; use DELETE to clear"
+msgstr ""
 
 msgid "No values passed"
 msgstr "値が渡されていません"
@@ -5832,6 +5865,9 @@ msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "1 つ以上の MAC アドレスがホストに関連付けられています"
+
+msgid "One preference."
+msgstr ""
 
 msgid "Online"
 msgstr ""
@@ -6349,6 +6385,9 @@ msgstr ""
 msgid "PowerShell x64 Script"
 msgstr ""
 
+msgid "Preference key or value is not storable"
+msgstr ""
+
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
@@ -6599,6 +6638,9 @@ msgid "Re-run the installer, which restricts them to root. If this persists, che
 msgstr ""
 
 msgid "Read a server log"
+msgstr ""
+
+msgid "Read one of your preferences"
 msgstr ""
 
 #, fuzzy
@@ -6960,6 +7002,9 @@ msgstr "FTP 接続に失敗しました"
 msgid "SSL Path"
 msgstr "SSL パス"
 
+msgid "Save"
+msgstr ""
+
 msgid "Save Changes"
 msgstr "変更を保存"
 
@@ -7168,6 +7213,10 @@ msgstr "サーバーシェル"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "Server default (%s)"
+msgstr "サーバー情報"
+
 msgid "Server facts. Every field is a string, and is empty rather than absent when the installer has not published it yet."
 msgstr ""
 
@@ -7274,6 +7323,9 @@ msgstr "ストレージグループの説明"
 
 msgid "Set failed"
 msgstr "設定に失敗しました"
+
+msgid "Set your display timezone"
+msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -7950,6 +8002,9 @@ msgstr "レポートを作成しますか？"
 msgid "Storage nodes"
 msgstr "ストレージノード"
 
+msgid "Store one of your preferences"
+msgstr ""
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -8416,7 +8471,13 @@ msgstr ""
 msgid "The archive must hold exactly one plugin directory."
 msgstr ""
 
+msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
+msgstr ""
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
+msgstr ""
+
+msgid "The calling user's preferences."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -8542,6 +8603,15 @@ msgid "The plugin system is disabled"
 msgstr "このプラグインはインストールされていません"
 
 msgid "The plugin will run but its JS and CSS will 404."
+msgstr ""
+
+msgid "The preference key. Namespaced by its consumer -- a grid's saved state is stored under \"dt.<table id>\" -- so that two features cannot collide on one name."
+msgstr ""
+
+msgid "The preference was cleared."
+msgstr ""
+
+msgid "The preference was stored."
 msgstr ""
 
 msgid "The primary mac associated is"
@@ -9728,6 +9798,9 @@ msgid "Your database connection appears to be invalid"
 msgstr "データベース接続が無効のようです"
 
 msgid "Your session has ended. Sign in again."
+msgstr ""
+
+msgid "Your stored preferences"
 msgstr ""
 
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
@@ -12322,10 +12395,6 @@ msgstr ""
 
 #~ msgid "Serial"
 #~ msgstr "シリアル"
-
-#, fuzzy
-#~ msgid "Server facts."
-#~ msgstr "サーバー情報"
 
 #~ msgid "Server information at a glance."
 #~ msgstr "サーバー情報の概要"
