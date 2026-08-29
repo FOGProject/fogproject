@@ -93,7 +93,7 @@ CASCADE while `tasks.taskStateID` is RESTRICT, and `hosts.hostImage` is SET
 NULL while `scheduledTasks.stImageID` is RESTRICT. A column that holds an id
 and is not in that file is a bug, not an omission.
 
-Current totals: 65 CASCADE, 19 RESTRICT, 5 SET NULL, 16 no constraint
+Current totals: 66 CASCADE, 17 RESTRICT, 6 SET NULL, 16 no constraint
 (`audit` and `poly`).
 
 "Holds an id" is not the same as "ends in ID". `multicastSessions.msState`
@@ -103,15 +103,29 @@ matching only `/ID$/`. The gate is what makes this decision real, so it
 matches the naming conventions the schema actually uses rather than the one
 it mostly uses.
 
-**`satellite` vs `config` is the classification that can destroy data, so it
-gets a test rather than a feel.** The question is not "is this a small table
-hanging off a big one" — it is *does anything in FOG deliberately detach one
-and leave it alive?* If yes, the child outlives the parent and the class is
-`config`. `nfsGroupMembers.ngmGroupID` shipped as `satellite`/CASCADE in
-schema step 384 and had to be corrected in 385: a storage node carries its
-own hostname, credentials, paths and enable flag, and `removeNode()` detaches
-one without deleting it, so CASCADE would have destroyed a node's entire
-configuration when its group was deleted.
+**Classification is the step that can destroy data, so it gets a test rather
+than a feel.** One question, asked in this order:
+
+1. **Does the child carry anything the parent cannot regenerate?** Its own
+   credentials, paths, schedule, identity. If yes it is not a `satellite`,
+   whatever its shape — and CASCADE would destroy that.
+2. **Can the child exist with no parent at all?** If yes the column is
+   nullable and the action is SET NULL. If no, it stays `NOT NULL` and the
+   action is RESTRICT: the parent cannot go while a child names it.
+3. **Is the child work performed *by* the parent, carrying nothing of its
+   own?** Then CASCADE, even in class `config`.
+
+`nfsGroupMembers.ngmGroupID` needed all three. It shipped `satellite`/CASCADE
+in step 384 and was corrected in 385 to `config`/`NOT NULL`/RESTRICT: a
+storage node carries credentials and paths (1), and always belongs to a group
+(2). `multicastSessions.msNFSGroupID` sits in `config` and takes CASCADE by
+(3) — a session is work the group did, and under RESTRICT one completed
+session would have pinned its storage group forever.
+
+An existing 0-valued column is **not** evidence for step 2. A `0` there may
+be a spelling of "no reference" — or a broken row a bug wrote, in which case
+converting it to NULL makes the breakage permanent and legal. `hostImage` was
+the first; `ngmGroupID` was the second.
 
 | Class | `ON DELETE` | What it means |
 |---|---|---|

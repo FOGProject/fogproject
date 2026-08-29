@@ -66,75 +66,104 @@
 
 return [
     // ---- junction: association rows -------------------------------------
-    ['child' => 'groupMembers', 'column' => 'gmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'groupMembers', 'column' => 'gmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'hostMAC', 'column' => 'hmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'snapinAssoc', 'column' => 'saHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'snapinAssoc', 'column' => 'saSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'snapinGroupAssoc', 'column' => 'sgaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'snapinGroupAssoc', 'column' => 'sgaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'imageGroupAssoc', 'column' => 'igaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'imageGroupAssoc', 'column' => 'igaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'printerAssoc', 'column' => 'paHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'printerAssoc', 'column' => 'paPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'moduleStatusByHost', 'column' => 'msHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'moduleStatusByHost', 'column' => 'msModuleID', 'parent' => 'modules', 'pcolumn' => 'id', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
+    ['child' => 'groupMembers', 'column' => 'gmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'groupMembers', 'column' => 'gmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'hostMAC', 'column' => 'hmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'snapinAssoc', 'column' => 'saHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'snapinAssoc', 'column' => 'saSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'snapinGroupAssoc', 'column' => 'sgaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 3],
+    ['child' => 'snapinGroupAssoc', 'column' => 'sgaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 3],
+    ['child' => 'imageGroupAssoc', 'column' => 'igaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 3],
+    ['child' => 'imageGroupAssoc', 'column' => 'igaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 3],
+    ['child' => 'printerAssoc', 'column' => 'paHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'printerAssoc', 'column' => 'paPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'moduleStatusByHost', 'column' => 'msHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'moduleStatusByHost', 'column' => 'msModuleID', 'parent' => 'modules', 'pcolumn' => 'id', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'multicastSessionsAssoc', 'column' => 'msID', 'parent' => 'multicastSessions', 'pcolumn' => 'msID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
     ['child' => 'multicastSessionsAssoc', 'column' => 'tID', 'parent' => 'tasks', 'pcolumn' => 'taskID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'siteHostMembers', 'column' => 'shmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteHostMembers', 'column' => 'shmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteGroupMembers', 'column' => 'sgmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteGroupMembers', 'column' => 'sgmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteUserMembers', 'column' => 'sumSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteUserMembers', 'column' => 'sumUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteUserGroupMembers', 'column' => 'sugmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteUserGroupMembers', 'column' => 'sugmUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteRoleGrants', 'column' => 'srgSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteRoleGrants', 'column' => 'srgRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteUserGroupGrants', 'column' => 'suggSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'siteUserGroupGrants', 'column' => 'suggGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'roleUserAssoc', 'column' => 'ruaRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'roleUserAssoc', 'column' => 'ruaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'roleUserGroupAssoc', 'column' => 'rugRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'roleUserGroupAssoc', 'column' => 'rugGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'rolePermissions', 'column' => 'rpRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'userGroupMembers', 'column' => 'ugmGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'userGroupMembers', 'column' => 'ugmUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
+    ['child' => 'siteHostMembers', 'column' => 'shmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteHostMembers', 'column' => 'shmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteGroupMembers', 'column' => 'sgmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteGroupMembers', 'column' => 'sgmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteUserMembers', 'column' => 'sumSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteUserMembers', 'column' => 'sumUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteUserGroupMembers', 'column' => 'sugmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteUserGroupMembers', 'column' => 'sugmUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteRoleGrants', 'column' => 'srgSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteRoleGrants', 'column' => 'srgRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteUserGroupGrants', 'column' => 'suggSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'siteUserGroupGrants', 'column' => 'suggGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'roleUserAssoc', 'column' => 'ruaRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'roleUserAssoc', 'column' => 'ruaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'roleUserGroupAssoc', 'column' => 'rugRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'roleUserGroupAssoc', 'column' => 'rugGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'rolePermissions', 'column' => 'rpRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'userGroupMembers', 'column' => 'ugmGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'userGroupMembers', 'column' => 'ugmUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
 
     // ---- satellite: rows wholly owned by one parent ----------------------
-    ['child' => 'inventory', 'column' => 'iHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'hostScreenSettings', 'column' => 'hssHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'hostAutoLogOut', 'column' => 'haloHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'powerManagement', 'column' => 'pmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'apiTokens', 'column' => 'atUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'userAuths', 'column' => 'uaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
+    ['child' => 'inventory', 'column' => 'iHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'hostScreenSettings', 'column' => 'hssHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'hostAutoLogOut', 'column' => 'haloHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'powerManagement', 'column' => 'pmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
+    ['child' => 'apiTokens', 'column' => 'atUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    ['child' => 'userAuths', 'column' => 'uaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
 
     // ---- config: references to configuration with its own life ----------
     //
     // nfsGroupMembers.ngmGroupID was classed satellite and shipped CASCADE
-    // in schema step 384. That was wrong on both counts and is corrected
-    // here. A storage node is not a satellite of its group: it carries its
-    // own hostname, credentials, paths, bandwidth limit and enable flag, and
-    // StorageGroup::removeNode() detaches one without deleting it -- so
-    // "belongs to no group" is a state FOG itself creates and the Storage
-    // Node list still shows. Under CASCADE, deleting a group would have
-    // silently destroyed every node's configuration with it.
+    // in schema step 384. Both were wrong.
     //
-    // It stays disabled until the sentinel conversion makes the column
-    // nullable, because SET NULL cannot be declared on a NOT NULL column.
-    ['child' => 'nfsGroupMembers', 'column' => 'ngmGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'hosts', 'column' => 'hostImage', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'hosts', 'column' => 'hostArchID', 'parent' => 'architectures', 'pcolumn' => 'archID', 'class' => 'config', 'action' => 'SET NULL', 'enabled' => false],
-    ['child' => 'images', 'column' => 'imageOSID', 'parent' => 'os', 'pcolumn' => 'osID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'images', 'column' => 'imageTypeID', 'parent' => 'imageTypes', 'pcolumn' => 'imageTypeID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'images', 'column' => 'imagePartitionTypeID', 'parent' => 'imagePartitionTypes', 'pcolumn' => 'imagePartitionTypeID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'images', 'column' => 'imageArchID', 'parent' => 'architectures', 'pcolumn' => 'archID', 'class' => 'config', 'action' => 'SET NULL', 'enabled' => false],
-    ['child' => 'scheduledTasks', 'column' => 'stTaskTypeID', 'parent' => 'taskTypes', 'pcolumn' => 'ttID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'scheduledTasks', 'column' => 'stImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'multicastSessions', 'column' => 'msNFSGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'multicastSessions', 'column' => 'msSenderNode', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'fileDeleteQueue', 'column' => 'fdqStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
+    // The invariant, from Tom: a storage node ALWAYS belongs to a group; a
+    // group need not have any nodes. So the column stays NOT NULL and this
+    // is not SET NULL either -- there is no legitimate "no group" state to
+    // spell.
+    //
+    // RESTRICT rather than CASCADE because a node is not a satellite. It
+    // carries its own hostname, credentials, root/FTP/snapin paths,
+    // interface, bandwidth limit, max clients and enable flag, none of it
+    // recoverable from the group. CASCADE would silently destroy all of
+    // that when a group was deleted; RESTRICT refuses the delete until the
+    // nodes have been moved, which keeps the invariant and destroys
+    // nothing.
+    //
+    // A row still holding the `0` that StorageGroup::removeNode() writes is
+    // a BROKEN row under this invariant, not a detached node, so the
+    // sentinel conversion deliberately leaves it alone -- see schema step
+    // 386. The constraint is then refused and named in the log until an
+    // administrator assigns the node to a group. Only they know which one.
+    ['child' => 'nfsGroupMembers', 'column' => 'ngmGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 5],
+    ['child' => 'hosts', 'column' => 'hostImage', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 5],
+    ['child' => 'hosts', 'column' => 'hostArchID', 'parent' => 'architectures', 'pcolumn' => 'archID', 'class' => 'config', 'action' => 'SET NULL', 'enabled' => true, 'group' => 5],
+    ['child' => 'images', 'column' => 'imageOSID', 'parent' => 'os', 'pcolumn' => 'osID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => true, 'group' => 5],
+    ['child' => 'images', 'column' => 'imageTypeID', 'parent' => 'imageTypes', 'pcolumn' => 'imageTypeID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 5],
+    ['child' => 'images', 'column' => 'imagePartitionTypeID', 'parent' => 'imagePartitionTypes', 'pcolumn' => 'imagePartitionTypeID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 5],
+    ['child' => 'images', 'column' => 'imageArchID', 'parent' => 'architectures', 'pcolumn' => 'archID', 'class' => 'config', 'action' => 'SET NULL', 'enabled' => true, 'group' => 5],
+    ['child' => 'scheduledTasks', 'column' => 'stTaskTypeID', 'parent' => 'taskTypes', 'pcolumn' => 'ttID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 5],
+    // SET NULL, not RESTRICT. FOG's house behavior for a deleted image is
+    // to degrade what depends on it, not to block the delete: hosts are
+    // unassigned and live tasks are canceled (Route::deletemass, case
+    // 'image'). Nothing touches scheduledTasks today, so a schedule quietly
+    // outlives its image and fails every time it fires. RESTRICT would
+    // refuse the image delete on the strength of a schedule someone forgot
+    // about; SET NULL leaves the schedule visible and editable, which is
+    // where the administrator can actually fix it.
+    ['child' => 'scheduledTasks', 'column' => 'stImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 5],
+    // CASCADE, not RESTRICT. A multicast session is work performed BY a
+    // storage group -- it carries no configuration of its own worth keeping
+    // and cannot be re-pointed at another group. Under RESTRICT a single
+    // completed session would pin its storage group forever, so a group
+    // that had ever run a multicast could never be deleted. The imaging
+    // record lives in taskLog, which takes no constraint at all (ADR 0021),
+    // so nothing here is the history.
+    ['child' => 'multicastSessions', 'column' => 'msNFSGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'CASCADE', 'enabled' => true, 'group' => 5],
+    // SET NULL, not RESTRICT. This records WHICH node ran the session, not
+    // what the session belongs to -- that is msNFSGroupID above. A node
+    // being removed should not pin it, and should not take the session with
+    // it either. Nullable as of schema step 386.
+    ['child' => 'multicastSessions', 'column' => 'msSenderNode', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 5],
+    ['child' => 'fileDeleteQueue', 'column' => 'fdqStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 5],
 
     // ---- work: tasks and jobs -------------------------------------------
     ['child' => 'tasks', 'column' => 'taskHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],

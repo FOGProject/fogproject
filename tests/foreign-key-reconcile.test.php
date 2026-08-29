@@ -181,6 +181,70 @@ $t->check(
     count($plan) === 2 && strpos($plan[1], '(`hostName`)') !== false
 );
 
+// --- the group filter -------------------------------------------------------
+//
+// A schema step passes its own group so it lands only what its preconditions
+// allow. Without it, the FIRST constraint step reached in an upgrade applies
+// every enabled relationship in the map -- including ones whose column a
+// later step has not made nullable yet -- and logs a refusal on every
+// upgrade for a constraint the correct step then applies cleanly.
+$g = static function ($n) use ($rel) {
+    return $rel(['group' => $n]);
+};
+
+$plan = SchemaReconciler::planConstraints([$g(5)], $have, [], 5);
+$t->check('a matching group is planned', count($plan) === 1);
+
+$plan = SchemaReconciler::planConstraints([$g(5)], $have, [], 1);
+$t->check('a different group is not planned', $plan === []);
+
+$plan = SchemaReconciler::planConstraints([$rel()], $have, [], 1);
+$t->check('an entry with no group is not planned by a filtered call', $plan === []);
+
+$plan = SchemaReconciler::planConstraints([$g(5)], $have, [], null);
+$t->check('an unfiltered call plans every group', count($plan) === 1);
+
+// The filter must not read "not my group" as "retired". A step-1 call that
+// dropped group 5's constraints would undo the previous run's work every
+// time anyone upgraded.
+$plan = SchemaReconciler::planConstraints(
+    [$g(5)],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk()],
+    1
+);
+$t->check(
+    'a filtered call leaves another group\'s constraint alone',
+    $plan === []
+);
+
+// Nor may it leave a window with no constraint: a wrong declaration that
+// belongs to another group is left for the unfiltered reconcile to correct,
+// not dropped here and re-added later.
+$plan = SchemaReconciler::planConstraints(
+    [$g(5) + ['action' => 'SET NULL']],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk(['action' => 'CASCADE'])],
+    1
+);
+$t->check(
+    'a wrong declaration outside the filtered group is not dropped',
+    $plan === []
+);
+
+// A RETIREMENT is never filtered, though -- a constraint the map no longer
+// declares has to be removable from whichever step runs next.
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['enabled' => false])],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk()],
+    1
+);
+$t->check(
+    'a retired constraint is dropped even by a filtered call',
+    count($plan) === 1 && strpos($plan[0], 'DROP FOREIGN KEY') !== false
+);
+
 // --- retiring a constraint --------------------------------------------------
 $plan = SchemaReconciler::planConstraints(
     [$rel(['enabled' => false])],
@@ -385,7 +449,7 @@ $db->responder = static function ($sql) use ($db, $structure) {
     return null;
 };
 
-$result = SchemaReconciler::applyConstraints([$rel()]);
+$result = SchemaReconciler::applyConstraints(null, [$rel()]);
 $failures = SchemaReconciler::constraintFailures();
 
 $t->check('applyConstraints() returns true even when a constraint is refused', $result === true);
@@ -416,7 +480,7 @@ $db->responder = static function ($sql) use ($db, $structure) {
     return [];
 };
 $mark = count($db->log);
-$result = SchemaReconciler::applyConstraints([$rel()]);
+$result = SchemaReconciler::applyConstraints(null, [$rel()]);
 $since = array_slice($db->log, $mark);
 $t->check('a clean run records no failure', SchemaReconciler::constraintFailures() === []);
 $t->check('a clean run still returns true', $result === true);

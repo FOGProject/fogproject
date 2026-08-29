@@ -437,10 +437,14 @@ class SchemaReconciler extends FOGBase
      * @param array $haveFks    Existing constraints, as constraintSnapshot()
      *                          returns them: name => [parent, pcolumn,
      *                          action].
+     * @param mixed $group      When given, only relationships carrying this
+     *                          `group` are eligible to be ADDED. Retirements
+     *                          and corrections are NEVER filtered: a wrong
+     *                          declaration has to be fixable from any step.
      *
      * @return array Ordered SQL statements.
      */
-    public static function planConstraints($map, $have, $haveFks)
+    public static function planConstraints($map, $have, $haveFks, $group = null)
     {
         $plan = [];
         $known = [];
@@ -457,9 +461,16 @@ class SchemaReconciler extends FOGBase
             if (isset($done[$lname])) {
                 continue;
             }
-            $wanted = !empty($rel['enabled'])
+            // `declared` is what the map says should exist at all;
+            // `eligible` is whether THIS call may create it. They are
+            // separate on purpose: a filtered call must not read "not my
+            // group" as "retired" and drop another group's constraints.
+            $declared = !empty($rel['enabled'])
                 && !empty($rel['action'])
                 && 'none' !== $rel['action'];
+            $eligible = $declared
+                && (null === $group
+                    || (isset($rel['group']) && $rel['group'] === $group));
             $child = strtolower($rel['child']);
             $parent = strtolower((string)($rel['parent'] ?? ''));
 
@@ -468,7 +479,7 @@ class SchemaReconciler extends FOGBase
             // comparison is on the declaration, not on the name.
             if (isset($known[$lname])) {
                 $existing = $known[$lname];
-                $matches = $wanted
+                $matches = $declared
                     && ($existing['parent'] ?? '') === $parent
                     && ($existing['pcolumn'] ?? '')
                         === strtolower((string)($rel['pcolumn'] ?? ''))
@@ -478,17 +489,25 @@ class SchemaReconciler extends FOGBase
                     $done[$lname] = true;
                     continue;
                 }
+                if ($declared && !$eligible) {
+                    // Wrong declaration, but not this call's group to fix.
+                    // Dropping without re-adding would open a window with
+                    // no constraint at all; the unfiltered reconcile that
+                    // follows every update run corrects it instead.
+                    $done[$lname] = true;
+                    continue;
+                }
                 $plan[] = sprintf(
                     'ALTER TABLE `%s` DROP FOREIGN KEY `%s`',
                     $rel['child'],
                     $name
                 );
                 unset($known[$lname]);
-                if (!$wanted) {
+                if (!$declared) {
                     $done[$lname] = true;
                     continue;
                 }
-            } elseif (!$wanted) {
+            } elseif (!$eligible) {
                 continue;
             }
 
@@ -616,7 +635,7 @@ class SchemaReconciler extends FOGBase
         // anticipate returns 1452; failing the update over that would
         // strand the server on ?node=schema with its data intact and no
         // way forward from the browser. Logged and reported instead.
-        self::applyConstraints($map);
+        self::applyConstraints(null, $map);
 
         if (count($errors ?: [])) {
             return implode('; ', $errors);
@@ -644,16 +663,33 @@ class SchemaReconciler extends FOGBase
      * collected into constraintFailures(), logged loudly with a pointer at
      * the scanner that can find the rows, and the update proceeds.
      *
-     * Idempotent: planConstraints() skips any constraint name the database
-     * already carries, so calling this twice in one update run -- which is
-     * exactly what a group's step plus the reconcile after it does -- plans
-     * nothing the second time.
+     * Idempotent: planConstraints() skips any constraint whose declaration
+     * already matches the map, so calling this twice in one update run --
+     * which is exactly what a group's step plus the reconcile after it does
+     * -- plans nothing the second time.
      *
-     * @param array|null $map Relationship map; defaults to the shipped one.
+     * A SCHEMA STEP MUST PASS ITS OWN GROUP. Without one, the first
+     * constraint step reached in an upgrade applies every enabled
+     * relationship in the map, including groups whose preconditions later
+     * steps have not created yet -- a RESTRICT over a column still holding
+     * the `0` sentinel, say. Nothing breaks, because a refusal is reported
+     * rather than returned, but it logs a failure on every upgrade for a
+     * constraint that the correct step then applies cleanly, and noise like
+     * that is how people learn to stop reading the log.
+     *
+     * The trailing reconcile in SchemaUpdaterPage passes null, deliberately.
+     * It runs after the whole update loop, so every precondition has landed
+     * by then, and it is what converges a server that somehow missed a
+     * step's constraints.
+     *
+     * @param mixed      $group Only add relationships carrying this `group`.
+     *                          Null adds everything enabled. Retirements and
+     *                          corrections are never filtered.
+     * @param array|null $map   Relationship map; defaults to the shipped one.
      *
      * @return bool always true
      */
-    public static function applyConstraints($map = null)
+    public static function applyConstraints($group = null, $map = null)
     {
         if (null === $map) {
             $map = self::constraints();
@@ -662,7 +698,7 @@ class SchemaReconciler extends FOGBase
         $haveFks = self::constraintSnapshot();
         $have = self::snapshot();
         if (null !== $haveFks && null !== $have) {
-            $fkPlan = self::planConstraints($map, $have, $haveFks);
+            $fkPlan = self::planConstraints($map, $have, $haveFks, $group);
             $fkApplied = [];
             foreach ($fkPlan as $sql) {
                 if (false === self::$DB->query($sql)->error) {

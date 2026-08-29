@@ -1130,30 +1130,36 @@ and it exists because the reconciler could not previously remove anything.
 `inventory.iHostID` and the rest. A storage node is not a satellite. It
 carries its own hostname, credentials, root/FTP/snapin paths, interface,
 bandwidth limit, max clients and enable flag — none of which is recoverable
-from the group — and `StorageGroup::removeNode()` detaches one by writing `0`
-into `ngmGroupID` without deleting anything. "Belongs to no group" is a state
-FOG creates on purpose and the Storage Node list still renders.
+from the group.
+
+**The invariant, from Tom:** *a storage node always belongs to a group; a
+group does not need to have nodes.* That settles both halves. The column
+stays `NOT NULL` — there is no "no group" state to spell, so this is not SET
+NULL either — and the action is **RESTRICT**: deleting a group that still
+has nodes is refused until they are moved, which keeps the invariant and
+destroys nothing.
+
+It also reclassifies what `StorageGroup::removeNode()` was doing. Writing
+`ngmGroupID = 0` is not a supported detach; it is how a broken row gets
+made, and the constraint refusing it is the point. See *`removeNode()` was
+never a valid operation* below.
 
 So under the CASCADE, deleting a storage group would have silently destroyed
 every one of its nodes' configuration. The measurement in the step 5 section
 above shows it happening (`nfsGroupMembers 1 → 0, cascaded`) and it was read
 at the time as the constraint working.
 
-**Two things it broke, both verified against a server, not reasoned about:**
+**What the CASCADE broke, verified against a server rather than reasoned
+about:** deleting a storage group would have deleted every node in it,
+silently, taking credentials and paths with it.
 
-```
-UPDATE nfsGroupMembers SET ngmGroupID = 0 WHERE ngmMemberName='probe-node'
-ERROR 1452 ... CONSTRAINT `fk_nfsGroupMembers_ngmGroupID`
-```
-
-`StorageGroup::removeNode()` issues exactly that statement. Detaching a
-storage node through the UI was broken from step 384 onward.
-
-And step 381's orphan sweep listed the same relationship, so it *deleted*
-detached nodes as though they were dangling junction rows. Tom's own 1.6
-server carries one — `fognode1.lan`, enabled, `ngmGroupID = 0`. The sweep
-would have destroyed it. That relationship is now removed from the sweep's
-frozen list, with the reasoning inline.
+Step 381's orphan sweep listed the same relationship, so it *deleted* nodes
+whose group was missing. Tom's own 1.6 server carries one — `fognode1.lan`,
+enabled, `ngmGroupID = 0`. Sweeping it is wrong for the same reason CASCADE
+was: the repair for a node with no group is to **assign it one**, which only
+an administrator can choose, not to destroy a real node's configuration on
+their behalf. That relationship is removed from the sweep's frozen list,
+with the reasoning inline.
 
 **Why this needed a reconciler change.** `planConstraints()` read constraint
 *names* out of `information_schema` and skipped any name it found. The name
@@ -1180,11 +1186,9 @@ administrator added by hand does not carry that name and is untouched — a
 gate pins that, and it goes red if the pass is changed to iterate the
 database's constraints rather than the map's.
 
-**What the relationship is now:** `config`, ON DELETE SET NULL, disabled
-until the sentinel conversion makes the column nullable, so it lands with
-group 5. Deleting a storage group will then *detach* its nodes — which is
-what `removeNode()` already means, is what the UI can undo, and is the only
-option that does not destroy configuration.
+**What the relationship is now:** `config`, `NOT NULL`, ON DELETE RESTRICT,
+landing with group 5. Deleting a storage group that still has nodes is
+refused; move them first.
 
 **Verified:**
 
@@ -1216,7 +1220,7 @@ storage nodes there is a method whose name is literally `removeNode()`.
 
 ### Step 386: the `0` sentinel becomes NULL
 
-`FOG_SCHEMA` 385 → 386. Ten columns across six tables. The only genuinely
+`FOG_SCHEMA` 385 → 386. Nine columns across five tables. The only genuinely
 irreversible step besides the sweep, and the last one before the remaining
 constraint groups.
 
@@ -1245,7 +1249,15 @@ creation, because a session that has not started has no state.
 | `tasks.taskLastMemberID` | rows |
 | `multicastSessions.msSenderNode` | rows; `MulticastManager`, `MulticastTask` |
 | `multicastSessions.msState` | `Group`, `Host` and `imagemanagement` write 0 at creation |
-| `nfsGroupMembers.ngmGroupID` | rows; `StorageGroup::removeNode()` |
+
+`nfsGroupMembers.ngmGroupID` was on that list and is deliberately not on it.
+`StorageGroup::removeNode()` does write a `0` there, and rows hold one — but
+a storage node always belongs to a group, so that `0` is not a spelling of
+"no reference", it is a broken row. Converting it to NULL would have made
+the breakage permanent and legal. The column stays `NOT NULL`, takes a
+RESTRICT constraint in group 5, and a row still holding `0` makes that
+constraint be refused and named in the log. Only an administrator knows
+which group such a node belongs to, so nothing guesses one.
 
 Deliberately **not** converted, and staying `NOT NULL`:
 `images.imageTypeID`, `images.imagePartitionTypeID`,
@@ -1283,7 +1295,6 @@ unchanged, turns two of the six live checks red.
 write `null` and three were already correct in intent:
 
 ```
-StorageGroup::removeNode()     storagegroupID => 0    -> null
 Image::destroy()               imageID => 0           -> null
 Route (image delete)           imageID => 0           -> null
 RegisterClient                 ->set('imageID', 0)    -> null
@@ -1299,7 +1310,7 @@ No reader changes were needed, and that is worth knowing rather than
 assuming. `FOGController::get()` returns `''` for a missing key — it tests
 `isset()`, which is false for NULL — so every `if (!$this->get('imageID'))`,
 `(int)$this->get(...)` and `> 0` reads exactly as it did with `0`. A grep for
-SQL-level `= 0` comparisons against the ten columns found none, and no ORM
+SQL-level `= 0` comparisons against the nine columns found none, and no ORM
 filter passes `0` for any of them.
 
 **Verified against three databases:**
@@ -1308,7 +1319,7 @@ filter passes `0` for any of them.
 fresh replay, closures included
   steps 386, statements 993, tolerated 3, FAILED 0
   tables 70, foreign keys 39
-  all ten columns nullable
+  all nine columns nullable
 
 upgrade, clone of the live 1.6 install
   hostImage        79 zeros ->  79 NULL, 0 left      (86 rows)
@@ -1318,7 +1329,6 @@ upgrade, clone of the live 1.6 install
   taskNFSMemberID   6        ->   6
   taskLastMemberID 20        ->  20
   msSenderNode     16        ->  16                  (16 rows)
-  ngmGroupID        1        ->   1                  (4 rows)
 
 upgrade, clone of the live 1.5 install
   hostImage      2076 zeros -> 2076 NULL, 0 left     (2079 rows)
@@ -1346,33 +1356,173 @@ column in it too. `snapins.sPackType` and `users.uType` join the allowlist
 with reasons; `moduleStatusByHost.msState` is a `varchar(1)` enable flag and
 the type filter already skips it.
 
-### A consequence of the mechanism, to be handled at group 5
+### Steps 387 and 388: group 5, references to configuration
 
-`applyConstraints()` takes no filter: it declares whatever the map has
-enabled. So on an upgrade that crosses several of these steps, **the first
-constraint step in the run applies them all** and the later ones are
-no-ops — visible in the fleet timings, where step 382 went from 4.56s to
-9.86s as groups 2 and 3 were added while 383 and 384 dropped to ~0.1s.
+`FOG_SCHEMA` 386 → 388. Twelve constraints across six tables, preceded by a
+one-relationship sweep. The first group whose actions are not all the same,
+and the first that adds behavior FOG has never had.
 
-That is deliberate and mostly a feature: a server that somehow missed one
-step's constraints picks them up at the next. But it has one edge that is
-**not** yet handled, and naming it here is cheaper than rediscovering it:
+Every entry answers the same question — **when the parent goes, does the
+child outlive it?**
 
-> Group 5's constraints are RESTRICT on columns that still hold a `0`
-> sentinel, and the sentinel becomes NULL in the step *before* them. On an
-> upgrade from below 382, the first constraint step would try them while the
-> columns are still `NOT NULL DEFAULT 0`, get refused, and log a failure on
-> every such upgrade — before the later step applies them correctly.
+| Action | Relationship |
+|---|---|
+| SET NULL | `hosts.hostImage → images` |
+| | `hosts.hostArchID → architectures` |
+| | `images.imageArchID → architectures` |
+| | `scheduledTasks.stImageID → images` |
+| | `multicastSessions.msSenderNode → nfsGroupMembers` |
+| RESTRICT | `images.imageOSID → os` |
+| | `images.imageTypeID → imageTypes` |
+| | `images.imagePartitionTypeID → imagePartitionTypes` |
+| | `scheduledTasks.stTaskTypeID → taskTypes` |
+| | `fileDeleteQueue.fdqStorageGroupID → nfsGroups` |
+| | `nfsGroupMembers.ngmGroupID → nfsGroups` |
+| CASCADE | `multicastSessions.msNFSGroupID → nfsGroups` |
 
-Nothing breaks (a refusal is reported, not fatal, and the correct step still
-lands them) but a loud log line on every upgrade is the kind of noise that
-makes people stop reading the log. The fix belongs with the step that
-introduces the ordering: either `planConstraints()` learns to skip a
-relationship whose column is not yet nullable, or the sentinel conversion and
-its constraints share a step. Decided when the numbers are in front of us,
-not now.
+**Three actions changed from the survey's first pass**, all on that same
+test rather than on a feel:
 
-Notes on the ordering:
+- **`scheduledTasks.stImageID`, RESTRICT → SET NULL.** Deleting an image
+  already unassigns hosts and cancels live tasks rather than being refused
+  (`Route::deletemass`, case `image`); nothing touches `scheduledTasks`, so
+  a schedule quietly outlives its image and fails every time it fires.
+  Refusing the image delete over a schedule someone forgot about is worse
+  than leaving that schedule visible and editable.
+- **`multicastSessions.msNFSGroupID`, RESTRICT → CASCADE.** A multicast
+  session is work performed *by* a storage group: no configuration of its
+  own, no way to re-point it. Under RESTRICT one completed session would pin
+  its group forever, so a group that had ever run a multicast could never be
+  deleted. The imaging record is in `taskLog`, which takes no constraint at
+  all (ADR 0021), so nothing here is the history.
+- **`multicastSessions.msSenderNode`, RESTRICT → SET NULL.** It records
+  *which node ran* the session, not what the session belongs to.
+
+**Step 387 sweeps one relationship**, the one that becomes a CASCADE.
+`ADD CONSTRAINT` validates existing rows, so a session whose storage group
+was deleted before the constraint existed answers 1452 and the constraint is
+refused forever. Measured on the live 1.6 install: 1 session of 16, from
+storage group 3, completed 2026-07-27. Kept out of step 381's frozen list
+rather than added to it — that list is the record of what *that* step
+deleted, and rewriting it would make the audit row it wrote a lie.
+
+**Behavior this adds that FOG did not have.** Groups 1 to 3 mostly pinned
+decisions `deletemass()` already made. This one does not:
+
+| Operation | Before | After |
+|---|---|---|
+| Delete an OS / image type / partition type / task type still referenced | succeeded, left images unreadable | **refused, 1451** |
+| Delete a storage group that still has nodes | succeeded, orphaned the nodes | **refused, 1451** |
+| Delete a storage group with queued file deletions | succeeded | **refused, 1451** |
+| Delete a storage group that ran a multicast | left the session dangling | **session cascades** |
+| Delete an image | schedule kept a dead image id | **schedule's image set NULL** |
+
+Each is a loud refusal replacing a silent orphan, which is the trade ADR
+0031 exists to make. They surface as an error on the *delete*, not as a
+failed update.
+
+**Measured, raw SQL, against a fresh build with all 51 constraints:**
+
+```
+DELETE FROM os WHERE osID=<in use>
+  ERROR 1451 ... CONSTRAINT `fk_images_imageOSID`
+
+DELETE FROM nfsGroups WHERE ngID=<has a node>
+  ERROR 1451 ... CONSTRAINT `fk_nfsGroupMembers_ngmGroupID`
+
+move the node to another group, then delete:
+  multicastSessions  1 -> 0     cascaded
+
+DELETE FROM images WHERE imageID=1        (on the upgraded live clone)
+  hosts on image 1   4 -> 0
+  hosts at NULL     79 -> 83   set null, not refused
+```
+
+**Verified, upgrade from 380 against a clone of the live 1.6 install:**
+
+```
+step 380  +0        step 385  +0  (retirement only)
+step 381  +0        step 386  +0  (79/1/3/16/6/20/16 sentinels converted)
+step 382 +14        step 387  +0  (1 multicast session swept)
+step 383 +21        step 388 +11, 1 refused
+step 384  +4
+```
+
+Fresh replay: 388 steps, 995 statements, 0 failed, 70 tables, **51 foreign
+keys**.
+
+**The one refusal is the design working.** `fk_nfsGroupMembers_ngmGroupID`
+is refused on Tom's server because `fognode1.lan` still holds `ngmGroupID =
+0`. Nothing guesses a group for it; the log names the constraint and
+`bin/fk-orphan-scan.php` finds the row. The cost is real and worth stating:
+**until that node is assigned a group, storage groups on that server keep
+today's behavior** — deleting one orphans its nodes. Measured on the
+upgraded clone, deleting storage group 2 succeeded and orphaned 3 nodes,
+precisely because the constraint that would have refused it was not there.
+
+### `removeNode()` was never a valid operation
+
+The storage group edit page has a "Remove selected" button on its node tab.
+It called `StorageGroup::removeNode()`, which wrote `ngmGroupID = 0` and
+left the node exactly there — in no group, invisible in every group listing,
+still in the storage node list, pointing at an `nfsGroups` row that has
+never existed. That is how `fognode1.lan` got that way.
+
+Under the invariant there is no such state, so the write is refused by the
+database at 1452 — correct, but it reaches the administrator as a raw SQL
+error. `removeNode()` now refuses it directly, with the reason and the
+operation that was actually wanted: **add the node to the group you want it
+in**, which is `addNode()` on the destination and rewrites `ngmGroupID` in
+one step without ever passing through a group-less state.
+
+That leaves an open UI question — whether the button should move a node,
+or simply not be there — which is a product decision rather than a schema
+one. Refusing is the interim that removes no functionality that ever
+worked.
+
+### The group filter: a constraint step lands only its own group
+
+`applyConstraints()` took no filter, so the first constraint step reached in
+an upgrade applied **every** enabled relationship in the map — including
+groups whose preconditions later steps had not created yet. This was
+flagged as a landmine when group 5 was still hypothetical; it then fired
+exactly as predicted, and the measurement is worth keeping:
+
+```
+step 385, unfiltered, on a clone of the live install
+  7 group 5 constraints attempted
+  5 refused: 3 x errno 150   SET NULL over a still-NOT NULL column
+             2 x 1452        rows step 387 had not swept yet
+  all 5 applied cleanly at step 388 anyway
+```
+
+Nothing breaks — a refusal is reported, not returned — but that is five
+alarming log lines on every upgrade for constraints that are about to be
+applied correctly, and noise like that is how people learn to stop reading
+the log.
+
+`applyConstraints($group)` now filters, and each step passes its own: 382 →
+1, 383 → 2, 384 → 3, 385 → **0** (a group nothing carries, so it retires and
+adds nothing), 388 → 5. The map carries `'group' => N` on every enabled
+entry.
+
+Two properties the gates pin, because both failure modes are silent:
+
+- **A filtered call must not read "not my group" as "retired".** A step-1
+  call that dropped group 5's constraints would undo the previous run's work
+  on every upgrade. `declared` and `eligible` are separate for that reason.
+- **A retirement is never filtered.** A constraint the map no longer
+  declares has to be removable from whichever step runs next, or a wrong
+  action is unfixable again.
+
+The trailing reconcile in `SchemaUpdaterPage` still passes `null`,
+deliberately: it runs *after* the whole update loop, when every precondition
+has landed, and it is what converges a server that somehow missed a step's
+constraints. Three mutations prove the filter — ignoring it turns 2 red,
+collapsing `declared` into `eligible` turns 2 red, filtering the retirement
+drop turns 3 red.
+
+### Notes on the ordering
 
 - **Step 1 before everything** because five constraints cannot be declared
   until it lands, and it touches no data.
