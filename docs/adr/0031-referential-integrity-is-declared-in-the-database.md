@@ -69,8 +69,15 @@ a delete and an orphan.
 ### 1. Every id-bearing column is classified, and the classification is a file
 
 `bin/fk-candidates.php` lists every column in the schema that holds an id
-belonging to another table, and assigns each to one of five classes. A
-column that holds an id and is not in that file is a bug, not an omission.
+belonging to another table. Each entry names the parent, a class, and the
+**`ON DELETE` action for that specific relationship** — not for its class,
+because the decisions are not uniform within one: `tasks.taskHostID` is
+CASCADE while `tasks.taskStateID` is RESTRICT, and `hosts.hostImage` is SET
+NULL while `scheduledTasks.stImageID` is RESTRICT. A column that holds an id
+and is not in that file is a bug, not an omission.
+
+Current totals: 66 CASCADE, 17 RESTRICT, 4 SET NULL, 16 no constraint
+(`audit` and `poly`).
 
 | Class | `ON DELETE` | What it means |
 |---|---|---|

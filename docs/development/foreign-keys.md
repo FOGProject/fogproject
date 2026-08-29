@@ -122,6 +122,47 @@ across 12 deleted hosts, in a table of 1183. **Nothing here changes what the
 fix looks like** — a sweep of this size is a `DELETE ... WHERE NOT IN` with a
 count logged, not a migration strategy.
 
+### What a faithful cascade actually leaves behind
+
+The counts above come from two maintainer test installs, which have no
+decade of buildup. To get volume and age, `bin/fk-lab-fixture.php` scales a
+clone to 5000 hosts (58,968 `moduleStatusByHost`, 39,312 tasks, 39,416
+`taskLog`) and then ages it by deleting through **three real mechanisms**,
+never by writing an orphan directly:
+
+| Mechanism | What it models |
+|---|---|
+| `bare` | a plain `DELETE` with no cleanup — the pre-cascade era, and any path today that does not reach `deletemass()` |
+| `storage` | exactly what FOG does now for a storage group or node: delete the row, clean up nothing |
+| `cascade` | today's `deletemass('host')` list, applied faithfully |
+
+Splitting the resulting orphans by which mechanism produced them is the one
+result here worth reading as a finding, because **the `cascade` arm is a test
+of the current code, not of invented data**:
+
+| Table | via `bare` | via `cascade` |
+|---|---|---|
+| `hostMAC` | 303 | **0** |
+| `moduleStatusByHost` | 3732 | **0** |
+| `groupMembers` | 219 | **0** |
+| `snapinAssoc` | 214 | **0** |
+| `inventory` | 219 | **0** |
+| `tasks` | 1762 | **0** |
+| `userTracking` | 226 | 300 *(deliberate)* |
+| `taskLog` | 1808 | 2400 *(deliberate)* |
+
+**Today's host cascade is complete.** Applied faithfully it leaves nothing
+orphaned in any of the thirteen tables it covers; the only rows remaining are
+`userTracking` and `taskLog`, and both are deliberate and documented in the
+code (`UserTrack.php:121`, `UserTracking.php:63`, and step 341).
+
+This changes the argument for this work, and for the better. The case is
+**not** "`deletemass()` is broken and a constraint fixes it" — it is not
+broken. The case is that `deletemass()` is the *only* thing there is, so
+every path that does not reach it leaves everything behind, and there is no
+mechanism that makes a new table join the list. A constraint is what makes
+the existing cascade unforgettable and covers the paths that never had one.
+
 ### The two defects the counts actually name
 
 **1. Deleting a storage group or a storage node cascades to nothing.**
@@ -467,7 +508,48 @@ precisely why they need a naming convention.
 means a restore is unaffected. This was already correct; it did not need
 changing and must not be regressed.
 
-### 5. Naming convention
+### 5. The sweep must run in topological order
+
+Found by running it wrong at scale, which is the only way this shows up. A
+sweep that deletes `multicastSessionsAssoc`'s orphans and *then* deletes
+orphaned `tasks` strands a fresh set of `multicastSessionsAssoc` rows behind
+it; the same inversion applies to `snapinTasks` and `snapinJobs`. On the
+5000-host fixture that took an otherwise clean run to:
+
+```
+85 added, 2 refused      # fk_multicastSessionsAssoc_tID, fk_snapinTasks_stJobID
+```
+
+Both refusals were 1452 on rows the sweep itself had just created. Reordering
+so a parent's own orphans go first — and the child's sweep runs after, seeing
+what that stranded — takes the same run to:
+
+```
+87 added, 0 refused
+```
+
+So the sweep step is written in dependency depth order, not table order, and
+the three pairs that matter (`tasks` before `multicastSessionsAssoc`,
+`multicastSessions` before `multicastSessionsAssoc`, `snapinJobs` before
+`snapinTasks`) carry a comment saying why. This is also an argument for the
+sweep being its own step: entangled with an `ALTER`, the 1452 arrives with
+nothing to say which of the two statements caused it.
+
+### 6. Cost at fleet scale
+
+Measured on the 5000-host fixture, MariaDB 11.8 in a container:
+
+| Work | Time |
+|---|---|
+| Widen all five columns (largest is 56,532 rows) | 0.53s |
+| Full orphan sweep, all 15 statements | 0.19s |
+| Sentinel `0` → `NULL`, 7 columns incl. 4 on 37k `tasks` rows | 1.31s |
+| **All 87 constraints** | **14.1s** |
+
+Nothing here needs a maintenance window, and nothing here is the reason to
+phase the work — the phasing is for reviewability, which was the stated goal.
+
+### 7. Naming convention
 
 ```
 fk_<childTable>_<childColumn>
@@ -485,7 +567,7 @@ is what lets CI check it. It is greppable (`grep -rn fk_tasks_` finds every
 constraint on tasks), droppable without consulting `information_schema`, and
 sorts with its table.
 
-### 6. Rollback: which steps are reversible
+### 8. Rollback: which steps are reversible
 
 | Step kind | Reversible | How, and what it costs |
 |---|---|---|
@@ -623,6 +705,38 @@ Notes on the ordering:
   manifest and no constraint pass, and steps 263–276 already diverge. This is
   a 1.6 convention.
 
+## The rehearsal
+
+The whole sequence has been run end to end against the aged 5000-host
+fixture, in the order above and using the `ON DELETE` action each
+relationship declares in `bin/fk-candidates.php`:
+
+```
+step 1  widen the five mismatched columns
+step 2  ordered orphan sweep
+step 7  sentinel 0 -> NULL
+        87 added, 0 refused
+```
+
+and the resulting database behaves as decided:
+
+```
+host 4829 before -> macs=1 mods=12 tasks=8 inv=1 grp=1
+host 4829 after  -> macs=0 mods=0 tasks=0 inv=0 grp=0
+taskLog kept (audit, by design): 8
+
+hosts pointing at image 1: 90
+after deleting it, hosts left dangling: 0 / unassigned to NULL: 90
+
+DELETE FROM nfsGroups WHERE ngID=<in use>
+  ERROR 1451 ... CONSTRAINT `fk_location_lStorageGroupID`
+```
+
+A host delete cascades to every satellite and junction with no PHP involved
+and keeps its audit rows; an image delete unassigns its hosts rather than
+refusing; a storage group still referenced by live work is refused instead of
+silently orphaning.
+
 ## Reproducing the survey
 
 ```
@@ -633,3 +747,10 @@ php bin/fk-orphan-scan.php --host=127.0.0.1 --port=13320 --db=fog \
 
 Read-only; it issues nothing but `SELECT`. `--all` includes the
 relationships with nothing wrong, which is most of them.
+
+To rebuild the aged fixture (DESTRUCTIVE, and it refuses port 3306):
+
+```
+php bin/fk-lab-fixture.php --host=127.0.0.1 --port=13320 --db=<lab> \
+    --user=root --pass=... --hosts=5000 --yes-destroy
+```

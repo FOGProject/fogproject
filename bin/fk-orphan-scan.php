@@ -20,6 +20,9 @@
  *             requires an exact match, collation included; a mismatch is a
  *             MODIFY on the child before the constraint.
  *
+ * The `action` each relationship carries in the map is printed too, so the
+ * scan and the decision can be read side by side rather than in two files.
+ *
  * Reads the database out of a FOG web tree's config.class.php, or takes an
  * explicit DSN for a lab copy. Read-only: it issues nothing but SELECT.
  *
@@ -116,18 +119,22 @@ $rows = [];
 $candidates = require __DIR__ . '/fk-candidates.php';
 
 foreach ($candidates as $c) {
-    [$child, $col, $parent, $pcol, $class] = $c;
-    $sentinel = $c[5] ?? null;
+    $child = $c['child'];
+    $col = $c['column'];
+    $parent = $c['parent'];
+    $pcol = $c['pcolumn'];
+    $class = $c['class'];
+    $sentinel = $c['sentinel'] ?? null;
 
     if ($class === 'poly') {
-        $rows[] = [$child, $col, $parent, $class, '-', '-', '-', 'polymorphic'];
+        $rows[] = [$child, $col, $parent, $c['action'], '-', '-', '-', 'polymorphic'];
         continue;
     }
 
     $ct = colType($pdo, $db, $child, $col);
     $pt = colType($pdo, $db, $parent, $pcol);
     if ($ct === null || $pt === null) {
-        $rows[] = [$child, $col, "$parent.$pcol", $class, '-', '-', '-', 'absent'];
+        $rows[] = [$child, $col, "$parent.$pcol", $c['action'], '-', '-', '-', 'absent'];
         continue;
     }
 
@@ -180,7 +187,7 @@ foreach ($candidates as $c) {
         $child,
         $col,
         "$parent.$pcol",
-        $class,
+        $c['action'],
         (string)$total,
         $o['n'] . ($o['n'] > 0 ? ' (' . $o['d'] . ' ids)' : ''),
         $sentinel === null ? '-' : (string)$sent,
@@ -188,7 +195,7 @@ foreach ($candidates as $c) {
     ];
 }
 
-$head = ['child', 'column', 'parent', 'class', 'rows', 'orphans', 'sentinel', 'notes'];
+$head = ['child', 'column', 'parent', 'action', 'rows', 'orphans', 'sentinel', 'notes'];
 $show = array_key_exists('all', $opts);
 $out = array_filter(
     $rows,
