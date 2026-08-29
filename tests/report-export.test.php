@@ -31,6 +31,9 @@
 require __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('report-export');
+// A connection, because reportTitles() now fires REPORT_TITLE_DATA and
+// HookManager::processEvent() reads (and records) the event name.
+FogTestHarness::fakeDb();
 
 use FOG\ReportManagement;
 
@@ -230,6 +233,18 @@ $t->check(
     'it sends the visible columns and their headings',
     false !== strpos($block, "body.append('cols[]'")
     && false !== strpos($block, "body.append('heads[]'")
+);
+// Plugin report tables opt in rather than inherit. The export serves
+// reportRows(), so a report still overriding getList() would answer the
+// button with an empty FILE -- no error, nothing in a log, a download that
+// looks like it worked. Defaulting it on would hand that to every
+// third-party plugin report at once.
+$t->check(
+    'registerReportTable() keeps the plain toolbar unless asked',
+    false !== strpos(
+        $common,
+        'buttons: opts.fullExport ? reportFileButtons : reportButtons,'
+    )
 );
 
 /*

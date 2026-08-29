@@ -151,7 +151,11 @@ class ReportManagement extends FOGPage
      */
     public static function reportTitles()
     {
-        return [
+        if (null !== self::$_titles) {
+            return self::$_titles;
+        }
+
+        $titles = [
             'audit report' => _('Audit Report'),
             'file deleter' => _('Files Deleted List'),
             'fleet report' => _('Fleet Report'),
@@ -166,7 +170,50 @@ class ReportManagement extends FOGPage
             'snapin report' => _('Snapin Report'),
             'storage report' => _('Storage Report')
         ];
+
+        /**
+         * Plugins name their own reports here.
+         *
+         * A bundled plugin's report is in exactly the state core's were:
+         * `ou_report.report.php` renders a heading that says "Export OUs"
+         * under a menu entry that says "Ou Report", because ucwords() of a
+         * file name is all the sidebar had. The map above is core's own and
+         * a plugin cannot add a row to it, so without this event the only
+         * way to fix that is eight separate SUB_MENULINK_DATA listeners
+         * rewriting a base64 key each -- which is the seam for MOVING an
+         * entry, not for naming one.
+         *
+         * Keyed the same way as the rows above: the file name with
+         * underscores as spaces, lower case.
+         *
+         *     $arguments['titles']['ou report'] = _('Export OUs');
+         *
+         * A listener that names a report which is not on disk adds an entry
+         * nobody sees; one that overwrites a core key wins, which is
+         * deliberate -- the same latitude every other *_DATA event gives.
+         */
+        self::$HookManager->processEvent(
+            'REPORT_TITLE_DATA',
+            ['titles' => &$titles]
+        );
+
+        self::$_titles = $titles;
+
+        return $titles;
     }
+
+    /**
+     * The resolved title map, built once per request.
+     *
+     * MEMOIZED BECAUSE THE SIDEBAR ASKS PER ENTRY. titleFor() is called
+     * once for every report in the menu and again by each report for its
+     * own heading, so without this the hook above fires fifteen times to
+     * produce the same array -- on every page in FOG, since the menu is
+     * built for every node whether or not the user is on it.
+     *
+     * @var array|null
+     */
+    private static $_titles = null;
 
     /**
      * The label for one report, by name.

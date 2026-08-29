@@ -22,6 +22,31 @@ var shouldReAuth,
   reAuthModal,
   deleteConfirmButton,
   deleteLang,
+  // Per-column filtering, on every table that carries a button toolbar.
+  //
+  // DataTables' SearchBuilder: a popover of rules, each one column + one
+  // condition + a value, combined with AND/OR and nestable into groups. The
+  // conditions offered depend on what the column IS -- a datetime column gets
+  // before/after/between/on with a calendar, a number gets the comparisons, a
+  // string gets contains/starts/ends -- which is the whole reason for using it
+  // over a row of text boxes. What the column is comes from the server, in the
+  // payload's _searchtypes; see the xhr handler in registerTable().
+  //
+  // Reused by reference across every table. Buttons clones a button's config
+  // per table before calling init(), which matters here because SearchBuilder
+  // stores its instance ON that config -- without the clone, the last table
+  // built would own everyone's filter panel.
+  searchBuilderButton = {
+    extend: 'searchBuilder',
+    config: {
+      i18n: {
+        button: {
+          0: '<i class="fas fa-filter"></i> Filter',
+          _: '<i class="fas fa-filter"></i> Filter (%d)'
+        }
+      }
+    }
+  },
   exportButtons = [
     {
       extend: 'copy',
@@ -52,6 +77,7 @@ var shouldReAuth,
       extend: 'print',
       text: '<i class="fas fa-print"></i> Print'
     },
+    searchBuilderButton,
     {
       extend: 'colvis',
       text: '<i class="fas fa-table-columns"></i> Column Visibility'
@@ -84,6 +110,7 @@ var shouldReAuth,
       extend: 'print',
       text: '<i class="fas fa-print"></i> Print'
     },
+    searchBuilderButton,
     {
       extend: 'colvis',
       text: '<i class="fas fa-table-columns"></i> Column Visibility'
@@ -2818,6 +2845,7 @@ $.fn.registerTable = function(onSelect, opts) {
         extend: 'selectNone',
         text: '<i class="far fa-square"></i> Deselect All'
       },
+      searchBuilderButton,
       {
         text: '<i class="fas fa-arrows-rotate"></i> Refresh',
         action: function(e, dt, node, config) {
@@ -2880,6 +2908,64 @@ $.fn.registerTable = function(onSelect, opts) {
   }
 
   opts = $.fogDefaults(opts, defaults);
+
+  // Teach the Filter button what each column IS, and hide from it the columns
+  // it could never filter.
+  //
+  // Both facts have to come from the server. A server-side grid hands the
+  // browser ONE PAGE, so DataTables' own type sniffing only ever sees the rows
+  // that page happens to hold -- a datetime column that is empty on page one
+  // sniffs as text and loses its calendar and its before/after conditions, and
+  // which columns those are changes with the sort. And some displayed columns
+  // are computed by the query rather than selected from a table (a group's
+  // member count, a site's four counts: 'removeFromQuery'), so a rule against
+  // one is dropped server-side -- better to leave it out of the picker than to
+  // offer a filter that silently does nothing. The server answers both in
+  // _searchtypes, keyed by column name, with false for "not searchable".
+  //
+  // Bound to xhr rather than applied at init because the payload is the first
+  // moment either fact exists. SearchBuilder reads them when the user adds a
+  // rule, which cannot happen before the table has drawn. A client-side table
+  // sends no _searchtypes and is left to DataTables' sniffing, which is
+  // reliable there because it has every row.
+  //
+  // Bound BEFORE the table is constructed, on the node rather than through
+  // the API, because a table whose ajax answers synchronously fires its first
+  // xhr inside the DataTable() call -- so a handler added afterward misses
+  // the only response that ever carries these facts and silently does
+  // nothing.
+  // Namespaced 'xhr.dt.fogsb', not 'xhr.fogsb': DataTables fires its events
+  // as 'xhr.dt', and jQuery only runs a handler whose namespaces cover the
+  // ones triggered -- so a plain '.fogsb' handler is never called at all, and
+  // silently so. The extra name is what lets the off() below remove this one
+  // handler when registerTable() is re-run over a retrieved table.
+  $(this).off('xhr.dt.fogsb').on('xhr.dt.fogsb', function(e, settings, json) {
+    if (!json || !json._searchtypes) {
+      return;
+    }
+    var types = json._searchtypes,
+      columns = settings.aoColumns,
+      searchable = [],
+      i,
+      key;
+    for (i = 0; i < columns.length; i++) {
+      key = columns[i].data;
+      // Absent from the map means the column is not one of the server's at
+      // all -- a checkbox or an action column - and false means it is one
+      // the server refuses to match on.
+      if (!(key in types) || types[key] === false) {
+        continue;
+      }
+      columns[i].searchBuilderType = types[key];
+      searchable.push(i);
+    }
+    if (settings._searchBuilder) {
+      // searchBuilder.columns is a normal option; it is only being written
+      // late because what belongs in it arrives with the first response.
+      // SearchBuilder re-reads it every time it draws a rule's column list.
+      settings._searchBuilder.c.columns = searchable;
+    }
+  });
 
   var table = $(this).DataTable(opts);
 
@@ -2991,19 +3077,26 @@ $.fn.registerExportTable = function(columns, opts) {
  * Register a plugin report table.
  *
  * Mirror of registerExportTable for the Reports node: same serverSide plumbing
- * and column contract, but the toolbar is reportButtons (no full-export CSV)
- * and the data comes from the report's own getList() via
+ * and column contract, and the data comes from the report's own getList() via
  * node=report&sub=getList&f=<report>, keyed off Common.f. Every plugin report
  * JS calls this so the tables stay identical across plugins.
  *
+ * THE FULL EXPORT IS OPT-IN, via opts.fullExport. "CSV (All)" posts to
+ * sub=exportAll, which serves ReportManagement::reportRows() -- so a report
+ * that still overrides getList() the old way would answer the button with an
+ * empty file rather than an error. Defaulting it on would hand that to every
+ * third-party plugin report at once; a report that has been converted asks
+ * for it, and gets a CSV of the whole table instead of the page the browser
+ * happens to be holding.
+ *
  * @param {Array}  columns DataTables column defs ({data:'name'}, ...).
- * @param {Object} opts    Optional overrides (order).
+ * @param {Object} opts    Optional overrides (order, fullExport).
  * @return {Object} the DataTables API for the registered table.
  */
 $.fn.registerReportTable = function(columns, opts) {
   opts = opts || {};
   var table = this.registerTable(null, {
-    buttons: reportButtons,
+    buttons: opts.fullExport ? reportFileButtons : reportButtons,
     order: opts.order || [[0, 'asc']],
     columns: columns,
     rowId: 'id',

@@ -3833,6 +3833,9 @@ msgstr "de hora em hora"
 msgid "Hours field is invalid"
 msgstr "valor da hora não é válido"
 
+msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
+msgstr ""
+
 msgid "I am not the fog web server"
 msgstr "Eu não sou o servidor web nevoeiro"
 
@@ -5038,6 +5041,10 @@ msgstr "Localização Nome"
 
 msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
+
+#, fuzzy
+msgid "Location schema"
+msgstr "localizações"
 
 #, fuzzy
 msgid "Location update failed!"
@@ -10760,6 +10767,9 @@ msgid "register this too, if you enable single logout"
 msgstr ""
 
 msgid "row(s)"
+msgstr ""
+
+msgid "row(s) converted from 0 to NULL"
 msgstr ""
 
 #, fuzzy

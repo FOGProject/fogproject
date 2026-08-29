@@ -949,6 +949,7 @@ fire for page routes too: `docs/adr/0006-site-object-scope-boundary.md`.
 |---|---|
 | `MAIN_MENU_DATA` | add the top‑level sidebar entry (`hook_main[node] = [label, icon]`) |
 | `SUB_MENULINK_DATA` | add sub‑links (Export/Import/…) under the node |
+| `REPORT_TITLE_DATA` | name your report in the Reports menu — see §9a |
 | `SEARCH_PAGES` | make the node searchable |
 | `PAGES_WITH_OBJECTS` | enable the object (edit/delete) flow for the node |
 | `PAGE_JS_FILES` | inject JS files for the current page |
@@ -963,6 +964,67 @@ fire for page routes too: `docs/adr/0006-site-object-scope-boundary.md`.
 
 Fire your own events with `&`‑by‑reference args so listeners can mutate them
 (see the example's `HELLOWORLD_*` events).
+
+### 9a. Naming your report
+
+A file at `<plugin>/reports/<name>.report.php` becomes an entry in the Reports
+menu automatically. The label it gets, if you do nothing, is `ucwords()` of the
+**file name** — so `ou_report.report.php` appears as "Ou Report" while the page
+it opens is headed "Export OUs". Two names for one screen.
+
+Name it once, in a hook, and both agree:
+
+```php
+$this->registerInstalled([
+    ['REPORT_TITLE_DATA', 'reportTitle'],
+]);
+
+public function reportTitle($arguments)
+{
+    // Keyed by the FILE name with underscores as spaces, lower case --
+    // the same key the menu and the base64 `f` parameter use.
+    $arguments['titles']['ou report'] = _('Export OUs');
+}
+```
+
+Then let the report itself read the same map, so the heading cannot drift
+away from the menu entry again:
+
+```php
+public function file()
+{
+    $this->title = self::reportTitle();   // derived from the class name
+    ...
+}
+```
+
+The event fires **once per request**, not once per label: the map is memoized
+after the first build. A listener registered later in the request does not
+appear.
+
+**The rows, and the export.** Put your query in `reportRows()`, returning the
+DataTables envelope, and let `ReportManagement::getList()` emit it:
+
+```php
+protected function reportRows()
+{
+    \FOG\Router\Route::listem('ou');
+    return (array) json_decode(\FOG\Router\Route::getData(), true);
+}
+```
+
+That is what the "CSV (All)" toolbar button serves — the DataTables export
+buttons can only see the rows the browser is currently holding, which on a
+serverSide table is one page. Ask for the button with `fullExport` once
+`reportRows()` is in place:
+
+```js
+$('#ou-report-table').registerReportTable(columns, {fullExport: true});
+```
+
+A report that still overrides `getList()` must NOT pass `fullExport`: the
+export serves `reportRows()`, so it would hand back an empty file rather than
+an error.
 
 ---
 
