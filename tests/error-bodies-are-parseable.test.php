@@ -168,4 +168,31 @@ $t->check(
     $bare === []
 );
 
+/*
+ * A message carrying a byte JSON cannot represent must not vanish.
+ *
+ * json_encode() returns FALSE rather than throwing, and sendResponse() reads
+ * false as "send no body" -- so without JSON_INVALID_UTF8_SUBSTITUTE one raw
+ * byte turns a real error into an EMPTY response, which is worse than the
+ * bare string this whole change replaces: the caller gets a status and
+ * nothing else, and there is no log line saying why. A database error
+ * quoting a binary column value is how it arrives.
+ */
+$raised = $send(new \Exception("Duplicate entry '" . chr(0xB5) . "' for key", 500));
+// Not merely "non-empty": with encoding failed, sendResponse() falls back
+// to the status code as the exception message, so the body is the string
+// "500" and an emptiness test would pass while the message was gone.
+$t->check(
+    'a message with an unrepresentable byte still produces a real body',
+    null !== $raised
+    && (string)$raised->getMessage() !== (string)$raised->getCode()
+);
+$body = null === $raised ? null : json_decode($raised->getMessage(), true);
+$t->check(
+    'that body still parses, and keeps the readable part of the message',
+    is_array($body)
+    && false !== strpos((string)($body['error'] ?? ''), 'Duplicate entry')
+    && false !== strpos((string)($body['error'] ?? ''), 'for key')
+);
+
 $t->finish();

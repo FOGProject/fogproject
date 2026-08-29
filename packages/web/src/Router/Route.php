@@ -2067,11 +2067,23 @@ class Route extends FOGBase
         // this class is a JSON *object*, and a human-readable sentence never
         // decodes to an array. A message that happens to be "404" decodes to
         // an int and is still wrapped, which is correct.
+        // JSON_INVALID_UTF8_SUBSTITUTE because json_encode() returns FALSE
+        // on a byte sequence it cannot represent, and sendResponse() reads
+        // false as "send no body" -- so a message carrying one raw byte
+        // would be dropped entirely, which is worse than the bare string
+        // this replaces. A database error quoting a binary column value is
+        // exactly how that arrives. The flag substitutes U+FFFD for the bad
+        // bytes and keeps the rest of the sentence.
         $body = $e->getMessage();
         $decoded = json_decode($body, true);
         self::sendResponse(
             $code,
-            is_array($decoded) ? $body : json_encode(['error' => $body])
+            is_array($decoded)
+                ? $body
+                : json_encode(
+                    ['error' => $body],
+                    JSON_INVALID_UTF8_SUBSTITUTE
+                )
         );
     }
     /**
