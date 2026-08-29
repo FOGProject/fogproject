@@ -3691,6 +3691,9 @@ msgstr "時間単位"
 msgid "Hours field is invalid"
 msgstr "時間の値が無効です"
 
+msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
+msgstr ""
+
 msgid "I am not the fog web server"
 msgstr "このサーバーは FOG Web サーバーではありません"
 

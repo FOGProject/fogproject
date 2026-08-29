@@ -103,6 +103,10 @@ class Page extends FOGBase
         'css/select2-bootstrap-5-theme.min.css',
         'css/ionicons.min.css',
         'css/datatables.min.css',
+        // Styles the calendar the SearchBuilder date conditions open.
+        // Outside datatables.min.css because that file is downloader-builder
+        // output -- see the note in js/datatables.min.js.
+        'css/dataTables.dateTime.min.css',
         'css/slider.css',
         'css/animate.css',
         'css/pace.min.css',
@@ -177,6 +181,14 @@ class Page extends FOGBase
         'js/jquery.slimscroll.min.js',
         'js/adminlte4.min.js',
         'js/datatables.min.js',
+        // MUST follow datatables.min.js: it registers itself onto
+        // $.fn.dataTable.DateTime, which SearchBuilder tests for at table
+        // init. Absent, a grid carrying any date column throws
+        // "SearchBuilder Requires DateTime" as a browser alert and no table
+        // is built at all -- and DataTables' own type detection reaches that
+        // verdict on its own, so it is not avoidable by declining to type a
+        // column as a date.
+        'js/dataTables.dateTime.min.js',
         'js/bootbox.min.js',
         'js/pace.min.js',
         'js/input-mask/jquery.inputmask.js',

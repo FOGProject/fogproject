@@ -40,6 +40,58 @@ abstract class FOGManagerController extends FOGBase
      */
     const MAX_ROWS = 10000;
     /**
+     * Deepest SearchBuilder group nesting this server will walk.
+     *
+     * The payload is recursive -- a criterion may itself be a group -- and it
+     * arrives from a browser, so the recursion needs a bound that does not
+     * depend on the client being the one we shipped. Five is far past
+     * anything the UI builds by hand.
+     */
+    const SEARCHBUILDER_MAX_DEPTH = 5;
+    /**
+     * Most SearchBuilder criteria this server will turn into SQL.
+     *
+     * Every criterion is one more predicate in the WHERE clause, so an
+     * unbounded payload is an unbounded query. Criteria past the budget are
+     * dropped, which can only narrow the result, never widen it.
+     */
+    const SEARCHBUILDER_MAX_CRITERIA = 50;
+    /**
+     * The SearchBuilder conditions implemented here, per resolved column type.
+     *
+     * These are SearchBuilder's own condition keys, but the CLIENT does not
+     * decide which set applies: the type is re-derived from the column's real
+     * SQL type in searchBuilderType(), so a hand-made request cannot ask for
+     * day-boundary arithmetic on a text column or a range on a blob. Anything
+     * not listed here is dropped rather than guessed at.
+     *
+     * @var array
+     */
+    private static $_sbConditions = [
+        'date' => [
+            '=', '!=', '<', '>', 'between', '!between', 'null', '!null'
+        ],
+        'num' => [
+            '=', '!=', '<', '<=', '>=', '>', 'between', '!between',
+            'null', '!null'
+        ],
+        'string' => [
+            '=', '!=', 'starts', '!starts', 'contains', '!contains',
+            'ends', '!ends', 'null', '!null'
+        ]
+    ];
+    /**
+     * The oldest datetime treated as a real one.
+     *
+     * A never-set date stores as NULL on a column added since schema step 353
+     * and as the zero date on an older one, and the zero date sorts BEFORE
+     * every real date -- so "deployed before today" would otherwise list every
+     * host that has never been deployed at all. A plain comparison against
+     * this floor excludes it while staying sargable; YEAR(col) = 0 would say
+     * the same thing and cost the index on a fleet-sized table.
+     */
+    const SEARCHBUILDER_DATE_FLOOR = '1000-01-01 00:00:00';
+    /**
      * Whether the last limit() call had to impose MAX_ROWS because the request
      * did not bound itself. Read by complex() so the payload can say it is a
      * page rather than the whole answer.
@@ -543,14 +595,20 @@ abstract class FOGManagerController extends FOGBase
      * learn a value the response refuses to contain. The searchable flag in
      * the request cannot serve for this -- the client sends it.
      *
-     * @param array $request  Data sent to server by DataTables
-     * @param array $columns  Column information array
-     * @param array $bindings Array of values for PDO bindings, used in the
-     *                        sqlexec() function
+     * A SearchBuilder payload, when the request carries one, is ANDed onto
+     * whatever the two boxes above produced -- the same relationship the
+     * per-column boxes already have to the global one. See
+     * _searchBuilderWhere().
+     *
+     * @param array  $request  Data sent to server by DataTables
+     * @param array  $columns  Column information array
+     * @param array  $bindings Array of values for PDO bindings, used in the
+     *                         sqlexec() function
+     * @param string $table    The table being queried, for column typing
      *
      * @return string SQL where clause
      */
-    public static function filter($request, $columns, &$bindings)
+    public static function filter($request, $columns, &$bindings, $table = '')
     {
         $globalSearch = [];
         $columnSearch = [];
@@ -613,10 +671,478 @@ abstract class FOGManagerController extends FOGBase
                 implode(' AND ', $columnSearch) :
                 $where .' AND '. implode(' AND ', $columnSearch);
         }
+        $builder = self::_searchBuilderWhere(
+            $request,
+            $columns,
+            $bindings,
+            $table
+        );
+        if ($builder !== '') {
+            $where = $where === '' ?
+                $builder :
+                $where . ' AND ' . $builder;
+        }
         if ($where !== '') {
             $where = 'WHERE '.$where;
         }
         return $where;
+    }
+    /**
+     * The search type a column is treated as: 'date', 'num' or 'string'.
+     *
+     * Read from the column's real SQL type rather than from anything the
+     * client said, so a request cannot talk this server into date arithmetic
+     * on a text column. columnType() answers from commons/schema-expected.php
+     * for core and from the server's own catalog for anything the manifest
+     * does not cover, which is what makes a plugin's grid type its columns
+     * correctly without the plugin doing anything.
+     *
+     * TIME and TIMESTAMP part company deliberately: a TIMESTAMP names a point
+     * on the calendar and gets the day-boundary handling below, a TIME does
+     * not and stays a string. An unknown or unreadable type is a string,
+     * which is the behavior every column had before this existed.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return string
+     */
+    public static function searchBuilderType($table, $column)
+    {
+        $type = strtolower(trim((string)self::columnType($table, $column)));
+        if (!preg_match('/^([a-z]+)/', $type, $match)) {
+            return 'string';
+        }
+        switch ($match[1]) {
+            case 'date':
+            case 'datetime':
+            case 'timestamp':
+                return 'date';
+            case 'tinyint':
+            case 'smallint':
+            case 'mediumint':
+            case 'int':
+            case 'integer':
+            case 'bigint':
+            case 'decimal':
+            case 'dec':
+            case 'numeric':
+            case 'float':
+            case 'double':
+            case 'real':
+            case 'bit':
+            case 'year':
+                return 'num';
+        }
+        return 'string';
+    }
+    /**
+     * The per-column search types the browser needs to build its filter UI.
+     *
+     * Sent with every grid payload as '_searchtypes', keyed by the column's
+     * output name. Server-derived rather than sniffed from the rows, because
+     * a server-side grid only ever hands the client ONE PAGE: a column that
+     * happens to be empty on page one would be typed as text and lose its
+     * date picker, and which columns those are changes with the sort.
+     *
+     * A column that may not be searched is reported as false rather than
+     * omitted, so the client can leave it out of the picker entirely instead
+     * of offering a filter that would be silently dropped here.
+     *
+     * @param string $table   the table being queried
+     * @param array  $columns Column information array
+     *
+     * @return array
+     */
+    public static function searchTypes($table, $columns)
+    {
+        $types = [];
+        foreach ((array)$columns as $column) {
+            if (!isset($column['dt'])) {
+                continue;
+            }
+            if (!isset($column['db'])
+                || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+                || (isset($column['nosearch']) && $column['nosearch'])
+            ) {
+                $types[$column['dt']] = false;
+                continue;
+            }
+            $types[$column['dt']] = self::searchBuilderType($table, $column['db']);
+        }
+        return $types;
+    }
+    /**
+     * Turns a DataTables SearchBuilder payload into a WHERE fragment.
+     *
+     * The payload is a tree: a group carries a `logic` ("AND"/"OR") and a
+     * list of `criteria`, each of which is either a leaf (a column, a
+     * condition and up to two values) or another group. Groups become
+     * parenthesised, so the client's own nesting is what decides precedence
+     * rather than operator precedence in SQL.
+     *
+     * Nothing here trusts the request. The column is resolved against the
+     * server's own column definitions, the condition must be one this server
+     * implements for that column's real type, and every value is bound.
+     * A criterion that fails any of those is dropped -- and dropping is the
+     * safe direction: within an AND it removes a restriction the UI was
+     * showing, within an OR it removes an alternative, so the result can
+     * narrow but can never contain a row the user was not entitled to.
+     *
+     * @param array  $request  Data sent to server by DataTables
+     * @param array  $columns  Column information array
+     * @param array  $bindings Array of values for PDO bindings
+     * @param string $table    The table being queried
+     *
+     * @return string
+     */
+    private static function _searchBuilderWhere($request, $columns, &$bindings, $table)
+    {
+        if (!isset($request['searchBuilder'])
+            || !is_array($request['searchBuilder'])
+        ) {
+            return '';
+        }
+        $budget = self::SEARCHBUILDER_MAX_CRITERIA;
+        return self::_sbGroup(
+            $request['searchBuilder'],
+            $columns,
+            $bindings,
+            $table,
+            0,
+            $budget
+        );
+    }
+    /**
+     * One SearchBuilder group, recursively.
+     *
+     * @param array  $group    The group node
+     * @param array  $columns  Column information array
+     * @param array  $bindings Array of values for PDO bindings
+     * @param string $table    The table being queried
+     * @param int    $depth    How deep this group sits
+     * @param int    $budget   Criteria left to spend, decremented in place
+     *
+     * @return string
+     */
+    private static function _sbGroup(
+        $group,
+        $columns,
+        &$bindings,
+        $table,
+        $depth,
+        &$budget
+    ) {
+        if ($depth > self::SEARCHBUILDER_MAX_DEPTH
+            || !isset($group['criteria'])
+            || !is_array($group['criteria'])
+        ) {
+            return '';
+        }
+        $logic = isset($group['logic'])
+            && strtoupper((string)$group['logic']) === 'OR'
+            ? 'OR'
+            : 'AND';
+        $parts = [];
+        foreach ($group['criteria'] as $criterion) {
+            if (!is_array($criterion) || $budget < 1) {
+                continue;
+            }
+            $budget--;
+            $sql = isset($criterion['criteria'])
+                ? self::_sbGroup(
+                    $criterion,
+                    $columns,
+                    $bindings,
+                    $table,
+                    $depth + 1,
+                    $budget
+                )
+                : self::_sbCriterion($criterion, $columns, $bindings, $table);
+            if ($sql !== '') {
+                $parts[] = $sql;
+            }
+        }
+        if (count($parts ?: []) < 1) {
+            return '';
+        }
+        return '(' . implode(' ' . $logic . ' ', $parts) . ')';
+    }
+    /**
+     * One SearchBuilder leaf criterion.
+     *
+     * @param array  $criterion The criterion node
+     * @param array  $columns   Column information array
+     * @param array  $bindings  Array of values for PDO bindings
+     * @param string $table     The table being queried
+     *
+     * @return string
+     */
+    private static function _sbCriterion($criterion, $columns, &$bindings, $table)
+    {
+        $column = self::columnFor(
+            $columns,
+            isset($criterion['origData']) ? (string)$criterion['origData'] : ''
+        );
+        // The same three guards a per-column search gets in filter(), for the
+        // same reasons. 'removeFromQuery' means there is no column to name;
+        // 'nosearch' means the column IS real but the emitter strips its
+        // value, so matching on it would let a caller use match/no-match to
+        // read what the response refuses to contain.
+        if (null === $column
+            || !isset($column['db'])
+            || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+            || (isset($column['nosearch']) && $column['nosearch'])
+        ) {
+            return '';
+        }
+        $type = self::searchBuilderType($table, $column['db']);
+        $condition = isset($criterion['condition'])
+            ? (string)$criterion['condition']
+            : '';
+        if (!in_array($condition, self::$_sbConditions[$type], true)) {
+            return '';
+        }
+        $col = '`' . $column['db'] . '`';
+        $values = self::_sbValues($criterion);
+        switch ($type) {
+            case 'date':
+                return self::_sbDate($col, $condition, $values, $bindings);
+            case 'num':
+                return self::_sbNum($col, $condition, $values, $bindings);
+        }
+        return self::_sbString($col, $condition, $values, $bindings);
+    }
+    /**
+     * The values off a criterion, in the order the client sorted them.
+     *
+     * SearchBuilder sends both shapes: `value` as an array, and value1/value2
+     * flattened out of it for servers that find nested form fields awkward.
+     * They carry the same content, so read the array and fall back.
+     *
+     * @param array $criterion The criterion node
+     *
+     * @return array
+     */
+    private static function _sbValues($criterion)
+    {
+        $values = [];
+        if (isset($criterion['value']) && is_array($criterion['value'])) {
+            foreach ($criterion['value'] as $value) {
+                if (is_scalar($value)) {
+                    $values[] = (string)$value;
+                }
+            }
+            return $values;
+        }
+        foreach (['value1', 'value2'] as $key) {
+            if (isset($criterion[$key]) && is_scalar($criterion[$key])) {
+                $values[] = (string)$criterion[$key];
+            }
+        }
+        return $values;
+    }
+    /**
+     * A text criterion.
+     *
+     * @param string $col       The quoted column
+     * @param string $condition The whitelisted condition key
+     * @param array  $values    The criterion's values
+     * @param array  $bindings  Array of values for PDO bindings
+     *
+     * @return string
+     */
+    private static function _sbString($col, $condition, $values, &$bindings)
+    {
+        if ($condition === 'null') {
+            return "($col IS NULL OR $col = '')";
+        }
+        if ($condition === '!null') {
+            return "($col IS NOT NULL AND $col <> '')";
+        }
+        // An unfilled criterion is dropped. The client treats one as matching
+        // every row, so dropping it agrees with the UI inside an AND and is
+        // strictly narrower inside an OR -- never wider.
+        if (!isset($values[0]) || $values[0] === '') {
+            return '';
+        }
+        if ($condition === '=') {
+            return $col . ' = '
+                . self::bind($bindings, $values[0], \PDO::PARAM_STR);
+        }
+        if ($condition === '!=') {
+            // A NULL cell reads as an empty string in the grid, so it is
+            // "not equal to" anything the user typed and belongs in the
+            // result. Without the IS NULL arm SQL's three-valued logic would
+            // silently drop those rows.
+            return '(' . $col . ' IS NULL OR ' . $col . ' <> '
+                . self::bind($bindings, $values[0], \PDO::PARAM_STR) . ')';
+        }
+        // LIKE metacharacters in the VALUE are escaped, because the condition
+        // the user picked is what says where the wildcards go -- "contains"
+        // already means "anywhere". A '%' they typed is a percent sign they
+        // are looking for. The free-text box above the table is deliberately
+        // left as it was: there the loose behavior is the feature.
+        $escaped = str_replace(
+            ['\\', '%', '_'],
+            ['\\\\', '\\%', '\\_'],
+            $values[0]
+        );
+        $patterns = [
+            'starts' => $escaped . '%',
+            '!starts' => $escaped . '%',
+            'contains' => '%' . $escaped . '%',
+            '!contains' => '%' . $escaped . '%',
+            'ends' => '%' . $escaped,
+            '!ends' => '%' . $escaped
+        ];
+        $binding = self::bind($bindings, $patterns[$condition], \PDO::PARAM_STR);
+        if ($condition[0] === '!') {
+            return "($col IS NULL OR $col NOT LIKE $binding ESCAPE '\\\\')";
+        }
+        return "$col LIKE $binding ESCAPE '\\\\'";
+    }
+    /**
+     * A numeric criterion.
+     *
+     * @param string $col       The quoted column
+     * @param string $condition The whitelisted condition key
+     * @param array  $values    The criterion's values
+     * @param array  $bindings  Array of values for PDO bindings
+     *
+     * @return string
+     */
+    private static function _sbNum($col, $condition, $values, &$bindings)
+    {
+        if ($condition === 'null') {
+            return $col . ' IS NULL';
+        }
+        if ($condition === '!null') {
+            return $col . ' IS NOT NULL';
+        }
+        $numeric = [];
+        foreach ($values as $value) {
+            if (is_numeric($value)) {
+                $numeric[] = $value + 0;
+            }
+        }
+        $between = ($condition === 'between' || $condition === '!between');
+        if (count($numeric ?: []) < ($between ? 2 : 1)) {
+            return '';
+        }
+        if ($between) {
+            // The client sorts a between pair before sending it, but the
+            // request is not what this depends on: BETWEEN with the bounds
+            // the wrong way round matches nothing at all, silently.
+            sort($numeric);
+            $low = self::bind($bindings, $numeric[0], \PDO::PARAM_STR);
+            $high = self::bind($bindings, $numeric[1], \PDO::PARAM_STR);
+            if ($condition === '!between') {
+                return "($col IS NULL OR $col NOT BETWEEN $low AND $high)";
+            }
+            return "$col BETWEEN $low AND $high";
+        }
+        $binding = self::bind($bindings, $numeric[0], \PDO::PARAM_STR);
+        if ($condition === '!=') {
+            return "($col IS NULL OR $col <> $binding)";
+        }
+        // Interpolated, not bound: $condition has already been matched
+        // against $_sbConditions, so it is one of '=', '<', '<=', '>=', '>'.
+        return "$col $condition $binding";
+    }
+    /**
+     * A date criterion.
+     *
+     * SearchBuilder sends a whole day ('YYYY-MM-DD'), and the columns are
+     * DATETIMEs, so every condition is expressed as a half-open range over
+     * day boundaries rather than a comparison against the bare date. Compared
+     * literally, "= 2026-08-29" would match nothing on a DATETIME column and
+     * "after 2026-08-29" would still include that afternoon.
+     *
+     * @param string $col       The quoted column
+     * @param string $condition The whitelisted condition key
+     * @param array  $values    The criterion's values
+     * @param array  $bindings  Array of values for PDO bindings
+     *
+     * @return string
+     */
+    private static function _sbDate($col, $condition, $values, &$bindings)
+    {
+        $floor = self::SEARCHBUILDER_DATE_FLOOR;
+        if ($condition === 'null') {
+            return "($col IS NULL OR $col < '$floor')";
+        }
+        if ($condition === '!null') {
+            return "($col >= '$floor')";
+        }
+        $dates = [];
+        foreach ($values as $value) {
+            if (self::_sbIsDay($value)) {
+                $dates[] = (string)$value;
+            }
+        }
+        $between = ($condition === 'between' || $condition === '!between');
+        if (count($dates ?: []) < ($between ? 2 : 1)) {
+            return '';
+        }
+        sort($dates);
+        $from = self::bind(
+            $bindings,
+            $dates[0] . ' 00:00:00',
+            \PDO::PARAM_STR
+        );
+        // The exclusive upper bound: midnight starting the day AFTER the last
+        // date named. One date makes it that date's own midnight, so "=" is
+        // the whole of one day and "after" starts at the next.
+        $until = self::bind(
+            $bindings,
+            self::_sbNextDay($between ? $dates[1] : $dates[0]),
+            \PDO::PARAM_STR
+        );
+        switch ($condition) {
+            case '=':
+            case 'between':
+                return "($col >= $from AND $col < $until)";
+            case '!=':
+            case '!between':
+                // A never-set date is not the date asked about, so it belongs
+                // in the result -- matching what the grid shows, where the
+                // cell is blank rather than absent.
+                return "($col IS NULL OR $col < $from OR $col >= $until)";
+            case '<':
+                return "($col >= '$floor' AND $col < $from)";
+        }
+        // '>', the only condition left: strictly after the whole of that day.
+        return "$col >= $until";
+    }
+    /**
+     * Is this one of SearchBuilder's 'YYYY-MM-DD' day values?
+     *
+     * @param string $value The value to test
+     *
+     * @return bool
+     */
+    private static function _sbIsDay($value)
+    {
+        return (bool)preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$value)
+            && checkdate(
+                (int)substr((string)$value, 5, 2),
+                (int)substr((string)$value, 8, 2),
+                (int)substr((string)$value, 0, 4)
+            );
+    }
+    /**
+     * Midnight starting the day after the one given.
+     *
+     * @param string $day A validated 'YYYY-MM-DD' value
+     *
+     * @return string
+     */
+    private static function _sbNextDay($day)
+    {
+        $date = new \DateTime($day . ' 00:00:00');
+        $date->modify('+1 day');
+        return $date->format('Y-m-d H:i:s');
     }
     /**
      * Perform the SQL queries needed for an server-side processing requested,
@@ -719,7 +1245,7 @@ abstract class FOGManagerController extends FOGBase
         // Build the SQL query string from the request
         $limit = self::limit($request, $columns);
         $order = self::order($request, $columns, $orderby);
-        $where = self::filter($request, $columns, $bindings);
+        $where = self::filter($request, $columns, $bindings, $table);
         $whereResult = self::_flatten($whereResult);
         $whereAll = self::_flatten($whereAll);
         if ($whereResult) {
@@ -790,6 +1316,11 @@ abstract class FOGManagerController extends FOGBase
                 && self::$_capped
                 && intval($recordsFiltered) > self::MAX_ROWS,
             'data' => $countOnly ? [] : self::dataOutput($columns, $data),
+            // How each column may be filtered, for the client's search UI.
+            // Server-derived because a server-side grid hands the browser one
+            // page, and page one is not enough to tell a date column from a
+            // text one -- see searchTypes().
+            '_searchtypes' => self::searchTypes($table, $columns),
             //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
             //'total_query' => $total_query,
