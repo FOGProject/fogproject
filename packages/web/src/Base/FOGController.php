@@ -18,6 +18,7 @@ namespace FOG\Base;
 
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
+use FOG\Db\ConstraintViolation;
 use FOG\Items\AuditChange;
 use FOG\Items\AuditLog;
 use FOG\Items\History;
@@ -1338,8 +1339,23 @@ abstract class FOGController extends FOGBase
             // by PDODB, so destroy() reported success for a row still there.
             // A DELETE matching nothing is not an error and does not land
             // here -- only a statement the server actually rejected does.
+            //
+            // ADR 0031 made one kind of rejection routine: a delete the
+            // database refuses because something still refers to the record.
+            // That is not a fault to be read out of a log by whoever wrote
+            // the schema, it is an answer for the person who pressed the
+            // button -- so it is translated here, where the class being
+            // deleted is known and can name itself in the sentence. Anything
+            // else keeps the raw text, which is worse to read and never
+            // wrong.
             if (self::$DB->error) {
-                throw new \Exception((string) self::$DB->error);
+                $explained = ConstraintViolation::explain(
+                    (string) self::$DB->error,
+                    ConstraintViolation::label($this->databaseTable)
+                );
+                throw new \Exception(
+                    $explained ?? (string) self::$DB->error
+                );
             }
             if (!$this->_isLogTable()) {
                 $msg = $this->_historyText('has been successfully destroyed');

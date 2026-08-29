@@ -1867,6 +1867,73 @@ softer: it is the record that this external subject *is* this FOG user, so
 deleting either end has to take it. Left behind, the next user created with a
 recycled id inherits someone else's identity binding.
 
+## Telling somebody a delete was refused
+
+The constraints made a delete refusable; this is what happens when one is.
+
+**The bug the constraints exposed.** `Route::deletemass()` finished with a
+bare `return self::$DB->query(...)`. `PDODB::query()` does not throw — it
+catches the PDOException, writes the text to `->error` and returns `$this`,
+which is truthy. So a refused DELETE returned an object that looked exactly
+like success: HTTP 200, a green toast, and the row still sitting in the
+grid after a refresh. `Route::delete()` funnels the REST single-delete into
+the same function, so this was every delete path FOG has, UI and API alike.
+
+It could not fire before this work. Nothing in the schema could say no, so
+the arm that mishandles a no was never taken. That is worth noticing as a
+class: a `->error` check omitted on a path that cannot currently fail is a
+correct-looking piece of code with a fuse in it.
+
+It now throws, with **409 Conflict** rather than `_sendCaught()`'s fallback
+of 406. The request was fine; the state of the database was not, and the
+caller can retry it once whatever holds the record is gone.
+
+**The wording.** `FOG\Db\ConstraintViolation::explain()` takes the error
+text and the noun the caller was deleting, and returns a sentence:
+
+```
+Cannot delete this storage group because a location still refers to it.
+Reassign or remove it first.
+```
+
+instead of
+
+```
+SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or
+update a parent row: a foreign key constraint fails (`fog`.`location`,
+CONSTRAINT `fk_location_lStorageGroupID` FOREIGN KEY (`lStorageGroupID`)
+REFERENCES `nfsGroups` (`ngID`))
+```
+
+The constraint name is the lookup key into `commons/schema-constraints.php`,
+so the sentence is built from the same declaration that created the
+constraint — not parsed back out of the message, which would be a second
+description of the same relationship, free to drift from the first.
+
+The table→noun list is bounded at fifteen entries rather than covering the
+schema, because only a RESTRICT can refuse a delete and only the tables
+either side of one can ever be named. `tests/constraint-violation.test.php`
+fails the build if an enabled RESTRICT names a table with no label, which is
+what keeps the bound honest when a relationship changes action.
+
+**It declines rather than guessing.** A 1452 — the opposite direction, from
+an insert or an update — and a constraint the map does not describe both
+return null, and the caller keeps the raw text. Both still stop the request;
+only the wording degrades.
+
+`FOGController::destroy()` translates as well. It catches its own exception
+and returns false, so the sentence lands in the log and the history row
+rather than in a response body:
+
+```
+Destroy failed: Class: StorageGroup, Table: nfsGroups, ID: 1,
+Error: Cannot delete this storage group because a location still refers to
+it. Reassign or remove it first.
+```
+
+Both paths verified against the lab database with all 88 constraints applied,
+using `scripts/background_scripts/probe_delete_refusal.php`.
+
 ## Reproducing the survey
 
 ```
