@@ -241,6 +241,9 @@ msgstr ""
 msgid "30 Minutes"
 msgstr ""
 
+msgid "31 to 90 days"
+msgstr ""
+
 msgid "5 Minutes"
 msgstr ""
 
@@ -254,6 +257,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "91 to 365 days"
 msgstr ""
 
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
@@ -305,6 +311,9 @@ msgid "A hook is not an event listener"
 msgstr ""
 
 msgid "A host already exists with this name!"
+msgstr ""
+
+msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
 msgstr ""
 
 msgid "A host with that name already exists"
@@ -683,6 +692,9 @@ msgstr ""
 msgid "Additional Icon Elements"
 msgstr ""
 
+msgid "Address"
+msgstr ""
+
 msgid "Administrative actions"
 msgstr ""
 
@@ -757,6 +769,12 @@ msgid "All ports must be numeric, greater than 0, and less than 65536"
 msgstr ""
 
 msgid "All rights reserved."
+msgstr ""
+
+msgid "Allocated"
+msgstr ""
+
+msgid "Allocated bytes per storage group"
 msgstr ""
 
 msgid "Allow API"
@@ -936,6 +954,9 @@ msgstr ""
 msgid "Audit Log"
 msgstr ""
 
+msgid "Audit Report"
+msgstr ""
+
 msgid "Audit entry"
 msgstr ""
 
@@ -1069,6 +1090,9 @@ msgstr ""
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "Bytes"
+msgstr ""
+
 msgid "CA Certificate Path"
 msgstr ""
 
@@ -1076,6 +1100,9 @@ msgid "CA Path"
 msgstr ""
 
 msgid "CA private key"
+msgstr ""
+
+msgid "CPU"
 msgstr ""
 
 msgid "CPU Cache"
@@ -1196,6 +1223,9 @@ msgid "Cannot select %s field(s): %s"
 msgstr ""
 
 msgid "Cannot task pending hosts"
+msgstr ""
+
+msgid "Capability"
 msgstr ""
 
 msgid "Capone"
@@ -1380,6 +1410,9 @@ msgid "Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure B
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Code"
 msgstr ""
 
 msgid "Column type lookup failed"
@@ -1716,6 +1749,9 @@ msgstr ""
 msgid "Cross platform, more secure, faster, and much easier on the server. Espeically when your organization has many hosts"
 msgstr ""
 
+msgid "Currency"
+msgstr ""
+
 msgid "Current Records"
 msgstr ""
 
@@ -1780,6 +1816,9 @@ msgid "Day of month value is not valid"
 msgstr ""
 
 msgid "Day of week value is not valid"
+msgstr ""
+
+msgid "Days"
 msgstr ""
 
 msgid "Deactivate plugins failed!"
@@ -1880,6 +1919,9 @@ msgid "Description"
 msgstr ""
 
 msgid "Destroy failed"
+msgstr ""
+
+msgid "Details"
 msgstr ""
 
 msgid "Device must be a string"
@@ -2150,6 +2192,18 @@ msgstr ""
 msgid "Event must be a string"
 msgstr ""
 
+msgid "Event types"
+msgstr ""
+
+msgid "Events"
+msgstr ""
+
+msgid "Events by account"
+msgstr ""
+
+msgid "Events per day"
+msgstr ""
+
 msgid "Every API token on this server. Tokens are stored hashed &mdash; a token cannot be shown again after it is issued, so this page can revoke one but never recover it."
 msgstr ""
 
@@ -2418,6 +2472,9 @@ msgstr ""
 msgid "Failed to write file to disk"
 msgstr ""
 
+msgid "Failures by snapin"
+msgstr ""
+
 msgid "Fields and types must have equal count"
 msgstr ""
 
@@ -2520,6 +2577,9 @@ msgstr ""
 msgid "First row is a header"
 msgstr ""
 
+msgid "Fleet Report"
+msgstr ""
+
 msgid "Flush Settings Cache"
 msgstr ""
 
@@ -2590,6 +2650,9 @@ msgid "Free Memory"
 msgstr ""
 
 msgid "FreeIPA"
+msgstr ""
+
+msgid "Freshness"
 msgstr ""
 
 msgid "Friendly Name"
@@ -2855,6 +2918,9 @@ msgstr ""
 msgid "Groups cannot create capture tasks"
 msgstr ""
 
+msgid "Growth"
+msgstr ""
+
 msgid "HTML Error Code"
 msgstr ""
 
@@ -2880,6 +2946,9 @@ msgid "Hard Drive Serial Number"
 msgstr ""
 
 msgid "Hardware Information"
+msgstr ""
+
+msgid "Hardware Report"
 msgstr ""
 
 msgid "Hash"
@@ -3153,6 +3222,9 @@ msgstr ""
 msgid "Hosts only"
 msgstr ""
 
+msgid "Hosts registered per day"
+msgstr ""
+
 msgid "Hosts:"
 msgstr ""
 
@@ -3413,7 +3485,13 @@ msgstr ""
 msgid "Imaged For"
 msgstr ""
 
+msgid "Imaged in range"
+msgstr ""
+
 msgid "Images"
+msgstr ""
+
+msgid "Images added per day"
 msgstr ""
 
 msgid "Images only"
@@ -3769,6 +3847,9 @@ msgstr ""
 msgid "Invalid upload."
 msgstr ""
 
+msgid "Inventoried"
+msgstr ""
+
 msgid "Inventory"
 msgstr ""
 
@@ -3785,6 +3866,9 @@ msgid "Inventory Report"
 msgstr ""
 
 msgid "Inventory Static"
+msgstr ""
+
+msgid "Inventory recorded per day"
 msgstr ""
 
 msgid "Is Advanced"
@@ -3997,6 +4081,9 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
+msgid "Largest images"
+msgstr ""
+
 msgid "Last Captured"
 msgstr ""
 
@@ -4021,7 +4108,16 @@ msgstr ""
 msgid "Last Used"
 msgstr ""
 
+msgid "Last check-in"
+msgstr ""
+
+msgid "Last deployed"
+msgstr ""
+
 msgid "Last flush"
+msgstr ""
+
+msgid "Last imaged"
 msgstr ""
 
 msgid "Latest Alpha Version"
@@ -4251,6 +4347,9 @@ msgstr ""
 msgid "Machine Details"
 msgstr ""
 
+msgid "Machines"
+msgstr ""
+
 msgid "Machines imaged"
 msgstr ""
 
@@ -4261,6 +4360,9 @@ msgid "Main navigation"
 msgstr ""
 
 msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
+msgstr ""
+
+msgid "Make and model"
 msgstr ""
 
 msgid "Make default"
@@ -4279,6 +4381,12 @@ msgid "Management Password"
 msgstr ""
 
 msgid "Management Username"
+msgstr ""
+
+msgid "Manufacturer"
+msgstr ""
+
+msgid "Manufacturers"
 msgstr ""
 
 msgid "Mark selected client ignore"
@@ -4393,6 +4501,9 @@ msgid "Mode"
 msgstr ""
 
 msgid "Model"
+msgstr ""
+
+msgid "Models"
 msgstr ""
 
 msgid "Module"
@@ -4576,6 +4687,9 @@ msgstr ""
 msgid "Never - do not verify (insecure)"
 msgstr ""
 
+msgid "Never imaged"
+msgstr ""
+
 msgid "Never reported"
 msgstr ""
 
@@ -4711,6 +4825,9 @@ msgid "No image specified"
 msgstr ""
 
 msgid "No images associated with this group as master"
+msgstr ""
+
+msgid "No inventory"
 msgstr ""
 
 msgid "No items found"
@@ -4888,6 +5005,9 @@ msgid "Not pinged"
 msgstr ""
 
 msgid "Not recorded"
+msgstr ""
+
+msgid "Not reported"
 msgstr ""
 
 msgid "Not syncing"
@@ -5111,6 +5231,9 @@ msgstr ""
 msgid "Outcome"
 msgstr ""
 
+msgid "Over a year"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -5214,6 +5337,9 @@ msgid "Pending macs"
 msgstr ""
 
 msgid "Pending..."
+msgstr ""
+
+msgid "People"
 msgstr ""
 
 msgid "Permission"
@@ -5565,6 +5691,9 @@ msgstr ""
 msgid "Private keys are readable by the web server"
 msgstr ""
 
+msgid "Processors"
+msgstr ""
+
 msgid "Product Key"
 msgstr ""
 
@@ -5698,7 +5827,16 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
+msgid "Recorded"
+msgstr ""
+
 msgid "Recorded By"
+msgstr ""
+
+msgid "Recorded in range"
+msgstr ""
+
+msgid "Records"
 msgstr ""
 
 msgid "Redirect Login To This Provider"
@@ -5713,7 +5851,13 @@ msgstr ""
 msgid "Refresh the settings cache"
 msgstr ""
 
+msgid "Refused"
+msgstr ""
+
 msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
+
+msgid "Registered"
 msgstr ""
 
 msgid "Registered Hosts"
@@ -5773,6 +5917,9 @@ msgid "Removing this role would leave no user with administrator access."
 msgstr ""
 
 msgid "Rename or remove one of them."
+msgstr ""
+
+msgid "Replicates"
 msgstr ""
 
 msgid "Replicating"
@@ -5945,6 +6092,9 @@ msgid "Running Windows"
 msgstr ""
 
 msgid "Runs"
+msgstr ""
+
+msgid "Runs and failures per day"
 msgstr ""
 
 msgid "Runs by image"
@@ -6141,6 +6291,9 @@ msgid "Selected tasks canceled!"
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgstr ""
+
+msgid "Serial"
 msgstr ""
 
 msgid "Serial Number"
@@ -6402,6 +6555,9 @@ msgstr ""
 msgid "Size on Server"
 msgstr ""
 
+msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
+msgstr ""
+
 #, php-format
 msgid "Skipped unknown %s: %s"
 msgstr ""
@@ -6530,6 +6686,9 @@ msgstr ""
 msgid "Snapin Replicator"
 msgstr ""
 
+msgid "Snapin Report"
+msgstr ""
+
 msgid "Snapin Run Order"
 msgstr ""
 
@@ -6572,6 +6731,9 @@ msgstr ""
 msgid "Snapin jobs"
 msgstr ""
 
+msgid "Snapin runs"
+msgstr ""
+
 msgid "Snapin tasks"
 msgstr ""
 
@@ -6590,6 +6752,9 @@ msgstr ""
 msgid "Snapins run in this order. The order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task; otherwise it sets the order snapins are sent."
 msgstr ""
 
+msgid "Snapins used"
+msgstr ""
+
 msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
@@ -6603,6 +6768,9 @@ msgid "Space variable must be boolean"
 msgstr ""
 
 msgid "Specified download URL not allowed!"
+msgstr ""
+
+msgid "Stale"
 msgstr ""
 
 msgid "Start Download Fail"
@@ -6830,6 +6998,12 @@ msgstr ""
 msgid "Storage Nodes"
 msgstr ""
 
+msgid "Storage Report"
+msgstr ""
+
+msgid "Storage nodes"
+msgstr ""
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -6882,6 +7056,9 @@ msgid "Subtree Only"
 msgstr ""
 
 msgid "Subtree and Below"
+msgstr ""
+
+msgid "Succeeded"
 msgstr ""
 
 msgid "Success."
@@ -7092,6 +7269,9 @@ msgstr ""
 msgid "Task starting"
 msgstr ""
 
+msgid "Task state"
+msgstr ""
+
 msgid "Task state added!"
 msgstr ""
 
@@ -7233,6 +7413,9 @@ msgid "The archive is larger than the %s limit."
 msgstr ""
 
 msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
+msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -7669,6 +7852,9 @@ msgstr ""
 msgid "Time Already Exists"
 msgstr ""
 
+msgid "Time since last imaged"
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -7826,6 +8012,12 @@ msgid "Unable to update schema"
 msgstr ""
 
 msgid "Unable to update task"
+msgstr ""
+
+msgid "Unassigned"
+msgstr ""
+
+msgid "Unattributed"
 msgstr ""
 
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
@@ -8273,6 +8465,9 @@ msgstr ""
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
+msgid "Where it lives"
+msgstr ""
+
 msgid "Where to get help and guides"
 msgstr ""
 
@@ -8337,6 +8532,9 @@ msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
 msgid "Wipes"
+msgstr ""
+
+msgid "Within 30 days"
 msgstr ""
 
 msgid "Yearly"
