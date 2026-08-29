@@ -216,6 +216,65 @@ class IpxeBootMenu extends BootMenuBase
         );
         self::$Host->set('archID', $archID);
     }
+    /**
+     * Record what this machine just said about its own Secure Boot state.
+     *
+     * The same seam as _recordHostArch() and for the same reason: this is the
+     * only moment FOG hears it. FOS could report it too -- and does, when the
+     * enrolment task runs -- but FOS runs when someone schedules a task, which
+     * for most hosts is never. iPXE runs on every PXE boot.
+     *
+     * The classification lives in SecureBootState so that the one place the
+     * wire format is understood is also the one place that is tested. Read
+     * with filter_input() rather than $_REQUEST because the difference
+     * between an absent param and an empty one is load-bearing here and
+     * $_REQUEST cannot express it: an absent param means a default.ipxe
+     * written before this shipped, and reads as "never reported"; an empty
+     * one is a real observation from a machine with no EFI variables.
+     *
+     * Writes on EVERY boot, not only on change, which is the one place this
+     * deliberately differs from _recordHostArch(). The timestamp is half the
+     * value -- "this host was enforcing as of eight months ago" is a
+     * different fact from "as of this morning", and an unchanged state that
+     * never restamps cannot say which. A PXE boot is a rare event compared
+     * with the client check-in that writes hostLastCheckin, so the cost is
+     * one UPDATE per netboot.
+     *
+     * UNKNOWN writes NOTHING. A server that has not re-run the installer
+     * since this shipped serves a default.ipxe that sends neither param, and
+     * stamping a time onto an observation nobody made would turn "we have
+     * never heard from this host" into "we heard nothing from it, recently".
+     *
+     * Advisory only. boot.php is unauthenticated by necessity, so everything
+     * read here is attacker-controlled: it drives targeting, filtering and
+     * display, and nothing else ever reads it as a security control. The
+     * boot decision keeps reading the live request, exactly as step 369
+     * requires for hostArch. See ADR 0029.
+     *
+     * @return void
+     */
+    private static function _recordSecureBootState()
+    {
+        if (!self::$Host instanceof Host || !self::$Host->isValid()) {
+            return;
+        }
+        $state = SecureBootState::fromBootRequest(
+            filter_input(INPUT_POST, 'platform'),
+            filter_input(INPUT_POST, 'secureboot'),
+            filter_input(INPUT_POST, 'setupmode')
+        );
+        if (SecureBootState::UNKNOWN === $state) {
+            return;
+        }
+        $now = self::niceDate()->format('Y-m-d H:i:s');
+        self::getClass('HostManager')->update(
+            ['id' => self::$Host->get('id')],
+            '',
+            ['sbstate' => $state, 'sbstatetime' => $now]
+        );
+        self::$Host->set('sbstate', $state);
+        self::$Host->set('sbstatetime', $now);
+    }
     private static function _arch()
     {
         if (null !== self::$_archProfile) {
@@ -409,6 +468,17 @@ class IpxeBootMenu extends BootMenuBase
             'ADOU',
             'ADDomain',
             'createdBy',
+            // FOG's own record of what this machine reported, and of what was
+            // enrolled on it. Not secret -- the machine is the source of the
+            // first and can read the second off its own firmware -- but there
+            // is nothing in the menu that consumes them, and echoing a
+            // host's own report back at it is five `set` lines of noise in
+            // every menu FOG serves. Excluded so the ledger stays one-way.
+            'sbstate',
+            'sbstatetime',
+            'sbenrolled',
+            'sbenrollcert',
+            'sbenrollvia',
         ];
         // service/ipxe/boot.php is unauthenticated by necessity -- a booting
         // NIC has no credential to present -- so what leaves here is the only
@@ -555,6 +625,7 @@ class IpxeBootMenu extends BootMenuBase
         // Before anything else uses it: the machine has just told us
         // what it is, and this is the only moment FOG ever hears it.
         self::_recordHostArch();
+        self::_recordSecureBootState();
         $arch = self::_arch();
         /**
          * GH: the arch-specific grub binary used to be swapped in AFTER the

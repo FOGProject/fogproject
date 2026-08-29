@@ -17,6 +17,7 @@ namespace FOG;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
+use FOG\Boot\SecureBootState;
 use FOG\Items\Architecture;
 use FOG\Items\Group;
 use FOG\Items\Host;
@@ -139,6 +140,21 @@ class HostManagement extends FOGPage
             // the image's own architecture, is the Architectures page under
             // Image Management. See schema step 369.
             _('Architecture'),
+            // The observed half of the Secure Boot ledger (schema step 376),
+            // and the record of an enrolment having been performed (377).
+            // Beside Architecture because they answer the same shape of
+            // question -- what is this machine, and can the thing I am about
+            // to schedule actually run on it.
+            //
+            // Both default to hidden in the column picker's sense of the
+            // word only in that most fleets will not look at them daily;
+            // they are emitted always, because the one time they matter is
+            // when someone is picking enrolment targets and needs to sort by
+            // them. Sorting is the filter here -- this grid has no
+            // per-column search UI, so the global box matches the STORED
+            // word ('disabled', 'setup') rather than the rendered label.
+            _('Secure Boot'),
+            _('SB Enrolled'),
             _('Description')
         );
         array_push(
@@ -148,6 +164,8 @@ class HostManagement extends FOGPage
             ['data-col' => 'deployed'],
             ['data-col' => 'imageLink'],
             ['data-col' => 'arch'],
+            ['data-col' => 'sbstate'],
+            ['data-col' => 'sbenrolled'],
             ['data-col' => 'description']
         );
     }
@@ -1179,6 +1197,75 @@ class HostManagement extends FOGPage
             );
         }
         $lastCheckin = self::dateOrNever($this->obj->get('lastcheckin'));
+        // The Secure Boot ledger's two halves, prepared very differently on
+        // purpose (schema steps 376 and 377).
+        //
+        // The reported state is server-owned in the same sense lastping is:
+        // it is what the machine said on its last PXE boot, so the object is
+        // the only source that can be right and INPUT_POST is never consulted.
+        // Rendered with its "as of" stamp beside it, because an unqualified
+        // "Secure Boot ON" invites the reader to treat a report from eight
+        // months ago as current.
+        $sbState = SecureBootState::label($this->obj->get('sbstate'));
+        $sbStateTime = self::dateOrNever($this->obj->get('sbstatetime'));
+        if (_('Never') !== $sbStateTime) {
+            $sbState = sprintf(
+                /* translators: 1: a Secure Boot state, 2: a date and time */
+                _('%1$s (as of %2$s)'),
+                $sbState,
+                $sbStateTime
+            );
+        }
+        // The enrolment record IS posted back -- a technician who enrolled
+        // from a USB stick is the only source for it and has to be able to
+        // type it. filter_input first, object second, exactly like every
+        // other editable value on this form.
+        $sbEnrolled = (
+            filter_input(INPUT_POST, 'sbenrolled') ?:
+            ($this->obj->get('sbenrolled') ?: '')
+        );
+        // Rendered as the stored datetime rather than through dateOrNever(),
+        // because this one round-trips: whatever is shown is what posts back
+        // and is written to a DATETIME column, and "Never" is not a date. An
+        // empty box is how "not enrolled" is both displayed and cleared.
+        //
+        // Deliberately NOT re-parsed, and deliberately carrying no zero-date
+        // guard. hostSbEnrolled is NULL-able from birth (schema step 377), so
+        // the zero date is not a value it can hold -- that guard belongs to
+        // columns that predate the NULL convention, and writing one here would
+        // put a 0000-00-00 literal back into the page layer that
+        // tests/date-columns-nullable.test.php exists to keep out. NULL
+        // becomes '' through the coalesce above; anything else came out of a
+        // DATETIME and is already in this box's format.
+        //
+        // A value straight off a rejected POST is echoed back unchanged and
+        // deliberately: the administrator needs to see what they typed in
+        // order to fix it. makeInput() escapes it.
+        $sbEnrollVia = (
+            filter_input(INPUT_POST, 'sbenrollvia') ?:
+            ($this->obj->get('sbenrollvia') ?: '')
+        );
+        $sbEnrollCert = (
+            filter_input(INPUT_POST, 'sbenrollcert') ?:
+            ($this->obj->get('sbenrollcert') ?: '')
+        );
+        // The comparison this column exists for, made rather than left to
+        // the reader. Storing a fingerprint and rendering it next to nothing
+        // asks an administrator to check 95 hex characters against a
+        // different page by eye, which is not an answer -- it is the raw
+        // material for one, and ADR 0029 decision 5 says the question is
+        // "does this machine trust what I serve today".
+        //
+        // Computed from the STORED value, never from INPUT_POST: a rejected
+        // post re-renders whatever was typed, and running the comparison on
+        // that would report the freshness of a value the database does not
+        // hold. Empty when there is nothing to compare -- see
+        // enrolmentFreshness() for why that is not the same as stale.
+        $sbEnrollFresh = SecureBootState::freshnessLabel(
+            SecureBootState::enrolmentFreshness(
+                $this->obj->get('sbenrollcert')
+            )
+        );
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -1354,8 +1441,117 @@ class HostManagement extends FOGPage
                 '',
                 true,
                 true
+            ),
+            // OBSERVED -- disabled, for the same reason and in the same way
+            // as the two above. This is the field ADR 0029's hard constraint
+            // is about: it is a report of what a machine said, not a claim
+            // anyone is entitled to make, so there is no editable rendering
+            // of it anywhere. Route::$serverOwnedFields refuses it over the
+            // API too, because a rule enforced by one form is a rule that
+            // holds until someone adds a second writer.
+            self::makeLabel(
+                $labelClass,
+                'sbstate',
+                _('Secure Boot (reported)')
+            ) => self::makeInput(
+                'form-control hostsbstate-input',
+                'sbstate',
+                '',
+                'text',
+                'sbstate',
+                $sbState,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
+            ),
+            // ASSERTED -- editable, and the three below are one record.
+            //
+            // Enrolment happens three ways and only two of them can write
+            // this themselves: fog.enrollsb reports the db and MOK paths, and
+            // a technician at the machine with a USB stick reports nothing at
+            // all. Leaving these hand-editable is what makes the third path
+            // recordable; it is also why they carry less authority than the
+            // reported state above, not more.
+            self::makeLabel(
+                $labelClass,
+                'sbenrolled',
+                _('Secure Boot Enrolled')
+            ) => self::makeInput(
+                'form-control hostsbenrolled-input',
+                'sbenrolled',
+                'YYYY-MM-DD HH:MM:SS',
+                'text',
+                'sbenrolled',
+                $sbEnrolled
+            ),
+            self::makeLabel(
+                $labelClass,
+                'sbenrollvia',
+                _('Enrolled Via')
+            ) => self::makeInput(
+                'form-control hostsbenrollvia-input',
+                'sbenrollvia',
+                'db, trusted, mok, mok-pending, manual',
+                'text',
+                'sbenrollvia',
+                $sbEnrollVia
+            ),
+            // The certificate that was enrolled, not merely the date. This
+            // is the field that answers the question an admin actually has:
+            // an enrolment date alone says nothing once the certificate has
+            // rotated, and FOG has PKI zones, a multi-server CA and certs
+            // that expire. Compare it against the SHA-256 on the Secure Boot
+            // configuration page -- the two are computed identically, so the
+            // check is string equality.
+            self::makeLabel(
+                $labelClass,
+                'sbenrollcert',
+                _('Enrolled Certificate (SHA-256)')
+            ) => self::makeInput(
+                'form-control hostsbenrollcert-input',
+                'sbenrollcert',
+                _('unrecorded'),
+                'text',
+                'sbenrollcert',
+                $sbEnrollCert
             )
         ];
+        // Appended rather than written into the literal above, because it is
+        // only rendered when it has something to say. A disabled, empty
+        // "Certificate Status" box on every host in a fleet that has never
+        // enrolled anything is noise, and a field that is blank almost
+        // everywhere trains people to skip the one place it is not.
+        //
+        // Disabled AND read-only, the same pair the reported state uses: a
+        // disabled input is not submitted at all, so this cannot become a
+        // second writer for a value that is derived rather than stored.
+        if ('' !== $sbEnrollFresh) {
+            $fields[
+                self::makeLabel(
+                    $labelClass,
+                    'sbenrollfresh',
+                    _('Certificate Status')
+                )
+            ] = self::makeInput(
+                'form-control hostsbenrollfresh-input',
+                'sbenrollfresh',
+                '',
+                'text',
+                'sbenrollfresh',
+                $sbEnrollFresh,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
+            );
+        }
 
         $buttons = self::makeButton(
             'general-send',
@@ -1477,6 +1673,90 @@ class HostManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'archID')
         );
         $archID = '' === $archID ? null : (int)$archID;
+        // The enrolment record (schema step 377). Editable, unlike the
+        // reported state above it on the form, because a technician who
+        // enrolled from a USB stick is the only source for it.
+        //
+        // Validated rather than trusted, even though the writer is an
+        // authenticated admin: these three land in a DATETIME and two
+        // VARCHARs, and an unparseable date written to a DATETIME is the
+        // GH-1243/GH-1245 family -- it stores as the zero date and the
+        // display layer then reads "never enrolled" as "enrolled in year
+        // zero". An empty box is how an enrolment is cleared, and must stay
+        // distinguishable from a bad one: '' stores NULL, garbage is
+        // refused out loud.
+        $sbEnrolled = trim(
+            (string)filter_input(INPUT_POST, 'sbenrolled')
+        );
+        if ('' === $sbEnrolled) {
+            $sbEnrolled = null;
+        } elseif (self::validDate($sbEnrolled)) {
+            $sbEnrolled = self::niceDate($sbEnrolled)->format('Y-m-d H:i:s');
+        } else {
+            throw new \Exception(
+                _('Secure Boot enrolment date is not a valid date')
+            );
+        }
+        // Whitelisted against the same five words fog.enrollsb and the host
+        // form document, lower-cased on the way in. A free-text provenance
+        // column is a column that ends up holding 'usb', 'USB stick' and
+        // 'Dave did it', none of which anything can read back.
+        //
+        // 'trusted' is its own value rather than a synonym for 'db' because
+        // it records something FOG did NOT do: the machine already trusted
+        // this certificate when the task ran, and nothing here observed how
+        // it got there -- db, a MOK confirmed months ago, or an image that
+        // shipped with it. Folding it into 'db' would assert a mechanism
+        // nobody watched happen, which is the same mistake as recording a
+        // staged MOK as an enrolment, just quieter.
+        $sbEnrollVia = strtolower(
+            trim((string)filter_input(INPUT_POST, 'sbenrollvia'))
+        );
+        if ('' === $sbEnrollVia) {
+            $sbEnrollVia = null;
+        } elseif (
+            !in_array(
+                $sbEnrollVia,
+                ['db', 'trusted', 'mok', 'mok-pending', 'manual'],
+                true
+            )
+        ) {
+            throw new \Exception(
+                _(
+                    'Enrolled Via must be one of: db, trusted, mok, '
+                    . 'mok-pending, manual'
+                )
+            );
+        }
+        // Shape-checked, not merely trimmed, and through the same
+        // normaliser service/secureboot.report.php uses -- this format was
+        // written out longhand in four files, which is three places for it
+        // to drift. Accepts the colon-formatted form the Secure Boot page
+        // displays and the bare hex a copy-paste tends to produce, and
+        // stores the former.
+        //
+        // Rejecting rather than storing whatever arrived matters because
+        // this column's only use is an equality test: a comparison against
+        // something that is not a SHA-256 can only ever be false, silently,
+        // and looking exactly like "this host trusts an older certificate".
+        $sbEnrollCert = trim(
+            (string)filter_input(INPUT_POST, 'sbenrollcert')
+        );
+        if ('' === $sbEnrollCert) {
+            $sbEnrollCert = null;
+        } else {
+            $sbEnrollCert = SecureBootState::normalizeFingerprint(
+                $sbEnrollCert
+            );
+            if ('' === $sbEnrollCert) {
+                throw new \Exception(
+                    _(
+                        'Enrolled certificate must be a SHA-256 fingerprint '
+                        . '(64 hex characters)'
+                    )
+                );
+            }
+        }
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new \Exception(_('Please enter a valid hostname'));
@@ -1503,6 +1783,9 @@ class HostManagement extends FOGPage
             ->set('efiexit', $ebte)
             ->set('enforce', $enforce)
             ->set('archID', $archID)
+            ->set('sbenrolled', $sbEnrolled)
+            ->set('sbenrollvia', $sbEnrollVia)
+            ->set('sbenrollcert', $sbEnrollCert)
             ->set('productKey', $productKey);
     }
     /**

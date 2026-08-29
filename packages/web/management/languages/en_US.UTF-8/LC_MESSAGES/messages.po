@@ -87,6 +87,10 @@ msgstr ""
 msgid "%1$s (ID %2$s) was saved"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%1$s (as of %2$s)"
+msgstr "Printer already exists"
+
 #, php-format
 msgid "%1$s of %2$s on %3$s: %4$s"
 msgstr ""
@@ -1466,6 +1470,10 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
+msgid "Certificate Status"
+msgstr "Create New %s"
+
+#, fuzzy
 msgid "Certificate Verification"
 msgstr "Create New %s"
 
@@ -2258,6 +2266,9 @@ msgstr "Do not list on menu"
 msgid "Documentation"
 msgstr "Location"
 
+msgid "Does NOT match this server's current certificate -- this host trusts a superseded one and will stop booting under Secure Boot once it is retired. Re-run the Secure Boot enrolment task on it."
+msgstr ""
+
 #, fuzzy
 msgid "Domain Admins"
 msgstr "Domain name"
@@ -2415,6 +2426,18 @@ msgstr ""
 
 msgid "Engineer"
 msgstr "Engineer"
+
+msgid "Enrolled Certificate (SHA-256)"
+msgstr ""
+
+msgid "Enrolled Via"
+msgstr ""
+
+msgid "Enrolled Via must be one of: db, trusted, mok, mok-pending, manual"
+msgstr ""
+
+msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
+msgstr ""
 
 msgid "Enrolment kit"
 msgstr ""
@@ -4729,6 +4752,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Legacy BIOS (no Secure Boot)"
+msgstr ""
+
 msgid "Level"
 msgstr ""
 
@@ -5030,6 +5056,9 @@ msgid "Master Node"
 msgstr "Master Node"
 
 msgid "Matches the term against the class name field. Returns the same envelope as a list. Takes no filter -- the match is the whole query."
+msgstr ""
+
+msgid "Matches this server's current certificate"
 msgstr ""
 
 msgid "Max Clients"
@@ -5342,6 +5371,10 @@ msgstr ""
 msgid "Never - do not verify (insecure)"
 msgstr ""
 
+#, fuzzy
+msgid "Never reported"
+msgstr "Inventory"
+
 msgid "Never returned by the API."
 msgstr ""
 
@@ -5456,6 +5489,9 @@ msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
 msgid "No groups are being created or selected"
+msgstr ""
+
+msgid "No host in this group can run Secure Boot enrolment. Every member last reported a firmware state the task cannot work on -- see the Secure Boot column on the host list."
 msgstr ""
 
 msgid "No hosts are assigned an image"
@@ -6934,6 +6970,9 @@ msgstr ""
 msgid "Running Windows"
 msgstr "Running Version"
 
+msgid "SB Enrolled"
+msgstr ""
+
 msgid "SHA-256"
 msgstr ""
 
@@ -7092,11 +7131,27 @@ msgstr "Server Shell"
 msgid "Secure Boot"
 msgstr ""
 
+msgid "Secure Boot (reported)"
+msgstr ""
+
 msgid "Secure Boot CA private key"
+msgstr ""
+
+msgid "Secure Boot Enrolled"
+msgstr ""
+
+msgid "Secure Boot OFF"
+msgstr ""
+
+msgid "Secure Boot ON"
 msgstr ""
 
 msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
 msgstr ""
+
+#, fuzzy
+msgid "Secure Boot enrolment date is not a valid date"
+msgstr "There are no images on this server."
 
 msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
@@ -7294,6 +7349,9 @@ msgstr "has been successfully updated"
 #, fuzzy
 msgid "Settings update failed!"
 msgstr "Settings Updated"
+
+msgid "Setup Mode (unattended enrolment)"
+msgstr ""
 
 msgid "Setup Mode -- shown as \"Custom\" or \"Custom mode\" in most firmware menus -- is the state a machine is in when its platform key has been cleared, and it is the only state in which these databases can be written. Turning Secure Boot OFF is not the same thing and does not help: a machine with Secure Boot disabled still has a platform key, and still refuses the write. Look for \"Custom mode\", \"Erase all Secure Boot settings\" or \"Clear Secure Boot keys\" in the firmware."
 msgstr ""
@@ -8714,6 +8772,15 @@ msgstr ""
 msgid "This host has finished deploying image %s."
 msgstr ""
 
+msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enrol into."
+msgstr ""
+
+msgid "This host last reported Secure Boot as ON. It does not trust this server's kernel yet, so it cannot boot FOS to run the task at all. Turn Secure Boot off in its firmware first, or enrol from local media."
+msgstr ""
+
+msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -8988,6 +9055,9 @@ msgstr "Event must be a string"
 
 msgid "Type"
 msgstr "Type"
+
+msgid "UEFI, state unreadable"
+msgstr ""
 
 #, fuzzy
 msgid "Unable to Authenticate"
@@ -10601,6 +10671,9 @@ msgstr "Not Available"
 msgid "unchanged for"
 msgstr "Imaged"
 
+msgid "unrecorded"
+msgstr ""
+
 msgid "up"
 msgstr ""
 
@@ -10805,10 +10878,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Attempting to ping host"
 #~ msgstr "Attempting to ping"
-
-#, fuzzy
-#~ msgid "Automatic Secure Boot enrolment is not available on this server"
-#~ msgstr "There are no images on this server."
 
 #, fuzzy
 #~ msgid "Bulk Changes"

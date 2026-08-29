@@ -81,7 +81,7 @@ parameters:
 		-
 			message: '#^Accessing self\:\:\$DB outside of class scope\.$#'
 			identifier: outOfClass.self
-			count: 73
+			count: 80
 			path: packages/web/commons/schema.php
 
 		-
@@ -129,7 +129,7 @@ parameters:
 		-
 			message: '#^Variable \$this might not be defined\.$#'
 			identifier: variable.undefined
-			count: 345
+			count: 347
 			path: packages/web/commons/schema.php
 
 		-
@@ -2601,7 +2601,7 @@ parameters:
 		-
 			message: '#^Instanceof between FOG\\Items\\Host and FOG\\Items\\Host will always evaluate to true\.$#'
 			identifier: instanceof.alwaysTrue
-			count: 1
+			count: 2
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
@@ -3129,7 +3129,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on int\.$#'
 			identifier: property.nonObject
-			count: 5
+			count: 6
 			path: packages/web/src/Items/Group.php
 
 		-
@@ -3237,7 +3237,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$id on int\.$#'
 			identifier: property.nonObject
-			count: 5
+			count: 6
 			path: packages/web/src/Items/Host.php
 
 		-

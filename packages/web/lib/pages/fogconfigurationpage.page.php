@@ -18,6 +18,7 @@ use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
 use FOG\Base\FOGManagerController;
 use FOG\Base\FOGPage;
+use FOG\Boot\SecureBootState;
 use FOG\Exception\UploadException;
 use FOG\Items\APIToken;
 use FOG\Items\Image;
@@ -492,9 +493,13 @@ class FOGConfigurationPage extends FOGPage
         // The SHA-256 of the DER bytes IS the certificate fingerprint, so no
         // openssl round trip is needed to show the value a technician will
         // compare against.
-        $fingerprint = strtoupper(
-            implode(':', str_split(hash_file('sha256', $certfile), 2))
-        );
+        //
+        // Read through SecureBootState rather than computed here, so that the
+        // string on this page and the string each host's enrolment record is
+        // compared against are the same string by construction. They agreed
+        // when both were written out longhand; "they agree today" is not the
+        // same property as "they cannot disagree".
+        $fingerprint = SecureBootState::serverFingerprint();
         // MokManager's own "View key" screen -- the only thing shown when
         // enrolling from the PXE menu, which never runs fog-enroll-mok.sh --
         // prints a SHA-1 fingerprint, not SHA-256. Show both so either
