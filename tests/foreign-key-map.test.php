@@ -238,9 +238,9 @@ foreach ($map as $rel) {
  * Group 3 -- storage: groups, nodes, image and snapin assoc, schema step 384.
  * Group 5 -- configuration references, schema step 388.
  * Group 6 -- tasks and active work, schema step 390.
- * Groups 'location', 'ou', 'windowskey', 'ldap', 'oidc' -- the plugin
- *   tables, each applied by a step appended to that plugin's own schema()
- *   in the fog-plugins repo, not by a core step.
+ * Groups 'location', 'ou', 'windowskey', 'ldap', 'oidc', 'capone' and
+ *   'subnetgroup' -- the plugin tables, each applied by a step appended to
+ *   that plugin's own schema() in the fog-plugins repo, not by a core step.
  */
 $expected = [
     // Group 1
@@ -351,6 +351,11 @@ $expected = [
     'oidcGroupUserGroupAssoc.ogugGroupID',
     'oidcGroupUserGroupAssoc.ogugUserGroupID',
     'oidcUserGrant.ougUserID',
+    // Group 'capone'
+    'capone.cImageID',
+    'capone.cOSID',
+    // Group 'subnetgroup'
+    'subnetgroup.sgGroupID',
 ];
 /*
  * CORE GROUPS ARE INTS, PLUGIN GROUPS ARE STRINGS.
@@ -368,7 +373,15 @@ $expected = [
  * reconcile would ever create it -- silently, on some later upgrade,
  * unswept.
  */
-$corePlugins = ['location', 'ou', 'windowskey', 'ldap', 'oidc'];
+$corePlugins = [
+    'location',
+    'ou',
+    'windowskey',
+    'ldap',
+    'oidc',
+    'capone',
+    'subnetgroup',
+];
 foreach ($map as $rel) {
     if (empty($rel['enabled'])) {
         continue;

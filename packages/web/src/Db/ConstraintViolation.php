@@ -72,6 +72,10 @@ class ConstraintViolation extends FOGBase
         'snapinJobs' => 'snapin job',
         'snapinTasks' => 'snapin task',
         'multicastSessions' => 'multicast session',
+        // Plugin tables. A plugin's rows block a core delete exactly as
+        // core's own do, and the administrator reading the message has no
+        // reason to care which repository the table ships from.
+        'capone' => 'Capone rule',
         // Tables whose rows get blocked.
         'nfsGroups' => 'storage group',
         'taskStates' => 'task state',

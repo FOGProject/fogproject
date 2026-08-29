@@ -254,6 +254,9 @@ return [
     ['child' => 'oidcUserGrant', 'column' => 'ougUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
     ['child' => 'location', 'column' => 'lStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 'location'],
     ['child' => 'location', 'column' => 'lStorageNodeID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 'location'],
+    ['child' => 'capone', 'column' => 'cImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => true, 'group' => 'capone'],
+    ['child' => 'capone', 'column' => 'cOSID', 'parent' => 'os', 'pcolumn' => 'osID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => true, 'group' => 'capone'],
+    ['child' => 'subnetgroup', 'column' => 'sgGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'subnetgroup'],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];
