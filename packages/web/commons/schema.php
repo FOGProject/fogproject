@@ -9377,3 +9377,183 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 389
+$this->schema[] = [
+    // Repair, for the four rows group 6 cannot be declared over.
+    //
+    // Two different repairs, because the two kinds of row are not alike.
+    //
+    // DELETED -- multicastSessionsAssoc rows whose session is gone. A
+    // junction row with no parent has no meaning, which is exactly the rule
+    // step 381 applied to this table already. One row survives that sweep on
+    // the live install, and it is one THIS SERIES created: step 387 deletes
+    // the multicast session whose storage group had been removed, and 381
+    // had already run by then. Swept here rather than by editing 387,
+    // because 387's audit row records what 387 deleted and rewriting it
+    // would make that record false.
+    //
+    // NULLED -- the three columns that record which storage served a task.
+    // A task is the record of what was imaged onto a host. Deleting one
+    // because the storage node it used has since been removed would destroy
+    // that record to satisfy a reference that is no longer interesting; the
+    // constraint is SET NULL for the same reason, so nulling the rows that
+    // predate it is simply applying that rule to history. Measured on the
+    // live 1.6 install: 1 row each, all three pointing at storage group 3
+    // and node 4, deleted at some point before this work began. They are the
+    // orphans the original survey found.
+    //
+    // The two multicast tables are not symmetrical and that is deliberate:
+    // multicastSessionsAssoc is a junction (delete), tasks is a record
+    // (keep, minus the reference).
+    //
+    // Guarded on the tables existing, and both statements are naturally
+    // idempotent -- a second run matches nothing.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        $tables = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` "
+            . "FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE()"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $have = [];
+        foreach ((array) $tables as $row) {
+            if (isset($row['t'])) {
+                $have[strtolower($row['t'])] = true;
+            }
+        }
+
+        $repaired = [];
+
+        if (isset($have['multicastsessionsassoc'], $have['multicastsessions'])) {
+            self::$DB->query(
+                "DELETE `c` FROM `multicastSessionsAssoc` `c` "
+                . "LEFT JOIN `multicastSessions` `p` "
+                . "ON `c`.`msID` = `p`.`msID` "
+                . "WHERE `p`.`msID` IS NULL"
+            );
+            $n = (int) self::$DB->affectedRows();
+            if ($n > 0) {
+                $repaired['multicastSessionsAssoc.msID (deleted)'] = $n;
+            }
+        }
+
+        $null = [
+            ['tasks', 'taskNFSGroupID', 'nfsGroups', 'ngID'],
+            ['tasks', 'taskNFSMemberID', 'nfsGroupMembers', 'ngmID'],
+            ['tasks', 'taskLastMemberID', 'nfsGroupMembers', 'ngmID'],
+        ];
+        foreach ($null as $n2) {
+            list($child, $column, $parent, $pcolumn) = $n2;
+            if (!isset($have[strtolower($child)], $have[strtolower($parent)])) {
+                continue;
+            }
+            self::$DB->query(
+                "UPDATE `$child` `c` "
+                . "LEFT JOIN `$parent` `p` "
+                . "ON `c`.`$column` = `p`.`$pcolumn` "
+                . "SET `c`.`$column` = NULL "
+                . "WHERE `c`.`$column` IS NOT NULL "
+                . "AND `p`.`$pcolumn` IS NULL"
+            );
+            $n = (int) self::$DB->affectedRows();
+            if ($n > 0) {
+                $repaired["$child.$column (nulled)"] = $n;
+            }
+        }
+
+        if (count($repaired) < 1) {
+            return true;
+        }
+
+        $total = 0;
+        foreach ($repaired as $what => $n) {
+            $total += $n;
+            error_log(
+                sprintf('FOG schema 389: repaired %d row(s) in %s', $n, $what)
+            );
+        }
+        Audit::record(
+            [
+                'type' => 'schema.orphan.sweep',
+                'subjectType' => 'schema',
+                'subjectId' => 389,
+                'summary' => sprintf(
+                    _('Repaired %1$d orphaned work row(s) across %2$d column(s)'),
+                    $total,
+                    count($repaired)
+                ),
+                'detail' => json_encode($repaired),
+                'affectedCount' => $total,
+                'renderable' => 1,
+            ]
+        );
+
+        return true;
+    },
+];
+
+// 390
+$this->schema[] = [
+    // ADR 0031 group 6: tasks and the work that hangs off them. The last
+    // core group -- sixteen constraints across six tables, after which every
+    // core relationship the map declares is in the database.
+    //
+    //   CASCADE   tasks.taskHostID -> hosts
+    //             snapinJobs.sjHostID -> hosts
+    //             snapinTasks.stJobID -> snapinJobs
+    //             snapinTasks.stSnapinID -> snapins
+    //             multicastSessionsAssoc.msID -> multicastSessions
+    //             multicastSessionsAssoc.tID -> tasks
+    //   SET NULL  tasks.taskImageID -> images
+    //             tasks.taskNFSGroupID -> nfsGroups
+    //             tasks.taskNFSMemberID -> nfsGroupMembers
+    //             tasks.taskLastMemberID -> nfsGroupMembers
+    //   RESTRICT  tasks.taskStateID -> taskStates
+    //             tasks.taskTypeID -> taskTypes
+    //             snapinJobs.sjStateID -> taskStates
+    //             snapinTasks.stState -> taskStates
+    //             fileDeleteQueue.fdqState -> taskStates
+    //             multicastSessions.msState -> taskStates
+    //
+    // MOSTLY THIS PINS WHAT deletemass() ALREADY DOES. Deleting a host
+    // already deletes its tasks, snapin jobs and snapin tasks; deleting a
+    // snapin already deletes its snapin tasks; deleting an image already
+    // clears taskImageID (it cancels the live tasks and leaves the finished
+    // ones as the host's imaging record). Those seven change nothing
+    // observable and close the non-page paths -- the REST API's DELETE
+    // funnels to deletemass(), but a plugin, a daemon or a hand-run query
+    // does not.
+    //
+    // WHAT IS NEW is the six RESTRICTs on taskStates and taskTypes. Those
+    // are seed rows nobody deletes in normal use; deleting one now fails at
+    // 1451 instead of rendering every task that used it unreadable.
+    //
+    // THE THREE STORAGE REFERENCES ARE SET NULL, NOT RESTRICT, which is a
+    // change from the survey's first pass. They record which storage served
+    // a task, not what the task belongs to. Under RESTRICT one finished task
+    // would pin its storage group or node until retention pruned the task --
+    // months -- so emptying a group would not be enough to let you delete
+    // it. Nullable as of step 386; a task minus its storage reference is
+    // still a complete record of what was imaged onto which host.
+    //
+    // tasks.taskStateID could not be declared honestly until the path that
+    // created a task with no state was fixed. Host::createTasking's
+    // SINGLE_SNAPIN to ALL_SNAPINS conversion set three fields and saved, so
+    // save() filled taskStateID with 0 -- not a taskStates row, so the task
+    // never appeared in Active Tasks and never ran. Fixed in this commit,
+    // and `stateID` added to Task::$databaseFieldsRequired so no future path
+    // can do it silently.
+    //
+    // Preconditions: step 386 made the four nullable columns nullable, and
+    // step 389 repaired the four orphaned rows -- three nulled, one junction
+    // row deleted.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(6);
+
+        return true;
+    },
+];

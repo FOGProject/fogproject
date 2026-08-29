@@ -93,8 +93,9 @@ CASCADE while `tasks.taskStateID` is RESTRICT, and `hosts.hostImage` is SET
 NULL while `scheduledTasks.stImageID` is RESTRICT. A column that holds an id
 and is not in that file is a bug, not an omission.
 
-Current totals: 66 CASCADE, 17 RESTRICT, 6 SET NULL, 16 no constraint
-(`audit` and `poly`).
+Current totals: 66 CASCADE, 14 RESTRICT, 9 SET NULL, 16 no constraint
+(`audit` and `poly`). All 67 core relationships are declared as of schema
+step 390; the remaining 22 belong to plugins and land with them.
 
 "Holds an id" is not the same as "ends in ID". `multicastSessions.msState`
 and `fileDeleteQueue.fdqState` are references to `taskStates` spelled without

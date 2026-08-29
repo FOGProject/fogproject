@@ -236,6 +236,77 @@ check(
     $checks
 );
 
+/*
+ * A THIRD WAY IN, closed with schema step 390: a task written with no state
+ * at all.
+ *
+ * `stateID` was not in Task::$databaseFieldsRequired, so save()'s
+ * optional-*id branch filled an empty one with 0. That is not a taskStates
+ * row, so the task never matched any "is this live" test, never appeared in
+ * Active Tasks, and never ran -- the same unreachable row as above, arriving
+ * by a door the two checks above cannot see, because it is a single save()
+ * rather than a batch and the image is not involved.
+ *
+ * Host::createTasking's SINGLE_SNAPIN to ALL_SNAPINS conversion did exactly
+ * that: it set hostID, name and typeID on a task object the branch above had
+ * just replaced with an empty one, then saved.
+ *
+ * Both halves are pinned. The required-field list is the general fix; the
+ * guard at that call site is what keeps that specific path from throwing
+ * "Required database field" at an administrator instead of working.
+ */
+$task = file_get_contents($root . '/packages/web/src/Items/Task.php');
+$required = '';
+if (preg_match('/\$databaseFieldsRequired = \[.*?\];/s', $task, $m)) {
+    $required = $m[0];
+}
+check(
+    'Task requires stateID -- a task with no state is invisible and unrunnable',
+    false !== strpos($required, "'stateID'"),
+    $failures,
+    $checks
+);
+check(
+    'and still requires typeID and hostID',
+    false !== strpos($required, "'typeID'")
+    && false !== strpos($required, "'hostID'"),
+    $failures,
+    $checks
+);
+
+$host = file_get_contents($root . '/packages/web/src/Items/Host.php');
+$convert = '';
+if (preg_match(
+    "/\\\$Task\s*\n\s*->set\('hostID'.*?Multiple Snapin -- orig Single.*?if \(!\\\$Task->save\(\)\)/s",
+    $host,
+    $m
+)) {
+    $convert = $m[0];
+}
+check(
+    'the snapin conversion path was found',
+    '' !== $convert,
+    $failures,
+    $checks
+);
+check(
+    'and it supplies a stateID before saving',
+    false !== strpos($convert, "->set('stateID', self::getQueuedState())"),
+    $failures,
+    $checks
+);
+/*
+ * Guarded, not unconditional. The same block also runs against an EXISTING
+ * task being converted, and forcing that one back to Queued would restart
+ * work already in progress.
+ */
+check(
+    'only when the task does not already have one',
+    false !== strpos($convert, "if (!\$Task->get('stateID'))"),
+    $failures,
+    $checks
+);
+
 if (count($failures)) {
     fwrite(STDERR, 'FAIL (' . count($failures) . " of $checks):\n");
     foreach ($failures as $f) {

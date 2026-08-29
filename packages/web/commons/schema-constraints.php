@@ -79,8 +79,8 @@ return [
     ['child' => 'printerAssoc', 'column' => 'paPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'moduleStatusByHost', 'column' => 'msHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'moduleStatusByHost', 'column' => 'msModuleID', 'parent' => 'modules', 'pcolumn' => 'id', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
-    ['child' => 'multicastSessionsAssoc', 'column' => 'msID', 'parent' => 'multicastSessions', 'pcolumn' => 'msID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'multicastSessionsAssoc', 'column' => 'tID', 'parent' => 'tasks', 'pcolumn' => 'taskID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
+    ['child' => 'multicastSessionsAssoc', 'column' => 'msID', 'parent' => 'multicastSessions', 'pcolumn' => 'msID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 6],
+    ['child' => 'multicastSessionsAssoc', 'column' => 'tID', 'parent' => 'tasks', 'pcolumn' => 'taskID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 6],
     ['child' => 'siteHostMembers', 'column' => 'shmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
     ['child' => 'siteHostMembers', 'column' => 'shmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
     ['child' => 'siteGroupMembers', 'column' => 'sgmSiteID', 'parent' => 'sites', 'pcolumn' => 'siteID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
@@ -166,26 +166,34 @@ return [
     ['child' => 'fileDeleteQueue', 'column' => 'fdqStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 5],
 
     // ---- work: tasks and jobs -------------------------------------------
-    ['child' => 'tasks', 'column' => 'taskHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'tasks', 'column' => 'taskImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'work', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'tasks', 'column' => 'taskStateID', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'tasks', 'column' => 'taskTypeID', 'parent' => 'taskTypes', 'pcolumn' => 'ttID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'tasks', 'column' => 'taskNFSGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'tasks', 'column' => 'taskNFSMemberID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'tasks', 'column' => 'taskLastMemberID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'snapinJobs', 'column' => 'sjHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'snapinJobs', 'column' => 'sjStateID', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'snapinTasks', 'column' => 'stJobID', 'parent' => 'snapinJobs', 'pcolumn' => 'sjID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'snapinTasks', 'column' => 'stSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'snapinTasks', 'column' => 'stState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
+    ['child' => 'tasks', 'column' => 'taskHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => true, 'group' => 6],
+    ['child' => 'tasks', 'column' => 'taskImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'work', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 6],
+    ['child' => 'tasks', 'column' => 'taskStateID', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 6],
+    ['child' => 'tasks', 'column' => 'taskTypeID', 'parent' => 'taskTypes', 'pcolumn' => 'ttID', 'class' => 'work', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 6],
+    // SET NULL, not RESTRICT, for all three of the storage references
+    // below. They record WHICH storage served a task, not what the task
+    // belongs to -- that is taskHostID. Under RESTRICT a single finished
+    // task would pin its storage group or node until retention pruned the
+    // task, which can be months, so emptying a storage group would not be
+    // enough to let you delete it. All three are nullable as of schema step
+    // 386, and a task that has lost its storage reference is still a
+    // complete record of what was imaged onto which host.
+    ['child' => 'tasks', 'column' => 'taskNFSGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'work', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 6],
+    ['child' => 'tasks', 'column' => 'taskNFSMemberID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'work', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 6],
+    ['child' => 'tasks', 'column' => 'taskLastMemberID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'work', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 6],
+    ['child' => 'snapinJobs', 'column' => 'sjHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => true, 'group' => 6],
+    ['child' => 'snapinJobs', 'column' => 'sjStateID', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 6],
+    ['child' => 'snapinTasks', 'column' => 'stJobID', 'parent' => 'snapinJobs', 'pcolumn' => 'sjID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => true, 'group' => 6],
+    ['child' => 'snapinTasks', 'column' => 'stSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => true, 'group' => 6],
+    ['child' => 'snapinTasks', 'column' => 'stState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 6],
     // Two more references to taskStates that do not end in ID. They were
     // missing from this file until the coverage gate in
     // tests/foreign-key-map.test.php was widened past /ID$/ -- it could not
     // see them, so nothing said they were absent. Both are RESTRICT for the
     // same reason snapinTasks.stState is: a state row someone deleted while
     // work referenced it would leave that work unreadable.
-    ['child' => 'multicastSessions', 'column' => 'msState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'fileDeleteQueue', 'column' => 'fdqState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
+    ['child' => 'multicastSessions', 'column' => 'msState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => true, 'group' => 6],
+    ['child' => 'fileDeleteQueue', 'column' => 'fdqState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 6],
 
     // ---- audit: records of what happened. NO constraint proposed --------
     ['child' => 'taskLog', 'column' => 'taskID', 'parent' => 'tasks', 'pcolumn' => 'taskID', 'class' => 'audit', 'action' => 'none'],

@@ -1522,6 +1522,115 @@ constraints. Three mutations prove the filter — ignoring it turns 2 red,
 collapsing `declared` into `eligible` turns 2 red, filtering the retirement
 drop turns 3 red.
 
+### Steps 389 and 390: group 6, tasks and work — the last core group
+
+`FOG_SCHEMA` 388 → 390. Sixteen constraints across six tables, after a
+four-row repair. With this landed **every core relationship the map declares
+is in the database.**
+
+| Action | Relationship |
+|---|---|
+| CASCADE | `tasks.taskHostID → hosts` |
+| | `snapinJobs.sjHostID → hosts` |
+| | `snapinTasks.stJobID → snapinJobs` |
+| | `snapinTasks.stSnapinID → snapins` |
+| | `multicastSessionsAssoc.msID → multicastSessions` |
+| | `multicastSessionsAssoc.tID → tasks` |
+| SET NULL | `tasks.taskImageID → images` |
+| | `tasks.taskNFSGroupID → nfsGroups` |
+| | `tasks.taskNFSMemberID → nfsGroupMembers` |
+| | `tasks.taskLastMemberID → nfsGroupMembers` |
+| RESTRICT | `tasks.taskStateID → taskStates` |
+| | `tasks.taskTypeID → taskTypes` |
+| | `snapinJobs.sjStateID → taskStates` |
+| | `snapinTasks.stState → taskStates` |
+| | `fileDeleteQueue.fdqState → taskStates` |
+| | `multicastSessions.msState → taskStates` |
+
+**Mostly this pins what `deletemass()` already does.** Deleting a host
+already deletes its tasks, snapin jobs and snapin tasks; deleting a snapin
+already deletes its snapin tasks; deleting an image already clears
+`taskImageID`. Those seven change nothing observable and close the non-page
+paths — the REST API's DELETE funnels to `deletemass()`, but a plugin, a
+daemon or a hand-run query does not.
+
+**What is new is the six RESTRICTs** on `taskStates` and `taskTypes`. Those
+are seed rows nobody deletes in normal use; deleting one now fails at 1451
+instead of rendering every task that used it unreadable.
+
+**The three storage references are SET NULL, not RESTRICT** — another change
+from the survey's first pass, on the same test. They record which storage
+*served* a task, not what the task belongs to; that is `taskHostID`. Under
+RESTRICT one finished task would pin its storage group or node until
+retention pruned the task — months — so emptying a group would not be enough
+to let you delete it. A task minus its storage reference is still a complete
+record of what was imaged onto which host.
+
+**Step 389 repairs four rows, two different ways**, and the asymmetry is the
+point:
+
+```
+multicastSessionsAssoc.msID    1 row   DELETED   junction, no meaning alone
+tasks.taskNFSGroupID           1 row   NULLED    a record, minus a reference
+tasks.taskNFSMemberID          1 row   NULLED
+tasks.taskLastMemberID         1 row   NULLED
+```
+
+The three `tasks` rows are the orphans the original survey found — storage
+group 3 and node 4, deleted at some point before this work began. Deleting
+those tasks to satisfy a reference nobody needs would destroy a host's
+imaging record; the constraint is SET NULL for that reason, so nulling the
+rows that predate it is just applying the same rule to history.
+
+The `multicastSessionsAssoc` row is one **this series created**: step 387
+deletes the multicast session whose storage group was gone, and step 381's
+sweep had already run by then. Swept here rather than by editing 387,
+because 387's audit row records what 387 deleted and rewriting it would make
+that record false.
+
+**A stateless task could be created, and had to be fixed before
+`taskStateID` could be constrained honestly.** `stateID` was not in
+`Task::$databaseFieldsRequired`, so `save()`'s optional-`*id` branch filled
+an empty one with `0` — not a `taskStates` row, so the task matched no "is
+this live" test, never appeared in Active Tasks and never ran.
+`Host::createTasking`'s SINGLE_SNAPIN → ALL_SNAPINS conversion did exactly
+that: three fields on a task object the branch above had just replaced with
+an empty one, then `save()`. It is the same unreachable row the "null tasks"
+forum reports describe, arriving by a third door.
+
+Both halves are fixed and both are pinned in
+`tests/null-tasks-cannot-be-created-or-stranded.test.php`: `stateID` is now
+required on the model, and the conversion site supplies one — *guarded*, so
+an existing task being converted keeps the state it is already in rather
+than restarting. Three mutations, one red each.
+
+**Verified, upgrade from 380 against a clone of the live 1.6 install:**
+
+```
+380  +0        385  +0  (retirement only)     389  +0  (4 rows repaired)
+381  +0        386  +0  (sentinels converted)  390 +16, 0 refused
+382 +14        387  +0  (1 session swept)
+383 +21        388 +11, 1 refused
+384  +4
+                              66 of 67 constraints
+```
+
+Fresh replay: 390 steps, 997 statements, 0 failed, 70 tables, **67 foreign
+keys**.
+
+**Measured, raw SQL, on the upgraded live clone:**
+
+```
+DELETE FROM taskStates WHERE tsID=<in use>
+  ERROR 1451 ... CONSTRAINT `fk_tasks_taskStateID`
+
+DELETE FROM hosts WHERE hostID=48
+  tasks for that host   15 -> 0     cascaded, 0 orphans
+
+DELETE FROM nfsGroupMembers WHERE ngmID=1
+  tasks naming node 1   32 -> 0     set null, 0 orphans
+```
+
 ### Notes on the ordering
 
 - **Step 1 before everything** because five constraints cannot be declared
@@ -1536,6 +1645,10 @@ drop turns 3 red.
   which is a bug report, so the PHP follows immediately. Landing 6 first
   would be equally correct and would avoid the window; the argument for this
   order is that step 5 is what proves the PHP gap is real.
+- **Step 9 (group 6) closes the core map.** Sixteen constraints, mostly
+  pinning `deletemass()`, and it was gated on a PHP bug rather than on data:
+  a task could be saved with no state, so `taskStateID` could not be
+  constrained honestly until that path was fixed.
 - **Steps 7–9 carry every behavior change** and are last. 7 was expected to
   be the risky one: it changes column nullability *and* the PHP that writes
   those columns. It got its own lab run against clones of both real installs

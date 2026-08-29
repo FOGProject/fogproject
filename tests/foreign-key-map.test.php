@@ -298,6 +298,23 @@ $expected = [
     'multicastSessions.msNFSGroupID',
     'multicastSessions.msSenderNode',
     'nfsGroupMembers.ngmGroupID',
+    // Group 6
+    'tasks.taskHostID',
+    'tasks.taskImageID',
+    'tasks.taskStateID',
+    'tasks.taskTypeID',
+    'tasks.taskNFSGroupID',
+    'tasks.taskNFSMemberID',
+    'tasks.taskLastMemberID',
+    'snapinJobs.sjHostID',
+    'snapinJobs.sjStateID',
+    'snapinTasks.stJobID',
+    'snapinTasks.stSnapinID',
+    'snapinTasks.stState',
+    'fileDeleteQueue.fdqState',
+    'multicastSessions.msState',
+    'multicastSessionsAssoc.msID',
+    'multicastSessionsAssoc.tID',
 ];
 $actual = [];
 foreach ($map as $rel) {
