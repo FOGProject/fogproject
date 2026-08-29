@@ -8867,3 +8867,72 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 383
+$this->schema[] = [
+    // ADR 0031 group 2: identity -- users, roles, user groups and sites.
+    //
+    // 21 constraints across 12 tables. Every one CASCADE, and every one on
+    // a table whose rows describe a RELATIONSHIP between two identity
+    // objects rather than an object of its own:
+    //
+    //   siteHostMembers       shmSiteID -> sites,  shmHostID -> hosts
+    //   siteGroupMembers      sgmSiteID -> sites,  sgmGroupID -> groups
+    //   siteUserMembers       sumSiteID -> sites,  sumUserID -> users
+    //   siteUserGroupMembers  sugmSiteID -> sites, sugmUserGroupID -> userGroups
+    //   siteRoleGrants        srgSiteID -> sites,  srgRoleID -> roles
+    //   siteUserGroupGrants   suggSiteID -> sites, suggGroupID -> userGroups
+    //   roleUserAssoc         ruaRoleID -> roles,  ruaUserID -> users
+    //   roleUserGroupAssoc    rugRoleID -> roles,  rugGroupID -> userGroups
+    //   rolePermissions       rpRoleID -> roles
+    //   userGroupMembers      ugmGroupID -> userGroups, ugmUserID -> users
+    //   apiTokens             atUserID -> users
+    //   userAuths             uaUserID -> users
+    //
+    // THIS IS THE GROUP WHERE A LEFTOVER ROW IS AN ACCESS DECISION, which is
+    // why it goes second rather than later. Route::deletemass() already says
+    // so in as many words for the site tables -- a membership row left by a
+    // deleted host can put an unrelated NEW host into that site, and a stale
+    // grant "leaks a whole population" rather than one object. Every one of
+    // those cleanups stays; this makes them true for the paths that never
+    // call deletemass().
+    //
+    // ONE BEHAVIOR ADDITION, and it is the reason this group is worth more
+    // than tidiness: `userAuths` is NOT in deletemass('user')'s list. That
+    // table holds live remember-me credentials -- a selector hash, a
+    // password hash and an expiry -- so deleting a user leaves a working
+    // persistent-login row behind today. It is not directly exploitable:
+    // ProcessLogin verifies the hashes and then requires the User to load
+    // and be valid, so a deleted owner fails closed. What it is exposed to
+    // is id reuse, the same hazard the site cleanup above is written
+    // against: if the id is later handed to a new account, a surviving
+    // cookie authenticates its holder AS that account. deletemass('user')
+    // deletes apiTokens for exactly this reason and records why. This does
+    // for userAuths what that entry does for tokens, and does it in the one
+    // place no call site can skip. No PHP change accompanies it -- a
+    // redundant delete would be a second thing to keep in step with the
+    // first.
+    //
+    // Everything else here PINS what deletemass() already does:
+    // role -> rolePermissions + the two role associations; usergroup ->
+    // userGroupMembers + roleUserGroupAssoc; site -> its four membership
+    // lists; user -> roleUserAssoc, userGroupMembers, apiTokens. Nothing an
+    // admin can observe changes for any of them.
+    //
+    // Preconditions already landed: step 381 swept the orphans (all 21 of
+    // these are CASCADE, so they were in its list) and step 380 fixed the
+    // only type mismatches. Measured on the live 1.6 database, all 21 are
+    // clean -- 0 orphans, no type or collation difference.
+    //
+    // Same mechanism and the same failure policy as step 382: the map in
+    // commons/schema-constraints.php carries the declarations, this flips
+    // its group on, and applyConstraints() reports a refusal rather than
+    // failing the update.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints();
+
+        return true;
+    },
+];

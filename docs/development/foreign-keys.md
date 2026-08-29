@@ -790,7 +790,7 @@ the step contains.
 | 1 | Widen the five mismatched columns — **landed, schema step 380** | 3 | 0 | no | **yes** ×5 | mostly | done |
 | 2 | Orphan sweep, with counts logged — **landed, schema step 381** | 12 | 0 | **yes, destructive** | no | **no** | done |
 | 3 | Host-owned junctions and satellites — **landed, schema step 382** | 10 | 14 | no | no | yes | done |
-| 4 | Identity: users, roles, userGroups, sites | 9 | 22 | no | no | yes | yes |
+| 4 | Identity: users, roles, userGroups, sites — **landed, schema step 383** | 12 | 21 | no | no | yes | done |
 | 5 | Storage: groups, nodes, image/snapin assoc | 6 | 9 | no | no | yes | yes |
 | 6 | `deletemass()` gains `storagegroup`/`storagenode` cases | — | 0 | no | no | yes | yes |
 | 7 | Sentinel `0` → `NULL` + the PHP that writes it | 5 | 0 | **yes** | **yes** ×7 | **no** | **yes** |
@@ -959,6 +959,105 @@ survey — MariaDB 10.5.29 and 11.8.8 both persist it across a clean restart
 and a `SIGKILL`, and have since 10.2.4. The id-reuse hazard the comment
 describes is real on MySQL 5.7 and older and after a restore into a rebuilt
 table, so the cleanup stays; only the mechanism was wrong.
+
+### Step 4 as it landed
+
+`FOG_SCHEMA` 382 → 383. 21 constraints across 12 tables (the sequencing
+table said 9/22; the group is 12/21, taken from the map). All CASCADE.
+
+```
+siteHostMembers       shmSiteID -> sites    shmHostID -> hosts
+siteGroupMembers      sgmSiteID -> sites    sgmGroupID -> groups
+siteUserMembers       sumSiteID -> sites    sumUserID -> users
+siteUserGroupMembers  sugmSiteID -> sites   sugmUserGroupID -> userGroups
+siteRoleGrants        srgSiteID -> sites    srgRoleID -> roles
+siteUserGroupGrants   suggSiteID -> sites   suggGroupID -> userGroups
+roleUserAssoc         ruaRoleID -> roles    ruaUserID -> users
+roleUserGroupAssoc    rugRoleID -> roles    rugGroupID -> userGroups
+rolePermissions       rpRoleID -> roles
+userGroupMembers      ugmGroupID -> userGroups   ugmUserID -> users
+apiTokens             atUserID -> users
+userAuths             uaUserID -> users
+```
+
+**This is the group where a leftover row is an access decision**, which is
+why it goes second rather than later. `Route::deletemass()` already argues it
+for the site tables in its own comments — a membership row left by a deleted
+host can put an unrelated *new* host into that site, and a stale grant "leaks
+a whole population" rather than one object. Those cleanups stay; this makes
+them true for the paths that never call `deletemass()`.
+
+**One behavior addition, and it is what makes this group worth more than
+tidiness.** `userAuths` is **not** in `deletemass('user')`'s list. That table
+holds live remember-me credentials — `uaSelectorHash`, `uaPasswordHash`, an
+expiry — so deleting a user leaves a working persistent-login row behind
+today.
+
+It is not directly exploitable. `ProcessLogin` verifies both hashes and then
+does `new User($userauth->userID)` and requires `isLoggedIn() && isValid()`,
+so a deleted owner fails closed. What it *is* exposed to is **id reuse** —
+the same hazard the site-membership cleanup is written against, and the one
+whose mechanism this branch just corrected. If the id is later handed to a
+new account, a surviving cookie authenticates its holder **as that account**.
+`deletemass('user')` deletes `apiTokens` for exactly this reason and its
+comment says so: *"an orphaned API token is a live way in belonging to an
+account that no longer exists."* This does for `userAuths` what that entry
+does for tokens, in the one place no call site can skip. No PHP change
+accompanies it — a redundant delete would be a second thing to keep in step
+with the first.
+
+Everything else here pins what `deletemass()` already does: role →
+`rolePermissions` + the two role associations; usergroup →
+`userGroupMembers` + `roleUserGroupAssoc`; site → its four membership lists
+and the grant map; user → `roleUserAssoc`, `userGroupMembers`, `apiTokens`.
+
+On the live 1.6 database all 21 are clean — 0 orphans, no type or collation
+difference — and step 381 had already swept the class anyway.
+
+**Behavior, by raw SQL with no PHP in the path:**
+
+```
+DELETE FROM users WHERE uId=110    roles 4->0  groups 1->0  tokens 1->0
+                                   userAuths 1->0  sites 1->0
+DELETE FROM users WHERE uId=111    auditLog row about that user: 1 -> 1
+DELETE FROM roles WHERE rID=1      perms 1->0  users 4->0  siteGrants 1->0
+DELETE FROM sites WHERE siteID=1   users 1->0  hosts 1->0  grants 0->0
+```
+
+### The fresh-install path, exercised for the first time
+
+Worth its own heading because nothing had ever run it.
+`tests/schema-executes.test.php` replays the indexed steps with a plain PDO
+and **skips the closures** — its own output says "32 closure step(s)
+skipped" — so no data migration, and since ADR 0031 no constraint step, had
+ever executed against a database built from scratch. The failure that would
+live there is ordering: a constraint declared before the seed rows it
+validates have landed.
+
+`scripts/background_scripts/replay_schema_fresh.php` runs every step,
+closures included, against an empty database. It gets past
+`DatabaseManager::init()`'s redirect by stamping `schemaVersion` at
+`FOG_SCHEMA` first, which is a lie to the boot gate and to nothing else.
+
+```
+steps 383, statements 990, tolerated 3, FAILED 0
+tables 70, foreign keys 35
+```
+
+And it reports refusals rather than swallowing them, proven by enabling a
+relationship with a known type mismatch (`taskLog.taskStateID`,
+`mediumint(9)` against `int(11)`):
+
+```
+  refused fk_taskLog_taskStateID: ... errno: 150 ...
+```
+
+`FAILED` correctly stays 0 there — a refused constraint is not an update
+failure, by design.
+
+Cost at fleet scale (5,000 hosts): step 383 takes **1.54s** to declare its 21
+constraints, against 4.56s for step 382's 14, because 382 validates the
+56,532-row `moduleStatusByHost` and the identity tables are tens of rows.
 
 Notes on the ordering:
 

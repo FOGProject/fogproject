@@ -217,8 +217,10 @@ foreach ($map as $rel) {
  * is the deliberate act the phasing exists to keep deliberate.
  *
  * Group 1 -- host-owned junctions and satellites, schema step 382.
+ * Group 2 -- identity: users, roles, user groups and sites, schema step 383.
  */
 $expected = [
+    // Group 1
     'groupMembers.gmHostID',
     'groupMembers.gmGroupID',
     'hostMAC.hmHostID',
@@ -233,6 +235,28 @@ $expected = [
     'hostAutoLogOut.haloHostID',
     'powerManagement.pmHostID',
     'greenFog.gfHostID',
+    // Group 2
+    'siteHostMembers.shmSiteID',
+    'siteHostMembers.shmHostID',
+    'siteGroupMembers.sgmSiteID',
+    'siteGroupMembers.sgmGroupID',
+    'siteUserMembers.sumSiteID',
+    'siteUserMembers.sumUserID',
+    'siteUserGroupMembers.sugmSiteID',
+    'siteUserGroupMembers.sugmUserGroupID',
+    'siteRoleGrants.srgSiteID',
+    'siteRoleGrants.srgRoleID',
+    'siteUserGroupGrants.suggSiteID',
+    'siteUserGroupGrants.suggGroupID',
+    'roleUserAssoc.ruaRoleID',
+    'roleUserAssoc.ruaUserID',
+    'roleUserGroupAssoc.rugRoleID',
+    'roleUserGroupAssoc.rugGroupID',
+    'rolePermissions.rpRoleID',
+    'userGroupMembers.ugmGroupID',
+    'userGroupMembers.ugmUserID',
+    'apiTokens.atUserID',
+    'userAuths.uaUserID',
 ];
 $actual = [];
 foreach ($map as $rel) {

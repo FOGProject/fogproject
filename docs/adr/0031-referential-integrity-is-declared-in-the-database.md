@@ -2,10 +2,11 @@
 
 ## Status
 
-accepted -- steps 0 through 3 implemented on `working-1.6`: the machinery,
-schema 380 (column widening), schema 381 (the orphan sweep) and schema 382,
-which declares the first 14 constraints. The remaining 73 still ship
-disabled and land group by group.
+accepted -- steps 0 through 4 implemented on `working-1.6`: the machinery,
+schema 380 (column widening), schema 381 (the orphan sweep), schema 382
+(host-owned junctions and satellites, 14 constraints) and schema 383
+(identity: users, roles, user groups and sites, 21). 35 of 87 declared; the
+remaining 52 still ship disabled and land group by group.
 
 Each group is a map flip **plus an indexed schema step**. That is not
 ceremony: `DatabaseManager::init()` only sends an admin to the updater while
