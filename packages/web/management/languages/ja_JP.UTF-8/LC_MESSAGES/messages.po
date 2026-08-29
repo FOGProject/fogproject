@@ -1412,6 +1412,10 @@ msgid "Capone added!"
 msgstr "スナップインを追加しました！"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "ロケーション"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "スナップインの更新に失敗しました！"
 

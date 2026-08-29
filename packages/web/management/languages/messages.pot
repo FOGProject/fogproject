@@ -1259,6 +1259,9 @@ msgstr ""
 msgid "Capone added!"
 msgstr ""
 
+msgid "Capone schema"
+msgstr ""
+
 msgid "Capone update failed!"
 msgstr ""
 

@@ -1471,6 +1471,10 @@ msgid "Capone added!"
 msgstr "Nom snapin"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "Emplacements"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "mise à jour a échoué Snapin"
 
