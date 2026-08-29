@@ -1086,34 +1086,41 @@ abstract class FOGManagerController extends FOGBase
             return '';
         }
         sort($dates);
-        $from = self::bind(
-            $bindings,
-            $dates[0] . ' 00:00:00',
-            \PDO::PARAM_STR
-        );
+        // BIND ONLY WHAT THE RETURNED CLAUSE NAMES. Every binding created here
+        // is handed to PDO for each of complex()'s three queries, so one the
+        // clause does not mention is not merely wasted -- PDO refuses the
+        // statement with "Invalid parameter number: parameter was not defined"
+        // and the whole list answers 406. 'before' names only the lower bound
+        // and 'after' only the upper, so binding both up front broke exactly
+        // the two conditions this feature exists for, while '=' and 'between'
+        // (which use both) worked. Found against the running server; the first
+        // cut of the gate rendered the bindings into the SQL text and so could
+        // not see it. The gate now also asserts every binding is referenced.
+        $lower = $dates[0] . ' 00:00:00';
         // The exclusive upper bound: midnight starting the day AFTER the last
         // date named. One date makes it that date's own midnight, so "=" is
         // the whole of one day and "after" starts at the next.
-        $until = self::bind(
-            $bindings,
-            self::_sbNextDay($between ? $dates[1] : $dates[0]),
-            \PDO::PARAM_STR
-        );
+        $upper = self::_sbNextDay($between ? $dates[1] : $dates[0]);
         switch ($condition) {
             case '=':
             case 'between':
+                $from = self::bind($bindings, $lower, \PDO::PARAM_STR);
+                $until = self::bind($bindings, $upper, \PDO::PARAM_STR);
                 return "($col >= $from AND $col < $until)";
             case '!=':
             case '!between':
                 // A never-set date is not the date asked about, so it belongs
                 // in the result -- matching what the grid shows, where the
                 // cell is blank rather than absent.
+                $from = self::bind($bindings, $lower, \PDO::PARAM_STR);
+                $until = self::bind($bindings, $upper, \PDO::PARAM_STR);
                 return "($col IS NULL OR $col < $from OR $col >= $until)";
             case '<':
+                $from = self::bind($bindings, $lower, \PDO::PARAM_STR);
                 return "($col >= '$floor' AND $col < $from)";
         }
         // '>', the only condition left: strictly after the whole of that day.
-        return "$col >= $until";
+        return $col . ' >= ' . self::bind($bindings, $upper, \PDO::PARAM_STR);
     }
     /**
      * Is this one of SearchBuilder's 'YYYY-MM-DD' day values?
