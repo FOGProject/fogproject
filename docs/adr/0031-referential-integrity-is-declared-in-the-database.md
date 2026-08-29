@@ -2,11 +2,12 @@
 
 ## Status
 
-proposed
+accepted -- step 0 (the machinery) implemented on `working-1.6`; all 87
+constraints ship disabled and land group by group
 
 The survey behind this, with every number and every measurement, is
 [`docs/development/foreign-keys.md`](../development/foreign-keys.md). Nothing
-has been applied to a schema step. `bin/fk-candidates.php` and
+has been applied to a schema step. `commons/schema-constraints.php` and
 `bin/fk-orphan-scan.php` ship with the proposal so the evidence is
 re-runnable.
 
@@ -68,7 +69,7 @@ a delete and an orphan.
 
 ### 1. Every id-bearing column is classified, and the classification is a file
 
-`bin/fk-candidates.php` lists every column in the schema that holds an id
+`commons/schema-constraints.php` lists every column in the schema that holds an id
 belonging to another table. Each entry names the parent, a class, and the
 **`ON DELETE` action for that specific relationship** — not for its class,
 because the decisions are not uniform within one: `tasks.taskHostID` is
@@ -150,8 +151,15 @@ Two obligations follow, and they land with the first constraint step:
   clauses from the `create` strings it snapshots. A regeneration that bakes
   them in breaks `tests/schema-executes.test.php`'s reconciler database.
 - `SchemaReconciler` gains a constraint pass that runs **after** its table
-  and column passes, tolerating errno 121 (duplicate name) and 150, the same
-  way `$_skiperrs` already tolerates a re-applied `ADD COLUMN`.
+  and column passes, tolerating errno 121 and 1826 (duplicate constraint
+  name), the same way `$_skiperrs` already tolerates a re-applied
+  `ADD COLUMN`.
+
+That pass must not sit behind `reconcile()`'s early return on an empty
+structural plan. An up-to-date database is the normal case, so returning
+there means the constraints never land on almost any server -- silently, with
+`reconcile()` reporting success. This was live for one lab run and is now
+pinned by test.
 
 ### 5. Constraints are named `fk_<childTable>_<childColumn>`
 
@@ -183,7 +191,7 @@ backup and restore are unaffected. That must not be regressed.
 For a core table added from here on:
 
 1. Every column holding another table's id has an entry in
-   `bin/fk-candidates.php` naming child, column, parent, parent column and
+   `commons/schema-constraints.php` naming child, column, parent, parent column and
    class. `audit` and `poly` are answers; absence is not.
 2. Types match the parent exactly — same integer width, same signedness.
    Copy the parent's declaration.
@@ -220,7 +228,7 @@ no sweep is needed on that side.
 A gate test (`tests/foreign-keys-declared.test.php`, to land with step 3)
 reads `commons/schema-expected.php`, finds every column whose name and type
 mark it as holding another table's id, and requires each to appear in
-`bin/fk-candidates.php`. A new table with an unclassified id column fails the
+`commons/schema-constraints.php`. A new table with an unclassified id column fails the
 build; the author's escape is to classify it, including as `audit` or `poly`,
 not to leave it out.
 

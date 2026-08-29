@@ -12,8 +12,9 @@
  * It is a fixture for testing the migration -- does the sweep remove exactly
  * what it should, does ADD CONSTRAINT behave at scale, is the step
  * re-runnable. It is NOT evidence about which orphan classes exist in the
- * wild: orphans invented here are the ones bin/fk-candidates.php already
- * predicts, so finding them would prove nothing. The evidence for the classes
+ * wild: orphans invented here are only the ones
+ * commons/schema-constraints.php already predicts, so finding them would
+ * prove nothing. The evidence for the classes
  * is Route::deletemass()'s switch, which is read, not sampled.
  *
  * So the aging below never writes an orphan directly. It deletes parent rows

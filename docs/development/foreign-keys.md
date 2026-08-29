@@ -2,7 +2,7 @@
 
 Status: **proposal**. Nothing in this document has been applied to a schema
 step. The scanner and the candidate map (`bin/fk-orphan-scan.php`,
-`bin/fk-candidates.php`) are the only code that ships with it.
+`commons/schema-constraints.php`) are the only code that ships with it.
 
 The convention this establishes is
 [ADR 0031](../adr/0031-referential-integrity-is-declared-in-the-database.md).
@@ -661,6 +661,117 @@ Step 2 is a no-op on a first install, which is the common case.
 
 ---
 
+## Step 0 — the machinery (landed)
+
+The reconciler drives the constraints, so steps 3-9 become a flag flip in
+`packages/web/commons/schema-constraints.php` rather than hand-written SQL.
+What that took:
+
+- **The map moved into the deployed tree.** `bin/` is never deployed --
+  `copybacktrunk.sh` rsyncs `packages/web/` only -- so a map the reconciler
+  reads at runtime cannot live there. It is now
+  `packages/web/commons/schema-constraints.php`, beside the manifest it
+  works with, and `bin/fk-orphan-scan.php` and `bin/fk-lab-fixture.php` read
+  it from there so the survey and the migration cannot drift apart.
+- **Each entry gained `enabled`.** That is the phasing. The reconciler
+  ignores anything still false, so flipping a group to `true` *is* the commit
+  that adds it, and the diff for each step is exactly the constraints that
+  step adds. Everything ships disabled today.
+- **`SchemaReconciler::planConstraints()`**, a fourth pass after tables,
+  renames and columns. Pure, like `plan()`, and separate from it so the two
+  kinds of failure stay separable at execution.
+- **`bin/schema-manifest.php` strips `CONSTRAINT ... FOREIGN KEY` out of what
+  it snapshots.** Mutation-proven: with the strip removed, a regeneration
+  from the constrained fixture put FK clauses into 34 tables and 34 of 70
+  creates then failed. With it, 0 and 0.
+
+### A constraint failure is reported, not returned
+
+`reconcile()` returns an error string to abort the update. `ADD CONSTRAINT`
+validates existing rows, so a server holding an orphan this release did not
+anticipate gets 1452 -- and aborting there would strand it on `?node=schema`
+over data that is otherwise intact, with no way out from the browser.
+
+So constraint failures are collected into `constraintFailures()`, logged one
+line each with a pointer to `bin/fk-orphan-scan.php`, and the update
+proceeds. The distinction is real: a missing column breaks the code, a
+missing constraint only means FOG is still relying on `Route::deletemass()`
+alone, which is where it has been for a decade. What is not acceptable is
+silence -- a constraint that can never apply and that nobody is told about is
+worse than one that was never declared.
+
+Proven against a lab database with the first group enabled and the sweep
+deliberately not yet run:
+
+```
+constraints before: 0
+  ... 10 x Schema reconcile: ALTER TABLE ... ADD CONSTRAINT ...
+Schema reconcile: 2 foreign key(s) could not be added.
+                  Run bin/fk-orphan-scan.php to find the rows.
+Schema reconcile: fk_moduleStatusByHost_msHostID: ... 1452 ...
+Schema reconcile: fk_inventory_iHostID: ... 1452 ...
+constraints after:  10
+reconcile returned: true
+```
+
+then, after sweeping the 144 + 1 orphan rows those two named:
+
+```
+constraints before: 10
+constraints after:  12
+reconcile returned: true
+reported failures:  0
+planned:            0
+```
+
+The loop closes and is idempotent: a second run plans nothing.
+
+### The bug that only a real server could find
+
+`reconcile()` returned early when the **structural** plan was empty:
+
+```php
+$plan = self::plan($manifest, $have);
+if (!count($plan ?: [])) {
+    return true;      // <- the constraint pass is below this
+}
+```
+
+An up-to-date database -- missing no table and no column -- is the normal
+case, so on almost every server the constraint pass would never have run,
+`reconcile()` would have returned `true`, and the constraints would simply
+never have appeared. Nothing would have said so.
+
+`planConstraints()` was fully unit-tested and correct throughout; the defect
+was entirely in whether it was reached. It is now pinned by a test that
+drives `reconcile()` through the harness's fake database with a structural
+plan that is genuinely empty, and asserts the `ALTER` was issued --
+reintroducing the early return turns it red.
+
+### What CI gates
+
+`tests/foreign-key-map.test.php` (248 checks) gates the **map**, not the
+constraint list -- gating the constraints would need a live server, and the
+thing that actually gets forgotten is not the constraint but the *decision*.
+Every `*ID` integer column in the manifest that is not its table's primary
+key must be classified; `audit` and `poly` are answers, absence is not. The
+heuristic yields exactly one false positive across all 70 tables
+(`multicastSessions.msSenderPID`, a process id), so the allowlist is one
+named entry rather than a list that could quietly absorb real ones.
+
+It also holds the manifest constraint-free, rejects a real `ON DELETE` on an
+`audit` or `poly` entry, and refuses to let a relationship be enabled while
+its types still differ or its column is still `NOT NULL` with a sentinel.
+
+`tests/foreign-key-reconcile.test.php` (19 checks) gates the pass.
+
+Every assertion in both was proven by mutation -- ignoring `enabled`,
+deriving the action from the class, dropping the already-exists skip,
+dropping the absent-table skip, restoring the early return, letting a FK
+through the generator, giving an audit row an action, adding an unclassified
+id column, and enabling over a type mismatch each turn the suite red with the
+message that names the cause.
+
 ## Sequencing
 
 Nine steps. Each is a separate commit, each leaves the tree green, and each
@@ -709,7 +820,7 @@ Notes on the ordering:
 
 The whole sequence has been run end to end against the aged 5000-host
 fixture, in the order above and using the `ON DELETE` action each
-relationship declares in `bin/fk-candidates.php`:
+relationship declares in `commons/schema-constraints.php`:
 
 ```
 step 1  widen the five mismatched columns

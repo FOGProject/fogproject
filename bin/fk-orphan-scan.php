@@ -1,6 +1,6 @@
 <?php
 /**
- * Counts, for every candidate relationship in bin/fk-candidates.php, the rows
+ * Counts, for every relationship in commons/schema-constraints.php, the rows
  * that would make `ALTER TABLE ... ADD FOREIGN KEY` fail with error 1452.
  *
  * WHY: MySQL validates existing data when a constraint is added. After a
@@ -116,7 +116,7 @@ function colType(\PDO $pdo, string $db, string $table, string $col): ?array
 }
 
 $rows = [];
-$candidates = require __DIR__ . '/fk-candidates.php';
+$candidates = require __DIR__ . '/../packages/web/commons/schema-constraints.php';
 
 foreach ($candidates as $c) {
     $child = $c['child'];

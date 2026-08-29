@@ -3079,6 +3079,12 @@ parameters:
 			path: packages/web/src/Db/PDODB.php
 
 		-
+			message: '#^Path in include\(\) "/commons/schema\-constraints\.php" is not a file or it does not exist\.$#'
+			identifier: include.fileNotFound
+			count: 1
+			path: packages/web/src/Db/SchemaReconciler.php
+
+		-
 			message: '#^Path in include\(\) "/commons/schema\-expected\.php" is not a file or it does not exist\.$#'
 			identifier: include.fileNotFound
 			count: 1
