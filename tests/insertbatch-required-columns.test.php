@@ -24,7 +24,7 @@
  * would be fixing, and one nothing else here would catch.
  *
  * DB-free: this reads the source, like usertracking-permission-split and
- * permission-purge-guard. The behaviour itself is proved against a live
+ * permission-purge-guard. The behavior itself is proved against a live
  * strict server by background_scripts/prove_insertbatch_backfill.php.
  *
  * Usage: php tests/insertbatch-required-columns.test.php

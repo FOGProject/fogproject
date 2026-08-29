@@ -455,9 +455,9 @@ class FOGConfigurationPage extends FOGPage
         echo $this->_box(_('Certificates'), $body, ['color' => 'info']);
     }
     /**
-     * Show the Secure Boot enrolment page.
+     * Show the Secure Boot enrollment page.
      *
-     * Displays the certificate fingerprint and links to the enrolment kit, so
+     * Displays the certificate fingerprint and links to the enrollment kit, so
      * a technician has something to check the key against before trusting it
      * on a machine. Nothing here is secret: the kit contains the public
      * certificate only, which is the thing you are meant to distribute.
@@ -503,7 +503,7 @@ class FOGConfigurationPage extends FOGPage
         // MokManager's own "View key" screen -- the only thing shown when
         // enrolling from the PXE menu, which never runs fog-enroll-mok.sh --
         // prints a SHA-1 fingerprint, not SHA-256. Show both so either
-        // enrolment route has a value on this page to check against.
+        // enrollment route has a value on this page to check against.
         $fingerprintSha1 = strtoupper(
             implode(':', str_split(hash_file('sha1', $certfile), 2))
         );
@@ -518,7 +518,7 @@ class FOGConfigurationPage extends FOGPage
         $body .= '<p><strong>' . _('Certificate SHA-256') . '</strong></p>';
         $body .= '<pre>' . \Initiator::e($fingerprint) . '</pre>';
         $body .= '<p>' . _(
-            'Check this value against what the enrolment tool shows before '
+            'Check this value against what the enrollment tool shows before '
             . 'confirming, whether the certificate reached the client on a '
             . 'USB stick or over the network. That comparison is what stops '
             . 'the wrong key being trusted.'
@@ -530,9 +530,9 @@ class FOGConfigurationPage extends FOGPage
             . 'enrolling from the PXE menu -- that route never runs the '
             . 'script above, so check it against this value instead.'
         ) . '</p>';
-        $body .= '<p><strong>' . _('Enrolment kit') . '</strong></p>';
+        $body .= '<p><strong>' . _('Enrollment kit') . '</strong></p>';
         $body .= '<p>' . _(
-            'For a live-USB enrolment, copy all three files onto a USB '
+            'For a live-USB enrollment, copy all three files onto a USB '
             . 'stick, boot the client from a stock Ubuntu or Debian live '
             . 'image with Secure Boot left ON, and run the launcher. No '
             . 'firmware changes are needed.'
@@ -562,7 +562,7 @@ class FOGConfigurationPage extends FOGPage
         ) . '</p>';
         echo $this->_box(_('Secure Boot'), $body, ['color' => 'info']);
 
-        // Automatic enrolment card, placed above the manual steps because it is
+        // Automatic enrollment card, placed above the manual steps because it is
         // the path that scales: it finishes on the client with nobody at the
         // keyboard. Its one precondition -- Setup Mode -- is a firmware setting
         // an admin has to know to look for, and stating it here is the only
@@ -585,13 +585,13 @@ class FOGConfigurationPage extends FOGPage
             // so on every run, so this points there instead of guessing.
             $auto = '<p>' . _(
                 'This server has not published the automatic Secure Boot '
-                . 'enrolment blobs (PK.auth, KEK.auth and db.auth), so '
-                . 'automatic enrolment is unavailable. There are three '
+                . 'enrollment blobs (PK.auth, KEK.auth and db.auth), so '
+                . 'automatic enrollment is unavailable. There are three '
                 . 'reasons that happens:'
             ) . '</p>';
             $auto .= '<ul>';
             $auto .= '<li>' . _(
-                'Secure Boot enrolment material is switched off for this '
+                'Secure Boot enrollment material is switched off for this '
                 . 'install, or no signing key is configured -- so no platform '
                 . 'keys were minted.'
             ) . '</li>';
@@ -614,10 +614,10 @@ class FOGConfigurationPage extends FOGPage
                 . 'which of the three applied here.'
             ) . '</p>';
             $auto .= '<p>' . _(
-                'The manual enrolment steps below are unaffected.'
+                'The manual enrollment steps below are unaffected.'
             ) . '</p>';
             echo $this->_box(
-                _('Automatic enrolment (Setup/Custom Mode)'),
+                _('Automatic enrollment (Setup/Custom Mode)'),
                 $auto,
                 ['color' => 'warning']
             );
@@ -668,7 +668,7 @@ class FOGConfigurationPage extends FOGPage
                 . 'steps below for those.'
             ) . '</p>';
             echo $this->_box(
-                _('Automatic enrolment (Setup/Custom Mode)'),
+                _('Automatic enrollment (Setup/Custom Mode)'),
                 $auto,
                 ['color' => 'success']
             );
@@ -676,13 +676,13 @@ class FOGConfigurationPage extends FOGPage
 
         // Second card: the actual procedure. The card above answers "is this
         // configured and what is the key", which is the reference half. Full
-        // per-client steps for both enrolment routes live in the linked guide
+        // per-client steps for both enrollment routes live in the linked guide
         // now rather than being duplicated here -- this card is the summary
         // and the gotchas that matter regardless of which route is used.
         $steps = '<p>' . _(
             'Signing is already done on this server. The remaining work is '
             . 'per-client and has to be done by someone at the machine -- that '
-            . 'is what makes enrolment a deliberate act rather than something '
+            . 'is what makes enrollment a deliberate act rather than something '
             . 'a server can do to a client remotely.'
         ) . '</p>';
         $steps .= '<p>' . _(
@@ -692,22 +692,22 @@ class FOGConfigurationPage extends FOGPage
             . 'network on its own, with no USB stick needed.'
         ) . '</p>';
         $steps .= '<p>' . _(
-            'Secure Boot does not need to be enabled on a client to enrol '
+            'Secure Boot does not need to be enabled on a client to enroll '
             . 'its key -- either route works the same way with it off, '
-            . 'which lets you stage enrolment fleet-wide before ever '
+            . 'which lets you stage enrollment fleet-wide before ever '
             . 'turning it on.'
         ) . '</p>';
         $steps .= '<p>' . _(
             'The Enroll Secure Boot task type does all of this for you: '
             . 'schedule it against a host or a group from Task Scheduling '
             . 'and the client boots FOS, which stages the request itself -- '
-            . 'or enrols outright with nothing to confirm, if the machine is '
+            . 'or enrolls outright with nothing to confirm, if the machine is '
             . 'in Setup Mode. The Enroll Secure Boot Key menu item stays for '
             . 'answering a pending request by hand, or for enrolling from '
             . 'local media on a machine FOS cannot boot.'
         ) . '</p>';
         $steps .= '<p>' . _(
-            'Whichever route is used, MokManager -- the blue enrolment '
+            'Whichever route is used, MokManager -- the blue enrollment '
             . 'screen -- has its own timeouts FOG cannot change: it gives '
             . 'up and boots normally if nothing is pressed within about 10 '
             . 'seconds of appearing, and reboots if left idle partway '
@@ -1855,7 +1855,7 @@ class FOGConfigurationPage extends FOGPage
                     'error' => sprintf(
                         _('%s already has a token called "%s". Names have to '
                             . 'be unique per user so a token can be told '
-                            . 'apart from its neighbours when it comes time '
+                            . 'apart from its neighbors when it comes time '
                             . 'to revoke one.'),
                         $user->get('name'),
                         $name
@@ -2790,7 +2790,7 @@ class FOGConfigurationPage extends FOGPage
             // $combined can be empty, so a post that changes nothing left
             // $items undefined -- and the count below reads it, which is a
             // warning rather than a silent 0. `?:` there was papering over
-            // the missing initialisation; `??` would have hidden it too.
+            // the missing initialization; `??` would have hidden it too.
             $items = [];
             foreach ($combined as $key => &$val) {
                 // Resolved into its own variable: $key stays the posted key

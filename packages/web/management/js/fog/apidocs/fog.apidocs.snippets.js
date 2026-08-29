@@ -26,8 +26,8 @@
  * On highlighting: the bundle registers only bash, http, javascript, json,
  * powershell, xml and yaml with highlight.js. An unregistered `syntax` value
  * does not throw -- react-syntax-highlighter falls back to highlightAuto() --
- * so Python is declared honestly as 'python' and gets auto-detected colouring
- * rather than being mislabelled as something that happens to be registered.
+ * so Python is declared honestly as 'python' and gets auto-detected coloring
+ * rather than being mislabeled as something that happens to be registered.
  *
  * The request object handed to a generator is an Immutable Map with `url`,
  * `method`, `headers` and `body`. Nothing here reaches for Immutable itself,
@@ -151,7 +151,7 @@
             }
         }
         // Anything else is already a structure; treat it as the JSON it will
-        // be serialised to.
+        // be serialized to.
         return { kind: 'json', value: body, raw: JSON.stringify(body, null, 2) };
     }
 
@@ -392,7 +392,7 @@
         if (body.kind === 'json') {
             lines.push('payload = ' + pythonValue(body.value, ''));
             lines.push('');
-            // json= rather than data=json.dumps(...): requests serialises it
+            // json= rather than data=json.dumps(...): requests serializes it
             // and the shape stays readable and editable in the snippet.
             args.push('json=payload');
         } else if (body.kind === 'raw') {

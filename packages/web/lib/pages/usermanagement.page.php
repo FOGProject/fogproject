@@ -1364,7 +1364,7 @@ class UserManagement extends FOGPage
      * Issues one API token and returns its plaintext, once.
      *
      * Its own endpoint rather than part of the tab form, for the reasons set
-     * out where the Issue Token button is emitted. Modelled on the Reset
+     * out where the Issue Token button is emitted. Modeled on the Reset
      * Token control beside it, which has always been a direct AJAX call.
      *
      * The plaintext is written to this response and nowhere else -- not the

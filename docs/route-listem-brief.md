@@ -69,12 +69,12 @@ responsibilities. My expectation is that it is several functions wearing a
 trenchcoat: request parsing, permission resolution, scope filtering, query
 building, joining, pagination, sorting, search, field selection, result
 shaping. Confirm or correct that, and say which responsibilities are entangled
-such that they cannot be separated without changing behaviour.
+such that they cannot be separated without changing behavior.
 
 **3. Whether the existing tests are a net or a comfort.**
 `route-filter-fields.test.php`, `route-result-wrappers.test.php`,
 `routed-query-string.test.php` and `openapi-route-coverage.test.php` exist. Do
-they actually pin the behaviour a refactor could break — scope filtering in
+they actually pin the behavior a refactor could break — scope filtering in
 particular — or do they cover the edges and leave the middle open? Answer with
 what they assert, not with a count. If they are not a sufficient net, then
 building one is the first commit and the decomposition is the second.
@@ -108,7 +108,7 @@ Separately from the plan:
 1. **The access-control map**, as its own document. This outlives the refactor.
 2. **The defect list**, with anything that would need a `dev-branch` decision
    split into its own section, severity-rated, no port proposed.
-3. **The decisions that are mine.** Where a fix changes observable behaviour,
+3. **The decisions that are mine.** Where a fix changes observable behavior,
    present the options and their costs rather than picking. Some of what looks
    wrong in a nine-year-old API is load-bearing for somebody.
 4. **The measurement.**
@@ -125,7 +125,7 @@ Ask me questions before planning if the code does not answer something.
 ## One thing I am not asking for
 
 Do not propose splitting `route.class.php` into multiple files as a first step.
-Moving 6,470 lines between files produces an enormous diff that hides behaviour
+Moving 6,470 lines between files produces an enormous diff that hides behavior
 changes inside apparent relocations, and it is exactly the shape of change I
 cannot review. If the end state wants several files, that is the last commit in
 the sequence, not the first.

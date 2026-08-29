@@ -575,7 +575,7 @@ why none of the bundled plugins do.
 
 ### What the failure looks like
 
-A bare core name does not fail quietly. `Initiator::autoload()` recognises it
+A bare core name does not fail quietly. `Initiator::autoload()` recognizes it
 and writes one line before giving up:
 
 ```

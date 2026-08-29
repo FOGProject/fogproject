@@ -182,7 +182,7 @@ class PingHosts extends FOGService
             //
             // getIds() answers [] rather than raising if the read fails, so
             // a failure here skips nothing and every host gets pinged --
-            // which is the old behaviour, and the safe direction to fail in.
+            // which is the old behavior, and the safe direction to fail in.
             $cutoff = self::niceDate()
                 ->modify(sprintf('-%d seconds', (int)static::$zzz))
                 ->format('Y-m-d H:i:s');

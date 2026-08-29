@@ -143,7 +143,7 @@ msgid "%s added. Install it to set up its database."
 msgstr ""
 
 #, php-format
-msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbours when it comes time to revoke one."
+msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
 msgstr ""
 
 #, php-format
@@ -1120,7 +1120,7 @@ msgstr "Integritätseinstellungen"
 msgid "Auto Logout Time"
 msgstr "Standard Logout-Zeit (in Minuten)"
 
-msgid "Automatic enrolment (Setup/Custom Mode)"
+msgid "Automatic enrollment (Setup/Custom Mode)"
 msgstr ""
 
 msgid "BIOS Date"
@@ -1344,10 +1344,11 @@ msgid "Cancel the selected tasks."
 msgstr "Ausgewählte löschen"
 
 #, fuzzy
-msgid "Cancelled"
+msgid "Canceled"
 msgstr "Stornierter Task"
 
-msgid "Cancelled due to new tasking."
+#, fuzzy
+msgid "Canceled due to new tasking."
 msgstr "Abgebrochen aufgrund neuer Aufgabe (Task)"
 
 #, fuzzy
@@ -1522,7 +1523,7 @@ msgstr ""
 msgid "Check the password stored for this node"
 msgstr "Keine FOGPage-Klasse für diesen Knoten gefunden"
 
-msgid "Check this value against what the enrolment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
+msgid "Check this value against what the enrollment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checking for expired checked-in tasks..."
@@ -2438,7 +2439,7 @@ msgstr ""
 msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
 msgstr ""
 
-msgid "Enrolment kit"
+msgid "Enrollment kit"
 msgstr ""
 
 #, fuzzy, php-format
@@ -2958,7 +2959,7 @@ msgstr "FOG Einstellungen"
 msgid "Flush the settings cache"
 msgstr "FOG Einstellungen"
 
-msgid "For a live-USB enrolment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
+msgid "For a live-USB enrollment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
 msgstr ""
 
 msgid "For a network/SMB share use its path, e.g."
@@ -5882,7 +5883,7 @@ msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 msgid "Online"
 msgstr ""
 
-msgid "Only a task in a queued or in-progress state can be cancelled. Naming a resource whose task has already finished -- Complete, Cancelled or Failed -- answers 409 rather than reporting a success it did not perform."
+msgid "Only a task in a queued or in-progress state can be canceled. Naming a resource whose task has already finished -- Complete, Canceled or Failed -- answers 409 rather than reporting a success it did not perform."
 msgstr ""
 
 msgid "Only administrators may use it until the plugin declares a permission for the route."
@@ -6637,7 +6638,7 @@ msgid "Queued Path Deletions"
 msgstr ""
 
 #, fuzzy
-msgid "Queued deletion is not active and cannot be cancelled"
+msgid "Queued deletion is not active and cannot be canceled"
 msgstr "Snapin ist geschützt und kann nicht gelöscht werden"
 
 msgid "RESOURCES"
@@ -7149,14 +7150,14 @@ msgstr ""
 msgid "Secure Boot ON"
 msgstr ""
 
-msgid "Secure Boot does not need to be enabled on a client to enrol its key -- either route works the same way with it off, which lets you stage enrolment fleet-wide before ever turning it on."
+msgid "Secure Boot does not need to be enabled on a client to enroll its key -- either route works the same way with it off, which lets you stage enrollment fleet-wide before ever turning it on."
 msgstr ""
 
 #, fuzzy
 msgid "Secure Boot enrollment date is not a valid date"
 msgstr "Es gibt keine Images auf diesem Server."
 
-msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
+msgid "Secure Boot enrollment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
 msgstr ""
 
 #, fuzzy
@@ -7186,7 +7187,7 @@ msgid "Selectable on"
 msgstr "Wählen Sie einen Crontyp"
 
 #, fuzzy
-msgid "Selected tasks cancelled!"
+msgid "Selected tasks canceled!"
 msgstr "geplante Tasks wurde erfolgreich erstellt"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
@@ -7301,7 +7302,7 @@ msgid "Session with that name already exists!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden."
 
 #, fuzzy
-msgid "Sessions cancelled!"
+msgid "Sessions canceled!"
 msgstr "geplante Tasks wurde erfolgreich erstellt"
 
 msgid "Set Printer as Default for Hosts"
@@ -7406,7 +7407,7 @@ msgstr "Laden fehlgeschlagen: %s"
 msgid "Signed in as %s."
 msgstr ""
 
-msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrolment a deliberate act rather than something a server can do to a client remotely."
+msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrollment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
 #, fuzzy
@@ -8315,7 +8316,7 @@ msgid "Task finished"
 msgstr "Task gestartet"
 
 #, fuzzy
-msgid "Task is not active and cannot be cancelled"
+msgid "Task is not active and cannot be canceled"
 msgstr "Image ist geschützt und kann nicht gelöscht werden"
 
 msgid "Task not created as there are no associated Tasks"
@@ -8431,7 +8432,7 @@ msgstr "Es gibt keine Gruppen auf diesem Server."
 msgid "The CA private key is on this server"
 msgstr "Es gibt keine Gruppen auf diesem Server."
 
-msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrols outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
+msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrolls outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
 #, fuzzy
@@ -8583,7 +8584,7 @@ msgstr ""
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
 msgstr ""
 
-msgid "The manual enrolment steps below are unaffected."
+msgid "The manual enrollment steps below are unaffected."
 msgstr ""
 
 msgid "The node did not answer on the network"
@@ -8871,7 +8872,7 @@ msgstr ""
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
-msgid "This server has not published the automatic Secure Boot enrolment blobs (PK.auth, KEK.auth and db.auth), so automatic enrolment is unavailable. There are three reasons that happens:"
+msgid "This server has not published the automatic Secure Boot enrollment blobs (PK.auth, KEK.auth and db.auth), so automatic enrollment is unavailable. There are three reasons that happens:"
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -9682,7 +9683,7 @@ msgstr "Wo bekomme ich Hilfe?"
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
 msgstr ""
 
-msgid "Whichever route is used, MokManager -- the blue enrolment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
+msgid "Whichever route is used, MokManager -- the blue enrollment screen -- has its own timeouts FOG cannot change: it gives up and boots normally if nothing is pressed within about 10 seconds of appearing, and reboots if left idle partway through for a few minutes. Be at the console before starting."
 msgstr ""
 
 msgid "Who"
@@ -9945,7 +9946,7 @@ msgid "confirm"
 msgstr "Bestätige Task"
 
 #, fuzzy
-msgid "could not be cancelled"
+msgid "could not be canceled"
 msgstr "wurde abgebrochen"
 
 #, fuzzy
@@ -10009,7 +10010,7 @@ msgid "every column on this table will be treated as untyped"
 msgstr ""
 
 #, php-format
-msgid "exited abnormally with code %d; cancelling task"
+msgid "exited abnormally with code %d; canceling task"
 msgstr ""
 
 #, fuzzy
@@ -10071,7 +10072,7 @@ msgid "group claim"
 msgstr "Gruppenname"
 
 #, fuzzy
-msgid "has been cancelled"
+msgid "has been canceled"
 msgstr "wurde abgebrochen"
 
 #, fuzzy
@@ -10253,7 +10254,7 @@ msgid "is not currently online"
 msgstr ""
 
 #, fuzzy
-msgid "is now cancelled"
+msgid "is now canceled"
 msgstr "wurde abgebrochen"
 
 #, fuzzy

@@ -50,7 +50,7 @@ independently before relying on it; if any is wrong, say so.
 checks** (`eventmanager.class.php:218-225`). `HookManager extends EventManager`,
 so a HookManager satisfies both branches. The correct file extension and
 directory are reached only because the second assignment overwrites the first.
-Reordering the two blocks changes behaviour.
+Reordering the two blocks changes behavior.
 
 **2. Whether a class is active is decided by a regular expression run over the
 file's source text**, line by line (`eventmanager.class.php:248-252`), matching
@@ -73,7 +73,7 @@ total registration failure once during the namespace migration.
 **5. `notify()` treats "no listeners registered" as an exception**
 (`eventmanager.class.php:175-177`) that is caught, logged, and returns false.
 `processEvent()` handles the same condition with a bare `return`
-(`hookmanager.class.php:89-91`). Same situation, two behaviours, one of which
+(`hookmanager.class.php:89-91`). Same situation, two behaviors, one of which
 writes a log line on what is probably the common case.
 
 **6. `processEvent()` force-activates any listener whose file path contains the
@@ -99,8 +99,8 @@ embedded in the payload; `notify()` calls `onEvent()` and discards the result.
 shapes of listener are actually passed, what payloads are actually mutated. The
 contract is what the callers do, not what the docblocks say.
 
-**Characterize current behaviour before changing it.** Write tests that pin what
-happens today, including the parts that are wrong. Then a behaviour change shows
+**Characterize current behavior before changing it.** Write tests that pin what
+happens today, including the parts that are wrong. Then a behavior change shows
 up as a test that has to be edited, deliberately, rather than as a silent
 difference.
 
@@ -137,7 +137,7 @@ Plus, and separately from the plan:
 1. **The defect list as you found it**, including anything above that turns out
    to be wrong or that you found and I did not.
 2. **The decisions that are mine, not yours.** Where fixing a defect would
-   change behaviour something might rely on, do not pick. Present the options
+   change behavior something might rely on, do not pick. Present the options
    and what each costs. Bugs that are load-bearing for somebody are not
    automatically bugs to fix.
 3. **The measurement**, per goal 3 above.

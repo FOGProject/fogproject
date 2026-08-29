@@ -575,7 +575,7 @@ class SiteManagement extends FOGPage
         // as an object; "Granted To User Groups" puts its members in scope
         // for it. Same picker, same list of names, and mixing them into one
         // row of tabs is how somebody grants a site while meaning to
-        // catalogue one.
+        // catalog one.
         $tabData[] = [
             'tabs' => [
                 'name' => _('Granted To'),

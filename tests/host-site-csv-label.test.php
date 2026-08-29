@@ -25,7 +25,7 @@
  *      'addSite' would find no such field and silently export nothing.
  *
  * Source-level: the config is built by a static on a class whose file
- * pulls in the whole FOG hierarchy, and the behaviour under test needs a
+ * pulls in the whole FOG hierarchy, and the behavior under test needs a
  * database. Live proof is
  * ~/scripts/background_scripts/verify_host_site_csv.php, which runs the
  * round trip against a real install.

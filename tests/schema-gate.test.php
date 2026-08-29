@@ -16,7 +16,7 @@
  * world, which is a thing you find out about months later from a bug report.
  *
  * This is not a hypothetical failure. 18edea94f appended the element
- * labelled 330 (task type 26) and left FOG_SCHEMA at 329, so that step
+ * labeled 330 (task type 26) and left FOG_SCHEMA at 329, so that step
  * reached no install until the bump alongside this test. The comment on the
  * constant at the time said it had "drifted well above" the element count
  * and that nothing required the two to agree, which is exactly the kind of
@@ -56,7 +56,7 @@
  *     while the label counts as a new one. That is exactly what happened
  *     with `// 347` on 2026-08-21, and it broke three lab servers.
  *
- * Together they close it: you cannot append without labelling, and you cannot
+ * Together they close it: you cannot append without labeling, and you cannot
  * label without appending.
  *
  * Counting the array for real was rejected here, on the grounds that
@@ -71,7 +71,7 @@
  *
  * This test stays as it is, because the two fail on different things. A real
  * count is label-independent and catches shapes the text cannot see; these
- * checks cover the LABEL hygiene a count cannot -- an unlabelled append, or a
+ * checks cover the LABEL hygiene a count cannot -- an unlabeled append, or a
  * label with no append -- and they are what keeps the file's own numbering
  * meaning what it says. Neither subsumes the other.
  *
@@ -116,7 +116,7 @@ if (!count($labels[1])) {
 $highest = max(array_map('intval', $labels[1]));
 
 /*
- * No unlabelled appends. Every top-level `$this->schema[] =` must have a
+ * No unlabeled appends. Every top-level `$this->schema[] =` must have a
  * `// N` line somewhere between it and the append before it -- true of all
  * 296 of them today, and the thing that lets the highest label stand in for
  * the element count.
@@ -136,7 +136,7 @@ $highest = max(array_map('intval', $labels[1]));
  * here.
  */
 $lines = preg_split('/\r?\n/', $schemaSrc);
-$unlabelled = [];
+$unlabeled = [];
 $seenLabel = false;
 foreach ($lines as $i => $line) {
     if (preg_match('/^\/\/ \d+(?:\D.*)?$/', $line)) {
@@ -148,7 +148,7 @@ foreach ($lines as $i => $line) {
     }
     if (!$seenLabel) {
         // Reported 1-indexed, to match what an editor shows.
-        $unlabelled[] = $i + 1;
+        $unlabeled[] = $i + 1;
     }
     $seenLabel = false;
 }
@@ -205,13 +205,13 @@ if (count($emptyLabels)) {
     exit(1);
 }
 
-if (count($unlabelled)) {
+if (count($unlabeled)) {
     fwrite(
         STDERR,
-        'FAIL: ' . count($unlabelled) . " append(s) in commons/schema.php\n"
+        'FAIL: ' . count($unlabeled) . " append(s) in commons/schema.php\n"
         . "  carry no `// N` step label, at line(s) "
-        . implode(', ', $unlabelled) . ".\n"
-        . "  An unlabelled element does not raise the highest label, so the\n"
+        . implode(', ', $unlabeled) . ".\n"
+        . "  An unlabeled element does not raise the highest label, so the\n"
         . "  FOG_SCHEMA check below would still pass while that element sat\n"
         . "  above the gate and applied to nobody. Put the step's number on\n"
         . "  a line of its own above the append, as every other step does,\n"
@@ -259,7 +259,7 @@ $schema = (int)$const[1];
  * spot with no symptom: append your closures inside the previous step's array
  * and label them `    // 369`, and every check here still passes. The highest
  * column-zero label has not moved, so FOG_SCHEMA already matches it; there is
- * no unlabelled append, because there is no append at all.
+ * no unlabeled append, because there is no append at all.
  *
  * What you get is a migration that runs on a FRESH install -- the containing
  * step still executes, so CI is green on every engine -- and never runs on an

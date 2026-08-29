@@ -265,7 +265,7 @@ if (null === $body) {
             . ' lockout';
     }
     if (false === strpos($body, "\$loginRedirect='';")) {
-        $fails[] = 'index.php no longer initialises $loginRedirect, so an'
+        $fails[] = 'index.php no longer initializes $loginRedirect, so an'
             . ' install with no listener redirects on whatever was left in'
             . ' scope';
     }

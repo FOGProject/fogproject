@@ -654,7 +654,7 @@ class Ping
             $gotSeq = self::echoReplySeq($buf, $raw, $id);
             if (null === $gotSeq || !isset($seqOf[$gotSeq])) {
                 // Not ours, or a duplicate. Keep waiting -- the deadline is
-                // what ends this loop, not the first unrecognised packet.
+                // what ends this loop, not the first unrecognized packet.
                 continue;
             }
             $results[$seqOf[$gotSeq]] = true;

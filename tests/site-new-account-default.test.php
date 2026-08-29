@@ -30,7 +30,7 @@
  * would see every site. That is an access-control default, not a tidiness
  * preference.
  *
- * DB-free: reads the source. The behaviour of the SiteScope helpers these
+ * DB-free: reads the source. The behavior of the SiteScope helpers these
  * call is covered against a fake database in site-scope.test.php.
  *
  * Usage: php tests/site-new-account-default.test.php

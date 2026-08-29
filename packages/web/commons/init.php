@@ -115,7 +115,7 @@ class Initiator
         // being assumed. It is a bare define-only file precisely so it can be
         // pulled in here -- before the autoloader exists. Absent on a pre-850
         // install or a hand-copied web tree, in which case the /opt/fog
-        // fallback below keeps the previous behaviour.
+        // fallback below keeps the previous behavior.
         $fogPaths = __DIR__ . DS . 'fogpaths.php';
         if (is_readable($fogPaths)) {
             require_once $fogPaths;
@@ -316,7 +316,7 @@ class Initiator
         }
         // A directory we cannot write is worse than the shared one: every
         // session_start() would fail and nobody could log in at all. Fall back
-        // to PHP's configured path, which is exactly today's behaviour, and say
+        // to PHP's configured path, which is exactly today's behavior, and say
         // why -- a silent fallback here would look identical to the bug being
         // fixed.
         if (!is_dir(FOG_SESSION_DIR) || !is_writable(FOG_SESSION_DIR)) {
@@ -799,7 +799,7 @@ class Initiator
      * Namespace prefixes and classmap entries both, because a package can be
      * autoloaded either way -- PSR-4 for the normal case, a classmap for one
      * that predates it. `optimize-autoloader` adds a classmap without
-     * dropping the prefixes, so an optimised tree is caught by either.
+     * dropping the prefixes, so an optimized tree is caught by either.
      *
      * @param \Composer\Autoload\ClassLoader $loader The loader to inspect.
      *
@@ -883,7 +883,7 @@ class Initiator
      * replace core's Authorization on some installs and not others.
      *
      * Core winning makes the two plugin roots behave the same way, which is
-     * the behaviour the external-plugin case already had, and it is the only
+     * the behavior the external-plugin case already had, and it is the only
      * safe direction: a plugin must never be able to shadow a core class by
      * naming a file after it. Verified against the shipped tree at the time
      * of writing -- 396 scanned files, zero colliding basenames -- so this

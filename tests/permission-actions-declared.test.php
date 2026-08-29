@@ -45,7 +45,7 @@
  * The page surface is not covered here and does not need to be: its only
  * undeclared resolutions are POSTs to a read-only page's renderer (activity,
  * audit and task index), which are not operations -- _subToAction() falls
- * through to 'edit' for any POST it does not recognise, and refusing those is
+ * through to 'edit' for any POST it does not recognize, and refusing those is
  * the point rather than a regression.
  *
  * Usage: php tests/permission-actions-declared.test.php

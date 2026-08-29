@@ -44,7 +44,7 @@ class SnapinTaskManager extends FOGManagerController
             'id' => (array)$snapintaskids
         ];
         /**
-         * Get our cancelled state id
+         * Get our canceled state id
          */
         $cancelled = self::getCancelledState();
         /**
@@ -63,7 +63,7 @@ class SnapinTaskManager extends FOGManagerController
             (array) self::getProgressState()
         );
         /**
-         * Update our entry to be cancelled
+         * Update our entry to be canceled
          */
         $this->update(
             $findWhere,
@@ -76,7 +76,7 @@ class SnapinTaskManager extends FOGManagerController
         $hostTasksToCancel = [];
         /**
          * Iterate our jobID's to find out if
-         * the job needs to be cancelled or not
+         * the job needs to be canceled or not
          */
         foreach ((array)$snapinJobIDs as $i => &$jobID) {
             /**

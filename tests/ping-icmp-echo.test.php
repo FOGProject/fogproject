@@ -157,7 +157,7 @@ check(
 );
 
 // Identifier and sequence are 16-bit fields. A caller handing over a larger
-// int must not corrupt the neighbouring field. Note that pack('n') truncates
+// int must not corrupt the neighboring field. Note that pack('n') truncates
 // to 16 bits by itself, so REMOVING the explicit mask in echoPacket() is an
 // equivalent mutation and these checks will not catch it -- what they pin is
 // that the value round-trips, which is what reply matching depends on. A

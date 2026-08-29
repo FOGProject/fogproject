@@ -271,7 +271,7 @@ if [[ -z $autoYes ]]; then
     case $confirmGo in
         [Yy] | [Yy][Ee][Ss]) ;;
         *)
-            echo " * Update cancelled."
+            echo " * Update canceled."
             exit 0
             ;;
     esac

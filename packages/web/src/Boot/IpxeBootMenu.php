@@ -153,7 +153,7 @@ class IpxeBootMenu extends BootMenuBase
      * 'warn' is set only when the client named an architecture FOG ships no
      * FOS kernel for. An ABSENT arch is not that -- plenty of internal
      * chains post no arch at all -- so it resolves to x86_64 silently, the
-     * behaviour that has always been in place.
+     * behavior that has always been in place.
      *
      * @return array the profile for this request
      */
@@ -321,7 +321,7 @@ class IpxeBootMenu extends BootMenuBase
                     // been emitted rather than "corrected" to match the x86
                     // spelling: which one grub_aa64.exe accepts is a property
                     // of that binary, and changing it here would be a silent
-                    // behaviour change on the one path that cannot be tested
+                    // behavior change on the one path that cannot be tested
                     // from an x86 machine.
                     'grubConfigFlag' => '--configfile',
                     'refindBinary' => 'refind_aa64.efi',
@@ -646,7 +646,7 @@ class IpxeBootMenu extends BootMenuBase
          * to default to refind_efi instead, because iPXE's sanboot could not then
          * boot the next UEFI boot entry and leaving FOG meant chainloading rEFInd
          * over HTTP to do it. It can now, so the third-party boot manager buys
-         * nothing -- see the migration labelled 337 in commons/schema.php.
+         * nothing -- see the migration labeled 337 in commons/schema.php.
          * reset console to detected display resolution first to avoid graphical anamolies
          * --drive 0 will boot the first drive found with an efi boot file at the default file path of \EFI\Boot\bootx64.efi (side note, removable install media is found before local disks)
          * could add additional linux detections per distro like `sanboot --drive 0 --no-describe --extra \EFI\rocky` and EFI\centos and EFI\debian etc. but need an || entry for every distro.
@@ -714,7 +714,7 @@ class IpxeBootMenu extends BootMenuBase
          * literal '/fog/', so every boot URL handed to iPXE ignored the setting
          * -- this is why a custom webroot broke PXE booting (GH-502).
          *
-         * Normalise instead of trusting the stored form: the value has been
+         * Normalize instead of trusting the stored form: the value has been
          * written by the installer, by hand in FOG Settings, and by older
          * versions, so it turns up with and without either slash. $curroot is
          * the path form ('/fog/') used to build absolute URLs; $bootroot is the
@@ -2233,7 +2233,7 @@ class IpxeBootMenu extends BootMenuBase
         // id 14 already, the seeding INSERT was silently ignored (INSERT
         // IGNORE against a taken primary key does nothing), and the item never
         // appeared -- while a fresh install got it every time. Worse in the
-        // other direction: keying the behaviour on the id meant that site's
+        // other direction: keying the behavior on the id meant that site's
         // OWN custom entry would have started chaining to MokManager.
         //
         // Matching on the name removes the id from the contract entirely, so
@@ -2287,7 +2287,7 @@ class IpxeBootMenu extends BootMenuBase
      * _filterMenus() normally keeps the menu entry off an ARM screen
      * entirely, so the refusal is only reached by a scheduled memtest task
      * (which is created server-side, where the host's architecture is not
-     * knowable) or by a site that pointed a custom entry at this behaviour.
+     * knowable) or by a site that pointed a custom entry at this behavior.
      *
      * @param string $onFail what to append when the boot fails or is refused
      *
@@ -2379,7 +2379,7 @@ class IpxeBootMenu extends BootMenuBase
             'echo FAT-formatted USB stick in this machine instead.',
             'sleep 8',
             "chain -ar $mmTarget || "
-            . "echo Could not load the Secure Boot enrolment menu. && "
+            . "echo Could not load the Secure Boot enrollment menu. && "
             . "sleep 5 && goto MENU"
         ];
     }
@@ -2405,7 +2405,7 @@ class IpxeBootMenu extends BootMenuBase
         /**
          * "Enroll Secure Boot Key (MOK attended setup)" and its unattended
          * sibling are both meaningless on a legacy BIOS boot: there is no
-         * UEFI variable store to enrol into, so every route out of them --
+         * UEFI variable store to enroll into, so every route out of them --
          * MokManager, and the FOS task behind mode=enrollsb -- can only
          * fail. Both carry pxeRegOnly=2 so a technician never has to
          * repoint a client's boot file to reach them, and that "always
@@ -2437,7 +2437,7 @@ class IpxeBootMenu extends BootMenuBase
             $hide[] = 'fog.enrollsecurebootunattended';
         }
         /**
-         * The unattended enrol (mode=enrollsb) only auto-enrols when
+         * The unattended enroll (mode=enrollsb) only auto-enrolls when
          * PK.auth, KEK.auth and db.auth all exist in service/secureboot/ --
          * fog-build-sb-authvars' output, the same directory MOK.der already
          * lives in. Without all three the task type itself has nothing
@@ -2460,7 +2460,7 @@ class IpxeBootMenu extends BootMenuBase
          * here rather than refused inside _menuOpt() for the same reason
          * the Secure Boot items are: an option that cannot work should not
          * be on the menu. _menuOpt() keeps its own guard for the case where
-         * a site has pointed a custom entry at the same behaviour.
+         * a site has pointed a custom entry at the same behavior.
          */
         if (!self::_arch()['memdisk']) {
             $hide[] = 'fog.memtest';

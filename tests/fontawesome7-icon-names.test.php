@@ -468,7 +468,7 @@ if (false !== $from && false !== $to && $to > $from) {
 
     // The glyph beside each name has to be a character. The previous code
     // emitted `&#xf02b` with no trailing semicolon and then html-escaped it,
-    // so htmlspecialchars could not recognise it as an entity even with
+    // so htmlspecialchars could not recognize it as an entity even with
     // double_encode off and every row rendered the literal text.
     $t->check(
         'the picker renders glyphs, not escaped entity text',

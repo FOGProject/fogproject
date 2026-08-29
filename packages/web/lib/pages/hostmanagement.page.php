@@ -4689,7 +4689,7 @@ class HostManagement extends FOGPage
             );
 
             // $buttons is echoed below, after the rendered fields. It was
-            // passed here by reference while being neither initialised nor
+            // passed here by reference while being neither initialized nor
             // rendered, so the argument this hook advertises did nothing and
             // said nothing. Empty by default -- the modal's own Create button
             // lives in its static footer, not in this fragment.

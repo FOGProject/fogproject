@@ -6,7 +6,7 @@
  * Core is addressed by string in ~440 places -- ~380 `getClass('Literal')`
  * calls, FOGController::getManager()'s `new $short.'Manager'`, and all of
  * Route::$validClasses, which spells its entries in lowercase. None of that
- * is visible to a static analyser or to a compiler: it resolves at runtime,
+ * is visible to a static analyzer or to a compiler: it resolves at runtime,
  * from the global namespace, ignoring `use` imports entirely.
  *
  * Every file under packages/web/src/ USED to end in a class_alias()
@@ -18,7 +18,7 @@
  *
  * That makes this test load-bearing rather than transitional. A rename under
  * src/ that misses a string call site cannot fail to compile and cannot be
- * caught by PHPStan -- phpstan.neon analyses this tree and is blind to all
+ * caught by PHPStan -- phpstan.neon analyzes this tree and is blind to all
  * of it. It fails here or it fails in production.
  *
  * Usage: php tests/getclass-resolves-without-aliases.test.php

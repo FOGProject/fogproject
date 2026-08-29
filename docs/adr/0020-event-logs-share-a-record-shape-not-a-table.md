@@ -6,7 +6,7 @@ accepted -- all five phases of the Migration section are implemented on
 `working-1.6`
 
 Phases 0 and 1 are the ones the ADR marks as worth doing whatever happens to
-the rest, and neither touches the database or changes behaviour: phase 0 was two
+the rest, and neither touches the database or changes behavior: phase 0 was two
 live defects found while writing this (`UserTrack::json()` setting a key no
 model declares, and the list formatter falling out of its switch into a blank
 cell), and phase 1 writes the convention down -- the six frame keys are
@@ -80,7 +80,7 @@ alternative that reads as equivalent and is not:
   The activity viewer's detail pane shows the stored line whenever it differs
   from the summary, which is exactly the failure rows and nothing else.
 - **Legacy rows are not parsed.** A row with no type, a `TYPE_LOG` row, a row
-  with no subject id and a type nothing recognises all fall back to the stored
+  with no subject id and a type nothing recognizes all fall back to the stored
   prose verbatim. See "The old `history` rows" below for why parsing them was
   rejected.
 
@@ -239,7 +239,7 @@ answer in three ways, and each of the three changes what should be built.
 
 The column names really are three vocabularies. But `FOGController` does not
 address columns; it addresses *friendly keys*, and `save()` gives two of those
-keys behaviour that no other key has:
+keys behavior that no other key has:
 
 ```php
 // fogcontroller.class.php:762
@@ -626,7 +626,7 @@ adding nullable or `DEFAULT ''` columns only:
 - `userTracking`: `utCreatedBy`, `utIP`, `utHostName`.
 - `history`: `hType`, `hSubjectType`, `hSubjectID`, `hSubjectLabel`.
 
-An install that stops here is unchanged in behaviour. This is the only phase
+An install that stops here is unchanged in behavior. This is the only phase
 that touches `ALTER TABLE`, and it is the reversible half of the DDL.
 
 **Phase 3 — writers fill them; readers still read the old columns.** Two
@@ -730,9 +730,9 @@ third-party plugin reading them — a rewrite, in exchange for a table whose row
 are mostly `NULL`.
 
 **A shared base class (`EventController extends FOGController`).** Rejected as
-premature rather than wrong. The only behaviour to share is the frame's
+premature rather than wrong. The only behavior to share is the frame's
 defaults, and `save()` already implements the two that exist. A base class
-becomes worth it when there is behaviour to put in it — append-only
+becomes worth it when there is behavior to put in it — append-only
 enforcement, retention, the deletion policy of Decision 4. That is the audit
 ADR's decision to make, with three tables already conforming; taking it now
 sets the shape of a class before knowing what goes in it.

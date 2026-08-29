@@ -4,7 +4,7 @@
 #
 # The convention these tests already follow -- standalone scripts, exit 0 for
 # pass and non-zero for fail, no framework and no database (docs/adr/0008
-# -secure-boot-enrolment-task-type.md:103,144) -- was documented but had no
+# -secure-boot-enrollment-task-type.md:103,144) -- was documented but had no
 # runner, so "the test suite passes" meant a human remembering four commands.
 # That is the same reason .githooks/lib/update-language.sh exists: one copy of
 # the invocation, so the hook, CI and a developer all run the identical thing.

@@ -175,7 +175,7 @@ if (preg_match('#preg_match\s*\(\s*\'\#\^https\?://\#i\'\s*,\s*\$logoutRedirect\
 if (preg_match('#function\s+redirect\s*\(\s*\$url\s*=\s*\'\'\s*,\s*\$status\s*=\s*308\s*\)#', $baseSrc)) {
     ok('FOGCore::redirect() still defaults to 308');
 } else {
-    bad('FOGCore::redirect() no longer defaults to 308 -- every existing caller changes behaviour');
+    bad('FOGCore::redirect() no longer defaults to 308 -- every existing caller changes behavior');
 }
 if (preg_match('#in_array\s*\(\s*\$status\s*,\s*\[\s*301\s*,\s*302\s*,\s*303\s*,\s*307\s*,\s*308\s*\]\s*,\s*true\s*\)#', $baseSrc)) {
     ok('FOGCore::redirect() rejects a status that is not a redirect');

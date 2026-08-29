@@ -4,7 +4,7 @@
  * Secure Boot Key (Unattended...)", mode=enrollsb): it must stay hidden on
  * non-EFI platforms exactly like pxeID 14, and must additionally stay
  * hidden unless PK.auth/KEK.auth/db.auth all exist in service/secureboot/
- * -- without them mode=enrollsb's auto-enrol path has nothing valid to
+ * -- without them mode=enrollsb's auto-enroll path has nothing valid to
  * write.
  *
  * Static source check (no DB, no server) -- IpxeBootMenu needs the full FOG

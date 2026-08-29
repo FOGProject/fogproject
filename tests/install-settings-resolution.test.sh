@@ -110,7 +110,7 @@ is "${WEB_url_proto}|${BOOT_url_proto}|${PKI_web_cert_publicly_trusted}|${BOOT_r
 # --- the mode is answered ONCE ------------------------------------------------
 #
 # promptInstallMode() used to key only on the run-scoped s* shadows, so every
-# interactive upgrade got the four-mode menu again -- and any unrecognised reply
+# interactive upgrade got the four-mode menu again -- and any unrecognized reply
 # INCLUDING A BARE ENTER takes the `standard` default, which _applyInstallMode
 # then wrote over a public-cert or embed-ca server's keys and writeUpdateFile
 # persisted. The prompt reverted the very choice it was asking about.
@@ -187,8 +187,8 @@ is "${FOG_install_mode}|${BOOT_rebuild_ipxe_with_my_ca}" "|no" \
 
 # The backstop for the one upgrade the seed cannot cover -- a pre-1.6 server,
 # which has no ${FOG_install_mode} to seed from. Asserted on the source because
-# the behaviour cannot be reached from a test: promptInstallMode also returns
-# early when stdin is not a tty, which it never is here, so a behavioural check
+# the behavior cannot be reached from a test: promptInstallMode also returns
+# early when stdin is not a tty, which it never is here, so a behavioral check
 # would pass whether the guard existed or not.
 guard=$(sed -n '/^promptInstallMode() {/,/^$/p' "$FUNCS" | grep -c 'priorInstall')
 is "$guard" "1" "promptInstallMode is guarded on priorInstall"
@@ -200,7 +200,7 @@ is "$guard" "1" "promptInstallMode is guarded on priorInstall"
 # $3 and $4 used to be the same argument, which is precisely the bug this
 # function's caller was reported for: a value the resolver DERIVED on one run is
 # persisted, and was then indistinguishable from one an admin forced. Modelling
-# them as one thing is how a test can pass while the behaviour is wrong.
+# them as one thing is how a test can pass while the behavior is wrong.
 nb() {
     PKI_web_cert_publicly_trusted="$1"; BOOT_rebuild_ipxe_with_my_ca="$2"
     sBOOT_url_proto="$3"; BOOT_url_proto="$4"; BOOT_url_proto_forced="$5"
@@ -254,7 +254,7 @@ else
     bad "no notice printed when netboot fell back to HTTP"
 fi
 if [[ "$(report http no no)" == *"Secure Boot binaries ARE staged"* ]]; then
-    ok "the notice says Secure Boot is available and how to enrol"
+    ok "the notice says Secure Boot is available and how to enroll"
 else
     bad "the HTTP notice does not mention Secure Boot onboarding"
 fi
@@ -298,7 +298,7 @@ done
 
 # All 67 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
-# starts being overwritten. That is a behaviour change even though it looks
+# starts being overwritten. That is a behavior change even though it looks
 # like documentation, so the count is asserted as well as the membership.
 modelKeys="
     BOOT_dhcp_delay_seconds BOOT_external_tftp_server BOOT_kernel_backups_kept BOOT_rebuild_ipxe_with_my_ca

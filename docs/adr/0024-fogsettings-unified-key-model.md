@@ -39,7 +39,7 @@ would not start — silently, under `-y`. `caCreated` said "the CA exists" and b
 of its readers already paired it with an `-e`/`-f` test on the very file it stood
 in for.
 
-Renaming this was discussed as a risk to be minimised. That framing was wrong and
+Renaming this was discussed as a risk to be minimized. That framing was wrong and
 is worth recording as such: because a key name is a variable name, a spot check of
 25 of the 79 keys found 753 references in `bin/` and `lib/` alone. The full sweep
 is around 2500 real variable references. The model only pays off once the code
@@ -137,7 +137,7 @@ mapping to `storageNode` DB columns. Only the values moved.
 
 One installer run, and it is **two halves that must land and stay together**:
 
-1. A one-shot rename-seed block in `bin/installfog.sh`, modelled on the
+1. A one-shot rename-seed block in `bin/installfog.sh`, modeled on the
    `httpproto`→`httpsRedirect` precedent. It runs after `.fogsettings` is sourced
    and before the flag shadows, so the order stays *explicit flag > persisted
    value > migrated value*. Each pair is guarded on the new key, so it fires
@@ -156,7 +156,7 @@ that still carries only old keys. The in-place merge cannot do that run: it
 rewrites managed keys in the position they already occupy and appends the ones it
 did not find, so with every old key deprecated and every new key absent it would
 strip all 79 lines and append 66 at the end — leaving the category blocks and the
-`## Derived` marker describing nothing. The rewrite carries every *unrecognised*
+`## Derived` marker describing nothing. The rewrite carries every *unrecognized*
 line through, because hand-set keys and an admin's own comments survive only
 because something preserves what it does not manage.
 
@@ -185,16 +185,16 @@ because something preserves what it does not manage.
 
 ## Deliberately not done
 
-- **Boolean encoding and polarity normalisation.** Deferred here, and the
+- **Boolean encoding and polarity normalization.** Deferred here, and the
   encoding half has since been done — see
   [ADR 0025](0025-one-boolean-encoding-normalised-on-load.md). The reasoning
   below is what it had to answer: fixing encodings changes *values*, not names,
   and would have made this migration a translation rather than a copy.
-  0025 resolves that by normalising on **load** every run rather than rewriting
+  0025 resolves that by normalizing on **load** every run rather than rewriting
   once, which leaves the migration a copy. **Polarity is still not done** —
   `BOOT_external_tftp_server` keeps `noTftpBuild`'s polarity precisely so the
   value carries across untouched and still reads correctly against the firewall
-  behaviour.
+  behavior.
 - **`FOG_update_channel`'s values.** `branchToChannel()` produces
   `stable`/`staging`/`dev` while `FOG_CHANNEL` is stamped
   `Patches`/`Beta`/`Release Candidate`/`Feature`. Reconciling them touches

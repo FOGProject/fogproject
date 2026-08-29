@@ -76,7 +76,7 @@ tables and no OIDC attack surface, and a provider bug is a plugin release
 rather than a FOG release.
 
 The scope is OIDC only. SAML is excluded on **shape**, not on dependency
-weight: SAML's security rests on XML canonicalisation and XML signature
+weight: SAML's security rests on XML canonicalization and XML signature
 verification, a class of parsing whose vulnerabilities (XXE, signature
 wrapping, comment truncation) live in the parser rather than the protocol.
 Building the seam properly is what makes SAML somebody's plugin later instead
@@ -112,7 +112,7 @@ owned by LDAP can still be signed in by something else, and after an incident
 precisely the question asked. The break-glass rules below also have to count
 sessions by how they were *made*.
 
-### 5. Break-glass is a core invariant, not a plugin's good behaviour
+### 5. Break-glass is a core invariant, not a plugin's good behavior
 
 **Local password login cannot be disabled.** Not a setting with a scary label —
 no setting at all. `User::passwordValidate()` reads none, and

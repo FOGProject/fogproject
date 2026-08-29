@@ -109,7 +109,7 @@ secureboot/MOK.{key,pem}          the flat, no-intermediate fallback signing
                                   anchor an intermediate, or before one has
                                   been minted
 secureboot/PK.{key,pem}           the platform key, if automatic PK/KEK/db
-secureboot/KEK.{key,pem}          enrolment is configured. Never regenerated.
+secureboot/KEK.{key,pem}          enrollment is configured. Never regenerated.
 secureboot/admin-MOK.{key,pem}    an admin-supplied --secure-boot-key/-cert
                                   pair, copied in so it survives independent
                                   of wherever the admin originally put it
@@ -262,7 +262,7 @@ The helper copies the key, verifies the copy still matches the certificate
 that stays behind, and only then shreds the original.
 
 **Leave the certificate in place.** Everything chains to it, and the installer
-uses its presence to recognise that a CA already exists. Removing the
+uses its presence to recognize that a CA already exists. Removing the
 certificate is what makes the next run mint a fresh one, orphaning every
 intermediate beneath it — which is precisely the mistake the obvious manual
 version ("move the CA out of the way") makes.
@@ -403,7 +403,7 @@ Each zone is independently replaceable.
                 --web-ca-key  /etc/pki/web-int.key \
                 --web-ca-root /etc/pki/root.pem
 
-# Secure Boot zone -- your own intermediate is what firmware enrols
+# Secure Boot zone -- your own intermediate is what firmware enrolls
 ./installfog.sh --secureboot-ca-cert /etc/pki/sb-int.pem \
                 --secure-boot-key    /etc/pki/sb-leaf.key \
                 --secure-boot-cert   /etc/pki/sb-leaf.pem
@@ -490,7 +490,7 @@ web PKI zone directory means the leaf is yours, so it stops regenerating it and
 leaves the permissions on your key alone.
 
 There is no key to set. GH-1120 retired `acmeLeaf`, `webCertFile` and
-`webKeyFile` in favour of asking the filesystem, because a hand-set flag that
+`webKeyFile` in favor of asking the filesystem, because a hand-set flag that
 nothing re-checked was exactly what got forgotten -- and forgetting it meant the
 installer re-issued the leaf from the original CSR against your ACME key,
 leaving a mismatched pair and a web server that would not start.
@@ -643,7 +643,7 @@ $ sbverify --list bzImage
    issuer:  /CN=FOG Server CA
 ```
 
-**Confirmed on real UEFI hardware, both enrolment routes:** machines boot
+**Confirmed on real UEFI hardware, both enrollment routes:** machines boot
 FOG's leaf-signed kernels while trusting only the **intermediate** — whether
 that intermediate is enrolled as `MOK.der` through MokManager, or written into
 `db` through the Setup Mode PK/KEK/db path. Firmware and shim both accept a
@@ -658,7 +658,7 @@ chain terminating at the enrolled CA rather than demanding the exact signer.
 ### Servers that already enrolled a MOK
 
 A server that generated a self-signed MOK under an earlier build **is moved
-onto the intermediate**, and any machine that enrolled the old key must enrol
+onto the intermediate**, and any machine that enrolled the old key must enroll
 once more. The installer says so, prominently, and leaves the old
 `MOK.{key,pem}` on disk so anything signed with it can still be re-signed.
 
@@ -666,7 +666,7 @@ This is deliberate, and it is why the change landed when it did. The flat MOK
 is a signing certificate that can issue nothing, so a server left on it can
 never rotate a signing key and never let a storage node sign, without a
 firmware trip to every machine. Doing it before Secure Boot reached a stable
-release costs one enrolment; doing it after costs a fleet.
+release costs one enrollment; doing it after costs a fleet.
 
 ### efitools
 
@@ -701,7 +701,7 @@ install -m 0755 cert-to-efi-sig-list sign-efi-sig-list efi-updatevar /usr/bin/
 **intermediate** — beside Microsoft's CAs, with the signing leaf's CN absent.
 That is what makes leaf rotation safe for Setup-Mode-enrolled clients too.
 
-MOK enrolment via MokManager is unaffected either way; only the unattended
+MOK enrollment via MokManager is unaffected either way; only the unattended
 Setup Mode path needs those tools.
 
 ## Known follow-up: which certificate fog-client installs

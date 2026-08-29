@@ -7,7 +7,7 @@
  * through HookManager::processEvent(). So the bar for changing it is not "the
  * tests pass", it is "no plugin needs editing" -- and the only way to hold that
  * bar is to write down what happens now, including the parts that are wrong, so
- * that a behaviour change shows up as a case somebody had to edit on purpose
+ * that a behavior change shows up as a case somebody had to edit on purpose
  * rather than as a silent difference.
  *
  * Findings pinned here are recorded as F-11..F-26 in docs/refactor-facts.md and

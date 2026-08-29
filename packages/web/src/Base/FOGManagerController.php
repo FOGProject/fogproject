@@ -620,7 +620,7 @@ abstract class FOGManagerController extends FOGBase
     }
     /**
      * Perform the SQL queries needed for an server-side processing requested,
-     * utilising the helper functions of this class, limit(), order() and
+     * utilizing the helper functions of this class, limit(), order() and
      * filter() among others. The returned array is ready to be encoded as JSON
      * in response to an SSP request, or can be modified if needed before
      * sending back to the client.
@@ -928,7 +928,7 @@ abstract class FOGManagerController extends FOGBase
      * that ends every imaging task via ->set('tokenlock', false). And an
      * array -- a nested IN () list is one -- is a TypeError on PHP 8.
      *
-     * A boolean is left as a boolean and normalised once, in PDODB::_bind(),
+     * A boolean is left as a boolean and normalized once, in PDODB::_bind(),
      * so save() and the two builders here cannot disagree about what false
      * stores. See GH-1245 and forum topic 18227.
      *
@@ -968,7 +968,7 @@ abstract class FOGManagerController extends FOGBase
      *
      *  - Only columns the caller NAMED. A required column the batch is silent
      *    about is left to columnsRequiringValue() below, which is the
-     *    behaviour every one of those call sites already relies on; turning
+     *    behavior every one of those call sites already relies on; turning
      *    silence into an error is a different change with a different blast
      *    radius.
      *  - Only *ID columns. They are the ones whose zero is indistinguishable
@@ -1080,7 +1080,7 @@ abstract class FOGManagerController extends FOGBase
          * statement does not name is error 1364 and the whole batch is
          * rejected; without one the server invents a zero value and says
          * nothing. PDODB cleared sql_mode until GH-1245, so every such call
-         * site had been relying on the second behaviour without knowing it --
+         * site had been relying on the second behavior without knowing it --
          * saving FOG settings omits settingDesc and settingCategory, and
          * tasking a group's snapins omits stReturnCode and stReturnDetails.
          *

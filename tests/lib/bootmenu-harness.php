@@ -311,7 +311,7 @@ class Image extends StubModel
  * Storage group stub.
  *
  * Both getters return the same node deliberately: which one getTasking()
- * calls is the behaviour under test, and the golden shows it through the
+ * calls is the behavior under test, and the golden shows it through the
  * storage= argument rather than through the node's identity.
  */
 class StorageGroup extends StubModel

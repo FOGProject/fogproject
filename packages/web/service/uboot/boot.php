@@ -49,7 +49,7 @@ require '../../commons/base.inc.php';
 header("Content-type: text/plain");
 /*
  * No explicit mac argument: getHostItem() reads POST then GET on its own, so
- * a board that can only GET is served, and the normalisation (separators,
+ * a board that can only GET is served, and the normalization (separators,
  * URL-encoding) stays in the one place that already does it.
  */
 FOGCore::getHostItem(

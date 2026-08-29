@@ -11,7 +11,7 @@
  *
  * That matters now because the date columns are moving to NULL (GH-1245), and
  * FOGController::get() hands back '' for a NULL column -- isset() is false for
- * null. Without this normalisation, making a column nullable would silently
+ * null. Without this normalization, making a column nullable would silently
  * turn every "No Data" into the current timestamp: no error, no log line, a
  * plausible value in every grid. It is already wrong for the three columns
  * that are nullable today, tasks.stateChangedTime among them.
@@ -39,7 +39,7 @@ $failures = [];
 $checks = 0;
 
 // ---------------------------------------------------------------
-// 1. Behaviour: empty, null and the zero date all mean the same thing.
+// 1. Behavior: empty, null and the zero date all mean the same thing.
 // ---------------------------------------------------------------
 require_once $web . '/src/Base/FOGBase.php';
 

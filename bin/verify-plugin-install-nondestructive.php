@@ -45,7 +45,7 @@
  * docs/adr/0008). This needs a live database and a deployed plugin tree, which
  * is the same reason bin/schema-manifest.php lives here. The static half of the
  * contract IS covered by CI, in fog-plugins' tests/tables-carry-column-defaults
- * .test.php; what cannot be covered there is the behaviour of the DDL against a
+ * .test.php; what cannot be covered there is the behavior of the DDL against a
  * real server, which is what this is for.
  *
  * SAFETY

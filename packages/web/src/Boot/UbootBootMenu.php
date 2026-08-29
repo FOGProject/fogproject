@@ -107,7 +107,7 @@ class UbootBootMenu extends BootMenuBase
             ]
         );
 
-        // Same normalisation as IpxeBootMenu: the value has been written by
+        // Same normalization as IpxeBootMenu: the value has been written by
         // the installer, by hand in FOG Settings, and by older versions, so
         // it turns up with and without either slash, and a nested webroot
         // such as '/apps/fog/' has to keep every segment.

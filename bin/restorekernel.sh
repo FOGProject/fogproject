@@ -115,7 +115,7 @@ migrateDeprecatedKeys
 # .fogsettings records docroot and webroot but NOT webdirdest -- config.sh
 # derives that ("${WEB_docroot}fog/"). Sourcing .fogsettings alone therefore left
 # $webdirdest empty and $ipxedir as the relative string "service/ipxe", so
-# --list mislabelled everything and --generation would have copied the restore
+# --list mislabeled everything and --generation would have copied the restore
 # into a stray directory under bin/ instead of the live tree.
 #
 # Same ordering as bin/updatefog.sh, and for the same reason: .fogsettings

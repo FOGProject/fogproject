@@ -7,15 +7,15 @@
  * than was asked:
  *
  *  - a task in a finished state fell out of the state test and answered
- *    "cancelled" with its state untouched (the reason this file exists: a
+ *    "canceled" with its state untouched (the reason this file exists: a
  *    Failed task did exactly that);
- *  - a group cancelled by no state filter at all and by a paginated listing,
- *    so whatever came back was cancelled whatever state it was in -- and the
+ *  - a group canceled by no state filter at all and by a paginated listing,
+ *    so whatever came back was canceled whatever state it was in -- and the
  *    listing covers every task the member hosts have ever run;
  *  - a host with nothing running reached Task::save() on an empty Task and
  *    answered 406 "Required database field is empty: typeID";
  *  - scheduledtask carries no stateID, so it failed a test it could never
- *    pass and the endpoint never once cancelled a scheduled task;
+ *    pass and the endpoint never once canceled a scheduled task;
  *  - filedeletequeue has no model cancel(), so a valid id raised an Error,
  *    which is not an \Exception and so escaped the catch as a bodyless 500.
  *
@@ -76,7 +76,7 @@ if (!preg_match(
     $cancel
 )) {
     $fails[] = 'a named task outside the active states does not answer 409,'
-        . ' so cancelling a Complete/Cancelled/Failed task reports success';
+        . ' so canceling a Complete/Canceled/Failed task reports success';
 }
 
 // ------------------------------------------------------------- the group
@@ -89,7 +89,7 @@ if (!preg_match(
     $cancel
 )) {
     $fails[] = 'the group arm does not filter its task ids by state, so'
-        . ' cancelling a group rewrites every task its hosts ever ran';
+        . ' canceling a group rewrites every task its hosts ever ran';
 }
 // listem() is paginated, so it was also the reason only one page of the
 // intended work happened. Reading ids has no page.
@@ -107,7 +107,7 @@ if (!preg_match('#case \'group\':(.*?)\n                    break;#s', $cancel, 
     $grp[1]
 )) {
     $fails[] = 'a group with no active tasks does not answer 409, so'
-        . ' cancelling an idle group reports success';
+        . ' canceling an idle group reports success';
 }
 
 // --------------------------------------------------------------- the host

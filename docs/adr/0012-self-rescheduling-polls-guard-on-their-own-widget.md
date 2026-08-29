@@ -114,7 +114,7 @@ complete that request and draw into nothing before the next wake-up stops it.
 That is one request, not an unbounded stream, and eliminating it would require
 the central cancellation this ADR rejects.
 
-`setInterval` needs none of this. It is already tracked and cancelled. This ADR
+`setInterval` needs none of this. It is already tracked and canceled. This ADR
 is not a reason to convert intervals to timeout chains, and if a poll can be
 written as an interval, prefer it.
 

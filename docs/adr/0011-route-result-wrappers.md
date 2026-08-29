@@ -40,7 +40,7 @@ That mistake has shipped three times:
 | Site | Consequence |
 |---|---|
 | `ou` plugin's check-in hook | `ADOU` never set on any client check-in, one warning per check-in on a client endpoint |
-| `route.class.php` group task cancel | cancelling a group's tasks cancelled **nothing** — eleven nulls passed to `getClass('Task', null)->cancel()` while the real tasks kept running |
+| `route.class.php` group task cancel | canceling a group's tasks canceled **nothing** — eleven nulls passed to `getClass('Task', null)->cancel()` while the real tasks kept running |
 | `bootitem.hook.php` | the iPXE menu never applied its `fog.local` boot-to-disk label |
 
 All three were verified against a live 1.6 database before being fixed. They are

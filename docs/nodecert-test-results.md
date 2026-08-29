@@ -157,7 +157,7 @@ have helped. Three changes:
   silently rewrite the other node's row rather than fail — and hostnames are not
   unique across a fleet (two default RHEL installs are both
   `localhost.localdomain`). Anything unusable falls back to the address, which
-  is the old behaviour exactly;
+  is the old behavior exactly;
 - `nodecert.php` refuses to put an IP literal in a DNS SAN. `FILTER_VALIDATE_DOMAIN`
   accepts `10.0.0.5` as a hostname, so without an explicit `FILTER_VALIDATE_IP`
   test the request reached the signer and died at verify. Existing IP-named nodes
@@ -338,7 +338,7 @@ if [[ -z $cacert || ! -f $cacert ]]; then
 fi
 ```
 
-The endpoint authenticated the node, authorised it, staged the CSR and invoked the helper
+The endpoint authenticated the node, authorized it, staged the CSR and invoked the helper
 through sudo correctly. The helper then found no CA to sign with.
 
 ### Root cause
@@ -443,7 +443,7 @@ if ($recorded && $recorded !== $remoteIP) {
 }
 ```
 
-And putting a hostname in the `ip` field instead makes things worse: the authorisation
+And putting a hostname in the `ip` field instead makes things worse: the authorization
 lookup is `Route::getIds('storagenode', ['ip' => $remoteIP], 'id')`, and `$remoteIP` is
 always an address literal, so the record stops matching and the request fails one step
 earlier with `403 no storage node is registered at <ip>`.

@@ -646,7 +646,7 @@ class SnapinManagement extends FOGPage
         // Mirrors handleAddPost(): fire the hook, then attach the created
         // object so a caller can act on the result without a second request.
         // This endpoint is hand-rolled rather than using that helper (the file
-        // upload does not fit the closure), so the behaviour is repeated here
+        // upload does not fit the closure), so the behavior is repeated here
         // deliberately -- a create should answer the same way whichever
         // scaffold built it.
         $args = [

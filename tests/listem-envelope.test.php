@@ -12,7 +12,7 @@
  * time it failed silently rather than loudly:
  *   - ou plugin: ADOU never set on any client check-in
  *   - bootitem.hook.php: the fog.local boot-to-disk label never applied
- *   - route.class.php: cancelling a group's tasks cancelled nothing
+ *   - route.class.php: canceling a group's tasks canceled nothing
  *
  * Static source check (no DB, no server) -- these call sites need the full FOG
  * bootstrap to run, so this parses them instead.

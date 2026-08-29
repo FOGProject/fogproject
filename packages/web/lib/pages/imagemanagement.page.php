@@ -1732,8 +1732,8 @@ class ImageManagement extends FOGPage
         //
         // The card idiom below is the one the Images and Hosts cards on this
         // same page already use. The theme styles cards in both modes, so this
-        // needs no colour of its own and cannot drift from the rest of the
-        // page. Only the warning tile takes a colour, and it takes it from
+        // needs no color of its own and cannot drift from the rest of the
+        // page. Only the warning tile takes a color, and it takes it from
         // card-danger, which forces its own contrast.
         echo '<div class="col-sm-6 col-md-3">';
         echo '<div class="card '
@@ -1753,7 +1753,7 @@ class ImageManagement extends FOGPage
      * reads as x86 to anyone scanning a list, which is the exact assumption
      * these columns exist to stop.
      *
-     * @param string $arch    the normalised architecture, '' when unknown
+     * @param string $arch    the normalized architecture, '' when unknown
      * @param string $unknown what to say when it is unknown
      *
      * @return string
@@ -2005,7 +2005,7 @@ class ImageManagement extends FOGPage
                     break;
                 case 'session-cancel':
                     $this->sessionCancel();
-                    $msgSuccess = _('Sessions cancelled!');
+                    $msgSuccess = _('Sessions canceled!');
                     $titleSuccess = _('Session Cancel Success');
                     $titleFail = _('Session Cancel Fail');
             }

@@ -192,7 +192,7 @@ if (is_callable($summary)) {
             'hSubjectType' => '',
             'hSubjectID' => null
         ],
-        'a type nothing recognises' => ['hType' => 'somepluginscode'],
+        'a type nothing recognizes' => ['hType' => 'somepluginscode'],
         'a typed row with no subject id' => ['hSubjectID' => null]
     ];
     foreach ($cases as $what => $overrides) {

@@ -21,10 +21,10 @@
 #
 # The properties pinned here:
 #
-#   A-C  enableInitScript() enrols every FOG daemon with rc-update, into a
+#   A-C  enableInitScript() enrolls every FOG daemon with rc-update, into a
 #        NAMED runlevel, and does not reach for chkconfig/sysv-rc-conf.
 #   D-G  the four service blocks each carry an osid 3 arm. Structural rather
-#        than behavioural: they live inside functions that rewrite /etc, so
+#        than behavioral: they live inside functions that rewrite /etc, so
 #        running them here would mean writing to the developer's own box.
 #   H    TFTP's existing osid 3 arm enables as well as starts -- it started
 #        in.tftpd and never enrolled it, so PXE worked until the first reboot.

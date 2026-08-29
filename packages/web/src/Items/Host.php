@@ -68,7 +68,7 @@ class Host extends FOGController
         // The token superseded by the most recent rotation. authorize()
         // commits a rotated sec_tok before the client can possibly have
         // received it, so a response lost in flight used to strand the client
-        // on a token the server no longer recognised -- an unrecoverable
+        // on a token the server no longer recognized -- an unrecoverable
         // #!ist. Keeping one generation lets that client re-present its old
         // token once and be handed the current one again.
         'prev_sec_tok' => 'hostSecTokenPrev',
@@ -899,7 +899,7 @@ class Host extends FOGController
                 '',
                 [
                     'return' => -9999,
-                    'details' => _('Cancelled due to new tasking.'),
+                    'details' => _('Canceled due to new tasking.'),
                     'stateID' => self::getCancelledState()
                 ]
             );
@@ -989,7 +989,7 @@ class Host extends FOGController
             }
             // The job id gets the same treatment as the snapin id above. A
             // task is only reachable through its job, so one inserted against
-            // a jobID of 0 can never be shown, run or cancelled -- it is a row
+            // a jobID of 0 can never be shown, run or canceled -- it is a row
             // nothing can ever act on. save() failing is already caught above;
             // this catches a save that reported success without leaving an id
             // behind. See the matching guard in Group::createImagePackage().
@@ -2150,7 +2150,7 @@ class Host extends FOGController
      *
      * Named accessor for the same reason getImage() and getOS() are ones:
      * Route::getter() calls it alongside getImageType()/getOS()/
-     * getStorageGroup() on its neighbouring lines. It was written there
+     * getStorageGroup() on its neighboring lines. It was written there
      * before it existed here, which is the fatal that led to this. The value
      * comes from loadArch(), not from a join.
      *

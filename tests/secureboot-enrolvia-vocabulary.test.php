@@ -46,7 +46,7 @@ $page = $webroot . '/lib/pages/hostmanagement.page.php';
  *
  * A plain array appended to inline, rather than a counter incremented inside a
  * closure. A counter mutated through a closure or `global` is invisible to the
- * second PHPStan pass -- which analyses all of tests/ as one unit -- so every
+ * second PHPStan pass -- which analyzes all of tests/ as one unit -- so every
  * `$failures > 0` after the first one reads as "always false", and the file
  * would report a pass whatever it found.
  *

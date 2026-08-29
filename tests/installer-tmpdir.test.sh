@@ -128,7 +128,7 @@ rm -f "$WORK/tmp"
 
 # --- no call site resolves ../tmp against the cwd any more ------------------
 #
-# Grep rather than behaviour, because the failure being guarded is a call site
+# Grep rather than behavior, because the failure being guarded is a call site
 # quietly reintroducing the relative form. Comments are excluded, and the
 # helper's own definition is the one legitimate use.
 stray="$(grep -nE '(^|[^#])\.\./tmp' "$FUNCS" \

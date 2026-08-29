@@ -66,7 +66,7 @@ class TaskManager extends FOGManagerController
             $updateFields
         );
         // Enumerated BEFORE the update, because $findWhere selects on the
-        // states being cancelled out of and matches nothing once they are
+        // states being canceled out of and matches nothing once they are
         // gone. Route::cancel() sends the group arm and the task arm here, so
         // without this a bulk cancel left every one of its tasks reading
         // In-Progress in the log -- the same hole Task::cancel() had.
@@ -84,7 +84,7 @@ class TaskManager extends FOGManagerController
         );
         if ($updated) {
             // Read back from `tasks` after the update, so each row records the
-            // state the task is now in rather than the one it was cancelled
+            // state the task is now in rather than the one it was canceled
             // out of -- and in one SELECT plus one batched INSERT, because
             // this arm cancels a whole group and rebuilding a Task per id to
             // write its row cost five queries apiece.
@@ -175,7 +175,7 @@ class TaskManager extends FOGManagerController
      * such rows -- two All Snapins, one Enroll Secure Boot -- every one of
      * them correct. So the image is only asked about for an imaging type.
      *
-     * FAILED, NOT CANCELLED. Cancelled means an administrator stopped it.
+     * FAILED, NOT CANCELLED. Canceled means an administrator stopped it.
      * Losing the difference between "somebody stopped this" and "this broke"
      * is exactly the distinction an operator needs at the moment they are
      * looking at the task list. Same reasoning as TaskState::getFailedState()

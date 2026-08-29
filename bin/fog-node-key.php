@@ -24,7 +24,7 @@
  *     never run there and no row exists.
  *   - validNodeSignature() deliberately never mints, so the peer cannot
  *     heal itself on the first signed request either. That is the correct
- *     behaviour -- a verifier that invents keys verifies nothing -- and it
+ *     behavior -- a verifier that invents keys verifies nothing -- and it
  *     is what makes this a manual step.
  *
  * Deliberately does NOT boot FOG. It reads the DB constants straight out of

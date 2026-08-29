@@ -471,7 +471,7 @@ while :; do
             sWEB_root="${sWEB_root%'/'}"
             # Store the FINAL "/x/" form here rather than the bare "x". Two
             # separate bugs came out of not doing so, both because the
-            # normalisation further down only runs on the upgrade path (it is
+            # normalization further down only runs on the upgrade path (it is
             # gated on grepping an existing .fogsettings):
             #
             #   -W /      stripped to "", and the application tested `-n
@@ -639,7 +639,7 @@ while :; do
                 # The Secure Boot zone's anchor: what gets ENROLLED in
                 # firmware. Pairs with --secure-boot-key/--secure-boot-cert,
                 # which name the leaf that actually signs. Supplying only the
-                # leaf pair (the historic form) still works and enrols that
+                # leaf pair (the historic form) still works and enrolls that
                 # certificate, exactly as before.
                 --secureboot-ca-cert) sPKI_sb_ca_cert="$2" ;;
             esac
@@ -1485,9 +1485,9 @@ while [[ -z $blGo ]]; do
                     # Also downstream of _publishSecureBootKit and
                     # _publishSecureBootAuthVars, which run inside configureHttpd
                     # above via downloadfiles(). Each archive carries whatever
-                    # enrolment material those two actually published -- MOK.der
+                    # enrollment material those two actually published -- MOK.der
                     # and the PK/KEK/db variable updates -- so one archive on a
-                    # USB stick holds every enrolment route. Taken by existence,
+                    # USB stick holds every enrollment route. Taken by existence,
                     # so a server that published neither simply ships neither.
                     _publishLocalBootFiles
                     configureFTP

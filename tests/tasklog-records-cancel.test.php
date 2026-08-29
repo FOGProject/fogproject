@@ -1,12 +1,12 @@
 <?php
 /**
- * Cancelling a task says so in the log.
+ * Canceling a task says so in the log.
  *
  * taskLog was written from exactly two places, TaskQueue::checkIn() and
  * TaskQueue::checkout(), both reached through a TaskingElement -- which exists
  * only for a machine that has checked in. Cancellation has no TaskingElement:
  * Task::cancel() set stateID and saved, TaskManager::cancel() ran a bulk UPDATE,
- * and neither wrote a row. So the last thing the log ever said about a cancelled
+ * and neither wrote a row. So the last thing the log ever said about a canceled
  * task was that it was In-Progress, and Task Management's log pane showed it
  * that way for good.
  *
@@ -14,7 +14,7 @@
  * TaskManager->cancel($taskIDs), the host arm to $Task->cancel(), and the
  * default task arm reaches each of them. Covering these two therefore covers
  * every arm of the endpoint. Cancellations that happen as a SIDE EFFECT of
- * something else -- host.class.php's "Cancelled due to new tasking", multicast
+ * something else -- host.class.php's "Canceled due to new tasking", multicast
  * teardown, the file-delete queue -- go straight to TaskManager->update() and
  * are deliberately out of scope here.
  *
@@ -25,7 +25,7 @@
  *   TaskManager::cancel()  SOURCE. It is a bulk UPDATE whose correctness is an
  *                          ORDERING -- the ids have to be collected before the
  *                          update, because the WHERE selects on the states
- *                          being cancelled out of and matches nothing after.
+ *                          being canceled out of and matches nothing after.
  *                          An ordering is what is checked, so the check is on
  *                          the order of the statements.
  *
@@ -152,7 +152,7 @@ if ($t->check('Task::cancel() is found', '' !== $cancelBody)) {
  * belongs on the row, and a snapin one carrying a stale image name that must
  * not reach it -- recordState() gates that on isImagingTask(), and a second
  * definition of "imaging" living in this method is exactly the drift that
- * would make one cancelled task's row disagree with another's.
+ * would make one canceled task's row disagree with another's.
  */
 $bulkInsert = '';
 $bulkBound = [];
@@ -172,7 +172,7 @@ $db->responder = function ($sql, $params) use (
     }
     if (false !== stripos($sql, 'FROM `tasks`')) {
         $bulkSelect = $sql;
-        // What the join yields AFTER the update: state 5 (Cancelled) is read
+        // What the join yields AFTER the update: state 5 (Canceled) is read
         // off the row, never passed in, which is what lets a task whose state
         // moved concurrently log the truth instead of the caller's assumption.
         return [
@@ -265,7 +265,7 @@ if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
     // A failed log write must not fail the cancel. insertBatch() throws where
     // FOGController::save() returns false, and the only caller sits inside
     // Route::cancel()'s try -- so without a catch here a caller whose tasks
-    // really were cancelled would be answered with an error.
+    // really were canceled would be answered with an error.
     $t->check(
         'a failed batch does not escape to the caller',
         (bool)preg_match(
@@ -317,11 +317,11 @@ if ($t->check('TaskManager::cancel() is found', '' !== $bulkBody)) {
     // five queries apiece against a statement that cancels a whole group at
     // once, which is what recordStates() exists to avoid.
     $t->check(
-        'it does not rebuild a Task per cancelled id',
+        'it does not rebuild a Task per canceled id',
         false === strpos($bulkBody, 'TaskLog::recordState(new Task')
     );
 
-    // The ids of the tasks being cancelled have to be read while the WHERE
+    // The ids of the tasks being canceled have to be read while the WHERE
     // still matches them. Positions, because this is the whole correctness
     // argument: getIds -> update -> recordStates, in that order.
     //

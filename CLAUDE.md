@@ -124,7 +124,7 @@ pass and passes for reasons the real command never touches. The two live in the
 same job on purpose: the ruleset requires the single context `phpstan`, so
 neither pass can be required without the other.
 
-The second pass analyses `tests/` against `phpstan-tests-baseline.neon`, and
+The second pass analyzes `tests/` against `phpstan-tests-baseline.neon`, and
 **that baseline counts occurrences, not lines.** Adding a second use of an
 already-baselined pattern fails the build on an entry nobody touched:
 
@@ -267,7 +267,7 @@ The REST API is routed separately from the `?node=` UI above: `Route::defineRout
 (`lib/router/route.class.php`) maps the URIs, and `OpenAPI::document()`
 (`lib/fog/openapi.class.php`) describes them, served at `system/openapi` and `swagger.json`
 and rendered by the API Documentation page. The document is generated per request, but only
-*partly* from the router — so **a route change can change behaviour without changing the
+*partly* from the router — so **a route change can change behavior without changing the
 document**. Treat the spec as part of the route commit, not as follow-up.
 
 Updates itself, nothing to do:
@@ -390,9 +390,9 @@ reasoning and the rejected alternatives:
 - **Newer files**: `declare(strict_types=1)` at top; older files do not have this — don't add it retroactively
 - **Avoid `new` directly**: use `FOGBase::getClass()` or `FOGBase::getManager()` as appropriate
 
-### Button colour and alignment
+### Button color and alignment
 
-Position carries the meaning, colour follows it. Don't pick a colour to make a
+Position carries the meaning, color follows it. Don't pick a color to make a
 button stand out — pick the one that matches what kind of action it is.
 
 | Action | Class | Side |
@@ -428,7 +428,7 @@ nothing inside a flex container**, and most of the containers here are flex:
   the auto margin only pushes the slack to one side — #919 shipped the margin
   alone and the buttons stayed in emission order, just left-packed instead of
   right-packed. Keep tagging the dismiss `float-start`; that class is what both
-  the position and the plain (non type-coloured) fill key off.
+  the position and the plain (non type-colored) fill key off.
 
 That flex/float mismatch has bitten twice: the task panes wrapped their buttons
 in a bare `.btn-group`, which silently killed `float-start`/`float-end` and
@@ -443,7 +443,7 @@ Three consequences worth remembering:
   They were `btn-info` and read as a different one.
 - Don't override `renderAssocTab()`'s `$sendClass`. Every association tab's
   "Add selected" is primary; nine tabs used to pass `btn-success` and the two
-  colours got mixed inside a single page.
+  colors got mixed inside a single page.
 - Adjacent right-side buttons that are *already* distinguishable are fine as
   they are — e.g. image replication's `[Resume Reload (success)][Create
   (primary)]`, where green marks a genuinely different operation. The rule is

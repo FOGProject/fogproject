@@ -175,7 +175,7 @@ class TaskLog extends FOGController
      * The single definition of what a state row looks like. It used to live
      * inline in TaskingElement::taskLog(), which meant only the two callers
      * that go through a TaskingElement -- checkIn() and checkout() -- could
-     * write one. Cancellation does not go through either, so a cancelled task
+     * write one. Cancellation does not go through either, so a canceled task
      * left no row at all and the last thing the log said about it was
      * In-Progress, forever.
      *
@@ -303,8 +303,8 @@ class TaskLog extends FOGController
             (array)$TaskType->isCapture(true)
         );
         // `ip` and `type` as well: recordState() gets both from TaskLog's
-        // constructor, which a batched INSERT never runs, and a bulk-cancelled
-        // row must not be distinguishable from a singly-cancelled one.
+        // constructor, which a batched INSERT never runs, and a bulk-canceled
+        // row must not be distinguishable from a singly-canceled one.
         $fields = [
             'taskID',
             'stateID',
@@ -350,7 +350,7 @@ class TaskLog extends FOGController
          * insertBatch() THROWS where FOGController::save() returns false, and
          * the only caller sits inside Route::cancel()'s try -- so an
          * unhandled failure here would answer a caller whose tasks really were
-         * cancelled with an error, which is the same class of lie the rest of
+         * canceled with an error, which is the same class of lie the rest of
          * this change exists to remove. recordState() cannot do this to its
          * caller and neither should this.
          *

@@ -16,7 +16,7 @@
  *
  * DB-free, so it runs in tests/run-all.sh. Possible because the guard is
  * pure: coreRegistry() is a literal and isCoreOwnedNode() is an array
- * lookup. The behavioural half of the test leans on that deliberately --
+ * lookup. The behavioral half of the test leans on that deliberately --
  * with no database configured, purgePermissions() can only return without
  * throwing if it bailed out BEFORE reaching Route::getIds(). If the guard
  * is ever removed, this stops passing rather than silently doing nothing.
@@ -120,7 +120,7 @@ foreach (['capone', 'ldap', 'wolbroadcast', 'definitelynotanode', ''] as $node) 
 }
 
 /*
- * 3. Case and whitespace are normalised. The callers pass strtolower() of a
+ * 3. Case and whitespace are normalized. The callers pass strtolower() of a
  *    database value, but the guard must not depend on its callers being
  *    careful -- it is the last thing standing between a stray uninstall and
  *    a silent revocation.
@@ -133,7 +133,7 @@ check(
 );
 
 /*
- * 4. The behavioural half: with no database configured, purgePermissions()
+ * 4. The behavioral half: with no database configured, purgePermissions()
  *    on a core node must return without throwing, which it can only do by
  *    returning before it reaches Route::getIds().
  */

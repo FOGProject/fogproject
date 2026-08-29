@@ -55,7 +55,7 @@ schedule a task, and come back.
 - With no `.auth` files present: PXE menu on a UEFI client shows only item 14
   ("...MOK attended setup)"). Item 15 absent.
 - With all three `.auth` files present: PXE menu on a UEFI client shows both
-  items, correctly labelled. Item 15 boots FOS with `mode=enrollsb` in the
+  items, correctly labeled. Item 15 boots FOS with `mode=enrollsb` in the
   kernel line.
 - On a BIOS/CSM client (`platform != efi`): neither item 14 nor 15 appears,
   regardless of `.auth`/`MOK.der` state.

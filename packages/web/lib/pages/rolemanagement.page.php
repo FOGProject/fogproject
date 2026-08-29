@@ -81,7 +81,7 @@ class RoleManagement extends FOGPage
             'report' => _('Reports'),
             'plugin' => _('Plugins'),
             // Adding system.export puts a new row and a new one-checkbox
-            // column in this matrix. Labelled so neither reads as the
+            // column in this matrix. Labeled so neither reads as the
             // ucfirst() fallback -- `install` and `manage` already rely on
             // it, but a grant this wide should not be introduced that way.
             'system' => _('System')

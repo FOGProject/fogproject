@@ -75,12 +75,12 @@ class System
         // at all, so the precise check never gets to run and the step sits
         // there applying to nobody.
         //
-        // That is not hypothetical: 18edea94f appended the element labelled
+        // That is not hypothetical: 18edea94f appended the element labeled
         // 330 without touching this constant, leaving it at 329, and task
         // type 26 reached no install until this bump. An earlier revision of
         // this comment said the constant had "drifted well above" the count
         // (289 at the time) and that nothing required the two to agree, which
-        // read as licence not to bump. They do have to agree, so tests/
+        // read as license not to bump. They do have to agree, so tests/
         // schema-gate.test.php now fails the build when they do not.
         //
         // The invariant the test pins, and the one to keep when appending:

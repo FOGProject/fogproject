@@ -39,7 +39,7 @@ server as an integer rather than a string. FOG survives that only because
 `PDODB::_bind()` binds every parameter as `PDO::PARAM_STR`. That is not a design;
 it is a load-bearing accident, and it has already cost real work:
 
-- `PDODB::_bind()` cannot normalise a PHP boolean with `PDO::PARAM_BOOL`, because
+- `PDODB::_bind()` cannot normalize a PHP boolean with `PDO::PARAM_BOOL`, because
   bound as an integer `false` would be index 0 and `true` index 1 — refused and
   inverted respectively. It has to produce the *strings* `'0'`/`'1'` (#1361).
 - `Schema::defaultLiteral()` exists because `createTable()` callers pass values
@@ -72,7 +72,7 @@ one rule in it that must not be re-derived per plugin (below), so it is written
 once and the plugins call it. It reads nullability and default out of
 `information_schema` and carries them across rather than assuming `NOT NULL` —
 `LDAPServers`.`lsAllowAPI` is nullable and `lsUseGroupMatch` has no default at
-all, and rewriting either would be a behaviour change smuggled in by a type
+all, and rewriting either would be a behavior change smuggled in by a type
 change. It also skips any column that is not still exactly `enum('0','1')`, so a
 re-run is a read.
 

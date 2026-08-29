@@ -217,8 +217,8 @@
                 // so the grid and the refusal cannot tell different stories:
                 // green is ready to enroll unattended, blue is enrollable with
                 // someone at the machine, red cannot run the task at all, and
-                // grey is "we have never heard from this host" -- which is
-                // deliberately not the same grey-as-harmless as the others,
+                // gray is "we have never heard from this host" -- which is
+                // deliberately not the same gray-as-harmless as the others,
                 // because unknown is allowed through with a warning.
                 var raw = String(row.sbstatecode || '');
                 var tone = 'secondary';

@@ -510,10 +510,10 @@ class Plugin extends FOGController
         }
         // The archive is copied under a .tar.gz name before it is opened.
         // PharData decides the format from the FILE EXTENSION and refuses
-        // anything it does not recognise -- passing Phar::TAR|Phar::GZ does not
+        // anything it does not recognize -- passing Phar::TAR|Phar::GZ does not
         // override that -- and PHP's upload temp file is /tmp/phpXXXXXX with no
         // extension at all, so opening it in place always threw "file
-        // extension (or combination) not recognised".
+        // extension (or combination) not recognized".
         $token = bin2hex(random_bytes(16));
         $made = self::stagingRoot() . $token . DS;
         if (!self::_makeStagingDir($made)) {
@@ -563,7 +563,7 @@ class Plugin extends FOGController
                 if (count($parts) < 2) {
                     // Everything must live under one directory named for the
                     // plugin. A file at the root would extract straight into
-                    // the plugin root and could land on a neighbour.
+                    // the plugin root and could land on a neighbor.
                     if (!$entry->isDir()) {
                         return $fail(
                             sprintf(
@@ -651,7 +651,7 @@ class Plugin extends FOGController
             return $fail(sprintf('%s %s', $top, $compat));
         }
 
-        // The copy is only needed to give PharData a recognisable extension.
+        // The copy is only needed to give PharData a recognizable extension.
         // Removed once extraction is done so commitStaged() moves a directory
         // holding the plugin and nothing else. The handle goes first: it is
         // still open on the file being deleted.
