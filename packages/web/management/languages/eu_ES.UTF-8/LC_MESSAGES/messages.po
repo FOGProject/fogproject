@@ -5038,6 +5038,10 @@ msgid "Location is a plugin that allows your FOG Server"
 msgstr "Standort ist ein Plugin, mit dem Ihr FOG-Server"
 
 #, fuzzy
+msgid "Location schema"
+msgstr "Standorte"
+
+#, fuzzy
 msgid "Location update failed!"
 msgstr "Standortupdate fehlgeschlagen"
 
@@ -10767,6 +10771,9 @@ msgstr ""
 msgid "row(s)"
 msgstr ""
 
+msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
 #, fuzzy
 msgid "second"
 msgstr "Sekunde"
@@ -11467,10 +11474,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "Alle %s auflisten"
-
-#, fuzzy
-#~ msgid "Location schema"
-#~ msgstr "Standorte"
 
 #, fuzzy
 #~ msgid "Login accepted"

@@ -5037,6 +5037,10 @@ msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
 
 #, fuzzy
+msgid "Location schema"
+msgstr "Emplacements"
+
+#, fuzzy
 msgid "Location update failed!"
 msgstr "mise à jour a échoué Snapin"
 
@@ -10759,6 +10763,9 @@ msgstr ""
 msgid "row(s)"
 msgstr ""
 
+msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
 #, fuzzy
 msgid "second"
 msgstr "Icône"
@@ -11449,10 +11456,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "Lister tous les %s"
-
-#, fuzzy
-#~ msgid "Location schema"
-#~ msgstr "Emplacements"
 
 #, fuzzy
 #~ msgid "Login accepted"

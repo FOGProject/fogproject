@@ -4871,6 +4871,10 @@ msgstr "Posizione aggiunta!"
 msgid "Location is a plugin that allows your FOG Server"
 msgstr "Luoghi è un plugin che consente al server FOG"
 
+#, fuzzy
+msgid "Location schema"
+msgstr "sedi"
+
 msgid "Location update failed!"
 msgstr "Aggiornamento posizione non riuscito"
 
@@ -10407,6 +10411,9 @@ msgstr ""
 msgid "row(s)"
 msgstr ""
 
+msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
 msgid "second"
 msgstr "secondo"
 
@@ -11081,10 +11088,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "Elencare tutti %s"
-
-#, fuzzy
-#~ msgid "Location schema"
-#~ msgstr "sedi"
 
 #, fuzzy
 #~ msgid "Login accepted"

@@ -5036,6 +5036,10 @@ msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
 
 #, fuzzy
+msgid "Location schema"
+msgstr "位置"
+
+#, fuzzy
 msgid "Location update failed!"
 msgstr "管理单元更新失败"
 
@@ -10758,6 +10762,9 @@ msgstr ""
 msgid "row(s)"
 msgstr ""
 
+msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
 #, fuzzy
 msgid "second"
 msgstr "图标"
@@ -11448,10 +11455,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "列表中的所有%s"
-
-#, fuzzy
-#~ msgid "Location schema"
-#~ msgstr "位置"
 
 #, fuzzy
 #~ msgid "Login accepted"

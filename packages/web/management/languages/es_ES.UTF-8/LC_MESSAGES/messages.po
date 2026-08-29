@@ -5138,6 +5138,10 @@ msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
 
 #, fuzzy
+msgid "Location schema"
+msgstr "Acción"
+
+#, fuzzy
 msgid "Location update failed!"
 msgstr "actualización de servicio no pudo"
 
@@ -10941,6 +10945,9 @@ msgstr ""
 msgid "row(s)"
 msgstr ""
 
+msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
 msgid "second"
 msgstr ""
 
@@ -11625,10 +11632,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Versión del sistema"
-
-#, fuzzy
-#~ msgid "Location schema"
-#~ msgstr "Acción"
 
 #, fuzzy
 #~ msgid "Login accepted"

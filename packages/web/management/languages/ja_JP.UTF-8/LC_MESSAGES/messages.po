@@ -4833,6 +4833,10 @@ msgstr "ロケーションを追加しました！"
 msgid "Location is a plugin that allows your FOG Server"
 msgstr "ロケーションは、FOG サーバーで利用できるプラグインです"
 
+#, fuzzy
+msgid "Location schema"
+msgstr "ロケーション"
+
 msgid "Location update failed!"
 msgstr "ロケーションの更新に失敗しました！"
 
@@ -10351,6 +10355,9 @@ msgstr ""
 msgid "row(s)"
 msgstr ""
 
+msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
 msgid "second"
 msgstr "秒"
 
@@ -11689,10 +11696,6 @@ msgstr ""
 
 #~ msgid "Location General"
 #~ msgstr "ロケーション全般"
-
-#, fuzzy
-#~ msgid "Location schema"
-#~ msgstr "ロケーション"
 
 #~ msgid "Location/Deployed"
 #~ msgstr "ロケーション/展開済み"
