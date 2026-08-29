@@ -193,7 +193,7 @@ else
     bad "6. a failed build left blobs behind in the output directory"
 fi
 
-# --- 7. an incomplete config is refused, not half-honoured ---
+# --- 7. an incomplete config is refused, not half-honored ---
 write_conf
 sed -i '/^SECUREBOOT_PK_KEY=/d' "$WORK/conf"
 if run_builder; then

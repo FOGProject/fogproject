@@ -73,7 +73,7 @@ linkIfAbsent() {
 #
 # WHY THIS DIRECTION, given GH-1012 deliberately chose stable/staging/dev to
 # match README.md's table. That decision was "match README", not "these three
-# words are fixed", so changing README honours it rather than reversing it. And
+# words are fixed", so changing README honors it rather than reversing it. And
 # FOG_CHANNEL was already the more accurate half: dev-branch really is the
 # 1.5.x PATCHES line rather than anything staged for stable, and working-1.6
 # really is the 1.6 BETA. Worse, `dev` pointed at working-1.6 while a branch
@@ -4050,7 +4050,7 @@ configureFirewall() {
     # Runs late, unlike the checkFirewall() it replaces, for two reasons
     # that both used to be broken:
     #   - .fogsettings is not sourced until after the old call site, so a
-    #     remembered choice could not be honoured. An admin who said "leave
+    #     remembered choice could not be honored. An admin who said "leave
     #     my firewall alone" got re-asked, or under -y re-ignored, on every
     #     single upgrade.
     #   - the port set depends on what was actually installed (${DHCP_enabled},
@@ -5649,7 +5649,7 @@ _certDnsNames() {
 # and iPXE matches addresses and names separately anyway.
 #
 # Echoes "exact" or "wildcard" and returns 0 on a match; echoes nothing and
-# returns 1 otherwise. The two are distinguished because whether iPXE honours a
+# returns 1 otherwise. The two are distinguished because whether iPXE honors a
 # wildcard SAN is UNVERIFIED -- fog-ipxe is an overlay and carries no upstream
 # crypto/x509.c to read -- so the caller reports a wildcard match rather than
 # trusting it silently.
@@ -5754,7 +5754,7 @@ _resolveNetbootHost() {
     if [[ $match == wildcard ]]; then
         echo
         echo "   Note: $netboothost matches only a WILDCARD name in the served"
-        echo "   certificate. Whether iPXE honours a wildcard SAN is unverified,"
+        echo "   certificate. Whether iPXE honors a wildcard SAN is unverified,"
         echo "   so if netboot stops at the TLS handshake, re-issue with"
         echo "   $netboothost as an explicit name."
         echo
@@ -7866,7 +7866,7 @@ _applyInstallMode() {
 }
 _resolveNetbootProto() {
     # An explicit --netboot-proto wins, and is REMEMBERED as explicit so a later
-    # run without the flag goes on honouring it.
+    # run without the flag goes on honoring it.
     #
     # That marker is the fix. This used to return early on any non-empty
     # ${BOOT_url_proto} -- and ${BOOT_url_proto} is persisted, so a value this function
@@ -13491,7 +13491,7 @@ _publishLocalBootFiles() {
 #
 # _resignKernels() covers the three names FOG downloads -- bzImage, bzImage32,
 # arm_Image -- and nothing else. But a kernel reaching a client does not have to
-# be one of those: bootmenu.class.php honours a per-host hostKernel/hostInit
+# be one of those: bootmenu.class.php honors a per-host hostKernel/hostInit
 # override, groups set the same fields, and FOG_TFTP_PXE_KERNEL/_32/_ARM change
 # the default globally. Any of those boots a file this server has never signed,
 # which under Secure Boot fails exactly like the unsigned rEFInd did -- only at

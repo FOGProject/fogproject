@@ -29,7 +29,7 @@ declare(strict_types=1);
  *
  *     https://<fog>/fog/management/login.php
  *
- * The guarantee is STRUCTURAL, not a flag somebody remembers to honour.
+ * The guarantee is STRUCTURAL, not a flag somebody remembers to honor.
  * index.php only offers the LOGIN_PAGE_REDIRECT hook when this constant is
  * absent, so a redirect listener is not consulted-and-overruled here -- it is
  * never reached. A plugin cannot opt back in, and a plugin that is broken,

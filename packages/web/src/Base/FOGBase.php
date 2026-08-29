@@ -5401,7 +5401,7 @@ abstract class FOGBase
      * The integer and enum choices deliberately match the coercion rather
      * than the column's DEFAULT. `hosts.hostEnforce` is declared
      * DEFAULT '1' and 73 of 86 rows on the maintainer's server hold '' --
-     * so honouring the default would silently turn enforcement ON for those
+     * so honoring the default would silently turn enforcement ON for those
      * hosts as a side effect of a storage fix. '' and '0' are both falsey in
      * PHP, so the first enum member behaves as the error value already did.
      *

@@ -225,7 +225,7 @@ $t->check(
 // 'about' and 'user' -- so without the override the confirm button offers to
 // delete "1 abouts" or "1 users".
 $t->check(
-    '$.reAuth honours an explicit modal, button and noun',
+    '$.reAuth honors an explicit modal, button and noun',
     (bool)preg_match(
         '/\$\.reAuth = function\(count, cb, opts\)/',
         $common

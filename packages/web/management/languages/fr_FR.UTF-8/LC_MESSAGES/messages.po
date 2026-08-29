@@ -7185,7 +7185,7 @@ msgstr "Rangée"
 msgid "Row cap applied to a list request that omits start, asks for length=-1, or sends a negative length. An explicit non-negative start with a positive length is served verbatim."
 msgstr ""
 
-msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
+msgid "Row offset. Only honored when length is also sent -- the server reads start from inside the length branch."
 msgstr ""
 
 #, fuzzy
@@ -11236,6 +11236,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Sauvegarder les modifications"
+
+#, fuzzy
+#~ msgid "Capone schema"
+#~ msgstr "Emplacements"
 
 #~ msgid "Check that database is running"
 #~ msgstr "Vérifiez que la base de données est en cours d'exécution"

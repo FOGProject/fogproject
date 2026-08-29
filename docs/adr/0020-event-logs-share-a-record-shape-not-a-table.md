@@ -562,7 +562,7 @@ relies on, and left the host name with nowhere to go.
 
 Three policies are defensible; three policies chosen by accident are not. Each
 event model declares which it is, and `Route::deletemass()` is the one place it
-is honoured:
+is honored:
 
 - **cascade** — the rows go with the subject (`nfsFailures`; arguably
   `imagingLog`, which the span ADR should settle).

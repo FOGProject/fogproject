@@ -126,6 +126,7 @@ $uk = [
     'signalling', 'modelled', 'travelled',
     'catalogue', 'licence', 'centre', 'centres',
     'neighbour', 'neighbours', 'neighbouring',
+    'honour', 'honours', 'honoured', 'honouring',
     'initialise', 'initialised', 'initialises', 'initialisation', 'initialiser',
     'authorise', 'authorised', 'authorises', 'authorisation',
     'serialise', 'serialised', 'serialises', 'serialising',

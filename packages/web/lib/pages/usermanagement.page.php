@@ -544,7 +544,7 @@ class UserManagement extends FOGPage
              * that provider works, and core cannot tell which kind this is:
              * a provider that vouches through USER_LOGGING_IN (LDAP) is
              * refused once the stamp is gone, because passwordValidate()
-             * honours that vouching ONLY for stamped accounts -- that
+             * honors that vouching ONLY for stamped accounts -- that
              * restriction is what stops a plugin authenticating a local
              * account. A provider that establishes the session itself
              * (OIDC) never reaches passwordValidate() and is unaffected.

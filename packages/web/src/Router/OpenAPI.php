@@ -528,7 +528,7 @@ class OpenAPI extends FOGBase
      * An entity whose model has no `name` field has nothing to match on and
      * nothing to label a result with, so Route::_searchRows() returns null
      * for it and the route answers an empty set. Documenting search there
-     * advertises an operation the server cannot honour.
+     * advertises an operation the server cannot honor.
      *
      * The test is deliberately the same isset() Route::_searchRows()
      * applies, against the same reflected $databaseFields, rather than a
@@ -1313,12 +1313,7 @@ class OpenAPI extends FOGBase
                     _('Another record still refers to this one and the '
                         . 'database refused the delete. The message names '
                         . 'what is holding it; retry once that is reassigned '
-                        . 'or removed.'),
-                    // `error`, not `msg`: this one is raised as an exception
-                    // and emitted by _sendCaught(), which uses the router's
-                    // error shape. The cancel route builds its 409 by hand
-                    // and keeps `msg`.
-                    'error'
+                        . 'or removed.')
                 )
             );
         }
@@ -2183,13 +2178,14 @@ class OpenAPI extends FOGBase
      * A 409, for a request that is well formed but cannot be applied to the
      * resource in its current state.
      *
-     * Carries the same {msg} object the 200 does, rather than the Error
-     * schema: the reason is written for a person, and the UI reads it with
-     * the same $.notifyFromAPI() call either way.
+     * Carries `{error}`, the shape every non-2xx in the router uses. It is
+     * also the only one $.notifyFromAPI() colors as a failure -- a body
+     * keyed on `msg` is typed as a SUCCESS -- which is why the property is
+     * fixed here rather than left to the caller.
      *
      * Two routes answer it and they conflict for unrelated reasons -- cancel
      * because the task has already finished, delete because a foreign key
-     * still refers to the row (ADR 0031) -- so the description is the
+     * still refers to the row (ADR 0031) -- so the description IS the
      * caller's to supply. Both are retryable once the blocking condition is
      * gone, which is what makes 409 the right code for each.
      *
@@ -2198,7 +2194,7 @@ class OpenAPI extends FOGBase
      *
      * @return array
      */
-    private static function _conflictResponse($description, $property = 'msg')
+    private static function _conflictResponse($description)
     {
         return [
             '409' => [
@@ -2207,7 +2203,7 @@ class OpenAPI extends FOGBase
                     'application/json' => [
                         'schema' => [
                             'type' => 'object',
-                            'properties' => [$property => ['type' => 'string']]
+                            'properties' => ['error' => ['type' => 'string']]
                         ]
                     ]
                 ]
@@ -2966,7 +2962,7 @@ class OpenAPI extends FOGBase
                 'required' => false,
                 'schema' => ['type' => 'integer', 'minimum' => 0],
                 'description' => _(
-                    'Row offset. Only honoured when length is also sent -- the '
+                    'Row offset. Only honored when length is also sent -- the '
                     . 'server reads start from inside the length branch.'
                 )
             ],

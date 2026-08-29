@@ -106,7 +106,7 @@ is "$(grep -c "10.0.0.10/fog/management" <<<"$out")" "1" "http, no name: one add
 hasnt "$out" "certificate" "http, no name: no certificate wording"
 
 echo
-echo "A non-default webroot is honoured"
+echo "A non-default webroot is honored"
 WEB_root="/"
 out=$(emit https "fog.example.com")
 has "$out" "https://fog.example.com/management" "webroot / gives a single slash"

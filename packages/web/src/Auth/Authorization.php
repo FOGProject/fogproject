@@ -2255,7 +2255,7 @@ class Authorization extends FOGBase
      * scalar filter value into a SQL LIKE wildcard. This is a query whose
      * wrong answer unlocks -- or bricks -- the install, so it owns its SQL.
      *
-     * @param array $changes the proposed changes; 'authSources' is honoured
+     * @param array $changes the proposed changes; 'authSources' is honored
      *
      * @return array user ids
      */
@@ -2311,7 +2311,7 @@ class Authorization extends FOGBase
      * bricked, so it owns its SQL rather than inheriting the query
      * builder's wildcard handling.
      *
-     * @param array $changes the proposed changes; 'apiOnly' is honoured
+     * @param array $changes the proposed changes; 'apiOnly' is honored
      *
      * @return array user ids
      */

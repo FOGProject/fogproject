@@ -10,7 +10,7 @@
  * Those two are the same thing right up until a capability moves out of a
  * plugin and into core -- at which point the node stays in the registry,
  * owned by core, while a plugin of that name is still installed. Uninstalling
- * the leftover then deletes grants that core is still honouring, and nothing
+ * the leftover then deletes grants that core is still honoring, and nothing
  * anywhere says so: no error, no log line, just users who quietly lost
  * access. That is the failure this test exists to make impossible.
  *

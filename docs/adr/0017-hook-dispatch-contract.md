@@ -73,7 +73,7 @@ above it was *active*. At dispatch, any listener whose file path contained the
 substring `plugins` was force-activated regardless of its flag.
 
 A value computed in a constructor is deliberately still not consulted at load —
-that was true of the regex too — but it *is* honoured at dispatch, which is why
+that was true of the regex too — but it *is* honored at dispatch, which is why
 the dispatch-time read stays rather than gating construction on the flag.
 
 ### 3. A plugin's file path is not part of the activation decision

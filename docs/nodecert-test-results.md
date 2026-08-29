@@ -151,7 +151,7 @@ have helped. Three changes:
 
 - the installer derives a name from `hostname -f` (not `$hostname`, which a
   `.fogsettings`-seeded node install never has — that path skips `input.sh`);
-- `create_update_node.php` honours it, but only when it is a real hostname and
+- `create_update_node.php` honors it, but only when it is a real hostname and
   is not already taken. `ngmMemberName` is UNIQUE and `FOGController::save()`
   inserts with `ON DUPLICATE KEY UPDATE`, so an unchecked name collision would
   silently rewrite the other node's row rather than fail — and hostnames are not

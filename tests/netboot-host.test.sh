@@ -27,7 +27,7 @@
 # The properties pinned here, in the order they are easiest to break again:
 #
 #   1. the name comes from the CERTIFICATE, not from ${NET_hostname} (A2, I);
-#   2. a commonName is honoured only when there is no subjectAltName at all,
+#   2. a commonName is honored only when there is no subjectAltName at all,
 #      which is iPXE's own rule -- see docs/adr/0016 (D, E). E is the one most
 #      likely to be "simplified" by someone who reads D;
 #   3. an install that cannot satisfy this FAILS rather than writing an
@@ -102,7 +102,7 @@ reset_env() {
     tftpdirdst="$WORK/tftp"
     error_log="$WORK/error.log"
     # Without this the fatal paths call `exit 1` and take the test script with
-    # them. functions.sh honours it on every one of them.
+    # them. functions.sh honors it on every one of them.
     exitFail=1
 }
 
@@ -119,7 +119,7 @@ out=$(_certServesName "$WORK/fogpki.pem" "fog"); status=$?
 check "$out" "exact" "C: the short name DOES match a FOG-issued leaf (it is a SAN)"
 
 out=$(_certServesName "$WORK/cnonly.pem" "fog.example.org"); status=$?
-check "$out" "exact" "D: with no SAN at all, the commonName is honoured (ADR 0016)"
+check "$out" "exact" "D: with no SAN at all, the commonName is honored (ADR 0016)"
 
 out=$(_certServesName "$WORK/cnliar.pem" "fog"); status=$?
 rc $status 1 "E: once ANY SAN exists the commonName is ignored -- do not 'simplify' this"

@@ -61,7 +61,7 @@ second call.
    same value the self-calls verify against.
 2. It is then **checked against that certificate** by `_certServesName()`, which
    applies *iPXE's* rule rather than OpenSSL's: per ADR 0016, iPXE's
-   `x509_check_name()` honours a `commonName` only when the certificate carries
+   `x509_check_name()` honors a `commonName` only when the certificate carries
    no `subjectAltName` at all. Once any SAN exists the CN is ignored. IP SANs are
    ignored throughout — they cannot satisfy a URL built from a name.
 3. A failure to satisfy this is **fatal, before anything is written**. An install
@@ -99,7 +99,7 @@ netboot is HTTPS.
   message. It only feeds FOG's own SAN list, and the branch fires mostly on
   installs whose leaf FOG did not issue.
 - A wildcard-only match is accepted **with a printed note**, because whether
-  iPXE's `x509_check_name()` honours a wildcard SAN is unverified — `fog-ipxe`
+  iPXE's `x509_check_name()` honors a wildcard SAN is unverified — `fog-ipxe`
   is an overlay and carries no upstream `crypto/x509.c` to read. Verify against
   upstream and tighten or relax then.
 - `tests/netboot-host.test.sh` pins all of it, including the case most likely to

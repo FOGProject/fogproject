@@ -5998,7 +5998,7 @@ abstract class FOGPage extends FOGBase
      * Unlike getExportList(), which pages for the on-screen table, this
      * replays the DataTables request (sent on the query string) with no row
      * limit, so every matching record is written. The active search and sort
-     * are honoured because the request is passed straight to
+     * are honored because the request is passed straight to
      * FOGManagerController::simple(); forcing length=-1 drops the SQL LIMIT.
      *
      * The header row uses the friendly column keys, which are exactly the

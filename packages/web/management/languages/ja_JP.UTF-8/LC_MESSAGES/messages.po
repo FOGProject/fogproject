@@ -6925,7 +6925,7 @@ msgstr "行"
 msgid "Row cap applied to a list request that omits start, asks for length=-1, or sends a negative length. An explicit non-negative start with a positive length is served verbatim."
 msgstr ""
 
-msgid "Row offset. Only honoured when length is also sent -- the server reads start from inside the length branch."
+msgid "Row offset. Only honored when length is also sent -- the server reads start from inside the length branch."
 msgstr ""
 
 #, fuzzy
@@ -10929,6 +10929,10 @@ msgstr ""
 
 #~ msgid "Cannot view from browser"
 #~ msgstr "ブラウザーから表示できません"
+
+#, fuzzy
+#~ msgid "Capone schema"
+#~ msgstr "ロケーション"
 
 #~ msgid "Chat is also available on the forums for more realtime help"
 #~ msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"

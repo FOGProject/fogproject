@@ -4832,7 +4832,7 @@ class Route extends FOGBase
                             isset($vars->macs) ? (array)$vars->macs : []
                         );
                     }
-                    // edit() honours 'primac' but create() did not, and 'primac'
+                    // edit() honors 'primac' but create() did not, and 'primac'
                     // is an additionalFields entry derived from the
                     // MACAddressAssociation join rather than a real column, so
                     // the databaseFields loop above skips it too. The result was
@@ -5344,13 +5344,21 @@ class Route extends FOGBase
     /**
      * Refuses a cancel the named resource is not in a state to accept.
      *
-     * The body is a JSON object, not the bare reason string the older non-2xx
-     * paths in this class emit. breakHead() has always declared
-     * `Content-Type: application/json` and then echoed whatever it was given,
-     * so those replies claim a type they are not; 409 is a status no caller
-     * receives today, so it can start out matching its own header without
-     * breaking anyone. Same `{"msg": ...}` shape the 200 already uses, which
-     * is what $.notifyFromAPI() reads.
+     * The body is a JSON object keyed on `error`, like every other non-2xx
+     * this class emits since the bare reason strings were retired.
+     *
+     * It used to be `{"msg": ...}`, chosen to match the shape the 200
+     * already used on the reasoning that $.notifyFromAPI() reads it either
+     * way. It does read it -- and then types it as a SUCCESS: `if (res.msg)
+     * { type = 'success'; }`. So a 409 explaining that a task had already
+     * finished drew a GREEN toast, and a caller who asked to cancel nothing
+     * was told it worked. That is the failure this route exists to prevent,
+     * reintroduced one layer further out, and it is the same shape as the
+     * signed-out-save bug in GH-1370.
+     *
+     * `error` is what colors it red. Nothing else reads these two keys
+     * differently, so this is a display fix, not a contract change -- but it
+     * IS visible: the cancel route's refusal toast changes color.
      *
      * @param string $msg Why the resource cannot be canceled.
      *
@@ -5360,7 +5368,7 @@ class Route extends FOGBase
     {
         self::sendResponse(
             HTTPResponseCodes::HTTP_CONFLICT,
-            json_encode(['msg' => $msg])
+            json_encode(['error' => $msg])
         );
     }
     /**

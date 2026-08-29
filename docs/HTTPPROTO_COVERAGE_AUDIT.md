@@ -1,6 +1,6 @@
 # `WEB_url_proto` coverage audit, and the conditional HTTPS redirect
 
-> **Headline:** `WEB_url_proto` is honoured by every URL the installer emits, so
+> **Headline:** `WEB_url_proto` is honored by every URL the installer emits, so
 > redefining it as *"the protocol FOG uses for its own **non-netboot** URLs"* is
 > safe on the installer side. It is **not** safe yet on three other fronts:
 > three sites still gate the iPXE download, the Secure Boot staging and the
@@ -297,7 +297,7 @@ installer settings work.
 
 Point-in-time, against `working-1.6` as of 2026-08-17. Line numbers drift.
 
-## B1. Item 1 — does everything honour `httpproto`?
+## B1. Item 1 — does everything honor `httpproto`?
 
 **Installer: yes, with three exceptions.** Every `curl` to FOG's own web tier
 builds its URL from `$httpproto` — node existence probe (`functions.sh:480`),

@@ -418,7 +418,7 @@ class IpxeBootMenu extends BootMenuBase
             return $override;
         }
         // Say so on screen rather than just ignoring it: from the operator's
-        // side an ignored override and an honoured one look identical, and
+        // side an ignored override and an honored one look identical, and
         // the machine that is misconfigured is the one that needs telling.
         $this->_notices[] = sprintf(
             'echo Ignoring host %s %s -- this machine is %s. Using %s.',
@@ -875,7 +875,7 @@ class IpxeBootMenu extends BootMenuBase
          * had just been chosen.
          *
          * Say so on screen rather than just ignoring it: from the operator's
-         * side an ignored override and an honoured one look identical, and
+         * side an ignored override and an honored one look identical, and
          * the machine that is misconfigured is the one that needs telling.
          */
         $bzImage = $this->_hostOverride('kernel', $bzImage);
@@ -919,7 +919,7 @@ class IpxeBootMenu extends BootMenuBase
          * reference, and this used to reassign $initrd = $imagefile
          * unconditionally -- so a plugin that set 'initrd' had its value
          * discarded on the very next line, while one that set 'imagefile'
-         * was honoured. Nothing said which of the two to write to, and
+         * was honored. Nothing said which of the two to write to, and
          * the one named after the thing being chosen was the dead one.
          *
          * Follow 'imagefile' only when the hook left 'initrd' alone, so
