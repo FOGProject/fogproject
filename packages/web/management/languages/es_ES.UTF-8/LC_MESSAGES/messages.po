@@ -2964,10 +2964,6 @@ msgid "File Delete Queue"
 msgstr "No se pudo crear el usuario"
 
 #, fuzzy
-msgid "File Deleter"
-msgstr "No se pudo crear el usuario"
-
-#, fuzzy
 msgid "File Not Found"
 msgstr "Icono de archivo no encontrado"
 
@@ -3575,10 +3571,6 @@ msgstr "Ayuda y Guía"
 msgid "History Items"
 msgstr "ID de host"
 
-#, fuzzy
-msgid "History Report"
-msgstr "ID de host"
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3831,9 +3823,6 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hospedadores"
-
-msgid "Hosts And Users"
-msgstr ""
 
 #, fuzzy
 msgid "Hosts and images"
@@ -5501,7 +5490,7 @@ msgid "Monthly"
 msgstr "Mensual"
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -6373,10 +6362,6 @@ msgid "Pending MACs"
 msgstr "macs pendientes"
 
 #, fuzzy
-msgid "Pending Mac List"
-msgstr "macs pendientes"
-
-#, fuzzy
 msgid "Pending Registered Hosts"
 msgstr "anfitriones pendientes"
 
@@ -6830,10 +6815,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Product Key"
-msgstr "Clave del producto Grupo"
-
-#, fuzzy
-msgid "Product Keys"
 msgstr "Clave del producto Grupo"
 
 msgid "Progress"
@@ -11416,6 +11397,10 @@ msgstr ""
 #~ msgstr "No se pudo crear Complemento de empleo"
 
 #, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "No se pudo crear el usuario"
+
+#, fuzzy
 #~ msgid "Force Reboot"
 #~ msgstr "Reiniciar"
 
@@ -11446,6 +11431,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "Descripción del Grupo"
+
+#, fuzzy
+#~ msgid "History Report"
+#~ msgstr "ID de host"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -11642,8 +11631,16 @@ msgstr ""
 #~ msgid "Pending MACs."
 #~ msgstr "macs pendientes"
 
+#, fuzzy
+#~ msgid "Pending Mac List"
+#~ msgstr "macs pendientes"
+
 #~ msgid "Printer Alias"
 #~ msgstr "impresora Alias"
+
+#, fuzzy
+#~ msgid "Product Keys"
+#~ msgstr "Clave del producto Grupo"
 
 #, fuzzy
 #~ msgid "Remove Selected"

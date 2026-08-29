@@ -2814,10 +2814,6 @@ msgstr "ファイル"
 msgid "File Delete Queue"
 msgstr "ルールを削除しました"
 
-#, fuzzy
-msgid "File Deleter"
-msgstr "削除"
-
 msgid "File Not Found"
 msgstr "ファイルが見つかりません"
 
@@ -3401,9 +3397,6 @@ msgstr "ヘルプとガイド"
 msgid "History Items"
 msgstr "履歴 ID"
 
-msgid "History Report"
-msgstr "履歴レポート"
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3630,9 +3623,6 @@ msgstr "ロケーションは既に存在します。再試行してください
 
 msgid "Hosts"
 msgstr "ホスト"
-
-msgid "Hosts And Users"
-msgstr "ホストとユーザー"
 
 #, fuzzy
 msgid "Hosts and images"
@@ -5175,7 +5165,7 @@ msgid "Monthly"
 msgstr "毎月"
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -6012,9 +6002,6 @@ msgstr "保留中 MAC アドレス"
 msgid "Pending MACs"
 msgstr "保留中 MAC アドレス"
 
-msgid "Pending Mac List"
-msgstr "保留中の MAC 一覧"
-
 msgid "Pending Registered Hosts"
 msgstr "保留中の登録済みホスト"
 
@@ -6448,9 +6435,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Product Key"
-msgstr "プロダクトキー"
-
-msgid "Product Keys"
 msgstr "プロダクトキー"
 
 msgid "Progress"
@@ -11208,6 +11192,10 @@ msgstr ""
 #~ msgid "Failed to upload \"%s\" to Master Node"
 #~ msgstr "\"%s\" のマスターノードへのアップロードに失敗しました"
 
+#, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "削除"
+
 #~ msgid "File Integrity Management"
 #~ msgstr "ファイル整合性管理"
 
@@ -11316,6 +11304,9 @@ msgstr ""
 #~ msgid "History Info"
 #~ msgstr "履歴情報"
 
+#~ msgid "History Report"
+#~ msgstr "履歴レポート"
+
 #~ msgid "History Time"
 #~ msgstr "履歴時刻"
 
@@ -11414,6 +11405,9 @@ msgstr ""
 
 #~ msgid "Hostname / IP"
 #~ msgstr "ホスト名 / IP"
+
+#~ msgid "Hosts And Users"
+#~ msgstr "ホストとユーザー"
 
 #~ msgid "I have read"
 #~ msgstr "I have read"
@@ -11996,6 +11990,9 @@ msgstr ""
 #~ msgid "Pending MACs."
 #~ msgstr "保留中 MAC アドレス"
 
+#~ msgid "Pending Mac List"
+#~ msgstr "保留中の MAC 一覧"
+
 #~ msgid "Perform Immediately?"
 #~ msgstr "すぐに実行しますか？"
 
@@ -12086,6 +12083,9 @@ msgstr ""
 
 #~ msgid "Printer name already exists"
 #~ msgstr "このプリンター名は既に存在します"
+
+#~ msgid "Product Keys"
+#~ msgstr "プロダクトキー"
 
 #~ msgid "Quarantine"
 #~ msgstr "隔離"

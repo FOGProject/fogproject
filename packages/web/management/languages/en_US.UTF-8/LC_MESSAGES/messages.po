@@ -2913,10 +2913,6 @@ msgid "File Delete Queue"
 msgstr "Failed to delete file"
 
 #, fuzzy
-msgid "File Deleter"
-msgstr "Failed to delete file"
-
-#, fuzzy
 msgid "File Not Found"
 msgstr "Icon File not found"
 
@@ -3523,10 +3519,6 @@ msgstr "Help and Guide"
 msgid "History Items"
 msgstr "Host ID"
 
-#, fuzzy
-msgid "History Report"
-msgstr "Host ID"
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3764,9 +3756,6 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hosts"
-
-msgid "Hosts And Users"
-msgstr ""
 
 #, fuzzy
 msgid "Hosts and images"
@@ -5385,7 +5374,7 @@ msgid "Monthly"
 msgstr "Monthly"
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -6241,10 +6230,6 @@ msgstr "MAC Address List"
 msgid "Pending MACs"
 msgstr "Pending MACs"
 
-#, fuzzy
-msgid "Pending Mac List"
-msgstr "Pending macs"
-
 msgid "Pending Registered Hosts"
 msgstr "Pending Registered Hosts"
 
@@ -6690,10 +6675,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Product Key"
-msgstr "Host Product Key"
-
-#, fuzzy
-msgid "Product Keys"
 msgstr "Host Product Key"
 
 msgid "Progress"
@@ -11231,6 +11212,10 @@ msgstr ""
 #~ msgstr "Failed to update/create image log"
 
 #, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "Failed to delete file"
+
+#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "I am not the fog web server"
 
@@ -11264,6 +11249,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "Update Settings"
+
+#, fuzzy
+#~ msgid "History Report"
+#~ msgstr "Host ID"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -11459,6 +11448,10 @@ msgstr ""
 #~ msgstr "Pending MACs"
 
 #, fuzzy
+#~ msgid "Pending Mac List"
+#~ msgstr "Pending macs"
+
+#, fuzzy
 #~ msgid "Performing ping"
 #~ msgstr "Attempting to ping"
 
@@ -11468,6 +11461,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
+
+#, fuzzy
+#~ msgid "Product Keys"
+#~ msgstr "Host Product Key"
 
 #, fuzzy
 #~ msgid "Remove Selected"

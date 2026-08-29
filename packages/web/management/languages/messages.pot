@@ -2487,9 +2487,6 @@ msgstr ""
 msgid "File Delete Queue"
 msgstr ""
 
-msgid "File Deleter"
-msgstr ""
-
 msgid "File Not Found"
 msgstr ""
 
@@ -2997,9 +2994,6 @@ msgstr ""
 msgid "History Items"
 msgstr ""
 
-msgid "History Report"
-msgstr ""
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3199,9 +3193,6 @@ msgid "Hostname already used, please try again"
 msgstr ""
 
 msgid "Hosts"
-msgstr ""
-
-msgid "Hosts And Users"
 msgstr ""
 
 msgid "Hosts and images"
@@ -4558,7 +4549,7 @@ msgid "Monthly"
 msgstr ""
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -5306,9 +5297,6 @@ msgstr ""
 msgid "Pending MACs"
 msgstr ""
 
-msgid "Pending Mac List"
-msgstr ""
-
 msgid "Pending Registered Hosts"
 msgstr ""
 
@@ -5686,9 +5674,6 @@ msgid "Processors"
 msgstr ""
 
 msgid "Product Key"
-msgstr ""
-
-msgid "Product Keys"
 msgstr ""
 
 msgid "Progress"

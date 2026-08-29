@@ -2914,10 +2914,6 @@ msgid "File Delete Queue"
 msgstr "Falha ao excluir arquivo"
 
 #, fuzzy
-msgid "File Deleter"
-msgstr "Falha ao excluir arquivo"
-
-#, fuzzy
 msgid "File Not Found"
 msgstr "Ícone do Arquivo não encontrado"
 
@@ -3524,10 +3520,6 @@ msgstr "Ajuda e Guia"
 msgid "History Items"
 msgstr "ID de acolhimento"
 
-#, fuzzy
-msgid "History Report"
-msgstr "ID de acolhimento"
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3765,9 +3757,6 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "Hosts"
-
-msgid "Hosts And Users"
-msgstr ""
 
 #, fuzzy
 msgid "Hosts and images"
@@ -5386,7 +5375,7 @@ msgid "Monthly"
 msgstr "Por mês"
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -6242,10 +6231,6 @@ msgstr "Lista de endereços MAC"
 msgid "Pending MACs"
 msgstr "pendentes MACs"
 
-#, fuzzy
-msgid "Pending Mac List"
-msgstr "macs pendentes"
-
 msgid "Pending Registered Hosts"
 msgstr "Enquanto se aguarda hosts registrados"
 
@@ -6691,10 +6676,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Product Key"
-msgstr "Hospedar de Chave de Produto"
-
-#, fuzzy
-msgid "Product Keys"
 msgstr "Hospedar de Chave de Produto"
 
 msgid "Progress"
@@ -11232,6 +11213,10 @@ msgstr ""
 #~ msgstr "Falha ao atualizar / criar o registo de imagem"
 
 #, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "Falha ao excluir arquivo"
+
+#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Eu não sou o servidor web nevoeiro"
 
@@ -11265,6 +11250,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group module settings"
 #~ msgstr "anfitrião Descrição"
+
+#, fuzzy
+#~ msgid "History Report"
+#~ msgstr "ID de acolhimento"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -11464,6 +11453,10 @@ msgstr ""
 #~ msgstr "pendentes MACs"
 
 #, fuzzy
+#~ msgid "Pending Mac List"
+#~ msgstr "macs pendentes"
+
+#, fuzzy
 #~ msgid "Performing ping"
 #~ msgstr "A tentativa de executar ping"
 
@@ -11473,6 +11466,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "Printer Alias"
+
+#, fuzzy
+#~ msgid "Product Keys"
+#~ msgstr "Hospedar de Chave de Produto"
 
 #, fuzzy
 #~ msgid "Remove Selected"

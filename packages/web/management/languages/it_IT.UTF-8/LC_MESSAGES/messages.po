@@ -2836,10 +2836,6 @@ msgid "File Delete Queue"
 msgstr "Impossibile eliminare il file"
 
 #, fuzzy
-msgid "File Deleter"
-msgstr "Impossibile eliminare il file"
-
-#, fuzzy
 msgid "File Not Found"
 msgstr "File Icona non trovato"
 
@@ -3429,10 +3425,6 @@ msgstr "Aiuto e guida"
 msgid "History Items"
 msgstr "Grafico storico"
 
-#, fuzzy
-msgid "History Report"
-msgstr "Grafico storico"
-
 msgid "Hits / Misses / Queries"
 msgstr ""
 
@@ -3661,9 +3653,6 @@ msgstr ""
 
 msgid "Hosts"
 msgstr "host"
-
-msgid "Hosts And Users"
-msgstr ""
 
 #, fuzzy
 msgid "Hosts and images"
@@ -5215,7 +5204,7 @@ msgid "Monthly"
 msgstr "Mensile"
 
 #, php-format
-msgid "More than %s runs match this range. Everything below counts the most recent %s only -- narrow the dates for exact figures."
+msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
 msgid "Most Frequent Host IDs"
@@ -6047,10 +6036,6 @@ msgstr "Indirizzo MAC"
 msgid "Pending MACs"
 msgstr "sospeso MAC"
 
-#, fuzzy
-msgid "Pending Mac List"
-msgstr "Mac in attesa"
-
 msgid "Pending Registered Hosts"
 msgstr "In attesa di host registrati"
 
@@ -6483,10 +6468,6 @@ msgstr ""
 
 #, fuzzy
 msgid "Product Key"
-msgstr "Host Product Key"
-
-#, fuzzy
-msgid "Product Keys"
 msgstr "Host Product Key"
 
 msgid "Progress"
@@ -10867,6 +10848,10 @@ msgstr ""
 #~ msgstr "Impossibile aggiornare / creare log immagine"
 
 #, fuzzy
+#~ msgid "File Deleter"
+#~ msgstr "Impossibile eliminare il file"
+
+#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Io non sono il server web fog"
 
@@ -10902,6 +10887,10 @@ msgstr ""
 
 #~ msgid "Group module settings"
 #~ msgstr "Impostazioni modulo del gruppo"
+
+#, fuzzy
+#~ msgid "History Report"
+#~ msgstr "Grafico storico"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -11103,6 +11092,10 @@ msgstr ""
 #~ msgstr "sospeso MAC"
 
 #, fuzzy
+#~ msgid "Pending Mac List"
+#~ msgstr "Mac in attesa"
+
+#, fuzzy
 #~ msgid "Performing ping"
 #~ msgstr "Il tentativo di ping"
 
@@ -11111,6 +11104,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
+
+#, fuzzy
+#~ msgid "Product Keys"
+#~ msgstr "Host Product Key"
 
 #, fuzzy
 #~ msgid "Recorded"
