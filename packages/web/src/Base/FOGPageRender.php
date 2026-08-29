@@ -421,7 +421,11 @@ trait FOGPageRender
             return _('Never');
         }
 
-        return self::niceDate($value)->format('Y-m-d H:i:s');
+        // toDisplay(), not niceDate(): niceDate reads the value in the zone it
+        // was STORED in and formatting it straight back hands you the same
+        // string you started with, so the viewer's zone would never be applied
+        // anywhere a date is shown on a form.
+        return self::toDisplay($value)->format('Y-m-d H:i:s');
     }
 
     /**

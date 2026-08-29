@@ -1608,6 +1608,9 @@ msgstr ""
 msgid "Checking if I am the group manager"
 msgstr ""
 
+msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
+msgstr ""
+
 #, fuzzy
 msgid "Class"
 msgstr "Tareas"
@@ -2375,6 +2378,10 @@ msgstr "Nombre de usuario"
 #, fuzzy
 msgid "Display With"
 msgstr "Diariamente"
+
+#, fuzzy
+msgid "Display timezone"
+msgstr "Nombre de usuario"
 
 msgid "Do not list on menu"
 msgstr ""
@@ -7402,6 +7409,9 @@ msgstr "Añadir fallidos SNAPin!"
 msgid "SSL Path"
 msgstr "Camino"
 
+msgid "Save"
+msgstr ""
+
 msgid "Save Changes"
 msgstr "Guardar cambios"
 
@@ -7618,6 +7628,10 @@ msgstr "Servidor web"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "Server default (%s)"
+msgstr "Información general"
+
 msgid "Server facts. Every field is a string, and is empty rather than absent when the installer has not published it yet."
 msgstr ""
 
@@ -7729,6 +7743,9 @@ msgstr "Nombre del grupo de almacenamiento"
 #, fuzzy
 msgid "Set failed"
 msgstr "actualización de servicio no pudo"
+
+msgid "Set your display timezone"
+msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -11829,10 +11846,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Serial"
 #~ msgstr "sistema de serie"
-
-#, fuzzy
-#~ msgid "Server facts."
-#~ msgstr "Información general"
 
 #, fuzzy
 #~ msgid "Site Association"
