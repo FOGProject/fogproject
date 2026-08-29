@@ -1289,9 +1289,6 @@ msgstr "Caminho"
 msgid "CA private key"
 msgstr "chave privada falhou"
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr "cache CPU"
 
@@ -4553,14 +4550,6 @@ msgid "Inventory Edits"
 msgstr "Inventário"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "Inventário"
-
-#, fuzzy
-msgid "Inventory Report"
-msgstr "Inventário"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "Inventário"
 
@@ -4976,6 +4965,10 @@ msgstr ""
 msgid "Listener must be an array or an object"
 msgstr ""
 
+#, fuzzy
+msgid "Lists"
+msgstr "Linha"
+
 msgid "Load Average"
 msgstr "Carga média"
 
@@ -5174,10 +5167,6 @@ msgstr "Gerenciamento de senha"
 
 msgid "Management Username"
 msgstr "Gestão usuário"
-
-#, fuzzy
-msgid "Manufacturer"
-msgstr "CPU Fabricante"
 
 #, fuzzy
 msgid "Manufacturers"
@@ -6861,9 +6850,6 @@ msgstr "Receber"
 msgid "Record not found"
 msgstr "Registro não encontrado, erro: %s"
 
-msgid "Recorded"
-msgstr ""
-
 msgid "Recorded By"
 msgstr ""
 
@@ -7400,10 +7386,6 @@ msgstr "foi atualizado com sucesso"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
-
-#, fuzzy
-msgid "Serial"
-msgstr "Serial sistema"
 
 msgid "Serial Number"
 msgstr "Número de série"
@@ -11408,6 +11390,14 @@ msgstr ""
 #~ msgstr "tipo inválido"
 
 #, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "Inventário"
+
+#, fuzzy
+#~ msgid "Inventory Report"
+#~ msgstr "Inventário"
+
+#, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "Servidor LDAP"
 
@@ -11430,6 +11420,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Login failed"
 #~ msgstr "Carga falhou: %s"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "CPU Fabricante"
 
 #, fuzzy
 #~ msgid "Module Associated"
@@ -11541,6 +11535,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+#~ msgid "Serial"
+#~ msgstr "Serial sistema"
 
 #, fuzzy
 #~ msgid "Server facts."

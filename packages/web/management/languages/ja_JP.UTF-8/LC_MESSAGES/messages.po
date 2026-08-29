@@ -1234,9 +1234,6 @@ msgstr "パス"
 msgid "CA private key"
 msgstr "秘密鍵の処理に失敗しました"
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr "CPU キャッシュ"
 
@@ -4371,13 +4368,6 @@ msgid "Inventory Edits"
 msgstr "インベントリ"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "インベントリ"
-
-msgid "Inventory Report"
-msgstr "インベントリレポート"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "インベントリ"
 
@@ -4780,6 +4770,10 @@ msgstr "2 番目のパラメーターは array(class,function) 形式である�
 msgid "Listener must be an array or an object"
 msgstr "リスナーは配列またはオブジェクトである必要があります"
 
+#, fuzzy
+msgid "Lists"
+msgstr "一覧"
+
 msgid "Load Average"
 msgstr "システム負荷"
 
@@ -4965,10 +4959,6 @@ msgstr "管理パスワード"
 
 msgid "Management Username"
 msgstr "管理ユーザー名"
-
-#, fuzzy
-msgid "Manufacturer"
-msgstr "MB 製造元"
 
 #, fuzzy
 msgid "Manufacturers"
@@ -6614,10 +6604,6 @@ msgstr "パーセント"
 msgid "Record not found"
 msgstr "レコードが見つかりません"
 
-#, fuzzy
-msgid "Recorded"
-msgstr "保護されていません"
-
 msgid "Recorded By"
 msgstr ""
 
@@ -7129,9 +7115,6 @@ msgstr "スケジュール済みタスクを作成しました"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
-
-msgid "Serial"
-msgstr "シリアル"
 
 msgid "Serial Number"
 msgstr "シリアル番号"
@@ -11597,6 +11580,13 @@ msgstr ""
 #~ msgid "Invalid user and/or channel passed"
 #~ msgstr "無効なユーザーまたはチャンネルが渡されました"
 
+#, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "インベントリ"
+
+#~ msgid "Inventory Report"
+#~ msgstr "インベントリレポート"
+
 #~ msgid "Is Restricted User "
 #~ msgstr "制限付きユーザー "
 
@@ -11704,6 +11694,10 @@ msgstr ""
 #, php-format
 #~ msgid "Malformed upload for \"%s\""
 #~ msgstr "\"%s\" のアップロード形式が不正です"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "MB 製造元"
 
 #~ msgid "Max"
 #~ msgstr "最大"
@@ -12105,6 +12099,10 @@ msgstr ""
 #~ msgid "Rebranding element has been successfully updated!"
 #~ msgstr "ブランド設定を更新しました！"
 
+#, fuzzy
+#~ msgid "Recorded"
+#~ msgstr "保護されていません"
+
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "登録はフックまたはイベントから管理する必要があります"
 
@@ -12252,6 +12250,9 @@ msgstr ""
 
 #~ msgid "Selected node's disk usage"
 #~ msgstr "選択したノードのディスク使用量"
+
+#~ msgid "Serial"
+#~ msgstr "シリアル"
 
 #, fuzzy
 #~ msgid "Server facts."
