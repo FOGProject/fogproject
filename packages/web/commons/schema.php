@@ -8806,3 +8806,64 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 382
+$this->schema[] = [
+    // ADR 0031 group 1: host-owned junctions and satellites.
+    //
+    // The first constraints FOG has ever declared. 14 of them across 10
+    // tables -- the association rows and 1:1 satellites that belong to a
+    // host, plus the other side of each junction so a deleted group,
+    // snapin, printer or module cannot leave one either:
+    //
+    //   groupMembers        gmHostID -> hosts,  gmGroupID -> groups
+    //   hostMAC             hmHostID -> hosts
+    //   snapinAssoc         saHostID -> hosts,  saSnapinID -> snapins
+    //   printerAssoc        paHostID -> hosts,  paPrinterID -> printers
+    //   moduleStatusByHost  msHostID -> hosts,  msModuleID -> modules
+    //   inventory           iHostID -> hosts
+    //   hostScreenSettings  hssHostID -> hosts
+    //   hostAutoLogOut      haloHostID -> hosts
+    //   powerManagement     pmHostID -> hosts
+    //   greenFog            gfHostID -> hosts
+    //
+    // ALL CASCADE, AND NOTHING AN ADMIN CAN SEE CHANGES. Route::deletemass()
+    // already deletes every one of these when a host goes; the constraint is
+    // that statement made true in the database instead of remembered in one
+    // function. What it buys is the path that FORGETS -- an API delete, a
+    // plugin, a future call site -- which is the entire argument of ADR 0031.
+    //
+    // The declaration itself lives in commons/schema-constraints.php, which
+    // carries all 87 relationships with an `enabled` flag; this group's 14
+    // are the ones flipped on. The step does not repeat them, because a
+    // second copy is a second thing to get wrong.
+    //
+    // WHY A STEP AT ALL, when SchemaReconciler already applies constraints
+    // after every update run. Because that run has to HAPPEN: the admin only
+    // reaches the schema page while `mySchema < FOG_SCHEMA`, so a group that
+    // is only a flag flip in a PHP file reaches a server that is already up
+    // to date exactly never. An indexed step is what moves the count, and
+    // having moved it, it may as well be the thing that does the work and
+    // says so in the replay log. The reconcile that follows a few lines
+    // later in SchemaUpdaterPage::update() then finds them present and plans
+    // nothing -- it is the standing repair for a constraint dropped by hand
+    // or lost to a restore, not the mechanism that lands one.
+    //
+    // Steps 380 and 381 are the precondition: 380 made two of these column
+    // pairs the same type, and 381 removed the orphans that would otherwise
+    // refuse at 1452.
+    //
+    // NEVER FAILS THE UPDATE. applyConstraints() collects a refusal into
+    // SchemaReconciler::constraintFailures() and logs it with a pointer at
+    // bin/fk-orphan-scan.php rather than returning an error, because
+    // aborting here would strand a server on ?node=schema over data that is
+    // otherwise intact. A missing constraint means FOG is still relying on
+    // deletemass() alone, which is where it has been for a decade.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints();
+
+        return true;
+    },
+];

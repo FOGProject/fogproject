@@ -185,8 +185,23 @@ class FogFakeDb
         'MAIN_MENU_DATA',
     ];
 
-    /** @var bool PDODB exposes this and DatabaseManager reads it. */
+    /**
+     * Last error, matching PDODB::$error: false when the statement
+     * succeeded, the driver's message when it did not. Typed the same way
+     * on purpose -- a fake that can only ever say "fine" cannot stand in
+     * for the real one in a test about what happens when it is not.
+     *
+     * @var bool|string
+     */
     public $error = false;
+
+    /**
+     * Last error code, matching PDODB::$errorCode. SchemaReconciler reads
+     * it to decide whether a failure is one of the tolerated duplicates.
+     *
+     * @var bool|int|string
+     */
+    public $errorCode = false;
 
     /** @var array every statement passed to query(), in order */
     public $log = [];

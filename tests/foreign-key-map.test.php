@@ -201,6 +201,58 @@ foreach ($map as $rel) {
     }
 }
 
+/*
+ * WHICH GROUP IS TURNED ON, named rather than counted.
+ *
+ * ADR 0031 lands the 87 constraints group by group so each one is a
+ * reviewable commit with its own lab run. The checks above ask whether an
+ * enabled relationship is well-formed; none of them asks whether it was
+ * MEANT to be on, and `enabled` is one word in a 103-line table -- the
+ * easiest thing in this file to change by accident, and the change with the
+ * largest blast radius, because the next upgrade run declares whatever it
+ * finds here against every customer database.
+ *
+ * So the set is pinned. EDIT THIS LIST IN THE SAME COMMIT THAT ENABLES A
+ * GROUP, and if that feels like friction, it is meant to: enabling a group
+ * is the deliberate act the phasing exists to keep deliberate.
+ *
+ * Group 1 -- host-owned junctions and satellites, schema step 382.
+ */
+$expected = [
+    'groupMembers.gmHostID',
+    'groupMembers.gmGroupID',
+    'hostMAC.hmHostID',
+    'snapinAssoc.saHostID',
+    'snapinAssoc.saSnapinID',
+    'printerAssoc.paHostID',
+    'printerAssoc.paPrinterID',
+    'moduleStatusByHost.msHostID',
+    'moduleStatusByHost.msModuleID',
+    'inventory.iHostID',
+    'hostScreenSettings.hssHostID',
+    'hostAutoLogOut.haloHostID',
+    'powerManagement.pmHostID',
+    'greenFog.gfHostID',
+];
+$actual = [];
+foreach ($map as $rel) {
+    if (!empty($rel['enabled'])) {
+        $actual[] = $rel['child'] . '.' . $rel['column'];
+    }
+}
+sort($expected);
+sort($actual);
+$checked++;
+foreach (array_diff($actual, $expected) as $extra) {
+    $failures[] = "$extra is enabled but is not in this test's expected set."
+        . ' Either the flip was accidental, or the group landed without'
+        . ' updating the list above';
+}
+foreach (array_diff($expected, $actual) as $missing) {
+    $failures[] = "$missing is expected to be enabled and is not."
+        . ' A constraint that ships disabled is one FOG is not enforcing';
+}
+
 if (count($failures)) {
     echo "FAIL: " . count($failures) . " problem(s).\n\n";
     foreach ($failures as $f) {

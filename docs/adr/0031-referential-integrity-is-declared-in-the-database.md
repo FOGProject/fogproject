@@ -2,9 +2,17 @@
 
 ## Status
 
-accepted -- step 0 (the machinery), step 1 (schema 380, column widening) and
-step 2 (schema 381, the orphan sweep) implemented on `working-1.6`; all 87
-constraints still ship disabled and land group by group from step 3 on
+accepted -- steps 0 through 3 implemented on `working-1.6`: the machinery,
+schema 380 (column widening), schema 381 (the orphan sweep) and schema 382,
+which declares the first 14 constraints. The remaining 73 still ship
+disabled and land group by group.
+
+Each group is a map flip **plus an indexed schema step**. That is not
+ceremony: `DatabaseManager::init()` only sends an admin to the updater while
+`mySchema < FOG_SCHEMA`, so a group that is only a flag flip reaches an
+up-to-date server never. The step calls
+`SchemaReconciler::applyConstraints()`; the reconcile after every update run
+is the standing repair, not the mechanism.
 
 The survey behind this, with every number and every measurement, is
 [`docs/development/foreign-keys.md`](../development/foreign-keys.md).

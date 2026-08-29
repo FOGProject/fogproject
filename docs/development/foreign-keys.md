@@ -789,7 +789,7 @@ the step contains.
 |---|---|---|---|---|---|---|---|
 | 1 | Widen the five mismatched columns — **landed, schema step 380** | 3 | 0 | no | **yes** ×5 | mostly | done |
 | 2 | Orphan sweep, with counts logged — **landed, schema step 381** | 12 | 0 | **yes, destructive** | no | **no** | done |
-| 3 | Host-owned junctions and satellites | 10 | 15 | no | no | yes | yes |
+| 3 | Host-owned junctions and satellites — **landed, schema step 382** | 10 | 14 | no | no | yes | done |
 | 4 | Identity: users, roles, userGroups, sites | 9 | 22 | no | no | yes | yes |
 | 5 | Storage: groups, nodes, image/snapin assoc | 6 | 9 | no | no | yes | yes |
 | 6 | `deletemass()` gains `storagegroup`/`storagenode` cases | — | 0 | no | no | yes | yes |
@@ -863,6 +863,102 @@ rather than aborting is the reconciler behavior Step 0 exists for.
 Re-running either step is a no-op: the widening is guarded on the column
 type, and the sweep finds nothing, logs nothing, and writes no second audit
 row.
+
+### Step 3 as it landed
+
+`FOG_SCHEMA` 381 → 382. **The first foreign keys FOG has ever declared** — 14
+across 10 tables (the sequencing table above said 15; the coherent group is
+14, and the number is now taken from the map rather than from an estimate):
+
+```
+groupMembers        gmHostID -> hosts    gmGroupID -> groups
+hostMAC             hmHostID -> hosts
+snapinAssoc         saHostID -> hosts    saSnapinID -> snapins
+printerAssoc        paHostID -> hosts    paPrinterID -> printers
+moduleStatusByHost  msHostID -> hosts    msModuleID -> modules
+inventory           iHostID -> hosts
+hostScreenSettings  hssHostID -> hosts
+hostAutoLogOut      haloHostID -> hosts
+powerManagement     pmHostID -> hosts
+greenFog            gfHostID -> hosts
+```
+
+All CASCADE, and **nothing an admin can see changes**: `deletemass()`
+already deletes every one of these when a host goes. What it buys is the
+path that *forgets*.
+
+**Why a schema step exists at all, given the reconciler.** This is the piece
+the survey did not answer and it decides the shape of steps 4–9.
+`SchemaReconciler::reconcile()` applies constraints after every update run —
+but that run has to happen, and `DatabaseManager::init()` returns early
+unless `mySchema < FOG_SCHEMA`. A group that is only an `enabled` flip in a
+PHP file reaches a server that is already up to date exactly never. So each
+group is **a map flip plus an indexed step**, and since the step has to
+exist to move the count, it may as well be the thing that does the work and
+says so in the replay log. Pass 4 of `reconcile()` was extracted into
+`SchemaReconciler::applyConstraints()` for the step to call; the reconcile a
+few lines later in `SchemaUpdaterPage::update()` then finds them present and
+plans nothing. That reconcile is the standing repair for a constraint
+dropped by hand or lost to a restore — not the mechanism that lands one.
+
+Measured on the clone of a real install, in three arms:
+
+| Arm | Result |
+|---|---|
+| Step 382 **before** the sweep | 12 landed, **2 refused** (`fk_moduleStatusByHost_msHostID`, `fk_inventory_iHostID`, both 1452), step returned true and the update was not aborted |
+| Sweep, then 382 again | the other 2 land — 14/14 |
+| 382 a third time | plans nothing |
+
+That first arm is the property the whole phased rollout rests on, and it is
+not visible from the planner: a server holding an orphan this release did
+not anticipate gets its constraint refused, logged with a pointer at
+`bin/fk-orphan-scan.php`, and its upgrade finishes.
+
+**The behavior, proven by raw SQL with no PHP anywhere in the path:**
+
+```
+DELETE FROM hosts WHERE hostID=105;
+
+           macs  mods  grps  inv  taskLog
+  before      2    12     1    1        8
+  after       0     0     0    0        8
+```
+
+`taskLog` keeps all 8 rows. That is ADR 0021 and ADR 0031 agreeing: the
+associations go, the record of what the host did stays. The non-host side
+works the same way — deleting a `groups` row took its `groupMembers` with
+it.
+
+And the phasing is real rather than nominal. On the same database, deleting
+a host left its `tasks` row behind, because `tasks.taskHostID` is group 7
+and is still disabled. `deletemass('host')` deletes it in PHP, so the UI
+path is unchanged; a raw `DELETE` is not a supported path and will stop
+leaking when step 9 lands.
+
+Cost at fleet scale, on the aged 5,000-host fixture (56,532-row
+`moduleStatusByHost`), each timing including a full FOG boot:
+
+| Step | Time |
+|---|---|
+| 380 widen | 0.47s |
+| 381 sweep | 0.34s |
+| 382 fourteen `ADD CONSTRAINT` | 2.96s |
+
+**Two gates were added and both were made to fail before being trusted.**
+`tests/foreign-key-map.test.php` now names the 14 relationships that are
+expected to be on — flipping an extra one or turning one off both go red,
+and the list must be edited in the same commit that enables a group.
+`tests/foreign-key-reconcile.test.php` drives `applyConstraints()` against a
+fake database that *fails* the `ALTER`, which is the only way to tell the
+reporting path from the applying one: both return true. Making it return the
+error, and removing the first-line cap on the reason, each turn it red.
+
+Also corrected here: the comment in `Route::deletemass()` claiming InnoDB
+recomputes `AUTO_INCREMENT` as `MAX(id)+1` on restart. Measured during the
+survey — MariaDB 10.5.29 and 11.8.8 both persist it across a clean restart
+and a `SIGKILL`, and have since 10.2.4. The id-reuse hazard the comment
+describes is real on MySQL 5.7 and older and after a restore into a rebuilt
+table, so the cleanup stays; only the mechanism was wrong.
 
 Notes on the ordering:
 

@@ -7619,11 +7619,27 @@ class Route extends FOGBase
             // than repeated across four of its cases, and before
             // DELETEMASS_API so a listener still sees the full map.
             //
-            // A leftover membership row is not merely untidy. InnoDB
-            // recomputes AUTO_INCREMENT as MAX(id)+1 on restart, so ids
-            // are reused -- a row left behind by a deleted host can later
-            // put an unrelated NEW host into the site the old one was in,
-            // granting access nobody asked for.
+            // A leftover membership row is not merely untidy: if the id it
+            // names is ever handed to a different object, the row silently
+            // puts that object into a site nobody put it in.
+            //
+            // The mechanism this comment used to name -- "InnoDB recomputes
+            // AUTO_INCREMENT as MAX(id)+1 on restart" -- is NOT true of the
+            // servers FOG runs on today, and was measured rather than
+            // reasoned about while surveying for ADR 0031: MariaDB 10.5.29
+            // and 11.8.8 both keep the counter across a clean restart and a
+            // SIGKILL. MariaDB has persisted it since 10.2.4 and MySQL since
+            // 8.0. The hazard is real anyway and does not depend on that
+            // path: MySQL 5.7 and older do recompute, and a table rebuilt
+            // from a dump takes its counter from the rows it was given, so
+            // ids above the surviving maximum come back after a restore.
+            // The row is wrong the moment its object is gone, whichever
+            // server is underneath.
+            //
+            // ADR 0031 makes this cleanup a property of the schema instead
+            // of a thing this function has to remember -- but the site
+            // tables are group 2 of that series and are not constrained
+            // yet, so this code is still what does it.
             $siteMemberTables = [
                 'host' => 'sitehostmember',
                 'user' => 'siteusermember',

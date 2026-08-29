@@ -528,23 +528,62 @@ class SchemaReconciler extends FOGBase
         }
         // Pass 4 -- foreign keys, after every table and column exists.
         //
+        // Re-snapshots inside applyConstraints(): pass 1 may have created
+        // tables and pass 3 added columns that a constraint now depends on,
+        // and the structure read at the top of this method predates both.
+        //
         // Deliberately outside the $errors path above. ADD CONSTRAINT
         // validates existing rows, so an orphan this release did not
         // anticipate returns 1452; failing the update over that would
         // strand the server on ?node=schema with its data intact and no
         // way forward from the browser. Logged and reported instead.
+        self::applyConstraints($map);
+
+        if (count($errors ?: [])) {
+            return implode('; ', $errors);
+        }
+        return true;
+    }
+    /**
+     * Declares the foreign keys the map has enabled.
+     *
+     * Split out of reconcile() so an indexed schema step can land one
+     * group without waiting for a structural repair to happen to run --
+     * ADR 0031 lands the 87 constraints group by group, and each group's
+     * step calls this. reconcile() then calls it again after every update
+     * as the standing repair, which is what catches a constraint that was
+     * dropped by hand, lost to a restore, or refused on an earlier run
+     * because the rows were not clean yet.
+     *
+     * NEVER RETURNS AN ERROR, and that is the whole point. ADD CONSTRAINT
+     * validates existing rows, so a server holding an orphan this release
+     * did not anticipate answers 1452. Returning that to the updater would
+     * abort the run and strand the server on ?node=schema over data that is
+     * otherwise intact, with no way forward from the browser. A missing
+     * constraint only means FOG is still relying on Route::deletemass()
+     * alone, which is where it has been for a decade. So the failure is
+     * collected into constraintFailures(), logged loudly with a pointer at
+     * the scanner that can find the rows, and the update proceeds.
+     *
+     * Idempotent: planConstraints() skips any constraint name the database
+     * already carries, so calling this twice in one update run -- which is
+     * exactly what a group's step plus the reconcile after it does -- plans
+     * nothing the second time.
+     *
+     * @param array|null $map Relationship map; defaults to the shipped one.
+     *
+     * @return bool always true
+     */
+    public static function applyConstraints($map = null)
+    {
+        if (null === $map) {
+            $map = self::constraints();
+        }
         self::$_constraintFailures = [];
         $haveFks = self::constraintSnapshot();
-        if (null !== $haveFks) {
-            // Re-read the structure: pass 1 may have created tables and
-            // pass 3 added columns that a constraint now depends on, and
-            // the snapshot taken above predates both.
-            $after = self::snapshot();
-            $fkPlan = self::planConstraints(
-                $map,
-                (null === $after ? $have : $after),
-                $haveFks
-            );
+        $have = self::snapshot();
+        if (null !== $haveFks && null !== $have) {
+            $fkPlan = self::planConstraints($map, $have, $haveFks);
             $fkApplied = [];
             foreach ($fkPlan as $sql) {
                 if (false === self::$DB->query($sql)->error) {
@@ -600,10 +639,6 @@ class SchemaReconciler extends FOGBase
                     );
                 }
             }
-        }
-
-        if (count($errors ?: [])) {
-            return implode('; ', $errors);
         }
         return true;
     }

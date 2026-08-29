@@ -262,4 +262,86 @@ $t->check(
     $structural === []
 );
 
+// --- applyConstraints() never fails the update ------------------------------
+//
+// The property the whole phased rollout rests on, and the one that cannot be
+// seen from planConstraints(). ADD CONSTRAINT validates existing rows, so a
+// server holding an orphan this release did not anticipate answers 1452. If
+// that reached the updater as an error the run would abort and leave the
+// server on ?node=schema over data that is otherwise intact, with no way
+// forward from the browser -- so a refusal is collected and reported and the
+// update carries on.
+//
+// Driven by making the fake database FAIL the ALTER, which is the only way to
+// tell the reporting path from the applying one: both return true.
+$db = FogTestHarness::fakeDb();
+$structure = [
+    ['TABLE_NAME' => 'groupMembers', 'COLUMN_NAME' => 'gmHostID'],
+    ['TABLE_NAME' => 'hosts', 'COLUMN_NAME' => 'hostID'],
+];
+$db->responder = static function ($sql) use ($db, $structure) {
+    if (strpos($sql, 'REFERENTIAL_CONSTRAINTS') !== false) {
+        $db->error = false;
+        return [];
+    }
+    if (strpos($sql, 'information_schema') !== false
+        && strpos($sql, 'COLUMNS') !== false
+    ) {
+        $db->error = false;
+        return $structure;
+    }
+    if (stripos($sql, 'ADD CONSTRAINT') !== false) {
+        // Shaped like PDODB's: the message, then the statement and its
+        // params on following lines. applyConstraints() must keep only the
+        // first line, or one refusal becomes a screenful of log.
+        $db->error = "SQLSTATE[23000]: Integrity constraint violation: 1452"
+            . " Cannot add or update a child row\nQuery: $sql\nParams: none";
+        $db->errorCode = '23000';
+        return [];
+    }
+    return null;
+};
+
+$result = SchemaReconciler::applyConstraints([$rel()]);
+$failures = SchemaReconciler::constraintFailures();
+
+$t->check('applyConstraints() returns true even when a constraint is refused', $result === true);
+$t->check('the refusal is recorded', count($failures) === 1);
+$t->check(
+    'the refusal names the constraint, not the statement',
+    ($failures[0]['name'] ?? '') === 'fk_groupMembers_gmHostID'
+);
+$t->check(
+    'the reason is the first line only',
+    strpos((string)($failures[0]['reason'] ?? ''), 'Query:') === false
+        && strpos((string)($failures[0]['reason'] ?? ''), '1452') !== false
+);
+
+// The other arm. Without it "returns true" proves nothing: it returns true
+// either way, and only the failure list separates the two.
+$db->error = false;
+$db->responder = static function ($sql) use ($db, $structure) {
+    $db->error = false;
+    if (strpos($sql, 'REFERENTIAL_CONSTRAINTS') !== false) {
+        return [];
+    }
+    if (strpos($sql, 'information_schema') !== false
+        && strpos($sql, 'COLUMNS') !== false
+    ) {
+        return $structure;
+    }
+    return [];
+};
+$mark = count($db->log);
+$result = SchemaReconciler::applyConstraints([$rel()]);
+$since = array_slice($db->log, $mark);
+$t->check('a clean run records no failure', SchemaReconciler::constraintFailures() === []);
+$t->check('a clean run still returns true', $result === true);
+$t->check(
+    'a clean run really issued the ALTER',
+    count(array_filter($since, static function ($sql) {
+        return strpos($sql, 'ADD CONSTRAINT `fk_groupMembers_gmHostID`') !== false;
+    })) === 1
+);
+
 $t->finish();
