@@ -1401,7 +1401,7 @@ parameters:
 		-
 			message: '#^Calling self\:\:getSetting\(\) outside of class scope\.$#'
 			identifier: outOfClass.self
-			count: 6
+			count: 7
 			path: packages/web/management/other/index.php
 
 		-

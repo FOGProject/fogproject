@@ -87,6 +87,45 @@ abstract class FOGBase
     {
         return self::$types[$table . '.' . $column] ?? '';
     }
+    /**
+     * The zone the viewer reads times in, and the zone the column is stored
+     * in. Equal by default, which is every account that has not chosen a
+     * display timezone -- and in that state the conversion below must be a
+     * no-op, so every existing case still states the clause it always did.
+     *
+     * @var string
+     */
+    public static $displayZone = 'UTC';
+    /**
+     * @var string
+     */
+    public static $storageZone = 'UTC';
+
+    /**
+     * Moves a bound from the viewer's zone to the storage zone.
+     *
+     * @param string $value 'Y-m-d H:i:s' as the viewer means it
+     *
+     * @return string
+     */
+    public static function displayToStorage($value)
+    {
+        if (self::$displayZone === self::$storageZone) {
+            return (string)$value;
+        }
+        try {
+            $date = new \DateTime(
+                (string)$value,
+                new \DateTimeZone(self::$displayZone)
+            );
+        } catch (\Exception $e) {
+            return (string)$value;
+        }
+
+        return $date
+            ->setTimezone(new \DateTimeZone(self::$storageZone))
+            ->format('Y-m-d H:i:s');
+    }
 }
 class DatabaseManager
 {
@@ -588,10 +627,58 @@ $cases[] = [
         . " AND `hostName` LIKE 'lab%' ESCAPE '\\\\'",
 ];
 
+/* -- the viewer's timezone -------------------------------------------- */
+
+/*
+ * A grid that SHOWS times in the viewer's zone has to FILTER in it too. The
+ * user picks a day off a calendar that matches the column they are reading,
+ * so "on the 29th" must mean their 29th; comparing it against the storage
+ * zone's 29th silently returns a different set of rows, and near midnight a
+ * different day entirely.
+ *
+ * Storage here is UTC and the viewer is five hours behind it, so their day
+ * starts at 05:00 UTC and ends at 05:00 UTC the next morning.
+ */
+$cases[] = [
+    'name' => "a day means the VIEWER's day, not the server's",
+    'zones' => ['America/Chicago', 'UTC'],
+    'request' => sbRequest([sbCriterion('deployed', '=', ['2026-08-29'])]),
+    'expect' => "WHERE ((`hostDeployed` >= '2026-08-29 05:00:00'"
+        . " AND `hostDeployed` < '2026-08-30 05:00:00'))",
+];
+
+$cases[] = [
+    'name' => 'before, in the viewer\'s zone',
+    'zones' => ['America/Chicago', 'UTC'],
+    'request' => sbRequest([sbCriterion('deployed', '<', ['2026-08-29'])]),
+    'expect' => "WHERE ((`hostDeployed` >= '1000-01-01 00:00:00'"
+        . " AND `hostDeployed` < '2026-08-29 05:00:00'))",
+];
+
+$cases[] = [
+    'name' => 'after, in the viewer\'s zone',
+    'zones' => ['America/Chicago', 'UTC'],
+    'request' => sbRequest([sbCriterion('deployed', '>', ['2026-08-29'])]),
+    'expect' => "WHERE (`hostDeployed` >= '2026-08-30 05:00:00')",
+];
+
+$cases[] = [
+    'name' => 'no preference set leaves the bounds exactly as typed',
+    'zones' => ['UTC', 'UTC'],
+    'request' => sbRequest([sbCriterion('deployed', '=', ['2026-08-29'])]),
+    'expect' => "WHERE ((`hostDeployed` >= '2026-08-29 00:00:00'"
+        . " AND `hostDeployed` < '2026-08-30 00:00:00'))",
+];
+
 $failures = [];
 $checks = 0;
 foreach ($cases as $case) {
     ++$checks;
+    // Zones default to equal -- the state every account is in until someone
+    // chooses a display timezone -- so an unmarked case states the clause it
+    // always did.
+    FOGBase::$displayZone = $case['zones'][0] ?? 'UTC';
+    FOGBase::$storageZone = $case['zones'][1] ?? 'UTC';
     if (isset($case['assert'])) {
         $problem = $case['assert']();
         if ('' !== $problem) {

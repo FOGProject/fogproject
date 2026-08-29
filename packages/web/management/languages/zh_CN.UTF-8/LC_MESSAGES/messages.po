@@ -1589,6 +1589,9 @@ msgstr ""
 msgid "Checking if I am the group manager"
 msgstr ""
 
+msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
+msgstr ""
+
 #, fuzzy
 msgid "Class"
 msgstr "任务"
@@ -2340,6 +2343,10 @@ msgstr "用户名"
 #, fuzzy
 msgid "Display With"
 msgstr "显示"
+
+#, fuzzy
+msgid "Display timezone"
+msgstr "用户名"
 
 msgid "Do not list on menu"
 msgstr "不要列出菜单上"
@@ -7253,6 +7260,9 @@ msgstr "FTP连接失败"
 msgid "SSL Path"
 msgstr "SSL通道"
 
+msgid "Save"
+msgstr ""
+
 msgid "Save Changes"
 msgstr "保存更改"
 
@@ -7468,6 +7478,10 @@ msgstr "服务器外壳"
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "Server default (%s)"
+msgstr "一般信息"
+
 msgid "Server facts. Every field is a string, and is empty rather than absent when the installer has not published it yet."
 msgstr ""
 
@@ -7577,6 +7591,9 @@ msgstr "存储组名称"
 #, fuzzy
 msgid "Set failed"
 msgstr "服务更新失败"
+
+msgid "Set your display timezone"
+msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -11658,10 +11675,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Serial"
 #~ msgstr "系统序列"
-
-#, fuzzy
-#~ msgid "Server facts."
-#~ msgstr "一般信息"
 
 #, fuzzy
 #~ msgid "Site Association"
