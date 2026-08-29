@@ -186,7 +186,7 @@ class OpenAPI extends FOGBase
             $maxRows = null;
         }
         try {
-            $router = new \ReflectionClass('Route');
+            $router = new \ReflectionClass(Route::class);
             if ($router->hasConstant('EXPAND_MAX_ITEMS')) {
                 $expandMax = (int)$router->getConstant('EXPAND_MAX_ITEMS');
             }
@@ -779,9 +779,10 @@ class OpenAPI extends FOGBase
         $sensitive = self::_sensitiveFields($class);
         // Read through Route for the same reason the sensitive tiers are:
         // a plugin declares its own via API_SERVER_OWNED_FIELDS.
-        $serverOwned = method_exists('Route', 'serverOwnedFields')
-            ? array_map('strtolower', (array)Route::serverOwnedFields($class))
-            : [];
+        $serverOwned = array_map(
+            'strtolower',
+            (array)Route::serverOwnedFields($class)
+        );
 
         $properties = [];
         foreach ($fields as $property => $column) {
@@ -1103,10 +1104,6 @@ class OpenAPI extends FOGBase
      */
     private static function _sensitiveFields($class)
     {
-        $empty = ['list' => [], 'always' => []];
-        if (!method_exists('Route', 'sensitiveFieldMap')) {
-            return $empty;
-        }
         // Both tiers are keyed by classname, and the map is built once per
         // request behind its own cache, so calling it per class is cheap.
         $map = (array)Route::sensitiveFieldMap();
@@ -1312,7 +1309,12 @@ class OpenAPI extends FOGBase
                 'delete',
                 sprintf(_('Delete a %s'), $class),
                 _('Also reachable as /delete and /remove.'),
-                self::_messageResponse()
+                self::_messageResponse() + self::_conflictResponse(
+                    _('Another record still refers to this one and the '
+                        . 'database refused the delete. The message names '
+                        . 'what is holding it; retry once that is reassigned '
+                        . 'or removed.')
+                )
             );
         }
 
@@ -1505,7 +1507,9 @@ class OpenAPI extends FOGBase
                         . '409 rather than reporting a success it did not '
                         . 'perform.'
                     ),
-                    self::_messageResponse() + self::_conflictResponse()
+                    self::_messageResponse() + self::_conflictResponse(
+                        _('The resource is not in a cancellable state.')
+                    )
                 )
             ];
         }
@@ -2170,20 +2174,29 @@ class OpenAPI extends FOGBase
     }
 
     /**
-     * The 409 the cancel route answers when the named resource is not in a
-     * cancellable state.
+     * A 409, for a request that is well formed but cannot be applied to the
+     * resource in its current state.
      *
      * Carries the same {msg} object the 200 does, rather than the Error
      * schema: the reason is written for a person, and the UI reads it with
      * the same $.notifyFromAPI() call either way.
      *
+     * Two routes answer it and they conflict for unrelated reasons -- cancel
+     * because the task has already finished, delete because a foreign key
+     * still refers to the row (ADR 0031) -- so the description is the
+     * caller's to supply. Both are retryable once the blocking condition is
+     * gone, which is what makes 409 the right code for each.
+     *
+     * @param string $description what makes this particular request a
+     *                            conflict
+     *
      * @return array
      */
-    private static function _conflictResponse()
+    private static function _conflictResponse($description)
     {
         return [
             '409' => [
-                'description' => _('The resource is not in a cancellable state.'),
+                'description' => $description,
                 'content' => [
                     'application/json' => [
                         'schema' => [

@@ -366,6 +366,71 @@ fail, that test lands only once it has been proven red by adding an
 unclassified `*ID` column to the manifest and watching it break. An
 occurrence count in `phpstan-tests-baseline.neon` may need bumping with it.
 
+### 10. A refusal is translated once, at the boundary, and must stop the request
+
+Declaring RESTRICT gave the database the power to refuse a delete for the
+first time. Two things had to follow from that, and the first is not about
+wording at all.
+
+**The refusal has to reach the caller.** `PDODB::query()` catches the
+PDOException, records the text on `->error` and returns `$this` — a truthy
+object. `Route::deletemass()` ended with a bare
+`return self::$DB->query(...)`, so a delete the server refused answered
+HTTP 200 with the row still in place, and the UI drew a success toast over
+it. `Route::delete()` funnels the REST single-delete into the same function,
+so that was every delete FOG has. The arm was unreachable before this ADR —
+nothing could refuse — which is why it survived: the code was correct for a
+database that always said yes.
+
+It now throws, and it throws **409**, not `_sendCaught()`'s default 406. The
+request was well formed and the caller may legitimately retry it once
+whatever refers to the record is gone; that is precisely what 409 means, and
+406 would tell a client the request itself was unacceptable.
+
+**What reaches the caller has to be readable.** MariaDB's text names the
+constraint, both tables and both columns. Everything needed is in it and none
+of it is written for an admin:
+
+```
+Cannot delete or update a parent row: a foreign key constraint fails
+(`fog`.`location`, CONSTRAINT `fk_location_lStorageGroupID` FOREIGN KEY
+(`lStorageGroupID`) REFERENCES `nfsGroups` (`ngID`))
+```
+
+`FOG\Db\ConstraintViolation` turns that into:
+
+> Cannot delete this storage group because a location still refers to it.
+> Reassign or remove it first.
+
+Three decisions inside that are worth stating, because each had an obvious
+alternative:
+
+- **The pairing is looked up in the map, not parsed out of the message.**
+  The constraint name is the key and `commons/schema-constraints.php` is
+  what created the constraint in the first place, so the two cannot drift.
+  Parsing the tables out of the message would work and would be a second,
+  independent description of the same relationship.
+- **The label list is bounded at fifteen tables, not a parallel copy of the
+  schema.** Only a RESTRICT can refuse a delete — CASCADE and SET NULL both
+  succeed — so only the tables either side of one can ever be named. A table
+  missing from the list degrades to its own name, which is ugly and never
+  wrong, and a gate test fails the build if a table either side of an enabled
+  RESTRICT has no label.
+- **Singular with an indefinite article, and no count.** "a location still
+  refers to it" reads correctly whether one location does or five do. A count
+  would mean a second query on an error path, with the ids plumbed in from
+  two callers that do not agree on how many they hold.
+
+Translation is best-effort and declines rather than guessing: a 1452 (the
+opposite direction, from an insert or update) and a constraint the map does
+not describe both return null, and the caller keeps the raw text. The
+refusal still stops the request in both cases — only the wording degrades.
+
+`FOGController::destroy()` translates too. It catches its own exception, so
+the sentence goes to the log and the history row rather than to a client,
+which is where somebody reading back to find out why a delete did not stick
+will look.
+
 ## Consequences
 
 - **70 of 87 constraints can be declared against a live database with no

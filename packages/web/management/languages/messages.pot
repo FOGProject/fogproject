@@ -855,6 +855,9 @@ msgstr ""
 msgid "Annually"
 msgstr ""
 
+msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
+msgstr ""
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1203,6 +1206,10 @@ msgid "Cannot connect to database"
 msgstr ""
 
 msgid "Cannot connect to ftp server"
+msgstr ""
+
+#, php-format
+msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
 
 msgid "Cannot delete the primary mac address, please reselect"
@@ -9305,6 +9312,10 @@ msgstr ""
 msgid "there will be a database backup stored on your"
 msgstr ""
 
+#, php-format
+msgid "this %s"
+msgstr ""
+
 msgid "this account has no role, so it has no access to any management page. Ask an administrator to assign it a role."
 msgstr ""
 
@@ -9318,6 +9329,9 @@ msgid "this kernel holds all the drivers for the client computer"
 msgstr ""
 
 msgid "this one is reserved for FOG"
+msgstr ""
+
+msgid "this record"
 msgstr ""
 
 msgid "this request"

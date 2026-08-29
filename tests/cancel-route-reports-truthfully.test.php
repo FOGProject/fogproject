@@ -161,10 +161,15 @@ if (!preg_match(
 // ------------------------------------------------------------- the document
 
 // A route that answers a status the spec does not list is a route whose
-// consumers cannot handle it. Only cancel returns 409, so it belongs on
-// that operation and not in the shared _errorResponses() map.
+// consumers cannot handle it.
+//
+// Delete answers 409 as well now, for an unrelated reason (ADR 0031: a
+// foreign key still refers to the row), which is why the helper takes its
+// description from the caller. That does NOT make 409 general: it still
+// belongs on the two operations that can return it and not in the shared
+// _errorResponses() map, which is what the third check below holds.
 if (!preg_match(
-    '#private static function _conflictResponse\(\).*?\'409\'#s',
+    '#private static function _conflictResponse\(\$description\).*?\'409\'#s',
     $openapi
 )) {
     $fails[] = 'openapi.class.php has no 409 response helper';
@@ -178,7 +183,7 @@ if (!preg_match(
     $path
 )) {
     $fails[] = 'the cancel path entry is not where this gate can see it';
-} elseif (false === strpos($path[1], '_conflictResponse()')) {
+} elseif (false === strpos($path[1], '_conflictResponse(')) {
     $fails[] = 'the cancel operation does not document its 409, so the spec'
         . ' describes a route that always succeeds';
 }
@@ -187,7 +192,7 @@ if (preg_match(
     $openapi
 )) {
     $fails[] = 'the 409 has leaked into the shared error map, so every'
-        . ' operation now claims a status only cancel can return';
+        . ' operation now claims a status only cancel and delete can return';
 }
 
 if ($fails) {
