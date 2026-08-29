@@ -91,11 +91,16 @@ $t->check(
 
 /*
  * 4. The cache version moved past the release that shipped without it.
+ *
+ * 331 rather than 330: #1471 landed a different edit to this same
+ * stylesheet under 330 while this branch was open, so 330 no longer
+ * distinguishes the two. A browser holding #1471's copy at ver=330 would
+ * serve it back rather than fetch this one.
  */
 $ver = 0;
 if (preg_match("/define\('FOG_BCACHE_VER', (\d+)\)/", $sys, $m2)) {
     $ver = (int)$m2[1];
 }
-$t->check('FOG_BCACHE_VER is at least 330', $ver >= 330);
+$t->check('FOG_BCACHE_VER is at least 331', $ver >= 331);
 
 $t->finish();
