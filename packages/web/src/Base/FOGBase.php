@@ -1898,6 +1898,28 @@ abstract class FOGBase
         return self::humanify($diff / 31536000, 'year');
     }
     /**
+     * validDate(), expressed in SQL, for one column.
+     *
+     * The same question as validDate() asked of the server instead of of
+     * PHP, and here for the same reason: there is ONE definition of what an
+     * empty date is, and getting it half right -- NULL but not the zero
+     * date, or the other way round -- produces a plausible number rather
+     * than an error. Both spellings have to be covered because an upgraded
+     * server carries both until schema step 344 has run.
+     *
+     * Concatenated, not bound: a column name is not a value, so it cannot
+     * be a placeholder. Callers pass a literal column reference they wrote
+     * themselves -- never anything off a request.
+     *
+     * @param string $column a fully qualified, backtick-quoted column
+     *
+     * @return string a SQL boolean expression, already parenthesised
+     */
+    protected static function noDateSql($column)
+    {
+        return "($column IS NULL OR $column = '0000-00-00 00:00:00')";
+    }
+    /**
      * Checks if the time passed is valid or not.
      *
      * FALSY FOR EVERY FORM OF "no date": '', NULL, an unparseable string,

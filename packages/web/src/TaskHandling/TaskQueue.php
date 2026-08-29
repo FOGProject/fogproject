@@ -100,8 +100,12 @@ class TaskQueue extends TaskingElement
         if (!$Task->isValid()) {
             return;
         }
+        // Asked of validDate() rather than compared to a literal. It is
+        // falsy for '', for NULL and for BOTH spellings of the zero date,
+        // which an upgraded server carries until schema step 344 has run --
+        // the reason this was two comparisons and not one.
         $checkin = trim((string)$Task->get('checkInTime'));
-        if ($checkin === '' || $checkin === '0000-00-00 00:00:00') {
+        if (!self::validDate($checkin)) {
             return;
         }
         try {
