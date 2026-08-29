@@ -2336,10 +2336,10 @@ configureDefaultiPXEfile() {
     # both params empty and the chain is unaffected. Verified 2026-08-28 by
     # running FOG's own ipxe.lkrn under SeaBIOS through this exact script.
     #
-    # BOTH are sent, because SecureBoot alone cannot tell the two enrolment
+    # BOTH are sent, because SecureBoot alone cannot tell the two enrollment
     # routes apart. A machine with Secure Boot merely switched off still has a
     # platform key and still refuses a db write; only Setup Mode accepts one.
-    # That is the difference between an enrolment that completes unattended and
+    # That is the difference between an enrollment that completes unattended and
     # one that needs a human at the MokManager screen.
     #
     # An older default.ipxe sends neither param, and that is deliberately

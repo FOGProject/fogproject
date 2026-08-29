@@ -2268,7 +2268,7 @@ msgstr "Ne pas inscrire sur le menu"
 msgid "Documentation"
 msgstr "Emplacement"
 
-msgid "Does NOT match this server's current certificate -- this host trusts a superseded one and will stop booting under Secure Boot once it is retired. Re-run the Secure Boot enrolment task on it."
+msgid "Does NOT match this server's current certificate -- this host trusts a superseded one and will stop booting under Secure Boot once it is retired. Re-run the Secure Boot enrollment task on it."
 msgstr ""
 
 #, fuzzy
@@ -5493,7 +5493,7 @@ msgstr ""
 msgid "No groups are being created or selected"
 msgstr ""
 
-msgid "No host in this group can run Secure Boot enrolment. Every member last reported a firmware state the task cannot work on -- see the Secure Boot column on the host list."
+msgid "No host in this group can run Secure Boot enrollment. Every member last reported a firmware state the task cannot work on -- see the Secure Boot column on the host list."
 msgstr ""
 
 msgid "No hosts are assigned an image"
@@ -7152,7 +7152,7 @@ msgid "Secure Boot does not need to be enabled on a client to enrol its key -- e
 msgstr ""
 
 #, fuzzy
-msgid "Secure Boot enrolment date is not a valid date"
+msgid "Secure Boot enrollment date is not a valid date"
 msgstr "Il n'y a pas d'images sur ce serveur."
 
 msgid "Secure Boot enrolment material is switched off for this install, or no signing key is configured -- so no platform keys were minted."
@@ -7352,7 +7352,7 @@ msgstr "a été mis à jour avec succès"
 msgid "Settings update failed!"
 msgstr "Paramètres mis à jour"
 
-msgid "Setup Mode (unattended enrolment)"
+msgid "Setup Mode (unattended enrollment)"
 msgstr ""
 
 msgid "Setup Mode -- shown as \"Custom\" or \"Custom mode\" in most firmware menus -- is the state a machine is in when its platform key has been cleared, and it is the only state in which these databases can be written. Turning Secure Boot OFF is not the same thing and does not help: a machine with Secure Boot disabled still has a platform key, and still refuses the write. Look for \"Custom mode\", \"Erase all Secure Boot settings\" or \"Clear Secure Boot keys\" in the firmware."
@@ -8774,10 +8774,10 @@ msgstr ""
 msgid "This host has finished deploying image %s."
 msgstr ""
 
-msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enrol into."
+msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."
 msgstr ""
 
-msgid "This host last reported Secure Boot as ON. It does not trust this server's kernel yet, so it cannot boot FOS to run the task at all. Turn Secure Boot off in its firmware first, or enrol from local media."
+msgid "This host last reported Secure Boot as ON. It does not trust this server's kernel yet, so it cannot boot FOS to run the task at all. Turn Secure Boot off in its firmware first, or enroll from local media."
 msgstr ""
 
 msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."

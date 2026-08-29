@@ -22,7 +22,7 @@ namespace FOG\Boot;
  *   - iPXE, on every PXE boot, via `${efi/SecureBoot}` and `${efi/SetupMode}`
  *     posted by default.ipxe. Cheap, early, and it happens whether or not
  *     FOS ever runs.
- *   - FOS, when the enrolment task runs, via sbState() in
+ *   - FOS, when the enrollment task runs, via sbState() in
  *     usr/share/fog/lib/secureboot-funcs.sh.
  *
  * The five machine states below are FOS's names, taken verbatim from that
@@ -110,7 +110,7 @@ class SecureBootState
      *
      * A column read is not a promise: a value could have been written by an
      * older build, by a plugin, or by hand in the database. Anything
-     * unrecognised is treated as UNKNOWN by the callers rather than trusted.
+     * unrecognized is treated as UNKNOWN by the callers rather than trusted.
      *
      * @param mixed $state the value to test
      *
@@ -154,7 +154,7 @@ class SecureBootState
      * Compared case-insensitively and after a trim anyway: the format is
      * iPXE's to change, and a comparison that breaks on '00 ' would fail
      * open into "not off", which is the direction that silently stops the
-     * enrolment task working.
+     * enrollment task working.
      *
      * SetupMode is tested BEFORE SecureBoot, matching sbState(). A machine in
      * Setup Mode has no platform key, so it cannot be enforcing, but the
@@ -195,11 +195,11 @@ class SecureBootState
         // value that is neither 00 nor 01 is a byte nothing here understands.
         // NOEFIVARS rather than DISABLED, because "we could not read this"
         // must never collapse into the one answer that makes a host look
-        // like a valid enrolment target.
+        // like a valid enrollment target.
         return self::NOEFIVARS;
     }
     /**
-     * Whether the enrolment task can do anything useful on this host.
+     * Whether the enrollment task can do anything useful on this host.
      *
      * True for the two states where FOS can boot and has somewhere to put
      * the certificate. SETUP is the good one -- fog.enrollsb writes db and
@@ -224,7 +224,7 @@ class SecureBootState
      *
      * @return bool
      */
-    public static function isEnrolmentTarget($state)
+    public static function isEnrollmentTarget($state)
     {
         if (!self::isKnown($state)) {
             return true;
@@ -239,7 +239,7 @@ class SecureBootState
     /**
      * Whether scheduling against this host is a guess rather than a decision.
      *
-     * Separate from isEnrolmentTarget() on purpose: UNKNOWN is allowed
+     * Separate from isEnrollmentTarget() on purpose: UNKNOWN is allowed
      * through and still has to be said out loud, and the two answers are
      * needed in different places -- the refusal, and the warning next to it.
      *
@@ -252,7 +252,7 @@ class SecureBootState
         return !self::isKnown($state) || self::UNKNOWN === (string)$state;
     }
     /**
-     * Why the enrolment task will not run here, or '' if it will.
+     * Why the enrollment task will not run here, or '' if it will.
      *
      * Lives here rather than at either call site because there ARE two call
      * sites and they are not on the same code path: a single-host task goes
@@ -273,7 +273,7 @@ class SecureBootState
      */
     public static function refusalReason($state)
     {
-        if (self::isEnrolmentTarget($state)) {
+        if (self::isEnrollmentTarget($state)) {
             return '';
         }
         switch ((string)$state) {
@@ -282,13 +282,13 @@ class SecureBootState
                     'This host last reported Secure Boot as ON. It does not '
                     . 'trust this server\'s kernel yet, so it cannot boot FOS '
                     . 'to run the task at all. Turn Secure Boot off in its '
-                    . 'firmware first, or enrol from local media.'
+                    . 'firmware first, or enroll from local media.'
                 );
             case self::NONEFI:
                 return _(
                     'This host last booted in legacy BIOS mode, where Secure '
                     . 'Boot does not exist. There is nothing for this task to '
-                    . 'enrol into.'
+                    . 'enroll into.'
                 );
             default:
                 return _(
@@ -317,7 +317,7 @@ class SecureBootState
             case self::NOEFIVARS:
                 return _('UEFI, state unreadable');
             case self::SETUP:
-                return _('Setup Mode (unattended enrolment)');
+                return _('Setup Mode (unattended enrollment)');
             case self::ENFORCING:
                 return _('Secure Boot ON');
             case self::DISABLED:
@@ -375,7 +375,7 @@ class SecureBootState
         return BASEPATH . 'service/secureboot' . DS . 'MOK.der';
     }
     /**
-     * Canonicalise a SHA-256 fingerprint, or reject it.
+     * Canonicalize a SHA-256 fingerprint, or reject it.
      *
      * One format, one place. The colon-separated upper-case form is what
      * FOGConfigurationPage::secureBoot() displays and what FOS's
@@ -387,7 +387,7 @@ class SecureBootState
      * column's only use is an equality test, and a comparison against
      * something that is not a SHA-256 can only ever be false -- silently, and
      * looking exactly like "this host trusts an older certificate", which is
-     * the one wrong answer that sends somebody to re-enrol a machine that is
+     * the one wrong answer that sends somebody to re-enroll a machine that is
      * already fine.
      *
      * @param mixed $value bare or colon-separated hex, any case
@@ -432,7 +432,7 @@ class SecureBootState
         return self::$_serverPrint;
     }
     /**
-     * Whether a host's enrolment record matches what this server serves.
+     * Whether a host's enrollment record matches what this server serves.
      *
      * Returns '' -- not STALE -- for every case where the question cannot be
      * answered: nothing recorded against the host, an unparseable stored
@@ -447,7 +447,7 @@ class SecureBootState
      *
      * @return string FRESH, STALE, or '' when it cannot be answered
      */
-    public static function enrolmentFreshness($stored, $server = null)
+    public static function enrollmentFreshness($stored, $server = null)
     {
         $stored = self::normalizeFingerprint($stored);
         if ('' === $stored) {
@@ -485,7 +485,7 @@ class SecureBootState
                     'Does NOT match this server\'s current certificate -- '
                     . 'this host trusts a superseded one and will stop '
                     . 'booting under Secure Boot once it is retired. Re-run '
-                    . 'the Secure Boot enrolment task on it.'
+                    . 'the Secure Boot enrollment task on it.'
                 );
             default:
                 return '';
