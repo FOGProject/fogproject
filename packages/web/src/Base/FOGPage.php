@@ -5151,6 +5151,10 @@ abstract class FOGPage extends FOGBase
      *
      * @param mixed      $tabData The tabs we are going to build out.
      * @param int|object $obj     The object to pass in, -1 = current node + id.
+     *                            Anything falsy means there is no object, which
+     *                            skips the hook and plugin-injection blocks --
+     *                            that is what a report passes, having no entity
+     *                            for a plugin tab to attach to.
      *
      * @return string
      */

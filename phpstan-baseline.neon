@@ -789,7 +789,7 @@ parameters:
 		-
 			message: '#^Call to function _\(\) on a separate line has no effect\.$#'
 			identifier: function.resultUnused
-			count: 9
+			count: 10
 			path: packages/web/lib/pages/reportmanagement.page.php
 
 		-

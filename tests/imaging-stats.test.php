@@ -221,6 +221,89 @@ $t->check(
 );
 
 /*
+ * 4b. The tiles.
+ *
+ *     totals() is derived from the same fold the grid is, so a tile cannot
+ *     report a different number of runs from the rows beneath it. What the
+ *     responder proves is the DERIVATION: distinct machines and distinct
+ *     images, counted off run rows rather than asked of the database
+ *     separately, and a run whose host has since been deleted still
+ *     counting as a machine.
+ */
+$db->responder = function ($sql) {
+    if (false === strpos($sql, 'taskLog')) {
+        return null;
+    }
+    return [
+        ['taskID' => '1', 'hostID' => '7', 'hostName' => 'a',
+         'imageName' => 'win11', 'started' => '2026-03-01 09:00:00'],
+        ['taskID' => '2', 'hostID' => '7', 'hostName' => 'a',
+         'imageName' => 'win11', 'started' => '2026-03-02 09:00:00'],
+        ['taskID' => '3', 'hostID' => '9', 'hostName' => 'b',
+         'imageName' => 'ubuntu', 'started' => '2026-03-03 09:00:00'],
+        // Deleted since: no id left to group on, but a real machine was
+        // imaged and the tile has to say so.
+        ['taskID' => '4', 'hostID' => '0', 'hostName' => 'gone',
+         'imageName' => 'ubuntu', 'started' => '2026-03-04 09:00:00'],
+        ['taskID' => '5', 'hostID' => '0', 'hostName' => 'alsogone',
+         'imageName' => 'ubuntu', 'started' => '2026-03-05 09:00:00'],
+    ];
+};
+$totals = ImagingStats::totals(
+    new \DateTimeImmutable('2026-03-01 00:00:00'),
+    new \DateTimeImmutable('2026-03-05 23:59:59')
+);
+$t->check('the runs tile counts the run rows', 5 === $totals['runs']);
+$t->check(
+    'the machines tile counts DISTINCT hosts, not runs',
+    4 === $totals['hosts']
+);
+$t->check(
+    'the images tile counts DISTINCT images',
+    2 === $totals['images']
+);
+$t->check(
+    'a complete result is not reported as truncated',
+    false === $totals['truncated']
+);
+// The bound is in the QUERY. A slice after the fetch still materializes
+// every row a wide window matched, which is the "grid All -> blank 500"
+// this codebase has fixed once already; and asking for one row past the
+// cap is what makes `truncated` answerable without a second COUNT.
+$runsSql = FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsSql');
+$t->check(
+    'the grid query is bounded in SQL, not after the fetch',
+    1 === preg_match('/LIMIT\s+(\d+)\s*$/', trim($runsSql), $lim)
+        && (int)$lim[1] === ImagingStats::MAX_ROWS + 1
+);
+// Asserted behaviorally too: a responder that answers with the full cap
+// plus one has to be reported as truncated, and the extra row dropped.
+$db->responder = function ($sql) {
+    if (false === strpos($sql, 'taskLog')) {
+        return null;
+    }
+    $rows = [];
+    for ($i = 0; $i <= ImagingStats::MAX_ROWS; $i++) {
+        $rows[] = ['taskID' => (string)$i, 'hostID' => (string)$i,
+            'hostName' => 'h' . $i, 'imageName' => 'win11',
+            'started' => '2026-03-01 09:00:00'];
+    }
+    return $rows;
+};
+$over = ImagingStats::totals(
+    new \DateTimeImmutable('2026-03-01 00:00:00'),
+    new \DateTimeImmutable('2026-03-05 23:59:59')
+);
+$t->check(
+    'one row past the cap is reported as truncated',
+    true === $over['truncated']
+);
+$t->check(
+    'and the extra row is not counted',
+    ImagingStats::MAX_ROWS === $over['runs']
+);
+
+/*
  * 5. The window is ordered and capped.
  */
 $reversed = ImagingStats::runsPerDay(
@@ -297,6 +380,55 @@ $t->check(
  * 7. The SQL semantics, for real. The GROUP BY is the fix; a fake
  *    connection cannot show it.
  */
+
+/*
+ * 8. The fold is ONE definition, and the panels agree because they share it.
+ *
+ *    This is the property the class exists for. A chart whose total does not
+ *    match the grid beneath it is not a visible conflict -- nobody adds the
+ *    bars up -- so it has to be asserted rather than noticed.
+ */
+$sqlFold = FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_foldSql');
+foreach (['_runsPerDaySql', '_runsByImageSql', '_runsSql'] as $builder) {
+    $t->check(
+        "$builder reads through the shared fold",
+        false !== strpos(
+            FogTestHarness::callStatic('FOG\Audit\ImagingStats', $builder),
+            $sqlFold
+        )
+    );
+}
+// The canceled rule is stated over the RUN now, not row by row. A WHERE on
+// the state gives the same set of runs and a different MAX(id) -- the last
+// row that was not a cancellation -- so the grid would report a canceled
+// deploy as still In-Progress.
+$t->check(
+    'the canceled rule is a HAVING over the run, not a WHERE on the row',
+    1 === preg_match(
+        '/HAVING\s+SUM\(`taskStateID` <> :canceled\)\s*>\s*0/i',
+        $sqlFold
+    )
+);
+$t->check(
+    'the state is not also filtered before the fold',
+    1 !== preg_match('/WHERE.*`taskStateID`.*GROUP BY/is', $sqlFold)
+);
+$t->check(
+    'the run keeps its whole history in the group',
+    false !== strpos($sqlFold, 'MAX(`id`) AS `lastID`')
+        && false !== strpos($sqlFold, 'MIN(`createTime`) AS `started`')
+);
+// Selecting logImageName bare beside a GROUP BY would be a non-grouped
+// column: rejected under ONLY_FULL_GROUP_BY and answered from an arbitrary
+// row without it. It comes off the joined last row instead.
+$t->check(
+    'the image name is joined off the last row, not selected bare',
+    false !== strpos(
+        FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsByImageSql'),
+        'JOIN `taskLog` AS `l` ON `l`.`id` = `runs`.`lastID`'
+    )
+);
+
 $dsn = getenv('FOG_TEST_DSN');
 if (false === $dsn || '' === $dsn) {
     echo "SKIP  no FOG_TEST_DSN set; SQL semantics not executed\n";
@@ -427,6 +559,94 @@ $t->check(
 $t->check(
     'exactly the three expected days came back',
     ['2026-03-01', '2026-03-03', '2026-03-04'] === array_keys($got)
+);
+
+/*
+ * 9. The panels, against the same fixtures.
+ *
+ *    Task 3 is the one that matters: In-Progress at 11:00 on the 3rd, then
+ *    Canceled at 11:05. It IS a run -- a machine was imaged -- and its last
+ *    state is Canceled. Under a WHERE-on-the-state fold its last row was the
+ *    In-Progress one and a grid built on it called a canceled deploy live.
+ */
+$byImage = $pdo->prepare(
+    FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsByImageSql')
+);
+$byImage->execute($params);
+$images = [];
+foreach ($byImage->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+    $images[$row['image']] = (int)$row['c'];
+}
+$t->check(
+    'runs are grouped by image, biggest first',
+    ['win11' => 2, 'ubuntu' => 1] === $images
+);
+
+$runsStmt = $pdo->prepare(
+    FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsSql')
+);
+$runsStmt->execute($params);
+$runRows = $runsStmt->fetchAll(\PDO::FETCH_ASSOC);
+$byTask = [];
+foreach ($runRows as $row) {
+    $byTask[(int)$row['taskID']] = $row;
+}
+
+$t->check('one row per run, and only the runs', 3 === count($runRows));
+$t->check(
+    'the runs are the folded tasks 1, 3 and 4',
+    isset($byTask[1], $byTask[3], $byTask[4])
+);
+// Newest first, so the most recent run is at the top of the grid.
+$t->check(
+    'the grid is ordered newest first',
+    4 === (int)$runRows[0]['taskID'] && 1 === (int)$runRows[2]['taskID']
+);
+// THE ONE THE HAVING BUYS.
+$t->check(
+    'a run canceled part way through reports its FINAL state',
+    $CANCELED === (int)($byTask[3]['stateID'] ?? 0)
+);
+$t->check(
+    'and still counts as a run, because a machine was imaged',
+    isset($byTask[3])
+);
+$t->check(
+    'a completed run reports Complete',
+    $COMPLETE === (int)($byTask[1]['stateID'] ?? 0)
+);
+// Spans midnight: started on the 4th, ended on the 5th, one row.
+$t->check(
+    'a run spanning midnight carries both ends',
+    '2026-03-04' === substr((string)($byTask[4]['started'] ?? ''), 0, 10)
+        && '2026-03-05' === substr((string)($byTask[4]['ended'] ?? ''), 0, 10)
+);
+// Identity off the denormalized last row, which is what lets a run still
+// name a host and an image that have since been deleted.
+$t->check(
+    'a run names its image from its own row',
+    'ubuntu' === ($byTask[4]['imageName'] ?? null)
+);
+
+/*
+ * 10. The tiles cannot disagree with the grid, because they are counted
+ *     FROM it. Asserted against the same fixtures the chart used.
+ */
+$perDay = $pdo->prepare(
+    FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsPerDaySql')
+);
+$perDay->execute($params);
+$chartTotal = 0;
+foreach ($perDay->fetchAll(\PDO::FETCH_ASSOC) as $row) {
+    $chartTotal += (int)$row['c'];
+}
+$t->check(
+    'the per-day chart and the grid count the same runs',
+    $chartTotal === count($runRows)
+);
+$t->check(
+    'and so does the per-image chart',
+    array_sum($images) === count($runRows)
 );
 
 $t->finish();

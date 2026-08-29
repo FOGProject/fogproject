@@ -90,7 +90,11 @@ class Authorization extends FOGBase
         // report.view grant reading the same rows through a different
         // screen is the defect ADR 0023 opens with. Narrows against the
         // default `report` node; nothing anyone holds gets wider.
-        'run_history' => 'task'
+        'run_history' => 'task',
+        // Imaging Report reads `taskLog` -- the same rows Task Management's
+        // log pane shows -- so it lands on the same node as Run History for
+        // the same reason (ADR 0030 decision 4).
+        'imaging_report' => 'task'
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.

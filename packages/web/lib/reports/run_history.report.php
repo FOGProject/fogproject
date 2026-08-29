@@ -14,6 +14,7 @@
 namespace FOG;
 
 use FOG\Audit\ActivityWindow;
+use FOG\Audit\ReportWindow;
 use FOG\Router\HTTPResponseCodes;
 
 /**
@@ -69,51 +70,16 @@ class Run_History extends ReportManagement
     /**
      * The window the request asked for, clamped to something a query can use.
      *
-     * ON FOG'S CLOCK, NOT PHP'S, and that is the whole reason this is not
-     * three lines of strtotime(). The columns being compared are stamped by
-     * FOGController::save() through FOGBase::niceDate(), which uses the
-     * configured FOG_TZ timezone -- so a bound built with PHP's default
-     * timezone is silently offset by however far apart the two are. It does
-     * not error: BETWEEN just matches a shifted window, so the report
-     * quietly answers a question nobody asked. Caught in the lab against a
-     * server five hours off PHP's timezone, where a task created seconds
-     * earlier did not appear in a window ending "now".
-     *
-     * A malformed bound is dropped rather than passed on, for the same
-     * reason -- an unparseable date reaching BETWEEN matches nothing, which
-     * looks exactly like "nothing ran".
+     * The parsing itself moved to ReportWindow when a second report needed
+     * it (ADR 0030 decision 1 -- the window lives in the URL, so every
+     * report reads the same two parameters). What stays here is only this
+     * report's default range.
      *
      * @return array [start, end], both 'Y-m-d H:i:s' in FOG's timezone.
      */
     private static function _window()
     {
-        $fmt = 'Y-m-d H:i:s';
-        $given = [
-            'start' => (string) filter_input(INPUT_GET, 'start'),
-            'end' => (string) filter_input(INPUT_GET, 'end'),
-        ];
-        // Parseability is checked BEFORE handing the string to niceDate(),
-        // which throws on a date it cannot read. A form field is a value
-        // that may legitimately be malformed, so it is validated; this is
-        // not a try/catch standing in for an API that might not be there.
-        foreach ($given as $k => $v) {
-            if ('' !== $v && false === strtotime($v)) {
-                $given[$k] = '';
-            }
-        }
-        $end = '' === $given['end']
-            ? self::niceDate()
-            : self::niceDate($given['end']);
-        $start = '' === $given['start']
-            ? self::niceDate()->modify(self::DEFAULT_WINDOW)
-            : self::niceDate($given['start']);
-        if ($start > $end) {
-            // Reversed rather than rejected. Somebody who types the two
-            // dates the other way round means the range between them.
-            [$start, $end] = [$end, $start];
-        }
-
-        return [$start->format($fmt), $end->format($fmt)];
+        return ReportWindow::stringsFromRequest(self::DEFAULT_WINDOW);
     }
     /**
      * The sources the request asked for, validated against the class.
@@ -194,32 +160,11 @@ class Run_History extends ReportManagement
         echo '</div>';
         echo '<div class="card-body">';
 
-        // A plain GET form. The range is part of the URL on purpose: a
-        // report someone is going to paste into a ticket has to survive
-        // being pasted, and a range held only in JS state does not.
-        echo '<form method="get" action="../management/index.php" '
-            . 'class="row g-3 mb-3" id="run-history-form">';
-        printf(
-            '<input type="hidden" name="node" value="report">'
-            . '<input type="hidden" name="f" value="%s">',
-            \Initiator::e((string) filter_input(INPUT_GET, 'f'))
-        );
-        echo '<div class="col-md-3">';
-        echo self::makeLabel('col-form-label', 'run-history-start', _('From'));
-        printf(
-            '<input type="datetime-local" class="form-control" '
-            . 'id="run-history-start" name="start" value="%s">',
-            \Initiator::e(str_replace(' ', 'T', $start))
-        );
-        echo '</div>';
-        echo '<div class="col-md-3">';
-        echo self::makeLabel('col-form-label', 'run-history-end', _('To'));
-        printf(
-            '<input type="datetime-local" class="form-control" '
-            . 'id="run-history-end" name="end" value="%s">',
-            \Initiator::e(str_replace(' ', 'T', $end))
-        );
-        echo '</div>';
+        // The sources picker is this report's own control; the From/To
+        // pair and the submit button are the shared ones. Built first and
+        // handed to the helper as its $extra so the column order is the
+        // same here as on every other report.
+        ob_start();
         echo '<div class="col-md-4">';
         echo self::makeLabel('col-form-label', 'run-history-sources', _('Include'));
         echo '<div id="run-history-sources">';
@@ -240,15 +185,9 @@ class Run_History extends ReportManagement
         }
         echo '</div>';
         echo '</div>';
-        echo '<div class="col-md-2 d-flex align-items-end">';
-        echo self::makeButton(
-            'run-history-go',
-            _('Show'),
-            'btn btn-primary float-end',
-            'type="submit"'
-        );
-        echo '</div>';
-        echo '</form>';
+        $sources = ob_get_clean();
+
+        echo self::renderReportWindow('run-history', $start, $end, $sources);
 
         echo $this->render(12, 'runhistory-table');
         echo '</div>';

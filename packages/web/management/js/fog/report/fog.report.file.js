@@ -4,6 +4,28 @@
   // identical.
   var reportString = window.atob(Common.f);
 
+  // The endpoint for a report whose window lives in the page URL.
+  //
+  // The page's OWN query string carries the window (start, end, and for Run
+  // History sources[]) and getList has to see it -- but it also carries
+  // node, sub and f, and appending it wholesale put `sub=file` AFTER
+  // `sub=getList`. PHP takes the last occurrence of a repeated key, so every
+  // request re-rendered the report page and DataTables was handed HTML at
+  // HTTP 200. That is what the "runhistory-table / HTTP 200 - <div class=..."
+  // toast was.
+  //
+  // Built through URLSearchParams so there are no repeated keys to resolve
+  // at all: the window params ride along untouched (set() replaces only the
+  // three named, and sources[] is left as the repeated key it is), and the
+  // three that address the endpoint are stated once.
+  function windowedUrl() {
+    var params = new URLSearchParams(window.location.search);
+    params.set('node', 'report');
+    params.set('sub', 'getList');
+    params.set('f', Common.f);
+    return '../management/index.php?' + params.toString();
+  }
+
   // This will call our respective calls
   // to report the requested data.
   switch (reportString) {
@@ -381,38 +403,58 @@
             [3, 'desc']
           ],
           buttons: reportButtons,
+          // Every column escapes. A run's label is a task or snapin name,
+          // which an operator types and a plugin can set, and DataTables
+          // writes cell data as HTML unless a column supplies its own
+          // render. The display-only guard inside render.text() keeps the
+          // Buttons CSV/copy exports unescaped -- same shape as the history
+          // and inventory reports above.
           columns: [
-            {data: 'source'},
-            {data: 'label'},
-            {data: 'host'},
-            {data: 'startedAt'},
-            {data: 'endedAt'},
-            {data: 'state'}
+            {data: 'source', render: $.fn.dataTable.render.text()},
+            {data: 'label', render: $.fn.dataTable.render.text()},
+            {data: 'host', render: $.fn.dataTable.render.text()},
+            {data: 'startedAt', render: $.fn.dataTable.render.text()},
+            {data: 'endedAt', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()}
           ],
           processing: true,
           serverSide: false,
           select: false,
           ajax: {
-            // The page's OWN query string carries the window (start, end,
-            // sources[]) and getList has to see it -- but it also carries
-            // node, sub and f, and appending it wholesale put `sub=file`
-            // AFTER `sub=getList`. PHP takes the last occurrence of a
-            // repeated key, so every request re-rendered the report page
-            // and DataTables was handed HTML at HTTP 200. That is what the
-            // "runhistory-table / HTTP 200 - <div class=..." toast was.
-            //
-            // Built through URLSearchParams so there are no repeated keys
-            // to resolve at all: the window params ride along untouched
-            // (set() replaces only the three named, and sources[] is left
-            // as the repeated key it is), and the three that address the
-            // endpoint are stated once.
-            url: (function () {
-              var params = new URLSearchParams(window.location.search);
-              params.set('node', 'report');
-              params.set('sub', 'getList');
-              params.set('f', Common.f);
-              return '../management/index.php?' + params.toString();
-            })(),
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Imaging Report
+      //
+      // Not serverSide, for the same reason: the rows are the bounded fold
+      // ImagingStats already ran to draw the charts above them, so paging
+      // them server side would be a second query answering a slightly
+      // different question. Every column is plain text out of `taskLog`,
+      // including names typed by whoever created the image, so every column
+      // escapes.
+    case 'imaging report':
+      var imagingTable = $('#imaging-table'),
+        table = imagingTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'imageName', render: $.fn.dataTable.render.text()},
+            {data: 'taskTypeName', render: $.fn.dataTable.render.text()},
+            {data: 'started', render: $.fn.dataTable.render.text()},
+            {data: 'ended', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()},
+            {data: 'createdBy', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
             type: 'post'
           }
         });

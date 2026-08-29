@@ -1098,4 +1098,186 @@ trait FOGPageRender
         // browser drops the inner one and the create posts nothing.
         echo $createModal;
     }
+    /**
+     * The window picker every report shares.
+     *
+     * A PLAIN GET FORM, and the range is part of the URL on purpose: a
+     * report someone is going to paste into a ticket has to survive being
+     * pasted, and a range held only in JS state does not. That is ADR 0030
+     * decision 1, and it is also why there is no submit handler here -- the
+     * browser's own navigation is the mechanism.
+     *
+     * The `f` parameter is carried through from the request rather than
+     * passed in, because it IS the report: the report menu is built from
+     * the file names in lib/reports, so `f` is the only thing telling
+     * index.php which class to load. Losing it on submit lands on the
+     * report index, which reads as the form having wiped the page.
+     *
+     * @param string $slug  id prefix for the form and its fields
+     * @param string $start current lower bound, 'Y-m-d H:i:s'
+     * @param string $end   current upper bound, 'Y-m-d H:i:s'
+     * @param string $extra already-escaped markup for report-specific
+     *                      controls, dropped in before the submit button
+     *
+     * @return string
+     */
+    public static function renderReportWindow(
+        $slug,
+        $start,
+        $end,
+        $extra = ''
+    ) {
+        ob_start();
+        printf(
+            '<form method="get" action="../management/index.php" '
+            . 'class="row g-3 mb-3" id="%s-form">'
+            . '<input type="hidden" name="node" value="report">'
+            . '<input type="hidden" name="f" value="%s">',
+            \Initiator::e($slug),
+            \Initiator::e((string) filter_input(INPUT_GET, 'f'))
+        );
+        foreach (['start' => _('From'), 'end' => _('To')] as $key => $label) {
+            echo '<div class="col-md-3">';
+            echo self::makeLabel(
+                'col-form-label',
+                $slug . '-' . $key,
+                $label
+            );
+            printf(
+                '<input type="datetime-local" class="form-control" '
+                . 'id="%s-%s" name="%s" value="%s">',
+                \Initiator::e($slug),
+                \Initiator::e($key),
+                \Initiator::e($key),
+                // datetime-local wants the ISO 'T' separator; a space-
+                // separated value is simply ignored by the control, which
+                // then renders blank and posts nothing.
+                \Initiator::e(
+                    str_replace(' ', 'T', 'start' === $key ? $start : $end)
+                )
+            );
+            echo '</div>';
+        }
+        echo $extra;
+        echo '<div class="col-md-2 d-flex align-items-end">';
+        echo self::makeButton(
+            $slug . '-go',
+            _('Show'),
+            'btn btn-primary float-end',
+            'type="submit"'
+        );
+        echo '</div>';
+        echo '</form>';
+
+        return ob_get_clean();
+    }
+    /**
+     * A row of headline numbers.
+     *
+     * CARDS, NOT AdminLTE's `small-box`. small-box paints a near-white
+     * `bg-light` behind its own text; under the dark theme the text turns
+     * light and the number becomes invisible against it. The outline card
+     * takes the theme's own surface color, so it works in both. Lifted
+     * from ImageManagement::_archStat(), which found this the hard way.
+     *
+     * @param array $tiles ordered list of ['value' =>, 'label' =>,
+     *                     'warn' => bool]. `warn` paints the card red when
+     *                     the value is above zero -- for counts that are
+     *                     bad news rather than progress.
+     * @param int   $cols  bootstrap columns each tile occupies at md and up
+     *
+     * @return string
+     */
+    public static function renderStatTiles(array $tiles, $cols = 3)
+    {
+        ob_start();
+        echo '<div class="row">';
+        foreach ($tiles as $tile) {
+            $value = $tile['value'] ?? 0;
+            $warn = !empty($tile['warn']) && (float)$value > 0;
+            printf(
+                '<div class="col-sm-6 col-md-%d">'
+                . '<div class="card %s card-outline">'
+                . '<div class="card-body text-center">'
+                . '<h3 class="mb-0">%s</h3>'
+                . '<p class="mb-0 text-muted">%s</p>'
+                . '</div></div></div>',
+                (int)$cols,
+                $warn ? 'card-danger' : 'card-primary',
+                // Formatted, not cast: a fleet report counting tens of
+                // thousands of runs is unreadable as a bare integer, and
+                // number_format is locale-independent here by design --
+                // the grid below it is not localized either.
+                //
+                // One decimal place only when the value has one. A rate
+                // tile is a genuine fraction -- three runs across a month
+                // is 0.1 a day -- and number_format's default of zero
+                // decimals rounds that to "0", which reads as "no imaging
+                // happened" directly beside a tile saying three runs did.
+                \Initiator::e(
+                    is_numeric($value)
+                        ? number_format(
+                            (float)$value,
+                            (float)$value == (int)(float)$value ? 0 : 1
+                        )
+                        : (string)$value
+                ),
+                \Initiator::e((string)($tile['label'] ?? ''))
+            );
+        }
+        echo '</div>';
+
+        return ob_get_clean();
+    }
+    /**
+     * One chart, with its data alongside it.
+     *
+     * THE SERIES IS EMBEDDED, NOT FETCHED. The dashboard's charts poll
+     * because their subject is live; a report's window is fixed and already
+     * in the URL, so a second round trip would re-run the same aggregation
+     * to draw the same picture. Embedding it also means the chart and the
+     * grid beneath it are rendered from one request and cannot disagree.
+     *
+     * A `type="application/json"` block rather than an inline assignment:
+     * the browser does not execute it, so nothing here can become script
+     * however the values are shaped, and JSON_HEX_TAG closes the one way a
+     * string could end the block early.
+     *
+     * @param string $id     unique element id for this panel
+     * @param string $title  translated card title
+     * @param array  $chart  ['type' =>, 'labels' => [], 'series' => [
+     *                       ['label' =>, 'data' => []] ]]
+     * @param int    $cols   bootstrap columns at md and up
+     * @param int    $height chart height in pixels
+     *
+     * @return string
+     */
+    public static function renderChartPanel(
+        $id,
+        $title,
+        array $chart,
+        $cols = 6,
+        $height = 260
+    ) {
+        ob_start();
+        printf(
+            '<div class="col-md-%d">'
+            . '<div class="card card-primary card-outline">'
+            . '<div class="card-header"><h3 class="card-title">%s</h3></div>'
+            . '<div class="card-body">'
+            . '<div class="fog-report-chart" id="%s" '
+            . 'data-chart-height="%d"></div>'
+            . '<script type="application/json" id="%s-data">%s</script>'
+            . '</div></div></div>',
+            (int)$cols,
+            \Initiator::e((string)$title),
+            \Initiator::e((string)$id),
+            (int)$height,
+            \Initiator::e((string)$id),
+            json_encode($chart, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS
+                | JSON_HEX_QUOT)
+        );
+
+        return ob_get_clean();
+    }
 }
