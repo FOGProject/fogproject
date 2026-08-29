@@ -1788,6 +1788,85 @@ sentinel: `storagegroupID` is in `Location::$databaseFieldsRequired`, so the
 column has no legitimate `0`, and the map entry's `sentinel => 0` was a false
 claim of the same kind as the ten removed from core entries at step 386.
 
+### As the five landed
+
+One commit per plugin in the `fog-plugins` repo, each appending a step to
+that plugin's own `schema()` — never folding into an earlier one, because
+`installdb()` skips the `pSchema` steps an install has already passed rather
+than replaying them, which is the mistake LDAP steps 10-16 exist to repair.
+
+| Plugin | Step | Column change | Constraints |
+|---|---|---|---|
+| `location` | 4 and 5 | `lStorageNodeID` nullable, `0` -> NULL | 4 |
+| `ou` | 2 | none | 2 |
+| `windowskey` | 3 | none | 2 |
+| `ldap` | 28 | none | 6 |
+| `oidc` | 9 | none | 8 |
+
+Only `location` needed a column change. Every other plugin column was already
+`int(11) NOT NULL` against an `int(11)` parent with no sentinel — an
+association row exists only to name both ends, so there is no "no reference"
+state to spell.
+
+`oidc` puts all eight in `OIDCManager` even though five of the tables belong
+to other managers, `oidcIdentity` included, whose own `schema()` runs
+separately at step 1. The calls are driven by the table names in the map
+rather than by whose manager is executing, so a plugin needs exactly one
+constraint step and it belongs in the orchestrator — by which point every one
+of its tables exists.
+
+**LDAP is where the problem was already visible.** Its steps 19-21 are this
+same sweep, hand-written, added because deleting a user, role or user group
+did not clear the plugin's rows: an install upgraded from before
+`LDAPDeleteMassItems` existed held mappings pointing at ids that were gone.
+Those steps stay exactly as they are, but they only ever ran once, against a
+backlog. The constraints are what stop the backlog forming again — in the
+database, rather than in a hook that has to be remembered at every delete
+site.
+
+### The measured result
+
+Against a lab clone of the live database at schema 390, all five plugins
+applied in sequence:
+
+| | |
+|---|---|
+| Constraints in the database | **88** |
+| CASCADE / RESTRICT / SET NULL | 66 / 12 / 10 |
+| Declared and enabled in the map | 89 |
+| Not applied | 1 — `fk_nfsGroupMembers_ngmGroupID` |
+
+The one gap is the refusal already documented for core group 5: `fognode1.lan`
+sits at storage group 0 on this data and nothing guesses a group. Every other
+declared relationship landed with the exact `ON DELETE` the map names — no
+mismatches, and nothing in the database that the map does not declare.
+
+Three properties checked separately, because each can fail while the others
+pass:
+
+- **Fresh install.** Every plugin table dropped, then all five plugins run
+  from step 0: the same 88, and `location.lStorageNodeID` built nullable by
+  `createSql()` rather than migrated into shape afterward.
+- **Idempotence.** Every plugin re-run planned no `ALTER` at all.
+- **Convergence.** The unfiltered `reconcile()` that follows every core schema
+  update, run over the finished install, plans exactly one statement — the
+  known refusal — and returns true with that one collected in
+  `constraintFailures()`. That is the state a server should sit in
+  indefinitely.
+
+Behavior was probed per plugin against real rows and rolled back, rather than
+inferred from the `DELETE_RULE` column. The two that are worth stating:
+
+- Deleting one **LDAP server** removed its 2 groups *and* the 2 role
+  associations pointing at those groups. Two levels, no PHP.
+- Deleting an **OIDC provider** removed both identities, its group, and the
+  role association pointing at that group.
+
+That second one is why `oidcIdentity` is a satellite rather than something
+softer: it is the record that this external subject *is* this FOG user, so
+deleting either end has to take it. Left behind, the next user created with a
+recycled id inherits someone else's identity binding.
+
 ## Reproducing the survey
 
 ```
