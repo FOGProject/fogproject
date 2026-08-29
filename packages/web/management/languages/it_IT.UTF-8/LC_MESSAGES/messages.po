@@ -116,7 +116,7 @@ msgid "%d architecture(s) updated."
 msgstr "aggiornato stampante!"
 
 #, php-format
-msgid "%d host(s) are assigned an image they cannot run."
+msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
@@ -164,8 +164,8 @@ msgid "%s does not exist. Re-run the FOG installer."
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%s hosts"
-msgstr "hosts"
+msgid "%s images"
+msgstr "immagini"
 
 #, php-format
 msgid "%s is maintained by the server and cannot be set"
@@ -4763,6 +4763,9 @@ msgstr "Aggiornamento della stampante non è riuscito!"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 msgid "Login"
 msgstr "Accesso"
 
@@ -5270,9 +5273,6 @@ msgid "No active tasks to cancel for this group"
 msgstr "Nessun compito attivo trovato per Host"
 
 msgid "No activity information available for this group"
-msgstr ""
-
-msgid "No activity recorded yet"
 msgstr ""
 
 #, fuzzy
@@ -6469,9 +6469,6 @@ msgstr "Ricevere"
 #, fuzzy
 msgid "Recent"
 msgstr "Ricevere"
-
-msgid "Recent Activity"
-msgstr ""
 
 msgid "Record not found"
 msgstr "Record non trovato"
@@ -9284,9 +9281,6 @@ msgstr "Versione"
 msgid "View"
 msgstr ""
 
-msgid "View all"
-msgstr ""
-
 #, fuzzy
 msgid "WOL Broadcast Management"
 msgstr "Gestione della posizione"
@@ -9552,6 +9546,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "architecture not recorded"
+msgstr "Impossibile leggere il file temporaneo"
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr "come FOG proverà ad andare in internet"
@@ -10045,9 +10043,6 @@ msgstr "Non trovato su questo nodo"
 msgid "not reachable"
 msgstr "Non disponibile"
 
-msgid "not yet seen"
-msgstr ""
-
 #, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack Accounts"
@@ -10375,6 +10370,10 @@ msgstr "si imposti il campo di larghezza di banda su quel nodo a 1000"
 
 msgid "{node}"
 msgstr ""
+
+#, fuzzy, php-format
+#~ msgid "%s hosts"
+#~ msgstr "hosts"
 
 #, fuzzy
 #~ msgid "A filter must be specified"

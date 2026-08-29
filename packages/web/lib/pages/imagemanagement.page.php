@@ -1370,17 +1370,26 @@ class ImageManagement extends FOGPage
         return ob_get_clean();
     }
     /**
-     * One place to see what architecture everything is.
+     * What architecture every IMAGE is, plus the deploys that cannot work.
      *
-     * Architecture is the one property that belongs to a host AND to an image
-     * and only means something when you can see both at once. A per-image tab
-     * cannot show which machines an image is pointed at, and a per-host tab
-     * cannot show whether the image assigned to it is one it could run -- so
-     * a mismatch was invisible from either side, which is how an x86 image
-     * gets assigned to an ARM host and stays that way until somebody deploys.
+     * Three things, in the order an admin needs them: which architectures
+     * this server knows about and which side of a deploy each may be picked
+     * on, any host assigned an image it cannot run, and every image with the
+     * architecture it was captured for.
+     *
+     * It does NOT inventory hosts. It used to, and that table repeated Host
+     * Management's own list, which carries an Architecture column of its own
+     * -- the only host rows worth showing here are the mismatches, so those
+     * are the only ones it shows, and only when there are some.
+     *
+     * A mismatch still has to be found from this side, though. A per-image
+     * tab cannot show which machines an image is pointed at, and a per-host
+     * tab cannot show whether the image assigned to it is one it could run,
+     * which is how an x86 image gets assigned to an ARM host and stays that
+     * way until somebody deploys.
      *
      * Server-rendered rather than a DataTables endpoint: this is a report
-     * read occasionally, not a grid that needs paging and sorting, and three
+     * read occasionally, not a grid that needs paging and sorting, and two
      * joined queries answer it outright with no per-row lookups.
      *
      * Compatibility is decided by Architecture::canRun(), never re-implemented
@@ -1417,18 +1426,23 @@ class ImageManagement extends FOGPage
             return;
         }
 
-        // Two more LEFT JOINs onto `architectures` since schema step 372, one
-        // per side. LEFT, not INNER, on all four: a host with no image, or
-        // either side with no architecture recorded, is the ordinary state on
-        // an upgraded server and must still appear in this report -- an INNER
-        // join would quietly hide exactly the rows an admin came here to find.
+        // Hosts are read for ONE purpose here: to find the ones assigned an
+        // image they cannot run. This page does not inventory hosts -- Host
+        // Management already lists every host with its architecture -- so the
+        // only host rows that reach the page are the exceptions.
+        //
+        // INNER JOIN on `images`, because a host with no image has nothing to
+        // mismatch against. The two `architectures` joins stay LEFT: an
+        // unrecorded architecture on either side is ordinary on an upgraded
+        // server, and canRun() treats it as compatible rather than as a fault,
+        // so those rows must reach the filter to be dismissed by it.
         $rows = self::$DB->query(
             "SELECT `hosts`.`hostID` AS `id`, `hosts`.`hostName` AS `host`, "
             . "`ha`.`archName` AS `hostArch`, "
             . "`images`.`imageName` AS `image`, "
             . "`ia`.`archName` AS `imageArch` "
             . "FROM `hosts` "
-            . "LEFT OUTER JOIN `images` "
+            . "INNER JOIN `images` "
             . "ON `hosts`.`hostImage` = `images`.`imageID` "
             . "LEFT OUTER JOIN `architectures` `ha` "
             . "ON `ha`.`archID` = `hosts`.`hostArchID` "
@@ -1457,46 +1471,91 @@ class ImageManagement extends FOGPage
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $images = is_array($images) ? $images : [];
 
-        // Counted in PHP off the same rows the table renders, so the summary
+        // Counted in PHP off the same rows the tables render, so the summary
         // and the detail cannot disagree.
+        //
+        // The per-architecture tiles count IMAGES, not hosts: this page is
+        // about what the server holds and what it can be deployed to, and the
+        // host side of that question is answered by Host Management's own
+        // list, which carries an Architecture column.
         $byArch = [];
-        $unknownHosts = 0;
+        $unknownImages = 0;
+        foreach ($images as $img) {
+            $imageArch = Architecture::normalizeName($img['imageArch'] ?? '');
+            if ('' === $imageArch) {
+                $unknownImages++;
+                continue;
+            }
+            if (!isset($byArch[$imageArch])) {
+                $byArch[$imageArch] = 0;
+            }
+            $byArch[$imageArch]++;
+        }
+        ksort($byArch);
+
         $mismatched = [];
         foreach ($rows as $row) {
-            $hostArch = Architecture::normalizeName($row['hostArch'] ?? '');
-            if ('' === $hostArch) {
-                $unknownHosts++;
-            } else {
-                if (!isset($byArch[$hostArch])) {
-                    $byArch[$hostArch] = 0;
-                }
-                $byArch[$hostArch]++;
-            }
             if (!Architecture::canRun($row['imageArch'] ?? '', $row['hostArch'] ?? '')) {
                 $mismatched[] = $row;
             }
         }
-        ksort($byArch);
 
         // --- summary ---------------------------------------------------
         echo '<div class="row">';
         foreach ($byArch as $arch => $count) {
-            $this->_archStat($count, sprintf(_('%s hosts'), $arch), false);
+            $this->_archStat($count, sprintf(_('%s images'), $arch), false);
         }
-        $this->_archStat($unknownHosts, _('not yet seen'), false);
+        $this->_archStat($unknownImages, _('architecture not recorded'), false);
         $this->_archStat(count($mismatched), _('mismatched'), count($mismatched) > 0);
         echo '</div>';
 
+        // --- mismatches ------------------------------------------------
+        // An exception list, not a host inventory: only the hosts whose
+        // assigned image cannot run on them, and nothing at all when there
+        // are none. The full host-by-host table this replaced repeated Host
+        // Management's own list, which already carries an Architecture
+        // column, so the only rows it added were these.
+        //
+        // Server-rendered and NOT a DataTable. It is short by construction --
+        // an install with enough of these to need paging has a bigger problem
+        // than pagination -- and every row is one the admin is meant to read
+        // rather than search.
         if (count($mismatched) > 0) {
-            echo '<div class="alert alert-danger">';
-            echo '<strong>';
+            echo '<div class="card card-danger card-outline">';
+            echo '<div class="card-header"><h4 class="card-title">';
             printf(
-                _('%d host(s) are assigned an image they cannot run.'),
+                _('%d host(s) are assigned an image they cannot run'),
                 count($mismatched)
             );
-            echo '</strong> ';
+            echo '</h4><br/>';
             echo _('FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one.');
             echo '</div>';
+            echo '<div class="card-body table-responsive">';
+            echo '<table class="table table-hover"><thead><tr>';
+            echo '<th>' . _('Host') . '</th>';
+            echo '<th>' . _('Architecture') . '</th>';
+            echo '<th>' . _('Assigned image') . '</th>';
+            echo '<th>' . _('Image architecture') . '</th>';
+            echo '</tr></thead><tbody>';
+            foreach ($mismatched as $row) {
+                echo '<tr class="table-danger">';
+                echo '<td>' . htmlentities($row['host'], ENT_QUOTES, 'utf-8') . '</td>';
+                echo '<td>'
+                    . $this->_archCell(
+                        Architecture::normalizeName($row['hostArch'] ?? ''),
+                        _('Not yet seen')
+                    )
+                    . '</td>';
+                echo '<td>' . htmlentities($row['image'], ENT_QUOTES, 'utf-8') . '</td>';
+                echo '<td>'
+                    . $this->_archCell(
+                        Architecture::normalizeName($row['imageArch'] ?? ''),
+                        _('Not recorded')
+                    )
+                    . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table></div></div>';
         }
 
         // --- the architectures themselves ------------------------------
@@ -1606,53 +1665,6 @@ class ImageManagement extends FOGPage
                 . '</td>';
             echo '<td>' . htmlentities((string)$img['captured'], ENT_QUOTES, 'utf-8') . '</td>';
             echo '<td>' . (int)$img['assigned'] . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table></div></div>';
-
-        // --- hosts -----------------------------------------------------
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header"><h4 class="card-title">';
-        echo _('Hosts');
-        echo '</h4></div>';
-        echo '<div class="card-body table-responsive">';
-        echo '<table id="architectures-hosts" class="table table-hover">';
-        echo '<thead><tr>';
-        echo '<th>' . _('Host') . '</th>';
-        echo '<th>' . _('Architecture') . '</th>';
-        echo '<th>' . _('Assigned image') . '</th>';
-        echo '<th>' . _('Image architecture') . '</th>';
-        echo '</tr></thead><tbody>';
-        foreach ($rows as $row) {
-            $bad = !Architecture::canRun($row['imageArch'] ?? '', $row['hostArch'] ?? '');
-            // data-mismatch as well as the class: this table is a DataTable
-            // and redraws its rows when paged, so fog.image.architectures.js
-            // re-applies the highlight from the attribute on every draw. The
-            // class stays for the first paint and for anyone reading the page
-            // with JavaScript off.
-            echo $bad
-                ? '<tr class="table-danger" data-mismatch="1">'
-                : '<tr>';
-            echo '<td>' . htmlentities($row['host'], ENT_QUOTES, 'utf-8') . '</td>';
-            echo '<td>'
-                . $this->_archCell(
-                    Architecture::normalizeName($row['hostArch'] ?? ''),
-                    _('Not yet seen')
-                )
-                . '</td>';
-            echo '<td>'
-                . (
-                    $row['image']
-                    ? htmlentities($row['image'], ENT_QUOTES, 'utf-8')
-                    : '<span class="text-muted">' . _('None') . '</span>'
-                )
-                . '</td>';
-            echo '<td>'
-                . $this->_archCell(
-                    Architecture::normalizeName($row['imageArch'] ?? ''),
-                    _('Not recorded')
-                )
-                . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';

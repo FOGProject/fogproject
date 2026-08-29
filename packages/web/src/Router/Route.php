@@ -6926,10 +6926,11 @@ class Route extends FOGBase
      * One history row as a sentence, in the READER's language.
      *
      * Delegates to History::summary(), which is where the renderer lives
-     * now. It moved there when the dashboard's Recent Activity card became
-     * a second reader (ADR 0020 decision 5, writer half): the sentence is a
-     * property of a history row, not of the router, and two readers reaching
-     * into the router for it is how they drift apart.
+     * now. It moved there when the dashboard's Recent Activity card became a
+     * second reader (ADR 0020 decision 5, writer half); that card has since
+     * been removed, but the reason to keep the renderer on the item stands --
+     * the sentence is a property of a history row, not of the router, and a
+     * reader reaching into the router for it is how the two drift apart.
      *
      * Kept as a wrapper rather than inlined at the call site so the grid
      * column's formatter still reads like every other formatter here.

@@ -558,12 +558,18 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Reports'],
                 'fas fa-file-lines'
             ],
-            // Beside Reports, because that is what people will look for it
-            // under -- but a node of its own, not a report. The `report`
+            // Directly below Reports, because that is where people look for
+            // it -- but a node of its own, not a report. The `report`
             // permission node covers history, so one report.view grant
             // reads every administrative action; the activity viewer gets
             // its own gate precisely so it does not inherit that one.
             // See docs/adr/0023.
+            //
+            // Nested under the `logging` grouping label in _menuGroups(),
+            // which renders at this position. The order HERE is still what
+            // decides the order in the sidebar: a group draws at its first
+            // present child and lists its children in the order that array
+            // gives, so keep the two adjacent.
             'activity' => [
                 _('Activity'),
                 'fas fa-clock-rotate-left'
@@ -573,6 +579,12 @@ abstract class FOGPage extends FOGBase
             // allowed to do what, refusals included, and it discloses
             // attempted usernames -- so it has its own node and is hidden
             // from anyone not granted it. See docs/adr/0021.
+            //
+            // Grouping the two under one label does not merge their gates.
+            // _buildMenuStructure() nests only the children that survived
+            // permission filtering, and a group with none left renders
+            // nothing at all -- so an activity.view-only role still sees
+            // Logging with one entry under it, not a door to the audit log.
             'audit' => [
                 _('Audit Log'),
                 'fas fa-clipboard-list'
@@ -758,6 +770,25 @@ abstract class FOGPage extends FOGBase
                 'title'    => _('User Administration'),
                 'icon'     => 'fas fa-shield',
                 'children' => ['user', 'usergroup', 'role'],
+            ],
+            // "Where do I go to see what happened" is one question, and it
+            // had two answers sitting next to each other with nothing saying
+            // they were related. Both are read-only views of the event logs
+            // and neither is a report, so Reports was never the right parent
+            // -- ADR 0030 puts a name to the difference: a report is an
+            // aggregation over a window, and these two are neither.
+            //
+            // TWO children, not three. History is not a node -- ADR 0023 item
+            // 4 made History_Report a redirect into the Activity viewer,
+            // keeping its URL alive for bookmarks -- so it is a legacy door
+            // into `activity` rather than a third destination to group. A
+            // group renders at the position of its first present child, and
+            // `activity` already sits directly below Reports, so this changes
+            // where nothing is: the two entries collapse in place.
+            'logging' => [
+                'title'    => _('Logging'),
+                'icon'     => 'fas fa-scroll',
+                'children' => ['activity', 'audit'],
             ],
         ];
     }
