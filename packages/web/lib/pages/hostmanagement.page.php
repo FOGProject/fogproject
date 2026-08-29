@@ -1249,6 +1249,23 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'sbenrollcert') ?:
             ($this->obj->get('sbenrollcert') ?: '')
         );
+        // The comparison this column exists for, made rather than left to
+        // the reader. Storing a fingerprint and rendering it next to nothing
+        // asks an administrator to check 95 hex characters against a
+        // different page by eye, which is not an answer -- it is the raw
+        // material for one, and ADR 0029 decision 5 says the question is
+        // "does this machine trust what I serve today".
+        //
+        // Computed from the STORED value, never from INPUT_POST: a rejected
+        // post re-renders whatever was typed, and running the comparison on
+        // that would report the freshness of a value the database does not
+        // hold. Empty when there is nothing to compare -- see
+        // enrolmentFreshness() for why that is not the same as stale.
+        $sbEnrollFresh = SecureBootState::freshnessLabel(
+            SecureBootState::enrolmentFreshness(
+                $this->obj->get('sbenrollcert')
+            )
+        );
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -1503,6 +1520,38 @@ class HostManagement extends FOGPage
                 $sbEnrollCert
             )
         ];
+        // Appended rather than written into the literal above, because it is
+        // only rendered when it has something to say. A disabled, empty
+        // "Certificate Status" box on every host in a fleet that has never
+        // enrolled anything is noise, and a field that is blank almost
+        // everywhere trains people to skip the one place it is not.
+        //
+        // Disabled AND read-only, the same pair the reported state uses: a
+        // disabled input is not submitted at all, so this cannot become a
+        // second writer for a value that is derived rather than stored.
+        if ('' !== $sbEnrollFresh) {
+            $fields[
+                self::makeLabel(
+                    $labelClass,
+                    'sbenrollfresh',
+                    _('Certificate Status')
+                )
+            ] = self::makeInput(
+                'form-control hostsbenrollfresh-input',
+                'sbenrollfresh',
+                '',
+                'text',
+                'sbenrollfresh',
+                $sbEnrollFresh,
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
+            );
+        }
 
         $buttons = self::makeButton(
             'general-send',
@@ -1679,21 +1728,27 @@ class HostManagement extends FOGPage
                 )
             );
         }
-        // Shape-checked, not merely trimmed. This value's whole purpose is
-        // to be compared against the server's own certificate fingerprint,
-        // and a comparison against something that is not a SHA-256 can only
-        // ever be false -- silently, and looking exactly like "this host
-        // trusts an older certificate". Accepts the colon-formatted form the
-        // Secure Boot page displays and the bare hex a copy-paste tends to
-        // produce, and stores the former.
-        $sbEnrollCert = strtoupper(
-            trim((string)filter_input(INPUT_POST, 'sbenrollcert'))
+        // Shape-checked, not merely trimmed, and through the same
+        // normaliser service/secureboot.report.php uses -- this format was
+        // written out longhand in four files, which is three places for it
+        // to drift. Accepts the colon-formatted form the Secure Boot page
+        // displays and the bare hex a copy-paste tends to produce, and
+        // stores the former.
+        //
+        // Rejecting rather than storing whatever arrived matters because
+        // this column's only use is an equality test: a comparison against
+        // something that is not a SHA-256 can only ever be false, silently,
+        // and looking exactly like "this host trusts an older certificate".
+        $sbEnrollCert = trim(
+            (string)filter_input(INPUT_POST, 'sbenrollcert')
         );
         if ('' === $sbEnrollCert) {
             $sbEnrollCert = null;
         } else {
-            $bare = str_replace(':', '', $sbEnrollCert);
-            if (!preg_match('/^[0-9A-F]{64}$/', $bare)) {
+            $sbEnrollCert = SecureBootState::normalizeFingerprint(
+                $sbEnrollCert
+            );
+            if ('' === $sbEnrollCert) {
                 throw new \Exception(
                     _(
                         'Enrolled certificate must be a SHA-256 fingerprint '
@@ -1701,7 +1756,6 @@ class HostManagement extends FOGPage
                     )
                 );
             }
-            $sbEnrollCert = implode(':', str_split($bare, 2));
         }
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {

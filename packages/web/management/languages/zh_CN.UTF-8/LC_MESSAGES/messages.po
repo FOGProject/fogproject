@@ -1470,6 +1470,10 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
+msgid "Certificate Status"
+msgstr "新建%s"
+
+#, fuzzy
 msgid "Certificate Verification"
 msgstr "新建%s"
 
@@ -2262,6 +2266,9 @@ msgstr "不要列出菜单上"
 #, fuzzy
 msgid "Documentation"
 msgstr "位置"
+
+msgid "Does NOT match this server's current certificate -- this host trusts a superseded one and will stop booting under Secure Boot once it is retired. Re-run the Secure Boot enrolment task on it."
+msgstr ""
 
 #, fuzzy
 msgid "Domain Admins"
@@ -5050,6 +5057,9 @@ msgid "Master Node"
 msgstr "主节点"
 
 msgid "Matches the term against the class name field. Returns the same envelope as a list. Takes no filter -- the match is the whole query."
+msgstr ""
+
+msgid "Matches this server's current certificate"
 msgstr ""
 
 msgid "Max Clients"

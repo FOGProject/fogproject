@@ -151,10 +151,33 @@ the machine trusts what this server is serving today — which is the question
 an administrator actually has.
 
 This costs one column and no new computation, because both sides of the
-comparison already exist and already agree. `FOGConfigurationPage::secureBoot()`
-renders `strtoupper(implode(':', str_split(hash_file('sha256', $cert), 2)))`,
-and FOS's `sbCertFingerprint()` is `sha256sum | toupper | colon-split` over the
-same DER file. The check is string equality.
+comparison already exist and already agree. FOS's `sbCertFingerprint()` is
+`sha256sum | toupper | colon-split` over the same DER file the Secure Boot
+configuration page hashes. The check is string equality.
+
+**The comparison is made, not left to the reader.** Storing a fingerprint and
+rendering it beside nothing does not answer the question above — it asks an
+administrator to check 95 hex characters against a different page by eye, which
+is how a fleet ends up with nobody having checked. `SecureBootState` owns the
+comparison: `enrolmentFreshness()` returns `current`, `stale`, or `''`, the host
+form renders a read-only Certificate Status row, and the host grid badges the
+stale rows so one glance over a fleet finds them.
+
+Only `stale` is badged. A green tick on every correctly-enrolled host is a badge
+on the majority, which is decoration; the exception is what needs finding.
+
+`''` — not `stale` — is returned for all three cases where the question cannot
+be answered: nothing recorded against the host, an unparseable stored value, or
+a server with no signing certificate. None of those is evidence that a machine
+trusts the wrong key, and reporting them as stale would put a red badge on every
+host in a fleet that has simply never enrolled. A warning that is on everything
+is a warning nobody reads.
+
+The fingerprint FORMAT lives in `SecureBootState::normalizeFingerprint()` for
+the same reason the state format does. It was written out longhand in four
+files; any two of them drifting turns every comparison into a silent false,
+which does not read as a bug — it reads as "this host trusts an older
+certificate", and sends somebody to re-enrol a machine that was already correct.
 
 ### 6. A staged MOK request is not an enrolment
 
@@ -169,6 +192,15 @@ machine stops booting, because nothing ever confirmed the key at MokManager.
 So `mok-pending` is its own value and the grid renders it as pending rather
 than as a date. `mok` is reserved for a human recording that they worked
 through MokManager, which is the only point at which it is true.
+
+**A pending record resolves by re-running the task, not by a second mechanism.**
+Nothing observes the human at the MokManager screen, so `mok-pending` does not
+clear itself — and it deliberately gets no clever inference to make it. FOS's
+`sbCertTrusted()` already answers the question definitively, checking both `db`
+and MokList, so re-running the enrolment task on a confirmed host reports
+`trusted` and the record corrects itself. That path already exists, already
+works, and is an observation rather than a guess. `mok` is left for a human
+recording that they were there.
 
 `trusted` is likewise its own value and not a synonym for `db`. It means the
 machine already trusted this certificate when the task ran, and nothing

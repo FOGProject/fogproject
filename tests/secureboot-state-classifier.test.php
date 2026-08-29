@@ -290,6 +290,120 @@ foreach ($labels as $label => $count) {
     $sbCheck("label '$label' is used by exactly one state", 1, $count);
 }
 
+// ------------------------------------------------------- fingerprint format --
+// One normaliser, because this format was written out longhand in four files
+// before it had a home: the host form, the report endpoint, the Secure Boot
+// configuration page and FOS. Any two of them drifting turns every comparison
+// into a silent false, which does not read as a bug -- it reads as "this host
+// trusts an older certificate", and sends somebody to re-enrol a machine that
+// was already correct.
+$canonical = 'AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99'
+    . ':AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99';
+$bare = str_replace(':', '', $canonical);
+
+$accepts = [
+    'the canonical form itself' => $canonical,
+    'lower-case colon form' => strtolower($canonical),
+    'bare hex, as a copy-paste produces' => $bare,
+    'bare lower-case hex' => strtolower($bare),
+    'surrounding whitespace' => "  $canonical\n",
+];
+foreach ($accepts as $why => $input) {
+    $sbCheck(
+        "normalizeFingerprint accepts $why",
+        $canonical,
+        SecureBootState::normalizeFingerprint($input)
+    );
+}
+
+// Rejected, and rejected as '' rather than as something storable. Anything
+// that is not a SHA-256 can only ever compare false.
+$rejects = [
+    'empty' => '',
+    'null' => null,
+    'one digit short' => substr($bare, 0, 63),
+    'one digit long' => $bare . 'A',
+    'non-hex' => str_repeat('Z', 64),
+    'a SHA-1, which is what MokManager displays' => str_repeat('AB', 20),
+    'prose' => 'not a fingerprint',
+];
+foreach ($rejects as $why => $input) {
+    $sbCheck(
+        "normalizeFingerprint rejects $why",
+        '',
+        SecureBootState::normalizeFingerprint($input)
+    );
+}
+
+// -------------------------------------------------------------- freshness --
+// The comparison the column exists for (ADR 0029 decision 5). Asserted with
+// the server value INJECTED rather than read off disk, so these cases run
+// anywhere -- serverFingerprint() reads BASEPATH, which a DB-free test has no
+// business defining.
+$other = str_replace(':', '', $canonical);
+$other = implode(':', str_split(str_repeat('11', 32), 2));
+
+$sbCheck(
+    'an identical fingerprint is current',
+    SecureBootState::FRESH,
+    SecureBootState::enrolmentFreshness($canonical, $canonical)
+);
+// The case the normaliser is FOR: the same certificate written two ways must
+// not read as two certificates.
+$sbCheck(
+    'bare hex against colon form is still the same certificate',
+    SecureBootState::FRESH,
+    SecureBootState::enrolmentFreshness(strtolower($bare), $canonical)
+);
+$sbCheck(
+    'a different fingerprint is stale',
+    SecureBootState::STALE,
+    SecureBootState::enrolmentFreshness($canonical, $other)
+);
+
+// Three different kinds of "cannot answer", none of which is evidence that a
+// machine trusts the wrong key. Reporting any of them as stale would badge
+// every host in a fleet that has simply never enrolled, and a warning that is
+// on everything is a warning nobody reads.
+$unanswerable = [
+    'nothing recorded against the host' => ['', $canonical],
+    'null recorded against the host' => [null, $canonical],
+    'an unparseable stored value' => ['wat', $canonical],
+    'this server has no signing certificate' => [$canonical, ''],
+    'neither side has anything' => ['', ''],
+];
+foreach ($unanswerable as $why => $pair) {
+    $sbCheck(
+        "freshness is unanswerable when $why",
+        '',
+        SecureBootState::enrolmentFreshness($pair[0], $pair[1])
+    );
+}
+
+// Labels: distinct, non-empty for both answers, and EMPTY for the
+// unanswerable case. The host form renders the field only when this is
+// non-empty, so a default that returned prose would put a disabled box on
+// every host that has never enrolled anything.
+$fresh = SecureBootState::freshnessLabel(SecureBootState::FRESH);
+$stale = SecureBootState::freshnessLabel(SecureBootState::STALE);
+$sbCheck('the current label says something', true, '' !== $fresh);
+$sbCheck('the stale label says something', true, '' !== $stale);
+$sbCheck('the two labels differ', true, $fresh !== $stale);
+$sbCheck("an unanswerable freshness has no label", '', SecureBootState::freshnessLabel(''));
+$sbCheck(
+    'an unrecognised freshness has no label',
+    '',
+    SecureBootState::freshnessLabel('wat')
+);
+// The stale wording has to name what to DO. A mismatch on its own does not
+// tell anyone anything: the machine boots fine until the old kernels stop
+// being served, and then stops booting with no apparent cause.
+$sbCheck(
+    'the stale label says to re-run the enrolment task',
+    true,
+    false !== stripos($stale, 're-run')
+);
+
 // ------------------------------------------------------------------ result --
 if ($failures > 0) {
     fwrite(STDERR, "\n$failures of $checks checks FAILED\n");

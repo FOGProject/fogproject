@@ -127,13 +127,15 @@ if (!array_key_exists($result, $map)) {
     $done('badresult');
 }
 
-// Shape-checked for the same reason the form is: this value's whole purpose
-// is to be compared against the server's own fingerprint, and a comparison
-// against something that is not a SHA-256 can only ever be false -- silently,
-// and looking exactly like "this host trusts an older certificate".
-$cert = strtoupper(trim((string)filter_input(INPUT_POST, 'cert')));
-$bare = str_replace(':', '', $cert);
-if (!preg_match('/^[0-9A-F]{64}$/', $bare)) {
+// Shape-checked for the same reason the form is, and through the same
+// normaliser: this value's whole purpose is to be compared against the
+// server's own fingerprint, and a comparison against something that is not a
+// SHA-256 can only ever be false -- silently, and looking exactly like "this
+// host trusts an older certificate".
+$cert = SecureBootState::normalizeFingerprint(
+    filter_input(INPUT_POST, 'cert')
+);
+if ('' === $cert) {
     $done('badcert');
 }
 
@@ -143,7 +145,7 @@ FOGCore::getClass('HostManager')->update(
     [
         'sbenrolled' => FOGBase::niceDate()->format('Y-m-d H:i:s'),
         'sbenrollvia' => $map[$result],
-        'sbenrollcert' => implode(':', str_split($bare, 2)),
+        'sbenrollcert' => $cert,
     ]
 );
 

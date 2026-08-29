@@ -31,12 +31,21 @@ namespace FOG\Boot;
  * reads as before anything has reported, and it is deliberately not a
  * synonym for anything else.
  *
+ * It also owns the CERTIFICATE FINGERPRINT format, for the same
+ * one-place-or-it-drifts reason. The ledger's asserted half stores the
+ * SHA-256 of what was enrolled specifically so that "does this machine trust
+ * the certificate this server serves today" is answerable (ADR 0029 decision
+ * 5), and that answer is a string comparison between two values which were
+ * being formatted longhand in four separate files.
+ *
  * ADVISORY ONLY. Every value here originates in an unauthenticated request
  * body -- boot.php has no credential to demand, and the task-completion
  * report is only as trustworthy as the client running it. Nothing may read
  * these as a security control. See ADR 0029 for the full constraint; the
  * short form is that spoofing DISABLED costs a wasted task, and spoofing
- * ENFORCING must cost nothing at all.
+ * ENFORCING must cost nothing at all. That applies to the fingerprint too:
+ * FRESH below means "this host claims a fingerprint equal to ours", never
+ * "this host is verified".
  *
  * @category SecureBootState
  * @package  FOGProject
@@ -315,6 +324,171 @@ class SecureBootState
                 return _('Secure Boot OFF');
             default:
                 return _('Never reported');
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // The certificate half of the ledger.
+    //
+    // hostSbEnrollCert exists to be COMPARED, not merely stored. Without
+    // this section the column was write-only in practice: the value was
+    // recorded, rendered and exported, and the one question it was added to
+    // answer -- "does this machine trust what I am serving today" -- was left
+    // to an administrator eyeballing 95 hex characters against a different
+    // page. That is not an answer, it is the raw material for one.
+    // ------------------------------------------------------------------
+
+    /**
+     * The stored fingerprint equals the certificate this server serves.
+     *
+     * @var string
+     */
+    const FRESH = 'current';
+    /**
+     * The stored fingerprint is some OTHER certificate.
+     *
+     * @var string
+     */
+    const STALE = 'stale';
+    /**
+     * Memoised server fingerprint. false = not yet computed.
+     *
+     * @var string|false
+     */
+    private static $_serverPrint = false;
+    /**
+     * Where the installer puts the Secure Boot signing certificate.
+     *
+     * Third copy of this path avoided rather than added: it was already
+     * spelled out in FOGConfigurationPage::secureBoot() and twice in
+     * IpxeBootMenu. A path written in four places is a path that moves in
+     * three.
+     *
+     * @return string '' when BASEPATH is not defined (CLI tests, tooling)
+     */
+    public static function certPath()
+    {
+        if (!defined('BASEPATH')) {
+            return '';
+        }
+
+        return BASEPATH . 'service/secureboot' . DS . 'MOK.der';
+    }
+    /**
+     * Canonicalise a SHA-256 fingerprint, or reject it.
+     *
+     * One format, one place. The colon-separated upper-case form is what
+     * FOGConfigurationPage::secureBoot() displays and what FOS's
+     * sbCertFingerprint() prints, so it is what gets stored -- but a value
+     * arriving from a human is as likely to be the bare hex a copy-paste
+     * produces, and a value arriving from FOS could be either.
+     *
+     * Rejecting rather than storing-whatever-arrived is the point. This
+     * column's only use is an equality test, and a comparison against
+     * something that is not a SHA-256 can only ever be false -- silently, and
+     * looking exactly like "this host trusts an older certificate", which is
+     * the one wrong answer that sends somebody to re-enrol a machine that is
+     * already fine.
+     *
+     * @param mixed $value bare or colon-separated hex, any case
+     *
+     * @return string the canonical form, or '' if it is not a SHA-256
+     */
+    public static function normalizeFingerprint($value)
+    {
+        $bare = str_replace(':', '', strtoupper(trim((string)$value)));
+        if (!preg_match('/^[0-9A-F]{64}$/', $bare)) {
+            return '';
+        }
+
+        return implode(':', str_split($bare, 2));
+    }
+    /**
+     * The fingerprint of the certificate this server is serving right now.
+     *
+     * The SHA-256 of the DER bytes IS the certificate fingerprint, so there
+     * is no openssl round trip -- the same reasoning, and the same one line,
+     * the Secure Boot configuration page has always used.
+     *
+     * Memoised because the grid asks once per row and the file does not
+     * change within a request.
+     *
+     * @return string '' when this server has no signing certificate
+     */
+    public static function serverFingerprint()
+    {
+        if (false !== self::$_serverPrint) {
+            return self::$_serverPrint;
+        }
+        self::$_serverPrint = '';
+        $cert = self::certPath();
+        if ('' !== $cert && is_readable($cert)) {
+            $hash = hash_file('sha256', $cert);
+            if (false !== $hash) {
+                self::$_serverPrint = self::normalizeFingerprint($hash);
+            }
+        }
+
+        return self::$_serverPrint;
+    }
+    /**
+     * Whether a host's enrolment record matches what this server serves.
+     *
+     * Returns '' -- not STALE -- for every case where the question cannot be
+     * answered: nothing recorded against the host, an unparseable stored
+     * value, or a server with no signing certificate at all. Those are three
+     * different kinds of "we do not know", and none of them is evidence that
+     * a machine trusts the wrong key. Reporting them as STALE would put a
+     * red badge on every host in a fleet that has simply never enrolled, and
+     * a warning that is on everything is a warning nobody reads.
+     *
+     * @param mixed       $stored the host's hostSbEnrollCert
+     * @param string|null $server override, for tests; the live value if null
+     *
+     * @return string FRESH, STALE, or '' when it cannot be answered
+     */
+    public static function enrolmentFreshness($stored, $server = null)
+    {
+        $stored = self::normalizeFingerprint($stored);
+        if ('' === $stored) {
+            return '';
+        }
+        $server = null === $server
+            ? self::serverFingerprint()
+            : self::normalizeFingerprint($server);
+        if ('' === $server) {
+            return '';
+        }
+
+        return $stored === $server ? self::FRESH : self::STALE;
+    }
+    /**
+     * A translated label for a freshness result.
+     *
+     * The stale wording names the CONSEQUENCE rather than the mismatch,
+     * because the mismatch on its own does not tell anyone what to do: a
+     * machine trusting a superseded certificate boots fine until the day the
+     * old FOS kernels stop being served, and then stops booting with no
+     * apparent cause.
+     *
+     * @param string $freshness FRESH, STALE or ''
+     *
+     * @return string '' when there is nothing to say
+     */
+    public static function freshnessLabel($freshness)
+    {
+        switch ((string)$freshness) {
+            case self::FRESH:
+                return _("Matches this server's current certificate");
+            case self::STALE:
+                return _(
+                    'Does NOT match this server\'s current certificate -- '
+                    . 'this host trusts a superseded one and will stop '
+                    . 'booting under Secure Boot once it is retired. Re-run '
+                    . 'the Secure Boot enrolment task on it.'
+                );
+            default:
+                return '';
         }
     }
 }

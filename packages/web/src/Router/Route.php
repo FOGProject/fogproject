@@ -2642,6 +2642,42 @@ class Route extends FOGBase
                         }
                     ];
                     break;
+                case 'sbenrollcert':
+                    // A derived companion column, the same shape as
+                    // sbstatecode above: no header, so it is data in the
+                    // JSON rather than a visible column, and it exists
+                    // because the client cannot work this out for itself --
+                    // the row has the host's fingerprint but not the
+                    // server's, and shipping the server's to the browser to
+                    // be compared there would put the comparison in two
+                    // places.
+                    //
+                    // This is what makes the stored fingerprint answer a
+                    // question instead of merely being on file: on the grid,
+                    // one glance tells you which hosts trust a superseded
+                    // certificate. serverFingerprint() memoises, so the file
+                    // is hashed once per request, not once per row.
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'sbenrollfresh',
+                        'formatter' => function ($d, $row) {
+                            return SecureBootState::enrolmentFreshness($d);
+                        }
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => $common,
+                        'formatter' => function ($d, $row) {
+                            // The stored value verbatim. It is in the host
+                            // export and round-trips through importPost(),
+                            // so it must stay the exact string the column
+                            // holds -- and per GH-1446 it must carry no
+                            // markup, because every escaping consumer would
+                            // print it as literal text.
+                            return (string)$d;
+                        }
+                    ];
+                    break;
                 case 'pingstatus':
                     $columns[] = [
                         'db' => $real,

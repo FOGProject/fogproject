@@ -1487,6 +1487,10 @@ msgid "Certificate SHA-256"
 msgstr ""
 
 #, fuzzy
+msgid "Certificate Status"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
 msgid "Certificate Verification"
 msgstr "Crear nuevo grupo"
 
@@ -2295,6 +2299,9 @@ msgstr ""
 #, fuzzy
 msgid "Documentation"
 msgstr "Acción"
+
+msgid "Does NOT match this server's current certificate -- this host trusts a superseded one and will stop booting under Secure Boot once it is retired. Re-run the Secure Boot enrolment task on it."
+msgstr ""
 
 #, fuzzy
 msgid "Domain Admins"
@@ -5163,6 +5170,9 @@ msgid "Master Node"
 msgstr "nodo de almacenamiento"
 
 msgid "Matches the term against the class name field. Returns the same envelope as a list. Takes no filter -- the match is the whole query."
+msgstr ""
+
+msgid "Matches this server's current certificate"
 msgstr ""
 
 #, fuzzy

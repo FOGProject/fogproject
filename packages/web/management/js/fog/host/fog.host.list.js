@@ -261,6 +261,20 @@
                     return data +
                         ' <span class="badge bg-warning">pending</span>';
                 }
+                // The comparison the fingerprint column exists for, shown
+                // where somebody scanning a fleet will see it. 'stale' means
+                // this host trusts a certificate this server no longer
+                // serves: it boots fine today and stops booting under Secure
+                // Boot the day the old kernels are retired, with nothing on
+                // screen to connect the two events.
+                //
+                // Only 'stale' is badged. A green "current" on every
+                // correctly-enrolled host is a badge on the majority, which
+                // is decoration -- the exception is what needs finding.
+                if (String(row.sbenrollfresh || '') === 'stale') {
+                    return data +
+                        ' <span class="badge bg-danger">old cert</span>';
+                }
                 return data;
             },
             targets: colIndex.sbenrolled
