@@ -778,6 +778,29 @@ dd {
     margin: -0.4rem 0;
   }
 
+  // AL4 floats .card-title so a header can carry .card-tools beside it. A
+  // header that also carries a description paragraph then wraps that
+  // paragraph AROUND the float, so it renders on the title's own line with
+  // no separator at all: "Import ReportsThis section allows you to upload
+  // user defined reports...". Twelve headers emit that shape today, two of
+  // them from shared helpers (FOGPage::renderAssocCreate and
+  // FOGPageRender), so every page they serve reads the same way.
+  //
+  // The paragraph clears rather than .card-title losing its float, because
+  // the float is what the button rows in .card-tools are positioned against
+  // -- unfloating the title would move buttons on every card in FOG to fix
+  // text on twelve of them.
+  //
+  // Direct child so it only reaches a header's own description; a
+  // .form-text inside a control group that happens to sit in a header
+  // (none today, but the edit-tab strips put arbitrary markup there) keeps
+  // flowing normally.
+  .card-header > .form-text {
+    clear: both;
+    display: block;
+    margin-top: 0.25rem;
+  }
+
   // displayAlert() emits an un-classed <h4> title inside alerts — and inside
   // callouts when called with $isCallout=true (the dashboard notices use
   // this); unpinned it renders at raw-h4 scale (~1.4rem) against 14px body.
