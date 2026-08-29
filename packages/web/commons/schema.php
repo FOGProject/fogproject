@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Audit\Audit;
 use FOG\Db\DatabaseManager;
 use FOG\Items\Schema;
 use FOG\Items\TaskLog;
@@ -8497,6 +8498,1061 @@ $this->schema[] = [
                 . "ADD INDEX `idx_taskLogCreateTime` (`createTime`)"
             );
         }
+
+        return true;
+    },
+];
+
+// 380
+$this->schema[] = [
+    // Type parity between five child columns and the parents they point at.
+    //
+    // A foreign key requires the two columns to be the SAME type -- not a
+    // compatible one, the same one. MariaDB refuses a mediumint child
+    // against an int parent with errno 150, which surfaces as
+    // "Can't create table ... (errno: 150)" and says nothing about which
+    // column it means. Five of the 87 relationships in
+    // commons/schema-constraints.php cannot be declared until this lands,
+    // so it goes first and it touches no data.
+    //
+    // Four of them widen the CHILD, which is the accumulation of two
+    // different eras of id column: the association tables were written when
+    // mediumint was the house default and the tables they point at were
+    // later widened to int without their references following.
+    //
+    //   snapinGroupAssoc.sgaSnapinID       -> snapins.sID       int(11)
+    //   snapinGroupAssoc.sgaStorageGroupID -> nfsGroups.ngID    int(11)
+    //   imageGroupAssoc.igaImageID         -> images.imageID    int(11)
+    //   imageGroupAssoc.igaStorageGroupID  -> nfsGroups.ngID    int(11)
+    //
+    // The fifth runs the other way: moduleStatusByHost.msModuleID is
+    // int(11) and modules.id is mediumint(9). The PARENT is widened, not
+    // the child narrowed. Both directions produce a legal constraint and
+    // the trial ran the narrowing successfully, but narrowing is only safe
+    // while no value exceeds 8388607 and it would rebuild a 56,000-row
+    // table to save nothing; widening a 13-row table of ids is additive,
+    // unconditionally reversible in the sense that matters, and leaves the
+    // id column no narrower than anything that references it. Nothing else
+    // in the schema references modules.id.
+    //
+    // Guarded on DATA_TYPE so a server that already matches -- a fresh
+    // install, or a re-run -- does no work. MODIFY COLUMN rebuilds the
+    // table, so it is not free even when it changes nothing.
+    //
+    // See docs/development/foreign-keys.md, Phase C item 1, and ADR 0031.
+    function () {
+        $widen = [
+            ['snapinGroupAssoc', 'sgaSnapinID', 'int', 'INT(11) NOT NULL'],
+            ['snapinGroupAssoc', 'sgaStorageGroupID', 'int', 'INT(11) NOT NULL'],
+            ['imageGroupAssoc', 'igaImageID', 'int', 'INT(11) NOT NULL'],
+            ['imageGroupAssoc', 'igaStorageGroupID', 'int', 'INT(11) NOT NULL'],
+            ['modules', 'id', 'int', 'INT(11) NOT NULL AUTO_INCREMENT'],
+        ];
+
+        foreach ($widen as $w) {
+            list($table, $column, $want, $definition) = $w;
+            $row = self::$DB->query(
+                "SELECT `DATA_TYPE` AS `t` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND `TABLE_NAME` = '$table' "
+                . "AND `COLUMN_NAME` = '$column'"
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            if (!is_array($row) || !isset($row['t'])) {
+                // No such table or column on this server. Nothing to do --
+                // a later step or a fresh install builds it correctly.
+                continue;
+            }
+            if (strtolower((string)$row['t']) === $want) {
+                continue;
+            }
+            self::$DB->query(
+                "ALTER TABLE `$table` "
+                . "MODIFY COLUMN `$column` $definition"
+            );
+        }
+
+        return true;
+    },
+];
+
+// 381
+$this->schema[] = [
+    // The orphan sweep. THE ONLY DESTRUCTIVE STEP IN THIS SERIES.
+    //
+    // Nine years of PHP-only referential integrity leave rows whose parent
+    // is gone. ADD CONSTRAINT refuses on them at errno 1452 -- "Cannot add
+    // or update a child row" -- and reports the constraint, not the rows,
+    // so the constraint steps that follow cannot land until the ground is
+    // cleared. Doing it here rather than inside a constraint step is
+    // deliberate: a DELETE and an ALTER in one step means a 1452 arrives
+    // with nothing to say which of the two caused it, and the DELETE is
+    // the one thing in the whole series that cannot be undone.
+    //
+    // WHAT IT DELETES, AND WHY ONLY THIS. Every relationship below is
+    // classified CASCADE in commons/schema-constraints.php, meaning the
+    // child row has no existence independent of its parent -- a junction
+    // row, or a 1:1 satellite. If the parent were deleted today the
+    // constraint would delete the child; the parent is already gone, so
+    // the row is one the system has already decided it does not keep.
+    // Nothing else is swept:
+    //
+    //   - RESTRICT relationships are configuration references. An orphan
+    //     there means a host points at a missing architecture, not that
+    //     the host is junk, and deleting it would be catastrophic. Those
+    //     are handled by steps 7 and 8 of the series, by converting the
+    //     `0` sentinel and repointing.
+    //   - SET NULL relationships likewise: the fix is to null the column,
+    //     which needs the column to be nullable first.
+    //   - audit and history rows are NEVER swept. ADR 0021 stores the
+    //     subject's name on the row precisely so the trail outlives the
+    //     subject; a sweep here would delete the record of the deletion.
+    //   - plugin tables sweep at plugin install, not here. Core must not
+    //     delete rows belonging to a plugin that may not be installed.
+    //
+    // ORDER IS LOAD BEARING, and this is the part a rehearsal found rather
+    // than reasoning. Deleting multicastSessionsAssoc's orphans BEFORE the
+    // orphaned tasks strands a fresh set behind it, because deleting the
+    // task orphans the association row that pointed at it. Same inversion
+    // for snapinTasks and snapinJobs. On a 5000-host fixture that took an
+    // otherwise clean run to 85 constraints added / 2 refused, both 1452 on
+    // rows the sweep itself had just created. The depth is COMPUTED from
+    // the list below rather than hand-sorted, because a hand-sorted list is
+    // exactly what an editor gets silently wrong.
+    //
+    // WHAT IT RECORDS. A per-table count to the PHP error log, so the
+    // upgrade transcript carries it, AND one auditLog row with the totals,
+    // so an admin can find it afterward from the UI. That is ADR 0021's
+    // whole point: a one-time destructive act during an upgrade is exactly
+    // the thing that must not be silent. Neither write can fail the step --
+    // Audit::record() does not throw and returns false on failure.
+    //
+    // LEFT JOIN rather than NOT IN: NOT IN evaluates to UNKNOWN for every
+    // row if the subquery yields a single NULL, which deletes nothing and
+    // reports success. No CASCADE relationship carries a `0` sentinel, so
+    // there is no value to exclude here; the sentinel columns are all
+    // RESTRICT or SET NULL and belong to later steps.
+    //
+    // See docs/development/foreign-keys.md, Phase C item 5, and ADR 0031.
+    function () {
+        $rels = [
+            ['groupMembers', 'gmHostID', 'hosts', 'hostID'],
+            ['groupMembers', 'gmGroupID', 'groups', 'groupID'],
+            ['hostMAC', 'hmHostID', 'hosts', 'hostID'],
+            ['snapinAssoc', 'saHostID', 'hosts', 'hostID'],
+            ['snapinAssoc', 'saSnapinID', 'snapins', 'sID'],
+            ['snapinGroupAssoc', 'sgaSnapinID', 'snapins', 'sID'],
+            ['snapinGroupAssoc', 'sgaStorageGroupID', 'nfsGroups', 'ngID'],
+            ['imageGroupAssoc', 'igaImageID', 'images', 'imageID'],
+            ['imageGroupAssoc', 'igaStorageGroupID', 'nfsGroups', 'ngID'],
+            ['printerAssoc', 'paHostID', 'hosts', 'hostID'],
+            ['printerAssoc', 'paPrinterID', 'printers', 'pID'],
+            ['moduleStatusByHost', 'msHostID', 'hosts', 'hostID'],
+            ['moduleStatusByHost', 'msModuleID', 'modules', 'id'],
+            ['multicastSessionsAssoc', 'msID', 'multicastSessions', 'msID'],
+            ['multicastSessionsAssoc', 'tID', 'tasks', 'taskID'],
+            ['siteHostMembers', 'shmSiteID', 'sites', 'siteID'],
+            ['siteHostMembers', 'shmHostID', 'hosts', 'hostID'],
+            ['siteGroupMembers', 'sgmSiteID', 'sites', 'siteID'],
+            ['siteGroupMembers', 'sgmGroupID', 'groups', 'groupID'],
+            ['siteUserMembers', 'sumSiteID', 'sites', 'siteID'],
+            ['siteUserMembers', 'sumUserID', 'users', 'uId'],
+            ['siteUserGroupMembers', 'sugmSiteID', 'sites', 'siteID'],
+            ['siteUserGroupMembers', 'sugmUserGroupID', 'userGroups', 'ugID'],
+            ['siteRoleGrants', 'srgSiteID', 'sites', 'siteID'],
+            ['siteRoleGrants', 'srgRoleID', 'roles', 'rID'],
+            ['siteUserGroupGrants', 'suggSiteID', 'sites', 'siteID'],
+            ['siteUserGroupGrants', 'suggGroupID', 'userGroups', 'ugID'],
+            ['roleUserAssoc', 'ruaRoleID', 'roles', 'rID'],
+            ['roleUserAssoc', 'ruaUserID', 'users', 'uId'],
+            ['roleUserGroupAssoc', 'rugRoleID', 'roles', 'rID'],
+            ['roleUserGroupAssoc', 'rugGroupID', 'userGroups', 'ugID'],
+            ['rolePermissions', 'rpRoleID', 'roles', 'rID'],
+            ['userGroupMembers', 'ugmGroupID', 'userGroups', 'ugID'],
+            ['userGroupMembers', 'ugmUserID', 'users', 'uId'],
+            ['inventory', 'iHostID', 'hosts', 'hostID'],
+            ['hostScreenSettings', 'hssHostID', 'hosts', 'hostID'],
+            ['hostAutoLogOut', 'haloHostID', 'hosts', 'hostID'],
+            ['powerManagement', 'pmHostID', 'hosts', 'hostID'],
+            ['greenFog', 'gfHostID', 'hosts', 'hostID'],
+            ['apiTokens', 'atUserID', 'users', 'uId'],
+            ['userAuths', 'uaUserID', 'users', 'uId'],
+            // nfsGroupMembers.ngmGroupID is deliberately NOT swept.
+            //
+            // Every other entry on this list is a row with no meaning
+            // without its parent. A storage node is the opposite: it holds
+            // its own hostname, credentials, paths, interface, bandwidth
+            // limit and enable flag, none of it recoverable from the group.
+            // A node whose group is missing is a BROKEN row -- a node always
+            // belongs to a group -- but the repair is to assign it to one,
+            // which only an administrator can choose, not to delete a real
+            // node's configuration on their behalf.
+            //
+            // Tom's own server carries exactly such a row (`fognode1.lan`,
+            // enabled, group 0). The RESTRICT constraint the map declares
+            // for this column is refused while it exists, and names it in
+            // the log. That is the intended outcome: loud, actionable, and
+            // destructive of nothing.
+            ['tasks', 'taskHostID', 'hosts', 'hostID'],
+            ['snapinJobs', 'sjHostID', 'hosts', 'hostID'],
+            ['snapinTasks', 'stJobID', 'snapinJobs', 'sjID'],
+            ['snapinTasks', 'stSnapinID', 'snapins', 'sID'],
+        ];
+
+        // Which tables exist here. A server can be missing one -- a plugin
+        // table shares no namespace with these, but a table retired by a
+        // later ADR would still be named in the frozen list above, and a
+        // DELETE against a missing table is a fatal, not a skip.
+        $present = [];
+        $rows = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE()"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array)$rows as $row) {
+            if (isset($row['t'])) {
+                $present[strtolower((string)$row['t'])] = true;
+            }
+        }
+
+        $rels = array_values(
+            array_filter(
+                $rels,
+                function ($r) use ($present) {
+                    return isset($present[strtolower($r[0])])
+                        && isset($present[strtolower($r[2])]);
+                }
+            )
+        );
+
+        // Dependency depth per CHILD TABLE. A table whose parent is itself
+        // swept must run after it, or the parent's sweep strands rows the
+        // child's sweep has already passed. Fixpoint rather than a single
+        // pass so a longer chain than today's two would still order right;
+        // capped so a cycle cannot hang an upgrade.
+        $childTables = [];
+        $depth = [];
+        foreach ($rels as $r) {
+            $childTables[strtolower($r[0])] = true;
+            $depth[strtolower($r[0])] = 1;
+        }
+        for ($pass = 0; $pass < 10; $pass++) {
+            $moved = false;
+            foreach ($rels as $r) {
+                $parent = strtolower($r[2]);
+                $child = strtolower($r[0]);
+                if (!isset($childTables[$parent]) || $parent === $child) {
+                    continue;
+                }
+                if ($depth[$child] < $depth[$parent] + 1) {
+                    $depth[$child] = $depth[$parent] + 1;
+                    $moved = true;
+                }
+            }
+            if (!$moved) {
+                break;
+            }
+        }
+        usort(
+            $rels,
+            function ($a, $b) use ($depth) {
+                return $depth[strtolower($a[0])] <=> $depth[strtolower($b[0])];
+            }
+        );
+
+        $perTable = [];
+        $total = 0;
+        foreach ($rels as $r) {
+            list($child, $column, $parent, $pcolumn) = $r;
+            self::$DB->query(
+                "DELETE `c` FROM `$child` `c` "
+                . "LEFT JOIN `$parent` `p` ON `c`.`$column` = `p`.`$pcolumn` "
+                . "WHERE `p`.`$pcolumn` IS NULL"
+            );
+            $n = (int)self::$DB->affectedRows();
+            if ($n < 1) {
+                continue;
+            }
+            if (!isset($perTable[$child])) {
+                $perTable[$child] = 0;
+            }
+            $perTable[$child] += $n;
+            $total += $n;
+        }
+
+        if ($total < 1) {
+            return true;
+        }
+
+        $parts = [];
+        foreach ($perTable as $table => $n) {
+            error_log(
+                sprintf(
+                    'FOG orphan sweep: deleted %d row(s) from `%s` whose '
+                    . 'parent record no longer existed. They were already '
+                    . 'unreachable -- nothing read them and nothing could '
+                    . 'have.',
+                    $n,
+                    $table
+                )
+            );
+            $parts[] = sprintf('%s: %d', $table, $n);
+        }
+
+        Audit::record(
+            [
+                'type' => 'schema.orphan.sweep',
+                'subjectType' => 'schema',
+                'subjectID' => 0,
+                'subjectLabel' => _('Foreign key preparation'),
+                'outcome' => Audit::ALLOWED,
+                'affectedCount' => $total,
+                'renderable' => 1,
+                'text' => sprintf(
+                    /* translators: %1$d row count, %2$s per-table breakdown */
+                    _('Removed %1$d association and satellite row(s) whose '
+                    . 'parent record no longer existed, so that foreign key '
+                    . 'constraints could be declared. Per table: %2$s'),
+                    $total,
+                    implode(', ', $parts)
+                ),
+            ]
+        );
+
+        return true;
+    },
+];
+
+// 382
+$this->schema[] = [
+    // ADR 0031 group 1: host-owned junctions and satellites.
+    //
+    // The first constraints FOG has ever declared. 14 of them across 10
+    // tables -- the association rows and 1:1 satellites that belong to a
+    // host, plus the other side of each junction so a deleted group,
+    // snapin, printer or module cannot leave one either:
+    //
+    //   groupMembers        gmHostID -> hosts,  gmGroupID -> groups
+    //   hostMAC             hmHostID -> hosts
+    //   snapinAssoc         saHostID -> hosts,  saSnapinID -> snapins
+    //   printerAssoc        paHostID -> hosts,  paPrinterID -> printers
+    //   moduleStatusByHost  msHostID -> hosts,  msModuleID -> modules
+    //   inventory           iHostID -> hosts
+    //   hostScreenSettings  hssHostID -> hosts
+    //   hostAutoLogOut      haloHostID -> hosts
+    //   powerManagement     pmHostID -> hosts
+    //   greenFog            gfHostID -> hosts
+    //
+    // ALL CASCADE, AND NOTHING AN ADMIN CAN SEE CHANGES. Route::deletemass()
+    // already deletes every one of these when a host goes; the constraint is
+    // that statement made true in the database instead of remembered in one
+    // function. What it buys is the path that FORGETS -- an API delete, a
+    // plugin, a future call site -- which is the entire argument of ADR 0031.
+    //
+    // The declaration itself lives in commons/schema-constraints.php, which
+    // carries all 87 relationships with an `enabled` flag; this group's 14
+    // are the ones flipped on. The step does not repeat them, because a
+    // second copy is a second thing to get wrong.
+    //
+    // WHY A STEP AT ALL, when SchemaReconciler already applies constraints
+    // after every update run. Because that run has to HAPPEN: the admin only
+    // reaches the schema page while `mySchema < FOG_SCHEMA`, so a group that
+    // is only a flag flip in a PHP file reaches a server that is already up
+    // to date exactly never. An indexed step is what moves the count, and
+    // having moved it, it may as well be the thing that does the work and
+    // says so in the replay log. The reconcile that follows a few lines
+    // later in SchemaUpdaterPage::update() then finds them present and plans
+    // nothing -- it is the standing repair for a constraint dropped by hand
+    // or lost to a restore, not the mechanism that lands one.
+    //
+    // Steps 380 and 381 are the precondition: 380 made two of these column
+    // pairs the same type, and 381 removed the orphans that would otherwise
+    // refuse at 1452.
+    //
+    // NEVER FAILS THE UPDATE. applyConstraints() collects a refusal into
+    // SchemaReconciler::constraintFailures() and logs it with a pointer at
+    // bin/fk-orphan-scan.php rather than returning an error, because
+    // aborting here would strand a server on ?node=schema over data that is
+    // otherwise intact. A missing constraint means FOG is still relying on
+    // deletemass() alone, which is where it has been for a decade.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(1);
+
+        return true;
+    },
+];
+
+// 383
+$this->schema[] = [
+    // ADR 0031 group 2: identity -- users, roles, user groups and sites.
+    //
+    // 21 constraints across 12 tables. Every one CASCADE, and every one on
+    // a table whose rows describe a RELATIONSHIP between two identity
+    // objects rather than an object of its own:
+    //
+    //   siteHostMembers       shmSiteID -> sites,  shmHostID -> hosts
+    //   siteGroupMembers      sgmSiteID -> sites,  sgmGroupID -> groups
+    //   siteUserMembers       sumSiteID -> sites,  sumUserID -> users
+    //   siteUserGroupMembers  sugmSiteID -> sites, sugmUserGroupID -> userGroups
+    //   siteRoleGrants        srgSiteID -> sites,  srgRoleID -> roles
+    //   siteUserGroupGrants   suggSiteID -> sites, suggGroupID -> userGroups
+    //   roleUserAssoc         ruaRoleID -> roles,  ruaUserID -> users
+    //   roleUserGroupAssoc    rugRoleID -> roles,  rugGroupID -> userGroups
+    //   rolePermissions       rpRoleID -> roles
+    //   userGroupMembers      ugmGroupID -> userGroups, ugmUserID -> users
+    //   apiTokens             atUserID -> users
+    //   userAuths             uaUserID -> users
+    //
+    // THIS IS THE GROUP WHERE A LEFTOVER ROW IS AN ACCESS DECISION, which is
+    // why it goes second rather than later. Route::deletemass() already says
+    // so in as many words for the site tables -- a membership row left by a
+    // deleted host can put an unrelated NEW host into that site, and a stale
+    // grant "leaks a whole population" rather than one object. Every one of
+    // those cleanups stays; this makes them true for the paths that never
+    // call deletemass().
+    //
+    // ONE BEHAVIOR ADDITION, and it is the reason this group is worth more
+    // than tidiness: `userAuths` is NOT in deletemass('user')'s list. That
+    // table holds live remember-me credentials -- a selector hash, a
+    // password hash and an expiry -- so deleting a user leaves a working
+    // persistent-login row behind today. It is not directly exploitable:
+    // ProcessLogin verifies the hashes and then requires the User to load
+    // and be valid, so a deleted owner fails closed. What it is exposed to
+    // is id reuse, the same hazard the site cleanup above is written
+    // against: if the id is later handed to a new account, a surviving
+    // cookie authenticates its holder AS that account. deletemass('user')
+    // deletes apiTokens for exactly this reason and records why. This does
+    // for userAuths what that entry does for tokens, and does it in the one
+    // place no call site can skip. No PHP change accompanies it -- a
+    // redundant delete would be a second thing to keep in step with the
+    // first.
+    //
+    // Everything else here PINS what deletemass() already does:
+    // role -> rolePermissions + the two role associations; usergroup ->
+    // userGroupMembers + roleUserGroupAssoc; site -> its four membership
+    // lists; user -> roleUserAssoc, userGroupMembers, apiTokens. Nothing an
+    // admin can observe changes for any of them.
+    //
+    // Preconditions already landed: step 381 swept the orphans (all 21 of
+    // these are CASCADE, so they were in its list) and step 380 fixed the
+    // only type mismatches. Measured on the live 1.6 database, all 21 are
+    // clean -- 0 orphans, no type or collation difference.
+    //
+    // Same mechanism and the same failure policy as step 382: the map in
+    // commons/schema-constraints.php carries the declarations, this flips
+    // its group on, and applyConstraints() reports a refusal rather than
+    // failing the update.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(2);
+
+        return true;
+    },
+];
+
+// 384
+$this->schema[] = [
+    // ADR 0031 group 3: storage -- groups, nodes, and what they carry.
+    //
+    // Four constraints across two tables:
+    //
+    //   imageGroupAssoc   igaStorageGroupID -> nfsGroups, igaImageID -> images
+    //   snapinGroupAssoc  sgaStorageGroupID -> nfsGroups, sgaSnapinID -> snapins
+    //
+    // This step originally declared a fifth, nfsGroupMembers.ngmGroupID ->
+    // nfsGroups, ON DELETE CASCADE. That was wrong: a storage node outlives
+    // its group and CASCADE would have destroyed one's whole configuration
+    // when a group was deleted. The map now classes it config/SET NULL and
+    // it lands with group 5; step 385 removes the constraint from any
+    // database that got this far before the correction.
+    //
+    // THIS IS THE GROUP THE SURVEY'S ORPHAN COUNTS ACTUALLY NAMED.
+    // Route::deletemass() has a case for host, group, image, module,
+    // printer, snapin, user, role, usergroup and site. It has NO case for
+    // storagegroup or storagenode, and neither StorageGroup nor StorageNode
+    // overrides destroy() -- so deleting a storage group cascades to
+    // nothing, in every path, including the UI. Every orphan found in the
+    // live 1.6 database outside moduleStatusByHost traces to that: storage
+    // group 3 and node 4 were deleted at some point and nfsGroupMembers,
+    // multicastSessions and three columns of tasks still pointed at them.
+    //
+    // So unlike groups 1 and 2, this one does NOT pin behavior FOG already
+    // has. It supplies behavior FOG never had, and it supplies it in the
+    // only place that cannot be skipped. That is also why it is worth
+    // landing before the PHP: with these constraints on, a storage group
+    // delete does the right thing everywhere, and whatever remains for
+    // deletemass() to do is then a measured gap rather than a guessed one.
+    //
+    // The two nfsGroups references are why step 380 exists: all four
+    // ...GroupAssoc columns were mediumint(9) against an int(11) parent and
+    // could not be declared until that widened them.
+    //
+    // WHAT DELIBERATELY STAYS UNCONSTRAINED. nfsFailures carries nfGroupID
+    // and nfNodeID and takes no key: it is a failure record, and ADR 0021's
+    // rule applies to it exactly as it does to taskLog -- deleting a node
+    // must not delete the record of it having failed. The multicast and
+    // fileDeleteQueue references to storage are RESTRICT with a `0`
+    // sentinel, so they cannot be declared until the sentinel becomes NULL;
+    // they land with group 5.
+    //
+    // Same mechanism and failure policy as steps 382 and 383.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(3);
+
+        return true;
+    },
+];
+
+// 385
+$this->schema[] = [
+    // Correction, not a new group.
+    //
+    // Step 384 created `fk_nfsGroupMembers_ngmGroupID` ON DELETE CASCADE.
+    // The map now declares that relationship config/SET NULL and leaves it
+    // disabled until the sentinel conversion makes the column nullable, so
+    // the constraint the database holds is one nothing asks for any more.
+    //
+    // Running the reconciler is enough to remove it, but only because this
+    // step is landing alongside the change that taught planConstraints() to
+    // compare the DECLARATION rather than the name. Before that it read
+    // names out of information_schema, saw `fk_nfsGroupMembers_ngmGroupID`
+    // present, and called the relationship done -- so an action correction
+    // was a permanent no-op on every server that had already applied the
+    // old one. Names do not encode ON DELETE.
+    //
+    // It will only ever drop a constraint carrying the name
+    // SchemaReconciler::constraintName() generates for a relationship the
+    // map lists. One added by hand does not carry that name.
+    //
+    // GROUP 0 -- no relationship carries it, so this step ADDS nothing. It
+    // is a retirement step and only a retirement step. Retirements are
+    // never filtered by group, precisely so a wrong declaration can be
+    // corrected from whichever step runs next; adds are, so that this one
+    // cannot reach forward into group 5 and try constraints whose columns
+    // steps 386 and 387 have not prepared yet. Leaving it unfiltered was
+    // measured doing exactly that: seven group 5 constraints attempted
+    // here, five refused -- three at errno 150 for a SET NULL over a NOT
+    // NULL column, two at 1452 over rows step 387 had not swept -- all of
+    // which then applied cleanly at step 388 anyway. Noise on every
+    // upgrade, for nothing.
+    //
+    // WHY THE CASCADE WAS WRONG. A storage node is not a satellite of its
+    // group. It holds its own hostname, credentials, root/FTP/snapin paths,
+    // interface, bandwidth limit, max clients and enable flag, none of it
+    // recoverable from the group. Under CASCADE, deleting a storage group
+    // would have taken every node's configuration with it, silently -- a
+    // destructive behavior change nobody asked for.
+    //
+    // The relationship is RESTRICT: a node always belongs to a group (a
+    // group may have no nodes; a node may not have no group), so deleting a
+    // group that still has nodes is refused until they are moved. It is
+    // NOT SET NULL -- there is no legitimate "no group" state to spell.
+    //
+    // Step 381's orphan sweep lost the same relationship, because deleting
+    // a real node's configuration is not the repair for a missing group.
+    // Assigning it to one is, and only an administrator can pick which.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(0);
+
+        return true;
+    },
+];
+
+// 386
+$this->schema[] = [
+    // The `0` sentinel becomes a real NULL.
+    //
+    // Nine columns across five tables spell "no reference" as the integer 0.
+    // Nothing named 0 exists in any of the parent tables -- `taskStates`
+    // holds ids 1 to 6, `images` and `nfsGroups` start at 1 -- so a 0 is a
+    // reference to a row that cannot exist. No foreign key can be declared
+    // over that: ADD CONSTRAINT validates existing rows and fails 1452, and
+    // even on an empty table the next write of a 0 would be refused.
+    //
+    // NULL is what SQL has for "no reference". It is also what the ORM
+    // already wants: save()'s GH-1245 branch asks
+    // FOGBase::columnIsNullable() and writes NULL rather than 0 for an empty
+    // optional *id -- reading the answer out of commons/schema-expected.php,
+    // which is why the manifest change in this commit is behavior and not
+    // documentation. Making the column nullable is what turns that branch
+    // on; the explicit writes of 0 elsewhere are changed in the same commit.
+    //
+    // WHICH COLUMNS. A column converts when FOG can actually produce a 0 in
+    // it -- rows that hold one today, or a code path that writes one. That
+    // test rather than a census, because a census of two installs is a
+    // snapshot and the columns holding no zeros today are exactly the ones
+    // where a rare path would put one tomorrow.
+    //
+    //   hosts.hostImage              rows on both installs; RegisterClient,
+    //                                Image::destroy, Route's image delete
+    //   images.imageOSID             22 of 22 images on the 1.5 install
+    //   scheduledTasks.stImageID     rows
+    //   tasks.taskImageID            rows
+    //   tasks.taskNFSGroupID         rows
+    //   tasks.taskNFSMemberID        rows
+    //   tasks.taskLastMemberID       rows
+    //   multicastSessions.msSenderNode  rows; MulticastManager, MulticastTask
+    //   multicastSessions.msState    written 0 at session creation by
+    //                                Group, Host and imagemanagement
+    //
+    // nfsGroupMembers.ngmGroupID was on this list and is deliberately NOT.
+    // A storage node always belongs to a group -- a group may have no nodes,
+    // a node may not have no group. So `0` there is not "no reference", it
+    // is a broken row, and NULL would only make the breakage permanent and
+    // legal. The column stays NOT NULL and takes a RESTRICT constraint with
+    // group 5; a row still holding 0 makes that constraint be REFUSED and
+    // named in the log, which is the correct outcome. Only the administrator
+    // knows which group such a node belongs to, so nothing here guesses one.
+    //
+    // WHAT DELIBERATELY DOES NOT CONVERT, and stays NOT NULL:
+    // images.imageTypeID, images.imagePartitionTypeID,
+    // scheduledTasks.stTaskTypeID, multicastSessions.msNFSGroupID,
+    // fileDeleteQueue.fdqStorageGroupID, tasks.taskStateID, tasks.taskTypeID,
+    // snapinJobs.sjStateID and snapinTasks.stState. No row holds a 0 and no
+    // code path writes one. "No type" and "no state" are not states a task
+    // or an image can legitimately be in, so NOT NULL plus RESTRICT is the
+    // stronger and more honest declaration, and it is a group 5 decision
+    // rather than a conversion. Two of them carry a latent risk noted in
+    // docs/development/foreign-keys.md: tasks.taskStateID and
+    // snapinTasks.stState are not in their model's
+    // $databaseFieldsRequired, so save() would write 0 for an empty value
+    // and RESTRICT would then refuse it at runtime. That is handled with
+    // the constraint, not here.
+    //
+    // NULLABLE COLUMN + REQUIRED IN THE MODEL is the pairing worth naming.
+    // images.imageOSID becomes nullable so the 22 OS-less images an upgrade
+    // brings across can be represented and constrained, while `osID` stays
+    // in Image::$databaseFieldsRequired so save() still refuses to create a
+    // new image without one. The database tolerates the history; the ORM
+    // prevents new instances of it.
+    //
+    // IRREVERSIBLE. After this runs, "was 0" and "was NULL" are the same
+    // information. There is no down migration and the survey's rollback
+    // section says so: restore from backup. It is separated from every
+    // constraint step for exactly that reason -- a constraint that fails
+    // must never leave a half-converted column behind.
+    //
+    // ORDER. MODIFY first, then UPDATE: a NOT NULL column will not take a
+    // NULL. Guarded on IS_NULLABLE so a fresh install and a re-run do no
+    // work; MODIFY COLUMN rebuilds the table even when it changes nothing.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        $convert = [
+            ['hosts', 'hostImage', 'INT(11) NULL DEFAULT NULL'],
+            ['images', 'imageOSID', 'MEDIUMINT(9) NULL DEFAULT NULL'],
+            ['scheduledTasks', 'stImageID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskImageID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskNFSGroupID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskNFSMemberID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskLastMemberID', 'INT(11) NULL DEFAULT NULL'],
+            ['multicastSessions', 'msSenderNode', 'INT(11) NULL DEFAULT NULL'],
+            ['multicastSessions', 'msState', 'INT(11) NULL DEFAULT NULL'],
+        ];
+
+        $perColumn = [];
+        $total = 0;
+        foreach ($convert as $c) {
+            list($table, $column, $definition) = $c;
+            $row = self::$DB->query(
+                "SELECT `IS_NULLABLE` AS `n` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND `TABLE_NAME` = '$table' "
+                . "AND `COLUMN_NAME` = '$column'"
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            if (!is_array($row) || !isset($row['n'])) {
+                // No such table or column on this server -- a fresh install
+                // builds it nullable from the manifest.
+                continue;
+            }
+            if (strtoupper((string)$row['n']) === 'NO') {
+                self::$DB->query(
+                    "ALTER TABLE `$table` "
+                    . "MODIFY COLUMN `$column` $definition"
+                );
+            }
+            self::$DB->query(
+                "UPDATE `$table` SET `$column` = NULL WHERE `$column` = 0"
+            );
+            $n = (int) self::$DB->affectedRows();
+            if ($n > 0) {
+                $perColumn["$table.$column"] = $n;
+                $total += $n;
+            }
+        }
+
+        foreach ($perColumn as $what => $n) {
+            error_log(
+                sprintf(
+                    'FOG schema 386: converted %d `0` sentinel(s) to NULL in %s',
+                    $n,
+                    $what
+                )
+            );
+        }
+
+        if ($total > 0) {
+            Audit::record(
+                [
+                    'type' => 'schema.sentinel.convert',
+                    'subjectType' => 'schema',
+                    'subjectId' => 386,
+                    'summary' => sprintf(
+                        _('Converted %1$d `0` reference(s) to NULL across %2$d column(s)'),
+                        $total,
+                        count($perColumn)
+                    ),
+                    'detail' => json_encode($perColumn),
+                    'affectedCount' => $total,
+                    'renderable' => 1,
+                ]
+            );
+        }
+
+        return true;
+    },
+];
+
+// 387
+$this->schema[] = [
+    // One sweep, for the one relationship group 5 turns into a CASCADE.
+    //
+    // multicastSessions.msNFSGroupID becomes ON DELETE CASCADE in step 388.
+    // ADD CONSTRAINT validates the rows already there, so a session whose
+    // storage group was deleted before the constraint existed answers 1452
+    // and the constraint is refused -- on every upgrade, forever, for a row
+    // the declared rule would itself have removed.
+    //
+    // Same reasoning and the same shape as step 381: sweep first, in its own
+    // step, so a constraint failure can never leave half-swept data. Kept
+    // out of 381's frozen list rather than added to it, because that list is
+    // the record of what THAT step deleted and rewriting it would make the
+    // audit row it wrote a lie.
+    //
+    // WHY DELETING IS RIGHT HERE. A multicast session is work performed by a
+    // storage group. It carries no configuration of its own, it cannot be
+    // re-pointed at another group, and the imaging record it produced lives
+    // in taskLog, which takes no constraint at all (ADR 0021). A session
+    // whose group is gone can never run and can never be read usefully --
+    // the group name, interface and node all resolve to nothing.
+    //
+    // Contrast nfsGroupMembers, which is deliberately NOT swept anywhere: a
+    // storage node holds its own credentials and paths, so a missing group
+    // there is a broken row to be repaired by assigning one, not a row to
+    // delete. See step 381.
+    //
+    // Measured on the live 1.6 install: 1 session of 16, from storage group
+    // 3, completed 2026-07-27. The 1.5 install has none.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` "
+            . "FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` IN ('multicastSessions', 'nfsGroups')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (!is_array($have) || count($have) < 2) {
+            // A server that has not built both tables yet. A fresh install
+            // creates them empty, so there is nothing to sweep.
+            return true;
+        }
+
+        self::$DB->query(
+            "DELETE `c` FROM `multicastSessions` `c` "
+            . "LEFT JOIN `nfsGroups` `p` "
+            . "ON `c`.`msNFSGroupID` = `p`.`ngID` "
+            . "WHERE `p`.`ngID` IS NULL"
+        );
+        $n = (int) self::$DB->affectedRows();
+        if ($n < 1) {
+            return true;
+        }
+
+        error_log(
+            sprintf(
+                'FOG schema 387: deleted %d multicast session(s) whose'
+                . ' storage group no longer exists',
+                $n
+            )
+        );
+        Audit::record(
+            [
+                'type' => 'schema.orphan.sweep',
+                'subjectType' => 'schema',
+                'subjectId' => 387,
+                'summary' => sprintf(
+                    _('Deleted %1$d multicast session(s) with no storage group'),
+                    $n
+                ),
+                'detail' => json_encode(['multicastSessions' => $n]),
+                'affectedCount' => $n,
+                'renderable' => 1,
+            ]
+        );
+
+        return true;
+    },
+];
+
+// 388
+$this->schema[] = [
+    // ADR 0031 group 5: references to configuration with a life of its own.
+    //
+    // Twelve constraints across six tables, and the first group whose
+    // actions are not all the same. The question every one of them answers
+    // is the same though: when the parent goes, does the child outlive it?
+    //
+    //   SET NULL -- the child survives, minus the reference
+    //     hosts.hostImage            -> images
+    //     hosts.hostArchID           -> architectures
+    //     images.imageArchID         -> architectures
+    //     scheduledTasks.stImageID   -> images
+    //     multicastSessions.msSenderNode -> nfsGroupMembers
+    //
+    //   RESTRICT -- the parent cannot go while the child names it
+    //     images.imageOSID           -> os
+    //     images.imageTypeID         -> imageTypes
+    //     images.imagePartitionTypeID -> imagePartitionTypes
+    //     scheduledTasks.stTaskTypeID -> taskTypes
+    //     fileDeleteQueue.fdqStorageGroupID -> nfsGroups
+    //     nfsGroupMembers.ngmGroupID -> nfsGroups
+    //
+    //   CASCADE -- the child is work performed by the parent
+    //     multicastSessions.msNFSGroupID -> nfsGroups
+    //
+    // THREE ACTIONS CHANGED from the survey's first pass, all on the same
+    // test rather than on a feel:
+    //
+    //   scheduledTasks.stImageID  RESTRICT -> SET NULL. Deleting an image
+    //     already unassigns hosts and cancels live tasks rather than being
+    //     refused; nothing touches scheduledTasks, so a schedule outlives
+    //     its image and fails every time it fires. Refusing the delete over
+    //     a forgotten schedule is worse than leaving that schedule visible
+    //     and editable.
+    //
+    //   multicastSessions.msNFSGroupID  RESTRICT -> CASCADE. Under RESTRICT
+    //     one completed session would pin its storage group forever, so a
+    //     group that had ever run a multicast could never be deleted.
+    //
+    //   multicastSessions.msSenderNode  RESTRICT -> SET NULL. It records
+    //     which node ran the session, not what the session belongs to.
+    //
+    // BEHAVIOR THIS ADDS THAT FOG DID NOT HAVE. Groups 1 to 3 mostly pinned
+    // decisions Route::deletemass() already made. This group does not:
+    //
+    //   - deleting an OS, image type, partition type or task type that is
+    //     still referenced is now REFUSED at 1451 where it used to succeed
+    //     and leave images unreadable;
+    //   - deleting a storage group with storage nodes in it is refused --
+    //     a node always belongs to a group, so it has to be moved first;
+    //   - deleting a storage group with queued file deletions is refused
+    //     until the queue drains;
+    //   - deleting an image now also clears any scheduled task naming it,
+    //     which nothing did before.
+    //
+    // Every one of those is a loud refusal replacing a silent orphan, which
+    // is the trade ADR 0031 exists to make. Refusals surface as an error on
+    // the delete, not as a failed update.
+    //
+    // Preconditions, all landed: step 380 matched the column types, 386
+    // converted the `0` sentinels that RESTRICT and SET NULL could not
+    // tolerate, and 387 swept the one multicast session whose group was
+    // already gone.
+    //
+    // Passes its own group number. Without it this call would apply every
+    // enabled relationship in the map -- see applyConstraints()'s docblock.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(5);
+
+        return true;
+    },
+];
+
+// 389
+$this->schema[] = [
+    // Repair, for the four rows group 6 cannot be declared over.
+    //
+    // Two different repairs, because the two kinds of row are not alike.
+    //
+    // DELETED -- multicastSessionsAssoc rows whose session is gone. A
+    // junction row with no parent has no meaning, which is exactly the rule
+    // step 381 applied to this table already. One row survives that sweep on
+    // the live install, and it is one THIS SERIES created: step 387 deletes
+    // the multicast session whose storage group had been removed, and 381
+    // had already run by then. Swept here rather than by editing 387,
+    // because 387's audit row records what 387 deleted and rewriting it
+    // would make that record false.
+    //
+    // NULLED -- the three columns that record which storage served a task.
+    // A task is the record of what was imaged onto a host. Deleting one
+    // because the storage node it used has since been removed would destroy
+    // that record to satisfy a reference that is no longer interesting; the
+    // constraint is SET NULL for the same reason, so nulling the rows that
+    // predate it is simply applying that rule to history. Measured on the
+    // live 1.6 install: 1 row each, all three pointing at storage group 3
+    // and node 4, deleted at some point before this work began. They are the
+    // orphans the original survey found.
+    //
+    // The two multicast tables are not symmetrical and that is deliberate:
+    // multicastSessionsAssoc is a junction (delete), tasks is a record
+    // (keep, minus the reference).
+    //
+    // Guarded on the tables existing, and both statements are naturally
+    // idempotent -- a second run matches nothing.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        $tables = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` "
+            . "FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE()"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $have = [];
+        foreach ((array) $tables as $row) {
+            if (isset($row['t'])) {
+                $have[strtolower($row['t'])] = true;
+            }
+        }
+
+        $repaired = [];
+
+        if (isset($have['multicastsessionsassoc'], $have['multicastsessions'])) {
+            self::$DB->query(
+                "DELETE `c` FROM `multicastSessionsAssoc` `c` "
+                . "LEFT JOIN `multicastSessions` `p` "
+                . "ON `c`.`msID` = `p`.`msID` "
+                . "WHERE `p`.`msID` IS NULL"
+            );
+            $n = (int) self::$DB->affectedRows();
+            if ($n > 0) {
+                $repaired['multicastSessionsAssoc.msID (deleted)'] = $n;
+            }
+        }
+
+        $null = [
+            ['tasks', 'taskNFSGroupID', 'nfsGroups', 'ngID'],
+            ['tasks', 'taskNFSMemberID', 'nfsGroupMembers', 'ngmID'],
+            ['tasks', 'taskLastMemberID', 'nfsGroupMembers', 'ngmID'],
+        ];
+        foreach ($null as $n2) {
+            list($child, $column, $parent, $pcolumn) = $n2;
+            if (!isset($have[strtolower($child)], $have[strtolower($parent)])) {
+                continue;
+            }
+            self::$DB->query(
+                "UPDATE `$child` `c` "
+                . "LEFT JOIN `$parent` `p` "
+                . "ON `c`.`$column` = `p`.`$pcolumn` "
+                . "SET `c`.`$column` = NULL "
+                . "WHERE `c`.`$column` IS NOT NULL "
+                . "AND `p`.`$pcolumn` IS NULL"
+            );
+            $n = (int) self::$DB->affectedRows();
+            if ($n > 0) {
+                $repaired["$child.$column (nulled)"] = $n;
+            }
+        }
+
+        if (count($repaired) < 1) {
+            return true;
+        }
+
+        $total = 0;
+        foreach ($repaired as $what => $n) {
+            $total += $n;
+            error_log(
+                sprintf('FOG schema 389: repaired %d row(s) in %s', $n, $what)
+            );
+        }
+        Audit::record(
+            [
+                'type' => 'schema.orphan.sweep',
+                'subjectType' => 'schema',
+                'subjectId' => 389,
+                'summary' => sprintf(
+                    _('Repaired %1$d orphaned work row(s) across %2$d column(s)'),
+                    $total,
+                    count($repaired)
+                ),
+                'detail' => json_encode($repaired),
+                'affectedCount' => $total,
+                'renderable' => 1,
+            ]
+        );
+
+        return true;
+    },
+];
+
+// 390
+$this->schema[] = [
+    // ADR 0031 group 6: tasks and the work that hangs off them. The last
+    // core group -- sixteen constraints across six tables, after which every
+    // core relationship the map declares is in the database.
+    //
+    //   CASCADE   tasks.taskHostID -> hosts
+    //             snapinJobs.sjHostID -> hosts
+    //             snapinTasks.stJobID -> snapinJobs
+    //             snapinTasks.stSnapinID -> snapins
+    //             multicastSessionsAssoc.msID -> multicastSessions
+    //             multicastSessionsAssoc.tID -> tasks
+    //   SET NULL  tasks.taskImageID -> images
+    //             tasks.taskNFSGroupID -> nfsGroups
+    //             tasks.taskNFSMemberID -> nfsGroupMembers
+    //             tasks.taskLastMemberID -> nfsGroupMembers
+    //   RESTRICT  tasks.taskStateID -> taskStates
+    //             tasks.taskTypeID -> taskTypes
+    //             snapinJobs.sjStateID -> taskStates
+    //             snapinTasks.stState -> taskStates
+    //             fileDeleteQueue.fdqState -> taskStates
+    //             multicastSessions.msState -> taskStates
+    //
+    // MOSTLY THIS PINS WHAT deletemass() ALREADY DOES. Deleting a host
+    // already deletes its tasks, snapin jobs and snapin tasks; deleting a
+    // snapin already deletes its snapin tasks; deleting an image already
+    // clears taskImageID (it cancels the live tasks and leaves the finished
+    // ones as the host's imaging record). Those seven change nothing
+    // observable and close the non-page paths -- the REST API's DELETE
+    // funnels to deletemass(), but a plugin, a daemon or a hand-run query
+    // does not.
+    //
+    // WHAT IS NEW is the six RESTRICTs on taskStates and taskTypes. Those
+    // are seed rows nobody deletes in normal use; deleting one now fails at
+    // 1451 instead of rendering every task that used it unreadable.
+    //
+    // THE THREE STORAGE REFERENCES ARE SET NULL, NOT RESTRICT, which is a
+    // change from the survey's first pass. They record which storage served
+    // a task, not what the task belongs to. Under RESTRICT one finished task
+    // would pin its storage group or node until retention pruned the task --
+    // months -- so emptying a group would not be enough to let you delete
+    // it. Nullable as of step 386; a task minus its storage reference is
+    // still a complete record of what was imaged onto which host.
+    //
+    // tasks.taskStateID could not be declared honestly until the path that
+    // created a task with no state was fixed. Host::createTasking's
+    // SINGLE_SNAPIN to ALL_SNAPINS conversion set three fields and saved, so
+    // save() filled taskStateID with 0 -- not a taskStates row, so the task
+    // never appeared in Active Tasks and never ran. Fixed in this commit,
+    // and `stateID` added to Task::$databaseFieldsRequired so no future path
+    // can do it silently.
+    //
+    // Preconditions: step 386 made the four nullable columns nullable, and
+    // step 389 repaired the four orphaned rows -- three nulled, one junction
+    // row deleted.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(6);
 
         return true;
     },

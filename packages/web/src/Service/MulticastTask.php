@@ -1262,8 +1262,10 @@ class MulticastTask extends FOGService
             ['id' => $this->getID()],
             '',
             [
+                // senderpid is a process id; sendernode is a reference and
+                // its "none" is NULL. See schema step 386.
                 'senderpid' => 0,
-                'sendernode' => 0
+                'sendernode' => null
             ]
         );
         return true;

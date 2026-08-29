@@ -217,6 +217,35 @@ if ($cmd === 'generate') {
             $create
         );
         $create = preg_replace('/\s+/', ' ', $create);
+
+        // Strip foreign keys out of the CREATE.
+        //
+        // Not cosmetic, and not a preference. SchemaReconciler executes
+        // these strings in MANIFEST order, which is not dependency order --
+        // apiTokens precedes users, groupMembers precedes hosts. Measured on
+        // an empty database: with the constraints inlined, 34 of 70 tables
+        // fail with errno 150; with them removed and added afterward as
+        // ALTERs, none do. tests/schema-executes.test.php's second database
+        // is exactly that path, so a regeneration that let them through
+        // would turn it red -- see ADR 0031 decision 4.
+        //
+        // The constraints are not lost: commons/schema-constraints.php
+        // declares them and SchemaReconciler::planConstraints() adds them in
+        // its own pass, after every table exists.
+        //
+        // The KEY that InnoDB creates alongside a foreign key is left alone.
+        // It is an ordinary index once the constraint is gone, and dropping
+        // it would make the manifest describe a table with worse lookup
+        // behavior than a fresh install has.
+        $create = preg_replace(
+            '/,\s*CONSTRAINT `[^`]+` FOREIGN KEY \([^)]*\)'
+            . ' REFERENCES `[^`]+` \([^)]*\)'
+            . '(?: ON DELETE (?:RESTRICT|CASCADE|SET NULL|NO ACTION))?'
+            . '(?: ON UPDATE (?:RESTRICT|CASCADE|SET NULL|NO ACTION))?/i',
+            '',
+            $create
+        );
+
         // Strip the live auto-increment counter. It is install-specific
         // state, not structure, and has no business in a checked-in file.
         $create = preg_replace('/ AUTO_INCREMENT=\d+/i', '', $create);
