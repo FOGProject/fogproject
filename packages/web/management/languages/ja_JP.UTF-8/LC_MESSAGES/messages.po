@@ -1415,6 +1415,10 @@ msgid "Capone added!"
 msgstr "スナップインを追加しました！"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "ロケーション"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "スナップインの更新に失敗しました！"
 
@@ -10929,10 +10933,6 @@ msgstr ""
 
 #~ msgid "Cannot view from browser"
 #~ msgstr "ブラウザーから表示できません"
-
-#, fuzzy
-#~ msgid "Capone schema"
-#~ msgstr "ロケーション"
 
 #~ msgid "Chat is also available on the forums for more realtime help"
 #~ msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"

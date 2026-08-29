@@ -1473,6 +1473,10 @@ msgid "Capone added!"
 msgstr "Snapin Name"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "Locations"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "Snapin update failed"
 
@@ -11234,10 +11238,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Save Changes"
-
-#, fuzzy
-#~ msgid "Capone schema"
-#~ msgstr "Locations"
 
 #~ msgid "Check that database is running"
 #~ msgstr "Check that database is running"

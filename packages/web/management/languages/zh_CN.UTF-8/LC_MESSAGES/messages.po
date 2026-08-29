@@ -1473,6 +1473,10 @@ msgid "Capone added!"
 msgstr "管理单元名称"
 
 #, fuzzy
+msgid "Capone schema"
+msgstr "位置"
+
+#, fuzzy
 msgid "Capone update failed!"
 msgstr "管理单元更新失败"
 
@@ -11235,10 +11239,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "保存更改"
-
-#, fuzzy
-#~ msgid "Capone schema"
-#~ msgstr "位置"
 
 #~ msgid "Check that database is running"
 #~ msgstr "检查数据库运行"
