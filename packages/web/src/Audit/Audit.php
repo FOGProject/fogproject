@@ -352,19 +352,41 @@ class Audit extends FOGBase
      * is exactly how a credential ends up in a log -- twice in one week, by
      * two different subsystems (ADR 0021 Context 4).
      *
-     * @param object $audit       the header returned by record()
-     * @param mixed  $class       the model, or its name, the fields belong to
-     * @param int    $subjectID   which object these changes are for
-     * @param array  $diff        friendly key => [old, new]
+     * THE LABEL IS WHAT MAKES A ROW READABLE, and it is denormalized here
+     * for the reason history's hSubjectLabel is (ADR 0020 phase 3): resolved
+     * at read time it goes blank the day the subject is deleted, which is
+     * the day the row matters most. Read from the model when the caller
+     * hands one over, because that is where the name is already in hand and
+     * costs nothing -- get() returns false for a model with no `name` field,
+     * which casts to the same empty string an unlabeled row already stored.
+     *
+     * Without it a settings edit named nothing at all. globalSettings has
+     * one editable column, so `field` is `value` for every setting in the
+     * install and the identifying part -- the key -- had nowhere to go.
+     *
+     * @param object $audit        the header returned by record()
+     * @param mixed  $class        the model, or its name, the fields belong to
+     * @param int    $subjectID    which object these changes are for
+     * @param array  $diff         friendly key => [old, new]
+     * @param string $subjectLabel names the subject when $class is a name,
+     *                             not a model, and so carries no label
      *
      * @return int how many change rows stored
      */
-    public static function changes($audit, $class, $subjectID, array $diff)
-    {
+    public static function changes(
+        $audit,
+        $class,
+        $subjectID,
+        array $diff,
+        $subjectLabel = ''
+    ) {
         if (!$audit instanceof AuditLog || !$audit->isValid()) {
             return 0;
         }
         $subjectType = strtolower(self::shortName($class));
+        if ('' === (string)$subjectLabel && is_object($class)) {
+            $subjectLabel = (string)$class->get('name');
+        }
         $stored = 0;
         foreach ($diff as $field => $pair) {
             $values = Redaction::values(
@@ -378,6 +400,7 @@ class Audit extends FOGBase
                     ->set('auditID', (int)$audit->get('id'))
                     ->set('subjectType', $subjectType)
                     ->set('subjectID', (int)$subjectID)
+                    ->set('subjectLabel', (string)$subjectLabel)
                     ->set('field', (string)$field)
                     ->set('oldValue', $values['old'])
                     ->set('newValue', $values['new'])

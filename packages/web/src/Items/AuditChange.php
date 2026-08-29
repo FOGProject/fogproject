@@ -56,6 +56,7 @@ class AuditChange extends FOGController
         'auditID' => 'acAuditID',
         'subjectType' => 'acSubjectType',
         'subjectID' => 'acSubjectID',
+        'subjectLabel' => 'acSubjectLabel',
         'field' => 'acField',
         'oldValue' => 'acOldValue',
         'newValue' => 'acNewValue',

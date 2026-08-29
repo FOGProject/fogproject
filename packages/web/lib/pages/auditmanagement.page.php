@@ -169,6 +169,12 @@ class AuditManagement extends FOGPage
     /**
      * Serves the change rows for one header.
      *
+     * Each row names its own subject. A header can cover many of them --
+     * an iterating save writes change rows for every object it touched --
+     * and for a settings edit the subject is the only identifying part
+     * there is, because globalSettings has one editable column and so
+     * every such row's field reads `value`.
+     *
      * A redacted row carries NULL in both value columns and `redacted = 1`;
      * the page says so rather than showing an empty cell, because "this
      * changed and you may not see what to" and "this changed to nothing" are
@@ -190,8 +196,8 @@ class AuditManagement extends FOGPage
             // ORM route would materialize an object per row to hand back
             // the six columns printed below.
             $rows = self::$DB->query(
-                'SELECT `acSubjectType`, `acSubjectID`, `acField`, '
-                . '`acOldValue`, `acNewValue`, `acRedacted` '
+                'SELECT `acSubjectType`, `acSubjectID`, `acSubjectLabel`, '
+                . '`acField`, `acOldValue`, `acNewValue`, `acRedacted` '
                 . 'FROM `auditChange` WHERE `acAuditID` = :id '
                 . 'ORDER BY `acID` ASC LIMIT ' . self::MAX_CHANGES,
                 [],
@@ -203,6 +209,11 @@ class AuditManagement extends FOGPage
             $out[] = [
                 'subjectType' => (string) ($row['acSubjectType'] ?? ''),
                 'subjectID' => (int) ($row['acSubjectID'] ?? 0),
+                // Empty on every row written before the label column
+                // existed, and on a model with no `name` field. The page
+                // falls back to type#id there, which is what it printed
+                // for everything before this.
+                'subjectLabel' => (string) ($row['acSubjectLabel'] ?? ''),
                 'field' => (string) ($row['acField'] ?? ''),
                 // NOT cast: NULL is the value a redacted row carries and it
                 // has to survive to the browser as null, not as ''.

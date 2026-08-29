@@ -151,7 +151,8 @@
     }
     html = '<h5>' + $.escapeHtml('Changes') + '</h5>'
       + '<div class="table-responsive"><table class="table table-sm">'
-      + '<thead><tr><th>Field</th><th>From</th><th>To</th></tr></thead>'
+      + '<thead><tr><th>Subject</th><th>Field</th><th>From</th>'
+      + '<th>To</th></tr></thead>'
       + '<tbody>';
     $.each(rows, function(i, c) {
       var from, to;
@@ -169,7 +170,13 @@
         to = (c.newValue === null || c.newValue === '') ? '<em>empty</em>'
           : $.escapeHtml(String(c.newValue));
       }
-      html += '<tr><td>' + $.escapeHtml(c.field || '') + '</td>'
+      // Subject first, because it is the part that says WHICH object this
+      // row is about and the header can only name one of them. For a
+      // settings edit it is the only identifying part there is:
+      // globalSettings has one editable column, so Field reads `value` on
+      // every settings row in the install.
+      html += '<tr><td>' + $.escapeHtml(subjectText(c)) + '</td>'
+        + '<td>' + $.escapeHtml(c.field || '') + '</td>'
         + '<td>' + from + '</td><td>' + to + '</td></tr>';
     });
     html += '</tbody></table></div>';

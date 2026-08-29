@@ -63,7 +63,7 @@ parameters:
 		-
 			message: '#^Strict comparison using \=\=\= between null and string will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
-			count: 5
+			count: 6
 			path: tests/audit-invariants.test.php
 
 		-

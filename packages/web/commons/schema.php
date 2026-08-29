@@ -8397,3 +8397,54 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 378
+$this->schema[] = [
+    // auditChange.acSubjectLabel -- which OBJECT a change row is about.
+    //
+    // A change row said WHICH FIELD moved and never WHICH OBJECT: it carries
+    // acSubjectType and acSubjectID, so the modal printed `setting#496`. For
+    // most models the field name carries enough of the sense to survive that
+    // -- `name`, `mac`, `ip` -- but globalSettings has exactly one editable
+    // column, so every settings edit in the install read `value | 1 | 0` and
+    // named nothing at all. The identity of a setting is its key, and the
+    // key was in hand at write time and thrown away.
+    //
+    // Denormalized rather than resolved when the page is read, which is the
+    // decision `history` already made for the same reason one table over:
+    // hSubjectLabel, ADR 0020 phase 3, docblocked "so the row still names
+    // its subject after the subject is deleted". A join goes blank the day
+    // the host is removed, which is the day the row matters most.
+    //
+    // VARCHAR(200) matching hSubjectLabel exactly, and sized the same way --
+    // to the widest name column a subject can have (snapins.sName
+    // varchar(200)), not to hosts.hostName varchar(16).
+    //
+    // No index. It is read only alongside the rows for one header, which
+    // acAuditID already indexes.
+    //
+    // Additive and inert: existing rows keep '' and the modal falls back to
+    // the type#id it prints today. Guarded closure, same shape as 376/377.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'auditChange' "
+            . "AND `COLUMN_NAME` = 'acSubjectLabel'"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('acSubjectLabel', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `auditChange` "
+                . "ADD `acSubjectLabel` VARCHAR(200) NOT NULL DEFAULT ''"
+            );
+        }
+
+        return true;
+    },
+];
