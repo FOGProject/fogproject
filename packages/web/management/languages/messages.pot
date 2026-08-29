@@ -4262,6 +4262,9 @@ msgstr ""
 msgid "Location is a plugin that allows your FOG Server"
 msgstr ""
 
+msgid "Location schema"
+msgstr ""
+
 msgid "Location update failed!"
 msgstr ""
 
@@ -9194,6 +9197,9 @@ msgid "register this too, if you enable single logout"
 msgstr ""
 
 msgid "row(s)"
+msgstr ""
+
+msgid "row(s) converted from 0 to NULL"
 msgstr ""
 
 msgid "second"
