@@ -217,6 +217,17 @@ if (in_array(strtolower($pageLength), ['search', 'list'])) {
                 <?= FOGPage::makeInput('scrollMode', 'scrollMode', '', 'hidden', 'scrollMode', self::getSetting('FOG_TABLE_SCROLL_MODE')); ?>
                 <?= FOGPage::makeInput('showpass', 'showpass', '', 'hidden', 'showpass', self::getSetting('FOG_ENABLE_SHOW_PASSWORDS')); ?>
                 <?php
+                // Where the REST API lives, for the JS that stores a user's
+                // preferences. Normalized exactly as Route::defineRoutes()
+                // normalizes it, from the same setting, so the path the
+                // browser calls and the path the router answers on cannot
+                // drift -- FOG_WEB_ROOT is installer-settable and is not
+                // always '/fog/'.
+                $apiBase = trim((string)self::getSetting('FOG_WEB_ROOT'), '/');
+$apiBase = '/' . ($apiBase === '' ? '' : $apiBase . '/');
+?>
+                <?= FOGPage::makeInput('apiBase', 'apiBase', '', 'hidden', 'apiBase', $apiBase); ?>
+                <?php
         // No-role warning: with deny-by-default a user holding zero roles
         // can reach nothing but the exempt nodes (dashboard, logout), and
         // every menu entry disappears -- which looks like a broken install

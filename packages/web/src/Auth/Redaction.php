@@ -129,6 +129,13 @@ class Redaction extends FOGBase
             'passreset',
             'bypassbitlocker',
         ],
+        // A preference's NAME -- 'dt.host.list.dataTable' and the like. It
+        // matches only because the field is called "key"; there is no secret
+        // in a userPrefs row at all, and redacting it would blank the one
+        // column that says which preference a row is.
+        'userpref' => [
+            'key',
+        ],
     ];
     /**
      * Cached per-class union of both Route tiers.

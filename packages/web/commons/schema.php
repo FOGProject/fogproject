@@ -9557,3 +9557,63 @@ $this->schema[] = [
         return true;
     },
 ];
+// 391
+// Per-user preferences, as an opaque key/value store.
+//
+// The first consumer is DataTables' own saved state -- column order, which
+// columns are showing, page length, sort -- which every grid throws away on
+// reload today because registerTable sets stateSave:false. DataTables already
+// serializes that state and exposes stateSaveCallback/stateLoadCallback to
+// put it somewhere, so this table deliberately does NOT model "column
+// positions": it stores whatever the client hands it, under a key, for one
+// user. That is what keeps the schema from having to track DataTables'
+// internals, which change between its major versions.
+//
+// upKey is varchar(190) rather than the house 254 because it is half of a
+// UNIQUE KEY: utf8mb3 costs 3 bytes a character, and 254 would put the index
+// over InnoDB's 767-byte prefix limit on the older row formats FOG still
+// supports. 190 * 3 + 4 = 574.
+//
+// The UNIQUE KEY is what makes a write an upsert rather than an append -- see
+// UserPref::store(). That is normally a bug (a create silently overwriting an
+// existing row); here overwriting the previous value of the same preference
+// for the same user IS the operation.
+$this->schema[] = [
+    "CREATE TABLE IF NOT EXISTS `userPrefs` ( "
+    . "`upID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`upUserID` int(11) NOT NULL DEFAULT 0, "
+    . "`upKey` varchar(190) NOT NULL DEFAULT '', "
+    // Nullable rather than NOT NULL: a TEXT column cannot portably carry a
+    // literal DEFAULT (MySQL 8 refuses one outright), so NOT NULL with no
+    // default would make any INSERT that omitted the value error 1364 on a
+    // strict server -- which is what tests/optional-columns-carry-defaults
+    // exists to catch, and did.
+    . "`upValue` longtext DEFAULT NULL, "
+    . "`upCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), "
+    . "`upModifiedTime` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`upID`), "
+    . "UNIQUE KEY `upUserKey` (`upUserID`,`upKey`), "
+    . "KEY `upUserID` (`upUserID`) "
+    // One line: the collation gate reads the CREATE statement line by line,
+    // so splitting CHARSET from COLLATE reads to it as a bare charset.
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+// 392
+// The foreign key for the table step 391 just created, per ADR 0031.
+//
+// Group 7. A number rather than a name: the named groups belong to plugins,
+// whose constraints are applied by a step in the plugin's own schema().
+//
+// Unlike groups 1 through 6 this one has nothing to migrate. Those phase in
+// constraints over tables that already hold years of data, so each is a
+// sweep plus a flip; a table created empty one step earlier cannot hold an
+// orphan, so there is no sweep to sequence before this.
+//
+// A preference is a satellite of the user it belongs to and means nothing
+// without them, so CASCADE -- the same call as apiTokens and userAuths.
+$this->schema[] =
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(7);
+
+        return true;
+    };

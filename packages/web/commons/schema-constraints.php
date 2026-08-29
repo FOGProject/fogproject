@@ -109,6 +109,14 @@ return [
     ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'apiTokens', 'column' => 'atUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
     ['child' => 'userAuths', 'column' => 'uaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
+    // Group 7, added with the table itself (schema 391/392). A NUMBER, not a
+    // name: names are reserved for the plugin groups, whose steps live in the
+    // plugin's own schema(), and tests/foreign-key-map enforces that split.
+    // Unlike groups 1-6 there is nothing to migrate here -- a table created
+    // empty one step earlier cannot hold an orphan -- so no sweep precedes it.
+    // A preference means nothing without the user it belongs to: CASCADE, the
+    // same call as apiTokens and userAuths above.
+    ['child' => 'userPrefs', 'column' => 'upUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 7],
 
     // ---- config: references to configuration with its own life ----------
     //
