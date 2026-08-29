@@ -10,6 +10,13 @@ has been applied to a schema step. `bin/fk-candidates.php` and
 `bin/fk-orphan-scan.php` ship with the proposal so the evidence is
 re-runnable.
 
+The three behavior changes listed under Consequences -- the storage
+group/node RESTRICTs, the scheduled-task RESTRICTs, and the `0` sentinel
+becoming `NULL` in seven columns -- were put to the maintainer separately and
+agreed on 2026-08-29, before the ADR itself was read. They are settled and
+should not be reopened when the rest of this is reviewed; what remains open
+is the convention, the classification and the sequencing.
+
 ## Context
 
 All 70 core tables and all 18 plugin tables are InnoDB. Not one declares a
