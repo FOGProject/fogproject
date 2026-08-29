@@ -183,6 +183,15 @@ class ImagingStats extends FOGBase
      * deleted -- the same property tests/tasklog-report-retention.test.php
      * pins for the task log pane.
      *
+     * BOUNDED IN THE QUERY, not in PHP. A slice after the fetch still
+     * materializes every row a wide window matched -- which on a fleet with
+     * years of taskLog is the "grid All -> blank 500" this codebase has
+     * already fixed once, arriving through a report instead of a grid.
+     *
+     * MAX_ROWS + 1, so that "there were more" is answerable without a second
+     * COUNT query over the same fold. The extra row is dropped by the
+     * callers, which is what makes `truncated` mean it.
+     *
      * @return string SQL taking :start, :end and :canceled.
      */
     private static function _runsSql()
@@ -198,7 +207,8 @@ class ImagingStats extends FOGBase
                        `l`.`createdBy` AS `createdBy`
                   FROM (" . self::_foldSql() . ") AS `runs`
                   JOIN `taskLog` AS `l` ON `l`.`id` = `runs`.`lastID`
-                 ORDER BY `runs`.`started` DESC";
+                 ORDER BY `runs`.`started` DESC
+                 LIMIT " . (self::MAX_ROWS + 1);
     }
 
     /**

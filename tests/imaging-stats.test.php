@@ -266,6 +266,42 @@ $t->check(
     'a complete result is not reported as truncated',
     false === $totals['truncated']
 );
+// The bound is in the QUERY. A slice after the fetch still materializes
+// every row a wide window matched, which is the "grid All -> blank 500"
+// this codebase has fixed once already; and asking for one row past the
+// cap is what makes `truncated` answerable without a second COUNT.
+$runsSql = FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsSql');
+$t->check(
+    'the grid query is bounded in SQL, not after the fetch',
+    1 === preg_match('/LIMIT\s+(\d+)\s*$/', trim($runsSql), $lim)
+        && (int)$lim[1] === ImagingStats::MAX_ROWS + 1
+);
+// Asserted behaviorally too: a responder that answers with the full cap
+// plus one has to be reported as truncated, and the extra row dropped.
+$db->responder = function ($sql) {
+    if (false === strpos($sql, 'taskLog')) {
+        return null;
+    }
+    $rows = [];
+    for ($i = 0; $i <= ImagingStats::MAX_ROWS; $i++) {
+        $rows[] = ['taskID' => (string)$i, 'hostID' => (string)$i,
+            'hostName' => 'h' . $i, 'imageName' => 'win11',
+            'started' => '2026-03-01 09:00:00'];
+    }
+    return $rows;
+};
+$over = ImagingStats::totals(
+    new \DateTimeImmutable('2026-03-01 00:00:00'),
+    new \DateTimeImmutable('2026-03-05 23:59:59')
+);
+$t->check(
+    'one row past the cap is reported as truncated',
+    true === $over['truncated']
+);
+$t->check(
+    'and the extra row is not counted',
+    ImagingStats::MAX_ROWS === $over['runs']
+);
 
 /*
  * 5. The window is ordered and capped.
