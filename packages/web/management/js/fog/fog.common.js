@@ -2846,7 +2846,44 @@ if ($.fn.dataTable) {
  * ceiling for large ones so they fill the screen rather than wasting (or
  * crowding) vertical space. Recomputed on window resize and tab show.
  */
-function fogSizeScroller(dt) {
+/**
+ * Draw only if the table is actually short of rows.
+ *
+ * Called when a re-measure has raised Scroller's page length: the taller
+ * viewport wants more rows than the last request asked for. That is not the
+ * same as needing them -- a grid that already holds every row the server has
+ * cannot be short, however tall it gets, and on a server-side table a draw it
+ * does not need is a round trip plus a re-render of every loaded row.
+ *
+ * The first pass runs before the initial response has landed, when the row
+ * count is not knowable yet. Rather than guess, wait for that draw and ask
+ * again: by then the answer is a fact. Deferred at most once -- if the reply
+ * still leaves the table short, fetch, and stop.
+ *
+ * @param {object} dt      the DataTables API for the table
+ * @param {bool}   waited  internal: this is the re-check after the deferral
+ *
+ * @return {void}
+ */
+function fogFetchIfShort(dt, waited) {
+  var settings = dt.settings()[0],
+    xhr = settings ? settings.jqXHR : null,
+    info;
+  if (!waited && xhr && xhr.readyState !== 4) {
+    dt.one('draw.dt', function() {
+      fogFetchIfShort(dt, true);
+    });
+    return;
+  }
+  info = dt.page.info();
+  // recordsDisplay is what the server says matches the current filter. Holding
+  // that many means there is nothing left to ask for.
+  if (info && dt.rows().count() >= info.recordsDisplay) {
+    return;
+  }
+  dt.draw(false);
+}
+function fogSizeScroller(dt, release) {
   // dt.init() can be null for nodes the table.dataTable selector also matches
   // but that aren't fully-initialized Scroller tables (e.g. the scrollY split
   // table's cloned header). Guard it so we skip them instead of throwing on
@@ -2858,6 +2895,14 @@ function fogSizeScroller(dt) {
   var container = dt.table().container(),
     body = $('div.dt-scroll-body', container);
   if (!body.length || !body.is(':visible')) {
+    // Forget what the last pass measured. A table that has been hidden may be
+    // re-cloned or re-laid-out before it comes back, so the next visible pass
+    // has to re-adjust even if the window is the size it was -- the signature
+    // below would otherwise match and skip it.
+    var hidden = dt.settings()[0];
+    if (hidden) {
+      hidden._fogSizeSignature = null;
+    }
     return; // not rendered, or in a hidden tab
   }
   var bodyRect = body[0].getBoundingClientRect(),
@@ -2925,13 +2970,60 @@ function fogSizeScroller(dt) {
     var lenBefore = dt.page.len();
     dt.scroller.measure(false);
     if (dt.page.len() > lenBefore) {
-      dt.draw(false);
+      fogFetchIfShort(dt);
     }
   }
   // Re-sync the scrollY header/body column widths. measure() only recomputes
   // the virtual viewport height, so a table first laid out in a hidden tab
   // keeps its zero-width header/body split (header narrow, body full-width)
   // until the columns are adjusted once it becomes visible.
+  //
+  // Gated, because this is the expensive half and most calls have nothing to
+  // do. columns.adjust() fires column-sizing, and Responsive answers that by
+  // cloning the whole current page of rows into a hidden table to read a
+  // column width off each one -- ~130ms a time on an 86-row host list, and
+  // Scroller's "current page" is every row it has loaded. This function runs
+  // three times on a normal page load (the deferred pass below
+  // registerTable(), the post-draw re-adjust above, and fogAdjustAllTables()
+  // off the .app-main ResizeObserver), and the last of those is woken by the
+  // rows the earlier passes drew rather than by anything that moved a column.
+  //
+  // Three things decide whether the split needs re-measuring: the height we
+  // just set, the container's width, and whether the body overflows -- that
+  // last one because DataTables reserves the scrollbar's width on the header
+  // when it does, which is the whole point of the post-draw pass above (the
+  // row count settles, the overflow goes away, and the reservation has to come
+  // back off). Same three as last time means the answer would be identical, so
+  // skip it. Sampled AFTER the max-height write, since that is an input to the
+  // overflow.
+  //
+  // The colgroup widths have to be released before the adjust to let the table
+  // narrow (see fogReleaseColWidths), so that is done here rather than by the
+  // caller -- releasing them and then skipping the adjust would leave the
+  // table on auto widths.
+  //
+  // The visible column set is in the signature too. Hiding or showing a column
+  // changes neither the height nor the container width, so without it the
+  // ResizeObserver pass that follows a visibility toggle would match the
+  // previous signature and skip -- leaving the colgroup widths written for the
+  // old column set, which the table then redistributes rather than
+  // re-measuring. Header and body stay in step either way, but the table
+  // settles at the wrong width (measured 1326px against 1246px on the host
+  // list, hiding then re-showing one column).
+  var el = body[0],
+    signature = avail + '|'
+      + Math.round(container.getBoundingClientRect().width) + '|'
+      + (el.scrollHeight > el.clientHeight ? 1 : 0) + '|'
+      + dt.columns(':visible').indexes().toArray().join(',');
+  if (settings && settings._fogSizeSignature === signature) {
+    return;
+  }
+  if (settings) {
+    settings._fogSizeSignature = signature;
+  }
+  if (release) {
+    fogReleaseColWidths(dt.table().node());
+  }
   dt.columns.adjust();
 }
 /**
@@ -2990,12 +3082,11 @@ function fogAdjustAllTables() {
       return;
     }
     if (init.scroller) {
-      // Height as well as width, and it does its own visibility check -- so
-      // only release the widths once we know it will act on them.
-      if ($(this).is(':visible')) {
-        fogReleaseColWidths(this);
-      }
-      fogSizeScroller(dt);
+      // Height as well as width, and it does its own visibility check. The
+      // width release goes with it rather than happening here: it is only
+      // correct paired with the adjust that follows, and fogSizeScroller() is
+      // what decides whether that adjust is needed at all.
+      fogSizeScroller(dt, true);
       return;
     }
     // A paged table has no scroll body to measure, but it still needs its
