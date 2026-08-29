@@ -2694,13 +2694,64 @@ _uefiBootFile() {
             ;;
     esac
 }
-# Write the pre-DHCP sleep into autoexec.ipxe, per --boot-delay.
+# The pre-DHCP delay stanza, in the one form every copy of autoexec.ipxe uses.
 #
-# Some switches take several seconds to bring a port out of STP listening or
-# out of powersave, and iPXE's first DHCP attempt goes out before that. FOG has
-# always shipped a second copy of every binary with a 10-second sleep compiled
-# in (10secdelay/) as the answer. On EFI that is now two lines of text in a
-# file instead, which is the whole point of dropping EMBED.
+# Some switches take several seconds to bring a port out of STP listening or out
+# of powersave, and iPXE's first DHCP attempt goes out before that. FOG's answer
+# used to be a second set of compiled binaries (10secdelay/); on EFI it is two
+# lines of text, which is what makes the commented arm below possible at all --
+# an admin who hits this at 2am uncomments one line instead of reinstalling the
+# server, and there is nothing to rebuild.
+#
+# ONE generator for both surfaces: the server's own TFTP copy via
+# _applyBootDelay(), and the ESP archives via _espAutoexecScript(). They used to
+# be two separate bodies of text kept in step by a comment asking future editors
+# to keep them in step, and they had already drifted -- the ESP copy shipped the
+# commented arm and the TFTP copy shipped nothing at all, so a site that read the
+# USB stick and then the netboot script found two different scripts. The note in
+# _espAutoexecScript() already described the commented arm as what the TFTP copy
+# did; it does now.
+#
+# Both arms carry the same sentinels, which is what makes _applyBootDelay()'s
+# rewrite idempotent in both directions -- raising, lowering and clearing the
+# delay all replace exactly one block. The cost is that an uncommented edit
+# INSIDE the block is reverted by the next install, so the commented arm says so
+# and names --boot-delay as the way to make it stick. An admin's own sleep
+# written outside the block is never touched.
+#
+# The delay cannot be a UI setting, before anyone tries: it has to run before
+# DHCP, and the web UI is only reachable after DHCP has succeeded.
+_bootDelayBlock() {
+    local delay="${BOOT_dhcp_delay_seconds:-0}"
+    if [[ $delay -gt 0 ]]; then
+        cat <<BOOTDELAY
+# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)
+echo Sleeping ${delay} seconds to wait for STP/Powersave to switchoff and on
+sleep ${delay}
+# FOG-BOOT-DELAY-END
+BOOTDELAY
+    else
+        cat <<'BOOTNODELAY'
+# FOG-BOOT-DELAY-BEGIN  (no pre-DHCP delay configured)
+# If your switch runs STP or port power-save and the link is not up by the time
+# iPXE first asks for DHCP, uncomment the two lines below. That fixes this copy
+# now, with nothing to rebuild. installfog.sh rewrites this whole block on every
+# run, so make it permanent by reinstalling with --boot-delay <seconds>, which
+# writes it live into every copy of this script and points legacy BIOS clients at
+# the 10-second build at the same time.
+#echo Sleeping 10 seconds to wait for STP/Powersave to switchoff and on
+#sleep 10
+# FOG-BOOT-DELAY-END
+BOOTNODELAY
+    fi
+}
+# Write the pre-DHCP delay stanza into the TFTP copy of autoexec.ipxe.
+#
+# ALWAYS written, whether or not --boot-delay was given: _bootDelayBlock()
+# returns the commented arm when it was not, so the netboot script carries the
+# same self-documenting escape hatch the ESP archives have always carried. It
+# used to be written only when a delay was set, which left an admin diagnosing a
+# 2am STP problem reading a file that says nothing about the sleep it needs.
 #
 # Bracketed by sentinel comments rather than matched on the sleep line. An
 # admin may have added their own sleep for their own reason, and a bare
@@ -2721,22 +2772,22 @@ _applyBootDelay() {
     local script="${tftpdirdst%/}/autoexec.ipxe"
     [[ -f $script ]] || return 0
     local delay="${BOOT_dhcp_delay_seconds:-0}"
+    local block
+    block="$(_bootDelayBlock)"
     local tmp
     tmp=$(mktemp) || return 0
-    awk -v delay="$delay" '
-        # Prefix match, not anchored: the BEGIN line carries a trailing
-        # "(installfog.sh --boot-delay...)" note, so a $-anchored pattern never
+    awk -v block="$block" '
+        # Prefix match, not anchored: the BEGIN line carries a trailing note
+        # that differs between the two arms, so a $-anchored pattern never
         # matches what this same function writes and the blocks stack on every
         # run instead of being replaced.
         /^# FOG-BOOT-DELAY-BEGIN/ { skip = 1 }
         skip { if ( $0 ~ /^# FOG-BOOT-DELAY-END/ ) skip = 0; next }
         { print }
-        NR == 1 && delay > 0 {
-            print "# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)"
-            print "echo Sleeping " delay " seconds to wait for STP/Powersave to switchoff and on"
-            print "sleep " delay
-            print "# FOG-BOOT-DELAY-END"
-        }
+        # After the first line this actually PRINTS, not NR == 1: if a previous
+        # run ever left a sentinel block at the very top, line 1 is consumed by
+        # the skip rule above and an NR test would drop the block entirely.
+        !inserted { print block; inserted = 1 }
     ' "$script" > "$tmp" 2>>$error_log
     # Never truncate the real script on a failed rewrite -- an empty
     # autoexec.ipxe is a server that netboots nothing.
@@ -12697,34 +12748,6 @@ _espFileNote() {
         *)  echo "" ;;
     esac
 }
-# The pre-DHCP delay, emitted into BOTH ESP scripts.
-#
-# Some switches take several seconds to bring a port out of STP listening or out
-# of powersave, and iPXE's first DHCP attempt goes out before that. Written live
-# from --boot-delay, bracketed by the same sentinels _applyBootDelay() uses on
-# the TFTP copy so the two read the same way; shipped commented out otherwise,
-# because an admin who discovers the problem on one machine at 2am should be able
-# to fix it by uncommenting a line rather than by reinstalling the server.
-_espDelayBlock() {
-    local delay="${BOOT_dhcp_delay_seconds:-0}"
-    if [[ $delay -gt 0 ]]; then
-        cat <<ESPDELAY
-# FOG-BOOT-DELAY-BEGIN  (installfog.sh --boot-delay; do not edit by hand)
-echo Sleeping ${delay} seconds to wait for STP/Powersave to switchoff and on
-sleep ${delay}
-# FOG-BOOT-DELAY-END
-ESPDELAY
-    else
-        cat <<'ESPNODELAY'
-# No pre-DHCP delay is configured. If your switch runs STP or port power-save
-# and the link is not up by the time iPXE first asks for DHCP, uncomment the two
-# lines below -- or reinstall with --boot-delay <seconds>, which writes them here
-# and in the server's own netboot copy at the same time.
-#echo Sleeping 10 seconds to wait for STP/Powersave to switchoff and on
-#sleep 10
-ESPNODELAY
-    fi
-}
 # FOG's boot logic: find a DHCP answer, work out which server to talk to, chain
 # FOG's menu.
 #
@@ -12846,7 +12869,7 @@ _espAutoexecScript() {
 # autoexec.ipxe, and with src/ipxescript, the script the BIOS binaries still
 # embed. All of them must behave identically.
 ESPAUTOEXEC
-    _espDelayBlock
+    _bootDelayBlock
     _espBootWalk
 }
 # The archive's README. Written per archive rather than once, because which
