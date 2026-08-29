@@ -1929,8 +1929,15 @@ class Route extends FOGBase
     /**
      * Sends the response code through break head as needed.
      *
-     * @param int $code The code to break head on.
-     * @param int $msg  The message to send.
+     * @param int          $code The code to break head on.
+     * @param string|false $msg  The response body, already encoded. Callers
+     *                           that have a message to send build a JSON
+     *                           object for it -- `{"error": "..."}` is the
+     *                           shape the UI reads -- because breakHead()
+     *                           echoes this verbatim under a Content-Type of
+     *                           application/json, so a bare sentence arrives
+     *                           as a body no client can parse. false sends
+     *                           no body at all.
      *
      * @return void
      */
@@ -2026,9 +2033,45 @@ class Route extends FOGBase
         if ($code < 400 || $code > 599) {
             $code = HTTPResponseCodes::HTTP_NOT_ACCEPTABLE;
         }
+        // JSON, not the bare message. breakHead() echoes whatever it is
+        // given under a Content-Type of application/json, so a plain string
+        // arrives as a body no client can parse: jQuery leaves responseJSON
+        // undefined, notifyFromAPI() falls into its unreadable-response
+        // guard, and every one of the nineteen catches in this class draws
+        // "The server answered 406 with no readable message" over a message
+        // that was right there.
+        //
+        // `error` rather than `msg` is the shape the rest of the router
+        // already emits -- five sendResponse() call sites build exactly this
+        // -- and it is what the DataTables error handler reads first
+        // (fog.common.js, xhr.responseJSON.error). It is also what makes the
+        // toast red: notifyFromAPI() types a body carrying `msg` as a
+        // SUCCESS, which is the wrong color for anything reaching here.
+        //
+        // Encoded here rather than in sendResponse() because six callers
+        // already pass their own encoded body and would be double-encoded,
+        // and because sendResponse() re-raises rather than emitting when a
+        // result wrapper is on the stack (ADR 0011) -- a daemon catching
+        // that should keep the plain sentence, not a JSON document.
+        // ...unless the message IS already an encoded body. sendResponse()
+        // re-raises rather than emitting when a result wrapper is on the
+        // stack (ADR 0011), and it does that by putting the BODY into a
+        // RuntimeException's MESSAGE. So an inner refusal that built its own
+        // JSON -- _assertFilterKeys() sends {error, valid} -- arrives here
+        // as a message that is really a document, and wrapping it again
+        // buries the structure inside a string: the caller then sees
+        // {"error":"{\"error\":...,\"valid\":[...]}"} and every field
+        // below `error` is gone.
+        //
+        // Decided on SHAPE, not by guessing from content: a body built by
+        // this class is a JSON *object*, and a human-readable sentence never
+        // decodes to an array. A message that happens to be "404" decodes to
+        // an int and is still wrapped, which is correct.
+        $body = $e->getMessage();
+        $decoded = json_decode($body, true);
         self::sendResponse(
             $code,
-            $e->getMessage()
+            is_array($decoded) ? $body : json_encode(['error' => $body])
         );
     }
     /**
@@ -4812,7 +4855,7 @@ class Route extends FOGBase
             if (!$StorageGroup->isValid()) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_NOT_FOUND,
-                    _('Storage Group not found')
+                    json_encode(['error' => _('Storage Group not found')])
                 );
                 return;
             }
@@ -4821,7 +4864,12 @@ class Route extends FOGBase
             ) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_BAD_REQUEST,
-                    _('One or more files must be uploaded via the "snapinfiles[]" multipart field')
+                    json_encode(
+                        [
+                            'error' => _('One or more files must be uploaded'
+                                . ' via the "snapinfiles[]" multipart field')
+                        ]
+                    )
                 );
                 return;
             }
@@ -4829,7 +4877,12 @@ class Route extends FOGBase
             if (!$StorageNode || !$StorageNode->isValid()) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
-                    _('Storage Group has no reachable Master Node')
+                    json_encode(
+                        [
+                            'error' => _('Storage Group has no reachable'
+                                . ' Master Node')
+                        ]
+                    )
                 );
                 return;
             }

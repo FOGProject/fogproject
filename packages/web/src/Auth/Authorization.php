@@ -1238,7 +1238,12 @@ class Authorization extends FOGBase
         self::_auditGate($perm, Audit::DENIED, 'api', $class, $id);
         Route::sendResponse(
             HTTPResponseCodes::HTTP_FORBIDDEN,
-            _('You do not have permission to perform this action.')
+            json_encode(
+                [
+                    'error' => _('You do not have permission to perform'
+                        . ' this action.')
+                ]
+            )
         );
     }
     /**
@@ -1980,7 +1985,12 @@ class Authorization extends FOGBase
         }
         Route::sendResponse(
             HTTPResponseCodes::HTTP_FORBIDDEN,
-            _('You do not have permission to perform this action.')
+            json_encode(
+                [
+                    'error' => _('You do not have permission to perform'
+                        . ' this action.')
+                ]
+            )
         );
     }
     /**
