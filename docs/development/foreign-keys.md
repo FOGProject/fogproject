@@ -791,8 +791,8 @@ the step contains.
 | 2 | Orphan sweep, with counts logged — **landed, schema step 381** | 12 | 0 | **yes, destructive** | no | **no** | done |
 | 3 | Host-owned junctions and satellites — **landed, schema step 382** | 10 | 14 | no | no | yes | done |
 | 4 | Identity: users, roles, userGroups, sites — **landed, schema step 383** | 12 | 21 | no | no | yes | done |
-| 5 | Storage: groups, nodes, image/snapin assoc | 6 | 9 | no | no | yes | yes |
-| 6 | `deletemass()` gains `storagegroup`/`storagenode` cases | — | 0 | no | no | yes | yes |
+| 5 | Storage: groups, nodes, image/snapin assoc — **landed, schema step 384** | 3 | 5 | no | no | yes | done |
+| 6 | ~~`deletemass()` gains `storagegroup`/`storagenode` cases~~ — **not needed; step 5 proved it** | — | 0 | — | — | — | done |
 | 7 | Sentinel `0` → `NULL` + the PHP that writes it | 5 | 0 | **yes** | **yes** ×7 | **no** | **yes** |
 | 8 | Configuration references (SET NULL / RESTRICT) | 8 | 16 | no | no | yes | **yes** |
 | 9 | Tasks and work | 4 | 12 | no | no | yes | **yes** |
@@ -1058,6 +1058,86 @@ failure, by design.
 Cost at fleet scale (5,000 hosts): step 383 takes **1.54s** to declare its 21
 constraints, against 4.56s for step 382's 14, because 382 validates the
 56,532-row `moduleStatusByHost` and the identity tables are tens of rows.
+
+### Step 5 as it landed, and why step 6 does not exist
+
+`FOG_SCHEMA` 383 → 384. Five constraints across three tables — the smallest
+group and the one the survey's orphan counts actually named.
+
+```
+nfsGroupMembers   ngmGroupID -> nfsGroups
+imageGroupAssoc   igaStorageGroupID -> nfsGroups   igaImageID -> images
+snapinGroupAssoc  sgaStorageGroupID -> nfsGroups   sgaSnapinID -> snapins
+```
+
+Unlike groups 1 and 2 this one does **not** pin behavior FOG already has.
+`deletemass()` has no `storagegroup` or `storagenode` case and neither model
+overrides `destroy()`, so deleting a storage group cascaded to nothing in
+every path including the UI. This supplies the behavior, in the one place
+that cannot be skipped.
+
+**Measured, raw SQL, with the constraints on:**
+
+```
+DELETE FROM nfsGroups WHERE ngID=1
+
+                       before   after
+  nfsGroupMembers          1       0     cascaded
+  imageGroupAssoc         29       0     cascaded
+  snapinGroupAssoc         4       0     cascaded
+  nfsFailures              1       1     audit, never constrained
+  tasks (taskNFSGroupID)  33      33     RESTRICT + sentinel, group 5
+  multicastSessions       15      15     RESTRICT + sentinel, group 5
+```
+
+**Step 6 was going to add `storagegroup`/`storagenode` cases to
+`deletemass()`. It is not needed, and landing step 5 first is what proved
+it** — which is exactly the reason the sequencing put them in this order.
+
+- For a storage **group**, everything such a case would delete is the three
+  tables above, and the database now deletes them on every path. A PHP copy
+  would be a second thing to keep in step with the first, for no behavior.
+- For a storage **node** there is nothing to delete at all. Every reference
+  to `nfsGroupMembers` in the map is either RESTRICT (`multicastSessions.
+  msSenderNode`, `tasks.taskNFSMemberID`, `tasks.taskLastMemberID`,
+  `location.lStorageNodeID`) or audit (`nfsFailures.nfNodeID`). A
+  `deletemass('storagenode')` case would have an empty `$removeItems`.
+  Confirmed by deleting a node and watching nothing move.
+
+What *will* need PHP is group 5, not this one: once
+`tasks.taskNFSGroupID` and `multicastSessions.msNFSGroupID` become RESTRICT,
+deleting a storage group with live work pointing at it is **refused** at
+1451 where today it succeeds. That is a handled-path question and it belongs
+with the step that creates it.
+
+The step numbers are left as they are rather than renumbered — every commit
+message and cross-reference already uses them.
+
+### A consequence of the mechanism, to be handled at group 5
+
+`applyConstraints()` takes no filter: it declares whatever the map has
+enabled. So on an upgrade that crosses several of these steps, **the first
+constraint step in the run applies them all** and the later ones are
+no-ops — visible in the fleet timings, where step 382 went from 4.56s to
+9.86s as groups 2 and 3 were added while 383 and 384 dropped to ~0.1s.
+
+That is deliberate and mostly a feature: a server that somehow missed one
+step's constraints picks them up at the next. But it has one edge that is
+**not** yet handled, and naming it here is cheaper than rediscovering it:
+
+> Group 5's constraints are RESTRICT on columns that still hold a `0`
+> sentinel, and the sentinel becomes NULL in the step *before* them. On an
+> upgrade from below 382, the first constraint step would try them while the
+> columns are still `NOT NULL DEFAULT 0`, get refused, and log a failure on
+> every such upgrade — before the later step applies them correctly.
+
+Nothing breaks (a refusal is reported, not fatal, and the correct step still
+lands them) but a loud log line on every upgrade is the kind of noise that
+makes people stop reading the log. The fix belongs with the step that
+introduces the ordering: either `planConstraints()` learns to skip a
+relationship whose column is not yet nullable, or the sentinel conversion and
+its constraints share a step. Decided when the numbers are in front of us,
+not now.
 
 Notes on the ordering:
 

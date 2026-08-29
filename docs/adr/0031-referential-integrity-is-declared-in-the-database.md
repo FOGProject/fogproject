@@ -2,11 +2,18 @@
 
 ## Status
 
-accepted -- steps 0 through 4 implemented on `working-1.6`: the machinery,
+accepted -- steps 0 through 5 implemented on `working-1.6`: the machinery,
 schema 380 (column widening), schema 381 (the orphan sweep), schema 382
-(host-owned junctions and satellites, 14 constraints) and schema 383
-(identity: users, roles, user groups and sites, 21). 35 of 87 declared; the
-remaining 52 still ship disabled and land group by group.
+(host-owned junctions and satellites, 14 constraints), schema 383 (identity:
+users, roles, user groups and sites, 21) and schema 384 (storage: groups,
+nodes, image and snapin assoc, 5). 40 of 87 declared; the remaining 47 still
+ship disabled and land group by group.
+
+The planned step 6 -- `deletemass()` gaining `storagegroup`/`storagenode`
+cases -- was dropped after step 5 measured it as unnecessary: the database
+now cascades everything such a case would delete, and a storage node has no
+CASCADE children at all. Sequencing 5 before 6 was what made that a
+measurement rather than a guess.
 
 Each group is a map flip **plus an indexed schema step**. That is not
 ceremony: `DatabaseManager::init()` only sends an admin to the updater while

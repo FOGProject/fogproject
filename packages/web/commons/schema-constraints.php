@@ -71,10 +71,10 @@ return [
     ['child' => 'hostMAC', 'column' => 'hmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'snapinAssoc', 'column' => 'saHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'snapinAssoc', 'column' => 'saSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'snapinGroupAssoc', 'column' => 'sgaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'snapinGroupAssoc', 'column' => 'sgaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'imageGroupAssoc', 'column' => 'igaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'imageGroupAssoc', 'column' => 'igaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
+    ['child' => 'snapinGroupAssoc', 'column' => 'sgaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
+    ['child' => 'snapinGroupAssoc', 'column' => 'sgaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
+    ['child' => 'imageGroupAssoc', 'column' => 'igaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
+    ['child' => 'imageGroupAssoc', 'column' => 'igaStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'printerAssoc', 'column' => 'paHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'printerAssoc', 'column' => 'paPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'moduleStatusByHost', 'column' => 'msHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true],
@@ -109,7 +109,7 @@ return [
     ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'apiTokens', 'column' => 'atUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'userAuths', 'column' => 'uaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'nfsGroupMembers', 'column' => 'ngmGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => false],
+    ['child' => 'nfsGroupMembers', 'column' => 'ngmGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
 
     // ---- config: references to configuration with its own life ----------
     ['child' => 'hosts', 'column' => 'hostImage', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => false],

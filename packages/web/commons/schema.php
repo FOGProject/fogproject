@@ -8936,3 +8936,52 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 384
+$this->schema[] = [
+    // ADR 0031 group 3: storage -- groups, nodes, and what they carry.
+    //
+    // Five constraints across three tables:
+    //
+    //   nfsGroupMembers   ngmGroupID -> nfsGroups
+    //   imageGroupAssoc   igaStorageGroupID -> nfsGroups, igaImageID -> images
+    //   snapinGroupAssoc  sgaStorageGroupID -> nfsGroups, sgaSnapinID -> snapins
+    //
+    // THIS IS THE GROUP THE SURVEY'S ORPHAN COUNTS ACTUALLY NAMED.
+    // Route::deletemass() has a case for host, group, image, module,
+    // printer, snapin, user, role, usergroup and site. It has NO case for
+    // storagegroup or storagenode, and neither StorageGroup nor StorageNode
+    // overrides destroy() -- so deleting a storage group cascades to
+    // nothing, in every path, including the UI. Every orphan found in the
+    // live 1.6 database outside moduleStatusByHost traces to that: storage
+    // group 3 and node 4 were deleted at some point and nfsGroupMembers,
+    // multicastSessions and three columns of tasks still pointed at them.
+    //
+    // So unlike groups 1 and 2, this one does NOT pin behavior FOG already
+    // has. It supplies behavior FOG never had, and it supplies it in the
+    // only place that cannot be skipped. That is also why it is worth
+    // landing before the PHP: with these constraints on, a storage group
+    // delete does the right thing everywhere, and whatever remains for
+    // deletemass() to do is then a measured gap rather than a guessed one.
+    //
+    // The two nfsGroups references are why step 380 exists: all four
+    // ...GroupAssoc columns were mediumint(9) against an int(11) parent and
+    // could not be declared until that widened them.
+    //
+    // WHAT DELIBERATELY STAYS UNCONSTRAINED. nfsFailures carries nfGroupID
+    // and nfNodeID and takes no key: it is a failure record, and ADR 0021's
+    // rule applies to it exactly as it does to taskLog -- deleting a node
+    // must not delete the record of it having failed. The multicast and
+    // fileDeleteQueue references to storage are RESTRICT with a `0`
+    // sentinel, so they cannot be declared until the sentinel becomes NULL;
+    // they land with group 5.
+    //
+    // Same mechanism and failure policy as steps 382 and 383.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints();
+
+        return true;
+    },
+];

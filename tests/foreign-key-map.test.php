@@ -218,6 +218,7 @@ foreach ($map as $rel) {
  *
  * Group 1 -- host-owned junctions and satellites, schema step 382.
  * Group 2 -- identity: users, roles, user groups and sites, schema step 383.
+ * Group 3 -- storage: groups, nodes, image and snapin assoc, schema step 384.
  */
 $expected = [
     // Group 1
@@ -257,6 +258,12 @@ $expected = [
     'userGroupMembers.ugmUserID',
     'apiTokens.atUserID',
     'userAuths.uaUserID',
+    // Group 3
+    'nfsGroupMembers.ngmGroupID',
+    'imageGroupAssoc.igaStorageGroupID',
+    'imageGroupAssoc.igaImageID',
+    'snapinGroupAssoc.sgaStorageGroupID',
+    'snapinGroupAssoc.sgaSnapinID',
 ];
 $actual = [];
 foreach ($map as $rel) {
