@@ -142,6 +142,7 @@ const TABLE = [
     'Redaction' => 'Auth',
     'Audit' => 'Audit',
     'ActivityWindow' => 'Audit',
+    'ImagingStats' => 'Audit',
     'Retention' => 'Audit',
     'Blame' => 'Audit',
     'FOGFTP' => 'Net',
