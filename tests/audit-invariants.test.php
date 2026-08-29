@@ -28,8 +28,15 @@
  *      logHistory(); without the guard every audited action would also write
  *      a history row, doubling the volume of the table audit exists to
  *      replace.
+ *   5. A CHANGE ROW NAMES ITS SUBJECT. acSubjectLabel is denormalized at
+ *      write time for the reason history's hSubjectLabel is: resolved at
+ *      read time it goes blank the day the subject is deleted. The chain is
+ *      four links -- the manifest column, the model's field map, the writer
+ *      setting it, the page selecting it -- and breaking any one of them
+ *      degrades silently to the `setting#496` this replaced, because every
+ *      reader falls back to type#id by design.
  *
- * Textual, and DB-free, because all four are properties of the source.
+ * Textual, and DB-free, because all five are properties of the source.
  *
  * Usage: php tests/audit-invariants.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -159,6 +166,48 @@ if (null === $changes || false === strpos($changes, 'Redaction::values')) {
     $failures[] = 'Audit::changes() does not call Redaction::values(). '
         . 'Without it every credential a changed object carries is written '
         . 'to auditChange in clear.';
+}
+
+/*
+ * 2b. The subject label survives end to end.
+ *
+ * Every link is checked rather than just the writer, because the failure is
+ * silent at each of them: a row with no label renders as type#id, which is
+ * precisely the unreadable state the column was added to end. A settings
+ * edit is the worst case and the reason it exists -- globalSettings has one
+ * editable column, so `field` reads `value` for every setting in the install
+ * and the key is the only identifying part there is.
+ */
+$checks++;
+if (null === $changes || false === strpos($changes, "->set('subjectLabel'")) {
+    $failures[] = 'Audit::changes() does not set subjectLabel on the change '
+        . 'row, so every row falls back to type#id and a settings edit reads '
+        . '`value | old | new` naming no setting.';
+}
+$checks++;
+$acModel = (string) file_get_contents($web . '/src/Items/AuditChange.php');
+if (false === strpos($acModel, "'subjectLabel' => 'acSubjectLabel'")) {
+    $failures[] = 'AuditChange does not map subjectLabel to acSubjectLabel. '
+        . 'set() on an unmapped key is silently dropped by the ORM, so the '
+        . 'writer above would store nothing and report success.';
+}
+$checks++;
+$manifest = (string) file_get_contents($web . '/commons/schema-expected.php');
+if (false === strpos($manifest, "'acSubjectLabel' =>")) {
+    $failures[] = 'schema-expected.php does not carry auditChange.'
+        . 'acSubjectLabel, so the column the writer depends on is not part '
+        . 'of the schema an install is checked against.';
+}
+$checks++;
+$auditPage = (string) file_get_contents(
+    $web . '/lib/pages/auditmanagement.page.php'
+);
+if (false === strpos($auditPage, 'acSubjectLabel')
+    || false === strpos($auditPage, "'subjectLabel' =>")
+) {
+    $failures[] = 'AuditManagement::getChanges() does not select and emit '
+        . 'the subject label, so it is stored and never shown -- which looks '
+        . 'identical to it never having been stored.';
 }
 
 /*
