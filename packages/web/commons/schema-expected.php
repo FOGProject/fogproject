@@ -98,7 +98,7 @@ return [
             ],
         ],
         'auditChange' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `auditChange` ( `acID` int(11) NOT NULL AUTO_INCREMENT, `acAuditID` int(11) NOT NULL, `acSubjectType` varchar(64) NOT NULL DEFAULT \'\', `acSubjectID` int(11) NOT NULL DEFAULT 0, `acField` varchar(128) NOT NULL DEFAULT \'\', `acOldValue` longtext DEFAULT NULL, `acNewValue` longtext DEFAULT NULL, `acRedacted` tinyint(1) unsigned NOT NULL DEFAULT 0, PRIMARY KEY (`acID`), KEY `acAuditID` (`acAuditID`), KEY `acSubject` (`acSubjectType`,`acSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `auditChange` ( `acID` int(11) NOT NULL AUTO_INCREMENT, `acAuditID` int(11) NOT NULL, `acSubjectType` varchar(64) NOT NULL DEFAULT \'\', `acSubjectID` int(11) NOT NULL DEFAULT 0, `acField` varchar(128) NOT NULL DEFAULT \'\', `acOldValue` longtext DEFAULT NULL, `acNewValue` longtext DEFAULT NULL, `acRedacted` tinyint(1) unsigned NOT NULL DEFAULT 0, `acSubjectLabel` varchar(200) NOT NULL DEFAULT \'\', PRIMARY KEY (`acID`), KEY `acAuditID` (`acAuditID`), KEY `acSubject` (`acSubjectType`,`acSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'acID' => 'int(11) NOT NULL',
                 'acAuditID' => 'int(11) NOT NULL',
@@ -108,6 +108,7 @@ return [
                 'acOldValue' => 'longtext DEFAULT NULL',
                 'acNewValue' => 'longtext DEFAULT NULL',
                 'acRedacted' => 'tinyint(1) unsigned NOT NULL DEFAULT 0',
+                'acSubjectLabel' => 'varchar(200) NOT NULL DEFAULT \'\'',
             ],
         ],
         'auditLog' => [

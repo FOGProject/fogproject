@@ -272,11 +272,24 @@ class Retention extends FOGBase
             // reader builds the sentence, in its own locale, from the parts
             // (ADR 0020 Decision 5). It also puts the old and new windows in
             // the same columns every other before/after lands in.
+            //
+            // The key is the LABEL and `value` is the field, which is what
+            // every other settings edit in the install now stores. This used
+            // to pass the key AS the field to get it on screen at all --
+            // accurate to read and a lie about the column, since the column
+            // that moved is globalSettings.settingValue like any other. The
+            // label column exists now, so the workaround comes out.
+            //
+            // subjectID 0 because this caller has the key and not the row:
+            // it is handed a settings POST, not a Setting. It used to store
+            // the AUDIT row's own id here, which is not a setting id and
+            // pointed at whatever setting happened to hold that number.
             $stored = Audit::changes(
                 $audit,
                 'Setting',
-                (int)$audit->get('id'),
-                [$key => [(int)$old, (int)$new]]
+                0,
+                ['value' => [(int)$old, (int)$new]],
+                $key
             ) > 0;
         }
         if ($shrink && !$stored) {
