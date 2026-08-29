@@ -186,11 +186,30 @@ function fogColumnSearchRestore(api) {
 function fogColumnSearchRow(api, types) {
   var header = $(api.table().header()),
     title = header.find('tr').not('.fog-colsearch-row').first(),
-    visible = api.columns(':visible').indexes().toArray(),
     columns = api.settings()[0].aoColumns,
     existing = header.find('tr.fog-colsearch-row'),
-    signature = visible.join(','),
+    visible = [],
+    signature,
+    position,
     row;
+  // Map each header cell to the column it is showing. With ColReorder on, a
+  // column's index no longer says where its heading sits, so walking
+  // columns(':visible') in index order pairs every box with the wrong column
+  // the moment anything is dragged -- and the box then filters a column the
+  // user is not looking at, silently.
+  //
+  // ':visIdx' resolves a DISPLAY position back to a column, accounting for
+  // both hidden and reordered columns, so it is the right selector -- but it
+  // is only right at the moment it is read. A saved layout's column order is
+  // applied AFTER the first response, so a row built at xhr time and left
+  // alone describes the pre-restore layout and every box filters a column its
+  // heading does not belong to. That is why the rebuild below is bound to
+  // init and draw as well as to the reorder event itself; the signature check
+  // makes the extra passes free.
+  for (position = 0; position < title.children().length; position++) {
+    visible.push(api.column(position + ':visIdx').index());
+  }
+  signature = visible.join(',');
   // In scrolling mode DataTables keeps a second, sizing-only copy of the
   // header in the scroll body and clones the whole thead into it -- our row
   // included. That copy is collapsed to zero height, so it is invisible
@@ -222,6 +241,168 @@ function fogColumnSearchRow(api, types) {
     row.append(cell);
   });
   header.append(row);
+}
+
+/**
+ * Where the REST API lives, from the hidden input the page shell emits.
+ *
+ * Derived server-side from FOG_WEB_ROOT rather than assumed to be '/fog/',
+ * which the installer's -W/--webroot can change.
+ *
+ * @return {string} the API base path, with a trailing slash
+ */
+function fogApiBase() {
+  return $('#apiBase').val() || '/fog/';
+}
+
+/**
+ * The preference key a table's saved state is stored under.
+ *
+ * Namespaced so that preferences added later cannot collide with a grid's,
+ * and keyed on the table's DOM id -- which is what distinguishes the host
+ * list from the image list, since every FOG grid is built by the same helper.
+ *
+ * @param {object} settings the DataTables settings object
+ *
+ * @return {string} the key, or '' when the table has no id to key on
+ */
+function fogStateKey(settings) {
+  var id = settings.sTableId || '';
+  // Read from the URL directly rather than from $_GET, which is populated
+  // during page init and so may not be ready when a table is built. Getting
+  // that wrong is not a crash -- it is every page silently sharing one key,
+  // which is exactly the collision this function exists to prevent.
+  var params = new URLSearchParams(window.location.search);
+  var node = params.get('node') || '';
+  var sub = params.get('sub') || '';
+  if (!id) {
+    return '';
+  }
+  // The id alone is not enough: FOG builds most grids as `#dataTable`, so
+  // the host list and the image list would share one saved layout and each
+  // would load the other's column widths. The page the table is on is what
+  // actually identifies it.
+  return 'dt.' + node + '.' + sub + '.' + id;
+}
+
+/**
+ * Strips the parts of a DataTables state that must not be restored.
+ *
+ * Column ORDER, VISIBILITY, page length and sort are preferences: they say
+ * how you like to look at the list. A SEARCH is a question you asked once,
+ * and restoring one silently is the same failure the Column search toggle
+ * avoids by clearing when it closes -- you open Hosts, see 3 of 86, and
+ * nothing on screen says why. So the searches are dropped on the way out
+ * rather than on the way in, which also keeps them out of the stored value
+ * entirely: a filter someone typed is not something to persist server-side
+ * on their behalf.
+ *
+ * @param {object} state the state DataTables wants saved
+ *
+ * @return {object} a copy safe to store
+ */
+function fogOrderKeys(settings, order) {
+  var columns = settings.aoColumns,
+    keys = [],
+    i;
+  for (i = 0; i < (order || []).length; i++) {
+    if (columns[order[i][0]] && columns[order[i][0]].data) {
+      keys.push([columns[order[i][0]].data, order[i][1]]);
+    }
+  }
+  return keys;
+}
+/**
+ * Puts the sort back on the column it was saved against.
+ *
+ * A no-op unless the restored sort actually names a different column than
+ * the one saved, which is only the case when the columns have been reordered
+ * -- so the common visit costs nothing, and the redraw (a request, on a
+ * server-side table) happens only where the alternative is a table sorted by
+ * the wrong column.
+ */
+function fogApplyOrder(api) {
+  var loaded = api.state.loaded(),
+    columns = api.settings()[0].aoColumns,
+    wanted = [],
+    lookup = {},
+    i;
+  if (!loaded || !loaded.fogOrder || !loaded.fogOrder.length) {
+    return;
+  }
+  for (i = 0; i < columns.length; i++) {
+    lookup[columns[i].data] = i;
+  }
+  for (i = 0; i < loaded.fogOrder.length; i++) {
+    if (loaded.fogOrder[i][0] in lookup) {
+      wanted.push([lookup[loaded.fogOrder[i][0]], loaded.fogOrder[i][1]]);
+    }
+  }
+  if (!wanted.length || JSON.stringify(wanted) === JSON.stringify(api.order())) {
+    return;
+  }
+  api.order(wanted).draw(false);
+}
+function fogStripStateSearch(state) {
+  var copy = $.extend(true, {}, state), i;
+  delete copy.search;
+  delete copy.searchBuilder;
+  for (i = 0; i < (copy.columns || []).length; i++) {
+    delete copy.columns[i].search;
+  }
+  // `time` is deliberately KEPT. DataTables will not apply a state that has
+  // no timestamp -- _fnImplementState opens with `if (state && state.time)`
+  // and silently drops it otherwise -- and it is also what stateDuration
+  // measures against, which is the escape hatch that lets a bad saved layout
+  // age out instead of following someone forever. Stripping it made every
+  // saved layout unrestorable, with nothing logged and no error: the table
+  // simply came up in its default arrangement every time.
+  return copy;
+}
+
+/**
+ * Stores one preference for the signed-in user.
+ *
+ * Deliberately not $.apiCall: that raises a toast on every response, and
+ * these fire on every column drag and every sort. A failure is not worth
+ * interrupting anybody over either -- the state is also written to
+ * localStorage, so the worst case is that the layout stops following the
+ * user between machines, which is where it already was.
+ *
+ * @param {string}   key   the preference key
+ * @param {string}   value the value to store
+ * @param {function} cb    optional callback, receives an error or null
+ *
+ * @return {void}
+ */
+function fogPrefStore(key, value, cb) {
+  $.ajax({
+    url: fogApiBase() + 'system/userpref/' + encodeURIComponent(key),
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ value: value }),
+    global: false,
+    success: function() { if (cb) { cb(null); } },
+    error: function(xhr) { if (cb) { cb(xhr); } }
+  });
+}
+
+/**
+ * Reads one preference for the signed-in user.
+ *
+ * @param {string}   key the preference key
+ * @param {function} cb  receives (error, value)
+ *
+ * @return {void}
+ */
+function fogPrefFetch(key, cb) {
+  $.ajax({
+    url: fogApiBase() + 'system/userpref/' + encodeURIComponent(key),
+    type: 'GET',
+    global: false,
+    success: function(data) { cb(null, (data && data.value) || ''); },
+    error: function(xhr) { cb(xhr, ''); }
+  });
 }
 
 var shouldReAuth,
@@ -3103,7 +3284,82 @@ $.fn.registerTable = function(onSelect, opts) {
     searching: true,
     ordering: true,
     info: true,
-    stateSave: false,
+    // Drag a heading to move a column. Off until now, which meant the saved
+    // state below had no positions to save -- "customise the layout" and
+    // "remember the layout" are one feature, not two.
+    colReorder: true,
+    // Column order, which columns are showing, page length and sort now
+    // persist per user, through the preference store rather than
+    // localStorage -- see stateSaveCallback below. Searches are deliberately
+    // NOT part of it; fogStripStateSearch() says why.
+    stateSave: true,
+    // Long enough that a layout survives a holiday. DataTables discards a
+    // state older than this, which is the escape hatch if a saved layout ever
+    // goes bad: it ages out rather than following someone forever.
+    stateDuration: 60 * 60 * 24 * 365,
+    stateSaveCallback: function(settings, data) {
+      var key = fogStateKey(settings);
+      var value;
+      // Record WHICH COLUMN is sorted, not just its index. DataTables and
+      // ColReorder disagree about which frame a saved order index is in, and
+      // the sort lands on a different column after a reload once anything has
+      // been dragged -- reproduced with stock DataTables 2.0.8, ColReorder
+      // 2.0.3 and the library's own localStorage callbacks, so it is not
+      // ours to fix here. The key survives any reordering, and fogApplyOrder()
+      // puts the sort back where it belongs once the table is up.
+      data.fogOrder = fogOrderKeys(settings, data.order);
+      value = JSON.stringify(fogStripStateSearch(data));
+      if (!key) {
+        return;
+      }
+      // Written to both. localStorage is what makes the layout survive the
+      // reload you are about to do even if the server call is still in
+      // flight or the session has expired; the preference is what makes it
+      // follow you to another machine. The server wins on load.
+      try {
+        window.localStorage.setItem(key, value);
+      } catch (e) {}
+      fogPrefStore(key, value);
+    },
+    stateLoadCallback: function(settings, callback) {
+      var key = fogStateKey(settings);
+      var local = null;
+      // RETURN UNDEFINED, ALWAYS. DataTables waits for the callback only when
+      // this function returns undefined -- `void 0 !== ret && useIt(ret)`. Any
+      // other return value, null included, is taken as the state itself, so
+      // the table loads "no saved layout" and the answer this function is
+      // waiting for arrives too late to be used. Nothing errors; the feature
+      // just silently does not work.
+      if (!key) {
+        callback(null);
+        return;
+      }
+      try {
+        local = window.localStorage.getItem(key);
+      } catch (e) {}
+      fogPrefFetch(key, function(err, value) {
+        var raw = (!err && value) ? value : local;
+        if (!raw) {
+          callback(null);
+          return;
+        }
+        try {
+          // Strip on the way IN as well. A value stored by an older release
+          // -- or by localStorage before this shipped -- can carry a saved
+          // search, and restoring one invisibly is the failure this whole
+          // arrangement is written to avoid.
+          callback(fogStripStateSearch(JSON.parse(raw)));
+        } catch (e) {
+          // A corrupt or truncated value means "no saved layout", not a
+          // broken table. JSON.parse throwing here would otherwise take out
+          // the whole grid.
+          callback(null);
+        }
+      });
+      // Asynchronous: see the note above -- undefined is what makes
+      // DataTables wait for the callback rather than acting on the return.
+      return;
+    },
     autoWidth: false,
     responsive: true,
     lengthMenu: [
@@ -3299,17 +3555,31 @@ $.fn.registerTable = function(onSelect, opts) {
   // box after the hidden one would otherwise be pointed one column off.
   // column-visibility for the obvious reason; column-sizing because
   // DataTables re-renders the header (and in scrolling mode re-clones it)
-  // whenever it recalculates widths, which drops anything appended to it.
+  // whenever it recalculates widths, which drops anything appended to it;
+  // column-reorder because dragging a heading changes which column each
+  // cell position is showing, and a box left where it was would then be
+  // filtering a different column than the one above it.
   // Both are cheap when nothing has changed -- the builder returns early if
   // the row it finds already describes the right columns.
-  table.on('column-visibility.dt column-sizing.dt', function() {
-    var types = table.settings()[0]._fogSearchTypes;
-    if (!types) {
-      return;
-    }
-    fogColumnSearchRow(table, types);
-    fogColumnSearchRestore(table);
+  // init and draw are here for the saved layout: ColReorder applies a restored
+  // column order after the first response, so the row built by the xhr handler
+  // above describes the layout as it was BEFORE the restore. Without these two
+  // the boxes stay pinned to that stale layout and quietly filter the wrong
+  // columns for the rest of the visit.
+  table.on('init.dt', function() {
+    fogApplyOrder(table);
   });
+  table.on(
+    'column-visibility.dt column-sizing.dt column-reorder.dt init.dt draw.dt',
+    function() {
+        var types = table.settings()[0]._fogSearchTypes;
+        if (!types) {
+            return;
+        }
+        fogColumnSearchRow(table, types);
+        fogColumnSearchRestore(table);
+    }
+  );
 
   if (columnResize) {
     var tableNode = $(this);

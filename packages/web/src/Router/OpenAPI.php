@@ -1668,6 +1668,7 @@ class OpenAPI extends FOGBase
             'kernelupdate' => 'List',
             'initrdupdate' => 'List',
             'unisearch' => 'SearchAll',
+            'userprefs' => 'ListPref',
             'settingscacheview' => 'Get',
             'settingscacheflush' => 'Flush',
             'settingscacherefresh' => 'Refresh',
@@ -2304,6 +2305,26 @@ class OpenAPI extends FOGBase
      *
      * @return array
      */
+    /**
+     * The {key} path parameter shared by the three userpref operations.
+     *
+     * @return array
+     */
+    private static function _prefKeyParam()
+    {
+        return [
+            [
+                'name' => 'key',
+                'in' => 'path',
+                'required' => true,
+                'description' => _('The preference key. Namespaced by its '
+                    . 'consumer -- a grid\'s saved state is stored under '
+                    . '"dt.<table id>" -- so that two features cannot '
+                    . 'collide on one name.'),
+                'schema' => ['type' => 'string', 'maxLength' => 190]
+            ]
+        ];
+    }
     private static function _fixedPaths()
     {
         $json = function ($schema, $desc) {
@@ -2347,6 +2368,113 @@ class OpenAPI extends FOGBase
                         . 'served at /swagger.json, which is where most '
                         . 'tooling looks first.'),
                     $json(['type' => 'object'], _('An OpenAPI document.'))
+                )
+            ],
+            '/system/userprefs' => [
+                'get' => self::_op(
+                    '',
+                    'userprefs',
+                    _('Your stored preferences'),
+                    _('Every preference belonging to the CALLING user, as a '
+                        . 'key/value map. There is no user in the path and no '
+                        . 'way to name one: the id comes from the session, so '
+                        . 'this cannot read anybody else\'s. Values are '
+                        . 'opaque strings the server does not interpret.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'prefs' => [
+                                    'type' => 'object',
+                                    'additionalProperties' => [
+                                        'type' => 'string'
+                                    ]
+                                ],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The calling user\'s preferences.')
+                    )
+                )
+            ],
+            '/system/userpref/{key}' => [
+                'get' => self::_op(
+                    '',
+                    'userpref',
+                    _('Read one of your preferences'),
+                    _('Answers an empty value when the key has never been '
+                        . 'set, rather than 404 -- "no opinion" is a normal '
+                        . 'answer here, not a missing resource.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'key' => ['type' => 'string'],
+                                'value' => ['type' => 'string'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('One preference.')
+                    ),
+                    self::_prefKeyParam(),
+                    [],
+                    'GetPref'
+                ),
+                'post' => self::_op(
+                    '',
+                    'userpref',
+                    _('Store one of your preferences'),
+                    _('The body is {"value": "..."}; a form field of the same '
+                        . 'name is accepted too. An EMPTY value deletes the '
+                        . 'preference rather than storing emptiness, so a '
+                        . 'reset leaves no row saying "no opinion". Values '
+                        . 'are capped at 64KB and refused rather than '
+                        . 'truncated -- a truncated saved state cannot be '
+                        . 'told from a corrupt one when it is read back.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'key' => ['type' => 'string'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The preference was stored.')
+                    ),
+                    self::_prefKeyParam(),
+                    [
+                        'required' => true,
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'value' => ['type' => 'string']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'SetPref'
+                ),
+                'delete' => self::_op(
+                    '',
+                    'userpref',
+                    _('Clear one of your preferences'),
+                    _('Equivalent to storing an empty value.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'key' => ['type' => 'string'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The preference was cleared.')
+                    ),
+                    self::_prefKeyParam(),
+                    [],
+                    'ClearPref'
                 )
             ],
             '/system/export' => [
