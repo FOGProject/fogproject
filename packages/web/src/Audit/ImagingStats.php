@@ -13,8 +13,6 @@
 
 namespace FOG\Audit;
 
-use FOG\Base\FOGBase;
-
 /**
  * How many machines were imaged, and when.
  *
@@ -66,32 +64,38 @@ use FOG\Base\FOGBase;
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class ImagingStats extends FOGBase
+class ImagingStats extends WindowedStats
 {
-    /**
-     * The longest window one call will read.
-     *
-     * A window is a filter and not a limit: "the last year" on a server
-     * mid-rollout is every imaging row it has. 366 rather than 365 because
-     * the dashboard's widest view is a year and a leap year is 366 days --
-     * a cap that clips the widest shipped view would be a bug reported as
-     * "the 1 Year graph is missing a day".
-     *
-     * @var int
+    /*
+     * MAX_DAYS and MAX_ROWS are WindowedStats'. Both were written here
+     * first and moved when the second rollup needed the same two numbers
+     * for the same two reasons.
      */
-    const MAX_DAYS = 366;
 
     /**
-     * The most rows the grid will carry back.
+     * readWindow() with the canceled-state bind this class' fold needs.
      *
-     * Same stance as ActivityWindow::MAX_ROWS and for the same reason: a
-     * window is a filter, not a limit, and "the last year" on a server mid
-     * rollout is every imaging row it has. The report says so on screen
-     * when it truncates rather than quietly showing a prefix.
+     * Written once here rather than at each of the four call sites, where
+     * one could drift from the others without anything noticing.
      *
-     * @var int
+     * @param string             $sql   one of the _*Sql() statements
+     * @param \DateTimeInterface $start the lower bound as given
+     * @param \DateTimeInterface $end   the upper bound as given
+     *
+     * @return array
      */
-    const MAX_ROWS = 5000;
+    private static function _read(
+        $sql,
+        \DateTimeInterface $start,
+        \DateTimeInterface $end
+    ) {
+        return self::readWindow(
+            $sql,
+            $start,
+            $end,
+            [':canceled' => self::getCancelledState()]
+        );
+    }
 
     /**
      * The fold: one row per imaging RUN, out of a table of transitions.
@@ -230,43 +234,9 @@ class ImagingStats extends FOGBase
         \DateTimeInterface $start,
         \DateTimeInterface $end
     ) {
-        // Clamped here as well as inside _read(), because the zero fill
-        // below walks the window itself -- an unclamped one would emit a
-        // point per day for however long was asked for while the query
-        // answered for MAX_DAYS, and the series would run off the data.
-        list($start, $end) = self::_clamp($start, $end);
-
         $rows = self::_read(self::_runsPerDaySql(), $start, $end);
 
-        $counts = [];
-        foreach ((array)$rows as $row) {
-            if (isset($row['d'])) {
-                $counts[$row['d']] = (int)$row['c'];
-            }
-        }
-
-        // DatePeriod's end is EXCLUSIVE, so the last day of the window would
-        // be dropped without this. The bound is moved rather than the period
-        // extended, because $end carries a time of day the caller chose and
-        // adding a day to it would reach into the day after.
-        $through = (new \DateTimeImmutable($end->format('Y-m-d')))
-            ->modify('+1 day');
-        $period = new \DatePeriod(
-            new \DateTimeImmutable($start->format('Y-m-d')),
-            new \DateInterval('P1D'),
-            $through
-        );
-
-        $series = [];
-        foreach ($period as $day) {
-            $key = $day->format('Y-m-d');
-            $series[] = [
-                'date' => $key,
-                'count' => isset($counts[$key]) ? $counts[$key] : 0
-            ];
-        }
-
-        return $series;
+        return self::dailySeries($rows, $start, $end);
     }
 
     /**
@@ -288,22 +258,13 @@ class ImagingStats extends FOGBase
     ) {
         $rows = self::_read(self::_runsByImageSql(), $start, $end);
 
+        $top = self::topN($rows, 'image', 'c', $limit);
         $out = [];
-        $other = 0;
-        $limit = (int)$limit;
-        foreach ((array)$rows as $i => $row) {
-            $count = (int)($row['c'] ?? 0);
-            if ($limit > 0 && $i >= $limit) {
-                $other += $count;
-                continue;
-            }
-            $out[] = [
-                'image' => (string)($row['image'] ?? ''),
-                'count' => $count
-            ];
-        }
-        if ($other > 0) {
-            $out[] = ['image' => _('Other'), 'count' => $other];
+        foreach ($top as $row) {
+            // Renamed on the way out rather than in the shared helper: this
+            // class' callers ask for images, and a generic 'label' key here
+            // would make every one of them say what it already knows.
+            $out[] = ['image' => $row['label'], 'count' => $row['count']];
         }
 
         return $out;
@@ -363,79 +324,5 @@ class ImagingStats extends FOGBase
             'images' => count($images),
             'truncated' => count($rows) > self::MAX_ROWS
         ];
-    }
-
-    /**
-     * Run one of this class' statements over a clamped window.
-     *
-     * The three binds are identical for every one of them because they all
-     * read through the same fold, so they are written once here rather than
-     * copied into each caller where one could drift.
-     *
-     * @param string             $sql   one of the _*Sql() statements
-     * @param \DateTimeInterface $start the lower bound as given
-     * @param \DateTimeInterface $end   the upper bound as given
-     *
-     * @return array
-     */
-    private static function _read(
-        $sql,
-        \DateTimeInterface $start,
-        \DateTimeInterface $end
-    ) {
-        list($start, $end) = self::_clamp($start, $end);
-
-        return (array)self::$DB->query(
-            $sql,
-            [],
-            [
-                ':start' => $start->format('Y-m-d H:i:s'),
-                ':end' => $end->format('Y-m-d H:i:s'),
-                ':canceled' => self::getCancelledState()
-            ]
-        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-    }
-
-    /**
-     * The window, ordered and capped.
-     *
-     * Reversed rather than rejected when the bounds arrive the other way
-     * round: somebody who passes the two dates backwards means the range
-     * between them, and returning nothing looks exactly like "nothing was
-     * imaged".
-     *
-     * Capped by moving the START, not the end. A caller asking for more than
-     * MAX_DAYS wants the recent end of it -- clipping the other way would
-     * answer with the oldest window and no indication that it had.
-     *
-     * @param \DateTimeInterface $start the lower bound as given
-     * @param \DateTimeInterface $end   the upper bound as given
-     *
-     * @return array [\DateTimeImmutable, \DateTimeImmutable]
-     */
-    private static function _clamp(
-        \DateTimeInterface $start,
-        \DateTimeInterface $end
-    ) {
-        $lo = new \DateTimeImmutable($start->format('Y-m-d H:i:s'));
-        $hi = new \DateTimeImmutable($end->format('Y-m-d H:i:s'));
-        if ($lo > $hi) {
-            list($lo, $hi) = [$hi, $lo];
-        }
-
-        // Counted in whole days between the two dates, matching what the cap
-        // is expressed in -- a window of "today 00:00 to today 23:59" is one
-        // day, not zero.
-        $span = (int)$lo->setTime(0, 0, 0)
-            ->diff($hi->setTime(0, 0, 0))
-            ->days + 1;
-        if ($span > self::MAX_DAYS) {
-            $lo = new \DateTimeImmutable(
-                $hi->modify('-' . (self::MAX_DAYS - 1) . ' days')
-                    ->format('Y-m-d') . ' ' . $lo->format('H:i:s')
-            );
-        }
-
-        return [$lo, $hi];
     }
 }

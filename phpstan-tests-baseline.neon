@@ -727,13 +727,13 @@ parameters:
 			path: tests/route-result-wrappers.test.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''run_history'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task''\} will always evaluate to true\.$#'
+			message: '#^Call to function array_key_exists\(\) with ''run_history'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/run-history-report.test.php
 
 		-
-			message: '#^Offset ''run_history'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task''\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''run_history'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/run-history-report.test.php
@@ -913,13 +913,13 @@ parameters:
 			path: tests/usertracking-permission-split.test.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''imaging_report'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task''\} will always evaluate to true\.$#'
+			message: '#^Call to function array_key_exists\(\) with ''imaging_report'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/imaging-report.test.php
 
 		-
-			message: '#^Offset ''imaging_report'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task''\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''imaging_report'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/imaging-report.test.php

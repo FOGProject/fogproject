@@ -459,5 +459,163 @@
           }
         });
       break;
+      // Snapin Report
+      //
+      // Not serverSide, like the imaging report: the rows are the same
+      // bounded window the charts above them were drawn from. Every column
+      // is plain text out of snapinTasks -- the details string is whatever
+      // the snapin wrote to stdout, so it escapes like the rest.
+    case 'snapin report':
+      var snapinReportTable = $('#snapinreport-table'),
+        table = snapinReportTable.registerTable(null, {
+          order: [
+            [2, 'desc']
+          ],
+          buttons: reportButtons,
+          columns: [
+            {data: 'snapin', render: $.fn.dataTable.render.text()},
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'completed', render: $.fn.dataTable.render.text()},
+            {data: 'outcome', render: $.fn.dataTable.render.text()},
+            {data: 'code', render: $.fn.dataTable.render.text()},
+            {data: 'details', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Fleet Report
+      //
+      // Ordered by the Days column DESCENDING, which is the report: the
+      // machines somebody has to act on are the stalest, and "Never" is
+      // the string the server sends for a host that has none. It sorts
+      // above every number under DataTables' string ordering, which is
+      // where it belongs -- the server sends it already ordered that way
+      // and this keeps it there through a redraw.
+    case 'fleet report':
+      var fleetTable = $('#fleetreport-table'),
+        table = fleetTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'imageName', render: $.fn.dataTable.render.text()},
+            {data: 'lastDeploy', render: $.fn.dataTable.render.text()},
+            {data: 'ageDays', render: $.fn.dataTable.render.text()},
+            {data: 'lastCheckin', render: $.fn.dataTable.render.text()},
+            {data: 'created', render: $.fn.dataTable.render.text()},
+            {data: 'hasInventory', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'hardware report':
+      var hardwareTable = $('#hardwarereport-table'),
+        table = hardwareTable.registerTable(null, {
+          order: [
+            [1, 'asc']
+          ],
+          buttons: reportButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'vendor', render: $.fn.dataTable.render.text()},
+            {data: 'model', render: $.fn.dataTable.render.text()},
+            {data: 'serial', render: $.fn.dataTable.render.text()},
+            {data: 'cpu', render: $.fn.dataTable.render.text()},
+            {data: 'memory', render: $.fn.dataTable.render.text()},
+            {data: 'recorded', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'storage report':
+      var storageTable = $('#storagereport-table'),
+        table = storageTable.registerTable(null, {
+          order: [
+            [7, 'desc']
+          ],
+          buttons: reportButtons,
+          columns: [
+            {data: 'imageName', render: $.fn.dataTable.render.text()},
+            {data: 'size', render: $.fn.dataTable.render.text()},
+            {data: 'groups', render: $.fn.dataTable.render.text()},
+            {data: 'replicate', render: $.fn.dataTable.render.text()},
+            {data: 'enabled', render: $.fn.dataTable.render.text()},
+            {data: 'created', render: $.fn.dataTable.render.text()},
+            {data: 'lastDeploy', render: $.fn.dataTable.render.text()},
+            {data: 'bytes', render: $.fn.dataTable.render.text()}
+          ],
+          // "9 GiB" sorts above "10 GiB" as a string, so the size column
+          // orders on the raw byte count in the hidden column beside it.
+          columnDefs: [
+            {
+              orderData: [7],
+              targets: [1]
+            },
+            {
+              targets: [7],
+              visible: false,
+              searchable: false
+            }
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'audit report':
+      var auditTable = $('#auditreport-table'),
+        table = auditTable.registerTable(null, {
+          order: [
+            [0, 'desc']
+          ],
+          buttons: reportButtons,
+          // Every column escapes. An audit row records an ATTEMPTED
+          // username and a subject label, both of which can come from an
+          // unauthenticated request, and DataTables writes cell data as
+          // HTML unless a column supplies its own render.
+          columns: [
+            {data: 'at', render: $.fn.dataTable.render.text()},
+            {data: 'actor', render: $.fn.dataTable.render.text()},
+            {data: 'source', render: $.fn.dataTable.render.text()},
+            {data: 'ip', render: $.fn.dataTable.render.text()},
+            {data: 'type', render: $.fn.dataTable.render.text()},
+            {data: 'subject', render: $.fn.dataTable.render.text()},
+            {data: 'permission', render: $.fn.dataTable.render.text()},
+            {data: 'outcome', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
   }
 })(jQuery);

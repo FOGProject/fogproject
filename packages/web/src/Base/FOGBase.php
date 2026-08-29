@@ -1900,10 +1900,22 @@ abstract class FOGBase
     /**
      * Checks if the time passed is valid or not.
      *
+     * FALSY FOR EVERY FORM OF "no date": '', NULL, an unparseable string,
+     * and both spellings of the zero date ('0000-00-00' and
+     * '0000-00-00 00:00:00'). That makes it the one definition of what an
+     * empty date means, which is why
+     * tests/date-columns-nullable.test.php fails a 0000-00-00 literal
+     * written anywhere else.
+     *
+     * It returns a DateTime rather than true on the way through, so it
+     * reads as a predicate and is usable as one. The tag said `object`,
+     * which claimed it could never be falsy and made every truth test on
+     * it look redundant to a static analyzer.
+     *
      * @param mixed $date   the date to use
      * @param mixed $format the format to test
      *
-     * @return object
+     * @return bool|\DateTime false when the value is not a usable date
      */
     protected static function validDate($date, $format = '')
     {

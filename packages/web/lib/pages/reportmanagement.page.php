@@ -68,6 +68,10 @@ class ReportManagement extends FOGPage
     private static function _reportNamesForTranslation()
     {
         _('File Deleter');
+        _('Fleet Report');
+        _('Hardware Report');
+        _('Storage Report');
+        _('Audit Report');
         _('History Report');
         _('Imaging Report');
         _('Host List');
@@ -77,6 +81,7 @@ class ReportManagement extends FOGPage
         _('Product Keys');
         _('Run History');
         _('Snapin List');
+        _('Snapin Report');
     }
     /**
      * Initializes the report page.
