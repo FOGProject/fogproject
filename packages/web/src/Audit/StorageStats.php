@@ -125,8 +125,7 @@ class StorageStats extends WindowedStats
      */
     private static function _totalsSql()
     {
-        $never = "(`imageLastDeploy` IS NULL
-                   OR `imageLastDeploy` = '0000-00-00 00:00:00')";
+        $never = self::noDateSql('`imageLastDeploy`');
 
         return "SELECT COUNT(*) AS `images`,
                        COALESCE(SUM(`imageServerSize`), 0) AS `bytes`,

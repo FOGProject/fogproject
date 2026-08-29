@@ -62,23 +62,6 @@ class FleetStats extends WindowedStats
     const AGE_BUCKETS = [30, 90, 365];
 
     /**
-     * "Has no usable date", in SQL, for one column.
-     *
-     * Written once because it is needed in four statements and getting it
-     * half right -- NULL but not the zero date, or the other way round --
-     * produces a plausible number rather than an error. See the class
-     * docblock.
-     *
-     * @param string $col a fully qualified column reference
-     *
-     * @return string
-     */
-    private static function _noDate($col)
-    {
-        return "($col IS NULL OR $col = '0000-00-00 00:00:00')";
-    }
-
-    /**
      * Deploy age counted in whole days back from the as-of date.
      *
      * @return string
@@ -112,7 +95,7 @@ class FleetStats extends WindowedStats
      */
     private static function _ageBucketSql()
     {
-        $never = self::_noDate('`hosts`.`hostLastDeploy`');
+        $never = self::noDateSql('`hosts`.`hostLastDeploy`');
         $age = self::_ageExpr();
         $cases = '';
         foreach (self::AGE_BUCKETS as $i => $days) {
@@ -156,8 +139,8 @@ class FleetStats extends WindowedStats
      */
     private static function _totalsSql()
     {
-        $never = self::_noDate('`hosts`.`hostLastDeploy`');
-        $noCheckin = self::_noDate('`hosts`.`hostLastCheckin`');
+        $never = self::noDateSql('`hosts`.`hostLastDeploy`');
+        $noCheckin = self::noDateSql('`hosts`.`hostLastCheckin`');
 
         return "SELECT COUNT(*) AS `hosts`,
                        SUM($never) AS `never`,
@@ -194,7 +177,7 @@ class FleetStats extends WindowedStats
                        `hosts`.`hostLastDeploy` AS `lastDeploy`,
                        `hosts`.`hostLastCheckin` AS `lastCheckin`,
                        `hosts`.`hostCreateDate` AS `created`,
-                       CASE WHEN " . self::_noDate('`hosts`.`hostLastDeploy`')
+                       CASE WHEN " . self::noDateSql('`hosts`.`hostLastDeploy`')
                            . " THEN NULL ELSE $age END AS `ageDays`,
                        (`inventory`.`iID` IS NOT NULL) AS `hasInventory`
                   FROM `hosts`

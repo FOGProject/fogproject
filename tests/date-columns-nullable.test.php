@@ -204,34 +204,80 @@ if ($dateFields < 25) {
 // ---------------------------------------------------------------
 // The zero date is not a value the code writes or looks for.
 // ---------------------------------------------------------------
+// ONE file, not two, and every PHP file under packages/ rather than only
+// those under packages/web/lib. The scan used to stop at `lib`, which was
+// the whole codebase when it was written and is now the pages, reports,
+// hooks and events -- every core class moved to `src/` and quietly left
+// coverage, so a literal written in a rollup, a daemon or a model passed.
+// It cost nothing to notice because nothing had written one yet; the first
+// two that did were both added the day this was widened.
+//
+// TaskQueue came off the list rather than staying on it: it was comparing
+// against both spellings by hand, which is what validDate() is, and the
+// two rollups that needed the SQL form now call FOGBase::noDateSql(). So
+// the exemption is the definition itself and nothing else, in either
+// language, which is the invariant worth having:
+//
+//   exactly one file in the tree may name the zero date
 $allowed = [
-    // The one place that defines what an empty date means.
+    // The one place that defines what an empty date means -- validDate()
+    // for PHP, noDateSql() for SQL.
     'packages/web/src/Base/FOGBase.php',
-    // Reads BOTH spellings, because an upgraded server carries both until
-    // schema step 344 has run.
-    'packages/web/src/TaskHandling/TaskQueue.php',
 ];
 $dirs = new \RecursiveIteratorIterator(
-    new \RecursiveDirectoryIterator($web . '/lib', \FilesystemIterator::SKIP_DOTS)
+    new \RecursiveDirectoryIterator(
+        $root . '/packages',
+        \FilesystemIterator::SKIP_DOTS
+    )
 );
+$scanned = 0;
 foreach ($dirs as $file) {
     if ('php' !== strtolower($file->getExtension())) {
         continue;
     }
     $path = $file->getPathname();
     $rel = substr($path, strlen($root) + 1);
-    if (in_array($rel, $allowed, true) || false !== strpos($rel, '/plugins/')) {
+    // Plugins ship from their own repository (ADR 0009) and vendor is not
+    // ours to hold to this.
+    if (in_array($rel, $allowed, true)
+        || false !== strpos($rel, '/plugins/')
+        || false !== strpos($rel, '/vendor/')
+    ) {
         continue;
     }
     $checks++;
+    $scanned++;
     $clean = dcStripComments(file_get_contents($path));
     if (false !== strpos($clean, '0000-00-00')) {
         $failures[] = sprintf(
-            '%s still carries a 0000-00-00 literal; NULL is what "never '
-            . 'happened" means now',
+            '%s still carries a 0000-00-00 literal; ask '
+            . 'FOGBase::validDate() in PHP or FOGBase::noDateSql() in SQL, '
+            . 'so there stays one definition of what an empty date means',
             $rel
         );
     }
+}
+
+// A scan that reached nothing would pass silently, and this one just moved.
+$checks++;
+if ($scanned < 300) {
+    $failures[] = sprintf(
+        'only %d PHP file(s) reached by the zero-date scan; it is not '
+        . 'walking the tree and would pass vacuously',
+        $scanned
+    );
+}
+
+// And the definition has to still BE there. Without this the exemption is
+// a hole: emptying FOGBase of both helpers would leave every other file
+// clean and the suite green.
+$checks++;
+$base = file_get_contents($web . '/src/Base/FOGBase.php');
+if (false === strpos($base, 'function validDate(')
+    || false === strpos($base, 'function noDateSql(')
+) {
+    $failures[] = 'FOGBase must declare BOTH validDate() and noDateSql(); '
+        . 'they are what the single exemption above is exempting';
 }
 
 if (count($failures) > 0) {
