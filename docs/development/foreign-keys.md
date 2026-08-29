@@ -417,6 +417,13 @@ of ids should not be narrower than the column that references it. Either
 works; narrowing `msModuleID` was what the trial ran and it succeeded on both
 copies. `modules` holds 13 rows, so `mediumint` will not run out either way.
 
+**Step 380 widens the parent.** Both directions produce a legal constraint,
+so the tiebreak is cost and reversibility rather than correctness: narrowing
+`msModuleID` rebuilds a 56,000-row table and is only safe while no value
+exceeds 8,388,607, whereas widening a 13-row table of ids is additive and
+cannot lose anything. Nothing else in the schema references `modules.id`, so
+the wider parent has no other consequence.
+
 This is a column change, so it is `MODIFY COLUMN` on a rebuilt table. On
 these row counts it is instantaneous. **`hosts`, `tasks` and `taskLog` are
 untouched by any of it**, which is the one thing that would have made this a
@@ -780,8 +787,8 @@ the step contains.
 
 | # | Step | Tables | Constraints | Data change | Column change | Reversible | Lab run |
 |---|---|---|---|---|---|---|---|
-| 1 | Widen the five mismatched columns | 3 | 0 | no | **yes** ×5 | mostly | no |
-| 2 | Orphan sweep, with counts logged | 6 | 0 | **yes, destructive** | no | **no** | yes |
+| 1 | Widen the five mismatched columns — **landed, schema step 380** | 3 | 0 | no | **yes** ×5 | mostly | done |
+| 2 | Orphan sweep, with counts logged — **landed, schema step 381** | 12 | 0 | **yes, destructive** | no | **no** | done |
 | 3 | Host-owned junctions and satellites | 10 | 15 | no | no | yes | yes |
 | 4 | Identity: users, roles, userGroups, sites | 9 | 22 | no | no | yes | yes |
 | 5 | Storage: groups, nodes, image/snapin assoc | 6 | 9 | no | no | yes | yes |
@@ -792,6 +799,70 @@ the step contains.
 
 Then, in `fog-plugins`, one commit per plugin (location, ou, windowskey,
 ldap, oidc) — 22 constraints, no core change, each releasable on its own.
+
+### Steps 1 and 2 as they landed
+
+`FOG_SCHEMA` went 379 → 381.
+
+**Step 380** widens the five columns, guarded on `information_schema`
+`DATA_TYPE` so a server that already matches does no work — `MODIFY COLUMN`
+rebuilds a table, so it is not free even when it changes nothing.
+
+**Step 381** sweeps, and it sweeps **CASCADE relationships only**. That is
+the whole of the semantic: a CASCADE child has no existence independent of
+its parent, so a row whose parent is already gone is one the system has
+already decided it does not keep. Everything else is left alone — a RESTRICT
+orphan means a host points at a missing architecture, not that the host is
+junk, and those are repointed by steps 7 and 8. Audit and history rows are
+never swept (ADR 0021). Plugin tables sweep at plugin install, not here.
+
+Order is computed from the frozen relationship list rather than hand-sorted,
+because a hand-sorted list is exactly what an editor gets silently wrong. It
+records a per-table count to the PHP error log and one `auditLog` row with
+the totals.
+
+Measured on the aged 5,000-host fixture, cloned from a real install:
+
+```
+step 380  five columns widened, AUTO_INCREMENT preserved on modules.id
+step 381  6,521 rows deleted across 12 tables
+
+          groupMembers 219   hostMAC 303      snapinAssoc 214
+          printerAssoc 4     moduleStatusByHost 3732
+          siteHostMembers 1  inventory 219    nfsGroupMembers 2
+          tasks 1762         snapinJobs 17
+          multicastSessionsAssoc 4            snapinTasks 44
+
+then, with every CASCADE relationship enabled:
+          65 added, 1 refused
+```
+
+The ordering is visible in those numbers rather than asserted. The scan
+found **one** direct orphan in `multicastSessionsAssoc` and **none** in
+`snapinTasks`; the sweep deleted 4 and 44, because deleting the orphaned
+`tasks` and `snapinJobs` first is what stranded the rest. A sweep in the
+other order would have passed them over and the constraint would have
+refused on rows the sweep itself created.
+
+Both steps were mutation-tested against the same fixture, restored between
+arms:
+
+| Mutation | Result |
+|---|---|
+| comparator returns `0`, so the depth sort does nothing | 64 added, **2 refused** — `fk_multicastSessionsAssoc_tID` at 1452 |
+| step 380 not run | 60 added, **6 refused** — exactly the five errno 150 type mismatches |
+| neither mutation | 65 added, 1 refused |
+
+**The one refusal in every arm is `fk_locationAssoc_laHostID`, and it is
+correct.** `locationAssoc` belongs to the location plugin, and core must not
+delete rows owned by a plugin that may not even be installed — Phase D's
+direction rule, arriving as a measurement rather than as an argument. The
+plugin sweeps it at install. That the run reports it and returns `true`
+rather than aborting is the reconciler behavior Step 0 exists for.
+
+Re-running either step is a no-op: the widening is guarded on the column
+type, and the sweep finds nothing, logs nothing, and writes no second audit
+row.
 
 Notes on the ordering:
 

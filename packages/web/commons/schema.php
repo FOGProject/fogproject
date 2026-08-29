@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Audit\Audit;
 use FOG\Db\DatabaseManager;
 use FOG\Items\Schema;
 use FOG\Items\TaskLog;
@@ -8497,6 +8498,310 @@ $this->schema[] = [
                 . "ADD INDEX `idx_taskLogCreateTime` (`createTime`)"
             );
         }
+
+        return true;
+    },
+];
+
+// 380
+$this->schema[] = [
+    // Type parity between five child columns and the parents they point at.
+    //
+    // A foreign key requires the two columns to be the SAME type -- not a
+    // compatible one, the same one. MariaDB refuses a mediumint child
+    // against an int parent with errno 150, which surfaces as
+    // "Can't create table ... (errno: 150)" and says nothing about which
+    // column it means. Five of the 87 relationships in
+    // commons/schema-constraints.php cannot be declared until this lands,
+    // so it goes first and it touches no data.
+    //
+    // Four of them widen the CHILD, which is the accumulation of two
+    // different eras of id column: the association tables were written when
+    // mediumint was the house default and the tables they point at were
+    // later widened to int without their references following.
+    //
+    //   snapinGroupAssoc.sgaSnapinID       -> snapins.sID       int(11)
+    //   snapinGroupAssoc.sgaStorageGroupID -> nfsGroups.ngID    int(11)
+    //   imageGroupAssoc.igaImageID         -> images.imageID    int(11)
+    //   imageGroupAssoc.igaStorageGroupID  -> nfsGroups.ngID    int(11)
+    //
+    // The fifth runs the other way: moduleStatusByHost.msModuleID is
+    // int(11) and modules.id is mediumint(9). The PARENT is widened, not
+    // the child narrowed. Both directions produce a legal constraint and
+    // the trial ran the narrowing successfully, but narrowing is only safe
+    // while no value exceeds 8388607 and it would rebuild a 56,000-row
+    // table to save nothing; widening a 13-row table of ids is additive,
+    // unconditionally reversible in the sense that matters, and leaves the
+    // id column no narrower than anything that references it. Nothing else
+    // in the schema references modules.id.
+    //
+    // Guarded on DATA_TYPE so a server that already matches -- a fresh
+    // install, or a re-run -- does no work. MODIFY COLUMN rebuilds the
+    // table, so it is not free even when it changes nothing.
+    //
+    // See docs/development/foreign-keys.md, Phase C item 1, and ADR 0031.
+    function () {
+        $widen = [
+            ['snapinGroupAssoc', 'sgaSnapinID', 'int', 'INT(11) NOT NULL'],
+            ['snapinGroupAssoc', 'sgaStorageGroupID', 'int', 'INT(11) NOT NULL'],
+            ['imageGroupAssoc', 'igaImageID', 'int', 'INT(11) NOT NULL'],
+            ['imageGroupAssoc', 'igaStorageGroupID', 'int', 'INT(11) NOT NULL'],
+            ['modules', 'id', 'int', 'INT(11) NOT NULL AUTO_INCREMENT'],
+        ];
+
+        foreach ($widen as $w) {
+            list($table, $column, $want, $definition) = $w;
+            $row = self::$DB->query(
+                "SELECT `DATA_TYPE` AS `t` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND `TABLE_NAME` = '$table' "
+                . "AND `COLUMN_NAME` = '$column'"
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            if (!is_array($row) || !isset($row['t'])) {
+                // No such table or column on this server. Nothing to do --
+                // a later step or a fresh install builds it correctly.
+                continue;
+            }
+            if (strtolower((string)$row['t']) === $want) {
+                continue;
+            }
+            self::$DB->query(
+                "ALTER TABLE `$table` "
+                . "MODIFY COLUMN `$column` $definition"
+            );
+        }
+
+        return true;
+    },
+];
+
+// 381
+$this->schema[] = [
+    // The orphan sweep. THE ONLY DESTRUCTIVE STEP IN THIS SERIES.
+    //
+    // Nine years of PHP-only referential integrity leave rows whose parent
+    // is gone. ADD CONSTRAINT refuses on them at errno 1452 -- "Cannot add
+    // or update a child row" -- and reports the constraint, not the rows,
+    // so the constraint steps that follow cannot land until the ground is
+    // cleared. Doing it here rather than inside a constraint step is
+    // deliberate: a DELETE and an ALTER in one step means a 1452 arrives
+    // with nothing to say which of the two caused it, and the DELETE is
+    // the one thing in the whole series that cannot be undone.
+    //
+    // WHAT IT DELETES, AND WHY ONLY THIS. Every relationship below is
+    // classified CASCADE in commons/schema-constraints.php, meaning the
+    // child row has no existence independent of its parent -- a junction
+    // row, or a 1:1 satellite. If the parent were deleted today the
+    // constraint would delete the child; the parent is already gone, so
+    // the row is one the system has already decided it does not keep.
+    // Nothing else is swept:
+    //
+    //   - RESTRICT relationships are configuration references. An orphan
+    //     there means a host points at a missing architecture, not that
+    //     the host is junk, and deleting it would be catastrophic. Those
+    //     are handled by steps 7 and 8 of the series, by converting the
+    //     `0` sentinel and repointing.
+    //   - SET NULL relationships likewise: the fix is to null the column,
+    //     which needs the column to be nullable first.
+    //   - audit and history rows are NEVER swept. ADR 0021 stores the
+    //     subject's name on the row precisely so the trail outlives the
+    //     subject; a sweep here would delete the record of the deletion.
+    //   - plugin tables sweep at plugin install, not here. Core must not
+    //     delete rows belonging to a plugin that may not be installed.
+    //
+    // ORDER IS LOAD BEARING, and this is the part a rehearsal found rather
+    // than reasoning. Deleting multicastSessionsAssoc's orphans BEFORE the
+    // orphaned tasks strands a fresh set behind it, because deleting the
+    // task orphans the association row that pointed at it. Same inversion
+    // for snapinTasks and snapinJobs. On a 5000-host fixture that took an
+    // otherwise clean run to 85 constraints added / 2 refused, both 1452 on
+    // rows the sweep itself had just created. The depth is COMPUTED from
+    // the list below rather than hand-sorted, because a hand-sorted list is
+    // exactly what an editor gets silently wrong.
+    //
+    // WHAT IT RECORDS. A per-table count to the PHP error log, so the
+    // upgrade transcript carries it, AND one auditLog row with the totals,
+    // so an admin can find it afterward from the UI. That is ADR 0021's
+    // whole point: a one-time destructive act during an upgrade is exactly
+    // the thing that must not be silent. Neither write can fail the step --
+    // Audit::record() does not throw and returns false on failure.
+    //
+    // LEFT JOIN rather than NOT IN: NOT IN evaluates to UNKNOWN for every
+    // row if the subquery yields a single NULL, which deletes nothing and
+    // reports success. No CASCADE relationship carries a `0` sentinel, so
+    // there is no value to exclude here; the sentinel columns are all
+    // RESTRICT or SET NULL and belong to later steps.
+    //
+    // See docs/development/foreign-keys.md, Phase C item 5, and ADR 0031.
+    function () {
+        $rels = [
+            ['groupMembers', 'gmHostID', 'hosts', 'hostID'],
+            ['groupMembers', 'gmGroupID', 'groups', 'groupID'],
+            ['hostMAC', 'hmHostID', 'hosts', 'hostID'],
+            ['snapinAssoc', 'saHostID', 'hosts', 'hostID'],
+            ['snapinAssoc', 'saSnapinID', 'snapins', 'sID'],
+            ['snapinGroupAssoc', 'sgaSnapinID', 'snapins', 'sID'],
+            ['snapinGroupAssoc', 'sgaStorageGroupID', 'nfsGroups', 'ngID'],
+            ['imageGroupAssoc', 'igaImageID', 'images', 'imageID'],
+            ['imageGroupAssoc', 'igaStorageGroupID', 'nfsGroups', 'ngID'],
+            ['printerAssoc', 'paHostID', 'hosts', 'hostID'],
+            ['printerAssoc', 'paPrinterID', 'printers', 'pID'],
+            ['moduleStatusByHost', 'msHostID', 'hosts', 'hostID'],
+            ['moduleStatusByHost', 'msModuleID', 'modules', 'id'],
+            ['multicastSessionsAssoc', 'msID', 'multicastSessions', 'msID'],
+            ['multicastSessionsAssoc', 'tID', 'tasks', 'taskID'],
+            ['siteHostMembers', 'shmSiteID', 'sites', 'siteID'],
+            ['siteHostMembers', 'shmHostID', 'hosts', 'hostID'],
+            ['siteGroupMembers', 'sgmSiteID', 'sites', 'siteID'],
+            ['siteGroupMembers', 'sgmGroupID', 'groups', 'groupID'],
+            ['siteUserMembers', 'sumSiteID', 'sites', 'siteID'],
+            ['siteUserMembers', 'sumUserID', 'users', 'uId'],
+            ['siteUserGroupMembers', 'sugmSiteID', 'sites', 'siteID'],
+            ['siteUserGroupMembers', 'sugmUserGroupID', 'userGroups', 'ugID'],
+            ['siteRoleGrants', 'srgSiteID', 'sites', 'siteID'],
+            ['siteRoleGrants', 'srgRoleID', 'roles', 'rID'],
+            ['siteUserGroupGrants', 'suggSiteID', 'sites', 'siteID'],
+            ['siteUserGroupGrants', 'suggGroupID', 'userGroups', 'ugID'],
+            ['roleUserAssoc', 'ruaRoleID', 'roles', 'rID'],
+            ['roleUserAssoc', 'ruaUserID', 'users', 'uId'],
+            ['roleUserGroupAssoc', 'rugRoleID', 'roles', 'rID'],
+            ['roleUserGroupAssoc', 'rugGroupID', 'userGroups', 'ugID'],
+            ['rolePermissions', 'rpRoleID', 'roles', 'rID'],
+            ['userGroupMembers', 'ugmGroupID', 'userGroups', 'ugID'],
+            ['userGroupMembers', 'ugmUserID', 'users', 'uId'],
+            ['inventory', 'iHostID', 'hosts', 'hostID'],
+            ['hostScreenSettings', 'hssHostID', 'hosts', 'hostID'],
+            ['hostAutoLogOut', 'haloHostID', 'hosts', 'hostID'],
+            ['powerManagement', 'pmHostID', 'hosts', 'hostID'],
+            ['greenFog', 'gfHostID', 'hosts', 'hostID'],
+            ['apiTokens', 'atUserID', 'users', 'uId'],
+            ['userAuths', 'uaUserID', 'users', 'uId'],
+            ['nfsGroupMembers', 'ngmGroupID', 'nfsGroups', 'ngID'],
+            ['tasks', 'taskHostID', 'hosts', 'hostID'],
+            ['snapinJobs', 'sjHostID', 'hosts', 'hostID'],
+            ['snapinTasks', 'stJobID', 'snapinJobs', 'sjID'],
+            ['snapinTasks', 'stSnapinID', 'snapins', 'sID'],
+        ];
+
+        // Which tables exist here. A server can be missing one -- a plugin
+        // table shares no namespace with these, but a table retired by a
+        // later ADR would still be named in the frozen list above, and a
+        // DELETE against a missing table is a fatal, not a skip.
+        $present = [];
+        $rows = self::$DB->query(
+            "SELECT `TABLE_NAME` AS `t` FROM `information_schema`.`TABLES` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE()"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array)$rows as $row) {
+            if (isset($row['t'])) {
+                $present[strtolower((string)$row['t'])] = true;
+            }
+        }
+
+        $rels = array_values(
+            array_filter(
+                $rels,
+                function ($r) use ($present) {
+                    return isset($present[strtolower($r[0])])
+                        && isset($present[strtolower($r[2])]);
+                }
+            )
+        );
+
+        // Dependency depth per CHILD TABLE. A table whose parent is itself
+        // swept must run after it, or the parent's sweep strands rows the
+        // child's sweep has already passed. Fixpoint rather than a single
+        // pass so a longer chain than today's two would still order right;
+        // capped so a cycle cannot hang an upgrade.
+        $childTables = [];
+        $depth = [];
+        foreach ($rels as $r) {
+            $childTables[strtolower($r[0])] = true;
+            $depth[strtolower($r[0])] = 1;
+        }
+        for ($pass = 0; $pass < 10; $pass++) {
+            $moved = false;
+            foreach ($rels as $r) {
+                $parent = strtolower($r[2]);
+                $child = strtolower($r[0]);
+                if (!isset($childTables[$parent]) || $parent === $child) {
+                    continue;
+                }
+                if ($depth[$child] < $depth[$parent] + 1) {
+                    $depth[$child] = $depth[$parent] + 1;
+                    $moved = true;
+                }
+            }
+            if (!$moved) {
+                break;
+            }
+        }
+        usort(
+            $rels,
+            function ($a, $b) use ($depth) {
+                return $depth[strtolower($a[0])] <=> $depth[strtolower($b[0])];
+            }
+        );
+
+        $perTable = [];
+        $total = 0;
+        foreach ($rels as $r) {
+            list($child, $column, $parent, $pcolumn) = $r;
+            self::$DB->query(
+                "DELETE `c` FROM `$child` `c` "
+                . "LEFT JOIN `$parent` `p` ON `c`.`$column` = `p`.`$pcolumn` "
+                . "WHERE `p`.`$pcolumn` IS NULL"
+            );
+            $n = (int)self::$DB->affectedRows();
+            if ($n < 1) {
+                continue;
+            }
+            if (!isset($perTable[$child])) {
+                $perTable[$child] = 0;
+            }
+            $perTable[$child] += $n;
+            $total += $n;
+        }
+
+        if ($total < 1) {
+            return true;
+        }
+
+        $parts = [];
+        foreach ($perTable as $table => $n) {
+            error_log(
+                sprintf(
+                    'FOG orphan sweep: deleted %d row(s) from `%s` whose '
+                    . 'parent record no longer existed. They were already '
+                    . 'unreachable -- nothing read them and nothing could '
+                    . 'have.',
+                    $n,
+                    $table
+                )
+            );
+            $parts[] = sprintf('%s: %d', $table, $n);
+        }
+
+        Audit::record(
+            [
+                'type' => 'schema.orphan.sweep',
+                'subjectType' => 'schema',
+                'subjectID' => 0,
+                'subjectLabel' => _('Foreign key preparation'),
+                'outcome' => Audit::ALLOWED,
+                'affectedCount' => $total,
+                'renderable' => 1,
+                'text' => sprintf(
+                    /* translators: %1$d row count, %2$s per-table breakdown */
+                    _('Removed %1$d association and satellite row(s) whose '
+                    . 'parent record no longer existed, so that foreign key '
+                    . 'constraints could be declared. Per table: %2$s'),
+                    $total,
+                    implode(', ', $parts)
+                ),
+            ]
+        );
 
         return true;
     },

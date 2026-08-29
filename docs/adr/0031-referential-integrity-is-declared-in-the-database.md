@@ -2,14 +2,14 @@
 
 ## Status
 
-accepted -- step 0 (the machinery) implemented on `working-1.6`; all 87
-constraints ship disabled and land group by group
+accepted -- step 0 (the machinery), step 1 (schema 380, column widening) and
+step 2 (schema 381, the orphan sweep) implemented on `working-1.6`; all 87
+constraints still ship disabled and land group by group from step 3 on
 
 The survey behind this, with every number and every measurement, is
-[`docs/development/foreign-keys.md`](../development/foreign-keys.md). Nothing
-has been applied to a schema step. `commons/schema-constraints.php` and
-`bin/fk-orphan-scan.php` ship with the proposal so the evidence is
-re-runnable.
+[`docs/development/foreign-keys.md`](../development/foreign-keys.md).
+`commons/schema-constraints.php` and `bin/fk-orphan-scan.php` ship with it so
+the evidence is re-runnable.
 
 The three behavior changes listed under Consequences -- the storage
 group/node RESTRICTs, the scheduled-task RESTRICTs, and the `0` sentinel

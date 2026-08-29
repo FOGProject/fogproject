@@ -314,11 +314,11 @@ return [
             ],
         ],
         'imageGroupAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `imageGroupAssoc` ( `igaID` mediumint(9) NOT NULL AUTO_INCREMENT, `igaImageID` mediumint(9) NOT NULL, `igaStorageGroupID` mediumint(9) NOT NULL, `igaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`igaID`), UNIQUE KEY `igaImageID` (`igaImageID`,`igaStorageGroupID`), UNIQUE KEY `igaImageID_2` (`igaImageID`,`igaStorageGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `imageGroupAssoc` ( `igaID` mediumint(9) NOT NULL AUTO_INCREMENT, `igaImageID` int(11) NOT NULL, `igaStorageGroupID` int(11) NOT NULL, `igaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`igaID`), UNIQUE KEY `igaImageID` (`igaImageID`,`igaStorageGroupID`), UNIQUE KEY `igaImageID_2` (`igaImageID`,`igaStorageGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'igaID' => 'mediumint(9) NOT NULL',
-                'igaImageID' => 'mediumint(9) NOT NULL',
-                'igaStorageGroupID' => 'mediumint(9) NOT NULL',
+                'igaImageID' => 'int(11) NOT NULL',
+                'igaStorageGroupID' => 'int(11) NOT NULL',
                 'igaPrimary' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
@@ -426,9 +426,9 @@ return [
             ],
         ],
         'modules' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `modules` ( `id` mediumint(9) NOT NULL AUTO_INCREMENT, `name` varchar(50) NOT NULL, `short_name` varchar(30) NOT NULL, `description` text NOT NULL DEFAULT \'\', `default` int(11) NOT NULL DEFAULT 1, PRIMARY KEY (`id`), UNIQUE KEY `short_name` (`short_name`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `modules` ( `id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(50) NOT NULL, `short_name` varchar(30) NOT NULL, `description` text NOT NULL DEFAULT \'\', `default` int(11) NOT NULL DEFAULT 1, PRIMARY KEY (`id`), UNIQUE KEY `short_name` (`short_name`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
-                'id' => 'mediumint(9) NOT NULL',
+                'id' => 'int(11) NOT NULL',
                 'name' => 'varchar(50) NOT NULL',
                 'short_name' => 'varchar(30) NOT NULL',
                 'description' => 'text NOT NULL DEFAULT \'\'',
@@ -765,11 +765,11 @@ return [
             ],
         ],
         'snapinGroupAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` ( `sgaID` mediumint(9) NOT NULL AUTO_INCREMENT, `sgaSnapinID` mediumint(9) NOT NULL, `sgaStorageGroupID` mediumint(9) NOT NULL, `sgaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`sgaID`), UNIQUE KEY `sgaSnapinID` (`sgaSnapinID`,`sgaStorageGroupID`), UNIQUE KEY `sgaStorageGroupID` (`sgaStorageGroupID`,`sgaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `snapinGroupAssoc` ( `sgaID` mediumint(9) NOT NULL AUTO_INCREMENT, `sgaSnapinID` int(11) NOT NULL, `sgaStorageGroupID` int(11) NOT NULL, `sgaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`sgaID`), UNIQUE KEY `sgaSnapinID` (`sgaSnapinID`,`sgaStorageGroupID`), UNIQUE KEY `sgaStorageGroupID` (`sgaStorageGroupID`,`sgaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sgaID' => 'mediumint(9) NOT NULL',
-                'sgaSnapinID' => 'mediumint(9) NOT NULL',
-                'sgaStorageGroupID' => 'mediumint(9) NOT NULL',
+                'sgaSnapinID' => 'int(11) NOT NULL',
+                'sgaStorageGroupID' => 'int(11) NOT NULL',
                 'sgaPrimary' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
