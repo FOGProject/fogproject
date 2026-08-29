@@ -236,6 +236,11 @@ foreach ($map as $rel) {
  * Group 1 -- host-owned junctions and satellites, schema step 382.
  * Group 2 -- identity: users, roles, user groups and sites, schema step 383.
  * Group 3 -- storage: groups, nodes, image and snapin assoc, schema step 384.
+ * Group 5 -- configuration references, schema step 388.
+ * Group 6 -- tasks and active work, schema step 390.
+ * Groups 'location', 'ou', 'windowskey', 'ldap', 'oidc' -- the plugin
+ *   tables, each applied by a step appended to that plugin's own schema()
+ *   in the fog-plugins repo, not by a core step.
  */
 $expected = [
     // Group 1
@@ -315,7 +320,83 @@ $expected = [
     'multicastSessions.msState',
     'multicastSessionsAssoc.msID',
     'multicastSessionsAssoc.tID',
+    // Plugin groups, named for the plugin rather than numbered. Each
+    // lands in that plugin's own repo, in an appended step of its
+    // manager's schema(); see fog-plugins tests/foreign-keys.test.php,
+    // which pins the call and its order from the other side.
+    // Group 'location'
+    'locationAssoc.laLocationID',
+    'locationAssoc.laHostID',
+    'location.lStorageGroupID',
+    'location.lStorageNodeID',
+    // Group 'ou'
+    'ouAssoc.oaOUID',
+    'ouAssoc.oaHostID',
+    // Group 'windowskey'
+    'windowsKeysAssoc.wkaImageID',
+    'windowsKeysAssoc.wkaKeyID',
+    // Group 'ldap'
+    'LDAPGroups.lgServerID',
+    'ldapGroupRoleAssoc.lgraGroupID',
+    'ldapGroupRoleAssoc.lgraRoleID',
+    'ldapGroupUserGroupAssoc.lgugGroupID',
+    'ldapGroupUserGroupAssoc.lgugUserGroupID',
+    'ldapUserGrant.lugUserID',
+    // Group 'oidc'
+    'OIDCGroups.ogProviderID',
+    'oidcIdentity.oiProviderID',
+    'oidcIdentity.oiUserID',
+    'oidcGroupRoleAssoc.ograGroupID',
+    'oidcGroupRoleAssoc.ograRoleID',
+    'oidcGroupUserGroupAssoc.ogugGroupID',
+    'oidcGroupUserGroupAssoc.ogugUserGroupID',
+    'oidcUserGrant.ougUserID',
 ];
+/*
+ * CORE GROUPS ARE INTS, PLUGIN GROUPS ARE STRINGS.
+ *
+ * planConstraints() and planSweep() both select on `$rel['group'] === $group`.
+ * A strict comparison is what lets one map serve both spaces: 5 === 'ldap' is
+ * false, and so is 'ldap' === 5. Written loosely it would not be -- PHP 7's
+ * `5 == 'ldap'` is true, which would have made a core step apply the LDAP
+ * plugin's constraints. So the separation is real but it rests on the two
+ * spaces staying typed, and nothing else in the codebase would notice a
+ * plugin group written as a number or a core group written as '5'.
+ *
+ * Every enabled relationship must also HAVE a group. One without is
+ * unreachable: no filtered step applies it, and only the trailing unfiltered
+ * reconcile would ever create it -- silently, on some later upgrade,
+ * unswept.
+ */
+$corePlugins = ['location', 'ou', 'windowskey', 'ldap', 'oidc'];
+foreach ($map as $rel) {
+    if (empty($rel['enabled'])) {
+        continue;
+    }
+    $checked++;
+    $key = $rel['child'] . '.' . $rel['column'];
+    if (!array_key_exists('group', $rel)) {
+        $failures[] = "$key is enabled but carries no group; no schema step"
+            . ' can apply it';
+        continue;
+    }
+    $isPluginTable = !isset($manifest['tables'][$rel['child']]);
+    if ($isPluginTable) {
+        if (!is_string($rel['group'])) {
+            $failures[] = "$key is a plugin table but its group is not a"
+                . ' string; a core step would then match it';
+        } elseif (!in_array($rel['group'], $corePlugins, true)) {
+            $failures[] = "$key names group '{$rel['group']}', which is not"
+                . ' one of the known plugins';
+        }
+        continue;
+    }
+    if (!is_int($rel['group'])) {
+        $failures[] = "$key is a core table but its group is not an int;"
+            . ' a plugin step would then match it';
+    }
+}
+
 $actual = [];
 foreach ($map as $rel) {
     if (!empty($rel['enabled'])) {

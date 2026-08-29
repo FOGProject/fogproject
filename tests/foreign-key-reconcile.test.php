@@ -491,4 +491,232 @@ $t->check(
     })) === 1
 );
 
+// --- planSweep(): what a group's orphans get -------------------------------
+//
+// ADR 0031 decision 8. `ADD CONSTRAINT` validates existing rows, so a table
+// holding orphans answers 1452 and simply never gets the constraint. The
+// sweep is what makes a group applicable, and the repair each orphan gets is
+// decided by the COLUMN's nullability, not by the relationship's action --
+// deciding on the action would delete rows a nullable column could have kept,
+// and would try to write NULL into columns that reject it.
+
+// Nullable-column snapshot, in the shape nullableSnapshot() returns.
+$nullable = ['tasks' => ['taskstateid']];
+
+$plan = SchemaReconciler::planSweep([$rel(['group' => 'ldap'])], $have, $nullable, 'ldap');
+$t->check('planSweep plans one statement for a matching group', count($plan) === 1);
+$t->check(
+    'a NOT NULL column DELETEs its orphans',
+    strpos($plan[0] ?? '', 'DELETE FROM `groupMembers` WHERE') === 0
+);
+$t->check(
+    'the sweep excludes NULL, which a foreign key already accepts',
+    strpos($plan[0] ?? '', '`gmHostID` IS NOT NULL') !== false
+);
+$t->check(
+    'the sweep excludes the 0 sentinel, which it is not the sweep\'s job to convert',
+    strpos($plan[0] ?? '', '`gmHostID` <> 0') !== false
+);
+$t->check(
+    'the orphan test is a subquery, not a self-join (MariaDB 1093)',
+    strpos($plan[0] ?? '', 'NOT IN (SELECT `hostID` FROM (SELECT `hostID` FROM `hosts`) `p`)') !== false
+);
+
+$plan = SchemaReconciler::planSweep(
+    [$rel(['child' => 'tasks', 'column' => 'taskStateID', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'action' => 'SET NULL', 'group' => 'ldap'])],
+    $have,
+    $nullable,
+    'ldap'
+);
+$t->check(
+    'a nullable column NULLs its orphans instead of deleting the row',
+    strpos($plan[0] ?? '', 'UPDATE `tasks` SET `taskStateID` = NULL WHERE') === 0
+);
+
+// The same relationship over the same column with a CASCADE action still
+// NULLs, because nullability decides and the action does not. Without this
+// the check above passes for the wrong reason -- SET NULL happening to line
+// up with a nullable column.
+$plan = SchemaReconciler::planSweep(
+    [$rel(['child' => 'tasks', 'column' => 'taskStateID', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'action' => 'CASCADE', 'group' => 'ldap'])],
+    $have,
+    $nullable,
+    'ldap'
+);
+$t->check(
+    'nullability decides the repair, not the action',
+    strpos($plan[0] ?? '', 'UPDATE `tasks` SET `taskStateID` = NULL') === 0
+);
+
+// --- planSweep(): what it refuses to touch ---------------------------------
+$t->check(
+    'a null group sweeps nothing; there is no "everything" mode',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap'])], $have, $nullable, null) === []
+        && SchemaReconciler::planSweep([$rel()], $have, $nullable, null) === []
+);
+$t->check(
+    'another group is not swept',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap'])], $have, $nullable, 'oidc') === []
+);
+$t->check(
+    'a disabled relationship is not swept',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap', 'enabled' => false])], $have, $nullable, 'ldap') === []
+);
+// ADR 0021: the audit trail outlives its subject. An audit relationship is
+// action `none`, so no sweep can reach one -- which is the property that
+// keeps a destructive helper away from the history tables.
+$t->check(
+    'an action `none` relationship is not swept (ADR 0021)',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap', 'action' => 'none'])], $have, $nullable, 'ldap') === []
+);
+$t->check(
+    'an absent child table is not swept',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap', 'child' => 'nosuch'])], $have, $nullable, 'ldap') === []
+);
+$t->check(
+    'an absent parent table is not swept',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap', 'parent' => 'nosuch'])], $have, $nullable, 'ldap') === []
+);
+$t->check(
+    'an absent column is not swept',
+    SchemaReconciler::planSweep([$rel(['group' => 'ldap', 'column' => 'nosuch'])], $have, $nullable, 'ldap') === []
+);
+$t->check(
+    'a relationship with no group at all is not swept',
+    SchemaReconciler::planSweep([$rel()], $have, $nullable, 'ldap') === []
+);
+
+// --- the group match is strict ---------------------------------------------
+//
+// The whole reason core groups are ints and plugin groups are strings: one
+// map serves both spaces only if 5 and 'location' cannot match each other.
+//
+// The pair below is `5` against `'5'`, not `5` against `'location'`. On PHP 8
+// `5 == 'location'` is already false, so a loose comparison would pass a test
+// written that way and still be wrong on FOG's actual floor of 7.4, where it
+// is true. `5 == '5'` is true on every version, so this holds the code to ===
+// on the PHP that runs it.
+$core = $rel(['group' => 5]);
+$plug = $rel(['child' => 'locationAssoc', 'column' => 'laHostID', 'group' => '5']);
+$both = [$core, $plug];
+$haveBoth = $have + ['locationassoc' => ['laid', 'lahostid', 'lalocationid']];
+
+$plan = SchemaReconciler::planConstraints($both, $haveBoth, [], 5);
+$t->check(
+    'planConstraints: int 5 does not match string 5',
+    count($plan) === 1 && strpos($plan[0], '`groupMembers`') !== false
+);
+$plan = SchemaReconciler::planConstraints($both, $haveBoth, [], '5');
+$t->check(
+    'planConstraints: string 5 does not match int 5',
+    count($plan) === 1 && strpos($plan[0], '`locationAssoc`') !== false
+);
+$plan = SchemaReconciler::planSweep($both, $haveBoth, [], 5);
+$t->check(
+    'planSweep: int 5 does not match string 5',
+    count($plan) === 1 && strpos($plan[0], '`groupMembers`') !== false
+);
+$plan = SchemaReconciler::planSweep($both, $haveBoth, [], '5');
+$t->check(
+    'planSweep: string 5 does not match int 5',
+    count($plan) === 1 && strpos($plan[0], '`locationAssoc`') !== false
+);
+
+// And the real-world pair, which proves the shipped map's two spaces are
+// separated -- on PHP 8 by == already, on 7.4 only by the === above.
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['group' => 5]), $rel(['child' => 'locationAssoc', 'column' => 'laHostID', 'group' => 'location'])],
+    $haveBoth,
+    [],
+    'location'
+);
+$t->check(
+    'a plugin group applies only its own',
+    count($plan) === 1 && strpos($plan[0], '`locationAssoc`') !== false
+);
+
+// --- sweepOrphans() runs the plan and reports a failure --------------------
+//
+// planSweep() is pure, so nothing above proves the statements are issued or
+// that a failed one stops the step. Unlike applyConstraints(), a sweep that
+// fails MUST return the error: the constraints that follow it depend on the
+// rows being gone, and a silent skip would leave the group declared and
+// unenforced.
+$db = FogTestHarness::fakeDb();
+$sweepStructure = [
+    ['TABLE_NAME' => 'groupMembers', 'COLUMN_NAME' => 'gmHostID'],
+    ['TABLE_NAME' => 'hosts', 'COLUMN_NAME' => 'hostID'],
+];
+$db->responder = static function ($sql) use ($db, $sweepStructure) {
+    $db->error = false;
+    if (strpos($sql, 'IS_NULLABLE') !== false) {
+        return [];
+    }
+    if (strpos($sql, 'information_schema') !== false) {
+        return $sweepStructure;
+    }
+    if (strpos($sql, 'DELETE FROM') === 0) {
+        $db->error = 'SQLSTATE[HY000]: lock wait timeout';
+        return [];
+    }
+    return [];
+};
+$result = SchemaReconciler::sweepOrphans('ldap', [$rel(['group' => 'ldap'])]);
+$t->check(
+    'a failed sweep returns the error, it does not carry on',
+    is_string($result) && strpos($result, 'lock wait timeout') !== false
+);
+
+$db->responder = static function ($sql) use ($db, $sweepStructure) {
+    $db->error = false;
+    if (strpos($sql, 'IS_NULLABLE') !== false) {
+        return [];
+    }
+    if (strpos($sql, 'information_schema') !== false) {
+        return $sweepStructure;
+    }
+    return [];
+};
+$mark = count($db->log);
+$result = SchemaReconciler::sweepOrphans('ldap', [$rel(['group' => 'ldap'])]);
+$since = array_slice($db->log, $mark);
+$t->check('a clean sweep returns true', $result === true);
+$t->check(
+    'a clean sweep really issued the DELETE',
+    count(array_filter($since, static function ($sql) {
+        return strpos($sql, 'DELETE FROM `groupMembers`') === 0;
+    })) === 1
+);
+// The count in the log line is the only operator-visible evidence a sweep
+// left behind. "Swept 0" and "never ran" are different situations and want
+// different responses, so the line is written either way and has to carry
+// the real number.
+$logfile = tempnam(sys_get_temp_dir(), 'fksweep');
+$prev = ini_get('error_log');
+ini_set('error_log', $logfile);
+$db->affected = 7;
+SchemaReconciler::sweepOrphans('ldap', [$rel(['group' => 'ldap'])]);
+$db->affected = 0;
+SchemaReconciler::sweepOrphans('ldap', [$rel(['group' => 'ldap'])]);
+ini_set('error_log', $prev);
+$logged = (string)file_get_contents($logfile);
+unlink($logfile);
+$t->check(
+    'the sweep log carries the real row count',
+    strpos($logged, '(ldap): 7 row(s)') !== false
+);
+$t->check(
+    'a sweep that removed nothing still logs, with 0',
+    strpos($logged, '(ldap): 0 row(s)') !== false
+);
+
+$t->check(
+    'a null group issues nothing at all',
+    (function () use ($db, $rel) {
+        $mark = count($db->log);
+        SchemaReconciler::sweepOrphans(null, [$rel(['group' => 'ldap'])]);
+        return array_slice($db->log, $mark) === [];
+    })()
+);
+
 $t->finish();

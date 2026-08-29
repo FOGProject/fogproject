@@ -1693,6 +1693,101 @@ and keeps its audit rows; an image delete unassigns its hosts rather than
 refusing; a storage group still referenced by live work is refused instead of
 silently orphaning.
 
+## The plugin phase
+
+The 22 plugin relationships are enabled in the same map as core's 67, for the
+reason the map exists at all: a reader asking "what points at `hosts`?" has to
+get the whole answer from one file, and half of these point at core tables.
+The direction rule (ADR 0031 decision 8) holds in the arrows themselves —
+every one runs plugin -> core or plugin -> plugin, and nothing in core points
+back — so uninstalling a plugin is still just dropping its tables.
+
+### Groups become names
+
+Core's phasing used integers 1, 2, 3, 5, 6, one per schema step. Plugins get
+their own name as the group: `location`, `ou`, `windowskey`, `ldap`, `oidc`.
+Each plugin's manager has a step appended to its `schema()` that passes its
+own name, so a plugin lands exactly its own relationships and nothing else.
+
+`planConstraints()` and `planSweep()` both select on `===`, which is what
+keeps the two spaces apart. It has to be strict: PHP 7.4 is FOG's floor and
+there `5 == 'ldap'` is **true**, so a loose comparison would have core's step
+388 quietly apply the LDAP plugin's constraints against tables it had not
+swept. `tests/foreign-key-map.test.php` pins core groups as ints and plugin
+groups as strings; `tests/foreign-key-reconcile.test.php` pins the strictness
+with `5` against `'5'`, a pair that is loosely equal on PHP 8 as well as 7.4
+— written the obvious way, against `'ldap'`, the test would have passed on
+this box and proven nothing about the version FOG actually supports.
+
+### A server that has core but not the plugin update
+
+`planConstraints()` skips any relationship whose child table is absent, so an
+install without the plugin never sees these. An install *with* the plugin on
+old plugin code gets whatever applies cleanly, plus one logged refusal per
+relationship whose precondition the plugin step has not created yet. There is
+exactly one of those: `location.lStorageNodeID` is `NOT NULL` until the
+plugin's step makes it nullable, and SET NULL over `NOT NULL` is errno 150.
+It is reported by `constraintFailures()` like any other refusal and clears
+itself on the next reconcile after the plugin updates.
+
+### The sweep is one helper
+
+`SchemaReconciler::sweepOrphans($group)` — see ADR 0031 decision 8a for why
+this is core code rather than twenty-two hand-written statements spread over
+five plugins, and why the repair is chosen by the column's nullability rather
+than by the relationship's action.
+
+Two things it deliberately does not do. It does not convert the `0` sentinel
+— `WHERE col <> 0` excludes it — because a sentinel is a *value* the schema
+step has to migrate deliberately, with the column made nullable in the same
+step; a sweep that silently deleted every row holding `0` would take out
+every location that had not pinned a node. And it has no "everything" mode:
+the group match is `isset()` plus `===`, so a null group selects nothing.
+
+### What each plugin's relationships are
+
+| Plugin | Relationships | Notable |
+|---|---|---|
+| `location` | 4 | the only non-CASCADE ones in the whole plugin set |
+| `ou` | 2 | both plain junctions |
+| `windowskey` | 2 | both plain junctions |
+| `ldap` | 6 | `LDAPGroups.lgServerID` is a satellite, the rest junctions |
+| `oidc` | 8 | three satellites (`OIDCGroups`, `oidcIdentity` x2) |
+
+`ldapUserGrant.lugTargetID` and `oidcUserGrant.ougTargetID` stay `poly` and
+take no constraint: the parent table is chosen by a sibling `*TargetType`
+column, which is the same shape as core's `scheduledTasks.stGroupHostID`.
+
+### Measured before enabling
+
+Against the live copy on this box — 1 location, 1 location association, 12
+LDAP groups, 21 LDAP user grants, 2 OIDC identities — **every one of the 22
+relationships had zero orphans and zero rows holding the `0` sentinel.** The
+sweep is a no-op here, which is what it should be on a healthy install; it
+exists for the ones that are not.
+
+### `location.lStorageNodeID` is a real sentinel, and gets SET NULL
+
+The other three `location` relationships are unremarkable. This one is not.
+
+`Location::getStorageNode()` reads it as a tri-state: a truthy value names a
+node, and anything falsy means "let the group choose", falling through to
+`getStorageGroup()->getOptimalStorageNode()`. So `0` here is a documented,
+load-bearing value, not a broken row — the opposite of what `0` turned out to
+mean in `nfsGroupMembers.ngmGroupID`, where the invariant is that a node
+always belongs to a group.
+
+That makes SET NULL right rather than RESTRICT. Deleting a storage node that
+some location names degrades that location to group-optimal selection, which
+is a state the plugin already implements and already handles. RESTRICT would
+instead refuse the delete with an opaque foreign key error and no indication
+of which location is holding it.
+
+`location.lStorageGroupID` is the reverse case and gets RESTRICT with no
+sentinel: `storagegroupID` is in `Location::$databaseFieldsRequired`, so the
+column has no legitimate `0`, and the map entry's `sentinel => 0` was a false
+claim of the same kind as the ten removed from core entries at step 386.
+
 ## Reproducing the survey
 
 ```

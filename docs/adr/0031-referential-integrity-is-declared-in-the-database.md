@@ -292,6 +292,60 @@ wrong: a plugin that deletes rows on install must be able to say how many.
 Uninstall drops the plugin's tables, so there is nothing left to orphan and
 no sweep is needed on that side.
 
+### 8a. The plugin sweep is one core helper, not five hand-rolled ones
+
+Decision 8 makes the sweep mandatory. Written out per plugin it is twenty-two
+near-identical `DELETE ... NOT IN (SELECT ...)` statements across five
+repositories' worth of schema steps, each a place to name the wrong table.
+So the sweep is `SchemaReconciler::sweepOrphans($group)`, driven by the same
+map the constraints come from, and a plugin's whole obligation becomes two
+calls in one appended schema step:
+
+```php
+\FOG\Db\SchemaReconciler::sweepOrphans('location');
+\FOG\Db\SchemaReconciler::applyConstraints('location');
+```
+
+This does not breach the direction rule. The helper is core code reading a
+core file; the plugin calls into core, which is the allowed direction, and
+nothing in core calls the plugin.
+
+**The repair each orphan gets is decided by the column, not by the action.**
+A nullable column is `UPDATE ... SET col = NULL` — the row survives and the
+reference becomes an honest "none". A `NOT NULL` column is `DELETE`: there is
+no value that makes the row valid. Deciding on the action instead would be
+wrong in both directions — a CASCADE relationship over a nullable column
+would delete rows it could have kept, and a SET NULL one over a `NOT NULL`
+column would try to write a value the column rejects.
+
+Nullability is read from the live server, never from
+`commons/schema-expected.php`. That manifest describes the 67 **core** tables
+only, so every plugin column looked up there comes back "not found" — which
+would silently turn every plugin sweep into a `DELETE`.
+
+Audit and history relationships are `action => none` by decision 3, and
+`sweepOrphans()` skips anything that is not enabled with a real action. So no
+call can reach the trail, whatever group it is passed. That is the property
+that makes a destructive helper safe to have at all, and it is gated.
+
+**Plugin groups are strings; core groups are ints.** Both `planConstraints()`
+and `planSweep()` select on `$rel['group'] === $group`. One map serves both
+spaces only because the comparison is strict: PHP 7.4 — FOG's floor — calls
+`5 == 'ldap'` **true**, so a loose comparison would have a core schema step
+silently apply the LDAP plugin's constraints against tables it has not swept.
+The map gate pins the typing on both sides, and the reconcile gate pins the
+strictness using `5` against `'5'`, which is loosely equal on every PHP
+version rather than only on 7.4.
+
+A server that has core's map but not the plugin's schema step is safe, not
+broken: `planConstraints()` skips a relationship whose child table is absent,
+so an install without the plugin never sees these at all. An install *with*
+the plugin, on old plugin code, gets whatever applies cleanly and a logged
+refusal for anything whose precondition the plugin step has not created yet —
+`location.lStorageNodeID` is exactly that case, refused with errno 150 until
+the plugin makes the column nullable. It self-heals on the next reconcile
+after the plugin updates.
+
 ### 9. CI enforces the classification, not the constraints
 
 A gate test (`tests/foreign-keys-declared.test.php`, to land with step 3)

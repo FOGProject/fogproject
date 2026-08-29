@@ -14,6 +14,7 @@
 namespace FOG\Db;
 
 use FOG\Base\FOGBase;
+use FOG\Audit\Audit;
 
 /**
  * Repairs a database whose structure has fallen behind this release.
@@ -754,6 +755,240 @@ class SchemaReconciler extends FOGBase
                     );
                 }
             }
+        }
+        return true;
+    }
+
+    /**
+     * Works out the statements that make a group's orphans constrainable.
+     *
+     * Pure. `ADD CONSTRAINT` against a table holding orphans returns 1452
+     * and the constraint is simply never created, so a group whose rows
+     * have not been swept declares integrity it does not have. ADR 0031
+     * decision 8 makes the sweep part of applying a group rather than a
+     * judgment call at each call site.
+     *
+     * The repair each orphan gets is decided by the COLUMN, not by the
+     * action:
+     *
+     * - nullable  -> `UPDATE ... SET col = NULL`. The row survives and the
+     *                reference becomes an honest "none". This is the only
+     *                shape that keeps data.
+     * - NOT NULL  -> `DELETE`. There is no value that makes the row valid;
+     *                it points at a parent that does not exist and the
+     *                column forbids saying so.
+     *
+     * Deciding on the action instead would be wrong in both directions: a
+     * CASCADE relationship over a nullable column would delete rows it
+     * could have kept, and a SET NULL one over a NOT NULL column would
+     * write a value the column rejects.
+     *
+     * Nullability is read from the live server, never from
+     * commons/schema-expected.php. The manifest describes the 67 core
+     * tables only, so a plugin column looked up there comes back as
+     * "not found" -- which would silently turn every plugin sweep into a
+     * DELETE.
+     *
+     * Only enabled relationships carrying $group are considered. Audit and
+     * history relationships are `none` or disabled by construction (ADR
+     * 0021 -- the trail outlives its subject), so no call can reach one.
+     *
+     * @param array $map      Relationship map.
+     * @param array $have     Structure, as snapshot() returns it.
+     * @param array $nullable table => [column, ...] that accept NULL, as
+     *                        nullableSnapshot() returns it.
+     * @param mixed $group    Group to sweep. A sweep deletes rows, so it is
+     *                        opt-in per group and has no "everything" mode:
+     *                        the match below is isset() plus ===, and
+     *                        isset() is false for null, so a null group
+     *                        selects nothing without needing a guard.
+     *
+     * @return array Ordered SQL statements.
+     */
+    public static function planSweep($map, $have, $nullable, $group = null)
+    {
+        $plan = [];
+        foreach ((array)$map as $rel) {
+            if (empty($rel['child']) || empty($rel['column'])) {
+                continue;
+            }
+            if (empty($rel['enabled'])
+                || empty($rel['action'])
+                || 'none' === $rel['action']
+            ) {
+                continue;
+            }
+            if (!isset($rel['group']) || $rel['group'] !== $group) {
+                continue;
+            }
+            $child = strtolower($rel['child']);
+            $parent = strtolower((string)($rel['parent'] ?? ''));
+            $column = strtolower($rel['column']);
+            $pcolumn = strtolower((string)($rel['pcolumn'] ?? ''));
+            if (!isset($have[$child]) || !isset($have[$parent])) {
+                continue;
+            }
+            if (!in_array($column, $have[$child])
+                || !in_array($pcolumn, $have[$parent])
+            ) {
+                continue;
+            }
+            // The subquery, not a LEFT JOIN: MariaDB cannot DELETE from or
+            // UPDATE a table it is also joining in the same statement
+            // (error 1093), and the sentinel `0` has to be excluded by
+            // hand because it is not NULL and so is not exempt from the
+            // constraint either.
+            $where = sprintf(
+                '`%s` IS NOT NULL AND `%s` <> 0 AND `%s` NOT IN'
+                . ' (SELECT `%s` FROM (SELECT `%s` FROM `%s`) `p`)',
+                $rel['column'],
+                $rel['column'],
+                $rel['column'],
+                $rel['pcolumn'],
+                $rel['pcolumn'],
+                $rel['parent']
+            );
+            $isNullable = isset($nullable[$child])
+                && in_array($column, $nullable[$child]);
+            $plan[] = $isNullable
+                ? sprintf(
+                    'UPDATE `%s` SET `%s` = NULL WHERE %s',
+                    $rel['child'],
+                    $rel['column'],
+                    $where
+                )
+                : sprintf(
+                    'DELETE FROM `%s` WHERE %s',
+                    $rel['child'],
+                    $where
+                );
+        }
+        return $plan;
+    }
+
+    /**
+     * The columns the database accepts NULL in.
+     *
+     * Separate from snapshot() because that one is consumed by plan() and
+     * planConstraints(), neither of which cares, and widening its shape
+     * would touch every test that builds one by hand.
+     *
+     * @return array|null table => [column, ...], or null when
+     *                    information_schema could not be read.
+     */
+    public static function nullableSnapshot()
+    {
+        $sql = sprintf(
+            'SELECT `TABLE_NAME`, `COLUMN_NAME`'
+            . ' FROM `information_schema`.`COLUMNS`'
+            . ' WHERE `TABLE_SCHEMA` = %s AND `IS_NULLABLE` = \'YES\'',
+            self::$DB->escape(self::$DB->dbName())
+        );
+        $res = self::$DB->query($sql);
+        if (false !== $res->error) {
+            return null;
+        }
+        $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (!is_array($rows)) {
+            return null;
+        }
+        $map = [];
+        foreach ($rows as $row) {
+            if (!isset($row['TABLE_NAME'], $row['COLUMN_NAME'])) {
+                continue;
+            }
+            $map[strtolower($row['TABLE_NAME'])][] = strtolower(
+                $row['COLUMN_NAME']
+            );
+        }
+        return $map;
+    }
+
+    /**
+     * Removes the rows that would refuse a group's constraints.
+     *
+     * Runs planSweep() against the live server and reports what it did.
+     * Every statement is logged with its row count, whether or not it
+     * changed anything, because "swept 0" and "never ran" are the two
+     * readings of a silent sweep and they call for different responses.
+     *
+     * Destructive by design and by decision: see planSweep() for which
+     * orphans are deleted rather than nulled, and ADR 0031 decision 8 for
+     * why an install that skips this cannot add its constraints at all.
+     *
+     * Written to the updater's callable contract -- true, or an error
+     * string -- so a schema step can be the bare call.
+     *
+     * @param mixed      $group Group to sweep. Required; null sweeps
+     *                          nothing.
+     * @param array|null $map   Relationship map; defaults to the shipped
+     *                          one.
+     *
+     * @return bool|string
+     */
+    public static function sweepOrphans($group = null, $map = null)
+    {
+        if (null === $group) {
+            return true;
+        }
+        if (null === $map) {
+            $map = self::constraints();
+        }
+        $have = self::snapshot();
+        $nullable = self::nullableSnapshot();
+        if (null === $have || null === $nullable) {
+            return _('Could not read the database structure');
+        }
+        $total = 0;
+        $parts = [];
+        foreach (self::planSweep($map, $have, $nullable, $group) as $sql) {
+            $res = self::$DB->query($sql);
+            if (false !== $res->error) {
+                return self::$DB->error;
+            }
+            $rows = (int)self::$DB->affectedRows();
+            $total += $rows;
+            // Logged whether or not it moved anything: "swept 0" and
+            // "never ran" are the two readings of a silent sweep and they
+            // call for different responses.
+            error_log(
+                sprintf(
+                    '%s (%s): %d %s: %s',
+                    _('Schema sweep'),
+                    (string)$group,
+                    $rows,
+                    _('row(s)'),
+                    $sql
+                )
+            );
+            if ($rows > 0) {
+                preg_match('/`([^`]+)`/', $sql, $m);
+                $parts[] = sprintf('%s: %d', $m[1] ?? '?', $rows);
+            }
+        }
+        if ($total > 0) {
+            Audit::record(
+                [
+                    'type' => 'schema.orphan.sweep',
+                    'subjectType' => 'schema',
+                    'subjectID' => 0,
+                    'subjectLabel' => _('Foreign key preparation'),
+                    'outcome' => Audit::ALLOWED,
+                    'affectedCount' => $total,
+                    'renderable' => 1,
+                    'text' => sprintf(
+                        /* translators: %1$d row count, %2$s group name,
+                           %3$s per-table breakdown */
+                        _('Removed or cleared %1$d row(s) in the "%2$s" '
+                        . 'group whose parent record no longer existed, so '
+                        . 'that foreign key constraints could be declared. '
+                        . 'Per table: %3$s'),
+                        $total,
+                        (string)$group,
+                        implode(', ', $parts)
+                    ),
+                ]
+            );
         }
         return true;
     }

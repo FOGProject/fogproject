@@ -214,28 +214,46 @@ return [
     ['child' => 'virus', 'column' => 'vHostMAC', 'parent' => 'hostMAC.hmMAC', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 
     // ---- plugin tables (fog-plugins repo) -------------------------------
-    ['child' => 'locationAssoc', 'column' => 'laLocationID', 'parent' => 'location', 'pcolumn' => 'lID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'locationAssoc', 'column' => 'laHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ouAssoc', 'column' => 'oaOUID', 'parent' => 'ou', 'pcolumn' => 'ouID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ouAssoc', 'column' => 'oaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'windowsKeysAssoc', 'column' => 'wkaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'windowsKeysAssoc', 'column' => 'wkaKeyID', 'parent' => 'windowsKeys', 'pcolumn' => 'wkID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'LDAPGroups', 'column' => 'lgServerID', 'parent' => 'LDAPServers', 'pcolumn' => 'lsID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ldapGroupRoleAssoc', 'column' => 'lgraGroupID', 'parent' => 'LDAPGroups', 'pcolumn' => 'lgID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ldapGroupRoleAssoc', 'column' => 'lgraRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ldapGroupUserGroupAssoc', 'column' => 'lgugGroupID', 'parent' => 'LDAPGroups', 'pcolumn' => 'lgID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ldapGroupUserGroupAssoc', 'column' => 'lgugUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'ldapUserGrant', 'column' => 'lugUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'OIDCGroups', 'column' => 'ogProviderID', 'parent' => 'OIDCProviders', 'pcolumn' => 'opID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcIdentity', 'column' => 'oiProviderID', 'parent' => 'OIDCProviders', 'pcolumn' => 'opID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcIdentity', 'column' => 'oiUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcGroupRoleAssoc', 'column' => 'ograGroupID', 'parent' => 'OIDCGroups', 'pcolumn' => 'ogID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcGroupRoleAssoc', 'column' => 'ograRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcGroupUserGroupAssoc', 'column' => 'ogugGroupID', 'parent' => 'OIDCGroups', 'pcolumn' => 'ogID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcGroupUserGroupAssoc', 'column' => 'ogugUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'oidcUserGrant', 'column' => 'ougUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => false],
-    ['child' => 'location', 'column' => 'lStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
-    ['child' => 'location', 'column' => 'lStorageNodeID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
+    //
+    // These live here rather than in the plugin repo because the map is one
+    // document: a plugin's child table references core parents (hosts,
+    // images, users, roles, userGroups, nfsGroups), and a reader asking
+    // "what points at hosts?" has to get the whole answer from one file.
+    //
+    // The direction rule holds in the constraints themselves: every arrow
+    // below runs plugin -> core or plugin -> plugin. Nothing in core
+    // references a plugin table, so uninstalling a plugin is still just
+    // dropping its tables.
+    //
+    // Their `group` is the plugin's own name, a string, where core's groups
+    // are ints. planConstraints() compares with ===, so the two spaces
+    // cannot collide, and each plugin's schema step applies exactly its own
+    // relationships by passing its name. A server without the plugin has no
+    // child table, and planConstraints() skips a relationship whose table is
+    // missing -- which is what lets the unfiltered reconcile after every
+    // core update carry these safely on an install that has none of them.
+    ['child' => 'locationAssoc', 'column' => 'laLocationID', 'parent' => 'location', 'pcolumn' => 'lID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'location'],
+    ['child' => 'locationAssoc', 'column' => 'laHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'location'],
+    ['child' => 'ouAssoc', 'column' => 'oaOUID', 'parent' => 'ou', 'pcolumn' => 'ouID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ou'],
+    ['child' => 'ouAssoc', 'column' => 'oaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ou'],
+    ['child' => 'windowsKeysAssoc', 'column' => 'wkaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'windowskey'],
+    ['child' => 'windowsKeysAssoc', 'column' => 'wkaKeyID', 'parent' => 'windowsKeys', 'pcolumn' => 'wkID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'windowskey'],
+    ['child' => 'LDAPGroups', 'column' => 'lgServerID', 'parent' => 'LDAPServers', 'pcolumn' => 'lsID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],
+    ['child' => 'ldapGroupRoleAssoc', 'column' => 'lgraGroupID', 'parent' => 'LDAPGroups', 'pcolumn' => 'lgID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],
+    ['child' => 'ldapGroupRoleAssoc', 'column' => 'lgraRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],
+    ['child' => 'ldapGroupUserGroupAssoc', 'column' => 'lgugGroupID', 'parent' => 'LDAPGroups', 'pcolumn' => 'lgID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],
+    ['child' => 'ldapGroupUserGroupAssoc', 'column' => 'lgugUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],
+    ['child' => 'ldapUserGrant', 'column' => 'lugUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],
+    ['child' => 'OIDCGroups', 'column' => 'ogProviderID', 'parent' => 'OIDCProviders', 'pcolumn' => 'opID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcIdentity', 'column' => 'oiProviderID', 'parent' => 'OIDCProviders', 'pcolumn' => 'opID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcIdentity', 'column' => 'oiUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcGroupRoleAssoc', 'column' => 'ograGroupID', 'parent' => 'OIDCGroups', 'pcolumn' => 'ogID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcGroupRoleAssoc', 'column' => 'ograRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcGroupUserGroupAssoc', 'column' => 'ogugGroupID', 'parent' => 'OIDCGroups', 'pcolumn' => 'ogID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcGroupUserGroupAssoc', 'column' => 'ogugUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'oidcUserGrant', 'column' => 'ougUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'oidc'],
+    ['child' => 'location', 'column' => 'lStorageGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'RESTRICT', 'enabled' => true, 'group' => 'location'],
+    ['child' => 'location', 'column' => 'lStorageNodeID', 'parent' => 'nfsGroupMembers', 'pcolumn' => 'ngmID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => true, 'group' => 'location'],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

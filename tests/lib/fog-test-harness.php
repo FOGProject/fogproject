@@ -280,9 +280,20 @@ class FogFakeDb
         return 1;
     }
 
+    /**
+     * Row count the next affectedRows() reports.
+     *
+     * Settable because a sweep's only operator-visible evidence is the count
+     * in its log line, and a hardcoded 0 makes "swept nothing" and "never
+     * counted" indistinguishable from a test.
+     *
+     * @var int
+     */
+    public $affected = 0;
+
     public function affectedRows()
     {
-        return 0;
+        return (int)$this->affected;
     }
 
     public function sqlerror()
