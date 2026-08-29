@@ -445,6 +445,9 @@ msgstr "Nombre del grupo de almacenamiento"
 msgid "A storage node already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
+msgstr ""
+
 #, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -1738,6 +1741,10 @@ msgstr "Error: No se pudo descargar kernel"
 msgid "Confirm you would like to download a new kernel"
 msgstr "Error: No se pudo descargar kernel"
 
+#, php-format
+msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
+msgstr ""
+
 #, fuzzy
 msgid "Copy from existing"
 msgstr "No se pudo crear la impresora"
@@ -1813,6 +1820,10 @@ msgstr "No se pudo leer el archivo temporal"
 #, fuzzy
 msgid "Could not read snapin file"
 msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
+msgid "Could not read the database structure"
+msgstr "No se pudo crear Complemento de empleo"
 
 msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
 msgstr ""
@@ -2256,6 +2267,10 @@ msgstr "Eliminar seleccionado"
 #, fuzzy
 msgid "Deleted"
 msgstr "Borrar"
+
+#, php-format
+msgid "Deleted %1$d multicast session(s) with no storage group"
+msgstr ""
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -3100,6 +3115,10 @@ msgstr ""
 
 msgid "Force"
 msgstr "Fuerza"
+
+#, fuzzy
+msgid "Foreign key preparation"
+msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "Forget selected"
@@ -7066,6 +7085,14 @@ msgstr "Remoto"
 msgid "Removed"
 msgstr "retirar"
 
+#, php-format
+msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Removing Key"
 msgstr "Configuración Tecla"
@@ -7079,6 +7106,10 @@ msgstr ""
 #, fuzzy
 msgid "Rename or remove one of them."
 msgstr "No se pudo crear la tarea"
+
+#, php-format
+msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
+msgstr ""
 
 #, fuzzy
 msgid "Replicates"
@@ -7280,6 +7311,9 @@ msgstr "Nombre snapin"
 msgid "Run With interpreter."
 msgstr ""
 
+msgid "Run bin/fk-orphan-scan.php to find the rows."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "ejecutando la versión"
@@ -7391,6 +7425,9 @@ msgid "Schema reconcile"
 msgstr ""
 
 msgid "Schema row seed"
+msgstr ""
+
+msgid "Schema sweep"
 msgstr ""
 
 #, fuzzy
@@ -10459,6 +10496,10 @@ msgid "for user"
 msgstr ""
 
 #, fuzzy
+msgid "foreign key(s) could not be added"
+msgstr "No se pudo leer el archivo temporal"
+
+#, fuzzy
 msgid "found"
 msgstr "Extraviado"
 
@@ -10895,6 +10936,9 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "row(s)"
 msgstr ""
 
 msgid "second"
@@ -11581,6 +11625,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Versión del sistema"
+
+#, fuzzy
+#~ msgid "Location schema"
+#~ msgstr "Acción"
 
 #, fuzzy
 #~ msgid "Login accepted"

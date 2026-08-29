@@ -388,6 +388,9 @@ msgstr ""
 msgid "A storage node already exists with this name!"
 msgstr ""
 
+msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
+msgstr ""
+
 msgid "A subnet group already exists with this name!"
 msgstr ""
 
@@ -1473,6 +1476,10 @@ msgstr ""
 msgid "Confirm you would like to download a new kernel"
 msgstr ""
 
+#, php-format
+msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
+msgstr ""
+
 msgid "Copy from existing"
 msgstr ""
 
@@ -1532,6 +1539,9 @@ msgid "Could not read local file"
 msgstr ""
 
 msgid "Could not read snapin file"
+msgstr ""
+
+msgid "Could not read the database structure"
 msgstr ""
 
 msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
@@ -1895,6 +1905,10 @@ msgid "Delete selected"
 msgstr ""
 
 msgid "Deleted"
+msgstr ""
+
+#, php-format
+msgid "Deleted %1$d multicast session(s) with no storage group"
 msgstr ""
 
 msgid "Deleting remote file"
@@ -2602,6 +2616,9 @@ msgid "Forbidden (invalid CSRF token)"
 msgstr ""
 
 msgid "Force"
+msgstr ""
+
+msgid "Foreign key preparation"
 msgstr ""
 
 msgid "Forget selected"
@@ -5883,6 +5900,14 @@ msgstr ""
 msgid "Removed"
 msgstr ""
 
+#, php-format
+msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
+msgstr ""
+
 msgid "Removing Key"
 msgstr ""
 
@@ -5893,6 +5918,10 @@ msgid "Removing this role would leave no user with administrator access."
 msgstr ""
 
 msgid "Rename or remove one of them."
+msgstr ""
+
+#, php-format
+msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
 msgstr ""
 
 msgid "Replicates"
@@ -6064,6 +6093,9 @@ msgstr ""
 msgid "Run With interpreter."
 msgstr ""
 
+msgid "Run bin/fk-orphan-scan.php to find the rows."
+msgstr ""
+
 msgid "Running Windows"
 msgstr ""
 
@@ -6158,6 +6190,9 @@ msgid "Schema reconcile"
 msgstr ""
 
 msgid "Schema row seed"
+msgstr ""
+
+msgid "Schema sweep"
 msgstr ""
 
 msgid "Schema updated successfully!"
@@ -8773,6 +8808,9 @@ msgstr ""
 msgid "for user"
 msgstr ""
 
+msgid "foreign key(s) could not be added"
+msgstr ""
+
 msgid "found"
 msgstr ""
 
@@ -9156,6 +9194,9 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "row(s)"
 msgstr ""
 
 msgid "second"

@@ -75,7 +75,15 @@ class Task extends TaskType
     protected $databaseFieldsRequired = [
         'id',
         'typeID',
-        'hostID'
+        'hostID',
+        // A task must name a taskStates row. It was not on this list, so
+        // save() filled an empty stateID with 0 -- not a state, so the task
+        // was invisible in Active Tasks and could never run. One path did
+        // exactly that (the SINGLE_SNAPIN to ALL_SNAPINS conversion in
+        // Host::createTasking). Schema step 389 constrains taskStateID
+        // RESTRICT, which turns the silent dud into a 1452 at save time;
+        // this makes it a clear "Required database field" instead.
+        'stateID'
     ];
     /**
      * Additional fields.

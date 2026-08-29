@@ -449,6 +449,9 @@ msgstr "Groupe de stockage supprimé"
 msgid "A storage node already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
 
+msgid "A storage node must belong to a storage group. Add it to the group you want it in instead; that moves it, and a group with no nodes left is fine."
+msgstr ""
+
 #, fuzzy
 msgid "A subnet group already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
@@ -1719,6 +1722,10 @@ msgstr "Erreur: Impossible de télécharger le noyau"
 msgid "Confirm you would like to download a new kernel"
 msgstr "Erreur: Impossible de télécharger le noyau"
 
+#, php-format
+msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
+msgstr ""
+
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Impossible de créer l'imprimante"
@@ -1795,6 +1802,10 @@ msgstr "Impossible de lire le fichier temporaire"
 #, fuzzy
 msgid "Could not read snapin file"
 msgstr "Impossible de lire le fichier tmp."
+
+#, fuzzy
+msgid "Could not read the database structure"
+msgstr "Échec de la création d'emploi Snapin"
 
 msgid "Could not read the directory to confirm it supports nested group chaining, saving the chain strategy unverified"
 msgstr ""
@@ -2231,6 +2242,10 @@ msgstr "Supprimer sélectionnée"
 
 msgid "Deleted"
 msgstr "supprimé"
+
+#, php-format
+msgid "Deleted %1$d multicast session(s) with no storage group"
+msgstr ""
 
 #, fuzzy
 msgid "Deleting remote file"
@@ -3052,6 +3067,10 @@ msgstr ""
 
 msgid "Force"
 msgstr "Obliger"
+
+#, fuzzy
+msgid "Foreign key preparation"
+msgstr "image Replicator"
 
 #, fuzzy
 msgid "Forget selected"
@@ -6924,6 +6943,14 @@ msgstr "Retirer snapins sélectionnés"
 msgid "Removed"
 msgstr "supprimé"
 
+#, php-format
+msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Removing Key"
 msgstr "touche de réglage"
@@ -6937,6 +6964,10 @@ msgstr ""
 #, fuzzy
 msgid "Rename or remove one of them."
 msgstr "Impossible de mettre à jour la tâche"
+
+#, php-format
+msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
+msgstr ""
 
 #, fuzzy
 msgid "Replicates"
@@ -7136,6 +7167,9 @@ msgstr "Snapin Run With Argument"
 msgid "Run With interpreter."
 msgstr ""
 
+msgid "Run bin/fk-orphan-scan.php to find the rows."
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "Exécution Version"
@@ -7245,6 +7279,9 @@ msgid "Schema reconcile"
 msgstr ""
 
 msgid "Schema row seed"
+msgstr ""
+
+msgid "Schema sweep"
 msgstr ""
 
 #, fuzzy
@@ -10278,6 +10315,10 @@ msgid "for user"
 msgstr ""
 
 #, fuzzy
+msgid "foreign key(s) could not be added"
+msgstr "Impossible de lire le fichier temporaire"
+
+#, fuzzy
 msgid "found"
 msgstr "Pas trouvé"
 
@@ -10713,6 +10754,9 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "row(s)"
 msgstr ""
 
 #, fuzzy
@@ -11405,6 +11449,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "Lister tous les %s"
+
+#, fuzzy
+#~ msgid "Location schema"
+#~ msgstr "Emplacements"
 
 #, fuzzy
 #~ msgid "Login accepted"

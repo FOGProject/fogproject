@@ -3077,19 +3077,26 @@ $.fn.registerExportTable = function(columns, opts) {
  * Register a plugin report table.
  *
  * Mirror of registerExportTable for the Reports node: same serverSide plumbing
- * and column contract, but the toolbar is reportButtons (no full-export CSV)
- * and the data comes from the report's own getList() via
+ * and column contract, and the data comes from the report's own getList() via
  * node=report&sub=getList&f=<report>, keyed off Common.f. Every plugin report
  * JS calls this so the tables stay identical across plugins.
  *
+ * THE FULL EXPORT IS OPT-IN, via opts.fullExport. "CSV (All)" posts to
+ * sub=exportAll, which serves ReportManagement::reportRows() -- so a report
+ * that still overrides getList() the old way would answer the button with an
+ * empty file rather than an error. Defaulting it on would hand that to every
+ * third-party plugin report at once; a report that has been converted asks
+ * for it, and gets a CSV of the whole table instead of the page the browser
+ * happens to be holding.
+ *
  * @param {Array}  columns DataTables column defs ({data:'name'}, ...).
- * @param {Object} opts    Optional overrides (order).
+ * @param {Object} opts    Optional overrides (order, fullExport).
  * @return {Object} the DataTables API for the registered table.
  */
 $.fn.registerReportTable = function(columns, opts) {
   opts = opts || {};
   var table = this.registerTable(null, {
-    buttons: reportButtons,
+    buttons: opts.fullExport ? reportFileButtons : reportButtons,
     order: opts.order || [[0, 'asc']],
     columns: columns,
     rowId: 'id',
