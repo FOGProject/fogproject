@@ -1214,6 +1214,138 @@ for `satellite` is not "is it a small table hanging off a big one" — it is
 *does anything in FOG deliberately detach one and leave it alive?* For
 storage nodes there is a method whose name is literally `removeNode()`.
 
+### Step 386: the `0` sentinel becomes NULL
+
+`FOG_SCHEMA` 385 → 386. Ten columns across six tables. The only genuinely
+irreversible step besides the sweep, and the last one before the remaining
+constraint groups.
+
+**What was actually there.** The sequencing table estimated "5 tables, 7
+columns", counting relationships with *observed* sentinel rows. Reading the
+schema rather than the data gives 18 columns that either hold a `0` sentinel
+or are declared `NOT NULL` under a `SET NULL` action. They are not one
+population, so the step needed a rule rather than a list.
+
+**The rule used:** a column converts when FOG can actually produce a `0` in
+it — rows that hold one today, *or* a code path that writes one. Not a
+census. Two installs is a snapshot, and the columns holding no zeros today
+are exactly the ones where a rare path would put one tomorrow.
+`multicastSessions.msState` is the case that proves it: zero rows hold a `0`
+on either install, and three separate call sites set it to `0` at session
+creation, because a session that has not started has no state.
+
+| Converts | Evidence |
+|---|---|
+| `hosts.hostImage` | rows on both installs; `RegisterClient`, `Image::destroy`, `Route`'s image delete |
+| `images.imageOSID` | 22 of 22 images on the 1.5 install |
+| `scheduledTasks.stImageID` | rows |
+| `tasks.taskImageID` | rows |
+| `tasks.taskNFSGroupID` | rows |
+| `tasks.taskNFSMemberID` | rows |
+| `tasks.taskLastMemberID` | rows |
+| `multicastSessions.msSenderNode` | rows; `MulticastManager`, `MulticastTask` |
+| `multicastSessions.msState` | `Group`, `Host` and `imagemanagement` write 0 at creation |
+| `nfsGroupMembers.ngmGroupID` | rows; `StorageGroup::removeNode()` |
+
+Deliberately **not** converted, and staying `NOT NULL`:
+`images.imageTypeID`, `images.imagePartitionTypeID`,
+`scheduledTasks.stTaskTypeID`, `multicastSessions.msNFSGroupID`,
+`fileDeleteQueue.fdqStorageGroupID`, `fileDeleteQueue.fdqState`,
+`tasks.taskStateID`, `tasks.taskTypeID`, `snapinJobs.sjStateID`,
+`snapinTasks.stState`. No row holds a `0` and no code path writes one. "No
+type" and "no state" are not states a task or an image can legitimately be
+in, so `NOT NULL` plus RESTRICT is the stronger declaration — and that is a
+group 5 decision about a constraint, not a conversion.
+
+> **Carried forward to group 5.** `tasks.taskStateID` and
+> `snapinTasks.stState` are *not* in their model's
+> `$databaseFieldsRequired`, so `save()`'s optional-`*id` branch writes `0`
+> for an empty value. Under a RESTRICT constraint that becomes a runtime
+> 1452 on a path that works today. Either add them to the required list or
+> make them nullable; it belongs with the constraint, not here.
+
+**Nullable column + required in the model** is the pairing worth naming.
+`images.imageOSID` becomes nullable so the 22 OS-less images an upgrade
+brings across can be represented and constrained, while `osID` stays in
+`Image::$databaseFieldsRequired` so `save()` still refuses to create a *new*
+image without one. The database tolerates the history; the ORM prevents new
+instances of it.
+
+**The manifest edit is behavior, not documentation.** `save()`'s GH-1245
+branch asks `FOGBase::columnIsNullable()` whether to write `null` or `0` for
+an empty optional `*id`, and that reads `commons/schema-expected.php` — not
+the server. A manifest still saying `NOT NULL` keeps FOG writing `0` into a
+column the server made nullable, with nothing in any log to show for it.
+Proven by mutation: reverting `hosts.hostImage` in the manifest alone, server
+unchanged, turns two of the six live checks red.
+
+**PHP changed in the same commit.** Nine sites wrote the sentinel; six now
+write `null` and three were already correct in intent:
+
+```
+StorageGroup::removeNode()     storagegroupID => 0    -> null
+Image::destroy()               imageID => 0           -> null
+Route (image delete)           imageID => 0           -> null
+RegisterClient                 ->set('imageID', 0)    -> null
+MulticastManager               ->set('sendernode', 0) -> null
+MulticastTask                  sendernode => 0        -> null
+Group / Host / imagemanagement ->set('stateID', 0)    -> null
+```
+
+`senderpid` stays `0` on purpose: it is a unix process id, and `0` there
+means "no process", not "no row".
+
+No reader changes were needed, and that is worth knowing rather than
+assuming. `FOGController::get()` returns `''` for a missing key — it tests
+`isset()`, which is false for NULL — so every `if (!$this->get('imageID'))`,
+`(int)$this->get(...)` and `> 0` reads exactly as it did with `0`. A grep for
+SQL-level `= 0` comparisons against the ten columns found none, and no ORM
+filter passes `0` for any of them.
+
+**Verified against three databases:**
+
+```
+fresh replay, closures included
+  steps 386, statements 993, tolerated 3, FAILED 0
+  tables 70, foreign keys 39
+  all ten columns nullable
+
+upgrade, clone of the live 1.6 install
+  hostImage        79 zeros ->  79 NULL, 0 left      (86 rows)
+  stImageID         1        ->   1                  (1 row)
+  taskImageID       3        ->   3                  (50 rows)
+  taskNFSGroupID   16        ->  16
+  taskNFSMemberID   6        ->   6
+  taskLastMemberID 20        ->  20
+  msSenderNode     16        ->  16                  (16 rows)
+  ngmGroupID        1        ->   1                  (4 rows)
+
+upgrade, clone of the live 1.5 install
+  hostImage      2076 zeros -> 2076 NULL, 0 left     (2079 rows)
+  imageOSID        22        ->  22                  (22 rows)
+```
+
+Every count matches its NULL count exactly and no column keeps a zero.
+
+**Live write paths, against a real server** (`verify_sentinel_null_writes.php`):
+`save()` on a host with no image writes NULL; an explicit `->set(imageID,
+null)` stays NULL; and `HostManager::update(['imageID' => null])` — which
+never goes through `save()` and binds through `PDODB::_bind()` with
+`PDO::PARAM_STR` — writes SQL NULL rather than `0` or `''`. That last one was
+worth confirming rather than assuming: it is the same door the
+boolean-binds-as-`''` defect came through.
+
+**Two map entries were missing and nothing could say so.** The coverage gate
+in `tests/foreign-key-map.test.php` matched `/ID$/`, so it could not see a
+reference spelled `msState` or `fdqState`. Widening it to `/(ID|State)$/`
+immediately found `multicastSessions.msState` and `fileDeleteQueue.fdqState`,
+both live references to `taskStates` and both absent from the map — 103
+relationships became 105. Widening the pattern was the fix rather than adding
+the two by hand: a gate blind to a whole naming convention will miss the next
+column in it too. `snapins.sPackType` and `users.uType` join the allowlist
+with reasons; `moduleStatusByHost.msState` is a `varchar(1)` enable flag and
+the type filter already skips it.
+
 ### A consequence of the mechanism, to be handled at group 5
 
 `applyConstraints()` takes no filter: it declares whatever the map has
@@ -1254,11 +1386,14 @@ Notes on the ordering:
   which is a bug report, so the PHP follows immediately. Landing 6 first
   would be equally correct and would avoid the window; the argument for this
   order is that step 5 is what proves the PHP gap is real.
-- **Steps 7–9 carry every behavior change** and are last. 7 is the risky one:
-  it changes column nullability *and* the PHP that reads those columns, and
-  `FOGController` treats `0`, `''` and `null` differently on both branches
-  (see the `get()` divergence). It wants its own lab run against a real
-  install, not just a schema replay.
+- **Steps 7–9 carry every behavior change** and are last. 7 was expected to
+  be the risky one: it changes column nullability *and* the PHP that writes
+  those columns. It got its own lab run against clones of both real installs
+  plus live write-path probes, and the risk turned out to sit somewhere other
+  than expected — no *reader* needed changing, because `get()` returns `''`
+  for a NULL just as it did for a missing key, while the *manifest* turned
+  out to be load-bearing behavior rather than documentation. See step 386
+  above.
 - **Nothing here touches `dev-branch`.** 1.5 has no `SchemaReconciler`, no
   manifest and no constraint pass, and steps 263–276 already diverge. This is
   a 1.6 convention.

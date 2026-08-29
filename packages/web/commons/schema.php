@@ -9048,3 +9048,152 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 386
+$this->schema[] = [
+    // The `0` sentinel becomes a real NULL.
+    //
+    // Ten columns across six tables spell "no reference" as the integer 0.
+    // Nothing named 0 exists in any of the parent tables -- `taskStates`
+    // holds ids 1 to 6, `images` and `nfsGroups` start at 1 -- so a 0 is a
+    // reference to a row that cannot exist. No foreign key can be declared
+    // over that: ADD CONSTRAINT validates existing rows and fails 1452, and
+    // even on an empty table the next write of a 0 would be refused.
+    //
+    // NULL is what SQL has for "no reference". It is also what the ORM
+    // already wants: save()'s GH-1245 branch asks
+    // FOGBase::columnIsNullable() and writes NULL rather than 0 for an empty
+    // optional *id -- reading the answer out of commons/schema-expected.php,
+    // which is why the manifest change in this commit is behavior and not
+    // documentation. Making the column nullable is what turns that branch
+    // on; the explicit writes of 0 elsewhere are changed in the same commit.
+    //
+    // WHICH COLUMNS. A column converts when FOG can actually produce a 0 in
+    // it -- rows that hold one today, or a code path that writes one. That
+    // test rather than a census, because a census of two installs is a
+    // snapshot and the columns holding no zeros today are exactly the ones
+    // where a rare path would put one tomorrow.
+    //
+    //   hosts.hostImage              rows on both installs; RegisterClient,
+    //                                Image::destroy, Route's image delete
+    //   images.imageOSID             22 of 22 images on the 1.5 install
+    //   scheduledTasks.stImageID     rows
+    //   tasks.taskImageID            rows
+    //   tasks.taskNFSGroupID         rows
+    //   tasks.taskNFSMemberID        rows
+    //   tasks.taskLastMemberID       rows
+    //   multicastSessions.msSenderNode  rows; MulticastManager, MulticastTask
+    //   multicastSessions.msState    written 0 at session creation by
+    //                                Group, Host and imagemanagement
+    //   nfsGroupMembers.ngmGroupID   rows; StorageGroup::removeNode()
+    //
+    // WHAT DELIBERATELY DOES NOT CONVERT, and stays NOT NULL:
+    // images.imageTypeID, images.imagePartitionTypeID,
+    // scheduledTasks.stTaskTypeID, multicastSessions.msNFSGroupID,
+    // fileDeleteQueue.fdqStorageGroupID, tasks.taskStateID, tasks.taskTypeID,
+    // snapinJobs.sjStateID and snapinTasks.stState. No row holds a 0 and no
+    // code path writes one. "No type" and "no state" are not states a task
+    // or an image can legitimately be in, so NOT NULL plus RESTRICT is the
+    // stronger and more honest declaration, and it is a group 5 decision
+    // rather than a conversion. Two of them carry a latent risk noted in
+    // docs/development/foreign-keys.md: tasks.taskStateID and
+    // snapinTasks.stState are not in their model's
+    // $databaseFieldsRequired, so save() would write 0 for an empty value
+    // and RESTRICT would then refuse it at runtime. That is handled with
+    // the constraint, not here.
+    //
+    // NULLABLE COLUMN + REQUIRED IN THE MODEL is the pairing worth naming.
+    // images.imageOSID becomes nullable so the 22 OS-less images an upgrade
+    // brings across can be represented and constrained, while `osID` stays
+    // in Image::$databaseFieldsRequired so save() still refuses to create a
+    // new image without one. The database tolerates the history; the ORM
+    // prevents new instances of it.
+    //
+    // IRREVERSIBLE. After this runs, "was 0" and "was NULL" are the same
+    // information. There is no down migration and the survey's rollback
+    // section says so: restore from backup. It is separated from every
+    // constraint step for exactly that reason -- a constraint that fails
+    // must never leave a half-converted column behind.
+    //
+    // ORDER. MODIFY first, then UPDATE: a NOT NULL column will not take a
+    // NULL. Guarded on IS_NULLABLE so a fresh install and a re-run do no
+    // work; MODIFY COLUMN rebuilds the table even when it changes nothing.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        $convert = [
+            ['hosts', 'hostImage', 'INT(11) NULL DEFAULT NULL'],
+            ['images', 'imageOSID', 'MEDIUMINT(9) NULL DEFAULT NULL'],
+            ['scheduledTasks', 'stImageID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskImageID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskNFSGroupID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskNFSMemberID', 'INT(11) NULL DEFAULT NULL'],
+            ['tasks', 'taskLastMemberID', 'INT(11) NULL DEFAULT NULL'],
+            ['multicastSessions', 'msSenderNode', 'INT(11) NULL DEFAULT NULL'],
+            ['multicastSessions', 'msState', 'INT(11) NULL DEFAULT NULL'],
+            ['nfsGroupMembers', 'ngmGroupID', 'INT(11) NULL DEFAULT NULL'],
+        ];
+
+        $perColumn = [];
+        $total = 0;
+        foreach ($convert as $c) {
+            list($table, $column, $definition) = $c;
+            $row = self::$DB->query(
+                "SELECT `IS_NULLABLE` AS `n` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND `TABLE_NAME` = '$table' "
+                . "AND `COLUMN_NAME` = '$column'"
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            if (!is_array($row) || !isset($row['n'])) {
+                // No such table or column on this server -- a fresh install
+                // builds it nullable from the manifest.
+                continue;
+            }
+            if (strtoupper((string)$row['n']) === 'NO') {
+                self::$DB->query(
+                    "ALTER TABLE `$table` "
+                    . "MODIFY COLUMN `$column` $definition"
+                );
+            }
+            self::$DB->query(
+                "UPDATE `$table` SET `$column` = NULL WHERE `$column` = 0"
+            );
+            $n = (int) self::$DB->affectedRows();
+            if ($n > 0) {
+                $perColumn["$table.$column"] = $n;
+                $total += $n;
+            }
+        }
+
+        foreach ($perColumn as $what => $n) {
+            error_log(
+                sprintf(
+                    'FOG schema 386: converted %d `0` sentinel(s) to NULL in %s',
+                    $n,
+                    $what
+                )
+            );
+        }
+
+        if ($total > 0) {
+            Audit::record(
+                [
+                    'type' => 'schema.sentinel.convert',
+                    'subjectType' => 'schema',
+                    'subjectId' => 386,
+                    'summary' => sprintf(
+                        _('Converted %1$d `0` reference(s) to NULL across %2$d column(s)'),
+                        $total,
+                        count($perColumn)
+                    ),
+                    'detail' => json_encode($perColumn),
+                    'affectedCount' => $total,
+                    'renderable' => 1,
+                ]
+            );
+        }
+
+        return true;
+    },
+];

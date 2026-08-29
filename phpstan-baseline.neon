@@ -81,7 +81,7 @@ parameters:
 		-
 			message: '#^Accessing self\:\:\$DB outside of class scope\.$#'
 			identifier: outOfClass.self
-			count: 89
+			count: 93
 			path: packages/web/commons/schema.php
 
 		-
@@ -129,7 +129,7 @@ parameters:
 		-
 			message: '#^Variable \$this might not be defined\.$#'
 			identifier: variable.undefined
-			count: 355
+			count: 356
 			path: packages/web/commons/schema.php
 
 		-

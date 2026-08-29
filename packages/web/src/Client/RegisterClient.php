@@ -93,7 +93,9 @@ class RegisterClient extends FOGClient
                         'description',
                         _('Pending Registration created by FOG_CLIENT')
                     )
-                    ->set('imageID', 0)
+                    // A pending registration names no image. NULL rather
+                    // than 0 since schema step 386 -- see that step.
+                    ->set('imageID', null)
                     ->set('pending', "1")
                     ->set('enforce', (string)$enforce)
                     ->set('modules', $modules)

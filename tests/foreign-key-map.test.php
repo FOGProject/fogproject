@@ -50,14 +50,20 @@ $manifest = require $root . '/packages/web/commons/schema-expected.php';
 $map = require $root . '/packages/web/commons/schema-constraints.php';
 
 /**
- * Columns whose name ends in ID and which are not row references.
+ * Integer columns the coverage rule below would otherwise demand a
+ * classification for, and which are not row references.
  *
- * One entry, and it should stay that way: an allowlist here is a hole in the
- * gate, so each addition needs a reason a reader can check.
+ * An allowlist here is a hole in the gate, so each entry needs a reason a
+ * reader can check.
  */
 $notAReference = [
     // A unix process id for the running multicast sender, not a row id.
     'multicastSessions.msSenderPID',
+    // A flag for whether a snapin is a package, not a reference.
+    'snapins.sPackType',
+    // The user tier (0 mobile, 1 admin, 2 api). No table of user types
+    // exists; Authorization reads the integer directly.
+    'users.uType',
 ];
 
 $validActions = ['CASCADE', 'RESTRICT', 'SET NULL', 'none'];
@@ -139,7 +145,18 @@ foreach ($manifest['tables'] as $table => $def) {
     $columns = $def['columns'] ?? [];
     $primary = (string)(array_key_first($columns) ?? '');
     foreach ($columns as $column => $type) {
-        if (!preg_match('/ID$/', $column) || $column === $primary) {
+        // Not just /ID$/. A state column is as much a reference as an id
+        // column and reads the same taskStates rows, but it is spelled
+        // `msState`, `stState`, `fdqState`. While this matched only /ID$/,
+        // two live references to taskStates -- multicastSessions.msState and
+        // fileDeleteQueue.fdqState -- were absent from
+        // commons/schema-constraints.php and the gate could not say so,
+        // because it could not see the columns at all.
+        //
+        // Widening the pattern is the fix rather than adding the two by
+        // hand: a gate that misses a whole naming convention will miss the
+        // next column in it too.
+        if (!preg_match('/(ID|State)$/', $column) || $column === $primary) {
             continue;
         }
         if (!preg_match('/^(tiny|small|medium|big)?int/i', (string)$type)) {

@@ -149,6 +149,14 @@ return [
     ['child' => 'snapinTasks', 'column' => 'stJobID', 'parent' => 'snapinJobs', 'pcolumn' => 'sjID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],
     ['child' => 'snapinTasks', 'column' => 'stSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'work', 'action' => 'CASCADE', 'enabled' => false],
     ['child' => 'snapinTasks', 'column' => 'stState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
+    // Two more references to taskStates that do not end in ID. They were
+    // missing from this file until the coverage gate in
+    // tests/foreign-key-map.test.php was widened past /ID$/ -- it could not
+    // see them, so nothing said they were absent. Both are RESTRICT for the
+    // same reason snapinTasks.stState is: a state row someone deleted while
+    // work referenced it would leave that work unreadable.
+    ['child' => 'multicastSessions', 'column' => 'msState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
+    ['child' => 'fileDeleteQueue', 'column' => 'fdqState', 'parent' => 'taskStates', 'pcolumn' => 'tsID', 'class' => 'work', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
 
     // ---- audit: records of what happened. NO constraint proposed --------
     ['child' => 'taskLog', 'column' => 'taskID', 'parent' => 'tasks', 'pcolumn' => 'taskID', 'class' => 'audit', 'action' => 'none'],

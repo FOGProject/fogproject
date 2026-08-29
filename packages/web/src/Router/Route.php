@@ -7435,7 +7435,8 @@ class Route extends FOGBase
                     self::getClass('HostManager')->update(
                         $findWhere,
                         '',
-                        ['imageID' => 0]
+                        // NULL, not 0 -- see schema step 386.
+                        ['imageID' => null]
                     );
                     // Cancel the tasks that were still going to use it.
                     //

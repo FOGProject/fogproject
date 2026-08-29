@@ -1427,7 +1427,10 @@ class Host extends FOGController
                         ->set('logpath', $this->getImage()->get('path'))
                         ->set('image', $this->getImage()->get('id'))
                         ->set('interface', $StorageNode->get('interface'))
-                        ->set('stateID', 0)
+                        // A session that has not started names no state. NULL
+                        // rather than 0 since schema step 386 -- taskStates
+                        // has no row with tsID 0.
+                        ->set('stateID', null)
                         ->set('starttime', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('percent', 0)
                         ->set('isDD', $this->getImage()->get('imageTypeID'))

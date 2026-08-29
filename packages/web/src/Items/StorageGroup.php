@@ -485,7 +485,12 @@ class StorageGroup extends FOGController
                 ],
                 '',
                 [
-                    'storagegroupID' => 0
+                    // NULL, not 0: schema step 386 made ngmGroupID nullable
+                    // and there has never been an nfsGroups row with ngID 0,
+                    // so the sentinel is a reference to nothing. Under the
+                    // SET NULL constraint the map now declares, writing 0
+                    // here is refused at 1452.
+                    'storagegroupID' => null
                 ]
             );
         $this->loadAllnodes();

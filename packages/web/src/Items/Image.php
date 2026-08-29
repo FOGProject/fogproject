@@ -253,7 +253,9 @@ class Image extends FOGController
                         'id' => $RemIDs
                     ],
                     '',
-                    ['imageID' => 0]
+                    // NULL, not 0 -- see schema step 386. A host with no
+                    // image is a host whose hostImage is NULL.
+                    ['imageID' => null]
                 );
                 unset($RemIDs);
             }

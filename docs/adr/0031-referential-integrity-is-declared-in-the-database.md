@@ -93,8 +93,15 @@ CASCADE while `tasks.taskStateID` is RESTRICT, and `hosts.hostImage` is SET
 NULL while `scheduledTasks.stImageID` is RESTRICT. A column that holds an id
 and is not in that file is a bug, not an omission.
 
-Current totals: 65 CASCADE, 17 RESTRICT, 5 SET NULL, 16 no constraint
+Current totals: 65 CASCADE, 19 RESTRICT, 5 SET NULL, 16 no constraint
 (`audit` and `poly`).
+
+"Holds an id" is not the same as "ends in ID". `multicastSessions.msState`
+and `fileDeleteQueue.fdqState` are references to `taskStates` spelled without
+the suffix, and were absent from the file until the coverage gate stopped
+matching only `/ID$/`. The gate is what makes this decision real, so it
+matches the naming conventions the schema actually uses rather than the one
+it mostly uses.
 
 **`satellite` vs `config` is the classification that can destroy data, so it
 gets a test rather than a feel.** The question is not "is this a small table

@@ -237,7 +237,10 @@ class MulticastManager extends FOGService
                 }
                 self::getClass('MulticastSession', $Session->id)
                     ->set('senderpid', 0)
-                    ->set('sendernode', 0)
+                    // senderpid is a process id and 0 is a real "no process".
+                    // sendernode is a reference, so its "none" is NULL --
+                    // see schema step 386.
+                    ->set('sendernode', null)
                     ->save();
             }
         }
