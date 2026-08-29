@@ -34,6 +34,13 @@ class FogReportWiring
      * @param string    $class   unqualified class name, e.g. 'Snapin_Report'
      * @param string    $node    the permission node it must resolve to
      * @param string    $tableId the DataTables element id, without the '#'
+     * @param array     $opts    'listem' => the router class a server-side
+     *                           grid delegates to, and 'raw' => the columns
+     *                           deliberately not escaped in the browser.
+     *                           Both have to be DECLARED: a report that
+     *                           silently stopped escaping a column, or
+     *                           quietly started serving its own rows, is
+     *                           exactly what this file exists to catch.
      *
      * @return string the report's source with comments stripped, for the
      *                caller's own report-specific assertions
@@ -44,7 +51,8 @@ class FogReportWiring
         $slug,
         $class,
         $node,
-        $tableId
+        $tableId,
+        array $opts = []
     ) {
         $report = $web . '/lib/reports/' . $slug . '.report.php';
         $t->check("$slug: the report file exists", is_readable($report));
@@ -100,36 +108,87 @@ class FogReportWiring
         $at = strpos($js, "case '" . $label . "':");
         if (false !== $at) {
             $block = substr($js, $at, strpos($js, 'break;', $at) - $at);
-            if (preg_match_all("/\{data: '([a-zA-Z]+)'/", $block, $m)) {
+            // Digits and underscores included. A column named `other1`
+            // or `primary_user` did not match [a-zA-Z]+, so the scan
+            // silently returned FEWER columns than the grid has -- and
+            // every count downstream of it (headers, escaping) then agreed
+            // with the wrong number. A gate that under-counts passes.
+            if (preg_match_all("/\{data: '([a-zA-Z0-9_]+)'/", $block, $m)) {
                 $wanted = $m[1];
             }
         }
         $t->check("$slug: the JS names its columns", count($wanted) > 0);
-        foreach ($wanted as $col) {
+
+        // A grid served by the router pages in SQL, so its keys come from
+        // the model's column map rather than from getList(). The delegation
+        // is asserted instead -- a report that quietly went back to serving
+        // its own rows would page the whole table into the browser.
+        $listem = (string)($opts['listem'] ?? '');
+        if ('' !== $listem) {
             $t->check(
-                "$slug: getList() emits the '$col' key the grid asks for",
-                false !== strpos($code, "'" . $col . "' =>")
+                "$slug: the grid is served by Route::listem('$listem')",
+                false !== strpos($code, "Route::listem('" . $listem . "')")
             );
+            $t->check(
+                "$slug: and it does not also hand-build the rows",
+                false === strpos($code, "'data' => \$data")
+            );
+        } else {
+            foreach ($wanted as $col) {
+                $t->check(
+                    "$slug: getList() emits the '$col' key the grid asks for",
+                    false !== strpos($code, "'" . $col . "' =>")
+                );
+            }
         }
         $t->check(
             "$slug: the table id in the JS is the one the page renders",
             false !== strpos($js, '#' . $tableId)
             && false !== strpos($code, "'" . $tableId . "'")
         );
+        // The whole array, not a fixed window of it. A 33-column grid's
+        // header does not fit in 600 characters, and a check that silently
+        // read half the array would have counted half the headers and
+        // failed for a reason that is not the one it names.
+        $hdrAt = strpos($code, '$this->headerData');
+        $hdrEnd = false === $hdrAt ? false : strpos($code, '];', $hdrAt);
+        $header = (false === $hdrAt || false === $hdrEnd)
+            ? ''
+            : substr($code, $hdrAt, $hdrEnd - $hdrAt);
         $t->check(
             "$slug: the header row has one cell per column",
-            count($wanted) === substr_count(
-                substr($code, strpos($code, '$this->headerData'), 600),
-                '_('
-            )
+            count($wanted) === substr_count($header, '_(')
         );
+
+        // Columns a report deliberately does not escape in the browser --
+        // a server-built anchor would render as literal markup under
+        // render.text(). They have to be named by the caller AND escaped on
+        // the server, which is checked rather than taken on trust.
+        $raw = (array)($opts['raw'] ?? []);
         $t->check(
-            "$slug: every column escapes -- these rows carry typed-in names",
-            count($wanted) === substr_count(
+            "$slug: every column escapes except the ones declared raw",
+            count($wanted) - count($raw) === substr_count(
                 $block,
                 '$.fn.dataTable.render.text()'
             )
         );
+        if ([] !== $raw && '' !== $listem) {
+            $router = (string)@file_get_contents(
+                $web . '/src/Router/Route.php'
+            );
+            $at = strpos($router, "case '" . $listem . "':");
+            $span = false === $at
+                ? ''
+                : substr($router, $at, 2000);
+            foreach ($raw as $col) {
+                $t->check(
+                    "$slug: the raw '$col' column is escaped server-side "
+                    . 'instead',
+                    false !== strpos($span, "'dt' => '" . $col . "'")
+                    && false !== strpos($span, 'Initiator::e(')
+                );
+            }
+        }
 
         // The gate.
         $nodes = (array)constant('FOG\Auth\Authorization::REPORT_NODES');

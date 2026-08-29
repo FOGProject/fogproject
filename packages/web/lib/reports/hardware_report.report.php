@@ -16,6 +16,7 @@ namespace FOG;
 use FOG\Audit\InventoryStats;
 use FOG\Audit\ReportWindow;
 use FOG\Router\HTTPResponseCodes;
+use FOG\Router\Route;
 
 /**
  * What hardware the fleet is actually made of.
@@ -71,16 +72,81 @@ class Hardware_Report extends ReportManagement
         $this->title = _('Hardware Report');
 
         $this->headerData = [
-            _('Host'),
-            _('Manufacturer'),
-            _('Model'),
-            _('Serial'),
-            _('CPU'),
-            _('Memory'),
-            _('Recorded')
+            _('Host Name'),
+            // User set information
+            _('Primary User'),
+            _('Other Primary'),
+            _('Other Secondary'),
+            // System
+            _('System Manufacturer'),
+            _('System Product'),
+            _('System Version'),
+            _('System Serial'),
+            _('System UUID'),
+            _('System Type'),
+            // BIOS
+            _('BIOS Version'),
+            _('BIOS Vendor'),
+            _('BIOS Date'),
+            // Motherboard
+            _('Motherboard Manufacturer'),
+            _('Motherboard Product Name'),
+            _('Motherboard Version'),
+            _('Motherboard Serial'),
+            _('Motherboard Asset'),
+            // CPU
+            _('CPU Manufacturer'),
+            _('CPU Version'),
+            _('CPU Current Speed'),
+            _('CPU Maximum Speed'),
+            // Memory
+            _('System Memory Available'),
+            // Hard Disk
+            _('Hard Disk Model'),
+            _('Hard Disk Serial'),
+            _('Hard Disk Firmware'),
+            // Case
+            _('Case Manufacturer'),
+            _('Case Version'),
+            _('Case Serial'),
+            _('Case Asset'),
+            // GPU
+            _('GPU Vendors'),
+            _('GPU Products'),
+            // Name of host
+            _('Hostname'),
         ];
         $this->attributes = [
-            [], [], [], [], [], [], []
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            ['width' => 40],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
         ];
 
         [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
@@ -198,9 +264,15 @@ class Hardware_Report extends ReportManagement
                     }
                 ],
                 [
-                    'name' => _('Machines'),
-                    'id' => 'hardware-report-machines',
+                    'name' => _('Inventory'),
+                    'id' => 'hardware-report-inventory',
                     'generator' => function () {
+                        // The whole record, not a summary of it. Five
+                        // columns show by default and the other 28 are
+                        // behind the Column Visibility button, which is
+                        // already in reportButtons -- so a slice of a chart
+                        // above can be read as machines without this
+                        // becoming a wall of 33 columns.
                         $this->render(12, 'hardwarereport-table');
                     }
                 ]
@@ -214,30 +286,25 @@ class Hardware_Report extends ReportManagement
     /**
      * Serves the rows.
      *
+     * Route::listem(), the same call Inventory Report made, rather than a
+     * rollup method. That keeps the grid SERVER-SIDE: it pages, sorts and
+     * searches in SQL over the whole table, where a client-side grid would
+     * have to fetch every row first. On a fleet of any size that is the
+     * difference between a report and a download.
+     *
+     * It is also why this grid is not filtered by the window. The window
+     * here is an as-of date for the charts above; the record itself is
+     * current by definition, and paging it through a date filter would
+     * answer a question nobody asked.
+     *
      * @return void
      */
     public function getList()
     {
         header('Content-type: application/json');
-        [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
-        $rows = InventoryStats::hosts($start, $end);
-
-        $unknown = _('Not reported');
-        $data = [];
-        foreach ($rows as $row) {
-            $data[] = [
-                'hostName' => (string)($row['hostName'] ?? ''),
-                'vendor' => self::_orUnknown($row['vendor'] ?? '', $unknown),
-                'model' => self::_orUnknown($row['model'] ?? '', $unknown),
-                'serial' => self::_orUnknown($row['serial'] ?? '', $unknown),
-                'cpu' => self::_orUnknown($row['cpu'] ?? '', $unknown),
-                'memory' => self::_orUnknown($row['memory'] ?? '', $unknown),
-                'recorded' => (string)($row['recorded'] ?? '')
-            ];
-        }
-
+        Route::listem('inventory');
         http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(['data' => $data]);
+        echo Route::getData();
         exit;
     }
     /**
@@ -263,24 +330,6 @@ class Hardware_Report extends ReportManagement
                 ]
             ]
         ];
-    }
-    /**
-     * A reported value, or the word for not having one.
-     *
-     * Every inventory column is NOT NULL DEFAULT '', so absence arrives as
-     * an empty string and renders as an empty cell -- which reads as a
-     * rendering fault rather than as the answer. See InventoryStats.
-     *
-     * @param mixed  $value   the stored value
-     * @param string $unknown the translated word for absence
-     *
-     * @return string
-     */
-    private static function _orUnknown($value, $unknown)
-    {
-        $value = trim((string)$value);
-
-        return '' === $value ? $unknown : $value;
     }
 }
 

@@ -56,6 +56,63 @@ class ReportManagement extends FOGPage
         @natcasesort($files);
         return $files;
     }
+
+    /**
+     * The reports that are AGGREGATIONS rather than row dumps.
+     *
+     * The report menu was one flat alphabetical list in which "Imaging
+     * Report", which is charts over a window, sat between "Host List" and
+     * "Hosts and Users", which are tables. Those are two different kinds of
+     * screen and presenting them as one kind is the thing that reads as
+     * unfinished (ADR 0030).
+     *
+     * A LIST HERE RATHER THAN A CONVENTION on the filename, because the
+     * convention does not hold: `history_report` ends in `_report` and is a
+     * row dump with a redirect on it, and `run_history` does not and is an
+     * aggregation. Naming them is honest about that; inferring it would be
+     * wrong twice on the files that ship today.
+     *
+     * NOT read by loading the classes. The menu is built from file names
+     * precisely so that rendering a sidebar does not load fourteen classes,
+     * and a `const REPORT_GROUP` on each would give that up for a label.
+     *
+     * Anything not named here -- an uploaded report, a plugin's -- lands
+     * under Lists, which is what a FOG report has always been. A plugin that
+     * disagrees can move its entry with the SUB_MENULINK_DATA hook, the
+     * same seam it used to add the entry.
+     *
+     * @var array
+     */
+    const AGGREGATIONS = [
+        'audit report',
+        'fleet report',
+        'hardware report',
+        'imaging report',
+        'run history',
+        'snapin report',
+        'storage report'
+    ];
+
+    /**
+     * The report list, split into its two kinds.
+     *
+     * @return array group label => ordered list of report names
+     */
+    public static function groupedReports()
+    {
+        $groups = [
+            'reports' => [],
+            'lists' => []
+        ];
+        foreach (self::loadCustomReports() as $report) {
+            $key = in_array(strtolower($report), self::AGGREGATIONS, true)
+                ? 'reports'
+                : 'lists';
+            $groups[$key][] = $report;
+        }
+
+        return $groups;
+    }
     /**
      * Never called at runtime. The report submenu labels are built
      * dynamically from the report filenames, so xgettext cannot see
@@ -76,7 +133,6 @@ class ReportManagement extends FOGPage
         _('Imaging Report');
         _('Host List');
         _('Hosts And Users');
-        _('Inventory Report');
         _('Pending Mac List');
         _('Product Keys');
         _('Run History');

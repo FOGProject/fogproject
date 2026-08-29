@@ -38,7 +38,15 @@ $code = FogReportWiring::check(
     'hardware_report',
     'Hardware_Report',
     'host',
-    'hardwarereport-table'
+    'hardwarereport-table',
+    [
+        // The grid IS the former Inventory Report: 33 columns served by the
+        // router, paging in SQL. `hostLink` is an intentional anchor, so it
+        // cannot be neutralised with render.text() and is escaped in the
+        // formatter instead.
+        'listem' => 'inventory',
+        'raw' => ['hostLink']
+    ]
 );
 FogReportWiring::checkSql($t, 'FOG\Audit\InventoryStats');
 
@@ -49,7 +57,7 @@ $t->check(
     'the page has no inventory query of its own',
     false === strpos($code, '`inventory`')
 );
-foreach (['totals(', 'breakdown(', 'recordedPerDay(', 'hosts('] as $call) {
+foreach (['totals(', 'breakdown(', 'recordedPerDay('] as $call) {
     $t->check(
         "it reads InventoryStats::$call)",
         false !== strpos($code, 'InventoryStats::' . $call)
@@ -114,25 +122,31 @@ $t->check(
 /*
  * 3. The statements.
  */
-$hostsSql = FogTestHarness::callStatic(
-    'FOG\Audit\InventoryStats',
-    '_hostsSql'
+// The fold. Inventory Report was retired into this page, so the rollup
+// must NOT have grown a grid query of its own alongside the router's --
+// two paths to the same rows is how they start disagreeing.
+$t->check(
+    'the rollup builds no grid query; the router serves the rows',
+    !method_exists('FOG\Audit\InventoryStats', 'hosts')
 );
 $t->check(
-    'the grid query is bounded in SQL, not after the fetch',
-    1 === preg_match('/LIMIT\s+(\d+)\s*$/', trim($hostsSql), $lim)
-        && (int)$lim[1] === InventoryStats::MAX_ROWS + 1
+    'the retired report is gone rather than left as a second door',
+    !file_exists($web . '/lib/reports/inventory_report.report.php')
 );
 $t->check(
-    'an inventory row whose host has gone still appears',
-    0 === substr_count($hostsSql, 'INNER JOIN')
-    && 1 === substr_count($hostsSql, 'LEFT OUTER JOIN')
+    'and its menu label went with it',
+    false === strpos(
+        (string)file_get_contents(
+            $web . '/lib/pages/reportmanagement.page.php'
+        ),
+        "_('Inventory Report');"
+    )
 );
-$t->check(
-    'the grid does not select the columns the Inventory Report is for',
-    false === strpos($hostsSql, 'iMbserial')
-    && false === strpos($hostsSql, 'iHdserial')
-);
+// The rows were reachable with report.view and are now behind host.view --
+// ADR 0030 decision 4 applied to the rows this fold moved. That the gate is
+// `host` is asserted by FogReportWiring::check() above, through a variable;
+// repeating it with the literal here only told PHPStan the constant says
+// what the constant says.
 foreach (['_recordedPerDaySql', '_totalsSql'] as $builder) {
     $sql = FogTestHarness::callStatic('FOG\Audit\InventoryStats', $builder);
     $t->check(
