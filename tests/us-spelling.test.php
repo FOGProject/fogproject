@@ -52,7 +52,6 @@ $scope = [
     'tests',
     'docs',
     'CLAUDE.md',
-    'CONTEXT.md',
 ];
 
 /*
@@ -222,15 +221,44 @@ function collectFiles($root, array $scope)
         exit(1);
     }
     $files = [];
+    $perScope = array_fill_keys($scope, 0);
     foreach (explode("\0", implode("\n", $out)) as $rel) {
         if ('' === $rel) {
             continue;
         }
         $path = $root . '/' . $rel;
-        if (is_file($path)) {
-            $files[] = $path;
+        if (!is_file($path)) {
+            continue;
+        }
+        $files[] = $path;
+        foreach ($scope as $entry) {
+            if ($rel === $entry || 0 === strpos($rel, $entry . '/')) {
+                ++$perScope[$entry];
+            }
         }
     }
+
+    /*
+     * A scope entry that contributed nothing is the silent-pass this check
+     * exists to prevent, and "git returned 0 files" is NOT covered by the exit
+     * status above -- git exits 0 quite happily on a checkout where the path
+     * has moved, or where an ignore rule now swallows it. The result would be
+     * "0 file(s) scanned, no UK spellings in scope": green, and meaningless.
+     *
+     * Per path rather than a total, because a total still passes when one
+     * directory of the seven silently drops out.
+     */
+    $empty = array_keys($perScope, 0, true);
+    if (count($empty)) {
+        fwrite(
+            STDERR,
+            "FAIL: these scope paths matched no files -- moved, renamed or\n"
+            . "newly ignored? Fix \$scope; do not delete the entry to go green.\n  "
+            . implode("\n  ", $empty) . "\n"
+        );
+        exit(1);
+    }
+
     sort($files);
     return $files;
 }
