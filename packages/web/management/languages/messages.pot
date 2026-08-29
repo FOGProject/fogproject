@@ -1102,9 +1102,6 @@ msgstr ""
 msgid "CA private key"
 msgstr ""
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr ""
 
@@ -3859,12 +3856,6 @@ msgstr ""
 msgid "Inventory Edits"
 msgstr ""
 
-msgid "Inventory List"
-msgstr ""
-
-msgid "Inventory Report"
-msgstr ""
-
 msgid "Inventory Static"
 msgstr ""
 
@@ -4215,6 +4206,9 @@ msgstr ""
 msgid "Listener must be an array or an object"
 msgstr ""
 
+msgid "Lists"
+msgstr ""
+
 msgid "Load Average"
 msgstr ""
 
@@ -4381,9 +4375,6 @@ msgid "Management Password"
 msgstr ""
 
 msgid "Management Username"
-msgstr ""
-
-msgid "Manufacturer"
 msgstr ""
 
 msgid "Manufacturers"
@@ -5827,9 +5818,6 @@ msgstr ""
 msgid "Record not found"
 msgstr ""
 
-msgid "Recorded"
-msgstr ""
-
 msgid "Recorded By"
 msgstr ""
 
@@ -6291,9 +6279,6 @@ msgid "Selected tasks canceled!"
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
-msgstr ""
-
-msgid "Serial"
 msgstr ""
 
 msgid "Serial Number"

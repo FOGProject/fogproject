@@ -1290,9 +1290,6 @@ msgstr "Chemin"
 msgid "CA private key"
 msgstr "La clé privée a échoué"
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr "Cache du CPU"
 
@@ -4554,14 +4551,6 @@ msgid "Inventory Edits"
 msgstr "Inventaire"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "Inventaire"
-
-#, fuzzy
-msgid "Inventory Report"
-msgstr "Inventaire"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "Inventaire"
 
@@ -4977,6 +4966,10 @@ msgstr ""
 msgid "Listener must be an array or an object"
 msgstr ""
 
+#, fuzzy
+msgid "Lists"
+msgstr "Ligne"
+
 msgid "Load Average"
 msgstr "charge moyenne"
 
@@ -5175,10 +5168,6 @@ msgstr "gestion Mot de passe"
 
 msgid "Management Username"
 msgstr "gestion Nom d'utilisateur"
-
-#, fuzzy
-msgid "Manufacturer"
-msgstr "CPU Fabricant"
 
 #, fuzzy
 msgid "Manufacturers"
@@ -6862,9 +6851,6 @@ msgstr "Recevoir"
 msgid "Record not found"
 msgstr "Enregistrement non trouvé, Erreur: %s"
 
-msgid "Recorded"
-msgstr ""
-
 msgid "Recorded By"
 msgstr ""
 
@@ -7401,10 +7387,6 @@ msgstr "a été mis à jour avec succès"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
-
-#, fuzzy
-msgid "Serial"
-msgstr "Serial System"
 
 msgid "Serial Number"
 msgstr "Numéro de série"
@@ -11409,6 +11391,14 @@ msgstr ""
 #~ msgstr "Type non valide"
 
 #, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "Inventaire"
+
+#, fuzzy
+#~ msgid "Inventory Report"
+#~ msgstr "Inventaire"
+
+#, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "Serveur LDAP"
 
@@ -11431,6 +11421,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Login failed"
 #~ msgstr "Échec du chargement: %s"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "CPU Fabricant"
 
 #, fuzzy
 #~ msgid "Module Associated"
@@ -11542,6 +11536,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+#~ msgid "Serial"
+#~ msgstr "Serial System"
 
 #, fuzzy
 #~ msgid "Server facts."

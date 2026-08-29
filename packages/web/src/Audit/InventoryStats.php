@@ -128,28 +128,6 @@ class InventoryStats extends WindowedStats
     }
 
     /**
-     * The machines themselves.
-     *
-     * @return string SQL taking no window.
-     */
-    private static function _hostsSql()
-    {
-        return "SELECT `hosts`.`hostID` AS `hostID`,
-                       `hosts`.`hostName` AS `hostName`,
-                       TRIM(`inventory`.`iSysman`) AS `vendor`,
-                       TRIM(`inventory`.`iSysproduct`) AS `model`,
-                       TRIM(`inventory`.`iSysserial`) AS `serial`,
-                       TRIM(`inventory`.`iCpuversion`) AS `cpu`,
-                       TRIM(`inventory`.`iMem`) AS `memory`,
-                       `inventory`.`iCreateDate` AS `recorded`
-                  FROM `inventory`
-                  LEFT OUTER JOIN `hosts`
-                         ON `hosts`.`hostID` = `inventory`.`iHostID`
-                 ORDER BY `vendor` ASC, `model` ASC, `hosts`.`hostName` ASC
-                 LIMIT " . (self::MAX_ROWS + 1);
-    }
-
-    /**
      * One breakdown, folded to TOP_N with the tail as "Other".
      *
      * @param string             $key   a key of BREAKDOWNS
@@ -202,25 +180,6 @@ class InventoryStats extends WindowedStats
             self::readWindow(self::_recordedPerDaySql(), $start, $end),
             $start,
             $end
-        );
-    }
-
-    /**
-     * The machines themselves.
-     *
-     * @param \DateTimeInterface $start Inclusive lower bound, FOG's clock.
-     * @param \DateTimeInterface $end   The as-of date, FOG's clock.
-     *
-     * @return array Rows, capped at MAX_ROWS.
-     */
-    public static function hosts(
-        \DateTimeInterface $start,
-        \DateTimeInterface $end
-    ) {
-        return array_slice(
-            self::readWindow(self::_hostsSql(), $start, $end),
-            0,
-            self::MAX_ROWS
         );
     }
 

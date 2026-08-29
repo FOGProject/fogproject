@@ -1306,9 +1306,6 @@ msgstr "Camino"
 msgid "CA private key"
 msgstr "clave privada fracasó"
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr "caché de la CPU"
 
@@ -4640,14 +4637,6 @@ msgid "Inventory Edits"
 msgstr "ID de inventario"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "ID de inventario"
-
-#, fuzzy
-msgid "Inventory Report"
-msgstr "ID de inventario"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "ID de inventario"
 
@@ -5075,6 +5064,10 @@ msgstr ""
 msgid "Listener must be an array or an object"
 msgstr ""
 
+#, fuzzy
+msgid "Lists"
+msgstr "Línea"
+
 msgid "Load Average"
 msgstr "Promedio de carga"
 
@@ -5284,10 +5277,6 @@ msgstr "La gestión de contraseñas"
 #, fuzzy
 msgid "Management Username"
 msgstr "Nombre de dominio usuario"
-
-#, fuzzy
-msgid "Manufacturer"
-msgstr "Fabricante de la CPU"
 
 #, fuzzy
 msgid "Manufacturers"
@@ -7002,9 +6991,6 @@ msgstr "retirar"
 msgid "Record not found"
 msgstr "Registro no encontrado, error: %s"
 
-msgid "Recorded"
-msgstr ""
-
 msgid "Recorded By"
 msgstr ""
 
@@ -7547,10 +7533,6 @@ msgstr "se ha actualizado correctamente"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
-
-#, fuzzy
-msgid "Serial"
-msgstr "sistema de serie"
 
 msgid "Serial Number"
 msgstr ""
@@ -11593,6 +11575,14 @@ msgstr ""
 #~ msgstr "tipo no válido"
 
 #, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "ID de inventario"
+
+#, fuzzy
+#~ msgid "Inventory Report"
+#~ msgstr "ID de inventario"
+
+#, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "servidor TFTP"
 
@@ -11607,6 +11597,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Login failed"
 #~ msgstr "Carga ha fallado: %s"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "Fabricante de la CPU"
 
 #, fuzzy
 #~ msgid "Module Associated"
@@ -11709,6 +11703,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+#~ msgid "Serial"
+#~ msgstr "sistema de serie"
 
 #, fuzzy
 #~ msgid "Server facts."

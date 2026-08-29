@@ -1289,9 +1289,6 @@ msgstr "路径"
 msgid "CA private key"
 msgstr "私钥失败"
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr "CPU缓存"
 
@@ -4553,14 +4550,6 @@ msgid "Inventory Edits"
 msgstr "库存"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "库存"
-
-#, fuzzy
-msgid "Inventory Report"
-msgstr "库存"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "库存"
 
@@ -4976,6 +4965,10 @@ msgstr ""
 msgid "Listener must be an array or an object"
 msgstr ""
 
+#, fuzzy
+msgid "Lists"
+msgstr "线"
+
 msgid "Load Average"
 msgstr "平均负载"
 
@@ -5174,10 +5167,6 @@ msgstr "管理密码"
 
 msgid "Management Username"
 msgstr "管理用户名"
-
-#, fuzzy
-msgid "Manufacturer"
-msgstr "CPU制造商"
 
 #, fuzzy
 msgid "Manufacturers"
@@ -6861,9 +6850,6 @@ msgstr "接收"
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
 
-msgid "Recorded"
-msgstr ""
-
 msgid "Recorded By"
 msgstr ""
 
@@ -7400,10 +7386,6 @@ msgstr "已成功更新"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
-
-#, fuzzy
-msgid "Serial"
-msgstr "系统序列"
 
 msgid "Serial Number"
 msgstr "序列号"
@@ -11408,6 +11390,14 @@ msgstr ""
 #~ msgstr "无效类型"
 
 #, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "库存"
+
+#, fuzzy
+#~ msgid "Inventory Report"
+#~ msgstr "库存"
+
+#, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "LDAP服务器"
 
@@ -11430,6 +11420,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Login failed"
 #~ msgstr "加载失败： %s"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "CPU制造商"
 
 #, fuzzy
 #~ msgid "Module Associated"
@@ -11541,6 +11535,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Serial"
+#~ msgstr "系统序列"
 
 #, fuzzy
 #~ msgid "Server facts."

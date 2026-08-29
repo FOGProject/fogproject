@@ -1250,9 +1250,6 @@ msgstr "Percorso"
 msgid "CA private key"
 msgstr "Chiave privata non è riuscita"
 
-msgid "CPU"
-msgstr ""
-
 msgid "CPU Cache"
 msgstr "cache della CPU"
 
@@ -4413,14 +4410,6 @@ msgid "Inventory Edits"
 msgstr "Inventario"
 
 #, fuzzy
-msgid "Inventory List"
-msgstr "Inventario"
-
-#, fuzzy
-msgid "Inventory Report"
-msgstr "Inventario"
-
-#, fuzzy
 msgid "Inventory Static"
 msgstr "Inventario"
 
@@ -4819,6 +4808,10 @@ msgstr "Listener deve essere un array o un oggetto"
 msgid "Listener must be an array or an object"
 msgstr "Listener deve essere un array o un oggetto"
 
+#, fuzzy
+msgid "Lists"
+msgstr "Elenca"
+
 msgid "Load Average"
 msgstr "Carico medio"
 
@@ -5006,10 +4999,6 @@ msgstr "Gestione delle password"
 
 msgid "Management Username"
 msgstr "Gestione utente"
-
-#, fuzzy
-msgid "Manufacturer"
-msgstr "CPU del produttore"
 
 #, fuzzy
 msgid "Manufacturers"
@@ -6652,10 +6641,6 @@ msgstr "Ricevere"
 msgid "Record not found"
 msgstr "Record non trovato"
 
-#, fuzzy
-msgid "Recorded"
-msgstr "Consigliato"
-
 msgid "Recorded By"
 msgstr ""
 
@@ -7176,10 +7161,6 @@ msgstr "Attività pianificate create con successo"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
-
-#, fuzzy
-msgid "Serial"
-msgstr "Sistema seriale"
 
 msgid "Serial Number"
 msgstr "Numero di serie"
@@ -11043,6 +11024,14 @@ msgstr ""
 #~ msgstr "Tipo non valido"
 
 #, fuzzy
+#~ msgid "Inventory List"
+#~ msgstr "Inventario"
+
+#, fuzzy
+#~ msgid "Inventory Report"
+#~ msgstr "Inventario"
+
+#, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "Server LDAP"
 
@@ -11064,6 +11053,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Login failed"
 #~ msgstr "Caricamento non riuscito"
+
+#, fuzzy
+#~ msgid "Manufacturer"
+#~ msgstr "CPU del produttore"
 
 #, fuzzy
 #~ msgid "Module Associated"
@@ -11118,6 +11111,10 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "stampante Alias"
+
+#, fuzzy
+#~ msgid "Recorded"
+#~ msgstr "Consigliato"
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Registro deve essere gestito da hook o eventi"
@@ -11183,6 +11180,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+#~ msgid "Serial"
+#~ msgstr "Sistema seriale"
 
 #, fuzzy
 #~ msgid "Server facts."
