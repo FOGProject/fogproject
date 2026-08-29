@@ -5034,6 +5034,9 @@ msgstr "actualización de la impresora ha fallado!"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 #, fuzzy
 msgid "Login"
 msgstr "Línea"

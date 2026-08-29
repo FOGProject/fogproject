@@ -4928,6 +4928,9 @@ msgstr "打印机更新失败！"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 msgid "Login"
 msgstr "登录"
 

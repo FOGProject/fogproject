@@ -4762,6 +4762,9 @@ msgstr "Aggiornamento della stampante non è riuscito!"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 msgid "Login"
 msgstr "Accesso"
 

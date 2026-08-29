@@ -4928,6 +4928,9 @@ msgstr "atualização da impressora falhou!"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logging"
+msgstr ""
+
 msgid "Login"
 msgstr "Entrar"
 
