@@ -1180,6 +1180,19 @@ class OpenAPI extends FOGBase
                     )
                 ],
                 '_lang' => ['type' => 'string'],
+                '_searchtypes' => [
+                    'type' => 'object',
+                    'description' => _(
+                        'How each column may be filtered, keyed by the column '
+                        . 'name: "date", "num", "string", or false where the '
+                        . 'column may not be searched at all. Derived from the '
+                        . 'column type on the server, so it is answerable '
+                        . 'without reading any rows.'
+                    ),
+                    'additionalProperties' => self::_oneOfTypes(
+                        ['string', 'boolean']
+                    )
+                ],
                 'data' => ['type' => 'array', 'items' => ['type' => 'object']],
                 'firstUrl' => ['type' => 'string', 'nullable' => true],
                 'prevUrl' => ['type' => 'string', 'nullable' => true],
