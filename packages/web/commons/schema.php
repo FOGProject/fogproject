@@ -8677,7 +8677,20 @@ $this->schema[] = [
             ['greenFog', 'gfHostID', 'hosts', 'hostID'],
             ['apiTokens', 'atUserID', 'users', 'uId'],
             ['userAuths', 'uaUserID', 'users', 'uId'],
-            ['nfsGroupMembers', 'ngmGroupID', 'nfsGroups', 'ngID'],
+            // nfsGroupMembers.ngmGroupID is deliberately NOT swept.
+            //
+            // Every other entry on this list is a row with no meaning
+            // without its parent. A storage node is the opposite: it holds
+            // its own hostname, credentials, paths and bandwidth limit, and
+            // StorageGroup::removeNode() detaches one by writing 0 into this
+            // column without deleting anything. Tom's own server carries
+            // exactly such a row (`fognode1.lan`, enabled, group 0), and
+            // sweeping it would have destroyed a live node's configuration
+            // to satisfy a constraint the map no longer declares here --
+            // ngmGroupID became config/SET NULL, not satellite/CASCADE.
+            //
+            // The 0 becomes a real NULL in the sentinel conversion instead,
+            // which loses nothing and leaves the node reattachable.
             ['tasks', 'taskHostID', 'hosts', 'hostID'],
             ['snapinJobs', 'sjHostID', 'hosts', 'hostID'],
             ['snapinTasks', 'stJobID', 'snapinJobs', 'sjID'],
@@ -8941,11 +8954,17 @@ $this->schema[] = [
 $this->schema[] = [
     // ADR 0031 group 3: storage -- groups, nodes, and what they carry.
     //
-    // Five constraints across three tables:
+    // Four constraints across two tables:
     //
-    //   nfsGroupMembers   ngmGroupID -> nfsGroups
     //   imageGroupAssoc   igaStorageGroupID -> nfsGroups, igaImageID -> images
     //   snapinGroupAssoc  sgaStorageGroupID -> nfsGroups, sgaSnapinID -> snapins
+    //
+    // This step originally declared a fifth, nfsGroupMembers.ngmGroupID ->
+    // nfsGroups, ON DELETE CASCADE. That was wrong: a storage node outlives
+    // its group and CASCADE would have destroyed one's whole configuration
+    // when a group was deleted. The map now classes it config/SET NULL and
+    // it lands with group 5; step 385 removes the constraint from any
+    // database that got this far before the correction.
     //
     // THIS IS THE GROUP THE SURVEY'S ORPHAN COUNTS ACTUALLY NAMED.
     // Route::deletemass() has a case for host, group, image, module,
@@ -8977,6 +8996,50 @@ $this->schema[] = [
     // they land with group 5.
     //
     // Same mechanism and failure policy as steps 382 and 383.
+    //
+    // See docs/development/foreign-keys.md and ADR 0031.
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints();
+
+        return true;
+    },
+];
+
+// 385
+$this->schema[] = [
+    // Correction, not a new group.
+    //
+    // Step 384 created `fk_nfsGroupMembers_ngmGroupID` ON DELETE CASCADE.
+    // The map now declares that relationship config/SET NULL and leaves it
+    // disabled until the sentinel conversion makes the column nullable, so
+    // the constraint the database holds is one nothing asks for any more.
+    //
+    // Running the reconciler is enough to remove it, but only because this
+    // step is landing alongside the change that taught planConstraints() to
+    // compare the DECLARATION rather than the name. Before that it read
+    // names out of information_schema, saw `fk_nfsGroupMembers_ngmGroupID`
+    // present, and called the relationship done -- so an action correction
+    // was a permanent no-op on every server that had already applied the
+    // old one. Names do not encode ON DELETE.
+    //
+    // It will only ever drop a constraint carrying the name
+    // SchemaReconciler::constraintName() generates for a relationship the
+    // map lists. One added by hand does not carry that name.
+    //
+    // WHY THE CASCADE WAS WRONG. A storage node is not a satellite of its
+    // group. It holds its own hostname, credentials, root/FTP/snapin paths,
+    // interface, bandwidth limit, max clients and enable flag, and
+    // StorageGroup::removeNode() detaches one by writing 0 into ngmGroupID
+    // without deleting anything -- so "in no group" is a state FOG creates
+    // deliberately and the Storage Node list still renders. Under CASCADE,
+    // deleting a storage group would have taken every node's configuration
+    // with it, silently, which is a destructive behavior change nobody
+    // asked for. SET NULL detaches them instead, which is what
+    // removeNode() already means and what the UI can undo.
+    //
+    // Step 381's orphan sweep lost the same relationship for the same
+    // reason: it was deleting detached nodes as though they were dangling
+    // junction rows.
     //
     // See docs/development/foreign-keys.md and ADR 0031.
     function () {

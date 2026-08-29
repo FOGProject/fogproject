@@ -259,7 +259,11 @@ $expected = [
     'apiTokens.atUserID',
     'userAuths.uaUserID',
     // Group 3
-    'nfsGroupMembers.ngmGroupID',
+    //
+    // nfsGroupMembers.ngmGroupID was here and is deliberately not any more:
+    // step 385 retires the CASCADE step 384 created for it. A storage node
+    // outlives its group, so the relationship is config/SET NULL and lands
+    // with group 5, once the sentinel conversion makes the column nullable.
     'imageGroupAssoc.igaStorageGroupID',
     'imageGroupAssoc.igaImageID',
     'snapinGroupAssoc.sgaStorageGroupID',

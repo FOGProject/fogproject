@@ -187,22 +187,37 @@ class SchemaReconciler extends FOGBase
     }
 
     /**
-     * The foreign keys the database already carries.
+     * The foreign keys the database already carries, and what each one says.
      *
-     * Names only -- the pass decides by name, because the name encodes the
-     * child and column it covers and is unique by construction.
+     * Keyed by lowercased constraint name, because the name encodes the child
+     * table and column it covers and is unique by construction. The value is
+     * the rest of the declaration -- referenced table, referenced column and
+     * ON DELETE rule -- which is what lets planConstraints() notice that a
+     * constraint the database holds no longer says what the map says.
      *
-     * @return array|null Lowercased constraint names, or null when
+     * Reading names alone was enough while the map only ever grew. It stopped
+     * being enough the moment an entry's action was corrected: the name does
+     * not encode the action, so a constraint created ON DELETE CASCADE looked
+     * identical to the SET NULL the map had since changed to, and the
+     * reconciler skipped it forever. See ADR 0031 on the map being normative.
+     *
+     * A composite foreign key would return one row per column; FOG declares
+     * none, and the last row would win. Worth knowing before adding one.
+     *
+     * @return array|null name => [parent, pcolumn, action], or null when
      *                    information_schema could not be read.
      */
     public static function constraintSnapshot()
     {
-        $sql = sprintf(
-            'SELECT `CONSTRAINT_NAME`'
-            . ' FROM `information_schema`.`REFERENTIAL_CONSTRAINTS`'
-            . ' WHERE `CONSTRAINT_SCHEMA` = %s',
-            self::$DB->escape(self::$DB->dbName())
-        );
+        $db = self::$DB->escape(self::$DB->dbName());
+        $sql = 'SELECT `rc`.`CONSTRAINT_NAME`, `rc`.`DELETE_RULE`,'
+            . ' `rc`.`REFERENCED_TABLE_NAME`, `kcu`.`REFERENCED_COLUMN_NAME`'
+            . ' FROM `information_schema`.`REFERENTIAL_CONSTRAINTS` `rc`'
+            . ' JOIN `information_schema`.`KEY_COLUMN_USAGE` `kcu`'
+            . ' ON `kcu`.`CONSTRAINT_SCHEMA` = `rc`.`CONSTRAINT_SCHEMA`'
+            . ' AND `kcu`.`CONSTRAINT_NAME` = `rc`.`CONSTRAINT_NAME`'
+            . ' AND `kcu`.`TABLE_NAME` = `rc`.`TABLE_NAME`'
+            . ' WHERE `rc`.`CONSTRAINT_SCHEMA` = ' . $db;
         $res = self::$DB->query($sql);
         if (false !== $res->error) {
             return null;
@@ -211,13 +226,18 @@ class SchemaReconciler extends FOGBase
         if (!is_array($rows)) {
             return null;
         }
-        $names = [];
+        $found = [];
         foreach ($rows as $row) {
-            if (isset($row['CONSTRAINT_NAME'])) {
-                $names[] = strtolower($row['CONSTRAINT_NAME']);
+            if (!isset($row['CONSTRAINT_NAME'])) {
+                continue;
             }
+            $found[strtolower($row['CONSTRAINT_NAME'])] = [
+                'parent' => strtolower((string)($row['REFERENCED_TABLE_NAME'] ?? '')),
+                'pcolumn' => strtolower((string)($row['REFERENCED_COLUMN_NAME'] ?? '')),
+                'action' => strtoupper((string)($row['DELETE_RULE'] ?? '')),
+            ];
         }
-        return $names;
+        return $found;
     }
 
     /**
@@ -379,11 +399,33 @@ class SchemaReconciler extends FOGBase
     }
 
     /**
-     * Works out the ADD CONSTRAINT statements the database is missing.
+     * Works out the statements that bring the database's foreign keys into
+     * line with the map.
      *
      * Pure, like plan(), and separate from it so the two kinds of failure
      * stay separable at execution: a structural statement that fails is an
      * error, a constraint that fails is a report.
+     *
+     * Three outcomes per relationship:
+     *
+     * - the database has no constraint of that name, and the map wants one:
+     *   ADD CONSTRAINT;
+     * - the database has one that no longer says what the map says (a
+     *   different action, or a different parent): DROP then ADD;
+     * - the database has one the map has retired (`enabled` false, or
+     *   `action` none): DROP.
+     *
+     * That last pair is what makes the map normative rather than merely
+     * additive. Before it, correcting an entry's action was a no-op on every
+     * server that had already applied the old one -- the name does not encode
+     * the action, so the pass saw the name, called it done, and the database
+     * kept the wrong rule forever. `nfsGroupMembers.ngmGroupID` shipped
+     * CASCADE and had to become SET NULL; that is what found this.
+     *
+     * The only constraints it will ever drop are ones carrying the name
+     * constraintName() generates, for a relationship the map lists. A
+     * constraint an administrator added by hand does not carry that name and
+     * is never touched.
      *
      * Skips a relationship whose child or parent table is absent rather than
      * treating it as a gap. Plugin tables are created on install and dropped
@@ -392,35 +434,72 @@ class SchemaReconciler extends FOGBase
      *
      * @param array $map        Constraint map, as constraints() returns it.
      * @param array $have       Current structure, as snapshot() returns it.
-     * @param array $haveFks    Existing constraint names, lowercased.
+     * @param array $haveFks    Existing constraints, as constraintSnapshot()
+     *                          returns them: name => [parent, pcolumn,
+     *                          action].
      *
      * @return array Ordered SQL statements.
      */
     public static function planConstraints($map, $have, $haveFks)
     {
         $plan = [];
-        $known = array_flip((array)$haveFks);
+        $known = [];
+        foreach ((array)$haveFks as $fkName => $fkDef) {
+            $known[strtolower((string)$fkName)] = is_array($fkDef) ? $fkDef : [];
+        }
+        $done = [];
         foreach ((array)$map as $rel) {
-            if (empty($rel['child'])
-                || empty($rel['column'])
-                || empty($rel['action'])
-                || 'none' === $rel['action']
-                || empty($rel['enabled'])
-            ) {
+            if (empty($rel['child']) || empty($rel['column'])) {
                 continue;
             }
+            $name = self::constraintName($rel);
+            $lname = strtolower($name);
+            if (isset($done[$lname])) {
+                continue;
+            }
+            $wanted = !empty($rel['enabled'])
+                && !empty($rel['action'])
+                && 'none' !== $rel['action'];
             $child = strtolower($rel['child']);
             $parent = strtolower((string)($rel['parent'] ?? ''));
+
+            // A constraint the database already holds under this name. Keep
+            // it only if it still says exactly what the map says; the
+            // comparison is on the declaration, not on the name.
+            if (isset($known[$lname])) {
+                $existing = $known[$lname];
+                $matches = $wanted
+                    && ($existing['parent'] ?? '') === $parent
+                    && ($existing['pcolumn'] ?? '')
+                        === strtolower((string)($rel['pcolumn'] ?? ''))
+                    && ($existing['action'] ?? '')
+                        === strtoupper((string)$rel['action']);
+                if ($matches) {
+                    $done[$lname] = true;
+                    continue;
+                }
+                $plan[] = sprintf(
+                    'ALTER TABLE `%s` DROP FOREIGN KEY `%s`',
+                    $rel['child'],
+                    $name
+                );
+                unset($known[$lname]);
+                if (!$wanted) {
+                    $done[$lname] = true;
+                    continue;
+                }
+            } elseif (!$wanted) {
+                continue;
+            }
+
             if (!isset($have[$child]) || !isset($have[$parent])) {
+                $done[$lname] = true;
                 continue;
             }
             if (!in_array(strtolower($rel['column']), $have[$child])
                 || !in_array(strtolower((string)$rel['pcolumn']), $have[$parent])
             ) {
-                continue;
-            }
-            $name = self::constraintName($rel);
-            if (isset($known[strtolower($name)])) {
+                $done[$lname] = true;
                 continue;
             }
             // ON UPDATE RESTRICT everywhere. FOG never updates a primary
@@ -436,7 +515,7 @@ class SchemaReconciler extends FOGBase
                 $rel['pcolumn'],
                 $rel['action']
             );
-            $known[strtolower($name)] = true;
+            $done[$lname] = true;
         }
         return $plan;
     }

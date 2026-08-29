@@ -126,12 +126,95 @@ $plan = SchemaReconciler::planConstraints(
 $t->check('action `none` plans nothing even when enabled', $plan === []);
 
 // --- idempotence ------------------------------------------------------------
+$fk = static function (array $over = []) {
+    return $over + [
+        'parent' => 'hosts',
+        'pcolumn' => 'hostid',
+        'action' => 'CASCADE',
+    ];
+};
+
 $plan = SchemaReconciler::planConstraints(
     [$rel()],
     $have,
-    ['fk_groupmembers_gmhostid']
+    ['fk_groupmembers_gmhostid' => $fk()]
 );
 $t->check('an existing constraint is not re-planned', $plan === []);
+
+// --- correcting a constraint the database already holds ---------------------
+//
+// The name does not encode ON DELETE, so a pass that decided by name alone
+// left the old rule in place forever. That is not hypothetical: step 384
+// shipped nfsGroupMembers.ngmGroupID as CASCADE and it had to become SET
+// NULL. Each of these three checks fails against a name-only comparison.
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['action' => 'SET NULL'])],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk(['action' => 'CASCADE'])]
+);
+$t->check(
+    'a changed action drops then re-adds',
+    count($plan) === 2
+        && strpos($plan[0], 'DROP FOREIGN KEY `fk_groupMembers_gmHostID`') !== false
+        && strpos($plan[1], 'ON DELETE SET NULL') !== false
+);
+
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['parent' => 'groups', 'pcolumn' => 'groupID'])],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk()]
+);
+$t->check(
+    'a changed parent drops then re-adds',
+    count($plan) === 2
+        && strpos($plan[0], 'DROP FOREIGN KEY') !== false
+        && strpos($plan[1], 'REFERENCES `groups` (`groupID`)') !== false
+);
+
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['pcolumn' => 'hostName'])],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk()]
+);
+$t->check(
+    'a changed parent column drops then re-adds',
+    count($plan) === 2 && strpos($plan[1], '(`hostName`)') !== false
+);
+
+// --- retiring a constraint --------------------------------------------------
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['enabled' => false])],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk()]
+);
+$t->check(
+    'a disabled relationship the database still holds is dropped, not re-added',
+    count($plan) === 1
+        && strpos($plan[0], 'DROP FOREIGN KEY `fk_groupMembers_gmHostID`') !== false
+);
+
+$plan = SchemaReconciler::planConstraints(
+    [$rel(['action' => 'none'])],
+    $have,
+    ['fk_groupmembers_gmhostid' => $fk()]
+);
+$t->check('action `none` drops one the database still holds', count($plan) === 1);
+
+// A constraint nothing in the map names is never touched, whatever it is
+// called. Dropping by name is only safe because the name is generated.
+$plan = SchemaReconciler::planConstraints(
+    [$rel()],
+    $have,
+    [
+        'fk_groupmembers_gmhostid' => $fk(),
+        'admins_own_constraint' => $fk(['action' => 'RESTRICT']),
+        'fk_groupmembers_gmhostid_v2' => $fk(['action' => 'RESTRICT']),
+    ]
+);
+$t->check(
+    'a constraint the map does not name is left alone',
+    $plan === []
+);
 
 $plan = SchemaReconciler::planConstraints([$rel(), $rel()], $have, []);
 $t->check('the same relationship twice plans one statement', count($plan) === 1);

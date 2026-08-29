@@ -1061,14 +1061,18 @@ constraints, against 4.56s for step 382's 14, because 382 validates the
 
 ### Step 5 as it landed, and why step 6 does not exist
 
-`FOG_SCHEMA` 383 → 384. Five constraints across three tables — the smallest
+`FOG_SCHEMA` 383 → 384. Four constraints across two tables — the smallest
 group and the one the survey's orphan counts actually named.
 
 ```
-nfsGroupMembers   ngmGroupID -> nfsGroups
 imageGroupAssoc   igaStorageGroupID -> nfsGroups   igaImageID -> images
 snapinGroupAssoc  sgaStorageGroupID -> nfsGroups   sgaSnapinID -> snapins
 ```
+
+It originally declared a fifth, `nfsGroupMembers.ngmGroupID -> nfsGroups` ON
+DELETE CASCADE, and that was wrong. See *Step 385: correcting a constraint
+that had already landed* below — the measurement immediately after this
+paragraph is what exposed it.
 
 Unlike groups 1 and 2 this one does **not** pin behavior FOG already has.
 `deletemass()` has no `storagegroup` or `storagenode` case and neither model
@@ -1082,7 +1086,7 @@ that cannot be skipped.
 DELETE FROM nfsGroups WHERE ngID=1
 
                        before   after
-  nfsGroupMembers          1       0     cascaded
+  nfsGroupMembers          1       0     cascaded -- WRONG, see step 385
   imageGroupAssoc         29       0     cascaded
   snapinGroupAssoc         4       0     cascaded
   nfsFailures              1       1     audit, never constrained
@@ -1094,9 +1098,11 @@ DELETE FROM nfsGroups WHERE ngID=1
 `deletemass()`. It is not needed, and landing step 5 first is what proved
 it** — which is exactly the reason the sequencing put them in this order.
 
-- For a storage **group**, everything such a case would delete is the three
-  tables above, and the database now deletes them on every path. A PHP copy
-  would be a second thing to keep in step with the first, for no behavior.
+- For a storage **group**, everything such a case would delete is the two
+  association tables above, and the database now deletes them on every path.
+  A PHP copy would be a second thing to keep in step with the first, for no
+  behavior. (`nfsGroupMembers` is not one of them — under step 385 its nodes
+  are detached, not deleted.)
 - For a storage **node** there is nothing to delete at all. Every reference
   to `nfsGroupMembers` in the map is either RESTRICT (`multicastSessions.
   msSenderNode`, `tasks.taskNFSMemberID`, `tasks.taskLastMemberID`,
@@ -1112,6 +1118,101 @@ with the step that creates it.
 
 The step numbers are left as they are rather than renumbered — every commit
 message and cross-reference already uses them.
+
+### Step 385: correcting a constraint that had already landed
+
+`FOG_SCHEMA` 384 → 385. No new group. This step removes
+`fk_nfsGroupMembers_ngmGroupID`, which step 384 should never have created,
+and it exists because the reconciler could not previously remove anything.
+
+**The wrong call.** The map classed `nfsGroupMembers.ngmGroupID` as a
+*satellite* of `nfsGroups` and gave it ON DELETE CASCADE, alongside
+`inventory.iHostID` and the rest. A storage node is not a satellite. It
+carries its own hostname, credentials, root/FTP/snapin paths, interface,
+bandwidth limit, max clients and enable flag — none of which is recoverable
+from the group — and `StorageGroup::removeNode()` detaches one by writing `0`
+into `ngmGroupID` without deleting anything. "Belongs to no group" is a state
+FOG creates on purpose and the Storage Node list still renders.
+
+So under the CASCADE, deleting a storage group would have silently destroyed
+every one of its nodes' configuration. The measurement in the step 5 section
+above shows it happening (`nfsGroupMembers 1 → 0, cascaded`) and it was read
+at the time as the constraint working.
+
+**Two things it broke, both verified against a server, not reasoned about:**
+
+```
+UPDATE nfsGroupMembers SET ngmGroupID = 0 WHERE ngmMemberName='probe-node'
+ERROR 1452 ... CONSTRAINT `fk_nfsGroupMembers_ngmGroupID`
+```
+
+`StorageGroup::removeNode()` issues exactly that statement. Detaching a
+storage node through the UI was broken from step 384 onward.
+
+And step 381's orphan sweep listed the same relationship, so it *deleted*
+detached nodes as though they were dangling junction rows. Tom's own 1.6
+server carries one — `fognode1.lan`, enabled, `ngmGroupID = 0`. The sweep
+would have destroyed it. That relationship is now removed from the sweep's
+frozen list, with the reasoning inline.
+
+**Why this needed a reconciler change.** `planConstraints()` read constraint
+*names* out of `information_schema` and skipped any name it found. The name
+is `fk_<child>_<column>`; it does not encode ON DELETE. So correcting an
+entry's action was a permanent no-op on every server that had already applied
+the old one — the map said SET NULL, the database said CASCADE, and nothing
+would ever have reconciled the two. That makes ADR 0031's central claim, that
+the map is normative, simply false.
+
+`constraintSnapshot()` now returns the whole declaration — referenced table,
+referenced column and `DELETE_RULE` — and `planConstraints()` has three
+outcomes per relationship instead of two:
+
+| Database | Map | Plan |
+|---|---|---|
+| no constraint of that name | wants one | `ADD CONSTRAINT` |
+| has one, declaration matches | wants it | nothing |
+| has one, declaration differs | wants one | `DROP` then `ADD` |
+| has one | retired (`enabled` false, or `action` none) | `DROP` |
+
+It will only ever drop a constraint carrying the name
+`constraintName()` generates for a relationship the map lists. One an
+administrator added by hand does not carry that name and is untouched — a
+gate pins that, and it goes red if the pass is changed to iterate the
+database's constraints rather than the map's.
+
+**What the relationship is now:** `config`, ON DELETE SET NULL, disabled
+until the sentinel conversion makes the column nullable, so it lands with
+group 5. Deleting a storage group will then *detach* its nodes — which is
+what `removeNode()` already means, is what the UI can undo, and is the only
+option that does not destroy configuration.
+
+**Verified:**
+
+```
+fk385 (a clone of the post-384 database)
+  before  40 constraints, ngmGroupID = CASCADE
+  step 385 ran: ALTER TABLE `nfsGroupMembers` DROP FOREIGN KEY ...
+  after   39 constraints, ngmGroupID = ABSENT
+  re-run: no statements, still 39            (idempotent)
+  UPDATE ... SET ngmGroupID = 0: succeeds    (removeNode works again)
+
+fresh replay, closures included
+  steps 385, statements 992, tolerated 3, FAILED 0
+  tables 70, foreign keys 39
+```
+
+Three new gate families in `tests/foreign-key-reconcile.test.php`, each
+mutation-proven: reverting the comparison to name-only turns 3 red, removing
+the DROP turns 5 red, and dropping constraints the map does not name turns 7
+red.
+
+**The general lesson, worth more than the specific fix:** classifying a
+relationship is not a clerical step. `satellite` and `config` differ only in
+whether the child can outlive the parent, and getting it wrong writes a
+destructive rule into the database that no PHP path can override. The test
+for `satellite` is not "is it a small table hanging off a big one" — it is
+*does anything in FOG deliberately detach one and leave it alive?* For
+storage nodes there is a method whose name is literally `removeNode()`.
 
 ### A consequence of the mechanism, to be handled at group 5
 

@@ -93,8 +93,18 @@ CASCADE while `tasks.taskStateID` is RESTRICT, and `hosts.hostImage` is SET
 NULL while `scheduledTasks.stImageID` is RESTRICT. A column that holds an id
 and is not in that file is a bug, not an omission.
 
-Current totals: 66 CASCADE, 17 RESTRICT, 4 SET NULL, 16 no constraint
+Current totals: 65 CASCADE, 17 RESTRICT, 5 SET NULL, 16 no constraint
 (`audit` and `poly`).
+
+**`satellite` vs `config` is the classification that can destroy data, so it
+gets a test rather than a feel.** The question is not "is this a small table
+hanging off a big one" — it is *does anything in FOG deliberately detach one
+and leave it alive?* If yes, the child outlives the parent and the class is
+`config`. `nfsGroupMembers.ngmGroupID` shipped as `satellite`/CASCADE in
+schema step 384 and had to be corrected in 385: a storage node carries its
+own hostname, credentials, paths and enable flag, and `removeNode()` detaches
+one without deleting it, so CASCADE would have destroyed a node's entire
+configuration when its group was deleted.
 
 | Class | `ON DELETE` | What it means |
 |---|---|---|
@@ -185,6 +195,27 @@ both reference `nfsGroupMembers` and would collide. Child plus column is
 unique by construction, so the name is derivable from the map without a
 lookup — which is what lets CI check it — and greppable, so
 `grep -rn fk_tasks_` finds every constraint on the table.
+
+### 5a. The map is normative: the reconciler corrects and retires, not only adds
+
+A constraint pass that only ever *adds* makes decision 1 a claim it cannot
+keep. The generated name encodes the child table and column but not the
+`ON DELETE` action, so a pass deciding by name alone sees a constraint that
+already exists, calls the relationship done, and leaves the database
+disagreeing with the map forever. Correcting an entry's action would be a
+permanent no-op on every server that had applied the old one.
+
+So `constraintSnapshot()` reads the whole declaration — referenced table,
+referenced column, `DELETE_RULE` — and `planConstraints()` emits `DROP` +
+`ADD` when what the database holds differs from what the map says, and `DROP`
+alone when the map has retired the relationship (`enabled` false, or `action`
+none).
+
+The safety property that makes dropping acceptable: **the only constraints it
+will ever drop are ones carrying the name decision 5 generates, for a
+relationship the map lists.** A constraint an administrator added by hand
+does not carry that name and is never considered. The pass iterates the map,
+not the database — a gate pins that, and it goes red if the loop is inverted.
 
 ### 6. No future step may DROP or TRUNCATE a referenced parent
 

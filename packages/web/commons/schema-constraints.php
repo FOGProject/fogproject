@@ -109,9 +109,21 @@ return [
     ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'apiTokens', 'column' => 'atUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
     ['child' => 'userAuths', 'column' => 'uaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
-    ['child' => 'nfsGroupMembers', 'column' => 'ngmGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true],
 
     // ---- config: references to configuration with its own life ----------
+    //
+    // nfsGroupMembers.ngmGroupID was classed satellite and shipped CASCADE
+    // in schema step 384. That was wrong on both counts and is corrected
+    // here. A storage node is not a satellite of its group: it carries its
+    // own hostname, credentials, paths, bandwidth limit and enable flag, and
+    // StorageGroup::removeNode() detaches one without deleting it -- so
+    // "belongs to no group" is a state FOG itself creates and the Storage
+    // Node list still shows. Under CASCADE, deleting a group would have
+    // silently destroyed every node's configuration with it.
+    //
+    // It stays disabled until the sentinel conversion makes the column
+    // nullable, because SET NULL cannot be declared on a NOT NULL column.
+    ['child' => 'nfsGroupMembers', 'column' => 'ngmGroupID', 'parent' => 'nfsGroups', 'pcolumn' => 'ngID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => false],
     ['child' => 'hosts', 'column' => 'hostImage', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'SET NULL', 'sentinel' => 0, 'enabled' => false],
     ['child' => 'hosts', 'column' => 'hostArchID', 'parent' => 'architectures', 'pcolumn' => 'archID', 'class' => 'config', 'action' => 'SET NULL', 'enabled' => false],
     ['child' => 'images', 'column' => 'imageOSID', 'parent' => 'os', 'pcolumn' => 'osID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => false],
