@@ -92,6 +92,16 @@ abstract class FOGManagerController extends FOGBase
      */
     const SEARCHBUILDER_DATE_FLOOR = '1000-01-01 00:00:00';
     /**
+     * Separates the condition from its values in a per-column search box.
+     *
+     * ASCII unit separator: it cannot be typed into the box, so a value a
+     * user actually entered can never be mistaken for this wire form and
+     * fall through to the criterion path by accident.
+     *
+     * @var string
+     */
+    const COLUMN_SEARCH_SEPARATOR = "\x1f";
+    /**
      * Whether the last limit() call had to impose MAX_ROWS because the request
      * did not bound itself. Read by complex() so the payload can say it is a
      * page rather than the whole answer.
@@ -650,6 +660,31 @@ abstract class FOGManagerController extends FOGBase
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
                     || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
+                    continue;
+                }
+                // A per-column box in the header row can carry a condition,
+                // so that "starts with", "is exactly" and a date's "before"
+                // are the SAME code path -- and the same guards, escaping and
+                // whole-day arithmetic -- as the Filter panel's equivalent.
+                // The wire form is the condition, a unit separator, then up
+                // to two values. A plain string with no separator keeps the
+                // historical contains-anywhere behavior, which is what every
+                // other caller of column().search() in FOG sends.
+                if (false !== strpos($str, self::COLUMN_SEARCH_SEPARATOR)) {
+                    $parts = explode(self::COLUMN_SEARCH_SEPARATOR, $str);
+                    $clause = self::_sbCriterion(
+                        [
+                            'origData' => $requestColumn['data'],
+                            'condition' => array_shift($parts),
+                            'value' => $parts,
+                        ],
+                        $columns,
+                        $bindings,
+                        $table
+                    );
+                    if ($clause !== '') {
+                        $columnSearch[] = $clause;
+                    }
                     continue;
                 }
                 $columnSrch = $column['db'];
