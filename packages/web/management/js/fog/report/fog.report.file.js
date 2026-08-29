@@ -393,11 +393,26 @@
           serverSide: false,
           select: false,
           ajax: {
-            url: '../management/index.php?node=report&sub=getList&f='
-            + Common.f
-            + (window.location.search
-              ? '&' + window.location.search.replace(/^\?/, '')
-              : ''),
+            // The page's OWN query string carries the window (start, end,
+            // sources[]) and getList has to see it -- but it also carries
+            // node, sub and f, and appending it wholesale put `sub=file`
+            // AFTER `sub=getList`. PHP takes the last occurrence of a
+            // repeated key, so every request re-rendered the report page
+            // and DataTables was handed HTML at HTTP 200. That is what the
+            // "runhistory-table / HTTP 200 - <div class=..." toast was.
+            //
+            // Built through URLSearchParams so there are no repeated keys
+            // to resolve at all: the window params ride along untouched
+            // (set() replaces only the three named, and sources[] is left
+            // as the repeated key it is), and the three that address the
+            // endpoint are stated once.
+            url: (function () {
+              var params = new URLSearchParams(window.location.search);
+              params.set('node', 'report');
+              params.set('sub', 'getList');
+              params.set('f', Common.f);
+              return '../management/index.php?' + params.toString();
+            })(),
             type: 'post'
           }
         });
