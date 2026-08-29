@@ -1197,6 +1197,50 @@ trait FOGPageRender
         return ob_get_clean();
     }
     /**
+     * The banner an ADR 0030 report shows when its rows hit the cap.
+     *
+     * EVERY NUMBER ON THESE PAGES IS COMPUTED OFF THE CAPPED SET, so a
+     * silent cap makes the tiles quietly wrong for exactly the busy fleets
+     * that most need them right -- and, since the CSV export is the same
+     * fold, hands out a file that looks complete and is not.
+     *
+     * Shared rather than written per report. The imaging and snapin reports
+     * each had their own copy of this sentence and the other four had none,
+     * which is how "some reports warn you" became a thing that was true.
+     *
+     * The wording carries no noun, deliberately. "%s runs" would have to be
+     * built at runtime to say "hosts" on the fleet report, and a msgid
+     * assembled at runtime never matches the literal xgettext extracted --
+     * so it would silently stop translating. "Rows" is what every one of
+     * them shows.
+     *
+     * @param bool $truncated whether the source hit its cap
+     * @param int  $max       the cap that was hit
+     *
+     * @return string the alert markup, or '' when nothing was cut
+     */
+    public static function renderReportCap($truncated, $max)
+    {
+        if (!$truncated) {
+            return '';
+        }
+
+        return sprintf(
+            '<div class="alert alert-warning">%s</div>',
+            \Initiator::e(
+                sprintf(
+                    _(
+                        'More than %s rows match this range. Everything '
+                        . 'below covers the first %s only -- narrow the '
+                        . 'dates for exact figures.'
+                    ),
+                    number_format((int) $max),
+                    number_format((int) $max)
+                )
+            )
+        );
+    }
+    /**
      * A row of headline numbers.
      *
      * CARDS, NOT AdminLTE's `small-box`. small-box paints a near-white

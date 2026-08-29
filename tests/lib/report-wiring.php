@@ -93,12 +93,21 @@ class FogReportWiring
             false !== strpos($js, "case '" . $label . "':")
         );
 
-        $page = (string)@file_get_contents(
-            $web . '/lib/pages/reportmanagement.page.php'
+        // The label. It used to be ucwords() of the file name, so the
+        // sidebar could not spell "MAC" and disagreed with seven of the
+        // pages it opened. It is now a row in ReportManagement's map, and
+        // the class reads its own $this->title back out of that same map --
+        // so this checks BOTH halves: that the row exists, and that the
+        // page did not go back to hardcoding a literal beside it.
+        $titles = \FOG\ReportManagement::reportTitles();
+        $t->check(
+            "$slug: it has a label in ReportManagement::reportTitles()",
+            isset($titles[$label]) && '' !== trim((string)$titles[$label])
         );
         $t->check(
-            "$slug: the menu label is registered for xgettext",
-            false !== strpos($page, "_('" . ucwords($label) . "');")
+            "$slug: the page takes its title from that map, not a literal",
+            false !== strpos($code, '$this->title = self::reportTitle();')
+            && 1 !== preg_match('/\$this->title\s*=\s*_\(/', $code)
         );
 
         // The columns, read out of both sides rather than assumed, so

@@ -16,9 +16,9 @@
  *   - the permission. Reports share the `report` node by default, which is
  *     the defect ADR 0023 opens with; this one is task activity and must
  *     resolve to `task`. Getting that wrong widens access silently.
- *   - the menu label must be registered for xgettext, because the labels are
- *     built from filenames at runtime and a runtime-built msgid never
- *     reaches the catalog.
+ *   - the menu label must be a row in ReportManagement::reportTitles(),
+ *     because a label built from the file name at runtime is a msgid
+ *     xgettext never sees and a spelling nobody chose.
  *
  * What this canNOT check is that getList() RUNS. It did not, the first time:
  * `TaskStateManager->find()` does not exist in 1.6 and a call to it is a
@@ -116,14 +116,14 @@ $t->check(
 );
 
 /*
- * 4. The menu label reaches the catalog. The labels are built from
- *    filenames at runtime, so xgettext sees nothing unless the literal is
- *    written out in _reportNamesForTranslation().
+ * 4. The menu label is a row in ReportManagement's map rather than
+ *    ucwords() of the file name -- which is also what keeps the msgid in
+ *    the catalog, since a runtime-built one never reaches it.
  */
-$page = file_get_contents($web . '/lib/pages/reportmanagement.page.php');
+$titles = \FOG\ReportManagement::reportTitles();
 $t->check(
-    "the menu label is registered for xgettext",
-    false !== strpos($page, "_('Run History');")
+    'the menu label comes from ReportManagement::reportTitles()',
+    ($titles['run history'] ?? '') === _('Run History')
 );
 
 /*

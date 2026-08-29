@@ -15,7 +15,6 @@ namespace FOG;
 
 use FOG\Audit\ReportWindow;
 use FOG\Audit\SnapinStats;
-use FOG\Router\HTTPResponseCodes;
 
 /**
  * Which snapins ran, where, and whether they worked.
@@ -67,7 +66,7 @@ class Snapin_Report extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Snapin Report');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('Snapin'),
@@ -106,22 +105,10 @@ class Snapin_Report extends ReportManagement
             $end->format('Y-m-d H:i:s')
         );
 
-        if ($totals['truncated']) {
-            printf(
-                '<div class="alert alert-warning">%s</div>',
-                \Initiator::e(
-                    sprintf(
-                        _(
-                            'More than %s runs match this range. Everything '
-                            . 'below counts the most recent %s only -- narrow '
-                            . 'the dates for exact figures.'
-                        ),
-                        number_format(SnapinStats::MAX_ROWS),
-                        number_format(SnapinStats::MAX_ROWS)
-                    )
-                )
-            );
-        }
+        echo self::renderReportCap(
+            $totals['truncated'],
+            SnapinStats::MAX_ROWS
+        );
 
         echo self::renderStatTiles(
             [
@@ -207,13 +194,15 @@ class Snapin_Report extends ReportManagement
         echo '</div>';
     }
     /**
-     * Serves the rows.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
         $rows = SnapinStats::runs($start, $end);
 
@@ -245,9 +234,16 @@ class Snapin_Report extends ReportManagement
             ];
         }
 
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(['data' => $data]);
-        exit;
+        // A capped fetch is not a complete answer, and a CSV taken from
+        // one looks exactly like a complete file once it is on disk. The
+        // flag rides in the envelope so ReportManagement::exportAll() can
+        // write the cap into the download's name. `>=` rather than `>`
+        // because the rollup slices at MAX_ROWS and cannot see what it
+        // dropped; the name it produces is true either way.
+        return [
+            'data' => $data,
+            'truncated' => count($rows) >= SnapinStats::MAX_ROWS
+        ];
     }
 }
 

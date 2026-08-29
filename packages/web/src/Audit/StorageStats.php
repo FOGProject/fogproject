@@ -320,6 +320,10 @@ class StorageStats extends WindowedStats
         ) {
             $out[$k] = (int)($row[$k] ?? 0);
         }
+        // images() is capped at MAX_ROWS while `images` here is a true
+        // count off the database, so the grid can be short of the tiles.
+        // Said out loud for the same reason the imaging report says it.
+        $out['truncated'] = $out['images'] > self::MAX_ROWS;
 
         return $out;
     }

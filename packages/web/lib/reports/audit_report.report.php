@@ -15,7 +15,6 @@ namespace FOG;
 
 use FOG\Audit\AuditStats;
 use FOG\Audit\ReportWindow;
-use FOG\Router\HTTPResponseCodes;
 
 /**
  * Who changed what, who was refused, and when.
@@ -72,7 +71,7 @@ class Audit_Report extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Audit Report');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('When'),
@@ -107,6 +106,11 @@ class Audit_Report extends ReportManagement
             'audit-report',
             $start->format('Y-m-d H:i:s'),
             $end->format('Y-m-d H:i:s')
+        );
+
+        echo self::renderReportCap(
+            $totals['truncated'],
+            AuditStats::MAX_ROWS
         );
 
         echo self::renderStatTiles(
@@ -221,13 +225,15 @@ class Audit_Report extends ReportManagement
         echo '</div>';
     }
     /**
-     * Serves the rows.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
         $rows = AuditStats::events($start, $end);
 
@@ -252,9 +258,16 @@ class Audit_Report extends ReportManagement
             ];
         }
 
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(['data' => $data]);
-        exit;
+        // A capped fetch is not a complete answer, and a CSV taken from
+        // one looks exactly like a complete file once it is on disk. The
+        // flag rides in the envelope so ReportManagement::exportAll() can
+        // write the cap into the download's name. `>=` rather than `>`
+        // because the rollup slices at MAX_ROWS and cannot see what it
+        // dropped; the name it produces is true either way.
+        return [
+            'data' => $data,
+            'truncated' => count($rows) >= AuditStats::MAX_ROWS
+        ];
     }
     /**
      * One row's subject as a person would say it.

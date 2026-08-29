@@ -15,7 +15,6 @@ namespace FOG;
 
 use FOG\Audit\ActivityWindow;
 use FOG\Audit\ReportWindow;
-use FOG\Router\HTTPResponseCodes;
 
 /**
  * What ran, and when it started and finished.
@@ -129,7 +128,7 @@ class Run_History extends ReportManagement
      */
     public function file()
     {
-        $this->title = _('Run History');
+        $this->title = self::reportTitle();
 
         $this->headerData = [
             _('What'),
@@ -194,13 +193,15 @@ class Run_History extends ReportManagement
         echo '</div>';
     }
     /**
-     * Serves the rows.
+     * The rows this report serves.
      *
-     * @return void
+     * Split from the emit so the grid and the CSV export run the same
+     * query -- see ReportManagement::exportAll().
+     *
+     * @return array
      */
-    public function getList()
+    protected function reportRows()
     {
-        header('Content-type: application/json');
         [$start, $end] = self::_window();
         $rows = ActivityWindow::between($start, $end, self::_sources());
 
@@ -271,9 +272,16 @@ class Run_History extends ReportManagement
             ];
         }
 
-        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
-        echo json_encode(['data' => $data]);
-        exit;
+        // A capped fetch is not a complete answer, and a CSV taken from
+        // one looks exactly like a complete file once it is on disk. The
+        // flag rides in the envelope so ReportManagement::exportAll() can
+        // write the cap into the download's name. `>=` rather than `>`
+        // because the rollup slices at MAX_ROWS and cannot see what it
+        // dropped; the name it produces is true either way.
+        return [
+            'data' => $data,
+            'truncated' => count($rows) >= ActivityWindow::MAX_ROWS
+        ];
     }
 }
 
