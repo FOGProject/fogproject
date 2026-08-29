@@ -24,6 +24,15 @@
  *    request carries, so a hand-made request cannot ask for a range on a
  *    text column.
  *
+ * 4. Every binding the clause creates is referenced BY that clause. sqlexec()
+ *    binds the whole array to each of complex()'s queries, so a binding the
+ *    SQL never names makes PDO refuse the statement outright -- "Invalid
+ *    parameter number: parameter was not defined" -- and the list answers
+ *    406. This one is checked on every clause case below rather than as a
+ *    case of its own, because it is a property of all of them; the first cut
+ *    of this file rendered the bindings into the SQL text and so was blind
+ *    to it, which shipped a 406 on 'before' and 'after'.
+ *
  * Standalone like its neighbors: filter() and its helpers are static and
  * touch no state, so a stub base carrying a fixed column-type map is enough
  * to exercise them with no boot and no database.
@@ -123,6 +132,30 @@ class SearchBuilderProbe extends FOGManagerController
             );
         }
         return $where;
+    }
+
+    /**
+     * The bindings a payload creates that its own clause never names.
+     *
+     * Anything listed here is a statement PDO will refuse to prepare.
+     *
+     * @param array  $request DataTables request carrying searchBuilder
+     * @param array  $columns Column definitions as listem() builds them
+     * @param string $table   The table being queried
+     *
+     * @return array
+     */
+    public static function unusedBindings($request, $columns, $table = 'hosts')
+    {
+        $bindings = [];
+        $where = self::filter($request, $columns, $bindings, $table);
+        $unused = [];
+        foreach ($bindings as $binding) {
+            if (false === strpos($where, $binding['key'])) {
+                $unused[] = $binding['key'] . " => '" . $binding['val'] . "'";
+            }
+        }
+        return $unused;
     }
 
     /**
@@ -440,7 +473,9 @@ $cases[] = [
 ];
 
 $failures = [];
+$checks = 0;
 foreach ($cases as $case) {
+    ++$checks;
     if (isset($case['assert'])) {
         $problem = $case['assert']();
         if ('' !== $problem) {
@@ -456,6 +491,15 @@ foreach ($cases as $case) {
             '' === $case['expect'] ? '(no clause)' : $case['expect'],
             '' === $got ? '(no clause)' : $got
         );
+    }
+    // Invariant 4 in the docblock: it holds for every payload, so it is
+    // asserted on every case rather than being one case of its own.
+    ++$checks;
+    $unused = SearchBuilderProbe::unusedBindings($case['request'], $columns);
+    if ($unused) {
+        $failures[] = $case['name']
+            . "\n    bindings the clause never names (PDO refuses these):\n    "
+            . implode("\n    ", $unused);
     }
 }
 
@@ -488,6 +532,6 @@ if ($failures) {
 }
 
 echo "PASS: SearchBuilder WHERE clause ("
-    . (count($cases) + 1)
+    . ($checks + 1)
     . " checks)\n";
 exit(0);

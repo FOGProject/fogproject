@@ -1155,6 +1155,80 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
     );
   }
 
+  // -- DataTables Buttons collection (the SearchBuilder panel's chrome) --
+  // Buttons hardcodes `div.dt-buttons div.dt-button-collection {
+  // background-color: #fff }` with no --dt-* var to re-point. Its own dark
+  // variants are scoped `html.dark`, which FOG never sets -- the switch here
+  // is data-bs-theme on <html> -- so the collection stayed an opaque white
+  // slab. That is what holds the SearchBuilder panel, hence a white card of
+  // light chrome, light title and grey browser-default buttons wrapped around
+  // inputs that were already dark. The DateTime picker needs nothing: 1.5.6
+  // ships its own :root[data-bs-theme=dark] rules.
+  div.dt-buttons div.dt-button-collection,
+  div.dt-buttons div.dt-button-collection.fixed {
+    background-color: var(--fog-surface);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+  div.dt-button-collection span.dt-button-spacer.bar {
+    border-bottom-color: var(--fog-border);
+  }
+  div.dtb-popover-close {
+    background-color: var(--fog-surface-2);
+    border: 1px solid var(--fog-border);
+    color: var(--fog-text);
+  }
+
+  // -- SearchBuilder panel --
+  // Its buttons (Add Condition, Clear All, the per-row delete, and the
+  // And/Or logic rail) are plain <button>s with no color rules of their own,
+  // so they fall back to the UA's light grey. The three <select>s keep
+  // SearchBuilder's red/green/blue borders -- those encode data/condition/
+  // value and read fine on dark -- but need the sunken fill and light text.
+  // color-scheme is what paints the native <option> popup dark; without it
+  // the list that drops out of a themed box is still white (same reason the
+  // length menu above carries it).
+  div.dtsb-searchBuilder {
+    color: var(--fog-text);
+  }
+  div.dtsb-searchBuilder div.dtsb-titleRow div.dtsb-title {
+    color: var(--fog-text-muted);
+  }
+  div.dtsb-searchBuilder button.dtsb-button,
+  div.dtsb-searchBuilder button.dtsb-add,
+  div.dtsb-searchBuilder button.dtsb-clearAll,
+  div.dtsb-searchBuilder button.dtsb-delete,
+  div.dtsb-searchBuilder button.dtsb-clearGroup,
+  div.dtsb-searchBuilder button.dtsb-logic {
+    background-color: var(--fog-surface-2);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+  div.dtsb-searchBuilder button.dtsb-button:hover,
+  div.dtsb-searchBuilder button.dtsb-add:hover,
+  div.dtsb-searchBuilder button.dtsb-clearAll:hover,
+  div.dtsb-searchBuilder button.dtsb-delete:hover,
+  div.dtsb-searchBuilder button.dtsb-clearGroup:hover,
+  div.dtsb-searchBuilder button.dtsb-logic:hover {
+    background-color: var(--fog-surface);
+    color: var(--fog-text);
+  }
+  div.dtsb-searchBuilder div.dtsb-group div.dtsb-logicContainer {
+    border-color: var(--fog-border);
+  }
+  div.dtsb-searchBuilder select.dtsb-dropDown,
+  div.dtsb-searchBuilder input.dtsb-input,
+  div.dtsb-searchBuilder input.dtsb-value {
+    background-color: var(--fog-input-bg);
+    color: var(--fog-text);
+    color-scheme: dark;
+  }
+  // The neutral 1px #cecece SearchBuilder puts on a control that has no
+  // semantic color yet (an empty Value box, a disabled row).
+  div.dtsb-searchBuilder .dtsb-greyscale {
+    border-color: var(--fog-border) !important;
+  }
+
   // -- DataTables wrapper controls --
   .dataTables_wrapper .dataTables_filter input,
   .dataTables_wrapper .dataTables_length select {
