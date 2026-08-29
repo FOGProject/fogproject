@@ -8448,3 +8448,56 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 379
+$this->schema[] = [
+    // taskLog.createTime -- the column every windowed report bounds on, and
+    // the one index ADR 0022 step 354 did not add.
+    //
+    // Step 354 indexed the START column of all five WORK ITEM tables so
+    // ActivityWindow could find a range without scanning. taskLog is not a
+    // work-item table -- it is the EVENT table, one row per state transition
+    // -- so it was correctly out of that step's scope and consequently has
+    // never had an index on its time column at all. It ships with
+    // `PRIMARY KEY (id)` and `KEY taskID (taskID)` and nothing else.
+    //
+    // That was survivable while nothing read it by time. It no longer is.
+    // ADR 0022 decision 3 retired imagingLog and made taskLog the record of
+    // what was imaged, so DashboardPage::get30day() already scans the whole
+    // table on every dashboard load -- `WHERE createTime BETWEEN ? AND ?`
+    // with no index to find the range with -- and ADR 0030 puts every
+    // report rollup on the same bound. taskLog is the fastest-growing table
+    // on a busy server and the one whose retention window is longest, so
+    // the scan gets worse exactly where the reports get used.
+    //
+    // Single column, not composite. The rollups filter further --
+    // `logImageName <> ''`, `taskStateID <> cancelled` -- but neither is an
+    // equality, so neither is usable as a leading or trailing key part. The
+    // range on createTime is what has to be found; the rest is a filter over
+    // the rows it returns.
+    //
+    // Guarded closure, same shape as 354 and 376-378: ADD INDEX has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and re-running one
+    // is error 1061 rather than a no-op. Matched on the COLUMN rather than
+    // the index name, and on SEQ_IN_INDEX = 1, for the reason 354 gives --
+    // a server that already leads an index with this column, hand-tuned or
+    // folded into a later composite, must not get a second one on it.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `INDEX_NAME` AS `i` "
+            . "FROM `information_schema`.`STATISTICS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` = 'createTime' "
+            . "AND `SEQ_IN_INDEX` = 1"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (count((array)$have) < 1) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` "
+                . "ADD INDEX `idx_taskLogCreateTime` (`createTime`)"
+            );
+        }
+
+        return true;
+    },
+];
