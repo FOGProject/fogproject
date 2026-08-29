@@ -154,6 +154,11 @@ const TABLE = [
     'UbootBootMenu' => 'Boot',
     'Registration' => 'Boot',
     'WakeOnLan' => 'Boot',
+    // Boot, not Util, for the same reason WakeOnLan is: it is the vocabulary
+    // of what iPXE reports on a boot, and its only writers are the boot menu
+    // and the task-completion report. Util is for things belonging to no
+    // subsystem at all.
+    'SecureBootState' => 'Boot',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
