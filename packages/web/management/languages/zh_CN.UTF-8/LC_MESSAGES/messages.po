@@ -267,6 +267,9 @@ msgstr ""
 msgid "30 Minutes"
 msgstr "30分钟"
 
+msgid "31 to 90 days"
+msgstr ""
+
 #, fuzzy
 msgid "5 Minutes"
 msgstr "2分钟"
@@ -282,6 +285,9 @@ msgid "60 Days"
 msgstr ""
 
 msgid "90 Days"
+msgstr ""
+
+msgid "91 to 365 days"
 msgstr ""
 
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
@@ -346,6 +352,9 @@ msgstr ""
 #, fuzzy
 msgid "A host already exists with this name!"
 msgstr "图像已经存在具有此名称！"
+
+msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
+msgstr ""
 
 #, fuzzy
 msgid "A host with that name already exists"
@@ -807,6 +816,10 @@ msgid "Additional Icon Elements"
 msgstr "附加的MAC"
 
 #, fuzzy
+msgid "Address"
+msgstr "IP地址"
+
+#, fuzzy
 msgid "Administrative actions"
 msgstr "修改组"
 
@@ -892,6 +905,14 @@ msgstr "带宽应该是数字和大于0"
 
 msgid "All rights reserved."
 msgstr ""
+
+#, fuzzy
+msgid "Allocated"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Allocated bytes per storage group"
+msgstr "主存储组"
 
 msgid "Allow API"
 msgstr ""
@@ -1097,6 +1118,10 @@ msgid "Audit Log"
 msgstr ""
 
 #, fuzzy
+msgid "Audit Report"
+msgstr "活动目录"
+
+#, fuzzy
 msgid "Audit entry"
 msgstr "活动目录"
 
@@ -1249,6 +1274,9 @@ msgstr ""
 msgid "Bypass Bitlocker Detection"
 msgstr ""
 
+msgid "Bytes"
+msgstr ""
+
 #, fuzzy
 msgid "CA Certificate Path"
 msgstr "新建%s"
@@ -1260,6 +1288,9 @@ msgstr "路径"
 #, fuzzy
 msgid "CA private key"
 msgstr "私钥失败"
+
+msgid "CPU"
+msgstr ""
 
 msgid "CPU Cache"
 msgstr "CPU缓存"
@@ -1396,6 +1427,9 @@ msgstr ""
 #, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "无法设置taskings未决的或无效的项目"
+
+msgid "Capability"
+msgstr ""
 
 #, fuzzy
 msgid "Capone"
@@ -1610,6 +1644,9 @@ msgid "Clients in Setup Mode can be enrolled by scheduling the \"Enroll Secure B
 msgstr ""
 
 msgid "Close"
+msgstr ""
+
+msgid "Code"
 msgstr ""
 
 #, fuzzy
@@ -2021,6 +2058,10 @@ msgstr "Cron排程"
 msgid "Cross platform, more secure, faster, and much easier on the server. Espeically when your organization has many hosts"
 msgstr ""
 
+#, fuzzy
+msgid "Currency"
+msgstr "当前记录"
+
 msgid "Current Records"
 msgstr "当前记录"
 
@@ -2096,6 +2137,9 @@ msgstr "月份值的天无效"
 
 msgid "Day of week value is not valid"
 msgstr "周值的天无效"
+
+msgid "Days"
+msgstr ""
 
 #, fuzzy
 msgid "Deactivate plugins failed!"
@@ -2213,6 +2257,10 @@ msgstr "描述"
 #, fuzzy
 msgid "Destroy failed"
 msgstr "摧毁失败： %s"
+
+#, fuzzy
+msgid "Details"
+msgstr "管理单元返回详细"
 
 #, fuzzy
 msgid "Device must be a string"
@@ -2519,6 +2567,21 @@ msgstr "事件必须是字符串"
 
 msgid "Event must be a string"
 msgstr "事件必须是字符串"
+
+#, fuzzy
+msgid "Event types"
+msgstr "添加事件"
+
+#, fuzzy
+msgid "Events"
+msgstr "添加事件"
+
+#, fuzzy
+msgid "Events by account"
+msgstr "斯莱克账户"
+
+msgid "Events per day"
+msgstr ""
 
 msgid "Every API token on this server. Tokens are stored hashed &mdash; a token cannot be shown again after it is issued, so this page can revoke one but never recover it."
 msgstr ""
@@ -2832,6 +2895,10 @@ msgid "Failed to write file to disk"
 msgstr "无法写入文件到磁盘"
 
 #, fuzzy
+msgid "Failures by snapin"
+msgstr "无法添加/更新管理单元文件"
+
+#, fuzzy
 msgid "Fields and types must have equal count"
 msgstr "场和值不具有相等的参数。"
 
@@ -2957,6 +3024,10 @@ msgid "First row is a header"
 msgstr ""
 
 #, fuzzy
+msgid "Fleet Report"
+msgstr "报告"
+
+#, fuzzy
 msgid "Flush Settings Cache"
 msgstr "FOG设置"
 
@@ -3031,6 +3102,9 @@ msgid "Free Memory"
 msgstr "可用内存"
 
 msgid "FreeIPA"
+msgstr ""
+
+msgid "Freshness"
 msgstr ""
 
 #, fuzzy
@@ -3353,6 +3427,9 @@ msgstr "组"
 msgid "Groups cannot create capture tasks"
 msgstr ""
 
+msgid "Growth"
+msgstr ""
+
 #, fuzzy
 msgid "HTML Error Code"
 msgstr "错误代码"
@@ -3383,6 +3460,10 @@ msgid "Hard Drive Serial Number"
 msgstr "序列号"
 
 msgid "Hardware Information"
+msgstr "硬件信息"
+
+#, fuzzy
+msgid "Hardware Report"
 msgstr "硬件信息"
 
 msgid "Hash"
@@ -3711,6 +3792,9 @@ msgstr "在任务主机"
 msgid "Hosts only"
 msgstr "主机列表"
 
+msgid "Hosts registered per day"
+msgstr ""
+
 #, fuzzy
 msgid "Hosts:"
 msgstr "主机"
@@ -4014,8 +4098,16 @@ msgstr "成像"
 msgid "Imaged For"
 msgstr "成像"
 
+#, fuzzy
+msgid "Imaged in range"
+msgstr "图像管理器"
+
 msgid "Images"
 msgstr "图片"
+
+#, fuzzy
+msgid "Images added per day"
+msgstr "图片名称"
 
 #, fuzzy
 msgid "Images only"
@@ -4445,6 +4537,10 @@ msgstr "无效类"
 msgid "Invalid upload."
 msgstr "无效类"
 
+#, fuzzy
+msgid "Inventoried"
+msgstr "库存"
+
 msgid "Inventory"
 msgstr "库存"
 
@@ -4466,6 +4562,10 @@ msgstr "库存"
 
 #, fuzzy
 msgid "Inventory Static"
+msgstr "库存"
+
+#, fuzzy
+msgid "Inventory recorded per day"
 msgstr "库存"
 
 #, fuzzy
@@ -4720,6 +4820,10 @@ msgid "Language"
 msgstr "语言"
 
 #, fuzzy
+msgid "Largest images"
+msgstr "图片"
+
+#, fuzzy
 msgid "Last Captured"
 msgstr "主机创建"
 
@@ -4746,8 +4850,19 @@ msgstr "成功"
 msgid "Last Used"
 msgstr "主机创建"
 
+msgid "Last check-in"
+msgstr ""
+
+#, fuzzy
+msgid "Last deployed"
+msgstr "最后部署"
+
 msgid "Last flush"
 msgstr ""
+
+#, fuzzy
+msgid "Last imaged"
+msgstr "图片"
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -5019,6 +5134,10 @@ msgid "Machine Details"
 msgstr "管理单元返回详细"
 
 #, fuzzy
+msgid "Machines"
+msgstr "分配图像"
+
+#, fuzzy
 msgid "Machines imaged"
 msgstr "分配图像"
 
@@ -5031,6 +5150,10 @@ msgstr "图像协会"
 
 msgid "Maintained by the server. It may be sent back unchanged, but a request that would change it is refused."
 msgstr ""
+
+#, fuzzy
+msgid "Make and model"
+msgstr "更新打印机"
 
 #, fuzzy
 msgid "Make default"
@@ -5051,6 +5174,14 @@ msgstr "管理密码"
 
 msgid "Management Username"
 msgstr "管理用户名"
+
+#, fuzzy
+msgid "Manufacturer"
+msgstr "CPU制造商"
+
+#, fuzzy
+msgid "Manufacturers"
+msgstr "CPU制造商"
 
 #, fuzzy
 msgid "Mark selected client ignore"
@@ -5182,6 +5313,10 @@ msgid "Mode"
 msgstr "模式"
 
 msgid "Model"
+msgstr "模型"
+
+#, fuzzy
+msgid "Models"
 msgstr "模型"
 
 #, fuzzy
@@ -5400,6 +5535,10 @@ msgid "Never - do not verify (insecure)"
 msgstr ""
 
 #, fuzzy
+msgid "Never imaged"
+msgstr "库存"
+
+#, fuzzy
 msgid "Never reported"
 msgstr "库存"
 
@@ -5551,6 +5690,10 @@ msgstr "没有指定的图像"
 #, fuzzy
 msgid "No images associated with this group as master"
 msgstr "没有与此主机关联snapins"
+
+#, fuzzy
+msgid "No inventory"
+msgstr "库存"
 
 #, fuzzy
 msgid "No items found"
@@ -5758,6 +5901,10 @@ msgstr "已安装的插件"
 
 msgid "Not recorded"
 msgstr ""
+
+#, fuzzy
+msgid "Not reported"
+msgstr "库存"
 
 msgid "Not syncing"
 msgstr ""
@@ -6008,6 +6155,9 @@ msgstr "其他标签＃2"
 msgid "Outcome"
 msgstr ""
 
+msgid "Over a year"
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
 msgstr ""
 
@@ -6129,6 +6279,9 @@ msgstr "待淅淅沥沥"
 
 msgid "Pending..."
 msgstr "待..."
+
+msgid "People"
+msgstr ""
 
 #, fuzzy
 msgid "Permission"
@@ -6544,6 +6697,9 @@ msgstr "私钥未找到路径"
 msgid "Private keys are readable by the web server"
 msgstr "私钥不可读"
 
+msgid "Processors"
+msgstr ""
+
 #, fuzzy
 msgid "Product Key"
 msgstr "主机产品密钥"
@@ -6705,8 +6861,19 @@ msgstr "接收"
 msgid "Record not found"
 msgstr "未发现记录，错误： %s"
 
+msgid "Recorded"
+msgstr ""
+
 msgid "Recorded By"
 msgstr ""
+
+#, fuzzy
+msgid "Recorded in range"
+msgstr "未发现记录，错误： %s"
+
+#, fuzzy
+msgid "Records"
+msgstr "当前记录"
 
 msgid "Redirect Login To This Provider"
 msgstr ""
@@ -6722,8 +6889,14 @@ msgstr "服务状态"
 msgid "Refresh the settings cache"
 msgstr "服务状态"
 
+msgid "Refused"
+msgstr ""
+
 msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
 msgstr ""
+
+msgid "Registered"
+msgstr "注册"
 
 msgid "Registered Hosts"
 msgstr "注册主机"
@@ -6793,6 +6966,10 @@ msgstr ""
 #, fuzzy
 msgid "Rename or remove one of them."
 msgstr "无法更新任务"
+
+#, fuzzy
+msgid "Replicates"
+msgstr "复制？"
 
 #, fuzzy
 msgid "Replicating"
@@ -6993,6 +7170,9 @@ msgid "Running Windows"
 msgstr "运行版本"
 
 msgid "Runs"
+msgstr ""
+
+msgid "Runs and failures per day"
 msgstr ""
 
 #, fuzzy
@@ -7220,6 +7400,10 @@ msgstr "已成功更新"
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
+
+#, fuzzy
+msgid "Serial"
+msgstr "系统序列"
 
 msgid "Serial Number"
 msgstr "序列号"
@@ -7537,6 +7721,9 @@ msgstr "最大尺寸"
 msgid "Size on Server"
 msgstr "网络服务器"
 
+msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
+msgstr ""
+
 #, php-format
 msgid "Skipped unknown %s: %s"
 msgstr ""
@@ -7686,6 +7873,10 @@ msgid "Snapin Replicator"
 msgstr "管理单元复制"
 
 #, fuzzy
+msgid "Snapin Report"
+msgstr "管理单元复制"
+
+#, fuzzy
 msgid "Snapin Run Order"
 msgstr "管理单元运行方式"
 
@@ -7737,6 +7928,10 @@ msgid "Snapin jobs"
 msgstr "Snapins"
 
 #, fuzzy
+msgid "Snapin runs"
+msgstr "管理单元参数"
+
+#, fuzzy
 msgid "Snapin tasks"
 msgstr "管理单元路径"
 
@@ -7757,6 +7952,10 @@ msgstr "Snapins已经部署到该主机"
 msgid "Snapins run in this order. The order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task; otherwise it sets the order snapins are sent."
 msgstr ""
 
+#, fuzzy
+msgid "Snapins used"
+msgstr "Snapins"
+
 msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
@@ -7770,6 +7969,9 @@ msgid "Space variable must be boolean"
 msgstr ""
 
 msgid "Specified download URL not allowed!"
+msgstr ""
+
+msgid "Stale"
 msgstr ""
 
 #, fuzzy
@@ -8043,6 +8245,14 @@ msgstr "存储节点更新"
 msgid "Storage Nodes"
 msgstr "存储节点"
 
+#, fuzzy
+msgid "Storage Report"
+msgstr "主机ID"
+
+#, fuzzy
+msgid "Storage nodes"
+msgstr "存储节点"
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -8111,6 +8321,10 @@ msgstr ""
 
 msgid "Subtree and Below"
 msgstr ""
+
+#, fuzzy
+msgid "Succeeded"
+msgstr "成功"
 
 #, fuzzy
 msgid "Success."
@@ -8365,6 +8579,10 @@ msgid "Task starting"
 msgstr "任务开始"
 
 #, fuzzy
+msgid "Task state"
+msgstr "任务开始"
+
+#, fuzzy
 msgid "Task state added!"
 msgstr "任务状态添加，编辑"
 
@@ -8523,6 +8741,9 @@ msgid "The archive is larger than the %s limit."
 msgstr ""
 
 msgid "The archive must hold exactly one plugin directory."
+msgstr ""
+
+msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -8991,6 +9212,9 @@ msgstr "时间"
 msgid "Time Already Exists"
 msgstr "时间已存在"
 
+msgid "Time since last imaged"
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -9179,6 +9403,14 @@ msgstr "无法更新"
 #, fuzzy
 msgid "Unable to update task"
 msgstr "无法更新任务"
+
+#, fuzzy
+msgid "Unassigned"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Unattributed"
+msgstr "用户名"
 
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
 msgstr ""
@@ -9699,6 +9931,9 @@ msgstr ""
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr ""
 
+msgid "Where it lives"
+msgstr ""
+
 msgid "Where to get help and guides"
 msgstr ""
 
@@ -9778,6 +10013,9 @@ msgid "Windows keys is a plugin that associates product keys"
 msgstr "图像已经存在具有此名称！"
 
 msgid "Wipes"
+msgstr ""
+
+msgid "Within 30 days"
 msgstr ""
 
 msgid "Yearly"
@@ -11241,9 +11479,6 @@ msgstr ""
 
 #~ msgid "Printer Alias"
 #~ msgstr "打印机别名"
-
-#~ msgid "Registered"
-#~ msgstr "注册"
 
 #, fuzzy
 #~ msgid "Remove Selected"

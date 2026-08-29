@@ -94,7 +94,28 @@ class Authorization extends FOGBase
         // Imaging Report reads `taskLog` -- the same rows Task Management's
         // log pane shows -- so it lands on the same node as Run History for
         // the same reason (ADR 0030 decision 4).
-        'imaging_report' => 'task'
+        'imaging_report' => 'task',
+        // Snapin Report reads `snapinTasks`, which Snapin Management gates
+        // on snapin.view. Same reasoning as the two above (ADR 0030
+        // decision 4).
+        'snapin_report' => 'snapin',
+        // Fleet Report reads `hosts` and `inventory`, both gated on
+        // host.view everywhere else. Same reasoning (ADR 0030 decision 4).
+        'fleet_report' => 'host',
+        // Hardware Report reads `inventory`, and Authorization already maps
+        // the `inventory` node onto `host`. Same reasoning (ADR 0030
+        // decision 4).
+        'hardware_report' => 'host',
+        // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and
+        // `nfsGroupMembers`. Group and node names are the part not already
+        // reachable from a narrower screen, so it lands on storagenode.
+        // Same reasoning (ADR 0030 decision 4).
+        'storage_report' => 'storagenode',
+        // Audit Report reads `auditLog`. Not a narrowing of convenience:
+        // an audit row necessarily discloses attempted usernames, which is
+        // why ADR 0021 gave audit.view its own permission. Serving the same
+        // rows under report.view would hand that to every report holder.
+        'audit_report' => 'audit'
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.

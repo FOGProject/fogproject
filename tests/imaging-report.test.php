@@ -26,110 +26,28 @@
  */
 
 require __DIR__ . '/lib/fog-test-harness.php';
+require __DIR__ . '/lib/report-wiring.php';
 
 FogTestHarness::boot('imaging-report');
 FogTestHarness::fakeDb();
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
-$report = $web . '/lib/reports/imaging_report.report.php';
-
-$t->check('the report file exists', is_readable($report));
-$src = is_readable($report) ? file_get_contents($report) : '';
 
 /*
- * Comments stripped before anything is searched for. The prose above these
- * methods names every symbol below it -- including the `taskLog` that
- * section 4 requires to be ABSENT -- so a search over the raw file is
- * satisfied by the documentation of the rule rather than by the rule.
+ * The names, columns, gate, label and window wiring are what every report
+ * built on ADR 0030's helpers shares, so they are checked in one place --
+ * see tests/lib/report-wiring.php. Everything below is this report's own.
  */
-$code = '';
-foreach (token_get_all($src) as $token) {
-    if (is_array($token)) {
-        if (T_COMMENT === $token[0] || T_DOC_COMMENT === $token[0]) {
-            continue;
-        }
-        $code .= $token[1];
-        continue;
-    }
-    $code .= $token;
-}
-
-/*
- * 1. The names that have to agree.
- */
-$slug = 'imaging_report';
-$label = str_replace('_', ' ', $slug);
-$t->check(
-    'the class name matches the file name, so the autoloader finds it',
-    class_exists('FOG\Imaging_Report')
+$code = FogReportWiring::check(
+    $t,
+    $web,
+    'imaging_report',
+    'Imaging_Report',
+    'task',
+    'imaging-table'
 );
-$t->check(
-    'it extends ReportManagement, so it appears in the report menu at all',
-    class_exists('FOG\Imaging_Report')
-    && is_subclass_of('FOG\Imaging_Report', 'FOG\ReportManagement')
-);
-$js = file_get_contents($web . '/management/js/fog/report/fog.report.file.js');
-$t->check(
-    "the JS switches on '$label', which is what the filename decodes to",
-    false !== strpos($js, "case '" . $label . "':")
-);
-$page = file_get_contents($web . '/lib/pages/reportmanagement.page.php');
-$t->check(
-    'the menu label is registered for xgettext',
-    false !== strpos($page, "_('Imaging Report');")
-);
-
-/*
- * 2. The columns.
- */
-$wanted = [];
-$at = strpos($js, "case '" . $label . "':");
-if (false !== $at) {
-    $block = substr($js, $at, strpos($js, 'break;', $at) - $at);
-    if (preg_match_all("/\{data: '([a-zA-Z]+)'/", $block, $m)) {
-        $wanted = $m[1];
-    }
-}
-$t->check('the JS names its columns', count($wanted) > 0);
-foreach ($wanted as $col) {
-    $t->check(
-        "getList() emits the '$col' key the grid asks for",
-        false !== strpos($code, "'" . $col . "' =>")
-    );
-}
-$t->check(
-    'the table id in the JS is the one the page renders',
-    false !== strpos($js, '#imaging-table')
-    && false !== strpos($code, "'imaging-table'")
-);
-$t->check(
-    'the header row has one cell per column',
-    count($wanted) === substr_count(
-        substr($code, strpos($code, '$this->headerData'), 400),
-        '_('
-    )
-);
-$t->check(
-    'every column escapes -- taskLog holds names people typed',
-    count($wanted) === substr_count(
-        (string)($block ?? ''),
-        '$.fn.dataTable.render.text()'
-    )
-);
-
-/*
- * 3. The gate. This is the one that fails dangerously rather than visibly.
- */
-$nodes = constant('FOG\Auth\Authorization::REPORT_NODES');
-$t->check(
-    'the report is listed in REPORT_NODES rather than inheriting `report`',
-    array_key_exists($slug, (array)$nodes)
-);
-$t->check(
-    'and it resolves to `task`, where Task Management gates the same rows',
-    'task' === ($nodes[$slug] ?? null)
-);
+FogReportWiring::checkSql($t, 'FOG\Audit\ImagingStats');
 
 /*
  * 4. The counting rules did not come back here.
@@ -157,16 +75,8 @@ foreach (['totals(', 'runsPerDay(', 'runsByImage(', 'runs('] as $call) {
  * to be a trend. The default is the report's; the parsing is shared.
  */
 $t->check(
-    'the window is read through the shared parser',
-    false !== strpos($code, 'ReportWindow::fromRequest(self::DEFAULT_WINDOW)')
-);
-$t->check(
     'this report defaults to a month',
     '-30 days' === constant('FOG\Imaging_Report::DEFAULT_WINDOW')
-);
-$t->check(
-    'and does not re-implement the malformed-bound rule',
-    false === strpos($code, 'strtotime($v)')
 );
 
 /*

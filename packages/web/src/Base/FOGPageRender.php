@@ -1101,17 +1101,41 @@ trait FOGPageRender
     /**
      * The window picker every report shares.
      *
-     * A PLAIN GET FORM, and the range is part of the URL on purpose: a
-     * report someone is going to paste into a ticket has to survive being
-     * pasted, and a range held only in JS state does not. That is ADR 0030
-     * decision 1, and it is also why there is no submit handler here -- the
-     * browser's own navigation is the mechanism.
+     * A GET FORM, and the range is part of the URL on purpose: a report
+     * someone is going to paste into a ticket has to survive being pasted,
+     * and a range held only in JS state does not. That is ADR 0030
+     * decision 1.
      *
-     * The `f` parameter is carried through from the request rather than
-     * passed in, because it IS the report: the report menu is built from
-     * the file names in lib/reports, so `f` is the only thing telling
-     * index.php which class to load. Losing it on submit lands on the
-     * report index, which reads as the form having wiped the page.
+     * IT CANNOT RELY ON THE BROWSER'S OWN SUBMIT. `disableFormDefaults()`
+     * in fog.common.js binds submit -> preventDefault on EVERY form on the
+     * page, so the native GET never runs and clicking Show does nothing at
+     * all -- no error, no request, no change. The form is marked
+     * `data-report-window` and fog.report.panels.js navigates on submit.
+     * The first cut of this helper shipped without that and the control
+     * was inert on every report.
+     *
+     * `step="1"` IS LOAD-BEARING, not decoration. A datetime-local input
+     * defaults to step=60, which makes any value carrying a non-zero
+     * SECONDS component fail HTML5 constraint validation -- and an invalid
+     * form fires no submit event at all, so the button is simply dead. The
+     * default window ends at "now", so the emitted value carries the
+     * current second and the control was born invalid on 59 page loads out
+     * of 60. That is what "I change the date and click Show and nothing
+     * happens" was: no request, no error, no console message.
+     *
+     * The alternative was truncating the displayed value to the minute,
+     * which was rejected: the URL is the source of truth and is meant to be
+     * pasted, so a control showing a different range from the one in effect
+     * breaks the thing the range is in the URL FOR -- and truncating the
+     * end bound would silently drop up to 59 seconds of events.
+     *
+     * EVERY PARAMETER THAT ADDRESSES THE PAGE IS A HIDDEN FIELD, because a
+     * GET submit REPLACES the query string rather than merging into it.
+     * `f` IS the report -- the menu is built from the file names in
+     * lib/reports, so it is the only thing telling index.php which class to
+     * load -- and `sub` is what distinguishes the report from the report
+     * index. Dropping either lands on Report Management, which reads as the
+     * form having wiped the page.
      *
      * @param string $slug  id prefix for the form and its fields
      * @param string $start current lower bound, 'Y-m-d H:i:s'
@@ -1130,8 +1154,9 @@ trait FOGPageRender
         ob_start();
         printf(
             '<form method="get" action="../management/index.php" '
-            . 'class="row g-3 mb-3" id="%s-form">'
+            . 'class="row g-3 mb-3" id="%s-form" data-report-window="1">'
             . '<input type="hidden" name="node" value="report">'
+            . '<input type="hidden" name="sub" value="file">'
             . '<input type="hidden" name="f" value="%s">',
             \Initiator::e($slug),
             \Initiator::e((string) filter_input(INPUT_GET, 'f'))
@@ -1145,7 +1170,7 @@ trait FOGPageRender
             );
             printf(
                 '<input type="datetime-local" class="form-control" '
-                . 'id="%s-%s" name="%s" value="%s">',
+                . 'step="1" id="%s-%s" name="%s" value="%s">',
                 \Initiator::e($slug),
                 \Initiator::e($key),
                 \Initiator::e($key),
