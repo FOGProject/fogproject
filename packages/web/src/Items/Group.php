@@ -837,6 +837,12 @@ class Group extends FOGController
                 // Only reads a value each host reported about itself, so the
                 // worst a spoofed state does is add or remove that one host
                 // from its own task. See ADR 0029.
+                //
+                // One row-load per member, matching setSnapinOrder() above
+                // rather than reaching for a lighter query. Deliberate: this
+                // runs only for an explicitly scheduled enrolment, which is a
+                // rare and considered operation, and the batch insert that
+                // follows dominates it on any group big enough to notice.
                 if (TaskType::ENROLL_SECUREBOOT == $TaskType->id) {
                     $eligible = [];
                     foreach ((array)$hostIDs as $hostID) {
