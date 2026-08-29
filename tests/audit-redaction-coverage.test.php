@@ -337,7 +337,7 @@ foreach ($exempt as $class => $keys) {
  *    will. Outside a booted FOG, declaredFor() falls back to Route's core
  *    tiers -- which is what makes this callable here at all.
  */
-$behaviour = [
+$behavior = [
     // Declared in a core tier, and does not match the pattern on its own:
     // "tok" is not "token". This is the case the registry exists for.
     ['host', 'sec_tok', true],
@@ -348,7 +348,7 @@ $behaviour = [
     ['user', 'password', true],
     ['userauth', 'password', true],
     // Matches the pattern and is declared nowhere: withheld anyway. This is
-    // the default-closed behaviour that makes a forgotten column safe.
+    // the default-closed behavior that makes a forgotten column safe.
     ['host', 'someNewApiToken', true],
     ['image', 'sharedSecret', true],
     // Exempt: matches the pattern, is not a credential.
@@ -366,7 +366,7 @@ $behaviour = [
     // Nothing is not a secret.
     ['host', '', false],
 ];
-foreach ($behaviour as $case) {
+foreach ($behavior as $case) {
     list($class, $field, $want) = $case;
     $checks++;
     $got = Redaction::isSensitive($class, $field);

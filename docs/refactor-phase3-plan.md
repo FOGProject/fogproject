@@ -232,7 +232,7 @@ $this->childClass = preg_replace('#_?Manager$#', '', get_class($this));
 
 Under flat, `FOG\Host` + `'Manager'` → `FOG\HostManager`, which exists —
 `VERIFIED` by prototype. Under nested, it produces `FOG\Model\HostManager`, which
-does not exist, and `new $man` is a fatal on the single most-travelled path in the
+does not exist, and `new $man` is a fatal on the single most-traveled path in the
 ORM.
 
 You could fix it — rewrite both derivations to move between namespaces. But that

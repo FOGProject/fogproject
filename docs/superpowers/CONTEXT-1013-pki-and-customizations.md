@@ -95,13 +95,13 @@ renamed backgrounds / custom kernel names surviving repeated installs.
 
 ## NOT verified — read this before shipping
 
-1. **Secure Boot with name constraints, on hardware.** Both enrolment routes
+1. **Secure Boot with name constraints, on hardware.** Both enrollment routes
    (MokManager and Setup Mode `db`) were confirmed on real UEFI hardware
    *before* `nameConstraints` was added to the Secure Boot CA. That extension
    is critical, and it sits in the one certificate firmware and shim actually
    parse. **This is the release gate.** `--no-sb-name-constraints` exists so a
    rejection is a flag flip and a re-issue of one intermediate, not a
-   re-enrolment of a fleet.
+   re-enrollment of a fleet.
 
    Measured, and the reason the signing leaf now carries a DNS SAN: OpenSSL
    applies DNS constraints to the subject CN when a certificate has no DNS SAN.
@@ -110,7 +110,7 @@ renamed backgrounds / custom kernel names surviving repeated installs.
    hostname. Depending on that quirk would mean renaming that CN stops the
    fleet booting.
 
-2. **Existing servers that enrolled the old self-signed MOK must re-enrol.**
+2. **Existing servers that enrolled the old self-signed MOK must re-enroll.**
    Deliberate, and the reason this landed before Secure Boot reached stable —
    after that, the same change costs a firmware trip to every machine. The
    installer prints a prominent notice and leaves `MOK.{key,pem}` on disk.
@@ -213,7 +213,7 @@ per-host/group only, which may be part of the gap.
 ## Still open
 
 - The dev-branch port: the PKI hierarchy, key isolation and Secure Boot
-  intermediate, but **not** the node endpoint and **not** the db/KEK enrolment
+  intermediate, but **not** the node endpoint and **not** the db/KEK enrollment
   task (1.6 only). dev-branch lacks `--external-ca`, the managed vhost block
   and `_pkiZoneDir`/`_linkCanonical`, and `createSSLCA` there hardcodes
   `/opt/fog/snapins/ssl/`, so this is a port rather than a cherry-pick.

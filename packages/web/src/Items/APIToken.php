@@ -41,7 +41,7 @@ class APIToken extends FOGController
     /**
      * Prefix every issued token carries.
      *
-     * Present so a token is recognisable on sight -- in a log, a pasted
+     * Present so a token is recognizable on sight -- in a log, a pasted
      * config, a support ticket -- and so leaked-credential scanners have
      * something to match. It is part of the token: the hash covers the whole
      * string, so there is nothing to parse at verification time.

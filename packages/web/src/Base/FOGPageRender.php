@@ -7,7 +7,7 @@
  * Extracted verbatim from FOGPage so the controller base stops growing
  * without bound. A trait's methods compile into the using class exactly as
  * if declared there (same $this, same access to inherited statics like
- * self::$HookManager), so behaviour is identical and every existing call
+ * self::$HookManager), so behavior is identical and every existing call
  * site keeps resolving unchanged. The file carries the `.class.php` suffix
  * so the existing filename-keyed autoloader resolves `use FOGPageRender;`
  * with no autoloader change. Its basename is lowercase like every other
@@ -46,7 +46,7 @@ trait FOGPageRender
      *                          an escape hatch, but every association tab now
      *                          takes the primary default: green read as a
      *                          different KIND of action on tabs that are doing
-     *                          the same thing as their blue neighbours, and the
+     *                          the same thing as their blue neighbors, and the
      *                          two were mixed even within one page (host printer
      *                          vs host group). Green stays for genuinely
      *                          different actions like Resume.
@@ -534,7 +534,7 @@ trait FOGPageRender
      * are the only shared bookends, so they live here.
      *
      * The $obj argument is passed straight through to tabFields() with
-     * the same -1 default, preserving its three behaviours: -1 rebuilds
+     * the same -1 default, preserving its three behaviors: -1 rebuilds
      * the entity from the node/id globals, an explicit object uses it as
      * given, and false skips the TABDATA/plugin hook injection. The page
      * title always derives from $this->obj regardless of $obj.
@@ -996,7 +996,7 @@ trait FOGPageRender
      * The membership tables are many-to-many though, and the site page's
      * association grids can genuinely put one object in several sites --
      * at which point saving this tab replaces all of them with the one
-     * selected. That is the plugin's behaviour and it is kept, but it is
+     * selected. That is the plugin's behavior and it is kept, but it is
      * no longer SILENT: when an object is in more than one site the tab
      * says so and names them, so the replacement is a choice rather than a
      * surprise. Losing a membership with no message is the failure worth

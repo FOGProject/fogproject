@@ -39,7 +39,7 @@ numbers in that document as approximate until individually confirmed.
 grep -n 'cp -Rf \$webdirsrc' lib/common/functions.sh    # 6592
 ```
 
-### C-02 — UNKNOWN #4 is closed, and the answer is favourable
+### C-02 — UNKNOWN #4 is closed, and the answer is favorable
 
 Ordering at `functions.sh:6579-6593` is: restore `fog_web_*.BACKUP` first (inside
 the `copybackold` block), then `cp -Rf $webdirsrc/* $webdirdest/`. **New files
@@ -88,7 +88,7 @@ could find it. `lib/router/altorouter.class.php` is the same story
 
 So PR 0.3 is not only groundwork for a future JWT library. It is the mechanism
 that **retires existing hand-vendored code** which currently has no version, no
-lockfile, no licence metadata and no upgrade path. That is a materially stronger
+lockfile, no license metadata and no upgrade path. That is a materially stronger
 argument for Composer than the one in the plan, and it belongs in the ADR.
 
 **Action:** add this to 0.3's rationale. Do **not** do the swaps inside 0.3.
@@ -240,7 +240,7 @@ git restore --staged packages/web/vendor
 `$active\s?=\s?true;`. All eleven files under `packages/web/lib/hooks` and
 `packages/web/lib/events` declare `public $active = false;` and none matches.
 So every listener that runs on a stock server comes from a plugin; the eleven
-core files are examples an admin opts into, not shipped behaviour. Anything
+core files are examples an admin opts into, not shipped behavior. Anything
 that reasons about "core hooks" as live code is reasoning about dead code.
 ```
 cd packages/web/lib
@@ -429,7 +429,7 @@ HookManager load `.event.php` files, and neither PHP nor any test would say so.
 sed -n '218,225p' packages/web/lib/fog/eventmanager.class.php
 ```
 
-### F-23 — ADR 0013's promise is about the alias, not about every plugin-observable behaviour
+### F-23 — ADR 0013's promise is about the alias, not about every plugin-observable behavior
 Its §2 says the reverse `class_alias` "is supported for all of 1.6" and cannot
 be removed before 1.7. Nothing in it freezes the hook contract, the `$active`
 semantics or `register()`'s accepted listener shapes. Combined with 1.6.0 being
@@ -500,11 +500,11 @@ restored from a copy between runs. All eight: `72 passed, 0 failed`. Deleting
 `_applySiteScope()` from `listem()` -- the one line that stops one site's users
 seeing another site's hosts -- is among them, as is renaming `_lang`, which
 disables `stripSensitivePayload()` for every list payload. The suite pins
-symbols, not behaviour: `sensitive-fields-unfilterable.test.php` greps for the
+symbols, not behavior: `sensitive-fields-unfilterable.test.php` greps for the
 strings `_assertNoSensitiveFilter(`, `HTTP_BAD_REQUEST` and `'nosearch'`, and an
 inserted `return;` leaves all three in place; `site-scope-lists.test.php` tests
 `Authorization::scopedObjectIDs()` and never names `Route`. Consequence: no
-decomposition of this file may begin before a behavioural net exists.
+decomposition of this file may begin before a behavioral net exists.
 ```
 cp packages/web/lib/router/route.class.php /tmp/route.bak
 sed -i 's|self::_applySiteScope($classname);|// removed|' packages/web/lib/router/route.class.php
@@ -635,7 +635,7 @@ returns to `listem()`. Under the ADR 0011 result-wrapper path it is not: there
 `sendResponse()` throws, `listem()` catches, and the caller gets 406 for a
 refusal the source raised as 400. Every service and client endpoint reading
 through `asValue()`/`getX()` sees one status for all failures, and a
-behavioural test written against that seam will observe 406 where the source
+behavioral test written against that seam will observe 406 where the source
 says 400.
 ```
 # lab: Route::asValue(function () { Route::listem('host', 'sec_tok=x', true); });
@@ -684,7 +684,7 @@ sh tests/run-all.sh | tail -1          # 73 passed, 0 failed
 php tests/route-ids-getfield-sensitive.test.php   # ok  41 checks passed
 ```
 
-### F-39 — The read path's access controls now have a behavioural net, and it turns fourteen mutations red
+### F-39 — The read path's access controls now have a behavioral net, and it turns fourteen mutations red
 
 `tests/route-read-path-guards.test.php` (93 checks) drives the real functions
 against `tests/lib/fog-test-harness.php`, a fake PDODB with no database behind
@@ -703,7 +703,7 @@ reader would assume the obvious assertion already covered:
   `API_MASSDATA_MAPPING` — protecting only rows a plugin **added** to the
   payload, since `listem()` already scoped. Removing it leaves every
   listem()-driven scope assertion green.
-- Pinning `stripSensitivePayload()`'s behaviour does not pin `printer()`'s
+- Pinning `stripSensitivePayload()`'s behavior does not pin `printer()`'s
   call to it.
 
 Two facts the net depends on. `DatabaseManager::getLink()` is

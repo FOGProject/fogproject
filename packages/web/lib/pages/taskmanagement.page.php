@@ -404,7 +404,7 @@ class TaskManagement extends FOGPage
         );
     }
     /**
-     * Renders the recent (completed/cancelled) tasks pane.
+     * Renders the recent (completed/canceled) tasks pane.
      *
      * @return void
      */
@@ -450,7 +450,7 @@ class TaskManagement extends FOGPage
             . '">';
         // 'all' rather than 'both': there are three finished states since
         // schema 339 added Failed, so a two-way label was about to start
-        // lying. getRecentTasks() still treats any unrecognised value as
+        // lying. getRecentTasks() still treats any unrecognized value as
         // all-of-them, so a page cached before this keeps working.
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
             . ' id="recent-state-all" value="all" autocomplete="off" checked/>';
@@ -465,7 +465,7 @@ class TaskManagement extends FOGPage
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
             . ' id="recent-state-cancelled" value="cancelled" autocomplete="off"/>';
         echo '<label class="btn btn-outline-primary" for="recent-state-cancelled">'
-            . _('Cancelled')
+            . _('Canceled')
             . '</label>';
         echo '<input type="radio" class="btn-check" name="recent-state-filter"'
             . ' id="recent-state-failed" value="failed" autocomplete="off"/>';
@@ -804,10 +804,10 @@ class TaskManagement extends FOGPage
         ));
     }
     /**
-     * Get recently completed/cancelled tasks.
+     * Get recently completed/canceled tasks.
      *
      * The Recent tab posts two extra filter vars alongside the
-     * DataTables request: states (both|complete|cancelled) and
+     * DataTables request: states (both|complete|canceled) and
      * typegroup (imaging|snapins|wipes|other|all).
      *
      * @return void
@@ -1265,7 +1265,7 @@ class TaskManagement extends FOGPage
         echo Route::getData();
     }
     /**
-     * For cancelling/forcing tasks.
+     * For canceling/forcing tasks.
      *
      * @return void
      */
@@ -1294,7 +1294,7 @@ class TaskManagement extends FOGPage
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Selected tasks cancelled!'),
+                    'msg' => _('Selected tasks canceled!'),
                     'title' => _('Task Cancel Success')
                 ]
             );
@@ -1356,7 +1356,7 @@ class TaskManagement extends FOGPage
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Selected tasks cancelled!'),
+                    'msg' => _('Selected tasks canceled!'),
                     'title' => _('Task Cancel Success')
                 ]
             );
@@ -1410,7 +1410,7 @@ class TaskManagement extends FOGPage
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Selected tasks cancelled!'),
+                    'msg' => _('Selected tasks canceled!'),
                     'title' => _('Task Cancel Success')
                 ]
             );
@@ -1464,7 +1464,7 @@ class TaskManagement extends FOGPage
             $hook = 'TASK_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Selected tasks cancelled!'),
+                    'msg' => _('Selected tasks canceled!'),
                     'title' => _('Task Cancel Success')
                 ]
             );
@@ -1518,7 +1518,7 @@ class TaskManagement extends FOGPage
             $hook = 'QUEUED_DELETION_CANCEL_SUCCESS';
             $msg = json_encode(
                 [
-                    'msg' => _('Selected tasks cancelled!'),
+                    'msg' => _('Selected tasks canceled!'),
                     'title' => _('Queue Deletion Cancel Success')
                 ]
             );

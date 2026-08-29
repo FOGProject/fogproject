@@ -64,7 +64,7 @@ fi
 [[ -z $systemHostname ]] && hostnameNeedsSystemSet=1
 while [[ -z ${NET_hostname} ]]; do
     if [[ -n $systemHostname ]]; then
-        # This machine knows its own name. Unchanged behaviour: suggest it,
+        # This machine knows its own name. Unchanged behavior: suggest it,
         # offer to override, and default to accepting it.
         if [[ -n $autoaccept ]]; then
             NET_hostname="$systemHostname"

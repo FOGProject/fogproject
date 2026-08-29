@@ -840,7 +840,7 @@ class OpenAPI extends FOGBase
         // own classes and its own joined fields at runtime, and a client
         // generated from a pinned snapshot meets fields added after it was
         // generated. Both are normal here, so tolerating unknown keys is the
-        // correct standing behaviour for a FOG response, not a workaround.
+        // correct standing behavior for a FOG response, not a workaround.
         $out = [
             'type' => 'object',
             'x-fog-table' => $table,
@@ -880,7 +880,7 @@ class OpenAPI extends FOGBase
             // The sentence above is accurate and stays -- it carries the
             // "not settable through create/edit" nuance that no keyword
             // expresses. But a generated client cannot read English. Every
-            // generator builds its deserialiser from `properties`, so a
+            // generator builds its deserializer from `properties`, so a
             // field named only in a description is a field the generated
             // model does not have: AutoRest copies this very sentence into
             // a doc comment and then emits a model that reads none of the
@@ -1487,8 +1487,8 @@ class OpenAPI extends FOGBase
                     // _errorResponses() map every path picks up.
                     _(
                         'Only a task in a queued or in-progress state can be '
-                        . 'cancelled. Naming a resource whose task has already '
-                        . 'finished -- Complete, Cancelled or Failed -- answers '
+                        . 'canceled. Naming a resource whose task has already '
+                        . 'finished -- Complete, Canceled or Failed -- answers '
                         . '409 rather than reporting a success it did not '
                         . 'perform.'
                     ),

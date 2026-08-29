@@ -46,13 +46,13 @@ ships are only ever a first-and-second stage that chainloads onward, never the
 binary that actually drives the NIC.
 
 Once shim has run, its security policy override stays installed for the rest of
-the boot, so a MOK-signed binary loads. FOG already publishes and enrols a MOK
+the boot, so a MOK-signed binary loads. FOG already publishes and enrolls a MOK
 (`_publishSecureBootKit`, `service/secureboot/MOK.der`). Nothing is missing but
 a signature on the binaries FOG already ships.
 
 ## Non-goals
 
-**This must never be on the netboot path.** The enrolment workflow depends on an
+**This must never be on the netboot path.** The enrollment workflow depends on an
 un-enrolled machine reaching the FOG menu: upstream signed shim, upstream signed
 snponly, `autoexec.ipxe`, `default.ipxe`, then *Enroll Secure Boot Key* →
 MokManager. A MOK-signed binary anywhere in that chain cannot load, because the
@@ -130,7 +130,7 @@ that made the default install fast.
 
 ### 1. `_signLocalIpxe()`
 
-New function in `lib/common/functions.sh`, modelled directly on
+New function in `lib/common/functions.sh`, modeled directly on
 `_resignRefind()` (7915) — same shape, same guards, same failure messaging.
 
 ```
@@ -333,7 +333,7 @@ folder or only the variant their hardware needs.
 | Sign only a hand-picked local-boot subset | Signing is in place under `$tftpdirdst` and costs nothing per file, so restricting it would only make a variant fetched by hand off TFTP useless. *Publishing* is curated — see Design §2 — because there the list is advice, not just bytes. |
 | Publish every `*.efi` in the tree | The first implementation. 55 files and 27MB, including `snponly.efi`, which cannot work from an ESP, and the `autoexec/` builds, which arrive inert without an `autoexec.ipxe` beside them. A directory that offers a wrong answer next to the right one is worse than a shorter directory. |
 | Gate signing behind a flag | Signing was never the expensive part. A flag means a Secure Boot site that wants local ESP boot has to know it exists. |
-| Symlink `service/secureboot/…` to `$tftpdirdst` | The original design. 403s under SELinux, needed ~40 lines of vhost changes across nine sites, and depended on GH-529 behaviour that fails open. Replaced by copies — see Design §3. |
+| Symlink `service/secureboot/…` to `$tftpdirdst` | The original design. 403s under SELinux, needed ~40 lines of vhost changes across nine sites, and depended on GH-529 behavior that fails open. Replaced by copies — see Design §3. |
 | Relabel the TFTP tree `public_content_t` | Would make the symlink work, but widens the tree to ftpd/rsync/samba for a feature needing none of them, and means editing GH-963's recent fix. |
 | ~~Defer the ESP `autoexec.ipxe`~~ | **Reversed.** Testing showed it is load-bearing, not a convenience: the chain does not work without it, so a published directory lacking it is an incomplete kit. Now shipped as part of `esp/` — see Design §4. |
 | Drop upstream's `ipxe-shimx64.efi` + `ipxe.efi` as redundant | Raised in review on the grounds that both shim pairs only ever chain onward, so `snponly` alone would do. Rejected: shim resolves its second stage from its own filename, so each pair is indivisible, and an admin whose boot manager is already pointed at one of them needs that one present. Ten files is not worth the sharp edge. |
@@ -441,7 +441,7 @@ another tenant's files — never enters into it.
 was.
 
 **HTTP is the recommended transport here**, not a downgrade — iPXE's own docs
-favour it over TFTP, and UEFI HTTP Boot is a firmware standard. No CVE exists for
+favor it over TFTP, and UEFI HTTP Boot is a firmware standard. No CVE exists for
 exposing PXE artifacts over HTTP; FOG's actual CVEs are elsewhere (command
 injection in `export.php`, auth bypass, world-readable `.fogsettings`).
 
@@ -552,10 +552,10 @@ runs.
 | Was | Now | Why |
 | --- | --- | --- |
 | FOG's `snponly.efi` excluded | published as `fogsnponly.efi`, tried **last** in the ladder | The exclusion was only forced because `snponly.efi` is a shim-reserved name. Under the `fog` prefix there is no collision, the manifest note carries the disk-not-NIC caveat, and there is hardware where it works. |
-| `MOK.der` not in the kit | in every archive | MokManager enrols by browsing the ESP for a certificate. Shipping MokManager without one is still a dead end — it just fails one screen later. §4 missed this. |
+| `MOK.der` not in the kit | in every archive | MokManager enrolls by browsing the ESP for a certificate. Shipping MokManager without one is still a dead end — it just fails one screen later. §4 missed this. |
 | No `.auth` blobs in the kit | `PK`/`KEK`/`db.auth` in every archive | They are signed EFI variable updates a machine in Setup Mode writes to put this server's certificate straight into `db`, after which firmware verifies a signed `fogipxe.efi` **directly** — no shim, no MokManager, no MOK. |
 | "i386 has no Secure Boot chain to assemble" (§4) | **wrong, and corrected** | True that upstream signs no shim for ia32. But the `db` route needs no shim, so i386 Secure Boot local boot works. The conclusion followed from treating the shim chain as the only route. |
-| Publishing gated on nothing; **signing** gated on `--no-secure-boot` | signing always runs; the opt-out declines **enrolment** | A PE signature is inert with Secure Boot off, so signing costs nothing, while an unsigned binary is useless the day anyone enrols with nothing on the server able to fix it. The flag now stops `MOK.der`, the `.auth` blobs, and so the PXE enrol entry — applied in `_ensureSecureBootPlatformKeys` and `_publishSecureBootKit` instead of by blanking `$secureBootKey`. |
+| Publishing gated on nothing; **signing** gated on `--no-secure-boot` | signing always runs; the opt-out declines **enrollment** | A PE signature is inert with Secure Boot off, so signing costs nothing, while an unsigned binary is useless the day anyone enrolls with nothing on the server able to fix it. The flag now stops `MOK.der`, the `.auth` blobs, and so the PXE enroll entry — applied in `_ensureSecureBootPlatformKeys` and `_publishSecureBootKit` instead of by blanking `$secureBootKey`. |
 | ~~Curated list of loose files~~ | archives only | See the trade below. |
 
 ### Traded away, deliberately
@@ -592,7 +592,7 @@ really did replace is copied through untouched, so that file stays protected.
 | Bundle `bzImage`/`init.xz` per arch | 60–80MB per architecture, and it would not produce a working local boot on its own: FOS reads per-host, per-task kernel arguments that `boot.php` generates. Listed in the manifest's `kernels` section instead — no bytes moved, and the manifest becomes the single index. |
 | Grab `.usb`/`.iso` if present | A coherent but *different* feature (boot iPXE off a USB stick without touching the ESP), with its own layout question. Not published, and not silently dropped — say so if it is wanted. |
 | Build the manifest with `jq` | `jq` is in the install list, so it is normally there — but a missing package would mean publishing no manifest at all, which is the whole feature. Hand-written through a `_jsonStr` escaper instead: everything encoded here is content this file produced, so the escaping problem is bounded. Same reasoning as the `tar` fallback for `zip`. |
-| Symlink the enrolment material from `../secureboot/` | `_publishSecureBootKit()` `rm -rf`s that directory when there is no MOK, so a link inside an archive could dangle. Copies keep each archive self-contained, and the files are a few KB. |
+| Symlink the enrollment material from `../secureboot/` | `_publishSecureBootKit()` `rm -rf`s that directory when there is no MOK, so a link inside an archive could dangle. Copies keep each archive self-contained, and the files are a few KB. |
 
 ### Verification (in addition to the list above)
 
@@ -607,14 +607,14 @@ Also covered: the manifest parses as JSON under an independent implementation
 bytes; no BIOS artifact and no EMBED-less `autoexec/` build leaks in; upstream
 keeps the two shim-reserved names; the HTTPS-only shape publishes six archives
 and correctly omits an `autoexec.ipxe` no loader could read; a server with no
-enrolment material still succeeds; an empty tree reports `Failed` rather than
+enrollment material still succeeds; an empty tree reports `Failed` rather than
 publishing silently; a re-run is stable; and the `.fog-ipxe-manifest` regression
 is pinned end to end.
 
 Steps 3/3b of the original verification list are replaced by: fetch
 `manifest.json`, check each archive's sha256 against it, and confirm the
 directory itself 404s. Step 4 becomes: extract `fog-esp-x86_64.zip` and point the
-boot manager at `snponly-shimx64.efi`. New step: enrol `db.auth` from
+boot manager at `snponly-shimx64.efi`. New step: enroll `db.auth` from
 `fog-esp-i386.zip` through firmware Setup Mode and boot `fogipxe.efi` directly,
 with no shim — the path this spec originally said did not exist.
 
@@ -654,7 +654,7 @@ That invalidated two things this spec asserted:
    treats a missing source as fine by design (an HTTPS install stages no
    `secureboot/`), and `copied` stayed non-zero from the shim set, so three
    archives were staged, checksummed and advertised in `manifest.json` holding a
-   shim, MokManager, enrolment material, and a README telling the admin to boot a
+   shim, MokManager, enrollment material, and a README telling the admin to boot a
    file that was not in them.
 
 ### What replaced it
@@ -710,7 +710,7 @@ directory it was loaded from. x86_64 follows `bootmenu.class.php`'s
 `refind.efi`-over-`refind_x64.efi` preference so the ESP and the netboot path
 agree on which binary is canonical.
 
-### The iPXE behaviour this rests on
+### The iPXE behavior this rests on
 
 `efi_autoexec_filesystem()` tries `file:autoexec.ipxe` — resolved against the
 directory of the running image's `FilePath` — and then `file:/autoexec.ipxe` at
@@ -726,10 +726,10 @@ resolves through `LocateDevicePath()`, which matches the longest device-path
 prefix and so lands on that synthetic handle. That virtual filesystem serves
 registered images by flat name only — no directories, no passthrough — and
 `image_exec()` unregisters the running script for the duration, so on paper the
-chained binary should find nothing. Observed behaviour on hardware is the sibling
+chained binary should find nothing. Observed behavior on hardware is the sibling
 read, for the chained case as well as the firmware-loaded one.
 
-Hardware wins, and the layout is built on the observed behaviour. Do not
+Hardware wins, and the layout is built on the observed behavior. Do not
 "correct" it on the strength of the source read. If a client ever does dead-end
 on the chained route specifically — reaching iPXE's bare `autoboot()` instead of
 FOG's script — that synthetic handle is where to look, and the fix would be for
@@ -753,7 +753,7 @@ under-reporting manifest reads exactly like a correct one.
 `tests/localboot-publish.test.sh` grew from 62 to 87 assertions. The mock tree's
 "every file's content is its own path" mechanism carried over unchanged and is
 what proves rEFInd came from the web tree and matches its archive's architecture.
-All 50 of the assertions touching the new behaviour were confirmed to fail against
+All 50 of the assertions touching the new behavior were confirmed to fail against
 the pre-fix `functions.sh` before being relied on.
 
 Hardware step still owed, and the only one that cannot be faked: boot an ESP

@@ -232,7 +232,7 @@ if (null === $done) {
     if (false === $tokenAt) {
         $fails[] = $schemaFile . ' no longer checks validSchemaBootstrap()'
             . ' before deciding what to do with an already-current schema,'
-            . ' so the installer is bounced to a page whose behaviour'
+            . ' so the installer is bounced to a page whose behavior'
             . ' belongs to whatever plugins are installed';
     }
     if (false === $redirectAt) {

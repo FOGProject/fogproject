@@ -257,7 +257,7 @@ for h in httpbin.org neverssl.com fogproject.org; do
 done
 
 echo
-echo "6. an unroutable host fails fast (behavioural)"
+echo "6. an unroutable host fails fast (behavioral)"
 
 error_log=$(mktemp)
 trap 'rm -f "$error_log"' EXIT

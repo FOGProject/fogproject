@@ -141,7 +141,7 @@ class HostManagement extends FOGPage
             // Image Management. See schema step 369.
             _('Architecture'),
             // The observed half of the Secure Boot ledger (schema step 376),
-            // and the record of an enrolment having been performed (377).
+            // and the record of an enrollment having been performed (377).
             // Beside Architecture because they answer the same shape of
             // question -- what is this machine, and can the thing I am about
             // to schedule actually run on it.
@@ -149,7 +149,7 @@ class HostManagement extends FOGPage
             // Both default to hidden in the column picker's sense of the
             // word only in that most fleets will not look at them daily;
             // they are emitted always, because the one time they matter is
-            // when someone is picking enrolment targets and needs to sort by
+            // when someone is picking enrollment targets and needs to sort by
             // them. Sorting is the filter here -- this grid has no
             // per-column search UI, so the global box matches the STORED
             // word ('disabled', 'setup') rather than the rendered label.
@@ -1216,7 +1216,7 @@ class HostManagement extends FOGPage
                 $sbStateTime
             );
         }
-        // The enrolment record IS posted back -- a technician who enrolled
+        // The enrollment record IS posted back -- a technician who enrolled
         // from a USB stick is the only source for it and has to be able to
         // type it. filter_input first, object second, exactly like every
         // other editable value on this form.
@@ -1260,9 +1260,9 @@ class HostManagement extends FOGPage
         // post re-renders whatever was typed, and running the comparison on
         // that would report the freshness of a value the database does not
         // hold. Empty when there is nothing to compare -- see
-        // enrolmentFreshness() for why that is not the same as stale.
+        // enrollmentFreshness() for why that is not the same as stale.
         $sbEnrollFresh = SecureBootState::freshnessLabel(
-            SecureBootState::enrolmentFreshness(
+            SecureBootState::enrollmentFreshness(
                 $this->obj->get('sbenrollcert')
             )
         );
@@ -1470,7 +1470,7 @@ class HostManagement extends FOGPage
             ),
             // ASSERTED -- editable, and the three below are one record.
             //
-            // Enrolment happens three ways and only two of them can write
+            // Enrollment happens three ways and only two of them can write
             // this themselves: fog.enrollsb reports the db and MOK paths, and
             // a technician at the machine with a USB stick reports nothing at
             // all. Leaving these hand-editable is what makes the third path
@@ -1502,7 +1502,7 @@ class HostManagement extends FOGPage
             ),
             // The certificate that was enrolled, not merely the date. This
             // is the field that answers the question an admin actually has:
-            // an enrolment date alone says nothing once the certificate has
+            // an enrollment date alone says nothing once the certificate has
             // rotated, and FOG has PKI zones, a multi-server CA and certs
             // that expire. Compare it against the SHA-256 on the Secure Boot
             // configuration page -- the two are computed identically, so the
@@ -1673,7 +1673,7 @@ class HostManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'archID')
         );
         $archID = '' === $archID ? null : (int)$archID;
-        // The enrolment record (schema step 377). Editable, unlike the
+        // The enrollment record (schema step 377). Editable, unlike the
         // reported state above it on the form, because a technician who
         // enrolled from a USB stick is the only source for it.
         //
@@ -1682,7 +1682,7 @@ class HostManagement extends FOGPage
         // VARCHARs, and an unparseable date written to a DATETIME is the
         // GH-1243/GH-1245 family -- it stores as the zero date and the
         // display layer then reads "never enrolled" as "enrolled in year
-        // zero". An empty box is how an enrolment is cleared, and must stay
+        // zero". An empty box is how an enrollment is cleared, and must stay
         // distinguishable from a bad one: '' stores NULL, garbage is
         // refused out loud.
         $sbEnrolled = trim(
@@ -1694,7 +1694,7 @@ class HostManagement extends FOGPage
             $sbEnrolled = self::niceDate($sbEnrolled)->format('Y-m-d H:i:s');
         } else {
             throw new \Exception(
-                _('Secure Boot enrolment date is not a valid date')
+                _('Secure Boot enrollment date is not a valid date')
             );
         }
         // Whitelisted against the same five words fog.enrollsb and the host
@@ -1708,7 +1708,7 @@ class HostManagement extends FOGPage
         // it got there -- db, a MOK confirmed months ago, or an image that
         // shipped with it. Folding it into 'db' would assert a mechanism
         // nobody watched happen, which is the same mistake as recording a
-        // staged MOK as an enrolment, just quieter.
+        // staged MOK as an enrollment, just quieter.
         $sbEnrollVia = strtolower(
             trim((string)filter_input(INPUT_POST, 'sbenrollvia'))
         );
@@ -1729,7 +1729,7 @@ class HostManagement extends FOGPage
             );
         }
         // Shape-checked, not merely trimmed, and through the same
-        // normaliser service/secureboot.report.php uses -- this format was
+        // normalizer service/secureboot.report.php uses -- this format was
         // written out longhand in four files, which is three places for it
         // to drift. Accepts the colon-formatted form the Secure Boot page
         // displays and the bare hex a copy-paste tends to produce, and
@@ -4689,7 +4689,7 @@ class HostManagement extends FOGPage
             );
 
             // $buttons is echoed below, after the rendered fields. It was
-            // passed here by reference while being neither initialised nor
+            // passed here by reference while being neither initialized nor
             // rendered, so the argument this hook advertises did nothing and
             // said nothing. Empty by default -- the modal's own Create button
             // lives in its static footer, not in this fragment.

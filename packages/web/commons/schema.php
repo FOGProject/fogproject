@@ -4317,7 +4317,7 @@ $this->schema[] = [
 // 300
 $this->schema[] = [
     // Tasks never recorded when they reached their current state, so the
-    // task list's Recent view had nothing to sort completed/cancelled work
+    // task list's Recent view had nothing to sort completed/canceled work
     // by. Stamped on every state transition (Task::set + the mass-update
     // cancel/complete paths). NULL for rows that last changed state before
     // this upgrade; readers fall back to
@@ -4679,7 +4679,7 @@ $this->schema[] = [
     . "join credentials and the product key). Enter a comma separated list of "
     . "imaging networks in CIDR form and/or individual addresses, for example "
     . "10.0.0.0/8,192.168.5.20. Leave empty to allow any source, which is the "
-    . "default and matches the behaviour of earlier versions.','','Security')",
+    . "default and matches the behavior of earlier versions.','','Security')",
 ];
 // 316
 $this->schema[] = [
@@ -4772,7 +4772,7 @@ $this->schema[] = count($columnhostSecTokenPrev ?: []) ? [] : [
     // exit was an administrator pressing Reset Encryption Data.
     //
     // One generation of history closes that gap. A client whose reply went
-    // missing re-presents its previous token, is recognised, and is handed the
+    // missing re-presents its previous token, is recognized, and is handed the
     // current one again. The grace is retired as soon as the client proves it
     // holds the current token, so a stolen token does not stay valid
     // indefinitely.
@@ -4922,8 +4922,8 @@ $this->schema[] = [
     . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
     . "VALUES "
     . "(25, 'Enroll Secure Boot Key', 'Enroll Secure Boot Key will "
-    . "chain the client straight to the Secure Boot enrolment menu "
-    . "so a technician can enrol this FOG server\'s MOK without "
+    . "chain the client straight to the Secure Boot enrollment menu "
+    . "so a technician can enroll this FOG server\'s MOK without "
     . "hunting for it in the PXE boot menu. A technician still has "
     . "to be at the console: MokManager gives up after about 10 "
     . "seconds with no keypress and boots normally, and reboots if "
@@ -4932,7 +4932,7 @@ $this->schema[] = [
 ];
 // 323
 $this->schema[] = [
-    // Redefines task type 25 so it BOOTS FOS and performs the enrolment, rather
+    // Redefines task type 25 so it BOOTS FOS and performs the enrollment, rather
     // than chaining the client to MokManager and leaving it there.
     //
     // Step 322 above shipped it as "Enroll Secure Boot Key": a schedulable
@@ -4941,7 +4941,7 @@ $this->schema[] = [
     // answer before FOS could touch EFI variables at all. It can now, and the
     // two are for the same job, so this supersedes it rather than sitting
     // alongside it -- two near-identically named task types with different
-    // behaviour is a support burden nobody needs.
+    // behavior is a support burden nobody needs.
     //
     // Updated in a NEW step rather than by editing 322 in place: 322 has already
     // run on every 1.6 beta server, and a server does not re-run a step it has
@@ -4959,7 +4959,7 @@ $this->schema[] = [
     // _enrollSecureBootChoice() special case for this type is gone. PXE menu
     // item 14 and _enrollSecureBootChoice() itself both stay: chaining straight
     // to MokManager is still how a technician answers a pending request, or
-    // enrols from local FAT media on a machine FOS cannot boot.
+    // enrolls from local FAT media on a machine FOS cannot boot.
     //
     // ttIsAdvanced drops from '1' to '0': the old row hid behind Advanced
     // because it stranded the client at a firmware screen. This one completes on
@@ -4990,7 +4990,7 @@ $this->schema[] = [
     // Distinguishes pxeID 14 from the unattended item added in step 325
     // below. It has always chained straight to MokManager for a technician
     // to drive by hand; the plain "Enroll Secure Boot Key" name stopped
-    // being enough once there is a second, unattended way to enrol from
+    // being enough once there is a second, unattended way to enroll from
     // the same menu.
     //
     // A new step, not an edit to step 321: that INSERT has already run on
@@ -5025,7 +5025,7 @@ $this->schema[] = [
     //
     // IpxeBootMenu::printDefault() additionally hides this item unless
     // PK.auth/KEK.auth/db.auth all exist in service/secureboot/ -- without
-    // them mode=enrollsb's auto-enrol path has nothing valid to write.
+    // them mode=enrollsb's auto-enroll path has nothing valid to write.
     "INSERT IGNORE INTO `pxeMenu` "
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
     . "VALUES "
@@ -5706,7 +5706,7 @@ $this->schema[] = [
     //
     // It is a foreign key to `tasks`.`taskID`, an int(11), but the column
     // was mediumtext. The values are numeric only because
-    // FOGController::save() coerces them on the way in -- a behaviour of the
+    // FOGController::save() coerces them on the way in -- a behavior of the
     // PHP layer, not a constraint of the database -- and three things follow
     // from the type:
     //
@@ -5878,7 +5878,7 @@ $this->schema[] = [
     // was working on it, and the host could not be re-tasked because it still
     // held an active task. Somebody had to notice and cancel it by hand.
     //
-    // Not reusing Cancelled (5), which was the alternative. Cancelled means
+    // Not reusing Canceled (5), which was the alternative. Canceled means
     // an administrator stopped it; losing the difference between "somebody
     // stopped this" and "this broke" costs the operator the one fact they are
     // looking at the task list to find.
@@ -6277,7 +6277,7 @@ $this->schema[] = [
     //
     // Inert at this step. Nothing writes either table and neither is in
     // Route::$validClasses, so this ships as storage and a setting and
-    // changes no behaviour anywhere. The writers arrive in later merges.
+    // changes no behavior anywhere. The writers arrive in later merges.
     //
     // Every column is named explicitly rather than derived, because a
     // schema step that does not name its columns has broken the
@@ -6290,7 +6290,7 @@ $this->schema[] = [
     // and it is the reason that table cannot be trusted -- two identical
     // actions in the same second collapse into one row, silently, through
     // save()'s INSERT ... ON DUPLICATE KEY UPDATE. An audit trail that
-    // discards a row because it resembles its neighbour is not one. The
+    // discards a row because it resembles its neighbor is not one. The
     // volume argument that key was invented for is answered by retention
     // (FOG_AUDIT_RETENTION_DAYS below) and by not auditing reads at all.
     //
@@ -6490,7 +6490,7 @@ $this->schema[] = [
     // WHY THIS CANNOT BREAK A WORKING WRITE. An INSERT that names the column
     // is unaffected; a default applies only to an omitted column. An INSERT
     // that omits it currently FAILS outright on a strict server, so there is
-    // no working behaviour to change. On a non-strict server it currently
+    // no working behavior to change. On a non-strict server it currently
     // gets the server's implicit coercion -- and the defaults chosen here are
     // exactly that coercion ('' for text, 0 for integers, the first member
     // for an enum), which is the same rule FOGBase::emptyValueFor() applies.
@@ -7332,7 +7332,7 @@ $this->schema[] = [
     // An opt-out, not an opt-in. ICMP is the better probe -- it asks "is
     // this machine up" rather than "does this machine run the one service
     // we guessed at" -- so it is on by default and a server that wants the
-    // old behaviour turns it off.
+    // old behavior turns it off.
     //
     // The reason to have the switch at all is that a fleet-wide echo sweep
     // every PINGHOSTSLEEPTIME seconds looks like a host sweep to an IDS,
@@ -7906,7 +7906,7 @@ $this->schema[] = [
     // `archIsAccess` is `taskTypes.ttIsAccess` wearing different values. There
     // it says whether a task type may be started from a host, from a group, or
     // from both; here it says whether an architecture may be picked on a host,
-    // on an image, or on both. It is what makes the table worth normalising
+    // on an image, or on both. It is what makes the table worth normalizing
     // rather than just adding a CHECK constraint: an architecture FOS can
     // capture but no host in this fleet can boot (or the reverse) is a real
     // state, and the flag is where an admin says so.
@@ -8201,7 +8201,7 @@ $this->schema[] = [
     // hosts.hostSbState -- what this machine last told us about its own
     // Secure Boot posture, and when we heard it.
     //
-    // ADR 0008 scopes the Secure Boot enrolment task to machines that are
+    // ADR 0008 scopes the Secure Boot enrollment task to machines that are
     // NOT currently enforcing, because a machine that is enforcing will not
     // boot FOS and so cannot run the task that would make it trust us. Until
     // now there was no way to find those machines: an admin guessed, and a
@@ -8223,21 +8223,21 @@ $this->schema[] = [
     //   unknown    nothing has reported yet -- server-side only
     //   nonefi     booted BIOS/CSM; Secure Boot is not a concept here
     //   noefivars  UEFI, but the variables could not be read
-    //   setup      Setup Mode -- db is writable, enrolment is unattended
+    //   setup      Setup Mode -- db is writable, enrollment is unattended
     //   enforcing  User Mode, Secure Boot ON  -- the task cannot run
     //   disabled   User Mode, Secure Boot OFF -- the ADR 0008 case
     //
     // setup and disabled are NOT collapsed into one "off". Turning Secure
     // Boot off leaves the platform key in place, so db still refuses a
     // write; only Setup Mode accepts one. fog.enrollsb branches on exactly
-    // that, and it is the difference between an enrolment that finishes with
+    // that, and it is the difference between an enrollment that finishes with
     // nobody at the keyboard and one that needs a human at MokManager.
     //
     // NULL, not a default, and read as "unknown". An existing fleet starts
     // unreported and fills in as machines boot. Defaulting to anything else
     // would assert a fact nobody observed -- and "disabled" is the dangerous
     // direction specifically, because it is the value that makes a host look
-    // like a valid enrolment target.
+    // like a valid enrollment target.
     //
     // VARCHAR, not ENUM: ENUM makes every new state a schema migration, and
     // an int written to an ENUM is a member INDEX rather than a value, which
@@ -8297,7 +8297,7 @@ $this->schema[] = [
 // 377
 $this->schema[] = [
     // hosts.hostSbEnrolled / hostSbEnrollCert / hostSbEnrollVia -- the record
-    // of an enrolment having been PERFORMED.
+    // of an enrollment having been PERFORMED.
     //
     // The other half of 376, and a different kind of fact. 376 is an
     // observation: the machine said what it was, and nobody may edit it.
@@ -8328,7 +8328,7 @@ $this->schema[] = [
     // formatted and upper case -- 95 characters. It is here because "was
     // this machine ever enrolled" is not the question an admin has. The
     // question is "does this machine trust the certificate I am serving
-    // today", and an enrolment date alone goes stale in silence when the
+    // today", and an enrollment date alone goes stale in silence when the
     // certificate rotates: FOG has PKI zones, a multi-server CA, and certs
     // that expire.
     //
@@ -8442,6 +8442,59 @@ $this->schema[] = [
             self::$DB->query(
                 "ALTER TABLE `auditChange` "
                 . "ADD `acSubjectLabel` VARCHAR(200) NOT NULL DEFAULT ''"
+            );
+        }
+
+        return true;
+    },
+];
+
+// 379
+$this->schema[] = [
+    // taskLog.createTime -- the column every windowed report bounds on, and
+    // the one index ADR 0022 step 354 did not add.
+    //
+    // Step 354 indexed the START column of all five WORK ITEM tables so
+    // ActivityWindow could find a range without scanning. taskLog is not a
+    // work-item table -- it is the EVENT table, one row per state transition
+    // -- so it was correctly out of that step's scope and consequently has
+    // never had an index on its time column at all. It ships with
+    // `PRIMARY KEY (id)` and `KEY taskID (taskID)` and nothing else.
+    //
+    // That was survivable while nothing read it by time. It no longer is.
+    // ADR 0022 decision 3 retired imagingLog and made taskLog the record of
+    // what was imaged, so DashboardPage::get30day() already scans the whole
+    // table on every dashboard load -- `WHERE createTime BETWEEN ? AND ?`
+    // with no index to find the range with -- and ADR 0030 puts every
+    // report rollup on the same bound. taskLog is the fastest-growing table
+    // on a busy server and the one whose retention window is longest, so
+    // the scan gets worse exactly where the reports get used.
+    //
+    // Single column, not composite. The rollups filter further --
+    // `logImageName <> ''`, `taskStateID <> cancelled` -- but neither is an
+    // equality, so neither is usable as a leading or trailing key part. The
+    // range on createTime is what has to be found; the rest is a filter over
+    // the rows it returns.
+    //
+    // Guarded closure, same shape as 354 and 376-378: ADD INDEX has no
+    // IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and re-running one
+    // is error 1061 rather than a no-op. Matched on the COLUMN rather than
+    // the index name, and on SEQ_IN_INDEX = 1, for the reason 354 gives --
+    // a server that already leads an index with this column, hand-tuned or
+    // folded into a later composite, must not get a second one on it.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `INDEX_NAME` AS `i` "
+            . "FROM `information_schema`.`STATISTICS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` = 'createTime' "
+            . "AND `SEQ_IN_INDEX` = 1"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (count((array)$have) < 1) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` "
+                . "ADD INDEX `idx_taskLogCreateTime` (`createTime`)"
             );
         }
 

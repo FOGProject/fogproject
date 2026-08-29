@@ -49,7 +49,7 @@ route table: `API_VALID_CLASSES` (`route.class.php:537`),
 `API_TASKING_CLASSES` (`:541`), `API_ACTIVE_TASK_CLASSES` (`:545`), plus
 `API_REMOVE_COLUMNS`, `API_MASSDATA_MAPPING`, `API_UNISEARCH_RESULTS`,
 `API_INDIVDATA_MAPPING`, `API_GETTER`, `API_SENSITIVE_FIELDS`. Each of those
-shapes the **generic CRUD** behaviour of a class that already exists.
+shapes the **generic CRUD** behavior of a class that already exists.
 
 `defineRoutes()` (`route.class.php:793`) builds its patterns by `implode`-ing
 those class lists into a regex. There is no hook between the lists and
@@ -145,7 +145,7 @@ repository size, not install-time risk.
 
 The stronger reason is **shape**. OIDC is a browser redirect plus two HTTPS
 calls returning JSON, verified with a signature over a well-known key set.
-SAML is XML, and its security depends on XML canonicalisation and XML
+SAML is XML, and its security depends on XML canonicalization and XML
 signature verification — a class of parsing where the vulnerabilities
 (XXE, signature wrapping, comment truncation) live in the parser rather than
 the protocol. `INFERRED`: that is a materially harder thing to ship safely in
@@ -311,7 +311,7 @@ Three seams, each closing one gap, each independently useful:
 
 Landed with a fourth thing the plan did not anticipate, and which turned out
 to matter more than any of the three: `resolveApiPermission()` **already**
-returned `null` — no check — for a route name it did not recognise, described
+returned `null` — no check — for a route name it did not recognize, described
 in a comment as matching the unregistered-page stance that had since been
 tightened everywhere else. Harmless while nothing could add a route; an open
 default the moment something could. Flipped to deny first, in its own commit,
@@ -353,17 +353,17 @@ sh tests/run-all.sh
 
 An IdP-established session must be distinguishable from a password one, for
 audit and for break-glass. Extends the login history entry and the session
-with the auth source. No behaviour change for the password path.
+with the auth source. No behavior change for the password path.
 
 Landed as `establishSession($source = self::AUTH_SOURCE_PASSWORD)`, writing
 `$_SESSION['FOG_AUTH_SOURCE']` and appending `(<source>)` to the history
 entry. Two things the plan did not spell out and that the implementation
 had to settle:
 
-- **The value is normalised, not trusted.** A provider plugin supplies it and
+- **The value is normalized, not trusted.** A provider plugin supplies it and
   it lands in an audit trail, so anything that is not a plain slug
   (`^[a-z0-9][a-z0-9_-]{0,31}$`, case-folded and trimmed) is recorded as
-  `unknown` rather than passed through. The normalisation is a separate
+  `unknown` rather than passed through. The normalization is a separate
   public static — `User::normalizeAuthSource()` — purely so it can be tested
   without a database; `establishSession()` itself writes a history row and
   cannot be exercised DB-free.
@@ -382,7 +382,7 @@ proved it this time). Break-glass in 2.5 needs the second one.
 ```bash
 grep -n 'function establishSession' -A5 packages/web/lib/fog/user.class.php
 php tests/session-provenance.test.php
-# 13 normaliser cases + the 32-char boundary; static pins on the session
+# 13 normalizer cases + the 32-char boundary; static pins on the session
 # stamp, on validatePw() still taking the default, and on logout()'s
 # wholesale clear
 # verified failing with: normalizeAuthSource() bypassed in establishSession()

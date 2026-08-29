@@ -343,7 +343,7 @@ disclosure with extra steps.
 is what failed:
 
 1. **Default closed by name.** A pattern over the friendly key —
-   `PASS|PWD|SECRET|TOKEN|KEY` — redacts by default, modelled directly on
+   `PASS|PWD|SECRET|TOKEN|KEY` — redacts by default, modeled directly on
    `SENSITIVE_SETTING_PATTERN`, which exists so "a credential setting added
    later is masked by default instead of silently leaking until someone
    remembers". A field matching the pattern that is *not* a credential goes

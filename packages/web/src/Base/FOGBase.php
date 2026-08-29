@@ -592,7 +592,7 @@ abstract class FOGBase
      *    the map is keyed on lowercased SHORT names, so 'fog\items\host'
      *    matches nothing and falls through. An explicit early return for it
      *    was written first and removed -- mutation testing showed deleting
-     *    it changed no behaviour, which is the definition of a branch
+     *    it changed no behavior, which is the definition of a branch
      *    describing a case that cannot happen.
      *
      * Passing an unknown name through rather than failing is what keeps this
@@ -1140,7 +1140,7 @@ abstract class FOGBase
     /**
      * How long a single fault line may get, in bytes, before it is cut.
      *
-     * A backstop, not the main defence: logFault() drops PDODB's debug tail
+     * A backstop, not the main defense: logFault() drops PDODB's debug tail
      * outright (see there). This catches what has no tail to drop -- a
      * driver message that is itself enormous, or a caller that built its
      * own. One fault stays one readable line either way.
@@ -1297,7 +1297,7 @@ abstract class FOGBase
      * The directory is never created here. It is the installer's, which gives
      * it to the web user with the right SELinux label (GH-964: /opt/fog
      * inherits usr_t and httpd_t may read it but not write it, so an
-     * unlabelled mkdir would produce a directory that looks right and
+     * unlabeled mkdir would produce a directory that looks right and
      * silently swallows every write on an enforcing host).
      *
      * @return string
@@ -2178,7 +2178,7 @@ abstract class FOGBase
      * it breaks a DHCP re-lease between PXE and FOS, a PXE NIC that differs from
      * the OS NIC, a VLAN hop, a relayed DHCP, or a NAT'd storage node. So the
      * policy is admin-declared instead, and DEFAULTS TO EMPTY = no restriction,
-     * which is exactly the behaviour before this setting existed. Sites that can
+     * which is exactly the behavior before this setting existed. Sites that can
      * state their imaging networks opt in; nobody's upgrade breaks.
      *
      * Accepts a comma/whitespace separated list of IPv4 CIDR ranges and/or
@@ -2192,7 +2192,7 @@ abstract class FOGBase
     {
         $allowed = trim((string)self::getSetting('FOG_HOSTKEY_ALLOWED_SOURCES'));
         if ($allowed === '') {
-            // Unconfigured: preserve pre-existing behaviour.
+            // Unconfigured: preserve pre-existing behavior.
             return true;
         }
         $ip = trim((string)$ip);
@@ -3053,9 +3053,9 @@ abstract class FOGBase
     }
     /**
      * Load every global setting from the database in a single query, applying
-     * the same normalisation as getSetting().
+     * the same normalization as getSetting().
      *
-     * @return array Map of settingKey => normalised value.
+     * @return array Map of settingKey => normalized value.
      */
     private static function _loadAllSettings()
     {
@@ -3103,7 +3103,7 @@ abstract class FOGBase
      * world-writable; executing code from it would be a local RCE vector.
      * Sensitive values (passwords, tokens, secrets) are stripped before writing
      * and are served from the database instead, so they never touch disk. The
-     * file is still mode 0600 (defence in depth) and read only by the web user;
+     * file is still mode 0600 (defense in depth) and read only by the web user;
      * daemons do not read it.
      *
      * @param array $data Map of settingKey => value.
@@ -3327,7 +3327,7 @@ abstract class FOGBase
             ['value' => trim($value)]
         );
 
-        // Only refresh the cache on a successful write, and normalise exactly
+        // Only refresh the cache on a successful write, and normalize exactly
         // as getSetting() would so cached reads match a fresh database read.
         if ($result) {
             self::$_settingsCache[$key] = [
@@ -3479,7 +3479,7 @@ abstract class FOGBase
         return TaskState::getCompleteState();
     }
     /**
-     * Get cancelled state id.
+     * Get canceled state id.
      *
      * @return int
      */
@@ -4674,7 +4674,7 @@ abstract class FOGBase
      * FOG_STORAGENODE_MYSQLPASS, which is what service/nodecert.php signs
      * with -- but that password is direct database access. Leaking it during
      * transport hands an attacker the whole schema; leaking this hands them
-     * the ability to list directories on a node, which is all it authorises.
+     * the ability to list directories on a node, which is all it authorizes.
      *
      * INSERT IGNORE rather than setSetting(), for two reasons. setSetting()
      * is an UPDATE through SettingManager and does nothing at all when the
@@ -4894,7 +4894,7 @@ abstract class FOGBase
     /**
      * Is this request signed by a FOG component that holds the node key?
      *
-     * Authentication, not authorisation: it says the caller is part of this
+     * Authentication, not authorization: it says the caller is part of this
      * installation, and nothing about what it may do. Endpoints accepting it
      * must still be ones a node is entitled to reach -- the same split
      * service/nodecert.php makes when it checks the HMAC and then separately
@@ -5210,7 +5210,7 @@ abstract class FOGBase
      * commons/schema-expected.php carries per-column types and is what
      * OpenAPI::_entitySchema() reads for the same question, so this adds no
      * new source of truth. A missing or unreadable manifest returns '', which
-     * emptyValueFor() treats as "assume a string column" -- the behaviour that
+     * emptyValueFor() treats as "assume a string column" -- the behavior that
      * shipped before any of this.
      *
      * @param string $table  the database table
@@ -5287,7 +5287,7 @@ abstract class FOGBase
             )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         } catch (\Exception $e) {
             // A catalog FOG cannot read leaves every column looking unknown,
-            // which is the behaviour that shipped before GH-1245 rather than
+            // which is the behavior that shipped before GH-1245 rather than
             // a broken one.
             self::logFault(
                 sprintf(
@@ -5308,7 +5308,7 @@ abstract class FOGBase
          * table went back to being untyped, which is exactly the GH-1245 bug
          * this method exists to prevent, reappearing with nothing said.
          *
-         * Behaviour is unchanged: still an empty map, still asked once per
+         * Behavior is unchanged: still an empty map, still asked once per
          * table per request. Only now it is written down.
          */
         if (self::$DB->error) {
@@ -5356,7 +5356,7 @@ abstract class FOGBase
      * Everywhere else the server either refuses it under a strict sql_mode or
      * coerces it without one, and FOG only ever saw the second, because
      * PDODB::_connect() cleared sql_mode on every connection. So this is not
-     * new behaviour being introduced -- it is the coercion the server was
+     * new behavior being introduced -- it is the coercion the server was
      * already performing, written down and made legal:
      *
      *   date/time  ->  NULL          (was '0000-00-00 00:00:00')

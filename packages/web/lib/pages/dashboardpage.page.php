@@ -620,10 +620,10 @@ class DashboardPage extends FOGPage
         // a task type name that a site can rename. It is NOT sufficient on its
         // own: TaskLog::recordState() writes that column on every transition
         // of an imaging task, cancellation included, so a deploy that was
-        // queued and then cancelled without ever starting carries an image
+        // queued and then canceled without ever starting carries an image
         // name on its only row. Counting it says an image was deployed when
-        // no machine was ever touched, so the cancelled state is excluded --
-        // a task cancelled MID-image still has its In-Progress row and still
+        // no machine was ever touched, so the canceled state is excluded --
+        // a task canceled MID-image still has its In-Progress row and still
         // counts, which is the answer we want.
         //
         // MIN() rather than each row's own date, because a run that starts
@@ -641,7 +641,7 @@ class DashboardPage extends FOGPage
                    FROM `taskLog`
                   WHERE `createTime` BETWEEN :start AND :end
                     AND `logImageName` <> ''
-                    AND `taskStateID` <> :cancelled
+                    AND `taskStateID` <> :canceled
                   GROUP BY `taskID`
                ) AS `runs`
               GROUP BY DATE(`started`)",
@@ -649,7 +649,7 @@ class DashboardPage extends FOGPage
             [
                 ':start' => $start->format('Y-m-d H:i:s'),
                 ':end' => $end->format('Y-m-d H:i:s'),
-                ':cancelled' => self::getCancelledState()
+                ':canceled' => self::getCancelledState()
             ]
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $counts = [];

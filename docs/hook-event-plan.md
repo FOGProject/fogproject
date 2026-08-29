@@ -236,8 +236,8 @@ Tree green after every commit. `sh tests/run-all.sh` is the gate throughout.
 One new `tests/hook-event-contract.test.php`, following the standalone-script
 convention (`tests/plugin-extension-points.test.php` is the closest model:
 `require commons/init.php`, `new Initiator()`, no database, exit 0/1). Pins
-today's behaviour **including the parts that are wrong**, so every later
-behaviour change shows up as a test that must be edited on purpose.
+today's behavior **including the parts that are wrong**, so every later
+behavior change shows up as a test that must be edited on purpose.
 
 Pins: the four `register()` shapes and their outcomes; the six-row activation
 table; `Hook` accepted by `EventManager::register()`; `HookManager::notify()`
@@ -297,7 +297,7 @@ the crash.
 Replace the line-by-line regex with
 `(new \ReflectionClass($class))->getDefaultProperties()['active']` — the
 declared default, which is exactly what the regex was trying to approximate, so
-a value set in a constructor is still not consulted and behaviour is unchanged
+a value set in a constructor is still not consulted and behavior is unchanged
 for every shipped file (F-12). Autoloading the class is an include, not a
 construction; the class map is already O(1).
 
@@ -352,7 +352,7 @@ Decision 5. One `instanceof Hook` guard in `EventManager::register()`, plus
 `Event::onEvent()`'s default body changing from `printf` to a no-op. Every
 bundled plugin event overrides `onEvent()`; the one shipped file that does not,
 `lib/events/hostlist.event.php`, is inactive (F-11) and its author plainly did
-not intend "print the event name into the page" as behaviour.
+not intend "print the event name into the page" as behavior.
 
 ### H.10 — The dead event names · **split out, not part of this work**
 
@@ -374,7 +374,7 @@ recommendations below originally leaned on "ADR 0013 promised the plugin ABI
 holds for all of 1.6." That is not what ADR 0013 says. Its §2 makes one
 promise — the reverse `class_alias` in each namespaced file is supported for
 all of 1.6 and cannot be removed before 1.7 — about *the alias*, not about every
-behaviour a plugin can observe. And 1.6.0 has not been released: `working-1.6`
+behavior a plugin can observe. And 1.6.0 has not been released: `working-1.6`
 stamps `1.6.0-beta.NNNN`, so there is no installed base of third-party 1.6
 plugins to keep faith with. Nothing here should be deferred to a "1.7" that is
 two releases away from existing. Where a recommendation survived the correction

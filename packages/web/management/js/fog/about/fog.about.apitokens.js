@@ -2,7 +2,7 @@
   // The estate-wide API token pane. Auto-loaded by the js/fog/<node>/
   // fog.<node>.<sub>.js convention, so nothing registers this file.
   //
-  // Driven by registerTable() -- the same initialiser every list page uses
+  // Driven by registerTable() -- the same initializer every list page uses
   // -- rather than registerListPage(), which hardwires its ajax url to
   // '?node=' + Common.node + '&sub=list'. This grid lives at node=about,
   // sub=apitokens and its rows come from sub=apitokenlist, so it wires the

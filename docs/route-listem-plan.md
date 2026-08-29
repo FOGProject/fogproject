@@ -49,7 +49,7 @@ sorting, search, field selection, result shaping." Mostly right. Corrections:
 |---|---|---|
 | request parsing (body + `?length`/`?start` fold-in) | `:1523-1543` | yes, cleanly |
 | expand-clamp | `:1545-1561` | yes — and it is broken (DEAD-2) |
-| filter normalisation **and refusal** | `:1567-1581` | yes, but this is guard #1 and #2 |
+| filter normalization **and refusal** | `:1567-1581` | yes, but this is guard #1 and #2 |
 | **permission resolution** | *not here* | already extracted — `runMatches()` `:1191` |
 | column removal (secrets) | `:1614-1633` | yes, but this is guard #3 |
 | **column table** | `:1645-2478` | **yes, trivially — 834 of 1,103 lines, zero guards** |
@@ -145,7 +145,7 @@ cp /tmp/route.bak packages/web/lib/router/route.class.php
 ```
 
 Why every one of these passes: the existing route tests pin *symbols*, not
-*behaviour*. `sensitive-fields-unfilterable.test.php` greps for the strings
+*behavior*. `sensitive-fields-unfilterable.test.php` greps for the strings
 `_assertNoSensitiveFilter(`, `HTTP_BAD_REQUEST` and `'nosearch'`; inserting
 `return;` above the `HTTP_BAD_REQUEST` line leaves all three present.
 `site-scope-lists.test.php` exercises `Authorization::scopedObjectIDs()`
@@ -193,7 +193,7 @@ existing conventions (standalone, exit 0/1, no framework, no DB):
 2. the same through the JSON search body (`getsearchbody`);
 3. `stripSensitivePayload` removes both tiers from a `_lang`-stamped list
    payload, and only tier 2 from an unstamped single-entity payload;
-4. an unstamped payload is returned **unchanged** — pinning today's behaviour
+4. an unstamped payload is returned **unchanged** — pinning today's behavior
    so SEC-1's fix is understood as an input-side fix, not an emitter change;
 5. `_applySiteScope` with `scopedObjectIDs` → `null` leaves the payload
    byte-identical (`===`), with `[]` empties it, with `[a,b]` keeps exactly
@@ -207,8 +207,8 @@ existing conventions (standalone, exit 0/1, no framework, no DB):
    literal key list, because that list is the API contract (ADR 0011) and
    nothing pins it today;
 9. `listem()` calls `_applySiteScope` — a source-level assertion, kept
-   **alongside** the behavioural ones and not instead of them, because a
-   decomposition can preserve the behaviour of a method nobody calls.
+   **alongside** the behavioral ones and not instead of them, because a
+   decomposition can preserve the behavior of a method nobody calls.
 
 **Each assertion must be mutation-verified as it is written.** The mutation
 table above is the acceptance criterion: re-run all eight with the net in
@@ -260,7 +260,7 @@ covered, and each cost an assertion that would not otherwise have been written:
   they can. Section 6b registers a hook that appends an out-of-scope row and
   asserts it never reaches the wire. This is the line a decomposition drops on
   the grounds that `listem()` already did it.
-- **M4.** Pinning `stripSensitivePayload()`'s behaviour does not pin the
+- **M4.** Pinning `stripSensitivePayload()`'s behavior does not pin the
   emitter's **call** to it — the exact failure mode this file exists to
   prevent, reproduced while writing the file that prevents it. Closed by
   driving `printer()` itself through `asValue()` and asserting on the wire
@@ -515,7 +515,7 @@ there (`fogmanagercontroller.class.php:685,713-718`), already ANDed into both
 the row query and the filter count, and already feeds `$whereAllSql` into the
 total count. That is what it was built for; nothing new is invented.
 
-`_applySiteScope`'s row loop then becomes a **defence in depth** assertion
+`_applySiteScope`'s row loop then becomes a **defense in depth** assertion
 rather than the enforcement — keep it, and have it log if it ever removes a row
 the SQL should already have excluded.
 
@@ -752,7 +752,7 @@ part of what it pins: `f:StorageGroup` became `f:groupFor`.
 ## Commit 8 — extract the pipeline phases
 
 Only now, and only if commits 1–7 have left something worth extracting. After
-commit 3, `listem()` is ~260 lines: parse request → normalise filters →
+commit 3, `listem()` is ~260 lines: parse request → normalize filters →
 build columns → query → hooks → scope → shape. Each phase is a private method
 returning a value.
 
@@ -762,7 +762,7 @@ the net, and by here the net has been mutation-verified twice.
 **Alternative rejected — and this is your constraint, restated so a later
 reader does not re-litigate it:** splitting `route.class.php` into several
 files. If the end state wants that, it is the commit after this one, never
-before. A 6,470-line move hides behaviour changes inside apparent relocations.
+before. A 6,470-line move hides behavior changes inside apparent relocations.
 
 ---
 
@@ -789,7 +789,7 @@ path pattern, a method, a parameter or a response body desynchronises silently.
 directions — `VERIFIED` by mutation: changing the `/names` route's *path* while
 keeping its name leaves the suite green.
 
-For this plan that cuts a favourable way: **nothing in `listem()` is described
+For this plan that cuts a favorable way: **nothing in `listem()` is described
 by the document at all.** `_entitySchema()` reflects `$databaseFields`, so the
 grid's own `dt` columns — `mainlink`, `imagename`, `primac`, `primac_vendor`,
 `hostLink`, `taskstateicon`, `diff`, `members`, `hostcount` — are undocumented
@@ -849,7 +849,7 @@ remove rows a user should not see, never leave one in.**
 
 Everything else in this plan is arranged around that. It is why SCOPE-2 is
 rated a *functional* defect and not a disclosure, why commit 5 is sequenced
-sixth instead of first, and why I was willing to keep the row loop as a defence
+sixth instead of first, and why I was willing to keep the row loop as a defense
 in depth rather than treating it as the hole.
 
 It rests on one line, `:5676`:

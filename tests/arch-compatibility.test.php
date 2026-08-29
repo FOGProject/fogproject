@@ -97,7 +97,7 @@ $t->check(
     \FOG\Items\Architecture::canRun('', '') === true
 );
 
-// --- normalisation --------------------------------------------------------
+// --- normalization --------------------------------------------------------
 // FOS reports uname -m; iPXE reports ${buildarch}. Only iPXE's spelling is
 // stored, so anything arriving from elsewhere has to fold onto it or an
 // arm64 host would read as incompatible with its own arm64 image.
@@ -121,7 +121,7 @@ $t->check(
     \FOG\Items\Architecture::normalizeName('riscv64') === 'riscv64'
 );
 $t->check(
-    'an aarch64 image is compatible with an arm64 host after normalisation',
+    'an aarch64 image is compatible with an arm64 host after normalization',
     \FOG\Items\Architecture::canRun('aarch64', 'arm64') === true
 );
 
@@ -290,11 +290,11 @@ $t->check(
     \FOG\Items\Image::parseSectorSize("# note: sector-size: 4096 was seen\n") === 0
 );
 $t->check(
-    '4096 is labelled 4Kn',
+    '4096 is labeled 4Kn',
     false !== strpos(\FOG\Items\Image::sectorSizeLabel(4096), '4Kn')
 );
 $t->check(
-    '512 is labelled 512n/512e -- the two are not separable from a capture',
+    '512 is labeled 512n/512e -- the two are not separable from a capture',
     false !== strpos(\FOG\Items\Image::sectorSizeLabel(512), '512n/512e')
 );
 $t->check(

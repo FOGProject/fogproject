@@ -43,7 +43,7 @@ use FOG\Items\TaskState;
  * The state is written for every task type, not just imaging ones: a Memtest
  * the host died on is as finished as a deploy. Only the notification is
  * imaging-specific. See TaskState::getFailedState() for why this is a sixth
- * state rather than Cancelled, and why adding one did not mean editing the
+ * state rather than Canceled, and why adding one did not mean editing the
  * places that enumerate states.
  *
  * Apart from that one field it writes nothing about the task. The endpoint is
@@ -101,7 +101,7 @@ class TaskError extends FOGBase
      *
      * A warning is a report that FOS carried on after, so it is worth a row
      * and a log line but is not a failure and must not fire HOST_IMAGE_FAIL.
-     * Anything unrecognised is treated as an error: a report FOG cannot
+     * Anything unrecognized is treated as an error: a report FOG cannot
      * classify is not a reason to throw it away.
      *
      * @var array
@@ -319,7 +319,7 @@ class TaskError extends FOGBase
     /**
      * Reads the report type, as a TaskLog type constant.
      *
-     * Unrecognised input becomes an error rather than being rejected. The
+     * Unrecognized input becomes an error rather than being rejected. The
      * caller is a machine that has already failed at something; the report
      * is worth more than the label on it, and a stricter reading would throw
      * away the report of a FOS newer than this server.
@@ -375,7 +375,7 @@ class TaskError extends FOGBase
         // to _flatten(), which those two destinations call and the stored
         // row does not.
         //
-        // Normalised first so only one line ending has to survive the class
+        // Normalized first so only one line ending has to survive the class
         // below, and so a CRLF report does not store stray carriage returns.
         $raw = preg_replace('#\r\n?#', "\n", (string) $raw);
         // [^\P{C}\n] is "in \p{C} but not a newline": every Unicode control
@@ -499,7 +499,7 @@ class TaskError extends FOGBase
      * The directory is never created here. It is the installer's, which
      * gives it to the web user with the right SELinux label (GH-964:
      * /opt/fog inherits usr_t and httpd_t may read it but not write it, so
-     * an unlabelled mkdir would produce a directory that looks right and
+     * an unlabeled mkdir would produce a directory that looks right and
      * silently swallows every write on an enforcing host).
      *
      * @return string

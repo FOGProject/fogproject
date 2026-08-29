@@ -95,7 +95,7 @@ if (2 !== substr_count($multi, "\n")) {
 // CRLF into "space + newline": a trailing space on every line of a report
 // from a machine that ends lines the DOS way, which is most of them.
 if ("a\nb" !== $clean("a\r\nb")) {
-    $fails[] = 'a CRLF report is not normalised to a bare newline, so every'
+    $fails[] = 'a CRLF report is not normalized to a bare newline, so every'
         . ' line of it is stored with trailing whitespace';
 }
 // The invalid-UTF-8 fallback has to keep the newline too. [[:cntrl:]] --
@@ -405,7 +405,7 @@ if (false === strpos($inst, 'mkdir -p $servicelogs/' . $subdir)) {
         . ' web tier has nowhere to write';
 }
 if (false === strpos($inst, 'setSELinuxContext "$servicelogs/' . $subdir . '" httpd_sys_rw_content_t')) {
-    $fails[] = 'the report log directory is not relabelled, so every report is'
+    $fails[] = 'the report log directory is not relabeled, so every report is'
         . ' dropped by SELinux with nothing but an AVC to say so';
 }
 

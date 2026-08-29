@@ -38,7 +38,7 @@
     };
   }
 
-  // allowed / denied / failed / partial, coloured because scanning a page of
+  // allowed / denied / failed / partial, colored because scanning a page of
   // these for the denials is the whole reason somebody opens this grid.
   var outcomeClass = {
     allowed: 'text-bg-success',

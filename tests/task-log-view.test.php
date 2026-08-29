@@ -31,7 +31,7 @@ if (!preg_match("#'id' => 'logs'#", $page)) {
 }
 if (!preg_match('#logs:\s*\{[^}]*build:\s*buildLogs#s', $js)) {
     $fails[] = 'the logs pane is not in the JS pane registry, so the tab'
-        . ' renders an empty table that never initialises';
+        . ' renders an empty table that never initializes';
 }
 
 // The table id is the only thing tying the rendered markup to the builder.
@@ -172,7 +172,7 @@ preg_match('#function buildLogs\(.*?function showLogDetail\(#s', $jsBare, $lb);
 $logsFn = $lb[0] ?? '';
 $msgCol = '' === $logsFn ? false : strpos($logsFn, 'targets: 5');
 // Bounded below by the PREVIOUS `targets:`, so the window cannot reach into
-// the neighbouring columnDef. A fixed character count did: deleting the
+// the neighboring columnDef. A fixed character count did: deleting the
 // render outright still passed, on column 4's escapeHtml.
 $prevCol = false === $msgCol
     ? false

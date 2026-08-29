@@ -610,7 +610,7 @@ class FOGURLRequests extends FOGBase
          * the signed-in administrator's PHP session id was handed to
          * api.github.com on every kernel listing and to fogproject.org on
          * every version check. It is here because a node's status endpoint
-         * needs the caller's session to authorise the request -- that is a
+         * needs the caller's session to authorize the request -- that is a
          * reason to send it to a node, and not a reason to send it anywhere
          * else.
          */

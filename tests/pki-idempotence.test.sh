@@ -166,7 +166,7 @@ artefacts() {
     # with no Secure Boot CA -- _ensureSecureBootKeys returns early here because
     # createSecureBootIntermediateCA has already pointed ${PKI_sb_codesign_key} at the
     # signing leaf -- so it is genuinely absent in this configuration rather
-    # than missing. sign.key/sign.pem above are what this install enrols.
+    # than missing. sign.key/sign.pem above are what this install enrolls.
 }
 
 sumof() {

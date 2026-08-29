@@ -1,4 +1,4 @@
-# One boolean encoding in `.fogsettings`, normalised on load
+# One boolean encoding in `.fogsettings`, normalized on load
 
 ## Status
 
@@ -44,7 +44,7 @@ against 79 old keys, is a much riskier thing to get wrong than a rename.
 
 ## Decision
 
-**Every boolean key holds `yes` or `no`, and the value is normalised on load,
+**Every boolean key holds `yes` or `no`, and the value is normalized on load,
 every run.**
 
 `_normalizeBool()` maps `yes|y|1|true|on|enabled` and the corresponding
@@ -53,13 +53,13 @@ to the twelve keys.
 
 Two things it deliberately does not do:
 
-- **An unrecognised value is left alone**, not coerced. Silently turning a typo
+- **An unrecognized value is left alone**, not coerced. Silently turning a typo
   into `no` is how a deliberate setting disappears with nothing to show why.
 - **Empty stays empty.** The interactive prompts are `while [[ -z ${KEY} ]]`
   loops; collapsing unset into `no` would stop every prompt firing and answer for
   the admin.
 
-Normalisation runs **after** the flag shadows in `bin/installfog.sh`. Every
+Normalization runs **after** the flag shadows in `bin/installfog.sh`. Every
 source of a value has fed in by that point — the value `.fogsettings` persisted,
 the value the rename seed block copied off a pre-1.6 key, and the value a flag
 set this run — and the flag layer was itself the worst offender for mixed
@@ -95,7 +95,7 @@ off the list, so a later sweep cannot quietly fold them.
 
 `BOOT_external_tftp_server` keeps the sense it inherited from `noTftpBuild`. Only
 the encoding moves, so values carry across untouched — which is what lets this be
-a normalisation rather than a migration.
+a normalization rather than a migration.
 
 ## Consequences
 

@@ -90,7 +90,7 @@ class Architecture extends FOGController
      * compatibility test below compares two names that are equal in fact and
      * different as strings, and refuses a deploy that would have worked.
      *
-     * An architecture this does not recognise is returned unchanged rather
+     * An architecture this does not recognize is returned unchanged rather
      * than guessed at. idFromName() then finds no row and answers 0, which
      * reads as "not recorded" -- see canRun() for why that must never refuse.
      *

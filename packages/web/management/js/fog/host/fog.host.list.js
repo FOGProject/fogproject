@@ -213,12 +213,12 @@
                 if (type !== 'display') {
                     return data;
                 }
-                // Colour carries the same meaning the enrolment task acts on,
+                // Color carries the same meaning the enrollment task acts on,
                 // so the grid and the refusal cannot tell different stories:
-                // green is ready to enrol unattended, blue is enrollable with
+                // green is ready to enroll unattended, blue is enrollable with
                 // someone at the machine, red cannot run the task at all, and
-                // grey is "we have never heard from this host" -- which is
-                // deliberately not the same grey-as-harmless as the others,
+                // gray is "we have never heard from this host" -- which is
+                // deliberately not the same gray-as-harmless as the others,
                 // because unknown is allowed through with a warning.
                 var raw = String(row.sbstatecode || '');
                 var tone = 'secondary';
@@ -247,13 +247,13 @@
                 if (type !== 'display') {
                     return data;
                 }
-                // Blank, not "Never": an empty enrolment cell next to a
+                // Blank, not "Never": an empty enrollment cell next to a
                 // populated Secure Boot cell already reads as "not enrolled",
                 // and the word would crowd a column most fleets never look at.
                 if (!data) {
                     return '';
                 }
-                // A staged MOK request is NOT an enrolment and must not read
+                // A staged MOK request is NOT an enrollment and must not read
                 // as one -- the machine will not boot with Secure Boot on
                 // until someone confirms it at the MokManager screen. The
                 // date alone would say the opposite.

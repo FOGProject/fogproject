@@ -111,7 +111,7 @@ Decision 5 is the answer to it: this daemon says something on every pass,
 including when it finds nothing to do.
 
 **No upgrade migration is needed, and nothing changes for a default install.**
-The settings default to enabled, `installfog.sh` installs and enrols the new
+The settings default to enabled, `installfog.sh` installs and enrolls the new
 unit like any other, and the windows themselves are untouched. A site that had
 deliberately disabled `FOGPluginRunner` to stop retention — which nothing
 documented, so it is unlikely anyone did — starts pruning again on upgrade;
@@ -124,7 +124,7 @@ audit-before-delete refusal all stand exactly as written.
 
 **The general rule this is an instance of**, and the reason it is worth an ADR
 rather than a commit message: *a shared host for a piece of work inherits its
-name to every operator who reads it.* Putting core behaviour inside a component
-named for something optional gives that behaviour a second off switch nobody
+name to every operator who reads it.* Putting core behavior inside a component
+named for something optional gives that behavior a second off switch nobody
 documented — and the person who trips it will report a bug against the feature,
 not against the placement.

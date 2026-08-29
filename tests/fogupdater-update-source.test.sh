@@ -94,7 +94,7 @@ fi
 
 # Per call site, not once for the file. A second fetch helper added later
 # without the flags is exactly how --no-check-certificate spread in the first
-# place: by copying a neighbouring call that had it.
+# place: by copying a neighboring call that had it.
 curls=0
 unpinned=0
 while IFS= read -r line; do

@@ -196,7 +196,7 @@ abstract class FOGPage extends FOGBase
      * every page construction was hitting that. Deliberately left without
      * a native type -- _init() calls unset($this->obj) when the id does
      * not resolve, and a typed property would then throw on read rather
-     * than warning, which is a different behaviour from the one this code
+     * than warning, which is a different behavior from the one this code
      * has always had.
      *
      * @var mixed
@@ -303,7 +303,7 @@ abstract class FOGPage extends FOGBase
      *
      * Deliberately keyed on self::$ajax (the X-Requested-With header jQuery
      * sets) rather than on a list of known JSON subs: a sub added later gets
-     * the right behaviour without anyone remembering to register it.
+     * the right behavior without anyone remembering to register it.
      *
      * @param string $node the node whose list page a browser is sent to
      * @param mixed  $id   the id that could not be resolved
@@ -774,7 +774,9 @@ abstract class FOGPage extends FOGBase
             // "Where do I go to see what happened" is one question, and it
             // had two answers sitting next to each other with nothing saying
             // they were related. Both are read-only views of the event logs
-            // and neither is a report, so Reports was never the right parent.
+            // and neither is a report, so Reports was never the right parent
+            // -- ADR 0030 puts a name to the difference: a report is an
+            // aggregation over a window, and these two are neither.
             //
             // TWO children, not three. History is not a node -- ADR 0023 item
             // 4 made History_Report a redirect into the Activity viewer,
@@ -1261,7 +1263,7 @@ abstract class FOGPage extends FOGBase
      * '/fog/', so nothing reached a FOG installed anywhere else. The webroot
      * reaches us in every shape -- '/fog/', 'fog', '/fog', '' -- because it is
      * written by the installer, edited by hand in FOG Settings, and carried
-     * per-node in ngmWebroot, so normalise rather than trust the stored form.
+     * per-node in ngmWebroot, so normalize rather than trust the stored form.
      *
      * Returns the bare form ('fog', 'apps/fog') because every caller supplies
      * its own surrounding slashes.
@@ -1381,8 +1383,8 @@ abstract class FOGPage extends FOGBase
      * means the only thing on screen is the action you can actually take.
      *
      * Both labels ride along as data attributes so gettext stays server-side
-     * and the JS only has to swap text. The colour is fixed for the life of
-     * the button -- state is carried by the label, not by a colour change --
+     * and the JS only has to swap text. The color is fixed for the life of
+     * the button -- state is carried by the label, not by a color change --
      * so callers pass whatever class fits their footer (primary when it is
      * the rightmost right-side button, secondary when something else there
      * already holds primary). Wire it up with $.registerReloadToggle().
@@ -1560,7 +1562,7 @@ abstract class FOGPage extends FOGBase
             $actionbox = '';
             $modals = '';
             if ($sub == 'list') {
-                // Tasks are cancelled per-pane, never deleted; the tabbed
+                // Tasks are canceled per-pane, never deleted; the tabbed
                 // task page hits sub=list via the no-sub default, so keep
                 // the delete actionbox off it. Activity and the audit log
                 // are read-only views of the event logs -- ?node=X&sub=list
@@ -2612,7 +2614,7 @@ abstract class FOGPage extends FOGBase
         // web server naming its own key or its own file, so the shared name
         // cannot be made per-request. Instead each download keeps its own
         // private file (see _downloadPost) and borrows the shared name only for
-        // the moment it is being signed, serialised here. That window is a
+        // the moment it is being signed, serialized here. That window is a
         // single sbsign inside a single request, which is short enough for a
         // lock to cover -- unlike the whole download, which spans three.
         //
@@ -4384,20 +4386,20 @@ abstract class FOGPage extends FOGBase
      *
      * When $force is true (the user ticked "First row is a header") the row
      * is always treated as a header. Otherwise it is auto-detected: every
-     * cell must be non-empty, unique, and a recognised column token.
-     * Recognised tokens are the class field keys plus 'primac' (hosts) and
+     * cell must be non-empty, unique, and a recognized column token.
+     * Recognized tokens are the class field keys plus 'primac' (hosts) and
      * 'associations' (where supported).
      *
      * Returns true when the row is a header; $map is filled with
-     * lowercased-token => column-index for recognised tokens, and $unknown
-     * collects any header cells that were not recognised (only meaningful
+     * lowercased-token => column-index for recognized tokens, and $unknown
+     * collects any header cells that were not recognized (only meaningful
      * when $force is true, since auto-detect rejects unknown tokens).
      *
      * @param mixed $row         the first CSV row
-     * @param array $validTokens recognised tokens, lowercased
+     * @param array $validTokens recognized tokens, lowercased
      * @param bool  $force       treat the row as a header unconditionally
      * @param array $map         out: token => column index
-     * @param array $unknown     out: unrecognised header cells
+     * @param array $unknown     out: unrecognized header cells
      *
      * @return bool
      */
@@ -4520,7 +4522,7 @@ abstract class FOGPage extends FOGBase
             // import) so the file is portable between servers.
             $fkConfig = self::getFkConfig($this->childClass);
 
-            // Recognised header tokens (lowercased) for this class: the field
+            // Recognized header tokens (lowercased) for this class: the field
             // keys, plus 'primac' for hosts and 'associations' where supported.
             $headerTokens = array_map('strtolower', $dbkeys);
             if ($isHost) {
@@ -5909,7 +5911,7 @@ abstract class FOGPage extends FOGBase
      * FOGManagerController::simple(); forcing length=-1 drops the SQL LIMIT.
      *
      * The header row uses the friendly column keys, which are exactly the
-     * tokens the CSV importer recognises, so the file round-trips through
+     * tokens the CSV importer recognizes, so the file round-trips through
      * import unchanged.
      *
      * @return void

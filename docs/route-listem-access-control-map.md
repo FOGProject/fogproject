@@ -23,7 +23,7 @@
 >   list-half amendment.
 >
 > What this document still gets right, and is worth reading for, is §6: the
-> catalogue of single-line deletions that remove a control without failing a
+> catalog of single-line deletions that remove a control without failing a
 > test, and why `tests/route-read-path-guards.test.php` exists.
 
 This document answers one question: **which lines in the read path remove or
@@ -217,7 +217,7 @@ restored from a scratchpad copy.
 green.**
 
 The reason is consistent, and it is the failure documented in
-`docs/lessons/` as pinning a symbol's *use* instead of its *behaviour*:
+`docs/lessons/` as pinning a symbol's *use* instead of its *behavior*:
 
 - `site-scope-lists.test.php` tests `Authorization::scopedObjectIDs()` — the
   **supplier** of scope ids, exhaustively and well. It contains no reference to

@@ -15,7 +15,7 @@
  *
  * Static on purpose: proving it over HTTP needs a running server with a
  * database, and a test that needs those is a test nobody runs. The HTTP
- * behaviour was verified by hand when the change landed -- see the PR.
+ * behavior was verified by hand when the change landed -- see the PR.
  *
  * Usage: php tests/no-session-for-browserless.test.php
  * Exit status 0 = pass, 1 = fail.

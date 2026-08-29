@@ -1,4 +1,4 @@
-# The Secure Boot enrolment task type, and the narrow case it is actually for
+# The Secure Boot enrollment task type, and the narrow case it is actually for
 
 The client-side mechanics and the full reasoning live in
 [fos ADR-0009](https://github.com/FOGProject/fos/blob/master/docs/adr/0009-secure-boot-enrolment-paths.md).
@@ -17,7 +17,7 @@ yet trusted, `bzImage` and `init.xz` are both refused with
 `Verification failed: Security Policy Violation`. FOS never starts, so a FOG task
 running inside FOS cannot possibly be what establishes trust in FOG's key.
 
-The task that would enrol the key cannot run on the machine that needs it.
+The task that would enroll the key cannot run on the machine that needs it.
 
 ## What the task type IS for
 
@@ -43,7 +43,7 @@ Two things will mislead an admin if the task description omits them, and both
 cost a wasted trip to a machine:
 
 1. The MokManager confirmation **cannot** be automated. shim's `MokList` is
-   boot-services-only; nothing FOG does can enrol a key unattended.
+   boot-services-only; nothing FOG does can enroll a key unattended.
 2. The task **cannot run at all** if Secure Boot is already enforcing.
 
 An admin who schedules this against 200 enforcing machines and watches every one
@@ -67,7 +67,7 @@ chain observed in testing was `secureboot/snponly-shimx64.efi` →
 **Microsoft Corporation UEFI CA 2011**. Ship a `db` without it and FOG's own
 Secure Boot PXE boot stops working.
 
-These are public certificates Microsoft publishes so people can enrol them;
+These are public certificates Microsoft publishes so people can enroll them;
 Debian, Fedora, `sbctl` and `efitools` all redistribute them. An earlier concern
 about a licensing barrier was mistaken.
 
@@ -91,10 +91,10 @@ visit at all.
 
 `_ensureSecureBootPlatformKeys()` generates a second and third keypair alongside
 the MOK signing key. They sign nothing that ever executes; they exist only to
-authorise updates to a client's Secure Boot databases.
+authorize updates to a client's Secure Boot databases.
 
 The reason to generate them properly rather than reuse the MOK key or throw one
-away after enrolment: once a client leaves Setup Mode it is in **User Mode with
+away after enrollment: once a client leaves Setup Mode it is in **User Mode with
 our PK**, and the UEFI spec then requires a KEK-signed update to touch `db` and a
 PK-signed update to touch `KEK`. Holding those keys is what lets this same server
 push a `db` change to an already-enrolled fleet later without another firmware
@@ -137,7 +137,7 @@ to say why.
 
 Two guards, because the first one alone is what already failed:
 
-1. Every certificate is normalised to PEM before the tool sees it, whatever
+1. Every certificate is normalized to PEM before the tool sees it, whatever
    format it arrived in.
 2. The result is size-checked. An ESL is exactly a 28-byte header plus a 16-byte
    owner GUID plus the DER certificate, so its size must be `DER + 44`; anything
@@ -159,7 +159,7 @@ partition path — here it just wears a zero exit status instead of a warning.
   absent the installer skips the build with a warning and the MOK paths keep
   working — it does not fail the install.
 - The Secure Boot configuration page gains a card that says whether automatic
-  enrolment is available, and spells out that Setup Mode is *not* the same as
+  enrollment is available, and spells out that Setup Mode is *not* the same as
   "Secure Boot turned off". An admin who has never heard the term will not find
   "clear the Secure Boot keys" in their firmware menu on their own.
 - Verified end to end on 2026-08-03: `boot.php` emits `mode=enrollsb` on the

@@ -112,7 +112,7 @@ if (!hash_equals($expect, (string) $mac)) {
     nodecertRespond(403, ['error' => 'authentication failed']);
 }
 
-// Authenticated, but not yet authorised: holding the storage password proves
+// Authenticated, but not yet authorized: holding the storage password proves
 // membership of this FOG installation, not which node is calling. The source
 // address decides that, and it must match a node this master already knows --
 // which is why a node registers before it asks for a certificate.

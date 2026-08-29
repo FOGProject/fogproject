@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 # Guards the "narrow check reported as a broad conclusion" bug class in the
-# Secure Boot enrolment path (#1266).
+# Secure Boot enrollment path (#1266).
 #
 #   tests/secureboot-enrolment-diagnostics.test.sh
 #
 # Two faults, filed and fixed together because they share a shape. Between them
-# they made db/Setup-Mode enrolment look unavailable on a server that was fully
+# they made db/Setup-Mode enrollment look unavailable on a server that was fully
 # configured for it.
 #
 #   1. _publishSecureBootAuthVars()'s "no platform keys" branch RETURNED IN
@@ -141,7 +141,7 @@ command -v openssl >/dev/null 2>&1 || { echo "SKIP: openssl not installed"; exit
 
 mkdir -p "$WORK/kit" "$WORK/bin"
 openssl req -x509 -new -nodes -newkey rsa:2048 -sha256 -days 1 \
-    -subj "/CN=FOG enrol-mok test/" -keyout "$WORK/mok.key" \
+    -subj "/CN=FOG enroll-mok test/" -keyout "$WORK/mok.key" \
     -out "$WORK/mok.pem" 2>/dev/null
 openssl x509 -in "$WORK/mok.pem" -outform der -out "$WORK/kit/MOK.der" 2>/dev/null
 # The script re-execs itself through sudo when not root. A passthrough stub

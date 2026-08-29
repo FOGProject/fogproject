@@ -339,7 +339,7 @@ class Route extends FOGBase
             'key',
         ],
         // The remember-me validator hash. userauth is not in $validClasses,
-        // so no route emits it and this changes no API behaviour -- it is
+        // so no route emits it and this changes no API behavior -- it is
         // here because the registry is now read by the audit trail as well
         // as the emitter (ADR 0021 Decision 6), and a credential column that
         // no route happens to expose is still a credential column.
@@ -423,7 +423,7 @@ class Route extends FOGBase
             // The observed half of the Secure Boot ledger (schema step 376).
             // This is the field the HARD constraint in ADR 0029 is about: it
             // is a REPORT of what a machine said, so a caller asserting it
-            // would be asserting an observation nobody made. The enrolment
+            // would be asserting an observation nobody made. The enrollment
             // record next to it -- sbenrolled, sbenrollcert, sbenrollvia --
             // is deliberately NOT here, because a technician who enrolled a
             // certificate from a USB stick is the only source for that fact
@@ -750,7 +750,7 @@ class Route extends FOGBase
         /**
          * GH-529: the paths below were written as literal '/fog/...', so at a
          * custom webroot none of them matched. Anchor them to the configured
-         * webroot instead, normalised the same way IpxeBootMenu does since the
+         * webroot instead, normalized the same way IpxeBootMenu does since the
          * setting turns up with and without either slash.
          *
          * Every mismatch here fails closed -- a wrong or empty setting makes
@@ -906,7 +906,7 @@ class Route extends FOGBase
         self::printer(self::$data);
     }
     /**
-     * The configured webroot, normalised with a leading and trailing slash.
+     * The configured webroot, normalized with a leading and trailing slash.
      *
      * Exposed so OpenAPI can build servers[].url from the same value the
      * router anchors its paths to, rather than reconstructing it from the
@@ -1197,7 +1197,7 @@ class Route extends FOGBase
         return $whereItems;
     }
     /**
-     * Routes contributed by plugins, validated and normalised.
+     * Routes contributed by plugins, validated and normalized.
      *
      * Closes ADR 0009's first gap: every plugin-facing router hook until now
      * mutated a CLASS LIST, so a plugin could add a resource but never a
@@ -1220,7 +1220,7 @@ class Route extends FOGBase
      *   ]
      *
      * Everything about the validation below fails closed. A malformed entry
-     * is dropped, an unrecognised 'auth' becomes 'required', and a route that
+     * is dropped, an unrecognized 'auth' becomes 'required', and a route that
      * declares no permission is still registered but resolves to a
      * permission no role can hold (see Authorization::resolveApiPermission),
      * so it answers 403 with a log line naming the fix rather than 404 with
@@ -1257,7 +1257,7 @@ class Route extends FOGBase
      * @param array $entry The declaration as the plugin supplied it.
      * @param array $seen  Names already taken, as name => true.
      *
-     * @return array|null The normalised route, or null to drop it.
+     * @return array|null The normalized route, or null to drop it.
      */
     private static function _validatePluginRoute(array $entry, array $seen)
     {
@@ -2598,7 +2598,7 @@ class Route extends FOGBase
                     // pingstatus uses. It carries no header, so it is data in
                     // the JSON rather than a visible column (primac_vendor
                     // rides along the same way), and it exists because the
-                    // client needs the value to colour the badge: a DataTables
+                    // client needs the value to color the badge: a DataTables
                     // row is keyed by the `dt` names, so the db column is not
                     // reachable there, and deriving the state back out of a
                     // TRANSLATED label would break in every locale but one.
@@ -2620,16 +2620,16 @@ class Route extends FOGBase
                             // registerExportTable() escapes each cell, so a
                             // <span> here is printed as literal markup in
                             // the CSV -- the GH-1446 failure exactly. The
-                            // colour is a display decision and is made
+                            // color is a display decision and is made
                             // client-side in fog.host.list.js, which is
                             // where the existing comment on the datetime
                             // formatter above says such decisions belong.
                             //
-                            // label() renders NULL and any unrecognised
+                            // label() renders NULL and any unrecognized
                             // value as "Never reported" rather than as a
                             // blank cell. A blank would read as "no Secure
                             // Boot", which is the one wrong answer that
-                            // makes a host look like a valid enrolment
+                            // makes a host look like a valid enrollment
                             // target.
                             //
                             // Note the search box matches the STORED word
@@ -2661,7 +2661,7 @@ class Route extends FOGBase
                         'db' => $real,
                         'dt' => 'sbenrollfresh',
                         'formatter' => function ($d, $row) {
-                            return SecureBootState::enrolmentFreshness($d);
+                            return SecureBootState::enrollmentFreshness($d);
                         }
                     ];
                     $columns[] = [
@@ -2713,7 +2713,7 @@ class Route extends FOGBase
                             // stamps hostLastPing, so the badge and the
                             // timestamp cannot disagree.
                             //
-                            // Refused gets its own colour rather than
+                            // Refused gets its own color rather than
                             // borrowing success: the machine is up, which
                             // is what was asked, but "the port is shut" is
                             // the fact behind every "why is my Linux host
@@ -3421,7 +3421,7 @@ class Route extends FOGBase
                         }
                         // Spelled out per shape rather than assembled from
                         // fragments: a format string built from a variable
-                        // never reaches the catalogue.
+                        // never reaches the catalog.
                         if ('' !== $image && '' !== $host) {
                             return sprintf(
                                 _('%1$s of %2$s on %3$s: %4$s'),
@@ -3607,7 +3607,7 @@ class Route extends FOGBase
                     'db' => 'utAction',
                     'dt' => 'action',
                     'formatter' => function ($d, $row) {
-                        // An unrecognised code renders as itself, so this can
+                        // An unrecognized code renders as itself, so this can
                         // carry a value written by an endpoint. Plain text
                         // like every other data column -- see the note on
                         // `summary` below.
@@ -3635,7 +3635,7 @@ class Route extends FOGBase
                         // deleted before phase 3 has no name to fall back
                         // on. Each msgid is spelled out because a format
                         // string built from a variable never reaches the
-                        // catalogue.
+                        // catalog.
                         if ('' !== $who && '' !== $host) {
                             return sprintf(
                                 _('%1$s: %2$s on %3$s'),
@@ -4911,7 +4911,7 @@ class Route extends FOGBase
                 // setErrorMessage(), not sendResponse(): every error this
                 // route can answer with is documented as the Error schema,
                 // and sendResponse() writes the bare string into a body
-                // labelled application/json. A generated client parses
+                // labeled application/json. A generated client parses
                 // that and gets a syntax error instead of the reason.
                 self::setErrorMessage(
                     _('Plugin not found'),
@@ -4998,11 +4998,11 @@ class Route extends FOGBase
         try {
             $classname = strtolower($class);
             $class = self::_newEntity($class, $id);
-            // The states a task can be cancelled FROM. This is the same
+            // The states a task can be canceled FROM. This is the same
             // allowlist every "is this task live" test in the tree uses --
             // Host::loadTask() and getActiveTaskCount() both ask for exactly
             // it -- so anything outside it is already finished: Complete,
-            // Cancelled, and Failed since schema 339.
+            // Canceled, and Failed since schema 339.
             $states = self::fastmerge(
                 (array)self::getQueuedStates(),
                 (array)self::getProgressState()
@@ -5018,7 +5018,7 @@ class Route extends FOGBase
                     // listem(). Two separate faults lived in that call:
                     //
                     //  - It passed NO state filter, and every row that came
-                    //    back was cancelled regardless of state. The listing
+                    //    back was canceled regardless of state. The listing
                     //    is not state-scoped either: the same host filter
                     //    matches 29 rows for group 2 on the development
                     //    server, none of them active. How much of that a real
@@ -5028,7 +5028,7 @@ class Route extends FOGBase
                     //    29 as the exposure, not as a measured outcome.
                     //  - listem() returns a PAGINATED envelope, so the work
                     //    was bounded by a page either way. (Iterating the
-                    //    envelope rather than ->data once cancelled nothing at
+                    //    envelope rather than ->data once canceled nothing at
                     //    all -- that half was already fixed.)
                     //
                     // TaskManager::cancel() is the established bulk path and
@@ -5075,7 +5075,7 @@ class Route extends FOGBase
                     // Has no stateID at all -- it carries isActive -- so it
                     // fell into the default arm below, failed the state test
                     // and returned 200 having done nothing. The endpoint has
-                    // therefore never cancelled a scheduled task. Its model
+                    // therefore never canceled a scheduled task. Its model
                     // cancel() is a destroy(), which is what the management
                     // page does too, and there is no state to be wrong about.
                     if (!$class->isValid()) {
@@ -5100,7 +5100,7 @@ class Route extends FOGBase
                     }
                     if (!in_array($class->get('stateID'), $states)) {
                         self::_notCancellable(
-                            _('Queued deletion is not active and cannot be cancelled')
+                            _('Queued deletion is not active and cannot be canceled')
                         );
                     }
                     $class->getManager()->cancel([$class->get('id')]);
@@ -5122,7 +5122,7 @@ class Route extends FOGBase
                     } else {
                         // Falling out of this test used to be silent: the
                         // method returned normally and the router answered 200
-                        // "cancelled" with the state untouched. That is how a
+                        // "canceled" with the state untouched. That is how a
                         // Failed task came back from the API reporting success
                         // and stayed Failed.
                         if (!in_array($class->get('stateID'), $states)) {
@@ -5133,7 +5133,7 @@ class Route extends FOGBase
                             self::_notCancellable(
                                 sprintf(
                                     '%s: %s',
-                                    _('Task is not active and cannot be cancelled'),
+                                    _('Task is not active and cannot be canceled'),
                                     ($stateName ?: $class->get('stateID'))
                                 )
                             );
@@ -5156,7 +5156,7 @@ class Route extends FOGBase
      * breaking anyone. Same `{"msg": ...}` shape the 200 already uses, which
      * is what $.notifyFromAPI() reads.
      *
-     * @param string $msg Why the resource cannot be cancelled.
+     * @param string $msg Why the resource cannot be canceled.
      *
      * @return void
      */
@@ -5199,8 +5199,8 @@ class Route extends FOGBase
             // the class's own fields, which is all this used to do, admits
             // every sensitive field -- they ARE the class's fields. Only
             // _assertNoSensitiveFilter() is called, not the full key check:
-            // this body has always ignored keys it does not recognise, and
-            // starting to 400 on them would be a separate behaviour change.
+            // this body has always ignored keys it does not recognize, and
+            // starting to 400 on them would be a separate behavior change.
             self::_assertNoSensitiveFilter($find, $classname);
 
             // Request-supplied, so the caller-facing '*'/'+' wildcards apply
@@ -5719,12 +5719,12 @@ class Route extends FOGBase
                     /*
                      * images/snapinfiles/logfiles are not columns. Each one
                      * is an outbound HTTP GET to status/getfiles.php on that
-                     * node, so serialising a node used to cost two round
+                     * node, so serializing a node used to cost two round
                      * trips to a machine that may be down -- paid by every
                      * caller, including ones that never look at the answer.
                      * FOGMulticastManager re-reads its master nodes every
                      * MULTICASTSLEEPTIME (10s), and the storagegroup grid
-                     * serialises a master node per row.
+                     * serializes a master node per row.
                      *
                      * logfiles was already commented out for exactly this
                      * cost, which is the tell that the other two should have
@@ -6609,7 +6609,7 @@ class Route extends FOGBase
             }
             // Same empty-identifier trap as an unknown filter key, but on the
             // selected column: getField is a URL segment ("/ids/id=1/name")
-            // or a JSON body field, so an unrecognised value compiled to
+            // or a JSON body field, so an unrecognized value compiled to
             // `SELECT `` FROM ...` and returned HTTP 200 with [].
             //
             // Only answered when actually serving a request. Unlike a filter
@@ -6619,7 +6619,7 @@ class Route extends FOGBase
             // which passes it in a variable. sendResponse() exits, so
             // answering unconditionally would turn a bad field into a dead
             // daemon (cf. 2d199fa4b). Off-request, log and leave the
-            // pre-existing rejected-query behaviour alone.
+            // pre-existing rejected-query behavior alone.
             // $getField may be an array, in which case each row comes back as
             // a map of friendly name => value instead of a bare scalar. Only
             // ever passed internally -- a URL segment or JSON body can only
@@ -6916,7 +6916,7 @@ class Route extends FOGBase
         // A code this does not know renders as itself, not as an empty
         // cell. utAction has no lookup table and nothing constrains the
         // column to the three codes UserTracking declares, so an
-        // unrecognised one is a real possibility (a plugin writing its own,
+        // unrecognized one is a real possibility (a plugin writing its own,
         // or the '' that save() wrote into every unset column before
         // GH-1245). Falling out of the switch returned null, so the row
         // still listed with a blank Action and nothing said why.
@@ -7147,8 +7147,8 @@ class Route extends FOGBase
      * iterates the envelope instead walks its eleven scalar members (draw,
      * recordsTotal, the page URLs...) and gets null for every field. It does
      * not error, it warns. That mistake has shipped three times: the ou
-     * plugin never set ADOU on any client check-in, cancelling a group's tasks
-     * cancelled nothing, and the iPXE menu never applied its fog.local label.
+     * plugin never set ADOU on any client check-in, canceling a group's tasks
+     * canceled nothing, and the iPXE menu never applied its fog.local label.
      *
      * This returns the rows, so there is no envelope for a caller to hold
      * wrongly. Every permission filter, hook, expand and pluginItems step
@@ -7229,7 +7229,7 @@ class Route extends FOGBase
      *
      * The indiv() counterpart of getIds(). indiv()'s payload is flat -- there
      * is no envelope on a single entity -- so this exists for the round-trip
-     * and for the not-found behaviour rather than for unwrapping.
+     * and for the not-found behavior rather than for unwrapping.
      *
      * Existence is established first with an id-only query, deliberately.
      * indiv() answers a row it cannot find with sendResponse(404), which
@@ -7449,7 +7449,7 @@ class Route extends FOGBase
                     // and the row shows "() -" with no name to act on.
                     // Reported as "null tasks" in forum topics 18228/18230.
                     //
-                    // Cancelled rather than added to $removeItems, which is
+                    // Canceled rather than added to $removeItems, which is
                     // where the host case puts its tasks. Deleting a host
                     // takes its history with it because the subject of that
                     // history is gone; deleting an image does not -- the
@@ -8503,7 +8503,7 @@ class Route extends FOGBase
                     $k_i_type = trim($k_hint, ' ()');
                     if ($k_i_type === '') {
                         // The default arm of the switch above means "prefix not
-                        // recognised", which is an unknown, not a promise of
+                        // recognized", which is an unknown, not a promise of
                         // stability -- so show the release's own name rather
                         // than an empty cell. It filters and sorts usefully too.
                         $k_i_type = $release->name;

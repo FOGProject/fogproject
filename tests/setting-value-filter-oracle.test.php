@@ -26,7 +26,7 @@
  *
  * Executable, not just a source gate: the shipped filtering logic is lifted
  * out of route.class.php and run against synthetic rows, so a change that
- * keeps the shape and breaks the behaviour still fails.
+ * keeps the shape and breaks the behavior still fails.
  *
  * DB-free: reads the source, executes the lifted method.
  *

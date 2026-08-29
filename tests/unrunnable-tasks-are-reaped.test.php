@@ -26,7 +26,7 @@
  *     legitimately stores taskImageID 0.
  *   - The image is therefore only asked about for an IMAGING task type.
  *
- * DB-free: this reads the source. The behaviour is proved against a live
+ * DB-free: this reads the source. The behavior is proved against a live
  * database by background_scripts/prove_unrunnable_task_reaper.php, which fails
  * on an unpatched tree.
  *
@@ -162,7 +162,7 @@ check(
 /* ---------------------------------------------------- 3. what it writes */
 
 /*
- * Failed, not Cancelled. Cancelled means an administrator stopped it; losing
+ * Failed, not Canceled. Canceled means an administrator stopped it; losing
  * the difference between "somebody stopped this" and "this broke" is the
  * distinction an operator needs at the moment they are reading the task list.
  */
@@ -173,7 +173,7 @@ check(
     $checks
 );
 check(
-    'and never to Cancelled',
+    'and never to Canceled',
     false === strpos($reap, 'getCancelledState()'),
     $failures,
     $checks

@@ -413,7 +413,7 @@ Commit 1 does not preclude it.
 | | Count | Where |
 |---|---|---|
 | Move | **202** | `lib/{fog,db,client,service,reg-task,router}/*.class.php` → `src/<same>/<Class>.php`, `System` included |
-| Stay — ADR 0013 exclusions | 2 | `lib/router/altorouter.class.php`, `altotransformer.class.php` — upstream name, authorship, MIT licence |
+| Stay — ADR 0013 exclusions | 2 | `lib/router/altorouter.class.php`, `altotransformer.class.php` — upstream name, authorship, MIT license |
 | Stay — HARD, discovery-named | 46 | 26 `.page.php`, 10 `.hook.php`, 9 `.report.php`, 1 `.event.php` |
 | Stay — generated | 1 | `lib/fog/config.class.php` |
 
@@ -830,7 +830,7 @@ The gate, in order of what is most likely to break quietly:
 It is **not** part of this work, and landing it first would mislead rather than
 help.
 
-The premise behind "a static analyser watches while 202 files move" is that the
+The premise behind "a static analyzer watches while 202 files move" is that the
 move breaks references that then have to be chased. It does not: no caller is
 edited anywhere, because no class name changes. What PHPStan would report is
 whatever `scanDirectories` told it to — point it at `lib/` and it loses every

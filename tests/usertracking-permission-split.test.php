@@ -164,7 +164,7 @@ $cases = [
     // A real request carries it in the query string; the sub is bare. The
     // query string is unreadable from CLI, so this asserts the fallback.
     'file' => 'report',
-    // Case: the decoded name is normalised before lookup.
+    // Case: the decoded name is normalized before lookup.
     'file&f=' . base64_encode('HOSTS AND USERS') => 'usertracking',
     // Any other report keeps the report node.
     'file&f=' . base64_encode('imaging log') => 'report',

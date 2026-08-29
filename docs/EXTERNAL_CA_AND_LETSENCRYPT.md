@@ -145,7 +145,7 @@ source (permalinks below, pinned to
 **Net effect:** a FOG web vhost with a real Let's Encrypt certificate validates
 fine for iPXE's netboot fetches (`boot.php`, kernel, initrd) with **no FOG-side
 change**, on both FOG's own `buildipxe.sh` binaries and the republished
-Secure-Boot-signed binaries, and independent of Secure Boot enrolment status.
+Secure-Boot-signed binaries, and independent of Secure Boot enrollment status.
 This assumes the booting client can reach `ca.ipxe.org`, which holds for most
 sites — outbound internet access is the common case, not the exception. Only
 on a fully air-gapped network does that fallback not fire, in which case FOG's

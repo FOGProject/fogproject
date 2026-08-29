@@ -177,7 +177,7 @@ without finishing" distinguishable today?
 
 - In `imagingLog`: **no**, and worse, the second is not retained at all.
 - In the five state-carrying tables: **yes**, and only because of the state
-  column — `Failed` (state 6) and `Cancelled` (5) are distinct from
+  column — `Failed` (state 6) and `Canceled` (5) are distinct from
   `In Progress` (3). The timestamps cannot tell them apart in any of them
   either.
 
@@ -225,7 +225,7 @@ is two different questions answered by two different columns, and the fix is to
 say so rather than to delete one:
 
 - **`<x>State` answers "what is this doing now"**, and it is the only column
-  that can distinguish finished, cancelled and failed. It is authoritative for
+  that can distinguish finished, canceled and failed. It is authoritative for
   lifecycle.
 - **The timestamps answer "when"**, and they are authoritative for duration
   and for time-range queries. A completion timestamp is set *because* the state
@@ -237,7 +237,7 @@ both in one call and is the model. Where the two disagree today, state wins and
 the timestamp is the bug.
 
 Reconciling them into one representation is rejected in both directions.
-Dropping state loses the failed/cancelled distinction (see Context). Dropping
+Dropping state loses the failed/canceled distinction (see Context). Dropping
 the timestamps loses duration, and `taskStateChangedTime` — which the prompt
 correctly identifies as a partial one-slot span — cannot substitute, because it
 is overwritten by every transition and so records only the last one.

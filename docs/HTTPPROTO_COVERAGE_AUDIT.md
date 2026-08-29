@@ -462,7 +462,7 @@ Four further defects in the same path, all fixed on this branch:
 4. **Fix `input.sh` alongside the default.** ✅ Its HTTPS question was removed
    rather than repaired: it set `httpproto`, which no longer varies. The four
    `--install-mode` presets are asked once instead, with their costs shown.
-   *"Asked once" was the intent but not the behaviour for a while:* moving the
+   *"Asked once" was the intent but not the behavior for a while:* moving the
    question out of `input.sh` also moved it out of that file's upgrade gate, and
    `promptInstallMode` guarded only on this run's flags, so every interactive
    upgrade got the menu again — where a bare Enter takes `standard` and

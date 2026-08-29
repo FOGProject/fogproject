@@ -2435,7 +2435,7 @@ class Authorization extends FOGBase
      * has to sit on the operations rather than on a model method, which is
      * what makes it a standing property rather than a UI courtesy.
      *
-     * Unrecognised classes are not RBAC-relevant and pass through
+     * Unrecognized classes are not RBAC-relevant and pass through
      * untouched.
      *
      * @param string $classname the model class being deleted from

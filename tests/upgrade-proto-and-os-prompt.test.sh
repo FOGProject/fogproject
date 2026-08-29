@@ -68,7 +68,7 @@ grep -q '^WEB_url_proto="https"$' "$INSTALLER" \
     && ok "A: WEB_url_proto is still assigned unconditionally afterwards" \
     || bad "A: nothing sets WEB_url_proto after the migration -- removing the default would leave it empty"
 
-# --- B. behaviour: a pre-1.6 server that had -S keeps its redirect ----------
+# --- B. behavior: a pre-1.6 server that had -S keeps its redirect ----------
 # migrateDeprecatedKeys is the real thing (#1297); this drives it exactly as the
 # installer does, then applies the redirect migration verbatim.
 # shellcheck source=/dev/null
@@ -76,7 +76,7 @@ grep -q '^WEB_url_proto="https"$' "$INSTALLER" \
 if ! declare -F migrateDeprecatedKeys >/dev/null; then
     bad "B: migrateDeprecatedKeys is not defined by lib/common/functions.sh"
 else
-    # Whatever the installer initialises WEB_url_proto to before sourcing
+    # Whatever the installer initializes WEB_url_proto to before sourcing
     # .fogsettings, applied here too -- otherwise this harness starts from a
     # clean slate the real run never has, and would keep passing with the
     # pre-source default put back. There should be no such line; the eval is
@@ -124,7 +124,7 @@ printf '%s\n' "$prompt" | grep -q 'case ${FOG_os_id} in' \
     && ok "C: and the case still tests FOG_os_id" \
     || bad "C: the case no longer tests FOG_os_id -- re-check what the read should name"
 
-# --- D. behaviour: the answer actually reaches the case --------------------
+# --- D. behavior: the answer actually reaches the case --------------------
 # Replays the prompt's own logic against piped input, which is the only way to
 # see that a typed choice survives. A wrong wiring is invisible otherwise: the
 # suggestion is a valid answer, so the install succeeds for the wrong distro.

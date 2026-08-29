@@ -45,7 +45,7 @@
         resetEncryptionModal.modal('show');
     });
 
-    // Modal cancelled
+    // Modal canceled
     resetEncryptionCancelBtn.on('click', function(e) {
         e.preventDefault();
 

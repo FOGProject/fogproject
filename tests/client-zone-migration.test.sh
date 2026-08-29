@@ -167,7 +167,7 @@ is "$(cat "$ZONE/.srvpublic.crt")" "the-deployed-cert" \
 is "$(readlink -f "${PKI_client_cert_dir}/.srvprivate.key")" \
    "$(readlink -f "$ZONE/.srvprivate.key")" \
    "upgrade: the canonical name still resolves to the key"
-is "$(neighboursIntact)" "" "upgrade: every neighbouring file is untouched"
+is "$(neighboursIntact)" "" "upgrade: every neighboring file is untouched"
 
 # --- C2. and the rest of the material lands in its own new home -------------
 # Asserting where each file WENT, not merely that it left $snapindir/ssl. The

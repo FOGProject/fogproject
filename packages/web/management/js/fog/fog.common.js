@@ -866,8 +866,8 @@ $.registerAssociationTab = function(opts) {
 //      is in the DOM. Some create forms are not inert markup: the printer form's
 //      type sections and the snapin form's command builder are driven by JS that
 //      normally runs on the node's own page, and that JS does not travel with a
-//      fetched fragment. The tab passes its node's initialiser here rather than
-//      this helper carrying a node->initialiser map, which would make a shared
+//      fetched fragment. The tab passes its node's initializer here rather than
+//      this helper carrying a node->initializer map, which would make a shared
 //      helper grow a branch per node and put plugin nodes out of reach.
 // opts.validate - optional processForm() validate filter, mirroring
 //      wireCreateForm({selector}). The printer form needs ':input:visible'
@@ -926,7 +926,7 @@ function wireCreateModal(slug, opts) {
           el.attr('id', newId);
         });
         holder.html(form);
-        // Before the keypress/focus wiring below, because an initialiser can
+        // Before the keypress/focus wiring below, because an initializer can
         // change which fields are even visible -- the printer one hides every
         // type section but the selected one -- and focusing a hidden field or
         // binding Enter to it would be wrong.
@@ -940,7 +940,7 @@ function wireCreateModal(slug, opts) {
             sendBtn.trigger('click');
           }
         });
-        // :visible so a form whose initialiser hid sections still opens with the
+        // :visible so a form whose initializer hid sections still opens with the
         // caret in a field the user can actually see.
         holder.find(':input:visible:first').trigger('focus');
       }
@@ -989,7 +989,7 @@ function wireCreateModal(slug, opts) {
         if (form[0]) {
           form[0].reset();
           // reset() restores field VALUES but fires no events, so any UI an
-          // initialiser drives off a select -- the printer type sections, the
+          // initializer drives off a select -- the printer type sections, the
           // snapin pack mode -- would be left displaying the previous choice
           // against a reset select. Re-fire change so those handlers re-sync;
           // they only read the current value, so running them again is safe.
@@ -1043,7 +1043,7 @@ $.registerCreateAndAssociate = function(slug, table, opts) {
 // the path it would have taken had the admin picked the value by hand.
 //
 // Clicking the real button rather than POSTing here is deliberate: these tabs
-// carry plugin-specific behaviour on that button (site/location on a GROUP fans
+// carry plugin-specific behavior on that button (site/location on a GROUP fans
 // the choice out to every member host), and duplicating the submit would mean
 // duplicating whatever the plugin does around it.
 //
@@ -1120,9 +1120,9 @@ $.registerSelectTab = function(opts) {
 // One button relabels itself instead: it always shows the action you can take.
 //
 // Both labels come off the button's own data attributes rather than being
-// written here, so the strings stay inside gettext on the PHP side. The colour
+// written here, so the strings stay inside gettext on the PHP side. The color
 // class is deliberately not touched - state is carried by the label alone, so
-// the button does not change colour under the cursor and cannot end up as a
+// the button does not change color under the cursor and cannot end up as a
 // second btn-primary next to a real one (the multicast pane's Create).
 //
 // btn   - the toggle button, a jQuery object or selector.
@@ -1179,11 +1179,11 @@ $.registerReloadToggle = function(btn, opts) {
 //
 // So: attach the strips to whichever header is visible, and on drag rewrite
 // the matching <col> on every colgroup involved. Width is moved from one
-// column to its neighbour, so the table's total width never changes and
+// column to its neighbor, so the table's total width never changes and
 // nothing reflows sideways.
 //
 // The last column is skipped on purpose -- it is the one absorbing whatever
-// the others leave, so there is no neighbour to take width from.
+// the others leave, so there is no neighbor to take width from.
 
 // Resolve the pieces of a DataTable that resizing needs to talk to.
 function fogTableParts(node) {
@@ -1301,7 +1301,7 @@ function fogRememberColWidths(parts, widths) {
 // Rebuild a width row from what was remembered, or null when this table has
 // nothing stored for any column currently showing.
 //
-// The shares are renormalised over the showing columns, and that renormalising
+// The shares are renormalized over the showing columns, and that renormalizing
 // is the whole trick for carrying a layout across a breakpoint: hide two of
 // five columns and the surviving three keep the same proportions to each other
 // that the user gave them, spread over the full table width.
@@ -1362,7 +1362,7 @@ function fogRestoredColWidths(parts, widths) {
   return out;
 }
 
-// Write a column and its neighbour in one go, on every colgroup involved.
+// Write a column and its neighbor in one go, on every colgroup involved.
 function fogSetColPair(parts, i, widthA, widthB) {
   parts.tables.each(function() {
     var cols = $(this).find('colgroup > col');
@@ -1388,9 +1388,9 @@ function fogSetCols(parts, widths) {
 }
 
 // Resize column i to `want`, paying for it out of ALL the other columns rather
-// than only its right-hand neighbour.
+// than only its right-hand neighbor.
 //
-// A drag takes width from the neighbour because the neighbour's border is the
+// A drag takes width from the neighbor because the neighbor's border is the
 // thing being dragged. A fit has no such anchor, and charging the whole cost
 // to one column flattened it to the floor -- fitting the plugin Description
 // took 238px straight out of Location and left it unreadable.
@@ -1642,7 +1642,7 @@ $.fn.makeColumnsResizable = function() {
       // same gesture a spreadsheet uses.
       //
       // The cost is spread across the other columns rather than charged to the
-      // neighbour (see fogFitColumn), so the table's total width still never
+      // neighbor (see fogFitColumn), so the table's total width still never
       // changes but no single column gets flattened to pay for the fit.
       handle.on('dblclick', function(ev) {
         ev.preventDefault();
@@ -1709,16 +1709,16 @@ var TOAST_DELAY = 8000;
 // problem: under `[data-bs-theme=dark]` Bootstrap filters `.btn-close` white
 // again, so those two go invisible for anyone using FOG's dark theme instead.
 //
-// These backgrounds are fixed colours in BOTH themes, so the header is pinned
+// These backgrounds are fixed colors in BOTH themes, so the header is pinned
 // to the theme its own background belongs to. That is enough for the text and
-// the icon, which read their colour from the scoped variables.
+// the icon, which read their color from the scoped variables.
 //
 // It is NOT enough for the close button, and the reason is worth writing down
 // because the markup looks correct either way: Bootstrap dims it with
 // `[data-bs-theme=dark] .btn-close`, a DESCENDANT selector, so it matches any
 // close button anywhere under <html data-bs-theme="dark"> and a nearer `light`
 // scope does not call it off. Verified by reading the computed filter -- all
-// five were identical while the title colours had scoped correctly. So a light
+// five were identical while the title colors had scoped correctly. So a light
 // header clears the filter itself, below.
 var TOAST_TYPES = {
   success: ['success', 'fas fa-circle-check', 'dark'],
@@ -2791,7 +2791,7 @@ $.fn.registerTable = function(onSelect, opts) {
     // that reason, which today means long text simply overflows its column.
     // Clipping is what turns that into something readable. A paged or grouped
     // table has no such constraint and keeps wrapping, which is the better
-    // behaviour when rows are allowed to be tall.
+    // behavior when rows are allowed to be tall.
     $(this).addClass('fog-table-clip');
   }
 
@@ -3270,7 +3270,7 @@ function reinitialize() {
 /**
  * Keep the edit page's info card in step with the form under it.
  *
- * The card summarises the record you are editing, and it used to be rendered
+ * The card summarizes the record you are editing, and it used to be rendered
  * once and left alone -- so changing Max Clients on the General tab left the
  * card still showing the old number until a full page reload. It is sticky, so
  * that stale number follows you down the page.
@@ -3283,7 +3283,7 @@ function reinitialize() {
  *
  * Deliberately no initial repaint: until you touch a control, the server's
  * value is the truthful one. Painting on load would let a client-side reading
- * of the control quietly replace a value the server had normalised (the image
+ * of the control quietly replace a value the server had normalized (the image
  * path, for one, comes back with its trailing slash trimmed).
  */
 function setupInfoCard() {
@@ -3788,7 +3788,7 @@ function clearAllIntervals(){
     var commonScripts = JSON.parse(req.getResponseHeader('X-FOG-Common-JavaScripts'));
     // Libraries that must execute at most once per session. Defaults to empty
     // so a response from an older server (or any handler that does not send
-    // the header) keeps exactly the previous behaviour.
+    // the header) keeps exactly the previous behavior.
     var onceHeader = req.getResponseHeader('X-FOG-Once-JavaScripts');
     var onceScripts = onceHeader ? JSON.parse(onceHeader) : [];
 

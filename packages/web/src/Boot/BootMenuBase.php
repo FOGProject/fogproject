@@ -430,13 +430,13 @@ abstract class BootMenuBase extends FOGBase
                 // Memtest, chaining straight to _enrollSecureBootChoice() so a
                 // scheduled task landed on the same MokManager screen as PXE
                 // menu item 14. It now boots FOS instead (mode=enrollsb, schema
-                // step 323), which is what lets it enrol automatically in Setup
+                // step 323), which is what lets it enroll automatically in Setup
                 // Mode and stage a request non-interactively otherwise -- so it
                 // takes the ordinary kernel-chain path like any other task.
                 //
                 // _enrollSecureBootChoice() and pxeID 14 both stay: chaining
                 // directly to MokManager is still how a technician answers a
-                // pending request, or enrols from local FAT media on a machine
+                // pending request, or enrolls from local FAT media on a machine
                 // FOS cannot boot.
                 $this->_printTasking($kernelArgsArray);
             }

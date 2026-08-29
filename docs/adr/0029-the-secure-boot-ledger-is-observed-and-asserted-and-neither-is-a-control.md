@@ -6,11 +6,11 @@ accepted
 
 ## Context
 
-ADR 0008 scopes the Secure Boot enrolment task to machines that are **not
+ADR 0008 scopes the Secure Boot enrollment task to machines that are **not
 currently enforcing Secure Boot**, and states why in the task's own
 description: a machine that is enforcing does not trust this server's kernel,
 so it cannot boot FOS, so it cannot run the task that would make it trust us.
-The task that would enrol the key cannot run on the machine that needs it.
+The task that would enroll the key cannot run on the machine that needs it.
 
 That constraint was written down and then had nowhere to live. Nothing in FOG
 recorded what state any machine was in, so finding the eligible machines meant
@@ -43,9 +43,9 @@ conflating them is how a record stops meaning anything.
 | | Observed (`hostSbState`, `hostSbStateTime`) | Asserted (`hostSbEnrolled`, `hostSbEnrollCert`, `hostSbEnrollVia`) |
 |---|---|---|
 | What it is | what a machine said about itself | a record that somebody enrolled something |
-| Written by | iPXE on every PXE boot; FOS when the enrolment task runs | FOS for the `db` and MOK paths; a human for the USB path |
+| Written by | iPXE on every PXE boot; FOS when the enrollment task runs | FOS for the `db` and MOK paths; a human for the USB path |
 | Editable | **never**, in the UI or over the API | **yes**, and it has to be |
-| Timestamp | stamped by the server from its own clock | the date of the enrolment, which may be historical |
+| Timestamp | stamped by the server from its own clock | the date of the enrollment, which may be historical |
 
 The observed half is never editable because there is no such thing as a
 correct manual value for it: it is a report of what happened on a boot, and a
@@ -55,7 +55,7 @@ refuses the write with a 400 and is pinned by
 `tests/api-server-owned-fields.test.php` — plus disabled (not readonly) inputs
 on the host form, because a disabled input is not submitted at all.
 
-The asserted half is editable because enrolment happens three ways and only
+The asserted half is editable because enrollment happens three ways and only
 two of them can write it themselves. A technician at the machine with a USB
 stick reports nothing; leaving the field hand-editable is the only thing that
 makes that path recordable at all.
@@ -75,8 +75,8 @@ The property that makes this safe is the asymmetry of what a lie buys:
 - Spoofing `disabled` (or leaving the state unknown) gets a host a task that
   cannot work. That is a wasted task — which is exactly what happens today, on
   every host, with no record at all. Nothing regresses.
-- Spoofing `enforcing` gets a host *excluded* from an enrolment it would
-  otherwise receive. It costs nothing, because the enrolment is not a
+- Spoofing `enforcing` gets a host *excluded* from an enrollment it would
+  otherwise receive. It costs nothing, because the enrollment is not a
   privilege and the host is denying it to itself.
 
 There is no third case, and there must not be. Specifically: the boot decision
@@ -96,7 +96,7 @@ vocabularies for one fact; `unknown` is the sixth and is server-side only.
 | `unknown` | nothing has reported yet |
 | `nonefi` | booted BIOS/CSM; Secure Boot is not a concept here |
 | `noefivars` | UEFI, but the variables could not be read |
-| `setup` | Setup Mode — `db` is writable, enrolment is unattended |
+| `setup` | Setup Mode — `db` is writable, enrollment is unattended |
 | `enforcing` | User Mode, Secure Boot ON — the task cannot run |
 | `disabled` | User Mode, Secure Boot OFF — the ADR 0008 case |
 
@@ -104,7 +104,7 @@ vocabularies for one fact; `unknown` is the sixth and is server-side only.
 Boot off leaves the platform key in place, so `db` still refuses a write; only
 Setup Mode accepts one. The Secure Boot configuration page already says this in
 as many words, and `fog.enrollsb` branches on exactly it. It is the difference
-between an enrolment that finishes with nobody at the keyboard and one that
+between an enrollment that finishes with nobody at the keyboard and one that
 needs a human at the MokManager screen — which is the single most useful thing
 an administrator can know before scheduling, and a four-state model throws it
 away.
@@ -144,7 +144,7 @@ legacy BIOS, and it is why the classifier treats the two separately.
 
 ### 5. The record references what was enrolled, not just when
 
-`hostSbEnrollCert` holds the SHA-256 of the enrolled certificate. An enrolment
+`hostSbEnrollCert` holds the SHA-256 of the enrolled certificate. An enrollment
 date alone goes stale in silence: FOG has PKI zones, a multi-server CA and
 certificates that expire, so "enrolled 2026-03-14" says nothing about whether
 the machine trusts what this server is serving today — which is the question
@@ -159,7 +159,7 @@ configuration page hashes. The check is string equality.
 rendering it beside nothing does not answer the question above — it asks an
 administrator to check 95 hex characters against a different page by eye, which
 is how a fleet ends up with nobody having checked. `SecureBootState` owns the
-comparison: `enrolmentFreshness()` returns `current`, `stale`, or `''`, the host
+comparison: `enrollmentFreshness()` returns `current`, `stale`, or `''`, the host
 form renders a read-only Certificate Status row, and the host grid badges the
 stale rows so one glance over a fleet finds them.
 
@@ -177,9 +177,9 @@ The fingerprint FORMAT lives in `SecureBootState::normalizeFingerprint()` for
 the same reason the state format does. It was written out longhand in four
 files; any two of them drifting turns every comparison into a silent false,
 which does not read as a bug — it reads as "this host trusts an older
-certificate", and sends somebody to re-enrol a machine that was already correct.
+certificate", and sends somebody to re-enroll a machine that was already correct.
 
-### 6. A staged MOK request is not an enrolment
+### 6. A staged MOK request is not an enrollment
 
 `fog.enrollsb` has three exits — already-trusted, enrolled-via-`db`, and
 staged-a-MOK — and all three end with the same argument-free completion POST.
@@ -197,7 +197,7 @@ through MokManager, which is the only point at which it is true.
 Nothing observes the human at the MokManager screen, so `mok-pending` does not
 clear itself — and it deliberately gets no clever inference to make it. FOS's
 `sbCertTrusted()` already answers the question definitively, checking both `db`
-and MokList, so re-running the enrolment task on a confirmed host reports
+and MokList, so re-running the enrollment task on a confirmed host reports
 `trusted` and the record corrects itself. That path already exists, already
 works, and is an observation rather than a guess. `mok` is left for a human
 recording that they were there.
@@ -226,7 +226,7 @@ claims.
 
 ### 8. The task refuses a target it cannot run on — but not a guess
 
-`Host::createImagePackage()` refuses a single-host enrolment task whose target
+`Host::createImagePackage()` refuses a single-host enrollment task whose target
 last reported `enforcing`, `nonefi` or `noefivars`. This is the payoff: it
 turns ADR 0008's constraint from something a technician remembers into
 something the server checks.
@@ -264,7 +264,7 @@ group path useless for the case it exists for. Both call the same
   machine reported has no business being echoed back at that machine, and
   nothing in the menu consumes it.
 - A new machine entry point, `service/secureboot.report.php`. It is narrowed to
-  hosts with a Secure Boot enrolment task actually in flight — true by
+  hosts with a Secure Boot enrollment task actually in flight — true by
   construction when FOS calls it — so that "advisory" does not become "writable
   by anyone who knows a MAC". It answers 200 in every case including refusal,
   because a non-2xx from a FOS script is invisible to the caller.
@@ -276,6 +276,6 @@ group path useless for the case it exists for. Both call the same
 - Companion changes in `FOGProject/fos` are required for the automatic half:
   `fog.enrollsb` must report which of its three branches it took, plus the
   fingerprint it already computes and prints. Until that ships, the observed
-  half works on its own and the enrolment record is hand-entered only.
+  half works on its own and the enrollment record is hand-entered only.
 - ADR 0008 is unchanged and remains the authority on what the task is for. This
   ADR is the record, not the task.

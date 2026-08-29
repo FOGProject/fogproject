@@ -204,7 +204,7 @@ class TaskType extends FOGController
             // The character itself, not an `&#x...` entity. Initiator::e()
             // html-escapes what it is given, and the old code passed it an
             // entity with no trailing semicolon -- which htmlspecialchars
-            // cannot recognise as one even with double_encode off, so every
+            // cannot recognize as one even with double_encode off, so every
             // option rendered the literal text `&#xf02b` rather than a glyph.
             printf(
                 '<option value="%s"%s>%s %s</option>',

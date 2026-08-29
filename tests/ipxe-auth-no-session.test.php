@@ -19,7 +19,7 @@
  * third-party callers are unaffected.
  *
  * This gate pins the property that makes the split worth having. It is
- * static on purpose: the behaviour needs a database, a populated
+ * static on purpose: the behavior needs a database, a populated
  * FOG_PXE_ADVANCED and FOG_ADVANCED_MENU_LOGIN toggled on to observe, and a
  * test that needs all three is a test nobody runs.
  *

@@ -17,7 +17,7 @@ Severity is mine; the decisions in §3 are yours.
 > `unfilterableFields()` before the existence test. Serving a request it
 > answers 400; off-request (the daemons) it returns no rows and logs, because
 > `sendResponse()` exits and a daemon that exits is a restart loop. Verified
-> under both SAPIs against the lab database, and pinned behaviourally by
+> under both SAPIs against the lab database, and pinned behaviorally by
 > `tests/route-ids-getfield-sensitive.test.php` (41 checks), which fails 20 of
 > them when the guard is removed. Landing it required REENTRANCY-1 below.
 > The description that follows is the defect as found.
@@ -60,7 +60,7 @@ Not confirmed over HTTP: this sandbox blocks the request. The code path above
 is complete and each link is cited; a one-line `curl` would settle it, and the
 probe script says which.
 
-**Fix shape (one line, no behaviour change for legitimate callers):** run
+**Fix shape (one line, no behavior change for legitimate callers):** run
 `$getField` through `unfilterableFields($classname)` in the same loop that
 already validates it, and refuse the same way. Nothing in-repo asks `ids()` for
 a sensitive field — `getIds()`'s internal callers ask for `id`, `name` and
@@ -155,7 +155,7 @@ caller does it.
 
 This does **not** leak — it hides. But it means nobody can be running the site
 feature at fleet scale today, which is itself worth knowing before the
-decomposition assumes the current behaviour is load-bearing for somebody.
+decomposition assumes the current behavior is load-bearing for somebody.
 
 ---
 
@@ -171,7 +171,7 @@ kept-row count.
 |---|---|---|
 | `recordsTotal` = total in-scope objects, `recordsFiltered` = in-scope matching the filter | DataTables' "Showing 1 to 25 of N" is correct; paging works | changes the number every existing client sees on a scoped server. On an unscoped server (the overwhelming majority) nothing changes. |
 | leave both as the unscoped SQL counts | no client-visible change at all | the count answers the question the row-filtering refuses to; a scoped user learns how many hosts exist outside their site |
-| keep today's behaviour | nothing | the grid stays broken |
+| keep today's behavior | nothing | the grid stays broken |
 
 My read: option 1. It is the only one where the envelope describes the payload,
 and the client-visible change lands only on scoped servers, where the current
@@ -189,7 +189,7 @@ scope in `ids()` would deny-all every daemon.
 | Option | Gains | Costs |
 |---|---|---|
 | scope only when a request is being served (`'cli' !== PHP_SAPI` and a route matched), as `ids()` already does for its error branch | closes the hole, daemons unaffected | a second "am I serving a request" test in the file; that predicate becomes load-bearing |
-| scope in the router, not in the handler — one filter applied to `self::$data` for any route whose name resolves to `<entity>.view` | one place, covers routes added later | needs each handler's payload shape to be recognisable; `ids()`'s bare scalar array carries no ids to filter on when `getField != 'id'` |
+| scope in the router, not in the handler — one filter applied to `self::$data` for any route whose name resolves to `<entity>.view` | one place, covers routes added later | needs each handler's payload shape to be recognizable; `ids()`'s bare scalar array carries no ids to filter on when `getField != 'id'` |
 | refuse these four routes outright for scoped users | trivially correct | breaks the UI's own type-ahead for scoped users |
 
 My read: option 1 for `count()` and `unisearch()` now (both already produce
@@ -221,7 +221,7 @@ Each formatter now resolves the row's own group through a per-id memo (the
 leaves a group in a state `getMasterStorageNode()` answers differently on, so
 priming here trades one wrong answer for another.
 
-This is a **behaviour change and the point of the commit**: the grid now
+This is a **behavior change and the point of the commit**: the grid now
 reports each group's own enabled nodes and master node.
 
 `:2645-2673`. A single `new StorageGroup()` is shared by two formatters: the
@@ -232,7 +232,7 @@ left behind. It works only because `dataOutput()`
 `enablednodes` is emitted first. This is the same shape as F-22 — correct by
 an ordering accident, and neither PHP nor any test would say so if the two were
 swapped. Fixing it changes no output; it is listed here because "make each
-formatter self-contained" is a behaviour-preserving change that a reviewer
+formatter self-contained" is a behavior-preserving change that a reviewer
 should be told is deliberate.
 
 ### DEC-5 — `listem()`'s catch relabels every failure as HTTP 406
@@ -255,14 +255,14 @@ Route::asValue(function () { Route::listem('host', 'sec_tok=x', true); });
 
 Matters twice over. For consumers: every service and client endpoint that reads
 through `asValue()`/`getX()` sees one status for all failures. For the
-decomposition: any behavioural test written against the wrapper seam (which is
+decomposition: any behavioral test written against the wrapper seam (which is
 how the net in the plan is built) will observe 406 where the source says 400,
-and a test written to the source rather than to the observed behaviour will
+and a test written to the source rather than to the observed behavior will
 fail for the wrong reason.
 
-Preserving today's wire behaviour while fixing the wrapper means re-raising with
+Preserving today's wire behavior while fixing the wrapper means re-raising with
 `$e->getCode()` when the code is a real HTTP status and falling back to 406
-otherwise. That is a behaviour change for wrapper callers, so it is yours.
+otherwise. That is a behavior change for wrapper callers, so it is yours.
 
 **DECIDED 2026-08-19: re-raise the inner code. FIXED 2026-08-19.** All 17
 catches in the class now call one helper, `Route::_sendCaught()`, which re-raises
@@ -465,7 +465,7 @@ idiom appears four more times (`:2519`, `:2547`, `:2594`).
 
 The `dev-branch` question is therefore not "port SEC-1's fix" but "does the
 1.5.x line get sensitive-field stripping at all". That is a much larger
-decision than this scan, it is a shipped-behaviour change on a patches line,
+decision than this scan, it is a shipped-behavior change on a patches line,
 and it is entirely yours. I have not shaped anything in §1–§5 to make it
 easier.
 

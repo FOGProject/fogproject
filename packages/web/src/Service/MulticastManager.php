@@ -319,7 +319,7 @@ class MulticastManager extends FOGService
                 // Common string used for logging.
                 $startStr = ' | ' . _('Task ID') . ': %s '. _('Name') . ': %s %s';
 
-                // A session that leaves the active set -- cancelled from the
+                // A session that leaves the active set -- canceled from the
                 // UI, completed elsewhere, or deleted outright -- vanishes
                 // from the per-node task list before it can ever be matched
                 // below, so the sender it owns was never killed and ran on
@@ -676,7 +676,7 @@ class MulticastManager extends FOGService
                                             $runningTask->getID(),
                                             $runningTask->getName(),
                                             sprintf(
-                                                _('exited abnormally with code %d; cancelling task'),
+                                                _('exited abnormally with code %d; canceling task'),
                                                 $exitcode
                                             )
                                         )
@@ -704,7 +704,7 @@ class MulticastManager extends FOGService
                                         $startStr,
                                         $runningTask->getID(),
                                         $runningTask->getName(),
-                                        _('has been cancelled')
+                                        _('has been canceled')
                                     )
                                 );
                                 $cancelTasks[] = $runningTask;
@@ -768,8 +768,8 @@ class MulticastManager extends FOGService
                             $Task->getName(),
                             (
                                 $Session->cancel() ?
-                                _('is now cancelled') :
-                                _('could not be cancelled')
+                                _('is now canceled') :
+                                _('could not be canceled')
                             )
                         )
                     );

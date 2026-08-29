@@ -1,6 +1,6 @@
 <?php
 /**
- * Guards the two pxeMenu schema changes for unattended Secure Boot enrol:
+ * Guards the two pxeMenu schema changes for unattended Secure Boot enroll:
  *  - pxeID 14 ("Enroll Secure Boot Key") gets relabeled to distinguish it
  *    from the new unattended item, via a new UPDATE step (321 already ran
  *    on existing installs, so it cannot be edited in place).

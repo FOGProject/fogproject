@@ -93,7 +93,7 @@ channelToBranch() {
     esac
 }
 # Folds a channel name to its canonical spelling, so exactly one place knows the
-# retired names. Returns 1 for anything unrecognised rather than echoing it
+# retired names. Returns 1 for anything unrecognized rather than echoing it
 # back: a caller asking "is this a channel" needs a no, and a typo silently
 # passed through would be resolved as a branch name later and fail further from
 # the cause.
@@ -506,7 +506,7 @@ checkDatabaseConnection() {
 # does not depend on which path got us here.
 #
 # Anything that cannot serve as a certificate name falls back to the address,
-# which is exactly the old behaviour. Rejected: an empty value, an IP literal,
+# which is exactly the old behavior. Rejected: an empty value, an IP literal,
 # localhost (the RHEL/Rocky minimal default, and identical on every node), and
 # anything outside the hostname grammar fog-sign-node-cert enforces.
 # The first argument that can actually serve as a certificate/vhost name, or
@@ -801,7 +801,7 @@ applyNewInstallDefaults() {
 recordGitUpdateSettings() {
     dots "Recording fog_git_path/update channel/extra server names"
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_GIT_PATH', 'Filesystem path of the FOG git checkout on this server. Recorded automatically by installfog.sh/updatefog.sh -- editing it here has no effect on the next update.', \"${FOG_git_path}\", 'FOG Update') ON DUPLICATE KEY UPDATE settingValue=\"${FOG_git_path}\"" ${DB_name} >>$error_log 2>&1
-    # settingDesc is refreshed too, unlike its two neighbours. The channel
+    # settingDesc is refreshed too, unlike its two neighbors. The channel
     # vocabulary changed (GH-1279), and ON DUPLICATE KEY UPDATE touching only
     # settingValue would leave every server installed before that change showing
     # "stable, staging, or dev" in the FOG Settings UI forever -- which is the
@@ -2005,7 +2005,7 @@ installFOGServices() {
     # prints its own "Setting SELinux context" line, so calling it between them
     # ran that line into ours ("...directory.... * Setting SELinux context...OK"
     # with our OK stranded on the next line) AND left errorStat reporting the
-    # labelling result instead of whether the directory was created -- a failed
+    # labeling result instead of whether the directory was created -- a failed
     # mkdir or chown here would have printed OK.
     setSELinuxContext "$servicelogs/plugins" httpd_sys_rw_content_t
     # FOGRetentionRunner is the second non-root daemon and needs the same
@@ -2088,8 +2088,8 @@ installFOGServices() {
     # nothing fails until something tries to write, so the install looks clean
     # and the settings-cache flush silently never happens.
     #
-    # Labelled where the directory is created rather than in a sweep at the end,
-    # so a relocated $fogprogramdir (GH-850) is labelled wherever it landed.
+    # Labeled where the directory is created rather than in a sweep at the end,
+    # so a relocated $fogprogramdir (GH-850) is labeled wherever it landed.
     setSELinuxContext "$fogprogramdir/cache" httpd_sys_rw_content_t
     # FOG's own PHP session store (FOG_SESSION_DIR in commons/init.php, which
     # points session.save_path here at runtime). FOG used to share the distro's
@@ -2112,7 +2112,7 @@ installFOGServices() {
     chmod 0700 $fogprogramdir/sessions >>$error_log 2>&1
     errorStat $?
     # Same GH-964 reasoning as the cache directory above: /opt/fog inherits
-    # usr_t and httpd_t may read but not write it. Unlabelled, PHP cannot write
+    # usr_t and httpd_t may read but not write it. Unlabeled, PHP cannot write
     # a session file on an enforcing host -- which does not degrade, it means
     # nobody can log in at all, with only an AVC denial to say so.
     setSELinuxContext "$fogprogramdir/sessions" httpd_sys_rw_content_t
@@ -2151,7 +2151,7 @@ installFOGServices() {
     errorStat $?
     # Outside the dots/errorStat pair above: setSELinuxContext prints its own
     # "Setting SELinux context" line, so calling it between them interleaved
-    # the two and left errorStat reporting the labelling result rather than
+    # the two and left errorStat reporting the labeling result rather than
     # whether the directory was created. Matches the cache block above.
     #
     # httpd_sys_content_t by default, not the _rw_ variant the cache uses: the
@@ -2336,10 +2336,10 @@ configureDefaultiPXEfile() {
     # both params empty and the chain is unaffected. Verified 2026-08-28 by
     # running FOG's own ipxe.lkrn under SeaBIOS through this exact script.
     #
-    # BOTH are sent, because SecureBoot alone cannot tell the two enrolment
+    # BOTH are sent, because SecureBoot alone cannot tell the two enrollment
     # routes apart. A machine with Secure Boot merely switched off still has a
     # platform key and still refuses a db write; only Setup Mode accepts one.
-    # That is the difference between an enrolment that completes unattended and
+    # That is the difference between an enrollment that completes unattended and
     # one that needs a human at the MokManager screen.
     #
     # An older default.ipxe sends neither param, and that is deliberately
@@ -2571,7 +2571,7 @@ _needsLocalIpxeBuild() {
 # the installer with the rebuild off.
 #
 # Copied inside $tftpdirsrc so the normal copy loop carries it to $tftpdirdst
-# with everything else, and so it inherits the same ownership, SELinux labelling
+# with everything else, and so it inherits the same ownership, SELinux labeling
 # and signing sweep. No separate path to keep in step.
 #
 # secureboot/ is excluded, and that exclusion is load-bearing rather than tidy:
@@ -2670,7 +2670,7 @@ _sbChainStaged() {
 # "signed vs not".
 #
 # No 32-bit case on purpose: there is no Microsoft-signed ia32 shim to start a
-# chain from and no 32-bit MokManager to enrol one with, so i386-efi clients must
+# chain from and no 32-bit MokManager to enroll one with, so i386-efi clients must
 # have Secure Boot disabled to netboot at all.
 #
 # --boot-delay needs no handling here either. EFI takes its delay from
@@ -3189,7 +3189,7 @@ configureTFTPandPXE() {
     # a regular file to every daemon.
     #
     # Relinked unconditionally on every run: the copy loop truncates in place
-    # and the link usually survives, but that is cp's behaviour rather than a
+    # and the link usually survives, but that is cp's behavior rather than a
     # guarantee, and an editor that writes-and-renames breaks it. ln -f is
     # idempotent.
     # Before the links, so every path picks the delay up from one rewrite.
@@ -3479,7 +3479,7 @@ installPackages() {
     # _resignKernels degrades to its existing warning.
     FOG_packages="${FOG_packages} sbsigntool"
     # efitools builds the signed PK/KEK/db variable updates that the automatic
-    # Secure Boot enrolment path writes on the client (_publishSecureBootAuthVars).
+    # Secure Boot enrollment path writes on the client (_publishSecureBootAuthVars).
     # Same baseline reasoning as sbsigntool: the feature is on by default, so the
     # tooling it needs is not something the admin should have to know to install
     # first. Named "efitools" on every distro that packages it, so it needs no
@@ -3841,7 +3841,7 @@ setSELinuxContext() {
     # boot failed as a bare "file not found", with nothing in FOG's own logs and
     # only an AVC denial in the audit log to explain it. FOG's answer until now
     # was checkSELinux() offering to switch SELinux off machine-wide, which is a
-    # very large hammer for one mislabelled directory.
+    # very large hammer for one mislabeled directory.
     #
     # Policy almost always already knows the correct label -- FOG simply never
     # asked for it. So ask (restorecon), and only register a rule when policy
@@ -3890,7 +3890,7 @@ setSELinuxContext() {
             local chconis=$(ls -Zd "$dir" 2>>$error_log | awk '{print $1}' | cut -d: -f3)
             if [[ $acceptable == *" $chconis "* ]]; then
                 echo "OK"
-                echo " * Labelled with chcon only -- a filesystem relabel will undo this."
+                echo " * Labeled with chcon only -- a filesystem relabel will undo this."
                 echo " * Install policycoreutils-python-utils and re-run to make it permanent."
                 return 0
             fi
@@ -3915,7 +3915,7 @@ setSELinuxContext() {
     # install that otherwise succeeded should not be aborted over a label. But
     # it must be loud, because the symptom it causes has no other explanation.
     echo "Failed!"
-    echo " * $dir is labelled '$nowis', which the daemon using it cannot read."
+    echo " * $dir is labeled '$nowis', which the daemon using it cannot read."
     echo " * Under SELinux enforcing this presents as a bare file-not-found at"
     echo " *   the client with nothing in FOG's logs -- check for AVC denials:"
     echo " *   ausearch -m avc -ts recent"
@@ -3934,9 +3934,9 @@ checkSELinux() {
     # machine-wide without anyone deciding to. That was defensible only while
     # FOG genuinely did not work enforcing. It now does:
     #
-    #   GH-963       $tftpdirdst is labelled, so PXE boots
+    #   GH-963       $tftpdirdst is labeled, so PXE boots
     #   GH-966/967   $fogprogramdir/cache, $snapindir and ${STORAGE_image_share_path} are
-    #                labelled, so the web tier can write
+    #                labeled, so the web tier can write
     #   GH-968/969   fog_share_t, so vsftpd can read and write image and
     #                snapin storage as well as the web tier
     #   GH-966/967   packages/selinux/fog.te, so httpd_t may reach its own
@@ -4301,7 +4301,7 @@ migrateDeprecatedKeys() {
     # this run the new name is persisted and the old line is gone, and a flag that
     # already set the new key on this run correctly wins over the persisted value.
     #
-    # Modelled on the httpproto/httpsRedirect seeding immediately below, which is
+    # Modeled on the httpproto/httpsRedirect seeding immediately below, which is
     # the same shape for a single key.
     # FOG
     [[ -z ${FOG_install_type} ]] && FOG_install_type="$installtype"
@@ -4571,7 +4571,7 @@ enableInitScript() {
                         #
                         # The runlevel is named rather than left to default to
                         # the current one: an install run from a rescue or
-                        # single-user shell would otherwise enrol the daemons
+                        # single-user shell would otherwise enroll the daemons
                         # in a runlevel that never comes up on boot.
                         dots "Enabling $serviceItem Service"
                         rc-update add $serviceItem default >>$error_log 2>&1
@@ -5752,7 +5752,7 @@ _resolveSelfCacert() {
 #
 # FOG's PKI already reaches every consumer it can address directly: fog-client
 # pins ca.cert.der, iPXE gets the CA compiled into the binary at build time,
-# Secure Boot enrols a MOK. The host's own TLS clients were the gap. curl,
+# Secure Boot enrolls a MOK. The host's own TLS clients were the gap. curl,
 # wget, PHP's stream wrapper and the node-to-master status calls all read the
 # system store, and nothing had ever told that store about the CA this
 # installer mints -- so on the FOG server itself every HTTPS call to the FOG
@@ -6218,7 +6218,7 @@ configureStorage() {
     # `file_type` attribute that fog_share_t carries. The lab's audit log
     # agrees -- zero nfsd_t denials across months of imaging.
     #
-    # $storageLocationCapture is labelled separately because .fogsettings can
+    # $storageLocationCapture is labeled separately because .fogsettings can
     # relocate it out from under ${STORAGE_image_share_path}, in which case the recursive
     # fcontext registered for ${STORAGE_image_share_path} would not cover it.
     setSELinuxContext "${STORAGE_image_share_path}" fog_share_t
@@ -6427,7 +6427,7 @@ writeUpdateFile() {
         # its polarity, so the migration copies the value across with no
         # inversion. It names the reason rather than the mechanic: yes means TFTP
         # lives elsewhere, so skip the rebuild -- and it still reads correctly
-        # against the firewall behaviour, where an external TFTP server means
+        # against the firewall behavior, where an external TFTP server means
         # 69/udp stays closed.
         BOOT_external_tftp_server BOOT_tftp_options
         # Seconds of pre-DHCP sleep written into autoexec.ipxe, for switches
@@ -6696,7 +6696,7 @@ writeUpdateFile() {
             # marker would end up describing nothing, and the file would read as
             # a pile of appended keys after "## End of FOG Settings".
             #
-            # Unrecognised lines still have to survive. Hand-set keys
+            # Unrecognized lines still have to survive. Hand-set keys
             # (inetConnectTimeout, inetMaxTime, storageLocationCapture,
             # ftppasvmin/max, mcastportmin/max) work ONLY because the merge
             # preserves lines it does not know about; a plain fresh write would
@@ -6988,7 +6988,7 @@ validateExternalCA() {
             ;;
         *)
             echo
-            echo "  Note: the imported CA uses ${certalgorithm:-an unrecognised algorithm}${certcurve:+ (${certcurve})}."
+            echo "  Note: the imported CA uses ${certalgorithm:-an unrecognized algorithm}${certcurve:+ (${certcurve})}."
             echo "  iPXE can only verify RSA and ECDSA P-256/P-384 signatures, so HTTPS"
             echo "  netboot will fail against this CA. The web UI and fog-client are"
             echo "  unaffected. Use HTTP netboot, serve netboot from a publicly-trusted"
@@ -7013,7 +7013,7 @@ validateExternalCA() {
     fi
 }
 # GH-529: the vhost templates and the docroot symlink both need ${WEB_root} in a
-# form other than the "/x/" one installfog.sh normalises to, so derive them in
+# form other than the "/x/" one installfog.sh normalizes to, so derive them in
 # one place rather than in each consumer. Idempotent -- callers invoke it
 # without caring whether an earlier one already has.
 #
@@ -7023,7 +7023,7 @@ validateExternalCA() {
 #                          dot is a legitimate path character but a wildcard
 #
 # The default is repeated here because functions.sh is also sourced by the
-# utils scripts, which never run installfog.sh's normalisation.
+# utils scripts, which never run installfog.sh's normalization.
 normalizeWebroot() {
     [[ -z ${WEB_root} ]] && WEB_root="/fog/"
     webrootbare="${WEB_root#/}"
@@ -7730,7 +7730,7 @@ _collectPkiNames() {
 # ASKED ONCE, which is what $priorInstall enforces. Everything else here is
 # run-scoped -- the s* shadows are this run's flags -- so before that line there
 # was nothing in the guard that could remember an answer, and every interactive
-# upgrade got the menu again. That was not merely repetitive: any unrecognised
+# upgrade got the menu again. That was not merely repetitive: any unrecognized
 # reply including a bare Enter takes the `standard` default below, and
 # _applyInstallMode then wrote it straight over a public-cert or embed-ca
 # server's keys, which writeUpdateFile persisted. The prompt reverted the very
@@ -7886,7 +7886,7 @@ _reportNetbootProto() {
     echo "   network."
     echo
     echo " * Secure Boot binaries ARE staged on this server, in every mode."
-    echo "   That used to be skipped on any HTTPS install. To enrol a machine,"
+    echo "   That used to be skipped on any HTTPS install. To enroll a machine,"
     echo "   boot it and choose 'Enroll Secure Boot Key' from the FOG menu."
     echo
     echo " * To move netboot onto HTTPS, tell FOG which is true:"
@@ -8050,7 +8050,7 @@ $(_nameConstraints)" "FOG Web UI"
         #
         # The -s fallback keeps a fresh install working when there is no chain
         # on disk yet: a chain built from the wrong root is still better than
-        # no chain at all, and that is the pre-existing behaviour.
+        # no chain at all, and that is the pre-existing behavior.
         if _rootIssuedWebCA || [[ ! -s ${PKI_web_trust_chain} ]]; then
             cat "${PKI_web_ca_cert}" "${PKI_root_ca_cert}" > "${PKI_web_trust_chain}" 2>>$error_log
             chmod 0644 "${PKI_web_trust_chain}" >>$error_log 2>&1
@@ -9016,7 +9016,7 @@ createSSLCA() {
     # leave the web server unable to start.
     #
     # No prompt. Under -y there is nobody to ask, and that is exactly the run
-    # that used to do the damage silently, so the safe behaviour has to be the
+    # that used to do the damage silently, so the safe behavior has to be the
     # DEFAULT rather than an answer. Everything needed is already on disk: the
     # vhost names the files and the certificate names itself.
     if ! _externallyManagedLeaf; then
@@ -9266,7 +9266,7 @@ EOF
     errorStat $?
     # "Forced SSL" describes the REDIRECT, so it follows httpsRedirect. Left on
     # httpproto it would print on every install, since httpproto is https for
-    # everyone now -- labelling a plain HTTPS-available server as one that
+    # everyone now -- labeling a plain HTTPS-available server as one that
     # forces HTTPS, which is the opposite of what this line is for.
     [[ ${WEB_https_redirect} == yes ]] && sslenabled=" (Forced SSL)" || sslenabled=" (normal)"
     # ${PKI_san_dns_names} is a space-joined string (see --extra-server-name).
@@ -9476,7 +9476,7 @@ EOF
                         #                       relative to boot.php's own URI),
                         #                       refind, grub, the menu artwork.
                         #   service/secureboot/ MOK.der, which IpxeBootMenu imgfetches
-                        #                       so MokManager can enrol it from
+                        #                       so MokManager can enroll it from
                         #                       memory, and mmx64.efi /
                         #                       arm64-efi/mmaa64.efi, which it
                         #                       chains. See IpxeBootMenu's Secure
@@ -10344,7 +10344,7 @@ configureHttpd() {
         # the new tree is about to be written over that exact path.
         # $priorwebdir is somewhere else the admin chose, and it was already
         # being left behind before this fix -- backing it up is the gain here,
-        # and deleting it would be a new behaviour nobody asked for.
+        # and deleting it would be a new behavior nobody asked for.
         cp -RT "$priorwebdir" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
         rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
@@ -10733,7 +10733,7 @@ class Config
     #
     # Regenerated on every install/upgrade. If it is missing (pre-850 install,
     # or a hand-copied web tree) the PHP side falls back to /opt/fog, which is
-    # exactly the behaviour before this change.
+    # exactly the behavior before this change.
     echo "<?php
 /**
  * Filesystem paths chosen at install time.
@@ -10999,7 +10999,7 @@ downloadfiles() {
 # The gap this closes: --secure-boot-key/--secure-boot-cert are persisted to
 # .fogsettings verbatim and _ensureSecureBootKeys() then trusts that path
 # forever, but nothing ever copies the file anywhere. An admin who parks the
-# pair under $webdirdest -- not unreasonable, it is where the enrolment kit is
+# pair under $webdirdest -- not unreasonable, it is where the enrollment kit is
 # published -- loses it to configureHttpd()'s rm -rf $webdirdest, in the SAME
 # run that first accepted the flags, before _resignKernels() ever reads it.
 #
@@ -11043,7 +11043,7 @@ preserveSecureBootAdminFiles() {
     fi
     chown root:root "$destkey" "$destcert" >>$error_log 2>&1
     # Key restricted, certificate public by design -- it is the thing handed
-    # out for enrolment. Mirrors _ensureSecureBootKeys()'s own permissions.
+    # out for enrollment. Mirrors _ensureSecureBootKeys()'s own permissions.
     chmod 0600 "$destkey" >>$error_log 2>&1
     chmod 0644 "$destcert" >>$error_log 2>&1
     PKI_sb_codesign_key="$destkey"
@@ -11054,14 +11054,14 @@ preserveSecureBootAdminFiles() {
 #
 # Signing used to require --secure-boot-key/--secure-boot-cert, which meant it
 # was off unless someone already knew to ask for it -- so on a stock server the
-# Secure Boot page had no fingerprint to show and no enrolment kit to hand out,
+# Secure Boot page had no fingerprint to show and no enrollment kit to hand out,
 # and the feature was effectively invisible. Generating a key by default makes
 # it present everywhere; enrolling it on a client is still a deliberate act by
 # someone physically at the machine, so defaulting this on grants no trust by
 # itself.
 #
 # The key NEVER regenerates once it exists. A fresh key silently invalidates
-# enrolment on every machine that already trusted the old one, and nothing
+# enrollment on every machine that already trusted the old one, and nothing
 # surfaces that until a client fails to boot -- long after the install that
 # caused it. So an existing pair is always reused, and --recreate-keys
 # deliberately does not reach this.
@@ -11265,7 +11265,7 @@ _ensureSecureBootKeys() {
     # appended PE signature is inert on a machine booting with Secure Boot off
     # -- which is every machine on an opted-out server -- and costs nothing.
     # Leaving the binaries unsigned instead only means that the day anyone does
-    # enrol, or moves one of these files onto a machine that already has Secure
+    # enroll, or moves one of these files onto a machine that already has Secure
     # Boot on, the file is useless and nothing on this server can fix it without
     # a re-install.
     #
@@ -11273,7 +11273,7 @@ _ensureSecureBootKeys() {
     # now answers yes on every server, and _signLocalIpxe/_resignRefind/
     # _resignKernels/_resignCustomKernels sign unconditionally. The opt-out is
     # re-applied in _ensureSecureBootPlatformKeys and _publishSecureBootKit,
-    # which are the two functions that publish enrolment material.
+    # which are the two functions that publish enrollment material.
     #
     # An admin-supplied pair always wins and is never touched or overwritten.
     # Their certificate is also what gets enrolled, exactly as before -- an
@@ -11317,7 +11317,7 @@ _ensureSecureBootKeys() {
     #
     # Deliberately NOT guarded on the flat MOK's absence. A server that already
     # generated a self-signed MOK is moved onto the intermediate too, and any
-    # machine that enrolled the old key has to enrol once more -- which is the
+    # machine that enrolled the old key has to enroll once more -- which is the
     # whole reason this lands before Secure Boot reaches a stable release. The
     # flat MOK is a signing certificate that can issue nothing, so leaving a
     # server on it means it can never rotate a signing key, and never let a
@@ -11331,7 +11331,7 @@ _ensureSecureBootKeys() {
         # no "Enroll Secure Boot Key" menu item, so both routes this names are
         # absent and the notice would only send an admin looking for a 404. The
         # keys are still minted and the binaries still signed -- see the top of
-        # this function -- there is simply nothing to enrol them with yet.
+        # this function -- there is simply nothing to enroll them with yet.
         if [[ -f $key && -f $cert && ${PKI_sb_enabled:-yes} == yes ]]; then
             echo
             echo "  ###################################################################"
@@ -11340,7 +11340,7 @@ _ensureSecureBootKeys() {
             echo "  # rotated and storage nodes can sign without holding the fleet's  #"
             echo "  # one trusted key.                                                #"
             echo "  #                                                                 #"
-            echo "  # Any machine that already enrolled the previous MOK must enrol    #"
+            echo "  # Any machine that already enrolled the previous MOK must enroll    #"
             echo "  # once more. After that, no future signing-key change needs a     #"
             echo "  # firmware trip.                                                  #"
             echo "  #                                                                 #"
@@ -11410,11 +11410,11 @@ EOF
     chown root:root "$key" "$cert" >>$error_log 2>&1
     chmod 0600 "$key" >>$error_log 2>&1
     # The certificate is public by design -- it is the thing published in the
-    # enrolment kit -- so only the key is restricted.
+    # enrollment kit -- so only the key is restricted.
     chmod 0644 "$cert" >>$error_log 2>&1
     PKI_sb_codesign_key="$key"
     PKI_sb_codesign_cert="$cert"
-    # Flat: the signing certificate IS what firmware enrols.
+    # Flat: the signing certificate IS what firmware enrolls.
     PKI_sb_ca_cert="$cert"
     echo "Done"
 }
@@ -11422,8 +11422,8 @@ EOF
 #
 # Separate from _ensureSecureBootKeys because these are a different kind of key
 # doing a different job. MOK.key signs FOS kernels. PK/KEK sign nothing that ever
-# executes -- they exist only to authorise updates to a client's own Secure Boot
-# databases, which is what makes the automatic (Setup Mode) enrolment path in
+# executes -- they exist only to authorize updates to a client's own Secure Boot
+# databases, which is what makes the automatic (Setup Mode) enrollment path in
 # fos ADR-0009 possible at all.
 #
 # Why the server needs its own PK when a client in Setup Mode enforces nothing:
@@ -11453,12 +11453,12 @@ _ensureSecureBootPlatformKeys() {
     # The platform keys exist for one job -- signing the PK/KEK/db variable
     # updates a client writes in Setup Mode -- so this is one of the two places
     # the ${PKI_sb_enabled} opt-out is applied. Signing keys are minted regardless
-    # (see _ensureSecureBootKeys); enrolment material is not. Blanked rather
+    # (see _ensureSecureBootKeys); enrollment material is not. Blanked rather
     # than merely skipped so _publishSecureBootAuthVars takes its "no platform
     # keys" branch and clears any blobs a previous, non-opted-out run left.
     [[ ${PKI_sb_enabled:-yes} != yes ]] && return 0
     # No signing key means the whole feature is opted out; there is nothing for
-    # a platform key to authorise.
+    # a platform key to authorize.
     [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]] && return 0
 
     # An install that already ran the flat ${fogprogramdir}/secureboot layout
@@ -11503,7 +11503,7 @@ _ensureSecureBootPlatformKeys() {
             -keyout "$kekKey" -out "$kekCert" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not generate the Secure Boot platform keys. Automatic"
-        echo "   enrolment will be unavailable; the MOK paths are unaffected."
+        echo "   enrollment will be unavailable; the MOK paths are unaffected."
         echo "   See $error_log."
         rm -f "$pkKey" "$pkCert" "$kekKey" "$kekCert" >>$error_log 2>&1
         return 0
@@ -11517,7 +11517,7 @@ _ensureSecureBootPlatformKeys() {
     secureBootKEKCert="$kekCert"
     echo "Done"
 }
-# Publish the MOK enrolment kit under the web root.
+# Publish the MOK enrollment kit under the web root.
 #
 # Only the *certificate* is published -- it is public by design, and is the
 # thing you are meant to distribute. The private key stays where the admin put
@@ -11529,7 +11529,7 @@ _publishSecureBootKit() {
 
     # MOK.der publishes the certificate to be ENROLLED, which is not always the
     # one that signs. In split mode that is the Secure Boot intermediate, so a
-    # rotated signing leaf never invalidates an enrolment; in flat mode
+    # rotated signing leaf never invalidates an enrollment; in flat mode
     # ${PKI_sb_ca_cert} is the same file as ${PKI_sb_codesign_cert} and this is
     # byte-identical to before.
     #
@@ -11544,7 +11544,7 @@ _publishSecureBootKit() {
         return 0
     fi
 
-    dots "Publishing Secure Boot enrolment kit"
+    dots "Publishing Secure Boot enrollment kit"
     mkdir -p "$kitdir" >>$error_log 2>&1
     # The intermediate case already has a canonical DER sibling next to
     # .fogSBCA.pem in the PKI zone dir (see createSecureBootIntermediateCA) --
@@ -11663,7 +11663,7 @@ _ensureEfitools() {
 }
 # Build and publish the signed PK/KEK/db variable updates.
 #
-# These are what a client in Setup Mode writes to enrol this server's
+# These are what a client in Setup Mode writes to enroll this server's
 # certificate automatically -- no MokManager, no password, no USB stick. See fos
 # ADR-0009 for why Setup Mode is the only path that scales.
 #
@@ -11690,12 +11690,12 @@ _publishSecureBootAuthVars() {
     fi
 
     # No platform keys means no automatic path. Clear any blobs from a previous
-    # install rather than leaving stale ones a client would happily enrol: an
-    # .auth signed by a key this server no longer holds enrols a platform the
+    # install rather than leaving stale ones a client would happily enroll: an
+    # .auth signed by a key this server no longer holds enrolls a platform the
     # server can never update again.
     #
     # This used to return in silence, which made it the ONE cause of "automatic
-    # enrolment is unavailable" that produced no diagnostic anywhere -- and it
+    # enrollment is unavailable" that produced no diagnostic anywhere -- and it
     # is the likeliest cause on a server that has efitools installed. An admin
     # re-running the installer to fix it therefore saw nothing at all, then read
     # a web page confidently naming a different cause (GH-1266). It says which
@@ -11705,20 +11705,20 @@ _publishSecureBootAuthVars() {
         dots "Publishing Secure Boot variable updates"
         echo "Skipped"
         if [[ ${PKI_sb_enabled:-yes} != yes ]]; then
-            echo " * Secure Boot enrolment material is switched off for this"
+            echo " * Secure Boot enrollment material is switched off for this"
             echo "   install (PKI_sb_enabled is not \"yes\"), so no platform keys"
-            echo "   were minted and the automatic enrolment blobs were not"
+            echo "   were minted and the automatic enrollment blobs were not"
             echo "   built. FOS kernels are still signed."
         elif [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]]; then
             echo " * No Secure Boot signing key is configured, so there is"
-            echo "   nothing for a platform key to authorise and the automatic"
-            echo "   enrolment blobs were not built."
+            echo "   nothing for a platform key to authorize and the automatic"
+            echo "   enrollment blobs were not built."
         else
             echo " * The Secure Boot platform keys (PK/KEK) are missing, so the"
-            echo "   automatic enrolment blobs were not built. Generating them"
+            echo "   automatic enrollment blobs were not built. Generating them"
             echo "   failed earlier in this run -- see $error_log."
         fi
-        echo "   The MOK enrolment paths are unaffected."
+        echo "   The MOK enrollment paths are unaffected."
         return 0
     fi
 
@@ -11728,8 +11728,8 @@ _publishSecureBootAuthVars() {
        ! command -v sign-efi-sig-list >/dev/null 2>&1; then
         echo "Skipped"
         echo " * efitools is not installed and could not be built from source,"
-        echo "   so the automatic Secure Boot enrolment blobs were not built."
-        echo "   See ${error_log}. The MOK enrolment paths are unaffected."
+        echo "   so the automatic Secure Boot enrollment blobs were not built."
+        echo "   See ${error_log}. The MOK enrollment paths are unaffected."
         rm -f "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
         return 0
     fi
@@ -11753,7 +11753,7 @@ _publishSecureBootAuthVars() {
         # The only arm here that used to print a bare "Failed" with no cause,
         # which is the same complaint as GH-1266 one line down.
         echo " * Could not install the Secure Boot variable builder to $helper,"
-        echo "   so automatic enrolment will be unavailable. The MOK enrolment"
+        echo "   so automatic enrollment will be unavailable. The MOK enrollment"
         echo "   paths are unaffected. See $error_log."
         return 0
     }
@@ -11768,7 +11768,7 @@ _publishSecureBootAuthVars() {
     if ! "$helper" >>$error_log 2>&1; then
         echo "Failed"
         echo " * Could not build the Secure Boot variable updates, so automatic"
-        echo "   enrolment will be unavailable. The MOK enrolment paths are"
+        echo "   enrollment will be unavailable. The MOK enrollment paths are"
         echo "   unaffected. See $error_log."
         rm -f "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
         return 0
@@ -11777,7 +11777,7 @@ _publishSecureBootAuthVars() {
     chmod 0644 "${kitdir}"/{PK,KEK,db}.auth >>$error_log 2>&1
     echo "Done"
 }
-# Normalise --secure-boot-cert to PEM and echo the path.
+# Normalize --secure-boot-cert to PEM and echo the path.
 #
 # sbsign and sbverify read certificates with PEM_read_bio_X509 and reject DER
 # outright:
@@ -11793,7 +11793,7 @@ _publishSecureBootAuthVars() {
 #
 # Convert once here rather than pushing the distinction onto the user: the flag
 # accepts either, _resignKernels and the signing helper get PEM, and
-# _publishSecureBootKit still converts to DER for enrolment.
+# _publishSecureBootKit still converts to DER for enrollment.
 _secureBootCertPem() {
     local pem="${fogprogramdir}/.fog-secureboot.pem"
     [[ -z ${PKI_sb_codesign_cert} ]] && return 1
@@ -11871,7 +11871,7 @@ _installSecureBootSigner() {
     fi
     # Root-owned, root-readable only: the web user learns nothing about where
     # the key lives, and cannot rewrite these paths to point somewhere else.
-    # SECUREBOOT_CERT is the normalised PEM -- sbsign cannot read DER.
+    # SECUREBOOT_CERT is the normalized PEM -- sbsign cannot read DER.
     #
     # The PK/KEK/mscerts/authvars lines are for fog-build-sb-authvars, not for
     # fog-sign-kernel, which ignores them. They live in the same file because
@@ -12039,7 +12039,7 @@ _resignKernels() {
 # signature to a file that grows forever.
 #
 # secureBootMokCert may be the DER copy an admin passed to --secureboot-ca-cert,
-# and sbverify takes PEM only -- same normalisation _secureBootCertPem() does
+# and sbverify takes PEM only -- same normalization _secureBootCertPem() does
 # for the signing cert, against a separate filename so the two cannot clobber
 # each other.
 _secureBootAnchorPem() {
@@ -12172,9 +12172,9 @@ _restampIpxeManifest() {
 # binary carrying iPXE's own NIC drivers, and that one is ours. Once shim has run
 # its security policy override stays installed for the rest of the boot, so a
 # MOK-signed image loads, and the MOK is the one _publishSecureBootKit() already
-# publishes and clients already enrol.
+# publishes and clients already enroll.
 #
-# This is NOT on the netboot path and must not become one. Enrolment depends on
+# This is NOT on the netboot path and must not become one. Enrollment depends on
 # an un-enrolled machine reaching the FOG menu to run MokManager, and a
 # MOK-signed binary there could not load, because the MOK is not enrolled yet.
 # Signing in place is safe for the same reason it is invisible: an appended PE
@@ -12188,7 +12188,7 @@ _restampIpxeManifest() {
 # an HTTPS-with-your-own-CA install has already compiled locally before this runs.
 #
 # Runs on every server, including one that passed --no-secureboot: that flag
-# declines enrolment, not signatures. See _ensureSecureBootKeys.
+# declines enrollment, not signatures. See _ensureSecureBootKeys.
 _signLocalIpxe() {
     [[ -z ${PKI_sb_codesign_key} || -z ${PKI_sb_codesign_cert} ]] && return 0
     local tftproot="${tftpdirdst%/}"
@@ -12331,7 +12331,7 @@ _signLocalIpxe() {
 # the volume fallback, for an ESP whose contents were unpacked at the top level.
 #
 # A folder that exists but holds no *.efi does NOT get one: on an HTTPS-only
-# install the enrolment material still lands in secureboot-upstream/ while no shim
+# install the enrollment material still lands in secureboot-upstream/ while no shim
 # does, and a script beside no binary implies a route the archive does not have.
 #
 # EVERY COPY IS IDENTICAL, from _espAutoexecScript(). That is the fix for what
@@ -12357,7 +12357,7 @@ _signLocalIpxe() {
 # made at download time. With the script on disk it is two lines of text, so
 # every copy carries them commented out, and --boot-delay writes them live --
 # exactly what _applyBootDelay() already does to the TFTP copy for netboot
-# clients. Six archives become three, one behaviour, one place to look.
+# clients. Six archives become three, one behavior, one place to look.
 #
 # ---------------------------------------------------------------------------
 #
@@ -12412,14 +12412,14 @@ _signLocalIpxe() {
 # configuration, so no SNP device existed. See the README's troubleshooting note.
 #
 # MokManager ships too. shim launches mm<arch>.efi FROM ITS OWN DIRECTORY when
-# it cannot verify the next stage, and that is the only way to enrol a MOK --
+# it cannot verify the next stage, and that is the only way to enroll a MOK --
 # shim's MokList is a boot-services-only variable, so nothing in a running OS
 # can write it. Without mmx64.efi beside the shim, an ESP that has not been
 # enrolled yet is a dead end with no route out of it. Found the hard way: it had
 # to be downloaded by hand.
 #
 # MOK.der ships WITH it, which the first implementation missed. MokManager
-# enrols by browsing the ESP for a certificate, so shipping MokManager without
+# enrolls by browsing the ESP for a certificate, so shipping MokManager without
 # one is still a dead end -- it just fails one screen later.
 #
 # PK/KEK/db.auth ship as well, and they are what make the i386 archive worth
@@ -12470,7 +12470,7 @@ _signLocalIpxe() {
 #   fog-ipxe-customca/        the same builds with this server's CA embedded.
 #                             Only exists where --rebuild-ipxe-with-my-ca ran.
 #   secureboot-upstream/      upstream's Microsoft-signed shim and the loader it
-#                             hands to, unmodified. Nothing to enrol.
+#                             hands to, unmodified. Nothing to enroll.
 #   secureboot-fog/           upstream's shims with FOG's build standing in as
 #                             the second stage. For Secure Boot with the MOK
 #                             enrolled, or Secure Boot off, keeping the shim.
@@ -12488,7 +12488,7 @@ _signLocalIpxe() {
 # Secure Boot signing decides whether firmware or shim will load the image at all.
 # _signLocalIpxe() signs every *.efi under the TFTP root with the same key,
 # stock/ included, so both variants behave identically under Secure Boot and one
-# enrolment covers either.
+# enrollment covers either.
 #
 # WHAT THIS COSTS: roughly 16MB against the ~7MB of the two-folder layout, from
 # five FOG binaries duplicated for the CA variant plus two shims and a binary in
@@ -12501,7 +12501,7 @@ _espKitFiles() {
         i386)
             fogdir="i386-efi/"
             # No shim, loader or MokManager: upstream signs none for ia32. The
-            # archive is still built, because db enrolment needs no shim -- see
+            # archive is still built, because db enrollment needs no shim -- see
             # the header.
             sbdir=""
             ;;
@@ -12635,8 +12635,8 @@ _espFileRole() {
         autoexec.ipxe|*/autoexec.ipxe)    echo "boot-script" ;;
         refind/*.efi)                     echo "chainloader" ;;
         refind/refind.conf)               echo "config" ;;
-        */MOK.der)                        echo "enrolment-cert" ;;
-        */PK.auth|*/KEK.auth|*/db.auth)   echo "enrolment-var" ;;
+        */MOK.der)                        echo "enrollment-cert" ;;
+        */PK.auth|*/KEK.auth|*/db.auth)   echo "enrollment-var" ;;
         */fog-enroll-mok.*)               echo "helper" ;;
         README.txt|MANIFEST.json)         echo "doc" ;;
         *)                                echo "other" ;;
@@ -12667,7 +12667,7 @@ _espFileNote() {
         secureboot-fog*/snponly.efi|secureboot-fog*/ipxe.efi)
             echo "FOG's own all-drivers build, carrying an upstream filename so that the shim beside it will load it -- shim picks its second stage by name, and on many firmwares falls back to ipxe.efi whichever shim you launched, so the binary ships under both names. Needs FOG's certificate in MokList or db; with nothing enrolled shim rejects it. NOT upstream's loader despite the name." ;;
         secureboot-upstream/mmx64.efi|secureboot-upstream/mmaa64.efi|secureboot-fog*/mmx64.efi|secureboot-fog*/mmaa64.efi)
-            echo "MokManager. shim launches it from this directory when it cannot verify the next stage; enrol MOK.der beside it. Not optional -- nothing in a running OS can write shim's MokList. Note it is only invoked when a MOK request is already pending, so a first boot with nothing enrolled simply fails rather than offering to enrol." ;;
+            echo "MokManager. shim launches it from this directory when it cannot verify the next stage; enroll MOK.der beside it. Not optional -- nothing in a running OS can write shim's MokList. Note it is only invoked when a MOK request is already pending, so a first boot with nothing enrolled simply fails rather than offering to enroll." ;;
         fog-ipxe/fogipxe.efi)
             echo "FOG's build with all of iPXE's own NIC drivers. Start here on firmware that offers no PXE boot option at all -- such firmware usually provides no UEFI SNP protocol either, so a binary needing one is no use to it. Boots directly with Secure Boot off, or with this server's certificate in db. A MOK does NOT help here: firmware never reads shim's MokList." ;;
         fog-ipxe-customca/fogipxe.efi)
@@ -12687,11 +12687,11 @@ _espFileNote() {
         refind/*.efi)
             echo "rEFInd, signed by this server. A boot manager that finds and boots whatever OS is installed locally. Not needed by the default exit type (sanboot hands straight back to firmware), but it is what the refind_efi exit type chainloads, and it is here so an ESP assembled from this archive carries every route off FOG rather than only the configured one." ;;
         */MOK.der)
-            echo "This server's certificate in DER form, and it does TWO jobs. MokManager enrols it, which makes the shim routes work. It is also the certificate to put in db, which is what lets FOG's binaries boot directly with no shim -- and when you enrol through the FIRMWARE's own tool, or a hypervisor setting, db on its own is enough because that write is unauthenticated. Enrolling from a running OS instead (FOG's task, a Linux tool, PowerShell) is a User Mode write that must be authenticated by a KEK-signed update, so that route needs the full PK/KEK/db set. It is the intermediate that FOG's signatures carry via sbsign --addcert, so this one certificate covers every FOG binary and the signing leaf can rotate without re-enrolling." ;;
+            echo "This server's certificate in DER form, and it does TWO jobs. MokManager enrolls it, which makes the shim routes work. It is also the certificate to put in db, which is what lets FOG's binaries boot directly with no shim -- and when you enroll through the FIRMWARE's own tool, or a hypervisor setting, db on its own is enough because that write is unauthenticated. Enrolling from a running OS instead (FOG's task, a Linux tool, PowerShell) is a User Mode write that must be authenticated by a KEK-signed update, so that route needs the full PK/KEK/db set. It is the intermediate that FOG's signatures carry via sbsign --addcert, so this one certificate covers every FOG binary and the signing leaf can rotate without re-enrolling." ;;
         */PK.auth|*/KEK.auth|*/db.auth)
-            echo "Signed EFI variable update, for FOG's unattended enrolment task, which writes all of them from a client in Setup/Custom Mode. NOT what a firmware menu or a hypervisor wants -- those take a plain DER certificate, so use MOK.der there. Replacing db with this keeps Microsoft's CAs and so still boots Windows, but appending MOK.der to the existing db is the lower-risk operation." ;;
+            echo "Signed EFI variable update, for FOG's unattended enrollment task, which writes all of them from a client in Setup/Custom Mode. NOT what a firmware menu or a hypervisor wants -- those take a plain DER certificate, so use MOK.der there. Replacing db with this keeps Microsoft's CAs and so still boots Windows, but appending MOK.der to the existing db is the lower-risk operation." ;;
         */fog-enroll-mok.sh|*/fog-enroll-mok.desktop)
-            echo "Enrols MOK.der via mokutil from a booted Linux OS. Not read by firmware; it is here so one folder carries every enrolment route." ;;
+            echo "Enrolls MOK.der via mokutil from a booted Linux OS. Not read by firmware; it is here so one folder carries every enrollment route." ;;
         README.txt)
             echo "What this archive is and how to use it." ;;
         *)  echo "" ;;
@@ -12828,7 +12828,7 @@ ESPWALK
 # root, which is what motivated the ladder originally. That script and this one
 # are byte-identical; three variables were uncontrolled across those runs and all
 # three have since been individually eliminated -- mounted install media, db/KEK
-# enrolment state, and which shim/loader pair was used. Treat that failure as
+# enrollment state, and which shim/loader pair was used. Treat that failure as
 # unexplained rather than as evidence for a chain.
 _espAutoexecScript() {
     cat <<'ESPAUTOEXEC'
@@ -12889,7 +12889,7 @@ ESPINTRO
 WHICH FOLDER
 ------------
   Machine PXE boots normally
-      -> secureboot-upstream\   Upstream's shim and loader, nothing to enrol.
+      -> secureboot-upstream\   Upstream's shim and loader, nothing to enroll.
 
   No PXE boot option, or firmware provides no SNP
       -> fog-ipxe\              FOG's builds carry iPXE's own NIC drivers and
@@ -12925,9 +12925,9 @@ TWO THINGS THAT SURPRISE PEOPLE
   A MOK does nothing for fog-ipxe\. MokList belongs to shim; firmware never
   reads it. Booting FOG's binary directly under Secure Boot needs db.
 
-  With nothing enrolled, secureboot-fog\ does not offer to enrol -- it just
+  With nothing enrolled, secureboot-fog\ does not offer to enroll -- it just
   fails. shim only launches MokManager when a request is already pending, and
-  nothing here stages one. Enrol first, then boot.
+  nothing here stages one. Enroll first, then boot.
 ESPPICK
     else
         cat <<'ESPPICKNOSB'
@@ -12959,7 +12959,7 @@ THE FOLDERS
 $(if [[ $haveloader -eq 1 ]]; then cat <<'ESPFLD1'
   secureboot-upstream\   Upstream's Microsoft-signed shims and the loaders they
                          hand to, unmodified, plus MokManager and this server's
-                         enrolment material. Boot snponly-shimx64.efi or
+                         enrollment material. Boot snponly-shimx64.efi or
                          ipxe-shimx64.efi.
   secureboot-fog\        The same shims, but FOG's own build stands in as the
                          second stage. It appears twice, as ipxe.efi and as
@@ -13049,7 +13049,7 @@ fi)
         so nothing has to vouch for it. Confirmed: MOK.der added to db by itself,
         then FOG's signed binary booted directly with no shim.
 
-        From a running OS -- FOG's enrolment task, a Linux tool, PowerShell's
+        From a running OS -- FOG's enrollment task, a Linux tool, PowerShell's
         Secure Boot cmdlets -- expect to need PK, KEK and db together. In User
         Mode a db write must be authenticated by a KEK-signed update, and the
         machine only trusts FOG's KEK if FOG's PK is enrolled too. That is what
@@ -13074,7 +13074,7 @@ fi)
       Changing db is measured into TPM PCR 7, so it can trigger BitLocker
       recovery. Suspend BitLocker first on machines that use it.
 
-PK.auth, KEK.auth and db.auth are for FOG's own unattended enrolment task, which
+PK.auth, KEK.auth and db.auth are for FOG's own unattended enrollment task, which
 writes all of them from a client in Setup/Custom Mode. They are not what a
 firmware menu or a hypervisor wants.
 $(if [[ $haverefind -eq 1 ]]; then cat <<'ESPREFIND'
@@ -13205,9 +13205,9 @@ _espKernelsJson() {
 # That is also why this lives at service/localboot/ rather than under
 # service/secureboot/: _publishSecureBootKit() rm -rf's its whole kit directory
 # when it has no MOK to publish, which would take this with it on exactly the
-# servers that still want it. The enrolment material it publishes is COPIED into
+# servers that still want it. The enrollment material it publishes is COPIED into
 # each archive rather than linked, so an archive stays self-contained and a
-# server that later opts out of enrolment cannot dangle a reference inside one.
+# server that later opts out of enrollment cannot dangle a reference inside one.
 #
 # COPIES, never a symlink to $tftpdirdst, which was the first design. SELinux
 # labels the TFTP tree tftpdir_t and httpd_t has no rule permitting it to read
@@ -13309,13 +13309,13 @@ _publishLocalBootFiles() {
             rm -rf "$staged" >>$error_log 2>&1
             continue
         fi
-        # Whatever enrolment material this server actually published. Taken
+        # Whatever enrollment material this server actually published. Taken
         # by existence rather than by asking whether Secure Boot is
         # configured, so an opted-out server ships neither and a server with
         # only a MOK ships only that.
         #
         # The .auth set goes to secureboot-upstream/ only -- they belong to FOG's
-        # unattended enrolment task and are nothing a shim reads.
+        # unattended enrollment task and are nothing a shim reads.
         #
         # MOK.der goes to EVERY folder that holds a shim, because MokManager
         # browses for it and shim launches MokManager out of its own directory. A
@@ -13351,7 +13351,7 @@ _publishLocalBootFiles() {
         #
         # Driven off the folder holding a BOOTABLE BINARY, not merely existing.
         # The distinction is load-bearing: on an HTTPS-only install no shim
-        # stages, but the enrolment material still lands in secureboot-upstream/,
+        # stages, but the enrollment material still lands in secureboot-upstream/,
         # so that folder exists while containing nothing that could read a script.
         # A script beside no binary is a file that implies a route the archive
         # does not have.
@@ -13386,7 +13386,7 @@ _publishLocalBootFiles() {
         #
         # Both writers change directory into the staged tree, which means
         # $bootdir has to be absolute. It always is -- ${WEB_docroot} is a distro
-        # default under / and --docroot is normalised with a leading slash
+        # default under / and --docroot is normalized with a leading slash
         # (installfog.sh) -- but that is the dependency to keep in mind if
         # docroot handling changes. Both recurse, so local/, secureboot/ and
         # refind/ need nothing extra here.

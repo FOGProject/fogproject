@@ -44,7 +44,7 @@ use FOG\Router\Route;
  *
  * THREE LAYERS, because one was what failed:
  *
- *   1. CREDENTIAL_PATTERN over the friendly key. Modelled directly on
+ *   1. CREDENTIAL_PATTERN over the friendly key. Modeled directly on
  *      Route::SENSITIVE_SETTING_PATTERN, which exists so a credential
  *      setting added later is masked by default instead of leaking until
  *      somebody remembers. A field that matches and is NOT a credential goes

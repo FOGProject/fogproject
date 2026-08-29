@@ -25,7 +25,7 @@
  *
  *   A  a unit/init script exists in all four trees, and is executable in the
  *      three where the installer copies a script rather than a unit file
- *   B  $serviceList carries it, so enableInitScript() enrols it -- being in
+ *   B  $serviceList carries it, so enableInitScript() enrolls it -- being in
  *      $initdsrc gets it COPIED, not started, and not started at boot
  *   C  it runs as the web user, via the FOGWEBUSER placeholder the installer
  *      rewrites. A missing placeholder means a daemon issuing DELETEs as root
@@ -37,7 +37,7 @@
  *      daemon nobody can check on, which is the whole point of the split
  *
  * Textual and filesystem checks only: these live in functions that rewrite
- * /etc and enrol system services, so running them would mean writing to the
+ * /etc and enroll system services, so running them would mean writing to the
  * developer's own box. Same convention as
  * tests/alpine-openrc-services.test.sh.
  *

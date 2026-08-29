@@ -36,7 +36,7 @@ Create `tests/pxe-secureboot-menu-schema.test.php`:
 ```php
 <?php
 /**
- * Guards the two pxeMenu schema changes for unattended Secure Boot enrol:
+ * Guards the two pxeMenu schema changes for unattended Secure Boot enroll:
  *  - pxeID 14 ("Enroll Secure Boot Key") gets relabeled to distinguish it
  *    from the new unattended item, via a new UPDATE step (321 already ran
  *    on existing installs, so it cannot be edited in place).
@@ -111,7 +111,7 @@ $this->schema[] = [
     // Distinguishes pxeID 14 from the unattended item added in step 325
     // below. It has always chained straight to MokManager for a technician
     // to drive by hand; the plain "Enroll Secure Boot Key" name stopped
-    // being enough once there is a second, unattended way to enrol from
+    // being enough once there is a second, unattended way to enroll from
     // the same menu.
     //
     // A new step, not an edit to step 321: that INSERT has already run on
@@ -138,7 +138,7 @@ $this->schema[] = [
     //
     // BootMenu::printDefault() additionally hides this item unless
     // PK.auth/KEK.auth/db.auth all exist in service/secureboot/ -- without
-    // them mode=enrollsb's auto-enrol path has nothing valid to write.
+    // them mode=enrollsb's auto-enroll path has nothing valid to write.
     "INSERT IGNORE INTO `pxeMenu` "
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
     . "VALUES "
@@ -157,7 +157,7 @@ Expected: `PASS`
 
 ```bash
 git add packages/web/commons/schema.php tests/pxe-secureboot-menu-schema.test.php
-git commit -m "Add pxeMenu schema step for unattended Secure Boot enrol, relabel attended item"
+git commit -m "Add pxeMenu schema step for unattended Secure Boot enroll, relabel attended item"
 ```
 
 (The pre-commit hook will also touch `languages/messages.pot`/`.po` files and `system.class.php`'s version — expected.)
@@ -185,7 +185,7 @@ Create `tests/pxe-secureboot-menu-gating.test.php`:
  * Secure Boot Key (Unattended...)", mode=enrollsb): it must stay hidden on
  * non-EFI platforms exactly like pxeID 14, and must additionally stay
  * hidden unless PK.auth/KEK.auth/db.auth all exist in service/secureboot/
- * -- without them mode=enrollsb's auto-enrol path has nothing valid to
+ * -- without them mode=enrollsb's auto-enroll path has nothing valid to
  * write.
  *
  * Static source check (no DB, no server) -- BootMenu needs the full FOG
@@ -250,7 +250,7 @@ In `packages/web/lib/fog/bootmenu.class.php`, replace the existing comment + fil
         // pxeID 14 ("Enroll Secure Boot Key (MOK attended setup)") and
         // pxeID 15 ("Enroll Secure Boot Key (Unattended...)") are both
         // meaningless on a legacy BIOS boot: there is no UEFI variable
-        // store to enrol into, so every route out of them -- MokManager,
+        // store to enroll into, so every route out of them -- MokManager,
         // and the FOS task behind mode=enrollsb -- can only fail. Both
         // carry pxeRegOnly=2 so a technician never has to repoint a
         // client's boot file to reach them, and that "always shown" is
@@ -285,7 +285,7 @@ In `packages/web/lib/fog/bootmenu.class.php`, replace the existing comment + fil
                 )
             );
         }
-        // pxeID 15's unattended enrol (mode=enrollsb) only auto-enrols when
+        // pxeID 15's unattended enroll (mode=enrollsb) only auto-enrolls when
         // PK.auth, KEK.auth and db.auth all exist in service/secureboot/ --
         // fog-build-sb-authvars' output, the same directory MOK.der already
         // lives in. Without all three the task type itself has nothing
@@ -323,7 +323,7 @@ Expected: `PASS`
 
 ```bash
 git add packages/web/lib/fog/bootmenu.class.php tests/pxe-secureboot-menu-gating.test.php
-git commit -m "Hide unattended Secure Boot enrol PXE item until .auth files exist"
+git commit -m "Hide unattended Secure Boot enroll PXE item until .auth files exist"
 ```
 
 ---
@@ -333,6 +333,6 @@ git commit -m "Hide unattended Secure Boot enrol PXE item until .auth files exis
 Not automatable in this environment (no DB/live iPXE client) — call this out to whoever runs the plan rather than skipping it silently:
 
 1. With no `.auth` files in `service/secureboot/`: PXE menu on a UEFI test client shows only "Enroll Secure Boot Key (MOK attended setup)". No unattended item.
-2. Run `fog-build-sb-authvars` (or otherwise populate `PK.auth`/`KEK.auth`/`db.auth`) and reload the menu: both items now appear, correctly labelled.
-3. Select the unattended item on a client currently in UEFI Setup Mode: it boots FOS with `mode=enrollsb` in the kernel command line and completes the enrol automatically.
+2. Run `fog-build-sb-authvars` (or otherwise populate `PK.auth`/`KEK.auth`/`db.auth`) and reload the menu: both items now appear, correctly labeled.
+3. Select the unattended item on a client currently in UEFI Setup Mode: it boots FOS with `mode=enrollsb` in the kernel command line and completes the enroll automatically.
 4. On a BIOS/CSM client (`platform != efi`): neither item appears, regardless of `.auth`/`MOK.der` state.

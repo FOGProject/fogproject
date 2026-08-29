@@ -1,6 +1,6 @@
 <?php
 /**
- * The dashboard's imaging chart counts imaging RUNS, not cancelled intentions.
+ * The dashboard's imaging chart counts imaging RUNS, not canceled intentions.
  *
  * DashboardPage::get30day() feeds the "imaging history" graph. Since ADR 0022
  * decision 3 retired imagingLog it reads taskLog, and taskLog holds one row
@@ -12,15 +12,15 @@
  * TaskingElement::taskLog(), which runs on check-in -- so a row existed only
  * for a task that had actually started. TaskLog::recordState() now writes one
  * on EVERY transition of an imaging task, cancellation included. A deploy that
- * is queued and cancelled before any machine boots therefore has exactly one
+ * is queued and canceled before any machine boots therefore has exactly one
  * taskLog row, carrying an image name, and counting it reports an image
  * deployed on a day nothing was imaged.
  *
  * Two things this pins, both of which are silent when wrong -- the chart
  * renders either way and simply shows the wrong number:
  *
- * 1. **The cancelled state is excluded.** Not the Failed state and not the
- *    queued ones: a task cancelled part-way through imaging still has its
+ * 1. **The canceled state is excluded.** Not the Failed state and not the
+ *    queued ones: a task canceled part-way through imaging still has its
  *    In-Progress row from check-in and still counts, which is correct -- it
  *    did image. Only a task whose sole rows are cancellations drops out.
  *
@@ -81,17 +81,17 @@ $t->check(
 );
 
 /*
- * 1. Cancelled rows are excluded, and the state is resolved rather than
+ * 1. Canceled rows are excluded, and the state is resolved rather than
  *    written as a literal 5 -- CANCELLED_STATE is a hook, so a plugin can
  *    move it and a hardcoded id would quietly exclude the wrong state.
  */
 $t->check(
-    'cancelled rows are excluded',
-    false !== strpos($sql, '`taskStateID` <> :cancelled')
+    'canceled rows are excluded',
+    false !== strpos($sql, '`taskStateID` <> :canceled')
 );
 $t->check(
-    'the cancelled state is resolved, not hardcoded',
-    false !== strpos($body, "':cancelled' => self::getCancelledState()")
+    'the canceled state is resolved, not hardcoded',
+    false !== strpos($body, "':canceled' => self::getCancelledState()")
 );
 $t->check(
     'no other state is excluded with it',

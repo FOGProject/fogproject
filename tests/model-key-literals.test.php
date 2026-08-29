@@ -75,7 +75,7 @@ const MIN_LITERALS = 400;
  * passed `new StorageNode()` -- an EMPTY object -- so correcting the key
  * would replace a working lazy load with an invalid one.
  *
- * Removing them is the real fix and is a behaviour change to the task
+ * Removing them is the real fix and is a behavior change to the task
  * creation path, which is not this test's call to make.
  */
 $exempt = [

@@ -4,7 +4,7 @@
  * the ones the ADR fixed.
  *
  * Phase 2 added seven columns and mapped none of them, which was the point:
- * "an install that stops here is unchanged in behaviour". Phase 3 is the
+ * "an install that stops here is unchanged in behavior". Phase 3 is the
  * inverse claim -- rows written after the upgrade carry both the prose and
  * the structure -- and it has a failure mode phase 2 did not: a column that
  * is mapped but never set looks exactly like a column that is filled, from

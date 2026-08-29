@@ -233,7 +233,7 @@ if (false !== $empty) {
                 'emptyDefaultFor(%s) returned %s on MariaDB, wanted %s. This '
                 . 'is the value the server used to substitute silently while '
                 . 'sql_mode was cleared; writing down a different one changes '
-                . 'behaviour rather than recording it.',
+                . 'behavior rather than recording it.',
                 var_export($type, true),
                 var_export($got, true),
                 var_export($want, true)

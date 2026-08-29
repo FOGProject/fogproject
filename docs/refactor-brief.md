@@ -75,7 +75,7 @@ Plan three independent changes, as separate PRs, in this order:
 `packages/web`. `\Exception`, `\DateTime`, `\DateTimeZone`, `\PharData`,
 `\ReflectionClass`, `\PDO`, `\RecursiveIteratorIterator`, and anything else
 you find. In the global namespace this is a no-op, which is the point: it
-must be reviewable as a purely mechanical diff with zero behaviour change.
+must be reviewable as a purely mechanical diff with zero behavior change.
 Give me the exact count per class before proposing the change.
 
 This exists because inside a namespace, `catch (Exception $e)` silently
@@ -119,7 +119,7 @@ Plan moving site's scope enforcement into core alongside RBAC.
 
 **Design constraint I have already decided: no enable flag.** Sites are
 unconditional. Zero sites defined means one implicit site containing
-everything, which is today's behaviour and today's out-of-box experience.
+everything, which is today's behavior and today's out-of-box experience.
 Defining a site is what makes the boundary start to mean something. A
 boundary that exists only when a boolean is true is still a boundary that
 can be absent. Argue against this if you think I am wrong, but argue

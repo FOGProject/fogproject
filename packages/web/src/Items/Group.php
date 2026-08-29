@@ -813,7 +813,7 @@ class Group extends FOGController
         } else {
             if ($TaskType->id != TaskType::WAKE_UP) {
                 $hostIDs = $this->get('hosts');
-                // Drop members the Secure Boot enrolment task cannot run on.
+                // Drop members the Secure Boot enrollment task cannot run on.
                 //
                 // The same refusal Host::createImagePackage() makes, at the
                 // only other place it can be made: a non-imaging group task
@@ -829,7 +829,7 @@ class Group extends FOGController
                 // from a firmware change with Secure Boot already on would
                 // make the group path useless for the case it exists for.
                 //
-                // Unreported members are KEPT, matching isEnrolmentTarget():
+                // Unreported members are KEPT, matching isEnrollmentTarget():
                 // nothing is known until a host PXE boots, and silently
                 // dropping every not-yet-seen host would empty the group on
                 // the first day this shipped.
@@ -840,7 +840,7 @@ class Group extends FOGController
                 //
                 // One row-load per member, matching setSnapinOrder() above
                 // rather than reaching for a lighter query. Deliberate: this
-                // runs only for an explicitly scheduled enrolment, which is a
+                // runs only for an explicitly scheduled enrollment, which is a
                 // rare and considered operation, and the batch insert that
                 // follows dominates it on any group big enough to notice.
                 if (TaskType::ENROLL_SECUREBOOT == $TaskType->id) {
@@ -850,7 +850,7 @@ class Group extends FOGController
                         if (!$Host->isValid()) {
                             continue;
                         }
-                        if (SecureBootState::isEnrolmentTarget(
+                        if (SecureBootState::isEnrollmentTarget(
                             $Host->get('sbstate')
                         )) {
                             $eligible[] = $hostID;
@@ -860,7 +860,7 @@ class Group extends FOGController
                         throw new \Exception(
                             _(
                                 'No host in this group can run Secure Boot '
-                                . 'enrolment. Every member last reported a '
+                                . 'enrollment. Every member last reported a '
                                 . 'firmware state the task cannot work on -- '
                                 . 'see the Secure Boot column on the host '
                                 . 'list.'
@@ -1014,7 +1014,7 @@ class Group extends FOGController
                 // absent and the task lands with a jobID of 0 -- and range()
                 // makes that worse, because range(0, -1) counts DOWN and hands
                 // back [0, -1]. A task is only reachable through its job, so
-                // such a row can never be shown, run or cancelled; it just
+                // such a row can never be shown, run or canceled; it just
                 // sits there, and until #895 it took the snapin task list down
                 // with it. One jobID-0 row on the 1.6 lab box is what put us
                 // onto this.

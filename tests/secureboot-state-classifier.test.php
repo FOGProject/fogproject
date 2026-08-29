@@ -4,7 +4,7 @@
  *
  * SecureBootState::fromBootRequest() turns three strings out of an
  * unauthenticated POST body into one of six words. Every consumer -- the host
- * grid, the host form, and the enrolment task's refusal -- reads that word and
+ * grid, the host form, and the enrollment task's refusal -- reads that word and
  * nothing else, so a wrong classification is not a wrong label: it is either a
  * host that can never be enrolled, or a host that looks enrollable and is not.
  *
@@ -34,7 +34,7 @@
  * It is asserted from iPXE's own formatter -- efi_settings.c assigns
  * setting_type_hex, which is two hex digits per byte -- and the classifier is
  * built so that being wrong about it fails CLOSED: anything that is not
- * recognisably "off" is not an enrolment target.
+ * recognizably "off" is not an enrollment target.
  *
  * DB-free. SecureBootState touches no globals and no database.
  *
@@ -57,14 +57,14 @@ $checks = 0;
  *
  * A CLOSURE over the two counters, not a global function with `global`
  * statements, and both halves of that matter for the second PHPStan pass --
- * which analyses all of tests/ as one unit:
+ * which analyzes all of tests/ as one unit:
  *
  *   - fourteen other files here declare a global check() with four different
  *     signatures, and a fifteenth merges with them into errors about
  *     parameters this file does not have;
  *   - a counter mutated through `global` is invisible to PHPStan, so the
  *     final `$failures > 0` reads as "always false" -- which would have made
- *     this file report a pass whatever it found, had the analyser not said so.
+ *     this file report a pass whatever it found, had the analyzer not said so.
  *
  * @param string $what     what is being asserted
  * @param mixed  $expected the expected value
@@ -172,7 +172,7 @@ foreach ($cases as $case) {
 // ------------------------------------------------------------- eligibility --
 // The refusal reads this and nothing else. UNKNOWN is true by decision, not by
 // omission: nothing is reported until a host PXE boots, so refusing it outright
-// would make the enrolment task unusable on every existing fleet until a full
+// would make the enrollment task unusable on every existing fleet until a full
 // boot cycle had happened. The host list filter is what keeps an unknown host
 // from LOOKING eligible.
 $eligible = [
@@ -185,21 +185,21 @@ $eligible = [
 ];
 foreach ($eligible as $state => $expected) {
     $sbCheck(
-        "isEnrolmentTarget('$state')",
+        "isEnrollmentTarget('$state')",
         $expected,
-        SecureBootState::isEnrolmentTarget($state)
+        SecureBootState::isEnrollmentTarget($state)
     );
 }
 
-// A value this build does not recognise -- written by an older build, a
+// A value this build does not recognize -- written by an older build, a
 // plugin, or by hand in the database -- is treated as unreported rather than
 // trusted, so it is allowed with the same warning UNKNOWN gets.
-$sbCheck('isEnrolmentTarget(null)', true, SecureBootState::isEnrolmentTarget(null));
-$sbCheck('isEnrolmentTarget("")', true, SecureBootState::isEnrolmentTarget(''));
+$sbCheck('isEnrollmentTarget(null)', true, SecureBootState::isEnrollmentTarget(null));
+$sbCheck('isEnrollmentTarget("")', true, SecureBootState::isEnrollmentTarget(''));
 $sbCheck(
-    'isEnrolmentTarget("wat")',
+    'isEnrollmentTarget("wat")',
     true,
-    SecureBootState::isEnrolmentTarget('wat')
+    SecureBootState::isEnrollmentTarget('wat')
 );
 $sbCheck('isUnreported(null)', true, SecureBootState::isUnreported(null));
 $sbCheck('isUnreported("wat")', true, SecureBootState::isUnreported('wat'));
@@ -245,7 +245,7 @@ foreach ($reasons as $reason => $count) {
     $sbCheck('each refused state has its own message', 1, $count);
 }
 // The states that must NOT be refused, asserted through the same function the
-// call sites use rather than through isEnrolmentTarget() alone -- the two have
+// call sites use rather than through isEnrollmentTarget() alone -- the two have
 // to agree, and only checking one lets them drift.
 foreach (
     [
@@ -262,7 +262,7 @@ foreach (
 }
 $sbCheck('refusalReason(null) permits', '', SecureBootState::refusalReason(null));
 $sbCheck(
-    'refusalReason("wat") permits an unrecognised stored value',
+    'refusalReason("wat") permits an unrecognized stored value',
     '',
     SecureBootState::refusalReason('wat')
 );
@@ -291,11 +291,11 @@ foreach ($labels as $label => $count) {
 }
 
 // ------------------------------------------------------- fingerprint format --
-// One normaliser, because this format was written out longhand in four files
+// One normalizer, because this format was written out longhand in four files
 // before it had a home: the host form, the report endpoint, the Secure Boot
 // configuration page and FOS. Any two of them drifting turns every comparison
 // into a silent false, which does not read as a bug -- it reads as "this host
-// trusts an older certificate", and sends somebody to re-enrol a machine that
+// trusts an older certificate", and sends somebody to re-enroll a machine that
 // was already correct.
 $canonical = 'AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99'
     . ':AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99';
@@ -346,19 +346,19 @@ $other = implode(':', str_split(str_repeat('11', 32), 2));
 $sbCheck(
     'an identical fingerprint is current',
     SecureBootState::FRESH,
-    SecureBootState::enrolmentFreshness($canonical, $canonical)
+    SecureBootState::enrollmentFreshness($canonical, $canonical)
 );
-// The case the normaliser is FOR: the same certificate written two ways must
+// The case the normalizer is FOR: the same certificate written two ways must
 // not read as two certificates.
 $sbCheck(
     'bare hex against colon form is still the same certificate',
     SecureBootState::FRESH,
-    SecureBootState::enrolmentFreshness(strtolower($bare), $canonical)
+    SecureBootState::enrollmentFreshness(strtolower($bare), $canonical)
 );
 $sbCheck(
     'a different fingerprint is stale',
     SecureBootState::STALE,
-    SecureBootState::enrolmentFreshness($canonical, $other)
+    SecureBootState::enrollmentFreshness($canonical, $other)
 );
 
 // Three different kinds of "cannot answer", none of which is evidence that a
@@ -376,7 +376,7 @@ foreach ($unanswerable as $why => $pair) {
     $sbCheck(
         "freshness is unanswerable when $why",
         '',
-        SecureBootState::enrolmentFreshness($pair[0], $pair[1])
+        SecureBootState::enrollmentFreshness($pair[0], $pair[1])
     );
 }
 
@@ -391,7 +391,7 @@ $sbCheck('the stale label says something', true, '' !== $stale);
 $sbCheck('the two labels differ', true, $fresh !== $stale);
 $sbCheck("an unanswerable freshness has no label", '', SecureBootState::freshnessLabel(''));
 $sbCheck(
-    'an unrecognised freshness has no label',
+    'an unrecognized freshness has no label',
     '',
     SecureBootState::freshnessLabel('wat')
 );
@@ -399,7 +399,7 @@ $sbCheck(
 // tell anyone anything: the machine boots fine until the old kernels stop
 // being served, and then stops booting with no apparent cause.
 $sbCheck(
-    'the stale label says to re-run the enrolment task',
+    'the stale label says to re-run the enrollment task',
     true,
     false !== stripos($stale, 're-run')
 );
