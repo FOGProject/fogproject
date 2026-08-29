@@ -1330,6 +1330,17 @@ $.registerGeneralTab = function(opts) {
 //                    per-row toggle commit. For tabs whose side panel must
 //                    refresh once the association save lands (host-snapin's run
 //                    order). Passed through as $.checkItemUpdate's done callback.
+// opts.allowRemove - optional; default true. Pass false for a tab whose
+//                    membership is a single-valued property of the row rather
+//                    than a link row, so it can be repointed but not broken --
+//                    a storage node's group. There are TWO ways to remove on a
+//                    normal tab and hiding the button only closes one: an
+//                    already-associated checkbox, when unticked, posts the same
+//                    confirmdel/remitems on its own. So this also renders such
+//                    a checkbox disabled. The matching renderAssocTab()
+//                    argument suppresses the button and its confirm modal, and
+//                    the two must agree -- a tab that hides the button while
+//                    leaving the checkbox live still offers the operation.
 // Returns the DataTable API instance.
 $.registerAssociationTab = function(opts) {
   opts = opts || {};
@@ -1340,14 +1351,20 @@ $.registerAssociationTab = function(opts) {
     removeBtn = $('#' + slug + '-remove'),
     deleteModal = $('#' + item + 'DelModal'),
     deleteConfirm = $('#confirm' + item + 'DeleteModal'),
+    allowRemove = opts.allowRemove !== false,
     columns = opts.columns || [{data: 'mainLink'}, {data: 'association'}],
     checkboxRender = opts.checkboxRender || function(row) {
-      var checkval = row.association === 'associated' ? ' checked' : '';
+      var associated = row.association === 'associated',
+        checkval = associated ? ' checked' : '',
+        // Ticking still works -- that is the repoint. Unticking is what has
+        // no meaning, and it is a live commit path, not just a display state.
+        lockval = (associated && !allowRemove) ? ' disabled' : '';
       return '<div class="form-check">'
         + '<input type="checkbox" class="associated" name="associate[]" id="'
         + slug + '-associate-' + row.id
         + '" value="' + row.id + '"'
         + checkval
+        + lockval
         + '/>'
         + '</div>';
     },

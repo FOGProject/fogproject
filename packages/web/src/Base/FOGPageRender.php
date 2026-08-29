@@ -61,6 +61,18 @@ trait FOGPageRender
      *                          to renderAssocCreate(), which has always taken
      *                          one; without this pass-through a tab could only
      *                          reach it by calling that helper itself.
+     * @param bool   $allowRemove whether the association can be broken at all.
+     *                          Defaults true, which is every many-to-many tab:
+     *                          a link row exists or it does not, and removing
+     *                          it is meaningful. Pass false where membership is
+     *                          a single-valued property of the row rather than
+     *                          a link -- a storage node's group is a column on
+     *                          the node, so there is no association to delete,
+     *                          only one to repoint, and "remove" would have to
+     *                          invent a group-less state that cannot be stored.
+     *                          Suppresses the Remove button and the confirm
+     *                          modal it opens, so the tab stops offering an
+     *                          operation the model has no way to perform.
      *
      * @return void
      */
@@ -72,7 +84,8 @@ trait FOGPageRender
         $sendClass = 'btn btn-primary float-end',
         $helpBlock = '',
         $createNode = '',
-        $noun = ''
+        $noun = '',
+        $allowRemove = true
     ) {
         $this->headerData = [
             $colHeader,
@@ -95,12 +108,14 @@ trait FOGPageRender
             $sendClass,
             $props
         );
-        $buttons .= self::makeButton(
-            "$tabSlug-remove",
-            _('Remove selected'),
-            'btn btn-danger float-start',
-            $props
-        );
+        if ($allowRemove) {
+            $buttons .= self::makeButton(
+                "$tabSlug-remove",
+                _('Remove selected'),
+                'btn btn-danger float-start',
+                $props
+            );
+        }
 
         $createModal = '';
         if ($createNode !== '') {
@@ -128,7 +143,9 @@ trait FOGPageRender
         $this->render(12, "$tabSlug-table", $buttons);
         echo '</div>';
         echo '<div class="card-footer">';
-        echo $this->assocDelModal($delItem);
+        // Without the button there is nothing to open this, and the confirm
+        // modal's own Remove would post the same confirmdel if it were reached.
+        echo $allowRemove ? $this->assocDelModal($delItem) : '';
         echo $createModal;
         echo '</div>';
         echo '</div>';
