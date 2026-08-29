@@ -75,7 +75,10 @@ $wanted = [];
 $at = strpos($js, "case '" . $label . "':");
 if (false !== $at) {
     $block = substr($js, $at, strpos($js, 'break;', $at) - $at);
-    if (preg_match_all("/\{data: '([a-zA-Z]+)'\}/", $block, $m)) {
+    // The key only; a column may also carry a render, and every one of
+    // these now does -- run labels come off the network and DataTables
+    // writes cell data as HTML without one.
+    if (preg_match_all("/\{data: '([a-zA-Z]+)'/", $block, $m)) {
         $wanted = $m[1];
     }
 }
@@ -153,19 +156,56 @@ $t->check(
  * window and answers a question nobody asked. Found in the lab, where the
  * two clocks were five hours apart and a task created seconds earlier did
  * not appear in a window ending "now".
+ *
+ * The parsing moved to ReportWindow when the Imaging Report needed the same
+ * three decisions (ADR 0030 decision 1), so the rules are pinned THERE and
+ * what is pinned here is that this report still goes through it. Pinning
+ * only the delegation would leave the rules unguarded; pinning only the
+ * class would not notice this report growing its own copy back.
  */
+$window = $web . '/src/Audit/ReportWindow.php';
+$t->check('the shared window parser exists', is_readable($window));
+$wsrc = is_readable($window) ? file_get_contents($window) : '';
+// Both bounds, anchored as whole expressions. A substring search for
+// `self::niceDate()` is satisfied by the START branch alone, so swapping
+// only the END branch to PHP's clock -- which is exactly the half-shifted
+// window the lab found -- would pass it.
 $t->check(
-    'the window uses niceDate(), FOG\'s clock',
-    false !== strpos($src, 'self::niceDate()')
+    'the END bound is built with niceDate(), FOG\'s clock',
+    1 === preg_match(
+        "/\\\$end = '' === \\\$given\['end'\]\s*\?\s*self::niceDate\(\)"
+        . "\s*:\s*self::niceDate\(\\\$given\['end'\]\);/",
+        $wsrc
+    )
 );
 $t->check(
-    'and does NOT fall back to PHP\'s date()/time() for the bounds',
-    false === strpos($src, 'return [date($fmt')
-    && false === strpos($src, '$e = time();')
+    'and so is the START bound, default included',
+    1 === preg_match(
+        "/\\\$start = '' === \\\$given\['start'\]\s*\?\s*"
+        . "self::niceDate\(\)->modify\(.*?\)\s*:\s*"
+        . "self::niceDate\(\\\$given\['start'\]\);/s",
+        $wsrc
+    )
+);
+$t->check(
+    'and no bound is constructed on PHP\'s clock instead',
+    false === strpos($wsrc, 'new \DateTime')
+    && false === strpos($wsrc, 'new \DateTimeImmutable')
+    && 1 !== preg_match('/[^_a-z]date\(/', $wsrc)
+    && 1 !== preg_match('/[^_a-z]time\(\)/', $wsrc)
 );
 $t->check(
     'a malformed bound is dropped rather than passed to BETWEEN',
-    false !== strpos($src, 'false === strtotime($v)')
+    false !== strpos($wsrc, 'false === strtotime($v)')
+);
+$t->check(
+    'reversed bounds are swapped rather than returned empty',
+    false !== strpos($wsrc, 'if ($start > $end)')
+);
+$t->check(
+    'this report reads its window through that parser, not its own copy',
+    false !== strpos($src, 'ReportWindow::stringsFromRequest(')
+    && false === strpos($src, 'strtotime($v)')
 );
 
 $t->finish();

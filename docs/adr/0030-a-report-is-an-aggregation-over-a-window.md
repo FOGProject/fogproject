@@ -7,8 +7,12 @@ proposed
 Decision 4 (the permission model) and decision 5 (the `taskLog` index) were
 signed off by the maintainer on 2026-08-29 ahead of the rest, decision 4
 because it is an access-control choice and decision 5 because it is a defect
-that stands on its own. Step 379 is implemented on `working-1.6`; nothing
-else here is.
+that stands on its own.
+
+Sequencing items 1 to 5 are implemented on `working-1.6`. Item 6 -- the
+remaining five subjects in the scope table -- is not started, and whether
+this becomes `accepted` depends on the first of them being cheap, which is
+the claim the table below makes and the only one still untested.
 
 ## Context
 
@@ -237,3 +241,20 @@ the event logs. Rollups are not events and do not share a column set.
 | 4 | Panel render helper + the shared JS module | The abstraction, validated against exactly one report |
 | 5 | Imaging report, with its `REPORT_NODES` entry | The pattern-setter |
 | 6 | The remaining five, one rollup and one class each | Cheap by construction, or step 4 was wrong |
+
+Items 4 and 5 landed together, deliberately. This ADR's own context records
+that `ActivityWindow` "shipped without a caller, which is how a helper rots";
+building the panel helper with nothing consuming it would have repeated that
+exactly, so the imaging report is what the helper was shaped against rather
+than what it was shaped for.
+
+What item 4 turned out to be, for item 6 to reuse:
+
+| Piece | Where |
+|---|---|
+| `ReportWindow` | `src/Audit/` — reads `start`/`end` off the URL on FOG's clock, drops a malformed bound, swaps a reversed pair. Each report supplies only its own default range |
+| `renderReportWindow()` | `FOGPageRender` — the From/To form, with an `$extra` slot for report-specific controls (Run History's source ticks) |
+| `renderStatTiles()` | `FOGPageRender` — the headline row, lifted from `ImageManagement::_archStat()` |
+| `renderChartPanel()` | `FOGPageRender` — a card, a container, and the series in a `type="application/json"` block beside it |
+| `fog.report.panels.js` | Draws every container on the page. No requests: a report's window is fixed and already in the URL, so re-fetching would re-run the same aggregation and give the chart a chance to disagree with the grid |
+| `tabFields($tabData, 0)` | The existing nav-tabs builder. A falsy object skips its entity hooks, so reports needed no second tab implementation |

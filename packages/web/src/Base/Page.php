@@ -346,6 +346,21 @@ class Page extends FOGBase
                 $files[] = 'js/swagger-ui-bundle.js';
                 $files[] = 'js/fog/apidocs/fog.apidocs.snippets.js';
             }
+            // Reports draw charts (ADR 0030), so Chart.js and the panel
+            // renderer go with the node -- the same node scoping jscolor
+            // and Swagger UI above use, and for the same reason.
+            //
+            // Scoped to the node rather than to the reports that actually
+            // have a chart, because this list is built by the Page instance
+            // that renders and the report class has not run yet. Both files
+            // are no-ops on a report with no canvas, and Chart.js is an
+            // order of magnitude smaller than the Swagger bundle already
+            // loaded this way. Listed before the node's own file.js so
+            // `Chart` is defined by the time the panels file runs.
+            if ('report' === $node) {
+                $files[] = 'js/Chart/chart.umd.min.js';
+                $files[] = 'js/fog/report/fog.report.panels.js';
+            }
         }
         if (isset($filepaths) && $filepaths && !file_exists($filepaths)) {
             $listpath = "js/fog/{$node}/fog.{$node}.list.js";

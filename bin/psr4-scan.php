@@ -143,6 +143,7 @@ const TABLE = [
     'Audit' => 'Audit',
     'ActivityWindow' => 'Audit',
     'ImagingStats' => 'Audit',
+    'ReportWindow' => 'Audit',
     'Retention' => 'Audit',
     'Blame' => 'Audit',
     'FOGFTP' => 'Net',

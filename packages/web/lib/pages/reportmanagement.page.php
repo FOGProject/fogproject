@@ -69,6 +69,7 @@ class ReportManagement extends FOGPage
     {
         _('File Deleter');
         _('History Report');
+        _('Imaging Report');
         _('Host List');
         _('Hosts And Users');
         _('Inventory Report');
