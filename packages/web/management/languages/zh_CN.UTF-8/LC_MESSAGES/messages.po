@@ -1001,6 +1001,9 @@ msgstr ""
 msgid "Annually"
 msgstr "每年"
 
+msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
+msgstr ""
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1406,6 +1409,10 @@ msgstr "无法连接到数据库"
 #, fuzzy
 msgid "Cannot connect to ftp server"
 msgstr "无法连接到数据库"
+
+#, php-format
+msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
+msgstr ""
 
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
@@ -10867,6 +10874,10 @@ msgstr "找不到存储节点是否有什么这个存储组中启用"
 msgid "there will be a database backup stored on your"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "this %s"
+msgstr "%s是必需的"
+
 msgid "this account has no role, so it has no access to any management page. Ask an administrator to assign it a role."
 msgstr ""
 
@@ -10883,6 +10894,10 @@ msgstr ""
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "请选择一个不同的名字，这个人是留给雾。"
+
+#, fuzzy
+msgid "this record"
+msgstr "%s是必需的"
 
 #, fuzzy
 msgid "this request"

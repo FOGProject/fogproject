@@ -958,6 +958,9 @@ msgstr ""
 msgid "Annually"
 msgstr "毎年"
 
+msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
+msgstr ""
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1347,6 +1350,10 @@ msgstr "データベースに接続できません"
 
 msgid "Cannot connect to ftp server"
 msgstr "FTP サーバーに接続できません"
+
+#, php-format
+msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
+msgstr ""
 
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
@@ -10456,6 +10463,10 @@ msgstr "このストレージグループ内に有効なものがあるか"
 msgid "there will be a database backup stored on your"
 msgstr "データベースのバックアップが保存されます"
 
+#, fuzzy, php-format
+msgid "this %s"
+msgstr "必須です"
+
 msgid "this account has no role, so it has no access to any management page. Ask an administrator to assign it a role."
 msgstr ""
 
@@ -10471,6 +10482,10 @@ msgstr "このカーネルにはクライアントコンピューター用の各
 
 msgid "this one is reserved for FOG"
 msgstr "これは FOG 用に予約されています"
+
+#, fuzzy
+msgid "this record"
+msgstr "保護されていません"
 
 #, fuzzy
 msgid "this request"

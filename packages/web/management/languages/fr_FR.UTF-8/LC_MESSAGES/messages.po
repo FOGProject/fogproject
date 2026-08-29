@@ -1002,6 +1002,9 @@ msgstr ""
 msgid "Annually"
 msgstr "Annuellement"
 
+msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
+msgstr ""
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1407,6 +1410,10 @@ msgstr "Impossible de se connecter à la base de données"
 #, fuzzy
 msgid "Cannot connect to ftp server"
 msgstr "Impossible de se connecter à la base de données"
+
+#, php-format
+msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
+msgstr ""
 
 msgid "Cannot delete the primary mac address, please reselect"
 msgstr ""
@@ -10868,6 +10875,10 @@ msgstr "Impossible de trouver un nœud de stockage est-il un permis dans ce grou
 msgid "there will be a database backup stored on your"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "this %s"
+msgstr "%s est requis"
+
 msgid "this account has no role, so it has no access to any management page. Ask an administrator to assign it a role."
 msgstr ""
 
@@ -10884,6 +10895,10 @@ msgstr ""
 #, fuzzy
 msgid "this one is reserved for FOG"
 msgstr "S'il vous plaît choisir un autre nom, celui-ci est réservé pour FOG."
+
+#, fuzzy
+msgid "this record"
+msgstr "%s est requis"
 
 #, fuzzy
 msgid "this request"
