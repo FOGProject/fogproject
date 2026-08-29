@@ -405,6 +405,61 @@ function fogPrefFetch(key, cb) {
   });
 }
 
+/**
+ * Display-timezone picker in the navbar.
+ *
+ * Reads and writes the same preference store the grid layouts use, so a chosen
+ * zone follows the user to any browser. Bound once, on the shell's modal --
+ * the shell is not re-rendered by AJAX navigation, so there is nothing to
+ * rebind on a page change.
+ *
+ * Saving reloads. Dates are rendered SERVER-side (grids included, see
+ * FOGManagerController::displayDates), so nothing already on the page can be
+ * relabeled in place -- and a picker that appeared to do nothing until the
+ * next navigation would read as broken.
+ */
+function fogBindTimezonePicker() {
+  var modal = document.getElementById('tzModal');
+  if (!modal) {
+    return;
+  }
+  $(modal).on('show.bs.modal', function() {
+    // Read on open rather than at page load: this is one request per use of a
+    // control almost nobody opens, against one on every single page view.
+    fogPrefFetch('display.timezone', function(err, value) {
+      $('#tzSelect').val(err ? '' : (value || ''));
+    });
+  });
+  $('#tzSave').on('click', function() {
+    var chosen = $('#tzSelect').val() || '';
+    var button = $(this);
+    button.prop('disabled', true);
+    // An empty value clears the preference, which is exactly what "server
+    // default" means -- the store deletes the row rather than holding an
+    // empty string, so nothing has to know the default's name.
+    fogPrefStore('display.timezone', chosen, function(storeErr) {
+      if (storeErr) {
+        button.prop('disabled', false);
+        $.notify(
+          {message: 'Could not save your timezone'},
+          {type: 'danger'}
+        );
+        return;
+      }
+      window.location.reload();
+    });
+  });
+}
+
+// Bound the way theme.js binds its own shell control: the navbar is emitted
+// once by the page shell and AJAX navigation replaces only the content area,
+// so this runs once and stays wired.
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', fogBindTimezonePicker);
+} else {
+  fogBindTimezonePicker();
+}
+
 var shouldReAuth,
   reAuthModal,
   deleteConfirmButton,

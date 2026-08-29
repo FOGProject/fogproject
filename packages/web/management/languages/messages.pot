@@ -1262,9 +1262,6 @@ msgstr ""
 msgid "Capone added!"
 msgstr ""
 
-msgid "Capone schema"
-msgstr ""
-
 msgid "Capone update failed!"
 msgstr ""
 
@@ -1360,6 +1357,9 @@ msgid "Checking for tasks that can never run..."
 msgstr ""
 
 msgid "Checking if I am the group manager"
+msgstr ""
+
+msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
 msgstr ""
 
 msgid "Class"
@@ -1991,6 +1991,9 @@ msgid "Display Name Enabled"
 msgstr ""
 
 msgid "Display With"
+msgstr ""
+
+msgid "Display timezone"
 msgstr ""
 
 msgid "Do not list on menu"
@@ -6172,6 +6175,9 @@ msgstr ""
 msgid "SSL Path"
 msgstr ""
 
+msgid "Save"
+msgstr ""
+
 msgid "Save Changes"
 msgstr ""
 
@@ -6359,6 +6365,10 @@ msgstr ""
 msgid "Server appears to be offline or unavailable!"
 msgstr ""
 
+#, php-format
+msgid "Server default (%s)"
+msgstr ""
+
 msgid "Server facts. Every field is a string, and is empty rather than absent when the installer has not published it yet."
 msgstr ""
 
@@ -6449,6 +6459,9 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr ""
 
 msgid "Set failed"
+msgstr ""
+
+msgid "Set your display timezone"
 msgstr ""
 
 msgid "Setting"
