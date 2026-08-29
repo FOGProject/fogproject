@@ -528,7 +528,7 @@ class OpenAPI extends FOGBase
      * An entity whose model has no `name` field has nothing to match on and
      * nothing to label a result with, so Route::_searchRows() returns null
      * for it and the route answers an empty set. Documenting search there
-     * advertises an operation the server cannot honour.
+     * advertises an operation the server cannot honor.
      *
      * The test is deliberately the same isset() Route::_searchRows()
      * applies, against the same reflected $databaseFields, rather than a
@@ -2834,7 +2834,7 @@ class OpenAPI extends FOGBase
                 'required' => false,
                 'schema' => ['type' => 'integer', 'minimum' => 0],
                 'description' => _(
-                    'Row offset. Only honoured when length is also sent -- the '
+                    'Row offset. Only honored when length is also sent -- the '
                     . 'server reads start from inside the length branch.'
                 )
             ],

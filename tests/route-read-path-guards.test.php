@@ -119,7 +119,7 @@ function runChild($case)
 
     // A DataTables column search against a stripped column must not reach the
     // WHERE clause. listem() marks those columns 'nosearch' after
-    // CUSTOMIZE_DT_COLUMNS; FOGManagerController::filter() is what honours it.
+    // CUSTOMIZE_DT_COLUMNS; FOGManagerController::filter() is what honors it.
     // Asserted on the SQL because that is the only place the marking becomes
     // observable -- $columns never leaves listem().
     if ('nosearch' === $case) {

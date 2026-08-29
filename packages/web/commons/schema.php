@@ -5047,7 +5047,7 @@ $this->schema[] = [
     // The plugin roots are fixed in code instead (BASEPATH/lib/plugins,
     // plus FOG_PLUGIN_DIR for third-party plugins -- see ADR 0009).
     // FOG_PLUGINSYS_ENABLED is deliberately NOT touched: that one is a real
-    // on/off switch getActivePlugins() still honours.
+    // on/off switch getActivePlugins() still honors.
     "DELETE FROM `globalSettings` WHERE `settingKey` = 'FOG_PLUGINSYS_DIR'",
 ];
 // 327
@@ -5194,7 +5194,7 @@ $this->schema[] = [
     // number of NULLs in a UNIQUE index but only one of a given value,
     // so at most one row can ever carry the marker.
     //
-    // Consequence a writer MUST honour: a site that is not the catch-all
+    // Consequence a writer MUST honor: a site that is not the catch-all
     // stores NULL, never 0. 0 is a value like any other, so the second
     // site to store it collides -- and under FOGController::save() that
     // collision is NOT an error. save() builds INSERT ... ON DUPLICATE KEY
@@ -6237,7 +6237,7 @@ $this->schema[] = [
     // Each column lands on its FIRST member, which is what save() now writes
     // for an empty value and what MySQL uses as a NOT NULL enum's implicit
     // default. Deliberately not the column's declared DEFAULT: `hostEnforce`
-    // declares DEFAULT '1', so honouring it here would silently turn
+    // declares DEFAULT '1', so honoring it here would silently turn
     // enforcement ON for 73 hosts as a side effect of a storage repair. '' and
     // '0' are both falsey in PHP, so every consumer sees what it saw before.
     //

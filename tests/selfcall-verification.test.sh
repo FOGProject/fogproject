@@ -187,7 +187,7 @@ fi
 # N. No self-addressed call may be sent to a proxy.
 #
 # A FOG server behind corporate egress filtering has http_proxy/https_proxy in
-# root's environment, and curl honours them for every host that is not in
+# root's environment, and curl honors them for every host that is not in
 # no_proxy -- including the server's own name and its own LAN address. The
 # request then goes to the proxy, which either cannot route back or refuses to
 # CONNECT. Observed on backupDB() as

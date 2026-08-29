@@ -72,7 +72,7 @@ class MulticastTask extends FOGService
         // written onto every session as msInterface and then dropped -- so
         // it has been free to drift since install time with no feedback.
         // The reference server has 'enp0s31f6' recorded for a node whose
-        // address lives on 'eno2'; honouring it outright would have broken
+        // address lives on 'eno2'; honoring it outright would have broken
         // multicast on installs that work today. A field nothing reads is a
         // field nobody maintains, so it is demoted to a fallback for the
         // case the routing lookup genuinely cannot answer -- a VIP, a bond,

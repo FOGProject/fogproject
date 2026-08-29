@@ -182,7 +182,7 @@
     case 'product keys':
       // Keys are masked by default (5x5 with the middle three groups
       // bulleted). The reveal button flips this closure flag and redraws;
-      // both the column and the row-group header honour it. The full key is
+      // both the column and the row-group header honor it. The full key is
       // still present in the JSON payload, so this guards shoulder-surfing,
       // not a determined viewer.
       var revealKeys = false;

@@ -350,7 +350,7 @@ trait FOGPagePost
     /**
      * Handles a standard association add/remove POST: reads the additems /
      * remitems arrays and dispatches them to the object's add/remove methods.
-     * When $orderMethod is supplied, also honours a snapinorder array (used by
+     * When $orderMethod is supplied, also honors a snapinorder array (used by
      * the group/host snapin tabs to persist execution order).
      *
      * @param string $addMethod    obj method to add associations (e.g. 'addGroup')

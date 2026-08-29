@@ -237,7 +237,7 @@ class User extends FOGController
         // "this person is who they claim" and its only option was to write
         // the directory password into uPass so the compare below would pass
         // -- which is why FOG has been storing bcrypt hashes of live AD
-        // passwords. It is honoured ONLY for accounts carrying an
+        // passwords. It is honored ONLY for accounts carrying an
         // authsource stamp, so it can never be used to bypass the password
         // of a local account.
         $authenticated = false;
