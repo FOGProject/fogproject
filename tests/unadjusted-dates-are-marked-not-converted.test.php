@@ -103,6 +103,40 @@ if (!preg_match('#settings\.fogUnadjustedNote = json\._unadjustednote#', $js)) {
         . 'object, so rowCallback cannot read it back';
 }
 
+// ...and rowCallback has to reach those settings through the callback's own
+// `this`, which DataTables sets to the table's jQuery instance.
+//
+// NOT through the row. rowCallback runs while the row is still DETACHED --
+// DataTables builds every <tr>, fires the callback for each, and attaches the
+// tbody afterward -- so $(tr).closest('table') matches nothing and
+// .DataTable() hands back an Api with no settings behind it. Reading
+// settings()[0] off that throws, and the throw happens inside the draw: the
+// grid renders one row, the header/body split is never sized, and the console
+// carries the only sign of it. Every grid in FOG, on the first ajax draw.
+//
+// Comments are stripped before looking, so this cannot pass -- or fail -- on
+// the prose above the code it is checking.
+$rowCb = '';
+if (preg_match('#rowCallback: function\(tr, data\) \{.*?\n    \},\n#s', $js, $m)) {
+    $rowCb = preg_replace('#^\s*//.*$#m', '', $m[0]);
+}
+if ($rowCb === '') {
+    $fails[] = 'the grid rowCallback that marks unadjusted dates is gone, or '
+        . 'no longer takes (tr, data) -- nothing marks a pre-boundary date on '
+        . 'a list page';
+} else {
+    if (strpos($rowCb, 'this.api()') === false) {
+        $fails[] = 'rowCallback does not resolve the table from its own '
+            . '`this`, which is the only handle on the settings object that '
+            . 'is valid while the row is still detached';
+    }
+    if (strpos($rowCb, "closest('table')") !== false) {
+        $fails[] = 'rowCallback resolves the table by walking up from the '
+            . 'row, which is detached at that point: the lookup finds nothing '
+            . 'and the resulting settings()[0] read throws, aborting the draw';
+    }
+}
+
 // -- the detail-page half --------------------------------------------------
 
 if (!preg_match(
