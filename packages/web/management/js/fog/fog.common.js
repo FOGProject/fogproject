@@ -4345,6 +4345,66 @@ function macVendorIcon(vendor) {
     + 'title="' + esc + '"></i>';
 }
 /**
+ * Keeps Bootstrap's dropdown keyboard handler out of DataTables collections.
+ *
+ * Bootstrap 5.3 registers one keydown handler on `document`, delegated to any
+ * `.dropdown-menu`. The DataTables Bootstrap 5 integration builds a button
+ * collection -- Column Visibility, Export -- as `<ul class="dropdown-menu">`
+ * inside `div.dt-button-collection`, with no `[data-bs-toggle="dropdown"]`
+ * anywhere near it, because DataTables opens and closes the collection itself.
+ *
+ * On Escape, ArrowUp or ArrowDown that handler calls preventDefault() and then
+ * goes looking for the toggle it assumes exists: the menu itself, a previous
+ * sibling, a next sibling, and finally
+ * findOne(toggle, event.delegateTarget.parentNode). The delegate target is
+ * `document`, whose parentNode is null, so that last lookup calls querySelector
+ * on null and throws "Illegal invocation" -- after the preventDefault has
+ * already landed. Inside an open collection that is a console error on each of
+ * those three keys, plus arrow keys that no longer scroll the list.
+ *
+ * On `window`, in the capture phase, and both halves matter. Bootstrap's
+ * EventHandler passes its `isDelegated` flag straight through as
+ * addEventListener's capture argument, so every delegated Bootstrap handler is
+ * a CAPTURE listener on `document` -- registered when the bundle loaded, which
+ * is before this file. Same node, same phase, so registration order wins and
+ * `document` capture is already too late: it runs second, stops the event, and
+ * Bootstrap has thrown regardless. `window` is the one position ahead of it,
+ * because the propagation path starts there.
+ *
+ * stopPropagation() at the top of the path halts the event outright, including
+ * at `body`, which is where DataTables binds the collection's own handlers.
+ * That is why the key list is exactly these three: DataTables traps Tab on
+ * keydown and dismisses on Escape KEYUP, so both still reach it untouched, and
+ * nothing else listens for arrows in here. The default action is untouched, so
+ * the arrows go back to scrolling the panel.
+ *
+ * A collection open inside a modal therefore takes Escape for itself: the
+ * collection closes on the keyup and the modal stays, which is what you want
+ * from one dismissable nested in another.
+ *
+ * Scoped to .dt-button-collection so a real Bootstrap dropdown -- which has a
+ * toggle and works correctly -- keeps its keyboard navigation.
+ */
+(function () {
+  var SUPPRESSED = ['Escape', 'ArrowUp', 'ArrowDown'];
+
+  window.addEventListener('keydown', function (e) {
+    if (SUPPRESSED.indexOf(e.key) === -1) {
+      return;
+    }
+    var target = e.target;
+    if (!target || !target.closest) {
+      return;
+    }
+    var menu = target.closest('.dropdown-menu');
+    if (!menu || !menu.closest('div.dt-button-collection')) {
+      return;
+    }
+    e.stopPropagation();
+  }, true);
+})();
+
+/**
  * Live vendor lookup for MAC inputs on the host create/edit forms.
  *
  * Delegated on document so it covers the create modal (rendered after page
