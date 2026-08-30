@@ -15,6 +15,7 @@ namespace FOG\Items;
 
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
+use FOG\Auth\Identity;
 use FOG\Auth\SiteScope;
 use FOG\Base\FOGController;
 use FOG\Router\Route;
@@ -518,6 +519,17 @@ class User extends FOGController
                 'renderable' => 1
             ]
         );
+        // Tell them if an administrator viewed their account since they were
+        // last here (ADR 0033). AFTER the login row above, deliberately: the
+        // query bounds on the newest auth.login for this user, so writing it
+        // first is what stops this login from being compared against itself
+        // and re-announcing the same visit at every sign-in.
+        //
+        // A toast rather than a mail or a banner, because setMessage()
+        // survives the redirect the login is about to do and needs no new
+        // delivery mechanism. Off if FOG_IMPERSONATION_NOTIFY says so; the
+        // audit row is written either way.
+        Identity::notifyViewed((int)$this->get('id'));
         self::log(
             sprintf(
                 '%s %s (%s).',

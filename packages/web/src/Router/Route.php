@@ -1611,7 +1611,12 @@ class Route extends FOGBase
                 // says WHAT was acted on and not only which permission was
                 // consulted. Resolution itself is unchanged.
                 self::$matches['params']['class'] ?? '',
-                self::$matches['params']['id'] ?? 0
+                self::$matches['params']['id'] ?? 0,
+                // The matched route name, for the impersonation gate. The
+                // routes a span may still write resolve to a null
+                // permission, so the name is the only thing that separates
+                // them from the exempt ones it must refuse.
+                self::$matches['name'] ?? ''
             );
             // Object-scope boundary (optional, plugin-enforced): a per-object
             // REST call carries the target id; confirm it is within the acting

@@ -1968,6 +1968,26 @@ abstract class FOGBase
         return self::$_displayTimeZone;
     }
     /**
+     * Drop the per-request display memos so they resolve against whoever
+     * self::$FOGUser is NOW.
+     *
+     * Exists for exactly one caller: Identity::bind(), which swaps the
+     * acting user mid-boot when a session is impersonating. Both memos above
+     * read self::$FOGUser and cache the answer for the rest of the request,
+     * so a value resolved before the swap would show the ADMINISTRATOR their
+     * own timezone while they believe they are seeing the target's -- which
+     * is the exact question impersonation exists to answer, answered wrong
+     * and silently. Nothing between LoadGlobals' first date format and the
+     * swap is supposed to populate them; this makes that not need to be true.
+     *
+     * @return void
+     */
+    public static function forgetDisplayPreferences()
+    {
+        self::$_displayTimeZone = null;
+        self::$_displayTheme = null;
+    }
+    /**
      * A datetime the VIEWER typed, as a DateTime the database can be
      * compared against.
      *

@@ -13,6 +13,7 @@
 
 namespace FOG\Base;
 
+use FOG\Auth\Identity;
 use FOG\Db\DatabaseManager;
 use FOG\Items\User;
 use FOG\Net\FOGFTP;
@@ -64,6 +65,21 @@ class LoadGlobals extends FOGBase
         $GLOBALS['currentUser'] = new User($userID);
         $GLOBALS['HookManager']->load();
         $GLOBALS['EventManager']->load();
+        // Impersonation binds the MASK over the real user, and it has to
+        // happen here rather than three lines up: Identity::bind() rechecks
+        // the subset tests on every request, those expand permission
+        // wildcards against Authorization::registry(), and the registry is
+        // core-only until PERMISSION_REGISTRY_DATA has had listeners to fire
+        // at. Bound any earlier, an administrator's `oidc.*` would expand to
+        // nothing while the target's literal `oidc.view` survived, and every
+        // legal impersonation on an install with plugin permissions would be
+        // refused. See ADR 0033.
+        //
+        // $_SESSION['FOG_USER'] still holds the REAL administrator either
+        // way; this reassignment is what every "what does this user see"
+        // read follows, because FOGBase binds self::$FOGUser as a reference
+        // to this global.
+        Identity::bind();
         // A vestigial copy of the configure/authorize/requestClientInfo
         // dispatch used to sit here, guarded by isset($sub) on a variable
         // this scope never declared -- so it has never run, on this branch

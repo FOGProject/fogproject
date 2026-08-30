@@ -112,7 +112,7 @@ return [
             ],
         ],
         'auditLog' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `auditLog` ( `alID` int(11) NOT NULL AUTO_INCREMENT, `alCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `alCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `alIP` varchar(45) NOT NULL DEFAULT \'\', `alAuthSource` varchar(64) NOT NULL DEFAULT \'\', `alType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectID` int(11) NOT NULL DEFAULT 0, `alSubjectLabel` varchar(255) NOT NULL DEFAULT \'\', `alPermission` varchar(128) NOT NULL DEFAULT \'\', `alOutcome` enum(\'unknown\',\'allowed\',\'denied\',\'failed\',\'partial\') NOT NULL DEFAULT \'unknown\', `alCorrelationID` varchar(32) NOT NULL DEFAULT \'\', `alAffectedCount` int(11) NOT NULL DEFAULT 0, `alRenderable` tinyint(1) unsigned NOT NULL DEFAULT 1, `alText` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`alID`), KEY `alCreatedTime` (`alCreatedTime`), KEY `alCreatedBy` (`alCreatedBy`), KEY `alCorrelationID` (`alCorrelationID`), KEY `alOutcome` (`alOutcome`), KEY `alSubject` (`alSubjectType`,`alSubjectID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `auditLog` ( `alID` int(11) NOT NULL AUTO_INCREMENT, `alCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `alCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `alIP` varchar(45) NOT NULL DEFAULT \'\', `alAuthSource` varchar(64) NOT NULL DEFAULT \'\', `alType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectType` varchar(64) NOT NULL DEFAULT \'\', `alSubjectID` int(11) NOT NULL DEFAULT 0, `alSubjectLabel` varchar(255) NOT NULL DEFAULT \'\', `alPermission` varchar(128) NOT NULL DEFAULT \'\', `alOutcome` enum(\'unknown\',\'allowed\',\'denied\',\'failed\',\'partial\') NOT NULL DEFAULT \'unknown\', `alCorrelationID` varchar(32) NOT NULL DEFAULT \'\', `alAffectedCount` int(11) NOT NULL DEFAULT 0, `alRenderable` tinyint(1) unsigned NOT NULL DEFAULT 1, `alText` longtext NOT NULL DEFAULT \'\', `alActedAs` varchar(255) NOT NULL DEFAULT \'\', `alSpanID` varchar(32) NOT NULL DEFAULT \'\', PRIMARY KEY (`alID`), KEY `alCreatedTime` (`alCreatedTime`), KEY `alCreatedBy` (`alCreatedBy`), KEY `alCorrelationID` (`alCorrelationID`), KEY `alOutcome` (`alOutcome`), KEY `alSubject` (`alSubjectType`,`alSubjectID`), KEY `alSpanID` (`alSpanID`), KEY `alActedAs` (`alActedAs`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'alID' => 'int(11) NOT NULL',
                 'alCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
@@ -129,6 +129,8 @@ return [
                 'alAffectedCount' => 'int(11) NOT NULL DEFAULT 0',
                 'alRenderable' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
                 'alText' => 'longtext NOT NULL DEFAULT \'\'',
+                'alActedAs' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'alSpanID' => 'varchar(32) NOT NULL DEFAULT \'\'',
             ],
         ],
         'clientUpdates' => [

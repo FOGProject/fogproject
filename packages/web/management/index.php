@@ -14,6 +14,7 @@ declare(strict_types=1);
  * @version  1.1
  */
 
+use FOG\Auth\Identity;
 use FOG\Base\FOGCore;
 use FOG\Router\HTTPResponseCodes;
 
@@ -49,6 +50,12 @@ $nodes = [
 if (isset($node) && in_array($node, ['logout', 'login'])) {
     $logoutRedirect = '';
     if ($node === 'logout') {
+        // Close any open impersonation span BEFORE the session goes, so the
+        // bracket never dangles on the ordinary way out and the logout row
+        // below is written as -- and about -- the real administrator.
+        // Identity::end() puts them back into $currentUser, which is what
+        // logout() then reads. See ADR 0033.
+        Identity::end('session ended by logout');
         // A USER_LOGGING_OUT listener may name somewhere else to go -- an
         // external provider's end_session_endpoint, so signing out of FOG
         // also ends the SSO session that would otherwise sign the same

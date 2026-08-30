@@ -67,7 +67,18 @@ class AuditLog extends FOGController
         'correlationID' => 'alCorrelationID',
         'affectedCount' => 'alAffectedCount',
         'renderable' => 'alRenderable',
-        'text' => 'alText'
+        'text' => 'alText',
+        // The impersonation bracket (ADR 0033). actedAs is the impersonated
+        // USERNAME, denormalized for the reason subjectLabel and createdBy
+        // are -- the account may be deleted, and a row that can only say
+        // "user 41" has lost the fact worth keeping. spanID joins every row
+        // inside one bracket to the start and end events that delimit it.
+        //
+        // The authoritative target ID is deliberately NOT a fourth column:
+        // the start row already carries it in alSubjectID, so a third copy
+        // could only ever drift away from the other two.
+        'actedAs' => 'alActedAs',
+        'spanID' => 'alSpanID'
     ];
     /**
      * Keys ending in "id" that are NOT foreign keys.
@@ -81,6 +92,12 @@ class AuditLog extends FOGController
      * @var array
      */
     protected $databaseFieldsNotInt = [
-        'correlationID'
+        'correlationID',
+        // Same trap as correlationID, one column over: spanID ends in "id"
+        // and is 32 hex characters, so without this save() would treat it as
+        // a foreign key, fail filter_var and write 0 -- silently. Every row
+        // would then claim to belong to span 0 and the bracket that makes
+        // one impersonation session one operation would be gone.
+        'spanID'
     ];
 }
