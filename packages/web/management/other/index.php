@@ -184,14 +184,15 @@ if ($isLoggedIn && $impersonating):
 // nobody opens.
 //
 // Rendered only for somebody who can actually use it, so the markup is not
-// carried on every page for every user. `$impersonating` is enough on its own
-// for the second arm: a span is open, so the permission was checked when it
-// started, and "impersonate another" must stay reachable even if the grant
-// has since been withdrawn -- otherwise the way out of a span becomes the
-// only remaining control, which is the trap the ungated exit exists to avoid.
-if ($isLoggedIn
-    && ($impersonating || Authorization::can(\FOG\Auth\Identity::PERMISSION))
-) : ?>
+// carried on every page for every user.
+//
+// Identity::canStart(), NOT Authorization::can() -- the same predicate the
+// trigger below uses, and it asks the REAL administrator. A bare can() answers
+// for the effective identity, which while a span is open is the impersonated
+// user, so wearing a roleless account withdrew the administrator's own ability
+// to swap masks. This gate and the trigger must move together: a trigger with
+// no modal opens nothing, and a modal with no trigger is dead markup.
+if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
     <div class="modal fade" id="impersonate-modal" tabindex="-1"
          aria-labelledby="impersonate-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -278,39 +279,113 @@ if ($isLoggedIn
                         </a>
                     </li>
                     <?php
-                    // Under the logout control, deliberately: the two things
-                    // an impersonating administrator most needs are next to
-                    // the thing they would otherwise reach for. Both are
-                    // plain links and neither is an AJAX page link -- ending
-                    // a span changes who the whole shell belongs to, so it
-                    // has to be a full render rather than a content swap.
+                    // THE ACCOUNT MENU. One dropdown, everything about who
+                    // you are and how you stop being them.
                     //
-                    // "Impersonate another" points at the picker, which is
-                    // end-then-start on submit. Never a swap: impersonation
-                    // is always exactly one level deep, so the audit never
-                    // has to answer "acting as B, who was being acted as by
-                    // A".
+                    // These were four bare navbar links -- theme, clock,
+                    // impersonation, logout -- and the impersonation ones
+                    // pushed Logout along the bar every time a span opened.
+                    // A control that moves when the mode changes is a control
+                    // people misclick, and Logout is the worst one to misclick
+                    // while wearing somebody else's account.
                     //
-                    // ENDING is a plain GET link and STARTING is a modal, and
-                    // the asymmetry is deliberate. The exit has to work for a
-                    // mask holding no roles, with no JavaScript, from any
-                    // page -- a link is the only thing that cannot be broken
-                    // by a script error. Starting is one select and one
-                    // button, which is a dialog, not a page.
-                    if ($impersonating): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash"></i> <?= _('End impersonation'); ?></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group"></i> <?= _('Impersonate another'); ?></a>
-                    </li>
-                    <?php elseif (Authorization::can(\FOG\Auth\Identity::PERMISSION)): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group"></i> <?= _('Impersonate a user'); ?></a>
-                    </li>
-                    <?php endif; ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket"></i> <?= _('Logout'); ?></a>
+                    // So the identity controls live behind one stable target,
+                    // and the menu states the identity ITSELF rather than
+                    // leaving it to be inferred from the sidebar. That is not
+                    // decoration: #impersonation-bar is four pixels of colour
+                    // and carries its text only in aria-label, so before this
+                    // there was nothing on screen that NAMED the account being
+                    // worn or the administrator wearing it.
+                    //
+                    // THE CLOCK IS THE POINT, not a garnish. The motivating
+                    // ticket for impersonation is "this user says their times
+                    // are wrong", so the menu prints the current time as that
+                    // user sees it, zone abbreviation included. Answering the
+                    // question the feature exists for should not require
+                    // navigating anywhere.
+                    //
+                    // Rendered server-side, so it is the time at page render
+                    // rather than a live clock. Deliberate: a ticking clock
+                    // needs a timer, and a self-rescheduling timer is the bug
+                    // class ADR 0012 is about. What is being checked is the
+                    // ZONE, which does not tick.
+                    $acctName = (string)self::$FOGUser->get('name');
+        $acctReal = $impersonating
+            ? \FOG\Auth\Identity::realUserName()
+            : '';
+        ?>
+                    <li class="nav-item dropdown">
+                        <a href="#" id="accountMenu" class="nav-link" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false"
+                           title="<?= _('Account'); ?>"
+                           aria-label="<?= _('Account'); ?>">
+                            <i class="fas fa-circle-user"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
+                            <li>
+                                <h6 class="dropdown-header mb-0"><?= Initiator::e($acctName); ?></h6>
+                                <?php if ('' !== $acctReal): ?>
+                                <span class="dropdown-item-text pt-0 small text-body-secondary"><?= sprintf(_('impersonated by %s'), Initiator::e($acctReal)); ?></span>
+                                <?php endif; ?>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <span class="dropdown-item-text small text-body-secondary">
+                                    <i class="far fa-clock fa-fw me-1"></i><?= Initiator::e(FOGPage::formatTime('now', 'M j, Y g:i A T')); ?>
+                                </span>
+                            </li>
+                            <?php
+                // Ordered as the two questions are actually asked:
+                // become somebody (or somebody else), then stop.
+                //
+                // TWO INDEPENDENT GATES, not one if/else. They
+                // used to be an if/elseif on $impersonating, which
+                // tied "can I start one" to "am I in one" -- and
+                // the elseif arm's bare Authorization::can() then
+                // asked the MASK, so it was only ever correct
+                // because that arm could not be reached during a
+                // span. Wearing a roleless account therefore
+                // refused the administrator their own swap, with
+                // "you do not have permission to impersonate
+                // users" -- a sentence that was true of the mask
+                // and false of the person reading it.
+                //
+                // canStart() asks the real administrator, so it
+                // answers the same whether or not a mask is in
+                // place. Ending is gated on there being a span and
+                // on NOTHING else, ever: revoke the grant mid-span
+                // and the swap disappears while the exit stays.
+                // The way out is never the control that goes
+                // missing.
+                //
+                // "Impersonate another" is end-then-start on
+                // submit, never a swap -- impersonation is always
+                // exactly one level deep, so the audit never has
+                // to answer "acting as B, who was being acted as
+                // by A".
+                if (\FOG\Auth\Identity::canStart()): ?>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group fa-fw me-2"></i><?= $impersonating ? _('Impersonate another user') : _('Impersonate user'); ?></a>
+                            </li>
+                            <?php endif; ?>
+                            <?php
+                // A plain GET link, and it stays one. The exit has
+                // to work for a mask holding no roles, from any
+                // page, with no JavaScript -- a link is the only
+                // thing a script error cannot break. Not an AJAX
+                // page link either: ending a span changes who the
+                // whole shell belongs to, so it needs a full
+                // render rather than a content swap.
+                if ($impersonating): ?>
+                            <li>
+                                <a class="dropdown-item" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash fa-fw me-2"></i><?= _('End impersonation'); ?></a>
+                            </li>
+                            <?php endif; ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket fa-fw me-2"></i><?= _('Log out'); ?></a>
+                            </li>
+                        </ul>
                     </li>
                 </ul>
             </div>

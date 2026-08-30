@@ -1365,7 +1365,7 @@ parameters:
 		-
 			message: '#^Accessing self\:\:\$FOGUser outside of class scope\.$#'
 			identifier: outOfClass.self
-			count: 7
+			count: 8
 			path: packages/web/management/other/index.php
 
 		-

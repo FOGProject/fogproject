@@ -13,7 +13,6 @@
 
 namespace FOG;
 
-use FOG\Auth\Authorization;
 use FOG\Auth\Identity;
 use FOG\Base\FOGPage;
 use FOG\Items\User;
@@ -68,7 +67,7 @@ class ImpersonateManagement extends FOGPage
     public function index(...$args)
     {
         $this->title = _('Impersonate a user');
-        if (!Authorization::can(Identity::PERMISSION)) {
+        if (!Identity::canStart()) {
             self::setMessage(
                 _('You do not have permission to impersonate users.'),
                 _('Permission denied'),
@@ -103,7 +102,7 @@ class ImpersonateManagement extends FOGPage
      */
     public function startModalAjax(...$args)
     {
-        if (!Authorization::can(Identity::PERMISSION)) {
+        if (!Identity::canStart()) {
             echo '<p class="text-body-secondary">'
                 . \Initiator::e(
                     _('You do not have permission to impersonate users.')

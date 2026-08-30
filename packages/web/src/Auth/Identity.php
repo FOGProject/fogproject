@@ -451,6 +451,41 @@ class Identity extends FOGBase
         return '';
     }
     /**
+     * May the person actually driving this session start an impersonation?
+     *
+     * ASKS THE REAL ADMINISTRATOR, NEVER THE MASK. Authorization::can() with
+     * no user id answers for the EFFECTIVE identity, which while a span is
+     * open is the impersonated user -- and that is right for every other
+     * permission in FOG, because seeing what they see is the whole point.
+     * Starting an impersonation is the one capability that is not theirs to
+     * have: it belongs to the administrator underneath.
+     *
+     * Getting this wrong is not a lockout that announces itself. It refuses
+     * "impersonate another" with "you do not have permission to impersonate
+     * users", addressed to an administrator who plainly does, because the
+     * sentence is true of the mask it accidentally asked about. The first
+     * report of it was exactly that: alice holds no roles, so the dialog
+     * said no to the administrator wearing her.
+     *
+     * It also decides the withdrawn-grant case correctly and quietly. If the
+     * grant is revoked mid-span this goes false, so "impersonate another"
+     * disappears while "end impersonation" -- which is never permission
+     * checked, by design -- stays. The way out can never be the control that
+     * is missing.
+     *
+     * The engine already had this right: refusalReason() and begin() both
+     * take the real id explicitly. This exists so the DISPLAY gates cannot
+     * reach a different answer than the engine will, and
+     * tests/impersonation-start-gate-asks-the-real-user.test.php holds them
+     * to using it.
+     *
+     * @return bool
+     */
+    public static function canStart()
+    {
+        return Authorization::can(self::PERMISSION, self::realUserID());
+    }
+    /**
      * May this administrator impersonate this user?
      *
      * Both subset tests must pass, and two edges are decided here rather
