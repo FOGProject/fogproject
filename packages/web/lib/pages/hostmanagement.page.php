@@ -1181,7 +1181,11 @@ class HostManagement extends FOGPage
         // Deliberately NOT read from INPUT_POST like every other value here:
         // these two are written by the ping service and by the client
         // check-in, so the object is the only source that can be right.
-        $lastPing = self::dateOrNever($this->obj->get('lastping'));
+        $lastPing = self::dateOrNever(
+            $this->obj->get('lastping'),
+            'hosts',
+            'hostLastPing'
+        );
         // Say WHICH probe reached it, when the row knows. A timestamp with
         // no method answers "was it up" and leaves "is the service on
         // PINGHOSTPORT running" unanswered, which is the next question
@@ -1196,7 +1200,11 @@ class HostManagement extends FOGPage
                 strtoupper($pingMethod)
             );
         }
-        $lastCheckin = self::dateOrNever($this->obj->get('lastcheckin'));
+        $lastCheckin = self::dateOrNever(
+            $this->obj->get('lastcheckin'),
+            'hosts',
+            'hostLastCheckin'
+        );
         // The Secure Boot ledger's two halves, prepared very differently on
         // purpose (schema steps 376 and 377).
         //
@@ -1207,7 +1215,11 @@ class HostManagement extends FOGPage
         // "Secure Boot ON" invites the reader to treat a report from eight
         // months ago as current.
         $sbState = SecureBootState::label($this->obj->get('sbstate'));
-        $sbStateTime = self::dateOrNever($this->obj->get('sbstatetime'));
+        $sbStateTime = self::dateOrNever(
+            $this->obj->get('sbstatetime'),
+            'hosts',
+            'hostSbStateTime'
+        );
         if (_('Never') !== $sbStateTime) {
             $sbState = sprintf(
                 /* translators: 1: a Secure Boot state, 2: a date and time */
@@ -3820,7 +3832,11 @@ class HostManagement extends FOGPage
             _('Host') => $this->obj->get('name'),
             _('Primary MAC') => (string)$this->obj->get('mac'),
             _('Assigned Image') => $this->obj->getImageName(),
-            _('Last Deployed') => self::dateOrNever($this->obj->get('deployed')),
+            _('Last Deployed') => self::dateOrNever(
+                $this->obj->get('deployed'),
+                'hosts',
+                'hostLastDeploy'
+            ),
             _('Primary Group') => (
                 $primaryGroup->isValid() ?
                 $primaryGroup->get('name') :

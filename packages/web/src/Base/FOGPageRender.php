@@ -411,21 +411,34 @@ trait FOGPageRender
      * column in the schema reaches a page this way, so the guard belongs
      * next to the other shared renderers rather than on one page.
      *
-     * @param string|null $value The stored datetime, or null.
+     * @param string|null $value  The stored datetime, or null.
+     * @param string      $table  The table it came out of.
+     * @param string      $column The column it came out of.
      *
      * @return string
      */
-    protected static function dateOrNever($value)
+    protected static function dateOrNever($value, $table = '', $column = '')
     {
         if (!$value || !self::validDate($value)) {
             return _('Never');
         }
 
-        // toDisplay(), not niceDate(): niceDate reads the value in the zone it
-        // was STORED in and formatting it straight back hands you the same
-        // string you started with, so the viewer's zone would never be applied
-        // anywhere a date is shown on a form.
-        return self::toDisplay($value)->format('Y-m-d H:i:s');
+        // toDisplayStored(), not niceDate(): niceDate reads the value in the
+        // zone it was STORED in and formatting it straight back hands you the
+        // same string you started with, so the viewer's zone would never be
+        // applied anywhere a date is shown on a form.
+        //
+        // The table and column decide whether the value can predate the UTC
+        // boundary: a TIMESTAMP column has always held a UTC instant, a
+        // DATETIME one holds whatever clock wrote it. Unhinted callers are
+        // treated as DATETIME, which is what all five in core are and what a
+        // page adding a sixth is overwhelmingly likely to be.
+        $type = '' === $table
+            ? 'datetime'
+            : strtolower(trim((string)self::columnType($table, $column)));
+
+        return self::toDisplayStored($value, 0 !== strpos($type, 'timestamp'))
+            ->format('Y-m-d H:i:s');
     }
 
     /**

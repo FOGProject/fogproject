@@ -1831,10 +1831,28 @@ abstract class FOGBase
     /**
      * The zone stored datetimes are written in and interpreted as.
      *
+     * UTC on any install that has crossed the boundary; FOG_TZ_INFO on one
+     * that has not yet.
+     *
      * @return \DateTimeZone
      */
     public static function storageTimeZone()
     {
+        // Once the boundary is recorded, storage IS UTC and FOG_TZ_INFO has
+        // stopped meaning anything about what is written -- see
+        // StorageEpoch and docs/development/utc-storage-boundary.md. Gating
+        // on the row rather than on a schema number is deliberate: a
+        // half-upgraded install then behaves exactly as it did before,
+        // rather than in some third way nobody has thought about.
+        // class_exists() rather than a bare call: this is reached from
+        // LoadGlobals and from the installer, and a test harness that pulls
+        // FOGBase in on its own has no autoloader for anything else. A
+        // missing StorageEpoch has to mean "no boundary" -- the behavior
+        // before any of this -- rather than a fatal on every date in the
+        // install.
+        if (class_exists(StorageEpoch::class) && StorageEpoch::active()) {
+            return new \DateTimeZone('UTC');
+        }
         if (empty(self::$TimeZone)) {
             return new \DateTimeZone('UTC');
         }
@@ -1843,6 +1861,34 @@ abstract class FOGBase
         } catch (\Exception $e) {
             // An unusable name must not take out every page that shows a date.
             return new \DateTimeZone('UTC');
+        }
+    }
+    /**
+     * The zone an install shows dates in when the reader has no preference.
+     *
+     * Split out from displayTimeZone() when storage moved to UTC. Before the
+     * boundary the two answers were the same value read twice, so nothing
+     * had to distinguish them; after it, defaulting the DISPLAY zone to the
+     * STORAGE zone would show UTC to every user who has not chosen
+     * otherwise -- which is every user, on an install that has just
+     * upgraded.
+     *
+     * @return \DateTimeZone
+     */
+    public static function defaultDisplayTimeZone()
+    {
+        // FOG_TZ_INFO. Before the boundary this is also the storage zone, so
+        // nothing moves; after it, this is all it ever means -- the zone an
+        // install shows dates in for anyone who has not chosen their own.
+        if (empty(self::$TimeZone)) {
+            return self::storageTimeZone();
+        }
+        try {
+            return new \DateTimeZone(self::$TimeZone);
+        } catch (\Exception $e) {
+            // An unusable name must not take out every page that shows a
+            // date; the storage zone is at least a real one.
+            return self::storageTimeZone();
         }
     }
     /**
@@ -1863,7 +1909,7 @@ abstract class FOGBase
         if (null !== self::$_displayTimeZone) {
             return self::$_displayTimeZone;
         }
-        $storage = self::storageTimeZone();
+        $storage = self::defaultDisplayTimeZone();
         $user = self::$FOGUser;
         // NOTHING is cached until the answer is one worth keeping.
         //
@@ -1989,6 +2035,48 @@ abstract class FOGBase
      *
      * @return \DateTime
      */
+    /**
+     * Renders a value that came OUT OF A COLUMN, in the viewer's zone.
+     *
+     * toDisplay() assumes the value means what storageTimeZone() says values
+     * mean. That is true of everything written after the boundary and false
+     * of everything written before it: those were written when FOG_TZ_INFO
+     * was the storage zone, so reading one as UTC and converting moves it by
+     * the offset between the two, silently, on data nobody can check.
+     *
+     * A pre-boundary value is therefore read in the zone that WAS the
+     * storage zone, which is what StorageEpoch::priorZone() recorded. That
+     * is not a guess about what the value means -- it is exactly the
+     * interpretation FOG applied to it before this change, so an old row
+     * renders the same as it always did.
+     *
+     * The column type is not a detail. A TIMESTAMP column has always held a
+     * UTC instant and hands one back whatever the row's age, so it is never
+     * pre-boundary; passing false here for a DATETIME column, or true for a
+     * TIMESTAMP one, is the one mistake that turns a correct timestamp into
+     * a wrong one.
+     *
+     * @param mixed $value      The stored value.
+     * @param bool  $isDatetime Whether it came from a DATETIME column.
+     *
+     * @return \DateTime
+     */
+    public static function toDisplayStored($value, $isDatetime = true)
+    {
+        if (!StorageEpoch::isPreBoundary($value, $isDatetime)) {
+            return self::toDisplay($value);
+        }
+        try {
+            $out = new \DateTime(
+                trim((string)$value),
+                StorageEpoch::priorZone()
+            );
+        } catch (\Exception $e) {
+            return self::toDisplay($value);
+        }
+
+        return $out->setTimezone(self::displayTimeZone());
+    }
     public static function toDisplay($date = 'now')
     {
         $out = $date instanceof \DateTime ? clone $date : self::niceDate($date);

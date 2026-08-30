@@ -320,6 +320,7 @@ class PDODB extends DatabaseManager
              * being off. Schema steps 344 and 345 repair the rows that were
              * written while they were.
              */
+            self::_pinSessionZone();
         } catch (\PDOException $e) {
             if ($dbexists) {
                 self::$_link = false;
@@ -809,6 +810,65 @@ class PDODB extends DatabaseManager
      *
      * @return string
      */
+    /**
+     * Runs the session at UTC once this install has crossed the boundary.
+     *
+     * Three clocks reach a date column and only one of them is PHP. NOW() in
+     * a hand-written statement and DEFAULT current_timestamp() are both
+     * evaluated by the server in the session zone, which FOG has never set
+     * -- so it is SYSTEM, the database host's own zone. On a single-box
+     * install that happens to agree with FOG_TZ_INFO and the disagreement is
+     * invisible; on a remote-database or containerised one it is a silent
+     * whole-hours error.
+     *
+     * Pinning the session to +00:00 makes all three agree by construction
+     * rather than by call site, and it is what makes TIMESTAMP columns hand
+     * their value back as UTC -- which is what they have always held
+     * underneath.
+     *
+     * Read straight off the link rather than through StorageEpoch: this runs
+     * inside _connect(), before FOGBase::$DB has been assigned, so the
+     * helper would have nothing to query through and would answer "no
+     * boundary" every time. A numeric offset rather than a name, so it works
+     * on a server whose time zone tables were never loaded.
+     *
+     * Every failure is silent and leaves the session alone, which is the
+     * pre-boundary behavior: the table does not exist on an install that has
+     * not upgraded, and the query runs before the schema updater on one that
+     * is upgrading right now.
+     *
+     * @return void
+     */
+    private static function _pinSessionZone()
+    {
+        if (!self::$_link) {
+            return;
+        }
+        try {
+            $st = self::$_link->query(
+                'SELECT `seID` FROM `storageEpoch` LIMIT 1'
+            );
+            if (!$st) {
+                return;
+            }
+            // DRAINED AND CLOSED BEFORE THE SET, and that is not tidiness.
+            // This link runs UNBUFFERED, so a statement left open makes the
+            // very next call fail with "Cannot execute queries while other
+            // unbuffered queries are active" -- which this method's own
+            // catch would then swallow, leaving the session on SYSTEM with
+            // nothing logged and every clock still disagreeing. Found in the
+            // lab by asserting @@session.time_zone rather than by trusting
+            // that the SET had run.
+            $rows = $st->fetchAll(\PDO::FETCH_NUM);
+            $st->closeCursor();
+            if (!$rows) {
+                return;
+            }
+            self::$_link->exec("SET SESSION time_zone = '+00:00'");
+        } catch (\Throwable $e) {
+            return;
+        }
+    }
     public function connectError()
     {
         if (!self::$_connectError) {

@@ -94,7 +94,12 @@ $display = tzMethod(
     'FOGBase::displayTimeZone()'
 );
 if ('' !== $display) {
-    if (!preg_match('#self::storageTimeZone\(\)#', $display)) {
+    // The install default is defaultDisplayTimeZone() -- FOG_TZ_INFO -- and
+    // deliberately NOT storageTimeZone() any more. Before the UTC boundary
+    // the two were the same value read twice; after it, falling back to
+    // storage would show UTC to every account that has never opened its
+    // preferences, which is every account on a freshly upgraded install.
+    if (!preg_match('#self::defaultDisplayTimeZone\(\)#', $display)) {
         $fails[] = 'displayTimeZone() does not fall back to the install '
             . 'default; an account with no preference must be unaffected';
     }
@@ -146,19 +151,25 @@ if ('' !== $format) {
 
 $dateOrNever = tzMethod(
     $render,
-    'protected static function dateOrNever($value)',
+    "protected static function dateOrNever(\$value, \$table = '', \$column = '')",
     'FOGPageRender::dateOrNever()'
 );
-if ('' !== $dateOrNever && !preg_match('#self::toDisplay\(\$value\)#', $dateOrNever)) {
-    $fails[] = 'dateOrNever() does not convert; niceDate() formatted straight '
-        . 'back hands you the stored string, so no form date would ever move';
+// toDisplayStored(), not toDisplay(), since the UTC boundary: a value from
+// before it does not mean what storageTimeZone() now says values mean, and
+// reading one as UTC moves it by the offset. Still a conversion either way --
+// niceDate() formatted straight back hands you the stored string, so no form
+// date would ever move.
+if ('' !== $dateOrNever
+    && !preg_match('#self::toDisplayStored\(\$value, #', $dateOrNever)
+) {
+    $fails[] = 'dateOrNever() does not convert through toDisplayStored()';
 }
 
 // ------------------------------------------------------------ grid cells
 
 $displayDates = tzMethod(
     $manager,
-    'public static function displayDates($rows, $types)',
+    'public static function displayDates($rows, $table, $columns)',
     'FOGManagerController::displayDates()'
 );
 if ('' !== $displayDates) {
@@ -166,15 +177,21 @@ if ('' !== $displayDates) {
         $fails[] = 'displayDates() does not exempt REST responses; a script '
             . 'would get a different answer depending on whose token it used';
     }
-    if (!preg_match('#displayTimeZone\(\)->getName\(\)\s*===\s*self::storageTimeZone\(\)->getName\(\)#s', $displayDates)) {
-        $fails[] = 'displayDates() does not short-circuit when the zones agree, '
-            . 'which is every account that has not set a preference';
+    // The zones-match short circuit that used to live here is GONE, and its
+    // absence is now the thing worth pinning. It skipped the whole method
+    // whenever display and storage agreed -- which after the UTC boundary is
+    // exactly the reader (no preference, freshly upgraded install) whose
+    // pre-boundary values must NOT be read as UTC.
+    if (preg_match('#displayTimeZone\(\)->getName\(\)\s*===\s*self::storageTimeZone\(\)->getName\(\)#s', $displayDates)) {
+        $fails[] = 'displayDates() short-circuits when the zones agree again; '
+            . 'that skips pre-boundary handling for every reader without a '
+            . 'preference';
     }
     if (!preg_match('#validDate#', $displayDates)) {
         $fails[] = 'displayDates() does not exempt the zero date';
     }
 }
-if (!preg_match('#self::displayDates\(\s*self::dataOutput\(\$columns, \$data\),#s', $manager)) {
+if (!preg_match('#self::displayDates\(\s*self::dataOutput\(\$columns, \$data\),\s*\$table,\s*\$columns\s*\)#s', $manager)) {
     $fails[] = 'the grid payload is not passed through displayDates(), so a '
         . 'chosen timezone would apply everywhere except the lists, which is '
         . 'where the timestamps people read actually live';

@@ -297,34 +297,47 @@ abstract class FOGManagerController extends FOGBase
      * A no-op whenever the display and storage zones agree, which is every
      * account that has not chosen a preference.
      *
-     * @param array $rows  Rows as dataOutput() built them.
-     * @param array $types The per-column search types, keyed as the rows are.
+     * @param array  $rows    Rows as dataOutput() built them.
+     * @param string $table   The table being queried.
+     * @param array  $columns Column information array.
      *
      * @return array
      */
-    public static function displayDates($rows, $types)
+    public static function displayDates($rows, $table, $columns)
     {
-        if (self::displayTimeZone()->getName()
-            === self::storageTimeZone()->getName()
-        ) {
-            return $rows;
-        }
         if (class_exists('\\FOG\\Router\\Route')
             && \FOG\Router\Route::$apiRequest
         ) {
             return $rows;
         }
+        // Which output keys are dates, and -- separately -- which of those
+        // came from a DATETIME column rather than a TIMESTAMP one. The
+        // second question is the one that decides whether a value can be
+        // pre-boundary at all: a TIMESTAMP has always held a UTC instant and
+        // hands one back however old the row is. Taken from columnType(),
+        // which answers from the manifest for core and from the server's own
+        // catalog for a plugin's table, so a plugin grid is typed correctly
+        // without the plugin doing anything.
         $dateKeys = [];
-        foreach ((array)$types as $key => $type) {
-            if ($type === 'date') {
-                $dateKeys[] = $key;
+        foreach ((array)$columns as $column) {
+            if (!isset($column['dt'], $column['db'])) {
+                continue;
             }
+            if (self::searchBuilderType($table, $column['db']) !== 'date') {
+                continue;
+            }
+            $type = strtolower(trim((string)self::columnType($table, $column['db'])));
+            $dateKeys[$column['dt']] = 0 !== strpos($type, 'timestamp');
         }
         if (!$dateKeys) {
             return $rows;
         }
+        // No early return on the two zones matching any more. They match for
+        // a viewer with no preference on an install that has crossed the
+        // boundary -- and that is exactly the reader a pre-boundary value
+        // has to be un-converted for.
         foreach ($rows as &$row) {
-            foreach ($dateKeys as $key) {
+            foreach ($dateKeys as $key => $isDatetime) {
                 if (!isset($row[$key]) || '' === trim((string)$row[$key])) {
                     continue;
                 }
@@ -334,8 +347,10 @@ abstract class FOGManagerController extends FOGBase
                 if (!self::validDate($row[$key])) {
                     continue;
                 }
-                $row[$key] = self::toDisplay((string)$row[$key])
-                    ->format('Y-m-d H:i:s');
+                $row[$key] = self::toDisplayStored(
+                    (string)$row[$key],
+                    $isDatetime
+                )->format('Y-m-d H:i:s');
             }
         }
         unset($row);
@@ -1433,7 +1448,8 @@ abstract class FOGManagerController extends FOGBase
                 ? []
                 : self::displayDates(
                     self::dataOutput($columns, $data),
-                    self::searchTypes($table, $columns)
+                    $table,
+                    $columns
                 ),
             // How each column may be filtered, for the client's search UI.
             // Server-derived because a server-side grid hands the browser one
