@@ -319,6 +319,12 @@ parameters:
 			path: tests/imaging-notify-events.test.php
 
 		-
+			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
+			identifier: new.resultUnused
+			count: 1
+			path: tests/lockout-guard-is-unscoped.test.php
+
+		-
 			message: '#^Access to an undefined static property FOG\\Route\:\:\$rows\.$#'
 			identifier: staticProperty.notFound
 			count: 3

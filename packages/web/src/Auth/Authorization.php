@@ -2112,13 +2112,27 @@ class Authorization extends FOGBase
             'USER_TYPES_FILTER',
             ['types' => &$types]
         );
-        $allUsers = array_map('intval', (array)Route::getIds('user'));
-        $special = (count($types)
-            ? array_map(
-                'intval',
-                (array)Route::getIds('user', ['type' => $types])
-            )
-            : []);
+        // Read the users table directly rather than through Route::getIds(),
+        // for the reason rolesHolding() and _externalUsers() do and for one
+        // more that is specific to this read: ids() carries the CALLER'S
+        // object scope when it is serving a request, and `user` is a scoped
+        // node. A request with no signed-in user is bounded to nothing at
+        // all -- scopedObjectWhere() answers '1=0' -- so this read came back
+        // EMPTY, and a guard that can see no users concludes no
+        // administrator would remain and refuses.
+        //
+        // That is not hypothetical: the OIDC callback applies the provider's
+        // groups before the session exists, so any sign-in whose group
+        // mapping removed a role or a group membership refused itself with
+        // "This would leave no account able to administer FOG." A
+        // site-scoped administrator hit the same thing from the other
+        // direction -- they see only their own sites' users, which is right
+        // for a list and wrong for this question.
+        //
+        // A lockout guard asks about the WHOLE install, so it must never be
+        // answered through one caller's view of it.
+        $allUsers = self::_userIDs();
+        $special = (count($types) ? self::_userIDs($types) : []);
         $exclude = array_map(
             'intval',
             (array)($changes['excludeUsers'] ?? [])
@@ -2244,6 +2258,40 @@ class Authorization extends FOGBase
             }
         }
         return false;
+    }
+    /**
+     * Every user id, or only those of the given uType values.
+     *
+     * Owns its SQL for the reason given at the head of adminExistsGiven():
+     * the routed read is scoped to whoever is asking, and this question is
+     * about the install rather than about the caller.
+     *
+     * @param array $types uType values to restrict to; all users when empty
+     *
+     * @return array user ids
+     */
+    private static function _userIDs(array $types = [])
+    {
+        $sql = 'SELECT `uID` FROM `users`';
+        $params = [];
+        if (count($types)) {
+            $names = [];
+            foreach (array_values($types) as $index => $type) {
+                $name = sprintf('type%d', $index);
+                $names[] = ':' . $name;
+                $params[$name] = (int)$type;
+            }
+            $sql .= ' WHERE `uType` IN (' . implode(',', $names) . ')';
+        }
+        $rows = self::$DB
+            ->query($sql, [], $params)
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $ids = [];
+        foreach ((array)$rows as $row) {
+            $ids[] = (int)$row['uID'];
+        }
+        return $ids;
     }
     /**
      * The user ids whose identity is owned by an external provider, after
