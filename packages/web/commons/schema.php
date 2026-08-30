@@ -9617,3 +9617,140 @@ $this->schema[] =
 
         return true;
     };
+// 393
+// Named, saved filters for a grid.
+//
+// Separate from userPrefs on purpose. A preference is one opaque value per
+// (user, key) and every write replaces the whole of it; filters are a LIST
+// that gets added to, renamed and deleted one at a time. Holding that list as
+// a JSON array in a single preference would make every add a read-modify-write
+// of the whole array, so two tabs saving at once would lose one silently --
+// exactly the race the (user, key) upsert exists to avoid for a single value.
+//
+// sfValue is OPAQUE, the same stance as userPrefs.upValue: it holds
+// DataTables' own searchBuilder state, whose shape belongs to DataTables and
+// changes between its major versions. Nothing server-side decides anything on
+// the strength of what is inside it.
+//
+// OWNERSHIP had to be decided now rather than retrofitted:
+//
+//   sfUserID <id>   private to that user, and shareable BY them -- see the
+//                   three grant tables at step 394.
+//   sfUserID NULL   the filter is GLOBAL, owned by the install rather than by
+//                   a person, and offered to everyone on that grid. NULL
+//                   rather than a 0 sentinel so the foreign key at step 395
+//                   can be a real one; 0 has no row in `users`.
+//
+// sfCreatorID records who MADE it and is kept for globals, because "who do I
+// ask about this filter" is otherwise unanswerable, and a column added later
+// would be empty for every filter that already existed. It is SET NULL rather
+// than CASCADE, which is also what makes a global outlive the person who
+// wrote it -- a site-wide filter must not vanish because somebody left.
+//
+// The UNIQUE KEY enforces "one name per grid per owner" for PRIVATE filters
+// only. MySQL does not treat two NULLs as equal in a unique index, so it does
+// NOT constrain global names -- SavedFilterManager::store() checks that case
+// explicitly rather than pretending the index covers it.
+//
+// Column widths are set by that index, not by taste: it is
+// int + varchar(128) + varchar(64) in utf8mb3, which is 4 + 386 + 193 = 583
+// bytes and fits under InnoDB's 767-byte prefix limit on the older row
+// formats FOG still supports. Two varchar(190) columns -- the userPrefs width
+// -- would come to 1148 and only work on DYNAMIC.
+$this->schema[] = [
+    "CREATE TABLE IF NOT EXISTS `savedFilters` ( "
+    . "`sfID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`sfUserID` int(11) DEFAULT NULL, "
+    . "`sfCreatorID` int(11) DEFAULT NULL, "
+    . "`sfTable` varchar(128) NOT NULL DEFAULT '', "
+    . "`sfName` varchar(64) NOT NULL DEFAULT '', "
+    // Nullable for the same reason userPrefs.upValue is: a TEXT column cannot
+    // portably carry a literal DEFAULT, so NOT NULL with no default would
+    // error 1364 on a strict server for any INSERT that omitted it.
+    . "`sfValue` longtext DEFAULT NULL, "
+    . "`sfCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), "
+    . "`sfModifiedTime` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`sfID`), "
+    . "UNIQUE KEY `sfOwnerTableName` (`sfUserID`,`sfTable`,`sfName`), "
+    . "KEY `sfTable` (`sfTable`), "
+    . "KEY `sfCreatorID` (`sfCreatorID`) "
+    // One line: the collation gate reads the CREATE statement line by line,
+    // so splitting CHARSET from COLLATE reads to it as a bare charset.
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+// 394
+// Who a filter is shared with, when it is shared with somebody specific.
+//
+// Global is the blunt instrument: it puts an entry in every single user's
+// picker on that grid, so it takes a permission nobody holds by default.
+// These three tables are the narrow version, which needs no permission at
+// all -- sharing a filter you own with a named colleague, group or role is
+// ordinary collaboration, not an administrative act, and it can only ADD one
+// named entry to the picker of somebody you could already name.
+//
+// THREE junction tables rather than one polymorphic grant table with a
+// target type. FOG has both shapes: the plugin grant tables (ldapUserGrant,
+// oidcUserGrant) are polymorphic and are recorded in the constraint map as
+// class 'poly', action 'none' -- meaning the database cannot enforce them at
+// all, because a column pointing at three different parents cannot carry a
+// foreign key. ADR 0031 exists to shrink that set, not grow it. Three tables
+// cost more DDL once and every reference in them is declared and enforced.
+//
+// The UNIQUE KEY on each makes a re-share a no-op rather than a duplicate,
+// which matters because the share editor sends the whole target list.
+//
+// Note what is NOT here: an approval state. "Share it with my manager, who
+// approves it" is a conversation, and the model that supports it is simply
+// that the share list is editable -- share with one person, then widen to
+// the groups and roles that need it. Encoding approval as a column would
+// mean a filter that exists but cannot be used, which is a workflow nobody
+// asked for.
+$this->schema[] = [
+    "CREATE TABLE IF NOT EXISTS `savedFilterUserAssoc` ( "
+    . "`sfuaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`sfuaFilterID` int(11) NOT NULL, "
+    . "`sfuaUserID` int(11) NOT NULL, "
+    . "PRIMARY KEY (`sfuaID`), "
+    . "UNIQUE KEY `sfuaFilterUser` (`sfuaFilterID`,`sfuaUserID`), "
+    . "KEY `sfuaUserID` (`sfuaUserID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `savedFilterGroupAssoc` ( "
+    . "`sfgaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`sfgaFilterID` int(11) NOT NULL, "
+    . "`sfgaUserGroupID` int(11) NOT NULL, "
+    . "PRIMARY KEY (`sfgaID`), "
+    . "UNIQUE KEY `sfgaFilterGroup` (`sfgaFilterID`,`sfgaUserGroupID`), "
+    . "KEY `sfgaUserGroupID` (`sfgaUserGroupID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `savedFilterRoleAssoc` ( "
+    . "`sfraID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`sfraFilterID` int(11) NOT NULL, "
+    . "`sfraRoleID` int(11) NOT NULL, "
+    . "PRIMARY KEY (`sfraID`), "
+    . "UNIQUE KEY `sfraFilterRole` (`sfraFilterID`,`sfraRoleID`), "
+    . "KEY `sfraRoleID` (`sfraRoleID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+// 395
+// The foreign keys for the four tables steps 393 and 394 just created, per
+// ADR 0031.
+//
+// Group 8, and like group 7 it has nothing to migrate: tables created empty
+// one step earlier cannot hold an orphan, so there is no sweep to sequence
+// before the flip.
+//
+// Three actions, chosen separately:
+//
+//  - savedFilters.sfUserID CASCADE. A private filter is a satellite of its
+//    owner and means nothing without them.
+//  - savedFilters.sfCreatorID SET NULL. Provenance on a row that may belong
+//    to the whole install; a shared filter must outlive its author.
+//  - every grant column CASCADE. A share is meaningless once either end of
+//    it is gone, and leaving the row would silently offer a filter to a
+//    group id that has since been reused.
+$this->schema[] =
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(8);
+
+        return true;
+    };

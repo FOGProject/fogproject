@@ -1402,6 +1402,34 @@ class Route extends FOGBase
             [__CLASS__, 'userpref'],
             'userpref'
         )->map(
+            // The CALLER's saved filters for one grid, and saving a new one.
+            // Like userpref above there is no user in the path: the id comes
+            // from the session, and the manager filters every read and write
+            // on it. Saving a GLOBAL filter is the one privileged operation
+            // and is checked inside the handler, because it is a property of
+            // the request body rather than of the route.
+            'GET|POST',
+            '/system/savedfilters',
+            [__CLASS__, 'savedfilters'],
+            'savedfilters'
+        )->map(
+            'GET|PUT|DELETE',
+            '/system/savedfilter/[i:id]',
+            [__CLASS__, 'savedfilter'],
+            'savedfilter'
+        )->get(
+            // Who a filter can be shared WITH. A separate route rather than a
+            // reuse of /user, /usergroup and /role because it returns id and
+            // name only, and because it answers all three in one request --
+            // the share editor needs every list before it can draw anything.
+            //
+            // Each section is gated on that entity's own view permission and
+            // omitted when the caller lacks it, so this route discloses
+            // nothing they could not already list.
+            '/system/savedfiltertargets',
+            [__CLASS__, 'savedfiltertargets'],
+            'savedfiltertargets'
+        )->map(
             'GET|POST',
             '/[search|unisearch]/[*:item]/[i:limit]?',
             [__CLASS__, 'unisearch'],
@@ -2121,6 +2149,263 @@ class Route extends FOGBase
             ),
             'msg' => _('success')
         ];
+    }
+    /**
+     * The permission that governs GLOBAL saved filters.
+     *
+     * Private filters, and filters shared with named people, need no
+     * permission at all: they reach only the person who made them and the
+     * people they named, and the route derives the actor from the session.
+     * A GLOBAL filter puts an entry in EVERY user's picker on that grid, so
+     * it is the one operation that is an administrative act.
+     *
+     * @param string $action create, edit or delete.
+     *
+     * @return bool
+     */
+    private static function _mayManageGlobalFilters($action)
+    {
+        return Authorization::can('savedfilter.' . $action);
+    }
+    /**
+     * Lists the caller's saved filters for one grid, or saves one.
+     *
+     * @return void
+     */
+    public static function savedfilters()
+    {
+        $userID = (int)self::$FOGUser->get('id');
+        if ($userID < 1) {
+            // Same fail-closed stance as userpref(): unreachable, because the
+            // router authenticates first, but acting as user 0 would pool
+            // every anonymous write into one shared pile.
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                json_encode(['error' => _('No user in session')])
+            );
+
+            return;
+        }
+        $manager = self::getClass('SavedFilterManager');
+        $method = strtoupper(self::$reqmethod ?: 'GET');
+        if ('GET' === $method) {
+            self::$data = [
+                'table' => (string)filter_input(INPUT_GET, 'table'),
+                'filters' => $manager->listFor(
+                    $userID,
+                    (string)filter_input(INPUT_GET, 'table')
+                ),
+                // So the client knows whether to offer the "everyone" option
+                // at all, rather than offering it and failing on save.
+                'mayShareGlobally' => self::_mayManageGlobalFilters('create'),
+                'msg' => _('success')
+            ];
+
+            return;
+        }
+        $body = self::_jsonBody();
+        $global = !empty($body['global']);
+        list($ok, $error) = $manager->store(
+            $userID,
+            (string)($body['table'] ?? ''),
+            (string)($body['name'] ?? ''),
+            (string)($body['value'] ?? ''),
+            $global,
+            self::_mayManageGlobalFilters('create')
+        );
+        if (!$ok) {
+            self::sendResponse(
+                $global && !self::_mayManageGlobalFilters('create')
+                    ? HTTPResponseCodes::HTTP_FORBIDDEN
+                    : HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['error' => $error])
+            );
+
+            return;
+        }
+        self::$data = [
+            'filters' => $manager->listFor(
+                $userID,
+                (string)($body['table'] ?? '')
+            ),
+            'msg' => _('success')
+        ];
+    }
+    /**
+     * Reads, renames, re-shares or deletes one saved filter.
+     *
+     * @param int $id the filter
+     *
+     * @return void
+     */
+    public static function savedfilter($id)
+    {
+        $userID = (int)self::$FOGUser->get('id');
+        if ($userID < 1) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                json_encode(['error' => _('No user in session')])
+            );
+
+            return;
+        }
+        $manager = self::getClass('SavedFilterManager');
+        $method = strtoupper(self::$reqmethod ?: 'GET');
+        if ('GET' === $method) {
+            $filter = $manager->fetch((int)$id, $userID);
+            if (!$filter) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_NOT_FOUND,
+                    json_encode(['error' => _('No such filter')])
+                );
+
+                return;
+            }
+            self::$data = [
+                'id' => (int)$filter['sfID'],
+                'name' => (string)$filter['sfName'],
+                'value' => (string)($filter['sfValue'] ?? ''),
+                'global' => null === $filter['sfUserID'],
+                // null when the caller does not own it. Being shared WITH a
+                // filter does not entitle you to see who else it went to.
+                'shares' => $manager->shares(
+                    (int)$id,
+                    $userID,
+                    self::_mayManageGlobalFilters('edit')
+                ),
+                'msg' => _('success')
+            ];
+
+            return;
+        }
+        if ('DELETE' === $method) {
+            list($ok, $error) = $manager->remove(
+                (int)$id,
+                $userID,
+                self::_mayManageGlobalFilters('delete')
+            );
+            if (!$ok) {
+                self::_filterDenied($error);
+
+                return;
+            }
+            self::$data = ['id' => (int)$id, 'msg' => _('success')];
+
+            return;
+        }
+        $body = self::_jsonBody();
+        $mayGlobal = self::_mayManageGlobalFilters('edit');
+        // A PUT may carry either half, or both. Absent is not empty: a body
+        // with no `shares` key must leave the share list alone, while one
+        // carrying an empty list means "shared with nobody" and has to clear
+        // it. Reading them the same way would make renaming a filter silently
+        // unshare it.
+        if (array_key_exists('name', $body)) {
+            list($ok, $error) = $manager->rename(
+                (int)$id,
+                $userID,
+                (string)$body['name'],
+                $mayGlobal
+            );
+            if (!$ok) {
+                self::_filterDenied($error);
+
+                return;
+            }
+        }
+        if (array_key_exists('shares', $body)) {
+            list($ok, $error) = $manager->setShares(
+                (int)$id,
+                $userID,
+                (array)$body['shares'],
+                $mayGlobal
+            );
+            if (!$ok) {
+                self::_filterDenied($error);
+
+                return;
+            }
+        }
+        self::$data = ['id' => (int)$id, 'msg' => _('success')];
+    }
+    /**
+     * The users, groups and roles a filter can be shared with.
+     *
+     * Each section is gated on that entity's own view permission and omitted
+     * entirely when the caller lacks it, so this route can disclose nothing
+     * they could not already list through /user, /usergroup or /role. A
+     * caller who holds none of the three gets three empty lists and can still
+     * save private filters -- there is simply nobody they may name.
+     *
+     * @return void
+     */
+    public static function savedfiltertargets()
+    {
+        $sets = [
+            'users' => ['user.view', 'users', 'uId', 'uName'],
+            'groups' => ['usergroup.view', 'userGroups', 'ugID', 'ugName'],
+            'roles' => ['role.view', 'roles', 'rID', 'rName']
+        ];
+        $out = [];
+        foreach ($sets as $key => $spec) {
+            list($perm, $table, $idCol, $nameCol) = $spec;
+            $out[$key] = [];
+            if (!Authorization::can($perm)) {
+                continue;
+            }
+            $rows = self::$DB
+                ->query(
+                    sprintf(
+                        'SELECT `%s`, `%s` FROM `%s` ORDER BY `%s` ASC',
+                        $idCol,
+                        $nameCol,
+                        $table,
+                        $nameCol
+                    )
+                )
+                ->fetch('', 'fetch_all')
+                ->get();
+            foreach ((array)$rows as $row) {
+                $out[$key][] = [
+                    'id' => (int)$row[$idCol],
+                    'name' => (string)$row[$nameCol]
+                ];
+            }
+        }
+        self::$data = $out + ['msg' => _('success')];
+    }
+    /**
+     * Answers a refused filter mutation.
+     *
+     * 404 and 403 say different things and the manager already decided which:
+     * "no such filter" covers both a row that is absent and one belonging to
+     * somebody else, deliberately, so that an id cannot be used to probe for
+     * other people's filters. Only the global case is a true 403, and it is
+     * safe to admit because the filter is visible to the caller anyway.
+     *
+     * @param string $error the manager's message
+     *
+     * @return void
+     */
+    private static function _filterDenied($error)
+    {
+        self::sendResponse(
+            false === stripos($error, 'everyone')
+                ? HTTPResponseCodes::HTTP_NOT_FOUND
+                : HTTPResponseCodes::HTTP_FORBIDDEN,
+            json_encode(['error' => $error])
+        );
+    }
+    /**
+     * The request body, decoded, for the routes that take JSON.
+     *
+     * @return array
+     */
+    private static function _jsonBody()
+    {
+        $decoded = json_decode((string)file_get_contents('php://input'), true);
+
+        return is_array($decoded) ? $decoded : [];
     }
     /**
      * Reads, writes or clears one preference of the calling user's.

@@ -265,6 +265,28 @@ return [
     ['child' => 'capone', 'column' => 'cImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => true, 'group' => 'capone'],
     ['child' => 'capone', 'column' => 'cOSID', 'parent' => 'os', 'pcolumn' => 'osID', 'class' => 'config', 'action' => 'RESTRICT', 'sentinel' => 0, 'enabled' => true, 'group' => 'capone'],
     ['child' => 'subnetgroup', 'column' => 'sgGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'subnetgroup'],
+    // Group 8: saved grid filters and who they are shared with
+    // (schema 393/394/395).
+    //
+    // Three different actions on purpose. A PRIVATE filter is a satellite of
+    // the user who owns it, so CASCADE. The CREATOR reference is provenance
+    // on a row that may be GLOBAL -- owned by the install rather than by a
+    // person -- so SET NULL: a shared filter must outlive the account that
+    // wrote it. Every grant is a junction and dies with either end.
+    //
+    // The grant tables are three junctions rather than one polymorphic
+    // table precisely so these can exist: a single target column pointing at
+    // users, userGroups or roles could carry no foreign key at all, which is
+    // why ldapUserGrant and oidcUserGrant below are class 'poly', action
+    // 'none'. ADR 0031 exists to shrink that set.
+    ['child' => 'savedFilters', 'column' => 'sfUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilters', 'column' => 'sfCreatorID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'config', 'action' => 'SET NULL', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilterUserAssoc', 'column' => 'sfuaFilterID', 'parent' => 'savedFilters', 'pcolumn' => 'sfID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilterUserAssoc', 'column' => 'sfuaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilterGroupAssoc', 'column' => 'sfgaFilterID', 'parent' => 'savedFilters', 'pcolumn' => 'sfID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilterGroupAssoc', 'column' => 'sfgaUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilterRoleAssoc', 'column' => 'sfraFilterID', 'parent' => 'savedFilters', 'pcolumn' => 'sfID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    ['child' => 'savedFilterRoleAssoc', 'column' => 'sfraRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

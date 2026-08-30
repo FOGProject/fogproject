@@ -329,6 +329,13 @@ msgstr ""
 msgid "A filename is required!"
 msgstr "Ein Gruppenname ist erforderlich!"
 
+msgid "A filter needs a grid and a name"
+msgstr ""
+
+#, fuzzy
+msgid "A filter needs a name"
+msgstr "Bitte geben Sie einen gültigen Hostnamen ein"
+
 #, fuzzy
 msgid "A group already exists with this name!"
 msgstr "Eine Gruppe mit diesem Namen ist bereits vorhanden!"
@@ -2255,6 +2262,10 @@ msgid "Delete a %s"
 msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
+msgid "Delete a saved filter"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
 msgid "Delete associated hosts"
 msgstr "Ausgewählte löschen"
 
@@ -2480,6 +2491,9 @@ msgstr "Gruppeneinstellungen Module"
 msgid "Editing Global LDAP Settings"
 msgstr "Gruppeneinstellungen Module"
 
+msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
+msgstr ""
+
 msgid "Email"
 msgstr "E-Mail"
 
@@ -2635,6 +2649,9 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "Keine Datei wurde hochgeladen"
+
+msgid "Every filter the CALLING user may see on that grid: their own, every global one, and any shared with them by name, through a user group, or through a role. There is no user in the path and no way to name one. mayShareGlobally reports whether the caller holds savedfilter.create, so a client can omit the \"everyone\" option rather than offer it and fail on save."
+msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
 msgstr ""
@@ -5844,6 +5861,9 @@ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 msgid "No storagegroups assigned to this snapin"
 msgstr "Die zugewiesene Image Speichergruppe ist nicht gültig."
 
+msgid "No such filter"
+msgstr ""
+
 msgid "No such object."
 msgstr ""
 
@@ -5959,6 +5979,10 @@ msgstr "(empfohlen)"
 msgid "Not reported"
 msgstr "(empfohlen)"
 
+#, fuzzy
+msgid "Not signed in"
+msgstr "Nicht synchronisieren"
+
 msgid "Not syncing"
 msgstr "Nicht synchronisieren"
 
@@ -6066,6 +6090,10 @@ msgid "Off - direct membership only"
 msgstr ""
 
 #, fuzzy
+msgid "Offered to every user on this grid."
+msgstr "Dies ist nicht die primäre Gruppe"
+
+#, fuzzy
 msgid "Old key must be a string"
 msgstr "Alter Schlüsselname muss eine Zeichenfolge sein."
 
@@ -6103,6 +6131,10 @@ msgstr "Eine oder mehrere MACs sind mit einem Host verknüpft"
 
 msgid "One preference."
 msgstr ""
+
+#, fuzzy
+msgid "One saved filter."
+msgstr "Drucker-Update fehlgeschlagen!"
 
 msgid "Online"
 msgstr ""
@@ -6894,6 +6926,10 @@ msgid "Read one of your preferences"
 msgstr ""
 
 #, fuzzy
+msgid "Read one saved filter"
+msgstr "Ausgewählte löschen"
+
+#, fuzzy
 msgid "Real Time"
 msgstr "Datum und Zeit"
 
@@ -7020,6 +7056,9 @@ msgid "Removing this group would leave no user with administrator access."
 msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
+msgid "Rename a filter, or change who it is shared with"
 msgstr ""
 
 #, fuzzy
@@ -7278,6 +7317,10 @@ msgstr ""
 msgid "Save Changes"
 msgstr "Änderungen speichern"
 
+#, fuzzy
+msgid "Save a filter"
+msgstr "Drucker-Update fehlgeschlagen!"
+
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
@@ -7287,9 +7330,15 @@ msgstr ""
 msgid "Save the site before setting catch-all"
 msgstr ""
 
+msgid "Saved filters for one grid"
+msgstr ""
+
 #, fuzzy
 msgid "Saving data for"
 msgstr "Speichern von Daten für %s Objekt"
+
+msgid "Saving over a name you already used replaces that filter rather than adding a second one, which is what a Save button is expected to do. A private save never touches a global of the same name and the other way round. global:true requires savedfilter.create and answers 403 without it; everything else needs only a session. Values are capped at 64KB and refused rather than truncated."
+msgstr ""
 
 msgid "Schedule"
 msgstr "Zeitplan"
@@ -8693,6 +8742,13 @@ msgid "Text to match against the id and name. A few classes match more: host als
 msgstr ""
 
 #, fuzzy
+msgid "That filter is too large to save"
+msgstr "konnte nicht gespeichert werden"
+
+msgid "That grid name is too long"
+msgstr ""
+
+#, fuzzy
 msgid "That group is already defined for this provider!"
 msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 
@@ -8711,6 +8767,9 @@ msgid "That is the recommended state. Restore it only to issue a new intermediat
 msgstr ""
 
 msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
+msgid "That name is too long"
 msgstr ""
 
 #, fuzzy
@@ -8850,6 +8909,27 @@ msgstr ""
 msgid "The file itself."
 msgstr ""
 
+msgid "The filter state, opaque. It is DataTables SearchBuilder's own serialization and the server does not interpret it."
+msgstr ""
+
+#, fuzzy
+msgid "The filter was deleted."
+msgstr "Keine Datei wurde hochgeladen"
+
+msgid "The filter was saved; the full list is returned."
+msgstr ""
+
+#, fuzzy
+msgid "The filter was updated."
+msgstr "Keine Datei wurde hochgeladen"
+
+msgid "The filters visible to the caller."
+msgstr ""
+
+#, fuzzy
+msgid "The grid key."
+msgstr "Fehler beim Erstellen eines Tasks"
+
 #, fuzzy
 msgid "The identity provider could not be reached"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
@@ -8977,6 +9057,10 @@ msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
 #, fuzzy
+msgid "The saved filter."
+msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
 msgid "The selected site no longer exists"
 msgstr "läuft nicht mehr"
 
@@ -8985,6 +9069,9 @@ msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "Die Einstellungen wirken sich in der Regel auf alle Hosts aus."
+
+msgid "The share targets the caller may see."
+msgstr ""
 
 #, fuzzy
 msgid "The sign-in could not be verified"
@@ -9074,6 +9161,10 @@ msgstr "Es gibt offene Slots,"
 
 msgid "There is a host in a tasking"
 msgstr "Es gibt einen Host in einer Aufgabe"
+
+#, fuzzy
+msgid "There is no filter to save"
+msgstr "konnte nicht gespeichert werden"
 
 msgid "There is nothing to replicate"
 msgstr "Es gibt nichts zu replizieren"
@@ -9919,12 +10010,18 @@ msgstr ""
 msgid "Username must end with a number or letter."
 msgstr ""
 
+msgid "Username of whoever created it, on filters the caller does not own. Empty when the creator's account has since been deleted."
+msgstr ""
+
 #, fuzzy
 msgid "Username was blank"
 msgstr "Benutzername"
 
 msgid "Users"
 msgstr "Benutzer"
+
+msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
+msgstr ""
 
 msgid "Using the group match function"
 msgstr "Verwenden der Gruppenübereinstimmungsfunktion,"
@@ -10043,6 +10140,12 @@ msgid "Whichever route is used, MokManager -- the blue enrollment screen -- has 
 msgstr ""
 
 msgid "Who"
+msgstr ""
+
+msgid "Who a filter can be shared with"
+msgstr ""
+
+msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -10166,6 +10269,12 @@ msgstr ""
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
+msgid "You may not change a filter shared with everyone"
+msgstr ""
+
+msgid "You may not save a filter for everyone"
+msgstr ""
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -10178,6 +10287,9 @@ msgstr "Sie müssen mindestens eine Speichergruppe haben"
 #, fuzzy
 msgid "You must select an action to perform"
 msgstr "Sie müssen eine Aktion auswählen, die ausgeführt werden soll"
+
+msgid "You own it, so you may rename, re-share or delete it."
+msgstr ""
 
 msgid "You were logged out due to inactivity."
 msgstr ""
@@ -10192,6 +10304,9 @@ msgid "Your session has ended. Sign in again."
 msgstr ""
 
 msgid "Your stored preferences"
+msgstr ""
+
+msgid "Yours, always. A global one requires savedfilter.delete. Every share of it goes with it, by foreign key."
 msgstr ""
 
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
@@ -10884,6 +10999,9 @@ msgstr ""
 #, fuzzy
 msgid "settings"
 msgstr "Einstellungen"
+
+msgid "shares is null unless you own the filter: being shared WITH one does not entitle you to see who else it went to. A filter that does not exist and one belonging to somebody else both answer 404, deliberately, so an id cannot be used to probe for other people's filters."
+msgstr ""
 
 msgid "short"
 msgstr ""
@@ -11882,9 +12000,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "has failed to destroy"
 #~ msgstr "konnte nicht zerstört werden"
-
-#~ msgid "has failed to save"
-#~ msgstr "konnte nicht gespeichert werden"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

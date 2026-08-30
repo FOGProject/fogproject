@@ -927,6 +927,43 @@ return [
                 'upModifiedTime' => 'datetime DEFAULT NULL',
             ],
         ],
+        'savedFilters' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilters` ( `sfID` int(11) NOT NULL AUTO_INCREMENT, `sfUserID` int(11) DEFAULT NULL, `sfCreatorID` int(11) DEFAULT NULL, `sfTable` varchar(128) NOT NULL DEFAULT \'\', `sfName` varchar(64) NOT NULL DEFAULT \'\', `sfValue` longtext DEFAULT NULL, `sfCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `sfModifiedTime` datetime DEFAULT NULL, PRIMARY KEY (`sfID`), UNIQUE KEY `sfOwnerTableName` (`sfUserID`,`sfTable`,`sfName`), KEY `sfTable` (`sfTable`), KEY `sfCreatorID` (`sfCreatorID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfID' => 'int(11) NOT NULL',
+                'sfUserID' => 'int(11) DEFAULT NULL',
+                'sfCreatorID' => 'int(11) DEFAULT NULL',
+                'sfTable' => 'varchar(128) NOT NULL DEFAULT \'\'',
+                'sfName' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'sfValue' => 'longtext DEFAULT NULL',
+                'sfCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'sfModifiedTime' => 'datetime DEFAULT NULL',
+            ],
+        ],
+        'savedFilterUserAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterUserAssoc` ( `sfuaID` int(11) NOT NULL AUTO_INCREMENT, `sfuaFilterID` int(11) NOT NULL, `sfuaUserID` int(11) NOT NULL, PRIMARY KEY (`sfuaID`), UNIQUE KEY `sfuaFilterUser` (`sfuaFilterID`,`sfuaUserID`), KEY `sfuaUserID` (`sfuaUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfuaID' => 'int(11) NOT NULL',
+                'sfuaFilterID' => 'int(11) NOT NULL',
+                'sfuaUserID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'savedFilterGroupAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterGroupAssoc` ( `sfgaID` int(11) NOT NULL AUTO_INCREMENT, `sfgaFilterID` int(11) NOT NULL, `sfgaUserGroupID` int(11) NOT NULL, PRIMARY KEY (`sfgaID`), UNIQUE KEY `sfgaFilterGroup` (`sfgaFilterID`,`sfgaUserGroupID`), KEY `sfgaUserGroupID` (`sfgaUserGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfgaID' => 'int(11) NOT NULL',
+                'sfgaFilterID' => 'int(11) NOT NULL',
+                'sfgaUserGroupID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'savedFilterRoleAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterRoleAssoc` ( `sfraID` int(11) NOT NULL AUTO_INCREMENT, `sfraFilterID` int(11) NOT NULL, `sfraRoleID` int(11) NOT NULL, PRIMARY KEY (`sfraID`), UNIQUE KEY `sfraFilterRole` (`sfraFilterID`,`sfraRoleID`), KEY `sfraRoleID` (`sfraRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfraID' => 'int(11) NOT NULL',
+                'sfraFilterID' => 'int(11) NOT NULL',
+                'sfraRoleID' => 'int(11) NOT NULL',
+            ],
+        ],
         'userCleanup' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `userCleanup` ( `ucID` int(11) NOT NULL AUTO_INCREMENT, `ucName` varchar(254) NOT NULL DEFAULT \'\', PRIMARY KEY (`ucID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [

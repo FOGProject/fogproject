@@ -198,6 +198,10 @@ class Page extends FOGBase
         'js/input-mask/jquery.inputmask.date.extensions.js',
         'js/fog/bootstrap-csrf.js',
         'js/fog/fog.common.js',
+        // After fog.common.js: it registers window.fogSavedFilters, which the
+        // grid toolbar's Filters button calls. Authenticated list only -- the
+        // login page has no grids and no session to own a filter.
+        'js/fog/fog.filters.js',
         'js/fog/theme.js'
     ];
     /**
