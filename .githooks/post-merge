@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+#
+# Refreshes packages/web/commons/version.php after a merge or a pull, which is
+# the case that matters most: bringing a branch up to date is exactly what
+# moves the commit count the version is derived from.
+#
+# See .githooks/post-commit and .githooks/lib/write-version-file.sh.
+project_dir=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+sh "$project_dir/.githooks/lib/write-version-file.sh" >/dev/null 2>&1 || true
+exit 0

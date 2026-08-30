@@ -220,7 +220,17 @@ linuxReleaseName_lower="${FOG_os_name,,}"
 # writeUpdateFile() (functions.sh) refreshes the "## Version:" comment line in
 # .fogsettings as a side effect; installfog.sh derives this the same way at
 # its own top, but updatefog.sh never sources that far into it.
-[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php | tr -d '[[:space:]]')"
+# The generated commons/version.php first, then the tracked fallback in
+# src/Base/System.php. Both carry the version in the identical
+# `define('FOG_VERSION', '...');` shape precisely so one awk reads either --
+# see .githooks/lib/write-version-file.sh (GH-1513).
+if [[ -z $version ]]; then
+    for versionfile in ../packages/web/commons/version.php ../packages/web/src/Base/System.php; do
+        [[ -f $versionfile ]] || continue
+        version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$versionfile" | tr -d '[[:space:]]')"
+        [[ -n $version ]] && break
+    done
+fi
 
 [[ -n $sgitpath ]] && FOG_git_path="$sgitpath"
 

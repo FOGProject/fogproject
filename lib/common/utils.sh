@@ -51,11 +51,20 @@ case ${FOG_os_id} in
 esac
 [[ ! -d $webdirdest ]] && handleError "    No fog web directory found" 3
 # Reads the tree ALREADY INSTALLED, which on an upgrade is whatever the
-# previous release laid down -- so both spellings have to be tried. Core
+# previous release laid down -- so every spelling has to be tried. Core
 # became PSR-4 on working-1.6 and the version file moved from
 # lib/fog/system.class.php to src/Base/System.php; a server installed before
 # that still has the old one, and this is the file that tells us so.
-configpath=${webdirdest}src/Base/System.php
+#
+# commons/version.php comes first: since GH-1513 the version is GENERATED into
+# that file (gitignored, written from the commit graph by the hooks and by
+# installfog.sh) and src/Base/System.php carries only the release fallback. A
+# server installed before that has no version.php, so the two older spellings
+# still have to be tried. All three carry the version in the identical
+# `define('FOG_VERSION', '...');` shape, which is why one awk below reads
+# whichever we land on.
+configpath=${webdirdest}commons/version.php
+[[ ! -f $configpath ]] && configpath=${webdirdest}src/Base/System.php
 [[ ! -f $configpath ]] && configpath=${webdirdest}lib/fog/system.class.php
 [[ ! -f $configpath ]] && handleError "    No config file found" 4
 OS=$(uname -s)
