@@ -1,4 +1,11 @@
 (function($) {
+  // Remembered across visits via the per-user prefs endpoint (fogPrefStore/
+  // fogPrefFetch, fog.common.js) -- the same mechanism the DataTables grids
+  // use for their own layout state. No schema change: userPrefs is a
+  // generic per-user key/value store already wired up for exactly this.
+  var LINES_PREF_KEY = 'logviewer.linesToShow',
+    REVERSE_PREF_KEY = 'logviewer.reverseOrder';
+
   var logSelect = $('#logToView'),
     lineSelect = $('#linesToView'),
     reverse = $('#reverse:checkbox'),
@@ -76,6 +83,7 @@
   lineSelect.on('change', function(e) {
     e.preventDefault();
     selectedLines = this.value;
+    fogPrefStore(LINES_PREF_KEY, selectedLines);
     if (logTimer) {
       clearTimeout(logTimer);
     }
@@ -88,6 +96,7 @@
     // Present newest first
     e.preventDefault();
     reverseChecked = 1;
+    fogPrefStore(REVERSE_PREF_KEY, '1');
     if (logTimer) {
       clearTimeout(logTimer);
     }
@@ -97,6 +106,7 @@
     // Present oldest first
     e.preventDefault();
     reverseChecked = 0;
+    fogPrefStore(REVERSE_PREF_KEY, '0');
     if (logTimer) {
       clearTimeout(logTimer);
     }
@@ -118,6 +128,33 @@
     }
   });
 
-  // Start the reading!
-  getLogData(ip, file, selectedLines, reverseChecked);
+  // Restore the remembered lines/reverse choice before the first fetch, so
+  // returning to the page doesn't silently reset it to the form's defaults.
+  // Both reads happen in parallel; the initial fetch waits for whichever
+  // preference actually has a stored value.
+  $.when(
+    $.Deferred(function(d) {
+      fogPrefFetch(LINES_PREF_KEY, function(err, value) {
+        if (!err && value) {
+          selectedLines = value;
+          // Reflect the restored value in the widget without re-triggering
+          // 'change' -- the initial getLogData call below already uses it.
+          lineSelect.val(value);
+        }
+        d.resolve();
+      });
+    }),
+    $.Deferred(function(d) {
+      fogPrefFetch(REVERSE_PREF_KEY, function(err, value) {
+        if (!err && value) {
+          reverseChecked = value === '1' ? 1 : 0;
+          reverse.prop('checked', reverseChecked === 1);
+        }
+        d.resolve();
+      });
+    })
+  ).done(function() {
+    // Start the reading!
+    getLogData(ip, file, selectedLines, reverseChecked);
+  });
 })(jQuery);
