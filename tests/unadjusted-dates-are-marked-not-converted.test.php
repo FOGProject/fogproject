@@ -108,7 +108,7 @@ if (!preg_match('#settings\.fogUnadjustedNote = json\._unadjustednote#', $js)) {
 //
 // NOT through the row. rowCallback runs while the row is still DETACHED --
 // DataTables builds every <tr>, fires the callback for each, and attaches the
-// tbody afterwards -- so $(tr).closest('table') matches nothing and
+// tbody afterward -- so $(tr).closest('table') matches nothing and
 // .DataTable() hands back an Api with no settings behind it. Reading
 // settings()[0] off that throws, and the throw happens inside the draw: the
 // grid renders one row, the header/body split is never sized, and the console

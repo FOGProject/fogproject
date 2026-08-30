@@ -3926,7 +3926,7 @@ $.fn.registerTable = function(onSelect, opts) {
       // Reached through the callback's own `this`, which DataTables sets to
       // the table's jQuery instance, and NOT through the row: rowCallback runs
       // while the row is still DETACHED -- DataTables builds every <tr>, fires
-      // this for each, and attaches the tbody afterwards -- so
+      // this for each, and attaches the tbody afterward -- so
       // $(tr).closest('table') matches nothing and .DataTable() hands back an
       // API with no settings behind it. Reading settings()[0] off that threw
       // "Cannot read properties of undefined" on the first ajax draw of every
