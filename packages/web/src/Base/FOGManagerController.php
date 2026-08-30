@@ -303,6 +303,17 @@ abstract class FOGManagerController extends FOGBase
      *
      * @return array
      */
+    /**
+     * Appended to a date column's output key to flag that row's value as
+     * predating the UTC boundary.
+     *
+     * Two underscores and a word no column is called, because this shares a
+     * namespace with every column's own output key -- fog.common.js reads it
+     * back by suffix, so a collision would put a marker on a real column.
+     *
+     * @var string
+     */
+    const UNADJUSTED_SUFFIX = '__unadjusted';
     public static function displayDates($rows, $table, $columns)
     {
         if (class_exists('\\FOG\\Router\\Route')
@@ -347,6 +358,27 @@ abstract class FOGManagerController extends FOGBase
                 if (!self::validDate($row[$key])) {
                     continue;
                 }
+                // The flag goes in BEFORE the value is rewritten, because
+                // isPreBoundary() classifies the STORED value and the next
+                // line replaces it with a display one.
+                //
+                // A sibling key rather than decoration on the value itself.
+                // A grid cell's data is not an HTML context: it is escaped
+                // into the cell, it is what sorting and filtering see, and it
+                // is what the CSV/Excel buttons export. Markup smuggled
+                // through it prints as tags and lands in the download
+                // (GH-1245, GH-1446). The browser reads this flag and adds
+                // the glyph to the cell's DOM instead, so the value stays a
+                // value everywhere it is used as one.
+                //
+                // Only written when true. An absent key is falsy in JS, so
+                // "false" costs a key on every date of every row for nothing.
+                if (\FOG\Base\StorageEpoch::isPreBoundary(
+                    (string)$row[$key],
+                    $isDatetime
+                )) {
+                    $row[$key . self::UNADJUSTED_SUFFIX] = true;
+                }
                 $row[$key] = self::toDisplayStored(
                     (string)$row[$key],
                     $isDatetime
@@ -356,6 +388,29 @@ abstract class FOGManagerController extends FOGBase
         unset($row);
 
         return $rows;
+    }
+    /**
+     * The sentence explaining an unadjusted marker, or '' when none applies.
+     *
+     * Carries displayDates()'s guard for the same reason displayDates() has
+     * it: a REST consumer gets raw stored values and no display conversion,
+     * so a note about a conversion that did not happen would be describing
+     * something it cannot see.
+     *
+     * @return string
+     */
+    public static function unadjustedNote()
+    {
+        if (class_exists('\\FOG\\Router\\Route')
+            && \FOG\Router\Route::$apiRequest
+        ) {
+            return '';
+        }
+        if (!\FOG\Base\StorageEpoch::active()) {
+            return '';
+        }
+
+        return \FOG\Base\StorageEpoch::note();
     }
     public static function dataOutput($columns, $data)
     {
@@ -1456,6 +1511,13 @@ abstract class FOGManagerController extends FOGBase
             // page, and page one is not enough to tell a date column from a
             // text one -- see searchTypes().
             '_searchtypes' => self::searchTypes($table, $columns),
+            // The tooltip text for any cell flagged UNADJUSTED_SUFFIX above.
+            // Once per response, not once per row: it is the same sentence
+            // every time, and it is a TRANSLATED one -- assembling it in JS
+            // would put a msgid somewhere xgettext never looks. Empty on an
+            // install that has not crossed the boundary, which is also every
+            // install where no row can carry the flag.
+            '_unadjustednote' => self::unadjustedNote(),
             //'sql_query' => $sql_query,
             //'filter_query' => $filter_query,
             //'total_query' => $total_query,

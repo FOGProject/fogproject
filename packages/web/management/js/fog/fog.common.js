@@ -3797,11 +3797,82 @@ if ($.fn.dataTable) {
     $.notify(tableId, detail || message, 'error');
   };
 }
+/**
+ * Suffix FOGManagerController::UNADJUSTED_SUFFIX appends to a date column's
+ * key when that row's value predates this server's move to UTC.
+ */
+var FOG_UNADJUSTED_SUFFIX = '__unadjusted';
+
+/**
+ * Puts the "not converted" marker on the cells the server flagged.
+ *
+ * The flag arrives as a SIBLING key on the row -- `hostLastDeploy` plus
+ * `hostLastDeploy__unadjusted` -- and the glyph is added to the cell's DOM
+ * here rather than to the value on the server. That split is the whole point.
+ * A DataTables cell's data is escaped into the cell, is what sorting and
+ * filtering compare, and is what the CSV/Excel buttons export; markup put
+ * there prints as tags and rides into the download (GH-1245, GH-1446). Adding
+ * it to the DOM after the fact leaves all three untouched -- and sorting on
+ * the raw value is the honest behavior anyway, because within the
+ * pre-boundary era the values are mutually consistent with each other.
+ *
+ * rowCallback rather than a columnDefs render for the same reason: a global
+ * render would also have to be the render for every column, and ten list
+ * pages define their own.
+ *
+ * @param {object} api  the DataTables API for the table
+ * @param {Node}   tr   the row's <tr>
+ * @param {object} data the row's data object
+ * @param {string} note the sentence to show on hover, from the payload
+ *
+ * @return {void}
+ */
+function fogMarkUnadjusted(api, tr, data, note) {
+  if (!note || !data || typeof data !== 'object') {
+    return;
+  }
+  var columns = api.settings()[0].aoColumns,
+    rowIndex = api.row(tr).index(),
+    suffixLen = FOG_UNADJUSTED_SUFFIX.length,
+    key,
+    base,
+    i,
+    cell;
+  for (key in data) {
+    if (!data[key] || key.slice(-suffixLen) !== FOG_UNADJUSTED_SUFFIX) {
+      continue;
+    }
+    base = key.slice(0, -suffixLen);
+    for (i = 0; i < columns.length; i++) {
+      if (columns[i].data !== base) {
+        continue;
+      }
+      cell = api.cell(rowIndex, i).node();
+      // A hidden column -- Responsive collapsed it, or column visibility
+      // turned it off -- has no node to decorate. Responsive redraws the
+      // child row from the cell data, which is exactly the value without
+      // the glyph, so the marker is a visible-column affordance and the
+      // tooltip is where the explanation lives.
+      if (!cell || $(cell).find('.fog-unadjusted').length) {
+        continue;
+      }
+      $(cell).append(
+        $('<span class="fog-unadjusted text-muted ms-1"'
+          + ' data-bs-toggle="tooltip" data-container="body">*</span>')
+          .attr('title', note)
+      );
+    }
+  }
+}
+
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
 
   // Idempotent; every grid calls this and only the first does any work.
   fogMemoizeResponsiveMeasure();
+
+  // Resolved on the first rowCallback; see the note there.
+  var unadjustedTable = null;
 
   // Default row count comes from FOG_VIEW_DEFAULT_SCREEN (hidden #pageLength).
   var pageLength = parseInt($('#pageLength').val());
@@ -3847,6 +3918,25 @@ $.fn.registerTable = function(onSelect, opts) {
   var defaults = {
     paging: true,
     lengthChange: true,
+    // Marks any date the server flagged as predating this install's move to
+    // UTC. The note itself rides the payload (see the xhr handler below), so
+    // this is a no-op on an install that has not crossed the boundary and on
+    // every client-side table, neither of which sends one.
+    rowCallback: function(tr, data) {
+      // Reached through the row's own table rather than a closure: the first
+      // draw happens INSIDE the DataTable() call below, so the variable
+      // holding the API is not assigned yet when this first runs. Cached
+      // because it is otherwise a settings-array scan per row.
+      if (!unadjustedTable) {
+        unadjustedTable = $(tr).closest('table').DataTable();
+      }
+      fogMarkUnadjusted(
+        unadjustedTable,
+        tr,
+        data,
+        unadjustedTable.settings()[0].fogUnadjustedNote
+      );
+    },
     searching: true,
     ordering: true,
     info: true,
@@ -4050,6 +4140,15 @@ $.fn.registerTable = function(onSelect, opts) {
   // silently so. The extra name is what lets the off() below remove this one
   // handler when registerTable() is re-run over a retrieved table.
   $(this).off('xhr.dt.fogsb').on('xhr.dt.fogsb', function(e, settings, json) {
+    // Stashed on SETTINGS, which is the one object that is the table. A
+    // DataTables Api is constructed fresh per call, so a property set on one
+    // is gone by the next -- and rowCallback cannot close over the note
+    // anyway, because it is defined before the first response exists and runs
+    // after every one. Read before the _searchtypes guard below: a grid can
+    // carry unadjusted dates whether or not the server typed its columns.
+    if (json && typeof json._unadjustednote === 'string') {
+      settings.fogUnadjustedNote = json._unadjustednote;
+    }
     if (!json || !json._searchtypes) {
       return;
     }

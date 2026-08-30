@@ -10980,6 +10980,10 @@ msgstr ""
 msgid "recommended"
 msgstr "(empfohlen)"
 
+#, php-format
+msgid "recorded before this server moved to UTC; written in %s"
+msgstr ""
+
 msgid "register this at your provider"
 msgstr ""
 

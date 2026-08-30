@@ -53,6 +53,23 @@ class StorageEpoch extends FOGBase
      */
     const BAND_HOURS = 26;
     /**
+     * What follows a value that predates the boundary.
+     *
+     * TEXT, not markup, and that is not a stylistic choice. Both display
+     * sites escape what they are given -- renderInfoCard()'s docblock says a
+     * page wanting markup there "has to grow an explicit opt-in rather than
+     * smuggling it through a value", and a grid cell that carries HTML in its
+     * DATA rather than in a renderer prints the tags literally and exports
+     * them to CSV (GH-1245, GH-1446). A marker that survives htmlspecialchars
+     * is the only kind that can ride a value at all.
+     *
+     * The grids do get a real muted glyph, but the browser adds it to the
+     * cell's DOM from a sibling flag; nothing decorated ever enters the value.
+     *
+     * @var string
+     */
+    const MARKER = ' *';
+    /**
      * The row, once read. False while it has not been looked for, null when
      * there is none.
      *
@@ -168,6 +185,30 @@ class StorageEpoch extends FOGBase
             // setting held something unusable even then.
             return new \DateTimeZone('UTC');
         }
+    }
+    /**
+     * The one-line explanation shown wherever a value is marked unadjusted.
+     *
+     * Built here rather than at each of the three display sites -- the info
+     * card, the grids, and the browser by way of the grid payload -- so all
+     * three say the same thing, and so the msgid is a literal that xgettext
+     * can see. A string assembled in JS never reaches the .pot at all, and a
+     * msgid built at runtime from a variable never translates (GH-1090).
+     *
+     * Names the zone rather than saying "some other zone", because the reader
+     * usually knows perfectly well what the value meant and the zone is what
+     * lets them confirm it. seZone is a record of what was true then, which is
+     * exactly what makes it safe to print next to an old value.
+     *
+     * @return string
+     */
+    public static function note()
+    {
+        return sprintf(
+            /* translators: %s is a time zone name, e.g. America/Chicago */
+            _('recorded before this server moved to UTC; written in %s'),
+            self::priorZone()->getName()
+        );
     }
     /**
      * Whether a stored value predates the boundary, and so does NOT mean UTC.
