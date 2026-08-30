@@ -664,4 +664,126 @@ class Ping
 
         return $results;
     }
+    /**
+     * The kernel's IP -> MAC table, as [ip => mac].
+     *
+     * WHY A PING NEEDS THIS AT ALL
+     *
+     * An echo reply says an address answered. It does not say WHICH machine
+     * answered, and on a DHCP network those are different questions: a lease
+     * handed to MachineA on Monday can belong to PrinterX by Friday, so
+     * pinging a host's last known address and calling it up reports a machine
+     * that has been switched off all week as online. That is a worse answer
+     * than the "not reachable" it replaces, because it is confidently wrong
+     * rather than merely unhelpful.
+     *
+     * FOG's identity for a host is its MAC -- that is what it registers, what
+     * it PXE-boots, what it images against -- so the MAC is what turns "this
+     * address answered" into "this HOST answered".
+     *
+     * WHAT IT CANNOT DO
+     *
+     * ARP is link-local. An entry exists only for an address on a segment
+     * this server can talk to directly, so a routed or off-site client has no
+     * entry and its identity is simply not knowable from here. That case must
+     * read as "cannot verify" and never as "verified", which is why this
+     * returns a map to be looked up in rather than a boolean to be trusted.
+     *
+     * Parsed from `ip neigh`, matching getIPAddress() and getBroadcast()
+     * above, which already shell out to /sbin/ip. Entries in the FAILED state
+     * are dropped: they carry no lladdr and mean the kernel asked and got
+     * nothing back.
+     *
+     * @return array ip => lowercase colon-separated MAC
+     */
+    public static function arpTable()
+    {
+        $lines = [];
+        exec('/sbin/ip neigh show 2>/dev/null', $lines, $retVal);
+        $table = [];
+        foreach ((array)$lines as $line) {
+            // "10.255.25.1 dev eno2 lladdr 08:00:27:e9:ff:13 REACHABLE"
+            if (!preg_match(
+                '#^(\S+)\s+dev\s+\S+\s+lladdr\s+(\S+)#',
+                (string)$line,
+                $m
+            )) {
+                continue;
+            }
+            if (!filter_var($m[1], FILTER_VALIDATE_IP)) {
+                continue;
+            }
+            // An address can appear once per interface -- a MAC reachable on
+            // two segments is one machine, so first entry wins rather than
+            // last, and either way the MAC is the same.
+            if (!isset($table[$m[1]])) {
+                $table[$m[1]] = strtolower(trim($m[2]));
+            }
+        }
+
+        return $table;
+    }
+    /**
+     * Is the machine answering at $ip the one owning $macs?
+     *
+     * Three-valued ON PURPOSE, and the third value is the point:
+     *
+     *   true  - the address answered and its MAC is one this host registers
+     *   false - it answered and the MAC belongs to something else, so the
+     *           address has been recycled and the stored one is now a lie
+     *   null  - no ARP entry, so this server cannot tell, and the caller must
+     *           not treat that as either answer
+     *
+     * A boolean would have to fold `null` into one of the other two, and both
+     * foldings are wrong: into true it invents the false-up this exists to
+     * prevent, into false it reports every routed host down.
+     *
+     * @param string $ip    the address that answered
+     * @param array  $macs  MACs registered to the host, any case or separator
+     * @param array  $table an arpTable() result, read once per cycle
+     *
+     * @return bool|null
+     */
+    public static function identityMatches($ip, array $macs, array $table)
+    {
+        $ip = trim((string)$ip);
+        if (!isset($table[$ip])) {
+            return null;
+        }
+        $seen = self::_normalizeMac($table[$ip]);
+        if ('' === $seen) {
+            return null;
+        }
+        foreach ($macs as $mac) {
+            if (self::_normalizeMac($mac) === $seen) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    /**
+     * Reduce a MAC to bare lowercase hex so representations compare equal.
+     *
+     * hostMAC rows, `ip neigh` output and anything an admin typed disagree on
+     * separators and case; comparing the raw strings would report a mismatch
+     * for aa:bb:.. against AA-BB-.. and clear a perfectly good address.
+     *
+     * @param string $mac any representation
+     *
+     * @return string
+     */
+    private static function _normalizeMac($mac)
+    {
+        $mac = strtolower((string)$mac);
+
+        // No length check. The only way a malformed value could verify is by
+        // normalizing to the same string as the observed one, and
+        // identityMatches() has already refused an empty $seen before this is
+        // reached -- so a short or junk MAC can only ever compare unequal to
+        // a real 12-character one. A length test here would be a branch no
+        // input can take, which is worse than absent: it reads as a guard and
+        // has no evidence behind it.
+        return (string)preg_replace('#[^0-9a-f]#', '', $mac);
+    }
 }

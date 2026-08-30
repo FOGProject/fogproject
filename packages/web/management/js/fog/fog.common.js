@@ -3806,6 +3806,21 @@ $.fn.registerTable = function(onSelect, opts) {
   // Default row count comes from FOG_VIEW_DEFAULT_SCREEN (hidden #pageLength).
   var pageLength = parseInt($('#pageLength').val());
 
+  // That setting arrives as a STRING, and until schema step 397 a fresh
+  // install seeded it as the page name 'SEARCH' -- step 17 pre-dates the
+  // setting being repurposed into a row count. parseInt() answers NaN, and
+  // `pageLength: NaN` is not something DataTables catches: it is only the
+  // infinite-scroll branch below that ever had a fallback, so classic paging
+  // took the NaN straight through. Normalize here so neither mode depends on
+  // the setting being sane.
+  //
+  // -1 is left alone -- it is the legitimate "All" from the length menu.
+  // Scroller cannot use it, but that is the branch below's problem and it
+  // already handles it.
+  if (isNaN(pageLength) || pageLength === 0 || pageLength < -1) {
+    pageLength = 25;
+  }
+
   // Paging style is admin-selectable via FOG_TABLE_SCROLL_MODE (hidden
   // #scrollMode). Default is infinite (virtual-scroll) when unset.
   //

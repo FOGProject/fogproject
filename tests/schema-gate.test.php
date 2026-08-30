@@ -198,7 +198,12 @@ if (count($emptyLabels)) {
         . "  count(\$this->schema). `mySchema < FOG_SCHEMA` can then never\n"
         . "  be satisfied: the updater has nothing left to apply and every\n"
         . "  page on the server redirects to it, permanently.\n"
-        . "  The usual cause is a missing `];` closing the step before --\n"
+        . "  Two causes. A missing `];` closing the step before, so the\n"
+        . "  new statements silently join the previous element while the\n"
+        . "  label counts as a new one -- or a line INSIDE this step's own\n"
+        . "  comment that begins `// ` followed by a digit (a version like\n"
+        . "  `// 1.5, ...` at the start of a wrapped line). That is read as\n"
+        . "  the next label and steals this one, so reflow the comment.\n"
         . "  the new statements silently join the previous element while\n"
         . "  the label counts as a new one.\n"
     );
