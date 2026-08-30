@@ -64,7 +64,15 @@ class Authorization extends FOGBase
         // The API reference lays out every class and field the API exposes,
         // which is the same class of server information the settings pages
         // carry, so it takes the same gate rather than a node of its own.
-        'apidocs' => 'settings'
+        'apidocs' => 'settings',
+        // The log viewer moved out of the About page into its own node so it
+        // could sit under Logging with Activity and the Audit Log. It maps
+        // onto the SAME gate `about` does, deliberately: relocating a page in
+        // the sidebar must not change who can open it, and a node of its own
+        // would have been a widening or a narrowing depending on who holds
+        // what. Compare `audit`, which DOES have its own node -- that was a
+        // deliberate access decision (ADR 0021), and this is not one.
+        'logviewer' => 'settings'
     ];
     /**
      * Report class => registry node, for reports whose data is not
