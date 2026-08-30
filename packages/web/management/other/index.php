@@ -226,90 +226,56 @@ if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <?php
-                        // A three-state picker, not a toggle: "follow the
-                        // system" is a state a user can choose and return to,
-                        // and a two-way toggle has nowhere to put it. Sat in
-                        // the navbar beside the clock rather than in settings
-                        // because people currently assume FOG is light-only.
-                        //
-                        // data-theme-pref carries the STORED value, which is
-                        // not always the value on <html>: '' means the browser
-                        // resolved it. theme.js needs both to tick the right
-                        // row.
-        ?>
-                        <a href="#" id="themeToggle" class="nav-link" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false"
-                           data-theme-pref="<?= Initiator::e($themePref); ?>"
-                           data-label-system="<?= _('Theme: follow system'); ?>"
-                           data-label-light="<?= _('Theme: light'); ?>"
-                           data-label-dark="<?= _('Theme: dark'); ?>"
-                           title="<?= _('Theme'); ?>"
-                           aria-label="<?= _('Theme'); ?>">
-                            <i class="far fa-moon"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeToggle">
-                            <li>
-                                <button class="dropdown-item" type="button" data-theme-choice="">
-                                    <i class="fas fa-circle-half-stroke fa-fw me-2"></i><?= _('System'); ?>
-                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item" type="button" data-theme-choice="light">
-                                    <i class="far fa-sun fa-fw me-2"></i><?= _('Light'); ?>
-                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
-                                </button>
-                            </li>
-                            <li>
-                                <button class="dropdown-item" type="button" data-theme-choice="dark">
-                                    <i class="far fa-moon fa-fw me-2"></i><?= _('Dark'); ?>
-                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
-                                </button>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" id="tzToggle" class="nav-link" role="button"
-                           data-bs-toggle="modal" data-bs-target="#tzModal"
-                           title="<?= _('Set your display timezone'); ?>"
-                           aria-label="<?= _('Set your display timezone'); ?>">
-                            <i class="far fa-clock"></i>
-                        </a>
-                    </li>
                     <?php
-                    // THE ACCOUNT MENU. One dropdown, everything about who
-                    // you are and how you stop being them.
+                    // The stored theme preference, carried for theme.js.
                     //
-                    // These were four bare navbar links -- theme, clock,
-                    // impersonation, logout -- and the impersonation ones
-                    // pushed Logout along the bar every time a span opened.
-                    // A control that moves when the mode changes is a control
-                    // people misclick, and Logout is the worst one to misclick
-                    // while wearing somebody else's account.
+                    // Hidden, and an element of its own rather than an
+                    // attribute on a control, because the three choices now
+                    // live in the preferences dialog and no navbar control
+                    // displays the theme any more. What theme.js still needs
+                    // is the STORED value, which is not the value on <html>:
+                    // '' means the browser resolved it, and the tick in the
+                    // dialog has to tell "system, which happens to be dark"
+                    // from "dark".
                     //
-                    // So the identity controls live behind one stable target,
-                    // and the menu states the identity ITSELF rather than
-                    // leaving it to be inferred from the sidebar. That is not
-                    // decoration: #impersonation-bar is four pixels of colour
-                    // and carries its text only in aria-label, so before this
-                    // there was nothing on screen that NAMED the account being
-                    // worn or the administrator wearing it.
-                    //
-                    // THE CLOCK IS THE POINT, not a garnish. The motivating
-                    // ticket for impersonation is "this user says their times
-                    // are wrong", so the menu prints the current time as that
-                    // user sees it, zone abbreviation included. Answering the
-                    // question the feature exists for should not require
-                    // navigating anywhere.
-                    //
-                    // Rendered server-side, so it is the time at page render
-                    // rather than a live clock. Deliberate: a ticking clock
-                    // needs a timer, and a self-rescheduling timer is the bug
-                    // class ADR 0012 is about. What is being checked is the
-                    // ZONE, which does not tick.
-                    $acctName = (string)self::$FOGUser->get('name');
+                    // Its ABSENCE is also how theme.js recognizes the login
+                    // page -- no session, so no preference to read or write.
+                    // Anything that moves this must keep that true.
+        ?>
+                    <span id="themePref" class="d-none"
+                          data-theme-pref="<?= Initiator::e($themePref); ?>"></span>
+                    <?php
+        // THE ACCOUNT MENU. One dropdown, everything about who
+        // you are and how you stop being them.
+        //
+        // These were four bare navbar links -- theme, clock,
+        // impersonation, logout -- and the impersonation ones
+        // pushed Logout along the bar every time a span opened.
+        // A control that moves when the mode changes is a control
+        // people misclick, and Logout is the worst one to misclick
+        // while wearing somebody else's account.
+        //
+        // So the identity controls live behind one stable target,
+        // and the menu states the identity ITSELF rather than
+        // leaving it to be inferred from the sidebar. That is not
+        // decoration: #impersonation-bar is four pixels of color
+        // and carries its text only in aria-label, so before this
+        // there was nothing on screen that NAMED the account being
+        // worn or the administrator wearing it.
+        //
+        // THE CLOCK IS THE POINT, not a garnish. The motivating
+        // ticket for impersonation is "this user says their times
+        // are wrong", so the menu prints the current time as that
+        // user sees it, zone abbreviation included. Answering the
+        // question the feature exists for should not require
+        // navigating anywhere.
+        //
+        // Rendered server-side, so it is the time at page render
+        // rather than a live clock. Deliberate: a ticking clock
+        // needs a timer, and a self-rescheduling timer is the bug
+        // class ADR 0012 is about. What is being checked is the
+        // ZONE, which does not tick.
+        $acctName = (string)self::$FOGUser->get('name');
         $acctReal = $impersonating
             ? \FOG\Auth\Identity::realUserName()
             : '';
@@ -381,6 +347,34 @@ if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
                                 <a class="dropdown-item" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash fa-fw me-2"></i><?= _('End impersonation'); ?></a>
                             </li>
                             <?php endif; ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <?php
+                            // Theme and display timezone, which are the same
+                            // KIND of thing -- per-user preferences, stored in
+                            // userPrefs, changing what this one person sees and
+                            // nothing about what is stored or what anyone else
+                            // sees. They were two separate navbar icons, which
+                            // put a three-state picker and a modal trigger in
+                            // the chrome and said nothing about them belonging
+                            // together.
+                            //
+                            // A dialog rather than more rows in this menu:
+                            // theme is a three-way choice with a tick and
+                            // timezone is a several-hundred-option select, and
+                            // both are form controls wearing a menu's clothes.
+                            // It is also where the next per-user preference
+                            // goes without this menu growing again.
+                            //
+                            // Reached from HERE because that is what makes the
+                            // impersonation workflow one path: become the user,
+                            // open this menu, see their clock is wrong, fix it,
+                            // drop back. Preferences follow the impersonated
+                            // identity like every other read, which is the
+                            // whole point of the feature.
+        ?>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#prefsModal"><i class="fas fa-sliders fa-fw me-2"></i><?= _('Preferences'); ?></a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <a class="dropdown-item" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket fa-fw me-2"></i><?= _('Log out'); ?></a>
@@ -493,14 +487,69 @@ if ('' === trim($tzDefault)) {
 }
 $tzList = \DateTimeZone::listIdentifiers();
 ?>
-                <div class="modal fade" id="tzModal" tabindex="-1" aria-labelledby="tzModalLabel" aria-hidden="true">
+                <?php
+                // PREFERENCES: everything about how THIS person sees FOG.
+                //
+                // Was #tzModal, holding the timezone alone while the theme sat
+                // in a navbar dropdown of its own. They are the same kind of
+                // thing -- per-user, stored in userPrefs, changing only what
+                // the one viewer sees -- and splitting them across two bits of
+                // chrome said otherwise.
+                //
+                // STATIC, not fetched. The impersonation picker is fetched on
+                // open because building it costs a users query and two subset
+                // tests per user; this costs a listIdentifiers() call and no
+                // database at all. Shipping it also means theme.js and
+                // fog.common.js still find their controls at DOMContentLoaded,
+                // where they bind directly -- fetching the body would break
+                // both silently, with the dialog rendering perfectly and
+                // nothing in it working.
+                //
+                // THE TWO HALVES SAVE DIFFERENTLY, deliberately. Theme applies
+                // on click and writes in the background: it is a client-side
+                // attribute flip, so waiting on the network would add lag to
+                // something that cannot fail visibly. Timezone needs Save and
+                // then reloads, because every date already on the page was
+                // rendered server-side in the old zone and cannot be relabeled
+                // in place.
+?>
+                <div class="modal fade" id="prefsModal" tabindex="-1" aria-labelledby="prefsModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="tzModalLabel"><?= _('Display timezone'); ?></h5>
+                                <h5 class="modal-title" id="prefsModalLabel"><?= _('Preferences'); ?></h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= _('Close'); ?>"></button>
                             </div>
                             <div class="modal-body">
+                                <?php
+                // A three-state picker, not a toggle: "follow
+                // the system" is a state a user can choose and
+                // return to, and a two-way toggle has nowhere
+                // to put it.
+                //
+                // The tick is `invisible` rather than `d-none`
+                // so the three rows keep the same width and
+                // nothing shifts as it moves.
+?>
+                                <h6 class="mb-1"><?= _('Theme'); ?></h6>
+                                <p class="text-body-secondary small">
+                                    <?= _('How FOG looks to you. "System" follows whatever your device is set to.'); ?>
+                                </p>
+                                <div class="list-group mb-4">
+                                    <button class="list-group-item list-group-item-action d-flex align-items-center" type="button" data-theme-choice="">
+                                        <i class="fas fa-circle-half-stroke fa-fw me-2"></i><?= _('System'); ?>
+                                        <i class="fas fa-check fa-fw ms-auto theme-choice-tick invisible"></i>
+                                    </button>
+                                    <button class="list-group-item list-group-item-action d-flex align-items-center" type="button" data-theme-choice="light">
+                                        <i class="far fa-sun fa-fw me-2"></i><?= _('Light'); ?>
+                                        <i class="fas fa-check fa-fw ms-auto theme-choice-tick invisible"></i>
+                                    </button>
+                                    <button class="list-group-item list-group-item-action d-flex align-items-center" type="button" data-theme-choice="dark">
+                                        <i class="far fa-moon fa-fw me-2"></i><?= _('Dark'); ?>
+                                        <i class="fas fa-check fa-fw ms-auto theme-choice-tick invisible"></i>
+                                    </button>
+                                </div>
+                                <h6 class="mb-1"><?= _('Display timezone'); ?></h6>
                                 <p class="text-body-secondary small">
                                     <?= _('Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else.'); ?>
                                 </p>
