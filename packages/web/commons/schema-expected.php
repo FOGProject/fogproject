@@ -822,6 +822,16 @@ return [
                 'stReturnDetails' => 'varchar(250) NOT NULL DEFAULT \'\'',
             ],
         ],
+        'storageEpoch' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `storageEpoch` ( `seID` int(11) NOT NULL AUTO_INCREMENT, `seBoundary` datetime DEFAULT NULL, `seZone` varchar(64) NOT NULL DEFAULT \'\', `seDbZone` varchar(64) NOT NULL DEFAULT \'\', `seSchema` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`seID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'seID' => 'int(11) NOT NULL',
+                'seBoundary' => 'datetime DEFAULT NULL',
+                'seZone' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'seDbZone' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'seSchema' => 'int(11) NOT NULL DEFAULT 0',
+            ],
+        ],
         'supportedOS' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `supportedOS` ( `osID` int(10) unsigned NOT NULL AUTO_INCREMENT, `osName` varchar(150) NOT NULL DEFAULT \'\', `osValue` int(10) unsigned NOT NULL DEFAULT 0, PRIMARY KEY (`osID`), UNIQUE KEY `osName` (`osName`), KEY `new_index` (`osValue`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [

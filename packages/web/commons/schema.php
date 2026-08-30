@@ -9754,3 +9754,76 @@ $this->schema[] =
 
         return true;
     };
+// 396
+$this->schema[] = [
+    // The UTC storage boundary.
+    //
+    // From this step on, every value FOG writes into a date column is UTC:
+    // storageTimeZone() answers UTC once this row exists, and the database
+    // session runs at +00:00 so NOW() and DEFAULT current_timestamp() agree
+    // with it. FOG_TZ_INFO stops being a storage zone and becomes what its
+    // name always suggested -- the install's default DISPLAY zone.
+    //
+    // Nothing already stored is converted. It cannot be: up to five clocks
+    // have written these columns (PHP through FOG_TZ_INFO, MySQL NOW(),
+    // MySQL DEFAULT current_timestamp(), the display-zone regression fixed
+    // in #1491, and the fog-client's own clock), and no sweep can know which
+    // wrote any given row. So instead of guessing, this records the instant
+    // the convention changed and every reader compares against it. See
+    // docs/development/utc-storage-boundary.md.
+    //
+    // Its own table rather than a globalSettings row: the configuration page
+    // renders every row of that table with no WHERE, and `setting` is a
+    // routed class, so the value would be one careless edit away from
+    // changing the meaning of every timestamp in the install. Rather than a
+    // column on schemaVersion, whose seed INSERT is positional -- a third
+    // column makes a fresh install die on 1136 -- and whose entire contract
+    // with the installer and the updater is "one integer".
+    "CREATE TABLE IF NOT EXISTS `storageEpoch` ( "
+    . "`seID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`seBoundary` datetime DEFAULT NULL, "
+    . "`seZone` varchar(64) NOT NULL DEFAULT '', "
+    . "`seDbZone` varchar(64) NOT NULL DEFAULT '', "
+    . "`seSchema` int(11) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`seID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Written once and never again. The guard is a row count rather than an
+    // INSERT IGNORE on a fixed id: re-running the step on an install that
+    // already has a boundary must not move it, and moving it is the one
+    // change that would silently re-interpret every date in the database.
+    //
+    // seZone and seDbZone are recorded because they are what lets a reader
+    // say what a pre-boundary value MEANT, and what would let a future
+    // maintainer narrow the 26-hour band deliberately rather than
+    // rediscover why it is wide. UTC_TIMESTAMP() rather than NOW(): the
+    // session zone is not yet pinned at this point in the upgrade.
+    function () {
+        $existing = self::$DB
+            ->query('SELECT COUNT(`seID`) AS `c` FROM `storageEpoch`')
+            ->fetch()
+            ->get('c');
+        if ((int)$existing > 0) {
+            return true;
+        }
+        // Read straight out of globalSettings rather than through
+        // getSetting(): a schema step runs with the settings cache in
+        // whatever state the rest of the upgrade left it, and this value
+        // has to be the one that was in force, not a default.
+        $zone = (string)self::$DB
+            ->query(
+                'SELECT `settingValue` FROM `globalSettings` '
+                . "WHERE `settingKey` = 'FOG_TZ_INFO'"
+            )
+            ->fetch()
+            ->get('settingValue');
+        self::$DB->query(
+            'INSERT INTO `storageEpoch` '
+            . '(`seBoundary`, `seZone`, `seDbZone`, `seSchema`) '
+            . 'SELECT UTC_TIMESTAMP(), '
+            . self::$DB->sanitize($zone) . ', '
+            . '@@global.system_time_zone, 396'
+        );
+
+        return true;
+    },
+];
