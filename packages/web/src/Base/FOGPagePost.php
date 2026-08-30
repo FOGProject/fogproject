@@ -469,7 +469,12 @@ trait FOGPagePost
                 ) {
                     throw new \Exception(_('A scheduled time is required'));
                 }
-                $scheduleDeployTime = self::niceDate($scheduleSingleTime);
+                // The viewer typed this into a picker on a page rendered
+                // in their own zone, so it is read in theirs and not the
+                // install's -- see viewerDate(). The past-time check
+                // below then compares two values that mean the same
+                // thing.
+                $scheduleDeployTime = self::viewerDate($scheduleSingleTime);
                 if ($scheduleDeployTime < self::niceDate()) {
                     throw new \Exception(_('Scheduled time is in the past'));
                 }
