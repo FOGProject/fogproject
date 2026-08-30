@@ -297,6 +297,26 @@ function fogStateKey(settings) {
  * entirely: a filter someone typed is not something to persist server-side
  * on their behalf.
  *
+ * A SELECTION is the same thing with teeth. DataTables Select registers its
+ * own stateSaveParams handler that writes `select.rows` -- the row ids -- into
+ * every save, and a matching stateLoadParams that re-selects them and calls
+ * state.save() again. Nothing here asked for that and nothing here reads it.
+ * Left in, three hosts ticked on Friday come back ticked on Monday, from
+ * whichever machine you next sign in on, because this store is server-side and
+ * lasts a year. Every bulk action on the page reads rows({selected: true}), so
+ * what is restored is not a view of the list -- it is a loaded gun pointed at
+ * rows the person in front of it did not choose, sitting somewhere down an
+ * 86-row virtual scroll where they cannot see it.
+ *
+ * Verified on the lab server before this was written: selecting three hosts
+ * POSTed `select: {rows: ["#211","#48","#49"], ...}` to
+ * system/userpref/dt.host.list.dataTable, and the next load came up with three
+ * rows selected and their checkboxes ticked.
+ *
+ * Select's restore is guarded on `void 0 !== l.select`, so dropping the key
+ * makes it a clean no-op rather than an error -- and skips the extra
+ * state.save() it fires on every page load.
+ *
  * @param {object} state the state DataTables wants saved
  *
  * @return {object} a copy safe to store
@@ -343,10 +363,11 @@ function fogApplyOrder(api) {
   }
   api.order(wanted).draw(false);
 }
-function fogStripStateSearch(state) {
+function fogStripVolatileState(state) {
   var copy = $.extend(true, {}, state), i;
   delete copy.search;
   delete copy.searchBuilder;
+  delete copy.select;
   for (i = 0; i < (copy.columns || []).length; i++) {
     delete copy.columns[i].search;
   }
@@ -623,7 +644,7 @@ var shouldReAuth,
       // affordance -- "I like filtering from the headers" -- and remembering
       // that is not the same as remembering a question somebody asked once.
       // The terms are still cleared when the row closes, and still stripped
-      // from the saved layout; see fogStripStateSearch().
+      // from the saved layout; see fogStripVolatileState().
       fogAffordanceStore(dt, 'searchrow', on);
     }
   },
@@ -3992,8 +4013,10 @@ $.fn.registerTable = function(onSelect, opts) {
     colReorder: true,
     // Column order, which columns are showing, page length and sort now
     // persist per user, through the preference store rather than
-    // localStorage -- see stateSaveCallback below. Searches are deliberately
-    // NOT part of it; fogStripStateSearch() says why.
+    // localStorage -- see stateSaveCallback below. Searches and the row
+    // SELECTION are deliberately NOT part of it; fogStripVolatileState() says
+    // why. The selection in particular is put there by the Select extension
+    // itself, not by anything here, so it has to be taken back out.
     stateSave: true,
     // Long enough that a layout survives a holiday. DataTables discards a
     // state older than this, which is the escape hatch if a saved layout ever
@@ -4010,7 +4033,7 @@ $.fn.registerTable = function(onSelect, opts) {
       // ours to fix here. The key survives any reordering, and fogApplyOrder()
       // puts the sort back where it belongs once the table is up.
       data.fogOrder = fogOrderKeys(settings, data.order);
-      value = JSON.stringify(fogStripStateSearch(data));
+      value = JSON.stringify(fogStripVolatileState(data));
       if (!key) {
         return;
       }
@@ -4050,7 +4073,7 @@ $.fn.registerTable = function(onSelect, opts) {
           // -- or by localStorage before this shipped -- can carry a saved
           // search, and restoring one invisibly is the failure this whole
           // arrangement is written to avoid.
-          callback(fogStripStateSearch(JSON.parse(raw)));
+          callback(fogStripVolatileState(JSON.parse(raw)));
         } catch (e) {
           // A corrupt or truncated value means "no saved layout", not a
           // broken table. JSON.parse throwing here would otherwise take out
