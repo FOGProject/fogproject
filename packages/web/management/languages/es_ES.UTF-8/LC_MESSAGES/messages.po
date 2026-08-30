@@ -2128,6 +2128,9 @@ msgstr ""
 msgid "Daily"
 msgstr "Diariamente"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Dashboard"
 msgstr ""
 
@@ -5027,6 +5030,10 @@ msgstr "Evento debe ser una cadena"
 #, fuzzy
 msgid "License"
 msgstr "Línea"
+
+#, fuzzy
+msgid "Light"
+msgstr "Medianoche"
 
 msgid "Line"
 msgstr "Línea"
@@ -8588,12 +8595,6 @@ msgstr "actualizado exitosamente"
 msgid "Supported here: %s."
 msgstr ""
 
-msgid "Switch to dark mode"
-msgstr ""
-
-msgid "Switch to light mode"
-msgstr ""
-
 msgid "Sync finished - "
 msgstr ""
 
@@ -9200,6 +9201,18 @@ msgstr "El archivo subido se ha subido sólo parcialmente"
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme: dark"
+msgstr ""
+
+msgid "Theme: follow system"
+msgstr ""
+
+msgid "Theme: light"
+msgstr ""
+
 #, fuzzy
 msgid "There are"
 msgstr "Existen"
@@ -9490,9 +9503,6 @@ msgid "To get started please select an item from the menu."
 msgstr ""
 
 msgid "Toggle Dropdown"
-msgstr ""
-
-msgid "Toggle dark mode"
 msgstr ""
 
 #, fuzzy

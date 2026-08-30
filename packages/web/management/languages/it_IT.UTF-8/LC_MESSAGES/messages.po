@@ -2048,6 +2048,9 @@ msgstr ""
 msgid "Daily"
 msgstr "Quotidiano"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Dashboard"
 msgstr "scrivania"
 
@@ -4777,6 +4780,10 @@ msgstr "Livello deve essere una stringa"
 
 msgid "License"
 msgstr "Licenza"
+
+#, fuzzy
+msgid "Light"
+msgstr "Mezzanotte"
 
 msgid "Line"
 msgstr "linea"
@@ -8146,12 +8153,6 @@ msgstr "Creato con successo"
 msgid "Supported here: %s."
 msgstr ""
 
-msgid "Switch to dark mode"
-msgstr ""
-
-msgid "Switch to light mode"
-msgstr ""
-
 msgid "Sync finished - "
 msgstr ""
 
@@ -8733,6 +8734,18 @@ msgstr "Il file caricato è stato solo parzialmente caricato"
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme: dark"
+msgstr ""
+
+msgid "Theme: follow system"
+msgstr ""
+
+msgid "Theme: light"
+msgstr ""
+
 msgid "There are"
 msgstr "Ci sono"
 
@@ -9020,9 +9033,6 @@ msgid "To get started please select an item from the menu."
 msgstr "Per iniziare, seleziona un elemento dal menu."
 
 msgid "Toggle Dropdown"
-msgstr ""
-
-msgid "Toggle dark mode"
 msgstr ""
 
 #, fuzzy

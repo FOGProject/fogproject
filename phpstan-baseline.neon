@@ -1387,6 +1387,12 @@ parameters:
 			path: packages/web/management/other/index.php
 
 		-
+			message: '#^Calling self\:\:displayTheme\(\) outside of class scope\.$#'
+			identifier: outOfClass.self
+			count: 1
+			path: packages/web/management/other/index.php
+
+		-
 			message: '#^Calling self\:\:getClass\(\) outside of class scope\.$#'
 			identifier: outOfClass.self
 			count: 1

@@ -1796,6 +1796,9 @@ msgstr ""
 msgid "Daily"
 msgstr ""
 
+msgid "Dark"
+msgstr ""
+
 msgid "Dashboard"
 msgstr ""
 
@@ -4181,6 +4184,9 @@ msgid "Level must be an integer"
 msgstr ""
 
 msgid "License"
+msgstr ""
+
+msgid "Light"
 msgstr ""
 
 msgid "Line"
@@ -7144,12 +7150,6 @@ msgstr ""
 msgid "Supported here: %s."
 msgstr ""
 
-msgid "Switch to dark mode"
-msgstr ""
-
-msgid "Switch to light mode"
-msgstr ""
-
 msgid "Sync finished - "
 msgstr ""
 
@@ -7677,6 +7677,18 @@ msgstr ""
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme: dark"
+msgstr ""
+
+msgid "Theme: follow system"
+msgstr ""
+
+msgid "Theme: light"
+msgstr ""
+
 msgid "There are"
 msgstr ""
 
@@ -7953,9 +7965,6 @@ msgid "To get started please select an item from the menu."
 msgstr ""
 
 msgid "Toggle Dropdown"
-msgstr ""
-
-msgid "Toggle dark mode"
 msgstr ""
 
 msgid "Toggle navigation"

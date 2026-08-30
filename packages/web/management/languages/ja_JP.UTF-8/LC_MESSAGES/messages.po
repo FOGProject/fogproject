@@ -2032,6 +2032,9 @@ msgstr ""
 msgid "Daily"
 msgstr "毎日"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
@@ -4740,6 +4743,10 @@ msgstr "レベルは整数である必要があります"
 
 msgid "License"
 msgstr "ライセンス"
+
+#, fuzzy
+msgid "Light"
+msgstr "午前 0 時"
 
 msgid "Line"
 msgstr "行"
@@ -8090,12 +8097,6 @@ msgstr "削除しました"
 msgid "Supported here: %s."
 msgstr ""
 
-msgid "Switch to dark mode"
-msgstr ""
-
-msgid "Switch to light mode"
-msgstr ""
-
 msgid "Sync finished - "
 msgstr ""
 
@@ -8676,6 +8677,18 @@ msgstr "アップロードしたファイルは一部しかアップロードさ
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme: dark"
+msgstr ""
+
+msgid "Theme: follow system"
+msgstr ""
+
+msgid "Theme: light"
+msgstr ""
+
 msgid "There are"
 msgstr "あります"
 
@@ -8963,9 +8976,6 @@ msgid "To get started please select an item from the menu."
 msgstr "開始するにはメニューから項目を選択してください。"
 
 msgid "Toggle Dropdown"
-msgstr ""
-
-msgid "Toggle dark mode"
 msgstr ""
 
 #, fuzzy

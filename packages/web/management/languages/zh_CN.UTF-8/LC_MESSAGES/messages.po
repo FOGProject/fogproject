@@ -2108,6 +2108,9 @@ msgstr ""
 msgid "Daily"
 msgstr "日常"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Dashboard"
 msgstr "仪表板"
 
@@ -4929,6 +4932,10 @@ msgstr "事件必须是字符串"
 
 msgid "License"
 msgstr "执照"
+
+#, fuzzy
+msgid "Light"
+msgstr "午夜"
 
 msgid "Line"
 msgstr "线"
@@ -8411,12 +8418,6 @@ msgstr "成功更新"
 msgid "Supported here: %s."
 msgstr ""
 
-msgid "Switch to dark mode"
-msgstr ""
-
-msgid "Switch to light mode"
-msgstr ""
-
 msgid "Sync finished - "
 msgstr ""
 
@@ -9018,6 +9019,18 @@ msgstr "上传的文件只有部分被上传"
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme: dark"
+msgstr ""
+
+msgid "Theme: follow system"
+msgstr ""
+
+msgid "Theme: light"
+msgstr ""
+
 msgid "There are"
 msgstr "有"
 
@@ -9312,9 +9325,6 @@ msgid "To get started please select an item from the menu."
 msgstr ""
 
 msgid "Toggle Dropdown"
-msgstr ""
-
-msgid "Toggle dark mode"
 msgstr ""
 
 #, fuzzy
