@@ -3923,19 +3923,27 @@ $.fn.registerTable = function(onSelect, opts) {
     // this is a no-op on an install that has not crossed the boundary and on
     // every client-side table, neither of which sends one.
     rowCallback: function(tr, data) {
-      // Reached through the row's own table rather than a closure: the first
-      // draw happens INSIDE the DataTable() call below, so the variable
-      // holding the API is not assigned yet when this first runs. Cached
-      // because it is otherwise a settings-array scan per row.
+      // Reached through the callback's own `this`, which DataTables sets to
+      // the table's jQuery instance, and NOT through the row: rowCallback runs
+      // while the row is still DETACHED -- DataTables builds every <tr>, fires
+      // this for each, and attaches the tbody afterward -- so
+      // $(tr).closest('table') matches nothing and .DataTable() hands back an
+      // API with no settings behind it. Reading settings()[0] off that threw
+      // "Cannot read properties of undefined" on the first ajax draw of every
+      // grid, and the throw aborted the draw: one row rendered, the
+      // header/body split never sized, and nothing but the console said so.
+      //
+      // Cached because it is otherwise a settings-array scan per row.
       if (!unadjustedTable) {
-        unadjustedTable = $(tr).closest('table').DataTable();
+        unadjustedTable = this.api();
       }
-      fogMarkUnadjusted(
-        unadjustedTable,
-        tr,
-        data,
-        unadjustedTable.settings()[0].fogUnadjustedNote
-      );
+      var note = unadjustedTable.settings()[0].fogUnadjustedNote;
+      // No note means nothing to mark: an install that has not crossed the
+      // boundary does not send one, and neither does a client-side table.
+      if (!note) {
+        return;
+      }
+      fogMarkUnadjusted(unadjustedTable, tr, data, note);
     },
     searching: true,
     ordering: true,
