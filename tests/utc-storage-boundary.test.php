@@ -196,8 +196,14 @@ if (!preg_match(
         . 're-running the step would move the boundary and silently '
         . 're-interpret every stored date';
 }
-if (!preg_match("#define\('FOG_SCHEMA', 396\);#", $system)) {
-    $fails[] = 'FOG_SCHEMA is not 396, so step 396 never runs and the '
+// AT LEAST 396, not exactly 396. The invariant is that the gate reaches the
+// boundary step so it can run; pinning equality instead made this test fail
+// on the next schema step anybody appended, which says nothing about the
+// boundary and trains people to edit the assertion rather than read it.
+if (!preg_match("#define\('FOG_SCHEMA', (\d+)\);#", $system, $gate)
+    || (int)$gate[1] < 396
+) {
+    $fails[] = 'FOG_SCHEMA is below 396, so step 396 never runs and the '
         . 'boundary is never recorded';
 }
 $manifest = require $root . '/packages/web/commons/schema-expected.php';

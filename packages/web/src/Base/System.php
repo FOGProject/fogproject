@@ -94,8 +94,8 @@ class System
         // 1.5.x carried count does, see SchemaReconciler's docstring -- is
         // permanently "up to date" from the updater's point of view and will
         // never run another indexed step, whatever this constant says.
-        define('FOG_SCHEMA', 396);
-        define('FOG_BCACHE_VER', 344);
+        define('FOG_SCHEMA', 397);
+        define('FOG_BCACHE_VER', 345);
         define('FOG_CLIENT_VERSION', '0.13.0');
         // GH-959: iPXE lives in FOGProject/fog-ipxe and its binaries arrive as
         // a release asset. Pinned here rather than tracked as "latest" so a

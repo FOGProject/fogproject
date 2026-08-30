@@ -878,9 +878,11 @@ $this->schema[] = [
     . "for the ssh client.','root','SSH Client'),"
     . "('FOG_SSH_PORT','This setting defines the port to use for the ssh client.',"
     . "'22','SSH Client'),"
-    . "('FOG_VIEW_DEFAULT_SCREEN','This setting defines which page is "
-    . "displayed in each section, valid settings includes <b>LIST</b> "
-    . "and <b>SEARCH</b>.','SEARCH','FOG View Settings')",
+    . "('FOG_VIEW_DEFAULT_SCREEN','This setting defines how many rows a "
+    . "management list shows to a user who has not yet saved a layout of "
+    . "their own. Column order, visibility, sort and row count are "
+    . "remembered per user once changed, so this is the starting default "
+    . "rather than a fixed limit.','25','FOG View Settings')",
     "UPDATE `schemaVersion` set vValue = '17'",
 ];
 // 18
@@ -9826,4 +9828,47 @@ $this->schema[] = [
 
         return true;
     },
+];
+// 397
+// Repairs FOG_VIEW_DEFAULT_SCREEN, which step 17 seeded as a page NAME.
+//
+// The setting used to mean "which screen does a section open on", and its
+// two values were LIST and SEARCH -- which is still exactly what it means
+// on 1.5, so this repair is 1.6-only and there is nothing to port. In 1.6
+// it was repurposed into the grids' rows-per-page default and the
+// Configuration page began rendering it as a 10/25/50/100/All picker, but
+// step 17 was never corrected. An upgraded install is fine because it
+// carries the numeric row its 1.5 self already held; a FRESH 1.6 install
+// seeded the literal string SEARCH into what is now a row count.
+//
+// The damage is not cosmetic. The value reaches the browser through the
+// hidden #pageLength input, where registerTable() does parseInt() on it --
+// so a fresh install handed every grid pageLength: NaN. Infinite scroll
+// happened to survive it, because Scroller needs a finite chunk and already
+// had a fallback for "All"; classic paging had no such guard and got the
+// NaN. fog.common.js now normalizes the value too, so the two halves cover
+// each other rather than either being the only thing standing between a bad
+// setting and a broken grid.
+//
+// The value is only touched when it is one of the two names step 17 could
+// have produced. An admin who has chosen a number keeps it, including a
+// number the picker does not offer, because "not in the dropdown" is not the
+// same as "invalid" and silently resetting somebody's choice to fix our own
+// seed would be the worse bug. Collation is case-insensitive, so the two
+// literals also cover a lowercased copy.
+//
+// The description is rewritten unconditionally: that text is ours, not the
+// admin's, and the old wording documents behavior that no longer exists.
+$this->schema[] = [
+    "UPDATE `globalSettings` "
+    . "SET `settingDesc` = 'This setting defines how many rows a management "
+    . "list shows to a user who has not yet saved a layout of their own. "
+    . "Column order, visibility, sort and row count are remembered per user "
+    . "once changed, so this is the starting default rather than a fixed "
+    . "limit.' "
+    . "WHERE `settingKey` = 'FOG_VIEW_DEFAULT_SCREEN'",
+    "UPDATE `globalSettings` "
+    . "SET `settingValue` = '25' "
+    . "WHERE `settingKey` = 'FOG_VIEW_DEFAULT_SCREEN' "
+    . "AND `settingValue` IN ('SEARCH','LIST')",
 ];
