@@ -53,8 +53,30 @@ name: Tests
 # is a real behaviour change, so it is written here rather than left to be
 # rediscovered.
 
+# WHY `merge_group` IS HERE
+#
+# working-1.6 is behind a merge queue. GitHub builds each queued entry on a
+# temporary `gh-readonly-queue/...` branch and raises a `merge_group` event
+# against it, and the ruleset's eight required contexts have to be reported ON
+# THAT BRANCH before the entry can merge. A workflow that triggers only on
+# `pull_request` never runs there, so nothing reports, and the entry sits until
+# the ruleset's check_response_timeout_minutes expires and it is ejected. The
+# symptom is not a red X: it is every pull request silently failing to merge an
+# hour after being queued.
+#
+# Both events, one file. A pull request still gets the full suite before it is
+# queued -- that is where a contributor sees a failure -- and the queue re-runs
+# it against the tree that will actually land, which is the whole point of a
+# queue.
+#
+# Only `regen` is pull-request-only, and it excludes itself: every term in its
+# `if` reads `github.event.pull_request`, which is null under `merge_group`. It
+# must stay that way. It pushes a commit to a head branch, and a queue entry has
+# no head branch to push to -- the queue branch is read-only and is deleted when
+# the entry finishes.
 on:
   pull_request:
+  merge_group:
 
 jobs:
   # Regenerates the derived files -- PSR2 formatting and the gettext catalogue
@@ -162,6 +184,11 @@ jobs:
     #     must never become a hard gate; it is allowed to go red on its own.
     #     A genuinely cancelled run -- superseded by a newer push -- correctly
     #     skips the suite, since a fresh run is already on its way.
+    #
+    #     A MERGE QUEUE run is the same shape: regen excludes itself there
+    #     (no pull request context to match), and the suite has to run anyway
+    #     -- it is the only thing that reports the required contexts on the
+    #     queue branch. See WHY `merge_group` IS HERE at the top.
     #
     #   pushed != 'true' -- the saving. regen sets this output only when a
     #     commit actually landed on the head branch, and that push has by then
