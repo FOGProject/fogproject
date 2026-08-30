@@ -1043,7 +1043,11 @@ class ImageManagement extends FOGPage
             _('Image') => $this->obj->get('name'),
             _('OS') => $this->obj->getOS()->get('name'),
             _('Image Type') => $this->obj->getImageType()->get('name'),
-            _('Last Captured') => self::dateOrNever($this->obj->get('deployed')),
+            _('Last Captured') => self::dateOrNever(
+                $this->obj->get('deployed'),
+                'images',
+                'imageLastDeploy'
+            ),
             _('Size on Server') => self::formatByteSize($this->obj->get('srvsize')),
             _('Primary Storage Group') => $this->obj->getStorageGroup()->get('name')
         ];

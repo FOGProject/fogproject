@@ -123,6 +123,12 @@ const TABLE = [
     'PluginTask' => 'Base',
     'LoadGlobals' => 'Base',
     'System' => 'Base',
+    // Base, not Db or Util: it answers a question FOGBase itself has to ask
+    // before it can read or write any date at all -- which zone stored values
+    // mean -- and it is consulted from storageTimeZone(), which is on the
+    // boot path. It reads one table, but so does every model; what makes it
+    // Base is who depends on it.
+    'StorageEpoch' => 'Base',
     // Bases of their own derived buckets.
     'FOGClient' => 'Client',
     'FOGService' => 'Service',
