@@ -53,7 +53,7 @@ carried the guard, each discovered independently and each spelled differently:
 | `dashboard/fog.dashboard.js` (×4 charts) | 2.5s / 5m | `alive(SEL)` → `document.querySelector(sel)` |
 | `task/fog.task.list.js` | 5s | `document.body.contains(initialTabEl)` |
 | `image/fog.image.multicast.js` | 5s | `document.body.contains(sessionTable[0])` |
-| `about/fog.about.logviewer.js` | 10s | `document.body.contains(logsGoHere[0])` |
+| `logviewer/fog.logviewer.list.js` | 10s | `document.body.contains(logsGoHere[0])` |
 
 Three of the four comments independently explain that `clearAllIntervals()` only
 covers intervals. Four authors rediscovering the same platform behavior, and one
