@@ -397,7 +397,7 @@ class APIToken extends FOGController
             return;
         }
         $this
-            ->set('lastUsed', self::formatTime('now', 'Y-m-d H:i:s'))
+            ->set('lastUsed', self::storageNow())
             ->save();
     }
 }

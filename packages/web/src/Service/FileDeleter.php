@@ -317,7 +317,7 @@ class FileDeleter extends FOGService
                     }
                 }
                 $Task
-                    ->set('completedTime', self::formatTime('now', 'Y-m-d H:i:s'))
+                    ->set('completedTime', self::storageNow())
                     ->set('stateID', self::getCompleteState())
                     ->save();
             }

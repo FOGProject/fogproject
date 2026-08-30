@@ -2064,7 +2064,7 @@ abstract class FOGPage extends FOGBase
                         $insert_values[] = [
                             $pathItem,
                             $this->childClass,
-                            self::formatTime('now', 'Y-m-d H:i:s'),
+                            self::storageNow(),
                             self::getQueuedState(),
                             self::$FOGUser->get('name'),
                             $storagegroupID

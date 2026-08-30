@@ -1947,7 +1947,7 @@ class ImageManagement extends FOGPage
             ->set('stateID', null)
             ->set('sessclients', $sessioncount)
             ->set('isDD', $Image->get('imageTypeID'))
-            ->set('starttime', self::formatTime('now', 'Y-m-d H:i:s'))
+            ->set('starttime', self::storageNow())
             ->set('interface', $StorageNode->get('interface'))
             ->set('logpath', $Image->get('path'))
             ->set('storagegroupID', $StorageGroup->get('id'))

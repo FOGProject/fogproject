@@ -1260,7 +1260,7 @@ class SnapinManagement extends FOGPage
                         $insert_values[] = [
                             $this->obj->get('file'),
                             'Snapin',
-                            self::formatTime('now', 'Y-m-d H:i:s'),
+                            self::storageNow(),
                             self::getQueuedState(),
                             self::$FOGUser->get('name'),
                             $storagegroupID

@@ -1863,14 +1863,25 @@ abstract class FOGBase
         if (null !== self::$_displayTimeZone) {
             return self::$_displayTimeZone;
         }
-        self::$_displayTimeZone = self::storageTimeZone();
+        $storage = self::storageTimeZone();
         $user = self::$FOGUser;
-        // Matches the house guard used wherever the shell asks the same
-        // question: unset before LoadGlobals has run, and invalid for anyone
-        // not signed in -- a background service, or the login page itself.
-        if (!$user || !$user->isValid()) {
-            return self::$_displayTimeZone;
+        // NOTHING is cached until the answer is one worth keeping.
+        //
+        // FOG_TZ_INFO arrives in setEnv(), which runs INSIDE LoadGlobals --
+        // and LoadGlobals formats a date before it gets there. Caching the
+        // answer on that first call pinned the whole request to
+        // storageTimeZone()'s own fallback of UTC, whatever FOG_TZ_INFO said,
+        // which on an America/Chicago install put every rendered date five
+        // hours out and (through the write sites this method used to reach)
+        // stored them that way too.
+        //
+        // So the empty case answers and returns without remembering. The
+        // cache exists for the DATABASE read below, which is the only
+        // expensive part and cannot happen before there is a user anyway.
+        if (empty(self::$TimeZone) || !$user || !$user->isValid()) {
+            return $storage;
         }
+        self::$_displayTimeZone = $storage;
         try {
             $pref = self::getClass('UserPrefManager')
                 ->fetch((int)$user->get('id'), self::TIMEZONE_PREF);
@@ -1889,6 +1900,26 @@ abstract class FOGBase
             // a tzdata that moved underneath us. Fall back rather than throw.
         }
         return self::$_displayTimeZone;
+    }
+    /**
+     * The current time, in the zone the database is written in.
+     *
+     * This is what every WRITE must use. formatTime() is its display-side
+     * counterpart and converts to the VIEWER's zone -- correct for something
+     * on a page, wrong for something about to be stored, because it makes the
+     * value depend on who happened to be signed in when the row was made.
+     *
+     * The two were the same function until a display zone existed at all, so
+     * the write sites were written against formatTime() and were harmless
+     * right up until they were not.
+     *
+     * @param string $format any format DateTime understands.
+     *
+     * @return string
+     */
+    public static function storageNow($format = 'Y-m-d H:i:s')
+    {
+        return self::niceDate('now')->format($format);
     }
     /**
      * Turns a datetime the VIEWER typed into one the database can be
