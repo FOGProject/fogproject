@@ -62,7 +62,7 @@ in this area:
 
 | Kind | Meaning | Examples |
 |---|---|---|
-| **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `PKI_sb_enabled`, `SVC_firewall_control`, `FOG_update_channel`, `FOG_install_mode`, `PKI_internal_subnets`, `BOOT_kernel_backups_kept` |
+| **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `PKI_sb_enabled`, `SVC_firewall_control`, `FOG_update_channel`, `FOG_install_mode`, `PKI_internal_subnets`, `BOOT_kernel_backups_kept`, `WEB_url_primary` |
 | **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `FOG_program_dir`, `FOG_git_path`, `FOG_packages`, `WEB_php_version`, `BOOT_url_proto`, every canonical `PKI_*` path |
 | **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `inetConnectTimeout`, `inetMaxTime`, `storageLocationCapture`, `ftppasvmin`/`ftppasvmax`, `mcastportmin`/`mcastportmax` |
 | **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `WEB_https_redirect`, `BOOT_url_proto_forced` |
@@ -114,6 +114,43 @@ that pattern is worth resisting up front rather than retiring later:
 `catrust` and `sbNameConstraints` went for a different reason: both were opt-outs
 that put the safe answer behind a flag nobody passes until something has already
 broken. See ADR 0024.
+
+### A preference with no flag and no prompt
+
+`WEB_url_primary` is one, and it is the shape to copy when a setting changes
+presentation rather than behavior.
+
+It decides which of the two management-portal URLs the installer prints **first**
+when it finishes — `name` (the default) or `address`. The name leads by default
+because on a certificate carrying names only, reaching the server by address is
+a name mismatch and the browser says so. That reasoning does not survive contact
+with every network: on a server the whole estate already reaches by address,
+whose name resolves for a subset of machines, name-first buries the URL that
+actually works.
+
+```sh
+WEB_url_primary='address'
+```
+
+Three properties make the no-flag, no-prompt shape right here, and all three
+have to hold before reusing it:
+
+- **It changes output, not behavior.** Nothing is installed differently, no file
+  moves, no service is configured differently. Getting it wrong costs two lines
+  of closing text in the wrong order.
+- **Only one value means anything but the default.** `bin/installfog.sh`
+  normalizes anything that is not `address` to `name`, so a typo in a
+  hand-edited file resolves to the default instead of doing something a third
+  way, and the rewritten file carries the spelling that was actually used.
+- **It orders the URLs; it does not bless them.** The explanation printed under
+  them is read from the served certificate, not from this key
+  (`_certServesAddress`). Setting `address` on a names-only leaf puts the address
+  first **and** still says plainly that it will warn. A preference that could
+  silence a true warning would not be a presentation setting at all.
+
+A flag was not added because a value nobody would pass twice does not earn one:
+an admin who wants this is editing `.fogsettings` already, and `--help` is a
+worse place to discover a setting than the file it lives in.
 
 ---
 

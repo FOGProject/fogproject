@@ -896,6 +896,13 @@ fi
 WEB_url_proto="https"
 [[ -z ${PKI_web_cert_publicly_trusted} ]] && PKI_web_cert_publicly_trusted="no"
 [[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="no"
+# Which management URL _managementUrls() prints first when the install finishes.
+# Normalized rather than defaulted-if-empty: `address` is the only value that
+# means anything else, so a typo in a hand-edited .fogsettings resolves to the
+# default instead of silently reordering the output, and the file is rewritten
+# with the spelling that was actually used. Nothing here is worth failing an
+# install over -- it is two lines of closing text.
+[[ ${WEB_url_primary} == address ]] || WEB_url_primary="name"
 
 # --- --install-mode ----------------------------------------------------------
 #
