@@ -2107,6 +2107,9 @@ msgstr ""
 msgid "Daily"
 msgstr "Daily"
 
+msgid "Dark"
+msgstr ""
+
 msgid "Dashboard"
 msgstr "Dashboard"
 
@@ -4928,6 +4931,10 @@ msgstr "Event must be a string"
 
 msgid "License"
 msgstr "License"
+
+#, fuzzy
+msgid "Light"
+msgstr "Midnight"
 
 msgid "Line"
 msgstr "Line"
@@ -8410,12 +8417,6 @@ msgstr "successfully updated"
 msgid "Supported here: %s."
 msgstr ""
 
-msgid "Switch to dark mode"
-msgstr ""
-
-msgid "Switch to light mode"
-msgstr ""
-
 msgid "Sync finished - "
 msgstr ""
 
@@ -9017,6 +9018,18 @@ msgstr "The uploaded file was only partially uploaded"
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
 
+msgid "Theme"
+msgstr ""
+
+msgid "Theme: dark"
+msgstr ""
+
+msgid "Theme: follow system"
+msgstr ""
+
+msgid "Theme: light"
+msgstr ""
+
 msgid "There are"
 msgstr "There are"
 
@@ -9311,9 +9324,6 @@ msgid "To get started please select an item from the menu."
 msgstr ""
 
 msgid "Toggle Dropdown"
-msgstr ""
-
-msgid "Toggle dark mode"
 msgstr ""
 
 #, fuzzy

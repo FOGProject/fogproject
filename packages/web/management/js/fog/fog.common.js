@@ -440,10 +440,11 @@ function fogBindTimezonePicker() {
     fogPrefStore('display.timezone', chosen, function(storeErr) {
       if (storeErr) {
         button.prop('disabled', false);
-        // notifyFromAPI, not notify: the latter does not exist here, and
-        // calling it would throw on the one path that exists to report a
-        // failure -- leaving the button disabled with nothing on screen and
-        // only a console error to say why.
+        // notifyFromAPI, not notify: $.notify takes (title, body, type),
+        // and the object-and-options form this used to pass is a different
+        // library's signature -- it rendered "[object Object]" as the title.
+        // notifyFromAPI is also the better answer here because it surfaces
+        // the reason the server actually gave.
         $.notifyFromAPI(storeErr.responseJSON, storeErr);
         return;
       }

@@ -245,6 +245,24 @@ abstract class FOGBase
      */
     const TIMEZONE_PREF = 'display.timezone';
     /**
+     * Resolved once per request, same as $_displayTimeZone.
+     *
+     * '' means "follow the operating system", which is not the same as
+     * 'light' -- see displayTheme().
+     *
+     * @var string|null
+     */
+    private static $_displayTheme = null;
+    /**
+     * The user preference holding a viewer's chosen color theme.
+     *
+     * Absent or empty means "follow the operating system". Storing the theme
+     * per USER rather than in a cookie is deliberate: it is a property of the
+     * person, so signing in on another machine or another browser brings it
+     * with you.
+     */
+    const THEME_PREF = 'display.theme';
+    /**
      * The logged in user.
      *
      * @var object
@@ -1926,6 +1944,57 @@ abstract class FOGBase
             return $out;
         }
         return $out->setTimezone(self::displayTimeZone());
+    }
+    /**
+     * The viewer's chosen color theme.
+     *
+     * Three states, and the difference between two of them is the whole
+     * point:
+     *
+     *  - ''      follow the operating system, in EITHER direction. Somebody
+     *            who has never touched the setting and runs a dark desktop
+     *            gets dark. Collapsing this into 'light' would make the
+     *            default wrong for exactly the people who care most.
+     *  - 'light' force light whatever the system says.
+     *  - 'dark'  force dark whatever the system says.
+     *
+     * Only the last two can be answered here at all: '' is resolved by the
+     * browser, because prefers-color-scheme is not something the server can
+     * see. The page shell stamps data-bs-theme on <html> for a forced choice
+     * and leaves the attribute off otherwise, which is the signal its
+     * pre-paint script uses to decide whether to resolve the system
+     * preference itself.
+     *
+     * @return string '' , 'light' or 'dark'.
+     */
+    public static function displayTheme()
+    {
+        if (null !== self::$_displayTheme) {
+            return self::$_displayTheme;
+        }
+        self::$_displayTheme = '';
+        $user = self::$FOGUser;
+        // The same guard displayTimeZone() uses: unset before LoadGlobals has
+        // run, and invalid for anyone not signed in -- the login page has no
+        // session to hold a preference, and falls back to the system.
+        if (!$user || !$user->isValid()) {
+            return self::$_displayTheme;
+        }
+        try {
+            $pref = self::getClass('UserPrefManager')
+                ->fetch((int)$user->get('id'), self::THEME_PREF);
+        } catch (\Exception $e) {
+            // A preference store that cannot be read is not a reason to fail
+            // the render; following the system is the documented default.
+            return self::$_displayTheme;
+        }
+        $pref = trim((string)$pref);
+        // Anything else stored -- a value from a future release, or something
+        // hand-written into the table -- means the same as no opinion.
+        if ('light' === $pref || 'dark' === $pref) {
+            self::$_displayTheme = $pref;
+        }
+        return self::$_displayTheme;
     }
     public static function niceDate($date = 'now', $utc = false)
     {

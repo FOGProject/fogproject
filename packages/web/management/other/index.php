@@ -43,14 +43,21 @@ $ulang = htmlspecialchars($_SESSION['FOG_LANG'] ?? '', ENT_QUOTES, 'UTF-8');
 
 // Dark mode: Bootstrap 5 / AdminLTE 4 native theming keys off data-bs-theme on
 // <html>, which is the single source of truth for both BS components and FOG's
-// chrome (see fog-default-ui.scss). The per-user preference is persisted in the
-// fogTheme cookie and stamped on <html> below (server-side, on first paint) so
-// there is no light flash before theme.js runs. With no cookie the attribute is
-// left off here and a pre-paint head script resolves the OS preference instead.
-$themePref = filter_input(INPUT_COOKIE, 'fogTheme');
-$bsTheme = ($themePref === 'dark')
-    ? 'dark'
-    : (($themePref === 'light') ? 'light' : '');
+// chrome (see fog-default-ui.scss).
+//
+// The choice is a USER preference, not a device one, so it lives in userPrefs
+// and follows the person to any browser. A forced light/dark is stamped on
+// <html> below, server-side, so it is already correct on the first paint. An
+// unset preference deliberately leaves the attribute OFF -- that absence is
+// what tells the pre-paint script in <head> to resolve prefers-color-scheme
+// itself, in either direction. Emitting 'light' for an unset preference would
+// give a dark-desktop user a light page and no way to tell why.
+//
+// The login page has no session, so displayTheme() returns '' there and the
+// system preference wins. That is the right answer rather than a compromise:
+// there is nobody yet whose preference it could be.
+$themePref = self::displayTheme();
+$bsTheme = $themePref;
 
 // Start output buffering
 ob_start();
@@ -61,10 +68,16 @@ ob_start();
 <html lang="<?= $ulang; ?>"<?= $bsTheme ? ' data-bs-theme="' . $bsTheme . '"' : ''; ?>>
 <head>
     <script nonce="<?= htmlspecialchars(FOG_CSP_NONCE, ENT_QUOTES, 'UTF-8'); ?>">
-    // Native dark mode, no flash: when the user has no explicit fogTheme cookie
-    // choice <html> carries no server-stamped data-bs-theme, so resolve the OS
-    // preference here synchronously (before paint) and set it. The cookie cases
-    // are already stamped server-side; theme.js keeps it in sync afterwards.
+    // Native dark mode, no flash: when the user has no explicit light/dark
+    // preference <html> carries no server-stamped data-bs-theme, so resolve
+    // the OS preference here synchronously (before paint) and set it. A
+    // forced choice is already stamped server-side; theme.js keeps the picker
+    // in sync afterwards and never decides the first paint.
+    //
+    // First in <head>, inline and not deferred, on purpose: anything later --
+    // including a stylesheet above it -- runs after the browser has painted
+    // once, which IS the flash. Pinned by
+    // tests/output-whitespace-significant-blocks.test.php.
     (function () {
         var e = document.documentElement;
         if (!e.hasAttribute('data-bs-theme')) {
@@ -127,14 +140,49 @@ unset($this->stylesheets);
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
+                    <li class="nav-item dropdown">
+                        <?php
+                        // A three-state picker, not a toggle: "follow the
+                        // system" is a state a user can choose and return to,
+                        // and a two-way toggle has nowhere to put it. Sat in
+                        // the navbar beside the clock rather than in settings
+                        // because people currently assume FOG is light-only.
+                        //
+                        // data-theme-pref carries the STORED value, which is
+                        // not always the value on <html>: '' means the browser
+                        // resolved it. theme.js needs both to tick the right
+                        // row.
+        ?>
                         <a href="#" id="themeToggle" class="nav-link" role="button"
-                           data-label-dark="<?= _('Switch to light mode'); ?>"
-                           data-label-light="<?= _('Switch to dark mode'); ?>"
-                           title="<?= _('Toggle dark mode'); ?>"
-                           aria-label="<?= _('Toggle dark mode'); ?>">
+                           data-bs-toggle="dropdown" aria-expanded="false"
+                           data-theme-pref="<?= Initiator::e($themePref); ?>"
+                           data-label-system="<?= _('Theme: follow system'); ?>"
+                           data-label-light="<?= _('Theme: light'); ?>"
+                           data-label-dark="<?= _('Theme: dark'); ?>"
+                           title="<?= _('Theme'); ?>"
+                           aria-label="<?= _('Theme'); ?>">
                             <i class="far fa-moon"></i>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeToggle">
+                            <li>
+                                <button class="dropdown-item" type="button" data-theme-choice="">
+                                    <i class="fas fa-circle-half-stroke fa-fw me-2"></i><?= _('System'); ?>
+                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" type="button" data-theme-choice="light">
+                                    <i class="far fa-sun fa-fw me-2"></i><?= _('Light'); ?>
+                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item" type="button" data-theme-choice="dark">
+                                    <i class="far fa-moon fa-fw me-2"></i><?= _('Dark'); ?>
+                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
+                                </button>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a href="#" id="tzToggle" class="nav-link" role="button"
