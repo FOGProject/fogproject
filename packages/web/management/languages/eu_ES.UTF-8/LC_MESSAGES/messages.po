@@ -202,6 +202,10 @@ msgstr ""
 msgid "%s value \"%s\" did not match any %s by id or name; left unset"
 msgstr ""
 
+#, php-format
+msgid "%s viewed your account on %s."
+msgstr ""
+
 msgid "(all)"
 msgstr ""
 
@@ -604,6 +608,9 @@ msgstr "Konto verknüpft mit FOG-GUI unter"
 msgid "Account successfully added!"
 msgstr "Account erfolgreich hinzugefügt"
 
+msgid "Account viewed by an administrator"
+msgstr ""
+
 msgid "Action"
 msgstr "Aktion"
 
@@ -935,6 +942,9 @@ msgstr "Erlaubt das Bearbeiten/Erstellen von Task-Typen, die der FOG derzeit hat
 #, fuzzy
 msgid "Already created"
 msgstr "Bereits erstellt"
+
+msgid "Already impersonating; end the current session first."
+msgstr ""
 
 #, fuzzy
 msgid "Also confirm that the database is indeed running"
@@ -1598,6 +1608,9 @@ msgstr ""
 
 msgid "Checking if I am the group manager"
 msgstr "Prüfe, ob ich der Gruppenmanager bin"
+
+msgid "Choose a user"
+msgstr ""
 
 msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
 msgstr ""
@@ -2526,6 +2539,9 @@ msgid "Enabled by Default"
 msgstr "Standarddrucker aktualisieren"
 
 msgid "Encryption Data Reset"
+msgstr ""
+
+msgid "End impersonation"
 msgstr ""
 
 msgid "Endpoint logins"
@@ -4213,6 +4229,29 @@ msgstr "Host Imagingverlauf"
 #, fuzzy
 msgid "Imaging runs"
 msgstr "Imaging Log"
+
+msgid "Impersonate"
+msgstr ""
+
+msgid "Impersonate a user"
+msgstr ""
+
+msgid "Impersonate another"
+msgstr ""
+
+#, fuzzy
+msgid "Impersonating"
+msgstr "Imagezuordnung"
+
+#, fuzzy
+msgid "Impersonation ended"
+msgstr "Sitzungsname"
+
+msgid "Impersonation is read-only. End it to do this as yourself."
+msgstr ""
+
+msgid "Impersonation refused"
+msgstr ""
 
 msgid "Import"
 msgstr "Import"
@@ -9174,6 +9213,9 @@ msgstr "Es gibt einen Host in einer Aufgabe"
 msgid "There is no filter to save"
 msgstr "konnte nicht gespeichert werden"
 
+msgid "There is nobody you may impersonate. A user must hold no permission and reach no site that you do not."
+msgstr ""
+
 msgid "There is nothing to replicate"
 msgstr "Es gibt nichts zu replizieren"
 
@@ -10236,6 +10278,17 @@ msgstr ""
 msgid "You are currently running PHP Version"
 msgstr ""
 
+msgid "You are impersonating another user"
+msgstr ""
+
+#, php-format
+msgid "You are no longer viewing FOG as %s."
+msgstr ""
+
+#, php-format
+msgid "You are now viewing FOG as %s."
+msgstr ""
+
 msgid "You are only allowed to assign"
 msgstr "Sie dürfen nur zuweisen"
 
@@ -10262,6 +10315,10 @@ msgstr ""
 msgid "You do not have permission to export the database."
 msgstr "Keine Verbindung zur Datenbank"
 
+#, fuzzy
+msgid "You do not have permission to impersonate users."
+msgstr "Keine Verbindung zur Datenbank"
+
 msgid "You do not have permission to issue API tokens."
 msgstr ""
 
@@ -10278,6 +10335,9 @@ msgid "You do not have permission to view API tokens."
 msgstr ""
 
 msgid "You may not change a filter shared with everyone"
+msgstr ""
+
+msgid "You may not impersonate that user."
 msgstr ""
 
 msgid "You may not save a filter for everyone"
@@ -10300,6 +10360,9 @@ msgid "You own it, so you may rename, re-share or delete it."
 msgstr ""
 
 msgid "You were logged out due to inactivity."
+msgstr ""
+
+msgid "You will see FOG exactly as the person you choose sees it -- their permissions, their sites, their timezone and theme. Impersonation is read-only apart from their own preferences, and every action you take is recorded against YOUR name."
 msgstr ""
 
 msgid "Your FOG database schema is not up to date"
