@@ -335,6 +335,26 @@ abstract class FOGBase
      */
     protected static $interface = [];
     /**
+     * Names that did not resolve, and the time to stop believing that.
+     *
+     * name => unix timestamp the entry expires at. Only FAILURES are held --
+     * see resolveHostname() for why caching a success would be the wrong
+     * trade.
+     *
+     * @var array
+     */
+    protected static $unresolved = [];
+    /**
+     * How many times the system resolver has actually been called.
+     *
+     * Counts calls that reached gethostbyname(), so a caller can report how
+     * much of a cycle's resolving was served from $unresolved instead. Read
+     * it with resolverCalls().
+     *
+     * @var int
+     */
+    protected static $resolvercalls = 0;
+    /**
      * The current base pages requiring search functionality.
      *
      * @var array
@@ -4496,19 +4516,97 @@ abstract class FOGBase
     /**
      * Resolves a hostname to its IP address
      *
-     * @param string $host the item to test
+     * Optionally remembers FAILURES for $negativeTtl seconds, and only
+     * failures. The asymmetry is the whole design, and it is measured rather
+     * than assumed -- on the reference server:
+     *
+     *   a name that resolves     :    0.2 ms local, 23.8 ms remote
+     *   a name that does not     : 3776.3 ms, every single time
+     *
+     * A miss costs a full resolver timeout and nothing anywhere caches it:
+     * resolving the same dead name twice in a row costs 3.75 s twice. That is
+     * what makes a PingHosts cycle on a fleet that is not in DNS take 5m26s
+     * instead of 2s.
+     *
+     * So a success is re-resolved on every call -- it is cheap, and it is the
+     * answer that must not go stale, because a host whose address moved and
+     * is pinged at its old one reports the wrong thing. A failure is held,
+     * because it is expensive and because a stale failure is not a new wrong
+     * answer: the caller already treats an unresolvable name as unreachable,
+     * so a cached failure produces byte-identical behavior to a fresh one.
+     * The only thing it can miss is a name that STARTS resolving mid-run,
+     * which is why the entry expires rather than being permanent.
+     *
+     * $negativeTtl defaults to 0, which is no caching at all, so every
+     * existing caller behaves exactly as it did.
+     *
+     * @param string $host        the item to test
+     * @param int    $negativeTtl seconds to remember a failure, 0 to not
      *
      * @return string
      */
-    public static function resolveHostname($host)
+    public static function resolveHostname($host, $negativeTtl = 0)
     {
         $host = trim($host);
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             return $host;
         }
-        $host = gethostbyname($host);
-        $host = trim($host);
-        return $host;
+        $negativeTtl = (int)$negativeTtl;
+        $now = time();
+        if ($negativeTtl > 0
+            && isset(self::$unresolved[$host])
+            && self::$unresolved[$host] > $now
+        ) {
+            return $host;
+        }
+        self::$resolvercalls++;
+        $resolved = trim((string)gethostbyname($host));
+        // gethostbyname() hands back the name it was given when resolution
+        // fails, which is the only signal it gives -- there is no error to
+        // read. Ping::executeBatch() reads the same tell.
+        if ($negativeTtl > 0 && $resolved === $host) {
+            self::$unresolved[$host] = $now + self::negativeTtlJitter(
+                $negativeTtl
+            );
+            return $host;
+        }
+        unset(self::$unresolved[$host]);
+        return $resolved;
+    }
+    /**
+     * How long one failure is remembered for: somewhere in the upper half of
+     * $ttl, chosen per name.
+     *
+     * Without the spread every name cached in a single cycle expires in the
+     * same one, so the cost this removes comes back in a lump -- an 88-host
+     * fleet would run 2 s cycles for an hour and then one 5m26s cycle,
+     * forever. Jittered, the re-checks dribble across the window a few names
+     * at a time and no cycle is the expensive one.
+     *
+     * The lower bound is $ttl/2 rather than 0 so a short $ttl cannot collapse
+     * to "cache nothing"; the upper bound is $ttl so the documented ceiling
+     * on staleness is the ceiling.
+     *
+     * @param int $ttl the configured ceiling, in seconds
+     *
+     * @return int
+     */
+    public static function negativeTtlJitter($ttl)
+    {
+        $ttl = (int)$ttl;
+        if ($ttl < 2) {
+            return $ttl > 0 ? $ttl : 0;
+        }
+        return rand((int)ceil($ttl / 2), $ttl);
+    }
+    /**
+     * How many times the system resolver has been called this process.
+     *
+     * @return int
+     */
+    public static function resolverCalls()
+    {
+        return self::$resolvercalls;
     }
     /**
      * Gets the broadcast address of the server

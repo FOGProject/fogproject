@@ -4696,6 +4696,9 @@ msgstr ""
 msgid "Name. Must be unique."
 msgstr ""
 
+msgid "Names looked up"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -9403,6 +9406,9 @@ msgid "seconds ago"
 msgstr ""
 
 msgid "sending on base port"
+msgstr ""
+
+msgid "served from the unresolved cache"
 msgstr ""
 
 msgid "server does not appear to be online"

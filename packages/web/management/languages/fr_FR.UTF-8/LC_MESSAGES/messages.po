@@ -5540,6 +5540,9 @@ msgstr "prénom"
 msgid "Name. Must be unique."
 msgstr "Vous devez entrer un nom"
 
+msgid "Names looked up"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -10985,6 +10988,9 @@ msgstr "Icône"
 #, fuzzy
 msgid "sending on base port"
 msgstr "En attente MAC Export"
+
+msgid "served from the unresolved cache"
+msgstr ""
 
 msgid "server does not appear to be online"
 msgstr ""
