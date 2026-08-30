@@ -49,13 +49,13 @@ out="$project_dir/packages/web/commons/version.php"
 #
 # fog-version.sh derives the version PREFIX and the channel from the branch
 # name -- `working-1.6` gives `1.6.0-beta.<count>` and Beta, `dev-*` gives
-# Patches, and so on. A name it does not recognise falls through its case with
+# Patches, and so on. A name it does not recognize falls through its case with
 # no arm taken, and the committed value stands unchanged. That is right for
 # CI, which only ever runs against the long-lived branches, and wrong here: a
 # working branch is called something like `generated-version-file`, and taking
 # its own name would make every feature branch report the bare release string.
 #
-# So an unrecognised name is resolved to the long-lived branch this work is
+# So an unrecognized name is resolved to the long-lived branch this work is
 # actually based on -- the one closest to HEAD by commit count. The COUNT is
 # unaffected either way, since fog-version.sh measures `master..HEAD` from the
 # tree rather than from the name.

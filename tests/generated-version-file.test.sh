@@ -69,7 +69,7 @@ else
         # The generated value must not be the FALLBACK value.
         #
         # fog-version.sh derives the version prefix from the BRANCH NAME, and
-        # a name it does not recognise takes no arm of its case, leaving the
+        # a name it does not recognize takes no arm of its case, leaving the
         # committed value standing. A working branch is called something like
         # `generated-version-file`, so without the resolution step in
         # write-version-file.sh every feature branch generated the bare
