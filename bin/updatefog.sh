@@ -223,7 +223,7 @@ linuxReleaseName_lower="${FOG_os_name,,}"
 # The generated commons/version.php first, then the tracked fallback in
 # src/Base/System.php. Both carry the version in the identical
 # `define('FOG_VERSION', '...');` shape precisely so one awk reads either --
-# see .githooks/lib/write-version-file.sh (GH-1512).
+# see .githooks/lib/write-version-file.sh (GH-1513).
 if [[ -z $version ]]; then
     for versionfile in ../packages/web/commons/version.php ../packages/web/src/Base/System.php; do
         [[ -f $versionfile ]] || continue

@@ -148,7 +148,7 @@ No version is written into git by any of this. See **Why `FOG_VERSION` is not
 written on a branch** above.
 
 Full reasoning: `docs/development/version-sync-automation.md` in `FOGProject/fog-docs`
-— note it predates GH-1510/GH-1512 and still describes the version as a synced,
+— note it predates GH-1510/GH-1513 and still describes the version as a synced,
 tracked value.
 
 ### The `phpstan` check is two passes — run both, unscoped

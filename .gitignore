@@ -68,7 +68,7 @@ packages/web/commons/fogpaths.php
 # on commit, checkout and merge, and by bin/installfog.sh. FOG_VERSION is
 # `git rev-list master..HEAD --count`, so a tracked copy differs per branch,
 # lives on one line, and makes every pair of open branches conflict on it
-# (GH-1510, GH-1512). src/Base/System.php falls back to the release constants
+# (GH-1510, GH-1513). src/Base/System.php falls back to the release constants
 # it carries when this file is absent.
 packages/web/commons/version.php
 *.well-known

@@ -71,7 +71,7 @@ class System
         // commons/config.class.php is: a value computed from the environment
         // must not be in the merge surface.
         //
-        // It was tracked until GH-1512, and that is what made a busy
+        // It was tracked until GH-1513, and that is what made a busy
         // afternoon unworkable. FOG_VERSION is `git rev-list master..HEAD
         // --count`, so it differs per branch while living on one line: any
         // two branches open at once conflicted on it. The quantity is also

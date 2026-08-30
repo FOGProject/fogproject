@@ -91,7 +91,7 @@ fi
 # back to. The generator fails open -- no git, no .git, a source zip -- and
 # leaves nothing behind, which is why the read below still tries both files.
 # See .githooks/lib/write-version-file.sh for why the version is generated
-# rather than tracked (GH-1512).
+# rather than tracked (GH-1513).
 if [[ -x ../.githooks/lib/write-version-file.sh ]]; then
     sh ../.githooks/lib/write-version-file.sh >/dev/null 2>&1 || true
 fi

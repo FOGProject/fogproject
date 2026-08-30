@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 #
-# Pins the contract introduced by GH-1512: FOG_VERSION is GENERATED into
+# Pins the contract introduced by GH-1513: FOG_VERSION is GENERATED into
 # packages/web/commons/version.php and is NOT a tracked value.
 #
 # Why this needs a gate rather than a comment. The failure mode of putting the

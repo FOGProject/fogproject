@@ -56,7 +56,7 @@ esac
 # lib/fog/system.class.php to src/Base/System.php; a server installed before
 # that still has the old one, and this is the file that tells us so.
 #
-# commons/version.php comes first: since GH-1512 the version is GENERATED into
+# commons/version.php comes first: since GH-1513 the version is GENERATED into
 # that file (gitignored, written from the commit graph by the hooks and by
 # installfog.sh) and src/Base/System.php carries only the release fallback. A
 # server installed before that has no version.php, so the two older spellings
