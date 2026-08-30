@@ -10606,13 +10606,38 @@ configureHttpd() {
             # FOG_SCHEMA_INSTALL_TOKEN, sitting readable in the web root while a
             # different file is the one actually being used. Nothing reads it,
             # nothing reports it, and it survives every future upgrade.
+            # THE DISCOVERY EXTENSIONS ARE NOT OPTIONAL HERE, AND THEY ARE
+            # WORSE THAN THE .class.php CASE ABOVE.
+            #
+            # GH-1528 retired 52 more files the same way: every core page,
+            # hook, report and event moved from lib/{pages,hooks,reports,
+            # events}/<lowercase>.<type>.php to src/<Bucket>/<Class>.php. A
+            # loop matching only *.class.php leaves all 52 behind.
+            #
+            # A stale .class.php is inert -- the comment above says why. A
+            # stale *.report.php is NOT. ReportManagement::loadCustomReports()
+            # merges core's src/Reports with the fileitems() walk that finds
+            # plugin reports, and the walk reaches lib/reports/ as well, so
+            # every core report is found TWICE and the Reports menu renders
+            # each of them twice. Measured on a 1.6 install upgraded this way:
+            # 17 reports became 30, 13 of them duplicates.
+            #
+            # So the sweep asks for the four discovery extensions alongside
+            # the class files. The keep-if-still-shipped test is unchanged and
+            # is what makes that safe: lib/router/ still ships its .class.php
+            # files and they are matched, tested and kept, exactly as before.
             dots "Removing retired class files from the old web folder"
             local relpath
             while IFS= read -r -d '' i; do
                 relpath="${i#$webdirdest/}"
                 [[ -e ${webdirsrc}/${relpath} ]] && continue
                 rm -f "$i" >>$error_log 2>&1
-            done < <(find "$webdirdest/lib" -maxdepth 2 -type f -name '*.class.php' -print0 2>>$error_log)
+            done < <(find "$webdirdest/lib" -maxdepth 2 -type f \( \
+                -name '*.class.php' -o \
+                -name '*.page.php' -o \
+                -name '*.hook.php' -o \
+                -name '*.report.php' -o \
+                -name '*.event.php' \) -print0 2>>$error_log)
             errorStat $?
         fi
     fi

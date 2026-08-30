@@ -79,10 +79,15 @@ fi
 # ---------------------------------------------------------------------------
 # The loop itself, lifted out of configureHttpd().
 # ---------------------------------------------------------------------------
+# Terminated on -print0 rather than on `done < <(find `: the find grew a
+# multi-line \( -name ... -o -name ... \) list in GH-1531, and stopping at the
+# first line would cut the snippet mid-command -- which fails as a SYNTAX
+# ERROR in the eval below rather than as a wrong answer, but is exactly the
+# kind of extraction that silently stops covering what it names.
 snippet=$(awk '
     /^            local relpath$/ { grab = 1 }
     grab { print }
-    grab && /^            done < <\(find / { exit }
+    grab && /-print0 2>>\$error_log\)/ { exit }
 ' "$functions")
 
 if [[ -z $snippet ]]; then
@@ -133,6 +138,29 @@ echo generated > "$webdirdest/commons/config.class.php"
 # A bundled plugin's own class file, one level deeper.
 echo plugin > "$webdirdest/lib/plugins/site/class/site.class.php"
 
+# GH-1528 retired the four DISCOVERY extensions the same way: every core page,
+# hook, report and event is src/<Bucket>/<Class>.php now. These matter more
+# than the class files above, which are inert once src/ answers first -- a
+# stale *.report.php is FOUND by ReportManagement::loadCustomReports()'s
+# plugin walk, so every core report appears in the menu twice. Reproduced on a
+# 1.6 install: 17 reports became 30.
+mkdir -p "$webdirdest/lib/pages" "$webdirdest/lib/hooks" \
+    "$webdirdest/lib/reports" "$webdirdest/lib/events" \
+    "$webdirsrc/lib/pages" "$webdirdest/lib/plugins/site/reports"
+echo stale > "$webdirdest/lib/pages/hostmanagement.page.php"
+echo stale > "$webdirdest/lib/hooks/bootitem.hook.php"
+echo stale > "$webdirdest/lib/reports/audit_report.report.php"
+echo stale > "$webdirdest/lib/events/hostlist.event.php"
+# Still shipped under lib/, so the keep-if-present test must spare it. There is
+# no such core file today, which is precisely why one is invented here: the
+# obvious wrong fix deletes every discovery-extension file it finds.
+: > "$webdirsrc/lib/pages/index.page.php"
+echo kept > "$webdirdest/lib/pages/index.page.php"
+# A bundled plugin's report, one level deeper than this loop's maxdepth. It
+# belongs to the fog-plugins release, and deleting it would strip a report
+# from an upgraded server.
+echo plugin > "$webdirdest/lib/plugins/site/reports/site_report.report.php"
+
 # Wrapped in a function, which is where it really runs (configureHttpd) and
 # what makes its `local` declaration legal.
 eval "fog_retire_class_files() {
@@ -159,6 +187,18 @@ check "the generated commons/config.class.php survives" \
 
 check "a bundled plugin's class file is not this loop's to delete" \
     "$([[ -s $webdirdest/lib/plugins/site/class/site.class.php ]]; echo $?)"
+
+check "a retired page/hook/report/event file is removed (GH-1528)" \
+    "$([[ ! -e $webdirdest/lib/pages/hostmanagement.page.php \
+        && ! -e $webdirdest/lib/hooks/bootitem.hook.php \
+        && ! -e $webdirdest/lib/reports/audit_report.report.php \
+        && ! -e $webdirdest/lib/events/hostlist.event.php ]]; echo $?)"
+
+check "a discovery-extension file the release still ships is left alone" \
+    "$([[ -s $webdirdest/lib/pages/index.page.php ]]; echo $?)"
+
+check "a bundled plugin's report is not this loop's to delete" \
+    "$([[ -s $webdirdest/lib/plugins/site/reports/site_report.report.php ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
 # The loop has to run on the RESTORED tree, before the new files are laid over
