@@ -327,7 +327,12 @@ setting, and the dedicated table in 2.3 would be unnecessary machinery.
 
 ## 5. The admin-facing text
 
-Drafted in `docs/development/utc-storage-boundary-admin-draft.md`, in the shape
-it would take as a page in `FOGProject/fog-docs`. It is not filed there yet,
-because documenting a feature that does not exist is worse than not documenting
-one that does.
+Filed, now that the feature exists: `docs/management/web/unadjusted-timestamps.md`
+in `FOGProject/fog-docs` (<https://docs.fogproject.org/unadjusted-timestamps>).
+The draft that used to sit here was removed with it -- keeping a second copy in
+this repo is how the two drift, and the draft had already gone stale in one
+place, promising a REST field beside every unadjusted value that GH-1508
+deliberately did not build.
+
+Same split as `FOGSETTINGS.md` and its fog-docs counterpart: what an admin
+needs lives there, why it works this way lives here.
