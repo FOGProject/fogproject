@@ -94,7 +94,7 @@ with a hand-resolved conflict on `System.php` before they can be updated (which
 the ruleset requires) and re-tested.
 
 That is structural, not a race. Evidence in this repository: #1504 needed three
-version commits (4598 → 4600 → 4608) as its neighbours landed, merge `3fbacbc73`
+version commits (4598 → 4600 → 4608) as its neighbors landed, merge `3fbacbc73`
 records the conflict in its own message, and #1507/#1508 sat open together holding
 4620 and 4619.
 

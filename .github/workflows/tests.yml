@@ -112,7 +112,7 @@ jobs:
     # System.php by construction and the prediction has to be redone.
     #
     # That is not a race that better ordering fixes. Observed here: #1504 took
-    # three version commits (4598 -> 4600 -> 4608) as its neighbours landed,
+    # three version commits (4598 -> 4600 -> 4608) as its neighbors landed,
     # and merge 3fbacbc73 carries the conflict in its own message. #1507 and
     # #1508 sat open simultaneously holding 4620 and 4619.
     #
