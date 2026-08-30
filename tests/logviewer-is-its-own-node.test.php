@@ -122,11 +122,17 @@ $results[] = [
     'the old ?node=about&sub=logviewer URL redirects rather than 404ing',
 ];
 
-// Page.php builds the script path as js/fog/{node}/fog.{node}.js for a node
-// with no sub. If the file is not there the page renders and the form does
-// nothing, with no error anywhere -- so this is pinned by PATH, not by name.
+// Page.php builds the script path as js/fog/{node}/fog.{node}.{sub}.js, and
+// FOGPage::__construct() defaults the GLOBAL $sub to 'list' for every node
+// reached with no &sub= in the URL -- which is how a top-level, index()-only
+// node like this one is always reached. audit and activity, its siblings
+// under the Logging group, already name their file fog.{node}.list.js for
+// exactly this reason. A bare fog.logviewer.js (no .list) is never the file
+// Page.php asks for, so it silently never loads -- the page renders and the
+// form does nothing, with no error anywhere. Pinned by the derived PATH, not
+// by name, so this catches either a wrong filename or a wrong node segment.
 $results[] = [
-    is_file($web . 'management/js/fog/logviewer/fog.logviewer.js'),
+    is_file($web . 'management/js/fog/logviewer/fog.logviewer.list.js'),
     'the JS is at the path Page.php derives from the node name',
 ];
 $results[] = [
