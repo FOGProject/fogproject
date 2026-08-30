@@ -5657,6 +5657,9 @@ msgstr "Nombre"
 msgid "Name. Must be unique."
 msgstr "Evento debe ser una cadena"
 
+msgid "Names looked up"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -11164,6 +11167,9 @@ msgstr ""
 #, fuzzy
 msgid "sending on base port"
 msgstr "anfitriones pendientes"
+
+msgid "served from the unresolved cache"
+msgstr ""
 
 msgid "server does not appear to be online"
 msgstr ""

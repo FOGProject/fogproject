@@ -5541,6 +5541,9 @@ msgstr "Name"
 msgid "Name. Must be unique."
 msgstr "Diff Parameter muss numerisch sein"
 
+msgid "Names looked up"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -10993,6 +10996,9 @@ msgstr "Sekunden"
 #, fuzzy
 msgid "sending on base port"
 msgstr "Senden auf Basis-Port"
+
+msgid "served from the unresolved cache"
+msgstr ""
 
 msgid "server does not appear to be online"
 msgstr ""

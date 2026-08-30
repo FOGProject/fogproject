@@ -5539,6 +5539,9 @@ msgstr "名称"
 msgid "Name. Must be unique."
 msgstr "您必须输入一个名称"
 
+msgid "Names looked up"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -10984,6 +10987,9 @@ msgstr "图标"
 #, fuzzy
 msgid "sending on base port"
 msgstr "待MAC出口"
+
+msgid "served from the unresolved cache"
+msgstr ""
 
 msgid "server does not appear to be online"
 msgstr ""
