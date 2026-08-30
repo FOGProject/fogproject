@@ -34,22 +34,30 @@ $fails = [];
 // nothing puts 'Y-m-d H:i:s' on a page. The Ymd_His ones are filenames and
 // are deliberately left alone -- a backup named in the viewer's zone is not
 // a stored timestamp.
+// git ls-files rather than a directory walk, so the check covers exactly the
+// COMMITTED tree. A walk sees whatever else is lying in the working copy --
+// the plugin sources, which live in their own repository and are present on a
+// developer's box and absent in CI. That difference is a floor the two
+// environments disagree about, which is a gate that passes in one place and
+// fails in the other for no reason to do with the code.
 $hits = [];
 $scanned = 0;
-$rii = new \RecursiveIteratorIterator(
-    new \RecursiveDirectoryIterator($web, \FilesystemIterator::SKIP_DOTS)
-);
-foreach ($rii as $file) {
-    $path = $file->getPathname();
-    if ('php' !== strtolower($file->getExtension())
-        || false !== strpos($path, '/vendor/')
-    ) {
-        continue;
+chdir($root);
+$files = array_filter(
+    explode("\n", (string)shell_exec('git ls-files "packages/web/*.php"')),
+    function ($f) {
+        return '' !== $f
+            && is_readable($f)
+            && 0 !== strpos($f, 'packages/web/vendor/');
     }
+);
+foreach ($files as $file) {
     $scanned++;
-    $src = file_get_contents($path);
-    if (false !== strpos($src, "formatTime('now', 'Y-m-d H:i:s')")) {
-        $hits[] = str_replace($root . '/', '', $path);
+    if (false !== strpos(
+        file_get_contents($file),
+        "formatTime('now', 'Y-m-d H:i:s')"
+    )) {
+        $hits[] = $file;
     }
 }
 if ($hits) {
@@ -58,7 +66,7 @@ if ($hits) {
 }
 // Below this and the scan is not scanning anything, so a clean result above
 // would mean nothing at all.
-if ($scanned < 400) {
+if ($scanned < 300) {
     $fails[] = "the scan reached only $scanned php files; the check above"
         . ' proves nothing';
 }
