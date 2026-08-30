@@ -3743,6 +3743,17 @@ $.fn.registerTable = function(onSelect, opts) {
       searchBuilderButton,
       savedFiltersButton,
       columnSearchButton,
+      // Which columns are showing has been SAVED per user since the layout
+      // work -- it rides in the same state as column order, page length and
+      // sort -- but nothing on a management grid ever let anyone change it.
+      // The control existed only on the export and report toolbars, so the
+      // preference could be restored and never set. Same definition as those
+      // two, deliberately: three copies of one button that behaved
+      // differently would be worse than the gap.
+      {
+        extend: 'colvis',
+        text: '<i class="fas fa-table-columns"></i> Column Visibility'
+      },
       {
         text: '<i class="fas fa-arrows-rotate"></i> Refresh',
         action: function(e, dt, node, config) {
