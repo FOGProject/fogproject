@@ -106,6 +106,40 @@ $handEdited = [
     'tests/oldcopy-retires-moved-classes.test.php',
 ];
 
+/**
+ * Is this file PHP source we should rewrite?
+ *
+ * Extension alone is not enough. The ten daemon entry points under
+ * packages/service/ are named for the systemd unit and carry NO extension at
+ * all -- packages/service/FOGImageSize/FOGImageSize -- because that name is
+ * what installInitScript() writes into the unit's ExecStart. An
+ * extension-only filter skipped every one of them, so the sweep that moved
+ * core to PSR-4 rewrote packages/service/lib/service_lib.php and nothing
+ * else, this tool reported "nothing to import", and all ten daemons shipped
+ * with a bare `FOGCore::` that no longer resolves.
+ *
+ * A shebang naming php is the only other marker they carry, so that is what
+ * is tested. Deliberately not "is it under packages/service": a rule tied to
+ * one directory would miss the next extension-less entry point somewhere
+ * else, which is the same shape of hole again.
+ *
+ * @param string $path the file to test
+ * @param string $ext  its extension, '' when it has none
+ *
+ * @return bool
+ */
+function isPhpSource($path, $ext)
+{
+    if ('php' === $ext) {
+        return true;
+    }
+    if ('' !== $ext) {
+        return false;
+    }
+    $head = (string)file_get_contents($path, false, null, 0, 64);
+    return (bool)preg_match('{^#![^\n]*\bphp\b}', $head);
+}
+
 $skip = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
 $totalRefs = 0;
 $totalFiles = 0;
@@ -118,7 +152,7 @@ foreach ($targets as $target) {
     $walk = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($target));
     foreach ($walk as $file) {
         $path = $file->getPathname();
-        if (!$file->isFile() || 'php' !== $file->getExtension()
+        if (!$file->isFile() || !isPhpSource($path, $file->getExtension())
             || false !== strpos($path, '/plugins/')
             || false !== strpos($path, '/vendor/')
             || in_array(
@@ -228,8 +262,13 @@ foreach ($targets as $target) {
             // declare(strict_types=1) has to be the very first statement in
             // the file -- putting the imports above it is a parse error, not
             // a style problem. api/index.php found this immediately.
+            //
+            // The optional leading shebang is the daemon entry points: they
+            // open `#!/usr/bin/php -q` and only then `<?php`, so without it
+            // this anchor -- `^` under /s, i.e. start of file -- matches
+            // nothing and the imports are silently never written.
             $src = preg_replace(
-                '/^(<\?php\n(?:\s*declare\s*\([^)]*\)\s*;\n)?(?:\s*\/\*\*.*?\*\/\n)?(?:\s*declare\s*\([^)]*\)\s*;\n)?)/s',
+                '/^((?:#![^\n]*\n)?<\?php\n(?:\s*declare\s*\([^)]*\)\s*;\n)?(?:\s*\/\*\*.*?\*\/\n)?(?:\s*declare\s*\([^)]*\)\s*;\n)?)/s',
                 "$1\n" . $block . "\n",
                 $src,
                 1

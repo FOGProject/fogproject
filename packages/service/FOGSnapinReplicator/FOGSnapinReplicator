@@ -11,6 +11,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+
 /**
  * FOGSnapinReplicator service to replicate snapins in FOG
  *
@@ -24,7 +27,7 @@ require dirname(realpath(__FILE__)).'/../etc/config.php';
 require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
 $service_name = 'FOGSnapinReplicator';
 service_persist($service_name);
-$ServiceClass = $FOGCore::getClass('SnapinReplicator');
+$ServiceClass = FOGCore::getClass('SnapinReplicator');
 $ServiceClass->getBanner();
 $ServiceClass->waitInterfaceReady();
 $ServiceClass->waitDbReady();
