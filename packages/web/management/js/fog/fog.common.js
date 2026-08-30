@@ -3222,6 +3222,100 @@ function fogFetchIfShort(dt, waited) {
   }
   dt.draw(false);
 }
+/**
+ * Stop DataTables Responsive re-measuring every loaded row on every adjust.
+ *
+ * Responsive answers `column-sizing` -- which every columns.adjust() fires --
+ * by running _resizeAuto(), and _resizeAuto() deep-clones the header, the
+ * footer and EVERY row of the current page into a hidden table so the browser
+ * will compute each column's natural width. With Scroller the "current page"
+ * is every row fetched so far, so the cost is linear in the size of the list.
+ * Measured on a 86-host list: 8 calls per load at ~140ms each, of which only
+ * 15ms is building the clone -- the other ~125ms is the layout the browser is
+ * forced into to answer offsetWidth.
+ *
+ * Most of those calls cannot produce a new answer. The widths _resizeAuto()
+ * reads come only from the markup it clones; it measures with the table at
+ * width:auto inside a 1px hidden box, so the viewport is not an input. Five of
+ * the eight calls returned a vector byte-identical to the call before them.
+ *
+ * So sign exactly what gets cloned -- the table node's class list, the visible
+ * column set, and the header/body/footer HTML -- and when the signature is
+ * unchanged, restore the previous answer instead of re-measuring. Signing the
+ * markup rather than a draw counter is what keeps this correct: Responsive
+ * converges over two passes, adding `dtr-control` to the first column between
+ * them, and that genuinely does change the answer. A coarser key would cache
+ * the pre-convergence widths and leave the column permanently 17px narrow.
+ *
+ * The class list is sorted before signing because addClass()/removeClass()
+ * reorder the tokens without changing what renders, and that alone defeated
+ * the cache twice per load.
+ *
+ * The signature costs ~1.5ms against the ~140ms it skips. Nothing else caches
+ * it, so a stale entry cannot outlive the table.
+ *
+ * Dropped on window resize: the markup does not change when the browser zooms
+ * or the font size does, but the metrics do.
+ *
+ * @return {void}
+ */
+function fogMemoizeResponsiveMeasure() {
+  var Responsive = $.fn.dataTable ? $.fn.dataTable.Responsive : null;
+  if (!Responsive || !Responsive.prototype ||
+    typeof Responsive.prototype._resizeAuto !== 'function' ||
+    Responsive.prototype._fogMemoized
+  ) {
+    return;
+  }
+  Responsive.prototype._fogMemoized = true;
+  var original = Responsive.prototype._resizeAuto;
+  Responsive.prototype._resizeAuto = function() {
+    var dt = this.s ? this.s.dt : null,
+      node = dt ? dt.table().node() : null,
+      footer,
+      signature,
+      i;
+    // No table to sign: fall through untouched rather than guess.
+    if (!node) {
+      return original.apply(this, arguments);
+    }
+    footer = dt.table().footer();
+    signature = String(node.className).split(/\s+/).sort().join(' ') + '\u0000' +
+      dt.columns().indexes().filter(function(index) {
+        return dt.column(index).visible();
+      }).toArray().join(',') + '\u0000' +
+      dt.table().header().innerHTML + '\u0000' +
+      dt.table().body().innerHTML + '\u0000' +
+      (footer ? footer.innerHTML : '');
+    if (this._fogSignature === signature && this._fogMinWidths) {
+      for (i = 0; i < this._fogMinWidths.length; i++) {
+        // s.columns is the array _resizeAuto() writes minWidth into, and is
+        // what _resize() reads a moment later to pick the columns to drop.
+        if (this.s.columns[i]) {
+          this.s.columns[i].minWidth = this._fogMinWidths[i];
+        }
+      }
+      return;
+    }
+    var result = original.apply(this, arguments);
+    this._fogSignature = signature;
+    this._fogMinWidths = $.map(this.s.columns, function(column) {
+      return column.minWidth;
+    });
+    return result;
+  };
+  $(window).on('resize.fogresponsivememo', function() {
+    $('table.dataTable').each(function() {
+      if (!$.fn.dataTable.isDataTable(this)) {
+        return;
+      }
+      var settings = $(this).DataTable().settings()[0];
+      if (settings && settings._responsive) {
+        settings._responsive._fogSignature = null;
+      }
+    });
+  });
+}
 function fogSizeScroller(dt, release) {
   // dt.init() can be null for nodes the table.dataTable selector also matches
   // but that aren't fully-initialized Scroller tables (e.g. the scrollY split
@@ -3518,6 +3612,9 @@ if ($.fn.dataTable) {
 }
 $.fn.registerTable = function(onSelect, opts) {
   opts = opts || {};
+
+  // Idempotent; every grid calls this and only the first does any work.
+  fogMemoizeResponsiveMeasure();
 
   // Default row count comes from FOG_VIEW_DEFAULT_SCREEN (hidden #pageLength).
   var pageLength = parseInt($('#pageLength').val());
