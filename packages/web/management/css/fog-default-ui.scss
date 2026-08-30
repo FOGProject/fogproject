@@ -1626,3 +1626,30 @@ body.fog-col-resizing {
   cursor: col-resize;
   user-select: none;
 }
+
+// The account menu's caret flips when the menu is open.
+//
+// Bootstrap draws the caret from .dropdown-toggle and puts .show on the
+// toggle while the menu is open, but it does not rotate it -- so out of the
+// box the arrow points the same way open and closed and says nothing about
+// the state. That is the half the sidebar already gets right: AdminLTE
+// rotates .nav-arrow on .menu-open, and this is the navbar's equivalent.
+//
+// Scoped to #accountMenu rather than every .dropdown-toggle on purpose. FOG
+// has other toggles -- the tab dropdowns in FOGPage::renderTabs(), the split
+// buttons in the grid toolbars -- and rotating those too is a change to
+// surfaces nobody asked about.
+//
+// transform-origin is set explicitly: the caret is a bordered pseudo-element
+// whose box is wider than it is tall, so rotating about the default centre
+// visibly shifts it sideways as well as turning it.
+#accountMenu {
+  &::after {
+    transition: transform 0.15s ease-in-out;
+    transform-origin: 50% 40%;
+  }
+
+  &.show::after {
+    transform: rotate(180deg);
+  }
+}
