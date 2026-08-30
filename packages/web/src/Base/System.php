@@ -62,8 +62,44 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', '1.6.0-beta.4649');
-        define('FOG_CHANNEL', 'Beta');
+        // THE VERSION IS GENERATED WHEN IT CAN BE, AND FALLS BACK HERE.
+        //
+        // commons/version.php is written from the commit graph by
+        // .githooks/lib/write-version-file.sh -- on commit, checkout and
+        // merge for anyone with hooks enabled, and by bin/installfog.sh for
+        // an install from a clone. It is gitignored, for the same reason
+        // commons/config.class.php is: a value computed from the environment
+        // must not be in the merge surface.
+        //
+        // It was tracked until GH-1513, and that is what made a busy
+        // afternoon unworkable. FOG_VERSION is `git rev-list master..HEAD
+        // --count`, so it differs per branch while living on one line: any
+        // two branches open at once conflicted on it. The quantity is also
+        // self-perturbing -- bringing a branch up to date adds a commit,
+        // which moves the count, which earns another rewrite, which has to be
+        // pushed and pulled, which adds another commit. GH-1510 stopped
+        // writing it per commit and per pull request; this stops writing it
+        // into git at all.
+        //
+        // dirname(__DIR__, 2) is the web root in both layouts that matter:
+        // packages/web/ in the repository, and the deployed document root,
+        // since src/Base/ sits directly under both.
+        //
+        // The fallback below is not a stale copy of the generated value -- it
+        // is the RELEASE version, and the only thing that ever rewrites it is
+        // a release. A source zip with no .git, or a checkout by someone who
+        // never enabled hooks, reports that: truthful, if less precise than a
+        // build count.
+        $generated = dirname(__DIR__, 2) . '/commons/version.php';
+        if (is_readable($generated)) {
+            include_once $generated;
+        }
+        if (!defined('FOG_VERSION')) {
+            define('FOG_VERSION', '1.6.0-beta');
+        }
+        if (!defined('FOG_CHANNEL')) {
+            define('FOG_CHANNEL', 'Beta');
+        }
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php, and it must never fall BELOW that element
         // count. DatabaseManager::init() and schemaNeedsDeploy() test
