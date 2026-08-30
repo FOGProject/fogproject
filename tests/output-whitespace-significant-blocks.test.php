@@ -122,7 +122,12 @@ if (!preg_match('/<head>\s*(.*?)<meta charset/s', $shell, $m)) {
     if (false === strpos($head, 'prefers-color-scheme')) {
         $fails[] = 'the pre-paint theme script is not the first thing in <head>';
     }
-    if (false !== strpos($head, 'defer') || false !== strpos($head, 'async')) {
+    // Checked on the opening TAG, not on the whole chunk: the comment inside
+    // the script explains why it is not deferred, and a substring search over
+    // the text finds that explanation.
+    if (!preg_match('/<script\b[^>]*>/', $head, $tag)) {
+        $fails[] = 'the pre-paint theme script has no opening tag';
+    } elseif (preg_match('/\b(?:defer|async)\b/', $tag[0])) {
         $fails[] = 'the pre-paint theme script must not be deferred';
     }
     if (false !== strpos($head, '<link')) {
