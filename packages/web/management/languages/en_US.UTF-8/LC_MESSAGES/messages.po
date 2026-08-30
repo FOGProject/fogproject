@@ -1014,6 +1014,9 @@ msgstr "Annually"
 msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
 msgstr ""
 
+msgid "Answered at a stored address this server cannot verify; rechecked by name"
+msgstr ""
+
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
 msgstr ""
 
@@ -5538,9 +5541,6 @@ msgstr "Name"
 msgid "Name. Must be unique."
 msgstr "You must enter a name"
 
-msgid "Names looked up"
-msgstr ""
-
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -8380,6 +8380,10 @@ msgstr "Storage Node"
 msgid "Store one of your preferences"
 msgstr ""
 
+#, fuzzy
+msgid "Stored addresses used"
+msgstr "Storage Node Name"
+
 msgid "Streams a full SQL dump as an attachment."
 msgstr ""
 
@@ -10349,6 +10353,9 @@ msgstr ""
 msgid "and the FOG client."
 msgstr ""
 
+msgid "another machine holds this address; clearing it"
+msgstr ""
+
 msgid "answering \"does not exist\" for a read that never ran"
 msgstr ""
 
@@ -10830,6 +10837,9 @@ msgstr "No image specified"
 
 msgid "n/a"
 msgstr "n/a"
+
+msgid "names looked up"
+msgstr ""
 
 #, php-format
 msgid "needs FOG %s or newer; this server is %s"
