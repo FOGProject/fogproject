@@ -95,6 +95,10 @@ abstract class FOGService extends FOGBase
     /**
      * Node IPs we have in the database to check in service startup
      *
+     * Refreshed by waitInterfaceReady() on every pass, not filled once at
+     * construction -- read loadKnownIps() before treating this as a value
+     * that can be cached.
+     *
      * @var array
      */
     public static $knownips = [];
@@ -121,7 +125,21 @@ abstract class FOGService extends FOGBase
         // reading it back here would just reintroduce the second source of
         // truth it exists to document.
         self::$logpath = rtrim(FOG_LOG_DIR, DS) . DS;
-        self::$knownips = Route::getIds(
+    }
+    /**
+     * The addresses of every enabled storage node, read fresh.
+     *
+     * Deliberately a method rather than a value cached at construction.
+     * waitInterfaceReady() calls it on every pass so an edit made in the UI
+     * while a daemon is waiting is actually seen -- see the comment there for
+     * why that is the difference between a ten-second wait and a permanent
+     * one.
+     *
+     * @return array
+     */
+    public static function loadKnownIps()
+    {
+        return Route::getIds(
             'storagenode',
             ['isEnabled' => 1],
             'ip'
@@ -191,11 +209,33 @@ abstract class FOGService extends FOGBase
      */
     public function waitInterfaceReady()
     {
-        self::getIPAddress(true);
-        if (!count(self::$ips)
-            || !array_intersect(self::$knownips, self::$ips)
-            || !in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)
-        ) {
+        for (;;) {
+            self::getIPAddress(true);
+            // Re-read on every pass, because this comparison has two sides
+            // and only one of them used to be live.
+            //
+            // getIPAddress(true) forces a fresh read of what the machine
+            // currently holds, so the loop already intends to re-poll. The
+            // node addresses it is compared against, though, were read once
+            // in the constructor and never again -- so if they did not match
+            // when the daemon started, they could not begin to match, and the
+            // loop below had no exit. The daemon then sat on sleep(10)
+            // forever while systemd reported the unit active, which is the
+            // failure mode that is hardest to notice.
+            //
+            // That is not hypothetical: it is what a re-IP looks like. The
+            // server's address changes, every daemon comes up unable to match
+            // itself against a storagenode row that still holds the old
+            // address, and the admin corrects the row in the UI -- which is
+            // exactly the fix, and which used to require restarting all ten
+            // daemons before it took. Now the next pass sees it.
+            self::$knownips = self::loadKnownIps();
+            if (count(self::$ips)
+                && array_intersect(self::$knownips, self::$ips)
+                && in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)
+            ) {
+                break;
+            }
             self::outall(
                 sprintf(
                     '%s: %s',
@@ -204,8 +244,6 @@ abstract class FOGService extends FOGBase
                 )
             );
             sleep(10);
-            $this->waitInterfaceReady();
-            return;
         }
         foreach (self::$ips as &$ip) {
             self::outall(
@@ -221,18 +259,36 @@ abstract class FOGService extends FOGBase
      */
     public function waitDbReady()
     {
-        if (DatabaseManager::getLink()) {
-            return;
+        // A loop, not recursion, for the same reason waitInterfaceReady() is
+        // one: every ten-second wait used to add a stack frame that was never
+        // unwound, so the cost of waiting grew without bound. PHP has no tail
+        // calls, so a database that stays down does not just block the daemon
+        // -- it slowly consumes it.
+        //
+        // The test stays in its original positive form deliberately. Written
+        // as `while (!getLink())` the analyzer calls the negation always-false,
+        // because PDODB::link() is documented `@return object` while it in
+        // fact returns false on a failed connect and null after a disconnect
+        // -- the class guards on `!self::$_link` in a dozen places, so the
+        // docblock is simply wrong. Correcting it is right but is not this
+        // change: the accurate type immediately reaches
+        // FOGManagerController::sqlexec(), which takes `@param resource $db`
+        // and calls $db->prepare() with no guard, and deciding what that
+        // should do when the link is false is a DataTables error-handling
+        // question, not a daemon one.
+        for (;;) {
+            if (DatabaseManager::getLink()) {
+                return;
+            }
+            self::outall(
+                sprintf(
+                    'FOGService: %s - %s',
+                    self::shortName($this),
+                    _('Waiting for mysql to be available')
+                )
+            );
+            sleep(10);
         }
-        self::outall(
-            sprintf(
-                'FOGService: %s - %s',
-                self::shortName($this),
-                _('Waiting for mysql to be available')
-            )
-        );
-        sleep(10);
-        $this->waitDbReady();
     }
     /**
      * Displays the banner for fog services
