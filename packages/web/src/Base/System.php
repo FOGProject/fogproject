@@ -144,7 +144,7 @@ class System
         // installer reads this to pick which release to download, so a given
         // FOG release ships a known set of plugins rather than whatever the
         // default branch held on the day someone installed.
-        define('FOG_PLUGINS_VERSION', 'v1.6.20');
+        define('FOG_PLUGINS_VERSION', 'v1.6.21');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already
