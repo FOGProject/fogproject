@@ -582,6 +582,10 @@ msgid "Accessed By"
 msgstr "Si accede da"
 
 #, fuzzy
+msgid "Account"
+msgstr "Controllo accessi"
+
+#, fuzzy
 msgid "Account Name"
 msgstr "Controllo accessi"
 
@@ -3793,6 +3797,9 @@ msgstr "ogni ora"
 msgid "Hours field is invalid"
 msgstr "il valore ora non è valido"
 
+msgid "How FOG looks to you. \"System\" follows whatever your device is set to."
+msgstr ""
+
 msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
 msgstr ""
 
@@ -4121,8 +4128,13 @@ msgstr ""
 msgid "Impersonate a user"
 msgstr ""
 
-msgid "Impersonate another"
-msgstr ""
+#, fuzzy
+msgid "Impersonate another user"
+msgstr "Nome sessione"
+
+#, fuzzy
+msgid "Impersonate user"
+msgstr "Associazione immagine"
 
 #, fuzzy
 msgid "Impersonating"
@@ -4996,6 +5008,10 @@ msgstr "Log Viewer"
 #, fuzzy
 msgid "Log entry type filter"
 msgstr "Aggiornamento della stampante non è riuscito!"
+
+#, fuzzy
+msgid "Log out"
+msgstr "Log Viewer"
 
 msgid "Log out and sign in as an administrator"
 msgstr ""
@@ -6501,6 +6517,9 @@ msgstr ""
 msgid "Preference key or value is not storable"
 msgstr ""
 
+msgid "Preferences"
+msgstr ""
+
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
@@ -7465,9 +7484,6 @@ msgstr "Nome gruppo di archiviazione"
 
 msgid "Set failed"
 msgstr "Fallita impostazione"
-
-msgid "Set your display timezone"
-msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -8868,15 +8884,6 @@ msgid "The web application can read the following private keys. It should not be
 msgstr ""
 
 msgid "Theme"
-msgstr ""
-
-msgid "Theme: dark"
-msgstr ""
-
-msgid "Theme: follow system"
-msgstr ""
-
-msgid "Theme: light"
 msgstr ""
 
 msgid "There are"
@@ -10416,6 +10423,10 @@ msgstr ""
 
 msgid "images to a storage group"
 msgstr "Immagini in un gruppo di archiviazione"
+
+#, php-format
+msgid "impersonated by %s"
+msgstr ""
 
 #, fuzzy
 msgid "in"
