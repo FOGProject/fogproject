@@ -10565,6 +10565,10 @@ msgstr ""
 msgid "recommended"
 msgstr "推奨"
 
+#, php-format
+msgid "recorded before this server moved to UTC; written in %s"
+msgstr ""
+
 msgid "register this at your provider"
 msgstr ""
 
