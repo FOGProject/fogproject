@@ -60,10 +60,11 @@ the machine's own notes.
 - **Do NOT run this after `copybacktrunk.sh`** — it will overwrite git with the
   web copy
 - It does **not** touch the `.pot`/`.po` files, run php-cs-fixer or rewrite
-  `FOG_VERSION` any more. All three moved to `.githooks/pre-commit`, which does
-  them scoped to the files staged for that one commit instead of across the
-  whole live webroot. A doc or a memory still saying otherwise is describing a
-  copy from before 2026-08.
+  `FOG_VERSION` any more. The first two moved to `.githooks/pre-commit`, which
+  does them scoped to the files staged for that one commit instead of across
+  the whole live webroot; `FOG_VERSION` is no longer written locally at all
+  (see below). A doc or a memory still saying otherwise is describing a copy
+  from before 2026-08.
 
 **Neither script may move a Secure Boot signed artifact in either direction.**
 `installfog.sh` countersigns the deployed kernels and `refind*.efi` with the
@@ -74,13 +75,35 @@ scripts exclude them; `test-signed-artifacts-excluded.sh` in that repo pins it.
 
 ### Pre-commit hook (IMPORTANT — explains "files I didn't touch" in commits)
 
-`core.hooksPath` is set to `.githooks/`, so `.githooks/pre-commit` runs on **every** `git commit`. It auto-modifies and `git add`s files beyond what you staged — this is expected, not a bug. Do **not** revert these changes. The hook does three things:
+`core.hooksPath` is set to `.githooks/`, so `.githooks/pre-commit` runs on **every** `git commit`. It auto-modifies and `git add`s files beyond what you staged — this is expected, not a bug. Do **not** revert these changes. The hook does two things:
 
 1. **`updateLanguage()`** — regenerates `packages/web/management/languages/messages.pot` from all `*.php` via `xgettext`, sorts with `msgcat`, then `msgmerge`-updates every `.po` file. Adds the whole `languages/` dir. (Source of the harmless `Message contains an embedded URL` warning during commits.) Skipped if `xgettext`/`msgcat`/`msgmerge` aren't installed.
 2. **`psrfix()`** — runs `php-cs-fixer fix packages/web --rules=@PSR2` and adds the result. So your code may be auto-reformatted to PSR-2 on commit. Skipped if `php-cs-fixer` isn't installed.
-3. **Version bump** — derives a version from the branch name + commit count and `sed`-replaces `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/src/Base/System.php`, then adds it. On `working-1.6` this yields `1.6.0-beta.<count>` (channel `Beta`); `dev-*`/`stable` → `Patches`, `rc-*` → `Release Candidate`, `feature-*` → `Feature`.
+It used to do a third — a **version bump**, `sed`-replacing `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/src/Base/System.php` from the branch name and the commit count. That was removed, along with `.githooks/pre-push` (which existed only to refuse a push whose committed version had drifted). See **Why `FOG_VERSION` is not written on a branch** below.
 
-Net effect: a typical commit will also include a `system.class.php` version bump, and often `messages.pot` + `.po` churn and/or PSR-2 reformatting. Expect it; don't be surprised by the extra files.
+Net effect: a typical commit will often include `messages.pot` + `.po` churn and/or PSR-2 reformatting. Expect it; don't be surprised by the extra files.
+
+### Why `FOG_VERSION` is not written on a branch
+
+`FOG_VERSION` is `git rev-list master..HEAD --count` put through
+`.githooks/lib/fog-version.sh` — a property of the commit graph — but it is
+*stored* on a single tracked line of `packages/web/src/Base/System.php`. Anything
+that writes it per-commit or per-PR therefore makes every branch open at the same
+time hold a **different value on the same line**, and each merge leaves the others
+with a hand-resolved conflict on `System.php` before they can be updated (which
+the ruleset requires) and re-tested.
+
+That is structural, not a race. Evidence in this repository: #1504 needed three
+version commits (4598 → 4600 → 4608) as its neighbours landed, merge `3fbacbc73`
+records the conflict in its own message, and #1507/#1508 sat open together holding
+4620 and 4619.
+
+So the version has exactly **one** writer: `sync-generated-files.yml`, on the base
+branch, after a merge — plus fog-workflows' daily sweep for direct pushes and
+`rc-*`/`feature-*` branches. A feature branch's `FOG_VERSION` is *behind* while it
+is open, on purpose. On `working-1.6` the value is `1.6.0-beta.<count>` (channel
+`Beta`); `dev-*`/`stable` → `Patches`, `rc-*` → `Release Candidate`, `feature-*` →
+`Feature`.
 
 ### `working-1.6` is gated by a branch ruleset
 
@@ -90,22 +113,20 @@ there is not a plain `git push`:
 - **changes arrive by pull request** — the rule that pins the merge method also
   requires one, so a direct push is rejected for everyone except the
   `fog-workflows` App and org admins;
-- **merge commits only** — no squash, no rebase. `FOG_VERSION` is the commit
-  count since `master`, and the PR-time version sync predicts the post-merge
-  count on the assumption that the merge adds exactly one commit. Squash
-  collapses N into one; rebase adds none. Either makes the predicted version
-  wrong;
-- **branches must be up to date before merging**, for the same reason — the base
-  has to be an ancestor of the head or the count is not knowable in advance;
+- **merge commits only** — no squash, no rebase. This no longer protects a
+  version prediction (there isn't one any more), but it keeps the history
+  linearly countable, which is what `FOG_VERSION` is derived from;
+- **branches must be up to date before merging**. This is the rule that makes
+  every merge invalidate every other open PR and force a re-run of the eight
+  required checks. A merge queue is the standard fix and is the next change
+  planned here;
 - **seven `fogproject / …` checks must pass.** `regenerate / …` is deliberately
   *not* required: it is skipped on fork PRs, and requiring it would leave those
   unmergeable.
 
-The version you see committed on a PR branch is therefore the one it will carry
-*after* merging, written by the bot before the merge. The post-merge sync in
-`sync-generated-files.yml` is retained as a backstop for the cases the prediction
-cannot cover (a fork PR, an admin bypass, a guard-skipped run); on a well-behaved
-PR it finds nothing to do, which is expected rather than a symptom.
+The version on a PR branch is therefore whatever the last merge into the base set
+— stale, and correctly so. `sync-generated-files.yml` writes the real value on the
+base branch immediately after the merge.
 
 Full reasoning: `docs/development/version-sync-automation.md` in `FOGProject/fog-docs`.
 
