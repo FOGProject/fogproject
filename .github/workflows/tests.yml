@@ -196,7 +196,15 @@ jobs:
     #     queued. Testing this SHA would be testing a tree that no longer
     #     exists. An empty value (regen skipped) reads as not-'true' and lets
     #     the suite run, which is what fork and dev-branch pull requests need.
-    if: ${{ !cancelled() }}
+    #
+    # The second half was described here for weeks and never written into the
+    # expression, so every push that earned a regen commit paid for a full
+    # suite twice: the suite started on the pre-correction tree, regen's push
+    # raised `synchronize` mid-run, and that superseded run was cancelled and
+    # repeated against the bot's commit. The comment measures the suite at 418
+    # of a run's 447 runner-seconds, so this was very nearly the whole cost of
+    # a run, discarded, on essentially every push.
+    if: ${{ !cancelled() && needs.regen.outputs.pushed != 'true' }}
 
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-tests.yml@main
 
@@ -243,7 +251,11 @@ jobs:
   phpstan:
     name: phpstan
     needs: regen
-    if: ${{ !cancelled() }}
+    # Same pair as `suite:` above, including the pushed guard, and for the same
+    # reason -- see the note there. This job runs php-cs-fixer's output through
+    # static analysis, so testing a tree regen is about to replace is the same
+    # waste here as it is there.
+    if: ${{ !cancelled() && needs.regen.outputs.pushed != 'true' }}
     runs-on: ubuntu-latest
 
     # Read-only. This job never writes to the repository -- unlike regen, which

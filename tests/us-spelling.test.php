@@ -79,6 +79,13 @@ $allowed = [
     // spelling would silently lose every locale's string. Converging them
     // needs a schema step, which is a migration and not a spelling fix.
     "(5,'Cancelled'",
+    // GitHub Actions' OWN function name, quoted by the workflow gate in
+    // tests/regen-push-skips-the-suite.test.php. There is no `canceled()`
+    // alternative -- the expression language spells it this way -- and that
+    // test exists to match the expression the workflow actually carries, so
+    // the string cannot be rewritten without the assertion ceasing to mean
+    // anything.
+    'cancelled()',
     // Sender and receiver for the task list's Recent pane, in one file.
     // Rewriting either alone empties the pane.
     'value="cancelled"',
