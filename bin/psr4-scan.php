@@ -147,6 +147,12 @@ const TABLE = [
     'CSRF' => 'Auth',
     'SiteScope' => 'Auth',
     'Redaction' => 'Auth',
+    // Auth, not Audit, even though its most load-bearing consumer is
+    // Audit::_actor(): it decides WHICH IDENTITY a request is acting under,
+    // which is the same question Authorization and SiteScope answer about
+    // that identity's reach. The audit is a reader of the answer, not its
+    // owner. See ADR 0033.
+    'Identity' => 'Auth',
     'Audit' => 'Audit',
     'ActivityWindow' => 'Audit',
     'AuditStats' => 'Audit',
