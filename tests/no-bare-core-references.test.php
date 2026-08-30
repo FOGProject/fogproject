@@ -62,16 +62,53 @@ if (count($core) < 150) {
     exit(1);
 }
 
+// `git ls-files` unfiltered, then PHP source picked out by extension OR by a
+// php shebang. NOT `git ls-files "*.php"`, which is what this test shipped
+// with and what let the whole of packages/service through: the ten daemon
+// entry points are named for their systemd unit and carry no extension at
+// all (packages/service/FOGImageSize/FOGImageSize), because that name is what
+// installInitScript() writes into ExecStart. The glob excluded every one of
+// them, so all ten kept a bare `FOGCore::` -- a class-not-found the moment
+// the forked child reached its first loop iteration -- while this test, and
+// bin/import-core-classes.php, both reported the tree clean.
+$tracked = [];
+exec('cd ' . escapeshellarg($repo) . ' && git ls-files 2>/dev/null', $tracked);
 $files = [];
-exec(
-    'cd ' . escapeshellarg($repo) . ' && git ls-files "*.php" 2>/dev/null',
-    $files
-);
+foreach ($tracked as $rel) {
+    $path = $repo . '/' . $rel;
+    if (!is_file($path)) {
+        continue;
+    }
+    if ('php' === strtolower(pathinfo($rel, PATHINFO_EXTENSION))) {
+        $files[] = $rel;
+        continue;
+    }
+    if ('' !== pathinfo($rel, PATHINFO_EXTENSION)) {
+        continue;
+    }
+    $head = (string)file_get_contents($path, false, null, 0, 64);
+    if (preg_match('{^#![^\n]*\bphp\b}', $head)) {
+        $files[] = $rel;
+    }
+}
 if (count($files) < 200) {
     fwrite(
         STDERR,
         'FAIL: git ls-files returned ' . count($files) . " PHP files; expected"
         . " the whole tree. Not run from a checkout?\n"
+    );
+    exit(1);
+}
+// The ten daemon entry points are the reason the selection above is not a
+// glob. Assert they are actually in the scan set, so a future change back to
+// `git ls-files "*.php"` fails here instead of silently measuring nothing.
+$daemons = preg_grep('{^packages/service/FOG[A-Za-z]+/FOG[A-Za-z]+$}', $files);
+if (count($daemons) < 10) {
+    fwrite(
+        STDERR,
+        'FAIL: only ' . count($daemons) . " daemon entry points in the scan"
+        . " set; expected 10. The extension-less files are being skipped"
+        . " again -- that is the bug this test exists to catch.\n"
     );
     exit(1);
 }

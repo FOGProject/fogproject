@@ -11,6 +11,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+
 /**
  * FOGRetentionRunner service to age out the tables that record what happened
  *
@@ -36,7 +39,7 @@ require dirname(realpath(__FILE__)).'/../etc/config.php';
 require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
 $service_name = 'FOGRetentionRunner';
 service_persist($service_name);
-$ServiceClass = $FOGCore::getClass('RetentionRunner');
+$ServiceClass = FOGCore::getClass('RetentionRunner');
 $ServiceClass->getBanner();
 $ServiceClass->waitInterfaceReady();
 $ServiceClass->waitDbReady();
