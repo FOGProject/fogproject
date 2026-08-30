@@ -171,7 +171,16 @@ $ip = trim($ip);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     return print json_encode(_('IP Passed is incorrect'));
 }
-if (false !== strpos(filter_input(INPUT_SERVER, 'HTTP_HOST'), $ip)) {
+// Which storage node am I? Compare against SERVER_ADDR (the socket this
+// request actually landed on), not the client's Host header -- Host is
+// whatever name/alias the browser typed (a hostname behind OIDC, a load
+// balancer, an /etc/hosts alias), and almost never equals this node's own
+// IP as a substring. That mismatch always fell through to the "remote
+// node" branch below, which self-proxies over HTTP with no session --
+// so even the master's own logs went through an unauthenticated request
+// to itself and got rejected. SERVER_ADDR is set by the web server from
+// the actual connection, independent of how the client addressed us.
+if ($ip === filter_input(INPUT_SERVER, 'SERVER_ADDR')) {
     $str = vals(
         $reverse,
         $HookManager,

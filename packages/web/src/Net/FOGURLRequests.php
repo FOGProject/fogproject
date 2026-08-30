@@ -768,7 +768,13 @@ class FOGURLRequests extends FOGBase
             $this->options[CURLOPT_USERPWD] = $auth;
         }
         // ---- BEGIN CSRF + session forwarding ----
-        $csrfToken = class_exists('CSRF') ? CSRF::token() : '';
+        // CSRF is namespaced (FOG\Auth\CSRF, imported above) and core classes
+        // are no longer bare-aliased into the global namespace (ADR 0013 SS2).
+        // class_exists() takes a string, which `use` does not rewrite, so
+        // class_exists('CSRF') always checked the global namespace, always
+        // got refused, and always fell back to '' -- silently sending every
+        // node-to-node request with no CSRF token at all.
+        $csrfToken = CSRF::token();
 
         // Important: release the session lock so the called script can read it
         if (session_status() === PHP_SESSION_ACTIVE) {

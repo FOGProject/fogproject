@@ -573,6 +573,15 @@ class Authorization extends FOGBase
             // narrowly: an audit row necessarily discloses attempted
             // usernames.
             'audit' => ['view', 'manage'],
+            // The log viewer. Third sibling under Logging, and the one that
+            // shipped without an entry here when it moved to its own node
+            // (#1507) -- so it fell into "a node absent from the registry is
+            // left alone" above, and a '*' holder saw "Create New Logviewer"
+            // and "List All Logviewers" in the sidebar for a page that only
+            // ever implements index(). No `manage`: unlike audit, there is no
+            // retention window or other setting to gate separately from
+            // reading it.
+            'logviewer' => ['view'],
             // `install` is uploading an archive -- new executable code on
             // the server, deliberately its own permission (ADR 0009).
             // create/delete are the plugin ROW, which is how one is switched
