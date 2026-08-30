@@ -26,13 +26,19 @@
  *       side is exactly how this breaks again, and it breaks silently;
  *   (c) the JS binds them DELEGATED, from document. The picker is fetched
  *       into the modal after the JS has run, and #ajaxPageWrapper is
- *       replaced on every in-app navigation, so a direct bind would be lost.
+ *       replaced on every in-app navigation, so a direct bind would be lost;
+ *   (d) the modal is the ONLY surface. index() redirects home instead of
+ *       rendering the picker a second time. Two renderers for one control is
+ *       two places to keep the candidate filtering, the refusal copy and the
+ *       ids in step -- and the ids above are exactly what the JS binds, so
+ *       the second copy is a second chance for (b) to go wrong.
  *
  * MUTATION-VERIFIED:
  *
  *   wrap the picker's controls in a <form>       -> (a) red
  *   rename #impersonate-send in the PHP only     -> (b) red
  *   change $(document).on to $('#...').on in JS  -> (c) red
+ *   make index() render the picker again         -> (d) red
  *
  * Usage: php tests/impersonation-picker-is-wired.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -229,6 +235,26 @@ check(
     'fog.impersonate.js is not in the authenticated asset list, so it never'
     . ' loads and every control above is inert',
     false !== strpos($assets, "'js/fog/fog.impersonate.js'"),
+    $fails,
+    $checks
+);
+
+/*
+ * (d) ONE SURFACE. Matched as the FIRST statement in index(), because
+ *     unconditional is the contract: home is where both answers lead, so a
+ *     canStart() branch could only pick which message to flash on the way,
+ *     and "you may not impersonate" is the wrong thing to tell somebody who
+ *     very possibly may. A redirect further down, after a render, would
+ *     satisfy a looser search while emitting the whole second surface first.
+ */
+check(
+    'ImpersonateManagement::index() does not redirect as its first act, so'
+    . ' the picker has a second surface -- a second copy of the candidate'
+    . ' filtering and the ids the JS binds, free to drift from this one',
+    (bool)preg_match(
+        '#function\s+index\s*\([^)]*\)\s*\{\s*self::redirect\(#',
+        $php
+    ),
     $fails,
     $checks
 );

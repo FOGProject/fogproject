@@ -281,7 +281,23 @@ if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
             : '';
         ?>
                     <li class="nav-item dropdown">
-                        <a href="#" id="accountMenu" class="nav-link" role="button"
+                        <?php
+                        // .dropdown-toggle earns its place: it is what draws
+                        // the caret, so the icon says "there is a menu here"
+                        // rather than looking like a link to a profile page.
+                        // Bootstrap's own class, and the same one
+                        // FOGPage::renderTabs() already uses for a
+                        // nav-link dropdown, so this is the house pattern
+                        // rather than a new one.
+                        //
+                        // Bootstrap does NOT rotate that caret when the menu
+                        // opens -- fog-default-ui.scss does, keyed on the
+                        // .show class Bootstrap already puts on the toggle.
+                        // aria-expanded is maintained by Bootstrap and is
+                        // what actually announces the state; the rotation is
+                        // the sighted half of the same signal.
+        ?>
+                        <a href="#" id="accountMenu" class="nav-link dropdown-toggle" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false"
                            title="<?= _('Account'); ?>"
                            aria-label="<?= _('Account'); ?>">
@@ -349,28 +365,28 @@ if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
                             <?php endif; ?>
                             <li><hr class="dropdown-divider"></li>
                             <?php
-                            // Theme and display timezone, which are the same
-                            // KIND of thing -- per-user preferences, stored in
-                            // userPrefs, changing what this one person sees and
-                            // nothing about what is stored or what anyone else
-                            // sees. They were two separate navbar icons, which
-                            // put a three-state picker and a modal trigger in
-                            // the chrome and said nothing about them belonging
-                            // together.
-                            //
-                            // A dialog rather than more rows in this menu:
-                            // theme is a three-way choice with a tick and
-                            // timezone is a several-hundred-option select, and
-                            // both are form controls wearing a menu's clothes.
-                            // It is also where the next per-user preference
-                            // goes without this menu growing again.
-                            //
-                            // Reached from HERE because that is what makes the
-                            // impersonation workflow one path: become the user,
-                            // open this menu, see their clock is wrong, fix it,
-                            // drop back. Preferences follow the impersonated
-                            // identity like every other read, which is the
-                            // whole point of the feature.
+            // Theme and display timezone, which are the same
+            // KIND of thing -- per-user preferences, stored in
+            // userPrefs, changing what this one person sees and
+            // nothing about what is stored or what anyone else
+            // sees. They were two separate navbar icons, which
+            // put a three-state picker and a modal trigger in
+            // the chrome and said nothing about them belonging
+            // together.
+            //
+            // A dialog rather than more rows in this menu:
+            // theme is a three-way choice with a tick and
+            // timezone is a several-hundred-option select, and
+            // both are form controls wearing a menu's clothes.
+            // It is also where the next per-user preference
+            // goes without this menu growing again.
+            //
+            // Reached from HERE because that is what makes the
+            // impersonation workflow one path: become the user,
+            // open this menu, see their clock is wrong, fix it,
+            // drop back. Preferences follow the impersonated
+            // identity like every other read, which is the
+            // whole point of the feature.
         ?>
                             <li>
                                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#prefsModal"><i class="fas fa-sliders fa-fw me-2"></i><?= _('Preferences'); ?></a>

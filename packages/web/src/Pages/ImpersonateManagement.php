@@ -60,36 +60,39 @@ class ImpersonateManagement extends FOGPage
         parent::__construct($this->name);
     }
     /**
-     * The picker: everybody this administrator may become.
+     * There is no impersonation page. Go home.
+     *
+     * This node exists for its SUBS -- startModal, start and end -- and not
+     * as a destination. Impersonating is one select and one button, which is
+     * a dialog; the dialog lives in the page shell, so it is reachable from
+     * wherever the administrator already is, and having to travel to a page
+     * first is most of the friction the feature exists to remove.
+     *
+     * This used to render the picker a second time, as a deep-link fallback,
+     * so both surfaces shared one code path. That was a solution to a problem
+     * nobody had: nothing links here, the node is not in the sidebar, and the
+     * only way to arrive is to type the URL. A whole card and card-header
+     * maintained for that is a second surface to keep in step with the first
+     * -- and a second place for the two to disagree.
+     *
+     * Redirects unconditionally rather than checking canStart() first. Home
+     * is where both answers lead, so branching would only decide which
+     * message to flash on the way, and "you may not impersonate" is the wrong
+     * thing to tell somebody who very possibly may.
      *
      * @return void
      */
     public function index(...$args)
     {
-        $this->title = _('Impersonate a user');
-        if (!Identity::canStart()) {
-            self::setMessage(
-                _('You do not have permission to impersonate users.'),
-                _('Permission denied'),
-                'warning'
-            );
-            self::redirect('?node=home');
-
-            return;
-        }
-        echo '<div class="col-md-12">';
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">' . \Initiator::e($this->title) . '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        $this->_picker();
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        self::redirect('?node=home');
     }
     /**
-     * The picker, as the impersonation modal's body.
+     * The picker: everybody this administrator may become.
+     *
+     * THE ONLY SURFACE. index() redirects home -- there is no impersonation
+     * page, and this markup has exactly one consumer, so it is written here
+     * rather than in a helper shared with a second renderer that no longer
+     * exists.
      *
      * The modal ships EMPTY from the page shell and the browser fetches this
      * when it opens -- the same shape renderAssocCreate() uses, and for a
@@ -97,6 +100,13 @@ class ImpersonateManagement extends FOGPage
      * refusalReason() per user, and each of those runs both subset tests;
      * building that into every page render to populate a dialog almost
      * nobody opens would put it on the critical path of the whole UI.
+     *
+     * THE BUTTON IS type="button" AND CARRIES NO FORM. FOG has no
+     * natively-submitting forms: fog.common.js disableFormDefaults() binds
+     * preventDefault to every <form> on the page, on every load and every
+     * AJAX navigation, so a submit button posts nothing and reports nothing.
+     * The first cut of this shipped exactly that, and the button was inert
+     * with no error anywhere -- no request, no console message, no log line.
      *
      * @return void
      */
@@ -111,35 +121,6 @@ class ImpersonateManagement extends FOGPage
 
             return;
         }
-        $this->_picker();
-    }
-    /**
-     * Base method for the sub above.
-     *
-     * FOGPageManager::render() only appends 'Ajax' when the BASE method
-     * exists, so without this the dispatcher falls back to index() and the
-     * modal body arrives as an entire page. Same trap as start()/startPost().
-     *
-     * @return void
-     */
-    public function startModal(...$args)
-    {
-        $this->startModalAjax(...$args);
-    }
-    /**
-     * The select and the button, on whichever surface asked for them.
-     *
-     * The button is type="button" and carries no form of its own. FOG has no
-     * natively-submitting forms: fog.common.js disableFormDefaults() binds
-     * preventDefault to every <form> on the page, on every load and every
-     * AJAX navigation, so a submit button posts nothing and reports nothing.
-     * The first cut of this page shipped exactly that, and the button was
-     * inert with no error anywhere.
-     *
-     * @return void
-     */
-    private function _picker()
-    {
         echo '<p>';
         echo \Initiator::e(
             _('You will see FOG exactly as the person you choose sees it -- '
@@ -177,6 +158,19 @@ class ImpersonateManagement extends FOGPage
             . 'id="impersonate-send">';
         echo \Initiator::e(_('Impersonate'));
         echo '</button>';
+    }
+    /**
+     * Base method for the sub above.
+     *
+     * FOGPageManager::render() only appends 'Ajax' when the BASE method
+     * exists, so without this the dispatcher falls back to index() and the
+     * modal body arrives as an entire page. Same trap as start()/startPost().
+     *
+     * @return void
+     */
+    public function startModal(...$args)
+    {
+        $this->startModalAjax(...$args);
     }
     /**
      * The users this administrator may become.
