@@ -297,6 +297,26 @@ function fogStateKey(settings) {
  * entirely: a filter someone typed is not something to persist server-side
  * on their behalf.
  *
+ * A SELECTION is the same thing with teeth. DataTables Select registers its
+ * own stateSaveParams handler that writes `select.rows` -- the row ids -- into
+ * every save, and a matching stateLoadParams that re-selects them and calls
+ * state.save() again. Nothing here asked for that and nothing here reads it.
+ * Left in, three hosts ticked on Friday come back ticked on Monday, from
+ * whichever machine you next sign in on, because this store is server-side and
+ * lasts a year. Every bulk action on the page reads rows({selected: true}), so
+ * what is restored is not a view of the list -- it is a loaded gun pointed at
+ * rows the person in front of it did not choose, sitting somewhere down an
+ * 86-row virtual scroll where they cannot see it.
+ *
+ * Verified on the lab server before this was written: selecting three hosts
+ * POSTed `select: {rows: ["#211","#48","#49"], ...}` to
+ * system/userpref/dt.host.list.dataTable, and the next load came up with three
+ * rows selected and their checkboxes ticked.
+ *
+ * Select's restore is guarded on `void 0 !== l.select`, so dropping the key
+ * makes it a clean no-op rather than an error -- and skips the extra
+ * state.save() it fires on every page load.
+ *
  * @param {object} state the state DataTables wants saved
  *
  * @return {object} a copy safe to store
@@ -343,10 +363,11 @@ function fogApplyOrder(api) {
   }
   api.order(wanted).draw(false);
 }
-function fogStripStateSearch(state) {
+function fogStripVolatileState(state) {
   var copy = $.extend(true, {}, state), i;
   delete copy.search;
   delete copy.searchBuilder;
+  delete copy.select;
   for (i = 0; i < (copy.columns || []).length; i++) {
     delete copy.columns[i].search;
   }
@@ -623,7 +644,7 @@ var shouldReAuth,
       // affordance -- "I like filtering from the headers" -- and remembering
       // that is not the same as remembering a question somebody asked once.
       // The terms are still cleared when the row closes, and still stripped
-      // from the saved layout; see fogStripStateSearch().
+      // from the saved layout; see fogStripVolatileState().
       fogAffordanceStore(dt, 'searchrow', on);
     }
   },
@@ -3424,6 +3445,84 @@ function fogMemoizeResponsiveMeasure() {
     });
   });
 }
+/**
+ * Is a scrolling table already sized correctly for the box it is in?
+ *
+ * columns.adjust() is the expensive half of every sizing pass -- it fires
+ * column-sizing, which Responsive answers by re-measuring the whole loaded
+ * page of rows -- and on a normal page load DataTables has already run it
+ * several times of its own accord before FOG's .app-main ResizeObserver ever
+ * fires: once when Responsive is constructed, once when the first response
+ * makes the body overflow, once when Responsive settles which columns fit, and
+ * once at init complete. That observer also fires for HEIGHT changes, and the
+ * rows rendering is a height change, so the pass it wakes was re-doing work
+ * the library had already done: ~50ms on an 86-row host list, for a set of
+ * widths that came out byte-identical.
+ *
+ * What could not be answered by asking "have the inputs changed since last
+ * time" is that the library's own adjust is sometimes not the last word.
+ * Below the sidebar breakpoint the vertical scrollbar appears as a CONSEQUENCE
+ * of the adjust that sized the table, so DataTables leaves the body table 15px
+ * wider than the viewport it sits in and the pass here is what converges it.
+ * An input-based gate skipped that and left the grid with a horizontal
+ * scrollbar at 860px and 700px (771px of table in a 756px body).
+ *
+ * So ask the question directly instead. Two things have to hold, and if they
+ * do, another adjust cannot produce a different answer:
+ *
+ *  - the body table exactly fills the scroll body's client area, which is what
+ *    goes wrong when a scrollbar appears or disappears under it;
+ *  - every header cell is the same width as the body cell beneath it, which is
+ *    the misalignment the whole sizing path exists to prevent.
+ *
+ * Both are read after the max-height write, since that is an input to whether
+ * the scrollbar is there at all.
+ *
+ * A table with no split (a paged one) has nothing to prove either way, so it
+ * says no and is adjusted as before.
+ *
+ * @param {object} dt the DataTables API for the table
+ *
+ * @return {boolean} true when an adjust would be a no-op
+ */
+function fogColumnsAligned(dt) {
+  var container = dt.table().container(),
+    scrollBody = $('div.dt-scroll-body', container)[0],
+    head = $('div.dt-scroll-head table', container)[0],
+    body = $('div.dt-scroll-body table', container)[0],
+    headCells,
+    bodyCells,
+    i;
+  if (!scrollBody || !head || !body) {
+    return false;
+  }
+  // clientWidth is an integer and the table's box is not, so a pixel of slack:
+  // the mismatch this is looking for is a whole scrollbar wide.
+  if (Math.abs(body.getBoundingClientRect().width - scrollBody.clientWidth) > 1) {
+    return false;
+  }
+  // No rows, or the "no matching records" placeholder (one cell spanning the
+  // lot): no column boundaries to be out of line.
+  if (body.querySelector('tbody td.dt-empty')) {
+    return true;
+  }
+  headCells = head.querySelectorAll('thead tr:first-child > th, thead tr:first-child > td');
+  bodyCells = body.querySelectorAll('tbody tr:first-child > th, tbody tr:first-child > td');
+  if (!bodyCells.length) {
+    return true;
+  }
+  if (headCells.length !== bodyCells.length) {
+    return false;
+  }
+  for (i = 0; i < headCells.length; i++) {
+    if (Math.abs(headCells[i].getBoundingClientRect().width -
+      bodyCells[i].getBoundingClientRect().width) > 1
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 function fogSizeScroller(dt, release) {
   // dt.init() can be null for nodes the table.dataTable selector also matches
   // but that aren't fully-initialized Scroller tables (e.g. the scrollY split
@@ -3436,14 +3535,6 @@ function fogSizeScroller(dt, release) {
   var container = dt.table().container(),
     body = $('div.dt-scroll-body', container);
   if (!body.length || !body.is(':visible')) {
-    // Forget what the last pass measured. A table that has been hidden may be
-    // re-cloned or re-laid-out before it comes back, so the next visible pass
-    // has to re-adjust even if the window is the size it was -- the signature
-    // below would otherwise match and skip it.
-    var hidden = dt.settings()[0];
-    if (hidden) {
-      hidden._fogSizeSignature = null;
-    }
     return; // not rendered, or in a hidden tab
   }
   var bodyRect = body[0].getBoundingClientRect(),
@@ -3519,48 +3610,16 @@ function fogSizeScroller(dt, release) {
   // keeps its zero-width header/body split (header narrow, body full-width)
   // until the columns are adjusted once it becomes visible.
   //
-  // Gated, because this is the expensive half and most calls have nothing to
-  // do. columns.adjust() fires column-sizing, and Responsive answers that by
-  // cloning the whole current page of rows into a hidden table to read a
-  // column width off each one -- ~130ms a time on an 86-row host list, and
-  // Scroller's "current page" is every row it has loaded. This function runs
-  // three times on a normal page load (the deferred pass below
-  // registerTable(), the post-draw re-adjust above, and fogAdjustAllTables()
-  // off the .app-main ResizeObserver), and the last of those is woken by the
-  // rows the earlier passes drew rather than by anything that moved a column.
-  //
-  // Three things decide whether the split needs re-measuring: the height we
-  // just set, the container's width, and whether the body overflows -- that
-  // last one because DataTables reserves the scrollbar's width on the header
-  // when it does, which is the whole point of the post-draw pass above (the
-  // row count settles, the overflow goes away, and the reservation has to come
-  // back off). Same three as last time means the answer would be identical, so
-  // skip it. Sampled AFTER the max-height write, since that is an input to the
-  // overflow.
+  // Gated on fogColumnsAligned(), because this is the expensive half and most
+  // calls have nothing to do -- see that function for what "nothing to do"
+  // means and how it is decided.
   //
   // The colgroup widths have to be released before the adjust to let the table
   // narrow (see fogReleaseColWidths), so that is done here rather than by the
   // caller -- releasing them and then skipping the adjust would leave the
   // table on auto widths.
-  //
-  // The visible column set is in the signature too. Hiding or showing a column
-  // changes neither the height nor the container width, so without it the
-  // ResizeObserver pass that follows a visibility toggle would match the
-  // previous signature and skip -- leaving the colgroup widths written for the
-  // old column set, which the table then redistributes rather than
-  // re-measuring. Header and body stay in step either way, but the table
-  // settles at the wrong width (measured 1326px against 1246px on the host
-  // list, hiding then re-showing one column).
-  var el = body[0],
-    signature = avail + '|'
-      + Math.round(container.getBoundingClientRect().width) + '|'
-      + (el.scrollHeight > el.clientHeight ? 1 : 0) + '|'
-      + dt.columns(':visible').indexes().toArray().join(',');
-  if (settings && settings._fogSizeSignature === signature) {
+  if (fogColumnsAligned(dt)) {
     return;
-  }
-  if (settings) {
-    settings._fogSizeSignature = signature;
   }
   if (release) {
     fogReleaseColWidths(dt.table().node());
@@ -3923,19 +3982,27 @@ $.fn.registerTable = function(onSelect, opts) {
     // this is a no-op on an install that has not crossed the boundary and on
     // every client-side table, neither of which sends one.
     rowCallback: function(tr, data) {
-      // Reached through the row's own table rather than a closure: the first
-      // draw happens INSIDE the DataTable() call below, so the variable
-      // holding the API is not assigned yet when this first runs. Cached
-      // because it is otherwise a settings-array scan per row.
+      // Reached through the callback's own `this`, which DataTables sets to
+      // the table's jQuery instance, and NOT through the row: rowCallback runs
+      // while the row is still DETACHED -- DataTables builds every <tr>, fires
+      // this for each, and attaches the tbody afterward -- so
+      // $(tr).closest('table') matches nothing and .DataTable() hands back an
+      // API with no settings behind it. Reading settings()[0] off that threw
+      // "Cannot read properties of undefined" on the first ajax draw of every
+      // grid, and the throw aborted the draw: one row rendered, the
+      // header/body split never sized, and nothing but the console said so.
+      //
+      // Cached because it is otherwise a settings-array scan per row.
       if (!unadjustedTable) {
-        unadjustedTable = $(tr).closest('table').DataTable();
+        unadjustedTable = this.api();
       }
-      fogMarkUnadjusted(
-        unadjustedTable,
-        tr,
-        data,
-        unadjustedTable.settings()[0].fogUnadjustedNote
-      );
+      var note = unadjustedTable.settings()[0].fogUnadjustedNote;
+      // No note means nothing to mark: an install that has not crossed the
+      // boundary does not send one, and neither does a client-side table.
+      if (!note) {
+        return;
+      }
+      fogMarkUnadjusted(unadjustedTable, tr, data, note);
     },
     searching: true,
     ordering: true,
@@ -3946,8 +4013,10 @@ $.fn.registerTable = function(onSelect, opts) {
     colReorder: true,
     // Column order, which columns are showing, page length and sort now
     // persist per user, through the preference store rather than
-    // localStorage -- see stateSaveCallback below. Searches are deliberately
-    // NOT part of it; fogStripStateSearch() says why.
+    // localStorage -- see stateSaveCallback below. Searches and the row
+    // SELECTION are deliberately NOT part of it; fogStripVolatileState() says
+    // why. The selection in particular is put there by the Select extension
+    // itself, not by anything here, so it has to be taken back out.
     stateSave: true,
     // Long enough that a layout survives a holiday. DataTables discards a
     // state older than this, which is the escape hatch if a saved layout ever
@@ -3964,7 +4033,7 @@ $.fn.registerTable = function(onSelect, opts) {
       // ours to fix here. The key survives any reordering, and fogApplyOrder()
       // puts the sort back where it belongs once the table is up.
       data.fogOrder = fogOrderKeys(settings, data.order);
-      value = JSON.stringify(fogStripStateSearch(data));
+      value = JSON.stringify(fogStripVolatileState(data));
       if (!key) {
         return;
       }
@@ -4004,7 +4073,7 @@ $.fn.registerTable = function(onSelect, opts) {
           // -- or by localStorage before this shipped -- can carry a saved
           // search, and restoring one invisibly is the failure this whole
           // arrangement is written to avoid.
-          callback(fogStripStateSearch(JSON.parse(raw)));
+          callback(fogStripVolatileState(JSON.parse(raw)));
         } catch (e) {
           // A corrupt or truncated value means "no saved layout", not a
           // broken table. JSON.parse throwing here would otherwise take out

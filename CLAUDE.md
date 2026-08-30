@@ -86,24 +86,44 @@ Net effect: a typical commit will often include `messages.pot` + `.po` churn and
 ### Why `FOG_VERSION` is not written on a branch
 
 `FOG_VERSION` is `git rev-list master..HEAD --count` put through
-`.githooks/lib/fog-version.sh` — a property of the commit graph — but it is
-*stored* on a single tracked line of `packages/web/src/Base/System.php`. Anything
-that writes it per-commit or per-PR therefore makes every branch open at the same
-time hold a **different value on the same line**, and each merge leaves the others
-with a hand-resolved conflict on `System.php` before they can be updated (which
-the ruleset requires) and re-tested.
+`.githooks/lib/fog-version.sh` — a property of the commit graph. Anything that
+writes it into a *tracked* file makes every branch open at the same time hold a
+**different value on the same line**, and each merge then leaves the others with
+a hand-resolved conflict on `System.php` before they can be updated (which the
+ruleset requires) and re-tested. Worse, the quantity is self-perturbing: getting
+a branch current adds a commit, which moves the count, which earns another
+rewrite, which has to be pushed and pulled, which adds another commit.
 
-That is structural, not a race. Evidence in this repository: #1504 needed three
-version commits (4598 → 4600 → 4608) as its neighbors landed, merge `3fbacbc73`
-records the conflict in its own message, and #1507/#1508 sat open together holding
-4620 and 4619.
+That is structural, not a race. Evidence: #1504 needed three version commits
+(4598 → 4600 → 4608) as its neighbors landed, merge `3fbacbc73` records the
+conflict in its own message, and #1507/#1508 sat open together holding 4620 and
+4619.
 
-So the version has exactly **one** writer: `sync-generated-files.yml`, on the base
-branch, after a merge — plus fog-workflows' daily sweep for direct pushes and
-`rc-*`/`feature-*` branches. A feature branch's `FOG_VERSION` is *behind* while it
-is open, on purpose. On `working-1.6` the value is `1.6.0-beta.<count>` (channel
-`Beta`); `dev-*`/`stable` → `Patches`, `rc-*` → `Release Candidate`, `feature-*` →
-`Feature`.
+So it is a **generated file**, for the same reason `commons/config.class.php`
+is:
+
+| | |
+|---|---|
+| `packages/web/commons/version.php` | **generated, gitignored**. Written by `.githooks/lib/write-version-file.sh` |
+| Written on | commit, checkout, merge (`.githooks/post-*`), and by `bin/installfog.sh` |
+| `packages/web/src/Base/System.php` | includes it when readable, else falls back to the **release** constants it carries |
+| Rewrites the fallback | only a release. Not a commit, not a merge, not CI |
+
+Every reader parses the identical `define('FOG_VERSION', '...');` shape, so one
+`awk` works against either file — `bin/installfog.sh`, `bin/updatefog.sh` and
+`lib/common/utils.sh` all try the generated file first and fall back.
+
+Nothing breaks without the generated file: a source zip with no `.git`, or a
+checkout by someone who never enabled hooks, reports the release version —
+truthful, if less precise than a build count. `tests/generated-version-file.test.sh`
+pins the whole contract.
+
+Consequence worth knowing: **there is no merge-time version sync any more.**
+`.github/workflows/sync-generated-files.yml` was deleted from this branch, since
+PSR-2 and the gettext catalog are already corrected on the pull request and
+the version is no longer in git. fog-workflows' daily sweep still covers fork
+PRs and direct pushes for those two, and skips the version on any branch
+carrying `write-version-file.sh`.
 
 ### `working-1.6` is gated by a branch ruleset
 
@@ -113,9 +133,9 @@ there is not a plain `git push`:
 - **changes arrive by pull request** — the rule that pins the merge method also
   requires one, so a direct push is rejected for everyone except the
   `fog-workflows` App and org admins;
-- **merge commits only** — no squash, no rebase. This no longer protects a
-  version prediction (there isn't one any more), but it keeps the history
-  linearly countable, which is what `FOG_VERSION` is derived from;
+- **merge commits only** — no squash, no rebase. This keeps the history
+  linearly countable, which is what a locally generated `FOG_VERSION` is
+  derived from;
 - **branches must be up to date before merging**. This is the rule that makes
   every merge invalidate every other open PR and force a re-run of the eight
   required checks. A merge queue is the standard fix and is the next change
@@ -124,11 +144,12 @@ there is not a plain `git push`:
   *not* required: it is skipped on fork PRs, and requiring it would leave those
   unmergeable.
 
-The version on a PR branch is therefore whatever the last merge into the base set
-— stale, and correctly so. `sync-generated-files.yml` writes the real value on the
-base branch immediately after the merge.
+No version is written into git by any of this. See **Why `FOG_VERSION` is not
+written on a branch** above.
 
-Full reasoning: `docs/development/version-sync-automation.md` in `FOGProject/fog-docs`.
+Full reasoning: `docs/development/version-sync-automation.md` in `FOGProject/fog-docs`
+— note it predates GH-1510/GH-1513 and still describes the version as a synced,
+tracked value.
 
 ### The `phpstan` check is two passes — run both, unscoped
 

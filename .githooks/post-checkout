@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+#
+# Refreshes packages/web/commons/version.php after a checkout, so switching
+# branches switches the reported version with it.
+#
+# $3 is 1 for a branch checkout and 0 for a file checkout; a file checkout
+# cannot have moved HEAD, so there is nothing to recompute.
+#
+# See .githooks/post-commit and .githooks/lib/write-version-file.sh.
+[ "$3" = "1" ] || exit 0
+project_dir=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+sh "$project_dir/.githooks/lib/write-version-file.sh" >/dev/null 2>&1 || true
+exit 0
