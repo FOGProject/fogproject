@@ -44,10 +44,48 @@ project_dir=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 out="$project_dir/packages/web/commons/version.php"
 [ -d "$(dirname "$out")" ] || exit 0
 
+# WHICH BRANCH NAME THE FORMULA GETS, AND WHY IT IS NOT ALWAYS THE CHECKED-OUT
+# ONE.
+#
+# fog-version.sh derives the version PREFIX and the channel from the branch
+# name -- `working-1.6` gives `1.6.0-beta.<count>` and Beta, `dev-*` gives
+# Patches, and so on. A name it does not recognise falls through its case with
+# no arm taken, and the committed value stands unchanged. That is right for
+# CI, which only ever runs against the long-lived branches, and wrong here: a
+# working branch is called something like `generated-version-file`, and taking
+# its own name would make every feature branch report the bare release string.
+#
+# So an unrecognised name is resolved to the long-lived branch this work is
+# actually based on -- the one closest to HEAD by commit count. The COUNT is
+# unaffected either way, since fog-version.sh measures `master..HEAD` from the
+# tree rather than from the name.
+branch=$(git branch --show-current 2>/dev/null || true)
+case "$branch" in
+    working-*|dev-*|stable|rc-*|feature-*) ;;
+    *)
+        nearest=""
+        nearest_distance=""
+        for candidate in working-1.6 dev-branch stable; do
+            for ref in "refs/heads/$candidate" "refs/remotes/origin/$candidate"; do
+                git rev-parse --verify --quiet "$ref" >/dev/null 2>&1 || continue
+                distance=$(git rev-list --count "$ref..HEAD" 2>/dev/null) || continue
+                if [ -z "$nearest_distance" ] || [ "$distance" -lt "$nearest_distance" ]; then
+                    nearest_distance="$distance"
+                    nearest="$candidate"
+                fi
+            done
+        done
+        # Empty is not a failure: fog-version.sh defaults an empty first
+        # argument to the checked-out branch, which is exactly the old
+        # behaviour, and its own case falls through to the committed value.
+        branch="$nearest"
+        ;;
+esac
+
 # `head` mode: what the commit that ALREADY EXISTS should carry, with no +1.
 # That is the right question here -- this describes the tree on disk, it does
 # not predict a commit that is about to be written.
-computed=$(sh "$project_dir/.githooks/lib/fog-version.sh" "" head 2>/dev/null) || exit 0
+computed=$(sh "$project_dir/.githooks/lib/fog-version.sh" "$branch" head 2>/dev/null) || exit 0
 
 version=$(printf '%s\n' "$computed" | sed -n '1p')
 channel=$(printf '%s\n' "$computed" | sed -n '2p')

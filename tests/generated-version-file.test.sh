@@ -65,6 +65,26 @@ else
         got=$(awk -F\' /"define\('FOG_CHANNEL'[,](.*)"/'{print $4}' "$generated" | tr -d '[[:space:]]')
         [ -n "$got" ] || bad "the generated file carries no FOG_CHANNEL."
         php -l "$generated" >/dev/null 2>&1 || bad "the generated file is not valid PHP."
+
+        # The generated value must not be the FALLBACK value.
+        #
+        # fog-version.sh derives the version prefix from the BRANCH NAME, and
+        # a name it does not recognise takes no arm of its case, leaving the
+        # committed value standing. A working branch is called something like
+        # `generated-version-file`, so without the resolution step in
+        # write-version-file.sh every feature branch generated the bare
+        # release string and the whole mechanism silently did nothing.
+        #
+        # Skipped when the commit count is not computable -- a checkout with
+        # no master ref -- since the two legitimately coincide there.
+        count=$(git -C "$repo" rev-list master..HEAD --count 2>/dev/null || true)
+        if [ -n "$count" ] && [ "$count" -gt 0 ] 2>/dev/null; then
+            gen=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$generated" | tr -d '[[:space:]]')
+            fallback=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$system" | tr -d '[[:space:]]')
+            if [ "$gen" = "$fallback" ]; then
+                bad "the generated version ($gen) is identical to the release fallback, so no build count was resolved -- see the branch-name resolution in write-version-file.sh."
+            fi
+        fi
     fi
     [ -n "$saved" ] && cp "$saved" "$generated"
     rm -rf "$tmp"
