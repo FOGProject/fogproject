@@ -1902,6 +1902,29 @@ abstract class FOGBase
         return self::$_displayTimeZone;
     }
     /**
+     * A datetime the VIEWER typed, as a DateTime the database can be
+     * compared against.
+     *
+     * niceDate() reads a value in the STORAGE zone, which is right for
+     * something that came out of a column and wrong for something somebody
+     * just typed into a form: they typed it while looking at a page rendered
+     * in THEIR zone. Reading it as storage schedules a task, or bounds a
+     * report, at an hour they did not ask for -- silently, and only for the
+     * users who have set a preference, which is the worst possible
+     * distribution for a bug.
+     *
+     * A no-op whenever the two zones are the same, which is every account
+     * that has not chosen one.
+     *
+     * @param string $value as the viewer typed it.
+     *
+     * @return \DateTime
+     */
+    public static function viewerDate($value)
+    {
+        return self::niceDate(self::displayToStorage($value));
+    }
+    /**
      * The current time, in the zone the database is written in.
      *
      * This is what every WRITE must use. formatTime() is its display-side
