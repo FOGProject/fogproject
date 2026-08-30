@@ -202,6 +202,10 @@ class Page extends FOGBase
         // grid toolbar's Filters button calls. Authenticated list only -- the
         // login page has no grids and no session to own a filter.
         'js/fog/fog.filters.js',
+        // Authenticated list only. The impersonation trigger and its modal
+        // are emitted by the page shell for a signed-in user, so the login
+        // page has neither -- and no session to impersonate from.
+        'js/fog/fog.impersonate.js',
         'js/fog/theme.js'
     ];
     /**

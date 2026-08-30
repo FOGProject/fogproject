@@ -17,6 +17,7 @@ use FOG\Auth\Authorization;
 use FOG\Auth\Identity;
 use FOG\Base\FOGPage;
 use FOG\Items\User;
+use FOG\Router\HTTPResponseCodes;
 
 /**
  * Starting and ending an impersonation span.
@@ -68,9 +69,6 @@ class ImpersonateManagement extends FOGPage
     {
         $this->title = _('Impersonate a user');
         if (!Authorization::can(Identity::PERMISSION)) {
-            // Gated here rather than upstream because the node is exempt.
-            // Same shape as the refusal requirePagePermission() would have
-            // produced, so a denial looks the same wherever it came from.
             self::setMessage(
                 _('You do not have permission to impersonate users.'),
                 _('Permission denied'),
@@ -86,6 +84,63 @@ class ImpersonateManagement extends FOGPage
         echo '<h4 class="card-title">' . \Initiator::e($this->title) . '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
+        $this->_picker();
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * The picker, as the impersonation modal's body.
+     *
+     * The modal ships EMPTY from the page shell and the browser fetches this
+     * when it opens -- the same shape renderAssocCreate() uses, and for a
+     * stronger reason here. The candidate list costs one users query plus a
+     * refusalReason() per user, and each of those runs both subset tests;
+     * building that into every page render to populate a dialog almost
+     * nobody opens would put it on the critical path of the whole UI.
+     *
+     * @return void
+     */
+    public function startModalAjax(...$args)
+    {
+        if (!Authorization::can(Identity::PERMISSION)) {
+            echo '<p class="text-body-secondary">'
+                . \Initiator::e(
+                    _('You do not have permission to impersonate users.')
+                )
+                . '</p>';
+
+            return;
+        }
+        $this->_picker();
+    }
+    /**
+     * Base method for the sub above.
+     *
+     * FOGPageManager::render() only appends 'Ajax' when the BASE method
+     * exists, so without this the dispatcher falls back to index() and the
+     * modal body arrives as an entire page. Same trap as start()/startPost().
+     *
+     * @return void
+     */
+    public function startModal(...$args)
+    {
+        $this->startModalAjax(...$args);
+    }
+    /**
+     * The select and the button, on whichever surface asked for them.
+     *
+     * The button is type="button" and carries no form of its own. FOG has no
+     * natively-submitting forms: fog.common.js disableFormDefaults() binds
+     * preventDefault to every <form> on the page, on every load and every
+     * AJAX navigation, so a submit button posts nothing and reports nothing.
+     * The first cut of this page shipped exactly that, and the button was
+     * inert with no error anywhere.
+     *
+     * @return void
+     */
+    private function _picker()
+    {
         echo '<p>';
         echo \Initiator::e(
             _('You will see FOG exactly as the person you choose sees it -- '
@@ -102,34 +157,27 @@ class ImpersonateManagement extends FOGPage
                 . 'permission and reach no site that you do not.')
             );
             echo '</p>';
-        } else {
-            echo self::makeFormTag(
-                '',
-                'impersonate-start-form',
-                '?node=impersonate&sub=start',
-                'post'
-            );
-            echo '<div class="mb-3">';
-            echo '<select class="form-select" name="targetid" required>';
-            echo '<option value="">' . \Initiator::e(_('Choose a user'))
-                . '</option>';
-            foreach ($candidates as $id => $label) {
-                printf(
-                    '<option value="%d">%s</option>',
-                    $id,
-                    \Initiator::e($label)
-                );
-            }
-            echo '</select>';
-            echo '</div>';
-            echo '<button type="submit" class="btn btn-primary float-end">';
-            echo \Initiator::e(_('Impersonate'));
-            echo '</button>';
-            echo '</form>';
+
+            return;
         }
+        echo '<div class="mb-3">';
+        echo '<select class="form-select" id="impersonate-target" '
+            . 'name="targetid" required>';
+        echo '<option value="">' . \Initiator::e(_('Choose a user'))
+            . '</option>';
+        foreach ($candidates as $id => $label) {
+            printf(
+                '<option value="%d">%s</option>',
+                $id,
+                \Initiator::e($label)
+            );
+        }
+        echo '</select>';
         echo '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '<button type="button" class="btn btn-primary float-end" '
+            . 'id="impersonate-send">';
+        echo \Initiator::e(_('Impersonate'));
+        echo '</button>';
     }
     /**
      * The users this administrator may become.
@@ -199,22 +247,67 @@ class ImpersonateManagement extends FOGPage
             Identity::end('replaced by another impersonation');
             Identity::begin($targetID);
             $target = new User($targetID);
-            self::setMessage(
-                sprintf(
-                    _('You are now viewing FOG as %s.'),
-                    (string)$target->get('name')
-                ),
-                _('Impersonating'),
-                'info'
+            $msg = sprintf(
+                _('You are now viewing FOG as %s.'),
+                (string)$target->get('name')
             );
         } catch (\Exception $e) {
+            // The XHR arm answers 4xx so $.apiCall runs its ERROR handler and
+            // the toast is red. Answering 200 with an error string in the body
+            // is how a discarded write came to show a GREEN "Bad Response"
+            // toast on every page (GH-1370); the same mistake is available
+            // here and costs more, because the user would be told they are
+            // impersonating somebody they are not.
+            if (self::$ajax) {
+                self::sendJsonRefusal($e->getMessage());
+
+                return;
+            }
             self::setMessage(
                 $e->getMessage(),
                 _('Impersonation refused'),
                 'warning'
             );
+            self::redirect('?node=home');
+
+            return;
         }
+        // A span changes the sidebar, the menu, the theme, the timezone and
+        // every permission the page was rendered under, so the browser
+        // RELOADS rather than swapping a fragment -- there is no partial
+        // update that leaves the page honest. The JSON says so; the JS obeys.
+        if (self::$ajax) {
+            header('Content-Type: application/json');
+            echo json_encode(
+                [
+                    'msg' => $msg,
+                    'title' => _('Impersonating'),
+                    'reload' => true
+                ]
+            );
+
+            return;
+        }
+        self::setMessage($msg, _('Impersonating'), 'info');
         self::redirect('?node=home');
+    }
+    /**
+     * Refuse an XHR with a status its error handler will actually see.
+     *
+     * @param string $why the refusal, already translated
+     *
+     * @return void
+     */
+    private static function sendJsonRefusal($why)
+    {
+        http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
+        header('Content-Type: application/json');
+        echo json_encode(
+            [
+                'error' => $why,
+                'title' => _('Impersonation refused')
+            ]
+        );
     }
     /**
      * Stop impersonating.

@@ -167,6 +167,47 @@ if ($isLoggedIn && $impersonating):
         }
     </style>
     <?php endif; ?>
+
+<?php
+// The impersonation picker, EMPTY (ADR 0033).
+//
+// Here rather than on a page of its own for the same reason the mode line
+// above is here: this is the only HTML shell FOG has, so the dialog is
+// reachable from wherever the administrator happens to be. Impersonating is
+// one select and one button -- a dialog, not a destination -- and needing to
+// navigate somewhere first to answer "what does this user see" is most of the
+// friction the feature exists to remove.
+//
+// The BODY is fetched by fog.impersonate.js when the modal opens. Rendering
+// it here would cost a users query plus a refusalReason() per user -- two
+// subset tests each -- on every page render, to populate a dialog almost
+// nobody opens.
+//
+// Rendered only for somebody who can actually use it, so the markup is not
+// carried on every page for every user. `$impersonating` is enough on its own
+// for the second arm: a span is open, so the permission was checked when it
+// started, and "impersonate another" must stay reachable even if the grant
+// has since been withdrawn -- otherwise the way out of a span becomes the
+// only remaining control, which is the trap the ungated exit exists to avoid.
+if ($isLoggedIn
+    && ($impersonating || Authorization::can(\FOG\Auth\Identity::PERMISSION))
+) : ?>
+    <div class="modal fade" id="impersonate-modal" tabindex="-1"
+         aria-labelledby="impersonate-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="impersonate-modal-label"><?= _('Impersonate a user'); ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= _('Close'); ?>"></button>
+                </div>
+                <div class="modal-body" id="impersonate-modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary float-start" data-bs-dismiss="modal"><?= _('Cancel'); ?></button>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
     <?php if ($isLoggedIn): ?>
     <div class="app-wrapper">
         <!-- Header Navigation -->
@@ -249,16 +290,23 @@ if ($isLoggedIn && $impersonating):
                     // is always exactly one level deep, so the audit never
                     // has to answer "acting as B, who was being acted as by
                     // A".
+                    //
+                    // ENDING is a plain GET link and STARTING is a modal, and
+                    // the asymmetry is deliberate. The exit has to work for a
+                    // mask holding no roles, with no JavaScript, from any
+                    // page -- a link is the only thing that cannot be broken
+                    // by a script error. Starting is one select and one
+                    // button, which is a dialog, not a page.
                     if ($impersonating): ?>
                     <li class="nav-item">
                         <a class="nav-link" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash"></i> <?= _('End impersonation'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=impersonate"><i class="fas fa-user-group"></i> <?= _('Impersonate another'); ?></a>
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group"></i> <?= _('Impersonate another'); ?></a>
                     </li>
                     <?php elseif (Authorization::can(\FOG\Auth\Identity::PERMISSION)): ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=impersonate"><i class="fas fa-user-group"></i> <?= _('Impersonate a user'); ?></a>
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group"></i> <?= _('Impersonate a user'); ?></a>
                     </li>
                     <?php endif; ?>
                     <li class="nav-item">
