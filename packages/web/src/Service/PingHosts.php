@@ -242,12 +242,29 @@ class PingHosts extends FOGService
             // is a host that STARTS resolving mid-run, which is what the TTL
             // and its per-name jitter bound.
             //
-            // This is not the end state. Giving the pinger an address it does
-            // not have to look up at all is still the real fix, and
-            // hosts.hostIP exists and is written by nothing today -- but that
-            // is a schema and client-protocol decision, and this is not.
+            // hosts.hostIP is now written on every client check-in (see
+            // FOGClient), so a host with a working agent needs no lookup at
+            // all -- the block below prefers that address and only resolves
+            // the name when there is none. The cache still matters: the
+            // hosts that most need pinging are exactly the ones whose agent
+            // is NOT checking in, so they are the ones with no stored
+            // address to prefer.
+            // hostIP per host, for the preference below. Read as a bulk
+            // column rather than through the host objects: getNames() answers
+            // with id and name only, and hydrating 86 Host objects to read
+            // one varchar would be the query storm this daemon was already
+            // fixed for once.
+            $storedIps = [];
+            foreach ((array)Route::getIds('host', [], ['id', 'ip']) as $row) {
+                $ip = trim((string)($row['ip'] ?? ''));
+                if ('' !== $ip && filter_var($ip, FILTER_VALIDATE_IP)) {
+                    $storedIps[(int)($row['id'] ?? 0)] = $ip;
+                }
+            }
+
             $targets = [];
             $names = [];
+            $fromStored = [];
             $skipped = 0;
             $before = self::resolverCalls();
             foreach ($hosts as $host) {
@@ -256,21 +273,32 @@ class PingHosts extends FOGService
                     continue;
                 }
                 $names[$host->id] = $host->name;
+                // The stored address wins when there is one, and costs no
+                // resolver call. It is NOT yet trusted -- everything it
+                // produces goes through the identity check below before it
+                // is allowed to mean "up".
+                if (isset($storedIps[(int)$host->id])) {
+                    $targets[$host->id] = $storedIps[(int)$host->id];
+                    $fromStored[$host->id] = true;
+                    continue;
+                }
                 $targets[$host->id] = self::resolveHostname(
                     $host->name,
                     self::UNRESOLVED_TTL
                 );
             }
             $looked = self::resolverCalls() - $before;
-            $cached = count($targets) - $looked;
-            if ($cached > 0) {
+            $cached = count($targets) - count($fromStored) - $looked;
+            if (count($fromStored) > 0 || $cached > 0) {
                 self::outall(
                     sprintf(
-                        ' * %s: %d, %s: %d',
-                        _('Names looked up'),
+                        ' * %s: %d, %s: %d, %s: %d',
+                        _('Stored addresses used'),
+                        count($fromStored),
+                        _('names looked up'),
                         $looked,
                         _('served from the unresolved cache'),
-                        $cached
+                        max(0, $cached)
                     )
                 );
             }
@@ -344,6 +372,23 @@ class PingHosts extends FOGService
                     $method[$id] = Ping::METHOD_TCP;
                 }
             }
+            // IDENTITY, not reachability. Everything above establishes that
+            // an address answered; for a stored address that is not the same
+            // claim as "this host is up", because a DHCP lease moves and the
+            // machine now holding it may be a printer.
+            //
+            // Only answers matter here -- a stored address that did not
+            // respond is already recorded as down, and no identity check
+            // makes a silent address more or less down.
+            $results = $this->_verifyStored(
+                $results,
+                $method,
+                $targets,
+                $names,
+                $fromStored,
+                $timeout,
+                $port
+            );
             $elapsed = microtime(true) - $started;
             // Group by result so the whole cycle costs a handful of UPDATEs
             // instead of one per host. update() turns an array of ids into
@@ -472,6 +517,151 @@ class PingHosts extends FOGService
      *
      * @return void
      */
+    /**
+     * Turn "an address answered" into "this host answered".
+     *
+     * Only hosts probed at a STORED address are examined, and only those that
+     * answered. A name resolved through DNS is already the host's own name so
+     * it identifies itself; a stored address does not, because a DHCP lease
+     * outlives the machine that held it. Pinging MachineA's old address and
+     * reporting MachineA up when PrinterX now holds it is a confidently wrong
+     * answer, and worse than the "not reachable" it would replace.
+     *
+     * Three outcomes, matching Ping::identityMatches():
+     *
+     *   verified   - the MAC at that address is one this host registers.
+     *                Kept as up.
+     *   mismatched - some other machine holds the address. Recorded down and
+     *                the stored address CLEARED, so the next cycle resolves
+     *                by name instead of asking the same wrong question again.
+     *   unverified - no ARP entry, so the host is off this server's segments
+     *                and its identity is not knowable from here. Falls back
+     *                to the DNS name, which is what this daemon did before
+     *                hostIP existed. Never treated as verified: doing so
+     *                would reintroduce the false-up for exactly the routed
+     *                hosts that cannot be checked.
+     *
+     * @param array $results    id => errno from the probes
+     * @param array $method     id => METHOD_*, updated in step for fallbacks
+     * @param array $targets    id => address probed
+     * @param array $names      id => host name
+     * @param array $fromStored id => true when the target came from hostIP
+     * @param int   $timeout    probe timeout, for the fallback batch
+     * @param int   $port       probe port, for the fallback batch
+     *
+     * @return array the corrected $results
+     */
+    private function _verifyStored(
+        array $results,
+        array &$method,
+        array $targets,
+        array $names,
+        array $fromStored,
+        $timeout,
+        $port
+    ) {
+        $answered = [];
+        foreach ($fromStored as $id => $unused) {
+            if (0 === (int)($results[$id] ?? -1)) {
+                $answered[$id] = $targets[$id];
+            }
+        }
+        if (count($answered) < 1) {
+            return $results;
+        }
+
+        // One read for the whole cycle, not one per host: the table is the
+        // same for every lookup and shelling out per host would put an exec
+        // in a loop, which is the shape this daemon has been fixed for twice.
+        $arp = Ping::arpTable();
+
+        // Same reasoning for the MACs -- one bulk read keyed by host.
+        $macs = [];
+        $rows = Route::getIds(
+            'macaddressassociation',
+            ['hostID' => array_keys($answered)],
+            ['hostID', 'mac']
+        );
+        foreach ((array)$rows as $row) {
+            $macs[(int)($row['hostID'] ?? 0)][] = (string)($row['mac'] ?? '');
+        }
+
+        $recycled = [];
+        $unverified = [];
+        foreach ($answered as $id => $ip) {
+            $verdict = Ping::identityMatches(
+                $ip,
+                $macs[(int)$id] ?? [],
+                $arp
+            );
+            if (true === $verdict) {
+                continue;
+            }
+            if (false === $verdict) {
+                $recycled[$id] = $ip;
+                continue;
+            }
+            $unverified[$id] = $ip;
+        }
+
+        if (count($recycled) > 0) {
+            foreach ($recycled as $id => $ip) {
+                self::outall(
+                    sprintf(
+                        ' ! %s (%s): %s',
+                        $names[$id] ?? $id,
+                        $ip,
+                        _('another machine holds this address; clearing it')
+                    )
+                );
+                // ENXIO is what an unusable target already records elsewhere
+                // in this cycle, so the stored result stays one value rather
+                // than gaining a second spelling of "we could not ask".
+                $results[$id] = SOCKET_ENXIO;
+            }
+            // Cleared in one statement. The address is not merely stale, it
+            // is known to belong to something else, so leaving it would have
+            // every future cycle re-derive the same wrong answer.
+            self::getClass('HostManager')->update(
+                ['id' => array_keys($recycled)],
+                '',
+                ['ip' => '']
+            );
+        }
+
+        if (count($unverified) < 1) {
+            return $results;
+        }
+
+        // Off-segment: ask the question the old way. Mostly this resolves to
+        // nothing and lands on ENXIO, which is the honest answer -- but a
+        // host that IS in DNS gets a real probe rather than being written off.
+        $fallback = [];
+        foreach ($unverified as $id => $ip) {
+            $target = self::resolveHostname(
+                $names[$id] ?? '',
+                self::UNRESOLVED_TTL
+            );
+            $fallback[$id] = $target;
+            $results[$id] = SOCKET_ENXIO;
+        }
+        self::outall(
+            sprintf(
+                ' * %s: %d',
+                _(
+                    'Answered at a stored address this server cannot verify;'
+                    . ' rechecked by name'
+                ),
+                count($fallback)
+            )
+        );
+        foreach (Ping::executeBatch($fallback, $timeout, $port) as $id => $code) {
+            $results[$id] = $code;
+            $method[$id] = Ping::METHOD_TCP;
+        }
+
+        return $results;
+    }
     public function serviceRun()
     {
         $this->_commonOutput();

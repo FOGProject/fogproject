@@ -89,13 +89,38 @@ abstract class FOGClient extends FOGBase
                 // different fact from "FOGPingHosts could open a socket to
                 // it", and keeping the two apart is the entire point of
                 // having two columns (schema step 353).
+                //
+                // hostIP rides along too. It is the address this request
+                // arrived FROM, which is the only address anything here
+                // knows to be real -- the client never tells us its IP and
+                // does not need to, so this costs no protocol change and no
+                // client release.
+                //
+                // It is written on every check-in rather than once, because
+                // its whole value is being recent: a DHCP lease moves, and a
+                // stored address that is not refreshed is how a ping ends up
+                // answered by whatever holds the lease now. PingHosts does
+                // not trust it on age alone either -- it confirms the MAC
+                // answering there is one this host registers before believing
+                // the reply. See Ping::identityMatches().
+                $update = [
+                    'pingstatus' => 0,
+                    'lastcheckin' => self::niceDate()->format('Y-m-d H:i:s')
+                ];
+                // REMOTE_ADDR only. X-Forwarded-For is caller-supplied and
+                // would let anything that can reach this endpoint write any
+                // address it liked into a field the pinger acts on.
+                $peer = filter_var(
+                    trim((string)($_SERVER['REMOTE_ADDR'] ?? '')),
+                    FILTER_VALIDATE_IP
+                );
+                if (false !== $peer) {
+                    $update['ip'] = $peer;
+                }
                 self::getClass('HostManager')->update(
                     ['id' => self::$Host->get('id')],
                     '',
-                    [
-                        'pingstatus' => 0,
-                        'lastcheckin' => self::niceDate()->format('Y-m-d H:i:s')
-                    ]
+                    $update
                 );
             }
             $moduleid = filter_input(INPUT_POST, 'moduleid');
