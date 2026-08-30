@@ -29,6 +29,22 @@ use FOG\Router\Route;
 abstract class FOGService extends FOGBase
 {
     /**
+     * Longest a daemon sleeps in one go while waiting for its next pass.
+     *
+     * Bounds how stale a changed $sleeptime can be -- see waitUntilDue(). Five
+     * seconds is well inside the 300 s settings cache the daemons already read
+     * through, so it costs nothing in freshness and takes the idle wake rate
+     * from 10Hz to 0.2Hz.
+     *
+     * Keep it between 1 and roughly 60 if you change it. Below 1 the wait loop
+     * is back to spinning; far above the settings cache the bound stops
+     * meaning anything, because the value it is protecting the freshness of is
+     * itself stale by then.
+     *
+     * @var int
+     */
+    const IDLE_TICK_CAP = 5;
+    /**
      * The path for the log
      *
      * @var string
@@ -414,18 +430,80 @@ abstract class FOGService extends FOGBase
                 $nextrun = $this->scheduleNextRun();
             }
             if (self::niceDate() < $nextrun) {
-                usleep(100000);
-                // Called on every daemon now, where before only the two
-                // replicators did. It is inert for the other seven: the base
-                // implementation only walks $this->procRef, which nothing
-                // outside FOGReplicator and MulticastManager ever populates,
-                // so an empty list skips the whole body.
-                $this->doHousekeeping();
+                $this->waitUntilDue($nextrun);
                 continue;
             }
             $nextrun = $this->scheduleNextRun();
             $this->serviceRun();
         }
+    }
+    /**
+     * Idle until the next pass is due, reaping transfers while any are live.
+     *
+     * The loop used to wake ten times a second unconditionally -- usleep(100000)
+     * plus a doHousekeeping() -- whatever the service was waiting for. Measured
+     * on an idle server that is 43 s of CPU per day per daemon, 432 s across the
+     * ten, none of it doing anything: ImageSize spends an hour between passes and
+     * woke 36,000 times to get there.
+     *
+     * The 100ms tick is not arbitrary, though, and this is why the rate is
+     * conditional rather than simply longer. cleanupProcList() is what notices a
+     * finished replication transfer, closes its pipes and proc_close()s it; at a
+     * slower rate a completed transfer sits unreaped, and its "Sync finished"
+     * line arrives late. So: tick at the old rate exactly while there is
+     * something in $procRef to reap, and idle properly when there is not.
+     *
+     * $procRef is populated only by startTasking(), i.e. only by the two
+     * replicators and MulticastManager, and only while a transfer is actually
+     * running. Every other daemon, and those three between transfers, take the
+     * cheap path -- which is the case that was costing everything.
+     *
+     * The cap keeps a long interval from becoming a long blind spot:
+     * serviceRun() re-reads $sleeptime each pass, so an admin shortening a
+     * 3600 s interval would otherwise not be noticed until the pass after next.
+     * Shutdown does not depend on it -- the child clears its signal handlers in
+     * Service_persist(), so SIGTERM ends it mid-sleep.
+     *
+     * @param \DateTime $nextrun when the next pass is due
+     *
+     * @return void
+     */
+    protected function waitUntilDue($nextrun)
+    {
+        if (!empty($this->procRef)) {
+            usleep(100000);
+            $this->doHousekeeping();
+            return;
+        }
+        $nap = self::idleNap($nextrun->getTimestamp() - time());
+        if ($nap < 1) {
+            usleep(100000);
+            return;
+        }
+        sleep($nap);
+    }
+    /**
+     * Whole seconds to sleep, given the seconds left before the next pass.
+     *
+     * Split out from waitUntilDue() so the arithmetic can be tested without a
+     * database, a service instance or a five-second wait -- the surrounding
+     * method is all side effects, and a test of it could only ever assert on
+     * elapsed wall-clock, which is exactly the kind of assertion that goes
+     * flaky and then gets deleted.
+     *
+     * 0 means "do not sleep": the pass is due now, or its deadline has
+     * already gone by, and the caller should tick straight through.
+     *
+     * @param int $remaining seconds until the next pass is due
+     *
+     * @return int
+     */
+    public static function idleNap($remaining)
+    {
+        if ($remaining < 1) {
+            return 0;
+        }
+        return (int)min($remaining, self::IDLE_TICK_CAP);
     }
     /**
      * When the next pass is due: now, plus this service's sleep time.
