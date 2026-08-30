@@ -417,6 +417,21 @@ trait FOGPageRender
      *
      * @return string
      */
+    /**
+     * Whether dateOrNever() has marked anything on this page as predating the
+     * UTC boundary.
+     *
+     * Per RENDER, not per value: the marker goes beside each affected date,
+     * the sentence explaining it appears once. A page that shows five dates
+     * of which one is old should not say the same thing five times.
+     *
+     * Never reset. dateOrNever() runs while a page builds its notes and
+     * renderInfoCard() runs afterward, both inside one request, so there is
+     * exactly one render to remember.
+     *
+     * @var bool
+     */
+    protected static $_unadjustedSeen = false;
     protected static function dateOrNever($value, $table = '', $column = '')
     {
         if (!$value || !self::validDate($value)) {
@@ -437,8 +452,21 @@ trait FOGPageRender
             ? 'datetime'
             : strtolower(trim((string)self::columnType($table, $column)));
 
-        return self::toDisplayStored($value, 0 !== strpos($type, 'timestamp'))
+        $isDatetime = 0 !== strpos($type, 'timestamp');
+        $out = self::toDisplayStored($value, $isDatetime)
             ->format('Y-m-d H:i:s');
+
+        // A pre-boundary value is real and usually means exactly what the
+        // reader thinks; what it is NOT is UTC, and nothing else on the page
+        // says so. Mark it and remember that we did, so renderInfoCard() can
+        // explain the marker once at the foot of the card rather than
+        // repeating a sentence beside every date.
+        if (\FOG\Base\StorageEpoch::isPreBoundary($value, $isDatetime)) {
+            self::$_unadjustedSeen = true;
+            $out .= \FOG\Base\StorageEpoch::MARKER;
+        }
+
+        return $out;
     }
 
     /**
@@ -554,6 +582,17 @@ trait FOGPageRender
             echo '</div>';
         }
         echo '</div>';
+        // Once, and only when something above actually carries the marker.
+        // A standing disclaimer on every edit page would be noise on the
+        // overwhelming majority of them, where every date is post-boundary.
+        if (self::$_unadjustedSeen) {
+            echo '<div class="small text-secondary mt-2" id="edit-info-unadjusted">';
+            echo \Initiator::e(
+                trim(\FOG\Base\StorageEpoch::MARKER)
+                . ' ' . \FOG\Base\StorageEpoch::note()
+            );
+            echo '</div>';
+        }
         echo '</div>';
         echo '</div>';
     }
