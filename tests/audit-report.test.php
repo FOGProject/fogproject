@@ -64,7 +64,7 @@ foreach (['totals(', 'eventsPerDay(', 'deniedPerDay(', 'byActor(',
 }
 $t->check(
     'this report defaults to a month',
-    '-30 days' === constant('FOG\Audit_Report::DEFAULT_WINDOW')
+    '-30 days' === constant('FOG\Reports\Audit_Report::DEFAULT_WINDOW')
 );
 
 /*

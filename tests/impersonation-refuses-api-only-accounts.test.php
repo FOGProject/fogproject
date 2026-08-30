@@ -252,7 +252,7 @@ $identity = stripPhpComments(
 );
 $page = stripPhpComments(
     (string)file_get_contents(
-        $web . '/lib/pages/impersonatemanagement.page.php'
+        $web . '/src/Pages/ImpersonateManagement.php'
     )
 );
 

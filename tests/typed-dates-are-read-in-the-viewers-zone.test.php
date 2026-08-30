@@ -73,7 +73,7 @@ $typed = [
         'the start of a report window' =>
             ': self::viewerDate($given[\'start\']);',
     ],
-    'lib/pages/hostmanagement.page.php' => [
+    'src/Pages/HostManagement.php' => [
         'the Secure Boot enrollment date' =>
             '$sbEnrolled = self::viewerDate($sbEnrolled)',
     ],

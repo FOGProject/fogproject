@@ -42,8 +42,8 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 FUNCS="$REPO/lib/common/functions.sh"
 INSTALLER="$REPO/bin/installfog.sh"
-LOGIN="$REPO/packages/web/lib/pages/processlogin.page.php"
-DASH="$REPO/packages/web/lib/pages/dashboardpage.page.php"
+LOGIN="$REPO/packages/web/src/Pages/ProcessLogin.php"
+DASH="$REPO/packages/web/src/Pages/DashboardPage.php"
 
 for f in "$FUNCS" "$INSTALLER" "$LOGIN" "$DASH"; do
     [[ -f $f ]] || { echo "ERROR: $f not found" >&2; exit 1; }

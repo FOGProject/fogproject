@@ -127,6 +127,22 @@ file_put_contents(
     . "class_alias(__NAMESPACE__ . '\\ProbeDiscovered', 'ProbeDiscovered');\n"
 );
 
+/*
+ * A SECOND one, used only to prove the bridge's prefix match is
+ * case-insensitive (strncasecmp). It needs its own file because the check has
+ * to be the FIRST request for the class: once any spelling has been loaded,
+ * PHP's own class table answers every other casing without consulting an
+ * autoloader at all, so asserting against an already-loaded probe passes
+ * whatever the bridge does. That is exactly how the version of this check
+ * that used to live in autoload.test.php was a fake gate -- verified by
+ * mutating strncasecmp to strncmp, which it did not catch.
+ */
+file_put_contents(
+    $tmp . '/lib/pages/probecased.page.php',
+    "<?php\nnamespace FOG;\nclass ProbeCased { }\n"
+    . "class_alias(__NAMESPACE__ . '\\ProbeCased', 'ProbeCased');\n"
+);
+
 define('FOG_CACHE_DIR', $tmp . '/cache');
 define('FOG_LOG_DIR', $tmp . '/log');
 define('FOG_PLUGIN_DIR', $tmp . '/extplugins');
@@ -259,6 +275,16 @@ check(
     'and its own class_alias still exports the bare name, which is what '
     . 'FOGPageManager::loadPageClasses() looks up',
     class_exists('ProbeDiscovered'),
+    $failures,
+    $checks
+);
+// The prefix match is strncasecmp and PHP class names are case-insensitive,
+// so the bridge has to answer a differently-cased prefix too. Asserted
+// against ProbeCased, whose FIRST request this is -- see the fixture comment
+// for why reusing ProbeDiscovered here proves nothing.
+check(
+    'the bridge is case-insensitive on the FOG\ prefix',
+    class_exists('fog\ProbeCased'),
     $failures,
     $checks
 );

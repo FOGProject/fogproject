@@ -54,7 +54,7 @@ foreach (['totals(', 'runsPerDay(', 'failuresPerDay(', 'failuresBySnapin(',
 }
 $t->check(
     'this report defaults to a month',
-    '-30 days' === constant('FOG\Snapin_Report::DEFAULT_WINDOW')
+    '-30 days' === constant('FOG\Reports\Snapin_Report::DEFAULT_WINDOW')
 );
 
 /*

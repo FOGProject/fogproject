@@ -556,8 +556,11 @@ not imported — nothing ever writes their name in a `use` statement. So if you
 put one in your own namespace, the class FOG looks for does not exist and your
 page silently never registers.
 
-If you want a namespace, end each such file the way core's own `lib/pages/`
-files do:
+This is a rule about **plugin** files, and core is no longer an example of it.
+Core's pages, hooks, reports and events moved to `src/{Pages,Hooks,Reports,
+Events}` and dropped their aliases: they are found by their bucketed namespace
+now, not by basename. Your files keep the discovered shape, so they still need
+the alias. If you want a namespace, end each such file like this:
 
 ```php
 namespace Vendor\HelloWorld;

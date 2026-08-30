@@ -45,7 +45,7 @@ chdir($root);
 
 $fails = [];
 $indexFile = 'packages/web/management/index.php';
-$schemaFile = 'packages/web/lib/pages/schemaupdaterpage.page.php';
+$schemaFile = 'packages/web/src/Pages/SchemaUpdaterPage.php';
 
 /**
  * Source text with comments and whitespace stripped.

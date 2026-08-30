@@ -366,7 +366,7 @@ check(
  *    field is not rendered without it and a post is refused without it.
  */
 $page = (string) file_get_contents(
-    $webroot . '/lib/pages/fogconfigurationpage.page.php'
+    $webroot . '/src/Pages/FOGConfigurationPage.php'
 );
 check(
     'the settings page hides retention windows without audit.manage',

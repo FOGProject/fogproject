@@ -62,7 +62,7 @@ $web = dirname(__DIR__) . '/packages/web';
 $modelSrc = file_get_contents($web . '/src/Items/APIToken.php');
 $routeSrc = file_get_contents($web . '/src/Router/Route.php');
 $schemaSrc = file_get_contents($web . '/commons/schema.php');
-$pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
+$pageSrc = file_get_contents($web . '/src/Pages/UserManagement.php');
 
 // ---------------------------------------------------------------------------
 // 1. Bearer accepts APIToken and nothing else.
@@ -377,7 +377,7 @@ $t->check(
 // ---------------------------------------------------------------------------
 $authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $configSrc = file_get_contents(
-    $web . '/lib/pages/fogconfigurationpage.page.php'
+    $web . '/src/Pages/FOGConfigurationPage.php'
 );
 $auditSrc = file_get_contents($web . '/src/Audit/Audit.php');
 $paneJs = file_get_contents(
@@ -519,7 +519,7 @@ $t->check(
 // WHERE THE MENU ENTRY HAS TO LIVE, which is the defect this pins.
 //
 // There are TWO copies of the 'about' sub-menu list. SubMenuData::subMenu()
-// in lib/hooks/submenudata.hook.php reads like the obvious place and NEVER
+// in src/Hooks/SubMenuData.php reads like the obvious place and NEVER
 // RUNS: the hook sets $active = false and HookManager only force-activates
 // files under plugins/. The list the sidebar is actually built from is the
 // switch in FOGPage::_buildSubMenuItems(). An entry added only to the hook
@@ -531,7 +531,7 @@ $t->check(
 // about it. Both files are checked so the two lists cannot drift apart
 // again.
 $subMenuLive = file_get_contents($web . '/src/Base/FOGPage.php');
-$subMenuHook = file_get_contents($web . '/lib/hooks/submenudata.hook.php');
+$subMenuHook = file_get_contents($web . '/src/Hooks/SubMenuData.php');
 $t->check(
     "the API Tokens entry is in FOGPage::_buildSubMenuItems(), the list the "
     . "sidebar actually builds from",

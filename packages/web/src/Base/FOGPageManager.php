@@ -282,26 +282,32 @@ class FOGPageManager extends FOGBase
     {
         global $node;
         $extension = '.page.php';
-        $strlen = -strlen($extension);
-        $files = self::fileitems(
-            $extension,
-            'pages'
+        // Core pages are PSR-4 files under src/Pages; plugin pages keep the
+        // <plugin>/pages/<name>.page.php shape fileitems() reads. Two sources
+        // because there are now two file shapes, not because core is special.
+        $files = self::fastmerge(
+            self::coreitems('Pages'),
+            self::fileitems(
+                $extension,
+                'pages'
+            )
         );
 
         foreach ($files as &$file) {
-            $elementsub = substr($file, $strlen);
-            if (!in_array($elementsub, ['.page.php','.report.php'], true)) {
-                continue;
-            }
-            $className = substr(basename($file), 0, $strlen);
+            $className = self::classFromDiscoveredFile($file, $extension);
             if ($node == 'report') {
                 $f = filter_input(INPUT_GET, 'f');
                 if ($f) {
-                    $className = str_replace(
-                        ' ',
-                        '_',
-                        base64_decode(
-                            $f
+                    // The report name off the URL is a bare, user-supplied
+                    // string; qualify() is what turns it into the namespaced
+                    // core report it names, and leaves a plugin's alone.
+                    $className = self::qualify(
+                        str_replace(
+                            ' ',
+                            '_',
+                            base64_decode(
+                                $f
+                            )
                         )
                     );
                 }
@@ -358,14 +364,17 @@ class FOGPageManager extends FOGBase
                     sprintf(
                         'FOG loadPageClasses: %s does not declare %s, so its'
                         . ' page cannot be registered. A page file must'
-                        . ' declare a class named after the file, reachable'
-                        . ' under that bare name -- a namespaced class needs'
+                        . ' declare a class named after the file: a core page'
+                        . ' is src/Pages/<Class>.php declaring'
+                        . ' FOG\Pages\<Class>, and a plugin page is'
+                        . ' <plugin>/pages/<name>.page.php declaring the bare'
+                        . ' <name> -- a namespaced plugin page needs'
                         . ' class_alias(__NAMESPACE__ . \'\\%s\', \'%s\');'
                         . ' see ADR 0013.',
                         $file,
                         $className,
-                        $className,
-                        $className
+                        basename($file, '.php'),
+                        basename($file, '.php')
                     )
                 );
                 continue;

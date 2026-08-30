@@ -31,7 +31,7 @@ require __DIR__ . '/lib/fog-test-harness.php';
 
 FogTestHarness::boot('report-menu-groups');
 
-use FOG\ReportManagement;
+use FOG\Pages\ReportManagement;
 
 $t = new FogChecks();
 $root = dirname(__DIR__);
@@ -41,9 +41,9 @@ $web = $root . '/packages/web';
  * 1. Every entry is placed, and placed once.
  */
 $onDisk = [];
-foreach (glob($web . '/lib/reports/*.report.php') as $file) {
+foreach (glob($web . '/src/Reports/*.php') as $file) {
     $onDisk[] = strtolower(
-        str_replace('_', ' ', basename($file, '.report.php'))
+        str_replace('_', ' ', basename($file, '.php'))
     );
 }
 sort($onDisk);

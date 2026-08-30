@@ -41,6 +41,12 @@ class HookManager extends EventManager
      */
     protected $fileDirectory = 'hooks';
     /**
+     * The src/ bucket core hooks live in.
+     *
+     * @var string
+     */
+    protected $fileBucket = 'Hooks';
+    /**
      * Log level if needed.
      *
      * @var int

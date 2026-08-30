@@ -248,7 +248,7 @@ function fogParseSkipErrs($file, $varname)
 }
 
 $updaterSkip = fogParseSkipErrs(
-    $root . '/lib/pages/schemaupdaterpage.page.php',
+    $root . '/src/Pages/SchemaUpdaterPage.php',
     'skiperrs'
 );
 $reconcilerSkip = fogParseSkipErrs(

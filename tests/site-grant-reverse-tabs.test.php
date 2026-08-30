@@ -29,9 +29,9 @@
  */
 
 $root = dirname(__DIR__);
-$pages = $root . '/packages/web/lib/pages';
-$roleFile = $pages . '/rolemanagement.page.php';
-$ugFile = $pages . '/usergroupmanagement.page.php';
+$pages = $root . '/packages/web/src/Pages';
+$roleFile = $pages . '/RoleManagement.php';
+$ugFile = $pages . '/UserGroupManagement.php';
 $postFile = $root . '/packages/web/src/Base/FOGPagePost.php';
 
 foreach ([$roleFile, $ugFile, $postFile] as $needed) {

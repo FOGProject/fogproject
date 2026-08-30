@@ -139,7 +139,7 @@ $results[] = exportCheck(
  *    aliases onto `settings` -- so the map would put both on settings.edit.
  */
 $src = (string) file_get_contents(
-    $webroot . '/lib/pages/fogconfigurationpage.page.php'
+    $webroot . '/src/Pages/FOGConfigurationPage.php'
 );
 $results[] = exportCheck(
     'the UI export branch checks system.export before dumping',

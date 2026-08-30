@@ -76,7 +76,7 @@ foreach (['totals(', 'runsPerDay(', 'runsByImage(', 'runs('] as $call) {
  */
 $t->check(
     'this report defaults to a month',
-    '-30 days' === constant('FOG\Imaging_Report::DEFAULT_WINDOW')
+    '-30 days' === constant('FOG\Reports\Imaging_Report::DEFAULT_WINDOW')
 );
 
 /*

@@ -200,7 +200,7 @@ if (false === strpos($manifest, "'acSubjectLabel' =>")) {
 }
 $checks++;
 $auditPage = (string) file_get_contents(
-    $web . '/lib/pages/auditmanagement.page.php'
+    $web . '/src/Pages/AuditManagement.php'
 );
 if (false === strpos($auditPage, 'acSubjectLabel')
     || false === strpos($auditPage, "'subjectLabel' =>")

@@ -328,7 +328,7 @@ if ('' !== $printed) {
 }
 // The one shipped core event does not override it, which is what made the
 // default reachable from code we ship.
-if ((new \ReflectionMethod('FOG\HostList', 'onEvent'))->getDeclaringClass()
+if ((new \ReflectionMethod('FOG\Events\HostList', 'onEvent'))->getDeclaringClass()
     ->getName() !== 'FOG\Base\Event'
 ) {
     $fails[] = 'HostList now defines onEvent(); the note above is stale';
@@ -491,7 +491,7 @@ foreach ($variants as list($tag, $line, $active)) {
         . "    public function fire(\$a) {}\n}\n"
     );
     require $path;
-    if ($decl->invoke(null, $path, -strlen('.hook.php')) !== $active) {
+    if ($decl->invoke(null, $path, '.hook.php') !== $active) {
         $fails[] = sprintf(
             'activation verdict for %s is wrong; the property says %s',
             '' === $line ? 'a file declaring no $active' : var_export($line, true),
@@ -504,7 +504,7 @@ foreach ($variants as list($tag, $line, $active)) {
 // name nothing declares throws, and load() runs inside LoadGlobals, so an
 // unresolvable file here would be a 500 rather than one hook not starting.
 try {
-    if (false !== $decl->invoke(null, $tmp . '/hooks/charnosuch.hook.php', -strlen('.hook.php'))) {
+    if (false !== $decl->invoke(null, $tmp . '/hooks/charnosuch.hook.php', '.hook.php')) {
         $fails[] = 'a hook file with no resolvable class is treated as active';
     }
 } catch (\Throwable $t) {

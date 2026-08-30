@@ -185,7 +185,7 @@ check(
 $web = dirname(__DIR__) . '/packages/web';
 $files = [
     'the page shell' => $web . '/management/other/index.php',
-    'the impersonate page' => $web . '/lib/pages/impersonatemanagement.page.php',
+    'the impersonate page' => $web . '/src/Pages/ImpersonateManagement.php',
 ];
 foreach ($files as $label => $path) {
     $src = stripPhpComments((string)file_get_contents($path));

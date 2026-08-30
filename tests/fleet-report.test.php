@@ -63,7 +63,7 @@ foreach (['totals(', 'ageBuckets(', 'addedPerDay(', 'hosts('] as $call) {
 }
 $t->check(
     'this report defaults to a quarter',
-    '-90 days' === constant('FOG\Fleet_Report::DEFAULT_WINDOW')
+    '-90 days' === constant('FOG\Reports\Fleet_Report::DEFAULT_WINDOW')
 );
 
 /*

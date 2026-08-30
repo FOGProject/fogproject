@@ -33,7 +33,7 @@ FogTestHarness::boot('report-titles');
 // HookManager::processEvent() reads (and records) the event name.
 FogTestHarness::fakeDb();
 
-use FOG\ReportManagement;
+use FOG\Pages\ReportManagement;
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
@@ -44,11 +44,17 @@ $titles = ReportManagement::reportTitles();
  * 1. The map and the directory describe the same set of reports.
  */
 $onDisk = [];
-foreach ((array) glob($web . '/lib/reports/*.report.php') as $file) {
-    $onDisk[] = str_replace(
-        '_',
-        ' ',
-        basename($file, '.report.php')
+foreach ((array) glob($web . '/src/Reports/*.php') as $file) {
+    // Lowercased for the same reason loadCustomReports() lowercases: the
+    // PSR-4 filename is Audit_Report.php where it used to be audit_report,
+    // and the label, the `f` parameter and the REPORT_NODES keys are all
+    // lower case.
+    $onDisk[] = strtolower(
+        str_replace(
+            '_',
+            ' ',
+            basename($file, '.php')
+        )
     );
 }
 sort($onDisk);
@@ -74,7 +80,7 @@ foreach (array_keys($titles) as $report) {
  *    definitions is the state this replaced, and it is invisible until
  *    somebody notices the sidebar and the heading disagree.
  */
-foreach ((array) glob($web . '/lib/reports/*.report.php') as $file) {
+foreach ((array) glob($web . '/src/Reports/*.php') as $file) {
     $src = (string) file_get_contents($file);
     $name = basename($file);
     $t->check(

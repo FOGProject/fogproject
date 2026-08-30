@@ -175,7 +175,7 @@ $t->check(
 // its place on the dashboard; the activity grid is the reader that remains.
 // Pinned so the card cannot come back reading `hText` raw -- the untranslated
 // column this whole test exists about.
-$dash = file_get_contents($web . '/lib/pages/dashboardpage.page.php');
+$dash = file_get_contents($web . '/src/Pages/DashboardPage.php');
 $t->check(
     'the dashboard does not read the history table at all',
     false === strpos($dash, '`history`')

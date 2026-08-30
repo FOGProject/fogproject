@@ -351,7 +351,7 @@ $t->check(
  *    page no longer contains one.
  */
 $page = (string)file_get_contents(
-    $root . '/lib/pages/dashboardpage.page.php'
+    $root . '/src/Pages/DashboardPage.php'
 );
 $t->check(
     'the dashboard calls the rollup',

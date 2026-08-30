@@ -63,7 +63,7 @@ foreach (['totals(', 'sizeByGroup(', 'largest(', 'addedPerDay(', 'images(']
 }
 $t->check(
     'this report defaults to a year, because images move slowly',
-    '-365 days' === constant('FOG\Storage_Report::DEFAULT_WINDOW')
+    '-365 days' === constant('FOG\Reports\Storage_Report::DEFAULT_WINDOW')
 );
 $t->check(
     'the page says the sizes are allocation, not node usage',
