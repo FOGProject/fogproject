@@ -1310,10 +1310,56 @@ class Initiator
         }
     }
 
+    /**
+     * Collapses whitespace in the rendered page, but not where it means
+     * something.
+     *
+     * `/(\s)+/` -> `\1` replaces a whitespace run with its LAST character,
+     * so a newline followed by indentation -- which is every line of a
+     * pretty-printed page -- collapses to a single space and the newline is
+     * gone. Inside three elements that is destructive rather than cosmetic:
+     *
+     *  - <script>: every `//` comment swallows the rest of the block, because
+     *    after the collapse there is no line for it to end at. The pre-paint
+     *    dark-mode script in management/other/index.php was dead this way, so
+     *    the theme was only applied on DOMContentLoaded and every viewer
+     *    following their OS preference got a white flash first.
+     *  - <textarea>: the line breaks a user typed are their data, and this
+     *    rewrote them on the way back to the form.
+     *  - <pre>: the whole point of the element.
+     *
+     * So collapse only the markup between those blocks and pass their
+     * contents through untouched.
+     *
+     * @param string $buffer The rendered page.
+     *
+     * @return string
+     */
     public static function sanitizeOutput(string $buffer): string
     {
+        // DELIM_CAPTURE keeps the matched blocks in the list, at the odd
+        // indexes, so the two halves stay interleaved in order.
+        $parts = preg_split(
+            '#(<(?:script|pre|textarea)\b[^>]*>.*?</(?:script|pre|textarea)>)#is',
+            $buffer,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE
+        );
+        if (!is_array($parts)) {
+            // A backtrack/recursion limit on a very large page. Returning the
+            // buffer unchanged loses the whitespace saving; rewriting it with
+            // the old expression would lose the script.
+            return $buffer;
+        }
         $search = ['/>\s+</', '/(\s)+/'];
         $replace = ['> <', '\\1'];
-        return preg_replace($search, $replace, $buffer) ?? $buffer;
+        foreach ($parts as $index => $part) {
+            if (1 === $index % 2) {
+                continue;
+            }
+            $parts[$index] = preg_replace($search, $replace, $part) ?? $part;
+        }
+
+        return implode('', $parts);
     }
 }
