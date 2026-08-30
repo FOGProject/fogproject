@@ -589,6 +589,16 @@ abstract class FOGPage extends FOGBase
                 _('Audit Log'),
                 'fas fa-clipboard-list'
             ],
+            // Third under the Logging label. It was a tab on the About page,
+            // which is where kernels, PXE menus and settings live -- a
+            // different kind of question from "what has this server been
+            // doing", which is what the two entries above answer. Its gate is
+            // unchanged: Authorization::NODE_ALIASES maps it onto `settings`,
+            // exactly what `about` maps to.
+            'logviewer' => [
+                _('Log Viewer'),
+                'fas fa-file-lines'
+            ],
             'service' => [
                 self::$foglang['ClientSettings'],
                 'fas fa-gears'
@@ -778,17 +788,19 @@ abstract class FOGPage extends FOGBase
             // -- ADR 0030 puts a name to the difference: a report is an
             // aggregation over a window, and these two are neither.
             //
-            // TWO children, not three. History is not a node -- ADR 0023 item
-            // 4 made History_Report a redirect into the Activity viewer,
+            // THREE children. History is still not one of them -- ADR 0023
+            // item 4 made History_Report a redirect into the Activity viewer,
             // keeping its URL alive for bookmarks -- so it is a legacy door
-            // into `activity` rather than a third destination to group. A
+            // into `activity` rather than a destination to group. The third
+            // is the log viewer, moved here off the About page; its own old
+            // URL is a redirect for the same reason History_Report's is. A
             // group renders at the position of its first present child, and
             // `activity` already sits directly below Reports, so this changes
             // where nothing is: the two entries collapse in place.
             'logging' => [
                 'title'    => _('Logging'),
                 'icon'     => 'fas fa-scroll',
-                'children' => ['activity', 'audit'],
+                'children' => ['activity', 'audit', 'logviewer'],
             ],
         ];
     }
@@ -1033,7 +1045,6 @@ abstract class FOGPage extends FOGBase
                     // different menu that somebody later revives.
                     'apitokens' => _('API Tokens'),
                     'settings' => self::$foglang['FOGSettings'],
-                    'logviewer' => self::$foglang['LogViewer'],
                     'config' => self::$foglang['ConfigSave']
                 ];
                 break;

@@ -16,9 +16,12 @@
 #   mode  0     (default) report honestly; if drifted, print the version the
 #               next commit should carry.
 #         1     a commit is being written right now - always print the
-#               version that commit should carry. Used by pre-commit.
+#               version that commit should carry.
 #         head  print what the commit that ALREADY EXISTS should carry, with
-#               no +1. Used by pre-push to verify rather than to write.
+#               no +1 - i.e. verify rather than write.
+#
+#   No local hook calls this any more: FOG_VERSION is written only on a base
+#   branch, after a merge, by CI. See the header of .githooks/pre-commit.
 
 set -e
 
@@ -141,11 +144,10 @@ if [ "$mode" != "head" ] && [ "$drifted" = true ]; then
     # wrong by exactly the commit that made it. Without this, the very next
     # check finds "drift" again and fixes it again, forever.
     #
-    # This is also why --amend lands one too high: pre-commit calls with
-    # mode=1, but an amend REPLACES HEAD rather than extending it, so the
-    # +1 counts a commit that will never exist. git gives a pre-commit hook
-    # no way to tell the two apart, which is why the check moved to
-    # .githooks/pre-push instead of being predicted here.
+    # This is also why mode=1 lands one too high on an --amend: an amend
+    # REPLACES HEAD rather than extending it, so the +1 counts a commit that
+    # will never exist. That was the standing hazard of stamping a version
+    # from a local hook, and is one of the reasons no local hook does it now.
     compute_version "$((gitcount + 1))"
 fi
 

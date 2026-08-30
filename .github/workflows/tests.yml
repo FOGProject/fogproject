@@ -95,29 +95,37 @@ jobs:
       contents: read
 
     uses: FOGProject/fog-workflows/.github/workflows/fogproject-pr-regen.yml@main
-    with:
-      # Also compute the version this branch will carry once its merge commit
-      # lands, and commit it here rather than after the merge.
-      #
-      # THIS LINE DEPENDS ON A RULESET, NOT JUST ON THE WORKFLOW.
-      #
-      # FOG_VERSION is the commit count since master, so predicting it before
-      # the merge is only possible while the ruleset on working-1.6 enforces
-      # BOTH of:
-      #
-      #   * "Require branches to be up to date before merging" -- so base is an
-      #     ancestor of head and the merge brings nothing in from base's side;
-      #   * merge commits as the only allowed merge method -- so the merge adds
-      #     exactly one commit. Squash collapses N commits into 1 and makes the
-      #     count unrecoverable; rebase adds no merge commit at all. Either one
-      #     silently makes every version written here wrong.
-      #
-      # If either setting is turned off, revert this line in the same change.
-      # The merge-time sync in sync-generated-files.yml still runs and will
-      # correct the version afterwards, so the failure mode is churn rather
-      # than a wrong version reaching a release -- but it is silent, and this
-      # comment is the only place it is written down.
-      sync_version: true
+
+    # NO `with:` BLOCK, AND IN PARTICULAR NO `sync_version: true`.
+    #
+    # This job used to also predict the version the branch would carry after
+    # its merge commit landed, and commit that here. It worked -- for exactly
+    # one pull request at a time.
+    #
+    # FOG_VERSION is `git rev-list master..HEAD --count`, so the value is a
+    # property of the commit graph while the storage is a single tracked line
+    # of packages/web/src/Base/System.php. Predicting it on a branch means
+    # predicting "the count after MY merge", and only one open pull request can
+    # ever be next. Every other open branch is left holding a different value
+    # on the same line, so the moment anything merges, updating those branches
+    # -- which the ruleset requires before they can merge -- conflicts on
+    # System.php by construction and the prediction has to be redone.
+    #
+    # That is not a race that better ordering fixes. Observed here: #1504 took
+    # three version commits (4598 -> 4600 -> 4608) as its neighbors landed,
+    # and merge 3fbacbc73 carries the conflict in its own message. #1507 and
+    # #1508 sat open simultaneously holding 4620 and 4619.
+    #
+    # The version is written on the BASE branch after the merge instead, by
+    # sync-generated-files.yml next door -- one writer, nothing to conflict
+    # with. That file is no longer a backstop for the version; it is the
+    # mechanism. PSR2 formatting and the gettext catalogue stay here, because
+    # those are regenerated FROM the pull request's own files and so have no
+    # equivalent problem.
+    #
+    # Restoring this line also means restoring the ruleset dependency it
+    # carried: it is only computable while working-1.6 requires up-to-date
+    # branches AND merge commits as the only merge method.
     secrets: inherit
 
   suite:
