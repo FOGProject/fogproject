@@ -50,35 +50,22 @@
             detail: { dark: theme === 'dark' }
         }));
 
-        var toggle = document.getElementById('themeToggle');
-        if (!toggle) {
+        // The picker used to be a navbar dropdown whose ICON carried the
+        // state, so this also rewrote that icon and its title. The three
+        // choices now live in the preferences dialog, where the tick below is
+        // the state display and there is no icon to keep in step.
+        //
+        // What survives is the carrier: a hidden element holding the STORED
+        // preference, which is not always the value on <html> -- '' means the
+        // browser resolved it, and the tick has to distinguish "system, which
+        // happens to be dark" from "dark". Its absence is also how this file
+        // recognizes the login page, which has no session and so no stored
+        // preference to read or write.
+        var carrier = document.getElementById('themePref');
+        if (!carrier) {
             return;
         }
-        toggle.setAttribute('data-theme-pref', pref);
-
-        // The icon shows the state the user is IN, not the action a click
-        // performs -- with three states there is no single next action, and a
-        // half-filled circle is the only honest icon for "whatever the system
-        // says".
-        var icon = toggle.querySelector('i');
-        if (icon) {
-            if (pref === 'dark') {
-                icon.className = 'far fa-moon';
-            } else if (pref === 'light') {
-                icon.className = 'far fa-sun';
-            } else {
-                icon.className = 'fas fa-circle-half-stroke';
-            }
-        }
-        var label = toggle.getAttribute(
-            pref === 'dark'
-                ? 'data-label-dark'
-                : (pref === 'light' ? 'data-label-light' : 'data-label-system')
-        ) || '';
-        if (label) {
-            toggle.setAttribute('title', label);
-            toggle.setAttribute('aria-label', label);
-        }
+        carrier.setAttribute('data-theme-pref', pref);
 
         // Tick the chosen row. invisible rather than d-none so the three rows
         // keep the same width and the menu does not jump as the tick moves.
@@ -101,14 +88,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        var toggle = document.getElementById('themeToggle');
-        if (!toggle) {
+        var carrier = document.getElementById('themePref');
+        if (!carrier) {
             // The login page: no session, so no preference to read or write.
             // The pre-paint script has already resolved the system value.
             return;
         }
 
-        var pref = toggle.getAttribute('data-theme-pref') || '';
+        var pref = carrier.getAttribute('data-theme-pref') || '';
 
         // One-time adoption of the choice made when the theme lived in a
         // cookie. Only when the user has no stored preference yet, so it can

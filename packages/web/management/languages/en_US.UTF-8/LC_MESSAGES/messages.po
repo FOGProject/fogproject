@@ -595,6 +595,10 @@ msgid "Accessed By"
 msgstr "Accessed By"
 
 #, fuzzy
+msgid "Account"
+msgstr "All Access Controls"
+
+#, fuzzy
 msgid "Account Name"
 msgstr "All Access Controls"
 
@@ -3897,6 +3901,9 @@ msgstr "Hourly"
 msgid "Hours field is invalid"
 msgstr "Hour value is not valid"
 
+msgid "How FOG looks to you. \"System\" follows whatever your device is set to."
+msgstr ""
+
 msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
 msgstr ""
 
@@ -4237,8 +4244,13 @@ msgstr ""
 msgid "Impersonate a user"
 msgstr ""
 
-msgid "Impersonate another"
-msgstr ""
+#, fuzzy
+msgid "Impersonate another user"
+msgstr "Session Name"
+
+#, fuzzy
+msgid "Impersonate user"
+msgstr "Image Association"
 
 #, fuzzy
 msgid "Impersonating"
@@ -5161,6 +5173,10 @@ msgstr "Log Viewer"
 #, fuzzy
 msgid "Log entry type filter"
 msgstr "Printer update failed!"
+
+#, fuzzy
+msgid "Log out"
+msgstr "Log Viewer"
 
 msgid "Log out and sign in as an administrator"
 msgstr ""
@@ -6702,6 +6718,9 @@ msgstr ""
 msgid "Preference key or value is not storable"
 msgstr ""
 
+msgid "Preferences"
+msgstr ""
+
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
@@ -7691,9 +7710,6 @@ msgstr "Storage Group Name"
 #, fuzzy
 msgid "Set failed"
 msgstr "Service update failed"
-
-msgid "Set your display timezone"
-msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -9152,15 +9168,6 @@ msgid "The web application can read the following private keys. It should not be
 msgstr ""
 
 msgid "Theme"
-msgstr ""
-
-msgid "Theme: dark"
-msgstr ""
-
-msgid "Theme: follow system"
-msgstr ""
-
-msgid "Theme: light"
 msgstr ""
 
 msgid "There are"
@@ -10756,6 +10763,10 @@ msgstr ""
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Primary Storage Group"
+
+#, php-format
+msgid "impersonated by %s"
+msgstr ""
 
 #, fuzzy
 msgid "in"

@@ -595,6 +595,10 @@ msgid "Accessed By"
 msgstr "acessada por"
 
 #, fuzzy
+msgid "Account"
+msgstr "Todos os controles de acesso"
+
+#, fuzzy
 msgid "Account Name"
 msgstr "Todos os controles de acesso"
 
@@ -3898,6 +3902,9 @@ msgstr "de hora em hora"
 msgid "Hours field is invalid"
 msgstr "valor da hora não é válido"
 
+msgid "How FOG looks to you. \"System\" follows whatever your device is set to."
+msgstr ""
+
 msgid "How each column may be filtered, keyed by the column name: \"date\", \"num\", \"string\", or false where the column may not be searched at all. Derived from the column type on the server, so it is answerable without reading any rows."
 msgstr ""
 
@@ -4238,8 +4245,13 @@ msgstr ""
 msgid "Impersonate a user"
 msgstr ""
 
-msgid "Impersonate another"
-msgstr ""
+#, fuzzy
+msgid "Impersonate another user"
+msgstr "Nome da sessão"
+
+#, fuzzy
+msgid "Impersonate user"
+msgstr "Associação imagem"
 
 #, fuzzy
 msgid "Impersonating"
@@ -5162,6 +5174,10 @@ msgstr "Visualizador de log"
 #, fuzzy
 msgid "Log entry type filter"
 msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Log out"
+msgstr "Visualizador de log"
 
 msgid "Log out and sign in as an administrator"
 msgstr ""
@@ -6703,6 +6719,9 @@ msgstr ""
 msgid "Preference key or value is not storable"
 msgstr ""
 
+msgid "Preferences"
+msgstr ""
+
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the directory only decides who is in which bucket."
 msgstr ""
 
@@ -7692,9 +7711,6 @@ msgstr "Nome do grupo de armazenamento"
 #, fuzzy
 msgid "Set failed"
 msgstr "atualização do Service falhou"
-
-msgid "Set your display timezone"
-msgstr ""
 
 #, fuzzy
 msgid "Setting"
@@ -9153,15 +9169,6 @@ msgid "The web application can read the following private keys. It should not be
 msgstr ""
 
 msgid "Theme"
-msgstr ""
-
-msgid "Theme: dark"
-msgstr ""
-
-msgid "Theme: follow system"
-msgstr ""
-
-msgid "Theme: light"
 msgstr ""
 
 msgid "There are"
@@ -10757,6 +10764,10 @@ msgstr ""
 #, fuzzy
 msgid "images to a storage group"
 msgstr "Grupo de armazenamento primário"
+
+#, php-format
+msgid "impersonated by %s"
+msgstr ""
 
 #, fuzzy
 msgid "in"

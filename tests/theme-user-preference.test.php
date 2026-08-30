@@ -105,12 +105,35 @@ if (['', 'dark', 'light'] !== $offered) {
         . implode(',', $offered) . ')';
 }
 
-// Visible, in the navbar, beside the timezone clock -- not buried in a
-// settings page, because people assume FOG is light-only until they see it.
-if (!preg_match('/navbar-nav ms-auto.*?tzToggle/s', $shell)
-    || !preg_match('/navbar-nav ms-auto.*?themeToggle/s', $shell)
+// REACHABLE, and reachable from the chrome rather than from a settings page
+// somewhere in the tree.
+//
+// This used to assert the stronger thing -- that the picker was IN the navbar
+// beside the clock -- on the reasoning that people assume FOG is light-only
+// until they see the control. That reasoning is sound and the cost is real:
+// the choices now sit one click deeper, behind Preferences in the account
+// menu. It was moved anyway because theme and display timezone are the same
+// kind of thing (per-user, stored in userPrefs, changing only what the one
+// viewer sees) and two separate navbar icons said otherwise, while a
+// three-state picker and a several-hundred-option select are both form
+// controls rather than chrome.
+//
+// So what is pinned is what still has to be TRUE: the choices live in the
+// preferences dialog, and something in the page shell opens that dialog. A
+// dialog nothing targets is a preference nobody can change, and it fails
+// silently -- everything renders, the control is simply unreachable.
+if (!preg_match('/id="prefsModal".*?data-theme-choice/s', $shell)) {
+    $fails[] = 'the theme choices are not inside the preferences dialog';
+}
+if (false === strpos($shell, 'data-bs-target="#prefsModal"')) {
+    $fails[] = 'nothing in the page shell opens the preferences dialog';
+}
+// And theme.js reads the stored preference from the carrier the shell emits.
+// A rename on either side leaves the picker rendering and doing nothing.
+if (false === strpos($shell, 'id="themePref"')
+    || false === strpos($js, "getElementById('themePref')")
 ) {
-    $fails[] = 'the theme picker is not in the navbar beside the clock';
+    $fails[] = 'the shell and theme.js disagree about the preference carrier';
 }
 
 // --- the client side -----------------------------------------------------

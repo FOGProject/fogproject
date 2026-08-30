@@ -501,7 +501,11 @@ function fogAffordanceRestore(dt, name, apply) {
  * next navigation would read as broken.
  */
 function fogBindTimezonePicker() {
-  var modal = document.getElementById('tzModal');
+  // #prefsModal, not #tzModal: the timezone picker now shares the preferences
+  // dialog with the theme choices. Missing this rename is a silent failure --
+  // the dialog still opens and the select still renders, it just never loads
+  // the stored value and Save does nothing.
+  var modal = document.getElementById('prefsModal');
   if (!modal) {
     return;
   }

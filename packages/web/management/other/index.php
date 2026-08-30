@@ -184,14 +184,15 @@ if ($isLoggedIn && $impersonating):
 // nobody opens.
 //
 // Rendered only for somebody who can actually use it, so the markup is not
-// carried on every page for every user. `$impersonating` is enough on its own
-// for the second arm: a span is open, so the permission was checked when it
-// started, and "impersonate another" must stay reachable even if the grant
-// has since been withdrawn -- otherwise the way out of a span becomes the
-// only remaining control, which is the trap the ungated exit exists to avoid.
-if ($isLoggedIn
-    && ($impersonating || Authorization::can(\FOG\Auth\Identity::PERMISSION))
-) : ?>
+// carried on every page for every user.
+//
+// Identity::canStart(), NOT Authorization::can() -- the same predicate the
+// trigger below uses, and it asks the REAL administrator. A bare can() answers
+// for the effective identity, which while a span is open is the impersonated
+// user, so wearing a roleless account withdrew the administrator's own ability
+// to swap masks. This gate and the trigger must move together: a trigger with
+// no modal opens nothing, and a modal with no trigger is dead markup.
+if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
     <div class="modal fade" id="impersonate-modal" tabindex="-1"
          aria-labelledby="impersonate-modal-label" aria-hidden="true">
         <div class="modal-dialog modal-lg">
@@ -225,92 +226,160 @@ if ($isLoggedIn
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown">
-                        <?php
-                        // A three-state picker, not a toggle: "follow the
-                        // system" is a state a user can choose and return to,
-                        // and a two-way toggle has nowhere to put it. Sat in
-                        // the navbar beside the clock rather than in settings
-                        // because people currently assume FOG is light-only.
-                        //
-                        // data-theme-pref carries the STORED value, which is
-                        // not always the value on <html>: '' means the browser
-                        // resolved it. theme.js needs both to tick the right
-                        // row.
+                    <?php
+                    // The stored theme preference, carried for theme.js.
+                    //
+                    // Hidden, and an element of its own rather than an
+                    // attribute on a control, because the three choices now
+                    // live in the preferences dialog and no navbar control
+                    // displays the theme any more. What theme.js still needs
+                    // is the STORED value, which is not the value on <html>:
+                    // '' means the browser resolved it, and the tick in the
+                    // dialog has to tell "system, which happens to be dark"
+                    // from "dark".
+                    //
+                    // Its ABSENCE is also how theme.js recognizes the login
+                    // page -- no session, so no preference to read or write.
+                    // Anything that moves this must keep that true.
         ?>
-                        <a href="#" id="themeToggle" class="nav-link" role="button"
+                    <span id="themePref" class="d-none"
+                          data-theme-pref="<?= Initiator::e($themePref); ?>"></span>
+                    <?php
+        // THE ACCOUNT MENU. One dropdown, everything about who
+        // you are and how you stop being them.
+        //
+        // These were four bare navbar links -- theme, clock,
+        // impersonation, logout -- and the impersonation ones
+        // pushed Logout along the bar every time a span opened.
+        // A control that moves when the mode changes is a control
+        // people misclick, and Logout is the worst one to misclick
+        // while wearing somebody else's account.
+        //
+        // So the identity controls live behind one stable target,
+        // and the menu states the identity ITSELF rather than
+        // leaving it to be inferred from the sidebar. That is not
+        // decoration: #impersonation-bar is four pixels of color
+        // and carries its text only in aria-label, so before this
+        // there was nothing on screen that NAMED the account being
+        // worn or the administrator wearing it.
+        //
+        // THE CLOCK IS THE POINT, not a garnish. The motivating
+        // ticket for impersonation is "this user says their times
+        // are wrong", so the menu prints the current time as that
+        // user sees it, zone abbreviation included. Answering the
+        // question the feature exists for should not require
+        // navigating anywhere.
+        //
+        // Rendered server-side, so it is the time at page render
+        // rather than a live clock. Deliberate: a ticking clock
+        // needs a timer, and a self-rescheduling timer is the bug
+        // class ADR 0012 is about. What is being checked is the
+        // ZONE, which does not tick.
+        $acctName = (string)self::$FOGUser->get('name');
+        $acctReal = $impersonating
+            ? \FOG\Auth\Identity::realUserName()
+            : '';
+        ?>
+                    <li class="nav-item dropdown">
+                        <a href="#" id="accountMenu" class="nav-link" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false"
-                           data-theme-pref="<?= Initiator::e($themePref); ?>"
-                           data-label-system="<?= _('Theme: follow system'); ?>"
-                           data-label-light="<?= _('Theme: light'); ?>"
-                           data-label-dark="<?= _('Theme: dark'); ?>"
-                           title="<?= _('Theme'); ?>"
-                           aria-label="<?= _('Theme'); ?>">
-                            <i class="far fa-moon"></i>
+                           title="<?= _('Account'); ?>"
+                           aria-label="<?= _('Account'); ?>">
+                            <i class="fas fa-circle-user"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="themeToggle">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
                             <li>
-                                <button class="dropdown-item" type="button" data-theme-choice="">
-                                    <i class="fas fa-circle-half-stroke fa-fw me-2"></i><?= _('System'); ?>
-                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
-                                </button>
+                                <h6 class="dropdown-header mb-0"><?= Initiator::e($acctName); ?></h6>
+                                <?php if ('' !== $acctReal): ?>
+                                <span class="dropdown-item-text pt-0 small text-body-secondary"><?= sprintf(_('impersonated by %s'), Initiator::e($acctReal)); ?></span>
+                                <?php endif; ?>
                             </li>
+                            <li><hr class="dropdown-divider"></li>
                             <li>
-                                <button class="dropdown-item" type="button" data-theme-choice="light">
-                                    <i class="far fa-sun fa-fw me-2"></i><?= _('Light'); ?>
-                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
-                                </button>
+                                <span class="dropdown-item-text small text-body-secondary">
+                                    <i class="far fa-clock fa-fw me-1"></i><?= Initiator::e(FOGPage::formatTime('now', 'M j, Y g:i A T')); ?>
+                                </span>
                             </li>
+                            <?php
+                // Ordered as the two questions are actually asked:
+                // become somebody (or somebody else), then stop.
+                //
+                // TWO INDEPENDENT GATES, not one if/else. They
+                // used to be an if/elseif on $impersonating, which
+                // tied "can I start one" to "am I in one" -- and
+                // the elseif arm's bare Authorization::can() then
+                // asked the MASK, so it was only ever correct
+                // because that arm could not be reached during a
+                // span. Wearing a roleless account therefore
+                // refused the administrator their own swap, with
+                // "you do not have permission to impersonate
+                // users" -- a sentence that was true of the mask
+                // and false of the person reading it.
+                //
+                // canStart() asks the real administrator, so it
+                // answers the same whether or not a mask is in
+                // place. Ending is gated on there being a span and
+                // on NOTHING else, ever: revoke the grant mid-span
+                // and the swap disappears while the exit stays.
+                // The way out is never the control that goes
+                // missing.
+                //
+                // "Impersonate another" is end-then-start on
+                // submit, never a swap -- impersonation is always
+                // exactly one level deep, so the audit never has
+                // to answer "acting as B, who was being acted as
+                // by A".
+                if (\FOG\Auth\Identity::canStart()): ?>
                             <li>
-                                <button class="dropdown-item" type="button" data-theme-choice="dark">
-                                    <i class="far fa-moon fa-fw me-2"></i><?= _('Dark'); ?>
-                                    <i class="fas fa-check fa-fw ms-2 theme-choice-tick invisible"></i>
-                                </button>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group fa-fw me-2"></i><?= $impersonating ? _('Impersonate another user') : _('Impersonate user'); ?></a>
+                            </li>
+                            <?php endif; ?>
+                            <?php
+                // A plain GET link, and it stays one. The exit has
+                // to work for a mask holding no roles, from any
+                // page, with no JavaScript -- a link is the only
+                // thing a script error cannot break. Not an AJAX
+                // page link either: ending a span changes who the
+                // whole shell belongs to, so it needs a full
+                // render rather than a content swap.
+                if ($impersonating): ?>
+                            <li>
+                                <a class="dropdown-item" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash fa-fw me-2"></i><?= _('End impersonation'); ?></a>
+                            </li>
+                            <?php endif; ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <?php
+                            // Theme and display timezone, which are the same
+                            // KIND of thing -- per-user preferences, stored in
+                            // userPrefs, changing what this one person sees and
+                            // nothing about what is stored or what anyone else
+                            // sees. They were two separate navbar icons, which
+                            // put a three-state picker and a modal trigger in
+                            // the chrome and said nothing about them belonging
+                            // together.
+                            //
+                            // A dialog rather than more rows in this menu:
+                            // theme is a three-way choice with a tick and
+                            // timezone is a several-hundred-option select, and
+                            // both are form controls wearing a menu's clothes.
+                            // It is also where the next per-user preference
+                            // goes without this menu growing again.
+                            //
+                            // Reached from HERE because that is what makes the
+                            // impersonation workflow one path: become the user,
+                            // open this menu, see their clock is wrong, fix it,
+                            // drop back. Preferences follow the impersonated
+                            // identity like every other read, which is the
+                            // whole point of the feature.
+        ?>
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#prefsModal"><i class="fas fa-sliders fa-fw me-2"></i><?= _('Preferences'); ?></a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket fa-fw me-2"></i><?= _('Log out'); ?></a>
                             </li>
                         </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" id="tzToggle" class="nav-link" role="button"
-                           data-bs-toggle="modal" data-bs-target="#tzModal"
-                           title="<?= _('Set your display timezone'); ?>"
-                           aria-label="<?= _('Set your display timezone'); ?>">
-                            <i class="far fa-clock"></i>
-                        </a>
-                    </li>
-                    <?php
-                    // Under the logout control, deliberately: the two things
-                    // an impersonating administrator most needs are next to
-                    // the thing they would otherwise reach for. Both are
-                    // plain links and neither is an AJAX page link -- ending
-                    // a span changes who the whole shell belongs to, so it
-                    // has to be a full render rather than a content swap.
-                    //
-                    // "Impersonate another" points at the picker, which is
-                    // end-then-start on submit. Never a swap: impersonation
-                    // is always exactly one level deep, so the audit never
-                    // has to answer "acting as B, who was being acted as by
-                    // A".
-                    //
-                    // ENDING is a plain GET link and STARTING is a modal, and
-                    // the asymmetry is deliberate. The exit has to work for a
-                    // mask holding no roles, with no JavaScript, from any
-                    // page -- a link is the only thing that cannot be broken
-                    // by a script error. Starting is one select and one
-                    // button, which is a dialog, not a page.
-                    if ($impersonating): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash"></i> <?= _('End impersonation'); ?></a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group"></i> <?= _('Impersonate another'); ?></a>
-                    </li>
-                    <?php elseif (Authorization::can(\FOG\Auth\Identity::PERMISSION)): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#impersonate-modal"><i class="fas fa-user-group"></i> <?= _('Impersonate a user'); ?></a>
-                    </li>
-                    <?php endif; ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket"></i> <?= _('Logout'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -418,14 +487,69 @@ if ('' === trim($tzDefault)) {
 }
 $tzList = \DateTimeZone::listIdentifiers();
 ?>
-                <div class="modal fade" id="tzModal" tabindex="-1" aria-labelledby="tzModalLabel" aria-hidden="true">
+                <?php
+                // PREFERENCES: everything about how THIS person sees FOG.
+                //
+                // Was #tzModal, holding the timezone alone while the theme sat
+                // in a navbar dropdown of its own. They are the same kind of
+                // thing -- per-user, stored in userPrefs, changing only what
+                // the one viewer sees -- and splitting them across two bits of
+                // chrome said otherwise.
+                //
+                // STATIC, not fetched. The impersonation picker is fetched on
+                // open because building it costs a users query and two subset
+                // tests per user; this costs a listIdentifiers() call and no
+                // database at all. Shipping it also means theme.js and
+                // fog.common.js still find their controls at DOMContentLoaded,
+                // where they bind directly -- fetching the body would break
+                // both silently, with the dialog rendering perfectly and
+                // nothing in it working.
+                //
+                // THE TWO HALVES SAVE DIFFERENTLY, deliberately. Theme applies
+                // on click and writes in the background: it is a client-side
+                // attribute flip, so waiting on the network would add lag to
+                // something that cannot fail visibly. Timezone needs Save and
+                // then reloads, because every date already on the page was
+                // rendered server-side in the old zone and cannot be relabeled
+                // in place.
+?>
+                <div class="modal fade" id="prefsModal" tabindex="-1" aria-labelledby="prefsModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="tzModalLabel"><?= _('Display timezone'); ?></h5>
+                                <h5 class="modal-title" id="prefsModalLabel"><?= _('Preferences'); ?></h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= _('Close'); ?>"></button>
                             </div>
                             <div class="modal-body">
+                                <?php
+                // A three-state picker, not a toggle: "follow
+                // the system" is a state a user can choose and
+                // return to, and a two-way toggle has nowhere
+                // to put it.
+                //
+                // The tick is `invisible` rather than `d-none`
+                // so the three rows keep the same width and
+                // nothing shifts as it moves.
+?>
+                                <h6 class="mb-1"><?= _('Theme'); ?></h6>
+                                <p class="text-body-secondary small">
+                                    <?= _('How FOG looks to you. "System" follows whatever your device is set to.'); ?>
+                                </p>
+                                <div class="list-group mb-4">
+                                    <button class="list-group-item list-group-item-action d-flex align-items-center" type="button" data-theme-choice="">
+                                        <i class="fas fa-circle-half-stroke fa-fw me-2"></i><?= _('System'); ?>
+                                        <i class="fas fa-check fa-fw ms-auto theme-choice-tick invisible"></i>
+                                    </button>
+                                    <button class="list-group-item list-group-item-action d-flex align-items-center" type="button" data-theme-choice="light">
+                                        <i class="far fa-sun fa-fw me-2"></i><?= _('Light'); ?>
+                                        <i class="fas fa-check fa-fw ms-auto theme-choice-tick invisible"></i>
+                                    </button>
+                                    <button class="list-group-item list-group-item-action d-flex align-items-center" type="button" data-theme-choice="dark">
+                                        <i class="far fa-moon fa-fw me-2"></i><?= _('Dark'); ?>
+                                        <i class="fas fa-check fa-fw ms-auto theme-choice-tick invisible"></i>
+                                    </button>
+                                </div>
+                                <h6 class="mb-1"><?= _('Display timezone'); ?></h6>
                                 <p class="text-body-secondary small">
                                     <?= _('Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else.'); ?>
                                 </p>
