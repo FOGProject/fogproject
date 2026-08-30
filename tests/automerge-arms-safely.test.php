@@ -63,6 +63,37 @@ $results[] = [
     'and arms auto-merge rather than merging on the spot',
 ];
 
+// THE TOKEN. This is the one assertion here whose failure produces no error
+// anywhere -- the job goes green, auto-merge is armed, the pull request is
+// enqueued, and it then never merges.
+//
+// GitHub will not start a workflow run from an event caused by GITHUB_TOKEN.
+// The enqueue auto-merge performs is attributed to whoever armed it, so armed
+// with GITHUB_TOKEN the `merge_group` event starts nothing: the queue branch
+// is created, tests.yml never runs against it, no required context is ever
+// reported, and the entry sits in AWAITING_CHECKS until the ruleset's
+// 60-minute timeout ejects it.
+//
+// Observed on 2026-08-30: #1519/#1520/#1521 enqueued by hand dispatched in
+// seconds; #1522 and #1523 enqueued by this job never dispatched at all. The
+// only variable was who enqueued.
+//
+// An App token is exempt, which is why regen in tests.yml already mints one.
+$results[] = [
+    false === strpos($code, 'secrets.GITHUB_TOKEN'),
+    'it does not arm with GITHUB_TOKEN, whose enqueue can never trigger '
+        . 'the merge queue checks',
+];
+$results[] = [
+    false !== strpos($code, 'actions/create-github-app-token')
+        && (bool)preg_match(
+            '#GH_TOKEN:\s*\$\{\{\s*steps\.app-token\.outputs\.token#',
+            $code
+        ),
+    'it arms with the fog-workflows App token, which is exempt from the '
+        . 'anti-recursion rule',
+];
+
 // The draft opt-out, and the trigger that makes lifting it work.
 $results[] = [
     (bool)preg_match('#!\s*github\.event\.pull_request\.draft#', $code),
