@@ -5,38 +5,38 @@ name: Sync generated files and version
 # Actions has no cross-repo merge trigger, so something has to live here to react
 # to a merge.
 #
-# WHAT THIS STILL DOES, NOW THAT PR-TIME REGENERATION EXISTS
+# WHAT THIS DOES, NOW THAT PR-TIME REGENERATION EXISTS
 #
 # The version, and only the version. tests.yml's `regen` job corrects PSR2
 # formatting and the gettext catalogue on the pull request itself, so by the
 # time a same-repo PR merges those two are already right.
 #
-# The version moved to PR time too, but it could not move the same way: it is
-# the commit count since master, and the merge commit itself changes that
-# count. tests.yml's `regen` job predicts the post-merge value instead, which
-# is only sound while working-1.6's ruleset keeps branches up to date and
-# forces merge commits.
+# THIS IS THE MECHANISM FOR THE VERSION, NOT A BACKSTOP FOR IT.
 #
-# SO THIS FILE IS NOW A BACKSTOP, NOT THE MECHANISM.
+# It was briefly the other way round: `regen` predicted the post-merge commit
+# count and wrote it on the pull request, and this file was left as cover for
+# the cases the prediction could not reach. That was reverted, because the
+# prediction can only be right for the ONE pull request that merges next --
+# FOG_VERSION is a commit count stored on a single tracked line, so every other
+# open branch was left holding a different value on that same line and
+# conflicted on System.php as soon as anything merged. tests.yml's `regen`
+# comment has the evidence.
 #
-# It is deliberately not deleted. It still covers every case the prediction
-# does not:
+# Writing it HERE has the property the prediction could not: the base branch
+# has exactly one writer, so there is nothing for the value to conflict with,
+# and it is measured after the merge rather than guessed before it. The cost is
+# that the merge commit itself carries the previous version for the few seconds
+# until this run pushes the correction, and that a pull request branch sits on
+# a stale version while it is open. Both are cosmetic; the conflict was not.
 #
-#   * a squash or rebase merge slipped through, or an admin bypassed the
-#     ruleset -- the predicted count is then wrong, and this corrects it;
-#   * a merged pull request from a fork, which gets no secrets and so never
-#     ran the PR-time job;
-#   * any PR the `regen` job's guards skipped.
+# .githooks/pre-commit no longer stamps a version either, for the same reason,
+# and .githooks/pre-push -- which existed only to refuse a push whose committed
+# version had drifted -- was removed with it.
 #
-# Consequence worth knowing before you conclude this file is broken: on a
-# well-behaved same-repo pull request it now finds NOTHING to do and pushes
-# nothing. A run that reports no change is the expected outcome, not a
-# symptom.
-#
-# The pre-commit hook cannot cover this. It is client-side, so a PR merged
-# through GitHub's web UI (squash, merge commit or rebase) never runs it and
-# FOG_VERSION goes stale until the daily sweep fires at 10:10 UTC. This closes
-# that window.
+# A client-side hook could never have covered this anyway, even when one still
+# stamped a version: a PR merged through GitHub's web UI (squash, merge commit
+# or rebase) runs no local hook, so FOG_VERSION would go stale until the daily
+# sweep fires at 10:10 UTC. This closes that window.
 #
 # WHY `pull_request`, AND NOT `pull_request_target`
 #

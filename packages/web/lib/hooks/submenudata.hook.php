@@ -103,7 +103,6 @@ class SubMenuData extends Hook
                     // credentials are found in one place.
                     'apitokens' => _('API Tokens'),
                     'settings' => self::$foglang['FOGSettings'],
-                    'logviewer' => self::$foglang['LogViewer'],
                     'config' => self::$foglang['ConfigSave']
                 ];
                 break;

@@ -158,21 +158,33 @@ updateLanguage
 psrfix
 
 
-
-# Define the path to the system file
-system_file="$project_dir/packages/web/src/Base/System.php"
-
-# Recompute FOG_VERSION/FOG_CHANNEL for the current branch. The formula is
-# shared with fog-workflows' CI check (see .githooks/lib/fog-version.sh) so
-# a local commit and CI's periodic sweep never compute two different
-# answers for the same branch state.
-gitbranch=$(git branch --show-current)
-fog_version=$(sh "$project_dir/.githooks/lib/fog-version.sh" $gitbranch 1)
-if [ "$(printf '%s\n' "$fog_version" | sed -n '3p')" = "true" ]; then
-    sh "$project_dir/.githooks/lib/apply-fog-version.sh" \
-        "$(printf '%s\n' "$fog_version" | sed -n '1p')" \
-        "$(printf '%s\n' "$fog_version" | sed -n '2p')"
-
-    # Add the modified system file to the staging area
-    git add "$system_file"
-fi
+# FOG_VERSION IS NOT STAMPED HERE ANY MORE. That is deliberate.
+#
+# The version is `git rev-list master..HEAD --count` put through
+# .githooks/lib/fog-version.sh -- a function of the commit graph. Stamping it
+# into a tracked line of packages/web/src/Base/System.php on every commit meant
+# that any two branches open at once wrote DIFFERENT values to the SAME line,
+# so merging the base back into either one conflicted, every time, by
+# construction. Not a race: there is no ordering of commits that avoids it.
+#
+# Measured on this repository: PR #1504 needed three separate version commits
+# (4598 -> 4600 -> 4608) as other pull requests landed around it, and the merge
+# 3fbacbc73 records the conflict this hook caused in its own commit message.
+#
+# The version is now written in exactly one place -- on the base branch, after
+# a merge, by .github/workflows/sync-generated-files.yml -- where there is only
+# ever one writer and so nothing to conflict with. fog-workflows' daily sweep
+# still covers direct pushes and rc-*/feature-* branches.
+#
+# The consequence, stated so it is not rediscovered as a bug: a commit made
+# locally leaves FOG_VERSION reading whatever the last merge into the base
+# branch set. It is BEHIND on a feature branch, on purpose. Do not "fix" that
+# by putting the stamp back; a version that is a few commits stale costs a
+# wrong number in a beta build string, and stamping it per-commit costs a
+# hand-resolved conflict on every open pull request every time anything
+# merges.
+#
+# .githooks/pre-push, which refused a push whose committed version disagreed
+# with the branch, was removed in the same change: with nothing stamping a
+# version there is nothing for it to guard, and it would have blocked every
+# push instead.
