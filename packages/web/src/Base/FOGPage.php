@@ -694,17 +694,7 @@ abstract class FOGPage extends FOGBase
         // enforcement point either way.
         self::$pluginIsAvailable = $pluginSysOn && count($hookMenu ?: []) > 0;
 
-        $knownNodes = self::fastmerge(
-            $knownNodes,
-            [
-                'home',
-                'logout',
-                'hwinfo',
-                'client',
-                'schema',
-                'ipxe'
-            ]
-        );
+        $knownNodes = self::knownNodes($knownNodes);
 
         if ($node
             && !in_array($node, $knownNodes)
@@ -715,6 +705,52 @@ abstract class FOGPage extends FOGBase
         $main = self::_buildMenuStructure($menu);
         $hookMain = self::_buildMenuStructure($hookMenu);
         return $main;
+    }
+    /**
+     * Nodes that have a page class but no sidebar entry.
+     *
+     * `ipxe` earns its place for a different reason from the rest: it IS a
+     * sidebar node, so it arrives through $menuNodes anyway, and naming it
+     * here only keeps it reachable if that entry is ever removed.
+     *
+     * @var string[]
+     */
+    const NODES_WITHOUT_MENU_ENTRY = ['ipxe'];
+    /**
+     * Every node the known-node guard will let through.
+     *
+     * The guard in buildMainMenuItems() redirects an unrecognized $node to
+     * the dashboard, and it runs from Page::render() -- i.e. AFTER
+     * FOGPageManager has already dispatched and the page has echoed itself
+     * into the output buffer. So a node missing from this list does not 404
+     * and does not deny: it renders, is discarded, and the browser lands back
+     * on the dashboard. On screen that is indistinguishable from clicking a
+     * link that does nothing, which is how `impersonate` shipped broken.
+     *
+     * Authorization::exemptNodes() is merged in rather than the guard keeping
+     * its own copy of the same names. That list is already the answer to "is
+     * this a real node that carries its own gate instead of a permission",
+     * and every entry it holds -- home, logout, hwinfo, client, schema --
+     * was independently written out here too, which is exactly the
+     * duplication that let a seventh entry be added to one and not the other.
+     * It is the runtime-merged accessor, not the constant, so a plugin's own
+     * exempt node (ADR 0009) is reachable for the same reason.
+     *
+     * This is presentation only. FOGPageManager::render() remains the
+     * enforcement point, and a node reaching dispatch still has to pass
+     * Authorization::requirePagePermission().
+     *
+     * @param string[] $menuNodes nodes that do have a sidebar entry
+     *
+     * @return string[]
+     */
+    public static function knownNodes(array $menuNodes = [])
+    {
+        return self::fastmerge(
+            $menuNodes,
+            self::NODES_WITHOUT_MENU_ENTRY,
+            Authorization::exemptNodes()
+        );
     }
     /**
      * Builds the menu structure.
