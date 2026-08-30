@@ -6,7 +6,7 @@
  * itself flagged as the thing most likely to let it rot. This is the caller,
  * and the parts of the wiring that fail SILENTLY are what this pins:
  *
- *   - the report is discovered by FILENAME. lib/reports/*.report.php becomes
+ *   - the report is discovered by FILENAME. src/Reports/*.php becomes
  *     a menu entry with underscores turned into spaces, so the file name,
  *     the class name, the `f` parameter the JS switches on and the
  *     REPORT_NODES key all have to agree. Any one of them out of step gives
@@ -37,7 +37,7 @@ FogTestHarness::fakeDb();
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
-$report = $web . '/lib/reports/run_history.report.php';
+$report = $web . '/src/Reports/Run_History.php';
 
 $t->check('the report file exists', is_readable($report));
 $src = is_readable($report) ? file_get_contents($report) : '';
@@ -45,7 +45,7 @@ $src = is_readable($report) ? file_get_contents($report) : '';
 /*
  * 1. The four names that have to agree.
  *
- * basename minus '.report.php', underscores to spaces, is the menu label
+ * basename minus '.php', underscores to spaces, is the menu label
  * and the `f` parameter; the same string underscored is the REPORT_NODES
  * key; the class name matches the file for the autoloader.
  */
@@ -53,12 +53,12 @@ $slug = 'run_history';
 $label = str_replace('_', ' ', $slug);
 $t->check(
     'the class name matches the file name, so the autoloader finds it',
-    class_exists('FOG\Run_History')
+    class_exists('FOG\Reports\Run_History')
 );
 $t->check(
     'it extends ReportManagement, so it appears in the report menu at all',
-    class_exists('FOG\Run_History')
-    && is_subclass_of('FOG\Run_History', 'FOG\ReportManagement')
+    class_exists('FOG\Reports\Run_History')
+    && is_subclass_of('FOG\Reports\Run_History', 'FOG\Pages\ReportManagement')
 );
 $js = file_get_contents($web . '/management/js/fog/report/fog.report.file.js');
 $t->check(
@@ -120,7 +120,7 @@ $t->check(
  *    ucwords() of the file name -- which is also what keeps the msgid in
  *    the catalog, since a runtime-built one never reaches it.
  */
-$titles = \FOG\ReportManagement::reportTitles();
+$titles = \FOG\Pages\ReportManagement::reportTitles();
 $t->check(
     'the menu label comes from ReportManagement::reportTitles()',
     ($titles['run history'] ?? '') === _('Run History')

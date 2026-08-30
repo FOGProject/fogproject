@@ -91,7 +91,7 @@ function stripPhpComments($src)
 $web = dirname(__DIR__) . '/packages/web';
 $php = stripPhpComments(
     (string)file_get_contents(
-        $web . '/lib/pages/impersonatemanagement.page.php'
+        $web . '/src/Pages/ImpersonateManagement.php'
     )
 );
 $js = (string)file_get_contents(

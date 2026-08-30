@@ -48,7 +48,7 @@ $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
 $commonSrc = file_get_contents($web . '/management/js/fog/fog.common.js');
 $addJsSrc = file_get_contents($web . '/management/js/fog/user/fog.user.add.js');
-$pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
+$pageSrc = file_get_contents($web . '/src/Pages/UserManagement.php');
 $sysSrc = file_get_contents($web . '/src/Base/System.php');
 
 // Comments carry the words this file is looking for, so every source check

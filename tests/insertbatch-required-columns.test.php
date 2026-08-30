@@ -217,7 +217,7 @@ check(
  * that has to be created rather than a blank one.
  */
 $page = (string) file_get_contents(
-    "$root/packages/web/lib/pages/fogconfigurationpage.page.php"
+    "$root/packages/web/src/Pages/FOGConfigurationPage.php"
 );
 check(
     'both settings savers name description and category',

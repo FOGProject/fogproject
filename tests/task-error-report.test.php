@@ -281,7 +281,7 @@ foreach (array_unique($written[1]) as $field) {
 //    so the active pane excludes it by construction, and Task Management's
 //    Recent pane is the only view of finished tasks there is -- if that pane
 //    does not list Failed, the state exists and nobody can see it.
-$page = file_get_contents($web . '/lib/pages/taskmanagement.page.php');
+$page = file_get_contents($web . '/src/Pages/TaskManagement.php');
 if (false === strpos($page, 'self::getFailedState()')) {
     $fails[] = "Task Management's Recent pane does not know about the Failed"
         . ' state, so a failed task appears in no pane at all';

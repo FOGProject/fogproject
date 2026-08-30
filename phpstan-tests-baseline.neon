@@ -935,3 +935,57 @@ parameters:
 			identifier: identical.alwaysTrue
 			count: 1
 			path: tests/imaging-report.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''\-30 days'' and ''\-30 days'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/audit-report.test.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: tests/autoload.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''\-90 days'' and ''\-90 days'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/fleet-report.test.php
+
+		-
+			message: '#^Result of && is always true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 1
+			path: tests/hardware-report.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''\-90 days'' and ''\-90 days'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: tests/hardware-report.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''\-30 days'' and ''\-30 days'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/imaging-report.test.php
+
+		-
+			message: '#^Call to function is_subclass_of\(\) with ''FOG\\\\Reports\\\\Run…'' and ''FOG\\\\Pages…'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/run-history-report.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''\-30 days'' and ''\-30 days'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/snapin-report.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''\-365 days'' and ''\-365 days'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/storage-report.test.php

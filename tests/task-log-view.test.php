@@ -17,7 +17,7 @@
 $root = dirname(__DIR__);
 $web = $root . '/packages/web';
 
-$page = file_get_contents($web . '/lib/pages/taskmanagement.page.php');
+$page = file_get_contents($web . '/src/Pages/TaskManagement.php');
 $js = file_get_contents(
     $web . '/management/js/fog/task/fog.task.list.js'
 );

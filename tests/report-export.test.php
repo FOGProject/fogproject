@@ -35,7 +35,7 @@ FogTestHarness::boot('report-export');
 // HookManager::processEvent() reads (and records) the event name.
 FogTestHarness::fakeDb();
 
-use FOG\ReportManagement;
+use FOG\Pages\ReportManagement;
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
@@ -46,11 +46,13 @@ $web = dirname(__DIR__) . '/packages/web';
  *    grid and the export the same query.
  */
 $reports = [];
-foreach ((array) glob($web . '/lib/reports/*.report.php') as $file) {
-    $class = 'FOG\\' . implode(
-        '_',
-        array_map('ucfirst', explode('_', basename($file, '.report.php')))
-    );
+foreach ((array) glob($web . '/src/Reports/*.php') as $file) {
+    // The PSR-4 filename IS the class name now, so there is nothing to
+    // normalize: src/Reports/Pending_MAC_List.php declares
+    // FOG\Reports\Pending_MAC_List. The old ucfirst-per-underscore rebuild
+    // existed because the file was pending_mac_list.report.php, and it could
+    // never have produced "MAC" from that.
+    $class = 'FOG\\Reports\\' . basename($file, '.php');
     $t->check(
         basename($file) . ': its class loads',
         class_exists($class)
@@ -100,7 +102,7 @@ $t->check(
  *    A spreadsheet does not, so the raw value would put `<a href=...>` in
  *    the cell. Driven, not grepped.
  */
-$cell = new \ReflectionMethod('FOG\ReportManagement', '_exportCell');
+$cell = new \ReflectionMethod('FOG\Pages\ReportManagement', '_exportCell');
 $cell->setAccessible(true);
 $t->check(
     'a link column exports as the text a person was reading',
@@ -175,7 +177,7 @@ $t->check(
 // makes one method name thirteen different files.
 $name = function (array $payload, $written) {
     return FogTestHarness::callStatic(
-        'FOG\Fleet_Report',
+        'FOG\Reports\Fleet_Report',
         '_exportFilename',
         [$payload, $written]
     );
@@ -286,10 +288,10 @@ foreach (['FleetStats', 'StorageStats', 'AuditStats', 'ImagingStats',
         false !== strpos($src, "'truncated'")
     );
 }
-foreach (['fleet_report', 'storage_report', 'audit_report', 'imaging_report',
-    'snapin_report'] as $report) {
+foreach (['Fleet_Report', 'Storage_Report', 'Audit_Report', 'Imaging_Report',
+    'Snapin_Report'] as $report) {
     $src = (string) file_get_contents(
-        $web . '/lib/reports/' . $report . '.report.php'
+        $web . '/src/Reports/' . $report . '.php'
     );
     $t->check(
         "$report: shows the cap banner from the shared helper",

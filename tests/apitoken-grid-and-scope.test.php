@@ -44,8 +44,8 @@ $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
 $mgrSrc = file_get_contents($web . '/src/Managers/APITokenManager.php');
 $tokSrc = file_get_contents($web . '/src/Items/APIToken.php');
-$cfgSrc = file_get_contents($web . '/lib/pages/fogconfigurationpage.page.php');
-$usrSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
+$cfgSrc = file_get_contents($web . '/src/Pages/FOGConfigurationPage.php');
+$usrSrc = file_get_contents($web . '/src/Pages/UserManagement.php');
 $authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $jsSrc = file_get_contents(
     $web . '/management/js/fog/about/fog.about.apitokens.js'
@@ -294,7 +294,7 @@ $t->check(
 // Asserted by REFLECTION, not by grepping for the word 'function'. The
 // question is exactly the one the dispatcher asks.
 // ---------------------------------------------------------------------------
-$cfgPage = $web . '/lib/pages/fogconfigurationpage.page.php';
+$cfgPage = $web . '/src/Pages/FOGConfigurationPage.php';
 $postSubs = [];
 if (preg_match_all(
     '/public function ([A-Za-z][A-Za-z0-9_]*)Post\(/',

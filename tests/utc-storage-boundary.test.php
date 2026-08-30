@@ -155,11 +155,11 @@ if (!preg_match(
 }
 // Every core caller has to hand them over, or the default silently decides.
 foreach ([
-    'hostmanagement' => 4,
-    'imagemanagement' => 1,
+    'HostManagement' => 4,
+    'ImageManagement' => 1,
 ] as $page => $expected) {
     $src = file_get_contents(
-        $root . '/packages/web/lib/pages/' . $page . '.page.php'
+        $root . '/packages/web/src/Pages/' . $page . '.php'
     );
     $hinted = preg_match_all(
         "#dateOrNever\(\s*\\\$this->obj->get\('[a-z]+'\),\s*'[a-z]+',\s*'[A-Za-z]+'\s*\)#s",
@@ -168,7 +168,7 @@ foreach ([
     $all = preg_match_all('#self::dateOrNever\(#', $src);
     if ($hinted < $expected || $hinted !== $all) {
         $fails[] = sprintf(
-            '%s.page.php has %d dateOrNever() calls and %d of them name '
+            '%s.php has %d dateOrNever() calls and %d of them name '
             . 'their table and column; an unhinted one is assumed DATETIME',
             $page,
             $all,

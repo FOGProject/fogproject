@@ -31,7 +31,7 @@
  */
 
 $webroot = dirname(__DIR__) . '/packages/web';
-$pageDir = $webroot . '/lib/pages';
+$pageDir = $webroot . '/src/Pages';
 $pageBase = $webroot . '/src/Base/FOGPage.php';
 
 foreach ([$pageDir, $pageBase] as $needed) {
@@ -67,7 +67,7 @@ if (count($pagesWithObjects) < 10) {
 $failures = [];
 $checks = 0;
 
-foreach (glob($pageDir . '/*.page.php') as $file) {
+foreach (glob($pageDir . '/*.php') as $file) {
     $pageSrc = file_get_contents($file);
     if (false === strpos($pageSrc, '$this->obj->')) {
         continue;

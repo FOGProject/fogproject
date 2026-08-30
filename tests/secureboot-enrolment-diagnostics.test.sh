@@ -48,7 +48,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 FUNCS="$REPO/lib/common/functions.sh"
 MOKSH="$REPO/packages/secureboot/fog-enroll-mok.sh"
-PAGE="$REPO/packages/web/lib/pages/fogconfigurationpage.page.php"
+PAGE="$REPO/packages/web/src/Pages/FOGConfigurationPage.php"
 
 for f in "$FUNCS" "$MOKSH" "$PAGE"; do
     [[ -f $f ]] || { echo "ERROR: $f not found" >&2; exit 1; }

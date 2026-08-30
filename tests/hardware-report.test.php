@@ -65,9 +65,9 @@ foreach (['totals(', 'breakdown(', 'recordedPerDay('] as $call) {
 }
 $t->check(
     'this report defaults to a quarter, matching Fleet Report',
-    '-90 days' === constant('FOG\Hardware_Report::DEFAULT_WINDOW')
-    && constant('FOG\Fleet_Report::DEFAULT_WINDOW')
-        === constant('FOG\Hardware_Report::DEFAULT_WINDOW')
+    '-90 days' === constant('FOG\Reports\Hardware_Report::DEFAULT_WINDOW')
+    && constant('FOG\Reports\Fleet_Report::DEFAULT_WINDOW')
+        === constant('FOG\Reports\Hardware_Report::DEFAULT_WINDOW')
 );
 $t->check(
     'the page says what the range means here',
@@ -131,13 +131,13 @@ $t->check(
 );
 $t->check(
     'the retired report is gone rather than left as a second door',
-    !file_exists($web . '/lib/reports/inventory_report.report.php')
+    !file_exists($web . '/src/Reports/Inventory_Report.php')
 );
 $t->check(
     'and its menu label went with it',
     false === strpos(
         (string)file_get_contents(
-            $web . '/lib/pages/reportmanagement.page.php'
+            $web . '/src/Pages/ReportManagement.php'
         ),
         "_('Inventory Report');"
     )

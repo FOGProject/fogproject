@@ -174,9 +174,9 @@ if (null !== $addPost) {
  * mode these two checks exist for.
  */
 $pages = [
-    'user' => 'lib/pages/usermanagement.page.php',
-    'group' => 'lib/pages/groupmanagement.page.php',
-    'usergroup' => 'lib/pages/usergroupmanagement.page.php',
+    'user' => 'src/Pages/UserManagement.php',
+    'group' => 'src/Pages/GroupManagement.php',
+    'usergroup' => 'src/Pages/UserGroupManagement.php',
 ];
 foreach ($pages as $node => $path) {
     $src = $read($path);

@@ -250,7 +250,7 @@ foreach ($fixtures as $row) {
     $ins->execute($row);
 }
 
-$fromMethod = new \ReflectionMethod('FOG\TaskManagement', '_logQueryFrom');
+$fromMethod = new \ReflectionMethod('FOG\Pages\TaskManagement', '_logQueryFrom');
 $fromMethod->setAccessible(true);
 $from = sprintf($fromMethod->invoke(null), 'v');
 $rows = $pdo->query(

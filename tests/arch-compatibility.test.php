@@ -216,7 +216,7 @@ $t->check(
 // --- the three regressions found on a live server 2026-08-25 -------------
 // All three were invisible to CI: a fresh install creates the columns, so
 // only an UPGRADE showed them.
-$paneSrc = (string)file_get_contents($web . '/lib/pages/imagemanagement.page.php');
+$paneSrc = (string)file_get_contents($web . '/src/Pages/ImageManagement.php');
 $listJs = (string)file_get_contents(
     $web . '/management/js/fog/image/fog.image.list.js'
 );

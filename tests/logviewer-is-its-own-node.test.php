@@ -12,8 +12,10 @@
  *
  *   - the page class exists and answers for the node, or FOGPageManager finds
  *     nothing and the node 404s;
- *   - the class is reachable under its BARE name, or the autoloader logs
- *     "does not declare" and takes the same route (ADR 0013);
+ *   - the class is reachable under its QUALIFIED name, or FOGPageManager
+ *     logs "does not declare" and takes the same route (ADR 0013 -- core
+ *     pages under src/ are no longer bare-name aliased; only a plugin page
+ *     still needs class_alias());
  *   - the permission alias is present and matches `about`'s, or the move
  *     silently changes who can read the logs;
  *   - the sidebar group lists it, or it is a node nobody can navigate to;
@@ -35,12 +37,12 @@ $web = $repo . '/packages/web/';
 // [passed, what it means], classified in one pass at the end.
 $results = [];
 
-$page = $web . 'lib/pages/logviewermanagement.page.php';
+$page = $web . 'src/Pages/LogViewerManagement.php';
 $src = is_file($page) ? (string)file_get_contents($page) : '';
 
 $results[] = [
     '' !== $src,
-    'the page file exists at lib/pages/logviewermanagement.page.php',
+    'the page file exists at src/Pages/LogViewerManagement.php',
 ];
 $results[] = [
     (bool)preg_match('#class\s+LogViewerManagement\s+extends\s+FOGPage#', $src),
@@ -50,12 +52,16 @@ $results[] = [
     (bool)preg_match('#public\s+\$node\s*=\s*\'logviewer\'#', $src),
     'and answers for node "logviewer"',
 ];
-// The autoloader resolves a page by its bare global name. A namespaced page
-// without this loads as nothing and the node 404s -- with only an error_log
-// line to say why.
+// FOGPageManager::loadPageClasses() derives FOG\Pages\LogViewerManagement
+// straight from the file path and checks class_exists() against THAT name --
+// core pages under src/ stopped being bare-name aliased with the rest of the
+// 202-alias retirement (ADR 0013 SS2). A missing or wrong namespace here is
+// what class_exists() would catch, so pin the namespace directly rather than
+// a class_alias() call that core pages no longer make.
 $results[] = [
-    false !== strpos($src, "class_alias(__NAMESPACE__ . '\\\\LogViewerManagement'"),
-    'and is aliased to its bare name for the autoloader (ADR 0013)',
+    (bool)preg_match('#^namespace\s+FOG\\\\Pages;#m', $src),
+    'and is declared under FOG\\Pages, the namespace loadPageClasses() '
+        . 'resolves it by',
 ];
 $results[] = [
     (bool)preg_match('#public\s+function\s+index\(\.\.\.\$args\)#', $src),
@@ -96,7 +102,7 @@ $results[] = [
     false === strpos($fogpage, "'logviewer' => self::\$foglang['LogViewer']"),
     'it is gone from the About sub-menu in FOGPage',
 ];
-$submenu = (string)file_get_contents($web . 'lib/hooks/submenudata.hook.php');
+$submenu = (string)file_get_contents($web . 'src/Hooks/SubMenuData.php');
 $results[] = [
     false === strpos($submenu, "'logviewer' => self::\$foglang['LogViewer']"),
     'and from the second copy in SubMenuData::subMenu()',
@@ -106,7 +112,7 @@ $results[] = [
 // years, so it is in bookmarks and in documentation -- same reasoning as
 // History_Report, which ADR 0023 item 4 kept alive as a redirect.
 $conf = (string)file_get_contents(
-    $web . 'lib/pages/fogconfigurationpage.page.php'
+    $web . 'src/Pages/FOGConfigurationPage.php'
 );
 $results[] = [
     (bool)preg_match(

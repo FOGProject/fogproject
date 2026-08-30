@@ -201,6 +201,16 @@ const RULES = [
     'FOGController' => 'Items',
     'FOGService' => 'Service',
     'FOGClient' => 'Client',
+    // The four discovery kinds. Ancestry rather than 52 TABLE rows because
+    // the parent IS the definition of the kind -- a class extending FOGPage
+    // is a page, and there is no way to write one that belongs elsewhere.
+    // ReportManagement before FOGPage: a report extends ReportManagement,
+    // which extends FOGPage, so the more specific ancestor has to be asked
+    // first or every report buckets as a page.
+    'ReportManagement' => 'Reports',
+    'FOGPage' => 'Pages',
+    'Hook' => 'Hooks',
+    'Event' => 'Events',
 ];
 
 const SRC = 'packages/web/src/';

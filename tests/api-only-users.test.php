@@ -58,7 +58,7 @@ $authSrc = file_get_contents($web . '/src/Auth/Authorization.php');
 $schemaSrc = file_get_contents($web . '/commons/schema.php');
 $manifestSrc = file_get_contents($web . '/commons/schema-expected.php');
 $sysSrc = file_get_contents($web . '/src/Base/System.php');
-$pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
+$pageSrc = file_get_contents($web . '/src/Pages/UserManagement.php');
 
 // ---------------------------------------------------------------------------
 // 0. The column exists and the model can read it.

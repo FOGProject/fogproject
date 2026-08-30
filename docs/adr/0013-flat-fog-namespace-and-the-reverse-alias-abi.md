@@ -4,6 +4,72 @@
 
 accepted
 
+## Amended 2026-08-30 — the last flat classes are bucketed, and the flat namespace is gone
+
+**There is no `namespace FOG;` in core any more.** The 52 discovery-named
+classes — 28 pages, 10 hooks, 13 reports, 1 event — that the 2026-08-27
+amendment below kept flat under `lib/` are now PSR-4 files under
+`src/{Pages,Hooks,Reports,Events}`, declaring `FOG\Pages\HostManagement`,
+`FOG\Hooks\BootItem`, `FOG\Reports\Audit_Report`, `FOG\Events\HostList`.
+Their `class_alias` trailers are deleted with them. `lib/` now holds only the
+two AltoRouter files and the plugin roots.
+
+**The reason they stayed is gone, and it was never the reason it looked
+like.** The amendment below says PSR-4 "does not do discovery", which is true
+and is not the constraint. The constraint was that the three discovery sites
+derived a **bare** class name from `basename($file)` and resolved it from the
+global namespace — so the files needed an alias, and an alias is what the rest
+of the migration was retiring. Discovery had to learn a second file shape
+before the classes could move; it had not been taught one. That is a property
+of the loader, not of PSR-4.
+
+**What discovery does now.** Each site reads two sources and merges them:
+
+| Site | Core | Plugins |
+|---|---|---|
+| `FOGPageManager::loadPageClasses()` | `FOGBase::coreitems('Pages')` | `fileitems('.page.php', 'pages')` |
+| `EventManager::load()` (and `HookManager`) | `coreitems($this->fileBucket)` | `fileitems($ext, $dir)` |
+| `ReportManagement::loadCustomReports()` | `coreitems('Reports')` | `fileitems('.report.php', 'reports')` |
+
+`coreitems()` filters `Initiator::srcFileList()`, which is already built and
+already cached, so this costs no extra walk. The name is then derived by
+`FOGBase::classFromDiscoveredFile()`, which strips the discovery extension if
+the file carries one and `.php` otherwise, then hands the result to
+`qualify()`. That one call spans both shapes without branching on provenance:
+`qualify()` maps a name `src/` declares onto its FQCN and passes anything else
+through, so a core class resolves under the only name it now has and a
+plugin's global-namespace class resolves exactly as it always did.
+
+**Nothing changes for plugins.** They keep the
+`<plugin>/<dir>/<name>.<type>.php` shape, keep the global namespace (ADR
+0009), and a namespaced plugin page still requires its own `class_alias` —
+`fileitems()` and the bare-name derivation are still what find it. The one
+edit a plugin needs is to any reference to a class that moved, and in
+`fog-plugins` that was a single name in eight files: `\FOG\ReportManagement`
+became `\FOG\Pages\ReportManagement`.
+
+**The bridge's job is now empty, and it is kept anyway.**
+`Initiator::_bridgeNamespaced()` existed to answer the flat `FOG\<Name>` for
+the 52. With them bucketed, `srcClassMap()` holds every one, so the bridge's
+first arm refuses the flat spelling with an error naming the correct FQCN
+instead of resolving it. That refusal is the whole remaining value — a plugin
+still spelling `\FOG\ReportManagement` gets a log line telling it what to
+write, rather than a bare class-not-found at the call site.
+
+**One user-visible contract had to be preserved by hand.** A report's filename
+was lowercase (`audit_report.report.php`) and three things read it as such: the
+menu label, the base64 `f` URL parameter, and the keys of
+`Authorization::REPORT_NODES`, which is a permission gate. The PSR-4 filename
+is `Audit_Report.php`, so `loadCustomReports()` now lowercases what it used to
+get lowercased for free. Without that one call the same report answers to a
+different URL and a different permission node than it did before — a silent
+authorization change, not a cosmetic one.
+
+**What is gated.** `bin/psr4-scan.php` gained four `RULES` entries deriving the
+bucket from ancestry — `ReportManagement => Reports` before `FOGPage => Pages`,
+since a report's chain reaches both — so `tests/psr4-layout.test.php` now
+covers all 272 classes rather than 220 with 52 excluded by extension.
+
 ## Amended 2026-08-27 — decisions 1 and 2 are both superseded
 
 **Decision 1 (a flat `FOG\` namespace) no longer holds.** Every class under

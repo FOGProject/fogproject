@@ -185,11 +185,24 @@ foreach ($cases as $rawSub => $expect) {
 /*
  * 5. Every REPORT_NODES key names a report that is actually on disk. The key
  *    is filename-derived, so a rename would silently drop the gate.
+ *
+ *    Matched against the LOWERCASED basename rather than stat'ing the key as
+ *    a filename. The keys are lowercase and the PSR-4 files are not
+ *    (`hosts_and_users` vs `Hosts_And_Users.php`), so is_readable() on the
+ *    raw key is false for every one of them on a case-sensitive filesystem.
+ *    Lowercasing here is not a workaround -- it is the exact transform
+ *    ReportManagement::loadCustomReports() applies to build the name that
+ *    reaches this gate, so this now pins the real contract rather than a
+ *    filename that happened to already be lowercase.
  */
+$reportFiles = [];
+foreach ((array) glob($webroot . '/src/Reports/*.php') as $reportPath) {
+    $reportFiles[strtolower(basename($reportPath, '.php'))] = true;
+}
 foreach (Authorization::REPORT_NODES as $report => $node) {
     check(
         "REPORT_NODES key '$report' has a report file",
-        is_readable($webroot . '/lib/reports/' . $report . '.report.php'),
+        isset($reportFiles[$report]),
         $failures,
         $checks
     );
@@ -206,15 +219,15 @@ foreach (Authorization::REPORT_NODES as $report => $node) {
  *    denied reads as a broken page, not as a permission boundary.
  */
 $tabPages = [
-    'hostmanagement' => 'host-login-history',
-    'groupmanagement' => 'group-login-history',
+    'HostManagement' => 'host-login-history',
+    'GroupManagement' => 'group-login-history',
 ];
 foreach ($tabPages as $page => $tabId) {
     $src = (string) @file_get_contents(
-        $webroot . '/lib/pages/' . $page . '.page.php'
+        $webroot . '/src/Pages/' . $page . '.php'
     );
     check(
-        "$page.page.php gates its Login History tab on usertracking.view",
+        "$page.php gates its Login History tab on usertracking.view",
         false !== strpos($src, "Authorization::can('usertracking.view')")
         && false !== strpos($src, $tabId),
         $failures,

@@ -7,7 +7,7 @@
  *
  *   - `service/secureboot.report.php` maps the word FOS sends onto the word
  *     the column stores;
- *   - `lib/pages/hostmanagement.page.php` whitelists what an administrator may
+ *   - `src/Pages/HostManagement.php` whitelists what an administrator may
  *     type into the host form.
  *
  * Neither can see the other, and the failure when they drift is silent in the
@@ -35,7 +35,7 @@
 
 $webroot = dirname(__DIR__) . '/packages/web';
 $endpoint = $webroot . '/service/secureboot.report.php';
-$page = $webroot . '/lib/pages/hostmanagement.page.php';
+$page = $webroot . '/src/Pages/HostManagement.php';
 
 /**
  * Print whatever went wrong and stop, or return if nothing did.
@@ -101,7 +101,7 @@ if (preg_match('/\$sbEnrollVia,\s*\[(.*?)\],/s', $src, $m)) {
 }
 if (count($allowed) < 1) {
     $problems[] = 'could not read the sbenrollvia whitelist out of'
-        . ' lib/pages/hostmanagement.page.php';
+        . ' src/Pages/HostManagement.php';
 }
 stopOnProblems($problems);
 

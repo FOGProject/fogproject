@@ -77,7 +77,7 @@ $errLog = $tmp . '/php-errors.log';
 $prevLog = ini_get('error_log');
 ini_set('error_log', $errLog);
 try {
-    \FOG\Base\FOGBase::startClassFromFiles([$gone], -strlen('.hook.php'));
+    \FOG\Base\FOGBase::startClassFromFiles([$gone], '.hook.php');
 } catch (\Throwable $e) {
     $threw = get_class($e) . ': ' . $e->getMessage();
 }

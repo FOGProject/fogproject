@@ -408,7 +408,7 @@ if (!is_readable('bin/fog-node-key.php')) {
 
 // ...and the UI has to say where to run it, or the value is a dead end.
 $nodePage = (string)file_get_contents(
-    'packages/web/lib/pages/storagenodemanagement.page.php'
+    'packages/web/src/Pages/StorageNodeManagement.php'
 );
 if (false === strpos($nodePage, 'fog-node-key.php')) {
     $fails[] = 'the storage node page no longer tells the administrator how'
@@ -583,7 +583,7 @@ if (!preg_match(
         . ' shared node secret would be readable over REST';
 }
 $configPage = (string)file_get_contents(
-    'packages/web/lib/pages/fogconfigurationpage.page.php'
+    'packages/web/src/Pages/FOGConfigurationPage.php'
 );
 if (false === strpos($configPage, 'NODE_API_KEY_SETTING')) {
     $fails[] = 'the FOG Configuration page no longer drops the node key'

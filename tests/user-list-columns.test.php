@@ -38,7 +38,7 @@ FogTestHarness::boot('user-list-columns');
 $t = new FogChecks();
 
 $web = dirname(__DIR__) . '/packages/web';
-$pageSrc = file_get_contents($web . '/lib/pages/usermanagement.page.php');
+$pageSrc = file_get_contents($web . '/src/Pages/UserManagement.php');
 $jsSrc = file_get_contents(
     $web . '/management/js/fog/user/fog.user.list.js'
 );

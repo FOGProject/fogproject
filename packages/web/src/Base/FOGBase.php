@@ -4675,30 +4675,22 @@ abstract class FOGBase
     /**
      * Starts the class based on the filename passed.
      *
-     * @param array $files  The array of files.
-     * @param int   $strlen How much of file to strip off end to get classname.
+     * @param array  $files     The array of files.
+     * @param string $extension The discovery extension, e.g. '.hook.php'.
      *
      * @return void
      */
-    public static function startClassFromFiles($files, $strlen)
+    public static function startClassFromFiles($files, $extension)
     {
         foreach ($files as &$file) {
-            $className = str_replace(
-                ["\t","\n",' '],
-                '_',
-                substr(
-                    basename($file),
-                    0,
-                    $strlen
-                )
-            );
-            // qualify()d: this is a "have we loaded this file's class
-            // already" short circuit, and a core class loaded under its
-            // namespaced name does not answer to its bare basename now that
-            // the global aliases are gone. Left bare it is merely wasteful
-            // rather than wrong -- the include below is include_once -- but
-            // it would stop short-circuiting for every core file in the list.
-            if (class_exists(self::qualify($className), false)) {
+            // Derives the FQCN for a core file under src/ and the bare name
+            // for a plugin's, which is what the two shapes respectively
+            // answer to. This is also the short circuit -- a core class
+            // loaded under its namespaced name does not answer to its bare
+            // basename now that the global aliases are gone, so deriving it
+            // bare here would stop short-circuiting for every core file.
+            $className = self::classFromDiscoveredFile($file, $extension);
+            if (class_exists($className, false)) {
                 continue;
             }
             // The file list is a TTL-cached snapshot (Initiator::
@@ -4797,6 +4789,70 @@ abstract class FOGBase
                 exit;
             }
         }
+    }
+    /**
+     * Every core class file in one src/ bucket.
+     *
+     * The core half of discovery. Pages, hooks, reports and events used to be
+     * found by fileitems() like everything else, because they sat under
+     * lib/<dir>/ with a *.<type>.php name that both the scan regex in
+     * Initiator::_scanClassFiles() and fileitems()' own path regex could see.
+     * They are PSR-4 files under src/<Bucket>/<Class>.php now, so neither
+     * regex matches them and fileitems() cannot return them at all -- it is
+     * left serving the plugin roots, which is the only place that shape still
+     * exists (ADR 0009).
+     *
+     * Read off Initiator::srcFileList() rather than by walking the bucket:
+     * that map is already built, already cached on its own TTL and already
+     * invalidated by forgetClassFileList(), so this adds no stat to a request
+     * and cannot disagree with what qualify() will resolve.
+     *
+     * @param string $bucket The src/ subdirectory, e.g. 'Pages'.
+     *
+     * @return string[] Absolute file paths.
+     */
+    public static function coreitems(string $bucket): array
+    {
+        $files = [];
+        foreach (\Initiator::srcFileList() as $path) {
+            if (basename(dirname($path)) === $bucket) {
+                $files[] = $path;
+            }
+        }
+        @natcasesort($files);
+        return $files;
+    }
+    /**
+     * The name of the class a discovered file declares.
+     *
+     * Two file shapes reach discovery now and they answer to different names.
+     * A core class is src/<Bucket>/<Class>.php and, since the global aliases
+     * were retired, answers ONLY to its namespaced name. A plugin class is
+     * <plugin>/<dir>/<name>.<type>.php, is global-namespace by design and
+     * answers to its bare basename.
+     *
+     * qualify() spans both without a branch on where the file came from: it
+     * maps a name src/ declares onto its FQCN and passes anything else
+     * through untouched. So a plugin keeps resolving exactly as it did, and
+     * core resolves under the only name it now has.
+     *
+     * @param string $file      Absolute path to the discovered file.
+     * @param string $extension The discovery extension, e.g. '.page.php'.
+     *
+     * @return string FQCN for a core class, bare name for a plugin's.
+     */
+    public static function classFromDiscoveredFile(
+        string $file,
+        string $extension
+    ): string {
+        $base = basename($file);
+        $strlen = -strlen($extension);
+        $short = substr($base, $strlen) === $extension
+            ? substr($base, 0, $strlen)
+            : basename($base, '.php');
+        return self::qualify(
+            str_replace(["\t","\n",' '], '_', $short)
+        );
     }
     /**
      * Get the file items.

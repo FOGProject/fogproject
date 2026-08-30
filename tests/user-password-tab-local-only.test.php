@@ -51,7 +51,7 @@ $root = dirname(__DIR__);
 chdir($root);
 
 $fails = [];
-$pageFile = 'packages/web/lib/pages/usermanagement.page.php';
+$pageFile = 'packages/web/src/Pages/UserManagement.php';
 if (!is_readable($pageFile)) {
     echo "cannot read $pageFile -- run this from the repository\n";
     exit(1);

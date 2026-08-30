@@ -2,7 +2,7 @@
 /**
  * The wiring every ADR 0030 report has to get right, checked once.
  *
- * A report is discovered by FILENAME. lib/reports/*.report.php becomes a
+ * A report is discovered by FILENAME. src/Reports/*.php becomes a
  * menu entry with underscores turned into spaces, so the file name, the
  * class name, the `f` parameter the JS switches on, the REPORT_NODES key
  * and the xgettext registration all have to agree -- and any one of them
@@ -54,7 +54,7 @@ class FogReportWiring
         $tableId,
         array $opts = []
     ) {
-        $report = $web . '/lib/reports/' . $slug . '.report.php';
+        $report = $web . '/src/Reports/' . $class . '.php';
         $t->check("$slug: the report file exists", is_readable($report));
         $src = is_readable($report) ? file_get_contents($report) : '';
 
@@ -75,14 +75,14 @@ class FogReportWiring
         }
 
         $label = str_replace('_', ' ', $slug);
-        $fq = 'FOG\\' . $class;
+        $fq = 'FOG\\Reports\\' . $class;
         $t->check(
             "$slug: the class name matches the file name, so the autoloader finds it",
             class_exists($fq)
         );
         $t->check(
             "$slug: it extends ReportManagement, so it appears in the menu at all",
-            class_exists($fq) && is_subclass_of($fq, 'FOG\ReportManagement')
+            class_exists($fq) && is_subclass_of($fq, 'FOG\Pages\ReportManagement')
         );
 
         $js = (string)@file_get_contents(
@@ -99,7 +99,7 @@ class FogReportWiring
         // the class reads its own $this->title back out of that same map --
         // so this checks BOTH halves: that the row exists, and that the
         // page did not go back to hardcoding a literal beside it.
-        $titles = \FOG\ReportManagement::reportTitles();
+        $titles = \FOG\Pages\ReportManagement::reportTitles();
         $t->check(
             "$slug: it has a label in ReportManagement::reportTitles()",
             isset($titles[$label]) && '' !== trim((string)$titles[$label])

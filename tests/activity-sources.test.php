@@ -83,7 +83,7 @@ function grant(array $perms)
  */
 function activity($method)
 {
-    $m = new \ReflectionMethod('FOG\ActivityManagement', $method);
+    $m = new \ReflectionMethod('FOG\Pages\ActivityManagement', $method);
     $m->setAccessible(true);
     return $m->invoke(null);
 }

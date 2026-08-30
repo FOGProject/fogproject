@@ -306,7 +306,7 @@ $stub->providers = [
     ['label' => '<img src=x onerror=alert(1)>', 'url' => '/fog/ext/ok'],
     ['label' => 'Bad icon', 'url' => '/fog/ext/ok2', 'icon' => '" onmouseover="alert(1)'],
 ];
-$html = \FOG\ProcessLogin::loginProviders();
+$html = \FOG\Pages\ProcessLogin::loginProviders();
 
 foreach (['javascript:', 'data:text/html', 'http://idp.example', '//evil.example'] as $bad) {
     if (false !== strpos($html, $bad)) {
@@ -325,7 +325,7 @@ if (false !== strpos($html, '<img src=x')
     $fails[] = 'provider-supplied markup reached the page unescaped';
 }
 $stub->providers = [];
-if ('' !== \FOG\ProcessLogin::loginProviders()) {
+if ('' !== \FOG\Pages\ProcessLogin::loginProviders()) {
     $fails[] = 'the login form grew a divider with no providers behind it';
 }
 

@@ -304,6 +304,17 @@ re-litigate:
 
 ### The 46 discovery-named files join by namespace only
 
+> **Superseded 2026-08-30.** They moved. All 52 of them (the count grew after
+> this was written) are PSR-4 files under `src/{Pages,Hooks,Reports,Events}`
+> with bucketed namespaces and no aliases. The "HARD constraint" below is
+> restated accurately in ADR 0013's 2026-08-30 amendment: the blocker was that
+> discovery derived a **bare** name and resolved it globally, which is a
+> property of the loader and was fixable, not a property of PSR-4. Discovery
+> now reads core from `src/` and plugins from the old shape, and merges them.
+> The paragraph below is kept because its reasoning about *why the filename
+> was a contract* is still correct — and for reports it is still load-bearing,
+> which is why `loadCustomReports()` now lowercases explicitly.
+
 `FOG\Pages` (26), `FOG\Hooks` (10), `FOG\Reports` (9), `FOG\Events` (1).
 
 `VERIFIED` — this is inside the HARD constraint, because **the discovery
@@ -414,7 +425,7 @@ Commit 1 does not preclude it.
 |---|---|---|
 | Move | **202** | `lib/{fog,db,client,service,reg-task,router}/*.class.php` → `src/<same>/<Class>.php`, `System` included |
 | Stay — ADR 0013 exclusions | 2 | `lib/router/altorouter.class.php`, `altotransformer.class.php` — upstream name, authorship, MIT license |
-| Stay — HARD, discovery-named | 46 | 26 `.page.php`, 10 `.hook.php`, 9 `.report.php`, 1 `.event.php` |
+| ~~Stay — HARD, discovery-named~~ **moved 2026-08-30** | 46 → 52 | 28 `.page.php`, 10 `.hook.php`, 13 `.report.php`, 1 `.event.php`, now `src/{Pages,Hooks,Reports,Events}` |
 | Stay — generated | 1 | `lib/fog/config.class.php` |
 
 `VERIFIED` — the 46 discovery-named files are reached only through

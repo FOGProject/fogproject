@@ -1,0 +1,453 @@
+<?php
+/**
+ * Module management page
+ *
+ * PHP version 7.4+
+ *
+ * The module represented to the GUI
+ *
+ * @category ModuleManagement
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+
+namespace FOG\Pages;
+
+use FOG\Base\FOGPage;
+
+/**
+ * Module management page
+ *
+ * The Module represented to the GUI
+ *
+ * @category ModuleManagement
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+class ModuleManagement extends FOGPage
+{
+    /**
+     * The node that uses this class
+     *
+     * @var string
+     */
+    public $node = 'module';
+    /**
+     * Initializes the module page
+     *
+     * @param string $name the name to construct with
+     *
+     * @return void
+     */
+    public function __construct($name = '')
+    {
+        $this->name = _('Module Management');
+        parent::__construct($this->name);
+        $this->headerData = [
+            _('Name'),
+            _('Short Name')
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+    }
+    /**
+     * Builds the create-form fields (shared by add() and addModal()).
+     *
+     * @return array
+     */
+    protected function _addFields()
+    {
+        $module = filter_input(INPUT_POST, 'module');
+        $description = filter_input(INPUT_POST, 'description');
+        $shortname = filter_input(INPUT_POST, 'shortname');
+        $isDefault = isset($_POST['isDefault']) ? ' checked' : '';
+
+        $labelClass = 'col-sm-3 col-form-label';
+
+        // The fields to display
+        return [
+            self::makeLabel(
+                $labelClass,
+                'module',
+                _('Module Name')
+            ) => self::makeInput(
+                'form-control modulename-input',
+                'module',
+                _('Module Name'),
+                'text',
+                'module',
+                $module,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Module Description')
+            ) => self::makeTextarea(
+                'form-control moduledescription-input',
+                'description',
+                _('Module Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'shortname',
+                _('Module Short Name')
+            ) => self::makeInput(
+                'form-control moduleshortname-input',
+                'shortname',
+                _('short'),
+                'text',
+                'shortname',
+                $shortname
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isDefault',
+                _('Module Default?')
+            ) => self::makeInput(
+                'moduleisdefault-input',
+                'isDefault',
+                '',
+                'checkbox',
+                'isDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isDefault
+            )
+        ];
+    }
+    /**
+     * Create a new module.
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $this->renderAddForm(
+            'module',
+            _('Create New Module'),
+            'MODULE_ADD_FIELDS',
+            'Module'
+        );
+    }
+    /**
+     * Create a new module.
+     *
+     * @return void
+     */
+    public function addModal()
+    {
+        $this->renderAddModalForm(
+            'module',
+            'MODULE_ADD_FIELDS',
+            'Module'
+        );
+    }
+    /**
+     * When submitted to add post this is what's run
+     *
+     * @return void
+     */
+    public function addPost()
+    {
+        $this->handleAddPost(
+            'Module',
+            'MODULE_ADD',
+            _('Module added!'),
+            _('Module Create Success'),
+            _('Module Create Fail'),
+            function (&$serverFault) {
+                $module = trim(
+                    filter_input(INPUT_POST, 'module')
+                );
+                $description = trim(
+                    filter_input(INPUT_POST, 'description')
+                );
+                $shortname = trim(
+                    filter_input(INPUT_POST, 'shortname')
+                );
+                $isDefault = (int)isset($_POST['isDefault']);
+                $exists = self::getClass('ModuleManager')
+                    ->exists($module);
+                if ($exists) {
+                    throw new \Exception(
+                        _('A module already exists with this name!')
+                    );
+                }
+                $Module = self::getClass('Module')
+                    ->set('name', $module)
+                    ->set('description', $description)
+                    ->set('shortName', $shortname)
+                    ->set('isDefault', $isDefault);
+                if (!$Module->save()) {
+                    $serverFault = true;
+                    throw new \Exception(_('Add module failed!'));
+                }
+                return $Module;
+            }
+        );
+    }
+    /**
+     * Displays the module general tab.
+     *
+     * @return void
+     */
+    public function moduleGeneral()
+    {
+        $module = (
+            filter_input(INPUT_POST, 'module') ?:
+            $this->obj->get('name')
+        );
+        $description = (
+            filter_input(INPUT_POST, 'description') ?:
+            $this->obj->get('description')
+        );
+        $shortname = (
+            filter_input(INPUT_POST, 'shortname') ?:
+            $this->obj->get('shortName')
+        );
+        $isDefault = (
+            isset($_POST['isDefault']) ?
+            ' checked' :
+            (
+                $this->obj->get('isDefault') ?
+                ' checked' :
+                ''
+            )
+        );
+
+        $labelClass = 'col-sm-3 col-form-label';
+
+        $fields = [
+            self::makeLabel(
+                $labelClass,
+                'module',
+                _('Module Name')
+            ) => self::makeInput(
+                'form-control modulename-input',
+                'module',
+                _('Module Name'),
+                'text',
+                'module',
+                $module,
+                true
+            ),
+            self::makeLabel(
+                $labelClass,
+                'description',
+                _('Module Description')
+            ) => self::makeTextarea(
+                'form-control moduledescription-input',
+                'description',
+                _('Module Description'),
+                'description',
+                $description
+            ),
+            self::makeLabel(
+                $labelClass,
+                'shortname',
+                _('Module Short Name')
+            ) => self::makeInput(
+                'form-control moduleshortname-input',
+                'shortname',
+                _('short'),
+                'text',
+                'shortname',
+                $shortname
+            ),
+            self::makeLabel(
+                $labelClass,
+                'isDefault',
+                _('Module Default?')
+            ) => self::makeInput(
+                'moduleisdefault-input',
+                'isDefault',
+                '',
+                'checkbox',
+                'isDefault',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isDefault
+            )
+        ];
+
+        $buttons = self::makeButton(
+            'general-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        );
+        $buttons .= self::makeButton(
+            'general-delete',
+            _('Delete'),
+            'btn btn-danger'
+        );
+
+        self::$HookManager->processEvent(
+            'MODULE_GENERAL_FIELDS',
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'Module' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields);
+        unset($fields);
+
+        $this->renderGeneralForm('module', $rendered, $buttons);
+    }
+    /**
+     * Module general post element
+     *
+     * @return void
+     */
+    public function moduleGeneralPost()
+    {
+        self::checkAuthAndCSRF();
+        $module = trim(
+            filter_input(INPUT_POST, 'module')
+        );
+        $description = trim(
+            filter_input(INPUT_POST, 'description')
+        );
+        $shortname = trim(
+            filter_input(INPUT_POST, 'shortname')
+        );
+        $isDefault = (int)isset($_POST['isDefault']);
+        if ($module != $this->obj->get('name')) {
+            if ($this->obj->getManager()->exists($module)) {
+                throw new \Exception(_('Please use another module name'));
+            }
+        }
+        // Set the module relative items.
+        $this->obj
+            ->set('name', $module)
+            ->set('description', $description)
+            ->set('shortName', $shortname)
+            ->set('isDefault', $isDefault);
+    }
+    /**
+     * Module hosts display.
+     *
+     * @return void
+     */
+    public function moduleHosts()
+    {
+        $this->renderAssocTab(
+            'module-host',
+            _('Module Host Associations'),
+            _('Host Name'),
+            'host'
+        );
+    }
+    /**
+     * Update the module hosts.
+     *
+     * @return void
+     */
+    public function moduleHostPost()
+    {
+        $this->assocPost('addHost', 'removeHost');
+    }
+    /**
+     * The module edit display method
+     *
+     * @return void
+     */
+    public function edit()
+    {
+        $tabData = [];
+
+        // General
+        $tabData[] = [
+            'name' => _('General'),
+            'id' => 'module-general',
+            'generator' => function () {
+                $this->moduleGeneral();
+            }
+        ];
+
+        // Associations
+        $tabData[] = [
+            'tabs' => [
+                'name' => _('Associations'),
+                'tabData' => [
+                    [
+                        'name' => _('Host Associations'),
+                        'id' => 'module-host',
+                        'generator' => function () {
+                            $this->moduleHosts();
+                        }
+                    ]
+                ]
+            ]
+        ];
+        $this->renderEditTabs($tabData, $this->obj);
+    }
+    /**
+     * Submit the edit function.
+     *
+     * @return void
+     */
+    public function editPost()
+    {
+        $this->handleEditPost(
+            'Module',
+            'MODULE_EDIT',
+            _('Module updated!'),
+            _('Module Update Success'),
+            _('Module Update Fail'),
+            function (&$serverFault) {
+                global $tab;
+                switch ($tab) {
+                    case 'module-general':
+                        $this->moduleGeneralPost();
+                        break;
+                    case 'module-host':
+                        $this->moduleHostPost();
+                        break;
+                }
+                if (!$this->obj->save()) {
+                    $serverFault = true;
+                    throw new \Exception(_('Module update failed!'));
+                }
+            }
+        );
+    }
+    /**
+     * Presents the hosts list table.
+     *
+     * @return void
+     */
+    public function getHostsList()
+    {
+        return $this->assocItemsList(
+            'host',
+            'moduleassociation',
+            'moduleStatusByHost',
+            '`hosts`.`hostID`',
+            '`moduleStatusByHost`.`msHostID`',
+            '`moduleStatusByHost`.`msModuleID`',
+            [
+                [
+                    'db' => 'moduleAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+}

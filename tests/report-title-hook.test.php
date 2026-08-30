@@ -35,7 +35,7 @@ require __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('report-title-hook');
 FogTestHarness::fakeDb();
 
-use FOG\ReportManagement;
+use FOG\Pages\ReportManagement;
 
 $t = new FogChecks();
 

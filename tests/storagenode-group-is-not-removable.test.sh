@@ -39,7 +39,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
 WEB="$REPO/packages/web"
 RENDER="$WEB/src/Base/FOGPageRender.php"
-PAGE="$WEB/lib/pages/storagegroupmanagement.page.php"
+PAGE="$WEB/src/Pages/StorageGroupManagement.php"
 COMMON="$WEB/management/js/fog/fog.common.js"
 EDIT="$WEB/management/js/fog/storagegroup/fog.storagegroup.edit.js"
 

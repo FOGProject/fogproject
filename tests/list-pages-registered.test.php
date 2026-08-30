@@ -82,7 +82,7 @@ if (count($searchPages) < 10) {
  */
 function self_serves_index($webroot, $node)
 {
-    foreach (glob($webroot . '/lib/pages/*.page.php') as $page) {
+    foreach (glob($webroot . '/src/Pages/*.php') as $page) {
         $src = file_get_contents($page);
         if (!preg_match('/public \$node\s*=\s*\'' . $node . '\';/', $src)) {
             continue;

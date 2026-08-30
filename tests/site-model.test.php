@@ -313,12 +313,12 @@ check(
  */
 check(
     'SiteManagement page resolves',
-    class_exists('SiteManagement', true),
+    class_exists('FOG\Pages\SiteManagement', true),
     $failures,
     $checks
 );
-if (class_exists('SiteManagement', true)) {
-    $pref = new \ReflectionClass('SiteManagement');
+if (class_exists('FOG\Pages\SiteManagement', true)) {
+    $pref = new \ReflectionClass('FOG\Pages\SiteManagement');
     check(
         'SiteManagement page resolves to core, not to a plugin copy',
         false === strpos($pref->getFileName(), DIRECTORY_SEPARATOR . 'plugins'),
