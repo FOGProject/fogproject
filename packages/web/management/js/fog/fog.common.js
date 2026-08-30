@@ -3424,6 +3424,84 @@ function fogMemoizeResponsiveMeasure() {
     });
   });
 }
+/**
+ * Is a scrolling table already sized correctly for the box it is in?
+ *
+ * columns.adjust() is the expensive half of every sizing pass -- it fires
+ * column-sizing, which Responsive answers by re-measuring the whole loaded
+ * page of rows -- and on a normal page load DataTables has already run it
+ * several times of its own accord before FOG's .app-main ResizeObserver ever
+ * fires: once when Responsive is constructed, once when the first response
+ * makes the body overflow, once when Responsive settles which columns fit, and
+ * once at init complete. That observer also fires for HEIGHT changes, and the
+ * rows rendering is a height change, so the pass it wakes was re-doing work
+ * the library had already done: ~50ms on an 86-row host list, for a set of
+ * widths that came out byte-identical.
+ *
+ * What could not be answered by asking "have the inputs changed since last
+ * time" is that the library's own adjust is sometimes not the last word.
+ * Below the sidebar breakpoint the vertical scrollbar appears as a CONSEQUENCE
+ * of the adjust that sized the table, so DataTables leaves the body table 15px
+ * wider than the viewport it sits in and the pass here is what converges it.
+ * An input-based gate skipped that and left the grid with a horizontal
+ * scrollbar at 860px and 700px (771px of table in a 756px body).
+ *
+ * So ask the question directly instead. Two things have to hold, and if they
+ * do, another adjust cannot produce a different answer:
+ *
+ *  - the body table exactly fills the scroll body's client area, which is what
+ *    goes wrong when a scrollbar appears or disappears under it;
+ *  - every header cell is the same width as the body cell beneath it, which is
+ *    the misalignment the whole sizing path exists to prevent.
+ *
+ * Both are read after the max-height write, since that is an input to whether
+ * the scrollbar is there at all.
+ *
+ * A table with no split (a paged one) has nothing to prove either way, so it
+ * says no and is adjusted as before.
+ *
+ * @param {object} dt the DataTables API for the table
+ *
+ * @return {boolean} true when an adjust would be a no-op
+ */
+function fogColumnsAligned(dt) {
+  var container = dt.table().container(),
+    scrollBody = $('div.dt-scroll-body', container)[0],
+    head = $('div.dt-scroll-head table', container)[0],
+    body = $('div.dt-scroll-body table', container)[0],
+    headCells,
+    bodyCells,
+    i;
+  if (!scrollBody || !head || !body) {
+    return false;
+  }
+  // clientWidth is an integer and the table's box is not, so a pixel of slack:
+  // the mismatch this is looking for is a whole scrollbar wide.
+  if (Math.abs(body.getBoundingClientRect().width - scrollBody.clientWidth) > 1) {
+    return false;
+  }
+  // No rows, or the "no matching records" placeholder (one cell spanning the
+  // lot): no column boundaries to be out of line.
+  if (body.querySelector('tbody td.dt-empty')) {
+    return true;
+  }
+  headCells = head.querySelectorAll('thead tr:first-child > th, thead tr:first-child > td');
+  bodyCells = body.querySelectorAll('tbody tr:first-child > th, tbody tr:first-child > td');
+  if (!bodyCells.length) {
+    return true;
+  }
+  if (headCells.length !== bodyCells.length) {
+    return false;
+  }
+  for (i = 0; i < headCells.length; i++) {
+    if (Math.abs(headCells[i].getBoundingClientRect().width -
+      bodyCells[i].getBoundingClientRect().width) > 1
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
 function fogSizeScroller(dt, release) {
   // dt.init() can be null for nodes the table.dataTable selector also matches
   // but that aren't fully-initialized Scroller tables (e.g. the scrollY split
@@ -3436,14 +3514,6 @@ function fogSizeScroller(dt, release) {
   var container = dt.table().container(),
     body = $('div.dt-scroll-body', container);
   if (!body.length || !body.is(':visible')) {
-    // Forget what the last pass measured. A table that has been hidden may be
-    // re-cloned or re-laid-out before it comes back, so the next visible pass
-    // has to re-adjust even if the window is the size it was -- the signature
-    // below would otherwise match and skip it.
-    var hidden = dt.settings()[0];
-    if (hidden) {
-      hidden._fogSizeSignature = null;
-    }
     return; // not rendered, or in a hidden tab
   }
   var bodyRect = body[0].getBoundingClientRect(),
@@ -3519,48 +3589,16 @@ function fogSizeScroller(dt, release) {
   // keeps its zero-width header/body split (header narrow, body full-width)
   // until the columns are adjusted once it becomes visible.
   //
-  // Gated, because this is the expensive half and most calls have nothing to
-  // do. columns.adjust() fires column-sizing, and Responsive answers that by
-  // cloning the whole current page of rows into a hidden table to read a
-  // column width off each one -- ~130ms a time on an 86-row host list, and
-  // Scroller's "current page" is every row it has loaded. This function runs
-  // three times on a normal page load (the deferred pass below
-  // registerTable(), the post-draw re-adjust above, and fogAdjustAllTables()
-  // off the .app-main ResizeObserver), and the last of those is woken by the
-  // rows the earlier passes drew rather than by anything that moved a column.
-  //
-  // Three things decide whether the split needs re-measuring: the height we
-  // just set, the container's width, and whether the body overflows -- that
-  // last one because DataTables reserves the scrollbar's width on the header
-  // when it does, which is the whole point of the post-draw pass above (the
-  // row count settles, the overflow goes away, and the reservation has to come
-  // back off). Same three as last time means the answer would be identical, so
-  // skip it. Sampled AFTER the max-height write, since that is an input to the
-  // overflow.
+  // Gated on fogColumnsAligned(), because this is the expensive half and most
+  // calls have nothing to do -- see that function for what "nothing to do"
+  // means and how it is decided.
   //
   // The colgroup widths have to be released before the adjust to let the table
   // narrow (see fogReleaseColWidths), so that is done here rather than by the
   // caller -- releasing them and then skipping the adjust would leave the
   // table on auto widths.
-  //
-  // The visible column set is in the signature too. Hiding or showing a column
-  // changes neither the height nor the container width, so without it the
-  // ResizeObserver pass that follows a visibility toggle would match the
-  // previous signature and skip -- leaving the colgroup widths written for the
-  // old column set, which the table then redistributes rather than
-  // re-measuring. Header and body stay in step either way, but the table
-  // settles at the wrong width (measured 1326px against 1246px on the host
-  // list, hiding then re-showing one column).
-  var el = body[0],
-    signature = avail + '|'
-      + Math.round(container.getBoundingClientRect().width) + '|'
-      + (el.scrollHeight > el.clientHeight ? 1 : 0) + '|'
-      + dt.columns(':visible').indexes().toArray().join(',');
-  if (settings && settings._fogSizeSignature === signature) {
+  if (fogColumnsAligned(dt)) {
     return;
-  }
-  if (settings) {
-    settings._fogSizeSignature = signature;
   }
   if (release) {
     fogReleaseColWidths(dt.table().node());
