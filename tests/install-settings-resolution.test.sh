@@ -296,7 +296,7 @@ for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
     fi
 done
 
-# All 67 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# All 68 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
 # starts being overwritten. That is a behavior change even though it looks
 # like documentation, so the count is asserted as well as the membership.
@@ -317,7 +317,7 @@ modelKeys="
     PKI_web_external_root_cert PKI_web_trust_chain PKI_web_vhost_cert PKI_web_vhost_key
     STORAGE_image_share_path STORAGE_rebuild_nfs_exports SVC_firewall_control SVC_password
     SVC_user WEB_docroot WEB_https_redirect WEB_php_version
-    WEB_root WEB_server_engine WEB_url_proto"
+    WEB_root WEB_server_engine WEB_url_primary WEB_url_proto"
 missing=""
 for key in $modelKeys; do
     inlist "$key" "$managed" || missing="$missing $key"

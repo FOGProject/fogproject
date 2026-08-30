@@ -110,6 +110,20 @@ printf 'server {\n    ssl_certificate_key %s;\n}\n' "$WORK/served.key" > "$etcco
 PKI_web_vhost_cert="$WORK/fogown.pem"
 check "$(_servedCertName)" "fogown.example.org" "C: ssl_certificate_key is not read as the leaf"
 
+# C2. The vhost names a file that EXISTS but is not a certificate. The first
+#     existing candidate wins outright, so the answer falls through to
+#     ${NET_hostname} rather than to FOG's own leaf -- deliberately. Reporting a CN
+#     read off a certificate the browser is NOT being served is worse than
+#     reporting none: every URL printed from it looks authoritative and warns
+#     anyway. Pinned because the loop this replaced did the opposite silently.
+reset_env
+etcconf="$WORK/junkleaf.conf"
+printf 'not a certificate\n' > "$WORK/junk.pem"
+printf 'server {\n    ssl_certificate %s;\n}\n' "$WORK/junk.pem" > "$etcconf"
+PKI_web_vhost_cert="$WORK/fogown.pem"
+NET_hostname="fog.example.org"
+check "$(_servedCertName)" "fog.example.org" "C2: an unparseable served leaf does not fall back to FOG's own"
+
 # D. No vhost to consult -- fall back to FOG's own leaf.
 reset_env
 PKI_web_vhost_cert="$WORK/fogown.pem"
