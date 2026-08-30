@@ -75,10 +75,25 @@ else
         # write-version-file.sh every feature branch generated the bare
         # release string and the whole mechanism silently did nothing.
         #
-        # Skipped when the commit count is not computable -- a checkout with
-        # no master ref -- since the two legitimately coincide there.
+        # Only meaningful where a prefix COULD have been resolved. CI checks
+        # out a detached merge ref with none of the long-lived branches
+        # fetched, so the generator correctly resolves nothing and falls back
+        # -- the two coinciding there is right, not a regression. Same for a
+        # checkout with no master ref, where the count is not computable.
+        resolvable=no
+        case "$(git -C "$repo" branch --show-current 2>/dev/null)" in
+            working-*|dev-*|stable|rc-*|feature-*) resolvable=yes ;;
+        esac
+        if [ "$resolvable" = "no" ]; then
+            for candidate in working-1.6 dev-branch stable; do
+                for ref in "refs/heads/$candidate" "refs/remotes/origin/$candidate"; do
+                    git -C "$repo" rev-parse --verify --quiet "$ref" >/dev/null 2>&1 &&
+                        resolvable=yes
+                done
+            done
+        fi
         count=$(git -C "$repo" rev-list master..HEAD --count 2>/dev/null || true)
-        if [ -n "$count" ] && [ "$count" -gt 0 ] 2>/dev/null; then
+        if [ "$resolvable" = "yes" ] && [ -n "$count" ] && [ "$count" -gt 0 ] 2>/dev/null; then
             gen=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$generated" | tr -d '[[:space:]]')
             fallback=$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$system" | tr -d '[[:space:]]')
             if [ "$gen" = "$fallback" ]; then
