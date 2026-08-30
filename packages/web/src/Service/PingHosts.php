@@ -54,6 +54,19 @@ class PingHosts extends FOGService
      */
     public static $sleepdefault = 300;
     /**
+     * Longest a name that failed to resolve is taken on trust, in seconds.
+     *
+     * The ceiling on how late this daemon can be to notice a host that has
+     * just been added to DNS; the actual per-name value is jittered below it
+     * so the re-checks spread out instead of all landing in one cycle. An
+     * hour is chosen against the 300 s cycle above -- long enough that the
+     * saving survives many cycles, short enough that an admin who fixes DNS
+     * does not have to restart the daemon to see it.
+     *
+     * @var int
+     */
+    const UNRESOLVED_TTL = 3600;
+    /**
      * Initializes the PingHost Class
      *
      * @return void
@@ -206,35 +219,60 @@ class PingHosts extends FOGService
                     $skip[(int)$row['id']] = true;
                 }
             }
-            // Resolution is still one blocking gethostbyname() per host, and
-            // with the connects batched it is now the DOMINANT cost of a
-            // cycle -- not a rounding error. A name that resolves is cheap; a
-            // name that does NOT costs a full resolver timeout, and a fleet
-            // whose hosts are not in DNS is the normal case rather than the
-            // pathological one.
+            // Resolution is one blocking gethostbyname() per host, and with
+            // the connects batched it WAS the dominant cost of a cycle --
+            // measured on an 88-host database where 86 names do not resolve,
+            // the whole cycle was 5m26s, of which the ping batch was 2s and
+            // the rest was here. Batching the connects had cut roughly three
+            // minutes off that (86 x 2s of connect timeout became one 2s
+            // window) but only moved the bottleneck rather than removing it.
             //
-            // Measured on an 88-host database where 86 names do not resolve:
-            // the whole cycle is 5m26s, of which the ping batch is 2s and the
-            // rest is here. Batching the connects still cut roughly 3 minutes
-            // off that (86 x 2s of connect timeout became one 2s window), but
-            // it did not make the cycle fast -- it moved the bottleneck.
+            // What removes it is caching the FAILURES, which is cheap because
+            // the cost is wildly asymmetric and nothing else caches it:
             //
-            // Left as it is deliberately, for now: core PHP has no
-            // asynchronous resolver, so removing this cost means either
-            // forking a resolver pool or giving the pinger an address that
-            // does not need looking up. The second is the real fix and it is
-            // a design decision, not a refactor -- hosts.hostIP exists and is
-            // written by nothing at all today.
+            //   a name that resolves  :    0.2 ms local, 23.8 ms remote
+            //   a name that does not  : 3776.3 ms, every single cycle
+            //
+            // Successes are still resolved every cycle, so a host that moves
+            // is pinged at its new address on the next one. Only the misses
+            // are held, and a held miss is not a new wrong answer -- an
+            // unresolvable name already records ENXIO without a connect
+            // being attempted (see Ping::executeBatch), so the cached path
+            // and the fresh path produce the same result. What it can miss
+            // is a host that STARTS resolving mid-run, which is what the TTL
+            // and its per-name jitter bound.
+            //
+            // This is not the end state. Giving the pinger an address it does
+            // not have to look up at all is still the real fix, and
+            // hosts.hostIP exists and is written by nothing today -- but that
+            // is a schema and client-protocol decision, and this is not.
             $targets = [];
             $names = [];
             $skipped = 0;
+            $before = self::resolverCalls();
             foreach ($hosts as $host) {
                 if (isset($skip[(int)$host->id])) {
                     $skipped++;
                     continue;
                 }
                 $names[$host->id] = $host->name;
-                $targets[$host->id] = self::resolveHostname($host->name);
+                $targets[$host->id] = self::resolveHostname(
+                    $host->name,
+                    self::UNRESOLVED_TTL
+                );
+            }
+            $looked = self::resolverCalls() - $before;
+            $cached = count($targets) - $looked;
+            if ($cached > 0) {
+                self::outall(
+                    sprintf(
+                        ' * %s: %d, %s: %d',
+                        _('Names looked up'),
+                        $looked,
+                        _('served from the unresolved cache'),
+                        $cached
+                    )
+                );
             }
             if ($skipped > 0) {
                 self::outall(
