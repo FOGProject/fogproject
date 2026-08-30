@@ -5544,14 +5544,32 @@ _resolveTrustAnchor() {
 # has not written a leaf yet -- ${NET_hostname} is the same answer one step early.
 # ${NET_fog_server_ip} is last and is only ever right for a FOG-issued certificate, since
 # no public CA will issue for an address at all.
-_servedCertName() {
-    local cert cn candidate
+# The certificate file the browser is actually served, or empty.
+#
+# Split out of _servedCertName() so that anything else asking a question about
+# the SERVED certificate -- rather than about its commonName -- resolves the
+# same file by the same precedence, instead of re-listing the candidates and
+# drifting out of step with it.
+#
+# First existing candidate wins outright. The loop this replaced went on to the
+# next candidate when a file's commonName would not parse, which could report a
+# name off a certificate the browser is not being served -- worse than reporting
+# none, because a URL printed from it looks authoritative and warns anyway.
+_servedCertPath() {
+    local cert candidate
     local -a candidates=()
     candidate=$(_vhostCertPath)
     [[ -n $candidate ]] && candidates+=("$candidate")
     candidates+=("${PKI_web_vhost_cert}" "$sslfullchain")
     for cert in "${candidates[@]}"; do
-        [[ -n $cert && -f $cert ]] || continue
+        [[ -n $cert && -f $cert ]] && { echo "$cert"; return 0; }
+    done
+    return 1
+}
+_servedCertName() {
+    local cert cn
+    cert=$(_servedCertPath)
+    if [[ -n $cert ]]; then
         # -nameopt multiline rather than parsing the one-line form: the compact
         # subject is rendered differently across openssl versions (leading
         # slash, spaces around '='), and a CN containing a comma cannot be
@@ -5559,7 +5577,7 @@ _servedCertName() {
         cn=$(openssl x509 -noout -subject -nameopt multiline -in "$cert" 2>/dev/null \
             | awk -F' = ' '/commonName/{print $2; exit}')
         [[ -n $cn ]] && { echo "$cn"; return 0; }
-    done
+    fi
     [[ -n ${NET_hostname} ]] && { echo "${NET_hostname}"; return 0; }
     echo "${NET_fog_server_ip}"
 }
@@ -5572,9 +5590,23 @@ _servedCertName() {
 # new server was a security warning, with nothing on screen to say the name that
 # would have worked.
 #
-# So print both, name first. The address still has to be here -- DNS may not
-# have caught up yet, and it is the only thing that works on a server with no
-# usable name at all -- but as the fallback it is, not as the headline.
+# So print both, name first by default. The address still has to be here -- DNS
+# may not have caught up yet, and it is the only thing that works on a server
+# with no usable name at all -- but as the fallback it is, not as the headline.
+#
+# ${WEB_url_primary} overrides which one leads, because "the name is the better
+# headline" is true of the general case and not of every network. On a server
+# whose address is what every machine already uses, and whose name resolves for
+# a subset of them, name-first buries the URL that actually works. It is a
+# .fogsettings key with no flag and no prompt on purpose: an admin who wants it
+# is editing that file anyway, and it changes nothing but two lines of output.
+#
+# What it does NOT do is change what the explanation says. Ordering is a
+# preference; whether the address is a name mismatch is a fact about the
+# certificate, read below from the certificate. Setting WEB_url_primary=address
+# on a names-only leaf therefore puts the address first AND says plainly that it
+# will warn -- rather than silently recommending a URL that does not work
+# cleanly.
 #
 # The name comes from _servedCertName, i.e. the commonName of the certificate
 # actually on disk, rather than from ${NET_hostname}. Those differ on exactly
@@ -5584,36 +5616,70 @@ _servedCertName() {
 # admin to a URL that warns just as loudly as the address, while implying it
 # would not.
 _managementUrls() {
-    local name="" ip="${NET_fog_server_ip}"
+    local name="" ip="${NET_fog_server_ip}" cert="" ipcovered=no
     name=$(_servedCertName)
     # _servedCertName's own last resort IS the address, so it can hand back the
     # very thing the fallback line prints. Suppress the name line rather than
     # printing the same URL twice with different captions.
     [[ -z $name || $name == "$ip" || $(validip "$name") -eq 0 ]] && name=""
 
+    # Does the served certificate cover the ADDRESS as well as the name? A
+    # FOG-issued leaf does, by construction -- configureHttpd writes an IP SAN
+    # for every address in ${PKI_san_ip_addresses} -- so on the ordinary install
+    # reaching the portal by address is not a name mismatch at all, and the text
+    # below must not claim it is. That claim was unconditional until GH-1488 and
+    # was wrong on every default install: what the browser objects to there is
+    # FOG's CA being untrusted, which both URLs get equally.
+    #
+    # A publicly-issued or ACME leaf carries names and no address, since no
+    # public CA will issue for an address. That is the install the mismatch
+    # warning was written for and still the one it is right for.
+    cert=$(_servedCertPath)
+    [[ ${WEB_url_proto} == https && -n $cert ]] \
+        && _certServesAddress "$cert" "$ip" && ipcovered=yes
+
     echo "   This can be done by opening a web browser and going to:"
     echo
-    [[ -n $name ]] && echo "   ${WEB_url_proto}://${name}${WEB_root}management"
-    echo "   ${WEB_url_proto}://${ip}${WEB_root}management"
+    if [[ -n $name && ${WEB_url_primary} == address ]]; then
+        echo "   ${WEB_url_proto}://${ip}${WEB_root}management"
+        echo "   ${WEB_url_proto}://${name}${WEB_root}management"
+    else
+        [[ -n $name ]] && echo "   ${WEB_url_proto}://${name}${WEB_root}management"
+        echo "   ${WEB_url_proto}://${ip}${WEB_root}management"
+    fi
     # The blank line belongs to the explanation, so it is emitted per branch
     # rather than up front -- an HTTP install with no name has nothing to
     # explain, and an unconditional echo there just orphans a blank line.
     if [[ ${WEB_url_proto} == https ]]; then
         echo
-        if [[ -n $name ]]; then
+        if [[ -z $name ]]; then
+            echo "   This server has no name in its certificate, only the address, so"
+            echo "   the browser will warn about the certificate every time. Give it a"
+            echo "   resolvable name with --hostname and re-run to fix that."
+        elif [[ $ipcovered == yes ]]; then
+            # Deliberately "neither is a name mismatch" and not "will not warn":
+            # a FOG-issued leaf chains to FOG's own CA, which no browser trusts
+            # until someone imports it, and that warning lands on both URLs.
+            echo "   Either works -- the certificate covers the address as well as the"
+            echo "   name, so neither is a name mismatch. The address needs no DNS; the"
+            echo "   name it is issued for is ${name}."
+        elif [[ ${WEB_url_primary} == address ]]; then
+            # WEB_url_primary moved the address to the top and this certificate
+            # does not cover it. Say so rather than leaving a recommendation
+            # that warns: the setting orders the URLs, it does not make one work.
+            echo "   The address is first because WEB_url_primary=address in"
+            echo "   .fogsettings, but this certificate carries names only -- so reaching"
+            echo "   the server by address is a name mismatch and the browser will say"
+            echo "   so. The name it is issued for is ${name}."
+        else
             echo "   Use the first one. It is the name this server's certificate is"
             echo "   issued for, so it is the only one that will not warn. The address"
             echo "   works too -- useful before DNS catches up -- but the browser will"
             echo "   object that the certificate names ${name} instead."
-        else
-            echo "   This server has no name in its certificate, only the address, so"
-            echo "   the browser will warn about the certificate every time. Give it a"
-            echo "   resolvable name with --hostname and re-run to fix that."
         fi
     elif [[ -n $name ]]; then
         echo
-        echo "   Either works. The name is ${name}; the address is there for"
-        echo "   before DNS catches up."
+        echo "   Either works. The address needs no DNS; the name is ${name}."
     fi
 }
 # The DNS names a certificate carries as subjectAltName entries.
@@ -5636,6 +5702,32 @@ _certDnsNames() {
                grab { exit }' \
         | tr ',' '\n' \
         | sed -n 's/^[[:space:]]*DNS:[[:space:]]*//p'
+}
+# Does the certificate at $1 carry the IP address in $2 as a subjectAltName?
+#
+# Addresses are matched literally, never by the name rules in _certServesName:
+# there is no wildcard form for an address, and no commonName fallback either --
+# an address in a CN is not an iPAddress SAN and no TLS client accepts it as
+# one. So the only question is whether the exact string appears in the SAN list.
+#
+# Same -text/awk extraction as _certDnsNames, for the same reason: `openssl
+# x509 -ext subjectAltName` needs OpenSSL 1.1.1 and this has to run wherever the
+# installer does. openssl renders these as "IP Address:10.0.0.1"; IPv6 comes out
+# in openssl's own normalized form, so a literal comparison only holds for a
+# value that came from the same place -- which ${NET_fog_server_ip} does, having
+# been written into the SAN list by configureHttpd from ${PKI_san_ip_addresses}.
+_certServesAddress() {
+    local cert="$1" ip="$2" n
+    [[ -n $cert && -f $cert && -n $ip ]] || return 1
+    while IFS= read -r n; do
+        [[ -n $n && $n == "$ip" ]] && return 0
+    done < <(openssl x509 -noout -text -in "$cert" 2>/dev/null \
+        | awk '/X509v3 Subject Alternative Name/ { grab = 1; next }
+               grab && /^[[:space:]]+(DNS|IP|IP Address|email|URI|DirName|othername|Registered ID):/ { print; next }
+               grab { exit }' \
+        | tr ',' '\n' \
+        | sed -n 's/^[[:space:]]*IP Address:[[:space:]]*//p')
+    return 1
 }
 # Does the certificate at $1 serve the name in $2?
 #
@@ -6456,8 +6548,14 @@ writeUpdateFile() {
         # Persisting it is what makes that migration one-shot: an admin who
         # turns the redirect off must not have the next upgrade turn it back on
         # by re-reading WEB_url_proto.
+        #
+        # WEB_url_primary is which of the two management URLs the installer
+        # prints FIRST when it finishes -- `name` (default) or `address`. A
+        # genuine preference with no flag and no prompt: it changes two lines of
+        # closing output and nothing else, so it is not worth a question every
+        # install, but it must survive one. See _managementUrls.
         WEB_server_engine WEB_docroot WEB_root WEB_php_version
-        WEB_url_proto WEB_https_redirect
+        WEB_url_proto WEB_https_redirect WEB_url_primary
 
         # --- BOOT_: the client netboot path -- iPXE, TFTP, FOS kernels
         #
