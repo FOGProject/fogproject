@@ -162,19 +162,26 @@ $t->check(
  * what is pinned here is that this report still goes through it. Pinning
  * only the delegation would leave the rules unguarded; pinning only the
  * class would not notice this report growing its own copy back.
+ *
+ * The two branches of each bound are on DIFFERENT clocks, and that is the
+ * point rather than an inconsistency. A default is the server saying "now"
+ * and "a fortnight before now", which has no viewer in it and so is read in
+ * the storage zone. A supplied bound was typed by somebody reading a page
+ * rendered in THEIR zone, so it is read in that one -- viewerDate(), which
+ * is a no-op for every account that has not chosen a display zone.
  */
 $window = $web . '/src/Audit/ReportWindow.php';
 $t->check('the shared window parser exists', is_readable($window));
 $wsrc = is_readable($window) ? file_get_contents($window) : '';
-// Both bounds, anchored as whole expressions. A substring search for
-// `self::niceDate()` is satisfied by the START branch alone, so swapping
-// only the END branch to PHP's clock -- which is exactly the half-shifted
-// window the lab found -- would pass it.
+// Both bounds, anchored as whole expressions including BOTH branches. A
+// substring search for `self::niceDate()` is satisfied by one branch alone,
+// so swapping only the other to PHP's clock -- which is exactly the
+// half-shifted window the lab found -- would pass it.
 $t->check(
-    'the END bound is built with niceDate(), FOG\'s clock',
+    'the END bound is FOG\'s clock by default, the viewer\'s when given',
     1 === preg_match(
         "/\\\$end = '' === \\\$given\['end'\]\s*\?\s*self::niceDate\(\)"
-        . "\s*:\s*self::niceDate\(\\\$given\['end'\]\);/",
+        . "\s*:\s*self::viewerDate\(\\\$given\['end'\]\);/",
         $wsrc
     )
 );
@@ -183,7 +190,7 @@ $t->check(
     1 === preg_match(
         "/\\\$start = '' === \\\$given\['start'\]\s*\?\s*"
         . "self::niceDate\(\)->modify\(.*?\)\s*:\s*"
-        . "self::niceDate\(\\\$given\['start'\]\);/s",
+        . "self::viewerDate\(\\\$given\['start'\]\);/s",
         $wsrc
     )
 );

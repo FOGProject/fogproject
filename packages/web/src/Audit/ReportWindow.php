@@ -88,12 +88,15 @@ class ReportWindow extends FOGBase
                 $given[$k] = '';
             }
         }
+        // Both bounds came off a form, so they are read in the VIEWER's
+        // zone. The defaults are not: 'now' and 'now minus a fortnight'
+        // are the server's own clock and have no viewer in them.
         $end = '' === $given['end']
             ? self::niceDate()
-            : self::niceDate($given['end']);
+            : self::viewerDate($given['end']);
         $start = '' === $given['start']
             ? self::niceDate()->modify((string)$default)
-            : self::niceDate($given['start']);
+            : self::viewerDate($given['start']);
         if ($start > $end) {
             [$start, $end] = [$end, $start];
         }
