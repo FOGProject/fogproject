@@ -123,6 +123,50 @@ unset($this->stylesheets);
             }
         </style>
     </noscript>
+<?php
+// The impersonation mode line (ADR 0033).
+//
+// EMITTED BY THE SHELL, not by any page. This file is the only HTML shell
+// FOG has -- Page::render()'s full-render arm includes it and nothing else
+// emits a <body> -- so a bar here is on every page by construction rather
+// than by every page remembering. The contentOnly arm emits no <body> at
+// all, and AJAX navigation replaces only #ajaxPageWrapper further down, so
+// this survives every in-app navigation without being re-sent.
+//
+// Fixed, full width, and above everything: z-index 2000 clears the
+// Bootstrap modal (1055) and offcanvas (1045), so it covers a dialog too.
+// A modal is exactly where an administrator is most likely to forget what
+// identity they are wearing.
+//
+// #c2410c is chosen to belong to NO existing status colour -- not
+// btn-warning's amber, not btn-danger's red -- so it reads as a mode rather
+// than as an alert about something that just happened. Not dismissible, and
+// there is no control to hide it: the failure this exists to prevent is an
+// administrator who forgets.
+//
+// Inline rather than in fog-default-ui.scss because the repository ships no
+// build script for that stylesheet (its .min.css is a committed artifact
+// reproduced by one exact sass version), so a five-line rule there costs a
+// regenerated asset and a cache-buster bump to say something no page can
+// override anyway.
+$impersonating = \FOG\Auth\Identity::isImpersonating();
+if ($isLoggedIn && $impersonating):
+    ?>
+    <div id="impersonation-bar" role="status"
+         aria-label="<?= _('You are impersonating another user'); ?>"></div>
+    <style nonce="<?= htmlspecialchars(FOG_CSP_NONCE, ENT_QUOTES, 'UTF-8'); ?>">
+        #impersonation-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            z-index: 2000;
+            background: linear-gradient(90deg, #c2410c 0%, #9a1c1c 100%);
+            pointer-events: none;
+        }
+    </style>
+    <?php endif; ?>
     <?php if ($isLoggedIn): ?>
     <div class="app-wrapper">
         <!-- Header Navigation -->
@@ -192,6 +236,31 @@ unset($this->stylesheets);
                             <i class="far fa-clock"></i>
                         </a>
                     </li>
+                    <?php
+                    // Under the logout control, deliberately: the two things
+                    // an impersonating administrator most needs are next to
+                    // the thing they would otherwise reach for. Both are
+                    // plain links and neither is an AJAX page link -- ending
+                    // a span changes who the whole shell belongs to, so it
+                    // has to be a full render rather than a content swap.
+                    //
+                    // "Impersonate another" points at the picker, which is
+                    // end-then-start on submit. Never a swap: impersonation
+                    // is always exactly one level deep, so the audit never
+                    // has to answer "acting as B, who was being acted as by
+                    // A".
+                    if ($impersonating): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../management/index.php?node=impersonate&amp;sub=end"><i class="fas fa-user-slash"></i> <?= _('End impersonation'); ?></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../management/index.php?node=impersonate"><i class="fas fa-user-group"></i> <?= _('Impersonate another'); ?></a>
+                    </li>
+                    <?php elseif (Authorization::can(\FOG\Auth\Identity::PERMISSION)): ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../management/index.php?node=impersonate"><i class="fas fa-user-group"></i> <?= _('Impersonate a user'); ?></a>
+                    </li>
+                    <?php endif; ?>
                     <li class="nav-item">
                         <a class="nav-link" href="../management/index.php?node=logout"><i class="fas fa-right-from-bracket"></i> <?= _('Logout'); ?></a>
                     </li>

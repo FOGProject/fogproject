@@ -52,7 +52,19 @@ class Authorization extends FOGBase
         'schema',
         'hwinfo',
         'logout',
-        'login'
+        'login',
+        // Impersonation carries its own gate, the same way `schema` does.
+        //
+        // Two reasons it cannot be an ordinary registry node. LEAVING must
+        // never be permission-checked at all: impersonate a user holding no
+        // roles and a gated exit path traps the administrator as them, with
+        // no way back short of clearing a cookie. And ENTERING is not
+        // answered by a role -- Identity::mayImpersonate() runs two subset
+        // tests that a permission string cannot express. The page checks
+        // Identity::PERMISSION itself before starting, so the capability is
+        // still grantable and withholdable; it is the exit that is
+        // structurally unreachable by a check.
+        'impersonate'
     ];
     /**
      * Page node => registry node aliases.
@@ -596,7 +608,24 @@ class Authorization extends FOGBase
             // It also fixes the audit trail as a side effect: _auditGate()
             // records the permission string, so the row now says the whole
             // database left the server instead of saying settings.edit.
-            'system' => ['export']
+            'system' => ['export'],
+            // Impersonation (ADR 0033). ONE action, and it is `start` --
+            // there is deliberately no `impersonate.end`, because ending is
+            // never checked against anything. A user holding no roles is a
+            // legitimate target, and a gated exit would trap the
+            // administrator inside them.
+            //
+            // Deny by default, the same way `system.export` and
+            // `audit.manage` arrived: no schema step seeds it, so until an
+            // administrator grants it only a holder of '*' can impersonate
+            // anybody. Being able to administer users is NOT the same power
+            // as being able to become one, and an install that never wants
+            // this gets it by doing nothing.
+            //
+            // Holding it is necessary and nowhere near sufficient:
+            // Identity::refusalReason() still requires the target's
+            // permissions AND their sites to nest inside the holder's.
+            'impersonate' => ['start']
         ];
     }
     /**
@@ -1021,9 +1050,194 @@ class Authorization extends FOGBase
      *
      * @return void
      */
+    /**
+     * Page nodes reachable while impersonating even though they resolve to
+     * no permission at all.
+     *
+     * All four are EXEMPT_NODES, so `can()` waves them through and the
+     * read-only gate below would otherwise refuse them for having no
+     * `.view` to check. Each is here for a stated reason:
+     *
+     *   home       the dashboard, and the place a denial redirects TO --
+     *              refusing it would loop.
+     *   logout     the way out. Never gated, for the same reason `end` is
+     *              not.
+     *   impersonate ending, and starting the next one.
+     *   hwinfo     a read-only hardware page any signed-in user can open.
+     *              Refusing it would answer the question impersonation was
+     *              asked -- "what does this person see" -- wrongly.
+     *
+     * `schema` and `client` are EXEMPT_NODES and deliberately absent.
+     * A schema deploy rewrites the whole database and must never run behind
+     * a mask; `client` is a fog-client endpoint no browser session wants.
+     *
+     * @var array
+     */
+    const IMPERSONATION_ALLOWED_PAGE_NODES = [
+        'home',
+        'logout',
+        'impersonate',
+        'hwinfo'
+    ];
+    /**
+     * API routes reachable while impersonating, by HTTP method.
+     *
+     * Every route here resolves to a null permission (see
+     * API_ROUTE_PERMISSIONS), so the `.view` rule cannot speak for them and
+     * they have to be named. The METHOD is part of the entry rather than the
+     * route alone, and that is the whole of the difference between reading a
+     * saved grid layout and writing one:
+     *
+     *   userpref     read AND write, because the impersonated user's own
+     *                preferences are the one thing a span is FOR. The
+     *                handler takes its user id from the session, which is
+     *                the mask, so a write lands on the target -- which is
+     *                the point, and is why nothing here has to pass an id.
+     *   savedfilters GET only. A saved filter can be shared with named
+     *                people or made global, which is an outward act rather
+     *                than a view preference.
+     *   unisearch    POST, because the sidebar search posts. It reads.
+     *
+     * @var array
+     */
+    const IMPERSONATION_ALLOWED_API_ROUTES = [
+        'userprefs' => ['GET'],
+        'userpref' => ['GET', 'POST', 'PUT', 'DELETE'],
+        'savedfilters' => ['GET'],
+        'savedfilter' => ['GET'],
+        'savedfiltertargets' => ['GET'],
+        'whoami' => ['GET'],
+        'status' => ['GET'],
+        'bandwidth' => ['GET'],
+        'unisearch' => ['GET', 'POST'],
+        'openapi' => ['GET'],
+        'openapiSwaggerAlias' => ['GET']
+    ];
+    /**
+     * Refuse anything a span is not allowed to do.
+     *
+     * AN ALLOWLIST, NOT A LIST OF FORBIDDEN OPERATIONS, and that is the
+     * design decision most worth defending here. The obvious shape is to
+     * refuse the dangerous four -- password change, API token creation, role
+     * assignment, auth source change -- because each turns a temporary view
+     * into permanent account takeover. But this repository already has the
+     * cautionary tale on file: ADR 0021 records `storagenode.pass` leaking
+     * because the secrets registry enumerated fields per route, and the
+     * commit message names the lesson exactly -- "naming them per route is
+     * what hid this". A refusal list has to be re-audited every time
+     * somebody adds a route; an allowlist does not.
+     *
+     * It also closes something a refusal list leaves open and cannot see:
+     * FOGController::save() auto-fills `createdBy` from self::$FOGUser,
+     * which IS the mask, so an ordinary create performed while impersonating
+     * would stamp the target's name onto the row itself. That is a second
+     * attribution forgery, in a column no audit change repairs, and no list
+     * of four credential operations would ever have caught it.
+     *
+     * The rule is therefore: a resolved `.view`, or a named entry. Everything
+     * else is refused, including the null-permission exempt nodes that
+     * `can()` waves through -- which is how `schema` is kept out.
+     *
+     * Answers the DECISION only; it does not ask whether a span is open, so
+     * a caller must check Identity::isImpersonating() first. Public so the
+     * gate test can drive every arm of it directly rather than inferring it
+     * from a whole request.
+     *
+     * @param string|null $perm    the resolved permission, null when exempt
+     * @param string      $surface 'page' or 'api'
+     * @param string      $context the page node, or the matched route name
+     * @param string      $method  the HTTP method, for the API allowlist
+     *
+     * @return bool
+     */
+    public static function impersonationPermits(
+        $perm,
+        $surface,
+        $context,
+        $method = ''
+    ) {
+        $perm = (string)$perm;
+        if ('page' === $surface) {
+            $node = strtolower(trim((string)$context));
+            if (in_array($node, self::IMPERSONATION_ALLOWED_PAGE_NODES, true)) {
+                return true;
+            }
+        } else {
+            $allowed = self::IMPERSONATION_ALLOWED_API_ROUTES;
+            $route = (string)$context;
+            $method = strtoupper(trim((string)$method)) ?: 'GET';
+            if (isset($allowed[$route])
+                && in_array($method, $allowed[$route], true)
+            ) {
+                return true;
+            }
+        }
+        // '.view' and nothing else. Checked on the SUFFIX rather than by
+        // splitting, so a plugin node with a dot in it cannot slip past.
+        return '' !== $perm && '.view' === substr($perm, -5);
+    }
+    /**
+     * The refusal half of impersonationPermits().
+     *
+     * Split from the decision deliberately: everything below this line
+     * either exits or redirects, so a gate fused to its own response can
+     * only be tested by driving a whole request. The decision is the part
+     * that has to be provably right, so it is the part that is callable.
+     *
+     * @param string|null $perm    the resolved permission, null when exempt
+     * @param string      $surface 'page' or 'api'
+     * @param string      $context the page node, or the matched route name
+     * @param string      $method  the HTTP method, for the API allowlist
+     *
+     * @return void
+     */
+    private static function _assertImpersonationPermits(
+        $perm,
+        $surface,
+        $context,
+        $method = ''
+    ) {
+        if (!Identity::isImpersonating()) {
+            return;
+        }
+        if (self::impersonationPermits($perm, $surface, $context, $method)) {
+            return;
+        }
+        $perm = (string)$perm;
+        self::_auditGate(
+            $perm,
+            Audit::DENIED,
+            $surface,
+            $context,
+            0
+        );
+        $message = _('Impersonation is read-only. End it to do this as '
+            . 'yourself.');
+        if ('api' === $surface) {
+            Route::sendResponse(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(['error' => $message])
+            );
+
+            return;
+        }
+        if (self::$ajax) {
+            http_response_code(HTTPResponseCodes::HTTP_FORBIDDEN);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => $message]);
+            exit;
+        }
+        self::setMessage($message, _('Impersonating'), 'warning');
+        self::redirect('?node=home');
+    }
     public static function requirePagePermission($node, $sub)
     {
         $perm = self::resolvePagePermission($node, $sub);
+        // BEFORE can(), because the mask's own permissions are not the
+        // question: a span is read-only whatever the impersonated user is
+        // allowed to do, and running this first means a refusal is recorded
+        // as an impersonation refusal rather than as a permission one.
+        self::_assertImpersonationPermits($perm, 'page', $node);
         // The API arm below has always passed the id its route carried; this
         // one passed nothing, so every page-surface header recorded
         // subjectID 0 -- "somebody exercised host.delete", with no way to
@@ -1276,8 +1490,23 @@ class Authorization extends FOGBase
      *
      * @return void
      */
-    public static function requireApiPermission($perm, $class = '', $id = 0)
-    {
+    public static function requireApiPermission(
+        $perm,
+        $class = '',
+        $id = 0,
+        $routeName = ''
+    ) {
+        // The route NAME, not just the permission: the routes a span may
+        // still write -- the impersonated user's own preferences -- resolve
+        // to a null permission, so there is nothing in $perm to tell them
+        // apart from the exempt nodes that must be refused. Defaulted so
+        // third-party callers keep working; core passes it.
+        self::_assertImpersonationPermits(
+            $perm,
+            'api',
+            $routeName,
+            (string)($_SERVER['REQUEST_METHOD'] ?? 'GET')
+        );
         if (self::can($perm)) {
             self::_auditGate($perm, Audit::ALLOWED, 'api', $class, $id);
             return;

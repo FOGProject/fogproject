@@ -6357,12 +6357,34 @@ $this->schema[] = [
     // written in the locale of whoever triggered it, which is the defect
     // ADR 0020 exists to undo.
     . "`alText` LONGTEXT NOT NULL,"
+    // The impersonation bracket (ADR 0033). alCreatedBy stays the REAL
+    // administrator throughout a span -- everything that already asks "what
+    // did user X do" reads that column, and flipping it would attribute the
+    // target's name to actions they did not take. This column is
+    // supplementary: who was being acted AS.
+    //
+    // Empty is meaningful, the same way alPermission's is: '' says nobody
+    // was impersonating, so `alActedAs <> ''` is FOG's entire impersonated
+    // write surface in one predicate.
+    . "`alActedAs` VARCHAR(255) NOT NULL DEFAULT '',"
+    // One span, one id, however many requests it covers -- which is what
+    // makes it a different column from alCorrelationID rather than a reuse
+    // of it. A correlation id is REQUEST scoped by design; folding the two
+    // lifetimes together reads fine and then cannot be untangled.
+    . "`alSpanID` VARCHAR(32) NOT NULL DEFAULT '',"
     . "PRIMARY KEY (`alID`),"
     . "KEY `alCreatedTime` (`alCreatedTime`),"
     . "KEY `alCreatedBy` (`alCreatedBy`),"
     . "KEY `alCorrelationID` (`alCorrelationID`),"
     . "KEY `alOutcome` (`alOutcome`),"
-    . "KEY `alSubject` (`alSubjectType`,`alSubjectID`)"
+    . "KEY `alSubject` (`alSubjectType`,`alSubjectID`),"
+    // Indexed because both are read as filters rather than displayed: the
+    // span id answers "everything this administrator did while masked" in
+    // one seek, and alActedAs answers "has anyone ever acted as this
+    // person". A composite of (alType, alSubjectID) is deliberately not
+    // added for the sign-in notice -- alSubject already covers it.
+    . "KEY `alSpanID` (`alSpanID`),"
+    . "KEY `alActedAs` (`alActedAs`)"
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
     // One row per changed field.
     //
@@ -9871,4 +9893,87 @@ $this->schema[] = [
     . "SET `settingValue` = '25' "
     . "WHERE `settingKey` = 'FOG_VIEW_DEFAULT_SCREEN' "
     . "AND `settingValue` IN ('SEARCH','LIST')",
+];
+// 398
+$this->schema[] = [
+    // Impersonation (ADR 0033). Two columns on auditLog, and a setting.
+    //
+    // alCreatedBy is deliberately NOT touched. It stays the REAL
+    // administrator for every row written during a span, because everything
+    // that already asks "what did user X do" reads it, and flipping it would
+    // attribute the target's name to actions they did not take -- which is
+    // worse than no record at all, since it destroys repudiation for the one
+    // person who cannot disprove it. alActedAs is supplementary: who was
+    // being acted AS. Empty means nobody, so `alActedAs <> ''` is the whole
+    // impersonated write surface.
+    //
+    // alSpanID rather than reusing alCorrelationID: a correlation id is
+    // REQUEST scoped and its docblock commits to that, while a span covers
+    // many requests. The bracket -- an impersonation.start row, an
+    // impersonation.end row and everything between -- joins on this one
+    // value, so "what did this admin do while impersonating Sarah on the
+    // 14th" is one indexed seek rather than a time-range guess.
+    //
+    // AN UNCLOSED SPAN IS CLOSED AT READ TIME, NOT BY A SWEEP. A browser
+    // that is simply closed leaves a start with no end, and the reader
+    // resolves it as the earliest of: its own end row, the auth.logout row
+    // for the same session, or the start plus the inactivity timeout. No
+    // daemon stamps it, deliberately -- that would make a row's truth depend
+    // on whether a job ran, which breaks on a database restored onto a
+    // server with different settings. Same reasoning ADR 0021 gives for
+    // declining a foreign key on auditChange.
+    //
+    // Guarded closure, same as 336/338/341/349/350/351/353/354: ADD COLUMN
+    // has no IF NOT EXISTS below MariaDB 10.0.2 / MySQL 8.0.29, and every
+    // column is named in the probe so the installer's grant check still
+    // passes.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'auditLog' "
+            . "AND `COLUMN_NAME` IN ('alActedAs','alSpanID')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = [];
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        if (!in_array('alActedAs', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `auditLog` "
+                . "ADD `alActedAs` VARCHAR(255) NOT NULL DEFAULT '', "
+                . "ADD KEY `alActedAs` (`alActedAs`)"
+            );
+        }
+        if (!in_array('alSpanID', $cols)) {
+            self::$DB->query(
+                "ALTER TABLE `auditLog` "
+                . "ADD `alSpanID` VARCHAR(32) NOT NULL DEFAULT '', "
+                . "ADD KEY `alSpanID` (`alSpanID`)"
+            );
+        }
+
+        return true;
+    },
+    // Whether the impersonated user is told, on their next sign-in, that an
+    // administrator viewed their account.
+    //
+    // A SETTING AND NOT A COLUMN, because no column is needed: "has anyone
+    // acted as me since I last signed in" is already answerable from rows
+    // this table holds -- the impersonation.start events and the auth.login
+    // events, both indexed on alSubject. Taking a column now would have been
+    // paying for a decision nothing forces, and the answer would still have
+    // had to come from these rows.
+    //
+    // Defaults ON. An administrator who has never been asked has not decided
+    // that the people they impersonate should be kept in the dark, and the
+    // recoverable mistake is telling someone something true.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`, `settingDesc`, `settingValue`, `settingCategory`) "
+    . "VALUES "
+    . "('FOG_IMPERSONATION_NOTIFY','Tell a user, the next time they sign in, "
+    . "that an administrator viewed their account by impersonating them. The "
+    . "audit trail records every impersonation either way; this controls only "
+    . "whether the person is told.','1','Logging Settings')",
 ];

@@ -13,6 +13,7 @@
 
 namespace FOG\Audit;
 
+use FOG\Auth\Identity;
 use FOG\Auth\Redaction;
 use FOG\Base\FOGBase;
 use FOG\Items\AuditLog;
@@ -191,7 +192,17 @@ class Audit extends FOGBase
                 ->set('outcome', (string)($row['outcome'] ?? self::ALLOWED))
                 ->set('affectedCount', (int)($row['affectedCount'] ?? 0))
                 ->set('renderable', empty($row['renderable']) ? 0 : 1)
-                ->set('text', (string)($row['text'] ?? ''));
+                ->set('text', (string)($row['text'] ?? ''))
+                // The impersonation bracket (ADR 0033). Filled here, from
+                // the session, rather than by the call sites -- the same
+                // stance as createdBy, ip and correlationID above and for
+                // the same reason: forty call sites cannot each be relied on
+                // to remember, and a row that forgot would look exactly like
+                // one written by an administrator acting as themselves.
+                // Both are '' when no span is open, so `alActedAs <> ''` is
+                // the whole impersonated write surface in one predicate.
+                ->set('actedAs', Identity::impersonatedUserName())
+                ->set('spanID', Identity::spanID());
             // createdTime is left to save()'s auto-fill, which is where every
             // other model's gets set, so an audit row cannot disagree with a
             // history row about what "now" means.
@@ -423,6 +434,24 @@ class Audit extends FOGBase
      */
     private static function _actor()
     {
+        // THE REAL ADMINISTRATOR, NEVER THE MASK. self::$FOGUser is a
+        // reference to $GLOBALS['currentUser'], and Identity::bind() points
+        // that at the IMPERSONATED user so permissions, site scope and
+        // preferences follow them. Reading it here would therefore have
+        // written the target's name into alCreatedBy for everything the
+        // administrator did -- an audit trail that names somebody who did
+        // not act is worse than none, because it destroys repudiation for
+        // the one person with no way to disprove it.
+        //
+        // Checked first and unconditionally, not as a special case bolted
+        // on after the normal path: an audit actor must not be correct only
+        // when somebody remembered.
+        if (Identity::isImpersonating()) {
+            $real = Identity::realUserName();
+            if ('' !== $real) {
+                return $real;
+            }
+        }
         if (self::$FOGUser instanceof User
             && self::$FOGUser->isValid()
             && self::$FOGUser->get('name')
