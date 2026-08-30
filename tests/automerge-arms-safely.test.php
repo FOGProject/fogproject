@@ -96,17 +96,27 @@ $results[] = [
         . 'never armed',
 ];
 
-// It must never become a required check. Arming is a convenience; a repo
-// that cannot arm should still merge by hand rather than show a red check.
+// Arming must fail LOUDLY. continue-on-error hid a real failure on this
+// job's first ever run -- the step reported "success" while the command had
+// exited 1 -- and the job is not a required context, so a red mark on it
+// cannot block anything.
 $results[] = [
-    false !== strpos($code, 'continue-on-error: true'),
-    'failing to arm never fails the pull request',
+    false === strpos($code, 'continue-on-error'),
+    'a failure to arm is visible rather than reported as success',
 ];
 
-// Least privilege: this writes to the pull request, never to the tree.
+// contents: write is required by enablePullRequestAutoMerge; anything less
+// answers "Resource not accessible by integration". Pinned so it is not
+// "tidied" back to read by someone applying least privilege from first
+// principles, which is exactly the mistake that produced the failing run.
 $results[] = [
-    (bool)preg_match('#permissions:\s*\n\s*contents:\s*read#', $code),
-    'and it holds no write access to repository contents',
+    (bool)preg_match('#permissions:\s*\n\s*contents:\s*write#', $code),
+    'it holds the contents: write that enablePullRequestAutoMerge needs',
+];
+$results[] = [
+    (bool)preg_match('#pull-requests:\s*write#', $code)
+        && false === strpos($code, 'write-all'),
+    'and pull-requests: write, without reaching for write-all',
 ];
 
 $failed = 0;

@@ -49,10 +49,25 @@ on:
     types: [opened, ready_for_review]
 
 # Least privilege, stated rather than inherited -- the same reasoning the
-# regen job gives in tests.yml. Enabling auto-merge is a write against the
-# pull request, and nothing here touches the contents of the repository.
+# regen job gives in tests.yml.
+#
+# `contents: write` is REQUIRED and was established from a failing run, not
+# from the docs. With `contents: read` and `pull-requests: write` the
+# mutation answers:
+#
+#     GraphQL: Resource not accessible by integration
+#     (enablePullRequestAutoMerge)
+#
+# Auto-merge is a merge the platform performs later, so it is gated on
+# contents write rather than on pull-request write alone, however much it
+# reads like a pull-request property.
+#
+# This is not an escalation in practice. A `pull_request` token is read-only
+# for forks whatever is asked for here, and the job is guarded to same-repo
+# pull requests anyway -- so the only people who can reach it are people who
+# already have push access.
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
@@ -88,11 +103,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR: ${{ github.event.pull_request.number }}
-        # Never fails the pull request. Auto-merge is a convenience, and a
-        # repository that cannot arm it (the setting turned off, a permission
-        # changed) should still be able to merge by hand rather than showing a
-        # red check on every pull request it opens.
-        continue-on-error: true
+        # DELIBERATELY NOT continue-on-error.
+        #
+        # It was, on the first cut, with the reasoning that arming is a
+        # convenience and should never fail a pull request. That reasoning is
+        # sound and the behaviour was still wrong: this job failed on its very
+        # first run -- the token lacked contents write -- and reported
+        # conclusion "success" anyway. The failure was visible only by reading
+        # the raw log, which is precisely the silent failure this project
+        # treats as a bug in its own right.
+        #
+        # Failing loudly costs nothing here. This job is NOT one of the nine
+        # required contexts, so a red mark on it cannot block a merge; it just
+        # means that when arming breaks, somebody can see that it broke
+        # instead of quietly going back to pressing the button by hand.
         run: |
           gh pr merge "$PR" \
             --repo "${{ github.repository }}" \
