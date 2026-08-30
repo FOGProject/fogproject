@@ -39,6 +39,12 @@ class FileDeleter extends FOGService
      */
     public static $sleeptime = 'FILEDELETEQUEUESLEEPTIME';
     /**
+     * Fallback sleep when the globalSetting above is unset.
+     *
+     * @var int
+     */
+    public static $sleepdefault = 60;
+    /**
      * Initializes The services environment
      *
      * @return void

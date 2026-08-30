@@ -38,6 +38,12 @@ class ImageSize extends FOGItemScanner
      */
     public static $sleeptime = 'IMAGESIZESLEEPTIME';
     /**
+     * Fallback sleep when the globalSetting above is unset.
+     *
+     * @var int
+     */
+    public static $sleepdefault = 3600;
+    /**
      * Everything that differs from the other scanner.
      *
      * @return array

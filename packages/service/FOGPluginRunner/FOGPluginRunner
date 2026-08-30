@@ -12,8 +12,6 @@
  * @link     https://fogproject.org
  */
 
-use FOG\Base\FOGCore;
-
 /**
  * FOGPluginRunner service to run background work declared by plugins
  *
@@ -30,41 +28,5 @@ use FOG\Base\FOGCore;
  */
 require dirname(realpath(__FILE__)).'/../etc/config.php';
 require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
-$service_name = 'FOGPluginRunner';
-service_persist($service_name);
-$ServiceClass = FOGCore::getClass('PluginRunner');
-$ServiceClass->getBanner();
-$ServiceClass->waitInterfaceReady();
-$ServiceClass->waitDbReady();
-$ServiceClass->serviceStart();
-while (true) {
-    if (!$ServiceClass::$zzz) {
-        $ServiceClass::$zzz = 60;
-    }
-    if (!isset($nextrun)) {
-        $ServiceClass->serviceRun();
-        $nextrun = FOGCore::niceDate()
-            ->modify(
-                sprintf(
-                    '+%s second%s',
-                    $ServiceClass::$zzz,
-                    $ServiceClass::$zzz != 1 ? '' : 's'
-                )
-            );
-    }
-    if (FOGCore::niceDate() < $nextrun) {
-        usleep(100000);
-        continue;
-    }
-    $nextrun = FOGCore::niceDate()
-        ->modify(
-            sprintf(
-                '+%s second%s',
-                $ServiceClass::$zzz,
-                $ServiceClass::$zzz != 1 ? '' : 's'
-            )
-        );
-    $ServiceClass->serviceRun();
-}
-$ServiceClass::outall(sprintf(" * Service has ended."));
-exit(0);
+service_persist('FOGPluginRunner');
+\FOG\Base\FOGCore::getClass('PluginRunner')->run();

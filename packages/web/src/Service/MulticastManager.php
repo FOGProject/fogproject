@@ -45,6 +45,31 @@ class MulticastManager extends FOGService
      */
     protected $altLog;
     /**
+     * One pass, not the scheduled loop the other nine daemons run.
+     *
+     * serviceRun() here does not return between passes -- it holds the
+     * running udpcast sessions and polls them itself -- so FOGService::run()'s
+     * nextrun scheduling has nothing to schedule. The preflight is the other
+     * difference: without udp-sender there is no point starting at all, and
+     * exiting non-zero is what makes systemd report the unit failed rather
+     * than let it sit "active" doing nothing.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        if (!file_exists(UDPSENDERPATH)) {
+            self::outall(' * Unable to locate udp-sender!.');
+            exit(1);
+        }
+        $this->getBanner();
+        $this->waitInterfaceReady();
+        $this->waitDbReady();
+        $this->serviceStart();
+        $this->serviceRun();
+        self::outall(' * Service has ended.');
+    }
+    /**
      * Initializes the MulticastManager class
      *
      * @return void

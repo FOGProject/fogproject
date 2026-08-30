@@ -98,6 +98,12 @@ class RetentionRunner extends FOGService
      */
     public static $sleeptime = 'RETENTIONRUNNERSLEEPTIME';
     /**
+     * Fallback sleep when the globalSetting above is unset.
+     *
+     * @var int
+     */
+    public static $sleepdefault = 3600;
+    /**
      * The last idle reason logged, and when.
      *
      * @var string|null

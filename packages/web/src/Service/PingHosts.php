@@ -48,6 +48,12 @@ class PingHosts extends FOGService
      */
     public static $sleeptime = 'PINGHOSTSLEEPTIME';
     /**
+     * Fallback sleep when the globalSetting above is unset.
+     *
+     * @var int
+     */
+    public static $sleepdefault = 300;
+    /**
      * Initializes the PingHost Class
      *
      * @return void

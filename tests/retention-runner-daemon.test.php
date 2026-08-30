@@ -272,9 +272,15 @@ check(
     $failures,
     $checks
 );
+// The CALL, not the `$service_name = '...'` assignment this used to look
+// for. That variable was an intermediate the entry points no longer carry --
+// they pass the name straight to service_persist() -- and pinning it meant
+// the assertion could have gone on passing with the assignment present and
+// the call gone. What matters is that the supervisor is told which daemon
+// it is: that name is what tags every line in servicemaster.log.
 check(
     'and registers itself with service_persist under its own name',
-    false !== strpos($wrapper, "\$service_name = '" . $name . "'"),
+    false !== strpos($wrapper, "service_persist('" . $name . "')"),
     $failures,
     $checks
 );
