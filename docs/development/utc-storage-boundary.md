@@ -124,9 +124,10 @@ the load-bearing rejection, so the reasons are worth stating separately:
 
 - **It cannot be correct.** A sweep must assume one source zone. Section 1.2
   shows three clocks, section 1.3 shows a fourth that ran for an unknown
-  window, and `FOG_TZ_INFO` may have been changed at any point in an install's
-  life with no record kept. A sweep would silently shift values that were
-  already right.
+  window, section 3 shows a fifth on every fog-client check-in, and
+  `FOG_TZ_INFO` may have been changed at any point in an install's life with
+  no record kept. A sweep would silently shift values that were already
+  right.
 - **It is one-way.** Once `2024-08-31 10:13:47` becomes `2024-08-31 15:13:47`
   there is nothing left that says which it was.
 - **The 17 TIMESTAMP columns would be moved twice.** They already hold a UTC
@@ -274,9 +275,25 @@ narrow the band deliberately rather than rediscover this.
 - **UNKNOWN: how many installs have ever changed `FOG_TZ_INFO`.** Nothing
   records it. It affects how much pre-boundary data is internally inconsistent,
   not whether the design works.
-- **UNKNOWN: what the fog-client sends.** Check-in times arrive from the client
-  and are stored by the server; whether the client's own clock or zone enters
-  any stored value has not been scanned. This is the largest remaining gap.
+- **VERIFIED: exactly one stored value comes from a client, and it carries no
+  zone.** `packages/web/src/Client/UserTrack.php:72` reads `$_REQUEST['date']`
+  off a fog-client check-in and parses it with `niceDate()`, so it is read as
+  though it were already in the storage zone. Nothing else in the web tree
+  parses a client-supplied date into a stored column.
+
+      grep -rn '_REQUEST\|_POST' packages/web/src/Client | grep -i date
+
+  Two consequences for the boundary. The value is a **fifth clock** -- the
+  managed machine's own -- and unlike the other three there is no server-side
+  setting that describes it, so a row written this way is unclassifiable by any
+  rule this document can state. And it is the one stored date whose correctness
+  cannot be improved by changing anything on the server: the client would have
+  to start sending an offset. Both belong in the migration's scope, not this
+  one.
+
+  **UNKNOWN, and now the largest remaining gap: which zone the client's own
+  string is in.** Reading the fog-client source is a separate repository and
+  was out of scope here.
 - **UNKNOWN: what the six `NOW()` call sites should become.** They are the
   second clock. Unifying them is part of the migration, not of this document.
 - **Out of scope by instruction: any code.**
