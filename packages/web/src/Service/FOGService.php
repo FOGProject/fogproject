@@ -53,6 +53,18 @@ abstract class FOGService extends FOGBase
      */
     public static $zzz = '';
     /**
+     * Fallback sleep, in seconds, when $sleeptime's globalSetting is unset.
+     *
+     * Each daemon entry point used to carry its own literal here -- 60 for
+     * FileDeleter, 3600 for ImageSize, and so on -- inside a copy of the
+     * service loop that lived outside the analyzed tree. The value is a
+     * property of the service, not of the script that starts it, so it sits
+     * beside $sleeptime, which already names that service's globalSetting.
+     *
+     * @var int
+     */
+    public static $sleepdefault = 600;
+    /**
      * Process references
      *
      * @var array
@@ -219,8 +231,9 @@ abstract class FOGService extends FOGBase
         // keeps what the banner was actually useful for -- a visible marker of
         // where a restart begins, and which build is running.
         //
-        // Still emitted from the eight daemon entry points under
-        // packages/service/, so the signature stays as it is.
+        // Called from run() now rather than from each entry point, so it is
+        // emitted once per daemon start exactly as before. The signature is
+        // unchanged: MulticastManager overrides run() and still calls it.
         self::outall(
             sprintf(
                 '===== FOG %s -- %s starting =====',
@@ -361,6 +374,75 @@ abstract class FOGService extends FOGBase
                 )
             );
         }
+    }
+    /**
+     * The whole life of a daemon: bring it up, then run it until killed.
+     *
+     * This is the loop that used to be copy-pasted into each of the ten
+     * entry points under packages/service/. Those files are named for their
+     * systemd unit and so carry no extension, which put them outside every
+     * *.php filter in the tree -- PHPStan's paths, bin/import-core-classes.php
+     * and tests/no-bare-core-references.test.php alike. The PSR-4 sweep
+     * therefore skipped all ten, each kept a bare `FOGCore::niceDate()` that
+     * no longer resolved, and every daemon died one iteration in while systemd
+     * reported the unit active (GH-1498).
+     *
+     * Living here instead of there is the actual fix for that class of bug:
+     * this file is analyzed, swept and deployed by the same paths as the rest
+     * of core, and what remains in packages/service/ is a five-line stub with
+     * no logic left to drift. ExecStart deliberately still points at that
+     * stub rather than into the webroot -- eight of the ten units run as root
+     * with Restart=always, and the webroot is writable by the web user.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        $this->getBanner();
+        $this->waitInterfaceReady();
+        $this->waitDbReady();
+        $this->serviceStart();
+        $nextrun = null;
+        // for(;;) rather than while(true), matching Service_persist()'s own
+        // supervisor loop in packages/service/lib/service_lib.php.
+        for (;;) {
+            if (!static::$zzz) {
+                static::$zzz = static::$sleepdefault;
+            }
+            if (null === $nextrun) {
+                $this->serviceRun();
+                $nextrun = $this->scheduleNextRun();
+            }
+            if (self::niceDate() < $nextrun) {
+                usleep(100000);
+                // Called on every daemon now, where before only the two
+                // replicators did. It is inert for the other seven: the base
+                // implementation only walks $this->procRef, which nothing
+                // outside FOGReplicator and MulticastManager ever populates,
+                // so an empty list skips the whole body.
+                $this->doHousekeeping();
+                continue;
+            }
+            $nextrun = $this->scheduleNextRun();
+            $this->serviceRun();
+        }
+    }
+    /**
+     * When the next pass is due: now, plus this service's sleep time.
+     *
+     * The pluralization this replaces was inverted -- `$zzz != 1 ? '' : 's'`
+     * appended the "s" only when the interval was exactly one second, giving
+     * "+1 seconds" and "+600 second". DateTime::modify() accepts either form,
+     * so nothing misbehaved; dropping the ternary removes the trap rather
+     * than inverting it.
+     *
+     * @return \DateTime
+     */
+    protected function scheduleNextRun()
+    {
+        return self::niceDate()->modify(
+            sprintf('+%d seconds', (int)static::$zzz)
+        );
     }
     /**
      * Replicates data without having to keep repeating

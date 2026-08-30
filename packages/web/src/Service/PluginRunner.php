@@ -88,6 +88,12 @@ class PluginRunner extends FOGService
      */
     public static $sleeptime = 'PLUGINRUNNERSLEEPTIME';
     /**
+     * Fallback sleep when the globalSetting above is unset.
+     *
+     * @var int
+     */
+    public static $sleepdefault = 60;
+    /**
      * When each discovered task is next due, keyed "<plugin>/<task>".
      *
      * Held in memory, not a table (ADR 0010 decision 5). A restart therefore

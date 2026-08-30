@@ -12,8 +12,6 @@
  * @link     https://fogproject.org
  */
 
-use FOG\Base\FOGCore;
-
 /**
  * FOGMulticastManager service to enable MC tasks in FOG
  *
@@ -25,17 +23,5 @@ use FOG\Base\FOGCore;
  */
 require dirname(realpath(__FILE__)).'/../etc/config.php';
 require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
-$service_name = 'FOGMulticastManager';
-service_persist($service_name);
-$ServiceClass = FOGCore::getClass('MulticastManager');
-if (!file_exists(UDPSENDERPATH)) {
-    $ServiceClass::outall(' * Unable to locate udp-sender!.');
-    exit(1);
-}
-$ServiceClass->getBanner();
-$ServiceClass->waitInterfaceReady();
-$ServiceClass->waitDbReady();
-$ServiceClass->serviceStart();
-$ServiceClass->serviceRun();
-$ServiceClass::outall(' * Service has ended.');
-exit(0);
+service_persist('FOGMulticastManager');
+\FOG\Base\FOGCore::getClass('MulticastManager')->run();
