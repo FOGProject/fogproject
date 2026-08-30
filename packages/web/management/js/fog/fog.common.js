@@ -3495,6 +3495,60 @@ function fogReleaseColWidths(node) {
     .removeClass('fog-table-fixed')
     .find('colgroup > col').css('width', '');
 }
+/**
+ * Hold a scrolling table still while its container is resizing.
+ *
+ * DataTables pins the .dt-scroll-head table's width in a style attribute; the
+ * body table is width:100%. So the instant the container's width changes the
+ * body tracks it and the header does not, and makeColumnsResizable() has put
+ * table-layout:fixed over a shared colgroup, so the body shares its surplus out
+ * across its columns while the header does not. Nothing puts the two back in
+ * step until the debounced columns.adjust() in fogBindTableAutosize() runs.
+ *
+ * That is a long time to be wrong. Collapsing the sidebar animates .app-main
+ * over ~290ms, the 150ms debounce restarts on every frame of it, and the adjust
+ * is not free -- so the host list sat with a 1246px header against a 1496px
+ * body, columns up to 37px out of line, until t=735ms. It is the misalignment
+ * you can watch happen: the headers stay put and the rows walk right.
+ *
+ * Freezing the body at the header's width for the duration is what fixes it.
+ * The two candidates were measured against each other: releasing the header's
+ * pinned width so it grows with the body equalises the two TOTALS (250px of
+ * mismatch down to 1.5px) but leaves the columns 36.75px out, because the
+ * surplus is still shared out differently in a fixed-layout header than in the
+ * body -- and additionally releasing the colgroups is far worse (86px), since
+ * two tables left to size themselves from their own content never agree, which
+ * is the whole reason this sizing path exists. Freezing measured 0.1px.
+ *
+ * So nothing moves until the adjust lands, and then it moves once, correctly.
+ * Cheap on purpose: this runs per animation frame, so it must not call
+ * columns.adjust(), which fires column-sizing and makes Responsive re-measure
+ * every loaded row.
+ *
+ * @param {object} dt  the DataTables API for the table
+ *
+ * @return {void}
+ */
+function fogHoldBodyWidth(dt) {
+  var container = dt.table().container(),
+    head = $('div.dt-scroll-head table', container),
+    body = $('div.dt-scroll-body table', container);
+  if (!head.length || !body.length) {
+    return; // not a scrolling table: one table, no split to keep in step
+  }
+  body.css('width', head[0].getBoundingClientRect().width + 'px');
+}
+/**
+ * Undo fogHoldBodyWidth(), so the adjust that follows measures the real layout
+ * rather than the width we pinned to stop it flickering.
+ *
+ * @param {object} dt  the DataTables API for the table
+ *
+ * @return {void}
+ */
+function fogReleaseBodyWidth(dt) {
+  $('div.dt-scroll-body table', dt.table().container()).css('width', '');
+}
 function fogAdjustAllTables() {
   if (!$.fn.dataTable || !$.fn.dataTable.isDataTable) {
     return;
@@ -3507,6 +3561,10 @@ function fogAdjustAllTables() {
     if (!$.fn.dataTable.isDataTable(this)) {
       return;
     }
+    // Whatever fogHoldBodyWidth() pinned was there to stop the body drifting
+    // away from the header mid-resize. It must go before we measure, or the
+    // adjust below re-derives the layout from our own placeholder.
+    fogReleaseBodyWidth($(this).DataTable());
     var dt = $(this).DataTable(),
       init = (dt && typeof dt.init === 'function') ? dt.init() : null;
     // Null init: a node the table.dataTable selector matches but that isn't a
@@ -3537,8 +3595,29 @@ function fogBindTableAutosize() {
     return; // window/tab/observer handlers only need binding once per page
   }
   $.fn.dataTable.__fogScrollerBound = true;
-  var debounce;
+  var debounce,
+    lastWidth = null;
   function adjustSoon() {
+    // Hold the body to the header's width first, synchronously, so the pair
+    // cannot drift apart while the container moves. The debounce below is what
+    // keeps the expensive re-measure off the per-frame path, but it also means
+    // the mismatch would otherwise be on screen for the whole of the change
+    // plus 150ms plus the adjust.
+    //
+    // Only on a WIDTH change. This observer also fires for height changes --
+    // notably when the rows first render, which is not a resize at all -- and
+    // pinning there would fight the initial layout. Width is the only input to
+    // the header/body mismatch.
+    var main = document.querySelector('.app-main'),
+      width = main ? Math.round(main.getBoundingClientRect().width) : null;
+    if (width !== null && width !== lastWidth) {
+      lastWidth = width;
+      $('table.dataTable').each(function() {
+        if ($.fn.dataTable.isDataTable(this)) {
+          fogHoldBodyWidth($(this).DataTable());
+        }
+      });
+    }
     clearTimeout(debounce);
     debounce = setTimeout(fogAdjustAllTables, 150);
   }
