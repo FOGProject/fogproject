@@ -199,7 +199,7 @@ is the state nobody can reason about, and they buy nothing: classification is
 per value already, so a table that only ever held post-boundary values is
 already handled.
 
-### 2.5 If `FOG_TZ_INFO` changes afterwards, nothing moves
+### 2.5 If `FOG_TZ_INFO` changes afterward, nothing moves
 
 **Proposed, and this is what `seZone` is for.** After the migration
 `FOG_TZ_INFO` stops being a storage zone and becomes what it should always have
