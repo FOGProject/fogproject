@@ -1691,7 +1691,9 @@ class HostManagement extends FOGPage
         if ('' === $sbEnrolled) {
             $sbEnrolled = null;
         } elseif (self::validDate($sbEnrolled)) {
-            $sbEnrolled = self::niceDate($sbEnrolled)->format('Y-m-d H:i:s');
+            // Typed into the form, so read in the viewer's zone.
+            $sbEnrolled = self::viewerDate($sbEnrolled)
+                ->format('Y-m-d H:i:s');
         } else {
             throw new \Exception(
                 _('Secure Boot enrollment date is not a valid date')
