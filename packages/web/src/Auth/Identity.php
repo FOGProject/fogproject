@@ -522,6 +522,38 @@ class Identity extends FOGBase
         if (!Authorization::can(self::PERMISSION, $realID)) {
             return 'impersonator does not hold ' . self::PERMISSION;
         }
+        /*
+         * AN API-ONLY ACCOUNT CANNOT BE IMPERSONATED, because impersonating
+         * one would MAKE the thing that account exists to forbid.
+         *
+         * users.uAPIOnly means "may hold API credentials and act with its
+         * roles over REST, and no browser session may ever be made for it".
+         * User::isAPIOnly()'s docblock enumerates the three places that
+         * enforce it, one per way a session comes into existence:
+         * passwordValidate(), establishSession(), and _isLoggedIn().
+         *
+         * Impersonation is a FOURTH way, added later, and it does not
+         * pass through any of the three -- begin() writes the mask into the
+         * session directly. So without this the flag is simply bypassable by
+         * anyone holding impersonate.start.
+         *
+         * There is nothing to see, either, which is the softer half of the
+         * argument: the account has no UI to look at, so the "what does this
+         * user see" question the feature exists to answer has no answer here.
+         *
+         * Checked AFTER the impersonator's own permission, deliberately.
+         * Answering "that account is API-only" to somebody who may not
+         * impersonate at all tells them something about an account they had
+         * no business asking about.
+         *
+         * Placed BEFORE the two subset tests, which is also where it is
+         * cheapest: this is one row read, and it short-circuits a permission
+         * subset and a site subset that would each have queried.
+         */
+        $target = new User($targetID);
+        if ($target->isValid() && $target->isAPIOnly()) {
+            return 'target is an API-only account and cannot hold a session';
+        }
         $why = self::permissionRefusal($realID, $targetID);
         if ('' !== $why) {
             return $why;
