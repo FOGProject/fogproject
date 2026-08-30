@@ -322,6 +322,13 @@ msgstr "\"snapinfiles[]\" マルチパートフィールドを使用して、1 �
 msgid "A filename is required!"
 msgstr "名前は必須です！"
 
+msgid "A filter needs a grid and a name"
+msgstr ""
+
+#, fuzzy
+msgid "A filter needs a name"
+msgstr "ホスト名を入力してください"
+
 msgid "A group already exists with this name!"
 msgstr "この名前のグループは既に存在します！"
 
@@ -2179,6 +2186,10 @@ msgid "Delete a %s"
 msgstr "削除に失敗しました"
 
 #, fuzzy
+msgid "Delete a saved filter"
+msgstr "ファイルを削除"
+
+#, fuzzy
 msgid "Delete associated hosts"
 msgstr "選択したホストを削除"
 
@@ -2399,6 +2410,9 @@ msgstr "グループモジュール設定"
 msgid "Editing Global LDAP Settings"
 msgstr "グループモジュール設定"
 
+msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
+msgstr ""
+
 msgid "Email"
 msgstr "メール"
 
@@ -2552,6 +2566,9 @@ msgstr ""
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "ファイルはアップロードされませんでした"
+
+msgid "Every filter the CALLING user may see on that grid: their own, every global one, and any shared with them by name, through a user group, or through a role. There is no user in the path and no way to name one. mayShareGlobally reports whether the caller holds savedfilter.create, so a client can omit the \"everyone\" option rather than offer it and fail on save."
+msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
 msgstr ""
@@ -5624,6 +5641,10 @@ msgstr "このイメージを削除できる有効なマスターノードがあ
 msgid "No storagegroups assigned to this snapin"
 msgstr "割り当てられたイメージのストレージグループが無効です"
 
+#, fuzzy
+msgid "No such filter"
+msgstr "サイトがありません"
+
 msgid "No such object."
 msgstr ""
 
@@ -5733,6 +5754,10 @@ msgstr "保護されていません"
 msgid "Not reported"
 msgstr "保護されていません"
 
+#, fuzzy
+msgid "Not signed in"
+msgstr "同期していません"
+
 msgid "Not syncing"
 msgstr "同期していません"
 
@@ -5839,6 +5864,10 @@ msgstr ""
 msgid "Off - direct membership only"
 msgstr ""
 
+#, fuzzy
+msgid "Offered to every user on this grid."
+msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
+
 msgid "Old key must be a string"
 msgstr "古いキーは文字列である必要があります"
 
@@ -5875,6 +5904,10 @@ msgstr "1 つ以上の MAC アドレスがホストに関連付けられてい�
 
 msgid "One preference."
 msgstr ""
+
+#, fuzzy
+msgid "One saved filter."
+msgstr "サイトの更新に失敗しました！"
 
 msgid "Online"
 msgstr ""
@@ -6651,6 +6684,10 @@ msgid "Read one of your preferences"
 msgstr ""
 
 #, fuzzy
+msgid "Read one saved filter"
+msgstr "関連付けを削除"
+
+#, fuzzy
 msgid "Real Time"
 msgstr "日時"
 
@@ -6773,6 +6810,9 @@ msgid "Removing this group would leave no user with administrator access."
 msgstr ""
 
 msgid "Removing this role would leave no user with administrator access."
+msgstr ""
+
+msgid "Rename a filter, or change who it is shared with"
 msgstr ""
 
 msgid "Rename or remove one of them."
@@ -7015,6 +7055,10 @@ msgstr ""
 msgid "Save Changes"
 msgstr "変更を保存"
 
+#, fuzzy
+msgid "Save a filter"
+msgstr "サイトの更新に失敗しました！"
+
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr "保存は完了しましたが、有効な ID が割り当てられませんでした（insertId=0）。重複キーによる更新、または自動採番が設定されていない可能性があります。"
 
@@ -7025,8 +7069,14 @@ msgstr "Initrd を保存"
 msgid "Save the site before setting catch-all"
 msgstr ""
 
+msgid "Saved filters for one grid"
+msgstr ""
+
 msgid "Saving data for"
 msgstr "次のデータを保存しています:"
+
+msgid "Saving over a name you already used replaces that filter rather than adding a second one, which is what a Save button is expected to do. A private save never touches a global of the same name and the other way round. global:true requires savedfilter.create and answers 403 without it; everything else needs only a session. Values are capped at 64KB and refused rather than truncated."
+msgstr ""
 
 msgid "Schedule"
 msgstr "スケジュール"
@@ -8349,6 +8399,13 @@ msgid "Text to match against the id and name. A few classes match more: host als
 msgstr ""
 
 #, fuzzy
+msgid "That filter is too large to save"
+msgstr "保存に失敗しました"
+
+msgid "That grid name is too long"
+msgstr ""
+
+#, fuzzy
 msgid "That group is already defined for this provider!"
 msgstr "このグループは既にサブネットグループで使用されています。"
 
@@ -8367,6 +8424,9 @@ msgid "That is the recommended state. Restore it only to issue a new intermediat
 msgstr ""
 
 msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgstr ""
+
+msgid "That name is too long"
 msgstr ""
 
 #, fuzzy
@@ -8504,6 +8564,27 @@ msgstr ""
 msgid "The file itself."
 msgstr ""
 
+msgid "The filter state, opaque. It is DataTables SearchBuilder's own serialization and the server does not interpret it."
+msgstr ""
+
+#, fuzzy
+msgid "The filter was deleted."
+msgstr "ファイルはアップロードされませんでした"
+
+msgid "The filter was saved; the full list is returned."
+msgstr ""
+
+#, fuzzy
+msgid "The filter was updated."
+msgstr "ファイルはアップロードされませんでした"
+
+msgid "The filters visible to the caller."
+msgstr ""
+
+#, fuzzy
+msgid "The grid key."
+msgstr "タスクの作成に失敗しました"
+
 #, fuzzy
 msgid "The identity provider could not be reached"
 msgstr "強制終了できませんでした"
@@ -8632,6 +8713,10 @@ msgid "The same rules in prose, for a client reading this at runtime."
 msgstr ""
 
 #, fuzzy
+msgid "The saved filter."
+msgstr "サイトの更新に失敗しました！"
+
+#, fuzzy
 msgid "The selected site no longer exists"
 msgstr "選択したプリンターを追加"
 
@@ -8640,6 +8725,9 @@ msgstr ""
 
 msgid "The settings tend to be global which affects all hosts."
 msgstr "これらの設定は通常グローバル設定であり、すべてのホストに影響します。"
+
+msgid "The share targets the caller may see."
+msgstr ""
 
 #, fuzzy
 msgid "The sign-in could not be verified"
@@ -8726,6 +8814,10 @@ msgstr "空きスロットがあります"
 
 msgid "There is a host in a tasking"
 msgstr "タスク実行中のホストがあります"
+
+#, fuzzy
+msgid "There is no filter to save"
+msgstr "保存に失敗しました"
 
 msgid "There is nothing to replicate"
 msgstr "レプリケーションする項目はありません"
@@ -9549,12 +9641,18 @@ msgstr "ユーザー名は 3 文字以上で指定してください"
 msgid "Username must end with a number or letter."
 msgstr "ユーザー名は英数字またはアンダースコアで開始する必要があります"
 
+msgid "Username of whoever created it, on filters the caller does not own. Empty when the creator's account has since been deleted."
+msgstr ""
+
 #, fuzzy
 msgid "Username was blank"
 msgstr "ユーザー名"
 
 msgid "Users"
 msgstr "ユーザー"
+
+msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
+msgstr ""
 
 msgid "Using the group match function"
 msgstr "グループ照合機能を使用しています"
@@ -9666,6 +9764,12 @@ msgid "Whichever route is used, MokManager -- the blue enrollment screen -- has 
 msgstr ""
 
 msgid "Who"
+msgstr ""
+
+msgid "Who a filter can be shared with"
+msgstr ""
+
+msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -9786,6 +9890,12 @@ msgstr "少なくとも 1 つのグループを関連付ける必要がありま
 msgid "You do not have permission to view API tokens."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
+msgid "You may not change a filter shared with everyone"
+msgstr ""
+
+msgid "You may not save a filter for everyone"
+msgstr ""
+
 msgid "You may use _, ., -, or a space between."
 msgstr ""
 
@@ -9797,6 +9907,9 @@ msgstr "少なくとも 1 つのストレージグループが必要です"
 
 msgid "You must select an action to perform"
 msgstr "実行する操作を選択してください"
+
+msgid "You own it, so you may rename, re-share or delete it."
+msgstr ""
 
 msgid "You were logged out due to inactivity."
 msgstr ""
@@ -9811,6 +9924,9 @@ msgid "Your session has ended. Sign in again."
 msgstr ""
 
 msgid "Your stored preferences"
+msgstr ""
+
+msgid "Yours, always. A global one requires savedfilter.delete. Every share of it goes with it, by foreign key."
 msgstr ""
 
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
@@ -10470,6 +10586,9 @@ msgstr "このノードはオンラインではないようです"
 msgid "settings"
 msgstr "設定"
 
+msgid "shares is null unless you own the filter: being shared WITH one does not entitle you to see who else it went to. A filter that does not exist and one belonging to somebody else both answer 404, deliberately, so an id cannot be used to probe for other people's filters."
+msgstr ""
+
 msgid "short"
 msgstr ""
 
@@ -11096,9 +11215,6 @@ msgstr ""
 
 #~ msgid "Delete all PM tasks?"
 #~ msgstr "すべての電源管理タスクを削除しますか？"
-
-#~ msgid "Delete files"
-#~ msgstr "ファイルを削除"
 
 #~ msgid "Delete hosts within"
 #~ msgstr "含まれるホストを削除"
@@ -12012,9 +12128,6 @@ msgstr ""
 
 #~ msgid "No rule selected"
 #~ msgstr "ルールが選択されていません"
-
-#~ msgid "No site"
-#~ msgstr "サイトがありません"
 
 #~ msgid "No valid Image defined for this host"
 #~ msgstr "このホストに有効なイメージが定義されていません"
@@ -12971,9 +13084,6 @@ msgstr ""
 
 #~ msgid "has failed to destroy"
 #~ msgstr "削除に失敗しました"
-
-#~ msgid "has failed to save"
-#~ msgstr "保存に失敗しました"
 
 #~ msgid "help with any aspect of FOG"
 #~ msgstr "FOG に関するあらゆるサポート"

@@ -2310,6 +2310,107 @@ class OpenAPI extends FOGBase
      *
      * @return array
      */
+    /**
+     * The {id} path parameter shared by the saved-filter item operations.
+     *
+     * @return array
+     */
+    /**
+     * An id/name list, as the share-target route returns.
+     *
+     * @return array
+     */
+    private static function _namedIdList()
+    {
+        return [
+            'type' => 'array',
+            'items' => [
+                'type' => 'object',
+                'properties' => [
+                    'id' => ['type' => 'integer'],
+                    'name' => ['type' => 'string']
+                ]
+            ]
+        ];
+    }
+    private static function _filterIdParam()
+    {
+        return [
+            [
+                'name' => 'id',
+                'in' => 'path',
+                'required' => true,
+                'description' => _('The saved filter.'),
+                'schema' => ['type' => 'integer']
+            ]
+        ];
+    }
+    /**
+     * One saved filter as the list operation returns it.
+     *
+     * @return array
+     */
+    private static function _savedFilterSchema()
+    {
+        return [
+            'type' => 'object',
+            'properties' => [
+                'id' => ['type' => 'integer'],
+                'name' => ['type' => 'string'],
+                'mine' => [
+                    'type' => 'boolean',
+                    'description' => _('You own it, so you may rename, '
+                        . 're-share or delete it.')
+                ],
+                'global' => [
+                    'type' => 'boolean',
+                    'description' => _('Offered to every user on this grid.')
+                ],
+                'source' => [
+                    'type' => 'string',
+                    'enum' => ['mine', 'user', 'group', 'role', 'global'],
+                    'description' => _('Why the caller can see it, most '
+                        . 'specific grant first. A filter reachable several '
+                        . 'ways is still returned once and reports only the '
+                        . 'most specific reason.')
+                ],
+                'sharedBy' => [
+                    'type' => 'string',
+                    'description' => _('Username of whoever created it, on '
+                        . 'filters the caller does not own. Empty when the '
+                        . 'creator\'s account has since been deleted.')
+                ],
+                'value' => [
+                    'type' => 'string',
+                    'description' => _('The filter state, opaque. It is '
+                        . 'DataTables SearchBuilder\'s own serialization and '
+                        . 'the server does not interpret it.')
+                ],
+                'modified' => ['type' => 'string']
+            ]
+        ];
+    }
+    /**
+     * The share-target lists, as sent and as returned.
+     *
+     * @return array
+     */
+    private static function _shareTargetsSchema()
+    {
+        $ids = [
+            'type' => 'array',
+            'items' => ['type' => 'integer']
+        ];
+
+        return [
+            'type' => 'object',
+            'properties' => [
+                'users' => $ids,
+                'groups' => $ids,
+                'roles' => $ids
+            ]
+        ];
+    }
     private static function _prefKeyParam()
     {
         return [
@@ -2475,6 +2576,219 @@ class OpenAPI extends FOGBase
                     self::_prefKeyParam(),
                     [],
                     'ClearPref'
+                )
+            ],
+            '/system/savedfilters' => [
+                'get' => self::_op(
+                    '',
+                    'savedfilters',
+                    _('Saved filters for one grid'),
+                    _('Every filter the CALLING user may see on that grid: '
+                        . 'their own, every global one, and any shared with '
+                        . 'them by name, through a user group, or through a '
+                        . 'role. There is no user in the path and no way to '
+                        . 'name one. mayShareGlobally reports whether the '
+                        . 'caller holds savedfilter.create, so a client can '
+                        . 'omit the "everyone" option rather than offer it '
+                        . 'and fail on save.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'table' => ['type' => 'string'],
+                                'filters' => [
+                                    'type' => 'array',
+                                    'items' => self::_savedFilterSchema()
+                                ],
+                                'mayShareGlobally' => ['type' => 'boolean'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The filters visible to the caller.')
+                    ),
+                    [
+                        [
+                            'name' => 'table',
+                            'in' => 'query',
+                            'required' => true,
+                            'description' => _('The grid key.'),
+                            'schema' => [
+                                'type' => 'string',
+                                'maxLength' => 128
+                            ]
+                        ]
+                    ],
+                    [],
+                    'ListSavedFilters'
+                ),
+                'post' => self::_op(
+                    '',
+                    'savedfilters',
+                    _('Save a filter'),
+                    _('Saving over a name you already used replaces that '
+                        . 'filter rather than adding a second one, which is '
+                        . 'what a Save button is expected to do. A private '
+                        . 'save never touches a global of the same name and '
+                        . 'the other way round. global:true requires '
+                        . 'savedfilter.create and answers 403 without it; '
+                        . 'everything else needs only a session. Values are '
+                        . 'capped at 64KB and refused rather than truncated.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'filters' => [
+                                    'type' => 'array',
+                                    'items' => self::_savedFilterSchema()
+                                ],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The filter was saved; the full list is returned.')
+                    ),
+                    [],
+                    [
+                        'required' => true,
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'required' => ['table', 'name', 'value'],
+                                    'properties' => [
+                                        'table' => ['type' => 'string'],
+                                        'name' => ['type' => 'string'],
+                                        'value' => ['type' => 'string'],
+                                        'global' => ['type' => 'boolean']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'SaveFilter'
+                )
+            ],
+            '/system/savedfilter/{id}' => [
+                'get' => self::_op(
+                    '',
+                    'savedfilter',
+                    _('Read one saved filter'),
+                    _('shares is null unless you own the filter: being '
+                        . 'shared WITH one does not entitle you to see who '
+                        . 'else it went to. A filter that does not exist and '
+                        . 'one belonging to somebody else both answer 404, '
+                        . 'deliberately, so an id cannot be used to probe for '
+                        . 'other people\'s filters.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'id' => ['type' => 'integer'],
+                                'name' => ['type' => 'string'],
+                                'value' => ['type' => 'string'],
+                                'global' => ['type' => 'boolean'],
+                                'shares' => array_merge(
+                                    self::_shareTargetsSchema(),
+                                    ['nullable' => true]
+                                ),
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('One saved filter.')
+                    ),
+                    self::_filterIdParam(),
+                    [],
+                    'GetSavedFilter'
+                ),
+                'put' => self::_op(
+                    '',
+                    'savedfilter',
+                    _('Rename a filter, or change who it is shared with'),
+                    _('Either half may be sent, or both. ABSENT IS NOT '
+                        . 'EMPTY: a body with no "shares" key leaves the '
+                        . 'share list alone, while one carrying empty lists '
+                        . 'means "shared with nobody" and clears it. The '
+                        . 'whole list is replaced rather than added to. '
+                        . 'Sharing needs no permission -- it can only add one '
+                        . 'named entry to the picker of somebody you could '
+                        . 'already name -- but editing a GLOBAL filter '
+                        . 'requires savedfilter.edit.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'id' => ['type' => 'integer'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The filter was updated.')
+                    ),
+                    self::_filterIdParam(),
+                    [
+                        'required' => true,
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'name' => ['type' => 'string'],
+                                        'shares' => self::_shareTargetsSchema()
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'UpdateSavedFilter'
+                ),
+                'delete' => self::_op(
+                    '',
+                    'savedfilter',
+                    _('Delete a saved filter'),
+                    _('Yours, always. A global one requires '
+                        . 'savedfilter.delete. Every share of it goes with '
+                        . 'it, by foreign key.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'id' => ['type' => 'integer'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The filter was deleted.')
+                    ),
+                    self::_filterIdParam(),
+                    [],
+                    'DeleteSavedFilter'
+                )
+            ],
+            '/system/savedfiltertargets' => [
+                'get' => self::_op(
+                    '',
+                    'savedfiltertargets',
+                    _('Who a filter can be shared with'),
+                    _('Users, user groups and roles as id/name pairs. Each '
+                        . 'section is gated on that entity\'s own view '
+                        . 'permission -- user.view, usergroup.view, '
+                        . 'role.view -- and comes back EMPTY rather than 403 '
+                        . 'when the caller lacks it, so this route discloses '
+                        . 'nothing they could not already list. A caller '
+                        . 'holding none of the three can still save private '
+                        . 'filters; there is simply nobody they may name.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'users' => self::_namedIdList(),
+                                'groups' => self::_namedIdList(),
+                                'roles' => self::_namedIdList(),
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The share targets the caller may see.')
+                    ),
+                    [],
+                    [],
+                    'ListShareTargets'
                 )
             ],
             '/system/export' => [

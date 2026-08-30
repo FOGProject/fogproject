@@ -406,6 +406,67 @@ function fogPrefFetch(key, cb) {
 }
 
 /**
+ * The preference key for one of a grid's affordances.
+ *
+ * Namespaced under the grid's own layout key so two tables cannot collide,
+ * and suffixed so an affordance cannot collide with the layout itself.
+ *
+ * @param {object} dt   the DataTables API for the table
+ * @param {string} name the affordance
+ *
+ * @return {string} the key, or '' when the table has no id to key on
+ */
+function fogAffordanceKey(dt, name) {
+  var base = fogStateKey(dt.settings()[0]);
+  return base ? base + '.' + name : '';
+}
+
+/**
+ * Remembers whether one of a grid's affordances is showing.
+ *
+ * Deliberately a BOOLEAN and never a filter term. Restoring "the search row
+ * is open" shows an empty row; restoring what was typed in it would show a
+ * short grid with no visible reason, which is the failure the layout state
+ * avoids by stripping searches entirely.
+ *
+ * @param {object}  dt   the DataTables API for the table
+ * @param {string}  name the affordance
+ * @param {boolean} on   whether it is showing
+ *
+ * @return {void}
+ */
+function fogAffordanceStore(dt, name, on) {
+  var key = fogAffordanceKey(dt, name);
+  if (!key) {
+    return;
+  }
+  // An empty value clears the preference, so "off" leaves no row behind --
+  // the same convention the rest of the store uses for "no opinion".
+  fogPrefStore(key, on ? '1' : '');
+}
+
+/**
+ * Reads one affordance back and applies it.
+ *
+ * @param {object}   dt    the DataTables API for the table
+ * @param {string}   name  the affordance
+ * @param {function} apply receives true when it was left showing
+ *
+ * @return {void}
+ */
+function fogAffordanceRestore(dt, name, apply) {
+  var key = fogAffordanceKey(dt, name);
+  if (!key) {
+    return;
+  }
+  fogPrefFetch(key, function(err, value) {
+    if (!err && value === '1') {
+      apply();
+    }
+  });
+}
+
+/**
  * Display-timezone picker in the navbar.
  *
  * Reads and writes the same preference store the grid layouts use, so a chosen
@@ -554,8 +615,29 @@ var shouldReAuth,
     enabled: false,
     text: '<i class="fas fa-magnifying-glass-chart"></i> Column search',
     action: function(e, dt) {
-      $(dt.table().container()).toggleClass('fog-colsearch-on');
+      var on = $(dt.table().container())
+        .toggleClass('fog-colsearch-on')
+        .hasClass('fog-colsearch-on');
       fogColumnSearchSync(dt);
+      // WHETHER THE ROW IS SHOWN, never what is typed in it. The row is an
+      // affordance -- "I like filtering from the headers" -- and remembering
+      // that is not the same as remembering a question somebody asked once.
+      // The terms are still cleared when the row closes, and still stripped
+      // from the saved layout; see fogStripStateSearch().
+      fogAffordanceStore(dt, 'searchrow', on);
+    }
+  },
+  // Named, saved filters. A separate control from the Filter panel next to
+  // it: that one BUILDS a filter, this one remembers the ones worth keeping
+  // and hands them out. Everything about it lives in fog.filters.js -- the
+  // toolbar only needs to know how to open it.
+  savedFiltersButton = {
+    name: 'savedfilters',
+    text: '<i class="far fa-bookmark"></i> Saved filters',
+    action: function(e, dt) {
+      if (window.fogSavedFilters) {
+        window.fogSavedFilters.open(dt);
+      }
     }
   },
   exportButtons = [
@@ -589,6 +671,7 @@ var shouldReAuth,
       text: '<i class="fas fa-print"></i> Print'
     },
     searchBuilderButton,
+    savedFiltersButton,
     columnSearchButton,
     {
       extend: 'colvis',
@@ -623,6 +706,7 @@ var shouldReAuth,
       text: '<i class="fas fa-print"></i> Print'
     },
     searchBuilderButton,
+    savedFiltersButton,
     columnSearchButton,
     {
       extend: 'colvis',
@@ -3560,6 +3644,7 @@ $.fn.registerTable = function(onSelect, opts) {
         text: '<i class="far fa-square"></i> Deselect All'
       },
       searchBuilderButton,
+      savedFiltersButton,
       columnSearchButton,
       {
         text: '<i class="fas fa-arrows-rotate"></i> Refresh',
@@ -3699,6 +3784,14 @@ $.fn.registerTable = function(onSelect, opts) {
     fogColumnSearchRow(api, types);
     fogColumnSearchRestore(api);
     api.buttons('colsearch:name').enable();
+    // Only once. This handler runs on every response, and re-applying would
+    // fight a user who closed the row and then changed a page.
+    if (!settings._fogAffordancesDone) {
+      settings._fogAffordancesDone = true;
+      fogAffordanceRestore(api, 'searchrow', function() {
+        $(api.table().container()).addClass('fog-colsearch-on');
+      });
+    }
   });
 
   var table = $(this).DataTable(opts);

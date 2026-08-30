@@ -244,6 +244,22 @@ class Authorization extends FOGBase
         // is no object here for an object permission to be about.
         'userprefs' => null,
         'userpref' => null,
+        // Saved grid filters. null for the same reason as userpref: the
+        // acting user comes from the session and the path has no place to put
+        // a different one, so every read and write is already scoped to the
+        // caller by the manager.
+        //
+        // The privileged case -- saving a filter for EVERYONE -- is checked
+        // inside the handler against savedfilter.*, because "global" is a
+        // property of the request body rather than of the route. A single
+        // route-level permission would have to be the strictest of the two
+        // cases, which would take private filters away from everybody.
+        'savedfilters' => null,
+        'savedfilter' => null,
+        // Gated per section inside the handler against user.view,
+        // usergroup.view and role.view, so it can disclose nothing the caller
+        // could not already list.
+        'savedfiltertargets' => null,
         // The API description, and its swagger.json alias. Public for the
         // same reason status/info are: a client should be able to discover
         // what it is talking to before it has credentials. Both expose only
@@ -470,6 +486,22 @@ class Authorization extends FOGBase
             // folded into edit.
             'apitoken' => ['view', 'create', 'edit', 'delete'],
             'usergroup' => ['view', 'create', 'edit', 'delete'],
+            // GLOBAL saved grid filters only.
+            //
+            // The node governs the shared namespace, not filters in general.
+            // Anybody signed in may create, rename, delete and SHARE their
+            // own filters without holding anything here: those reach only the
+            // people they name, the route derives the owner from the session,
+            // and requiring a grant would silently remove the feature from
+            // everyone on upgrade until roles were edited.
+            //
+            // A global filter is different in kind: it appears in every
+            // user's picker on that grid, so somebody has to be trusted with
+            // it. Split three ways for the same reason apitoken is --
+            // removing a filter the whole site has built a habit around is a
+            // bigger act than adding one, and 'view' is absent because
+            // everyone can already see a global filter by definition.
+            'savedfilter' => ['create', 'edit', 'delete'],
             'role' => ['view', 'create', 'edit', 'delete'],
             // Sites came in from the site plugin. The node keeps the name
             // the plugin registered so grants written against it survive

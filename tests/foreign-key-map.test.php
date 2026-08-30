@@ -325,6 +325,15 @@ $expected = [
     'multicastSessionsAssoc.tID',
     // Group 7
     'userPrefs.upUserID',
+    // Group 8
+    'savedFilters.sfUserID',
+    'savedFilters.sfCreatorID',
+    'savedFilterUserAssoc.sfuaFilterID',
+    'savedFilterUserAssoc.sfuaUserID',
+    'savedFilterGroupAssoc.sfgaFilterID',
+    'savedFilterGroupAssoc.sfgaUserGroupID',
+    'savedFilterRoleAssoc.sfraFilterID',
+    'savedFilterRoleAssoc.sfraRoleID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,
