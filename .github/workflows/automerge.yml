@@ -96,12 +96,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # THE APP TOKEN IS LOAD BEARING. This job does not work with
+      # secrets.GITHUB_TOKEN, and its failure mode is the worst kind: nothing
+      # errors, and the pull request never merges.
+      #
+      # GitHub will not start a workflow run from an event caused by
+      # GITHUB_TOKEN. That is the platform's anti-recursion rule and it is
+      # deliberate -- without it, a workflow that pushes a commit would
+      # trigger itself forever.
+      #
+      # Arming auto-merge makes GitHub enqueue the pull request later, and the
+      # enqueue is attributed to whoever armed it. Armed with GITHUB_TOKEN, the
+      # `merge_group` event that enqueue raises therefore starts NOTHING. The
+      # queue branch is created, tests.yml never runs against it, none of the
+      # required contexts is ever reported, and the entry sits in
+      # AWAITING_CHECKS until the ruleset's check_response_timeout_minutes (60)
+      # ejects it. Waiting cannot help: there is nothing left to arrive.
+      #
+      # OBSERVED, not deduced. On 2026-08-30, #1519, #1520 and #1521 were
+      # enqueued by hand and dispatched within seconds; #1522 and #1523 were
+      # enqueued by github-actions[bot] through this job and never dispatched
+      # at all -- zero workflow runs and zero check runs on the queue commit.
+      # Dequeuing #1522 and re-arming it as a human dispatched it in six
+      # seconds. The only variable was who did the enqueuing.
+      #
+      # An App token is not subject to the rule, which is why the regen job in
+      # tests.yml already mints one to push its commit. Same App, same org
+      # variable and secret; tests.yml passes `secrets: inherit`, which is what
+      # makes FOG_WORKFLOWS_PRIVATE_KEY resolvable here.
+      #
+      # A fork pull request has no secrets, so this step cannot mint anything
+      # there. That is already handled by the same-repo guard on the job.
+      - uses: actions/create-github-app-token@v3
+        id: app-token
+        with:
+          client-id: ${{ vars.FOG_WORKFLOWS_APPID }}
+          private-key: ${{ secrets.FOG_WORKFLOWS_PRIVATE_KEY }}
+          owner: FOGProject
+          repositories: "fogproject"
+
       # --merge, not the default, and not squash or rebase. The ruleset allows
       # merge commits ONLY, and asking for a method it forbids fails rather
       # than falling back.
       - name: Enable auto-merge
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           PR: ${{ github.event.pull_request.number }}
         # DELIBERATELY NOT continue-on-error.
         #
