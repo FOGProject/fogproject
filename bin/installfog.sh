@@ -85,7 +85,27 @@ if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ "linux" ]]; then
     exit 2 # Fail OS Check
 fi
 
-[[ -z $version ]] && version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php | tr -d '[[:space:]]')"
+# Stamp packages/web/commons/version.php from the commit graph before reading
+# a version out of the tree, so an install from a clone reports the exact build
+# it is deploying rather than the release constant src/Base/System.php falls
+# back to. The generator fails open -- no git, no .git, a source zip -- and
+# leaves nothing behind, which is why the read below still tries both files.
+# See .githooks/lib/write-version-file.sh for why the version is generated
+# rather than tracked (GH-1512).
+if [[ -x ../.githooks/lib/write-version-file.sh ]]; then
+    sh ../.githooks/lib/write-version-file.sh >/dev/null 2>&1 || true
+fi
+
+# The generated file first, then the tracked fallback. Both carry the version
+# in the identical `define('FOG_VERSION', '...');` shape precisely so one awk
+# reads either.
+if [[ -z $version ]]; then
+    for versionfile in ../packages/web/commons/version.php ../packages/web/src/Base/System.php; do
+        [[ -f $versionfile ]] || continue
+        version="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$versionfile" | tr -d '[[:space:]]')"
+        [[ -n $version ]] && break
+    done
+fi
 [[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
 error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)

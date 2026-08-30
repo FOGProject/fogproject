@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+#
+# Refreshes packages/web/commons/version.php after a commit, so a working
+# checkout always reports the build it actually is.
+#
+# The output is GITIGNORED, which is the whole point -- see
+# .githooks/lib/write-version-file.sh for why the version is generated rather
+# than tracked, and GH-1510 for what tracking it used to cost. Nothing here is
+# staged, so unlike pre-commit this hook cannot change what a commit contains.
+#
+# post-commit's exit status is ignored by git, and the generator fails open
+# regardless.
+project_dir=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+sh "$project_dir/.githooks/lib/write-version-file.sh" >/dev/null 2>&1 || true
+exit 0
