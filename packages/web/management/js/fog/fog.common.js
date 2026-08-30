@@ -3800,31 +3800,53 @@ $.fn.registerTable = function(onSelect, opts) {
   // rebuilt -- which it is on every draw, and again whenever a column is
   // shown or hidden. 'input' rather than 'change' so typing filters as you go;
   // debounced because each keystroke is a server round trip.
+  //
+  // Deferred, and that is the whole point of the function: with server-side
+  // data DataTables does not build the wrapper until the first response has
+  // arrived, so at the moment DataTable() returns, table().container() is
+  // still null. Binding there binds to an EMPTY jQuery set -- silently, since
+  // .on() on nothing is not an error -- and the result is a search row that
+  // renders, accepts typing, and filters nothing.
+  //
+  // Called twice on purpose. Straight away covers registerTable() being
+  // re-run over an already-initialized table (retrieve:true), where the
+  // container exists and no further init event will ever fire; on init.dt
+  // covers the normal first run. The .off() makes the overlap harmless.
   var columnSearchTimer = null;
-  $(table.table().container())
-    .off('.fogcolsearch')
-    .on('change.fogcolsearch', 'select.fog-colsearch-mode', function() {
-      fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
-    })
-    .on('change.fogcolsearch', 'input.fog-colsearch-input[type="date"]', function() {
-      fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
-    })
-    .on('input.fogcolsearch', 'input.fog-colsearch-input[type="text"]', function() {
-      var group = $(this).closest('div.fog-colsearch');
-      clearTimeout(columnSearchTimer);
-      columnSearchTimer = setTimeout(function() {
-        fogColumnSearchApply(table, group);
-      }, 400);
-    })
-    .on('keydown.fogcolsearch', 'input.fog-colsearch-input', function(e) {
-      if (e.which !== 13) {
-        return;
-      }
-      // Enter means "now", not "also submit the form this table sits in".
-      e.preventDefault();
-      clearTimeout(columnSearchTimer);
-      fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
-    });
+  function fogBindColumnSearch() {
+    var container = table.table().container();
+    if (!container) {
+      return;
+    }
+    $(container)
+      .off('.fogcolsearch')
+      .on('change.fogcolsearch', 'select.fog-colsearch-mode', function() {
+        fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
+      })
+      .on('change.fogcolsearch', 'input.fog-colsearch-input[type="date"]', function() {
+        fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
+      })
+      .on('input.fogcolsearch', 'input.fog-colsearch-input[type="text"]', function() {
+        var group = $(this).closest('div.fog-colsearch');
+        clearTimeout(columnSearchTimer);
+        columnSearchTimer = setTimeout(function() {
+          fogColumnSearchApply(table, group);
+        }, 400);
+      })
+      .on('keydown.fogcolsearch', 'input.fog-colsearch-input', function(e) {
+        if (e.which !== 13) {
+          return;
+        }
+        // Enter means "now", not "also submit the form this table sits in".
+        e.preventDefault();
+        clearTimeout(columnSearchTimer);
+        fogColumnSearchApply(table, $(this).closest('div.fog-colsearch'));
+      });
+  }
+  fogBindColumnSearch();
+  $(this)
+    .off('init.dt.fogcolsearch')
+    .on('init.dt.fogcolsearch', fogBindColumnSearch);
 
   // A hidden column's box has to go with it, and the remaining boxes have to
   // re-line-up: the header only carries cells for visible columns, so every
