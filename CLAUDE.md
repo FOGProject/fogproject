@@ -204,11 +204,29 @@ self::$HookManager->processEvent('EVENT_NAME', array('data' => &$data));
 
 ## Pre-commit hook (IMPORTANT — explains "files I didn't touch" in commits)
 
-`core.hooksPath` is `.githooks/`, so `.githooks/pre-commit` runs on **every** `git commit` (and `pre-merge-commit` delegates to it). It auto-modifies and `git add`s files beyond what you staged — this is expected, not a bug. Do **not** revert these. It does three things:
+`core.hooksPath` is `.githooks/`, so `.githooks/pre-commit` runs on **every** `git commit` (and `pre-merge-commit` delegates to it). It auto-modifies and `git add`s files beyond what you staged — this is expected, not a bug. Do **not** revert these. It does two things:
 
 1. **`updateLanguage()`** — regenerates `management/languages/messages.pot` via `xgettext`, sorts with `msgcat`, then `msgmerge`-updates every `.po`. Adds the whole `languages/` dir. Skipped if those tools aren't installed.
 2. **`psrfix()`** — runs `php-cs-fixer fix packages/web --rules=@PSR2` and **`git add packages/web`** unconditionally. Two consequences: your code may be auto-reformatted to PSR-2, and **any other dirty file under `packages/web/` gets swept into your commit** regardless of what you staged. Commit files outside `packages/web/` (like this `CLAUDE.md`) separately if you need them isolated.
-3. **Version bump** — derives a version from the branch name + commit count and rewrites `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/lib/fog/system.class.php`. On `dev`/`stable` branches the channel is `Patches`. This step also tends to leave a **dangling staged `system.class.php`** bump after the commit; discard it with `git checkout -- packages/web/lib/fog/system.class.php` if you don't want it in the next commit.
+It used to do a third — a **version bump**, rewriting `FOG_VERSION`/`FOG_CHANNEL` in `packages/web/lib/fog/system.class.php` from the branch name and the commit count, which is also what left a **dangling staged `system.class.php`** behind after every commit. That was removed, along with `.githooks/pre-push` (which existed only to refuse a push whose committed version had drifted).
+
+### Why `FOG_VERSION` is not written on a branch
+
+`FOG_VERSION` is `git rev-list master..HEAD --count` — a property of the commit
+graph — but it is *stored* on a single tracked line of
+`packages/web/lib/fog/system.class.php`. Writing it per-commit made every branch
+open at the same time hold a **different value on the same line**, so each merge
+left the others with a hand-resolved conflict on `system.class.php` before they
+could be updated and re-tested. That is structural, not a race.
+
+The version now has exactly one writer: `.github/workflows/sync-generated-files.yml`,
+on the base branch, after a merge — plus fog-workflows' daily sweep for direct
+pushes and `rc-*`/`feature-*` branches. A feature branch's `FOG_VERSION` is
+*behind* while it is open, on purpose. The channel is `Patches` on
+`dev`/`stable`.
+
+Diagnosed on `working-1.6` in GH-1510; this branch has the same defect and takes
+the same fix.
 
 ---
 

@@ -5,10 +5,17 @@ name: Sync generated files and version
 # Actions has no cross-repo merge trigger, so something has to live here to react
 # to a merge.
 #
-# The pre-commit hook cannot cover this. It is client-side, so a PR merged
-# through GitHub's web UI (squash, merge commit or rebase) never runs it and
-# FOG_VERSION goes stale until the daily sweep fires at 10:10 UTC. This closes
-# that window.
+# THIS IS THE ONLY THING THAT WRITES FOG_VERSION ON A MERGE, and since GH-1510
+# it is the only thing that writes it on this branch at all outside the daily
+# sweep. .githooks/pre-commit used to stamp a version on every local commit;
+# that made every branch open at the same time hold a different value on the
+# same tracked line, so each merge left the others with a hand-resolved
+# conflict on system.class.php. Its header has the full reasoning.
+#
+# A client-side hook could not have covered this case anyway: a PR merged
+# through GitHub's web UI (squash, merge commit or rebase) runs no local hook,
+# so FOG_VERSION would go stale until the daily sweep fires at 10:10 UTC. This
+# closes that window.
 #
 # WHY `pull_request`, AND NOT `pull_request_target`
 #
