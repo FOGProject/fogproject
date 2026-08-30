@@ -794,7 +794,7 @@ abstract class FOGController extends FOGBase
 
                     case 'createdTime':
                         if (!($val && self::validDate($val))) {
-                            $val = self::formatTime('now', 'Y-m-d H:i:s');
+                            $val = self::storageNow();
                         }
                         break;
                 }

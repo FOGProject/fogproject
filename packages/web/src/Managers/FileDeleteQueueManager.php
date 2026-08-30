@@ -54,7 +54,7 @@ class FileDeleteQueueManager extends FOGManagerController
             $findWhere,
             '',
             [
-                'completedTime' => self::formatTime('now', 'Y-m-d H:i:s'),
+                'completedTime' => self::storageNow(),
                 'stateID' => $canceled
             ]
         );
@@ -81,7 +81,7 @@ class FileDeleteQueueManager extends FOGManagerController
             $findWhere,
             '',
             [
-                'completedTime' => self::formatTime('now', 'Y-m-d H:i:s'),
+                'completedTime' => self::storageNow(),
                 'stateID' => $completed
             ]
         );

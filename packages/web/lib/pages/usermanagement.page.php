@@ -1464,7 +1464,7 @@ class UserManagement extends FOGPage
                     'title' => _('API Token Created'),
                     'token' => $token,
                     'name' => $name,
-                    'created' => self::formatTime('now', 'Y-m-d H:i:s')
+                    'created' => self::storageNow()
                 ]
             )
         );

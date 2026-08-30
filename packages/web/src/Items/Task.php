@@ -310,7 +310,7 @@ class Task extends TaskType
                     '',
                     [
                         'clients' => 0,
-                        'completetime' => self::formatTime('now', 'Y-m-d H:i:s'),
+                        'completetime' => self::storageNow(),
                         'stateID' => self::getCancelledState()
                     ]
                 );

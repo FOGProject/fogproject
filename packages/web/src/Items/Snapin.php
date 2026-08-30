@@ -182,7 +182,7 @@ class Snapin extends FOGController
             self::getClass('FileDeleteQueue')
                 ->set('path', $this->get('file'))
                 ->set('pathtype', 'Snapin')
-                ->set('createdTime', self::formatTime('now', 'Y-m-d H:i:s'))
+                ->set('createdTime', self::storageNow())
                 ->set('stateID', self::getQueuedState())
                 ->set('createdBy', self::$FOGUser->get('name'))
                 ->set('storagegroupID', $storagegroupID)

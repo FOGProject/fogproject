@@ -1486,7 +1486,7 @@ class Host extends FOGController
             if ($TaskType->id == 14) {
                 $Task
                     ->set('stateID', self::getProgressState())
-                    ->set('checkInTime', self::formatTime('now', 'Y-m-d H:i:s'))
+                    ->set('checkInTime', self::storageNow())
                     ->save();
             }
             if ($wol || $TaskType->id == 14) {
