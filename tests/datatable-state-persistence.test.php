@@ -24,6 +24,14 @@
  *    stock DataTables 2.0.8 and ColReorder 2.0.3 using the library's own
  *    localStorage callbacks, so the compensation has to live here.
  *
+ * ...and one that fails LOUDLY, in the wrong hands. DataTables Select writes
+ * the selected row ids into every state save of its own accord and re-selects
+ * them on load. Nothing here asked for it and nothing here reads it, but every
+ * bulk action on a list page reads rows({selected: true}) -- so a selection
+ * made on one machine on Friday comes back armed on another on Monday, out of
+ * sight down a virtual scroll. It has to be stripped, and stripped by name,
+ * because it is not this code that puts it there.
+ *
  * Usage: php tests/datatable-state-persistence.test.php
  * Exit status 0 = pass, 1 = fail.
  */
@@ -63,25 +71,26 @@ if (!preg_match('#fogPrefFetch\(key, function\(err, value\)#', $load)) {
 // ------------------------------------------------------- the timestamp
 
 if (!preg_match(
-    '#function fogStripStateSearch\(state\) \{(.*?)\n\}#s',
+    '#function fogStripVolatileState\(state\) \{(.*?)\n\}#s',
     $js,
     $m
 )) {
-    $fails[] = 'fogStripStateSearch() not found';
+    $fails[] = 'fogStripVolatileState() not found';
 } else {
     if (preg_match('#delete\s+copy\.time#', $m[1])) {
-        $fails[] = 'fogStripStateSearch() deletes the state timestamp; '
+        $fails[] = 'fogStripVolatileState() deletes the state timestamp; '
             . 'DataTables drops a state that has no time and the saved '
             . 'layout can never be restored';
     }
-    // What it MUST still strip: a stored search would be reapplied invisibly.
-    foreach (['search', 'searchBuilder'] as $stripped) {
+    // What it MUST still strip: a stored search would be reapplied invisibly,
+    // and a stored selection would be reapplied invisibly AND acted on.
+    foreach (['search', 'searchBuilder', 'select'] as $stripped) {
         if (!preg_match('#delete\s+copy\.' . $stripped . '\b#', $m[1])) {
-            $fails[] = "fogStripStateSearch() no longer strips $stripped";
+            $fails[] = "fogStripVolatileState() no longer strips $stripped";
         }
     }
     if (!preg_match('#delete\s+copy\.columns\[i\]\.search#', $m[1])) {
-        $fails[] = 'fogStripStateSearch() no longer strips per-column search';
+        $fails[] = 'fogStripVolatileState() no longer strips per-column search';
     }
 }
 

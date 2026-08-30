@@ -3,7 +3,7 @@
  *
  * A filter someone SAVED and then PICKED is a different thing from a filter
  * silently restored on their behalf. The layout state deliberately drops
- * searches on the way out (fogStripStateSearch in fog.common.js) because a
+ * searches on the way out (fogStripVolatileState in fog.common.js) because a
  * restored filter looks exactly like missing data -- you open Hosts, see 4 of
  * 4000, and nothing on screen says why. Everything here is built around
  * keeping that distinction true:
