@@ -1,0 +1,164 @@
+name: Merge queue watchdog
+
+# Requeues a merge queue entry whose checks GitHub never dispatched.
+#
+# WHAT GOES WRONG
+#
+# Enqueuing a pull request makes GitHub build a throwaway `gh-readonly-queue`
+# branch -- base plus the pull request -- and run the required checks against
+# THAT commit, not against the pull request's own head. That is the whole
+# point of a queue: the checks that decide the merge are the checks on the
+# merge result.
+#
+# On 2026-08-30, pull request #1522 was enqueued at 17:59:00Z. The queue
+# branch was created. No workflow run was ever dispatched against it:
+#
+#     gh api repos/.../actions/runs?head_sha=<queue sha> --jq .total_count
+#     0
+#
+# Fifteen minutes later it was still 0, while the four entries before it that
+# hour had each dispatched within seconds. The workflow file ON THE QUEUE REF
+# carried `merge_group:`, the queue base was the current tip, and nothing in
+# this repository has a concurrency group that could have cancelled it. There
+# was no GitHub incident open. It was a dropped dispatch, below the threshold
+# they publish -- their 2026-08-26 incident, "2.6% of workflow runs
+# experienced delays", is the same class of thing when it is big enough to
+# report.
+#
+# WHY IT NEEDS A WATCHDOG AND NOT JUST VIGILANCE
+#
+# Nothing about this looks wrong. The pull request's OWN checks are green and
+# that is what the checks list shows; the entry reports AWAITING_CHECKS, which
+# is what it would report if the checks were merely slow; and the thing that
+# is missing -- a run that does not exist -- has no red mark, no annotation
+# and no notification. The only signal is the absence of one, and absence is
+# not something anybody notices.
+#
+# Left alone it does not sit orange forever. The ruleset's
+# check_response_timeout_minutes is 60, so at the hour GitHub ejects the entry
+# and the pull request goes back to being open, green and CLEAN, which reads
+# as finished. Auto-merge is disarmed by a dequeue -- observed directly when
+# #1522 was dequeued by hand, `autoMergeRequest` went null -- and automerge.yml
+# re-arms only on `opened` and `ready_for_review`, so nothing puts it back.
+# The pull request is then in exactly the state that file was written to
+# prevent, and it got there by way of the mechanism meant to prevent it.
+#
+# WHAT THIS DOES
+#
+# One narrow, evidence-based repair. An entry qualifies only when it has been
+# AWAITING_CHECKS for longer than STALL_MINUTES *and* its queue commit has
+# neither a check run nor a commit status -- i.e. not "slow", but "nothing was
+# ever dispatched". Then it is dequeued and auto-merge re-armed, which is what
+# was done by hand for #1522: the fresh merge group dispatched in six seconds
+# and it merged.
+#
+# Deliberately NOT here: re-arming auto-merge on a pull request that is green,
+# open and unarmed. That would catch the post-eviction state as well, but it
+# would also fight `gh pr merge --disable-auto`, which automerge.yml documents
+# as the way to hold a single pull request back. Whether an eviction disarms
+# auto-merge the same way a manual dequeue does is also untested. Catching the
+# stall inside 15 minutes means the eviction should not arrive at all; if one
+# ever does, that is the point to design the second arm against something
+# observed rather than assumed.
+
+on:
+  schedule:
+    # Every 15 minutes. Worst-case detection is therefore STALL_MINUTES plus
+    # one interval, 30 minutes, which leaves two further attempts before the
+    # ruleset's 60-minute eviction. Scheduled runs are themselves subject to
+    # dispatch delay under load, which is another reason not to run this close
+    # to the deadline.
+    - cron: '*/15 * * * *'
+  # So a stall can be cleared immediately rather than at the next quarter hour.
+  workflow_dispatch:
+
+# contents: write for the same reason automerge.yml needs it -- auto-merge is
+# a merge the platform performs later, however much it reads like a pull
+# request property.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  unstick:
+    name: requeue stalled entries
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Requeue entries whose checks were never dispatched
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          # Below the 60-minute eviction with room for two more attempts, and
+          # far above a healthy dispatch, which is seconds. A run that is
+          # merely queued behind a busy runner pool still HAS a run, so it is
+          # excluded by the zero-checks test rather than by this number.
+          STALL_MINUTES: '15'
+        # Not continue-on-error, for the reason automerge.yml gives: a
+        # watchdog that fails silently is worse than no watchdog, because it
+        # is trusted.
+        run: |
+          set -euo pipefail
+
+          cutoff=$(date -u -d "-${STALL_MINUTES} minutes" +%Y-%m-%dT%H:%M:%SZ)
+          echo "Entries enqueued before $cutoff with no dispatched checks."
+
+          gh api graphql -f query='
+            query Q($owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                mergeQueue(branch: "working-1.6") {
+                  entries(first: 20) {
+                    nodes {
+                      state
+                      enqueuedAt
+                      headCommit { oid }
+                      pullRequest { number id }
+                    }
+                  }
+                }
+              }
+            }' \
+            -F owner="${REPO%%/*}" -F name="${REPO##*/}" \
+            --jq '.data.repository.mergeQueue.entries.nodes[]
+                  | select(.state == "AWAITING_CHECKS")
+                  | [.pullRequest.number, .pullRequest.id, .enqueuedAt, .headCommit.oid]
+                  | @tsv' > entries.tsv || true
+
+          if [ ! -s entries.tsv ]; then
+            echo "Nothing awaiting checks."
+            exit 0
+          fi
+
+          while IFS=$'\t' read -r pr prid enqueued sha; do
+            [ -n "${pr:-}" ] || continue
+            if [[ "$enqueued" > "$cutoff" ]]; then
+              echo "PR #$pr enqueued $enqueued -- not old enough yet."
+              continue
+            fi
+
+            # Actions reports CHECK RUNS; older integrations report commit
+            # STATUSES. Both have to be empty for "nothing was dispatched" to
+            # be true, and reading only one of them is how this would decide
+            # to requeue a queue entry that is running perfectly well.
+            runs=$(gh api "repos/$REPO/commits/$sha/check-runs" --jq '.total_count')
+            stat=$(gh api "repos/$REPO/commits/$sha/status" --jq '.total_count')
+
+            if [ "$runs" -ne 0 ] || [ "$stat" -ne 0 ]; then
+              echo "PR #$pr has $runs check runs and $stat statuses on $sha -- running, leaving alone."
+              continue
+            fi
+
+            echo "PR #$pr STALLED: enqueued $enqueued, zero checks on queue commit $sha. Requeuing."
+
+            gh api graphql -f query='
+              mutation Dq($id: ID!) {
+                dequeuePullRequest(input: {id: $id}) { clientMutationId }
+              }' -F id="$prid"
+
+            # Re-arming is what enqueues it again -- the ruleset sets the merge
+            # method to the queue, so --merge is the only method it accepts and
+            # asking for another fails rather than falling back.
+            gh pr merge "$pr" --repo "$REPO" --merge --auto
+
+            echo "PR #$pr requeued."
+          done < entries.tsv
