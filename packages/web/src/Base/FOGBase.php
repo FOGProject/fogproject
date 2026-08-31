@@ -5872,9 +5872,29 @@ abstract class FOGBase
      * already performing, written down and made legal:
      *
      *   date/time  ->  NULL          (was '0000-00-00 00:00:00')
-     *   integer    ->  0             (was 0, via error 1366 downgraded)
+     *   integer    ->  NULL if the column is nullable, else 0
      *   enum/set   ->  first member  (was '', the error value at index 0)
      *   anything   ->  ''            (unchanged; '' is a real value here)
+     *
+     * The nullable half of the integer rule is GH-1572's, arrived at here
+     * a second time. That fixed the branch save() takes for a key ending
+     * in "id"; this is the branch it takes for every other key, and the
+     * two have to answer the same way because the column does not care
+     * what the model calls it. Once ADR 0031 gave a nullable int a real
+     * foreign key, 0 stopped being a spelling of "no reference" and became
+     * a reference to a row that does not exist -- error 1452, and the save
+     * is refused outright.
+     *
+     * `multicastSessions`.`msSenderNode` is the column that proves it. Its
+     * model key is `sendernode`, which does not end in "id", so it misses
+     * GH-1572's branch entirely; step 386 made it nullable and step 388
+     * gave it a foreign key to `nfsGroupMembers`. A session is created
+     * before any udp-sender exists, so the field is always unset at
+     * INSERT -- which means EVERY multicast session save on this branch
+     * failed, from the group page, the host page and the image page
+     * alike. save() reports that failure by returning false rather than
+     * throwing, so Group::createImagePackage() carried on and built the
+     * per-host tasks against a session id that was never allocated.
      *
      * The integer and enum choices deliberately match the coercion rather
      * than the column's DEFAULT. `hosts.hostEnforce` is declared
@@ -5902,7 +5922,11 @@ abstract class FOGBase
             return null;
         }
         if (preg_match('/^(tiny|small|medium|big)?int\b/i', $type)) {
-            return 0;
+            // NULL where the column can hold one: it is the honest spelling
+            // of "no value", and it is the only one a foreign key accepts.
+            // 0 stays for a NOT NULL column, where omitting the value is
+            // error 1364 and NULL is error 1048.
+            return self::columnIsNullable($table, $column) ? null : 0;
         }
         if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $match)) {
             return str_replace("''", "'", $match[2]);
