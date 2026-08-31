@@ -1199,6 +1199,85 @@ condition.
 
 ---
 
+### F-55 — A guard can be vouched for by an identical guard in a sibling arm
+
+`Route::cancel()` carries the same statement twice --
+`if (!in_array($class->get('stateID'), $states))` in the `filedeletequeue`
+arm and again in `default:`. cancel-route-reports-truthfully.test.php pins it
+with one regex that is not anchored to either arm, so the regex matches the
+FIRST occurrence and the filedeletequeue guard stands in for the default one.
+Disabling the default arm's test left that gate green -- and that test is the
+founding bug of this route, a Failed task answering 200 "canceled" with its
+state untouched.
+
+Two guards that read identically are indistinguishable to a source grep, and
+a gate cannot report which one it matched. So a text gate over a method with
+repeated guards vouches for the count of them, not for any particular one.
+
+```
+php tests/cancel-route-reports-truthfully.test.php   # ok
+#   default arm's test -> `if (false && !in_array(...))`   still ok  <- blind
+php tests/route-cancel-guards.test.php               # ok  13 checks passed
+#   same mutation                                          FAIL      <- red
+```
+
+---
+
+### F-56 — `in_array()` in the default cancel arm is loose, and must stay loose
+
+`get('stateID')` returns the database's STRING `'3'`; `$states` holds
+INTEGERS `[0,1,2,3]`. A strict `in_array(..., true)` therefore matches
+nothing and would refuse every cancel in the product. The cost of the loose
+form is that a class with no stateID column reaches the test with `null`,
+`null == 0` is true, and it is canceled whatever state it is in.
+
+Nothing hits that today: every class in `$validTaskingClasses` that reaches
+`default:` -- multicastsession, snapinjob, snapintask, task -- declares a
+stateID. That is a fact about the list as it stands, not a property of the
+code, and drift is silent. It is now asserted rather than assumed.
+
+This is also why the M3 mutation was invisible at first: with the
+`scheduledtask` arm removed the class falls to `default:`, passes the state
+test on `null == 0`, and issues the same DELETE the dedicated arm would.
+What separates the arms is `_requireFound()` -- a missing id is a 404 from
+the arm and a searched-and-canceled-nothing 200 from `default:`.
+
+```
+php tests/route-cancel-guards.test.php   # ok  13 checks passed
+#   add a state-less class to $validTaskingClasses
+#     -> FAIL: every class reaching the default arm declares a stateID
+#              -- missing: image
+```
+
+---
+
+### F-57 — `phpstan clear-result-cache` does not clear the result cache
+
+Run with `-c phpstan-tests.neon`, it reports "Result cache cleared from
+directory: /tmp/phpstan" and the next run still serves stale findings. Four
+`include.fileNotFound` errors in `tests/lib/rehearsal-runner.php` survived
+it, reproduced against a pristine `git archive` export of the tracked tree,
+and did not exist in CI on the same SHA -- which reads exactly like a
+local/CI divergence and cost a round of chasing one. `rm -rf /tmp/phpstan`
+cleared them.
+
+Treat a phpstan result that disagrees with CI on the same commit as a cache
+artifact until `rm -rf /tmp/phpstan` says otherwise.
+
+```
+vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G --no-progress
+#   [ERROR] Found 4 errors
+vendor/bin/phpstan clear-result-cache -c phpstan-tests.neon
+#   Result cache cleared from directory: /tmp/phpstan
+vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G --no-progress
+#   [ERROR] Found 4 errors        <- unchanged
+rm -rf /tmp/phpstan
+vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G --no-progress
+#   [OK] No errors
+```
+
+---
+
 ## How to add an entry
 
 ```
