@@ -42,11 +42,10 @@ bash bin/upgrade-rehearsal-lab.sh --keep
 Stands up a MariaDB container on port 13399, copies the web tree **from the
 committed HEAD** (not the working tree — runs must be reproducible against a
 named commit, and this repo is worked on by more than one session at a time),
-points a lab `config.class.php` at the container, and runs three starting points:
+points a lab `config.class.php` at the container, and runs two starting points:
 
 | database | from | profile | why |
 |---|---|---|---|
-| `reh_159` | schema 270 | `divergence` | 1.5.9, counted against dev-branch's step array. Verified: `git show 1.5.9:packages/web/lib/fog/system.class.php` |
 | `reh_1510` | schema 278 | `decade` | 1.5.10-era; the real `fog-1.5` install on the maintainer's box records 278 |
 | `reh_site` | schema 278 | `site` | the site plugin holding real assignments — the migration whose failure looks like a working server |
 
@@ -82,38 +81,57 @@ schema steps interpolate `STORAGE_HOST`, `STORAGE_FTP_USERNAME`, `WEB_ROOT` and
 does not already read `REHEARSAL_DB`, so it cannot be pointed at a real install's
 config, which holds the only copy of the database and FTP passwords.
 
-`reh_159` carried `decade` until it was measured and found to be **byte-identical
-to `reh_1510`**: steps 270-277 are two `globalSettings` text edits, two
-`nfsGroupMembers` column additions and step 276's renames, and the decade seed
-touches none of them. A starting point that cannot differ from its neighbour is
-only paying for runtime. `divergence` is `decade` plus the one thing schema 270
-is positioned to rehearse, described next.
+`reh_159` (schema 270, `decade`) **was** a third starting point and was removed
+after being measured: it produced a byte-identical result to `reh_1510` on every
+run. Steps 270-277 are two `globalSettings` text edits, two `nfsGroupMembers`
+column additions and step 276's renames, and the decade seed touches none of
+them, so the 1.5.9 starting point had nothing it could fail at that 1.5.10 did
+not.
 
-## The build path cannot produce the branch-divergence trap by itself
+## The branch-divergence trap cannot be modeled from this build path
+
+Read this before trying to give schema 270 a job again. Both obvious attempts
+were built, run, and produce a fixture that **lies** — in opposite directions.
 
 working-1.6 and dev-branch share step positions to 263 and diverge from 264, so a
 1.5 database's `schemaVersion` counts against **dev-branch's** array and an
 upgrade treats 264-277 as already applied — skipping step 276's renames
 (`plugins` `pAnon1..4`, `multicastSessions` `msAnon3/4`). `SchemaReconciler`'s
-rename pass then creates the column afterward, preserving the type it always had,
-long after the step that would have converted it has gone by.
+first pass then creates the missing column from the manifest, and the manifest
+declares that rename as `ENUM('0','1') NOT NULL DEFAULT '0'` — so the column
+arrives with the type it always had, after the boolean conversion at step 368
+has already gone by.
 
-That is the mechanism behind both shipped shape-drift fixes — schema 400
-(`msShutdown` stuck as `enum('0','1')`) and schema 399 (the site plugin's
-retirement gate reading an empty `pLocation` forever).
+That is the mechanism behind both shipped shape-drift fixes: schema 400
+(`msShutdown` stuck as `enum('0','1')`) and schema 399 (the site retirement gate
+reading an empty `pLocation`).
 
 **`build --to=N` cannot reproduce it.** It replays `[0, N)` from *this branch's*
 `schema.php`, and working-1.6's own early steps already create the post-rename
 names. Verified: a database built to 270 carries
 `pIcon`/`pRunfile`/`pLocation`/`pDescription` and `msShutdown`, with no
-`pAnon3`/`msAnon3` anywhere. That is why both fixes were found against a real
-1.5.10 dump rather than here.
+`pAnon3`/`msAnon3` anywhere.
 
-The `divergence` profile plants it instead — renaming the columns *back* before
-the upgrade runs, the same technique the seed already uses for the `hostMAC`
-unique index. With it the rehearsal proves both fixes end to end: `msShutdown`
-lands `tinyint(1) DEFAULT 0`, and a seeded value of `'1'` arrives as `1` — the
-label, not the enum index, which is ADR 0028's whole failure mode.
+The obvious fix is to rename the columns *back* in the seed, the way the seed
+already drops the `hostMAC` unique index before planting under it. It was built
+and it fails at both available starting points:
+
+| planted at | what happens | why it lies |
+|---|---|---|
+| schema 270 | the upgrade **replays step 276**, which renames `msAnon3` back to `msShutdown` at its proper position; step 368 then converts it normally. Shape drift 6, `msShutdown` correct. | The plant is undone by the very step it claims is skipped. The run exercises the NORMAL path and reports a pass, which is the vacuous case again. Proven by mutation: neutering step 400 changes nothing, because step 400 was never what fixed it. |
+| schema 278 | the plant survives (276 is behind), and the upgrade **hard-fails at step 345** with `1054 Unknown column 'msShutdown'`, stranding it 57 steps short with 45 shape differences. | The real world does not do this. A real 1.5-origin database **has** `msShutdown` — the reconciler created it from the manifest, preserving the enum. Renaming the column away models a state that does not occur, and reports a catastrophic failure that is not real. |
+
+The distinction that matters, and the one both attempts get wrong: the trap is
+**"the rename step was skipped and the reconciler created the column afterward,
+preserving its old type"**, not **"the column does not exist"**. Modeling it
+faithfully needs the reconciler's create-from-manifest pass to run against a
+version stamp that counts against the other branch's array — which is a
+different harness from replaying `[0, N)` of this one.
+
+Both fixes were therefore found against a real 1.5.10 dump, and that remains the
+way to find the next one. A genuine 1.5.10 database is on the maintainer's box
+(`/var/www/html/fog-1.5`, schema 278) and can be cloned into the same container.
+
 
 ## There is no collation seed, and that is a finding
 
