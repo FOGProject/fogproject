@@ -228,7 +228,15 @@ class PluginRunner extends FOGService
                 continue;
             }
             foreach ((array)glob($dir . DS . '*.task.php') as $file) {
-                $class = basename($file, '.task.php');
+                // qualify(), because the basename is a BARE name and both
+                // uses below resolve a string. A plugin task declares
+                // FOG\Plugins\<Plugin>\<Class> (ADR 0013), so the bare name
+                // is not a class -- is_subclass_of() is then false for every
+                // task and the runner skips all of them, which is the exact
+                // failure the comment below records for the SECOND argument.
+                // A plugin still in the global namespace passes through
+                // unchanged, so both shapes work.
+                $class = self::qualify(basename($file, '.task.php'));
                 // is_subclass_of() rather than class_exists() alone. The
                 // autoloader resolves a class by basename across every
                 // scanned root, so a plugin shipping tasks/host.task.php

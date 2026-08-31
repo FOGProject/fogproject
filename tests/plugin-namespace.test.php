@@ -155,6 +155,29 @@ $legacy = fixture(
     null,
     'LegacyThing'
 );
+// A manager named after the PLUGIN, not after a model. Plugin::getManager()
+// builds plugins.pName . 'Manager', so this is the name that call site looks
+// for. Deliberately a plain class: getManager() only instantiates it, and a
+// real FOGManagerController wants a database this test does not have.
+fixture(
+    $tmp,
+    'alphaplugin',
+    'class',
+    'alphapluginmanager.class.php',
+    'FOG\\Plugins\\Alphaplugin',
+    'AlphapluginManager'
+);
+// A plugin task. PluginRunner derives its class name from the FILENAME, so
+// this is the shape that broke: see section 9.
+$task = fixture(
+    $tmp,
+    'alphaplugin',
+    'tasks',
+    'alphaheartbeat.task.php',
+    'FOG\\Plugins\\Alphaplugin',
+    'AlphaHeartbeat extends \\FOG\\Base\\PluginTask',
+    "    public function run()\n    {\n    }\n"
+);
 // A plugin trying to claim a CORE name from inside its own namespace. It is
 // entitled to the class; it is not entitled to the bare spelling.
 $shadow = fixture(
@@ -185,6 +208,14 @@ if (!defined('FOG_LOG_DIR')) {
 }
 if (!defined('FOG_PLUGIN_DIR')) {
     define('FOG_PLUGIN_DIR', $tmp . '/extplugins');
+}
+// FOGBase::info() is on the path of every get(), and its file-logging gate is
+// `self::$mySchema >= FOG_SCHEMA` -- a constant System.php defines, and this
+// test does not boot System.php. Any value above $mySchema (0 when no database
+// was read) keeps the gate shut, which is the state this test wants: the
+// alternative branch calls getSetting() and dies on a null $DB.
+if (!defined('FOG_SCHEMA')) {
+    define('FOG_SCHEMA', 1);
 }
 
 // Divert error_log() so the diagnostics themselves can be asserted on.
@@ -497,6 +528,93 @@ check(
 check(
     'but the basename collision is NOT reported as shadowing',
     strpos($log, 'two files claim the class name "widget"') === false,
+    $failures,
+    $checks
+);
+
+/*
+ * 9. The two call sites that build a class name and then RESOLVE it as a
+ *    string. Both were broken by namespacing the plugins and both failed
+ *    without an error:
+ *
+ *      - PluginRunner::_discoverTasks() takes basename($file, '.task.php')
+ *        and hands it to is_subclass_of(). That is false for a namespaced
+ *        task, so every plugin task is skipped and the daemon logs
+ *        "Skipping, not a PluginTask" -- the identical failure ADR 0013 §2
+ *        records for the SECOND argument of the same call.
+ *      - Plugin::getManager() builds plugins.pName . 'Manager' and hands it
+ *        to class_exists(). That is false too, so it falls back to
+ *        PluginManager -- and installdb() then correctly reports a manager
+ *        file it cannot load, so EVERY plugin install throws.
+ *
+ *    The mechanism first, executed rather than read: a name derived from a
+ *    filename is bare, and only qualify() turns it into the class.
+ */
+$bareTask = basename($task, '.task.php');
+check(
+    'a name derived from a task FILENAME is not a class on its own',
+    !is_subclass_of($bareTask, 'FOG\\Base\\PluginTask'),
+    $failures,
+    $checks
+);
+check(
+    'qualify() turns it into the PluginTask subclass it names',
+    is_subclass_of(
+        call_user_func($qualify, $bareTask),
+        'FOG\\Base\\PluginTask'
+    ),
+    $failures,
+    $checks
+);
+
+/*
+ *    _discoverTasks() itself needs a database -- it walks Route::getList()
+ *    over the installed plugins -- so its call site is anchored rather than
+ *    executed, and the whole expression is anchored, not the word qualify:
+ *    an anchor on the symbol alone would stay green if the argument moved.
+ *    The end-to-end proof was a run of the daemon against a live install.
+ */
+$runnerSrc = (string)file_get_contents(
+    dirname(__DIR__) . '/packages/web/src/Service/PluginRunner.php'
+);
+check(
+    'PluginRunner derives a task class through qualify(), not from the '
+    . 'bare basename',
+    strpos(
+        $runnerSrc,
+        '$class = self::qualify(basename($file, \'.task.php\'));'
+    ) !== false,
+    $failures,
+    $checks
+);
+
+/*
+ *    Then the call sites themselves. Plugin::getManager() is reachable
+ *    without a database: it reads one field and resolves a name, so the
+ *    object is built without its constructor and its data set directly.
+ *    This executes the real method -- deleting its qualify() reds this.
+ */
+$pref = new \ReflectionClass('FOG\Items\Plugin');
+$plugin = $pref->newInstanceWithoutConstructor();
+$dataProp = new \ReflectionProperty('FOG\Base\FOGController', 'data');
+$dataProp->setAccessible(true);
+$dataProp->setValue($plugin, ['name' => 'alphaplugin']);
+// isLoaded is FOGController's recursion guard for its lazy loader: marking
+// the key loaded is what stops get('name') going to the database for a field
+// that has just been supplied. Nothing else here touches one.
+$loadedProp = new \ReflectionProperty('FOG\Base\FOGController', 'isLoaded');
+$loadedProp->setAccessible(true);
+$loadedProp->setValue($plugin, ['name' => true]);
+$resolvedManager = null;
+try {
+    $resolvedManager = get_class($plugin->getManager());
+} catch (\Throwable $e) {
+    $resolvedManager = 'threw ' . get_class($e) . ': ' . $e->getMessage();
+}
+check(
+    'Plugin::getManager() resolves a namespaced plugin manager, not the '
+    . 'PluginManager fallback (got ' . $resolvedManager . ')',
+    $resolvedManager === 'FOG\\Plugins\\Alphaplugin\\AlphapluginManager',
     $failures,
     $checks
 );
