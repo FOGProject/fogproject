@@ -57,6 +57,29 @@ class Route extends FOGBase
      */
     const EMPTY_CELL = '<span class="text-muted">&mdash;</span>';
     /**
+     * Foreign-key fields whose grid cell is a plain link to the related
+     * record, as `field => [management node, rel() class]`.
+     *
+     * The node doubles as the `dt` name's prefix ('group' -> 'groupLink'),
+     * because that is what the five hand-written arms this replaces all did.
+     * The class spelling is carried verbatim rather than normalized: rel()
+     * lowercases for its cache key but hands the string to getClass(), and
+     * tests/fixtures/route-column-contract.txt records what each primer
+     * primed, so changing the spelling here would be a fixture diff that
+     * says nothing.
+     *
+     * See _entityLinkColumn() for why hostID, imageID and archID are absent.
+     *
+     * @var array
+     */
+    const ENTITY_LINK_COLUMNS = [
+        'groupID' => ['group', 'group'],
+        'snapinID' => ['snapin', 'Snapin'],
+        'storagegroupID' => ['storagegroup', 'storagegroup'],
+        'storagenodeID' => ['storagenode', 'storagenode'],
+        'userID' => ['user', 'user']
+    ];
+    /**
      * The api setup is enabled?
      *
      * @var bool
@@ -2711,6 +2734,325 @@ class Route extends FOGBase
         ];
     }
     /**
+     * The DataTables page request, or null when the caller supplied none.
+     *
+     * `$inputoverride` is documented as "override php://input to blank", and
+     * this is the only thing it suppresses. The return distinguishes the two
+     * states the rest of listem() branches on: null means no request was
+     * parsed (an internal caller), an array -- possibly empty -- means one
+     * was. That distinction used to ride on whether $pass_vars was declared
+     * at all, which is why every downstream test was an isset() and why this
+     * returns null rather than [].
+     *
+     * @param bool $inputoverride Whether php://input is to be ignored.
+     *
+     * @return array|null
+     */
+    private static function _listPageVars($inputoverride)
+    {
+        if ($inputoverride) {
+            return null;
+        }
+        parse_str(
+            file_get_contents('php://input'),
+            $pass_vars
+        );
+        // DataTables POSTs carry pagination in the request body, but a
+        // plain GET (?length=3&start=0) carries it in the query string,
+        // which FOG's rewrite drops from $_GET. Fold ?length/?start in
+        // so GET clients get real pagination too. Only fill fields the
+        // body didn't already set.
+        $qsLen = self::queryParam('length');
+        if ($qsLen !== null && $qsLen !== ''
+            && !isset($pass_vars['length'])
+        ) {
+            $pass_vars['length'] = (int)$qsLen;
+            $qsStart = self::queryParam('start');
+            // Default start=0 so complex()'s LIMIT is well-formed; a
+            // length without a start would otherwise LIMIT start,0 and
+            // return zero rows.
+            $pass_vars['start'] = ($qsStart !== null && $qsStart !== '')
+                ? (int)$qsStart
+                : 0;
+        }
+        return $pass_vars;
+    }
+    /**
+     * Bounds the page size when ?expand is in play.
+     *
+     * Expansion materializes a full object per row, so an unbounded or
+     * oversized page is bounded to EXPAND_MAX_ITEMS.
+     *
+     * The `null !== $pageVars` test is carried over verbatim, and with it the
+     * defect it causes: an internal caller passing $inputoverride = true has
+     * no page request, so the clamp cannot fire for it at all. That is DEAD-2
+     * in docs/route-listem-defects.md and it is left exactly as it was --
+     * closing it changes how much memory an internal ?expand caller is
+     * allowed to use, which is a behavior decision and not part of moving
+     * this block behind a name.
+     *
+     * @param array|null $pageVars The parsed page request, or null.
+     *
+     * @return array|null The same, clamped where it applies.
+     */
+    private static function _clampExpandPage($pageVars)
+    {
+        if (self::$getterDepth !== 0
+            || !self::expandRequested()
+            || null === $pageVars
+        ) {
+            return $pageVars;
+        }
+        $len = isset($pageVars['length'])
+            ? (int)$pageVars['length']
+            : 0;
+        if ($len <= 0 || $len > self::EXPAND_MAX_ITEMS) {
+            $pageVars['length'] = self::EXPAND_MAX_ITEMS;
+            if (!isset($pageVars['start'])) {
+                $pageVars['start'] = 0;
+            }
+        }
+        return $pageVars;
+    }
+    /**
+     * The WHERE items a list runs with, after validation and defaulting.
+     *
+     * Three steps, and the third is the one with teeth. handleWhereItems()
+     * validates and normalizes whatever the caller passed; snapintask's
+     * jobID is narrowed to positive integers (an invalid job filter must
+     * return nothing, not everything); and only then, if the caller named no
+     * filter at all, the request body is consulted.
+     *
+     * That last step is deliberately NOT under $inputoverride, which the
+     * docblock defines as "override php://input to blank" -- and
+     * getsearchbody() reads php://input and turns any class field it finds
+     * there into a WHERE. The parse_str() branch in _listPageVars() was the
+     * only thing the flag suppressed, so every internal Route::getList()
+     * call was still silently filtered by the body of whatever request it
+     * happened to run inside.
+     *
+     * That is not a tidiness point. Plugin::activationBlockers() lists
+     * `plugin` this way to decide whether a plugin may be switched on, so
+     * POST /plugin/{id}/install with an unrelated body -- {"name":"ldap"} --
+     * listed one row, found the target was not in it, reported no blockers
+     * and installed a plugin this server refuses to run. Any gate built on a
+     * getList() is defeatable the same way.
+     *
+     * @param string $class         The class being listed.
+     * @param mixed  $whereItems    What the caller asked to filter on.
+     * @param bool   $inputoverride Whether php://input is to be ignored.
+     *
+     * @return mixed The where items to build the query from.
+     */
+    private static function _listWhereItems($class, $whereItems, $inputoverride)
+    {
+        $whereItems = self::handleWhereItems($whereItems, $class);
+        if ('snapintask' === strtolower($class)
+            && isset($whereItems['jobID'])
+        ) {
+            $jobIDs = self::positiveIntIds($whereItems['jobID']);
+            if (count($jobIDs) > 0) {
+                $whereItems['jobID'] = $jobIDs;
+            } else {
+                // Force an empty result set for invalid job filters.
+                $whereItems['jobID'] = [-1];
+            }
+        }
+        if (!$inputoverride && count($whereItems ?: []) < 1) {
+            $whereItems = self::getsearchbody($class);
+        }
+        return $whereItems;
+    }
+    /**
+     * The DataTables column table for one list, with its two secret gates.
+     *
+     * Four steps, in an order that is load bearing and is written down in
+     * docs/route-listem-access-control-map.md §2:
+     *
+     *   1. arrayRemove() drops user's password/token and the host secret set.
+     *      A hard-coded switch, deliberately NOT read from
+     *      sensitiveFieldMap() -- a second list that has to agree with the
+     *      first.
+     *   2. API_REMOVE_COLUMNS, by reference, so a plugin can re-add a column
+     *      step 1 removed.
+     *   3. _gridColumns() builds the table, then CUSTOMIZE_DT_COLUMNS, also
+     *      by reference, so a plugin can append a column reading any db
+     *      field.
+     *   4. Every column whose `dt` is an unfilterable field is marked
+     *      `nosearch`. AFTER the hook on purpose, so a column a plugin adds
+     *      for its own declared secret is covered too.
+     *
+     * Step 4 is marked unsearchable rather than dropped, because these
+     * columns are load bearing for callers that are not the API. listem() is
+     * shared with the web tier: product_keys.report.php calls listem('host')
+     * and has nothing to report without productKey. Removing the column
+     * would break the report to close a search; stripSensitive() at the
+     * emitter is what keeps it off the wire.
+     *
+     * Searching is the part with no legitimate use. The value never comes
+     * back, so a match can only ever be read as an answer about a value the
+     * caller is not allowed to see -- and DataTables filters are substring
+     * LIKEs, so the answer is repeatable one character at a time.
+     * host.sec_tok and user.token are stored in plaintext and matched
+     * exactly at authentication, which is what makes this worth closing
+     * rather than noting.
+     *
+     * $classname and $classman are by reference because CUSTOMIZE_DT_COLUMNS
+     * receives both that way and listem() keeps using them afterward --
+     * $classname reaches _applySiteScope() and the payload's `_lang` stamp.
+     * A hook that rewrites either has always been able to redirect those,
+     * and moving the fire behind a name must not quietly take that away.
+     *
+     * @param string $classname  The lowercased class being listed. By ref.
+     * @param object $classman   The manager. By ref.
+     * @param array  $tmpcolumns The manager's columns. Consumed here.
+     * @param mixed  $tableID    Out. The database column holding the primary
+     *                           key; see _gridColumns().
+     *
+     * @return array The column definitions.
+     */
+    private static function _listColumns(
+        &$classname,
+        &$classman,
+        $tmpcolumns,
+        &$tableID
+    ) {
+        /**
+         * Any custom fields that we need removed
+         */
+        switch ($classname) {
+            case 'user':
+                self::arrayRemove(
+                    [
+                        'password',
+                        'token'
+                    ],
+                    $tmpcolumns
+                );
+                break;
+            case 'host':
+                self::arrayRemove(
+                    [
+                        'sec_tok',
+                        'sec_time',
+                        'pub_key',
+                        'ADUser',
+                        'ADPass',
+                        'ADPassLegacy',
+                        'ADOU',
+                        'ADDomain',
+                        'useAD',
+                        'token'
+                    ],
+                    $tmpcolumns
+                );
+                break;
+        }
+        self::$HookManager->processEvent(
+            'API_REMOVE_COLUMNS',
+            ['tmpcolumns' => &$tmpcolumns]
+        );
+
+        // The column table itself: see _gridColumns(). $tableID comes
+        // back by reference because a class need not have an id column.
+        $columns = self::_gridColumns($classname, $tmpcolumns, $tableID);
+        self::$HookManager->processEvent(
+            'CUSTOMIZE_DT_COLUMNS',
+            [
+                'columns' => &$columns,
+                'classman' => &$classman,
+                'classname' => &$classname
+            ]
+        );
+
+        // A field the emitter strips must not be searchable either. Keyed on
+        // 'dt' because that is the name a DataTables request asks for.
+        $unsearchable = self::unfilterableFields($classname);
+        if (count($unsearchable)) {
+            foreach ($columns as $ci => $col) {
+                if (in_array($col['dt'] ?? '', $unsearchable, true)) {
+                    $columns[$ci]['nosearch'] = true;
+                }
+            }
+        }
+        return $columns;
+    }
+    /**
+     * Inlines the requested relations onto a list payload's rows.
+     *
+     * Takes the payload and returns it rather than reading and writing
+     * self::$data, and that is the whole reason this is a function at all.
+     * Serializing a row calls getter()/expandRelations()/plugin hooks, which
+     * reach helpers like getIds() that overwrite the shared static
+     * self::$data -- getIds even leaves it an empty string. The old inline
+     * form had to snapshot the payload into a local, enrich that, and put it
+     * back; passing it in and out says the same thing in the signature, and
+     * makes it impossible to forget the restore.
+     *
+     * Returns its input untouched when there is nothing to expand, so the
+     * caller has no condition to get wrong.
+     *
+     * @param mixed  $listData  The list payload from complex().
+     * @param string $class     The class being listed, as the caller spelled it.
+     * @param string $classname The lowercased class being listed.
+     *
+     * @return mixed The payload, with the requested relations inlined.
+     */
+    private static function _listExpandRows($listData, $class, $classname)
+    {
+        if (self::$getterDepth !== 0
+            || !self::expandRequested()
+            || !isset($listData['data'])
+            || !is_array($listData['data'])
+        ) {
+            return $listData;
+        }
+        $rows = $listData['data'];
+        // One query for the page's objects instead of one per row.
+        // Same treatment the grid columns got for GH-707 -- rel() and
+        // primeRel() exist for exactly this and the expand branch
+        // never used them, so ?expand cost ~20 statements per row
+        // where the plain path is flat at 4 for the whole page.
+        //
+        // rel() falls back to a load for anything the prime missed,
+        // and caches an empty object carrying the id for an id with
+        // no record -- which is the state a failed load() leaves
+        // behind, so the isValid() test below behaves as it did.
+        self::primeRel($class, array_column($rows, 'id'));
+        foreach ($rows as $i => $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $rid = isset($row['id']) ? (int)$row['id'] : 0;
+            if ($rid < 1) {
+                continue;
+            }
+            $robj = self::rel($class, $rid);
+            if (!$robj->isValid()) {
+                continue;
+            }
+            // Inline ONLY the requested relations onto the flat grid
+            // row. Merging the full getter() output here would drag in
+            // every relation the entity's base serialization embeds
+            // (for Host: inventory/image/hostscreen/hostalo/macs),
+            // which defeats the selective contract of ?expand=token.
+            $exp = self::expandRelations($classname, $robj, $row);
+            $exp = self::enrichPluginItems($classname, $robj, $exp);
+            // No strip here, and none anywhere else in listem().
+            // listem() is shared with the web tier -- the LDAP login
+            // path needs bindPwd to bind at all, the Product Keys
+            // report needs productKey to report anything -- so it
+            // hands the row back whole and the emitter removes
+            // secrets on the way out, expanded relations included.
+            // That was already how a PLAIN list behaved; stripping
+            // here as well meant an ?expand= caller inside the server
+            // got a redacted row where a plain one did not.
+            $rows[$i] = $exp;
+        }
+        $listData['data'] = $rows;
+        return $listData;
+    }
+    /**
      * Presents the equivalent of a page's list all.
      *
      * @param string $class         The class to work with.
@@ -2732,80 +3074,17 @@ class Route extends FOGBase
             if (empty($operator)) {
                 $operator = 'AND';
             }
-            if (!$inputoverride) {
-                parse_str(
-                    file_get_contents('php://input'),
-                    $pass_vars
-                );
-                // DataTables POSTs carry pagination in the request body, but a
-                // plain GET (?length=3&start=0) carries it in the query string,
-                // which FOG's rewrite drops from $_GET. Fold ?length/?start in
-                // so GET clients get real pagination too. Only fill fields the
-                // body didn't already set.
-                $qsLen = self::queryParam('length');
-                if ($qsLen !== null && $qsLen !== ''
-                    && !isset($pass_vars['length'])
-                ) {
-                    $pass_vars['length'] = (int)$qsLen;
-                    $qsStart = self::queryParam('start');
-                    // Default start=0 so complex()'s LIMIT is well-formed; a
-                    // length without a start would otherwise LIMIT start,0 and
-                    // return zero rows.
-                    $pass_vars['start'] = ($qsStart !== null && $qsStart !== '')
-                        ? (int)$qsStart
-                        : 0;
-                }
-            }
+            $pass_vars = self::_listPageVars($inputoverride);
             self::parseExpand();
-            if (self::$getterDepth === 0
-                && self::expandRequested()
-                && isset($pass_vars)
-            ) {
-                // Expansion materializes a full object per row; bound memory
-                // by clamping an unbounded/oversized page to EXPAND_MAX_ITEMS.
-                $len = isset($pass_vars['length'])
-                    ? (int)$pass_vars['length']
-                    : 0;
-                if ($len <= 0 || $len > self::EXPAND_MAX_ITEMS) {
-                    $pass_vars['length'] = self::EXPAND_MAX_ITEMS;
-                    if (!isset($pass_vars['start'])) {
-                        $pass_vars['start'] = 0;
-                    }
-                }
-            }
+            $pass_vars = self::_clampExpandPage($pass_vars);
             if (empty($orderby)) {
                 $orderby = 'name';
             }
-            $whereItems = self::handleWhereItems($whereItems, $class);
-            if ('snapintask' === strtolower($class)
-                && isset($whereItems['jobID'])
-            ) {
-                $jobIDs = self::positiveIntIds($whereItems['jobID']);
-                if (count($jobIDs) > 0) {
-                    $whereItems['jobID'] = $jobIDs;
-                } else {
-                    // Force an empty result set for invalid job filters.
-                    $whereItems['jobID'] = [-1];
-                }
-            }
-            // Not under $inputoverride, which the docblock defines as
-            // "override php://input to blank" -- and getsearchbody() reads
-            // php://input and turns any class field it finds there into a
-            // WHERE. The parse_str() branch above was the only thing the
-            // flag suppressed, so every internal Route::getList() call was
-            // still silently filtered by the body of whatever request it
-            // happened to run inside.
-            //
-            // That is not a tidiness point. Plugin::activationBlockers()
-            // lists `plugin` this way to decide whether a plugin may be
-            // switched on, so POST /plugin/{id}/install with an unrelated
-            // body -- {"name":"ldap"} -- listed one row, found the target
-            // was not in it, reported no blockers and installed a plugin
-            // this server refuses to run. Any gate built on a getList() is
-            // defeatable the same way.
-            if (!$inputoverride && count($whereItems ?: []) < 1) {
-                $whereItems = self::getsearchbody($class);
-            }
+            $whereItems = self::_listWhereItems(
+                $class,
+                $whereItems,
+                $inputoverride
+            );
 
             self::$data = [];
             // Fresh per grid -- see $relCache and rel().
@@ -2833,82 +3112,12 @@ class Route extends FOGBase
                 $orderby
             );
 
-            /**
-             * Any custom fields that we need removed
-             */
-            switch ($classname) {
-                case 'user':
-                    self::arrayRemove(
-                        [
-                            'password',
-                            'token'
-                        ],
-                        $tmpcolumns
-                    );
-                    break;
-                case 'host':
-                    self::arrayRemove(
-                        [
-                            'sec_tok',
-                            'sec_time',
-                            'pub_key',
-                            'ADUser',
-                            'ADPass',
-                            'ADPassLegacy',
-                            'ADOU',
-                            'ADDomain',
-                            'useAD',
-                            'token'
-                        ],
-                        $tmpcolumns
-                    );
-                    break;
-            }
-            self::$HookManager->processEvent(
-                'API_REMOVE_COLUMNS',
-                ['tmpcolumns' => &$tmpcolumns]
+            $columns = self::_listColumns(
+                $classname,
+                $classman,
+                $tmpcolumns,
+                $tableID
             );
-
-            // The column table itself: see _gridColumns(). $tableID comes
-            // back by reference because a class need not have an id column.
-            $columns = self::_gridColumns($classname, $tmpcolumns, $tableID);
-            self::$HookManager->processEvent(
-                'CUSTOMIZE_DT_COLUMNS',
-                [
-                    'columns' => &$columns,
-                    'classman' => &$classman,
-                    'classname' => &$classname
-                ]
-            );
-
-            // A field the emitter strips must not be searchable either.
-            //
-            // Marked unsearchable rather than dropped, because these columns
-            // are load bearing for callers that are not the API. listem() is
-            // shared with the web tier: product_keys.report.php calls
-            // listem('host') and has nothing to report without productKey.
-            // Removing the column would break the report to close a search;
-            // stripSensitive() at the emitter is what keeps it off the wire.
-            //
-            // Searching is the part with no legitimate use. The value never
-            // comes back, so a match can only ever be read as an answer about
-            // a value the caller is not allowed to see -- and DataTables
-            // filters are substring LIKEs, so the answer is repeatable one
-            // character at a time. host.sec_tok and user.token are stored in
-            // plaintext and matched exactly at authentication, which is what
-            // makes this worth closing rather than noting.
-            //
-            // Applied after CUSTOMIZE_DT_COLUMNS so a column a plugin adds
-            // for its own declared secret is covered too, and keyed on 'dt'
-            // because that is the name a DataTables request asks for.
-            $unsearchable = self::unfilterableFields($classname);
-            if (count($unsearchable)) {
-                foreach ($columns as $ci => $col) {
-                    if (in_array($col['dt'] ?? '', $unsearchable, true)) {
-                        $columns[$ci]['nosearch'] = true;
-                    }
-                }
-            }
 
             // The site boundary goes into the QUERY, not onto the rows.
             //
@@ -2936,7 +3145,7 @@ class Route extends FOGBase
                 sprintf('`%s`.`%s`', $table, $tableID)
             );
             self::$data = FOGManagerController::complex(
-                isset($pass_vars) ? $pass_vars : '',
+                null !== $pass_vars ? $pass_vars : '',
                 $table,
                 $tableID,
                 $columns,
@@ -2966,67 +3175,16 @@ class Route extends FOGBase
             self::_applySiteScope($classname);
             self::_applySettingValueScope(
                 $classname,
-                isset($pass_vars) ? $pass_vars : [],
+                null !== $pass_vars ? $pass_vars : [],
                 is_array($whereItems) ? $whereItems : []
             );
             self::$data['_lang'] = $classname;
-            if (self::$getterDepth === 0
-                && self::expandRequested()
-                && isset(self::$data['data'])
-                && is_array(self::$data['data'])
-            ) {
-                // Serializing a row calls getter()/expandRelations()/plugin
-                // hooks, which reach helpers like getIds() that overwrite the
-                // shared static self::$data (getIds even leaves it an empty
-                // string). Snapshot the payload and enrich a local copy so the
-                // loop is immune to that clobbering, then restore it.
-                $listData = self::$data;
-                $rows = $listData['data'];
-                // One query for the page's objects instead of one per row.
-                // Same treatment the grid columns got for GH-707 -- rel() and
-                // primeRel() exist for exactly this and the expand branch
-                // never used them, so ?expand cost ~20 statements per row
-                // where the plain path is flat at 4 for the whole page.
-                //
-                // rel() falls back to a load for anything the prime missed,
-                // and caches an empty object carrying the id for an id with
-                // no record -- which is the state a failed load() leaves
-                // behind, so the isValid() test below behaves as it did.
-                self::primeRel($class, array_column($rows, 'id'));
-                foreach ($rows as $i => $row) {
-                    if (!is_array($row)) {
-                        continue;
-                    }
-                    $rid = isset($row['id']) ? (int)$row['id'] : 0;
-                    if ($rid < 1) {
-                        continue;
-                    }
-                    $robj = self::rel($class, $rid);
-                    if (!$robj->isValid()) {
-                        continue;
-                    }
-                    // Inline ONLY the requested relations onto the flat grid
-                    // row. Merging the full getter() output here would drag in
-                    // every relation the entity's base serialization embeds
-                    // (for Host: inventory/image/hostscreen/hostalo/macs),
-                    // which defeats the selective contract of ?expand=token.
-                    $exp = self::expandRelations($classname, $robj, $row);
-                    $exp = self::enrichPluginItems($classname, $robj, $exp);
-                    // No strip here, and none anywhere else in listem().
-                    // listem() is shared with the web tier -- the LDAP login
-                    // path needs bindPwd to bind at all, the Product Keys
-                    // report needs productKey to report anything -- so it
-                    // hands the row back whole and the emitter removes
-                    // secrets on the way out, expanded relations included.
-                    // That was already how a PLAIN list behaved; stripping
-                    // here as well meant an ?expand= caller inside the server
-                    // got a redacted row where a plain one did not.
-                    $rows[$i] = $exp;
-                }
-                $listData['data'] = $rows;
-                self::$data = $listData;
-            }
-            self::paginate(isset($pass_vars) ? $pass_vars : []);
+            self::$data = self::_listExpandRows(
+                self::$data,
+                $class,
+                $classname
+            );
+            self::paginate(null !== $pass_vars ? $pass_vars : []);
         } catch (\Exception $e) {
             self::_sendCaught($e);
         }
@@ -3340,26 +3498,23 @@ class Route extends FOGBase
                         }
                     ];
                     break;
+                    // The five plain foreign-key columns, which differed only
+                    // in the node, the dt name and the class. See
+                    // ENTITY_LINK_COLUMNS and _entityLinkColumn().
                 case 'groupID':
+                case 'snapinID':
+                case 'storagegroupID':
+                case 'storagenodeID':
+                case 'userID':
+                    list($linkNode, $linkClass) = self::ENTITY_LINK_COLUMNS[$common];
                     $columns[] = [
                         'db' => $real,
                         'dt' => $common
                     ];
-                    $columns[] = self::relColumn(
+                    $columns[] = self::_entityLinkColumn(
                         $real,
-                        'groupLink',
-                        'group',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=group&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
-                                . '</a>';
-                        }
+                        $linkNode,
+                        $linkClass
                     );
                     break;
                 case 'hostID':
@@ -3470,28 +3625,6 @@ class Route extends FOGBase
                         }
                     );
                     break;
-                case 'snapinID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'snapinLink',
-                        'Snapin',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=snapin&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    break;
                 case 'mem':
                     $columns[] = [
                         'db' => $real,
@@ -3513,72 +3646,6 @@ class Route extends FOGBase
                             return Inventory::getMemory($d);
                         }
                     ];
-                    break;
-                case 'storagegroupID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'storagegroupLink',
-                        'storagegroup',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=storagegroup&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    break;
-                case 'storagenodeID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'storagenodeLink',
-                        'storagenode',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=storagenode&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    break;
-                case 'userID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'userLink',
-                        'user',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=user&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
                     break;
                 case 'regMenu':
                     $columns[] = [
@@ -7481,6 +7548,63 @@ class Route extends FOGBase
             $column['order'] = $order;
         }
         return $column;
+    }
+    /**
+     * Builds the id/link column pair for a plain foreign-key field.
+     *
+     * groupID, snapinID, storagegroupID, storagenodeID and userID were five
+     * arms of _gridColumns()'s switch that differed in three strings and
+     * nothing else: the management node the anchor points at, the `dt` name,
+     * and the class handed to rel(). 105 lines of copy, and the copies had
+     * already started to drift -- which is the same failure relColumn() was
+     * written to stop one level down, so it gets the same treatment. A sixth
+     * foreign key is now a line in ENTITY_LINK_COLUMNS rather than a sixth
+     * copy of this markup.
+     *
+     * Deliberately NOT extended to hostID, imageID or archID. Those three
+     * look like members of this family and are not: hostID resolves its label
+     * through _hostLabel() and escapes it, carries an `order` clause from
+     * _hostNameOrder(), and answers from the stored name when the host is
+     * gone (ADR 0020); imageID falls back to the bare name when the image no
+     * longer validates; archID renders a plain string with no anchor at all.
+     * Folding them in would mean parameterising this on three more axes to
+     * serve one caller each, which is the abstraction-for-its-own-sake the
+     * column table's plan already rejected once.
+     *
+     * The `(id) - Name` order is preserved exactly, including for the empty
+     * case. It disagrees with entityLink()'s `Name - (id)`, which the 'name'
+     * arm uses; that disagreement is pre-existing and visible on screen, so
+     * settling it is a change to what a reader sees rather than part of this
+     * deduplication.
+     *
+     * @param string $real     The database column holding the id.
+     * @param string $node     The management node the anchor links to, which
+     *                         is also the `dt` name's prefix.
+     * @param string $relclass The class the ids refer to, in the spelling
+     *                         rel() is called with today -- 'Snapin' rather
+     *                         than 'snapin' -- so the cache keys and the
+     *                         column contract fixture are unchanged.
+     *
+     * @return array The column definition.
+     */
+    private static function _entityLinkColumn($real, $node, $relclass)
+    {
+        return self::relColumn(
+            $real,
+            $node . 'Link',
+            $relclass,
+            function ($d, $row) use ($node, $relclass) {
+                if (!$d) {
+                    return self::EMPTY_CELL;
+                }
+                return '<a href="../management/index.php?node=' . $node . '&'
+                    . 'sub=edit&id='
+                    . $d
+                    . '">'
+                    . '(' . $d . ') - ' . self::rel($relclass, $d)->get('name')
+                    . '</a>';
+            }
+        );
     }
     /**
      * A userTracking action code as its label.

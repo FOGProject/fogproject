@@ -137,6 +137,29 @@ function runChild($case)
         return;
     }
 
+    // The hard-coded column drop, which is a SECOND secret list beside
+    // sensitiveFieldMap() and has to agree with it. Removing a name from it
+    // puts the column back in the grid's SELECT, so the SQL is where it
+    // becomes observable -- $tmpcolumns never leaves _listColumns().
+    if (0 === strpos($case, 'removed-columns:')) {
+        list(, $class) = explode(':', $case);
+        Route::listem($class);
+        Route::getData();
+        $cols = 'host' === $class
+            ? ['hostADPass', 'hostADUser', 'hostSecToken', 'hostPubKey']
+            : ['uPass', 'uAPIToken'];
+        $found = [];
+        foreach ($db->pdo->log as $sql) {
+            foreach ($cols as $col) {
+                if (false !== strpos($sql, '`' . $col . '`')) {
+                    $found[$col] = true;
+                }
+            }
+        }
+        echo 'SELECTED ' . implode(',', array_keys($found)) . "\n";
+        return;
+    }
+
     // Whether the single-purpose read routes carry the site boundary in their
     // SQL. Run as a child because the boundary is deliberately NOT applied
     // off-request -- getIds()/getNames() are called from ~90 places in core
@@ -295,7 +318,7 @@ function child($case, $body)
         if ('' === $candidate) {
             continue;
         }
-        if (preg_match('/^(REFUSED|ALLOWED|SEARCHED|BOUNDED|UNKNOWN CASE)/', $candidate)) {
+        if (preg_match('/^(REFUSED|ALLOWED|SEARCHED|SELECTED|BOUNDED|UNKNOWN CASE)/', $candidate)) {
             return $candidate;
         }
     }
@@ -584,6 +607,44 @@ if (false !== cgiBinary()) {
         "a stripped column is NOT searched (got: $line)",
         false === strpos($line, 'hostProductKey')
     );
+}
+
+/*
+ * ===========================================================================
+ * 4a. The hard-coded column drop, named as the control it is.
+ *
+ *     _listColumns() opens by dropping user.password/token and the host
+ *     secret set from $tmpcolumns outright, before any hook sees them, so
+ *     those columns are never built, never reach the SELECT and never reach
+ *     the payload. docs/route-listem-access-control-map.md 2 calls this out
+ *     as a SECOND secret list that has to agree with sensitiveFieldMap().
+ *
+ *     tests/route-column-contract.test.php DOES catch this -- disabling
+ *     either arm adds 7 and 2 columns respectively and the golden file goes
+ *     red. This is not a coverage gap and is not asserted here because one
+ *     was found. It is asserted here because the column contract reports
+ *     "the table changed", and its documented remedy for an intended change
+ *     is `--update`. A secret arriving in the grid is the one table change
+ *     that must never be resolved that way, and a check that names the
+ *     leaked column cannot be silenced by regenerating a fixture.
+ * ===========================================================================
+ */
+if (false !== cgiBinary()) {
+    foreach (['host' => 'hostADPass', 'user' => 'uPass'] as $cls => $secret) {
+        $line = child('removed-columns:' . $cls, '');
+        // Marker first: without it a child that died during bootstrap
+        // returns a string containing neither column name, and the check
+        // below would read that silence as a pass.
+        $t->check(
+            "$cls: the removed-columns probe ran (got: $line)",
+            0 === strpos($line, 'SELECTED')
+        );
+        $t->check(
+            "$cls: the dropped secret columns stay out of the SELECT "
+            . "(got: $line)",
+            false === strpos($line, $secret)
+        );
+    }
 }
 
 /*

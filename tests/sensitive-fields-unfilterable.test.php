@@ -115,13 +115,33 @@ if (null === $assert) {
 // 4. The grid path marks those columns unsearchable, and filter() honors it.
 //    Not removed from the column list: listem() is shared with the web tier
 //    and product_keys.report.php needs productKey to report anything.
+//
+//    Read from _listColumns(), which is where the marking lives since
+//    listem()'s pipeline phases were given names. The ordering is asserted
+//    as well as the presence: the pass has to run AFTER
+//    CUSTOMIZE_DT_COLUMNS, because a plugin may append a column for its own
+//    declared secret and a pass that ran first would never see it. That
+//    ordering is what docs/route-listem-access-control-map.md 2 calls out,
+//    and it was unassertable while both lines sat in a 340-line function.
 $checks++;
-$listem = $bodyOf($route, 'public static function listem(');
-if (null === $listem) {
-    $failures[] = 'could not find Route::listem()';
-} elseif (false === strpos($listem, "'nosearch'")) {
-    $failures[] = 'listem() no longer marks sensitive columns nosearch, so '
-        . 'the DataTables grid can search a field the emitter strips';
+$listcols = $bodyOf($route, 'private static function _listColumns(');
+if (null === $listcols) {
+    $failures[] = 'could not find Route::_listColumns()';
+} else {
+    $nosearchAt = strpos($listcols, "'nosearch'");
+    $hookAt = strpos($listcols, 'CUSTOMIZE_DT_COLUMNS');
+    if (false === $nosearchAt) {
+        $failures[] = '_listColumns() no longer marks sensitive columns '
+            . 'nosearch, so the DataTables grid can search a field the '
+            . 'emitter strips';
+    } elseif (false === $hookAt) {
+        $failures[] = '_listColumns() no longer fires CUSTOMIZE_DT_COLUMNS, '
+            . 'so the nosearch pass can no longer be ordered against it';
+    } elseif ($nosearchAt < $hookAt) {
+        $failures[] = '_listColumns() marks nosearch BEFORE '
+            . 'CUSTOMIZE_DT_COLUMNS, so a column a plugin adds for its own '
+            . 'declared secret is left searchable';
+    }
 }
 
 $checks++;
