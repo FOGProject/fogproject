@@ -1973,29 +1973,25 @@ msgstr "新建%s"
 msgid "Create New Capone"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Group"
-msgstr "新建%s"
+msgstr "新建组"
 
 #, fuzzy
 msgid "Create New Hello World"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Host"
-msgstr "新建%s"
+msgstr "新建主办"
 
-#, fuzzy
 msgid "Create New Image"
-msgstr "新建%s"
+msgstr "新建图片"
 
 #, fuzzy
 msgid "Create New Immediate"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Ipxe Menu"
-msgstr "新建%s"
+msgstr "新建Ipxe Menu"
 
 #, fuzzy
 msgid "Create New LDAP Group"
@@ -2009,9 +2005,8 @@ msgstr "新建%s"
 msgid "Create New Location"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Module"
-msgstr "新建%s"
+msgstr "新建模块名称"
 
 #, fuzzy
 msgid "Create New OU"
@@ -2021,37 +2016,31 @@ msgstr "新建%s"
 msgid "Create New OpenID Connect Provider"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "新建%s"
+msgstr "新建打印机"
 
 #, fuzzy
 msgid "Create New Provider Group"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Role"
-msgstr "新建%s"
+msgstr "新建模块名称"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New Site"
-msgstr "新建%s"
+msgstr "新建分钟"
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "新建%s"
+msgstr "新建管理单元"
 
-#, fuzzy
 msgid "Create New Storage Group"
-msgstr "存储组"
+msgstr "新建Storage Group"
 
-#, fuzzy
 msgid "Create New Storage Node"
-msgstr "新建%s"
+msgstr "新建Storage Node"
 
 #, fuzzy
 msgid "Create New Subnet Group"
@@ -2065,13 +2054,11 @@ msgstr "新建%s"
 msgid "Create New Task Type"
 msgstr "新建%s"
 
-#, fuzzy
 msgid "Create New User"
-msgstr "新建%s"
+msgstr "新建用户"
 
-#, fuzzy
 msgid "Create New User Group"
-msgstr "新建%s"
+msgstr "新建User Group"
 
 #, fuzzy
 msgid "Create New Windows Key"
@@ -5114,9 +5101,42 @@ msgstr "列表中的所有%s"
 msgid "List All %s"
 msgstr "列表中的所有%s"
 
+msgid "List All Groups"
+msgstr "列表中的所有组s"
+
+msgid "List All Hosts"
+msgstr "列表中的所有主办s"
+
+msgid "List All Images"
+msgstr "列表中的所有图片s"
+
+msgid "List All Ipxe Menus"
+msgstr "列表中的所有Ipxe Menus"
+
+msgid "List All Modules"
+msgstr "列表中的所有模块名称s"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "安装插件"
+
+msgid "List All Printers"
+msgstr "列表中的所有打印机s"
+
+msgid "List All Roles"
+msgstr "列表中的所有模块名称s"
+
+msgid "List All Sites"
+msgstr "列表中的所有分钟s"
+
+msgid "List All Snapins"
+msgstr "列表中的所有管理单元s"
+
+msgid "List All Storage Groups"
+msgstr "列表中的所有Storage Groups"
+
+msgid "List All Storage Nodes"
+msgstr "列表中的所有Storage Nodes"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5125,6 +5145,12 @@ msgstr "任务的国家"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "任务类型"
+
+msgid "List All User Groups"
+msgstr "列表中的所有User Groups"
+
+msgid "List All Users"
+msgstr "列表中的所有用户s"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -11980,10 +12006,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "最新版本"
-
-#, fuzzy
-#~ msgid "List All Roles"
-#~ msgstr "列表中的所有%s"
 
 #, fuzzy
 #~ msgid "List All Rules"

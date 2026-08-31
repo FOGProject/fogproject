@@ -1974,29 +1974,25 @@ msgstr "Créer un nouveau %s"
 msgid "Create New Capone"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Group"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau groupe"
 
 #, fuzzy
 msgid "Create New Hello World"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Host"
-msgstr "Créer un nouveau %s"
+msgstr "Créer une nouvelle machine"
 
-#, fuzzy
 msgid "Create New Image"
-msgstr "Créer un nouveau %s"
+msgstr "Créer une nouvelle image"
 
 #, fuzzy
 msgid "Create New Immediate"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Ipxe Menu"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau menu iPXE"
 
 #, fuzzy
 msgid "Create New LDAP Group"
@@ -2010,9 +2006,8 @@ msgstr "Créer un nouveau %s"
 msgid "Create New Location"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Module"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau module"
 
 #, fuzzy
 msgid "Create New OU"
@@ -2022,37 +2017,31 @@ msgstr "Créer un nouveau %s"
 msgid "Create New OpenID Connect Provider"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Créer un nouveau %s"
+msgstr "Créer une nouvelle imprimante"
 
 #, fuzzy
 msgid "Create New Provider Group"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Role"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau rôle"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New Site"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau site"
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau snapin"
 
-#, fuzzy
 msgid "Create New Storage Group"
-msgstr "Groupe de stockage"
+msgstr "Créer un nouveau groupe de stockage"
 
-#, fuzzy
 msgid "Create New Storage Node"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau nœud de stockage"
 
 #, fuzzy
 msgid "Create New Subnet Group"
@@ -2066,13 +2055,11 @@ msgstr "Créer un nouveau %s"
 msgid "Create New Task Type"
 msgstr "Créer un nouveau %s"
 
-#, fuzzy
 msgid "Create New User"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouvel utilisateur"
 
-#, fuzzy
 msgid "Create New User Group"
-msgstr "Créer un nouveau %s"
+msgstr "Créer un nouveau groupe d'utilisateurs"
 
 #, fuzzy
 msgid "Create New Windows Key"
@@ -5115,9 +5102,42 @@ msgstr "Lister tous les %s"
 msgid "List All %s"
 msgstr "Lister tous les %s"
 
+msgid "List All Groups"
+msgstr "Lister tous les groupes"
+
+msgid "List All Hosts"
+msgstr "Lister toutes les machines"
+
+msgid "List All Images"
+msgstr "Lister toutes les images"
+
+msgid "List All Ipxe Menus"
+msgstr "Lister tous les menus iPXE"
+
+msgid "List All Modules"
+msgstr "Lister tous les modules"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "Installer Plugins"
+
+msgid "List All Printers"
+msgstr "Lister toutes les imprimantes"
+
+msgid "List All Roles"
+msgstr "Lister tous les rôles"
+
+msgid "List All Sites"
+msgstr "Lister tous les sites"
+
+msgid "List All Snapins"
+msgstr "Lister tous les snapins"
+
+msgid "List All Storage Groups"
+msgstr "Lister tous les groupes de stockage"
+
+msgid "List All Storage Nodes"
+msgstr "Lister tous les nœuds de stockage"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5126,6 +5146,12 @@ msgstr "Unis Groupe"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "Types de tâches"
+
+msgid "List All User Groups"
+msgstr "Lister tous les groupes d'utilisateurs"
+
+msgid "List All Users"
+msgstr "Lister tous les utilisateurs"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -5492,9 +5518,8 @@ msgstr "Modèle"
 msgid "Models"
 msgstr "Modèle"
 
-#, fuzzy
 msgid "Module"
-msgstr "Nom du module"
+msgstr "Module"
 
 #, fuzzy
 msgid "Module Create Fail"
@@ -7317,9 +7342,8 @@ msgstr "De retour valeur de clé"
 msgid "Reverse"
 msgstr ""
 
-#, fuzzy
 msgid "Role"
-msgstr "Nom du module"
+msgstr "Rôle"
 
 #, fuzzy
 msgid "Role Association"
@@ -7928,9 +7952,8 @@ msgstr ""
 msgid "Single Logout"
 msgstr "Se déconnecter"
 
-#, fuzzy
 msgid "Site"
-msgstr "minutes"
+msgstr "Site"
 
 #, fuzzy
 msgid "Site Create Fail"
@@ -11981,10 +12004,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Dernière version"
-
-#, fuzzy
-#~ msgid "List All Roles"
-#~ msgstr "Lister tous les %s"
 
 #, fuzzy
 #~ msgid "List All Rules"

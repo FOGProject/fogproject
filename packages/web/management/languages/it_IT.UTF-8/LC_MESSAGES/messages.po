@@ -1914,29 +1914,25 @@ msgstr "Crea nuovo %s"
 msgid "Create New Capone"
 msgstr "Crea nuovo snapin"
 
-#, fuzzy
 msgid "Create New Group"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Gruppo"
 
 #, fuzzy
 msgid "Create New Hello World"
 msgstr "Crea nuovo %s"
 
-#, fuzzy
 msgid "Create New Host"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Host"
 
-#, fuzzy
 msgid "Create New Image"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Immagine"
 
 #, fuzzy
 msgid "Create New Immediate"
 msgstr "Crea nuovo %s"
 
-#, fuzzy
 msgid "Create New Ipxe Menu"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Ipxe Menu"
 
 #, fuzzy
 msgid "Create New LDAP Group"
@@ -1949,9 +1945,8 @@ msgstr "Crea nuova stampante"
 msgid "Create New Location"
 msgstr "Crea nuova posizione"
 
-#, fuzzy
 msgid "Create New Module"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Nome Modulo"
 
 #, fuzzy
 msgid "Create New OU"
@@ -1961,37 +1956,31 @@ msgstr "Crea nuovo %s"
 msgid "Create New OpenID Connect Provider"
 msgstr "Crea nuova stampante"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Crea nuova stampante"
+msgstr "Crea nuovo Stampante"
 
 #, fuzzy
 msgid "Create New Provider Group"
 msgstr "Crea nuovo %s"
 
-#, fuzzy
 msgid "Create New Role"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Nome regola"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Crea nuovo %s"
 
-#, fuzzy
 msgid "Create New Site"
-msgstr "Crea nuova stampante"
+msgstr "Crea nuovo Siti"
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "Crea nuovo snapin"
+msgstr "Crea nuovo Snapin"
 
-#, fuzzy
 msgid "Create New Storage Group"
-msgstr "gruppo di archiviazione"
+msgstr "Crea nuovo Storage Group"
 
-#, fuzzy
 msgid "Create New Storage Node"
-msgstr "Crea nuova stampante"
+msgstr "Crea nuovo Storage Node"
 
 #, fuzzy
 msgid "Create New Subnet Group"
@@ -2005,13 +1994,11 @@ msgstr "Crea nuova stampante"
 msgid "Create New Task Type"
 msgstr "Crea nuovo %s"
 
-#, fuzzy
 msgid "Create New User"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo Utente"
 
-#, fuzzy
 msgid "Create New User Group"
-msgstr "Crea nuovo %s"
+msgstr "Crea nuovo User Group"
 
 #, fuzzy
 msgid "Create New Windows Key"
@@ -4957,9 +4944,42 @@ msgstr "Elencare tutti %s"
 msgid "List All %s"
 msgstr "Elencare tutti %s"
 
+msgid "List All Groups"
+msgstr "Elencare tutti Gruppos"
+
+msgid "List All Hosts"
+msgstr "Elencare tutti Hosts"
+
+msgid "List All Images"
+msgstr "Elencare tutti Immagines"
+
+msgid "List All Ipxe Menus"
+msgstr "Elencare tutti Ipxe Menus"
+
+msgid "List All Modules"
+msgstr "Elencare tutti Nome Modulos"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "installare plugin"
+
+msgid "List All Printers"
+msgstr "Elencare tutti Stampantes"
+
+msgid "List All Roles"
+msgstr "Elencare tutti Nome regolas"
+
+msgid "List All Sites"
+msgstr "Elencare tutti Sitis"
+
+msgid "List All Snapins"
+msgstr "Elencare tutti Snapins"
+
+msgid "List All Storage Groups"
+msgstr "Elencare tutti Storage Groups"
+
+msgid "List All Storage Nodes"
+msgstr "Elencare tutti Storage Nodes"
 
 #, fuzzy
 msgid "List All Task States"
@@ -4968,6 +4988,12 @@ msgstr "Stati attività"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "Tipi di attività"
+
+msgid "List All User Groups"
+msgstr "Elencare tutti User Groups"
+
+msgid "List All Users"
+msgstr "Elencare tutti Utentes"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -11616,10 +11642,6 @@ msgstr ""
 
 #~ msgid "Latest SVN Version"
 #~ msgstr "Ultima versione di SVN"
-
-#, fuzzy
-#~ msgid "List All Roles"
-#~ msgstr "Elencare tutti %s"
 
 #, fuzzy
 #~ msgid "List All Rules"

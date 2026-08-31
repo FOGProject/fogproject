@@ -4343,13 +4343,52 @@ msgstr ""
 msgid "List All %s"
 msgstr ""
 
+msgid "List All Groups"
+msgstr ""
+
+msgid "List All Hosts"
+msgstr ""
+
+msgid "List All Images"
+msgstr ""
+
+msgid "List All Ipxe Menus"
+msgstr ""
+
+msgid "List All Modules"
+msgstr ""
+
 msgid "List All Plugins"
+msgstr ""
+
+msgid "List All Printers"
+msgstr ""
+
+msgid "List All Roles"
+msgstr ""
+
+msgid "List All Sites"
+msgstr ""
+
+msgid "List All Snapins"
+msgstr ""
+
+msgid "List All Storage Groups"
+msgstr ""
+
+msgid "List All Storage Nodes"
 msgstr ""
 
 msgid "List All Task States"
 msgstr ""
 
 msgid "List All Task Types"
+msgstr ""
+
+msgid "List All User Groups"
+msgstr ""
+
+msgid "List All Users"
 msgstr ""
 
 msgid "List Available Plugins"
