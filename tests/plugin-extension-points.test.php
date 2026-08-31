@@ -39,6 +39,35 @@ define('FOG_PLUGIN_DIR', $tmp . '/plugins');
 $errLog = $tmp . '/php-error.log';
 ini_set('error_log', $errLog);
 
+/*
+ * A fixture plugin, laid out exactly as ADR 0035 requires:
+ * <plugin>/src/<Bucket>/<Class>.php declaring
+ * FOG\Plugins\<Segment>\<Bucket>\<Class>, with the directory name being the
+ * lowercased segment.
+ *
+ * It exists so one case below can declare a route handler the way a real
+ * plugin does -- ['BareName', 'method'] -- rather than the way every fixture
+ * in this file used to: 'strlen', a global function. That difference is not
+ * cosmetic. A global function is callable under its bare name and a plugin
+ * class is not, so the whole handler arm of this gate was green against a
+ * shape no plugin has ever used, and it stayed green while OIDC's two routes
+ * were being dropped on every request.
+ */
+@mkdir($tmp . '/plugins/fixtureplug/config', 0777, true);
+@mkdir($tmp . '/plugins/fixtureplug/src/Util', 0777, true);
+file_put_contents(
+    $tmp . '/plugins/fixtureplug/config/plugin.config.php',
+    '<?php' . "\n" . '$fog_plugin[\'name\'] = \'fixtureplug\';' . "\n"
+);
+file_put_contents(
+    $tmp . '/plugins/fixtureplug/src/Util/FixtureFlow.php',
+    '<?php' . "\n"
+    . 'namespace FOG\\Plugins\\FixturePlug\\Util;' . "\n"
+    . 'class FixtureFlow' . "\n" . '{' . "\n"
+    . '    public static function start()' . "\n" . '    {' . "\n"
+    . '    }' . "\n" . '}' . "\n"
+);
+
 require $web . '/commons/init.php';
 new Initiator();
 
@@ -172,16 +201,37 @@ $got = $offer([
         'path' => '/ext/demo/broken',
         'handler' => 'no_such_function_anywhere',
     ],
+    // THE shape every real plugin uses: [class, method] with the class
+    // spelled BARE. is_callable() resolves a class name in a string against
+    // the GLOBAL namespace, so this is not callable as written -- the router
+    // has to qualify it first, exactly as getClass() does everywhere else.
+    // Must be registered, with the handler normalized to the FQCN so the
+    // later dispatch calls something that exists.
+    [
+        'name' => 'bareClass',
+        'path' => '/ext/demo/bare',
+        'handler' => ['FixtureFlow', 'start'],
+        'auth' => 'public',
+    ],
+    // A [class, method] naming a class no plugin declares. Qualifying passes
+    // an unknown name through unchanged, so this must still be dropped --
+    // resolving bare names must not become a way to register a handler that
+    // does not exist.
+    [
+        'name' => 'ghostClass',
+        'path' => '/ext/demo/ghost',
+        'handler' => ['NoSuchPluginClassAnywhere', 'start'],
+    ],
 ]);
 
-$expectDropped = ['ext:escapee', 'ext:traversal', 'ext:broken'];
+$expectDropped = ['ext:escapee', 'ext:traversal', 'ext:broken', 'ext:ghostClass'];
 foreach ($expectDropped as $name) {
     if (isset($got[$name])) {
         $fails[] = "$name should have been rejected but was registered at "
             . $got[$name]['path'];
     }
 }
-foreach (['ext:silent', 'ext:guarded', 'ext:callback'] as $name) {
+foreach (['ext:silent', 'ext:guarded', 'ext:callback', 'ext:bareClass'] as $name) {
     if (!isset($got[$name])) {
         $fails[] = "$name should have been registered and was not";
     }
@@ -198,6 +248,32 @@ foreach (['ext:silent', 'ext:typo', 'ext:paramPublic'] as $name) {
 if (isset($got['ext:callback']) && 'public' !== $got['ext:callback']['auth']) {
     $fails[] = 'a correctly declared public route was not treated as public,'
         . ' so a callback that cannot carry credentials is unreachable';
+}
+
+/*
+ * The bare [class, method] handler survives, AND comes back qualified.
+ *
+ * Both halves are the assertion. Registering it while leaving the class bare
+ * would move the failure from validation to dispatch, where it is a fatal on
+ * a live request rather than a dropped route -- so checking only that the
+ * route exists would pass a fix that is still broken.
+ *
+ * This is the regression that took OIDC's /ext/oidc/start and
+ * /ext/oidc/callback off the router entirely under ADR 0035. A signed-out
+ * browser was redirected to start by LOGIN_PAGE_REDIRECT, got 401 because
+ * the route was no longer registered, and had no way back in but
+ * management/login.php.
+ */
+if (isset($got['ext:bareClass'])) {
+    $handler = $got['ext:bareClass']['handler'];
+    if (!is_array($handler) || !is_callable($handler)) {
+        $fails[] = 'a bare [class, method] handler was registered but is not'
+            . ' callable as stored, so dispatch would fatal: '
+            . var_export($handler, true);
+    } elseif ('FOG\\Plugins\\FixturePlug\\Util\\FixtureFlow' !== $handler[0]) {
+        $fails[] = 'a bare handler class was not qualified; got '
+            . var_export($handler[0], true);
+    }
 }
 
 // ------------------------------------------------- what the router enforces
