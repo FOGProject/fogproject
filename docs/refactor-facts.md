@@ -1139,6 +1139,8 @@ php tests/route-write-path-guards.test.php     # ok  10 checks passed
 
 ### F-53 — The lockout guard's DEPTH condition is still unnetted
 
+**SUPERSEDED BY F-54.**
+
 `deletemass()` calls `Authorization::assertAdminRemainsAfterDelete()` only at
 `self::$_deleteDepth < 1`, because the cascade re-enters `deletemass()` per
 dependent table and those intermediate states are part of one operation
@@ -1155,6 +1157,45 @@ while the whole operation does not -- for example a user whose deletion
 cascades through `roleuserassociation` rows that momentarily leave no
 administrator. Until that exists, a change to the depth condition is
 unguarded.
+
+---
+
+### F-54 — A depth condition is netted by counting calls, not by provoking a refusal
+
+Supersedes F-53, which asked for the wrong fixture. `deletemass()` runs the
+lockout guard only at `self::$_deleteDepth < 1`, and F-53 proposed netting it
+with a cascade whose intermediate state reads as a lockout while the whole
+operation does not. That is hard to build and it is not what the condition
+says. The condition's contract is that the guard does not RUN at depth, and
+running is directly observable in the query log with no lockout involved.
+
+Two signals, both from one call that deletes one of two administrators -- a
+delete the guard must allow, so the outcome is identical either way and only
+the queries differ:
+
+- `SELECT `uID` FROM `users`` bare, with no WHERE. Issued by
+  `adminExistsGiven()`, `localAdminExists()` and `interactiveAdminExists()`,
+  and by nothing else in the tree. Its presence proves the guard ran at the
+  top of this call.
+- `roleUserAssoc` read with a WHERE, projecting `ruaUserID` or `ruaRoleID`.
+  Only `Authorization::_remaining()` produces that shape, and `_remaining()`
+  is reachable only from the guard's ASSOCIATION arms -- which only a call at
+  depth can reach. The cascade's own lookup of the rows it is about to delete
+  projects `ruaID`, so it is distinguishable and is not counted.
+
+```
+php tests/route-write-path-guards.test.php   # ok  12 checks passed
+#   baseline                                    ALLOWED USERREADS yes RUAREADS 0
+#   if (true || self::$_deleteDepth < 1)        ... RUAREADS 1   -> RED
+#   if (self::$_deleteDepth < 2)                ... RUAREADS 1   -> RED
+#   guard call deleted outright                 ... USERREADS no -> RED (2 checks)
+```
+
+The general form, which is the part worth carrying to the next one of these:
+**a condition about WHEN something runs is netted by observing that it ran,
+not by engineering an input on which running it would give a different
+answer.** The second is a test of the guard; only the first is a test of the
+condition.
 
 ---
 
