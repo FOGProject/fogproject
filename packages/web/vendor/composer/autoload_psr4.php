@@ -8,5 +8,6 @@ $baseDir = dirname($vendorDir);
 return array(
     'Ifsnop\\' => array($vendorDir . '/ifsnop/mysqldump-php/src/Ifsnop'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
+    'FastRoute\\' => array($vendorDir . '/nikic/fast-route/src'),
     'FOG\\' => array($baseDir . '/src'),
 );

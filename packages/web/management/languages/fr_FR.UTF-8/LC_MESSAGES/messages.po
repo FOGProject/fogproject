@@ -1392,9 +1392,6 @@ msgstr ""
 msgid "Can be a comma seperated list."
 msgstr ""
 
-msgid "Can not redeclare route"
-msgstr ""
-
 #, fuzzy
 msgid "Cancel"
 msgstr "tâche Annulé"
@@ -7295,9 +7292,6 @@ msgid "Role when group matching is off"
 msgstr ""
 
 msgid "Roles"
-msgstr ""
-
-msgid "Routes should be an array or an instance of Traversable"
 msgstr ""
 
 msgid "Row"
