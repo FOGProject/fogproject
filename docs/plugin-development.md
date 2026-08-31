@@ -68,23 +68,20 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 - **Boot chain.** Every entry point loads `commons/base.inc.php` →
   `commons/init.php` → `LoadGlobals`, which sets the shared singletons
   (`FOGBase::$DB`, `$HookManager`, `$EventManager`, `$currentUser`).
-- **Autoloader.** `Initiator` scans `BASEPATH` recursively, builds a
-  lowercased‑basename → path map of every `*.{class,page,hook,event,report,task}.php`
-  file, and registers that ahead of PHP's default `spl_autoload` (which stays
-  registered as a fallback). Lookup **lowercases the class name** to find the
-  file. So:
+- **Autoloader.** `Initiator` turns a class name into a path and loads that
+  file. Core's `FOG\Items\Host` is `packages/web/src/Items/Host.php`; your
+  `FOG\Plugins\HelloWorld\Items\HelloWorld` is
+  `<root>/helloworld/src/Items/HelloWorld.php`. Nothing is scanned, nothing is
+  guessed and there is no `spl_autoload` fallback — the path **is** the name,
+  which is why it has to be exact:
 
-  > **The filename must be `strtolower(ClassName)` + the suffix.**
-  > `class HelloWorldManagement` ⇒ `helloworldmanagement.page.php`.
-  > `class AddHelloWorldJS` ⇒ `addhelloworldjs.hook.php`.
+  > **`<plugin>/src/<Bucket>/<Class>.php` declares
+  > `FOG\Plugins\<Segment>\<Bucket>\<Class>`.** File name equals class name,
+  > character for character; `strtolower(<Segment>)` equals the plugin's
+  > directory name.
 
-  (Class names in code are PascalCase; the files on disk are all‑lowercase.)
-
-  **That rule is about YOUR files.** Core is not found this way any more — it
-  lives under `packages/web/src/` and is reached by its fully qualified name.
-  See §7a, which is the one thing to read before writing any class.
-
-  The filename rule is unchanged and still applies to every file you ship.
+  That is the same PSR-4 arrangement core uses on itself, and it is the one
+  thing to get right before writing any class — §7a is the long version.
 - **Routing.** The whole UI is driven by `?node=<x>&sub=<y>&id=<n>`. `node` maps
   to a page class (`helloworld` → `HelloWorldManagement`, matched by its
   `public $node = 'helloworld'`), and `sub` maps to a method on it
@@ -104,27 +101,51 @@ The running example, `helloworld`, manages a trivial entity with a `name` and a
 ```
 <root>/helloworld/                  # <root> = lib/plugins (bundled) or /opt/fog/plugins
 ├── config/
-│   └── plugin.config.php          # the manifest ($fog_plugin[...])
-├── class/
-│   ├── helloworld.class.php        # HelloWorld         (model, FOGController)
-│   └── helloworldmanager.class.php # HelloWorldManager  (manager + schema())
-├── pages/
-│   └── helloworldmanagement.page.php  # HelloWorldManagement (FOGPage)
-├── hooks/
-│   ├── addhelloworldmenuitem.hook.php # menu entry + search/objects
-│   ├── addhelloworldjs.hook.php       # JS injection
-│   └── addhelloworldapi.hook.php      # REST API exposure
+│   └── plugin.config.php            # the manifest ($fog_plugin[...])
+├── src/                             # ALL PHP, laid out exactly like core's src/
+│   ├── Items/
+│   │   └── HelloWorld.php           # …\Items\HelloWorld      (model, FOGController)
+│   ├── Managers/
+│   │   └── HelloWorldManager.php    # …\Managers\…          (manager + schema())
+│   ├── Pages/
+│   │   └── HelloWorldManagement.php # …\Pages\…             (FOGPage)
+│   ├── Hooks/
+│   │   ├── AddHelloWorldMenuItem.php  # menu entry + search/objects
+│   │   ├── AddHelloWorldJS.php        # JS injection
+│   │   └── AddHelloWorldAPI.php       # REST API exposure
+│   └── Tasks/
+│       └── HelloWorldHeartbeat.php  # …\Tasks\…             (PluginTask)     
 ├── js/
 │   ├── fog.helloworld.list.js
 │   ├── fog.helloworld.add.js
 │   └── fog.helloworld.edit.js
-└── vendor/                        # optional — Composer dependencies, see 7b
+└── vendor/                          # optional — Composer dependencies, see 7b
     └── autoload.php
 ```
 
+Everything under `src/` is `FOG\Plugins\HelloWorld\<Bucket>\<Class>`. Five
+bucket names are **enumerated** — core lists the directory to find things to
+register, so a class only takes effect if it is in the right one:
+
+| Bucket | Holds | What core does with it |
+|---|---|---|
+| `Pages/` | `FOGPage` subclasses | routes `?node=<x>` to them |
+| `Hooks/` | `Hook` subclasses | constructs them so they can register callbacks |
+| `Events/` | `Event` subclasses | constructs them |
+| `Reports/` | report pages | lists them in the Reports menu — see §9a |
+| `Tasks/` | `PluginTask` subclasses | runs them on their interval — see ADR 0010 |
+
+Every other bucket is **autoload-only**: `Items/`, `Managers/`, `Util/`, or
+anything else you invent. Nothing enumerates them, so the name is yours to
+choose — it just has to match the namespace. The convention above is core's,
+and following it means someone who knows core knows your plugin.
+
 The directory name **is** the plugin's machine name and routing `node`. Keep it
 lowercase and use it consistently (`$fog_plugin['name']`, each hook's
-`public $node`, the page's `public $node`).
+`public $node`, the page's `public $node`). The namespace segment is that same
+name with whatever casing reads well — `helloworld/` → `FOG\Plugins\HelloWorld`,
+`ldap/` → `FOG\Plugins\LDAP` — and the only rule is that lowercasing it gets
+you back to the directory name.
 
 ---
 
@@ -183,10 +204,10 @@ existed keeps working untouched.
 > named, and routing goes through the `node` → page‑class mapping. Both are
 > gone; if your manifest still sets them they are simply ignored.
 
-### 4.2 Model — `class/helloworld.class.php`
+### 4.2 Model — `src/Items/HelloWorld.php`
 
 ```php
-namespace FOG\Plugins\Helloworld;
+namespace FOG\Plugins\HelloWorld\Items;
 
 class HelloWorld extends \FOG\Base\FOGController
 {
@@ -204,13 +225,13 @@ That's the entire ORM contract. `$databaseFields` maps friendly names (used in
 code and in the API) to real column names. `$databaseFieldsRequired` is enforced
 on `save()`.
 
-### 4.3 Manager + migrations — `class/helloworldmanager.class.php`
+### 4.3 Manager + migrations — `src/Managers/HelloWorldManager.php`
 
 The manager owns table creation and **schema evolution**. This is the most
 important part to get right, so it gets its own section (§5). The shape:
 
 ```php
-namespace FOG\Plugins\Helloworld;
+namespace FOG\Plugins\HelloWorld\Managers;
 
 class HelloWorldManager extends \FOG\Base\FOGManagerController
 {
@@ -237,7 +258,7 @@ class HelloWorldManager extends \FOG\Base\FOGManagerController
 }
 ```
 
-### 4.4 Page — `pages/helloworldmanagement.page.php`
+### 4.4 Page — `src/Pages/HelloWorldManagement.php`
 
 The page extends `\FOG\Base\FOGPage`, declares `public $node = 'helloworld'`, and sets the
 list columns in its constructor:
@@ -309,7 +330,7 @@ The **edit** page uses tabs. `edit()` builds `$tabData` and calls
 (`helloworldGeneral()`), and `editPost()` dispatches on the global `$tab` to the
 matching `*GeneralPost()` that mutates `$this->obj` before the shared `save()`.
 
-### 4.5 Hooks — `hooks/*.hook.php`
+### 4.5 Hooks — `src/Hooks/*.php`
 
 Each hook is a small class extending `\FOG\Base\Hook`, with `public $node`, that registers
 callbacks **in its constructor**. Use `registerInstalled()` — it applies the
@@ -503,40 +524,63 @@ Global configuration lives in the `globalSettings` table.
 
 ---
 
-## 7a. Class names and the `FOG\` namespace
+## 7a. Where a class lives and what it is called
 
-**Read this before you write a class.** Core moved to PSR-4 under
-`packages/web/src/` and is now reachable **only by its fully qualified name**.
-Bare `FOGController`, `Host`, `Hook` no longer resolve to anything. Plugins
-have since followed core: every plugin class now declares its own namespace
-too.
+**Read this before you write a class.** A plugin is laid out exactly like core
+and discovered by exactly the mechanism core uses on itself: PSR-4 under
+`src/`, bucketed by kind, no filename suffixes and no scanning. Core is
+reachable **only by its fully qualified name** — bare `FOGController`, `Host`,
+`Hook` resolve to nothing — and so is your own code.
 
 ### The rule
 
-**Declare `namespace FOG\Plugins\<Ucfirst-plugin-directory>;` at the top of
-every file, and reference core by its FQCN with a leading backslash.** The
-namespace segment is `ucfirst()` of the plugin's directory name — mechanical,
-no lookup table, no exceptions: `helloworld/` → `FOG\Plugins\Helloworld`,
-`ldap/` → `FOG\Plugins\Ldap`. The **subdirectory is not part of it** — every
-class in a plugin, whatever mix of `class/`, `pages/`, `hooks/`, `events/`,
-`reports/` and `tasks/` it ships, shares that one flat namespace.
-(`FOGController::getManager()` derives a model's manager class as
-`qualify(shortName($this) . 'Manager')`, so a model and its manager have to
-resolve in the same namespace or the derivation breaks.)
+**`<plugin>/src/<Bucket>/<Class>.php` declares
+`FOG\Plugins\<Segment>\<Bucket>\<Class>`.** Three halves, all load-bearing:
+
+1. **File name equals class name**, character for character. `HelloWorld.php`
+   declares `HelloWorld` — not `helloworld.php`, not `HelloWorld.class.php`.
+2. **Directory path equals namespace tail.** A file in `src/Managers/` declares
+   `…\Managers\…`. Move the file, change the namespace.
+3. **`strtolower(<Segment>)` equals the plugin's directory name.** The segment
+   carries readable casing — `helloworld/` → `FOG\Plugins\HelloWorld`, `ldap/`
+   → `FOG\Plugins\LDAP` — but lowercasing it must land back on the directory,
+   because the directory name is also `plugins.pName`, the `?node=` value, the
+   `<node>.view` permission string and your `js/` URL.
+
+Both 1 and 3 are checked by a test in fog-plugins' own suite, so a mistake is a
+red build rather than a page that silently never appears.
 
 ```php
-namespace FOG\Plugins\Helloworld;
+// src/Items/HelloWorld.php
+namespace FOG\Plugins\HelloWorld\Items;
 
-class HelloWorld           extends \FOG\Base\FOGController {}
-class HelloWorldManager    extends \FOG\Base\FOGManagerController {}
-class HelloWorldManagement extends \FOG\Base\FOGPage {}
-class AddHelloWorldMenuItem extends \FOG\Base\Hook {}
-class HelloWorldHeartbeat  extends \FOG\Base\PluginTask {}
+class HelloWorld extends \FOG\Base\FOGController {}
 ```
 
-This is what every bundled plugin does now — copying one gets you the house
-style. The names you reference on core stay **bucketed**, matching the
-directory they live in under `src/` — there is no flat `FOG\Host`:
+```php
+// src/Managers/HelloWorldManager.php
+namespace FOG\Plugins\HelloWorld\Managers;
+
+class HelloWorldManager extends \FOG\Base\FOGManagerController {}
+```
+
+```php
+// src/Pages/HelloWorldManagement.php
+namespace FOG\Plugins\HelloWorld\Pages;
+
+class HelloWorldManagement extends \FOG\Base\FOGPage {}
+```
+
+A model and its manager sit in **different** buckets and that is fine:
+`FOGController::getManager()` derives the manager as
+`qualify(shortName($this) . 'Manager')` — a *short* name, resolved through the
+same map that answers `getClass('HelloWorld')` — so it finds
+`…\Managers\HelloWorldManager` from `…\Items\HelloWorld` without either
+class naming the other.
+
+This is what every bundled plugin does — copying one gets you the house
+style. The names you reference on core are bucketed the same way, matching the
+directory they live in under `src/`; there is no flat `FOG\Host`:
 
 | Bare name you used to write | Now |
 |---|---|
@@ -557,7 +601,7 @@ A `use` import works too, and is the better shape if you name a class many
 times — it sits below your own `namespace` declaration, not instead of it:
 
 ```php
-namespace FOG\Plugins\Helloworld;
+namespace FOG\Plugins\HelloWorld\Items;
 
 use FOG\Base\FOGController;
 
@@ -567,49 +611,53 @@ class HelloWorld extends FOGController {}
 Both forms are correct. The FQCN form is what most of the bundled plugins use,
 so copying one of them gets you the house style.
 
-### Discovery still works by filename
+### Discovery reads bucket directories, not filenames
 
-File layout does not change, and neither does the rule about it: a **page,
-hook, event, report or task** is still found by its filename, and the class
-it declares must still be named after that file — `class
-HelloWorldManagement` in `helloworldmanagement.page.php`, same as always. The
-`.page.php` / `.hook.php` / `.event.php` / `.report.php` / `.task.php` suffix
-is how the file gets found at all, so nothing moved and nothing was renamed.
-This is namespacing, not a move to PSR-4 autoloading.
+There are no `.page.php` / `.hook.php` / `.event.php` / `.report.php` /
+`.task.php` suffixes any more, and nothing walks your plugin looking for them.
+A page is a page because it is in `src/Pages/`; core lists that directory —
+`FOGBase::pluginitems('Pages')`, the exact counterpart of `coreitems('Pages')`
+— and derives the class name from the path. Same for the other four enumerated
+buckets. Anything else you ship is simply autoloaded when something names it.
 
-What changed is what core does once it has found the bare name. It now reads
-each plugin file's actual `namespace` declaration and maps the plugin's bare
-short name to its namespaced FQCN, so discovery, `getClass('HelloWorld')`,
-`FOGController::getManager()`, `FOGPage::$childClass`, `Route::_newEntity()`
-and `Authorization`'s object-scope lookup all keep resolving the class from
-the bare spelling you've always used. You never have to spell the namespace
-out anywhere except the `namespace` declaration itself.
+Bare spellings still work wherever **core** does the resolving:
+`getClass('HelloWorld')`, `FOGController::getManager()`, `FOGPage::$childClass`,
+`Route::_newEntity()` and `Authorization`'s object-scope lookup all take a
+short name. Core builds that map from the file *paths* now rather than by
+reading every plugin file, so you never spell the namespace out anywhere except
+the `namespace` declaration itself.
 
-**`class_alias()` is no longer needed, and should not be used.** It used to
-be the workaround for exactly this gap: discovery derived a bare class name
-from `basename($file)`, so a plugin that declared its own namespace had to
-alias itself back into the global one or its page/hook/event/report silently
-never registered. That gap is closed at the source now — core builds the
-bare-name → FQCN map from the declaration itself — so there is nothing left
-for an alias to do, and shipping one just adds a second, redundant name for
-the same class.
+**`class_alias()` is not needed and should not be used.** It was the workaround
+for a gap that no longer exists — discovery once derived a bare class name from
+`basename($file)`, so a namespaced plugin had to alias itself back into the
+global namespace or never register. Shipping one now just adds a second,
+redundant name for the same class.
 
-### Backwards compatible
+### A plugin on the pre-1.6 layout is refused, out loud
 
-A plugin that declares **no** namespace keeps working exactly as it did
-before this change. Core reads each plugin file's actual `namespace`
-declaration rather than assuming every plugin has one now — an unconverted
-third-party plugin produces no entry in the map and keeps resolving by its
-bare name, in the global namespace, same as always. Nothing here requires a
-third-party author to do anything before their plugin keeps loading.
+This replaced the old `class/ pages/ hooks/ …` layout, and it is not
+backwards compatible — that was decided deliberately (see
+[ADR 0035](adr/0035-a-plugin-is-laid-out-like-core.md)). One consistent way to
+write FOG code was judged worth breaking third-party plugins written against
+the old shape.
+
+The failure is at least a loud one. A plugin directory with no `src/` but with
+a `class/` gets one line in the log naming itself and this guide, rather than
+being silently absent the way a missing class used to be. **Porting is a move
+and a namespace line**, per the table in §11b — no logic changes.
 
 ### Two plugins, one class name, no collision
 
-Because the namespace segment comes from the plugin's own directory, two
-plugins can now each ship a class called `Settings` without one shadowing the
-other. Before this, every plugin class shared one global basename keyspace —
-whichever plugin's `Settings` loaded first silently won, and the other's was
-unreachable.
+Two plugins can each ship a class called `Settings` without one shadowing the
+other, and so can a plugin and core: the FQCNs differ, so the paths differ, so
+both files load. This is now *structural* rather than a rule anyone enforces —
+`FOG\Plugins\Alpha\Items\Settings` and `FOG\Items\Settings` cannot resolve
+to the same file, because each name derives its own.
+
+The one keyspace still shared is the **short** name, used by `getClass()` and
+friends. Core wins it: a plugin class whose short name matches a core class is
+reachable only by its FQCN. Pick a distinctive name and the question never
+arises.
 
 ### The one place a bare name still bites
 
@@ -620,7 +668,7 @@ resolved exactly as written, with no such mapping behind it. So
 `self::getClass('LDAPGroupManager')` inside a plugin is fine — core resolves
 it — but a raw `new $someString` or `is_subclass_of($x, 'SomeClass')` naming
 a bare plugin class in your own code is not. Spell those fully qualified
-(`\FOG\Plugins\Ldap\LDAPGroupManager`) or route them through
+(`\FOG\Plugins\LDAP\Managers\LDAPGroupManager`) or route them through
 `self::getClass()` instead.
 
 ### What the failure looks like
@@ -653,7 +701,7 @@ building a column name or an array key from it, putting it in a filename or a
 log line:
 
 ```php
-// Wrong: 'FOG\Plugins\Helloworld\HelloWorld', and the comparison silently fails.
+// Wrong: 'FOG\Plugins\HelloWorld\Items\HelloWorld' -- comparison silently fails.
 if (get_class($obj) === 'HelloWorld') { /* ... */ }
 
 // Right: 'HelloWorld', namespaced or not.
@@ -669,10 +717,17 @@ ADR 0013 originally kept a `class_alias()` in every core file re-exporting it
 into the global namespace, and called that alias the 1.6 plugin ABI. **All 202
 were deleted before 1.6.0 shipped and the ADR is amended accordingly** — there
 was no released 1.6 for the promise to have been made to, and carrying the shim
-through a major version bought compatibility with nothing. Plugins have now
-followed the same path: the `class_alias()` a plugin author would once have
-had to write to stay reachable is gone too, for the same reason — core
-resolves the namespaced class directly instead of leaning on a shim to do it.
+through a major version bought compatibility with nothing.
+
+Plugins then followed in two steps, both before 1.6.0. First the namespace:
+every plugin class moved into `FOG\Plugins\<Plugin>`, discovered by reading
+each file's `namespace` declaration, with the files left where they were. That
+half-migration is what this section used to describe, and it was the confusing
+state — the namespace said `FOG\Plugins\…` while the file said
+`class/ldapmanager.class.php`, and core carried a whole scan-and-cache
+mechanism to reconcile the two. Then the layout followed the namespace
+(ADR 0035), which deleted that mechanism rather than replacing it: the path is
+derived from the name, so there is nothing left to scan, read or cache.
 
 ## 7b. Composer dependencies
 
@@ -1021,10 +1076,17 @@ Fire your own events with `&`‑by‑reference args so listeners can mutate them
 
 ### 9a. Naming your report
 
-A file at `<plugin>/reports/<name>.report.php` becomes an entry in the Reports
-menu automatically. The label it gets, if you do nothing, is `ucwords()` of the
-**file name** — so `ou_report.report.php` appears as "Ou Report" while the page
-it opens is headed "Export OUs". Two names for one screen.
+A file at `<plugin>/src/Reports/<Class>.php` becomes an entry in the Reports
+menu automatically. **Report class names keep their underscores** — `OU_Report`,
+`LDAP_Report` — exactly as core names its own (`src/Reports/Fleet_Report.php`),
+because the menu key, the base64 `f` URL parameter and the permission node are
+all derived from the file name with underscores turned into spaces and the whole
+thing lowercased. Renaming `OU_Report` to `OuReport` would move the report to a
+different URL under a different permission node.
+
+The label it gets, if you do nothing, is that same derived name title-cased —
+so `OU_Report.php` appears as "Ou Report" while the page it opens is headed
+"Export OUs". Two names for one screen.
 
 Name it once, in a hook, and both agree:
 
@@ -1089,17 +1151,24 @@ an error.
 - **Core is FQCN-only.** `extends FOGController` is a fatal error, not a
   deprecation — see §7a. The autoloader logs one line naming the class and the
   name to use before the request dies, so check the error log first.
-- **Every plugin class declares `namespace FOG\Plugins\<Ucfirst-directory>;`.**
-  One flat namespace per plugin, whatever subdirectory the file lives in — a
-  model and its manager must resolve in the same one. No `class_alias()`
-  needed, not even for a page/hook/event/report/task: core maps the bare name
-  to the namespaced FQCN for you. §7a has the shape. A plugin with no
-  namespace declared keeps working unchanged.
-- **Filename = `strtolower(ClassName)` + suffix.** A mismatch means the class
-  won't autoload. Silently, for most classes — but not for your manager:
-  install refuses outright if `class/<name>manager.class.php` exists and does
-  not declare `<Name>Manager`, because the fallback used to make the install
-  report success having created nothing.
+- **The class list is cached, and the installer drops it.** Both roots are
+  listed once and memoized to `/opt/fog/cache/` for 300 seconds, so a file you
+  add by hand can take that long to be seen. `installfog.sh` clears the cache
+  for you; while developing, delete `/opt/fog/cache/*.json` or wait it out.
+- **Path equals name.** `src/<Bucket>/<Class>.php` declares
+  `FOG\Plugins\<Segment>\<Bucket>\<Class>`, and `strtolower(<Segment>)` is
+  the plugin's directory name. A mismatch means the class does not load — the
+  autoloader derives one path and only one. No `class_alias()` needed, not even
+  for a page/hook/event/report/task. §7a has the shape.
+- **A class in the wrong bucket is loadable but invisible.** Autoloading and
+  discovery are separate: a `FOGPage` subclass under `src/Items/` resolves fine
+  if something names it, and is never routed, because only `src/Pages/` is
+  listed for pages. If your page exists but `?node=` 404s, check the directory
+  before you check the code.
+- **Your manager's name is checked at install.** If `src/Managers/` holds a
+  file whose base name matches the manager the plugin expects but which
+  declares something else, install refuses outright rather than reporting
+  success having created nothing.
 - **`menuicon`** beginning with `fa` is rendered as a font‑awesome icon;
   anything else is treated as an `<img>` `src`.
 - **`$serverFault`** must be `true` only for server‑side failures, so HTTP
@@ -1128,8 +1197,9 @@ an error.
 
 1. Copy `helloworld/` to `/opt/fog/plugins/<yourname>/` (or, for a plugin you
    intend to bundle with FOG itself, `packages/web/lib/plugins/<yourname>/`) and
-   rename the directory, the classes, the files (lowercased), every `$node`, and
-   the `$fog_plugin['name']`.
+   rename the directory, the classes, the files (each file keeps its class's
+   exact name), the `FOG\Plugins\<Segment>` in every `namespace` line, every
+   `$node`, and the `$fog_plugin['name']`.
 2. Deploy to the web root (e.g. `copybacktrunk.sh "" "" "1.6"`) — only needed
    for a bundled plugin; `/opt/fog/plugins/` is already live.
 3. In the UI: **Plugin System → Plugin Management → install/activate** your
@@ -1207,6 +1277,54 @@ on disk and adding new executable code to the server are different authorities.
 > why step 2 is a root command rather than something the settings page can do
 > for itself — and why leaving uploads off and using `git clone` is a perfectly
 > good answer.
+
+---
+
+## 11b. Porting a plugin from the pre-1.6 layout
+
+If your plugin has a `class/` directory rather than a `src/` one, it is on the
+layout that shipped before 1.6.0 and it will not load. The port is a file move
+and a `namespace` line; **no logic changes**, and nothing about the manifest,
+the routing node, the permission strings, the JS or the database moves with it.
+
+Move each file, keeping its class's exact name and dropping the suffix:
+
+| Was | Is now | Because it extends |
+|---|---|---|
+| `class/helloworld.class.php` | `src/Items/HelloWorld.php` | `FOGController` |
+| `class/helloworldmanager.class.php` | `src/Managers/HelloWorldManager.php` | `FOGManagerController` |
+| `class/oidcflow.class.php` | `src/Util/OIDCFlow.php` | `FOGBase` — no bucket of its own |
+| `pages/helloworldmanagement.page.php` | `src/Pages/HelloWorldManagement.php` | |
+| `hooks/addhelloworldjs.hook.php` | `src/Hooks/AddHelloWorldJS.php` | |
+| `events/somethinghappened.event.php` | `src/Events/SomethingHappened.php` | |
+| `reports/ou_report.report.php` | `src/Reports/OU_Report.php` | keep the underscores — §9a |
+| `tasks/helloworldheartbeat.task.php` | `src/Tasks/HelloWorldHeartbeat.php` | |
+
+`class/` splits three ways because it used to hold everything; which bucket a
+file belongs in is decided by what its class extends, not by what it is called.
+
+Then, in each file, extend the namespace with the bucket:
+
+```php
+-namespace FOG\Plugins\Helloworld;
++namespace FOG\Plugins\HelloWorld\Items;
+```
+
+Two things to watch while you do it:
+
+- **The segment may need recasing.** It used to be `ucfirst()` of the directory
+  name, so `ldap/` was `FOG\Plugins\Ldap`. Any casing is allowed now as long
+  as lowercasing it returns the directory name, and the bundled plugins took
+  the chance to become `FOG\Plugins\LDAP`, `FOG\Plugins\OIDC`,
+  `FOG\Plugins\WOLBroadcast`. Recasing is optional; if you do it, do it in
+  every file at once.
+- **Any FQCN you spell out in your own code moves too** — a `use` import of one
+  of your own classes, a class name in a string, an `is_subclass_of()`. Core
+  resolves short names for you (§7a), but a literal you wrote is a literal.
+
+Use `git mv` so the history follows the file. If you carried a `class_alias()`
+to make discovery find a namespaced class, delete it; it has nothing left to
+do.
 
 ---
 

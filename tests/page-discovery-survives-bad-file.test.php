@@ -4,8 +4,8 @@
  *
  *   tests/page-discovery-survives-bad-file.test.php
  *
- * FOGPageManager::loadPageClasses() derives a class name from a file's
- * basename and then calls get_class_vars() on it. In PHP 8 that is an
+ * FOGPageManager::loadPageClasses() derives a class name from a file's path
+ * and then calls get_class_vars() on it. In PHP 8 that is an
  * uncaught TypeError when no class declares the name -- thrown out of
  * FOGPageManager's constructor, which management/index.php builds before it
  * can render anything. So one file whose class does not match its name is a
@@ -13,8 +13,8 @@
  *
  * Two ways to get there, and both are real:
  *
- *   1. The file is gone. The class-file list is a TTL-cached snapshot
- *      (Initiator::classFileList) and is ALLOWED to be stale -- that is the
+ *   1. The file is gone. The plugin source list is a TTL-cached snapshot
+ *      (Initiator::pluginFileList) and is ALLOWED to be stale -- that is the
  *      documented design. FOGBase::startClassFromFiles() was hardened for
  *      exactly this after fog-plugins v1.6.11 dropped a hook; this consumer
  *      was not, so deleting a page file leaves the UI dead until the TTL
@@ -23,10 +23,16 @@
  *      is reachable from outside this repository: a third-party plugin
  *      uploaded through Plugin Management whose page file declares a class
  *      under a namespace nothing will look in -- `namespace FOG; class Foo`
- *      is the easy way there now that plugins declare
- *      FOG\Plugins\<Plugin>\<Class>. The name discovery derives never
- *      exists, and the whole UI dies for everyone with `rm` plus clearing
- *      /opt/fog/cache as the only way out.
+ *      is the easy way there now that a plugin page must declare
+ *      FOG\Plugins\<Segment>\Pages\<Class> (ADR 0035). The name discovery
+ *      derives never exists, and the whole UI dies for everyone with `rm`
+ *      plus clearing /opt/fog/cache as the only way out.
+ *
+ * The first is narrower than it was and the second is not. Discovery derives
+ * the class name from the PATH now rather than from a basename, so a filename
+ * and a class that merely disagree can no longer name a class no file
+ * declares -- what is left is a file that declares something else entirely,
+ * which is exactly what a wrong `namespace` line produces.
  *
  * Observed both ways while verifying the PSR-4 move.
  *
@@ -51,8 +57,7 @@ if (!is_readable($init)) {
 $tmp = sys_get_temp_dir() . '/fog-page-discovery-test-' . getmypid();
 @mkdir($tmp . '/cache', 0700, true);
 @mkdir($tmp . '/log', 0700, true);
-@mkdir($tmp . '/extplugins', 0700, true);
-@mkdir($tmp . '/pages', 0700, true);
+@mkdir($tmp . '/extplugins/probeplug/src/Pages', 0700, true);
 register_shutdown_function(
     function () use ($tmp) {
         if (!is_dir($tmp)) {
@@ -101,39 +106,48 @@ function check($label, $cond, array &$failures, &$checks)
  * the walk -- did it survive each bad file, did it keep going, and did it
  * leave a trace -- which is exactly what the guard decides.
  *
- * probealiased is emitted LAST for that reason: a guard that threw instead of
- * continuing would never reach it, so "probealiased was loaded and NOT
+ * ProbeGood is emitted LAST for that reason: a guard that threw instead of
+ * continuing would never reach it, so "ProbeGood was loaded and NOT
  * complained about" is simultaneously the proof that the walk continued and
- * the proof that the guard does not over-reject a namespace-plus-alias file.
- * That spelling is no longer what ADR 0013 recommends -- a plugin declares
- * FOG\Plugins\<Plugin>\<Class> and needs no alias -- but it remains valid
- * for a plugin that picks a namespace of its own, and these fixtures do not
- * sit under a plugin root, so it is the shape that belongs here.
+ * the proof that the guard does not over-reject a correctly laid out page.
  */
-$pages = $tmp . '/pages/';
+$pages = $tmp . '/extplugins/probeplug/src/Pages/';
 file_put_contents(
-    $pages . 'probebadns.page.php',
-    "<?php\nnamespace FOG;\nclass probebadns { public \$node = 'probebadns'; }\n"
+    $pages . 'ProbeBadNS.php',
+    "<?php\nnamespace FOG;\nclass ProbeBadNS { public \$node = 'probebadns'; }\n"
 );
-// Deliberately NOT written: probemissing.page.php. Named by the file list and
+// Deliberately NOT written: ProbeMissing.php. Named by the file list and
 // absent from disk, which is the stale-cache half.
 file_put_contents(
-    $pages . 'probealiased.page.php',
-    "<?php\nnamespace FOG;\nclass probealiased { public \$node = 'probealiased'; }\n"
-    . "class_alias(__NAMESPACE__ . '\\probealiased', 'probealiased');\n"
+    $pages . 'ProbeGood.php',
+    "<?php\nnamespace FOG\\Plugins\\ProbePlug\\Pages;\n"
+    . "class ProbeGood { public \$node = 'probegood'; }\n"
 );
 
-$fileList = new \ReflectionProperty('Initiator', 'fileList');
-$fileList->setAccessible(true);
-$held = $fileList->getValue();
-$fileList->setValue(null, [
-    $pages . 'probebadns.page.php',
-    $pages . 'probemissing.page.php',
-    $pages . 'probealiased.page.php',
+/*
+ * The two lists loadPageClasses() merges are supplied rather than found:
+ * walk order and file content are the inputs under test. src/ is emptied so
+ * the assertions are about the three fixtures and not about the 28 real core
+ * pages, which have nothing to do with this failure.
+ */
+$statics = [];
+foreach (['srcMap', 'srcClassMap', 'pluginFileList', 'pluginSegments'] as $name) {
+    $r = new \ReflectionProperty('Initiator', $name);
+    $r->setAccessible(true);
+    $statics[$name] = [$r, $r->getValue()];
+}
+$statics['srcMap'][0]->setValue(null, []);
+$statics['srcClassMap'][0]->setValue(null, []);
+$statics['pluginSegments'][0]->setValue(null, null);
+$statics['pluginFileList'][0]->setValue(null, [
+    $pages . 'ProbeBadNS.php',
+    $pages . 'ProbeMissing.php',
+    $pages . 'ProbeGood.php',
 ]);
-$classMap = new \ReflectionProperty('Initiator', 'classMap');
-$classMap->setAccessible(true);
-$classMap->setValue(null, null);
+// pluginitems() serves INSTALLED plugins only, and nothing here booted the
+// database that normally populates that list.
+$heldInstalled = \FOG\Base\FOGBase::$pluginsinstalled;
+\FOG\Base\FOGBase::$pluginsinstalled = ['probeplug'];
 
 // A node none of the three declares, so the walk runs to the end and
 // constructs nothing.
@@ -159,8 +173,10 @@ try {
 }
 
 ini_set('error_log', (string)$errLog);
-$fileList->setValue(null, $held);
-$classMap->setValue(null, null);
+foreach ($statics as list($r, $was)) {
+    $r->setValue(null, $was);
+}
+\FOG\Base\FOGBase::$pluginsinstalled = $heldInstalled;
 $logged = is_readable($quiet) ? (string)file_get_contents($quiet) : '';
 
 check(
@@ -178,7 +194,7 @@ check(
 );
 check(
     'the vanished file was reported, not silently skipped',
-    strpos($logged, 'probemissing.page.php') !== false
+    strpos($logged, 'ProbeMissing.php') !== false
     && strpos($logged, 'no longer exists') !== false,
     $failures,
     $checks
@@ -189,26 +205,25 @@ check(
 // directly. A diagnostic that names the wrong cure is worse than a terse one.
 check(
     'the mis-declared file was reported, and the message names the fix',
-    strpos($logged, 'probebadns.page.php') !== false
+    strpos($logged, 'ProbeBadNS.php') !== false
     && strpos($logged, 'does not declare') !== false
-    && strpos($logged, 'FOG\\Plugins\\<Plugin>\\<Name>') !== false
+    && strpos($logged, 'FOG\\Plugins\\<Segment>\\Pages\\<Class>') !== false
     && strpos($logged, 'class_alias') === false,
     $failures,
     $checks
 );
 // The walk reached the third file: it was loaded (so the guard let it past)
-// and nothing was logged about it (so the guard did not reject a
-// namespaced-plus-alias file, which a plugin outside FOG\Plugins\ still
-// legitimately ships).
+// and nothing was logged about it (so the guard does not reject a correctly
+// laid out page).
 check(
     'the walk continued to the last file and loaded it',
-    class_exists('probealiased', false),
+    class_exists('FOG\\Plugins\\ProbePlug\\Pages\\ProbeGood', false),
     $failures,
     $checks
 );
 check(
-    'a namespaced page that aliases itself back drew no complaint',
-    strpos($logged, 'probealiased.page.php') === false,
+    'a correctly laid out page drew no complaint',
+    strpos($logged, 'ProbeGood.php') === false,
     $failures,
     $checks
 );

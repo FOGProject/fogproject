@@ -2,7 +2,7 @@
 /**
  * A class-file list that has gone stale must not take the site down.
  *
- * Initiator::classFileList() caches the scanned file list to FOG_CACHE_DIR
+ * Initiator::pluginFileList() caches the scanned file list to FOG_CACHE_DIR
  * with a 300 second TTL. Staleness is DESIGNED IN -- forgetClassFileList()
  * exists precisely because the cache can describe a tree that has since
  * changed, and its own docblock says so. Every consumer therefore has to
@@ -16,15 +16,15 @@
  *
  * Not hypothetical. An install rm -rf's the web root and rebuilds it, so a
  * plugin release that DROPS a file really removes it: fog-plugins v1.6.11
- * drops ldap/hooks/addldapapi.hook.php, and an install landing it inside the
+ * dropped ldap's AddLDAPApi hook, and an install landing it inside the
  * TTL window fails its own "Checking web server serves FOG" probe with an
  * empty body. It then heals when the TTL expires, which is why it reads as a
  * flaky install rather than as a bug.
  *
  * Two guards, both checked here because either alone leaves a hole:
  *
- *   the installer drops $fogprogramdir/cache/filelist.*.json after replacing
- *   the web root, so the window does not exist;
+ *   the installer drops $fogprogramdir/cache/srcmap.*.json and pluginsrc.*
+ *   .json after replacing the web root, so the window does not exist;
  *
  *   startClassFromFiles() skips a vanished file and says so, so a stale list
  *   from any other cause -- an admin deleting a plugin by hand, an NFS lag --
@@ -65,7 +65,8 @@ new Initiator();
 
 $tmp = sys_get_temp_dir() . '/fog-stale-filelist-' . getmypid();
 @mkdir($tmp, 0700, true);
-$gone = $tmp . '/nosuchhook.hook.php';
+$gone = $tmp . '/Hooks/NoSuchHook.php';
+@mkdir($tmp . '/Hooks', 0700, true);
 file_put_contents($gone, "<?php\n");
 unlink($gone);
 
@@ -77,7 +78,7 @@ $errLog = $tmp . '/php-errors.log';
 $prevLog = ini_get('error_log');
 ini_set('error_log', $errLog);
 try {
-    \FOG\Base\FOGBase::startClassFromFiles([$gone], '.hook.php');
+    \FOG\Base\FOGBase::startClassFromFiles([$gone]);
 } catch (\Throwable $e) {
     $threw = get_class($e) . ': ' . $e->getMessage();
 }
@@ -94,7 +95,7 @@ $logged = is_file($errLog) ? (string)file_get_contents($errLog) : '';
 check(
     'the skip is reported, so a listener that stops running leaves a trace',
     false !== strpos($logged, 'startClassFromFiles')
-    && false !== strpos($logged, 'nosuchhook'),
+    && false !== strpos($logged, 'NoSuchHook'),
     $failures,
     $checks
 );
@@ -138,6 +139,7 @@ check(
 );
 
 @unlink($errLog);
+@rmdir($tmp . '/Hooks');
 @rmdir($tmp);
 
 /*
@@ -149,9 +151,9 @@ check(
  */
 $fn = (string)file_get_contents($root . '/lib/common/functions.sh');
 $copy = strpos($fn, 'cp -Rf $webdirsrc/* $webdirdest/');
-$drop = strpos($fn, 'rm -f $fogprogramdir/cache/filelist.*.json');
+$drop = strpos($fn, 'rm -f $fogprogramdir/cache/srcmap.*.json');
 check(
-    'the installer drops the cached class file list',
+    'the installer drops the cached class file lists',
     false !== $drop,
     $failures,
     $checks
@@ -159,6 +161,15 @@ check(
 check(
     'it does so AFTER the new web root is in place, not before',
     false !== $copy && false !== $drop && $drop > $copy,
+    $failures,
+    $checks
+);
+// Both lists, because there are two roots now -- core's src/ and every
+// plugin's. Dropping one and keeping the other is the half-loaded state
+// forgetClassFileList() exists to prevent, arriving by a different door.
+check(
+    'including the plugin source list, not just core\'s',
+    false !== strpos($fn, '$fogprogramdir/cache/pluginsrc.*.json'),
     $failures,
     $checks
 );

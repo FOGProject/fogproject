@@ -10665,10 +10665,16 @@ configureHttpd() {
     # silently not happening. Clearing it here means the very next request
     # rescans.
     #
-    # Only the file lists. The same directory holds the settings-cache flush
+    # Only the source lists. The same directory holds the settings-cache flush
     # signal (see the cache block in configureFOGService) which must survive.
-    dots "Dropping the stale class file list"
-    rm -f $fogprogramdir/cache/filelist.*.json >>$error_log 2>&1
+    #
+    # Two lists, because there are two roots: srcmap.* describes core's PSR-4
+    # tree and pluginsrc.* describes every installed plugin's (ADR 0035).
+    # filelist.* was the third, from the discovery-suffix scan that both
+    # replaced; it is removed too so an upgrade from before that change does
+    # not leave the file behind forever.
+    dots "Dropping the stale class file lists"
+    rm -f $fogprogramdir/cache/srcmap.*.json $fogprogramdir/cache/pluginsrc.*.json $fogprogramdir/cache/filelist.*.json >>$error_log 2>&1
     errorStat $?
     # management/other/ is where an administrator's own files live, and the
     # rm -rf above took them with it, so they are restored from the backup.

@@ -370,6 +370,25 @@ diff noise to a commit whose value is being small enough to review whole.
 
 ## Plugins do not live under `FOG\`
 
+> **Superseded 2026-08-31.** They do. Plugin classes are
+> `FOG\Plugins\<Segment>\<Bucket>\<Class>`, laid out at
+> `<plugin>/src/<Bucket>/<Class>.php` — see ADR 0013's namespacing amendment
+> for the namespace and [ADR 0035](adr/0035-a-plugin-is-laid-out-like-core.md)
+> for the layout. The recommendation below is `FOGPlugin\Ldap\`, and it lost
+> on its own second argument: core does still need to tell its own classes
+> from someone else's, and `FOG\Plugins\` says so in the name while keeping
+> one prefix for the whole system. Reason 1 — squatting — is answered by the
+> plugins being maintained by this project in a repository it releases, and
+> by the fact that the shadowing rule ADR 0009 relies on is now *structural*:
+> a plugin class cannot collide with a core class, because the two derive
+> different paths. Reason 3 still holds and is the rule ADR 0035 gates —
+> `strtolower(<Segment>)` must equal the plugin directory name.
+>
+> The paragraph below about the reverse bridge is kept because it was right
+> and it is why nothing had to be unpicked: the bridge was written as "bare
+> name → the FQCN this file actually declares", so plugins declaring a
+> namespace cost one map, not a rewrite.
+
 Raised while settling the taxonomy, and it belongs here because Commit 1 can
 foreclose it by accident.
 
@@ -417,6 +436,9 @@ a one-line difference and it costs nothing to make now.
 This wants its own ADR once the convention is confirmed; it is recorded here so
 Commit 1 does not preclude it.
 
+*It got two: ADR 0013's 2026-08-31 amendment for the namespace, and ADR 0035
+for the layout.*
+
 ---
 
 ## What moves, what stays
@@ -427,6 +449,11 @@ Commit 1 does not preclude it.
 | Stay — ADR 0013 exclusions | 2 | `lib/router/altorouter.class.php`, `altotransformer.class.php` — upstream name, authorship, MIT license |
 | ~~Stay — HARD, discovery-named~~ **moved 2026-08-30** | 46 → 52 | 28 `.page.php`, 10 `.hook.php`, 13 `.report.php`, 1 `.event.php`, now `src/{Pages,Hooks,Reports,Events}` |
 | Stay — generated | 1 | `lib/fog/config.class.php` |
+
+> **Superseded 2026-08-31.** `fileitems()` no longer exists. Discovery reads a
+> *bucket directory* — `coreitems('Pages')` for core, `pluginitems('Pages')`
+> for plugins — and derives the class name from the path rather than from a
+> basename, which is what let both sides move. See ADR 0035.
 
 `VERIFIED` — the 46 discovery-named files are reached only through
 `FOGBase::fileitems()`, which has exactly three call sites, all of which derive

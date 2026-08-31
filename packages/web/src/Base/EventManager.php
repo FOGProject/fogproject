@@ -29,31 +29,18 @@ use FOG\Router\Route;
 class EventManager extends FOGBase
 {
     /**
-     * The file extension this manager's listeners are declared in.
+     * The src/ bucket this manager's listeners live in.
+     *
+     * Core's are src/Events and src/Hooks; a plugin's are
+     * <plugin>/src/Events and <plugin>/src/Hooks. One name serves both,
+     * which is the point of the layout (ADR 0035).
      *
      * Declared per class rather than decided in load(), which used to run two
      * sequential instanceof checks -- EventManager first, then HookManager.
      * HookManager extends EventManager, so it satisfied both, and reached
-     * .hook.php only because the second assignment overwrote the first.
-     * Swapping the blocks made every HookManager load .event.php instead, and
-     * nothing would have said so.
-     *
-     * @var string
-     */
-    protected $fileExtension = '.event.php';
-    /**
-     * The directory under BASEPATH those files live in.
-     *
-     * @var string
-     */
-    protected $fileDirectory = 'events';
-    /**
-     * The src/ bucket core listeners of this kind live in.
-     *
-     * Distinct from $fileDirectory, which now names the PLUGIN directory
-     * only: core moved to src/Events and src/Hooks, where the directory is
-     * StudlyCaps because it is a namespace segment rather than a path
-     * fragment matched case-sensitively by fileitems().
+     * hooks only because the second assignment overwrote the first. Swapping
+     * the blocks made every HookManager load events instead, and nothing
+     * would have said so.
      *
      * @var string
      */
@@ -352,18 +339,17 @@ class EventManager extends FOGBase
      * Truthiness, not identity, so this agrees with the check
      * HookManager::processEvent() makes at dispatch. One notion of active.
      *
-     * @param string $file      Absolute path to the discovered file.
-     * @param string $extension The discovery extension, as load() has it.
+     * @param string $file Absolute path to the discovered file.
      *
      * @return bool
      */
-    private static function _declaresActive($file, $extension)
+    private static function _declaresActive($file)
     {
-        // class-name consumer: handed to class_exists() and ReflectionClass,
-        // both of which resolve a namespaced name and a global one alike.
-        // classFromDiscoveredFile() is what decides which of the two this is
-        // -- a core hook under src/Hooks answers only to FOG\Hooks\<Class>.
-        $className = self::classFromDiscoveredFile($file, $extension);
+        // class-name consumer: handed to class_exists() and ReflectionClass.
+        // classFromDiscoveredFile() derives the FQCN from the path, which is
+        // the only name a listener answers to -- a core hook under src/Hooks
+        // is FOG\Hooks\<Class> and nothing else.
+        $className = self::classFromDiscoveredFile($file);
         if (!class_exists($className)) {
             return false;
         }
@@ -377,26 +363,16 @@ class EventManager extends FOGBase
      */
     public function load()
     {
-        // Each manager says what it loads; see $fileExtension.
-        $extension = $this->fileExtension;
-        $dirpath = $this->fileDirectory;
-        // Core hooks and events are PSR-4 files under src/Hooks and
-        // src/Events; only the plugin roots still carry the *.hook.php /
-        // *.event.php shape, so fileitems() now returns the plugin half
-        // alone and coreitems() supplies the other. $normalfiles keeps its
-        // meaning -- the set that must opt in through $active -- and only
-        // its source changed.
+        // Each manager says which bucket it loads; see $fileBucket. Core and
+        // plugins are the same shape now -- src/<Bucket>/<Class>.php -- so
+        // the two calls differ only in which root they walk (ADR 0035).
+        //
+        // $normalfiles keeps its meaning: the set that must opt in through
+        // $active. A plugin's listeners do not, because installing the plugin
+        // IS the opt-in, and pluginitems() has already dropped every plugin
+        // that is not installed.
         $normalfiles = self::coreitems($this->fileBucket);
-        // Only the plugin half is taken; the non-plugin half fileitems()
-        // returns is empty now that no core listener carries the discovery
-        // extension. Indexed rather than destructured with a skipped element,
-        // which is both easier to read and not a shape formatters disagree
-        // about.
-        $pluginfiles = self::fileitems(
-            $extension,
-            $dirpath,
-            true
-        )[1];
+        $pluginfiles = self::pluginitems($this->fileBucket);
         // Non-plugin files opt in through $active. Ask the class, not the
         // file: this used to be a line-by-line regex for the literal text
         // `$active = true;`, which decided whether a hook ran on its
@@ -407,7 +383,7 @@ class EventManager extends FOGBase
         // was active.
         $startfiles = [];
         foreach ($normalfiles as &$file) {
-            if (self::_declaresActive($file, $extension)) {
+            if (self::_declaresActive($file)) {
                 $startfiles[] = $file;
             }
             unset($file);
@@ -418,6 +394,6 @@ class EventManager extends FOGBase
             $startfiles
         );
         unset($pluginfiles);
-        self::startClassFromFiles($startfiles, $extension);
+        self::startClassFromFiles($startfiles);
     }
 }

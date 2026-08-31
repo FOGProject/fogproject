@@ -250,11 +250,9 @@ class Plugin extends FOGController
      * Gets the directories of plugins.
      *
      * Globs each root one level deep for <root>/<name>/config/
-     * plugin.config.php. This used to filter self::fileitems(), which since
-     * 698b6dc6c ("cache the BASEPATH class-file scan") filters
-     * Initiator::classFileList() -- a list built from a regex matching only
-     * *.class.php, *.page.php, *.hook.php, *.event.php and *.report.php.
-     * plugin.config.php matches none of those, so the filter could never
+     * plugin.config.php. This used to filter a cached list of *.class.php,
+     * *.page.php, *.hook.php, *.event.php and *.report.php paths --
+     * plugin.config.php matched none of those, so the filter could never
      * return anything and discovery had been silently finding zero plugins:
      * a fresh install offered none to install at all, and a newly added
      * directory was never picked up. Existing installs kept working only
@@ -263,6 +261,12 @@ class Plugin extends FOGController
      *
      * A targeted glob is also cheaper than what it replaced -- two shallow
      * globs instead of a filter over a recursive walk of the whole tree.
+     *
+     * Deliberately NOT keyed on src/. A plugin is identified by its manifest,
+     * not by its code, so a plugin on the pre-1.6 layout is still FOUND and
+     * still listed -- it simply loads nothing, and the autoloader says so by
+     * name (see Initiator::_scanPluginSource). Discovering it is what makes
+     * that diagnosis reachable from Plugin Management.
      *
      * @return array
      */
@@ -1120,21 +1124,36 @@ class Plugin extends FOGController
         // manager, and the two have to be told apart: a hooks-only plugin
         // genuinely has no manager and must still install cleanly.
         $wanted = $this->get('name') . 'Manager';
-        $managerFile = rtrim($this->get('location'), DS) . DS . 'class'
-            . DS . strtolower($wanted) . '.class.php';
+        // Matched case-insensitively against the Managers bucket rather than
+        // string-built from pName. The file is <plugin>/src/Managers/
+        // <Class>.php (ADR 0035) and the CASE of <Class> is not derivable
+        // from pName: ldap ships LDAPManager, not LdapManager. Building the
+        // path would therefore miss the file on every plugin whose class
+        // spelling is not ucfirst(), and a miss here means "this plugin has
+        // no manager" -- which skips the check entirely and lets a genuinely
+        // broken manager install silently.
+        $managerDir = rtrim($this->get('location'), DS) . DS . 'src'
+            . DS . 'Managers';
+        $managerFile = '';
+        foreach ((array)glob($managerDir . DS . '*.php') as $candidate) {
+            if (strcasecmp(basename($candidate, '.php'), $wanted) === 0) {
+                $managerFile = $candidate;
+                break;
+            }
+        }
         // Asked of $manager rather than class_exists($wanted): getManager()
         // has already resolved it, and asking again would autoload the same
         // file a second time.
         // Short name: $wanted is built from the plugins.pName database value,
         // so comparing an FQCN against it would fail every plugin install.
-        if (file_exists($managerFile)
+        if ($managerFile !== ''
             && strcasecmp(self::shortName($manager), $wanted) !== 0
         ) {
             throw new \Exception(
                 sprintf(
                     _('%s could not be loaded. Check that %s declares a class of that exact name.'),
                     $wanted,
-                    'class' . DS . strtolower($wanted) . '.class.php'
+                    'src' . DS . 'Managers' . DS . basename($managerFile)
                 )
             );
         }

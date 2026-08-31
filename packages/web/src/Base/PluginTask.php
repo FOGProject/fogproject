@@ -22,10 +22,10 @@ use FOG\Service\PluginRunner;
  * resource, a hook on an event core fires. A task is the seam for work with no
  * request behind it -- polling, reconciling, expiring, retrying (ADR 0010).
  *
- * A plugin declares one file per task at `<plugin>/tasks/<name>.task.php`,
- * declaring a class named for the file (the same filename-equals-class-name
- * rule every other FOG source file follows). FOGPluginRunner discovers them
- * and calls run().
+ * A plugin declares one file per task at `<plugin>/src/Tasks/<Class>.php`,
+ * declaring `FOG\Plugins\<Segment>\Tasks\<Class>` -- the same
+ * bucket-and-name rule every other FOG source file follows, core included
+ * (ADR 0035). FOGPluginRunner walks that bucket and calls run() on each.
  *
  * Three properties of the runner shape what a task may assume:
  *
