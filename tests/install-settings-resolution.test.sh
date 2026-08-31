@@ -296,7 +296,7 @@ for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
     fi
 done
 
-# All 68 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# All 69 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
 # starts being overwritten. That is a behavior change even though it looks
 # like documentation, so the count is asserted as well as the membership.
@@ -311,7 +311,8 @@ modelKeys="
     FOG_packages FOG_program_dir FOG_send_reports FOG_update_channel
     NET_fog_server_ip NET_hostname NET_interface NET_subnet_mask
     PKI_allowed_domain_names PKI_client_cert_dir PKI_client_encrypt_cert PKI_client_encrypt_key
-    PKI_internal_subnets PKI_root_ca_cert PKI_root_ca_key PKI_san_dns_names
+    PKI_internal_subnets PKI_root_ca_cert PKI_root_ca_key PKI_root_dir
+    PKI_san_dns_names
     PKI_san_ip_addresses PKI_sb_ca_cert PKI_sb_codesign_cert PKI_sb_codesign_key
     PKI_sb_enabled PKI_web_ca_cert PKI_web_ca_key PKI_web_cert_publicly_trusted
     PKI_web_external_root_cert PKI_web_trust_chain PKI_web_vhost_cert PKI_web_vhost_key

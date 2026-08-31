@@ -66,6 +66,10 @@ mkleaf "fogown.example.org" fogown
 # elsewhere. _externallyManagedLeaf reads $fogprogramdir through _pkiZoneDir, so
 # the sandbox needs both the dir and a leaf inside it to exercise either answer.
 fogprogramdir="$WORK/fogprog"
+# The tree lives at /etc/fog/pki on a real install. Point it inside the
+# scratch $fogprogramdir instead, or every case below would reach for the
+# host's own /etc/fog -- and _migratePkiTree would try to CREATE it.
+PKI_root_dir="$fogprogramdir/pki"
 mkdir -p "$fogprogramdir/pki/web/leaf"
 cp "$WORK/fogown.pem" "$fogprogramdir/pki/web/leaf/.webLeaf.pem"
 

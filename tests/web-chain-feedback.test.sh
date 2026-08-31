@@ -61,6 +61,10 @@ errorStat() { :; }
 
 # --- fixture: root -> intermediate -> leaf, the shape FOG issues -------------
 fogprogramdir="$WORK/opt/fog"
+# The tree lives at /etc/fog/pki on a real install. Point it inside the
+# scratch $fogprogramdir instead, or every case below would reach for the
+# host's own /etc/fog -- and _migratePkiTree would try to CREATE it.
+PKI_root_dir="$fogprogramdir/pki"
 PKI_client_cert_dir="$WORK/opt/fog/snapins/ssl"
 webdirdest="$WORK/var/www/fog"
 leafdir="$fogprogramdir/pki/web/leaf"

@@ -6330,9 +6330,9 @@ _hardenPkiPermissions() {
     mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-offline-ca-key \
         "${fogprogramdir}/bin/fog-offline-ca-key" >>$error_log 2>&1
-    mkdir -p "${fogprogramdir}/pki" >>$error_log 2>&1
+    mkdir -p "$(_pkiRootDir)" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/renewal-helper \
-        "${fogprogramdir}/pki/renewal-helper" >>$error_log 2>&1
+        "$(_pkiRootDir)/renewal-helper" >>$error_log 2>&1
     # A storage node does not hold the fleet's root CA -- whatever CA it
     # minted (or was issued) is local to itself, so "restore it to issue a
     # certificate for a new storage node" is nonsense advice on the node
@@ -6718,6 +6718,12 @@ writeUpdateFile() {
     # ${!key}, so an unset key emits an empty line, which #1121 would read as
     # "no client cert configured".
     if [[ -n $fogprogramdir ]]; then
+        # Where the zone tree physically is. Recorded rather than left implicit
+        # so the utils scripts -- renewal-helper, fog-offline-ca-key,
+        # fog-mint-web-ca -- read it from here instead of each carrying its own
+        # copy of the default, and so an install that predates the move keeps
+        # working off its recorded (empty -> compat symlink) value.
+        PKI_root_dir="$(_pkiRootDir)"
         PKI_client_encrypt_key="$(_pkiZoneDir client)/leaf/.srvprivate.key"
         PKI_client_encrypt_cert="$(_pkiZoneDir client)/leaf/.srvpublic.crt"
     fi
@@ -6914,6 +6920,11 @@ writeUpdateFile() {
         # extra vhost/cert name(s) must carry forward on every upgrade, not just
         # the run they were set on.
         PKI_san_ip_addresses PKI_san_dns_names
+        # Where FOG's own four-zone PKI tree lives: /etc/fog/pki, reachable at
+        # its historic $fogprogramdir/pki name through a symlink. An empty value
+        # in a file written before the move means the same thing as the default,
+        # because that name still resolves.
+        PKI_root_dir
         # Where the client-communication leaf and the uploaded snapin SSL
         # material live. NOT where FOG's CAs live any more, which is the whole
         # reason the old name (sslpath) had to go.
@@ -7535,19 +7546,107 @@ _linkCanonical() {
     [[ "$(readlink -f "$real" 2>/dev/null)" == "$(readlink -f "$canon" 2>/dev/null)" ]] && return 0
     ln -sf "$real" "$canon" >>$error_log 2>&1
 }
+# Where FOG's own PKI tree physically lives: /etc/fog/pki, not $fogprogramdir/pki.
+#
+# Keys and certificates are CONFIGURATION. /etc is where the rest of the system
+# keeps them, and it is what a backup policy and a config-management run
+# already capture, while /opt/<pkg> is for a package's own static files. The
+# directory is not new and needs no per-distro branch: GH-850 already makes
+# /etc/fog a real directory on every install, to hold fog.conf.
+#
+# $fogprogramdir/pki keeps working, as a SYMLINK at the same name, because it
+# is a PUBLISHED path -- PKI_ZONES.md, MULTI_SERVER_CA.md and
+# EXTERNAL_CA_AND_LETSENCRYPT.md all name /opt/fog/pki/..., an admin's renewal
+# cron names /opt/fog/pki/renewal-helper, and a .fogsettings written before
+# this change records canonical paths underneath it.
+#
+# Overridable through PKI_root_dir, recorded in .fogsettings alongside every
+# other PKI location. That is what makes the tree EXPRESSIBLE rather than
+# hardcoded twice -- the migration below has to be able to name its own source,
+# and the shell tests point it at a scratch directory the same way they already
+# point $fogprogramdir.
+_pkiRootDir() {
+    local root="${PKI_root_dir:-/etc/fog/pki}"
+    root="${root%/}"
+    # The migration is driven from HERE, not from a call site early in the
+    # install, because getting that ordering wrong is not a visible failure: a
+    # zone accessor answering /etc/fog/pki while the real material still sits
+    # under /opt/fog/pki reads as "no CA yet", mints a fresh root, and every
+    # fog-client in the estate stops trusting this server. One -L test per call
+    # makes the ordering impossible to get wrong, and after the first run that
+    # test is all this branch costs.
+    #
+    # The other two preconditions -- no $fogprogramdir, and a tree already at
+    # the target -- are checked once, inside _migratePkiTree, rather than
+    # duplicated here. Two copies of the same guard means removing either one
+    # is invisible, which is how a guard stops being one.
+    [[ -L ${fogprogramdir}/pki ]] || _migratePkiTree "$root"
+    echo "$root"
+}
+# Move an existing $fogprogramdir/pki to $1 and leave a symlink behind.
+#
+# COPY, then remove, and only if the copy reported success on every file --
+# never mv. /opt and /etc are frequently separate mounts, so mv degrades to
+# copy-then-unlink anyway; separating the two means a failure at any point
+# leaves the SOURCE authoritative and the next run simply redoes the whole
+# move, rather than half a tree on each side with no record of which half.
+#
+# The one window that is not recoverable that way is between the removal and
+# the ln, and it recovers too: the next call finds neither a link nor a
+# directory, skips the copy, and links the already-populated target.
+#
+# Idempotent by construction. Every later run stops at the -L test in
+# _pkiRootDir and never reaches here.
+_migratePkiTree() {
+    local target="${1:-/etc/fog/pki}" legacy="${fogprogramdir}/pki"
+    [[ -z ${fogprogramdir} ]] && return 0
+    [[ $legacy == "$target" ]] && return 0
+    [[ -L $legacy ]] && return 0
+    mkdir -p "$target" >>$error_log 2>&1 || return 1
+    # The tree root is traversed by the web tier on its way to client/leaf. The
+    # zones set their own (much tighter) modes; this one only has to be enterable.
+    chmod 0755 "$target" >>$error_log 2>&1
+    if [[ -d $legacy ]]; then
+        # Nothing is removed unless the copy reported success on every file.
+        # A partial copy leaves the source authoritative, which is the whole
+        # reason this is not an mv.
+        cp -a "$legacy/." "$target/" >>$error_log 2>&1 || return 1
+        # The key material crossed a filesystem boundary, so the source blocks
+        # are still on the old device after the unlink. Overwrite what we can
+        # before dropping the tree. Best effort and NOT a guarantee -- shred
+        # promises nothing on a journaling or copy-on-write filesystem -- but
+        # leaving the fleet's root CA key recoverable from freed blocks because
+        # the move was "just a rename" is the worse default.
+        if command -v shred >/dev/null 2>&1; then
+            find "$legacy" -type f -exec shred -u {} + >>$error_log 2>&1
+        fi
+        rm -rf "$legacy" >>$error_log 2>&1
+    fi
+    mkdir -p "$(dirname "$legacy")" >>$error_log 2>&1
+    ln -s "$target" "$legacy" >>$error_log 2>&1
+    # cp -a preserves the SOURCE's SELinux labels, so the moved files would
+    # carry /opt's usr_t while sitting under /etc. Both are readable by the web
+    # tier, so nothing breaks either way -- but relabeling to the target's own
+    # default is what the next restorecon anyone runs would do, so do it now
+    # rather than ship a tree whose labels change under them later.
+    command -v restorecon >/dev/null 2>&1 && restorecon -RF "$target" >>$error_log 2>&1
+    return 0
+}
 # Single source of truth for the PKI layout, one directory per zone under
-# $fogprogramdir/pki, each split by its callers into ca/ (the zone's own CA)
-# and leaf/ (what that CA issues for this server to serve/sign with).
+# _pkiRootDir, each split by its callers into ca/ (the zone's own CA) and leaf/
+# (what that CA issues for this server to serve/sign with).
 # Independent of ${PKI_client_cert_dir} -- unlike ${PKI_client_cert_dir}, which also holds admin-uploaded
 # snapin SSL material and the client-communication leaf, this tree holds only
 # FOG's own PKI, so it can move without dragging that other content along.
+# Which is exactly what it did: the tree lives at /etc/fog/pki now, reachable
+# at its historic $fogprogramdir/pki name through a symlink.
 _pkiZoneDir() {
+    local root
     case "$1" in
-        root) echo "${fogprogramdir}/pki/root" ;;
-        web) echo "${fogprogramdir}/pki/web" ;;
-        client) echo "${fogprogramdir}/pki/client" ;;
-        secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
+        root|web|client|secureboot) root="$(_pkiRootDir)" ;;
+        *) return 0 ;;
     esac
+    echo "${root}/$1"
 }
 # The shared openssl configuration both issuing zones read.
 #
@@ -7563,7 +7662,7 @@ _pkiZoneDir() {
 # certificates, so giving it the ca/+leaf/ shape the zones have would say
 # something false about it.
 _pkiConfDir() {
-    echo "${fogprogramdir}/pki/conf"
+    echo "$(_pkiRootDir)/conf"
 }
 # The client zone's leaf directory, and the compatibility links that keep the
 # canonical names working.

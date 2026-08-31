@@ -89,11 +89,16 @@ elif [[ -r /etc/fog/fog.conf ]]; then
 fi
 : "${fogprogramdir:=/opt/fog}"
 : "${sslpath:=${fogprogramdir}/snapins/ssl}"
+# Where the four-zone tree physically lives. .fogsettings records it
+# (PKI_root_dir); a file written before the tree moved to /etc/fog/pki has no
+# such line, and the historic name is a symlink to the new one, so the fallback
+# resolves either way.
+: "${pkiroot:=${PKI_root_dir:-${fogprogramdir}/pki}}"
 
 # $rootCAKey is never persisted to .fogsettings -- installfog.sh re-derives it
 # every run -- so this falls to the canonical path, the same as fog-offline-ca-key.
 ROOT_CERT="${ROOT_CERT:-${rootCAPem:-${sslpath}/CA/.fogCA.pem}}"
-ROOT_KEY="${ROOT_KEY:-${rootCAKey:-${fogprogramdir}/pki/root/ca/.fogCA.key}}"
+ROOT_KEY="${ROOT_KEY:-${rootCAKey:-${pkiroot}/root/ca/.fogCA.key}}"
 OUTDIR="${OUTDIR:-/root/fog-web-cas}"
 
 [[ -r $ROOT_CERT ]] || { echo "Cannot read the root certificate at ${ROOT_CERT}" >&2; exit 1; }

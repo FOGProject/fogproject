@@ -107,6 +107,10 @@ error_log=/dev/null
 # indistinguishable from a pass.
 newcase() {
     fogprogramdir="$WORK/case$1"
+    # The tree lives at /etc/fog/pki on a real install. Point it inside the
+    # scratch $fogprogramdir instead, or every case below would reach for the
+    # host's own /etc/fog -- and _migratePkiTree would try to CREATE it.
+    PKI_root_dir="$fogprogramdir/pki"
     mkdir -p "$fogprogramdir"
     PKI_root_ca_cert=""
     PKI_web_trust_chain=""

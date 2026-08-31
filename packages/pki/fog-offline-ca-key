@@ -85,6 +85,11 @@ elif [[ -r /etc/fog/fog.conf ]]; then
 fi
 : "${fogprogramdir:=/opt/fog}"
 : "${sslpath:=${fogprogramdir}/snapins/ssl}"
+# Where the four-zone tree physically lives. .fogsettings records it
+# (PKI_root_dir); a file written before the tree moved to /etc/fog/pki has no
+# such line, and the historic name is a symlink to the new one, so the fallback
+# resolves either way.
+: "${pkiroot:=${PKI_root_dir:-${fogprogramdir}/pki}}"
 
 case "$zone" in
     root)
@@ -92,13 +97,13 @@ case "$zone" in
         # re-derives it fresh every run -- so this standalone script always
         # falls to the default. The certificate is deliberately not moved by
         # the pki/ split (see createSSLCA's _resolveRootCA), only the key.
-        key="${rootCAKey:-${fogprogramdir}/pki/root/ca/.fogCA.key}"
+        key="${rootCAKey:-${pkiroot}/root/ca/.fogCA.key}"
         cert="${rootCAPem:-${sslpath}/CA/.fogCA.pem}"
         label="FOG Server CA"
         ;;
     secureboot)
-        key="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.key"
-        cert="${fogprogramdir}/pki/secureboot/ca/.fogSBCA.pem"
+        key="${pkiroot}/secureboot/ca/.fogSBCA.key"
+        cert="${pkiroot}/secureboot/ca/.fogSBCA.pem"
         label="FOG Secure Boot CA"
         ;;
     *)
