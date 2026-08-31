@@ -26,7 +26,8 @@
  *   - the server-owned refusal, on both verbs, in both directions -- it
  *     refuses a change, and it does NOT refuse a round trip;
  *   - joining()'s POST class gate;
- *   - _requireFound(), the 404 on an id that does not exist.
+ *   - _requireFound(), the 404 on an id that does not exist;
+ *   - deletemass()'s lockout guard, in both directions.
  *
  * The joining gate took two goes. The first check compared status codes,
  * found `host` and `group` both refused with a 400, and passed with the gate
@@ -37,11 +38,17 @@
  * refused class issues zero, an allowed one reaches the database -- and both
  * mutations (disabling the verb test, disabling the class test) turn it red.
  *
- * WHAT IS NOT, AND WHY. One of the three mutations above is still unguarded:
- * deletemass()'s lockout guard needs an install that really would be locked
- * out, which means a users/roles/permissions picture this harness cannot yet
- * answer. lockout-guard-is-unscoped.test.php builds one for the supplier;
- * the call site needs the same fixture reachable from a booted router.
+ * All three of the mutations above are covered now.
+ *
+ * WHAT IS NOT, AND WHY. The lockout guard's DEPTH condition is not. It runs
+ * only at `self::$_deleteDepth < 1`, because the cascade re-enters
+ * deletemass() for each dependent table and those intermediate states are
+ * part of one operation already judged as a whole. Removing the condition --
+ * `if (true || self::$_deleteDepth < 1)` -- leaves every check here green,
+ * because the cascade on this fixture finds no rows to re-enter with. Netting
+ * it needs a fixture whose cascade produces an intermediate state that reads
+ * as a lockout while the whole operation does not, which is a bigger picture
+ * than the one built below.
  *
  * That is a real hole and it is recorded rather than papered over.
  *
@@ -197,6 +204,53 @@ function runChild($case)
     // above is deliberately undone first: rowCount 0 and a responder that
     // answers nothing, so _newEntity() hands back an object whose isValid()
     // is false.
+    if (0 === strpos($case, 'lockout:')) {
+        $parts = explode(':', $case);
+        $ids = array_map('intval', explode(',', $parts[1]));
+        $users = [1, 2];
+        $db->responder = function ($sql, $params) use ($users, $ids) {
+            $flat = preg_replace('/\s+/', ' ', trim($sql));
+            if (false !== strpos($flat, 'FROM `users` WHERE `uId` IN')) {
+                return array_map(function ($u) { return ['uId' => $u]; }, $ids);
+            }
+            if ($flat === 'SELECT `uID` FROM `users`') {
+                return array_map(function ($u) { return ['uID' => $u]; }, $users);
+            }
+            if (false !== strpos($flat, '`uAuthSource` FROM `users`')) {
+                return array_map(function ($u) { return ['uID' => $u, 'uAuthSource' => '']; }, $users);
+            }
+            if (false !== strpos($flat, '`uAPIOnly` FROM `users`')) {
+                return array_map(function ($u) { return ['uID' => $u, 'uAPIOnly' => '0']; }, $users);
+            }
+            if (false !== strpos($flat, 'FROM `roleUserAssoc`')) {
+                return array_map(function ($u) { return ['ruaRoleID' => 1, 'ruaUserID' => $u]; }, $users);
+            }
+            if (false !== strpos($flat, 'FROM `userGroupMembers`')) {
+                return [];
+            }
+            if (false !== strpos($flat, 'FROM `roleUserGroupAssoc`')) {
+                return [];
+            }
+            if (false !== strpos($flat, 'FROM `rolePermissions`')) {
+                return [['rpRoleID' => 1]];
+            }
+            return null;
+        };
+        $db->log = [];
+        try {
+            Route::asValue(
+                function () use ($ids) {
+                    Route::deletemass('user', ['id' => $ids]);
+                }
+            );
+            echo 'ALLOWED STATEMENTS ' . count($db->log) . "\n";
+        } catch (\Throwable $e) {
+            echo 'REFUSED ' . str_replace("\n", ' ', $e->getMessage())
+                . ' STATEMENTS ' . count($db->log) . "\n";
+        }
+        return;
+    }
+
     if (0 === strpos($case, 'missing:')) {
         $parts = explode(':', $case);
         $db->pdo->rowCount = 0;
@@ -449,6 +503,44 @@ $t->check(
     "edit(): a PUT to an id that does not exist answers 404 (got: $line)",
     false !== strpos($line, 'REFUSED')
     && false !== strpos($line, '404')
+);
+
+/*
+ * ===========================================================================
+ * 5. deletemass() asks whether the install would still have an administrator.
+ *
+ *    The last of the three mutations recorded above, and the one that took a
+ *    fixture rather than a fix: Authorization::assertAdminRemainsAfterDelete()
+ *    reads the whole RBAC picture -- users, roleUserAssoc, userGroupMembers,
+ *    roleUserGroupAssoc, rolePermissions -- so netting the CALL SITE means
+ *    answering all of it. lockout-guard-is-unscoped.test.php drives the
+ *    supplier directly and never mentions Route; nothing asserted that
+ *    deletemass() consults it, and disabling the call left 243 tests green.
+ *
+ *    The fixture is two users, both administrators through role 1, which
+ *    holds '*'. Deleting one of them is fine and must go through; deleting
+ *    both is the lockout and must not. Both directions matter for the usual
+ *    reason -- a guard hardwired to refuse everything passes a one-sided
+ *    check while making the delete endpoint useless.
+ *
+ *    Asserted on 'able to administer FOG', which is the wording all three
+ *    refusals share. Which of them fires is a property of the fixture (this
+ *    one trips the local-admin arm first), not of the call site being netted.
+ * ===========================================================================
+ */
+$line = child('lockout:1,2', '{}', 'DELETE');
+$t->check(
+    "deletemass(): deleting every administrator is refused (got: $line)",
+    false !== strpos($line, 'REFUSED')
+    && false !== strpos($line, 'able to administer FOG')
+);
+
+$line = child('lockout:1', '{}', 'DELETE');
+$t->check(
+    "deletemass(): deleting one of two administrators is NOT refused -- "
+    . "otherwise the check above passes on a guard that refuses everything "
+    . "(got: $line)",
+    false === strpos($line, 'able to administer FOG')
 );
 
 $t->finish();
