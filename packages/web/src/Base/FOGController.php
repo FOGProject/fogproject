@@ -743,9 +743,32 @@ abstract class FOGController extends FOGBase
                         } else {
                             $validated = filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
                             if ($validated === false) {
-                                $validated = 0;
+                                /*
+                                 * A present value that is not a row id --
+                                 * 0, '0', a negative, a non-number. The
+                                 * meaning is the same "no reference" the
+                                 * empty branch above handles, so the answer
+                                 * has to be the same: NULL where the column
+                                 * can hold one, 0 only where it cannot.
+                                 *
+                                 * ADR 0031 is what makes this a fault
+                                 * rather than a wart. Once a nullable *id
+                                 * carries a foreign key, 0 is not a value
+                                 * it can hold at all -- there is no parent
+                                 * row with that id -- so writing one is
+                                 * error 1452 and the save is refused. The
+                                 * migration nulled every 0 already in these
+                                 * columns; this stops the ORM putting a
+                                 * fresh one back.
+                                 */
+                                $validated = self::columnIsNullable(
+                                    $this->databaseTable,
+                                    $column
+                                ) ? null : 0;
                             }
-                            $val = (int)$validated;
+                            $val = (null === $validated)
+                                ? null
+                                : (int)$validated;
                         }
                     }
                 } else {
