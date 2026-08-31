@@ -1486,7 +1486,7 @@ class FOGConfigurationPage extends FOGPage
                     'hostCpairs'
                 );
                 $timeout = trim(
-                    filter_input(INPUT_POST, 'timeout')
+                    (string)filter_input(INPUT_POST, 'timeout')
                 );
                 $timeoutt = (is_numeric($timeout) &&  $timeout >= 0);
                 if (!$timeoutt) {
@@ -1511,7 +1511,7 @@ class FOGConfigurationPage extends FOGPage
                 $noMenu = (int)isset($_POST['nomenu']);
                 $hideMenu = (int)isset($_POST['hidemenu']);
                 $hidetimeout = trim(
-                    filter_input(INPUT_POST, 'hidetimeout')
+                    (string)filter_input(INPUT_POST, 'hidetimeout')
                 );
                 $hidetimeoutt = (is_numeric($hidetimeout) && $hidetimeout >= 0);
                 if (!$hidetimeoutt) {

@@ -165,7 +165,7 @@ class Registration extends FOGBase
             $username = (false === $username) ? '' : $username;
             $password = (false === $password) ? '' : $password;
             self::stripAndDecode($_REQUEST);
-            $productKey = trim(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
+            $productKey = trim((string)filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW));
             if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                 throw new Exception(_('Invalid product key supplied'));
             }
@@ -431,7 +431,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = trim(base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW)));
+                $productKey = trim(base64_decode((string)filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW)));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new Exception(_('Invalid product key supplied'));
                 }
@@ -493,7 +493,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addAddMAC($this->MACs);
             if (self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS') > 0) {
-                $productKey = trim(base64_decode(filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW)));
+                $productKey = trim(base64_decode((string)filter_var($_REQUEST['productKey'] ?? '', FILTER_UNSAFE_RAW)));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new Exception(_('Invalid product key supplied'));
                 }

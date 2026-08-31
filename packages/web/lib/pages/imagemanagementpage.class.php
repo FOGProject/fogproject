@@ -688,13 +688,13 @@ class ImageManagementPage extends FOGPage
     {
         self::$HookManager->processEvent('IMAGE_ADD_POST');
         $file = trim(
-            filter_input(INPUT_POST, 'file')
+            (string)filter_input(INPUT_POST, 'file')
         );
         $name = trim(
-            filter_input(INPUT_POST, 'name')
+            (string)filter_input(INPUT_POST, 'name')
         );
         $desc = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
         $os = (int)filter_input(INPUT_POST, 'os');
@@ -870,7 +870,7 @@ class ImageManagementPage extends FOGPage
             $toprot = '';
         }
         $file = trim(
-            filter_input(INPUT_POST, 'file')
+            (string)filter_input(INPUT_POST, 'file')
         );
         if (!$file) {
             $file = $this->obj->get('path');
@@ -1314,13 +1314,13 @@ class ImageManagementPage extends FOGPage
             );
         global $tab;
         $name = trim(
-            filter_input(INPUT_POST, 'name')
+            (string)filter_input(INPUT_POST, 'name')
         );
         $file = trim(
-            filter_input(INPUT_POST, 'file')
+            (string)filter_input(INPUT_POST, 'file')
         );
         $desc = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $os = (int)filter_input(INPUT_POST, 'os');
         $imagetype = (int)filter_input(INPUT_POST, 'imagetype');
@@ -1665,7 +1665,7 @@ class ImageManagementPage extends FOGPage
     {
         try {
             $name = trim(
-                filter_input(INPUT_POST, 'name')
+                (string)filter_input(INPUT_POST, 'name')
             );
             $image = (int)filter_input(INPUT_POST, 'image');
             $timeout = (int)filter_input(INPUT_POST, 'timeout');

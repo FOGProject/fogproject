@@ -360,7 +360,7 @@ class FOGPageManager extends FOGBase
                     ' ',
                     '_',
                     base64_decode(
-                        filter_input(INPUT_GET, 'f')
+                        (string)filter_input(INPUT_GET, 'f')
                     )
                 );
             }

@@ -212,7 +212,7 @@ class PluginManagementPage extends FOGPage
             )
         );
         $runset = trim(
-            filter_input(INPUT_GET, 'run')
+            (string)filter_input(INPUT_GET, 'run')
         );
         echo '<div class="col-xs-9">';
         if ($runset) {
@@ -260,7 +260,7 @@ class PluginManagementPage extends FOGPage
             )
         );
         $runset = trim(
-            filter_input(INPUT_GET, 'run')
+            (string)filter_input(INPUT_GET, 'run')
         );
         echo '<div class="col-xs-9">';
         if ($runset) {

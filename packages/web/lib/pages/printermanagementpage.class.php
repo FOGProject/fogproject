@@ -507,7 +507,7 @@ class PrinterManagementPage extends FOGPage
         $ip = filter_input(INPUT_POST, 'ip');
         $configFile = filter_input(INPUT_POST, 'configFile');
         $config = strtolower(
-            filter_input(INPUT_POST, 'printertype')
+            (string)filter_input(INPUT_POST, 'printertype')
         );
         $desc = filter_input(INPUT_POST, 'description');
         try {
@@ -928,7 +928,7 @@ class PrinterManagementPage extends FOGPage
         $ip = filter_input(INPUT_POST, 'ip');
         $configFile = filter_input(INPUT_POST, 'configFile');
         $config = strtolower(
-            filter_input(INPUT_POST, 'printertype')
+            (string)filter_input(INPUT_POST, 'printertype')
         );
         $desc = filter_input(INPUT_POST, 'description');
         if (!$alias) {

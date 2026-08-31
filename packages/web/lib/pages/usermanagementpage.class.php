@@ -266,14 +266,14 @@ class UserManagementPage extends FOGPage
         self::$HookManager->processEvent('USER_ADD_POST');
         $name = strtolower(
             trim(
-                filter_input(INPUT_POST, 'name')
+                (string)filter_input(INPUT_POST, 'name')
             )
         );
         $password = trim(
-            filter_input(INPUT_POST, 'password')
+            (string)filter_input(INPUT_POST, 'password')
         );
         $friendly = trim(
-            filter_input(INPUT_POST, 'display')
+            (string)filter_input(INPUT_POST, 'display')
         );
         $apien = (int)isset($_POST['apienabled']);
         $token = self::createSecToken();
@@ -651,11 +651,11 @@ class UserManagementPage extends FOGPage
     {
         $name = strtolower(
             trim(
-                filter_input(INPUT_POST, 'name')
+                (string)filter_input(INPUT_POST, 'name')
             )
         );
         $display = trim(
-            filter_input(INPUT_POST, 'display')
+            (string)filter_input(INPUT_POST, 'display')
         );
         if ($this->obj->get('name') != $name
             && self::getClass('UserManager')->exists(
@@ -679,7 +679,7 @@ class UserManagementPage extends FOGPage
     public function userChangePWPost()
     {
         $password = trim(
-            filter_input(INPUT_POST, 'password')
+            (string)filter_input(INPUT_POST, 'password')
         );
         $this->obj
             ->set('password', $password);
@@ -693,7 +693,7 @@ class UserManagementPage extends FOGPage
     {
         $apien = (int)isset($_POST['apienabled']);
         $apitoken = base64_decode(
-            filter_input(INPUT_POST, 'apitoken')
+            (string)filter_input(INPUT_POST, 'apitoken')
         );
         $this->obj
             ->set('api', $apien)

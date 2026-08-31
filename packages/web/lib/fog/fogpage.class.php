@@ -1749,7 +1749,7 @@ abstract class FOGPage extends FOGBase
              * Schedule Type Setup.
              */
             $scheduleType = strtolower(
-                filter_input(INPUT_POST, 'scheduleType')
+                (string)filter_input(INPUT_POST, 'scheduleType')
             );
             $scheduleTypes = array(
                 'cron',
