@@ -962,6 +962,39 @@ switch ($cmd) {
                 false === $res->error ? (int)$res->fetch()->get('n') : 'unreadable'
             );
         }
+        // WHY A MISSING CONSTRAINT HERE IS NOT AUTOMATICALLY A DEFECT, and
+        // the reason this block exists at all: the seed plants the exact
+        // conditions FOG refuses to paper over, so the refusals below are
+        // the DESIGNED outcome and reading them as a failure list sends
+        // somebody off to "fix" behavior that is already correct.
+        //
+        //   fk_nfsGroupMembers_ngmGroupID -- a storage node whose group was
+        //     deleted. Step 386 states the rule outright: a node always
+        //     belongs to a group, only the administrator knows which one,
+        //     "so nothing here guesses one", and a refused constraint named
+        //     in the log IS the correct outcome. Sweeping it would delete a
+        //     configured storage node; step 381 sweeps CASCADE junction rows
+        //     only, and says why RESTRICT rows are never touched.
+        //
+        //   fk_hostMAC_hmHostID -- refused on structure, not rows, because
+        //     section 5 of the seed widened hmHostID to bigint on purpose.
+        //
+        // Shape drift reads the same way. A clean build to FOG_SCHEMA
+        // reports ZERO differences, so every difference `shape` prints
+        // after a seeded run was planted by the seed. That the upgrade
+        // reports rather than repairs them is the decision b1348bfe1 made
+        // deliberately -- repairing any of them means narrowing a column,
+        // deleting duplicate rows or inventing a value, which is a data
+        // decision no unattended step gets to make.
+        //
+        // So the question this report answers is "did anything change",
+        // against tests/fixtures/upgrade-rehearsal-baseline.txt. A NEW
+        // refusal or a drift the seed does not explain is the finding; the
+        // ones below are the fixture working.
+        printf(
+            "  (both refusals above are seed-induced and by design --"
+            . " see the comment on this block)\n"
+        );
         exit(count($missing) ? 1 : 0);
 
     case 'dump':
