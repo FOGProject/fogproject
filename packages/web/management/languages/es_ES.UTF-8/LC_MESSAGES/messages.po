@@ -5201,9 +5201,42 @@ msgstr "Línea"
 msgid "List All %s"
 msgstr ""
 
+msgid "List All Groups"
+msgstr "Listar todos los grupos"
+
+msgid "List All Hosts"
+msgstr "Listar todos los anfitriones"
+
+msgid "List All Images"
+msgstr "Listar todas las imágenes"
+
+msgid "List All Ipxe Menus"
+msgstr "Listar todos los menús iPXE"
+
+msgid "List All Modules"
+msgstr "Listar todos los módulos"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "Nombre de la impresora"
+
+msgid "List All Printers"
+msgstr "Listar todas las impresoras"
+
+msgid "List All Roles"
+msgstr "Listar todos los roles"
+
+msgid "List All Sites"
+msgstr "Listar todos los sitios"
+
+msgid "List All Snapins"
+msgstr "Listar todos los snapins"
+
+msgid "List All Storage Groups"
+msgstr "Listar todos los grupos de almacenamiento"
+
+msgid "List All Storage Nodes"
+msgstr "Listar todos los nodos de almacenamiento"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5212,6 +5245,12 @@ msgstr "Nombre de la tarea"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "Tipo de tarea"
+
+msgid "List All User Groups"
+msgstr "Listar todos los grupos de usuarios"
+
+msgid "List All Users"
+msgstr "Listar todos los usuarios"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -12433,46 +12472,3 @@ msgstr ""
 #, fuzzy
 #~ msgid "version"
 #~ msgstr "Versión"
-
-#. GH-435: seeded from this catalog's own "List All %s" /
-#. "Create New %s" and noun, so the label renders exactly as it
-#. did before those format strings became whole phrases.
-
-msgid "List All Groups"
-msgstr "Listar todos los grupos"
-
-msgid "List All Hosts"
-msgstr "Listar todos los anfitriones"
-
-msgid "List All Images"
-msgstr "Listar todas las imágenes"
-
-msgid "List All Ipxe Menus"
-msgstr "Listar todos los menús iPXE"
-
-msgid "List All Modules"
-msgstr "Listar todos los módulos"
-
-msgid "List All Printers"
-msgstr "Listar todas las impresoras"
-
-msgid "List All Roles"
-msgstr "Listar todos los roles"
-
-msgid "List All Sites"
-msgstr "Listar todos los sitios"
-
-msgid "List All Snapins"
-msgstr "Listar todos los snapins"
-
-msgid "List All Storage Groups"
-msgstr "Listar todos los grupos de almacenamiento"
-
-msgid "List All Storage Nodes"
-msgstr "Listar todos los nodos de almacenamiento"
-
-msgid "List All User Groups"
-msgstr "Listar todos los grupos de usuarios"
-
-msgid "List All Users"
-msgstr "Listar todos los usuarios"

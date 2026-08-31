@@ -5101,9 +5101,42 @@ msgstr "Listar todos os %s"
 msgid "List All %s"
 msgstr "Listar todos os %s"
 
+msgid "List All Groups"
+msgstr "Listar todos os Grupos"
+
+msgid "List All Hosts"
+msgstr "Listar todos os Anfitriãos"
+
+msgid "List All Images"
+msgstr "Listar todos os Imagems"
+
+msgid "List All Ipxe Menus"
+msgstr "Listar todos os Ipxe Menus"
+
+msgid "List All Modules"
+msgstr "Listar todos os Nome do módulos"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "instalar Plugins"
+
+msgid "List All Printers"
+msgstr "Listar todos os Impressoras"
+
+msgid "List All Roles"
+msgstr "Listar todos os Nome do módulos"
+
+msgid "List All Sites"
+msgstr "Listar todos os minutoss"
+
+msgid "List All Snapins"
+msgstr "Listar todos os Snapins"
+
+msgid "List All Storage Groups"
+msgstr "Listar todos os Storage Groups"
+
+msgid "List All Storage Nodes"
+msgstr "Listar todos os Storage Nodes"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5112,6 +5145,12 @@ msgstr "Unidos Task"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "Tipos de tarefa"
+
+msgid "List All User Groups"
+msgstr "Listar todos os User Groups"
+
+msgid "List All Users"
+msgstr "Listar todos os Do utilizadors"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -11968,9 +12007,6 @@ msgstr ""
 #~ msgid "Latest SVN Version"
 #~ msgstr "Última versão"
 
-msgid "List All Roles"
-msgstr "Listar todos os Nome do módulos"
-
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "Listar todos os %s"
@@ -12274,43 +12310,3 @@ msgstr "Listar todos os Nome do módulos"
 #, fuzzy
 #~ msgid "version"
 #~ msgstr "Versão"
-
-#. GH-435: seeded from this catalog's own "List All %s" /
-#. "Create New %s" and noun, so the label renders exactly as it
-#. did before those format strings became whole phrases.
-
-msgid "List All Groups"
-msgstr "Listar todos os Grupos"
-
-msgid "List All Hosts"
-msgstr "Listar todos os Anfitriãos"
-
-msgid "List All Images"
-msgstr "Listar todos os Imagems"
-
-msgid "List All Ipxe Menus"
-msgstr "Listar todos os Ipxe Menus"
-
-msgid "List All Modules"
-msgstr "Listar todos os Nome do módulos"
-
-msgid "List All Printers"
-msgstr "Listar todos os Impressoras"
-
-msgid "List All Sites"
-msgstr "Listar todos os minutoss"
-
-msgid "List All Snapins"
-msgstr "Listar todos os Snapins"
-
-msgid "List All Storage Groups"
-msgstr "Listar todos os Storage Groups"
-
-msgid "List All Storage Nodes"
-msgstr "Listar todos os Storage Nodes"
-
-msgid "List All User Groups"
-msgstr "Listar todos os User Groups"
-
-msgid "List All Users"
-msgstr "Listar todos os Do utilizadors"
