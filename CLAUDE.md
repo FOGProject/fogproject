@@ -136,13 +136,23 @@ there is not a plain `git push`:
 - **merge commits only** — no squash, no rebase. This keeps the history
   linearly countable, which is what a locally generated `FOG_VERSION` is
   derived from;
-- **branches must be up to date before merging**. This is the rule that makes
-  every merge invalidate every other open PR and force a re-run of the eight
-  required checks. A merge queue is the standard fix and is the next change
-  planned here;
-- **seven `fogproject / …` checks must pass.** `regenerate / …` is deliberately
-  *not* required: it is skipped on fork PRs, and requiring it would leave those
-  unmergeable.
+- **branches need NOT be up to date** — `strict_required_status_checks_policy`
+  is `false`. It used to be true, and that was the rule that made every merge
+  invalidate every other open PR and force a re-run of every required check.
+  The **merge queue** replaced it (2026-08-30): instead of making N-1 branches
+  rebase, the queue builds one temporary `gh-readonly-queue/…` ref carrying
+  base + the entry and tests that. So the queue is not a version-bump
+  mechanism — the version left git in GH-1510/GH-1513 — it is the thing that
+  now catches a pull request whose base moved under it;
+- **eight checks must pass**: the seven `fogproject / …` contexts plus
+  `phpstan`. `regenerate / …` is deliberately *not* required: it is skipped on
+  fork PRs, and requiring it would leave those unmergeable.
+- **the price is two full suite runs per pull request.** The required contexts
+  have to be reported against the merge-group ref as well, so `tests.yml`
+  triggers on both `pull_request` and `merge_group` and there is no way to
+  report a reduced set on the queue. When pull requests are merged one at a
+  time onto a quiet base — the normal case here — the queue run tests a tree
+  byte-identical to the one the pull request already tested.
 
 No version is written into git by any of this. See **Why `FOG_VERSION` is not
 written on a branch** above.
