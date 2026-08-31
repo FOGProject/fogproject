@@ -5290,6 +5290,205 @@ class Route extends FOGBase
         }
     }
     /**
+     * Refuses a create whose `name` is already taken.
+     *
+     * Narrower than _assertEditName(): there is no stored object to compare
+     * against, so any existing name is a collision, and an empty name is not
+     * refused here -- the databaseFieldsRequired pass below is what catches a
+     * missing one. Classes in $nonUniqueNameClasses are exempt entirely.
+     *
+     * Answers through setErrorMessage(), which throws, so this either returns
+     * having found nothing wrong or does not return at all.
+     *
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _assertCreateName($classname, $vars)
+    {
+        $exists = false;
+        if (property_exists($vars, 'name')) {
+            $exists = self::getClass($classname)
+                ->getManager()
+                ->exists($vars->name);
+        }
+        $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
+        if ($exists && $uniqueNames) {
+            self::setErrorMessage(
+                _('Already created'),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    /**
+     * Copies the request body onto a new object, field by field.
+     *
+     * Deliberately NOT shared with _applyEditFields(); see the note there
+     * for the three differences, all of which live in this loop.
+     *
+     * @param object $class     The new object being populated.
+     * @param string $classname The lowercased class name.
+     * @param array  $classVars The class's reflected variables.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyCreateFields($class, $classname, $classVars, $vars)
+    {
+        $serverOwned = self::serverOwnedFields($classname);
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            if (property_exists($vars, $key)) {
+                $val = $vars->$key;
+            } else {
+                $val = null;
+            }
+            if ('id' == $key
+                || null === $val
+            ) {
+                continue;
+            }
+            // Null passed above rather than the object: there is no
+            // stored value to compare a create against, so the test
+            // is whether a value was asked for at all.
+            if (in_array($key, $serverOwned, true)) {
+                self::_refuseServerOwned(null, $key, $val);
+                unset($key);
+                continue;
+            }
+            $class->set($key, $val);
+            unset($key);
+        }
+    }
+    /**
+     * Applies the join-table changes a create body asks for.
+     *
+     * A switch on one variable, for the same reason _applyEditAssociations()
+     * is: per-class methods here would each have a single call site.
+     *
+     * Two things it does that are not associations, and both have to stay
+     * here rather than move to the caller. The host arm folds `mac` and
+     * `primac` into `$vars->macs` and shifts the primary off the front, and
+     * create() reads what is left of that list after save() to add the
+     * secondaries -- so the mutation has to be visible to the caller, which
+     * it is because $vars is an object handle rather than a copied array.
+     *
+     * @param object $class     The new object being populated.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyCreateAssociations($class, $classname, $vars)
+    {
+        switch ($classname) {
+            case 'host':
+                if (isset($vars->mac)) {
+                    $vars->macs = array_merge(
+                        (array)$vars->mac,
+                        isset($vars->macs) ? (array)$vars->macs : []
+                    );
+                }
+                // edit() honors 'primac' but create() did not, and 'primac'
+                // is an additionalFields entry derived from the
+                // MACAddressAssociation join rather than a real column, so
+                // the databaseFields loop above skips it too. The result was
+                // a create that named its primary MAC returning 200 with a
+                // host that had no MAC at all -- which then never matches a
+                // PXE request, so the host silently reads as unregistered.
+                // Prepended rather than appended: 'primac' says explicitly
+                // which MAC is primary, so it must win the array_shift below
+                // over the positional 'mac'/'macs' forms.
+                if (isset($vars->primac)) {
+                    $vars->macs = array_merge(
+                        (array)$vars->primac,
+                        isset($vars->macs) ? (array)$vars->macs : []
+                    );
+                }
+                if (isset($vars->macs)) {
+                    // Set the primary MAC now (deferred via the 'mac' key
+                    // and persisted by save() once the host id exists).
+                    // Secondaries are added after save() below, when
+                    // $this->get('id') is valid — otherwise they would be
+                    // inserted with hmHostID=0 and orphaned.
+                    $vars->macs = array_unique((array)$vars->macs);
+                    $class->addPriMAC(array_shift($vars->macs));
+                }
+                if (isset($vars->snapins)) {
+                    $class->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $class->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $class->set('modules', $vars->modules);
+                }
+                if (isset($vars->groups)) {
+                    $class->addGroup($vars->groups);
+                }
+                break;
+            case 'group':
+                if (isset($vars->snapins)) {
+                    $class->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $class
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $class->addModule($vars->modules);
+                }
+                if (isset($vars->hosts)) {
+                    $class->addHost($vars->hosts);
+                    if (isset($vars->imageID)) {
+                        $class->addImage($vars->imageID);
+                    }
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $class->addHost($vars->hosts);
+                }
+                if (isset($vars->storagegroups)) {
+                    $class->addGroup($vars->storagegroups);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $class->addHost($vars->hosts);
+                }
+                break;
+        }
+    }
+    /**
+     * Refuses a create that leaves a required column null.
+     *
+     * Runs after the associations rather than straight after the field loop,
+     * because an arm such as host's `modules` sets a column of its own -- so
+     * a body that only names it there would otherwise be refused for a field
+     * it did in fact supply.
+     *
+     * @param object $class     The populated object, not yet saved.
+     * @param array  $classVars The class's reflected variables.
+     *
+     * @return void
+     */
+    private static function _assertCreateRequired($class, $classVars)
+    {
+        foreach ($classVars['databaseFieldsRequired'] as &$key) {
+            $key = $class->key($key);
+            $val = $class->get($key);
+            if (null === $val) {
+                self::setErrorMessage(
+                    self::$foglang['RequiredDB'] . ": " . $key,
+                    HTTPResponseCodes::HTTP_EXPECTATION_FAILED
+                );
+            }
+        }
+    }
+    /**
      * Creates an item.
      *
      * @param string $class The class to work with.
@@ -5313,132 +5512,10 @@ class Route extends FOGBase
                 )
             );
 
-            $exists = false;
-            if (property_exists($vars, 'name')) {
-                $exists = self::getClass($classname)
-                    ->getManager()
-                    ->exists($vars->name);
-            }
-            $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
-            if ($exists && $uniqueNames) {
-                self::setErrorMessage(
-                    _('Already created'),
-                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                );
-            }
-            $serverOwned = self::serverOwnedFields($classname);
-            foreach ($classVars['databaseFields'] as &$key) {
-                $key = $class->key($key);
-                if (property_exists($vars, $key)) {
-                    $val = $vars->$key;
-                } else {
-                    $val = null;
-                }
-                if ('id' == $key
-                    || null === $val
-                ) {
-                    continue;
-                }
-                // Null passed above rather than the object: there is no
-                // stored value to compare a create against, so the test
-                // is whether a value was asked for at all.
-                if (in_array($key, $serverOwned, true)) {
-                    self::_refuseServerOwned(null, $key, $val);
-                    unset($key);
-                    continue;
-                }
-                $class->set($key, $val);
-                unset($key);
-            }
-            switch ($classname) {
-                case 'host':
-                    if (isset($vars->mac)) {
-                        $vars->macs = array_merge(
-                            (array)$vars->mac,
-                            isset($vars->macs) ? (array)$vars->macs : []
-                        );
-                    }
-                    // edit() honors 'primac' but create() did not, and 'primac'
-                    // is an additionalFields entry derived from the
-                    // MACAddressAssociation join rather than a real column, so
-                    // the databaseFields loop above skips it too. The result was
-                    // a create that named its primary MAC returning 200 with a
-                    // host that had no MAC at all -- which then never matches a
-                    // PXE request, so the host silently reads as unregistered.
-                    // Prepended rather than appended: 'primac' says explicitly
-                    // which MAC is primary, so it must win the array_shift below
-                    // over the positional 'mac'/'macs' forms.
-                    if (isset($vars->primac)) {
-                        $vars->macs = array_merge(
-                            (array)$vars->primac,
-                            isset($vars->macs) ? (array)$vars->macs : []
-                        );
-                    }
-                    if (isset($vars->macs)) {
-                        // Set the primary MAC now (deferred via the 'mac' key
-                        // and persisted by save() once the host id exists).
-                        // Secondaries are added after save() below, when
-                        // $this->get('id') is valid — otherwise they would be
-                        // inserted with hmHostID=0 and orphaned.
-                        $vars->macs = array_unique((array)$vars->macs);
-                        $class->addPriMAC(array_shift($vars->macs));
-                    }
-                    if (isset($vars->snapins)) {
-                        $class->addSnapin($vars->snapins);
-                    }
-                    if (isset($vars->printers)) {
-                        $class->addPrinter($vars->printers);
-                    }
-                    if (isset($vars->modules)) {
-                        $class->set('modules', $vars->modules);
-                    }
-                    if (isset($vars->groups)) {
-                        $class->addGroup($vars->groups);
-                    }
-                    break;
-                case 'group':
-                    if (isset($vars->snapins)) {
-                        $class->addSnapin($vars->snapins);
-                    }
-                    if (isset($vars->printers)) {
-                        $class
-                            ->addPrinter($vars->printers);
-                    }
-                    if (isset($vars->modules)) {
-                        $class->addModule($vars->modules);
-                    }
-                    if (isset($vars->hosts)) {
-                        $class->addHost($vars->hosts);
-                        if (isset($vars->imageID)) {
-                            $class->addImage($vars->imageID);
-                        }
-                    }
-                    break;
-                case 'image':
-                case 'snapin':
-                    if (isset($vars->hosts)) {
-                        $class->addHost($vars->hosts);
-                    }
-                    if (isset($vars->storagegroups)) {
-                        $class->addGroup($vars->storagegroups);
-                    }
-                    break;
-                case 'printer':
-                    if (isset($vars->hosts)) {
-                        $class->addHost($vars->hosts);
-                    }
-                    break;
-            }
-            foreach ($classVars['databaseFieldsRequired'] as &$key) {
-                $key = $class->key($key);
-                $val = $class->get($key);
-                if (null === $val) {
-                    self::setErrorMessage(
-                        self::$foglang['RequiredDB'] . ": " . $key,
-                        HTTPResponseCodes::HTTP_EXPECTATION_FAILED
-                    );
-                }
-            }
+            self::_assertCreateName($classname, $vars);
+            self::_applyCreateFields($class, $classname, $classVars, $vars);
+            self::_applyCreateAssociations($class, $classname, $vars);
+            self::_assertCreateRequired($class, $classVars);
             // Store the data and recreate.
             // If failed present so.
             if ($class->save()) {
