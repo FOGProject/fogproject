@@ -132,7 +132,6 @@ Both fixes were therefore found against a real 1.5.10 dump, and that remains the
 way to find the next one. A genuine 1.5.10 database is on the maintainer's box
 (`/var/www/html/fog-1.5`, schema 278) and can be cloned into the same container.
 
-
 ## There is no collation seed, and that is a finding
 
 The seed used to carry
