@@ -881,6 +881,22 @@ recordNetbootWebHost() {
     errorStat $?
     echo "   FOG_WEB_HOST is now $netboothost. Every boot URL after boot.php is"
     echo "   built from it, and HTTPS netboot needs them to match the certificate."
+    # Say what else just moved. Anything a plugin derives from this row derives
+    # a NEW value from here on, and the one that fails hardest is an external
+    # identity provider: a redirect URI is computed from FOG_WEB_HOST on every
+    # request and never stored, so it is now a string the provider has not been
+    # told about -- and a provider rejects an unregistered redirect URI outright.
+    # Sign-in breaks at the next attempt with nothing on this server explaining
+    # why, which is a bad thing to learn from a locked-out admin rather than
+    # from the install that caused it.
+    if [[ -n $currentwebhost && $currentwebhost != "$netboothost" ]]; then
+        echo
+        echo "   It was $currentwebhost. Anything registered elsewhere against that"
+        echo "   value has to be updated to match -- an external identity provider's"
+        echo "   redirect URI in particular, which FOG derives from this setting and"
+        echo "   a provider refuses if it was not registered."
+        echo
+    fi
 }
 backupDB() {
     # ---------------------------------------------------------

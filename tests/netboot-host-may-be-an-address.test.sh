@@ -185,6 +185,32 @@ STUB_CERT="$WORK/withip.pem"; STUB_SERVED_NAME="fogserver.test"
     && ok "an unreadable value falls through and records the certificate name" \
     || bad "an unreadable FOG_WEB_HOST was treated as satisfactory"
 
+# --- G. a correction says what else it just moved --------------------------
+# The redirect URI an identity provider holds is computed from FOG_WEB_HOST and
+# never stored, so a correction silently invalidates it and sign-in breaks at
+# the next attempt. Whoever ran the installer is the only person positioned to
+# fix that, and only while they are still looking at the output.
+said() {
+    STORED="$1"; WROTE=""; netboothost=""
+    recordNetbootWebHost 2>&1
+}
+
+STUB_CERT="$WORK/withip.pem"; STUB_SERVED_NAME="fogserver.test"
+
+case "$(said 'somewhere.else')" in
+    *"It was somewhere.else"*"redirect URI"*)
+        ok "a correction names the old value and what it invalidates" ;;
+    *)  bad "a correction did not warn that a registered redirect URI is now stale" ;;
+esac
+
+# No warning where nothing moved: an unset value has no registration behind it,
+# and crying wolf on every fresh install is how a real warning gets ignored.
+case "$(said 'NULL')" in
+    *"has to be updated to match"*)
+        bad "a fresh install warned about a value that never existed" ;;
+    *)  ok "no stale-registration warning when there was no previous value" ;;
+esac
+
 # --- report -----------------------------------------------------------------
 echo
 if [[ $FAIL -gt 0 ]]; then
