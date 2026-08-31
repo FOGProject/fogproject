@@ -550,6 +550,23 @@ foreach ($locales as $po) {
         );
     }
 
+    // Last word: a CONFIRMED translation is never overwritten, by any pass.
+    // Confirmed means a live, non-empty, non-fuzzy msgstr that does not carry
+    // a stray %s -- a person wrote it and reviewed it. Everything above is
+    // reconstruction, and reconstruction does not get to overrule that, not
+    // even the hand-written tables. On this branch only ja_JP's `Create New
+    // Printer` and `Create New Snapin` qualify, and neither is in a hand
+    // table, so this changes nothing here; it is the same rule dev-branch
+    // needs, where five catalogs hold confirmed entries and the French table
+    // would otherwise have rewritten one of them.
+    foreach (array_keys($added) as $msgid) {
+        $cur = (string)($tr[$msgid] ?? '');
+        if ('' === $cur || isset($fz[$msgid]) || false !== strpos($cur, '%s')) {
+            continue;
+        }
+        unset($added[$msgid]);
+    }
+
     if (count($added)) {
         poWrite($po, $added);
     }
