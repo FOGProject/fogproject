@@ -1092,7 +1092,7 @@ class Route extends FOGBase
             return;
         }
         self::_assertNoSensitiveFilter($whereItems, $class);
-        $classVars = self::getClass($class, '', true);
+        $classVars = self::_classVars($class);
         // Blocked fields are dropped from the advertised list as well as
         // refused above -- an error that names them as valid alternatives
         // would be telling the caller to retry with the one thing this
@@ -3097,11 +3097,7 @@ class Route extends FOGBase
             $ttlstr = $classman->getTotalStr();
             $tmpcolumns = $classman->getColumns();
 
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
 
             $where = self::_buildSql(
                 '',
@@ -4570,7 +4566,7 @@ class Route extends FOGBase
      */
     private static function _searchRows($class, $item, $limit = 0)
     {
-        $classVars = self::getClass($class, '', true);
+        $classVars = self::_classVars($class);
         // An entity with no `name` field has nothing to match on or to
         // label a result with. Not ours alone to enumerate, either:
         // SEARCH_PAGES hands $searchPages to plugins BY REFERENCE and they
@@ -4818,11 +4814,7 @@ class Route extends FOGBase
             // not name its own class.
             self::$emitClassname = $classname;
             $class = self::_newEntity($class, $id);
-            if (!$class->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND
-                );
-            }
+            self::_requireFound($class);
             self::$data = [];
             // Before getter(), not after: getter() now asks wantsExpand()
             // whether to build storagenode's images/snapinfiles, and reading
@@ -4857,6 +4849,334 @@ class Route extends FOGBase
         }
     }
     /**
+     * Refuses an edit whose `name` is empty or already taken.
+     *
+     * Two separate refusals, and the second one is narrower than it looks.
+     * A name that already exists is only a collision when it belongs to a
+     * DIFFERENT object -- PUTting an object back under its own name is
+     * ordinary REST -- so the stored name is compared before refusing.
+     * Classes in $nonUniqueNameClasses are exempt entirely.
+     *
+     * Both answer through setErrorMessage(), which throws, so this either
+     * returns having found nothing wrong or does not return at all.
+     *
+     * @param object $class     The loaded object being edited.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _assertEditName($class, $classname, $vars)
+    {
+        $exists = false;
+        $var_name = false;
+        if (property_exists($vars, 'name')) {
+            $exists = self::getClass($classname)
+                ->getManager()
+                ->exists($vars->name);
+            $var_name = strtolower($vars->name);
+            if (!$var_name) {
+                self::setErrorMessage(
+                    _('A name must be defined if using the "name" property'),
+                    HTTPResponseCodes::HTTP_FORBIDDEN
+                );
+            }
+        }
+        $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
+        if ($uniqueNames
+            && $exists
+            && $var_name
+            && strtolower($class->get('name')) != $var_name
+        ) {
+            self::setErrorMessage(
+                _('Already created'),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    /**
+     * Copies the request body onto a loaded object, field by field.
+     *
+     * Deliberately NOT shared with create()'s loop, which looks almost
+     * identical and differs in three ways that all matter: create tests
+     * property_exists() so an explicit null reads as absent, passes null to
+     * _refuseServerOwned() because there is no stored value to compare a
+     * create against, and has no object to leave untouched. One flag
+     * parameter doing those three jobs would hide exactly the distinctions
+     * the comments here exist to explain.
+     *
+     * @param object $class     The loaded object being edited.
+     * @param string $classname The lowercased class name.
+     * @param array  $classVars The class's reflected variables.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyEditFields($class, $classname, $classVars, $vars)
+    {
+        $serverOwned = self::serverOwnedFields($classname);
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            if ($key == 'id') {
+                unset($key);
+                continue;
+            }
+            // A field the body did not mention is left exactly as
+            // loaded. It used to be re-set to its own current value,
+            // which looks like a no-op and is not: set() may
+            // transform, and User::set() hashes any non-override
+            // write to 'password'. So every PUT to a user re-hashed
+            // the stored hash and locked that account out for good.
+            // save() writes from $this->data for every databaseField
+            // regardless of what was set(), so skipping is otherwise
+            // byte-identical.
+            if (!isset($vars->$key)) {
+                unset($key);
+                continue;
+            }
+            if (in_array($key, $serverOwned, true)) {
+                self::_refuseServerOwned($class, $key, $vars->$key);
+                unset($key);
+                continue;
+            }
+            $class->set($key, $vars->$key);
+            unset($key);
+        }
+    }
+    /**
+     * Applies the association changes an edit's body asks for.
+     *
+     * The associations are not columns, so the databaseFields loop above
+     * cannot reach them: `snapins`, `printers`, `modules`, `hosts`,
+     * `groups`, `macs` and `storagegroups` each mean a join table, and each
+     * class supports a different subset. This is the DIFF form -- what the
+     * body names becomes the whole membership, so anything missing from it
+     * is removed -- which is what makes it different from create()'s
+     * add-only version and from joining()'s, and why the three are not one
+     * function.
+     *
+     * Stays a switch, dispatched on one variable. Fifteen per-class methods
+     * is the shape docs/route-listem-plan.md rejected for the column table
+     * and the reasoning is unchanged here.
+     *
+     * $id rather than $class->get('id') for the plugin arm, which has to
+     * read the STORED state rather than the object it has just mutated.
+     *
+     * @param object $class     The loaded object being edited.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     * @param int    $id        The id being edited.
+     *
+     * @return void
+     */
+    private static function _applyEditAssociations($class, $classname, $vars, $id)
+    {
+        switch ($classname) {
+            case 'host':
+                if (isset($vars->macs)) {
+                    $macsToAdd = array_diff(
+                        (array)$vars->macs,
+                        $class->getMyMacs()
+                    );
+                    $macsToRem = array_diff(
+                        $class->getMyMacs(),
+                        (array)$vars->macs
+                    );
+                    $class
+                        ->addMAC($macsToAdd)
+                        ->removeMAC($macsToRem);
+                }
+                if (isset($vars->primac)) {
+                    $oldMac = $class->get('mac');
+                    if ($vars->primac != $oldMac) {
+                        $class
+                            ->removeMAC([$oldMac])
+                            ->addMAC([$oldMac])
+                            ->addPriMAC($vars->primac);
+
+                    }
+                }
+                if (isset($vars->snapins)) {
+                    $snapinsToAdd = array_diff(
+                        (array)$vars->snapins,
+                        $class->get('snapins')
+                    );
+                    $snapinsToRem = array_diff(
+                        $class->get('snapins'),
+                        (array)$vars->snapins
+                    );
+                    $class
+                        ->removeSnapin($snapinsToRem)
+                        ->addSnapin($snapinsToAdd);
+                }
+                if (isset($vars->printers)) {
+                    $printersToAdd = array_diff(
+                        (array)$vars->printers,
+                        $class->get('printers')
+                    );
+                    $printersToRem = array_diff(
+                        $class->get('printers'),
+                        (array)$vars->printers
+                    );
+                    $class
+                        ->removePrinter($printersToRem)
+                        ->addPrinter($printersToAdd);
+                }
+                if (isset($vars->modules)) {
+                    $modulesToAdd = array_diff(
+                        (array)$vars->modules,
+                        $class->get('modules')
+                    );
+                    $modulesToRem = array_diff(
+                        $class->get('modules'),
+                        (array)$vars->modules
+                    );
+                    $class
+                        ->removeModule($modulesToRem)
+                        ->addModule($modulesToAdd);
+                }
+                if (isset($vars->groups)) {
+                    $groupsToAdd = array_diff(
+                        (array)$vars->groups,
+                        $class->get('groups')
+                    );
+                    $groupsToRem = array_diff(
+                        $class->get('groups'),
+                        (array)$vars->groups
+                    );
+                    $class
+                        ->removeGroup($groupsToRem)
+                        ->addGroup($groupsToAdd);
+                }
+                break;
+            case 'group':
+                if (isset($vars->snapins)) {
+                    $snapins = Route::getIds('snapin', false);
+                    $snapinsToRem = array_diff(
+                        $snapins,
+                        (array)$vars->snapins
+                    );
+                    $class
+                        ->removeSnapin($snapinsToRem)
+                        ->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $printers = Route::getIds('printer', false);
+                    $printersToRem = array_diff(
+                        $printers,
+                        (array)$vars->printers
+                    );
+                    $class
+                        ->removePrinter($printersToRem)
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $modules = Route::getIds('module', false);
+                    $modulesToRem = array_diff(
+                        $modules,
+                        (array)$vars->modules
+                    );
+                    $class
+                        ->removeModule($modulesToRem)
+                        ->addModule($vars->modules);
+                }
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                if (isset($vars->imageID)) {
+                    $class
+                        ->addImage($vars->imageID);
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                if (isset($vars->storagegroups)) {
+                    $storageGroupsToAdd = array_diff(
+                        (array)$vars->storagegroups,
+                        $class->get('storagegroups')
+                    );
+                    $storageGroupsToRem = array_diff(
+                        $class->get('storagegroups'),
+                        (array)$vars->storagegroups
+                    );
+                    $class
+                        ->removeGroup($storageGroupsToRem)
+                        ->addGroup($storageGroupsToAdd);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                break;
+            case 'plugin':
+                // installed and schema are server-owned, but state is
+                // deliberately not: activating is a plain column write
+                // and doing it over the API is legitimate. What is NOT
+                // legitimate is using it to switch on a plugin the
+                // server refuses to run -- an installed plugin left
+                // deactivated because a FOG upgrade moved past its
+                // fog_max is exactly the case activationBlockers()
+                // exists for, and without this it is one PUT away from
+                // loading on every boot (installed=1 AND state=1 is
+                // what getActivePlugins() selects on).
+                //
+                // Gated on the TRANSITION to active, read from the
+                // stored row rather than the mutated object, for the
+                // same reason _refuseServerOwned() compares values: a
+                // client that reads a plugin and PUTs it back
+                // unchanged is asking for nothing, and an ordinary
+                // description edit on an already-active plugin must
+                // not start failing the day it becomes blocked.
+                if (isset($vars->state)
+                    && (int)$vars->state === 1
+                    && !(int)self::getClass('Plugin', $id)->get('state')
+                ) {
+                    $blockers = Plugin::activationBlockers([(int)$id]);
+                    if (count($blockers)) {
+                        self::setErrorMessage(
+                            self::_blockerReasons($blockers),
+                            HTTPResponseCodes::HTTP_BAD_REQUEST
+                        );
+                    }
+                }
+                break;
+        }
+    }
+    /**
      * Enables editing/updating a specified object.
      *
      * @param string $class The class to work with.
@@ -4868,277 +5188,13 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
             $class = self::_newEntity($class, $id);
-            if (!$class->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND
-                );
-            }
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
-            $exists = false;
-            $var_name = false;
-            if (property_exists($vars, 'name')) {
-                $exists = self::getClass($classname)
-                    ->getManager()
-                    ->exists($vars->name);
-                $var_name = strtolower($vars->name);
-                if (!$var_name) {
-                    self::setErrorMessage(
-                        _('A name must be defined if using the "name" property'),
-                        HTTPResponseCodes::HTTP_FORBIDDEN
-                    );
-                }
-            }
-            $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
-            if ($uniqueNames
-                && $exists
-                && $var_name
-                && strtolower($class->get('name')) != $var_name
-            ) {
-                self::setErrorMessage(
-                    _('Already created'),
-                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                );
-            }
-            $serverOwned = self::serverOwnedFields($classname);
-            foreach ($classVars['databaseFields'] as &$key) {
-                $key = $class->key($key);
-                if ($key == 'id') {
-                    unset($key);
-                    continue;
-                }
-                // A field the body did not mention is left exactly as
-                // loaded. It used to be re-set to its own current value,
-                // which looks like a no-op and is not: set() may
-                // transform, and User::set() hashes any non-override
-                // write to 'password'. So every PUT to a user re-hashed
-                // the stored hash and locked that account out for good.
-                // save() writes from $this->data for every databaseField
-                // regardless of what was set(), so skipping is otherwise
-                // byte-identical.
-                if (!isset($vars->$key)) {
-                    unset($key);
-                    continue;
-                }
-                if (in_array($key, $serverOwned, true)) {
-                    self::_refuseServerOwned($class, $key, $vars->$key);
-                    unset($key);
-                    continue;
-                }
-                $class->set($key, $vars->$key);
-                unset($key);
-            }
-            switch ($classname) {
-                case 'host':
-                    if (isset($vars->macs)) {
-                        $macsToAdd = array_diff(
-                            (array)$vars->macs,
-                            $class->getMyMacs()
-                        );
-                        $macsToRem = array_diff(
-                            $class->getMyMacs(),
-                            (array)$vars->macs
-                        );
-                        $class
-                            ->addMAC($macsToAdd)
-                            ->removeMAC($macsToRem);
-                    }
-                    if (isset($vars->primac)) {
-                        $oldMac = $class->get('mac');
-                        if ($vars->primac != $oldMac) {
-                            $class
-                                ->removeMAC([$oldMac])
-                                ->addMAC([$oldMac])
-                                ->addPriMAC($vars->primac);
-
-                        }
-                    }
-                    if (isset($vars->snapins)) {
-                        $snapinsToAdd = array_diff(
-                            (array)$vars->snapins,
-                            $class->get('snapins')
-                        );
-                        $snapinsToRem = array_diff(
-                            $class->get('snapins'),
-                            (array)$vars->snapins
-                        );
-                        $class
-                            ->removeSnapin($snapinsToRem)
-                            ->addSnapin($snapinsToAdd);
-                    }
-                    if (isset($vars->printers)) {
-                        $printersToAdd = array_diff(
-                            (array)$vars->printers,
-                            $class->get('printers')
-                        );
-                        $printersToRem = array_diff(
-                            $class->get('printers'),
-                            (array)$vars->printers
-                        );
-                        $class
-                            ->removePrinter($printersToRem)
-                            ->addPrinter($printersToAdd);
-                    }
-                    if (isset($vars->modules)) {
-                        $modulesToAdd = array_diff(
-                            (array)$vars->modules,
-                            $class->get('modules')
-                        );
-                        $modulesToRem = array_diff(
-                            $class->get('modules'),
-                            (array)$vars->modules
-                        );
-                        $class
-                            ->removeModule($modulesToRem)
-                            ->addModule($modulesToAdd);
-                    }
-                    if (isset($vars->groups)) {
-                        $groupsToAdd = array_diff(
-                            (array)$vars->groups,
-                            $class->get('groups')
-                        );
-                        $groupsToRem = array_diff(
-                            $class->get('groups'),
-                            (array)$vars->groups
-                        );
-                        $class
-                            ->removeGroup($groupsToRem)
-                            ->addGroup($groupsToAdd);
-                    }
-                    break;
-                case 'group':
-                    if (isset($vars->snapins)) {
-                        $snapins = Route::getIds('snapin', false);
-                        $snapinsToRem = array_diff(
-                            $snapins,
-                            (array)$vars->snapins
-                        );
-                        $class
-                            ->removeSnapin($snapinsToRem)
-                            ->addSnapin($vars->snapins);
-                    }
-                    if (isset($vars->printers)) {
-                        $printers = Route::getIds('printer', false);
-                        $printersToRem = array_diff(
-                            $printers,
-                            (array)$vars->printers
-                        );
-                        $class
-                            ->removePrinter($printersToRem)
-                            ->addPrinter($vars->printers);
-                    }
-                    if (isset($vars->modules)) {
-                        $modules = Route::getIds('module', false);
-                        $modulesToRem = array_diff(
-                            $modules,
-                            (array)$vars->modules
-                        );
-                        $class
-                            ->removeModule($modulesToRem)
-                            ->addModule($vars->modules);
-                    }
-                    if (isset($vars->hosts)) {
-                        $hostsToAdd = array_diff(
-                            (array)$vars->hosts,
-                            $class->get('hosts')
-                        );
-                        $hostsToRem = array_diff(
-                            $class->get('hosts'),
-                            (array)$vars->hosts
-                        );
-                        $class
-                            ->removeHost($hostsToRem)
-                            ->addHost($hostsToAdd);
-                    }
-                    if (isset($vars->imageID)) {
-                        $class
-                            ->addImage($vars->imageID);
-                    }
-                    break;
-                case 'image':
-                case 'snapin':
-                    if (isset($vars->hosts)) {
-                        $hostsToAdd = array_diff(
-                            (array)$vars->hosts,
-                            $class->get('hosts')
-                        );
-                        $hostsToRem = array_diff(
-                            $class->get('hosts'),
-                            (array)$vars->hosts
-                        );
-                        $class
-                            ->removeHost($hostsToRem)
-                            ->addHost($hostsToAdd);
-                    }
-                    if (isset($vars->storagegroups)) {
-                        $storageGroupsToAdd = array_diff(
-                            (array)$vars->storagegroups,
-                            $class->get('storagegroups')
-                        );
-                        $storageGroupsToRem = array_diff(
-                            $class->get('storagegroups'),
-                            (array)$vars->storagegroups
-                        );
-                        $class
-                            ->removeGroup($storageGroupsToRem)
-                            ->addGroup($storageGroupsToAdd);
-                    }
-                    break;
-                case 'printer':
-                    if (isset($vars->hosts)) {
-                        $hostsToAdd = array_diff(
-                            (array)$vars->hosts,
-                            $class->get('hosts')
-                        );
-                        $hostsToRem = array_diff(
-                            $class->get('hosts'),
-                            (array)$vars->hosts
-                        );
-                        $class
-                            ->removeHost($hostsToRem)
-                            ->addHost($hostsToAdd);
-                    }
-                    break;
-                case 'plugin':
-                    // installed and schema are server-owned, but state is
-                    // deliberately not: activating is a plain column write
-                    // and doing it over the API is legitimate. What is NOT
-                    // legitimate is using it to switch on a plugin the
-                    // server refuses to run -- an installed plugin left
-                    // deactivated because a FOG upgrade moved past its
-                    // fog_max is exactly the case activationBlockers()
-                    // exists for, and without this it is one PUT away from
-                    // loading on every boot (installed=1 AND state=1 is
-                    // what getActivePlugins() selects on).
-                    //
-                    // Gated on the TRANSITION to active, read from the
-                    // stored row rather than the mutated object, for the
-                    // same reason _refuseServerOwned() compares values: a
-                    // client that reads a plugin and PUTs it back
-                    // unchanged is asking for nothing, and an ordinary
-                    // description edit on an already-active plugin must
-                    // not start failing the day it becomes blocked.
-                    if (isset($vars->state)
-                        && (int)$vars->state === 1
-                        && !(int)self::getClass('Plugin', $id)->get('state')
-                    ) {
-                        $blockers = Plugin::activationBlockers([(int)$id]);
-                        if (count($blockers)) {
-                            self::setErrorMessage(
-                                self::_blockerReasons($blockers),
-                                HTTPResponseCodes::HTTP_BAD_REQUEST
-                            );
-                        }
-                    }
-                    break;
-            }
+            self::_requireFound($class);
+            $vars = self::_requestBody();
+            self::_assertEditName($class, $classname, $vars);
+            self::_applyEditFields($class, $classname, $classVars, $vars);
+            self::_applyEditAssociations($class, $classname, $vars, $id);
             // Store the data and recreate.
             // If failed present so.
             if ($class->save()) {
@@ -5165,15 +5221,9 @@ class Route extends FOGBase
     {
         $classname = strtolower($class);
         $class = self::_newEntity($class, $id);
-        if (!$class->isValid()) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_FOUND
-            );
-        }
+        self::_requireFound($class);
         $tids = Route::getIds('tasktype', false);
-        $task = json_decode(
-            file_get_contents('php://input')
-        );
+        $task = self::_requestBody();
         Route::indiv('tasktype', $task->taskTypeID);
         $TaskType = json_decode(Route::getData());
         try {
@@ -5216,6 +5266,205 @@ class Route extends FOGBase
         }
     }
     /**
+     * Refuses a create whose `name` is already taken.
+     *
+     * Narrower than _assertEditName(): there is no stored object to compare
+     * against, so any existing name is a collision, and an empty name is not
+     * refused here -- the databaseFieldsRequired pass below is what catches a
+     * missing one. Classes in $nonUniqueNameClasses are exempt entirely.
+     *
+     * Answers through setErrorMessage(), which throws, so this either returns
+     * having found nothing wrong or does not return at all.
+     *
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _assertCreateName($classname, $vars)
+    {
+        $exists = false;
+        if (property_exists($vars, 'name')) {
+            $exists = self::getClass($classname)
+                ->getManager()
+                ->exists($vars->name);
+        }
+        $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
+        if ($exists && $uniqueNames) {
+            self::setErrorMessage(
+                _('Already created'),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    /**
+     * Copies the request body onto a new object, field by field.
+     *
+     * Deliberately NOT shared with _applyEditFields(); see the note there
+     * for the three differences, all of which live in this loop.
+     *
+     * @param object $class     The new object being populated.
+     * @param string $classname The lowercased class name.
+     * @param array  $classVars The class's reflected variables.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyCreateFields($class, $classname, $classVars, $vars)
+    {
+        $serverOwned = self::serverOwnedFields($classname);
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            if (property_exists($vars, $key)) {
+                $val = $vars->$key;
+            } else {
+                $val = null;
+            }
+            if ('id' == $key
+                || null === $val
+            ) {
+                continue;
+            }
+            // Null passed above rather than the object: there is no
+            // stored value to compare a create against, so the test
+            // is whether a value was asked for at all.
+            if (in_array($key, $serverOwned, true)) {
+                self::_refuseServerOwned(null, $key, $val);
+                unset($key);
+                continue;
+            }
+            $class->set($key, $val);
+            unset($key);
+        }
+    }
+    /**
+     * Applies the join-table changes a create body asks for.
+     *
+     * A switch on one variable, for the same reason _applyEditAssociations()
+     * is: per-class methods here would each have a single call site.
+     *
+     * Two things it does that are not associations, and both have to stay
+     * here rather than move to the caller. The host arm folds `mac` and
+     * `primac` into `$vars->macs` and shifts the primary off the front, and
+     * create() reads what is left of that list after save() to add the
+     * secondaries -- so the mutation has to be visible to the caller, which
+     * it is because $vars is an object handle rather than a copied array.
+     *
+     * @param object $class     The new object being populated.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyCreateAssociations($class, $classname, $vars)
+    {
+        switch ($classname) {
+            case 'host':
+                if (isset($vars->mac)) {
+                    $vars->macs = array_merge(
+                        (array)$vars->mac,
+                        isset($vars->macs) ? (array)$vars->macs : []
+                    );
+                }
+                // edit() honors 'primac' but create() did not, and 'primac'
+                // is an additionalFields entry derived from the
+                // MACAddressAssociation join rather than a real column, so
+                // the databaseFields loop above skips it too. The result was
+                // a create that named its primary MAC returning 200 with a
+                // host that had no MAC at all -- which then never matches a
+                // PXE request, so the host silently reads as unregistered.
+                // Prepended rather than appended: 'primac' says explicitly
+                // which MAC is primary, so it must win the array_shift below
+                // over the positional 'mac'/'macs' forms.
+                if (isset($vars->primac)) {
+                    $vars->macs = array_merge(
+                        (array)$vars->primac,
+                        isset($vars->macs) ? (array)$vars->macs : []
+                    );
+                }
+                if (isset($vars->macs)) {
+                    // Set the primary MAC now (deferred via the 'mac' key
+                    // and persisted by save() once the host id exists).
+                    // Secondaries are added after save() below, when
+                    // $this->get('id') is valid — otherwise they would be
+                    // inserted with hmHostID=0 and orphaned.
+                    $vars->macs = array_unique((array)$vars->macs);
+                    $class->addPriMAC(array_shift($vars->macs));
+                }
+                if (isset($vars->snapins)) {
+                    $class->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $class->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $class->set('modules', $vars->modules);
+                }
+                if (isset($vars->groups)) {
+                    $class->addGroup($vars->groups);
+                }
+                break;
+            case 'group':
+                if (isset($vars->snapins)) {
+                    $class->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $class
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $class->addModule($vars->modules);
+                }
+                if (isset($vars->hosts)) {
+                    $class->addHost($vars->hosts);
+                    if (isset($vars->imageID)) {
+                        $class->addImage($vars->imageID);
+                    }
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $class->addHost($vars->hosts);
+                }
+                if (isset($vars->storagegroups)) {
+                    $class->addGroup($vars->storagegroups);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $class->addHost($vars->hosts);
+                }
+                break;
+        }
+    }
+    /**
+     * Refuses a create that leaves a required column null.
+     *
+     * Runs after the associations rather than straight after the field loop,
+     * because an arm such as host's `modules` sets a column of its own -- so
+     * a body that only names it there would otherwise be refused for a field
+     * it did in fact supply.
+     *
+     * @param object $class     The populated object, not yet saved.
+     * @param array  $classVars The class's reflected variables.
+     *
+     * @return void
+     */
+    private static function _assertCreateRequired($class, $classVars)
+    {
+        foreach ($classVars['databaseFieldsRequired'] as &$key) {
+            $key = $class->key($key);
+            $val = $class->get($key);
+            if (null === $val) {
+                self::setErrorMessage(
+                    self::$foglang['RequiredDB'] . ": " . $key,
+                    HTTPResponseCodes::HTTP_EXPECTATION_FAILED
+                );
+            }
+        }
+    }
+    /**
      * Creates an item.
      *
      * @param string $class The class to work with.
@@ -5226,145 +5475,15 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
             $class = self::_newEntity($class);
 
-            $vars = json_decode(
-                file_get_contents(
-                    'php://input'
-                )
-            );
+            $vars = self::_requestBody();
 
-            $exists = false;
-            if (property_exists($vars, 'name')) {
-                $exists = self::getClass($classname)
-                    ->getManager()
-                    ->exists($vars->name);
-            }
-            $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
-            if ($exists && $uniqueNames) {
-                self::setErrorMessage(
-                    _('Already created'),
-                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                );
-            }
-            $serverOwned = self::serverOwnedFields($classname);
-            foreach ($classVars['databaseFields'] as &$key) {
-                $key = $class->key($key);
-                if (property_exists($vars, $key)) {
-                    $val = $vars->$key;
-                } else {
-                    $val = null;
-                }
-                if ('id' == $key
-                    || null === $val
-                ) {
-                    continue;
-                }
-                // Null passed above rather than the object: there is no
-                // stored value to compare a create against, so the test
-                // is whether a value was asked for at all.
-                if (in_array($key, $serverOwned, true)) {
-                    self::_refuseServerOwned(null, $key, $val);
-                    unset($key);
-                    continue;
-                }
-                $class->set($key, $val);
-                unset($key);
-            }
-            switch ($classname) {
-                case 'host':
-                    if (isset($vars->mac)) {
-                        $vars->macs = array_merge(
-                            (array)$vars->mac,
-                            isset($vars->macs) ? (array)$vars->macs : []
-                        );
-                    }
-                    // edit() honors 'primac' but create() did not, and 'primac'
-                    // is an additionalFields entry derived from the
-                    // MACAddressAssociation join rather than a real column, so
-                    // the databaseFields loop above skips it too. The result was
-                    // a create that named its primary MAC returning 200 with a
-                    // host that had no MAC at all -- which then never matches a
-                    // PXE request, so the host silently reads as unregistered.
-                    // Prepended rather than appended: 'primac' says explicitly
-                    // which MAC is primary, so it must win the array_shift below
-                    // over the positional 'mac'/'macs' forms.
-                    if (isset($vars->primac)) {
-                        $vars->macs = array_merge(
-                            (array)$vars->primac,
-                            isset($vars->macs) ? (array)$vars->macs : []
-                        );
-                    }
-                    if (isset($vars->macs)) {
-                        // Set the primary MAC now (deferred via the 'mac' key
-                        // and persisted by save() once the host id exists).
-                        // Secondaries are added after save() below, when
-                        // $this->get('id') is valid — otherwise they would be
-                        // inserted with hmHostID=0 and orphaned.
-                        $vars->macs = array_unique((array)$vars->macs);
-                        $class->addPriMAC(array_shift($vars->macs));
-                    }
-                    if (isset($vars->snapins)) {
-                        $class->addSnapin($vars->snapins);
-                    }
-                    if (isset($vars->printers)) {
-                        $class->addPrinter($vars->printers);
-                    }
-                    if (isset($vars->modules)) {
-                        $class->set('modules', $vars->modules);
-                    }
-                    if (isset($vars->groups)) {
-                        $class->addGroup($vars->groups);
-                    }
-                    break;
-                case 'group':
-                    if (isset($vars->snapins)) {
-                        $class->addSnapin($vars->snapins);
-                    }
-                    if (isset($vars->printers)) {
-                        $class
-                            ->addPrinter($vars->printers);
-                    }
-                    if (isset($vars->modules)) {
-                        $class->addModule($vars->modules);
-                    }
-                    if (isset($vars->hosts)) {
-                        $class->addHost($vars->hosts);
-                        if (isset($vars->imageID)) {
-                            $class->addImage($vars->imageID);
-                        }
-                    }
-                    break;
-                case 'image':
-                case 'snapin':
-                    if (isset($vars->hosts)) {
-                        $class->addHost($vars->hosts);
-                    }
-                    if (isset($vars->storagegroups)) {
-                        $class->addGroup($vars->storagegroups);
-                    }
-                    break;
-                case 'printer':
-                    if (isset($vars->hosts)) {
-                        $class->addHost($vars->hosts);
-                    }
-                    break;
-            }
-            foreach ($classVars['databaseFieldsRequired'] as &$key) {
-                $key = $class->key($key);
-                $val = $class->get($key);
-                if (null === $val) {
-                    self::setErrorMessage(
-                        self::$foglang['RequiredDB'] . ": " . $key,
-                        HTTPResponseCodes::HTTP_EXPECTATION_FAILED
-                    );
-                }
-            }
+            self::_assertCreateName($classname, $vars);
+            self::_applyCreateFields($class, $classname, $classVars, $vars);
+            self::_applyCreateAssociations($class, $classname, $vars);
+            self::_assertCreateRequired($class, $classVars);
             // Store the data and recreate.
             // If failed present so.
             if ($class->save()) {
@@ -5641,6 +5760,30 @@ class Route extends FOGBase
      *
      * @return void
      */
+    /**
+     * Answers 404 unless the named item exists.
+     *
+     * Seven call sites: indiv(), edit(), task(), and four of cancel()'s five
+     * arms. cancel()'s `default:` arm deliberately does NOT call it -- an id
+     * it cannot load is its signal to fall through to a bulk search rather
+     * than a refusal -- and that omission is now visible, which it was not
+     * while every arm carried its own copy of the block.
+     *
+     * Answers through sendResponse(), which throws, so this either returns
+     * having found the item or does not return at all.
+     *
+     * @param object $class The item addressed by the request.
+     *
+     * @return void
+     */
+    private static function _requireFound($class)
+    {
+        if (!$class->isValid()) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
+    }
     public static function cancel($class, $id)
     {
         try {
@@ -5657,11 +5800,7 @@ class Route extends FOGBase
             );
             switch ($classname) {
                 case 'group':
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     // Read ids, filtered by state, rather than paging through
                     // listem(). Two separate faults lived in that call:
                     //
@@ -5696,11 +5835,7 @@ class Route extends FOGBase
                     self::getClass('TaskManager')->cancel($taskIDs);
                     break;
                 case 'host':
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     // isValid(), not instanceof. Host::loadTask() sets this
                     // field to `new Task(null)` when the host has nothing
                     // running, and that IS `instanceof Task` -- so the old
@@ -5726,11 +5861,7 @@ class Route extends FOGBase
                     // therefore never canceled a scheduled task. Its model
                     // cancel() is a destroy(), which is what the management
                     // page does too, and there is no state to be wrong about.
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     $class->cancel();
                     break;
                 case 'filedeletequeue':
@@ -5741,11 +5872,7 @@ class Route extends FOGBase
                     // the caller got a bodyless 500. The daemon does set these
                     // rows to the progress state (filedeleter.class.php), so
                     // that is reachable, not theoretical.
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     if (!in_array($class->get('stateID'), $states)) {
                         self::_notCancellable(
                             _('Queued deletion is not active and cannot be canceled')
@@ -5833,14 +5960,8 @@ class Route extends FOGBase
     public static function getsearchbody($class)
     {
         try {
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $vars = self::_requestBody();
+            $classVars = self::_classVars($class);
             $find = [];
             $classname = $class;
             $class = self::_newEntity($class);
@@ -5907,20 +6028,15 @@ class Route extends FOGBase
      * @param string $class The class to work with.
      * @param int    $id    The id of class to remove.
      *
-     * @return void
+     * @return object|null whatever deletemass() gave back; it is this
+     *                     method's own return statement, not a side effect
      */
     public static function delete($class, $id)
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
             $whereItems = ['id' => $id];
             $count = self::getCount($classname, $whereItems);
             if (!$count) {
@@ -5935,6 +6051,8 @@ class Route extends FOGBase
         } catch (\Exception $e) {
             self::_sendCaught($e);
         }
+        // See deletemass(): only reachable if _sendCaught() stops throwing.
+        return null;
     }
     /**
      * Sets an error message.
@@ -6241,6 +6359,30 @@ class Route extends FOGBase
             if (!$class instanceof $fqcn) {
                 return null;
             }
+            // The extras only. Every arm below used to end in an identical
+            // `$data = FOGCore::fastmerge($class->get(), [...])`, fifteen
+            // copies of the same two lines wrapped around the one part that
+            // differs, and the default arm was the same call with nothing to
+            // add. Each arm now names only what it contributes and the merge
+            // happens once, so an arm cannot forget to merge, cannot merge
+            // the wrong object, and reads as the list of extra keys it is.
+            //
+            // The switch STAYS a switch. Turning fifteen arms into fifteen
+            // per-class methods is the shape docs/route-listem-plan.md
+            // rejected for the column table -- "abstraction for its own
+            // sake" -- and the reasoning carries over unchanged: they are
+            // single-call-site bodies dispatched on one variable.
+            // Read the object BEFORE the switch, not after it. Each arm
+            // used to call fastmerge($class->get(), [...]), and PHP
+            // evaluates that first argument before the extras -- so the
+            // snapshot was taken before the arm's own accessors ran. Some of
+            // those accessors populate the object as a side effect:
+            // Group::getHostCount() leaves `hosts` on it, Snapin's arm
+            // leaves `storagegroups`, and reading afterward silently added
+            // both to the payload. Two extra keys on two entities, from a
+            // change that only moved a merge.
+            $base = $class->get();
+            $serialExtras = [];
             switch ($classname) {
                 case 'host':
                     $pass = $class->get('ADPass');
@@ -6261,100 +6403,85 @@ class Route extends FOGBase
                     } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
                         $productKey = $productKeytest;
                     }
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'ADPass' => $pass,
-                            'productKey' => $productKey,
-                            'hostscreen' => self::embed(
-                                $classname,
-                                'hostscreen',
-                                $class->get('hostscreen')
-                            ),
-                            'hostalo' => self::embed(
-                                $classname,
-                                'hostalo',
-                                $class->get('hostalo')
-                            ),
-                            'inventory' => self::embed(
-                                $classname,
-                                'inventory',
-                                $class->get('inventory'),
-                                true
-                            ),
-                            'image' => self::embed(
-                                $classname,
-                                'image',
-                                $class->get('imagename')
-                            ),
-                            'imagename' => $class->getImageName(),
-                            // Both spellings, for the same reason imagename
-                            // sits beside image: a caller wanting to know
-                            // what a host IS should not have to reach into a
-                            // nested object for a one-word answer, and a
-                            // caller wanting the row can still have it.
-                            'arch' => self::embed(
-                                $classname,
-                                'arch',
-                                $class->get('arch')
-                            ),
-                            'archname' => $class->getArch()->get('name'),
-                            'primac' => $class->get('mac')->__toString(),
-                            'macs' => $class->getMyMacs(),
-                        ]
-                    );
+                    $serialExtras = [
+                        'ADPass' => $pass,
+                        'productKey' => $productKey,
+                        'hostscreen' => self::embed(
+                            $classname,
+                            'hostscreen',
+                            $class->get('hostscreen')
+                        ),
+                        'hostalo' => self::embed(
+                            $classname,
+                            'hostalo',
+                            $class->get('hostalo')
+                        ),
+                        'inventory' => self::embed(
+                            $classname,
+                            'inventory',
+                            $class->get('inventory'),
+                            true
+                        ),
+                        'image' => self::embed(
+                            $classname,
+                            'image',
+                            $class->get('imagename')
+                        ),
+                        'imagename' => $class->getImageName(),
+                        // Both spellings, for the same reason imagename
+                        // sits beside image: a caller wanting to know
+                        // what a host IS should not have to reach into a
+                        // nested object for a one-word answer, and a
+                        // caller wanting the row can still have it.
+                        'arch' => self::embed(
+                            $classname,
+                            'arch',
+                            $class->get('arch')
+                        ),
+                        'archname' => $class->getArch()->get('name'),
+                        'primac' => $class->get('mac')->__toString(),
+                        'macs' => $class->getMyMacs(),
+                    ];
                     break;
                 case 'inventory':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['memory' => $class->getMem()]
-                    );
+                    $serialExtras = ['memory' => $class->getMem()];
                     break;
                 case 'group':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['hostcount' => $class->getHostCount()]
-                    );
+                    $serialExtras = ['hostcount' => $class->getHostCount()];
                     break;
                 case 'image':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'os' => self::embed(
-                                $classname,
-                                'os',
-                                $class->get('os')
-                            ),
-                            'imagepartitiontype' => self::embed(
-                                $classname,
-                                'imagepartitiontype',
-                                $class->get('imagepartitiontype')
-                            ),
-                            'imagetype' => self::embed(
-                                $classname,
-                                'imagetype',
-                                $class->get('imagetype')
-                            ),
-                            'imagetypename' => $class->getImageType()->get('name'),
-                            'imageparttypename' => $class->getImagePartitionType()->get(
-                                'name'
-                            ),
-                            'arch' => self::embed(
-                                $classname,
-                                'arch',
-                                $class->get('arch')
-                            ),
-                            'archname' => $class->getArch()->get('name'),
-                            'osname' => $class->getOS()->get('name'),
-                            'storagegroupname' => $class->getStorageGroup()->get('name')
-                        ]
-                    );
+                    $serialExtras = [
+                        'os' => self::embed(
+                            $classname,
+                            'os',
+                            $class->get('os')
+                        ),
+                        'imagepartitiontype' => self::embed(
+                            $classname,
+                            'imagepartitiontype',
+                            $class->get('imagepartitiontype')
+                        ),
+                        'imagetype' => self::embed(
+                            $classname,
+                            'imagetype',
+                            $class->get('imagetype')
+                        ),
+                        'imagetypename' => $class->getImageType()->get('name'),
+                        'imageparttypename' => $class->getImagePartitionType()->get(
+                            'name'
+                        ),
+                        'arch' => self::embed(
+                            $classname,
+                            'arch',
+                            $class->get('arch')
+                        ),
+                        'archname' => $class->getArch()->get('name'),
+                        'osname' => $class->getOS()->get('name'),
+                        'storagegroupname' => $class->getStorageGroup()->get('name')
+                    ];
                     break;
                 case 'snapin':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['storagegroupname' => $class->getStorageGroup()->get('name')]
-                    );
+                    $serialExtras = ['storagegroupname' => $class->getStorageGroup()->get('name')];
                     break;
                 case 'storagenode':
                     $extra = [
@@ -6402,61 +6529,52 @@ class Route extends FOGBase
                     if (self::wantsExpand('snapinfiles')) {
                         $extra['snapinfiles'] = $class->get('snapinfiles');
                     }
-                    $data = FOGCore::fastmerge($class->get(), $extra);
+                    $serialExtras = $extra;
                     break;
                 case 'storagegroup':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'totalsupportedclients' => $class->getTotalSupportedClients(),
-                            'enablednodes' => $class->get('enablednodes'),
-                            'allnodes' => $class->get('allnodes')
-                        ]
-                    );
+                    $serialExtras = [
+                        'totalsupportedclients' => $class->getTotalSupportedClients(),
+                        'enablednodes' => $class->get('enablednodes'),
+                        'allnodes' => $class->get('allnodes')
+                    ];
                     break;
                 case 'task':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'image' => self::embed(
-                                $classname,
-                                'image',
-                                $class->get('image')
-                            ),
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $class->get('host'),
-                                true
-                            ),
-                            'type' => self::embed(
-                                $classname,
-                                'type',
-                                $class->get('type')
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $class->get('state')
-                            ),
-                            'storagenode' => self::embed(
-                                $classname,
-                                'storagenode',
-                                $class->get('storagenode')
-                            ),
-                            'storagegroup' => self::embed(
-                                $classname,
-                                'storagegroup',
-                                $class->get('storagegroup')
-                            )
-                        ]
-                    );
+                    $serialExtras = [
+                        'image' => self::embed(
+                            $classname,
+                            'image',
+                            $class->get('image')
+                        ),
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $class->get('host'),
+                            true
+                        ),
+                        'type' => self::embed(
+                            $classname,
+                            'type',
+                            $class->get('type')
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $class->get('state')
+                        ),
+                        'storagenode' => self::embed(
+                            $classname,
+                            'storagenode',
+                            $class->get('storagenode')
+                        ),
+                        'storagegroup' => self::embed(
+                            $classname,
+                            'storagegroup',
+                            $class->get('storagegroup')
+                        )
+                    ];
                     break;
                 case 'plugin':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['hash' => md5($class->get('name'))]
-                    );
+                    $serialExtras = ['hash' => md5($class->get('name'))];
                     break;
                 case 'snapintask':
                     // Same trap as the snapin task LIST (see the snapintask
@@ -6487,33 +6605,30 @@ class Route extends FOGBase
                         ? new Host($snapinjob->get('hostID'))
                         : null;
                     $snapin = $class->get('snapin');
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'snapin' => self::embed(
-                                $classname,
-                                'snapin',
-                                $snapin
-                            ),
-                            'snapinjob' => self::embed(
-                                $classname,
-                                'snapinjob',
-                                $sj,
-                                true
-                            ),
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $host,
-                                true
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $class->get('state')
-                            )
-                        ]
-                    );
+                    $serialExtras = [
+                        'snapin' => self::embed(
+                            $classname,
+                            'snapin',
+                            $snapin
+                        ),
+                        'snapinjob' => self::embed(
+                            $classname,
+                            'snapinjob',
+                            $sj,
+                            true
+                        ),
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $host,
+                            true
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $class->get('state')
+                        )
+                    ];
                     break;
                 case 'snapinjob':
                     // Reached through getter() from the snapintask case above
@@ -6523,22 +6638,19 @@ class Route extends FOGBase
                     // snapintask case stopped throwing on its own.
                     // Refs https://github.com/FOGProject/fogproject/issues/895
                     $sjState = $class->get('state');
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $class->get('host'),
-                                true
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $sjState
-                            )
-                        ]
-                    );
+                    $serialExtras = [
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $class->get('host'),
+                            true
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $sjState
+                        )
+                    ];
                     break;
                 case 'usertracking':
                     // getter() is safe on its own -- it returns early unless
@@ -6550,39 +6662,40 @@ class Route extends FOGBase
                     // reproduced failure.
                     // Refs https://github.com/FOGProject/fogproject/issues/895
                     $utHost = $class->get('host');
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $utHost,
-                                true
-                            ),
-                            'hostname' => is_object($utHost)
-                                ? $utHost->get('name')
-                                : ''
-                        ]
-                    );
+                    $serialExtras = [
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $utHost,
+                            true
+                        ),
+                        'hostname' => is_object($utHost)
+                            ? $utHost->get('name')
+                            : ''
+                    ];
                     break;
                 case 'multicastsession':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'imageID' => $class->get('image'),
-                            'image' => self::embed(
-                                $classname,
-                                'image',
-                                $class->get('imagename')
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $class->get('state')
-                            )
-                        ]
-                    );
-                    unset($data['imagename']);
+                    $serialExtras = [
+                        'imageID' => $class->get('image'),
+                        'image' => self::embed(
+                            $classname,
+                            'image',
+                            $class->get('imagename')
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $class->get('state')
+                        )
+                    ];
+                    // From the SNAPSHOT, not from the merged payload: this
+                    // used to run after the merge, and there is no merged
+                    // payload inside the switch any more. Equivalent because
+                    // `imagename` comes from the object's own fields and no
+                    // arm puts it back -- the embed above reads the object,
+                    // not this array -- so dropping it before the merge and
+                    // dropping it after reach the same payload.
+                    unset($base['imagename']);
                     break;
                 case 'scheduledtask':
                     // Lifted out of the nested ternaries it used to be: the
@@ -6593,43 +6706,42 @@ class Route extends FOGBase
                     $stObj = $stGroupBased
                         ? $class->getGroup()
                         : $class->getHost();
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            $stKey => self::embed(
-                                $classname,
-                                $stKey,
-                                $stObj,
-                                true
-                            ),
-                            'tasktype' => self::embed(
-                                $classname,
-                                'tasktype',
-                                $class->getTaskType()
-                            ),
-                            'runtime' => $class->getTime()
-                        ]
-                    );
+                    $serialExtras = [
+                        $stKey => self::embed(
+                            $classname,
+                            $stKey,
+                            $stObj,
+                            true
+                        ),
+                        'tasktype' => self::embed(
+                            $classname,
+                            'tasktype',
+                            $class->getTaskType()
+                        ),
+                        'runtime' => $class->getTime()
+                    ];
                     break;
                 case 'tasktype':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'isSnapinTasking' => $class->isSnapinTasking(),
-                            'isSnapinTask' => $class->isSnapinTask(),
-                            'isImagingTask' => $class->isImagingTask(),
-                            'isCapture' => $class->isCapture(),
-                            'isDeploy' => $class->isDeploy(),
-                            'isInitNeeded' => $class->isInitNeededTasking(),
-                            'initIDs' => $class->isInitNeededTasking(true),
-                            'isMulticast' => $class->isMulticast(),
-                            'isDebug' => $class->isDebug()
-                        ]
-                    );
+                    $serialExtras = [
+                        'isSnapinTasking' => $class->isSnapinTasking(),
+                        'isSnapinTask' => $class->isSnapinTask(),
+                        'isImagingTask' => $class->isImagingTask(),
+                        'isCapture' => $class->isCapture(),
+                        'isDeploy' => $class->isDeploy(),
+                        'isInitNeeded' => $class->isInitNeededTasking(),
+                        'initIDs' => $class->isInitNeededTasking(true),
+                        'isMulticast' => $class->isMulticast(),
+                        'isDebug' => $class->isDebug()
+                    ];
                     break;
-                default:
-                    $data = $class->get();
             }
+            // count(), not a truthiness test: the default path has no extras
+            // and must stay a bare get(), byte for byte. fastmerge() with an
+            // empty second operand is not asserted anywhere to be identical
+            // to not calling it, and this is not the commit to find out.
+            $data = count($serialExtras)
+                ? FOGCore::fastmerge($base, $serialExtras)
+                : $base;
             self::$HookManager->processEvent(
                 'API_GETTER',
                 [
@@ -7208,14 +7320,8 @@ class Route extends FOGBase
             }
             $data = [];
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
 
             if (empty($orderby)) {
                 $orderby = 'name';
@@ -8021,13 +8127,515 @@ class Route extends FOGBase
         return self::objectify($data);
     }
     /**
+     * Announces each object about to be destroyed.
+     *
+     * Fired here rather than from Host::destroy()/Image::destroy(), which
+     * is where these two events used to live: Route::delete() funnels the
+     * REST single-delete straight into deletemass() and deliberately never
+     * builds the object, so the override -- and with it the event -- never
+     * ran, and a plugin watching for a host being removed simply did not
+     * hear about it when the host went out over the API.
+     *
+     * Called BEFORE the cascade so a listener still sees the row and its
+     * associations intact, which is the order destroy() used.
+     *
+     * Building an object per id is the whole cost of doing this, and
+     * deletemass() is the mass path, so it is only paid when a hook is
+     * actually registered. With nothing listening the event name is still
+     * announced -- that is what records it in the hook catalog, and is
+     * unchanged -- just without a payload nobody would read.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/895
+     *
+     * @param string $classname The lowercased class name.
+     * @param array  $itemIDs   The ids about to be deleted.
+     *
+     * @return void
+     */
+    private static function _fireDestroyEvents($classname, $itemIDs)
+    {
+        // Per-object destroy events.
+        //
+        // DESTROY_HOST and DESTROY_IMAGE used to be fired by
+        // Host::destroy()/Image::destroy(), which meant they only ever
+        // reached a listener on the UI path: Route::delete() funnels the
+        // REST single-delete straight into here and deliberately never
+        // builds the object, so the override -- and with it the event --
+        // never ran. A plugin watching for a host being removed simply
+        // did not hear about it when the host went out over the API.
+        //
+        // Firing here instead puts the announcement on the one path every
+        // delete already shares, so it happens exactly once per object no
+        // matter which door the delete came in. It is fired BEFORE the
+        // switch below so a listener still sees the row and its
+        // associations intact, which is the order destroy() used.
+        //
+        // Building an object per id is the whole cost of doing this, and
+        // deletemass() is the mass path, so it is only paid when a hook is
+        // actually registered. With nothing listening the event name is
+        // still announced -- that is what records it in the hook catalog,
+        // and is unchanged -- just without a payload nobody would read.
+        //
+        // Refs https://github.com/FOGProject/fogproject/issues/895
+        $destroyEvents = [
+            'host' => ['DESTROY_HOST', 'Host'],
+            'image' => ['DESTROY_IMAGE', 'Image']
+        ];
+        if (isset($destroyEvents[$classname])) {
+            list($destroyEvent, $destroyKey) = $destroyEvents[$classname];
+            if (count($itemIDs ?: [])
+                && self::$HookManager->hasListeners($destroyEvent)
+            ) {
+                foreach ((array) $itemIDs as $destroyID) {
+                    $destroyObj = self::getClass($classname, $destroyID);
+                    self::$HookManager->processEvent(
+                        $destroyEvent,
+                        [$destroyKey => &$destroyObj]
+                    );
+                    unset($destroyObj);
+                }
+            } else {
+                self::$HookManager->processEvent($destroyEvent);
+            }
+        }
+    }
+    /**
+     * The cascade: what else has to go when these ids do.
+     *
+     * Returns a table => where map that deletemass() re-enters itself with,
+     * one entry per dependent table. A class with nothing depending on it
+     * returns an empty map, which is the `default:` arm.
+     *
+     * Three arms do work of their own as well as building the map, and it
+     * has to happen here rather than in the caller because it is part of
+     * what deleting THAT class means: image cancels the tasks that were
+     * still going to use it and nulls the hosts that pointed at it, and
+     * snapin deletes its snapintask rows inline -- before the map is
+     * processed, not through it -- so the job counts below can mean
+     * "anything OTHER than what we just removed".
+     *
+     * ADR 0031 is gradually moving this into the schema as declared foreign
+     * keys. Until every group in that series lands, this map is still what
+     * does it.
+     *
+     * @param string $classname The lowercased class name.
+     * @param array  $itemIDs   The ids about to be deleted.
+     *
+     * @return array table => where map
+     */
+    private static function _removeItemsFor($classname, $itemIDs)
+    {
+        switch ($classname) {
+            case 'host':
+                $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];
+                $findWhere = ['hostID' => $itemIDs];
+                $removeItems = [
+                    'nodefailure' => $findWhere,
+                    'snapintask' => $snapinjobIDs,
+                    'snapinjob' => $findWhere,
+                    'task' => $findWhere,
+                    'scheduledtask' => $findWhere,
+                    'hostautologout' => $findWhere,
+                    'hostscreensetting' => $findWhere,
+                    'groupassociation' => $findWhere,
+                    'snapinassociation' => $findWhere,
+                    'printerassociation' => $findWhere,
+                    'moduleassociation' => $findWhere,
+                    'inventory' => $findWhere,
+                    'macaddressassociation' => $findWhere,
+                    'powermanagement' => $findWhere
+                ];
+                break;
+            case 'group':
+                $findWhere = ['groupID' => $itemIDs];
+                $removeItems = [
+                    'groupassociation' => $findWhere
+                ];
+                break;
+            case 'image':
+                $findWhere = ['imageID' => $itemIDs];
+                self::getClass('HostManager')->update(
+                    $findWhere,
+                    '',
+                    // NULL, not 0 -- see schema step 386.
+                    ['imageID' => null]
+                );
+                // Cancel the tasks that were still going to use it.
+                //
+                // A queued or in-progress task pointing at an image that
+                // no longer exists can never finish: TaskingElement
+                // cannot build the Image, so the host is turned away at
+                // check-in and the task sits in Active Tasks forever.
+                // Worse, it is unreadable while it sits there -- the
+                // list renders from buildQuery()'s LEFT OUTER JOINs, so
+                // the dead imageID yields NULL for every image column
+                // and the row shows "() -" with no name to act on.
+                // Reported as "null tasks" in forum topics 18228/18230.
+                //
+                // Canceled rather than added to $removeItems, which is
+                // where the host case puts its tasks. Deleting a host
+                // takes its history with it because the subject of that
+                // history is gone; deleting an image does not -- the
+                // HOSTS survive, and their finished tasks are still
+                // their imaging record. Only the live ones are stuck.
+                //
+                // TaskManager::cancel() rather than a state update: it
+                // is what already reissues the host token, unwinds any
+                // multicast session behind the task and records the
+                // state change in the task log.
+                $activeImageTaskIDs = self::getIds(
+                    'task',
+                    [
+                        'imageID' => $itemIDs,
+                        'stateID' => self::fastmerge(
+                            (array)self::getQueuedStates(),
+                            (array)self::getProgressState()
+                        )
+                    ]
+                );
+                if (count($activeImageTaskIDs ?: [])) {
+                    self::getClass('TaskManager')
+                        ->cancel($activeImageTaskIDs);
+                }
+                $removeItems = [
+                    'imageassociation' => $findWhere
+                ];
+                break;
+            case 'module':
+                $findWhere = ['moduleID' => $itemIDs];
+                $removeItems = [
+                    'moduleassociation' => $findWhere
+                ];
+                break;
+            case 'printer':
+                $findWhere = ['printerID' => $itemIDs];
+                $removeItems = [
+                    'printerassociation' => $findWhere
+                ];
+                break;
+            case 'snapin':
+                $findWhere = ['snapinID' => $itemIDs];
+                $snapinjobIDs = Route::getIds(
+                    'snapintask',
+                    $findWhere,
+                    'jobID'
+                );
+                $removeItems = [
+                    'snapinassociation' => $findWhere,
+                    'snapingroupassociation' => $findWhere
+                ];
+                // Drop this snapin's tasks HERE, inline, and not by adding
+                // 'snapintask' to $removeItems above.
+                //
+                // Two things depend on it, and both were broken:
+                //
+                //  - $removeItems is not processed until after this switch
+                //    returns, so a snapin deleted over the REST path left
+                //    its snapintask rows behind pointing at a snapin that
+                //    no longer exists. Snapin::destroy() deletes them, so
+                //    the UI path was clean and only the API orphaned them.
+                //  - The loop below cancels any queued job this snapin was
+                //    the last remaining task of, which it decides by
+                //    counting the tasks still on each job. With those tasks
+                //    still present every count came back non-zero, every
+                //    job hit the `continue`, and the cancel was unreachable
+                //    -- the job stayed queued forever against a deleted
+                //    snapin. Deleting first is what makes the count mean
+                //    "anything OTHER than what we just removed", which is
+                //    the order Snapin::destroy() already used.
+                //
+                // Refs https://github.com/FOGProject/fogproject/issues/885
+                Route::deletemass('snapintask', $findWhere);
+                $queuedStates = self::getQueuedStates();
+                $queuedStates[] = self::getProgressState();
+                $snapinjobIDs = Route::getIds(
+                    'snapinjob',
+                    [
+                        'id' => $snapinjobIDs,
+                        'stateID' => $queuedStates
+                    ]
+                );
+                $sjIDs = [];
+                foreach ((array)$snapinjobIDs as &$sjID) {
+                    $jobCount = self::getCount(
+                        'snapintask',
+                        ['jobID' => $sjID]
+                    );
+                    if ($jobCount) {
+                        continue;
+                    }
+                    $sjIDs[] = $sjID;
+                    unset($sjID);
+                }
+                if (count($sjIDs ?: [])) {
+                    self::getClass('SnapinJobManager')->cancel($sjIDs);
+                }
+                break;
+            case 'user':
+                $findWhere = ['userID' => $itemIDs];
+                $removeItems = [
+                    'roleuserassociation' => $findWhere,
+                    'usergroupmember' => $findWhere,
+                    // A token outlives its owner as a WORKING credential
+                    // if this is missed, which is why it goes here rather
+                    // than in User::destroy(): destroy() is only the UI
+                    // path, and the REST delete funnels to deletemass()
+                    // without ever calling it. That split is what left
+                    // orphans before (see the snapintask note below), and
+                    // an orphaned API token is a live way in belonging to
+                    // an account that no longer exists.
+                    //
+                    // APIToken::resolve() also refuses a token whose
+                    // owner will not load, so a future miss here fails
+                    // closed rather than authenticating as nobody. Both,
+                    // deliberately: this is the fix and that is the net.
+                    'apitoken' => $findWhere
+                ];
+                break;
+            case 'role':
+                $findWhere = ['roleID' => $itemIDs];
+                $removeItems = [
+                    'rolepermission' => $findWhere,
+                    'roleuserassociation' => $findWhere,
+                    'roleusergroupassociation' => $findWhere
+                ];
+                break;
+            case 'usergroup':
+                $findWhere = ['usergroupID' => $itemIDs];
+                $removeItems = [
+                    'usergroupmember' => $findWhere,
+                    'roleusergroupassociation' => $findWhere
+                ];
+                break;
+            case 'site':
+                // Deleting a site clears its four membership lists.
+                // Nothing stops the CATCH-ALL site being deleted here:
+                // it is an ordinary site carrying a flag, and refusing
+                // would be a rule the admin cannot see or undo. What it
+                // costs is real though -- every user who relied on it
+                // for blanket access falls back to their own sites, and
+                // a user with none then sees nothing.
+                $findWhere = ['siteID' => $itemIDs];
+                $removeItems = [
+                    'sitehostmember' => $findWhere,
+                    'siteusermember' => $findWhere,
+                    'sitegroupmember' => $findWhere,
+                    'siteusergroupmember' => $findWhere,
+                    // ...and the two grant lists. A grant naming a
+                    // site that no longer exists would keep putting
+                    // its holders "in scope" for an id that resolves
+                    // to nothing, which reads as deny-all.
+                    'siterolegrant' => $findWhere,
+                    'siteusergroupgrant' => $findWhere
+                ];
+                break;
+            default:
+                $findWhere = [];
+                $removeItems = [];
+        }
+
+        return $removeItems;
+    }
+    /**
+     * Adds the site membership and grant rows these ids leave behind.
+     *
+     * Appended to the cascade map rather than repeated across six of its
+     * arms, and before DELETEMASS_API so a listener still sees the full map.
+     *
+     * @param array  $removeItems The cascade map so far.
+     * @param string $classname   The lowercased class name.
+     * @param array  $itemIDs     The ids about to be deleted.
+     *
+     * @return array the map, with the site cleanup in it
+     */
+    private static function _withSiteCleanup($removeItems, $classname, $itemIDs)
+    {
+        // Core site membership cleanup. Added after the switch rather
+        // than repeated across four of its cases, and before
+        // DELETEMASS_API so a listener still sees the full map.
+        //
+        // A leftover membership row is not merely untidy: if the id it
+        // names is ever handed to a different object, the row silently
+        // puts that object into a site nobody put it in.
+        //
+        // The mechanism this comment used to name -- "InnoDB recomputes
+        // AUTO_INCREMENT as MAX(id)+1 on restart" -- is NOT true of the
+        // servers FOG runs on today, and was measured rather than
+        // reasoned about while surveying for ADR 0031: MariaDB 10.5.29
+        // and 11.8.8 both keep the counter across a clean restart and a
+        // SIGKILL. MariaDB has persisted it since 10.2.4 and MySQL since
+        // 8.0. The hazard is real anyway and does not depend on that
+        // path: MySQL 5.7 and older do recompute, and a table rebuilt
+        // from a dump takes its counter from the rows it was given, so
+        // ids above the surviving maximum come back after a restore.
+        // The row is wrong the moment its object is gone, whichever
+        // server is underneath.
+        //
+        // ADR 0031 makes this cleanup a property of the schema instead
+        // of a thing this function has to remember -- but the site
+        // tables are group 2 of that series and are not constrained
+        // yet, so this code is still what does it.
+        $siteMemberTables = [
+            'host' => 'sitehostmember',
+            'user' => 'siteusermember',
+            'group' => 'sitegroupmember',
+            'usergroup' => 'siteusergroupmember'
+        ];
+        if (isset($siteMemberTables[$classname])) {
+            $removeItems[$siteMemberTables[$classname]] = [
+                $classname . 'ID' => $itemIDs
+            ];
+        }
+
+        // The grant side of the same cleanup, and the same id-reuse
+        // hazard with a sharper edge: a grant row left behind by a
+        // deleted role can later put every holder of an unrelated NEW
+        // role into the site the old one granted. Membership leaks one
+        // object into a site; a stale grant leaks a whole population.
+        //
+        // Its own map rather than an entry in the one above because
+        // that one derives the column as "{$classname}ID", and these
+        // columns are grantroleID and grantusergroupID -- the "grant"
+        // prefix being what keeps them distinct from the membership
+        // sense of the same two ids.
+        $siteGrantTables = [
+            'role' => ['siterolegrant', 'grantroleID'],
+            'usergroup' => ['siteusergroupgrant', 'grantusergroupID']
+        ];
+        if (isset($siteGrantTables[$classname])) {
+            list($grantTable, $grantCol) = $siteGrantTables[$classname];
+            $removeItems[$grantTable] = [$grantCol => $itemIDs];
+        }
+
+        return $removeItems;
+    }
+    /**
+     * Issues the DELETE itself, and turns a refusal into a 409.
+     *
+     * @param array  $classVars  The class's reflected variables.
+     * @param array  $whereItems The filter the rows are chosen by.
+     * @param string $operator   AND or OR between the filter terms.
+     * @param string $orderby    The order the filter is applied in.
+     *
+     * @return object the query result
+     */
+    private static function _deleteRows(
+        $classVars,
+        $whereItems,
+        $operator,
+        $orderby
+    ) {
+        $sql = 'DELETE FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        $sqlResult = self::_buildSql(
+            $sql,
+            $classVars,
+            $whereItems,
+            false,
+            $operator,
+            $orderby
+        );
+
+        $result = self::$DB->query(
+            $sqlResult['sql'],
+            [],
+            $sqlResult['params']
+        );
+        // A rejected DELETE is swallowed by PDODB -- it records the
+        // failure on ->error and returns ITSELF, which is truthy. This
+        // arm used to `return` that object directly, so a delete the
+        // server refused answered 200 with the row still there, and the
+        // UI drew a success toast over it. Unreachable until ADR 0031
+        // gave the database something to refuse with; reachable now.
+        //
+        // 409, not the default 406: the request was well formed and the
+        // caller may legitimately retry it once whatever is referring to
+        // the record is gone. _sendCaught() honors a 4xx/5xx code on
+        // the exception and falls back to 406 otherwise.
+        //
+        // The status keys off isRefusal(), NOT off whether explain()
+        // found words for it -- those are separate questions. A refusal
+        // naming a constraint the map does not describe is still a
+        // conflict and still retryable; only its wording degrades. Any
+        // OTHER error here (a lock timeout, a lost connection) is not a
+        // conflict and correctly falls through to 406.
+        if (self::$DB->error) {
+            $error = (string)self::$DB->error;
+            $explained = ConstraintViolation::explain(
+                $error,
+                ConstraintViolation::label($classVars['databaseTable'])
+            );
+            throw new \Exception(
+                $explained ?? $error,
+                ConstraintViolation::isRefusal($error)
+                    ? HTTPResponseCodes::HTTP_CONFLICT
+                    : 0
+            );
+        }
+
+        // The query result, not self::$DB -- they are the same object,
+        // PDODB::query() returning $this, but returning what the call
+        // gave back keeps this arm's value identical to what it was
+        // before the check above was added.
+        return $result;
+    }
+    /**
+     * A class's reflected variables: databaseTable, databaseFields and the
+     * required/ignored lists.
+     *
+     * getClass($class, '', true) with a name on it. The third argument is
+     * FOGBase::getClass()'s $props flag, and nothing about `'', true` at a
+     * call site says "give me the schema description rather than an object"
+     * -- which is what eleven sites in this file were asking for, in two
+     * different formattings.
+     *
+     * @param string $class The class name.
+     *
+     * @return array the class's reflected variables
+     */
+    private static function _classVars($class)
+    {
+        return self::getClass($class, '', true);
+    }
+    /**
+     * The decoded JSON request body, or null when there is not one.
+     *
+     * Every write route opens by reading php://input, and this is the one
+     * place that names what that stream is. json_decode() returns null both
+     * for an absent body and for a malformed one, which is why every caller
+     * tests with property_exists()/isset() rather than trusting the object
+     * -- a guard that would have to be added in eight places without this.
+     *
+     * @return mixed whatever json_decode() made of the body -- an object for
+     *               the JSON objects every caller here expects, null for an
+     *               absent or malformed one, and in principle any other JSON
+     *               scalar. Deliberately not narrowed: pretending it is
+     *               always an object would move the callers' isset() guards
+     *               from "checking the body" to "silencing the analyzer".
+     */
+    private static function _requestBody()
+    {
+        return json_decode(
+            file_get_contents('php://input')
+        );
+    }
+    /**
      * Delete items in mass.
+     *
+     * Four phases, in order: announce what is going, work out what else has
+     * to go with it, hand that map to a plugin, then delete. The cascade
+     * re-enters this function once per dependent table, which is what
+     * $_deleteDepth is counting.
      *
      * @param string $class      The class we're to remove items.
      * @param array  $whereItems The items we're removing.
      * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    The order the filter is applied in.
      *
-     * @return void
+     * @return object|null the query result, or null when _sendCaught() has
+     *                     already answered the request
      */
     public static function deletemass(
         $class,
@@ -8044,14 +8652,8 @@ class Route extends FOGBase
             }
             $data = [];
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
 
             // getIds(), not ids()+getData(): the payload carries a `data`
             // envelope now, and decoding it whole leaves $itemIDs holding
@@ -8071,320 +8673,18 @@ class Route extends FOGBase
             }
             self::$_deleteDepth++;
 
-            // Per-object destroy events.
-            //
-            // DESTROY_HOST and DESTROY_IMAGE used to be fired by
-            // Host::destroy()/Image::destroy(), which meant they only ever
-            // reached a listener on the UI path: Route::delete() funnels the
-            // REST single-delete straight into here and deliberately never
-            // builds the object, so the override -- and with it the event --
-            // never ran. A plugin watching for a host being removed simply
-            // did not hear about it when the host went out over the API.
-            //
-            // Firing here instead puts the announcement on the one path every
-            // delete already shares, so it happens exactly once per object no
-            // matter which door the delete came in. It is fired BEFORE the
-            // switch below so a listener still sees the row and its
-            // associations intact, which is the order destroy() used.
-            //
-            // Building an object per id is the whole cost of doing this, and
-            // deletemass() is the mass path, so it is only paid when a hook is
-            // actually registered. With nothing listening the event name is
-            // still announced -- that is what records it in the hook catalog,
-            // and is unchanged -- just without a payload nobody would read.
-            //
-            // Refs https://github.com/FOGProject/fogproject/issues/895
-            $destroyEvents = [
-                'host' => ['DESTROY_HOST', 'Host'],
-                'image' => ['DESTROY_IMAGE', 'Image']
-            ];
-            if (isset($destroyEvents[$classname])) {
-                list($destroyEvent, $destroyKey) = $destroyEvents[$classname];
-                if (count($itemIDs ?: [])
-                    && self::$HookManager->hasListeners($destroyEvent)
-                ) {
-                    foreach ((array) $itemIDs as $destroyID) {
-                        $destroyObj = self::getClass($classname, $destroyID);
-                        self::$HookManager->processEvent(
-                            $destroyEvent,
-                            [$destroyKey => &$destroyObj]
-                        );
-                        unset($destroyObj);
-                    }
-                } else {
-                    self::$HookManager->processEvent($destroyEvent);
-                }
-            }
-
-            switch ($classname) {
-                case 'host':
-                    $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];
-                    $findWhere = ['hostID' => $itemIDs];
-                    $removeItems = [
-                        'nodefailure' => $findWhere,
-                        'snapintask' => $snapinjobIDs,
-                        'snapinjob' => $findWhere,
-                        'task' => $findWhere,
-                        'scheduledtask' => $findWhere,
-                        'hostautologout' => $findWhere,
-                        'hostscreensetting' => $findWhere,
-                        'groupassociation' => $findWhere,
-                        'snapinassociation' => $findWhere,
-                        'printerassociation' => $findWhere,
-                        'moduleassociation' => $findWhere,
-                        'inventory' => $findWhere,
-                        'macaddressassociation' => $findWhere,
-                        'powermanagement' => $findWhere
-                    ];
-                    break;
-                case 'group':
-                    $findWhere = ['groupID' => $itemIDs];
-                    $removeItems = [
-                        'groupassociation' => $findWhere
-                    ];
-                    break;
-                case 'image':
-                    $findWhere = ['imageID' => $itemIDs];
-                    self::getClass('HostManager')->update(
-                        $findWhere,
-                        '',
-                        // NULL, not 0 -- see schema step 386.
-                        ['imageID' => null]
-                    );
-                    // Cancel the tasks that were still going to use it.
-                    //
-                    // A queued or in-progress task pointing at an image that
-                    // no longer exists can never finish: TaskingElement
-                    // cannot build the Image, so the host is turned away at
-                    // check-in and the task sits in Active Tasks forever.
-                    // Worse, it is unreadable while it sits there -- the
-                    // list renders from buildQuery()'s LEFT OUTER JOINs, so
-                    // the dead imageID yields NULL for every image column
-                    // and the row shows "() -" with no name to act on.
-                    // Reported as "null tasks" in forum topics 18228/18230.
-                    //
-                    // Canceled rather than added to $removeItems, which is
-                    // where the host case puts its tasks. Deleting a host
-                    // takes its history with it because the subject of that
-                    // history is gone; deleting an image does not -- the
-                    // HOSTS survive, and their finished tasks are still
-                    // their imaging record. Only the live ones are stuck.
-                    //
-                    // TaskManager::cancel() rather than a state update: it
-                    // is what already reissues the host token, unwinds any
-                    // multicast session behind the task and records the
-                    // state change in the task log.
-                    $activeImageTaskIDs = self::getIds(
-                        'task',
-                        [
-                            'imageID' => $itemIDs,
-                            'stateID' => self::fastmerge(
-                                (array)self::getQueuedStates(),
-                                (array)self::getProgressState()
-                            )
-                        ]
-                    );
-                    if (count($activeImageTaskIDs ?: [])) {
-                        self::getClass('TaskManager')
-                            ->cancel($activeImageTaskIDs);
-                    }
-                    $removeItems = [
-                        'imageassociation' => $findWhere
-                    ];
-                    break;
-                case 'module':
-                    $findWhere = ['moduleID' => $itemIDs];
-                    $removeItems = [
-                        'moduleassociation' => $findWhere
-                    ];
-                    break;
-                case 'printer':
-                    $findWhere = ['printerID' => $itemIDs];
-                    $removeItems = [
-                        'printerassociation' => $findWhere
-                    ];
-                    break;
-                case 'snapin':
-                    $findWhere = ['snapinID' => $itemIDs];
-                    $snapinjobIDs = Route::getIds(
-                        'snapintask',
-                        $findWhere,
-                        'jobID'
-                    );
-                    $removeItems = [
-                        'snapinassociation' => $findWhere,
-                        'snapingroupassociation' => $findWhere
-                    ];
-                    // Drop this snapin's tasks HERE, inline, and not by adding
-                    // 'snapintask' to $removeItems above.
-                    //
-                    // Two things depend on it, and both were broken:
-                    //
-                    //  - $removeItems is not processed until after this switch
-                    //    returns, so a snapin deleted over the REST path left
-                    //    its snapintask rows behind pointing at a snapin that
-                    //    no longer exists. Snapin::destroy() deletes them, so
-                    //    the UI path was clean and only the API orphaned them.
-                    //  - The loop below cancels any queued job this snapin was
-                    //    the last remaining task of, which it decides by
-                    //    counting the tasks still on each job. With those tasks
-                    //    still present every count came back non-zero, every
-                    //    job hit the `continue`, and the cancel was unreachable
-                    //    -- the job stayed queued forever against a deleted
-                    //    snapin. Deleting first is what makes the count mean
-                    //    "anything OTHER than what we just removed", which is
-                    //    the order Snapin::destroy() already used.
-                    //
-                    // Refs https://github.com/FOGProject/fogproject/issues/885
-                    Route::deletemass('snapintask', $findWhere);
-                    $queuedStates = self::getQueuedStates();
-                    $queuedStates[] = self::getProgressState();
-                    $snapinjobIDs = Route::getIds(
-                        'snapinjob',
-                        [
-                            'id' => $snapinjobIDs,
-                            'stateID' => $queuedStates
-                        ]
-                    );
-                    $sjIDs = [];
-                    foreach ((array)$snapinjobIDs as &$sjID) {
-                        $jobCount = self::getCount(
-                            'snapintask',
-                            ['jobID' => $sjID]
-                        );
-                        if ($jobCount) {
-                            continue;
-                        }
-                        $sjIDs[] = $sjID;
-                        unset($sjID);
-                    }
-                    if (count($sjIDs ?: [])) {
-                        self::getClass('SnapinJobManager')->cancel($sjIDs);
-                    }
-                    break;
-                case 'user':
-                    $findWhere = ['userID' => $itemIDs];
-                    $removeItems = [
-                        'roleuserassociation' => $findWhere,
-                        'usergroupmember' => $findWhere,
-                        // A token outlives its owner as a WORKING credential
-                        // if this is missed, which is why it goes here rather
-                        // than in User::destroy(): destroy() is only the UI
-                        // path, and the REST delete funnels to deletemass()
-                        // without ever calling it. That split is what left
-                        // orphans before (see the snapintask note below), and
-                        // an orphaned API token is a live way in belonging to
-                        // an account that no longer exists.
-                        //
-                        // APIToken::resolve() also refuses a token whose
-                        // owner will not load, so a future miss here fails
-                        // closed rather than authenticating as nobody. Both,
-                        // deliberately: this is the fix and that is the net.
-                        'apitoken' => $findWhere
-                    ];
-                    break;
-                case 'role':
-                    $findWhere = ['roleID' => $itemIDs];
-                    $removeItems = [
-                        'rolepermission' => $findWhere,
-                        'roleuserassociation' => $findWhere,
-                        'roleusergroupassociation' => $findWhere
-                    ];
-                    break;
-                case 'usergroup':
-                    $findWhere = ['usergroupID' => $itemIDs];
-                    $removeItems = [
-                        'usergroupmember' => $findWhere,
-                        'roleusergroupassociation' => $findWhere
-                    ];
-                    break;
-                case 'site':
-                    // Deleting a site clears its four membership lists.
-                    // Nothing stops the CATCH-ALL site being deleted here:
-                    // it is an ordinary site carrying a flag, and refusing
-                    // would be a rule the admin cannot see or undo. What it
-                    // costs is real though -- every user who relied on it
-                    // for blanket access falls back to their own sites, and
-                    // a user with none then sees nothing.
-                    $findWhere = ['siteID' => $itemIDs];
-                    $removeItems = [
-                        'sitehostmember' => $findWhere,
-                        'siteusermember' => $findWhere,
-                        'sitegroupmember' => $findWhere,
-                        'siteusergroupmember' => $findWhere,
-                        // ...and the two grant lists. A grant naming a
-                        // site that no longer exists would keep putting
-                        // its holders "in scope" for an id that resolves
-                        // to nothing, which reads as deny-all.
-                        'siterolegrant' => $findWhere,
-                        'siteusergroupgrant' => $findWhere
-                    ];
-                    break;
-                default:
-                    $findWhere = [];
-                    $removeItems = [];
-            }
+            self::_fireDestroyEvents($classname, $itemIDs);
+            $removeItems = self::_removeItemsFor($classname, $itemIDs);
 
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
 
-            // Core site membership cleanup. Added after the switch rather
-            // than repeated across four of its cases, and before
-            // DELETEMASS_API so a listener still sees the full map.
-            //
-            // A leftover membership row is not merely untidy: if the id it
-            // names is ever handed to a different object, the row silently
-            // puts that object into a site nobody put it in.
-            //
-            // The mechanism this comment used to name -- "InnoDB recomputes
-            // AUTO_INCREMENT as MAX(id)+1 on restart" -- is NOT true of the
-            // servers FOG runs on today, and was measured rather than
-            // reasoned about while surveying for ADR 0031: MariaDB 10.5.29
-            // and 11.8.8 both keep the counter across a clean restart and a
-            // SIGKILL. MariaDB has persisted it since 10.2.4 and MySQL since
-            // 8.0. The hazard is real anyway and does not depend on that
-            // path: MySQL 5.7 and older do recompute, and a table rebuilt
-            // from a dump takes its counter from the rows it was given, so
-            // ids above the surviving maximum come back after a restore.
-            // The row is wrong the moment its object is gone, whichever
-            // server is underneath.
-            //
-            // ADR 0031 makes this cleanup a property of the schema instead
-            // of a thing this function has to remember -- but the site
-            // tables are group 2 of that series and are not constrained
-            // yet, so this code is still what does it.
-            $siteMemberTables = [
-                'host' => 'sitehostmember',
-                'user' => 'siteusermember',
-                'group' => 'sitegroupmember',
-                'usergroup' => 'siteusergroupmember'
-            ];
-            if (isset($siteMemberTables[$classname])) {
-                $removeItems[$siteMemberTables[$classname]] = [
-                    $classname . 'ID' => $itemIDs
-                ];
-            }
-
-            // The grant side of the same cleanup, and the same id-reuse
-            // hazard with a sharper edge: a grant row left behind by a
-            // deleted role can later put every holder of an unrelated NEW
-            // role into the site the old one granted. Membership leaks one
-            // object into a site; a stale grant leaks a whole population.
-            //
-            // Its own map rather than an entry in the one above because
-            // that one derives the column as "{$classname}ID", and these
-            // columns are grantroleID and grantusergroupID -- the "grant"
-            // prefix being what keeps them distinct from the membership
-            // sense of the same two ids.
-            $siteGrantTables = [
-                'role' => ['siterolegrant', 'grantroleID'],
-                'usergroup' => ['siteusergroupgrant', 'grantusergroupID']
-            ];
-            if (isset($siteGrantTables[$classname])) {
-                list($grantTable, $grantCol) = $siteGrantTables[$classname];
-                $removeItems[$grantTable] = [$grantCol => $itemIDs];
-            }
+            $removeItems = self::_withSiteCleanup(
+                $removeItems,
+                $classname,
+                $itemIDs
+            );
 
             self::$HookManager->processEvent(
                 'DELETEMASS_API',
@@ -8402,67 +8702,23 @@ class Route extends FOGBase
                 unset($vals);
             }
 
-            $sql = 'DELETE FROM `'
-                . $classVars['databaseTable']
-                . '`';
-
-            $sqlResult = self::_buildSql(
-                $sql,
+            return self::_deleteRows(
                 $classVars,
                 $whereItems,
-                false,
                 $operator,
                 $orderby
             );
-
-            $result = self::$DB->query(
-                $sqlResult['sql'],
-                [],
-                $sqlResult['params']
-            );
-            // A rejected DELETE is swallowed by PDODB -- it records the
-            // failure on ->error and returns ITSELF, which is truthy. This
-            // arm used to `return` that object directly, so a delete the
-            // server refused answered 200 with the row still there, and the
-            // UI drew a success toast over it. Unreachable until ADR 0031
-            // gave the database something to refuse with; reachable now.
-            //
-            // 409, not the default 406: the request was well formed and the
-            // caller may legitimately retry it once whatever is referring to
-            // the record is gone. _sendCaught() honors a 4xx/5xx code on
-            // the exception and falls back to 406 otherwise.
-            //
-            // The status keys off isRefusal(), NOT off whether explain()
-            // found words for it -- those are separate questions. A refusal
-            // naming a constraint the map does not describe is still a
-            // conflict and still retryable; only its wording degrades. Any
-            // OTHER error here (a lock timeout, a lost connection) is not a
-            // conflict and correctly falls through to 406.
-            if (self::$DB->error) {
-                $error = (string)self::$DB->error;
-                $explained = ConstraintViolation::explain(
-                    $error,
-                    ConstraintViolation::label($classVars['databaseTable'])
-                );
-                throw new \Exception(
-                    $explained ?? $error,
-                    ConstraintViolation::isRefusal($error)
-                        ? HTTPResponseCodes::HTTP_CONFLICT
-                        : 0
-                );
-            }
-
-            // The query result, not self::$DB -- they are the same object,
-            // PDODB::query() returning $this, but returning what the call
-            // gave back keeps this arm's value identical to what it was
-            // before the check above was added.
-            return $result;
         } catch (\Exception $e) {
             self::_sendCaught($e);
         } finally {
             // max() because the guard above can throw before the increment.
             self::$_deleteDepth = max(0, self::$_deleteDepth - 1);
         }
+        // Only reachable if _sendCaught() ever stops throwing. Explicit
+        // because the method now declares what it hands back, and falling
+        // off the end of a typed return is the shape that made delete()
+        // look like it returned nothing for years.
+        return null;
     }
     /**
      * Builds the sql query with the where.
@@ -8915,11 +9171,7 @@ class Route extends FOGBase
             }
             $data = [];
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
 
             $sql = 'SELECT `'
                 . $classVars['databaseFields']['id']
@@ -8985,6 +9237,210 @@ class Route extends FOGBase
         }
     }
     /**
+     * Applies one PUT body to every item the join names.
+     *
+     * The bulk half of joining(): re-reads the named ids through listem()
+     * rather than loading them directly, then copies the body onto each and
+     * saves it. That indirection is load-bearing -- listem() runs
+     * _applySiteScope(), so a PUT naming an id outside the caller's site
+     * scope simply gets a shorter list back rather than writing to it.
+     *
+     * Unlike _applyEditFields(), an absent field falls back to the object's
+     * OWN stored value rather than being skipped -- the value is read and
+     * written back. That is why this route is not a bulk edit(): the
+     * re-assignment is not a no-op for a class whose set() transforms what
+     * it stores, which is the trap api-server-owned-fields.test.php pins on
+     * edit() for User::set() and password hashing.
+     *
+     * @param string $classname The lowercased class name.
+     * @param array  $classVars The class's reflected variables.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _joiningUpdate($classname, $classVars, $vars)
+    {
+        Route::listem(
+            $classname,
+            ['id' => $vars->ids]
+        );
+        $classes = json_decode(
+            Route::getData()
+        );
+        foreach ($classes->data as &$c) {
+            $c = self::getClass($classname, $c->id);
+            foreach ($classVars['databaseFields'] as &$key) {
+                $key = $c->key($key);
+                if (!isset($vars->$key)) {
+                    $val = $c->get($key);
+                } else {
+                    $val = $vars->$key;
+                }
+                if ($key == 'id') {
+                    continue;
+                }
+                $c->set($key, $val);
+                unset($key);
+            }
+            self::_applyJoiningAssociations($c, $classname, $vars);
+            // Store the data and recreate.
+            // If failed present so.
+            if (!$c->save()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            unset($c);
+        }
+    }
+    /**
+     * Applies the join-table changes a joining PUT body asks for.
+     *
+     * Reads almost identically to _applyCreateAssociations() and is NOT the
+     * same thing, which is the reason it has a name of its own. Three arms
+     * differ, and each difference is what the verb means:
+     *
+     * - host takes `macs` through addMAC(), adding secondaries to a host
+     *   that already exists, where create() has to shift the first off the
+     *   list into addPriMAC() before the row has an id;
+     * - host takes `modules` through addModule() rather than
+     *   set('modules'), because the object is loaded and the create is
+     *   assigning a column on an unsaved one;
+     * - group takes `imageID` unconditionally, where create() only honors it
+     *   alongside `hosts`.
+     *
+     * image, snapin and printer are byte-identical to create's. Folding the
+     * whole switch together for those three would mean a flag parameter
+     * selecting between the other three, which hides the distinctions above
+     * rather than removing them.
+     *
+     * @param object $c         The loaded item being joined to.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyJoiningAssociations($c, $classname, $vars)
+    {
+        switch ($classname) {
+            case 'host':
+                if (isset($vars->macs)) {
+                    $c->addMAC($vars->macs);
+                }
+                if (isset($vars->snapins)) {
+                    $c->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $c->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $c->addModule($vars->modules);
+                }
+                if (isset($vars->groups)) {
+                    $c->addGroup($vars->groups);
+                }
+                break;
+            case 'group':
+                if (isset($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+                if (isset($vars->snapins)) {
+                    $c->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $c->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $c->addModule($vars->modules);
+                }
+                // isset(), like every sibling guard: a group
+                // join without an imageID otherwise emits an
+                // "Undefined property" warning, which would
+                // become a fatal under an ErrorException
+                // converter. Only reachable at all since the
+                // route stopped answering 501 (#919).
+                if (isset($vars->imageID)) {
+                    $c->addImage($vars->imageID);
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+                if (isset($vars->storagegroups)) {
+                    $c->addGroup($vars->storagegroups);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+        }
+    }
+    /**
+     * Creates the named groups a POST body asks for, then attaches hosts.
+     *
+     * Name-addressed rather than id-addressed: each name is created if it
+     * does not exist and reused if it does, so the route is idempotent on
+     * the names it is given. joining() refuses this verb for every class but
+     * `group` before reaching here.
+     *
+     * @param string $classname The lowercased class name.
+     * @param object $classman  The class's manager.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _joiningCreate($classname, $classman, $vars)
+    {
+        $ids = [];
+        foreach ($vars->names as &$name) {
+            $exists = $classman->exists($name);
+            $id = Route::getIds(
+                $classname,
+                ['name' => $name]
+            );
+            if ($exists) {
+                foreach ($id as &$i) {
+                    $ids[] = $i;
+                    unset($i);
+                }
+                continue;
+            }
+            $c = self::getClass($classname)
+                ->set('name', $name);
+            if (!$c->save()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            $ids[] = $c->get('id');
+            unset($name);
+        }
+        Route::listem(
+            $classname,
+            ['id' => $ids]
+        );
+        $classes = json_decode(
+            Route::getData()
+        );
+        foreach ($classes->data as &$c) {
+            $c = self::getClass($classname, $c->id);
+            if (count($vars->hosts ?: [])) {
+                $c->addHost($vars->hosts);
+            }
+            // Store the data and recreate.
+            // If failed present so.
+            if (!$c->save()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            unset($c);
+        }
+    }
+    /**
      * Allows joining items.
      *
      * Static because runMatches() dispatches routed targets through
@@ -9003,14 +9459,8 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
             if ('POST' == self::$reqmethod) {
                 if ($classname != 'group') {
                     self::sendResponse(
@@ -9021,140 +9471,11 @@ class Route extends FOGBase
             $classman = self::getClass($class.'Manager');
             switch (self::$reqmethod) {
                 case 'PUT':
-                    Route::listem(
-                        $classname,
-                        ['id' => $vars->ids]
-                    );
-                    $classes = json_decode(
-                        Route::getData()
-                    );
-                    foreach ($classes->data as &$c) {
-                        $c = self::getClass($classname, $c->id);
-                        foreach ($classVars['databaseFields'] as &$key) {
-                            $key = $c->key($key);
-                            if (!isset($vars->$key)) {
-                                $val = $c->get($key);
-                            } else {
-                                $val = $vars->$key;
-                            }
-                            if ($key == 'id') {
-                                continue;
-                            }
-                            $c->set($key, $val);
-                            unset($key);
-                        }
-                        switch ($classname) {
-                            case 'host':
-                                if (isset($vars->macs)) {
-                                    $c->addMAC($vars->macs);
-                                }
-                                if (isset($vars->snapins)) {
-                                    $c->addSnapin($vars->snapins);
-                                }
-                                if (isset($vars->printers)) {
-                                    $c->addPrinter($vars->printers);
-                                }
-                                if (isset($vars->modules)) {
-                                    $c->addModule($vars->modules);
-                                }
-                                if (isset($vars->groups)) {
-                                    $c->addGroup($vars->groups);
-                                }
-                                break;
-                            case 'group':
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
-                                if (isset($vars->snapins)) {
-                                    $c->addSnapin($vars->snapins);
-                                }
-                                if (isset($vars->printers)) {
-                                    $c->addPrinter($vars->printers);
-                                }
-                                if (isset($vars->modules)) {
-                                    $c->addModule($vars->modules);
-                                }
-                                // isset(), like every sibling guard: a group
-                                // join without an imageID otherwise emits an
-                                // "Undefined property" warning, which would
-                                // become a fatal under an ErrorException
-                                // converter. Only reachable at all since the
-                                // route stopped answering 501 (#919).
-                                if (isset($vars->imageID)) {
-                                    $c->addImage($vars->imageID);
-                                }
-                                break;
-                            case 'image':
-                            case 'snapin':
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
-                                if (isset($vars->storagegroups)) {
-                                    $c->addGroup($vars->storagegroups);
-                                }
-                                break;
-                            case 'printer':
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
-                        }
-                        // Store the data and recreate.
-                        // If failed present so.
-                        if (!$c->save()) {
-                            self::sendResponse(
-                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                            );
-                        }
-                        unset($c);
-                    }
+                    self::_joiningUpdate($classname, $classVars, $vars);
                     $code = HTTPResponseCodes::HTTP_ACCEPTED;
                     break;
                 case 'POST':
-                    $ids = [];
-                    foreach ($vars->names as &$name) {
-                        $exists = $classman->exists($name);
-                        $id = Route::getIds(
-                            $classname,
-                            ['name' => $name]
-                        );
-                        if ($exists) {
-                            foreach ($id as &$i) {
-                                $ids[] = $i;
-                                unset($i);
-                            }
-                            continue;
-                        }
-                        $c = self::getClass($classname)
-                            ->set('name', $name);
-                        if (!$c->save()) {
-                            self::sendResponse(
-                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                            );
-                        }
-                        $ids[] = $c->get('id');
-                        unset($name);
-                    }
-                    Route::listem(
-                        $classname,
-                        ['id' => $ids]
-                    );
-                    $classes = json_decode(
-                        Route::getData()
-                    );
-                    foreach ($classes->data as &$c) {
-                        $c = self::getClass($classname, $c->id);
-                        if (count($vars->hosts ?: [])) {
-                            $c->addHost($vars->hosts);
-                        }
-                        // Store the data and recreate.
-                        // If failed present so.
-                        if (!$c->save()) {
-                            self::sendResponse(
-                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                            );
-                        }
-                        unset($c);
-                    }
+                    self::_joiningCreate($classname, $classman, $vars);
                     $code = HTTPResponseCodes::HTTP_CREATED;
                     break;
                 default:
