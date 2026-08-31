@@ -150,13 +150,30 @@ foreach (
  */
 class FakeTftpFs extends \FOG\Net\FOGSSH
 {
+    /**
+     * Shadows the parent's __set()/__get()-backed $data array with real,
+     * declared properties -- the assertions below read them straight back,
+     * and phpstan-tests.neon (level 5) does not know the magic accessors'
+     * shape without a @property annotation FOGSSH does not carry. UbootTftpSync
+     * itself still writes through __set() when handed a real FOGSSH.
+     *
+     * @var string
+     */
+    public $host = '';
+
+    /** @var string */
+    public $username = '';
+
+    /** @var string */
+    public $password = '';
+
     /** @var array path => 'file'|'dir' */
     public $tree = [];
 
     /** @var array path => bytes, for 'file' entries */
     public $contents = [];
 
-    /** @var bool what connect() returns */
+    /** @var bool what connect() succeeds or fails */
     public $connectSucceeds = true;
 
     /** @var int how many times connect() was called */
@@ -168,6 +185,14 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
     /** @var string[] every path sftp_mkdir() was asked to create */
     public $mkdirCalls = [];
 
+    /**
+     * Mirrors the real connect()'s actual contract (self|false), not its
+     * @return object docblock -- the real method's own catch branch returns
+     * false on failure, which is the falsy value UbootTftpSync::_connect()'s
+     * `if (!self::$FOGSSH->connect())` depends on.
+     *
+     * @return self|false
+     */
     public function connect(
         $host = '',
         $port = 0,
@@ -175,13 +200,18 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
         $connectmethod = 'ssh2_connect'
     ) {
         ++$this->connectCalls;
+        if (!$this->connectSucceeds) {
+            return false;
+        }
 
-        return $this->connectSucceeds;
+        return $this;
     }
 
     public function disconnect()
     {
         ++$this->disconnectCalls;
+
+        return true;
     }
 
     public function exists($path)
@@ -201,8 +231,6 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
     {
         $this->tree[$remotefile] = 'file';
         $this->contents[$remotefile] = file_get_contents($localfile);
-
-        return true;
     }
 
     public function unlinkFile($path)
