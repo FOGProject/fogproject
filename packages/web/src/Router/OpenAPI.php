@@ -1734,9 +1734,16 @@ class OpenAPI extends FOGBase
      */
     private static function _permission($routeName, $class)
     {
-        if (!method_exists('Authorization', 'resolveApiPermission')) {
-            return null;
-        }
+        // Called directly. This used to be guarded by
+        // method_exists('Authorization', ...) -- a class name in a STRING,
+        // which PHP resolves as written from the global namespace, ignoring
+        // the `use` above. Core stopped answering its bare names when the
+        // global aliases were retired (ADR 0013 §2), so the guard was false
+        // on every call: _permission() returned null for every operation and
+        // the published spec said the whole REST API needs no permission.
+        // Silently, plus an autoloader line in the error log per render.
+        // The guard bought nothing even when it worked -- the method is
+        // declared in this repository, beside this file.
         $permission = Authorization::resolveApiPermission($routeName, $class);
         return ('' === $permission || null === $permission) ? null : $permission;
     }

@@ -1075,9 +1075,19 @@ class Plugin extends FOGController
         if (!$this->get('name')) {
             return parent::getManager();
         }
-        $classManager = sprintf(
-            '%sManager',
-            $this->get('name')
+        // Built from the plugins.pName database value, which is a bare short
+        // name, then qualified -- a plugin's manager declares
+        // FOG\Plugins\<Plugin>\<Name>Manager (ADR 0013). Without this the
+        // class_exists() below is false for every namespaced plugin and this
+        // falls back to PluginManager, which install() then correctly reports
+        // as a broken manager file: every plugin install throws "<X>Manager
+        // could not be loaded". A plugin still in the global namespace passes
+        // through qualify() untouched.
+        $classManager = self::qualify(
+            sprintf(
+                '%sManager',
+                $this->get('name')
+            )
         );
         if (!class_exists($classManager)) {
             return parent::getManager();
