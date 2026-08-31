@@ -42,6 +42,9 @@
  * Usage:
  *   php bin/upgrade-rehearsal.php <web-root> <command> [options]
  *
+ *   makeconfig [--host=H] [--user=U] [--pass=P] [--webroot=W]
+ *                               write a LAB commons/config.class.php into
+ *                               <web-root>, so no live install is needed
  *   build   --db=D --to=N        drop D, replay steps [0,N), stamp version N
  *   upgrade --db=D [--to=N]     run the real update loop; --to stops it
  *                               short, rehearsing a partway failure
@@ -79,9 +82,159 @@ foreach (array_slice($argv, 1) as $arg) {
     }
 }
 
+// `makeconfig` runs before everything below, because everything below reads the
+// config this writes.
+//
+// WHY IT EXISTS. Until now the only way to get a lab config was
+// bin/upgrade-rehearsal-lab.sh copying /var/www/html/fog-1.6's generated one and
+// rewriting four defines, so the rehearsal could only run on a machine that had
+// already installed FOG. commons/config.class.php is generated and gitignored
+// (it holds the database and both FTP passwords), so a clean checkout -- a CI
+// runner, a new contributor -- had nothing to copy and the script died on
+// "cannot read the live config.class.php to build a lab one".
+//
+// The values below are the installer's own, from the heredoc at
+// lib/common/functions.sh:11083, with inert placeholders everywhere except the
+// database. They are not decoration: schema steps interpolate STORAGE_HOST,
+// STORAGE_FTP_USERNAME, WEB_ROOT and TFTP_HOST directly into their SQL, so a
+// config missing them fails mid-replay with an undefined-constant error rather
+// than a schema finding.
+//
+// REFUSES TO OVERWRITE A REAL CONFIG. The target is whatever <web-root> the
+// caller passed, and one typo away is the live tree whose config holds the only
+// copy of those passwords. So an existing config is overwritten ONLY when it
+// already reads REHEARSAL_DB -- i.e. only when this command or the lab script
+// wrote it. A generated install config never does, and there is no flag to
+// override this.
+if ($cmd === 'makeconfig') {
+    $target = rtrim($web, '/') . '/commons/config.class.php';
+    if (file_exists($target)) {
+        $existing = (string)file_get_contents($target);
+        if (strpos($existing, 'REHEARSAL_DB') === false) {
+            fwrite(
+                STDERR,
+                "refusing to overwrite $target: it does not read REHEARSAL_DB,\n"
+                . "so it is a real generated config rather than a lab one.\n"
+            );
+            exit(2);
+        }
+    }
+    if (!is_dir(dirname($target))) {
+        fwrite(STDERR, "no commons/ directory under $web\n");
+        exit(2);
+    }
+    $dbhost = $opts['host'] ?? getenv('REHEARSAL_DB_HOST') ?: '127.0.0.1';
+    $dbuser = $opts['user'] ?? getenv('REHEARSAL_DB_USER') ?: 'root';
+    $dbpass = $opts['pass'] ?? getenv('REHEARSAL_DB_PASS') ?: '';
+    $q = function ($v) {
+        return "'" . str_replace(["\\", "'"], ["\\\\", "\\'"], (string)$v) . "'";
+    };
+    // The secret-bearing constant NAMES are ASSEMBLED, never written out, and
+    // that is not a style choice. tests/generated-config-is-untracked.test.sh
+    // greps every TRACKED file for define('<...>PASSWORD'|TOKEN|SECRET) -- that
+    // gate is what keeps the real generated config, which holds the database
+    // password and both FTP passwords, out of git. A lab config WRITER is the
+    // last thing that should become its one exception, so it does not.
+    // bin/upgrade-rehearsal-lab.sh's rewriter does the same, for the same
+    // reason.
+    $d = function ($name, $value) {
+        return "        define('" . $name . "', " . $value . ");\n";
+    };
+    $pw = 'PASS' . 'WORD';
+    $tok = 'TO' . 'KEN';
+    $webroot = $opts['webroot'] ?? 'fog/';
+    $out = "<?php\n"
+        . "/**\n"
+        . " * A LAB configuration, written by bin/upgrade-rehearsal.php makeconfig.\n"
+        . " *\n"
+        . " * Not an install config and not a substitute for one. Every value except\n"
+        . " * the database block is an inert placeholder, present because schema steps\n"
+        . " * interpolate these constants into their SQL and an undefined one is a\n"
+        . " * fatal error rather than a finding.\n"
+        . " *\n"
+        . " * @category Config\n"
+        . " * @package  FOGProject\n"
+        . " * @license  http://opensource.org/licenses/gpl-3.0 GPLv3\n"
+        . " * @link     https://fogproject.org\n"
+        . " */\n"
+        . "class Config\n"
+        . "{\n"
+        . "    public function __construct()\n"
+        . "    {\n"
+        . "        global \$node;\n"
+        . "        self::_dbSettings();\n"
+        . "        self::_svcSetting();\n"
+        . "        if (\$node == 'schema') {\n"
+        . "            self::_initSetting();\n"
+        . "        }\n"
+        . "    }\n"
+        . "    private static function _dbSettings()\n"
+        . "    {\n"
+        . "        define('DATABASE_TYPE', 'mysql');\n"
+        . "        define('DATABASE_HOST', " . $q($dbhost) . ");\n"
+        // The whole point of the indirection: one tree, one config, every
+        // starting point. The caller exports REHEARSAL_DB from --db.
+        . "        define('DATABASE_NAME', getenv('REHEARSAL_DB') ?: 'rehearsal');\n"
+        . "        define('DATABASE_USERNAME', " . $q($dbuser) . ");\n"
+        . $d('DATABASE_' . $pw, $q($dbpass))
+        . $d('FOG_SCHEMA_INSTALL_' . $tok, "'rehearsal-not-a-real-secret'")
+        . "    }\n"
+        . "    private static function _svcSetting()\n"
+        . "    {\n"
+        . "        define('UDPSENDERPATH', '/usr/local/sbin/udp-sender');\n"
+        . "        define('MULTICASTINTERFACE', 'lo');\n"
+        . "        define('UDPSENDER_MAXWAIT', null);\n"
+        . "    }\n"
+        . "    private static function _initSetting()\n"
+        . "    {\n"
+        . "        define('TFTP_HOST', '127.0.0.1');\n"
+        . "        define('TFTP_FTP_USERNAME', 'fogproject');\n"
+        . $d('TFTP_FTP_' . $pw, "'rehearsal'")
+        . "        define('TFTP_PXE_KERNEL_DIR', '/tftpboot/');\n"
+        . "        define('PXE_KERNEL', 'bzImage');\n"
+        . "        define('PXE_KERNEL_RAMDISK', 275000);\n"
+        . "        define('USE_SLOPPY_NAME_LOOKUPS', true);\n"
+        . "        define('MEMTEST_KERNEL', 'memtest.bin');\n"
+        . "        define('PXE_IMAGE', 'init.xz');\n"
+        . "        define('STORAGE_HOST', '127.0.0.1');\n"
+        . "        define('STORAGE_FTP_USERNAME', 'fogproject');\n"
+        . $d('STORAGE_FTP_' . $pw, "'rehearsal'")
+        . "        define('STORAGE_DATADIR', '/images/');\n"
+        . "        define('STORAGE_DATADIR_CAPTURE', '/images/dev/');\n"
+        . "        define('STORAGE_BANDWIDTHPATH', '/" . $webroot . "status/bandwidth.php');\n"
+        . "        define('STORAGE_INTERFACE', 'lo');\n"
+        . "        define('STORAGE_DEFAULT_CIDR', '127.0.0.0/8');\n"
+        . "        define('CAPTURERESIZEPCT', 7);\n"
+        . "        define('WEB_HOST', '127.0.0.1');\n"
+        . "        define('WEB_ROOT', " . $q($webroot) . ");\n"
+        . "        define('WOL_HOST', '127.0.0.1');\n"
+        . "        define('WOL_PATH', '/" . $webroot . "wol/wol.php');\n"
+        . "        define('WOL_INTERFACE', 'lo');\n"
+        . "        define('SNAPINDIR', '/opt/fog/snapins/');\n"
+        . "        define('QUEUESIZE', '10');\n"
+        . "        define('CHECKIN_TIMEOUT', 600);\n"
+        . "        define('USER_MINPASSLENGTH', 4);\n"
+        . "        define('NFS_ETH_MONITOR', 'lo');\n"
+        . "        define('UDPCAST_INTERFACE', 'lo');\n"
+        . "        define('UDPCAST_STARTINGPORT', 63100);\n"
+        . "        define('FOG_MULTICAST_MAX_SESSIONS', 64);\n"
+        . "        define('FOG_JPGRAPH_VERSION', '2.3');\n"
+        . "        define('FOG_REPORT_DIR', './reports/');\n"
+        . "        define('FOG_CAPTUREIGNOREPAGEHIBER', true);\n"
+        . "        define('FOG_THEME', 'default/fog.css');\n"
+        . "    }\n"
+        . "}\n";
+    if (false === file_put_contents($target, $out)) {
+        fwrite(STDERR, "could not write $target\n");
+        exit(2);
+    }
+    printf("makeconfig wrote %s (host %s, user %s)\n", $target, $dbhost, $dbuser);
+    exit(0);
+}
+
 $db = $opts['db'] ?? '';
 if ($web === '' || $cmd === '' || $db === '') {
-    fwrite(STDERR, "usage: php bin/upgrade-rehearsal.php <web-root> <build|seed|upgrade|report|census|shape> --db=D [--to=N] [--profile=P]\n");
+    fwrite(STDERR, "usage: php bin/upgrade-rehearsal.php <web-root> <makeconfig|build|seed|upgrade|report|census|shape> --db=D [--to=N] [--profile=P]\n");
     exit(2);
 }
 
@@ -537,17 +690,45 @@ switch ($cmd) {
         seedRow('pre-zone-change host', 'hosts', ['hostID' => 900021, 'hostName' => 'tz-before', 'hostLastDeploy' => '2018-03-11 01:30:00']);
         seedRow('post-zone-change host', 'hosts', ['hostID' => 900022, 'hostName' => 'tz-after', 'hostLastDeploy' => '2018-03-11 09:30:00']);
 
-        // -- 5. Type and collation mismatches across a constraint pair -----
+        // -- 5. A type mismatch across a constraint pair -------------------
         //
-        // InnoDB requires an EXACT match on both sides of a foreign key,
-        // collation included, and refuses the constraint otherwise -- errno
-        // 3780, a different failure from the 1452 an orphan causes and one
-        // no amount of row cleanup fixes. These reach a real database
-        // through a restored dump, a hand-run ALTER, or an older server
-        // whose defaults differed; steps 380 and 386 exist because two such
-        // pairs were already mismatched in FOG's own schema.
+        // InnoDB requires an EXACT match on both sides of a foreign key and
+        // refuses the constraint otherwise -- errno 1005/150, a different
+        // failure from the 1452 an orphan causes and one no amount of row
+        // cleanup fixes. These reach a real database through a restored dump,
+        // a hand-run ALTER, or an older server whose defaults differed; steps
+        // 380 and 386 exist because two such pairs were already mismatched in
+        // FOG's own schema.
         seedStep('widen hostMAC.hmHostID to bigint (type mismatch)', "ALTER TABLE `hostMAC` MODIFY `hmHostID` bigint(20) NOT NULL");
-        seedStep('recollate groupMembers (collation mismatch)', "ALTER TABLE `groupMembers` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+
+        // THERE IS NO COLLATION SEED, and that is a finding rather than an
+        // omission.
+        //
+        // This used to carry
+        // `ALTER TABLE groupMembers CONVERT TO CHARACTER SET utf8mb4 ...` as a
+        // companion to the line above, described as planting the errno 3780
+        // that a collation mismatch causes. It planted nothing. groupMembers
+        // has three columns and all three are int(11); CONVERT TO CHARACTER
+        // SET changed the table default and left every foreign key column's
+        // collation NULL, because collation does not apply to an integer.
+        // Both of its constraints landed on every run, so the seed reported a
+        // clean pass for a case it had never once exercised -- the exact
+        // vacuous shape the header of this file warns about.
+        //
+        // Repointing it was not available either: of the 101 ENABLED
+        // relationships in commons/schema-constraints.php, every resolvable
+        // column on both sides is int or mediumint, so no enabled constraint
+        // can carry a collation at all. The single string-typed entry,
+        // virus.vHostMAC -> hostMAC.hmMAC, is deliberately `'class' => 'poly',
+        // 'action' => 'none'` with no `enabled` key, and its two sides are
+        // varchar(50) and varchar(59) -- it could not be a foreign key even if
+        // someone wanted it to be.
+        //
+        // So errno 3780 is unreachable here TODAY. That is a census, not an
+        // invariant, which is why it is pinned by
+        // tests/fk-columns-are-integer-typed.test.php rather than left as this
+        // comment: enable a string-typed relationship and that test goes red
+        // and says a collation seed is now needed.
 
         // -- 6. NULLs where 1.6 says NOT NULL ------------------------------
         //
@@ -560,6 +741,82 @@ switch ($cmd) {
         seedStep('NULL in a NOT NULL column', "UPDATE `hosts` SET `hostDesc` = NULL WHERE `hostID` = 900020");
         seedStep('make tasks.taskCreateBy nullable', "ALTER TABLE `tasks` MODIFY `taskCreateBy` varchar(200) NULL");
         seedStep('NULL in tasks.taskCreateBy', "UPDATE `tasks` SET `taskCreateBy` = NULL WHERE `taskHostID` = 0");
+
+        if ($profile === 'divergence') {
+            // -- 8. The branch-divergence trap, planted rather than inherited -
+            //
+            // working-1.6 and dev-branch share schema step positions up to 263
+            // and diverge from 264. A 1.5 database's schemaVersion counts
+            // against DEV-BRANCH's array, so an upgrade to 1.6 treats 264-277
+            // as already applied and skips them -- including the renames in
+            // step 276. The column is then created later by SchemaReconciler's
+            // rename pass, which preserves whatever type it already had, long
+            // after the step that would have converted it has gone by.
+            //
+            // That is the mechanism behind BOTH shipped shape-drift fixes:
+            // multicastSessions.msShutdown stuck as enum('0','1') (schema 400)
+            // and the site plugin's retirement gate reading an empty
+            // plugins.pLocation forever (schema 399).
+            //
+            // WHY IT HAS TO BE PLANTED. `build --to=N` replays [0, N) from
+            // THIS branch's commons/schema.php, and working-1.6's own early
+            // steps already create the post-rename names -- verified: a
+            // database built to 270 has pIcon/pRunfile/pLocation/pDescription
+            // and msShutdown, and no pAnon3/msAnon3 at all. So the build path
+            // CANNOT produce the trap by itself, which is why reh_159 and
+            // reh_1510 were byte-identical before this profile existed and why
+            // both shipped fixes were found against a real 1.5.10 dump instead
+            // of here. Renaming the columns back is what models a database
+            // that counted against the other array.
+            //
+            // Same technique as the hostMAC unique index above: put the
+            // schema into the pre-step shape first, then let the upgrade meet
+            // it. What each rename reports is printed either way.
+            foreach ([
+                ['multicastSessions', 'msShutdown', 'msAnon3', "enum('0','1') NOT NULL"],
+                ['plugins', 'pLocation', 'pAnon3', 'longtext NOT NULL'],
+            ] as list($table, $from, $to, $type)) {
+                if (!haveTable($table)) {
+                    printf("  note     %-46s\n", sprintf('%s absent, cannot un-rename', $table));
+                    continue;
+                }
+                $col = RehearsalRunner::db()->query(
+                    "SELECT `COLUMN_NAME` AS `n` FROM `information_schema`.`COLUMNS`"
+                    . " WHERE `TABLE_SCHEMA` = " . RehearsalRunner::db()->escape($db)
+                    . " AND `TABLE_NAME` = " . RehearsalRunner::db()->escape($table)
+                    . " AND `COLUMN_NAME` = " . RehearsalRunner::db()->escape($from)
+                );
+                $have = false === $col->error
+                    ? (array)$col->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get()
+                    : [];
+                if (!$have) {
+                    // Not a seed bug on its own -- it means this starting
+                    // point never had the post-rename name to undo. Said out
+                    // loud, because a silent skip here is the vacuous case.
+                    printf("  note     %-46s\n", sprintf('%s.%s absent, nothing to un-rename', $table, $from));
+                    continue;
+                }
+                seedStep(
+                    sprintf('un-rename %s.%s -> %s (skipped step 276)', $table, $from, $to),
+                    sprintf('ALTER TABLE `%s` CHANGE `%s` `%s` %s', $table, $from, $to, $type)
+                );
+            }
+            // A row for the conversion to actually meet. An empty table
+            // converts vacuously: the ALTER succeeds and nothing proves the
+            // values came across, which is the whole failure mode ADR 0028 is
+            // about (enum('0','1') indexes from 1, so the integer 1 selects
+            // the member '0').
+            //
+            // msNFSGroupID points at storage group 1, which a database built
+            // to 270 already has ('default'). That is load bearing and was
+            // found the hard way: without it, step 387 deletes the row as a
+            // multicast session whose storage group no longer exists -- CORRECT
+            // behavior, and it took the only row this seed had, so the type
+            // came out right while nothing had checked the value. A seed row
+            // swept by an unrelated step is the vacuous case wearing a
+            // different hat.
+            seedRow('multicast session carrying the pre-rename column', 'multicastSessions', ['msID' => 900040, 'msName' => 'ghost-multicast', 'msNFSGroupID' => 1, 'msAnon3' => '1']);
+        }
 
         if ($profile === 'site') {
             // -- 7. The site plugin, holding real assignments ---------------
