@@ -10331,6 +10331,57 @@ EOF
     esac
     errorStat $?
 }
+# Name, by directory, any plugin that was hand-placed under the OLD web
+# tree's lib/plugins/ -- the only way plugins existed on 1.5, and still a
+# working way to add one on 1.6 right up until an upgrade runs. ADR 0009
+# split plugins into two roots specifically so this stops happening again,
+# but the split does nothing for whatever is already sitting in an upgrading
+# admin's tree: configureHttpd() is about to overwrite $webdirdest from
+# $webdirsrc, downloadplugins()'s bundled set, and nothing else survives that.
+#
+# The only remaining trace afterward is fog_web_<ver>.BACKUP, and only with
+# --oldcopy does anything even copy it back -- silently, as a directory an
+# admin has to know to go looking for. This runs right after that backup is
+# taken, while the old tree is still on disk under a name someone can find,
+# and says the two things $error_log never will: which directories were
+# there, and where a third-party plugin belongs now.
+#
+# Compared against $webdirsrc/lib/plugins/, which is the bundled set THIS
+# release actually fetched (downloadplugins() runs before configureHttpd()),
+# not a hand-kept list that would drift the moment a plugin joins or leaves
+# fog-plugins.
+#
+# Detection only -- nothing here copies, deletes or blocks anything.
+_warnUnrecognizedPlugins() {
+    local oldplugins="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins"
+    [[ -d $oldplugins ]] || return 0
+    # "Unrecognized" is decided by comparison, so with nothing to compare
+    # against there is no finding to report -- only a list of every plugin
+    # the admin has, named as third-party. That is not hypothetical:
+    # configureMinHttpd() (the STORAGE NODE path, installfog.sh:1353) calls
+    # configureHttpd without downloadplugins ever running, and lib/plugins is
+    # gitignored on 1.6, so a storage-node install from a clone reaches here
+    # with an empty bundled set. Say nothing rather than cry wolf.
+    compgen -G "${webdirsrc}/lib/plugins/*/" >/dev/null 2>&1 || return 0
+    local dir name found=""
+    for dir in "$oldplugins"/*/; do
+        [[ -d $dir ]] || continue
+        name=$(basename "$dir")
+        [[ -d ${webdirsrc}/lib/plugins/${name} ]] && continue
+        if [[ -z $found ]]; then
+            echo
+            echo "  Third-party plugin(s) found in the old web tree's lib/plugins/:"
+            found=1
+        fi
+        echo "   * $name"
+    done
+    [[ -n $found ]] || return 0
+    echo "  These are not part of the bundled plugin set and this upgrade does"
+    echo "  not carry them forward. They now belong in ${fogprogramdir:-/opt/fog}/plugins"
+    echo "  -- copy them there from ${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/"
+    echo "  and re-run, or install them from that directory via the UI."
+    echo
+}
 configureHttpd() {
     normalizeWebroot
     dots "Stopping web service"
@@ -10537,6 +10588,10 @@ configureHttpd() {
     else
         echo "Skipped"
     fi
+    # Independent of --oldcopy: the backup this step just took is where a
+    # hand-placed plugin now only exists, whether or not anything copies it
+    # back automatically.
+    _warnUnrecognizedPlugins
     if [[ ${FOG_copy_back_old} == yes ]]; then
         if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
             dots "Copying back old web folder as is";

@@ -28,7 +28,17 @@
  *     a pass that derived it from the class would quietly refuse host
  *     deletions that must succeed.
  *
- * planConstraints() is pure, so all of this is asserted without a database.
+ *   - a SET NULL declared over a NOT NULL column is SKIPPED rather than
+ *     attempted. InnoDB refuses it errno 150 with no row involved, so the
+ *     orphan scanner the failure log points at reports nothing and the
+ *     trail ends. Found on a real 1.5.10 upgrade, where a plugin table
+ *     left behind by 1.5 had never had the owning plugin's step run
+ *     against it.
+ *   - a refusal that IS structural says so, and the summary line stops
+ *     telling the admin to run a scan that will find nothing.
+ *
+ * planConstraints() is pure, so most of this is asserted without a
+ * database; the reporting arms drive a fake one.
  *
  * Usage: php tests/foreign-key-reconcile.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -717,6 +727,171 @@ $t->check(
         SchemaReconciler::sweepOrphans(null, [$rel(['group' => 'ldap'])]);
         return array_slice($db->log, $mark) === [];
     })()
+);
+
+// --- a SET NULL declared over a NOT NULL column is skipped, not attempted ---
+//
+// Found on a real 1.5.10 database (2079 hosts, schema 278) upgraded to 398:
+// fk_location_lStorageNodeID was the ONE constraint of 80 the run could not
+// add. Not orphans -- the scan found zero -- but InnoDB refusing errno 150
+// on a SET NULL over a NOT NULL column.
+//
+// The preparation (make the column nullable, convert the `0` sentinel) lives
+// in the OWNING plugin's schema(), verified in FOGProject/fog-plugins at
+// location/src/Managers/LocationManager.php. 1.5's plugins lived in the web
+// tree, so their tables survive an upgrade with no 1.6 step ever run against
+// them, and planConstraints() reads the table being present as "applicable".
+//
+// Skipping is right and absence is CORRECT here: the constraint lands when
+// the plugin installs. Attempting it puts a permanent, misdirected failure
+// in the log of every server carrying a 1.5-era plugin table.
+$nullRel = static function (array $over = []) {
+    return $over + [
+        'child' => 'location',
+        'column' => 'lStorageNodeID',
+        'parent' => 'nfsGroupMembers',
+        'pcolumn' => 'ngmID',
+        'class' => 'config',
+        'action' => 'SET NULL',
+        'enabled' => true,
+    ];
+};
+$nullHave = [
+    'location' => ['lid', 'lstoragenodeid'],
+    'nfsgroupmembers' => ['ngmid'],
+];
+
+$plan = SchemaReconciler::planConstraints(
+    [$nullRel()],
+    $nullHave,
+    [],
+    null,
+    ['location' => []]
+);
+$t->check(
+    'SET NULL over a NOT NULL column plans nothing',
+    $plan === []
+);
+
+// The other arm, and the one that stops the guard from being a blanket
+// refusal of every SET NULL in the map. Without it the check above passes
+// with the whole action disabled.
+$plan = SchemaReconciler::planConstraints(
+    [$nullRel()],
+    $nullHave,
+    [],
+    null,
+    ['location' => ['lstoragenodeid']]
+);
+$t->check(
+    'SET NULL over a nullable column still plans the constraint',
+    count($plan) === 1
+        && strpos($plan[0], 'ADD CONSTRAINT `fk_location_lStorageNodeID`') !== false
+        && strpos($plan[0], 'ON DELETE SET NULL') !== false
+);
+
+// No snapshot means no opinion. planConstraints() is called without one from
+// tests and from any caller that has not read information_schema, and a
+// missing snapshot must not read as "nothing is nullable" -- that would
+// silently drop every SET NULL constraint in the map.
+$plan = SchemaReconciler::planConstraints([$nullRel()], $nullHave, [], null, null);
+$t->check(
+    'no nullability snapshot leaves SET NULL planning unchanged',
+    count($plan) === 1
+);
+
+// The guard is specific to SET NULL. CASCADE over a NOT NULL column is the
+// normal shape of every junction in the map -- groupMembers.gmHostID is NOT
+// NULL and must stay constrained.
+$plan = SchemaReconciler::planConstraints(
+    [$nullRel(['action' => 'CASCADE'])],
+    $nullHave,
+    [],
+    null,
+    ['location' => []]
+);
+$t->check(
+    'CASCADE over a NOT NULL column is unaffected by the guard',
+    count($plan) === 1
+);
+
+// --- a structural refusal is reported as structural -------------------------
+//
+// 1452 and 1005/150 are different problems with different remedies, and both
+// used to be reported with "Run bin/fk-orphan-scan.php to find the rows".
+// For a structural refusal that scan returns nothing and the admin has
+// nowhere to go next -- the worst shape a diagnostic can take, because it
+// looks like an answer.
+$structFail = static function ($errno) use ($rel) {
+    $db = FogTestHarness::fakeDb();
+    $cols = [
+        ['TABLE_NAME' => 'groupMembers', 'COLUMN_NAME' => 'gmHostID'],
+        ['TABLE_NAME' => 'hosts', 'COLUMN_NAME' => 'hostID'],
+    ];
+    $db->responder = static function ($sql) use ($db, $cols, $errno) {
+        if (strpos($sql, 'REFERENTIAL_CONSTRAINTS') !== false) {
+            $db->error = false;
+            return [];
+        }
+        if (strpos($sql, 'information_schema') !== false
+            && strpos($sql, 'COLUMNS') !== false
+        ) {
+            $db->error = false;
+            // IS_NULLABLE = 'YES' is nullableSnapshot()'s own query. Answer
+            // it with the column present so the plan is not skipped by the
+            // guard above -- this arm is about REPORTING a refusal, and a
+            // skipped constraint never reaches the reporting path at all.
+            return $cols;
+        }
+        if (stripos($sql, 'ADD CONSTRAINT') !== false) {
+            $db->error = "SQLSTATE[HY000]: General error: $errno Can't create"
+                . " table (errno: 150)\nQuery: $sql";
+            $db->errorCode = $errno;
+            return [];
+        }
+        return null;
+    };
+    SchemaReconciler::applyConstraints(null, [$rel()]);
+    return SchemaReconciler::constraintFailures();
+};
+
+$failures = $structFail(1005);
+$t->check(
+    'errno 1005 is recorded as a structural refusal',
+    count($failures) === 1 && !empty($failures[0]['structural'])
+);
+
+$failures = $structFail(1452);
+$t->check(
+    'errno 1452 is NOT recorded as structural',
+    count($failures) === 1 && empty($failures[0]['structural'])
+);
+
+// The flag only matters because it changes what the admin is told to do
+// next. Asserting the field alone would pass with the summary line still
+// pointing every failure at the orphan scanner.
+$summaryFor = static function ($errno) use ($structFail) {
+    $logfile = tempnam(sys_get_temp_dir(), 'fkstruct');
+    $prev = ini_get('error_log');
+    ini_set('error_log', $logfile);
+    $structFail($errno);
+    ini_set('error_log', $prev);
+    $logged = (string)file_get_contents($logfile);
+    unlink($logfile);
+    return $logged;
+};
+
+$logged = $summaryFor(1005);
+$t->check(
+    'an all-structural summary does not send the admin to the orphan scan',
+    strpos($logged, 'fk-orphan-scan.php will report none') !== false
+        && strpos($logged, 'Run bin/fk-orphan-scan.php') === false
+);
+
+$logged = $summaryFor(1452);
+$t->check(
+    'an orphan summary still sends the admin to the orphan scan',
+    strpos($logged, 'Run bin/fk-orphan-scan.php') !== false
 );
 
 $t->finish();

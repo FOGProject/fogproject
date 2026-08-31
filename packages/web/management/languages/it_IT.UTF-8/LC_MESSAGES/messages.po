@@ -884,6 +884,9 @@ msgstr "Tutti i nodi di storage"
 msgid "All Types"
 msgstr "Tipo regola"
 
+msgid "All are structural (column type or nullability), not orphan rows -- bin/fk-orphan-scan.php will report none."
+msgstr ""
+
 msgid "All files synced for this item"
 msgstr ""
 

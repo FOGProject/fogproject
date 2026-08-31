@@ -58,10 +58,49 @@ parameters:
         - packages/service
         - bin
 
+    # Made KNOWN here, not analysed here. bin/upgrade-rehearsal.php requires
+    # this class at runtime, but it lives under tests/ so that
+    # tests/all-classes-load.test.php's rule -- every class in a tracked .php
+    # outside vendor/ and tests/ must autoload -- stays absolute; a class in a
+    # CLI script that exits during argument parsing can never satisfy it.
+    # scanFiles rather than paths because phpstan-tests.neon is what analyses
+    # the file, and analysing it twice under two configs is how the two drift.
+    scanFiles:
+        - tests/lib/rehearsal-runner.php
+
     # tests/ is analysed by phpstan-tests.neon, not here. It needs two
     # ignoreErrors rules this config must not carry -- see that file's header
     # for why eval()'d fixtures and per-file global helpers make a shared
     # config the wrong shape.
+
+    ignoreErrors:
+        # bin/upgrade-rehearsal.php boots a DIFFERENT FOG tree -- a lab copy
+        # whose path is an argument -- and replays commons/schema.php inside
+        # it. Three findings follow from that and all three are artifacts of
+        # analysing a bootstrapper for an application that is not here:
+        #
+        #   include.fileNotFound      the schema file it includes lives under
+        #                             the tree being rehearsed, not this repo.
+        #   notIdentical.alwaysTrue   build/phpstan/constants.stub.php declares
+        #   deadCode.unreachable      DATABASE_NAME as a literal '', so the
+        #                             guard that checks the lab tree actually
+        #                             honored REHEARSAL_DB reads as always
+        #                             true, and everything after it as dead.
+        #
+        # Ignored by identifier and scoped to the one file, following
+        # phpstan-tests.neon's precedent: these are permanent properties of
+        # what the file does, not a backlog. The guard they misread is real
+        # and load-bearing -- a rehearsal pointed at the wrong database is the
+        # one outcome that must fail loudly.
+        -
+            identifier: include.fileNotFound
+            path: bin/upgrade-rehearsal.php
+        -
+            identifier: notIdentical.alwaysTrue
+            path: bin/upgrade-rehearsal.php
+        -
+            identifier: deadCode.unreachable
+            path: bin/upgrade-rehearsal.php
 
     excludePaths:
         analyseAndScan:

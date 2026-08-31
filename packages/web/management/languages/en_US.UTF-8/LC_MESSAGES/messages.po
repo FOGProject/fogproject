@@ -910,6 +910,9 @@ msgstr "All Storage Nodes"
 msgid "All Types"
 msgstr "Module Type"
 
+msgid "All are structural (column type or nullability), not orphan rows -- bin/fk-orphan-scan.php will report none."
+msgstr ""
+
 msgid "All files synced for this item"
 msgstr ""
 
