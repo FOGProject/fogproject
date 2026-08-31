@@ -51,6 +51,10 @@ if (preg_match(
 $steps = fogCollectSchemaSteps($schemaFile, 'fogtest', $fogSchema);
 $t = new FogChecks();
 
+// The step this test is about. Pinned, so that adding step 402 cannot quietly
+// point these assertions somewhere else.
+define('SITE_RETIRE_STEP', 399);
+
 /**
  * A `self::$DB` that answers the table probes and records what was written.
  */
@@ -120,7 +124,11 @@ function runRetireStep(array $tables)
     $db->tables = $tables;
     $prev = SchemaCollector::$DB;
     SchemaCollector::$DB = $db;
-    $step = end($steps);
+    // Indexed by the step's OWN number, not end($steps). Keying on the last
+    // step means every future step silently retargets this test at itself --
+    // which is exactly what steps 400 and 401 did, turning it red on code it
+    // does not test.
+    $step = $steps[SITE_RETIRE_STEP - 1];
     foreach ((array)$step as $update) {
         if (is_callable($update)) {
             $update();
@@ -190,7 +198,12 @@ $t->check(
 // prose from code would force the explanation out of the file -- which is the
 // one part of it a future reader most needs.
 $src = (string)file_get_contents($schemaFile);
-$tail = substr($src, (int)strrpos($src, '// 399'));
+$tail = substr(
+    $src,
+    (int)strpos($src, "\n// " . SITE_RETIRE_STEP . "\n"),
+    (int)strpos($src, "\n// " . (SITE_RETIRE_STEP + 1) . "\n")
+        - (int)strpos($src, "\n// " . SITE_RETIRE_STEP . "\n")
+);
 $code = '';
 foreach (token_get_all('<?php ' . $tail) as $tok) {
     if (is_array($tok) && in_array($tok[0], [T_COMMENT, T_DOC_COMMENT], true)) {

@@ -7117,6 +7117,10 @@ msgid "Rename or remove one of them."
 msgstr "Falha ao atualizar tarefa"
 
 #, php-format
+msgid "Renamed %d duplicate role name(s) to restore the unique-name guarantee. No access was changed."
+msgstr ""
+
+#, php-format
 msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
 msgstr ""
 
