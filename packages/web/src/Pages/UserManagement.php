@@ -302,7 +302,7 @@ class UserManagement extends FOGPage
             . _('It must be between 3 and 50 characters.');
         $user = strtolower(
             trim(
-                filter_input(INPUT_POST, 'user')
+                (string)filter_input(INPUT_POST, 'user')
             )
         );
         // Cast before trim(). The API-only toggle DISABLES this field, and a
@@ -314,7 +314,7 @@ class UserManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'password')
         );
         $friendly = trim(
-            filter_input(INPUT_POST, 'display')
+            (string)filter_input(INPUT_POST, 'display')
         );
         $apien = (int)isset($_POST['apienabled']);
         $apionly = (int)isset($_POST['apionly']);
@@ -618,11 +618,11 @@ class UserManagement extends FOGPage
             . _('It must be between 3 and 50 characters.');
         $user = strtolower(
             trim(
-                filter_input(INPUT_POST, 'user')
+                (string)filter_input(INPUT_POST, 'user')
             )
         );
         $display = trim(
-            filter_input(INPUT_POST, 'display')
+            (string)filter_input(INPUT_POST, 'display')
         );
         if (!preg_match($userPat, $user)) {
             throw new \Exception($userErr);
@@ -794,7 +794,7 @@ class UserManagement extends FOGPage
             );
         }
         $password = trim(
-            filter_input(INPUT_POST, 'password')
+            (string)filter_input(INPUT_POST, 'password')
         );
         $this->obj
             ->set('password', $password);
@@ -1354,7 +1354,7 @@ class UserManagement extends FOGPage
         // target with this one, so the discriminator is gone with it.
         $apien = (int)isset($_POST['apienabled']);
         $apitoken = base64_decode(
-            filter_input(INPUT_POST, 'apitoken')
+            (string)filter_input(INPUT_POST, 'apitoken')
         );
         $this->obj
             ->set('api', $apien)

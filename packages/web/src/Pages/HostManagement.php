@@ -999,51 +999,51 @@ class HostManagement extends FOGPage
             _('Host Create Fail'),
             function (&$serverFault) {
                 $host = trim(
-                    filter_input(INPUT_POST, 'host')
+                    (string)filter_input(INPUT_POST, 'host')
                 );
                 $mac = trim(
-                    filter_input(INPUT_POST, 'mac')
+                    (string)filter_input(INPUT_POST, 'mac')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $password = trim(
-                    filter_input(INPUT_POST, 'domainpassword')
+                    (string)filter_input(INPUT_POST, 'domainpassword')
                 );
                 $useAD = (int)isset($_POST['domain']);
                 $domain = trim(
-                    filter_input(INPUT_POST, 'domainname')
+                    (string)filter_input(INPUT_POST, 'domainname')
                 );
                 $ou = trim(
-                    filter_input(INPUT_POST, 'ou')
+                    (string)filter_input(INPUT_POST, 'ou')
                 );
                 $user = trim(
-                    filter_input(INPUT_POST, 'domainuser')
+                    (string)filter_input(INPUT_POST, 'domainuser')
                 );
                 $pass = $password;
                 $key = trim(
-                    filter_input(INPUT_POST, 'key')
+                    (string)filter_input(INPUT_POST, 'key')
                 );
                 $productKey = self::productKeyResolve($key, '');
                 $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
                 $image = (int)filter_input(INPUT_POST, 'image');
                 $kernel = trim(
-                    filter_input(INPUT_POST, 'kernel')
+                    (string)filter_input(INPUT_POST, 'kernel')
                 );
                 $kernelArgs = trim(
-                    filter_input(INPUT_POST, 'args')
+                    (string)filter_input(INPUT_POST, 'args')
                 );
                 $kernelDevice = trim(
-                    filter_input(INPUT_POST, 'dev')
+                    (string)filter_input(INPUT_POST, 'dev')
                 );
                 $init = trim(
-                    filter_input(INPUT_POST, 'init')
+                    (string)filter_input(INPUT_POST, 'init')
                 );
                 $bootTypeExit = trim(
-                    filter_input(INPUT_POST, 'bootTypeExit')
+                    (string)filter_input(INPUT_POST, 'bootTypeExit')
                 );
                 $efiBootTypeExit = trim(
-                    filter_input(INPUT_POST, 'efiBootTypeExit')
+                    (string)filter_input(INPUT_POST, 'efiBootTypeExit')
                 );
 
                 $exists = self::getClass('HostManager')
@@ -1642,38 +1642,38 @@ class HostManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $host = trim(
-            filter_input(INPUT_POST, 'host')
+            (string)filter_input(INPUT_POST, 'host')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $imageID = trim(
-            filter_input(INPUT_POST, 'image')
+            (string)filter_input(INPUT_POST, 'image')
         );
         $key = trim(
-            filter_input(INPUT_POST, 'key')
+            (string)filter_input(INPUT_POST, 'key')
         );
         $productKey = self::productKeyResolve(
             $key,
             $this->obj->get('productKey')
         );
         $kernel = trim(
-            filter_input(INPUT_POST, 'kernel')
+            (string)filter_input(INPUT_POST, 'kernel')
         );
         $args = trim(
-            filter_input(INPUT_POST, 'args')
+            (string)filter_input(INPUT_POST, 'args')
         );
         $dev = trim(
-            filter_input(INPUT_POST, 'dev')
+            (string)filter_input(INPUT_POST, 'dev')
         );
         $init = trim(
-            filter_input(INPUT_POST, 'init')
+            (string)filter_input(INPUT_POST, 'init')
         );
         $bte = trim(
-            filter_input(INPUT_POST, 'bootTypeExit')
+            (string)filter_input(INPUT_POST, 'bootTypeExit')
         );
         $ebte = trim(
-            filter_input(INPUT_POST, 'efiBootTypeExit')
+            (string)filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
         // The blank "- Please select -" option means "not recorded", which is
@@ -1983,7 +1983,7 @@ class HostManagement extends FOGPage
         self::checkAuthAndCSRF();
         if (isset($_POST['macadd'])) {
             $mac = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'newMac'
                 )
@@ -2251,16 +2251,16 @@ class HostManagement extends FOGPage
         self::checkAuthAndCSRF();
         $useAD = isset($_POST['domain']);
         $domain = trim(
-            filter_input(INPUT_POST, 'domainname')
+            (string)filter_input(INPUT_POST, 'domainname')
         );
         $ou = trim(
-            filter_input(INPUT_POST, 'ou')
+            (string)filter_input(INPUT_POST, 'ou')
         );
         $user = trim(
-            filter_input(INPUT_POST, 'domainuser')
+            (string)filter_input(INPUT_POST, 'domainuser')
         );
         $pass = trim(
-            filter_input(INPUT_POST, 'domainpassword')
+            (string)filter_input(INPUT_POST, 'domainpassword')
         );
         $this->obj->setAD(
             $useAD,
@@ -2979,37 +2979,37 @@ class HostManagement extends FOGPage
         if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
             $onDemand = (int)isset($_POST['pmaddod']);
             $min = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronMin'
                 )
             );
             $hour = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronHour'
                 )
             );
             $dom = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronDOM'
                 )
             );
             $month = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronMonth'
                 )
             );
             $dow = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronDOW'
                 )
             );
             $action = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'action'
                 )
@@ -4787,7 +4787,7 @@ class HostManagement extends FOGPage
             }
             // Password reset setup
             $passreset = trim(
-                filter_input(INPUT_POST, 'account')
+                (string)filter_input(INPUT_POST, 'account')
             );
             if (TaskType::PASSWORD_RESET == $TaskType->id
                 && !$passreset

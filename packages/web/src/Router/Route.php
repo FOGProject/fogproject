@@ -1799,7 +1799,7 @@ class Route extends FOGBase
     private static function _testToken()
     {
         $passtoken = base64_decode(
-            filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
+            (string)filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
         );
         $passtoken = trim($passtoken);
         if (hash_equals((string)self::$_token, (string)$passtoken)) {
@@ -2050,7 +2050,7 @@ class Route extends FOGBase
     private static function _testAuth()
     {
         $usertoken = base64_decode(
-            filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
+            (string)filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
         );
         $usertoken = trim($usertoken);
         $pwtoken = self::getClass('User')

@@ -241,7 +241,7 @@ class SnapinManagement extends FOGPage
         $description = filter_input(INPUT_POST, 'description');
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $snapinfileexist = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
+            (string)filter_input(INPUT_POST, 'snapinfileexist')
         );
         $packtype = (int)filter_input(INPUT_POST, 'packtype');
         $rw = filter_input(INPUT_POST, 'rw');
@@ -680,7 +680,7 @@ class SnapinManagement extends FOGPage
             $this->obj->get('packtype')
         );
         $snapinfileexists = basename(
-            filter_input(INPUT_POST, 'snapinfileexist') ?:
+            (string)filter_input(INPUT_POST, 'snapinfileexist') ?:
             $this->obj->get('file')
         );
         $rw = (
@@ -1112,13 +1112,13 @@ class SnapinManagement extends FOGPage
     public function snapinGeneralPost()
     {
         self::checkAuthAndCSRF();
-        $snapin = trim(filter_input(INPUT_POST, 'snapin'));
-        $description = trim(filter_input(INPUT_POST, 'description'));
-        $packtype = trim(filter_input(INPUT_POST, 'packtype'));
-        $runWith = trim(filter_input(INPUT_POST, 'rw'));
-        $runWithArgs = trim(filter_input(INPUT_POST, 'rwa'));
+        $snapin = trim((string)filter_input(INPUT_POST, 'snapin'));
+        $description = trim((string)filter_input(INPUT_POST, 'description'));
+        $packtype = trim((string)filter_input(INPUT_POST, 'packtype'));
+        $runWith = trim((string)filter_input(INPUT_POST, 'rw'));
+        $runWithArgs = trim((string)filter_input(INPUT_POST, 'rwa'));
         $snapinfile = basename(
-            trim(filter_input(INPUT_POST, 'snapinfileexist'))
+            trim((string)filter_input(INPUT_POST, 'snapinfileexist'))
         );
         $uploadfile = basename(
             trim($_FILES['snapinfile']['name'])
@@ -1130,9 +1130,9 @@ class SnapinManagement extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
-        $timeout = trim(filter_input(INPUT_POST, 'timeout'));
-        $action = trim(filter_input(INPUT_POST, 'action'));
-        $args = trim(filter_input(INPUT_POST, 'args'));
+        $timeout = trim((string)filter_input(INPUT_POST, 'timeout'));
+        $action = trim((string)filter_input(INPUT_POST, 'action'));
+        $args = trim((string)filter_input(INPUT_POST, 'args'));
 
         $exists = self::getClass('SnapinManager')
             ->exists($snapin);

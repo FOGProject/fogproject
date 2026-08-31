@@ -138,10 +138,10 @@ class UserGroupManagement extends FOGPage
             _('User Group Create Fail'),
             function (&$serverFault) {
                 $usergroup = trim(
-                    filter_input(INPUT_POST, 'usergroup')
+                    (string)filter_input(INPUT_POST, 'usergroup')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $exists = self::getClass('UserGroupManager')
                     ->exists($usergroup);
@@ -241,10 +241,10 @@ class UserGroupManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $usergroup = trim(
-            filter_input(INPUT_POST, 'usergroup')
+            (string)filter_input(INPUT_POST, 'usergroup')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
 
         $exists = self::getClass('UserGroupManager')

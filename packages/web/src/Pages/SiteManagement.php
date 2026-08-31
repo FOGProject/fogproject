@@ -144,10 +144,10 @@ class SiteManagement extends FOGPage
             _('Site Create Fail'),
             function (&$serverFault) {
                 $site = trim(
-                    filter_input(INPUT_POST, 'site')
+                    (string)filter_input(INPUT_POST, 'site')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 // `sites`.`siteName` is UNIQUE, and save() builds an
                 // INSERT ... ON DUPLICATE KEY UPDATE -- so without this
@@ -302,10 +302,10 @@ class SiteManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $site = trim(
-            filter_input(INPUT_POST, 'site')
+            (string)filter_input(INPUT_POST, 'site')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
 
         // Same silent-overwrite guard as addPost(); a rename onto an
