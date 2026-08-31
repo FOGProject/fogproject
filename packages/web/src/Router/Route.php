@@ -9130,6 +9130,210 @@ class Route extends FOGBase
         }
     }
     /**
+     * Applies one PUT body to every item the join names.
+     *
+     * The bulk half of joining(): re-reads the named ids through listem()
+     * rather than loading them directly, then copies the body onto each and
+     * saves it. That indirection is load-bearing -- listem() runs
+     * _applySiteScope(), so a PUT naming an id outside the caller's site
+     * scope simply gets a shorter list back rather than writing to it.
+     *
+     * Unlike _applyEditFields(), an absent field falls back to the object's
+     * OWN stored value rather than being skipped -- the value is read and
+     * written back. That is why this route is not a bulk edit(): the
+     * re-assignment is not a no-op for a class whose set() transforms what
+     * it stores, which is the trap api-server-owned-fields.test.php pins on
+     * edit() for User::set() and password hashing.
+     *
+     * @param string $classname The lowercased class name.
+     * @param array  $classVars The class's reflected variables.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _joiningUpdate($classname, $classVars, $vars)
+    {
+        Route::listem(
+            $classname,
+            ['id' => $vars->ids]
+        );
+        $classes = json_decode(
+            Route::getData()
+        );
+        foreach ($classes->data as &$c) {
+            $c = self::getClass($classname, $c->id);
+            foreach ($classVars['databaseFields'] as &$key) {
+                $key = $c->key($key);
+                if (!isset($vars->$key)) {
+                    $val = $c->get($key);
+                } else {
+                    $val = $vars->$key;
+                }
+                if ($key == 'id') {
+                    continue;
+                }
+                $c->set($key, $val);
+                unset($key);
+            }
+            self::_applyJoiningAssociations($c, $classname, $vars);
+            // Store the data and recreate.
+            // If failed present so.
+            if (!$c->save()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            unset($c);
+        }
+    }
+    /**
+     * Applies the join-table changes a joining PUT body asks for.
+     *
+     * Reads almost identically to _applyCreateAssociations() and is NOT the
+     * same thing, which is the reason it has a name of its own. Three arms
+     * differ, and each difference is what the verb means:
+     *
+     * - host takes `macs` through addMAC(), adding secondaries to a host
+     *   that already exists, where create() has to shift the first off the
+     *   list into addPriMAC() before the row has an id;
+     * - host takes `modules` through addModule() rather than
+     *   set('modules'), because the object is loaded and the create is
+     *   assigning a column on an unsaved one;
+     * - group takes `imageID` unconditionally, where create() only honors it
+     *   alongside `hosts`.
+     *
+     * image, snapin and printer are byte-identical to create's. Folding the
+     * whole switch together for those three would mean a flag parameter
+     * selecting between the other three, which hides the distinctions above
+     * rather than removing them.
+     *
+     * @param object $c         The loaded item being joined to.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyJoiningAssociations($c, $classname, $vars)
+    {
+        switch ($classname) {
+            case 'host':
+                if (isset($vars->macs)) {
+                    $c->addMAC($vars->macs);
+                }
+                if (isset($vars->snapins)) {
+                    $c->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $c->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $c->addModule($vars->modules);
+                }
+                if (isset($vars->groups)) {
+                    $c->addGroup($vars->groups);
+                }
+                break;
+            case 'group':
+                if (isset($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+                if (isset($vars->snapins)) {
+                    $c->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $c->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $c->addModule($vars->modules);
+                }
+                // isset(), like every sibling guard: a group
+                // join without an imageID otherwise emits an
+                // "Undefined property" warning, which would
+                // become a fatal under an ErrorException
+                // converter. Only reachable at all since the
+                // route stopped answering 501 (#919).
+                if (isset($vars->imageID)) {
+                    $c->addImage($vars->imageID);
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+                if (isset($vars->storagegroups)) {
+                    $c->addGroup($vars->storagegroups);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $c->addHost($vars->hosts);
+                }
+        }
+    }
+    /**
+     * Creates the named groups a POST body asks for, then attaches hosts.
+     *
+     * Name-addressed rather than id-addressed: each name is created if it
+     * does not exist and reused if it does, so the route is idempotent on
+     * the names it is given. joining() refuses this verb for every class but
+     * `group` before reaching here.
+     *
+     * @param string $classname The lowercased class name.
+     * @param object $classman  The class's manager.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _joiningCreate($classname, $classman, $vars)
+    {
+        $ids = [];
+        foreach ($vars->names as &$name) {
+            $exists = $classman->exists($name);
+            $id = Route::getIds(
+                $classname,
+                ['name' => $name]
+            );
+            if ($exists) {
+                foreach ($id as &$i) {
+                    $ids[] = $i;
+                    unset($i);
+                }
+                continue;
+            }
+            $c = self::getClass($classname)
+                ->set('name', $name);
+            if (!$c->save()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            $ids[] = $c->get('id');
+            unset($name);
+        }
+        Route::listem(
+            $classname,
+            ['id' => $ids]
+        );
+        $classes = json_decode(
+            Route::getData()
+        );
+        foreach ($classes->data as &$c) {
+            $c = self::getClass($classname, $c->id);
+            if (count($vars->hosts ?: [])) {
+                $c->addHost($vars->hosts);
+            }
+            // Store the data and recreate.
+            // If failed present so.
+            if (!$c->save()) {
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                );
+            }
+            unset($c);
+        }
+    }
+    /**
      * Allows joining items.
      *
      * Static because runMatches() dispatches routed targets through
@@ -9166,140 +9370,11 @@ class Route extends FOGBase
             $classman = self::getClass($class.'Manager');
             switch (self::$reqmethod) {
                 case 'PUT':
-                    Route::listem(
-                        $classname,
-                        ['id' => $vars->ids]
-                    );
-                    $classes = json_decode(
-                        Route::getData()
-                    );
-                    foreach ($classes->data as &$c) {
-                        $c = self::getClass($classname, $c->id);
-                        foreach ($classVars['databaseFields'] as &$key) {
-                            $key = $c->key($key);
-                            if (!isset($vars->$key)) {
-                                $val = $c->get($key);
-                            } else {
-                                $val = $vars->$key;
-                            }
-                            if ($key == 'id') {
-                                continue;
-                            }
-                            $c->set($key, $val);
-                            unset($key);
-                        }
-                        switch ($classname) {
-                            case 'host':
-                                if (isset($vars->macs)) {
-                                    $c->addMAC($vars->macs);
-                                }
-                                if (isset($vars->snapins)) {
-                                    $c->addSnapin($vars->snapins);
-                                }
-                                if (isset($vars->printers)) {
-                                    $c->addPrinter($vars->printers);
-                                }
-                                if (isset($vars->modules)) {
-                                    $c->addModule($vars->modules);
-                                }
-                                if (isset($vars->groups)) {
-                                    $c->addGroup($vars->groups);
-                                }
-                                break;
-                            case 'group':
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
-                                if (isset($vars->snapins)) {
-                                    $c->addSnapin($vars->snapins);
-                                }
-                                if (isset($vars->printers)) {
-                                    $c->addPrinter($vars->printers);
-                                }
-                                if (isset($vars->modules)) {
-                                    $c->addModule($vars->modules);
-                                }
-                                // isset(), like every sibling guard: a group
-                                // join without an imageID otherwise emits an
-                                // "Undefined property" warning, which would
-                                // become a fatal under an ErrorException
-                                // converter. Only reachable at all since the
-                                // route stopped answering 501 (#919).
-                                if (isset($vars->imageID)) {
-                                    $c->addImage($vars->imageID);
-                                }
-                                break;
-                            case 'image':
-                            case 'snapin':
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
-                                if (isset($vars->storagegroups)) {
-                                    $c->addGroup($vars->storagegroups);
-                                }
-                                break;
-                            case 'printer':
-                                if (isset($vars->hosts)) {
-                                    $c->addHost($vars->hosts);
-                                }
-                        }
-                        // Store the data and recreate.
-                        // If failed present so.
-                        if (!$c->save()) {
-                            self::sendResponse(
-                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                            );
-                        }
-                        unset($c);
-                    }
+                    self::_joiningUpdate($classname, $classVars, $vars);
                     $code = HTTPResponseCodes::HTTP_ACCEPTED;
                     break;
                 case 'POST':
-                    $ids = [];
-                    foreach ($vars->names as &$name) {
-                        $exists = $classman->exists($name);
-                        $id = Route::getIds(
-                            $classname,
-                            ['name' => $name]
-                        );
-                        if ($exists) {
-                            foreach ($id as &$i) {
-                                $ids[] = $i;
-                                unset($i);
-                            }
-                            continue;
-                        }
-                        $c = self::getClass($classname)
-                            ->set('name', $name);
-                        if (!$c->save()) {
-                            self::sendResponse(
-                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                            );
-                        }
-                        $ids[] = $c->get('id');
-                        unset($name);
-                    }
-                    Route::listem(
-                        $classname,
-                        ['id' => $ids]
-                    );
-                    $classes = json_decode(
-                        Route::getData()
-                    );
-                    foreach ($classes->data as &$c) {
-                        $c = self::getClass($classname, $c->id);
-                        if (count($vars->hosts ?: [])) {
-                            $c->addHost($vars->hosts);
-                        }
-                        // Store the data and recreate.
-                        // If failed present so.
-                        if (!$c->save()) {
-                            self::sendResponse(
-                                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                            );
-                        }
-                        unset($c);
-                    }
+                    self::_joiningCreate($classname, $classman, $vars);
                     $code = HTTPResponseCodes::HTTP_CREATED;
                     break;
                 default:

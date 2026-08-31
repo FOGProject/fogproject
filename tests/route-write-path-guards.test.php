@@ -21,26 +21,28 @@
  * lockout-guard-is-unscoped.test.php drives
  * Authorization::adminExistsGiven() thoroughly and never mentions Route.
  *
- * WHAT IS COVERED HERE: the server-owned refusal, on both verbs, in both
- * directions -- it refuses a change, and it does NOT refuse a round trip.
+ * WHAT IS COVERED HERE:
  *
- * WHAT IS NOT, AND WHY. Two of the three mutations above are still
- * unguarded, because neither can be driven on this fixture yet:
+ *   - the server-owned refusal, on both verbs, in both directions -- it
+ *     refuses a change, and it does NOT refuse a round trip;
+ *   - joining()'s POST class gate.
  *
- *   - deletemass()'s lockout guard needs an install that really would be
- *     locked out, which means a users/roles/permissions picture this
- *     harness cannot yet answer. lockout-guard-is-unscoped.test.php builds
- *     one for the supplier; the call site needs the same fixture reachable
- *     from a booted router.
- *   - joining()'s POST class gate refuses a non-group class with a 400 --
- *     and on this fixture `group` is refused with a 400 as well, further
- *     down, because it has no real rows to join. Status code, message and
- *     statement count are identical for both, so there is nothing to assert
- *     that the gate's removal would change. A check written against it
- *     passed with the gate disabled, which is why there is not one here:
- *     an assertion that has only ever been green is worse than none.
+ * The joining gate took two goes. The first check compared status codes,
+ * found `host` and `group` both refused with a 400, and passed with the gate
+ * disabled. Two things were wrong and both are fixed here: the child never
+ * named self::$reqmethod, so every case fell to the switch's `default:` arm
+ * and answered 400 having run nothing; and a status code cannot express what
+ * this gate does anyway. It is asserted on the STATEMENT COUNT now -- a
+ * refused class issues zero, an allowed one reaches the database -- and both
+ * mutations (disabling the verb test, disabling the class test) turn it red.
  *
- * Both are real holes and both are recorded rather than papered over.
+ * WHAT IS NOT, AND WHY. One of the three mutations above is still unguarded:
+ * deletemass()'s lockout guard needs an install that really would be locked
+ * out, which means a users/roles/permissions picture this harness cannot yet
+ * answer. lockout-guard-is-unscoped.test.php builds one for the supplier;
+ * the call site needs the same fixture reachable from a booted router.
+ *
+ * That is a real hole and it is recorded rather than papered over.
  *
  * DB-free. FogTestHarness::fakeDb() logs every statement and can answer any
  * of them, so no MySQL is involved anywhere here.
@@ -90,6 +92,17 @@ if (null !== $childCase) {
 function runChild($case)
 {
     FogTestHarness::boot('write-path-child');
+    // The verb, as FOGBase populates it in production. The harness boot does
+    // not run FOGBase's request-init, so self::$reqmethod is NULL here unless
+    // it is named -- and joining()'s POST gate reads exactly that. Left NULL,
+    // every joining case falls to the switch's `default:` arm and answers
+    // 400 without ever reaching the gate, which is why the first attempt at
+    // netting it could not tell the gate's removal apart from working code.
+    FogTestHarness::setStatic(
+        'FOGBase',
+        'reqmethod',
+        (string)($_SERVER['REQUEST_METHOD'] ?? 'GET')
+    );
     $db = FogTestHarness::fakeDb();
     // One synthetic row for every SELECT, so an edit finds its object and
     // reaches the field loop. Without this the call answers 404 before any
@@ -170,6 +183,31 @@ function runChild($case)
             echo 'ALLOWED ' . implode(' ;; ', $wrote) . "\n";
         } catch (\Throwable $e) {
             echo 'REFUSED ' . str_replace("\n", ' ', $e->getMessage()) . "\n";
+        }
+        return;
+    }
+
+    // joining:<class> drives the bulk join route. The marker carries the
+    // STATEMENT COUNT as well as the outcome, because the POST class gate
+    // and the failures further down the same arm all end in a 400 -- the
+    // count is the only thing that tells "refused at the gate" apart from
+    // "ran, then failed".
+    if (0 === strpos($case, 'joining:')) {
+        $parts = explode(':', $case);
+        // Route-only. Booting the harness issues a handful of statements of
+        // its own, and a count that includes them cannot express "the gate
+        // fired before anything ran", which is the whole assertion.
+        $db->log = [];
+        try {
+            Route::asValue(
+                function () use ($parts) {
+                    Route::joining($parts[1]);
+                }
+            );
+            echo 'ALLOWED STATEMENTS ' . count($db->log) . "\n";
+        } catch (\Throwable $e) {
+            echo 'REFUSED ' . str_replace("\n", ' ', $e->getMessage())
+                . ' STATEMENTS ' . count($db->log) . "\n";
         }
         return;
     }
@@ -323,6 +361,46 @@ $t->check(
     "edit(): re-sending the STORED value is not refused as a write "
     . "(got: $line)",
     false === strpos($line, $refusal)
+);
+
+/*
+ * ===========================================================================
+ * 3. joining() refuses POST for every class but `group`.
+ *
+ *    The bulk POST arm creates rows by NAME and attaches hosts to them. It
+ *    is written for groups and nothing else -- _joiningCreate() sets only
+ *    `name` and then calls addHost(), which no other class in the switch
+ *    would do anything sensible with -- so the gate at the top of joining()
+ *    is what keeps the arm from running for a class it was never written
+ *    for.
+ *
+ *    Asserted on the STATEMENT COUNT, not on the status code. Both classes
+ *    end in a refusal on this fixture, and the earlier attempt at netting
+ *    this guard compared status codes, found them identical, and passed
+ *    with the gate disabled. The gate's whole observable effect is that
+ *    NOTHING runs: a refused class issues zero statements, an allowed one
+ *    reaches the database. That is the difference the mutation moves.
+ *
+ *    Also why the child now names self::$reqmethod: left NULL, every case
+ *    here falls to the switch's `default:` arm and answers 400 having run
+ *    nothing, so a disabled gate is indistinguishable from a working one.
+ * ===========================================================================
+ */
+$joinBody = json_encode(['names' => ['probe-group'], 'hosts' => []]);
+
+$line = child('joining:host', $joinBody, 'POST');
+$t->check(
+    "joining(): POST to a non-group class is refused BEFORE the arm runs "
+    . "(got: $line)",
+    false !== strpos($line, 'REFUSED')
+    && false !== strpos($line, 'STATEMENTS 0')
+);
+
+$line = child('joining:group', $joinBody, 'POST');
+$t->check(
+    "joining(): POST to `group` still reaches the create arm -- otherwise "
+    . "the check above passes because nothing works (got: $line)",
+    false === strpos($line, 'STATEMENTS 0')
 );
 
 $t->finish();
