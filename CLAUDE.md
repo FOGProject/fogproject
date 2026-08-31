@@ -181,6 +181,39 @@ error does not fail the build — nothing guards the over-count, so it is the on
 you find in CI. (#1448: one added `Route::$rows` write in
 `tests/lib/bootmenu-render.php` took a count from 2 to 3.)
 
+**A local failure CI does not show is the cache, not the code — and
+`clear-result-cache` is not enough to rule that out.** PHPStan's `tmpDir` is
+`/tmp/phpstan`, and it holds two separate things:
+
+| | cleared by `phpstan clear-result-cache`? |
+|---|---|
+| `/tmp/phpstan/resultCache.php` | yes |
+| `/tmp/phpstan/cache/` (~26 MB, reflection and container) | **no** |
+
+So the documented clear command leaves the larger half in place, and a stale
+entry there keeps reporting an error against source that no longer contains it.
+It looks exactly like a real regression: same phpstan version, same config, same
+pinned PHP range, reproducible on every run, and reproducible on an unmodified
+checkout of the branch — which is what makes it convincing rather than obviously
+wrong. Meanwhile CI, which is always cold, is green and correct.
+
+To rule it out, remove the whole directory before believing a local-only
+failure:
+
+```
+rm -rf /tmp/phpstan
+vendor/bin/phpstan analyse -c phpstan-tests.neon --memory-limit=2G --no-progress
+```
+
+Worth knowing on this box specifically: `/tmp` is tmpfs, so the cache is shared
+by every worktree and does not survive a reboot.
+
+(2026-08-31: four `include.fileNotFound` errors in
+`tests/lib/rehearsal-runner.php` were chased as a CI-versus-local discrepancy —
+version, config, stub, baseline and PHP were all compared and matched — and
+were reported in a PR body as "one of the two is wrong". `rm -rf /tmp/phpstan`
+made them vanish. The code was never at fault.)
+
 ### Commit authorship
 
 Commits are **authored by the maintainer and co-authored by the agent**, not the
