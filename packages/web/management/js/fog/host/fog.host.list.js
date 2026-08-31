@@ -1,6 +1,8 @@
 (function($) {
     var addToGroup = $('#addSelectedToGroup'),
         deleteSelected = $('#deleteSelected'),
+        queueTask = $('#queueTask'),
+        queueTaskModal = $('#queueTaskModal'),
         groupModal = $('#addToGroupModal'),
         groupModalSelect = $('#groupSelect'),
         createnewBtn = $('#createnew'),
@@ -8,10 +10,15 @@
         createForm = $('#create-form'),
         createnewSendBtn = $('#send');
     var groupList = [];
+    // How many rows were ticked when the Queue Task modal was opened. Read
+    // again at submit time rather than trusted: the grid stays interactive
+    // behind the modal.
+    var queueCount = 0;
 
     function disableButtons(disable) {
         addToGroup.prop('disabled', disable);
         deleteSelected.prop('disabled', disable);
+        queueTask.prop('disabled', disable);
     }
     disableButtons(true);
 
@@ -386,5 +393,142 @@
 
     addToGroup.on('click', function() {
         groupModal.modal('show');
+    });
+
+    // ---------------------------------------------------------------
+    // QUEUE TASK
+    //
+    // Two panes in one modal: the Basic/Advanced accordion, then the chosen
+    // task's options form fetched from the server. The Create button belongs
+    // to the second pane only, so it stays hidden until there is a form for
+    // it to submit.
+    var queuePicker = $('#queue-task-picker'),
+        queueHolder = $('#queue-task-form-holder'),
+        queueSend = $('#queueTaskSend'),
+        queueName = $('.queue-task-name');
+
+    // Which task types a selection of this size can actually run.
+    //
+    // The two exceptions are the whole reason the count matters. Multi-Cast
+    // ships as ttIsAccess='group' because one session serves many hosts, so
+    // it means nothing for a single host; Capture ships as ttIsAccess='host'
+    // because an image comes off exactly one machine. Everything else is
+    // 'both'. The server refuses the same two cases in
+    // assertSelectionTaskable(), so this is the courtesy, not the guard.
+    function applyTaskAvailability(count) {
+        $('.queuetaskitem').each(function() {
+            var access = $(this).attr('data-access'),
+                usable = true;
+            if (access === 'group' && count < 2) {
+                usable = false;
+            }
+            if (access === 'host' && count > 1) {
+                usable = false;
+            }
+            // The description cell beside it goes too, or the table shows a
+            // row of prose with nothing to click.
+            $(this).closest('tr').toggleClass('d-none', !usable);
+        });
+    }
+
+    function showQueuePicker() {
+        queueHolder.empty().addClass('d-none');
+        queuePicker.removeClass('d-none');
+        queueSend.addClass('d-none').off('click');
+        queueName.text('');
+    }
+
+    queueTask.on('click', function() {
+        queueCount = $.getSelectedIds(table).length;
+        if (queueCount < 1) {
+            return;
+        }
+        applyTaskAvailability(queueCount);
+        showQueuePicker();
+        queueTaskModal.modal('show');
+    });
+
+    queueTaskModal.on('hidden.bs.modal', function() {
+        showQueuePicker();
+    });
+
+    $('.queuetaskitem').on('click', function(e) {
+        e.preventDefault();
+        var type = $(this).attr('data-type'),
+            taskName = $(this).text(),
+            hosts = $.getSelectedIds(table);
+
+        if (hosts.length < 1) {
+            return;
+        }
+        queueCount = hosts.length;
+
+        queuePicker.addClass('d-none');
+        queueHolder.removeClass('d-none').html('Loading, please wait...');
+        queueName.text(' - ' + taskName);
+        $('#queueTaskModal .modal-dialog').setLoading(true);
+
+        Pace.track(function() {
+            $.ajax({
+                type: 'get',
+                url: '../management/index.php?node=host&sub=deployMulti'
+                    + '&type=' + encodeURIComponent(type)
+                    + '&count=' + encodeURIComponent(hosts.length),
+                dataType: 'json',
+                success: function(data) {
+                    $('#queueTaskModal .modal-dialog').setLoading(false);
+                    queueHolder.html($.parseHTML(data.msg));
+
+                    var form = $('#host-deploy-multi-form');
+                    Common.iCheck('#queue-task-form-holder input');
+
+                    // Debug hides the schedule fields on the single-host
+                    // form; there are none here, but the same checkbox still
+                    // gates the shutdown row.
+                    $('#checkdebug', form).on('change', function() {
+                        $('.hideFromDebug', form).toggleClass(
+                            'd-none',
+                            this.checked
+                        );
+                    });
+
+                    queueSend.removeClass('d-none').off('click').on(
+                        'click',
+                        function(e) {
+                            e.stopImmediatePropagation();
+                            // Read the selection again HERE. The grid is
+                            // still live behind the modal, so what was ticked
+                            // when the form was fetched is not necessarily
+                            // what is ticked now, and the ids are what the
+                            // server tasks.
+                            var current = $.getSelectedIds(table);
+                            $('input.queued-host', form).remove();
+                            $.each(current, function(i, id) {
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    name: 'hosts[]',
+                                    'class': 'queued-host'
+                                }).val(id).appendTo(form);
+                            });
+                            form.processForm(function(err) {
+                                if (err) {
+                                    return;
+                                }
+                                queueTaskModal.modal('hide');
+                                table.rows({selected: true}).deselect();
+                            });
+                        }
+                    );
+                },
+                error: function(jqXHR, textStatus) {
+                    if (textStatus == 'abort') {
+                        return;
+                    }
+                    $('#queueTaskModal .modal-dialog').setLoading(false);
+                    queueTaskModal.modal('hide');
+                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+                }
+            });
+        });
     });
 })(jQuery);

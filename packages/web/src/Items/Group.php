@@ -1152,10 +1152,27 @@ class Group extends FOGController
     /**
      * Loads hosts in this group.
      *
+     * A group with no id has no associations to load, and asking anyway is
+     * two pointless queries whose filters are both the empty-value shape
+     * that means "no filter" somewhere else in this codebase: `gmGroupID =
+     * ''` against groupMembers, then a COUNT of hosts filtered by an empty
+     * id list. Neither is currently wrong, and neither is worth relying on.
+     *
+     * Not a hypothetical. HostManagement::deployMulti() drives a Group that
+     * is deliberately never saved -- it is the carrier for an ad-hoc host
+     * selection, so that one multicast session covers the whole selection
+     * the way it does for a real group -- and set('hosts', ...) reaches
+     * here before the ids it is about to write land.
+     *
      * @return void
      */
     protected function loadHosts()
     {
+        if (!$this->get('id')) {
+            $this->set('hosts', []);
+
+            return;
+        }
         $this->_loadHostIds(
             'groupassociation',
             ['groupID' => $this->get('id')],

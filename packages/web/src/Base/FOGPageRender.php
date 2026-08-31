@@ -838,6 +838,291 @@ trait FOGPageRender
     }
 
     /**
+     * Builds the Basic/Advanced task-type accordion.
+     *
+     * `taskTypes` already carries both axes this needs. `ttIsAdvanced`
+     * splits the two panes -- Deploy and Multi-Cast are basic, everything
+     * from Memtest to Password Reset is advanced -- and `ttIsAccess` says
+     * which kind of target a type applies to: `host`, `group`, or `both`.
+     * Neither is derived here; the caller passes the access values it wants
+     * and gets back the accordion.
+     *
+     * The anchor is the caller's, because the two users of this need
+     * different links from the same rows: the host edit page tasks one host
+     * and names it in the URL, while the list tasks whatever is selected and
+     * has to defer that to the browser. Everything around the anchor -- the
+     * two collapsible cards, the striped tables, the hooks a plugin adds
+     * rows through -- is the same either way.
+     *
+     * @param array    $access       ttIsAccess values to include.
+     * @param callable $anchor       fn(stdClass $TaskType): string, the link.
+     * @param string   $accordionId  DOM id for the accordion wrapper.
+     * @param string   $basicHook    Event fired with the basic rows.
+     * @param string   $advancedHook Event fired with the advanced rows.
+     *
+     * @return string The accordion markup.
+     */
+    protected function taskTypeAccordion(
+        array $access,
+        callable $anchor,
+        $accordionId,
+        $basicHook = '',
+        $advancedHook = ''
+    ) {
+        $items = Route::getList(
+            'tasktype',
+            ['access' => $access],
+            'AND',
+            'id'
+        );
+
+        $panes = [];
+        foreach ([0, 1] as $advanced) {
+            $data = [];
+            foreach ($items as $TaskType) {
+                if ($advanced != $TaskType->isAdvanced) {
+                    continue;
+                }
+                $data[$anchor($TaskType)] = $TaskType->description;
+            }
+            $hook = $advanced ? $advancedHook : $basicHook;
+            if ($hook) {
+                self::$HookManager->processEvent($hook, ['data' => &$data]);
+            }
+            $panes[$advanced] = self::stripedTable($data);
+        }
+
+        ob_start();
+        echo '<div id="' . $accordionId . '">';
+        foreach ([0, 1] as $advanced) {
+            $paneId = $accordionId . ($advanced ? 'Advanced' : 'Basic');
+            echo '<div class="card card-'
+                . ($advanced ? 'warning' : 'primary')
+                . ' card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
+            echo '<a href="#' . $paneId . '" class="" data-bs-toggle="collapse" '
+                . 'data-bs-parent="#' . $accordionId . '">';
+            echo $advanced ? _('Advanced Tasks') : _('Basic Tasks');
+            echo '</a>';
+            echo '</h4>';
+            echo '</div>';
+            echo '<div id="' . $paneId . '" class="collapse'
+                . ($advanced ? '' : ' show')
+                . '">';
+            echo '<div class="card-body">';
+            echo '<table class="table table-striped">';
+            echo '<tbody>';
+            echo $panes[$advanced];
+            echo '</tbody>';
+            echo '</table>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Builds the task-option form fields shared by every create-task form:
+     * the snapin picker, the password-reset account, and the abort/bitlocker/
+     * shutdown/wake/debug checkboxes. The caller adds scheduleTypeFields()
+     * after these, and owns the form tag and its own hook.
+     *
+     * Extracted from HostManagement::deploy() and GroupManagement::deploy(),
+     * which carried the same 200 lines twice and had already drifted: only
+     * the host copy offered the bitlocker bypass. Keeping one copy is what
+     * lets deployMulti() exist without a third. The bitlocker block is gated
+     * on the task being a capture, and a group cannot capture, so folding
+     * the two together adds nothing to a group's form.
+     *
+     * Takes the type ID rather than a task-type object on purpose. The two
+     * callers hold two different things under the same name -- deploy() on
+     * the host page holds the decoded API row Route::getItem() answers with,
+     * where the predicates are properties, and the group page holds the
+     * model, where they are methods. Building the model here is what lets
+     * one body serve both.
+     *
+     * @param int    $type       The task type id.
+     * @param string $labelClass The label class used by the deploy form.
+     *
+     * @return array The field fragment to fastmerge onto the form fields.
+     */
+    protected function taskingOptionFields($type, $labelClass)
+    {
+        $TaskType = self::getClass('TaskType', $type);
+        $issnapintask = $TaskType->isSnapinTasking();
+        $isinitneeded = $TaskType->isInitNeededTasking();
+        $iscapturetask = $TaskType->isCapture();
+        $isdebug = $TaskType->isDebug();
+
+        $fields = [];
+
+        if ($issnapintask
+            && TaskType::SINGLE_SNAPIN == $type
+        ) {
+            $fields[
+                self::makeLabel(
+                    $labelClass,
+                    'snapin',
+                    _('Select Snapin to run')
+                )
+            ] = self::getClass('SnapinManager')
+                ->buildSelectBox('', 'snapin');
+        } elseif (TaskType::PASSWORD_RESET == $type) {
+            $fields[
+                self::makeLabel(
+                    $labelClass,
+                    'account',
+                    _('Account Name')
+                )
+            ] = self::makeInput(
+                'form-control',
+                'account',
+                _('Administrator'),
+                'text',
+                'account',
+                '',
+                true
+            );
+        }
+        if ($TaskType->isSnapinTask()) {
+            $fields = self::fastmerge(
+                $fields,
+                [
+                    self::makeLabel(
+                        $labelClass,
+                        'snapinAbortOnFailure',
+                        _('Abort snapin sequence on failure')
+                    ) => self::makeInput(
+                        '',
+                        'snapinAbortOnFailure',
+                        '',
+                        'checkbox',
+                        'snapinAbortOnFailure'
+                    )
+                ]
+            );
+        }
+        if ($isinitneeded) {
+            if ($iscapturetask) {
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        self::makeLabel(
+                            $labelClass,
+                            'bitlocker',
+                            _('Bypass Bitlocker Detection')
+                        ) => self::makeInput(
+                            '',
+                            'bitlocker',
+                            '',
+                            'checkbox',
+                            'bitlocker',
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            ''
+                        )
+                    ]
+                );
+            }
+            if (!$isdebug) {
+                $shutdownchecked = self::getSetting(
+                    'FOG_TASKING_ADV_SHUTDOWN_ENABLED'
+                ) ? ' checked' : '';
+                $fields = self::fastmerge(
+                    $fields,
+                    [
+                        '<div class="hideFromDebug deploy-field-group">'
+                        . self::makeLabel(
+                            $labelClass,
+                            'shutdown',
+                            _('Shutdown when complete')
+                        ) => self::makeInput(
+                            '',
+                            'shutdown',
+                            '',
+                            'checkbox',
+                            'shutdown',
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            $shutdownchecked
+                        )
+                        . '</div>'
+                    ]
+                );
+            }
+        }
+        if (TaskType::WAKE_UP != $type) {
+            $wolchecked = self::getSetting(
+                'FOG_TASKING_ADV_WOL_ENABLED'
+            ) ? ' checked' : '';
+            $fields = self::fastmerge(
+                $fields,
+                [
+                    self::makeLabel(
+                        $labelClass,
+                        'wol',
+                        _('Wake Up')
+                    ) => self::makeInput(
+                        '',
+                        'wol',
+                        '',
+                        'checkbox',
+                        'wol',
+                        '',
+                        false,
+                        false,
+                        -1,
+                        -1,
+                        $wolchecked
+                    )
+                ]
+            );
+        }
+        if (TaskType::PASSWORD_RESET != $type
+            && !$isdebug
+            && $isinitneeded
+        ) {
+            $debugchecked = self::getSetting(
+                'FOG_TASKING_ADV_DEBUG_ENABLED'
+            ) ? ' checked' : '';
+            $fields = self::fastmerge(
+                $fields,
+                [
+                    self::makeLabel(
+                        $labelClass,
+                        'checkdebug',
+                        _('Debug Task')
+                    ) => self::makeInput(
+                        '',
+                        'isDebugTask',
+                        '',
+                        'checkbox',
+                        'checkdebug',
+                        '',
+                        false,
+                        false,
+                        -1,
+                        -1,
+                        $debugchecked
+                    )
+                ]
+            );
+        }
+
+        return $fields;
+    }
+
+    /**
      * Builds the schedule-type form fields shared by the host/group deploy()
      * create-task forms: the always-present "Schedule Immediately" radio plus,
      * unless this is a debug or password-reset task, the "Schedule Later"
