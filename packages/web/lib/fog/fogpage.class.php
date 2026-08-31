@@ -1565,8 +1565,29 @@ abstract class FOGPage extends FOGBase
             $TaskType = new TaskType($type);
             /**
              * Account Setup.
+             *
+             * Cast, because filter_input() answers NULL for a POST key that
+             * is not there -- and only a password reset task's form carries
+             * `account`. That NULL used to be harmless: PDODB cleared
+             * sql_mode on every connection, so the server quietly coerced it
+             * to '' on the way into `tasks`.`taskPassreset`, which is
+             * varchar(250) NOT NULL. GH-1245 removed the clear, so the same
+             * NULL is now
+             *
+             *   SQLSTATE[23000]: 1048 Column 'taskPassreset' cannot be null
+             *
+             * and the whole statement is refused. It bites a GROUP task and
+             * not a single-host one because Group::createImagePackage()
+             * batch-inserts a fixed column list that always names passreset,
+             * while Host::createImagePackage() only sets it when it holds
+             * something. Reported on forum topic 18232 against group
+             * multicast; group deploy takes the same path.
+             *
+             * trim() as well, so an account of nothing but spaces is caught
+             * by the emptiness check below rather than stored. Same
+             * expression working-1.6 already uses.
              */
-            $passreset = filter_input(INPUT_POST, 'account');
+            $passreset = trim((string)filter_input(INPUT_POST, 'account'));
             /**
              * Snapin Setup.
              */
