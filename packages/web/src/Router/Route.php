@@ -6054,7 +6054,8 @@ class Route extends FOGBase
      * @param string $class The class to work with.
      * @param int    $id    The id of class to remove.
      *
-     * @return void
+     * @return object|null whatever deletemass() gave back; it is this
+     *                     method's own return statement, not a side effect
      */
     public static function delete($class, $id)
     {
@@ -6082,6 +6083,8 @@ class Route extends FOGBase
         } catch (\Exception $e) {
             self::_sendCaught($e);
         }
+        // See deletemass(): only reachable if _sendCaught() stops throwing.
+        return null;
     }
     /**
      * Sets an error message.
@@ -8162,13 +8165,475 @@ class Route extends FOGBase
         return self::objectify($data);
     }
     /**
+     * Announces each object about to be destroyed.
+     *
+     * Fired here rather than from Host::destroy()/Image::destroy(), which
+     * is where these two events used to live: Route::delete() funnels the
+     * REST single-delete straight into deletemass() and deliberately never
+     * builds the object, so the override -- and with it the event -- never
+     * ran, and a plugin watching for a host being removed simply did not
+     * hear about it when the host went out over the API.
+     *
+     * Called BEFORE the cascade so a listener still sees the row and its
+     * associations intact, which is the order destroy() used.
+     *
+     * Building an object per id is the whole cost of doing this, and
+     * deletemass() is the mass path, so it is only paid when a hook is
+     * actually registered. With nothing listening the event name is still
+     * announced -- that is what records it in the hook catalog, and is
+     * unchanged -- just without a payload nobody would read.
+     *
+     * Refs https://github.com/FOGProject/fogproject/issues/895
+     *
+     * @param string $classname The lowercased class name.
+     * @param array  $itemIDs   The ids about to be deleted.
+     *
+     * @return void
+     */
+    private static function _fireDestroyEvents($classname, $itemIDs)
+    {
+        // Per-object destroy events.
+        //
+        // DESTROY_HOST and DESTROY_IMAGE used to be fired by
+        // Host::destroy()/Image::destroy(), which meant they only ever
+        // reached a listener on the UI path: Route::delete() funnels the
+        // REST single-delete straight into here and deliberately never
+        // builds the object, so the override -- and with it the event --
+        // never ran. A plugin watching for a host being removed simply
+        // did not hear about it when the host went out over the API.
+        //
+        // Firing here instead puts the announcement on the one path every
+        // delete already shares, so it happens exactly once per object no
+        // matter which door the delete came in. It is fired BEFORE the
+        // switch below so a listener still sees the row and its
+        // associations intact, which is the order destroy() used.
+        //
+        // Building an object per id is the whole cost of doing this, and
+        // deletemass() is the mass path, so it is only paid when a hook is
+        // actually registered. With nothing listening the event name is
+        // still announced -- that is what records it in the hook catalog,
+        // and is unchanged -- just without a payload nobody would read.
+        //
+        // Refs https://github.com/FOGProject/fogproject/issues/895
+        $destroyEvents = [
+            'host' => ['DESTROY_HOST', 'Host'],
+            'image' => ['DESTROY_IMAGE', 'Image']
+        ];
+        if (isset($destroyEvents[$classname])) {
+            list($destroyEvent, $destroyKey) = $destroyEvents[$classname];
+            if (count($itemIDs ?: [])
+                && self::$HookManager->hasListeners($destroyEvent)
+            ) {
+                foreach ((array) $itemIDs as $destroyID) {
+                    $destroyObj = self::getClass($classname, $destroyID);
+                    self::$HookManager->processEvent(
+                        $destroyEvent,
+                        [$destroyKey => &$destroyObj]
+                    );
+                    unset($destroyObj);
+                }
+            } else {
+                self::$HookManager->processEvent($destroyEvent);
+            }
+        }
+    }
+    /**
+     * The cascade: what else has to go when these ids do.
+     *
+     * Returns a table => where map that deletemass() re-enters itself with,
+     * one entry per dependent table. A class with nothing depending on it
+     * returns an empty map, which is the `default:` arm.
+     *
+     * Three arms do work of their own as well as building the map, and it
+     * has to happen here rather than in the caller because it is part of
+     * what deleting THAT class means: image cancels the tasks that were
+     * still going to use it and nulls the hosts that pointed at it, and
+     * snapin deletes its snapintask rows inline -- before the map is
+     * processed, not through it -- so the job counts below can mean
+     * "anything OTHER than what we just removed".
+     *
+     * ADR 0031 is gradually moving this into the schema as declared foreign
+     * keys. Until every group in that series lands, this map is still what
+     * does it.
+     *
+     * @param string $classname The lowercased class name.
+     * @param array  $itemIDs   The ids about to be deleted.
+     *
+     * @return array table => where map
+     */
+    private static function _removeItemsFor($classname, $itemIDs)
+    {
+        switch ($classname) {
+            case 'host':
+                $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];
+                $findWhere = ['hostID' => $itemIDs];
+                $removeItems = [
+                    'nodefailure' => $findWhere,
+                    'snapintask' => $snapinjobIDs,
+                    'snapinjob' => $findWhere,
+                    'task' => $findWhere,
+                    'scheduledtask' => $findWhere,
+                    'hostautologout' => $findWhere,
+                    'hostscreensetting' => $findWhere,
+                    'groupassociation' => $findWhere,
+                    'snapinassociation' => $findWhere,
+                    'printerassociation' => $findWhere,
+                    'moduleassociation' => $findWhere,
+                    'inventory' => $findWhere,
+                    'macaddressassociation' => $findWhere,
+                    'powermanagement' => $findWhere
+                ];
+                break;
+            case 'group':
+                $findWhere = ['groupID' => $itemIDs];
+                $removeItems = [
+                    'groupassociation' => $findWhere
+                ];
+                break;
+            case 'image':
+                $findWhere = ['imageID' => $itemIDs];
+                self::getClass('HostManager')->update(
+                    $findWhere,
+                    '',
+                    // NULL, not 0 -- see schema step 386.
+                    ['imageID' => null]
+                );
+                // Cancel the tasks that were still going to use it.
+                //
+                // A queued or in-progress task pointing at an image that
+                // no longer exists can never finish: TaskingElement
+                // cannot build the Image, so the host is turned away at
+                // check-in and the task sits in Active Tasks forever.
+                // Worse, it is unreadable while it sits there -- the
+                // list renders from buildQuery()'s LEFT OUTER JOINs, so
+                // the dead imageID yields NULL for every image column
+                // and the row shows "() -" with no name to act on.
+                // Reported as "null tasks" in forum topics 18228/18230.
+                //
+                // Canceled rather than added to $removeItems, which is
+                // where the host case puts its tasks. Deleting a host
+                // takes its history with it because the subject of that
+                // history is gone; deleting an image does not -- the
+                // HOSTS survive, and their finished tasks are still
+                // their imaging record. Only the live ones are stuck.
+                //
+                // TaskManager::cancel() rather than a state update: it
+                // is what already reissues the host token, unwinds any
+                // multicast session behind the task and records the
+                // state change in the task log.
+                $activeImageTaskIDs = self::getIds(
+                    'task',
+                    [
+                        'imageID' => $itemIDs,
+                        'stateID' => self::fastmerge(
+                            (array)self::getQueuedStates(),
+                            (array)self::getProgressState()
+                        )
+                    ]
+                );
+                if (count($activeImageTaskIDs ?: [])) {
+                    self::getClass('TaskManager')
+                        ->cancel($activeImageTaskIDs);
+                }
+                $removeItems = [
+                    'imageassociation' => $findWhere
+                ];
+                break;
+            case 'module':
+                $findWhere = ['moduleID' => $itemIDs];
+                $removeItems = [
+                    'moduleassociation' => $findWhere
+                ];
+                break;
+            case 'printer':
+                $findWhere = ['printerID' => $itemIDs];
+                $removeItems = [
+                    'printerassociation' => $findWhere
+                ];
+                break;
+            case 'snapin':
+                $findWhere = ['snapinID' => $itemIDs];
+                $snapinjobIDs = Route::getIds(
+                    'snapintask',
+                    $findWhere,
+                    'jobID'
+                );
+                $removeItems = [
+                    'snapinassociation' => $findWhere,
+                    'snapingroupassociation' => $findWhere
+                ];
+                // Drop this snapin's tasks HERE, inline, and not by adding
+                // 'snapintask' to $removeItems above.
+                //
+                // Two things depend on it, and both were broken:
+                //
+                //  - $removeItems is not processed until after this switch
+                //    returns, so a snapin deleted over the REST path left
+                //    its snapintask rows behind pointing at a snapin that
+                //    no longer exists. Snapin::destroy() deletes them, so
+                //    the UI path was clean and only the API orphaned them.
+                //  - The loop below cancels any queued job this snapin was
+                //    the last remaining task of, which it decides by
+                //    counting the tasks still on each job. With those tasks
+                //    still present every count came back non-zero, every
+                //    job hit the `continue`, and the cancel was unreachable
+                //    -- the job stayed queued forever against a deleted
+                //    snapin. Deleting first is what makes the count mean
+                //    "anything OTHER than what we just removed", which is
+                //    the order Snapin::destroy() already used.
+                //
+                // Refs https://github.com/FOGProject/fogproject/issues/885
+                Route::deletemass('snapintask', $findWhere);
+                $queuedStates = self::getQueuedStates();
+                $queuedStates[] = self::getProgressState();
+                $snapinjobIDs = Route::getIds(
+                    'snapinjob',
+                    [
+                        'id' => $snapinjobIDs,
+                        'stateID' => $queuedStates
+                    ]
+                );
+                $sjIDs = [];
+                foreach ((array)$snapinjobIDs as &$sjID) {
+                    $jobCount = self::getCount(
+                        'snapintask',
+                        ['jobID' => $sjID]
+                    );
+                    if ($jobCount) {
+                        continue;
+                    }
+                    $sjIDs[] = $sjID;
+                    unset($sjID);
+                }
+                if (count($sjIDs ?: [])) {
+                    self::getClass('SnapinJobManager')->cancel($sjIDs);
+                }
+                break;
+            case 'user':
+                $findWhere = ['userID' => $itemIDs];
+                $removeItems = [
+                    'roleuserassociation' => $findWhere,
+                    'usergroupmember' => $findWhere,
+                    // A token outlives its owner as a WORKING credential
+                    // if this is missed, which is why it goes here rather
+                    // than in User::destroy(): destroy() is only the UI
+                    // path, and the REST delete funnels to deletemass()
+                    // without ever calling it. That split is what left
+                    // orphans before (see the snapintask note below), and
+                    // an orphaned API token is a live way in belonging to
+                    // an account that no longer exists.
+                    //
+                    // APIToken::resolve() also refuses a token whose
+                    // owner will not load, so a future miss here fails
+                    // closed rather than authenticating as nobody. Both,
+                    // deliberately: this is the fix and that is the net.
+                    'apitoken' => $findWhere
+                ];
+                break;
+            case 'role':
+                $findWhere = ['roleID' => $itemIDs];
+                $removeItems = [
+                    'rolepermission' => $findWhere,
+                    'roleuserassociation' => $findWhere,
+                    'roleusergroupassociation' => $findWhere
+                ];
+                break;
+            case 'usergroup':
+                $findWhere = ['usergroupID' => $itemIDs];
+                $removeItems = [
+                    'usergroupmember' => $findWhere,
+                    'roleusergroupassociation' => $findWhere
+                ];
+                break;
+            case 'site':
+                // Deleting a site clears its four membership lists.
+                // Nothing stops the CATCH-ALL site being deleted here:
+                // it is an ordinary site carrying a flag, and refusing
+                // would be a rule the admin cannot see or undo. What it
+                // costs is real though -- every user who relied on it
+                // for blanket access falls back to their own sites, and
+                // a user with none then sees nothing.
+                $findWhere = ['siteID' => $itemIDs];
+                $removeItems = [
+                    'sitehostmember' => $findWhere,
+                    'siteusermember' => $findWhere,
+                    'sitegroupmember' => $findWhere,
+                    'siteusergroupmember' => $findWhere,
+                    // ...and the two grant lists. A grant naming a
+                    // site that no longer exists would keep putting
+                    // its holders "in scope" for an id that resolves
+                    // to nothing, which reads as deny-all.
+                    'siterolegrant' => $findWhere,
+                    'siteusergroupgrant' => $findWhere
+                ];
+                break;
+            default:
+                $findWhere = [];
+                $removeItems = [];
+        }
+
+        return $removeItems;
+    }
+    /**
+     * Adds the site membership and grant rows these ids leave behind.
+     *
+     * Appended to the cascade map rather than repeated across six of its
+     * arms, and before DELETEMASS_API so a listener still sees the full map.
+     *
+     * @param array  $removeItems The cascade map so far.
+     * @param string $classname   The lowercased class name.
+     * @param array  $itemIDs     The ids about to be deleted.
+     *
+     * @return array the map, with the site cleanup in it
+     */
+    private static function _withSiteCleanup($removeItems, $classname, $itemIDs)
+    {
+        // Core site membership cleanup. Added after the switch rather
+        // than repeated across four of its cases, and before
+        // DELETEMASS_API so a listener still sees the full map.
+        //
+        // A leftover membership row is not merely untidy: if the id it
+        // names is ever handed to a different object, the row silently
+        // puts that object into a site nobody put it in.
+        //
+        // The mechanism this comment used to name -- "InnoDB recomputes
+        // AUTO_INCREMENT as MAX(id)+1 on restart" -- is NOT true of the
+        // servers FOG runs on today, and was measured rather than
+        // reasoned about while surveying for ADR 0031: MariaDB 10.5.29
+        // and 11.8.8 both keep the counter across a clean restart and a
+        // SIGKILL. MariaDB has persisted it since 10.2.4 and MySQL since
+        // 8.0. The hazard is real anyway and does not depend on that
+        // path: MySQL 5.7 and older do recompute, and a table rebuilt
+        // from a dump takes its counter from the rows it was given, so
+        // ids above the surviving maximum come back after a restore.
+        // The row is wrong the moment its object is gone, whichever
+        // server is underneath.
+        //
+        // ADR 0031 makes this cleanup a property of the schema instead
+        // of a thing this function has to remember -- but the site
+        // tables are group 2 of that series and are not constrained
+        // yet, so this code is still what does it.
+        $siteMemberTables = [
+            'host' => 'sitehostmember',
+            'user' => 'siteusermember',
+            'group' => 'sitegroupmember',
+            'usergroup' => 'siteusergroupmember'
+        ];
+        if (isset($siteMemberTables[$classname])) {
+            $removeItems[$siteMemberTables[$classname]] = [
+                $classname . 'ID' => $itemIDs
+            ];
+        }
+
+        // The grant side of the same cleanup, and the same id-reuse
+        // hazard with a sharper edge: a grant row left behind by a
+        // deleted role can later put every holder of an unrelated NEW
+        // role into the site the old one granted. Membership leaks one
+        // object into a site; a stale grant leaks a whole population.
+        //
+        // Its own map rather than an entry in the one above because
+        // that one derives the column as "{$classname}ID", and these
+        // columns are grantroleID and grantusergroupID -- the "grant"
+        // prefix being what keeps them distinct from the membership
+        // sense of the same two ids.
+        $siteGrantTables = [
+            'role' => ['siterolegrant', 'grantroleID'],
+            'usergroup' => ['siteusergroupgrant', 'grantusergroupID']
+        ];
+        if (isset($siteGrantTables[$classname])) {
+            list($grantTable, $grantCol) = $siteGrantTables[$classname];
+            $removeItems[$grantTable] = [$grantCol => $itemIDs];
+        }
+
+        return $removeItems;
+    }
+    /**
+     * Issues the DELETE itself, and turns a refusal into a 409.
+     *
+     * @param array  $classVars  The class's reflected variables.
+     * @param array  $whereItems The filter the rows are chosen by.
+     * @param string $operator   AND or OR between the filter terms.
+     * @param string $orderby    The order the filter is applied in.
+     *
+     * @return object the query result
+     */
+    private static function _deleteRows(
+        $classVars,
+        $whereItems,
+        $operator,
+        $orderby
+    ) {
+        $sql = 'DELETE FROM `'
+            . $classVars['databaseTable']
+            . '`';
+
+        $sqlResult = self::_buildSql(
+            $sql,
+            $classVars,
+            $whereItems,
+            false,
+            $operator,
+            $orderby
+        );
+
+        $result = self::$DB->query(
+            $sqlResult['sql'],
+            [],
+            $sqlResult['params']
+        );
+        // A rejected DELETE is swallowed by PDODB -- it records the
+        // failure on ->error and returns ITSELF, which is truthy. This
+        // arm used to `return` that object directly, so a delete the
+        // server refused answered 200 with the row still there, and the
+        // UI drew a success toast over it. Unreachable until ADR 0031
+        // gave the database something to refuse with; reachable now.
+        //
+        // 409, not the default 406: the request was well formed and the
+        // caller may legitimately retry it once whatever is referring to
+        // the record is gone. _sendCaught() honors a 4xx/5xx code on
+        // the exception and falls back to 406 otherwise.
+        //
+        // The status keys off isRefusal(), NOT off whether explain()
+        // found words for it -- those are separate questions. A refusal
+        // naming a constraint the map does not describe is still a
+        // conflict and still retryable; only its wording degrades. Any
+        // OTHER error here (a lock timeout, a lost connection) is not a
+        // conflict and correctly falls through to 406.
+        if (self::$DB->error) {
+            $error = (string)self::$DB->error;
+            $explained = ConstraintViolation::explain(
+                $error,
+                ConstraintViolation::label($classVars['databaseTable'])
+            );
+            throw new \Exception(
+                $explained ?? $error,
+                ConstraintViolation::isRefusal($error)
+                    ? HTTPResponseCodes::HTTP_CONFLICT
+                    : 0
+            );
+        }
+
+        // The query result, not self::$DB -- they are the same object,
+        // PDODB::query() returning $this, but returning what the call
+        // gave back keeps this arm's value identical to what it was
+        // before the check above was added.
+        return $result;
+    }
+    /**
      * Delete items in mass.
+     *
+     * Four phases, in order: announce what is going, work out what else has
+     * to go with it, hand that map to a plugin, then delete. The cascade
+     * re-enters this function once per dependent table, which is what
+     * $_deleteDepth is counting.
      *
      * @param string $class      The class we're to remove items.
      * @param array  $whereItems The items we're removing.
      * @param string $operator   The operator for the SQL. AND is default.
+     * @param string $orderby    The order the filter is applied in.
      *
-     * @return void
+     * @return object|null the query result, or null when _sendCaught() has
+     *                     already answered the request
      */
     public static function deletemass(
         $class,
@@ -8212,320 +8677,18 @@ class Route extends FOGBase
             }
             self::$_deleteDepth++;
 
-            // Per-object destroy events.
-            //
-            // DESTROY_HOST and DESTROY_IMAGE used to be fired by
-            // Host::destroy()/Image::destroy(), which meant they only ever
-            // reached a listener on the UI path: Route::delete() funnels the
-            // REST single-delete straight into here and deliberately never
-            // builds the object, so the override -- and with it the event --
-            // never ran. A plugin watching for a host being removed simply
-            // did not hear about it when the host went out over the API.
-            //
-            // Firing here instead puts the announcement on the one path every
-            // delete already shares, so it happens exactly once per object no
-            // matter which door the delete came in. It is fired BEFORE the
-            // switch below so a listener still sees the row and its
-            // associations intact, which is the order destroy() used.
-            //
-            // Building an object per id is the whole cost of doing this, and
-            // deletemass() is the mass path, so it is only paid when a hook is
-            // actually registered. With nothing listening the event name is
-            // still announced -- that is what records it in the hook catalog,
-            // and is unchanged -- just without a payload nobody would read.
-            //
-            // Refs https://github.com/FOGProject/fogproject/issues/895
-            $destroyEvents = [
-                'host' => ['DESTROY_HOST', 'Host'],
-                'image' => ['DESTROY_IMAGE', 'Image']
-            ];
-            if (isset($destroyEvents[$classname])) {
-                list($destroyEvent, $destroyKey) = $destroyEvents[$classname];
-                if (count($itemIDs ?: [])
-                    && self::$HookManager->hasListeners($destroyEvent)
-                ) {
-                    foreach ((array) $itemIDs as $destroyID) {
-                        $destroyObj = self::getClass($classname, $destroyID);
-                        self::$HookManager->processEvent(
-                            $destroyEvent,
-                            [$destroyKey => &$destroyObj]
-                        );
-                        unset($destroyObj);
-                    }
-                } else {
-                    self::$HookManager->processEvent($destroyEvent);
-                }
-            }
-
-            switch ($classname) {
-                case 'host':
-                    $snapinjobIDs = ['jobID' => Route::getIds('snapinjob', ['hostID' => $itemIDs])];
-                    $findWhere = ['hostID' => $itemIDs];
-                    $removeItems = [
-                        'nodefailure' => $findWhere,
-                        'snapintask' => $snapinjobIDs,
-                        'snapinjob' => $findWhere,
-                        'task' => $findWhere,
-                        'scheduledtask' => $findWhere,
-                        'hostautologout' => $findWhere,
-                        'hostscreensetting' => $findWhere,
-                        'groupassociation' => $findWhere,
-                        'snapinassociation' => $findWhere,
-                        'printerassociation' => $findWhere,
-                        'moduleassociation' => $findWhere,
-                        'inventory' => $findWhere,
-                        'macaddressassociation' => $findWhere,
-                        'powermanagement' => $findWhere
-                    ];
-                    break;
-                case 'group':
-                    $findWhere = ['groupID' => $itemIDs];
-                    $removeItems = [
-                        'groupassociation' => $findWhere
-                    ];
-                    break;
-                case 'image':
-                    $findWhere = ['imageID' => $itemIDs];
-                    self::getClass('HostManager')->update(
-                        $findWhere,
-                        '',
-                        // NULL, not 0 -- see schema step 386.
-                        ['imageID' => null]
-                    );
-                    // Cancel the tasks that were still going to use it.
-                    //
-                    // A queued or in-progress task pointing at an image that
-                    // no longer exists can never finish: TaskingElement
-                    // cannot build the Image, so the host is turned away at
-                    // check-in and the task sits in Active Tasks forever.
-                    // Worse, it is unreadable while it sits there -- the
-                    // list renders from buildQuery()'s LEFT OUTER JOINs, so
-                    // the dead imageID yields NULL for every image column
-                    // and the row shows "() -" with no name to act on.
-                    // Reported as "null tasks" in forum topics 18228/18230.
-                    //
-                    // Canceled rather than added to $removeItems, which is
-                    // where the host case puts its tasks. Deleting a host
-                    // takes its history with it because the subject of that
-                    // history is gone; deleting an image does not -- the
-                    // HOSTS survive, and their finished tasks are still
-                    // their imaging record. Only the live ones are stuck.
-                    //
-                    // TaskManager::cancel() rather than a state update: it
-                    // is what already reissues the host token, unwinds any
-                    // multicast session behind the task and records the
-                    // state change in the task log.
-                    $activeImageTaskIDs = self::getIds(
-                        'task',
-                        [
-                            'imageID' => $itemIDs,
-                            'stateID' => self::fastmerge(
-                                (array)self::getQueuedStates(),
-                                (array)self::getProgressState()
-                            )
-                        ]
-                    );
-                    if (count($activeImageTaskIDs ?: [])) {
-                        self::getClass('TaskManager')
-                            ->cancel($activeImageTaskIDs);
-                    }
-                    $removeItems = [
-                        'imageassociation' => $findWhere
-                    ];
-                    break;
-                case 'module':
-                    $findWhere = ['moduleID' => $itemIDs];
-                    $removeItems = [
-                        'moduleassociation' => $findWhere
-                    ];
-                    break;
-                case 'printer':
-                    $findWhere = ['printerID' => $itemIDs];
-                    $removeItems = [
-                        'printerassociation' => $findWhere
-                    ];
-                    break;
-                case 'snapin':
-                    $findWhere = ['snapinID' => $itemIDs];
-                    $snapinjobIDs = Route::getIds(
-                        'snapintask',
-                        $findWhere,
-                        'jobID'
-                    );
-                    $removeItems = [
-                        'snapinassociation' => $findWhere,
-                        'snapingroupassociation' => $findWhere
-                    ];
-                    // Drop this snapin's tasks HERE, inline, and not by adding
-                    // 'snapintask' to $removeItems above.
-                    //
-                    // Two things depend on it, and both were broken:
-                    //
-                    //  - $removeItems is not processed until after this switch
-                    //    returns, so a snapin deleted over the REST path left
-                    //    its snapintask rows behind pointing at a snapin that
-                    //    no longer exists. Snapin::destroy() deletes them, so
-                    //    the UI path was clean and only the API orphaned them.
-                    //  - The loop below cancels any queued job this snapin was
-                    //    the last remaining task of, which it decides by
-                    //    counting the tasks still on each job. With those tasks
-                    //    still present every count came back non-zero, every
-                    //    job hit the `continue`, and the cancel was unreachable
-                    //    -- the job stayed queued forever against a deleted
-                    //    snapin. Deleting first is what makes the count mean
-                    //    "anything OTHER than what we just removed", which is
-                    //    the order Snapin::destroy() already used.
-                    //
-                    // Refs https://github.com/FOGProject/fogproject/issues/885
-                    Route::deletemass('snapintask', $findWhere);
-                    $queuedStates = self::getQueuedStates();
-                    $queuedStates[] = self::getProgressState();
-                    $snapinjobIDs = Route::getIds(
-                        'snapinjob',
-                        [
-                            'id' => $snapinjobIDs,
-                            'stateID' => $queuedStates
-                        ]
-                    );
-                    $sjIDs = [];
-                    foreach ((array)$snapinjobIDs as &$sjID) {
-                        $jobCount = self::getCount(
-                            'snapintask',
-                            ['jobID' => $sjID]
-                        );
-                        if ($jobCount) {
-                            continue;
-                        }
-                        $sjIDs[] = $sjID;
-                        unset($sjID);
-                    }
-                    if (count($sjIDs ?: [])) {
-                        self::getClass('SnapinJobManager')->cancel($sjIDs);
-                    }
-                    break;
-                case 'user':
-                    $findWhere = ['userID' => $itemIDs];
-                    $removeItems = [
-                        'roleuserassociation' => $findWhere,
-                        'usergroupmember' => $findWhere,
-                        // A token outlives its owner as a WORKING credential
-                        // if this is missed, which is why it goes here rather
-                        // than in User::destroy(): destroy() is only the UI
-                        // path, and the REST delete funnels to deletemass()
-                        // without ever calling it. That split is what left
-                        // orphans before (see the snapintask note below), and
-                        // an orphaned API token is a live way in belonging to
-                        // an account that no longer exists.
-                        //
-                        // APIToken::resolve() also refuses a token whose
-                        // owner will not load, so a future miss here fails
-                        // closed rather than authenticating as nobody. Both,
-                        // deliberately: this is the fix and that is the net.
-                        'apitoken' => $findWhere
-                    ];
-                    break;
-                case 'role':
-                    $findWhere = ['roleID' => $itemIDs];
-                    $removeItems = [
-                        'rolepermission' => $findWhere,
-                        'roleuserassociation' => $findWhere,
-                        'roleusergroupassociation' => $findWhere
-                    ];
-                    break;
-                case 'usergroup':
-                    $findWhere = ['usergroupID' => $itemIDs];
-                    $removeItems = [
-                        'usergroupmember' => $findWhere,
-                        'roleusergroupassociation' => $findWhere
-                    ];
-                    break;
-                case 'site':
-                    // Deleting a site clears its four membership lists.
-                    // Nothing stops the CATCH-ALL site being deleted here:
-                    // it is an ordinary site carrying a flag, and refusing
-                    // would be a rule the admin cannot see or undo. What it
-                    // costs is real though -- every user who relied on it
-                    // for blanket access falls back to their own sites, and
-                    // a user with none then sees nothing.
-                    $findWhere = ['siteID' => $itemIDs];
-                    $removeItems = [
-                        'sitehostmember' => $findWhere,
-                        'siteusermember' => $findWhere,
-                        'sitegroupmember' => $findWhere,
-                        'siteusergroupmember' => $findWhere,
-                        // ...and the two grant lists. A grant naming a
-                        // site that no longer exists would keep putting
-                        // its holders "in scope" for an id that resolves
-                        // to nothing, which reads as deny-all.
-                        'siterolegrant' => $findWhere,
-                        'siteusergroupgrant' => $findWhere
-                    ];
-                    break;
-                default:
-                    $findWhere = [];
-                    $removeItems = [];
-            }
+            self::_fireDestroyEvents($classname, $itemIDs);
+            $removeItems = self::_removeItemsFor($classname, $itemIDs);
 
             if (count($whereItems ?: []) < 1) {
                 $whereItems = self::getsearchbody($classname);
             }
 
-            // Core site membership cleanup. Added after the switch rather
-            // than repeated across four of its cases, and before
-            // DELETEMASS_API so a listener still sees the full map.
-            //
-            // A leftover membership row is not merely untidy: if the id it
-            // names is ever handed to a different object, the row silently
-            // puts that object into a site nobody put it in.
-            //
-            // The mechanism this comment used to name -- "InnoDB recomputes
-            // AUTO_INCREMENT as MAX(id)+1 on restart" -- is NOT true of the
-            // servers FOG runs on today, and was measured rather than
-            // reasoned about while surveying for ADR 0031: MariaDB 10.5.29
-            // and 11.8.8 both keep the counter across a clean restart and a
-            // SIGKILL. MariaDB has persisted it since 10.2.4 and MySQL since
-            // 8.0. The hazard is real anyway and does not depend on that
-            // path: MySQL 5.7 and older do recompute, and a table rebuilt
-            // from a dump takes its counter from the rows it was given, so
-            // ids above the surviving maximum come back after a restore.
-            // The row is wrong the moment its object is gone, whichever
-            // server is underneath.
-            //
-            // ADR 0031 makes this cleanup a property of the schema instead
-            // of a thing this function has to remember -- but the site
-            // tables are group 2 of that series and are not constrained
-            // yet, so this code is still what does it.
-            $siteMemberTables = [
-                'host' => 'sitehostmember',
-                'user' => 'siteusermember',
-                'group' => 'sitegroupmember',
-                'usergroup' => 'siteusergroupmember'
-            ];
-            if (isset($siteMemberTables[$classname])) {
-                $removeItems[$siteMemberTables[$classname]] = [
-                    $classname . 'ID' => $itemIDs
-                ];
-            }
-
-            // The grant side of the same cleanup, and the same id-reuse
-            // hazard with a sharper edge: a grant row left behind by a
-            // deleted role can later put every holder of an unrelated NEW
-            // role into the site the old one granted. Membership leaks one
-            // object into a site; a stale grant leaks a whole population.
-            //
-            // Its own map rather than an entry in the one above because
-            // that one derives the column as "{$classname}ID", and these
-            // columns are grantroleID and grantusergroupID -- the "grant"
-            // prefix being what keeps them distinct from the membership
-            // sense of the same two ids.
-            $siteGrantTables = [
-                'role' => ['siterolegrant', 'grantroleID'],
-                'usergroup' => ['siteusergroupgrant', 'grantusergroupID']
-            ];
-            if (isset($siteGrantTables[$classname])) {
-                list($grantTable, $grantCol) = $siteGrantTables[$classname];
-                $removeItems[$grantTable] = [$grantCol => $itemIDs];
-            }
+            $removeItems = self::_withSiteCleanup(
+                $removeItems,
+                $classname,
+                $itemIDs
+            );
 
             self::$HookManager->processEvent(
                 'DELETEMASS_API',
@@ -8543,67 +8706,23 @@ class Route extends FOGBase
                 unset($vals);
             }
 
-            $sql = 'DELETE FROM `'
-                . $classVars['databaseTable']
-                . '`';
-
-            $sqlResult = self::_buildSql(
-                $sql,
+            return self::_deleteRows(
                 $classVars,
                 $whereItems,
-                false,
                 $operator,
                 $orderby
             );
-
-            $result = self::$DB->query(
-                $sqlResult['sql'],
-                [],
-                $sqlResult['params']
-            );
-            // A rejected DELETE is swallowed by PDODB -- it records the
-            // failure on ->error and returns ITSELF, which is truthy. This
-            // arm used to `return` that object directly, so a delete the
-            // server refused answered 200 with the row still there, and the
-            // UI drew a success toast over it. Unreachable until ADR 0031
-            // gave the database something to refuse with; reachable now.
-            //
-            // 409, not the default 406: the request was well formed and the
-            // caller may legitimately retry it once whatever is referring to
-            // the record is gone. _sendCaught() honors a 4xx/5xx code on
-            // the exception and falls back to 406 otherwise.
-            //
-            // The status keys off isRefusal(), NOT off whether explain()
-            // found words for it -- those are separate questions. A refusal
-            // naming a constraint the map does not describe is still a
-            // conflict and still retryable; only its wording degrades. Any
-            // OTHER error here (a lock timeout, a lost connection) is not a
-            // conflict and correctly falls through to 406.
-            if (self::$DB->error) {
-                $error = (string)self::$DB->error;
-                $explained = ConstraintViolation::explain(
-                    $error,
-                    ConstraintViolation::label($classVars['databaseTable'])
-                );
-                throw new \Exception(
-                    $explained ?? $error,
-                    ConstraintViolation::isRefusal($error)
-                        ? HTTPResponseCodes::HTTP_CONFLICT
-                        : 0
-                );
-            }
-
-            // The query result, not self::$DB -- they are the same object,
-            // PDODB::query() returning $this, but returning what the call
-            // gave back keeps this arm's value identical to what it was
-            // before the check above was added.
-            return $result;
         } catch (\Exception $e) {
             self::_sendCaught($e);
         } finally {
             // max() because the guard above can throw before the increment.
             self::$_deleteDepth = max(0, self::$_deleteDepth - 1);
         }
+        // Only reachable if _sendCaught() ever stops throwing. Explicit
+        // because the method now declares what it hands back, and falling
+        // off the end of a typed return is the shape that made delete()
+        // look like it returned nothing for years.
+        return null;
     }
     /**
      * Builds the sql query with the where.

@@ -1,0 +1,82 @@
+architecture	(nothing)	
+filedeletequeue	(nothing)	
+group	groupassociation	groupID
+group	sitegroupmember	groupID
+groupassociation	(nothing)	
+history	(nothing)	
+hookevent	(nothing)	
+host	groupassociation	hostID
+host	hostautologout	hostID
+host	hostscreensetting	hostID
+host	inventory	hostID
+host	macaddressassociation	hostID
+host	moduleassociation	hostID
+host	nodefailure	hostID
+host	powermanagement	hostID
+host	printerassociation	hostID
+host	scheduledtask	hostID
+host	sitehostmember	hostID
+host	snapinassociation	hostID
+host	snapinjob	hostID
+host	snapintask	jobID
+host	task	hostID
+hostautologout	(nothing)	
+hostscreensetting	(nothing)	
+image	imageassociation	imageID
+imageassociation	(nothing)	
+imagepartitiontype	(nothing)	
+imagetype	(nothing)	
+inventory	(nothing)	
+ipxe	(nothing)	
+keysequence	(nothing)	
+macaddressassociation	(nothing)	
+module	moduleassociation	moduleID
+moduleassociation	(nothing)	
+multicastsession	(nothing)	
+multicastsessionassociation	(nothing)	
+nodefailure	(nothing)	
+notifyevent	(nothing)	
+os	(nothing)	
+oui	(nothing)	
+plugin	(nothing)	
+powermanagement	(nothing)	
+printer	printerassociation	printerID
+printerassociation	(nothing)	
+pxemenuoptions	(nothing)	
+role	rolepermission	roleID
+role	roleuserassociation	roleID
+role	roleusergroupassociation	roleID
+role	siterolegrant	grantroleID
+rolepermission	(nothing)	
+roleuserassociation	(nothing)	
+roleusergroupassociation	(nothing)	
+scheduledtask	(nothing)	
+setting	(nothing)	
+site	sitegroupmember	siteID
+site	sitehostmember	siteID
+site	siterolegrant	siteID
+site	siteusergroupgrant	siteID
+site	siteusergroupmember	siteID
+site	siteusermember	siteID
+snapin	snapinassociation	snapinID
+snapin	snapingroupassociation	snapinID
+snapinassociation	(nothing)	
+snapingroupassociation	(nothing)	
+snapinjob	(nothing)	
+snapintask	(nothing)	
+storagegroup	(nothing)	
+storagenode	(nothing)	
+task	(nothing)	
+tasklog	(nothing)	
+taskstate	(nothing)	
+tasktype	(nothing)	
+user	apitoken	userID
+user	roleuserassociation	userID
+user	siteusermember	userID
+user	usergroupmember	userID
+usergroup	roleusergroupassociation	usergroupID
+usergroup	siteusergroupgrant	grantusergroupID
+usergroup	siteusergroupmember	usergroupID
+usergroup	usergroupmember	usergroupID
+usergroupmember	(nothing)	
+usertracking	(nothing)	
