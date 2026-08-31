@@ -97,6 +97,60 @@ checkDatabaseConnection() {
     fi
     errorStat $connected
 }
+# Reports one node<->master maintenance POST that did not land, and says how.
+#
+# GH-575: the two calls below post to this node's own web tier, and what
+# actually reaches that web tier is not always what the installer aimed at.
+# Three things intercept it, and none of them is a connection failure -- curl
+# exits 0 every time:
+#
+#   * an inline filtering proxy answering for the address (the reporter's was
+#     an iboss appliance returning ERR_CONNECT_FAIL as an HTML block page),
+#   * this node's own web tier bouncing every request to ?node=schema when it
+#     cannot read the master's database,
+#   * anything else in front of the server that answers 200 with markup.
+#
+# So both a status check and a body check are needed, and they catch different
+# halves: a 3xx has no markup in it, and an interception answering 200 has no
+# bad status. create_update_node.php outputs nothing at all on success -- it
+# has no echo in it, and base.inc.php emits headers only -- so a '<' in the
+# body is the response of something that is not it.
+#
+# Not fatal, in either caller. By this point the node's shares, services and
+# FTP are configured, and both operations have a normal by-hand recovery in
+# Storage Management: say plainly what failed, then carry on.
+#
+# $1 status, $2 response body, $3 what the caller was trying to do.
+_reportNodePostFailure() {
+    local status="${1:-000}" body="$2" what="$3"
+    echo "Failed"
+    echo " * ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php"
+    case $status in
+        000)
+            # curl's own placeholder when no HTTP response arrived at all --
+            # refused, timed out, TLS handshake failed. Not an interception.
+            echo "   could not be reached, so ${what}."
+            ;;
+        *)
+            echo "   answered HTTP ${status}, so ${what}."
+            ;;
+    esac
+    case $status in
+        3*)
+            echo " * A redirect here usually means this node's own web tier cannot"
+            echo "   reach the master's database and is bouncing every request to"
+            echo "   the schema page -- check for SELinux denials with:"
+            echo "     ausearch -m avc -ts recent"
+            ;;
+    esac
+    if [[ $body == *'<'* ]]; then
+        echo " * The reply was markup, not this server's answer, so something on"
+        echo "   the network answered in its place. A filtering proxy in front of"
+        echo "   ${ipaddress} is the usual cause; exempt this server from it."
+    fi
+    echo " * Fix the cause and re-run this installer, or set it by hand under"
+    echo "   Storage Management in the web UI."
+}
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
     # the two disagreed about where the app lives whenever webroot arrived
@@ -116,13 +170,36 @@ registerStorageNode() {
     # credentials. It does NOT see the database password, which never travels
     # this way. Closing it properly needs the master to hand a node its anchor
     # out of band, which is a design change, not a flag change.
-    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://${ipaddress}${webroot}maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php
-        echo "Done"
+        # A status check and a body check, neither of which this call had. Both
+        # matter and they catch different halves -- see _reportNodePostFailure.
+        #
+        # Deliberately NOT -L. curl reports %{http_code} for the LAST transfer
+        # it made, so following a 308 to the schema page would report that
+        # page's 200 and turn the failure back into a green "Done". There is no
+        # legitimate redirect to lose: the URL is built from ${httpproto} and
+        # ${webroot}, both of which this installer set itself.
+        regbody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php)
+        regstatus=${regbody##*$'\n'}
+        regbody=${regbody%$'\n'*}
+        case $regstatus in
+            2*)
+                if [[ $regbody == *'<'* ]]; then
+                    _reportNodePostFailure "$regstatus" "$regbody" \
+                        "this node did not register itself with the master and will not appear in Storage Management"
+                else
+                    echo "Done"
+                fi
+                ;;
+            *)
+                _reportNodePostFailure "$regstatus" "$regbody" \
+                    "this node did not register itself with the master and will not appear in Storage Management"
+                ;;
+        esac
     else
         echo " * Node is registered"
     fi
@@ -133,8 +210,31 @@ updateStorageNodeCredentials() {
     # -k on purpose -- see registerStorageNode. This is called from the node
     # path before any anchor exists, and from the master path after one does;
     # the shared function has to work in the earlier of the two.
-    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}maintenance/create_update_node.php
-    echo "Done"
+    # GH-575: this call had no -o, so whatever answered was written STRAIGHT to
+    # the installer's stdout, in the middle of the dotted line -- which is why
+    # the reporter's console read
+    #
+    #   Node being registered.....................<!doctype html>
+    #
+    # followed by a proxy's block page. Then it echoed "Done" regardless,
+    # because nothing looked at the status or at what came back.
+    credbody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php)
+    credstatus=${credbody##*$'\n'}
+    credbody=${credbody%$'\n'*}
+    case $credstatus in
+        2*)
+            if [[ $credbody == *'<'* ]]; then
+                _reportNodePostFailure "$credstatus" "$credbody" \
+                    "this node's storage credentials were not written to the master"
+            else
+                echo "Done"
+            fi
+            ;;
+        *)
+            _reportNodePostFailure "$credstatus" "$credbody" \
+                "this node's storage credentials were not written to the master"
+            ;;
+    esac
 }
 backupDB() {
     # ---------------------------------------------------------
