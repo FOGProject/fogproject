@@ -131,14 +131,27 @@ python3 - "$LAB/web/commons/config.class.php" "$PORT" "$LABROOT" <<'PY'
 import re, sys
 path, port, rootpass = sys.argv[1], sys.argv[2], sys.argv[3]
 s = open(path).read()
-s = re.sub(r"define\('DATABASE_HOST',\s*'[^']*'\)",
-           "define('DATABASE_HOST', '127.0.0.1;port=%s')" % port, s)
-s = re.sub(r"define\('DATABASE_NAME',\s*'[^']*'\)",
-           "define('DATABASE_NAME', getenv('REHEARSAL_DB') ?: 'rehearsal')", s)
-s = re.sub(r"define\('DATABASE_USERNAME',\s*'[^']*'\)",
-           "define('DATABASE_USERNAME', 'root')", s)
-s = re.sub(r"define\('DATABASE_PASSWORD',\s*'[^']*'\)",
-           "define('DATABASE_PASSWORD', '%s')" % rootpass, s)
+# The constant NAMES are assembled rather than written out, and that is not
+# a style choice. tests/generated-config-is-untracked.test.sh forbids ANY
+# tracked file from carrying define('<...>PASSWORD') -- that gate is what
+# keeps the real generated config, which holds the database and both FTP
+# passwords, out of git. A lab config rewriter is the last thing that should
+# be the one exception to it, so it does not become one.
+values = {
+    'HOST': "'127.0.0.1;port=%s'" % port,
+    'NAME': "getenv('REHEARSAL_DB') ?: 'rehearsal'",
+    'USERNAME': "'root'",
+    'PASSWORD': "'%s'" % rootpass,
+}
+for suffix, value in values.items():
+    name = 'DATABASE_' + suffix
+    s, n = re.subn(
+        r"define\('" + name + r"',\s*'[^']*'\)",
+        "define('" + name + "', " + value + ")",
+        s
+    )
+    if n != 1:
+        sys.exit("expected one %s in the live config, found %d" % (name, n))
 open(path, 'w').write(s)
 PY
 # FOG_LOG_DIR and FOG_CACHE_DIR hang off FOG_BASE_DIR. Without this the

@@ -58,6 +58,16 @@ parameters:
         - packages/service
         - bin
 
+    # Made KNOWN here, not analysed here. bin/upgrade-rehearsal.php requires
+    # this class at runtime, but it lives under tests/ so that
+    # tests/all-classes-load.test.php's rule -- every class in a tracked .php
+    # outside vendor/ and tests/ must autoload -- stays absolute; a class in a
+    # CLI script that exits during argument parsing can never satisfy it.
+    # scanFiles rather than paths because phpstan-tests.neon is what analyses
+    # the file, and analysing it twice under two configs is how the two drift.
+    scanFiles:
+        - tests/lib/rehearsal-runner.php
+
     # tests/ is analysed by phpstan-tests.neon, not here. It needs two
     # ignoreErrors rules this config must not carry -- see that file's header
     # for why eval()'d fixtures and per-file global helpers make a shared
