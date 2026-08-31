@@ -808,11 +808,25 @@ class SchemaReconciler extends FOGBase
                 ];
         }
 
+        // COLUMN_NAME and SEQ_IN_INDEX come back with the name because an
+        // index is its columns, not its label. Reading only INDEX_NAME here
+        // meant a same-named index over a DIFFERENT column satisfied the
+        // check: on a clean database all three of hostMAC's declared UNIQUE
+        // keys could be pointed at `hmDesc`, drift still reported 0, and two
+        // hosts could then be given the same MAC -- the one thing FOG's
+        // identity model cannot tolerate. GH-1566.
+        //
+        // SUB_PART is part of the identity too. A prefix index over the
+        // first 20 characters of a column enforces uniqueness of the
+        // PREFIX, which is a weaker guarantee than the manifest's
+        // unprefixed declaration, so `col` and `col(20)` must not compare
+        // equal.
         $res = self::$DB->query(
             sprintf(
-                'SELECT `TABLE_NAME`, `INDEX_NAME` FROM'
-                . ' `information_schema`.`STATISTICS` WHERE `TABLE_SCHEMA` ='
-                . ' %s AND `NON_UNIQUE` = 0',
+                'SELECT `TABLE_NAME`, `INDEX_NAME`, `COLUMN_NAME`,'
+                . ' `SUB_PART` FROM `information_schema`.`STATISTICS`'
+                . ' WHERE `TABLE_SCHEMA` = %s AND `NON_UNIQUE` = 0'
+                . ' ORDER BY `TABLE_NAME`, `INDEX_NAME`, `SEQ_IN_INDEX`',
                 self::$DB->escape($db)
             )
         );
@@ -820,8 +834,13 @@ class SchemaReconciler extends FOGBase
         if (false === $res->error) {
             $idxRows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
             foreach ((array)$idxRows as $row) {
+                $part = $row['SUB_PART'];
                 $liveIdx[strtolower((string)$row['TABLE_NAME'])]
-                    [strtolower((string)$row['INDEX_NAME'])] = true;
+                    [strtolower((string)$row['INDEX_NAME'])][] =
+                        strtolower((string)$row['COLUMN_NAME'])
+                        . (null === $part || '' === $part
+                            ? ''
+                            : '(' . (int)$part . ')');
             }
         }
 
@@ -859,24 +878,73 @@ class SchemaReconciler extends FOGBase
                 continue;
             }
             preg_match_all(
-                '/UNIQUE KEY `([^`]+)`/',
+                '/UNIQUE KEY `([^`]+)` \(([^)]*(?:\([0-9]+\)[^)]*)*)\)/',
                 $create,
-                $m
+                $m,
+                PREG_SET_ORDER
             );
-            foreach ($m[1] as $idx) {
-                if (isset($liveIdx[$lt][strtolower($idx)])) {
-                    continue;
+            foreach ($m as $decl) {
+                $idx = $decl[1];
+                $want = self::_indexColumns((string)$decl[2]);
+                // The GUARANTEE is what matters, and the guarantee belongs
+                // to the columns. So an index over exactly these columns
+                // satisfies the declaration whatever it is called -- a
+                // server that acquired one under a different name through a
+                // restore or a hand-run ALTER is not missing anything, and
+                // reporting it would be a false positive on a database that
+                // is entirely correct.
+                foreach ((array)($liveIdx[$lt] ?? []) as $cols) {
+                    if ($cols === $want) {
+                        continue 2;
+                    }
                 }
+                // Nothing covers those columns. The declared NAME existing
+                // over different ones is reported separately and on
+                // purpose: it is the more alarming of the two states,
+                // because it looks correct in every listing that prints
+                // index names and enforces something else entirely.
+                $have = $liveIdx[$lt][strtolower($idx)] ?? null;
                 $drift[] = [
                     'table' => $table,
                     'kind' => 'unique',
                     'name' => $idx,
-                    'expected' => 'UNIQUE',
-                    'actual' => 'absent',
+                    'expected' => 'UNIQUE(' . implode(',', $want) . ')',
+                    'actual' => null === $have
+                        ? 'absent'
+                        : 'UNIQUE(' . implode(',', $have) . ')',
                 ];
             }
         }
         return $drift;
+    }
+
+    /**
+     * The ordered column list inside a manifest index declaration.
+     *
+     * Takes what sits between the parentheses of a
+     * ``UNIQUE KEY `x` (`a`,`b`(20))`` and returns
+     * ``['a', 'b(20)']`` -- lowercased, prefix lengths kept, order
+     * preserved. All three of those matter to whether two indexes enforce
+     * the same guarantee: an index on (a,b) is not an index on (b,a), and
+     * a prefix index constrains only the prefix.
+     *
+     * Compared against the same shape built from information_schema's
+     * STATISTICS rows, so both sides are normalized here rather than at
+     * each call site.
+     *
+     * @param string $cols the text between the index's parentheses
+     *
+     * @return array ordered, lowercased column identifiers
+     */
+    private static function _indexColumns($cols)
+    {
+        preg_match_all('/`([^`]+)`(?:\s*\(([0-9]+)\))?/', (string)$cols, $m, PREG_SET_ORDER);
+        $out = [];
+        foreach ($m as $col) {
+            $out[] = strtolower($col[1])
+                . (isset($col[2]) ? '(' . (int)$col[2] . ')' : '');
+        }
+        return $out;
     }
 
     /**

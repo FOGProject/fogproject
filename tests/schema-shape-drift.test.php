@@ -78,11 +78,13 @@ $serve = static function (array $cols, array $indexes) {
         if (false !== strpos($sql, 'STATISTICS')) {
             $uniqueOnly = false !== strpos($sql, 'NON_UNIQUE` = 0');
             $out = [];
-            foreach ($indexes as $idx) {
-                if ($uniqueOnly && (int)$idx['NON_UNIQUE'] !== 0) {
-                    continue;
+            foreach ($indexes as $rows) {
+                foreach ((array)$rows as $idx) {
+                    if ($uniqueOnly && (int)$idx['NON_UNIQUE'] !== 0) {
+                        continue;
+                    }
+                    $out[] = $idx;
                 }
-                $out[] = $idx;
             }
             return $out;
         }
@@ -94,12 +96,23 @@ $serve = static function (array $cols, array $indexes) {
     return $db;
 };
 
-$idx = static function ($name, $nonUnique = 0) {
-    return [
-        'TABLE_NAME' => 'hostMAC',
-        'INDEX_NAME' => $name,
-        'NON_UNIQUE' => $nonUnique,
-    ];
+// An index is its COLUMNS, not its name, so the fixture has to carry them --
+// and $cols defaults to hmMAC rather than to $name because both indexes the
+// manifest declares here cover that one column under two different names,
+// which is precisely the shape GH-1566 was about.
+$idx = static function ($name, $nonUnique = 0, $cols = ['hmMAC'], $sub = null) {
+    $rows = [];
+    foreach ((array)$cols as $i => $c) {
+        $rows[] = [
+            'TABLE_NAME' => 'hostMAC',
+            'INDEX_NAME' => $name,
+            'COLUMN_NAME' => $c,
+            'SEQ_IN_INDEX' => $i + 1,
+            'SUB_PART' => $sub,
+            'NON_UNIQUE' => $nonUnique,
+        ];
+    }
+    return $rows;
 };
 
 $col = static function ($name, $type, $null = 'NO') {
@@ -198,6 +211,55 @@ $serve($matching, [$idx('hmMAC')]);
 $t->check(
     'a plain KEY that is absent is not reported as drift',
     SchemaReconciler::shapeDrift($manifest) === []
+);
+
+// --- GH-1566: the same name over a DIFFERENT column is not a pass ----------
+// The false NEGATIVE, and the reason this was filed. Reading only
+// INDEX_NAME, a unique index called `hmMAC` sitting on `hmDesc` satisfied
+// the declaration: drift reported clean while nothing whatsoever enforced
+// uniqueness of a MAC. Proven against a real database before the fix --
+// all three of hostMAC's declared UNIQUE keys were repointed at `hmDesc`,
+// `shape` printed 0 differences, and two hosts were then given one MAC.
+$serve($matching, [$idx('hmMAC', 0, ['hmDesc']), $idx('idxMac', 1)]);
+$drift = SchemaReconciler::shapeDrift($manifest);
+$t->check(
+    'a UNIQUE index with the right name over the wrong column is reported',
+    count($drift) === 1
+        && ($drift[0]['kind'] ?? '') === 'unique'
+        && ($drift[0]['name'] ?? '') === 'hmMAC'
+);
+// Reported as what it IS, not as "absent". An index that exists over the
+// wrong columns is the more alarming state of the two -- it looks correct
+// in every listing that prints names -- so the line has to say so or the
+// admin goes looking for a missing index that is right there.
+$t->check(
+    'the report names the columns on both sides',
+    false !== strpos((string)($drift[0]['expected'] ?? ''), 'hmmac')
+        && false !== strpos((string)($drift[0]['actual'] ?? ''), 'hmdesc')
+);
+
+// --- GH-1566: the guarantee under a different NAME is not drift ------------
+// The false POSITIVE, and the one a real server hits without anybody doing
+// anything odd: a restore or a hand-run `ADD UNIQUE uniq_mac (hmMAC)`
+// leaves the guarantee intact under another label. The manifest describes
+// an end state, and that end state is satisfied -- saying otherwise sends
+// an admin to fix a database that is already correct.
+$serve($matching, [$idx('uniq_mac', 0, ['hmMAC']), $idx('idxMac', 1)]);
+$t->check(
+    'the declared UNIQUE under a different name is not reported',
+    SchemaReconciler::shapeDrift($manifest) === []
+);
+
+// --- GH-1566: a PREFIX index is a weaker guarantee -------------------------
+// `hmMAC(10)` constrains the first ten characters, not the value, so two
+// different MACs sharing a prefix still collide. Compared exactly for that
+// reason: treating `col` and `col(10)` as equal would accept a weaker
+// index as though it satisfied the declaration.
+$serve($matching, [$idx('hmMAC', 0, ['hmMAC'], 10), $idx('idxMac', 1)]);
+$drift = SchemaReconciler::shapeDrift($manifest);
+$t->check(
+    'a prefix index does not satisfy an unprefixed UNIQUE declaration',
+    count($drift) === 1 && ($drift[0]['kind'] ?? '') === 'unique'
 );
 
 // --- an ABSENT column is not drift -----------------------------------------
