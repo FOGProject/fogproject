@@ -1126,7 +1126,21 @@ abstract class FOGPage extends FOGBase
                         ] = ReportManagement::titleFor($report);
                     }
                 }
-                $menu['upload'] = _('Import Reports');
+                // No 'Import Reports' entry. The page behind it rendered a
+                // file-upload form with no POST handler behind it -- FOG has
+                // never had one, in 1.5 or 1.6 -- so the button ran, answered
+                // 200 with the form's own HTML, and imported nothing.
+                //
+                // Not reinstated, because a report is PHP that this server
+                // executes: an upload endpoint for one is an arbitrary-code
+                // door, and FOG already has exactly one of those, built with
+                // the gate such a thing needs. PluginManagement's archive
+                // upload is off unless FOG_PLUGIN_UI_INSTALL_ENABLED is set
+                // AND root has made FOG_PLUGIN_DIR writable, stages outside
+                // the autoload path, and shows the admin the manifest before
+                // anything is installed. Under ADR 0035 a custom report is
+                // <plugin>/src/Reports/<Class>.php, so that route already
+                // delivers one -- through the door with the locks on it.
         }
 
         $menu = array_filter($menu);
