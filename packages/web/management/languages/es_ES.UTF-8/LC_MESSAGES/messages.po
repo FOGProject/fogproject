@@ -114,6 +114,10 @@ msgid "%d architecture(s) updated."
 msgstr "Impresora actualiza!"
 
 #, php-format
+msgid "%d certificates in this file"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -422,6 +426,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A role with this name already exists!"
 msgstr "Sesión con ese nombre ya existe"
 
+msgid "A root CA uploaded on this page. Absent unless one was imported."
+msgstr ""
+
 #, fuzzy
 msgid "A scheduled time is required"
 msgstr "Se requiere un nombre de imagen!"
@@ -502,6 +509,9 @@ msgid "A username already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
 
 msgid "A valid database connection could not be made"
+msgstr ""
+
+msgid "A worked example of the first one, end to end:"
 msgstr ""
 
 msgid "API"
@@ -1341,10 +1351,6 @@ msgstr "Crear nuevo grupo"
 msgid "CA Path"
 msgstr "Camino"
 
-#, fuzzy
-msgid "CA private key"
-msgstr "clave privada fracasó"
-
 msgid "CPU Cache"
 msgstr "caché de la CPU"
 
@@ -1559,6 +1565,10 @@ msgstr "Versión del sistema"
 msgid "Catch-All Site"
 msgstr ""
 
+#, fuzzy
+msgid "Certificate"
+msgstr "Crear nuevo grupo"
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1572,6 +1582,18 @@ msgstr "Crear nuevo grupo"
 #, fuzzy
 msgid "Certificate Verification"
 msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Certificate change failed"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Certificate download failed"
+msgstr "Descarga fracasó"
+
+#, fuzzy
+msgid "Certificate management is not configured on this server"
+msgstr "No hay grupos en este servidor."
 
 #, fuzzy
 msgid "Certificates"
@@ -1705,6 +1727,9 @@ msgstr "Configuración Tecla"
 #, fuzzy
 msgid "Client Version"
 msgstr "Versión de la CPU"
+
+msgid "Client communication certificate"
+msgstr ""
 
 msgid "Clients already enforcing Secure Boot cannot run this task -- they will not boot FOS in the first place. Use the manual steps below for those."
 msgstr ""
@@ -1897,9 +1922,17 @@ msgstr "No se pudo leer el archivo tmp."
 msgid "Could not register"
 msgstr "No se pudo crear la impresora"
 
+#, fuzzy
+msgid "Could not remove the imported root"
+msgstr "No se pudo leer el archivo tmp."
+
 #, php-format
 msgid "Could not replace the existing %s. Is %s writable?"
 msgstr ""
+
+#, fuzzy
+msgid "Could not save that preference"
+msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not seed the granted targets"
@@ -1911,6 +1944,10 @@ msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not stage the upload."
+msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
+msgid "Could not stage the uploaded certificate"
 msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
@@ -2145,6 +2182,10 @@ msgstr "Registros actuales"
 
 msgid "Current member-host AD state"
 msgstr ""
+
+#, fuzzy
+msgid "Currently imported"
+msgstr "Registros actuales"
 
 msgid "DMI Field"
 msgstr ""
@@ -2523,6 +2564,9 @@ msgstr "Configuración"
 msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
+msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered."
+msgstr ""
+
 msgid "Edit"
 msgstr "Editar"
 
@@ -2725,6 +2769,9 @@ msgstr ""
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
+msgid "Expires"
+msgstr ""
+
 msgid "Export"
 msgstr "Exportar"
 
@@ -2791,6 +2838,9 @@ msgstr "impresora iPrint"
 #, fuzzy
 msgid "Export the database"
 msgstr "Fecha"
+
+msgid "External root CA"
+msgstr ""
 
 #, fuzzy
 msgid "FOG"
@@ -4426,6 +4476,10 @@ msgid "Import known mac address makers"
 msgstr ""
 
 #, fuzzy
+msgid "Imported root"
+msgstr "Importar"
+
+#, fuzzy
 msgid "Imported successfully!"
 msgstr "actualización de servicio no pudo"
 
@@ -4499,6 +4553,10 @@ msgstr "Añadir fallidos SNAPin!"
 #, fuzzy
 msgid "Install plugins failed!"
 msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "Install preferences"
+msgstr "Eliminar seleccionado"
 
 #, fuzzy
 msgid "Install selected"
@@ -5081,6 +5139,9 @@ msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
 msgid "Legacy BIOS (no Secure Boot)"
+msgstr ""
+
+msgid "Let's Encrypt with FOG"
 msgstr ""
 
 msgid "Level"
@@ -5844,6 +5905,10 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr "Ningún archivo fue subido"
 
+#, fuzzy
+msgid "No certificate file was uploaded"
+msgstr "Ningún archivo fue subido"
+
 msgid "No change"
 msgstr ""
 
@@ -5871,6 +5936,9 @@ msgid "No database to work off"
 msgstr "No se obtuvieron datos"
 
 msgid "No external data to download the file from"
+msgstr ""
+
+msgid "No external root is imported on this server."
 msgstr ""
 
 msgid "No fields passed"
@@ -6142,6 +6210,9 @@ msgstr ""
 msgid "Not allowed here"
 msgstr ""
 
+msgid "Not offered here, on purpose"
+msgstr ""
+
 #, fuzzy
 msgid "Not pinged"
 msgstr "Instalador inteligente (recomendado)"
@@ -6263,6 +6334,9 @@ msgstr ""
 msgid "Off - direct membership only"
 msgstr ""
 
+msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place."
+msgstr ""
+
 msgid "Offered to every user on this grid."
 msgstr ""
 
@@ -6330,6 +6404,9 @@ msgid "Only an administrator may grant full access."
 msgstr "modificar Grupo"
 
 msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
+
+msgid "Only needed for HTTPS netboot behind a PRIVATE CA, and it costs a 10-25 minute build on every install. It also makes Secure Boot harder, not easier: a binary carrying a private CA is not upstream's signed one, so the chain has to hand off to a MOK-signed FOG build and the MOK must be enrolled first."
 msgstr ""
 
 msgid "Only snapins shared by every host in the group can be ordered here. Saving sets this order on each host (shared snapins run first, in this order; any host-specific snapins run after). Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
@@ -6844,6 +6921,9 @@ msgstr ""
 msgid "Preference key or value is not storable"
 msgstr ""
 
+msgid "Preference saved"
+msgstr ""
+
 msgid "Preferences"
 msgstr ""
 
@@ -6968,6 +7048,9 @@ msgstr "clave privada no se puede leer"
 
 msgid "Private key path not found"
 msgstr "ruta de la clave privada no encontrado"
+
+msgid "Private keys are deliberately absent. Nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
 
 #, fuzzy
 msgid "Private keys are readable by the web server"
@@ -7130,6 +7213,9 @@ msgstr "Reiniciar"
 msgid "Reboot after deploy"
 msgstr "Deben estar cifrados"
 
+msgid "Rebuild iPXE with this server's CA embedded"
+msgstr ""
+
 #, fuzzy
 msgid "Receive"
 msgstr "retirar"
@@ -7152,6 +7238,9 @@ msgstr "Registro no encontrado, error: %s"
 #, fuzzy
 msgid "Records"
 msgstr "Registros actuales"
+
+msgid "Redirect HTTP to HTTPS"
+msgstr ""
 
 msgid "Redirect Login To This Provider"
 msgstr ""
@@ -7226,6 +7315,10 @@ msgid "Remove file data"
 msgstr "Remoto"
 
 #, fuzzy
+msgid "Remove imported root"
+msgstr "Remoto"
+
+#, fuzzy
 msgid "Remove selected"
 msgstr "Remoto"
 
@@ -7264,6 +7357,9 @@ msgstr ""
 
 #, php-format
 msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
+msgstr ""
+
+msgid "Replacing the root itself -- so that FOG's anchor becomes an intermediate of yours -- is a migration rather than a setting. It changes the certificate every registered fog-client pins, so every one of them stops authenticating until it is re-pinned. That is not something a web form should be able to do in one click, so it is not on this page."
 msgstr ""
 
 #, fuzzy
@@ -7436,6 +7532,21 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
+msgid "Root"
+msgstr ""
+
+#, fuzzy
+msgid "Root CA certificate (PEM)"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Root imported"
+msgstr "ID de inventario"
+
+#, fuzzy
+msgid "Root removed"
+msgstr "retirar"
+
 msgid "Row"
 msgstr "Fila"
 
@@ -7528,6 +7639,9 @@ msgid "Save the site before setting catch-all"
 msgstr ""
 
 msgid "Saved filters for one grid"
+msgstr ""
+
+msgid "Saved. It takes effect the next time the installer runs."
 msgstr ""
 
 #, fuzzy
@@ -7669,7 +7783,7 @@ msgstr ""
 msgid "Secure Boot (reported)"
 msgstr ""
 
-msgid "Secure Boot CA private key"
+msgid "Secure Boot CA"
 msgstr ""
 
 msgid "Secure Boot Enrolled"
@@ -7951,6 +8065,12 @@ msgstr ""
 #, fuzzy
 msgid "Signs In With"
 msgstr "snapin replicador"
+
+msgid "Signs the FOS kernel signing certificate. Not a web certificate."
+msgstr ""
+
+msgid "Signs the web server certificate and every storage node certificate."
+msgstr ""
 
 #, fuzzy
 msgid "Single Logout"
@@ -8979,6 +9099,14 @@ msgid "Text to match against the id and name. A few classes match more: host als
 msgstr ""
 
 #, fuzzy
+msgid "That certificate is not available on this server."
+msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+msgid "That file is too large to be a root CA certificate"
+msgstr "no ha logrado ahorrar"
+
+#, fuzzy
 msgid "That filter is too large to save"
 msgstr "no ha logrado ahorrar"
 
@@ -9120,6 +9248,17 @@ msgstr ""
 msgid "The calling user's preferences."
 msgstr ""
 
+#, fuzzy
+msgid "The certificate chain"
+msgstr "Crear nuevo grupo"
+
+msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
+msgstr ""
+
+#, fuzzy
+msgid "The certificate was refused"
+msgstr "Ningún archivo fue subido"
+
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
@@ -9200,6 +9339,9 @@ msgstr "Marque aquí para ver los grupos no asignado esta imagen"
 #, fuzzy
 msgid "The image storage group assigned is not valid"
 msgstr "Marque aquí para ver los grupos no asignado esta imagen"
+
+msgid "The imported root CA has been removed."
+msgstr ""
 
 #, fuzzy
 msgid "The installers for the fog client"
@@ -9287,7 +9429,16 @@ msgstr ""
 msgid "The provider returned a configuration for a different issuer"
 msgstr ""
 
+msgid "The public half of the keypair fog-client encrypts its check-in to."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
+msgstr ""
+
+msgid "The root CA has been imported and this server now trusts it."
+msgstr ""
+
+msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -9325,6 +9476,9 @@ msgstr ""
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+msgid "The trust anchor. Every fog-client pins this one."
+msgstr ""
+
 msgid "The upload did not arrive."
 msgstr ""
 
@@ -9344,6 +9498,9 @@ msgid "The uploaded file was only partially uploaded"
 msgstr "El archivo subido se ha subido sólo parcialmente"
 
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
+msgstr ""
+
+msgid "The web certificate chains to a public CA"
 msgstr ""
 
 msgid "Theme"
@@ -9407,6 +9564,9 @@ msgstr ""
 msgid "These binaries are staged on every install, HTTPS included. An HTTPS web interface has no bearing on netboot, which has its own protocol setting. HTTPS netboot only needs a rebuilt iPXE when the certificate comes from a private CA -- a publicly-issued one on an FQDN needs no rebuild and keeps the signed shim."
 msgstr ""
 
+msgid "These decide what the NEXT installer run does. Nothing here takes effect until the installer runs again -- this page records the preference, it does not rewrite the web server configuration or reissue a certificate."
+msgstr ""
+
 #, php-format
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
@@ -9430,6 +9590,9 @@ msgstr ""
 msgid "This document"
 msgstr ""
 
+msgid "This does not change what FOG issues, and it does not change what fog-client pins. Only a self-signed CA certificate is accepted: an intermediate in the same file is dropped rather than trusted, because anchoring an intermediate would trust it as a root."
+msgstr ""
+
 msgid "This endpoint only accepts POST."
 msgstr ""
 
@@ -9447,6 +9610,9 @@ msgstr ""
 
 #, php-format
 msgid "This host has finished deploying image %s."
+msgstr ""
+
+msgid "This host has no system trust store that FOG recognizes, so an imported root is recorded and re-applied but never reaches the host's own HTTPS clients."
 msgstr ""
 
 msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."
@@ -9510,6 +9676,9 @@ msgstr ""
 msgid "This is the only time it will be shown. Hand it to the person or service it was issued for &mdash; you are seeing a credential that belongs to another account."
 msgstr ""
 
+msgid "This is the value to compare against a client's trust store when working out why a client stopped authenticating."
+msgstr ""
+
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
@@ -9547,6 +9716,9 @@ msgid "This server's hostname, as its certificate names it."
 msgstr ""
 
 msgid "This server's own IP address. Space-separated when the interface carries more than one."
+msgstr ""
+
+msgid "This server's web certificate already resolves outside FOG's own PKI, so FOG treats it as managed elsewhere and will not reissue it or lock its key down, whatever these say. That is derived from where the certificate actually is, not from a setting, so the two cannot disagree."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -9642,6 +9814,9 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr ""
 
+msgid "To have your own CA issue FOG's web certificates, import the CA and its key by re-running the installer. That replaces the CA that signs the web server certificate and the storage node certificates -- and only that. The root fog-client pins is left alone, so no client re-enrolls."
+msgstr ""
+
 msgid "Toggle Dropdown"
 msgstr ""
 
@@ -9701,6 +9876,9 @@ msgstr ""
 msgid "Trust anchor"
 msgstr ""
 
+msgid "Trust anchor bundle"
+msgstr ""
+
 msgid "Trusted Node CIDRs"
 msgstr ""
 
@@ -9709,6 +9887,9 @@ msgid "Trying Snapin hash for"
 msgstr "Camino snapin"
 
 msgid "Trying image size for"
+msgstr ""
+
+msgid "Turn this on for a Let's Encrypt or purchased certificate. It stops FOG re-issuing the leaf, stops it locking the private key to root -- which would break the renewal that writes it -- and steers netboot to HTTPS with no iPXE rebuild, because upstream iPXE cross-certifies public CAs already."
 msgstr ""
 
 msgid "Two routes are covered in the guide linked above: a live USB with the kit above, or PXE-booting the client and choosing Enroll Secure Boot Key, which now fetches MOK.der over the network on its own, with no USB stick needed."
@@ -9868,6 +10049,10 @@ msgstr "Desconocido"
 msgid "Unknown DB error"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
+#, fuzzy
+msgid "Unknown action"
+msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -9982,6 +10167,9 @@ msgstr "Subir archivo"
 #, fuzzy
 msgid "Upload Reports"
 msgstr "Subir archivo"
+
+msgid "Upload a root CA certificate to have this server trust it. It is added to the host's own trust store, so every HTTPS call this server makes will accept a certificate issued beneath it, and it is re-applied on every later installer run."
+msgstr ""
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
 msgstr ""
@@ -10257,10 +10445,17 @@ msgstr ""
 msgid "Using the group match function"
 msgstr ""
 
+msgid "Using your own PKI"
+msgstr ""
+
 msgid "VB Script"
 msgstr ""
 
 msgid "VNC"
+msgstr ""
+
+#, php-format
+msgid "Valid until %s."
 msgstr ""
 
 msgid "Value"
@@ -10325,13 +10520,19 @@ msgstr ""
 msgid "We cannot connect to LDAP server"
 msgstr "Error: No se pudo descargar kernel"
 
-msgid "Web CA private key"
+msgid "Web CA"
+msgstr ""
+
+msgid "Web CA plus the root that anchors it -- what a client needs to verify this server."
 msgstr ""
 
 msgid "Web Server"
 msgstr "Servidor web"
 
-msgid "Web server private key"
+msgid "Web server certificate"
+msgstr ""
+
+msgid "Web trust chain"
 msgstr ""
 
 msgid "Weekly"
@@ -10346,6 +10547,12 @@ msgstr ""
 #, fuzzy
 msgid "What gets enrolled"
 msgstr "se ha actualizado correctamente"
+
+msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
+msgstr ""
+
+msgid "What this server itself trusts: FOG's root, plus any root imported below."
+msgstr ""
 
 msgid "What to do next"
 msgstr ""
@@ -11664,6 +11871,10 @@ msgstr ""
 #~ msgstr "Guardar cambios"
 
 #, fuzzy
+#~ msgid "CA private key"
+#~ msgstr "clave privada fracasó"
+
+#, fuzzy
 #~ msgid "Check that database is running"
 #~ msgstr "Compruebe que la base de datos se está ejecutando"
 
@@ -11897,10 +12108,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Printers"
 #~ msgstr "Impresora TCP / IP Port"
-
-#, fuzzy
-#~ msgid "Import Report"
-#~ msgstr "Importar"
 
 #, fuzzy
 #~ msgid "Import Reports"

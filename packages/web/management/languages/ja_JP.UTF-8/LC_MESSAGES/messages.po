@@ -107,6 +107,10 @@ msgid "%d architecture(s) updated."
 msgstr "プリンターを更新しました！"
 
 #, php-format
+msgid "%d certificates in this file"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -404,6 +408,9 @@ msgstr "この名前のロールは既に存在します！"
 msgid "A role with this name already exists!"
 msgstr "その名前のホストは既に存在します"
 
+msgid "A root CA uploaded on this page. Absent unless one was imported."
+msgstr ""
+
 #, fuzzy
 msgid "A scheduled time is required"
 msgstr "名前は必須です！"
@@ -477,6 +484,9 @@ msgstr "このユーザー名は既に存在します！"
 
 msgid "A valid database connection could not be made"
 msgstr "有効なデータベース接続を確立できませんでした"
+
+msgid "A worked example of the first one, end to end:"
+msgstr ""
 
 #, fuzzy
 msgid "API"
@@ -1269,10 +1279,6 @@ msgstr "新しいロケーションを作成"
 msgid "CA Path"
 msgstr "パス"
 
-#, fuzzy
-msgid "CA private key"
-msgstr "秘密鍵の処理に失敗しました"
-
 msgid "CPU Cache"
 msgstr "CPU キャッシュ"
 
@@ -1483,6 +1489,10 @@ msgstr "シャーシバージョン"
 msgid "Catch-All Site"
 msgstr "サイトを作成"
 
+#, fuzzy
+msgid "Certificate"
+msgstr "新しいロケーションを作成"
+
 msgid "Certificate SHA-1"
 msgstr ""
 
@@ -1496,6 +1506,18 @@ msgstr "新しいロケーションを作成"
 #, fuzzy
 msgid "Certificate Verification"
 msgstr "新しいロケーションを作成"
+
+#, fuzzy
+msgid "Certificate change failed"
+msgstr "新しいロケーションを作成"
+
+#, fuzzy
+msgid "Certificate download failed"
+msgstr "ダウンロードに失敗しました"
+
+#, fuzzy
+msgid "Certificate management is not configured on this server"
+msgstr "このサーバーにはグループがありません"
 
 #, fuzzy
 msgid "Certificates"
@@ -1622,6 +1644,9 @@ msgstr "クライアント設定"
 
 msgid "Client Version"
 msgstr "クライアントバージョン"
+
+msgid "Client communication certificate"
+msgstr ""
 
 msgid "Clients already enforcing Secure Boot cannot run this task -- they will not boot FOS in the first place. Use the manual steps below for those."
 msgstr ""
@@ -1803,9 +1828,17 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not register"
 msgstr "登録できませんでした"
 
+#, fuzzy
+msgid "Could not remove the imported root"
+msgstr "一時ファイルを読み取れませんでした。"
+
 #, php-format
 msgid "Could not replace the existing %s. Is %s writable?"
 msgstr ""
+
+#, fuzzy
+msgid "Could not save that preference"
+msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not seed the granted targets"
@@ -1817,6 +1850,10 @@ msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not stage the upload."
+msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+msgid "Could not stage the uploaded certificate"
 msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
@@ -2049,6 +2086,10 @@ msgstr "現在のレコード"
 
 msgid "Current member-host AD state"
 msgstr ""
+
+#, fuzzy
+msgid "Currently imported"
+msgstr "現在のレコード"
 
 msgid "DMI Field"
 msgstr "DMI フィールド"
@@ -2407,6 +2448,9 @@ msgstr "期間"
 msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
+msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered."
+msgstr ""
+
 msgid "Edit"
 msgstr "編集"
 
@@ -2606,6 +2650,9 @@ msgstr "Exists 項目はブール値である必要があります"
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
+msgid "Expires"
+msgstr ""
+
 msgid "Export"
 msgstr "エクスポート"
 
@@ -2666,6 +2713,9 @@ msgstr "Windows キーをエクスポート"
 #, fuzzy
 msgid "Export the database"
 msgstr "データベースをエクスポート"
+
+msgid "External root CA"
+msgstr ""
 
 msgid "FOG"
 msgstr "FOG"
@@ -4190,6 +4240,10 @@ msgid "Import known mac address makers"
 msgstr ""
 
 #, fuzzy
+msgid "Imported root"
+msgstr "ホストをインポート"
+
+#, fuzzy
 msgid "Imported successfully!"
 msgstr "インポートに成功しました"
 
@@ -4259,6 +4313,10 @@ msgstr "プラグインをインストール"
 #, fuzzy
 msgid "Install plugins failed!"
 msgstr "プラグインをインストール"
+
+#, fuzzy
+msgid "Install preferences"
+msgstr "カーネルをインストール"
 
 #, fuzzy
 msgid "Install selected"
@@ -4797,6 +4855,9 @@ msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
 msgid "Legacy BIOS (no Secure Boot)"
+msgstr ""
+
+msgid "Let's Encrypt with FOG"
 msgstr ""
 
 msgid "Level"
@@ -5514,6 +5575,10 @@ msgid "No archive was uploaded."
 msgstr "ファイルはアップロードされませんでした"
 
 #, fuzzy
+msgid "No certificate file was uploaded"
+msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
 msgid "No change"
 msgstr "変更を適用しますか？"
 
@@ -5536,6 +5601,9 @@ msgid "No database to work off"
 msgstr "使用するデータベースがありません"
 
 msgid "No external data to download the file from"
+msgstr ""
+
+msgid "No external root is imported on this server."
 msgstr ""
 
 msgid "No fields passed"
@@ -5793,6 +5861,9 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "ここでは許可されていません"
 
+msgid "Not offered here, on purpose"
+msgstr ""
+
 #, fuzzy
 msgid "Not pinged"
 msgstr "同期していません"
@@ -5915,6 +5986,9 @@ msgstr ""
 msgid "Off - direct membership only"
 msgstr ""
 
+msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place."
+msgstr ""
+
 #, fuzzy
 msgid "Offered to every user on this grid."
 msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
@@ -5979,6 +6053,9 @@ msgid "Only an administrator may grant full access."
 msgstr ""
 
 msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
+
+msgid "Only needed for HTTPS netboot behind a PRIVATE CA, and it costs a 10-25 minute build on every install. It also makes Secure Boot harder, not easier: a binary carrying a private CA is not upstream's signed one, so the chain has to hand off to a MOK-signed FOG build and the MOK must be enrolled first."
 msgstr ""
 
 msgid "Only snapins shared by every host in the group can be ordered here. Saving sets this order on each host (shared snapins run first, in this order; any host-specific snapins run after). Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
@@ -6479,6 +6556,9 @@ msgstr ""
 msgid "Preference key or value is not storable"
 msgstr ""
 
+msgid "Preference saved"
+msgstr ""
+
 msgid "Preferences"
 msgstr ""
 
@@ -6591,6 +6671,9 @@ msgstr "秘密鍵を読み取れません"
 
 msgid "Private key path not found"
 msgstr "秘密鍵のパスが見つかりません"
+
+msgid "Private keys are deliberately absent. Nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
 
 #, fuzzy
 msgid "Private keys are readable by the web server"
@@ -6751,6 +6834,9 @@ msgstr "再起動"
 msgid "Reboot after deploy"
 msgstr "展開後に再起動"
 
+msgid "Rebuild iPXE with this server's CA embedded"
+msgstr ""
+
 msgid "Receive"
 msgstr "受信"
 
@@ -6771,6 +6857,9 @@ msgstr "レコードが見つかりません"
 #, fuzzy
 msgid "Records"
 msgstr "現在のレコード"
+
+msgid "Redirect HTTP to HTTPS"
+msgstr ""
 
 msgid "Redirect Login To This Provider"
 msgstr ""
@@ -6843,6 +6932,10 @@ msgid "Remove file data"
 msgstr "削除に失敗しました"
 
 #, fuzzy
+msgid "Remove imported root"
+msgstr "選択したホストを削除"
+
+#, fuzzy
 msgid "Remove selected"
 msgstr "選択した項目を削除"
 
@@ -6878,6 +6971,9 @@ msgstr ""
 
 #, php-format
 msgid "Repaired %1$d orphaned work row(s) across %2$d column(s)"
+msgstr ""
+
+msgid "Replacing the root itself -- so that FOG's anchor becomes an intermediate of yours -- is a migration rather than a setting. It changes the certificate every registered fog-client pins, so every one of them stops authenticating until it is re-pinned. That is not something a web form should be able to do in one click, so it is not on this page."
 msgstr ""
 
 #, fuzzy
@@ -7035,6 +7131,21 @@ msgstr ""
 msgid "Roles"
 msgstr "ロール"
 
+msgid "Root"
+msgstr ""
+
+#, fuzzy
+msgid "Root CA certificate (PEM)"
+msgstr "新しいロケーションを作成"
+
+#, fuzzy
+msgid "Root imported"
+msgstr "保護されていません"
+
+#, fuzzy
+msgid "Root removed"
+msgstr "削除済み"
+
 msgid "Row"
 msgstr "行"
 
@@ -7125,6 +7236,9 @@ msgid "Save the site before setting catch-all"
 msgstr ""
 
 msgid "Saved filters for one grid"
+msgstr ""
+
+msgid "Saved. It takes effect the next time the installer runs."
 msgstr ""
 
 msgid "Saving data for"
@@ -7260,7 +7374,7 @@ msgstr ""
 msgid "Secure Boot (reported)"
 msgstr ""
 
-msgid "Secure Boot CA private key"
+msgid "Secure Boot CA"
 msgstr ""
 
 msgid "Secure Boot Enrolled"
@@ -7531,6 +7645,12 @@ msgstr ""
 #, fuzzy
 msgid "Signs In With"
 msgstr "スナップイン実行ユーザー"
+
+msgid "Signs the FOS kernel signing certificate. Not a web certificate."
+msgstr ""
+
+msgid "Signs the web server certificate and every storage node certificate."
+msgstr ""
 
 #, fuzzy
 msgid "Single Logout"
@@ -8459,6 +8579,14 @@ msgid "Text to match against the id and name. A few classes match more: host als
 msgstr ""
 
 #, fuzzy
+msgid "That certificate is not available on this server."
+msgstr "このサーバーにはグループがありません"
+
+#, fuzzy
+msgid "That file is too large to be a root CA certificate"
+msgstr "保存に失敗しました"
+
+#, fuzzy
 msgid "That filter is too large to save"
 msgstr "保存に失敗しました"
 
@@ -8601,6 +8729,17 @@ msgstr ""
 msgid "The calling user's preferences."
 msgstr ""
 
+#, fuzzy
+msgid "The certificate chain"
+msgstr "新しいロケーションを作成"
+
+msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
+msgstr ""
+
+#, fuzzy
+msgid "The certificate was refused"
+msgstr "ファイルはアップロードされませんでした"
+
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
@@ -8679,6 +8818,9 @@ msgstr "ストレージグループに関連付けられたストレージノー
 
 msgid "The image storage group assigned is not valid"
 msgstr "割り当てられたイメージのストレージグループが無効です"
+
+msgid "The imported root CA has been removed."
+msgstr ""
 
 msgid "The installers for the fog client"
 msgstr "FOG クライアント用インストーラー"
@@ -8766,7 +8908,16 @@ msgstr ""
 msgid "The provider returned a configuration for a different issuer"
 msgstr ""
 
+msgid "The public half of the keypair fog-client encrypts its check-in to."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
+msgstr ""
+
+msgid "The root CA has been imported and this server now trusts it."
+msgstr ""
+
+msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -8806,6 +8957,9 @@ msgstr "ストレージグループに関連付けられたストレージノー
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+msgid "The trust anchor. Every fog-client pins this one."
+msgstr ""
+
 msgid "The upload did not arrive."
 msgstr ""
 
@@ -8823,6 +8977,9 @@ msgid "The uploaded file was only partially uploaded"
 msgstr "アップロードしたファイルは一部しかアップロードされませんでした"
 
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
+msgstr ""
+
+msgid "The web certificate chains to a public CA"
 msgstr ""
 
 msgid "Theme"
@@ -8882,6 +9039,9 @@ msgstr "そこから FOG Prep などのユーティリティをダウンロー�
 msgid "These binaries are staged on every install, HTTPS included. An HTTPS web interface has no bearing on netboot, which has its own protocol setting. HTTPS netboot only needs a rebuilt iPXE when the certificate comes from a private CA -- a publicly-issued one on an FQDN needs no rebuild and keeps the signed shim."
 msgstr ""
 
+msgid "These decide what the NEXT installer run does. Nothing here takes effect until the installer runs again -- this page records the preference, it does not rewrite the web server configuration or reissue a certificate."
+msgstr ""
+
 #, php-format
 msgid "These plugins are still installed on disk, so forgetting them would achieve nothing: %s. Uninstall them instead."
 msgstr ""
@@ -8906,6 +9066,9 @@ msgstr ""
 msgid "This document"
 msgstr ""
 
+msgid "This does not change what FOG issues, and it does not change what fog-client pins. Only a self-signed CA certificate is accepted: an intermediate in the same file is dropped rather than trusted, because anchoring an intermediate would trust it as a root."
+msgstr ""
+
 msgid "This endpoint only accepts POST."
 msgstr ""
 
@@ -8922,6 +9085,9 @@ msgstr ""
 
 #, php-format
 msgid "This host has finished deploying image %s."
+msgstr ""
+
+msgid "This host has no system trust store that FOG recognizes, so an imported root is recorded and re-applied but never reaches the host's own HTTPS clients."
 msgstr ""
 
 msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."
@@ -8985,6 +9151,9 @@ msgstr ""
 msgid "This is the only time it will be shown. Hand it to the person or service it was issued for &mdash; you are seeing a credential that belongs to another account."
 msgstr ""
 
+msgid "This is the value to compare against a client's trust store when working out why a client stopped authenticating."
+msgstr ""
+
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
@@ -9022,6 +9191,9 @@ msgid "This server's hostname, as its certificate names it."
 msgstr ""
 
 msgid "This server's own IP address. Space-separated when the interface carries more than one."
+msgstr ""
+
+msgid "This server's web certificate already resolves outside FOG's own PKI, so FOG treats it as managed elsewhere and will not reissue it or lock its key down, whatever these say. That is derived from where the certificate actually is, not from a setting, so the two cannot disagree."
 msgstr ""
 
 msgid "This servers ip(s)"
@@ -9118,6 +9290,9 @@ msgstr ""
 msgid "To get started please select an item from the menu."
 msgstr "開始するにはメニューから項目を選択してください。"
 
+msgid "To have your own CA issue FOG's web certificates, import the CA and its key by re-running the installer. That replaces the CA that signs the web server certificate and the storage node certificates -- and only that. The root fog-client pins is left alone, so no client re-enrolls."
+msgstr ""
+
 msgid "Toggle Dropdown"
 msgstr ""
 
@@ -9178,6 +9353,9 @@ msgstr ""
 msgid "Trust anchor"
 msgstr ""
 
+msgid "Trust anchor bundle"
+msgstr ""
+
 msgid "Trusted Node CIDRs"
 msgstr ""
 
@@ -9186,6 +9364,9 @@ msgstr "次のスナップインのハッシュを取得しています:"
 
 msgid "Trying image size for"
 msgstr "次のイメージサイズを取得しています:"
+
+msgid "Turn this on for a Let's Encrypt or purchased certificate. It stops FOG re-issuing the leaf, stops it locking the private key to root -- which would break the renewal that writes it -- and steers netboot to HTTPS with no iPXE rebuild, because upstream iPXE cross-certifies public CAs already."
+msgstr ""
 
 msgid "Two routes are covered in the guide linked above: a live USB with the kit above, or PXE-booting the client and choosing Enroll Secure Boot Key, which now fetches MOK.der over the network on its own, with no USB stick needed."
 msgstr ""
@@ -9337,6 +9518,10 @@ msgstr "不明"
 msgid "Unknown DB error"
 msgstr "不明なデータベースエラー"
 
+#, fuzzy
+msgid "Unknown action"
+msgstr "不明なデータベースエラー"
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -9449,6 +9634,9 @@ msgstr "レポートをアップロード"
 
 msgid "Upload Reports"
 msgstr "レポートをアップロード"
+
+msgid "Upload a root CA certificate to have this server trust it. It is added to the host's own trust store, so every HTTPS call this server makes will accept a certificate issued beneath it, and it is re-applied on every later installer run."
+msgstr ""
 
 msgid "Upload file extension must be, jpg, jpeg, or png"
 msgstr "アップロードできるファイルの拡張子は jpg、jpeg、png のいずれかです"
@@ -9712,11 +9900,18 @@ msgstr ""
 msgid "Using the group match function"
 msgstr "グループ照合機能を使用しています"
 
+msgid "Using your own PKI"
+msgstr ""
+
 msgid "VB Script"
 msgstr ""
 
 msgid "VNC"
 msgstr "VNC"
+
+#, php-format
+msgid "Valid until %s."
+msgstr ""
 
 msgid "Value"
 msgstr "値"
@@ -9774,13 +9969,19 @@ msgstr "現在のノード名"
 msgid "We cannot connect to LDAP server"
 msgstr "LDAP サーバーに接続できません"
 
-msgid "Web CA private key"
+msgid "Web CA"
+msgstr ""
+
+msgid "Web CA plus the root that anchors it -- what a client needs to verify this server."
 msgstr ""
 
 msgid "Web Server"
 msgstr "サーバー"
 
-msgid "Web server private key"
+msgid "Web server certificate"
+msgstr ""
+
+msgid "Web trust chain"
 msgstr ""
 
 msgid "Weekly"
@@ -9795,6 +9996,12 @@ msgstr ""
 #, fuzzy
 msgid "What gets enrolled"
 msgstr "強制終了されました"
+
+msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
+msgstr ""
+
+msgid "What this server itself trusts: FOG's root, plus any root imported below."
+msgstr ""
 
 msgid "What to do next"
 msgstr ""
@@ -11168,6 +11375,10 @@ msgstr ""
 #~ msgid "Boot Exit settings"
 #~ msgstr "ブート終了設定"
 
+#, fuzzy
+#~ msgid "CA private key"
+#~ msgstr "秘密鍵の処理に失敗しました"
+
 #~ msgid "Can not redeclare route"
 #~ msgstr "ルートを再定義できません"
 
@@ -11869,9 +12080,6 @@ msgstr ""
 #~ msgid "Import Groups"
 #~ msgstr "グループをインポート"
 
-#~ msgid "Import Hosts"
-#~ msgstr "ホストをインポート"
-
 #~ msgid "Import Images"
 #~ msgstr "イメージをインポート"
 
@@ -11906,9 +12114,6 @@ msgstr ""
 
 #~ msgid "Install / Update Successful!"
 #~ msgstr "インストール/更新に成功しました！"
-
-#~ msgid "Install Kernel"
-#~ msgstr "カーネルをインストール"
 
 #~ msgid "Invalid Host Colors"
 #~ msgstr "無効なホストカラー"
@@ -12510,9 +12715,6 @@ msgstr ""
 
 #~ msgid "Remove selected groups"
 #~ msgstr "選択したグループを削除"
-
-#~ msgid "Remove selected hosts"
-#~ msgstr "選択したホストを削除"
 
 #~ msgid "Remove selected printers"
 #~ msgstr "選択したプリンターを削除"
