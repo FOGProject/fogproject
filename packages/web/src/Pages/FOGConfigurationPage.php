@@ -829,8 +829,14 @@ class FOGConfigurationPage extends FOGPage
         $body .= '<p class="form-text">' . sprintf(
             '%s <a href="%s" target="_blank" rel="noopener">%s</a>.',
             _('A worked example of the first one, end to end:'),
+            // NO /1.6/ segment. fog-docs carries two trees and they map to
+            // two different URL shapes: docs/1.6/... publishes under
+            // /en/latest/1.6/... (pki-zones, bringing-your-own-ca), while
+            // docs/kb/... is shared across versions and publishes under
+            // /en/latest/kb/... . This how-to is in the shared tree, so the
+            // versioned form 404s -- which is what shipped first.
             \Initiator::e(
-                'https://docs.fogproject.org/en/latest/1.6/kb/how-tos/lets-encrypt-setup'
+                'https://docs.fogproject.org/en/latest/kb/how-tos/lets-encrypt-setup'
             ),
             _('Let\'s Encrypt with FOG')
         ) . '</p>';
