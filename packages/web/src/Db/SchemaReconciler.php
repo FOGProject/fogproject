@@ -677,10 +677,237 @@ class SchemaReconciler extends FOGBase
         // way forward from the browser. Logged and reported instead.
         self::applyConstraints(null, $map);
 
+        // Reports, never repairs -- GH-1542. The four passes above all ask
+        // "is this thing PRESENT?" and create it when it is not. Nothing
+        // asks whether a column or an index that IS present has the right
+        // SHAPE, so drift is invisible: a column whose type no longer
+        // matches its parent's refuses its foreign key with errno 1005 on
+        // every upgrade from now on, and a UNIQUE index that is absent for
+        // any reason is never put back, taking its guarantee with it
+        // silently.
+        //
+        // Repairing either is a bigger decision than this pass is allowed to
+        // make -- MODIFY COLUMN on a populated column can truncate, and
+        // ADD UNIQUE on a table that has since acquired duplicates fails
+        // outright and needs a sweep in front of it, in the shape ADR 0031
+        // decision 8 gives the constraint groups. So this turns an invisible
+        // condition into a readable one and settles how often it actually
+        // happens before anything starts issuing ALTERs.
+        self::reportShapeDrift($manifest);
+
         if (count($errors ?: [])) {
             return implode('; ', $errors);
         }
         return true;
+    }
+
+    /**
+     * Logs columns and UNIQUE indexes whose shape differs from the manifest.
+     *
+     * Never alters anything and never fails the update: an upgrade that
+     * refused to finish because a column type had drifted would strand the
+     * server on ?node=schema over data that is otherwise intact.
+     *
+     * @param array|null $manifest Expected structure; defaults to the
+     *                             shipped one.
+     *
+     * @return array The drift found, for a caller that wants it.
+     */
+    public static function reportShapeDrift($manifest = null)
+    {
+        $drift = self::shapeDrift($manifest);
+        foreach ($drift as $d) {
+            error_log(
+                sprintf(
+                    '%s: %s.%s %s',
+                    _('Schema shape'),
+                    $d['table'],
+                    $d['name'],
+                    'column' === $d['kind']
+                        ? sprintf(
+                            _('is `%s` but the manifest says `%s`'),
+                            $d['actual'],
+                            $d['expected']
+                        )
+                        : _('is missing -- a UNIQUE index the manifest declares')
+                )
+            );
+        }
+        if (count($drift)) {
+            error_log(
+                sprintf(
+                    '%s: %d %s',
+                    _('Schema shape'),
+                    count($drift),
+                    _(
+                        'difference(s) from the manifest. Nothing was'
+                        . ' changed -- these are reported, not repaired.'
+                    )
+                )
+            );
+        }
+        return $drift;
+    }
+
+    /**
+     * Columns and UNIQUE indexes whose live shape differs from the manifest.
+     *
+     * Pure apart from the two reads. Compares:
+     *
+     * - a column's TYPE and its nullability. Not its DEFAULT: a drifted
+     *   default changes what a new row gets and nothing else, while a
+     *   drifted type is what refuses a foreign key, and mixing the two would
+     *   bury the second in a list of the first. Defaults also round-trip
+     *   badly through information_schema -- the quoting differs by server
+     *   version -- so comparing them produces findings that are noise.
+     * - UNIQUE indexes the manifest's CREATE statement declares. Non-unique
+     *   ones are deliberately not reported: a missing KEY costs speed, a
+     *   missing UNIQUE KEY costs a guarantee, and only the second is a
+     *   correctness question.
+     *
+     * A table or column that is ABSENT is not drift -- plan() creates those,
+     * and reporting them here would double every finding on a server that is
+     * simply behind.
+     *
+     * @param array|null $manifest Expected structure.
+     *
+     * @return array list of ['table','kind','name','expected','actual']
+     */
+    public static function shapeDrift($manifest = null)
+    {
+        if (null === $manifest) {
+            $manifest = self::manifest();
+        }
+        $tables = (array)($manifest['tables'] ?? []);
+        if (!count($tables)) {
+            return [];
+        }
+        $db = self::$DB->dbName();
+
+        $res = self::$DB->query(
+            sprintf(
+                'SELECT `TABLE_NAME`, `COLUMN_NAME`, `COLUMN_TYPE`,'
+                . ' `IS_NULLABLE` FROM `information_schema`.`COLUMNS`'
+                . ' WHERE `TABLE_SCHEMA` = %s',
+                self::$DB->escape($db)
+            )
+        );
+        if (false !== $res->error) {
+            return [];
+        }
+        $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (!is_array($rows)) {
+            return [];
+        }
+        $live = [];
+        foreach ($rows as $row) {
+            $live[strtolower((string)$row['TABLE_NAME'])]
+                [strtolower((string)$row['COLUMN_NAME'])] = [
+                    'type' => strtolower((string)$row['COLUMN_TYPE']),
+                    'null' => 'YES' === strtoupper((string)$row['IS_NULLABLE']),
+                ];
+        }
+
+        $res = self::$DB->query(
+            sprintf(
+                'SELECT `TABLE_NAME`, `INDEX_NAME` FROM'
+                . ' `information_schema`.`STATISTICS` WHERE `TABLE_SCHEMA` ='
+                . ' %s AND `NON_UNIQUE` = 0',
+                self::$DB->escape($db)
+            )
+        );
+        $liveIdx = [];
+        if (false === $res->error) {
+            $idxRows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+            foreach ((array)$idxRows as $row) {
+                $liveIdx[strtolower((string)$row['TABLE_NAME'])]
+                    [strtolower((string)$row['INDEX_NAME'])] = true;
+            }
+        }
+
+        $drift = [];
+        foreach ($tables as $table => $spec) {
+            $lt = strtolower((string)$table);
+            if (!isset($live[$lt])) {
+                // Absent entirely. plan() creates it; not drift.
+                continue;
+            }
+            foreach ((array)($spec['columns'] ?? []) as $col => $decl) {
+                $lc = strtolower((string)$col);
+                if (!isset($live[$lt][$lc])) {
+                    continue;
+                }
+                $want = self::_declShape((string)$decl);
+                $have = $live[$lt][$lc];
+                if ($want['type'] === $have['type']
+                    && $want['null'] === $have['null']
+                ) {
+                    continue;
+                }
+                $drift[] = [
+                    'table' => $table,
+                    'kind' => 'column',
+                    'name' => $col,
+                    'expected' => $want['type']
+                        . ($want['null'] ? ' NULL' : ' NOT NULL'),
+                    'actual' => $have['type']
+                        . ($have['null'] ? ' NULL' : ' NOT NULL'),
+                ];
+            }
+            $create = (string)($spec['create'] ?? '');
+            if ('' === $create) {
+                continue;
+            }
+            preg_match_all(
+                '/UNIQUE KEY `([^`]+)`/',
+                $create,
+                $m
+            );
+            foreach ($m[1] as $idx) {
+                if (isset($liveIdx[$lt][strtolower($idx)])) {
+                    continue;
+                }
+                $drift[] = [
+                    'table' => $table,
+                    'kind' => 'unique',
+                    'name' => $idx,
+                    'expected' => 'UNIQUE',
+                    'actual' => 'absent',
+                ];
+            }
+        }
+        return $drift;
+    }
+
+    /**
+     * The type and nullability a manifest column declaration describes.
+     *
+     * The declaration is what SHOW CREATE TABLE emits for the column minus
+     * its name -- `int(11) NOT NULL`, `longtext NOT NULL DEFAULT ''`. The
+     * type is everything up to the first NULL/NOT NULL/DEFAULT keyword, so a
+     * multi-word type (`int(10) unsigned`) survives intact.
+     *
+     * Nullability follows SQL's own default: a column is nullable unless the
+     * declaration says NOT NULL. Getting that backwards would report every
+     * nullable column in the manifest as drifted.
+     *
+     * @param string $decl manifest column declaration
+     *
+     * @return array ['type' => string, 'null' => bool]
+     */
+    private static function _declShape($decl)
+    {
+        $decl = trim($decl);
+        $notNull = (bool)preg_match('/\bNOT\s+NULL\b/i', $decl);
+        $type = preg_split(
+            '/\s+(?:NOT\s+NULL|NULL|DEFAULT|AUTO_INCREMENT|COMMENT|'
+            . 'CHARACTER\s+SET|COLLATE|ON\s+UPDATE|GENERATED)\b/i',
+            $decl
+        );
+        return [
+            'type' => strtolower(trim((string)($type[0] ?? $decl))),
+            'null' => !$notNull,
+        ];
     }
     /**
      * Declares the foreign keys the map has enabled.
