@@ -1070,6 +1070,94 @@ The fallbacks go when the last tracked branch has moved.
 
 ---
 
+### F-50 — A source grep on a guard's call site cannot see the guard stop firing
+
+`api-server-owned-fields.test.php` asserts that `Route::serverOwnedFields()`
+returns the right list, then greps the field loops for the string
+`_refuseServerOwned(`. That is worth keeping and it is not a net. Wrapping the
+call in `if (false)` leaves the string exactly where it was, and the whole
+suite stays green. The same shape covers `lockout-guard-is-unscoped.test.php`,
+which drives `Authorization::adminExistsGiven()` thoroughly and never mentions
+`Route` -- so nothing asserted that `deletemass()` consults it at all.
+
+Three guards were disabled one at a time on `working-1.6` at `2c1db9a3e` and
+each left 243 of 243 tests passing:
+
+```
+# in Route.php, one at a time, then: sh tests/run-all.sh
+#   edit():       if (false && in_array($key, $serverOwned, true))   # 243 passed
+#   deletemass(): if (false && self::$_deleteDepth < 1)              # 243 passed
+#   joining():    if (false && 'POST' == self::$reqmethod)           # 243 passed
+```
+
+All three are covered by `tests/route-write-path-guards.test.php` now. The
+general rule the three share is what belongs here: a grep pins a symbol's
+USE, and the failure mode of every guard is that it stops FIRING. The two are
+different questions and only the second one matters.
+
+---
+
+### F-51 — `FOGBase::$reqmethod` is NULL under `FogTestHarness::boot()`
+
+`FOGBase` populates it from `filter_input(INPUT_SERVER, 'REQUEST_METHOD')`
+during a request init the harness boot does not run. So any route that
+branches on the verb takes its `default:` arm under the harness, whatever
+`REQUEST_METHOD` the CGI child was given.
+
+This is the reason the first attempt at netting `joining()`'s POST class gate
+was fake: every case fell to the switch's `default:` and answered 400 having
+run nothing, so a disabled gate and a working one were indistinguishable. Any
+future test of a verb-dispatched route has to name it:
+
+```
+FogTestHarness::setStatic('FOGBase', 'reqmethod', $_SERVER['REQUEST_METHOD']);
+```
+
+---
+
+### F-52 — On a DB-free fixture the statement count is the only signal a gate fired
+
+`joining:host` and `joining:group` both end in a refusal under the write-path
+harness: the gate refuses the first at the top, and the second fails further
+down for want of real rows. Status code, message and shape are identical, so a
+check comparing them passes with the gate disabled.
+
+What the gate actually does is stop anything from running, and that is
+observable -- with the log cleared immediately before the call, a refused class
+issues zero statements and an allowed one reaches the database. Disabling the
+class test does not just change a code; it gets far enough to start creating
+hosts out of the names in the body:
+
+```
+php tests/route-write-path-guards.test.php     # ok  10 checks passed
+# with `if (false && $classname != 'group')`:
+#   REFUSED {"error":"Invalid hostname; must be 1-15 of these characters: ...}
+#   STATEMENTS 170
+```
+
+---
+
+### F-53 — The lockout guard's DEPTH condition is still unnetted
+
+`deletemass()` calls `Authorization::assertAdminRemainsAfterDelete()` only at
+`self::$_deleteDepth < 1`, because the cascade re-enters `deletemass()` per
+dependent table and those intermediate states are part of one operation
+already judged as a whole. The CALL is netted; the CONDITION is not.
+
+```
+# in Route.php: if (true || self::$_deleteDepth < 1)
+php tests/route-write-path-guards.test.php     # ok  10 checks passed
+```
+
+It survives because the cascade on that fixture finds no rows to re-enter
+with. Netting it needs a fixture whose intermediate state reads as a lockout
+while the whole operation does not -- for example a user whose deletion
+cascades through `roleuserassociation` rows that momentarily leave no
+administrator. Until that exists, a change to the depth condition is
+unguarded.
+
+---
+
 ## How to add an entry
 
 ```
