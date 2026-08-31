@@ -420,7 +420,7 @@ trait FOGPagePost
     protected function validateScheduleType()
     {
         $scheduleType = strtolower(
-            filter_input(INPUT_POST, 'scheduleType')
+            (string)filter_input(INPUT_POST, 'scheduleType')
         );
         $scheduleTypes = [
             'cron',

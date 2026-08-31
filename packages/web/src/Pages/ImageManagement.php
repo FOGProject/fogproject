@@ -426,36 +426,36 @@ class ImageManagement extends FOGPage
             _('Image Create Fail'),
             function (&$serverFault) {
                 $image = trim(
-                    filter_input(INPUT_POST, 'image')
+                    (string)filter_input(INPUT_POST, 'image')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $storagegroup = (int)trim(
-                    filter_input(INPUT_POST, 'storagegroup')
+                    (string)filter_input(INPUT_POST, 'storagegroup')
                 );
                 if (!$storagegroup) {
                     $storagegroup = @min(Route::getIds('storagegroup', false));
                 }
                 $os = (int)trim(
-                    filter_input(INPUT_POST, 'os')
+                    (string)filter_input(INPUT_POST, 'os')
                 );
                 $path = trim(
-                    filter_input(INPUT_POST, 'path')
+                    (string)filter_input(INPUT_POST, 'path')
                 );
                 $imagetype = (int)trim(
-                    filter_input(INPUT_POST, 'imagetype')
+                    (string)filter_input(INPUT_POST, 'imagetype')
                 );
                 $imagepartitiontype = (int)trim(
-                    filter_input(INPUT_POST, 'imagepartitiontype')
+                    (string)filter_input(INPUT_POST, 'imagepartitiontype')
                 );
                 $isEnabled = (int)isset($_POST['isEnabled']);
                 $toReplicate = (int)isset($_POST['toReplicate']);
                 $compress = (int)trim(
-                    filter_input(INPUT_POST, 'compression')
+                    (string)filter_input(INPUT_POST, 'compression')
                 );
                 $imagemanage = (int)trim(
-                    filter_input(INPUT_POST, 'imagemanage')
+                    (string)filter_input(INPUT_POST, 'imagemanage')
                 );
                 $exists = self::getClass('ImageManager')
                     ->exists($image);
@@ -845,22 +845,22 @@ class ImageManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $image = trim(
-            filter_input(INPUT_POST, 'image')
+            (string)filter_input(INPUT_POST, 'image')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $osID = (int)trim(
-            filter_input(INPUT_POST, 'os')
+            (string)filter_input(INPUT_POST, 'os')
         );
         $path = trim(
-            filter_input(INPUT_POST, 'path')
+            (string)filter_input(INPUT_POST, 'path')
         );
         $itID = (int)trim(
-            filter_input(INPUT_POST, 'imagetype')
+            (string)filter_input(INPUT_POST, 'imagetype')
         );
         $iptID = (int)trim(
-            filter_input(INPUT_POST, 'imagepartitiontype')
+            (string)filter_input(INPUT_POST, 'imagepartitiontype')
         );
         // The blank "- Please select -" option means "not recorded", which is
         // a real value here and not the absence of one: Architecture::canRun()
@@ -876,13 +876,13 @@ class ImageManagement extends FOGPage
         $toReplicate = (int)isset($_POST['toReplicate']);
         $exists = self::getClass('ImageManager')->exists($image);
         $compress = (int)trim(
-            filter_input(INPUT_POST, 'compression')
+            (string)filter_input(INPUT_POST, 'compression')
         );
         if ($this->obj->get('name') != $image && $exists) {
             throw new \Exception(_('An image with this name already exists!'));
         }
         $imagemanage = (int)trim(
-            filter_input(INPUT_POST, 'imagemanage')
+            (string)filter_input(INPUT_POST, 'imagemanage')
         );
         $this->obj
             ->set('name', $image)
@@ -1908,16 +1908,16 @@ class ImageManagement extends FOGPage
     public function sessionCreate()
     {
         $sessionname = trim(
-            filter_input(INPUT_POST, 'sessionname')
+            (string)filter_input(INPUT_POST, 'sessionname')
         );
         $image = (int)trim(
-            filter_input(INPUT_POST, 'image')
+            (string)filter_input(INPUT_POST, 'image')
         );
         $sessiontimeout = (int)trim(
-            filter_input(INPUT_POST, 'sessiontimeout')
+            (string)filter_input(INPUT_POST, 'sessiontimeout')
         );
         $sessioncount = (int)trim(
-            filter_input(INPUT_POST, 'sessioncount')
+            (string)filter_input(INPUT_POST, 'sessioncount')
         );
         $sessionshutdown = (int)isset($_POST['sessionshutdown']);
         if (!$image) {

@@ -436,61 +436,61 @@ class StorageNodeManagement extends FOGPage
         self::$HookManager->processEvent('STORAGENODE_ADD_POST');
         // Setup and filter our vars.
         $storagenode = trim(
-            filter_input(INPUT_POST, 'storagenode')
+            (string)filter_input(INPUT_POST, 'storagenode')
         );
         $ip = trim(
-            filter_input(INPUT_POST, 'ip')
+            (string)filter_input(INPUT_POST, 'ip')
         );
         $maxClients = (int)trim(
-            filter_input(INPUT_POST, 'maxClients')
+            (string)filter_input(INPUT_POST, 'maxClients')
         );
         $interface = trim(
-            filter_input(INPUT_POST, 'interface')
+            (string)filter_input(INPUT_POST, 'interface')
         );
         $user = trim(
-            filter_input(INPUT_POST, 'user')
+            (string)filter_input(INPUT_POST, 'user')
         );
         $pass = trim(
-            filter_input(INPUT_POST, 'pass')
+            (string)filter_input(INPUT_POST, 'pass')
         );
         $bandwidth = trim(
-            filter_input(INPUT_POST, 'bandwidth')
+            (string)filter_input(INPUT_POST, 'bandwidth')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $webroot = trim(
-            filter_input(INPUT_POST, 'webroot')
+            (string)filter_input(INPUT_POST, 'webroot')
         );
         $isen = (int)isset($_POST['isEnabled']);
         $isgren = (int)isset($_POST['isGraphEnabled']);
         $isMaster = (int)isset($_POST['isMaster']);
         $storagegroupID = (int)trim(
-            filter_input(INPUT_POST, 'storagegroupID')
+            (string)filter_input(INPUT_POST, 'storagegroupID')
         );
         if (!$storagegroupID) {
             $storagegroupID = @min(Route::getIds('storagegroup', false));
         }
         $graphcolor = trim(
-            filter_input(INPUT_POST, 'graphcolor')
+            (string)filter_input(INPUT_POST, 'graphcolor')
         );
         $path = trim(
-            filter_input(INPUT_POST, 'path')
+            (string)filter_input(INPUT_POST, 'path')
         );
         $ftppath = trim(
-            filter_input(INPUT_POST, 'ftppath')
+            (string)filter_input(INPUT_POST, 'ftppath')
         );
         $snapinpath = trim(
-            filter_input(INPUT_POST, 'snapinpath')
+            (string)filter_input(INPUT_POST, 'snapinpath')
         );
         $sslpath = trim(
-            filter_input(INPUT_POST, 'sslpath')
+            (string)filter_input(INPUT_POST, 'sslpath')
         );
         $bitrate = trim(
-            filter_input(INPUT_POST, 'bitrate')
+            (string)filter_input(INPUT_POST, 'bitrate')
         );
         $helloInterval = (int)trim(
-            filter_input(INPUT_POST, 'helloInterval')
+            (string)filter_input(INPUT_POST, 'helloInterval')
         );
 
         $serverFault = false;
@@ -1098,22 +1098,22 @@ class StorageNodeManagement extends FOGPage
         self::checkAuthAndCSRF();
         // Setup and filter our vars.
         $storagenode = trim(
-            filter_input(INPUT_POST, 'storagenode')
+            (string)filter_input(INPUT_POST, 'storagenode')
         );
         $ip = trim(
-            filter_input(INPUT_POST, 'ip')
+            (string)filter_input(INPUT_POST, 'ip')
         );
         $maxClients = (int)trim(
-            filter_input(INPUT_POST, 'maxClients')
+            (string)filter_input(INPUT_POST, 'maxClients')
         );
         $interface = trim(
-            filter_input(INPUT_POST, 'interface')
+            (string)filter_input(INPUT_POST, 'interface')
         );
         $user = trim(
-            filter_input(INPUT_POST, 'user')
+            (string)filter_input(INPUT_POST, 'user')
         );
         $pass = trim(
-            filter_input(INPUT_POST, 'pass')
+            (string)filter_input(INPUT_POST, 'pass')
         );
         // Three unrelated things can fail here -- the node can be off the
         // network, its SSH service can refuse the handshake, or the account
@@ -1161,43 +1161,43 @@ class StorageNodeManagement extends FOGPage
             }
         }
         $bandwidth = trim(
-            filter_input(INPUT_POST, 'bandwidth')
+            (string)filter_input(INPUT_POST, 'bandwidth')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $webroot = trim(
-            filter_input(INPUT_POST, 'webroot')
+            (string)filter_input(INPUT_POST, 'webroot')
         );
         $isen = (int)isset($_POST['isEnabled']);
         $isgren = (int)isset($_POST['isGraphEnabled']);
         $isMaster = (int)isset($_POST['isMaster']);
         $graphcolor = trim(
-            filter_input(INPUT_POST, 'graphcolor')
+            (string)filter_input(INPUT_POST, 'graphcolor')
         );
         $storagegroupID = (int)trim(
-            filter_input(INPUT_POST, 'storagegroupID')
+            (string)filter_input(INPUT_POST, 'storagegroupID')
         );
         if (!$storagegroupID) {
             $storagegroupID = @min(Route::getIds('storagegroup', false));
         }
         $path = trim(
-            filter_input(INPUT_POST, 'path')
+            (string)filter_input(INPUT_POST, 'path')
         );
         $ftppath = trim(
-            filter_input(INPUT_POST, 'ftppath')
+            (string)filter_input(INPUT_POST, 'ftppath')
         );
         $snapinpath = trim(
-            filter_input(INPUT_POST, 'snapinpath')
+            (string)filter_input(INPUT_POST, 'snapinpath')
         );
         $sslpath = trim(
-            filter_input(INPUT_POST, 'sslpath')
+            (string)filter_input(INPUT_POST, 'sslpath')
         );
         $bitrate = trim(
-            filter_input(INPUT_POST, 'bitrate')
+            (string)filter_input(INPUT_POST, 'bitrate')
         );
         $helloInterval = (int)trim(
-            filter_input(INPUT_POST, 'helloInterval')
+            (string)filter_input(INPUT_POST, 'helloInterval')
         );
         if (!$storagenode) {
             throw new \Exception(self::$foglang['StorageNameRequired']);

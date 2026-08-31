@@ -146,13 +146,13 @@ class StorageGroupManagement extends FOGPage
         header('Content-Type: application/json');
         self::$HookManager->processEvent('STORAGEGROUP_ADD_POST');
         $storagegroup = trim(
-            filter_input(INPUT_POST, 'storagegroup')
+            (string)filter_input(INPUT_POST, 'storagegroup')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $trustedcidrs = trim(
-            filter_input(INPUT_POST, 'trustedcidrs')
+            (string)filter_input(INPUT_POST, 'trustedcidrs')
         );
 
         $serverFault = false;
@@ -304,13 +304,13 @@ class StorageGroupManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $storagegroup = trim(
-            filter_input(INPUT_POST, 'storagegroup')
+            (string)filter_input(INPUT_POST, 'storagegroup')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $trustedcidrs = trim(
-            filter_input(INPUT_POST, 'trustedcidrs')
+            (string)filter_input(INPUT_POST, 'trustedcidrs')
         );
 
         $exists = self::getClass('StorageGroupManager')

@@ -50,7 +50,7 @@ foreach ((array)$_POST as $key => &$val) {
         continue;
     }
     $stripped[$key] = trim(
-        base64_decode(filter_input(INPUT_POST, $key))
+        base64_decode((string)filter_input(INPUT_POST, $key))
     );
     unset($val);
 }

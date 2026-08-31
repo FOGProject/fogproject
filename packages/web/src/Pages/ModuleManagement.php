@@ -169,13 +169,13 @@ class ModuleManagement extends FOGPage
             _('Module Create Fail'),
             function (&$serverFault) {
                 $module = trim(
-                    filter_input(INPUT_POST, 'module')
+                    (string)filter_input(INPUT_POST, 'module')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $shortname = trim(
-                    filter_input(INPUT_POST, 'shortname')
+                    (string)filter_input(INPUT_POST, 'shortname')
                 );
                 $isDefault = (int)isset($_POST['isDefault']);
                 $exists = self::getClass('ModuleManager')
@@ -318,13 +318,13 @@ class ModuleManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $module = trim(
-            filter_input(INPUT_POST, 'module')
+            (string)filter_input(INPUT_POST, 'module')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $shortname = trim(
-            filter_input(INPUT_POST, 'shortname')
+            (string)filter_input(INPUT_POST, 'shortname')
         );
         $isDefault = (int)isset($_POST['isDefault']);
         if ($module != $this->obj->get('name')) {

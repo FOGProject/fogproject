@@ -166,7 +166,7 @@ class Registration extends FOGBase
     {
         try {
             $stripped = self::stripAndDecode($_POST);
-            $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
+            $productKey = trim((string)filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
             if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                 throw new \Exception(_('Invalid product key supplied'));
             }
@@ -492,7 +492,7 @@ class Registration extends FOGBase
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
-                $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
+                $productKey = trim((string)filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new \Exception(_('Invalid product key supplied'));
                 }
@@ -549,7 +549,7 @@ class Registration extends FOGBase
                 ->addPriMAC($this->PriMAC)
                 ->addMAC($this->MACs);
             if ($prodkeyget > 0) {
-                $productKey = trim(filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
+                $productKey = trim((string)filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
                     throw new \Exception(_('Invalid product key supplied'));
                 }

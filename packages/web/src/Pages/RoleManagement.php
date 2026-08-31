@@ -184,10 +184,10 @@ class RoleManagement extends FOGPage
             _('Role Create Fail'),
             function (&$serverFault) {
                 $role = trim(
-                    filter_input(INPUT_POST, 'role')
+                    (string)filter_input(INPUT_POST, 'role')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $exists = self::getClass('RoleManager')
                     ->exists($role);
@@ -286,10 +286,10 @@ class RoleManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $role = trim(
-            filter_input(INPUT_POST, 'role')
+            (string)filter_input(INPUT_POST, 'role')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
 
         $exists = self::getClass('RoleManager')

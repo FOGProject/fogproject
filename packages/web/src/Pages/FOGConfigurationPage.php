@@ -1580,7 +1580,7 @@ class FOGConfigurationPage extends FOGPage
     {
         self::checkAuthAndCSRF();
         $dstName = filter_input(INPUT_POST, 'dstName');
-        $file = trim(base64_decode(filter_input(INPUT_POST, 'file')));
+        $file = trim(base64_decode((string)filter_input(INPUT_POST, 'file')));
         // With Secure Boot signing configured, a KERNEL download has to land in
         // the staging directory the root signing helper works on -- the helper
         // takes no arguments, so the path is how it is told what to sign.
@@ -3480,7 +3480,7 @@ class FOGConfigurationPage extends FOGPage
                 $id = self::_settingIdFor($key);
                 $Setting = Route::getItem('setting', $id);
                 if (!isset($_FILES[$key]) || !$_FILES[$key]) {
-                    $set = trim(filter_var($val));
+                    $set = trim((string)filter_var($val));
                 }
                 if (!$Setting) {
                     continue;

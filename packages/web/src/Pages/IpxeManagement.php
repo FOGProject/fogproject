@@ -243,24 +243,24 @@ class IpxeManagement extends FOGPage
             _('iPXE Menu Create Fail'),
             function (&$serverFault) {
                 $ipxe = trim(
-                    filter_input(INPUT_POST, 'ipxe')
+                    (string)filter_input(INPUT_POST, 'ipxe')
                 );
                 $description = trim(
-                    filter_input(INPUT_POST, 'description')
+                    (string)filter_input(INPUT_POST, 'description')
                 );
                 $params = trim(
-                    filter_input(INPUT_POST, 'params')
+                    (string)filter_input(INPUT_POST, 'params')
                 );
                 $options = trim(
-                    filter_input(INPUT_POST, 'options')
+                    (string)filter_input(INPUT_POST, 'options')
                 );
                 $regmenu = trim(
-                    filter_input(INPUT_POST, 'regmenu')
+                    (string)filter_input(INPUT_POST, 'regmenu')
                 );
                 $default = isset($_POST['default']);
                 $hotkey = isset($_POST['hotkey']);
                 $keysequence = trim(
-                    filter_input(INPUT_POST, 'keysequence')
+                    (string)filter_input(INPUT_POST, 'keysequence')
                 );
                 $exists = self::getClass('PXEMenuOptionsManager')
                     ->exists($ipxe);
@@ -472,24 +472,24 @@ class IpxeManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $ipxe = trim(
-            filter_input(INPUT_POST, 'ipxe')
+            (string)filter_input(INPUT_POST, 'ipxe')
         );
         $description = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $params = trim(
-            filter_input(INPUT_POST, 'params')
+            (string)filter_input(INPUT_POST, 'params')
         );
         $options = trim(
-            filter_input(INPUT_POST, 'options')
+            (string)filter_input(INPUT_POST, 'options')
         );
         $regmenu = trim(
-            filter_input(INPUT_POST, 'regmenu')
+            (string)filter_input(INPUT_POST, 'regmenu')
         );
         $default = isset($_POST['default']);
         $hotkey = isset($_POST['hotkey']);
         $keysequence = trim(
-            filter_input(INPUT_POST, 'keysequence')
+            (string)filter_input(INPUT_POST, 'keysequence')
         );
         $exists = self::getClass('PXEMenuOptionsManager')
             ->exists($ipxe);
