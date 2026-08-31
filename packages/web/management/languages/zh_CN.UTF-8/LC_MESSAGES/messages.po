@@ -123,6 +123,10 @@ msgstr ""
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d selected hosts"
+msgstr "批准选定主机"
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -153,6 +157,10 @@ msgstr ""
 
 #, php-format
 msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
@@ -194,6 +202,10 @@ msgstr ""
 #, php-format
 msgid "%s is required"
 msgstr "%s是必需的"
+
+#, php-format
+msgid "%s needs more than one host"
+msgstr ""
 
 #, php-format
 msgid "%s replaced. Install it to apply any new database steps."
@@ -5867,6 +5879,10 @@ msgid "No hosts are assigned an image"
 msgstr ""
 
 #, fuzzy
+msgid "No hosts are selected"
+msgstr "在任务主机"
+
+#, fuzzy
 msgid "No hosts associated to this group yet"
 msgstr "没有与此主机关联snapins"
 
@@ -7047,9 +7063,17 @@ msgstr "用户创建"
 msgid "Queue Deletion Cancel Success"
 msgstr "用户创建"
 
+#, fuzzy
+msgid "Queue Task"
+msgstr "调试"
+
 #, php-format
 msgid "Queue a task against a %s"
 msgstr ""
+
+#, fuzzy
+msgid "Queue task on selected hosts"
+msgstr "删除所选"
 
 msgid "Queued"
 msgstr "排队"
@@ -8925,6 +8949,10 @@ msgstr "任务类型无效"
 #, fuzzy
 msgid "Task type update failed!"
 msgstr "用户更新失败"
+
+#, php-format
+msgid "Tasking created for %d hosts"
+msgstr ""
 
 msgid "Tasks"
 msgstr "任务"

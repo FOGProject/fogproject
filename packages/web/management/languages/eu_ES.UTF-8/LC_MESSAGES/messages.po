@@ -118,6 +118,10 @@ msgstr ""
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d selected hosts"
+msgstr "Ausgewählten MAcs freigeben"
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -148,6 +152,10 @@ msgstr ""
 
 #, php-format
 msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
@@ -189,6 +197,10 @@ msgstr ""
 #, php-format
 msgid "%s is required"
 msgstr "%s ist erforderlich"
+
+#, php-format
+msgid "%s needs more than one host"
+msgstr ""
 
 #, php-format
 msgid "%s replaced. Install it to apply any new database steps."
@@ -5869,6 +5881,10 @@ msgid "No hosts are assigned an image"
 msgstr ""
 
 #, fuzzy
+msgid "No hosts are selected"
+msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
+
+#, fuzzy
 msgid "No hosts associated to this group yet"
 msgstr "Keine Snapins mit dieser Gruppe als Master verbunden"
 
@@ -7050,9 +7066,17 @@ msgstr "Task-Typ erstellen fehlgeschlagen"
 msgid "Queue Deletion Cancel Success"
 msgstr "Task-Typ erfolgreich erstellt"
 
+#, fuzzy
+msgid "Queue Task"
+msgstr "Debug"
+
 #, php-format
 msgid "Queue a task against a %s"
 msgstr ""
+
+#, fuzzy
+msgid "Queue task on selected hosts"
+msgstr "Ausgewählte löschen"
 
 msgid "Queued"
 msgstr "In der Warteschlange"
@@ -8930,6 +8954,10 @@ msgstr "Task-Typ ist nicht gültig"
 #, fuzzy
 msgid "Task type update failed!"
 msgstr "Task-Typ aktualisieren fehlgeschlagen"
+
+#, php-format
+msgid "Tasking created for %d hosts"
+msgstr ""
 
 msgid "Tasks"
 msgstr "Tasks"

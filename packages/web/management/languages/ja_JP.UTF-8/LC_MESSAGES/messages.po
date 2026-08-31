@@ -114,6 +114,10 @@ msgstr ""
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d selected hosts"
+msgstr "選択したホストを承認"
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -144,6 +148,10 @@ msgstr ""
 
 #, php-format
 msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
@@ -185,6 +193,10 @@ msgstr ""
 #, php-format
 msgid "%s is required"
 msgstr "%s は必須です"
+
+#, php-format
+msgid "%s needs more than one host"
+msgstr ""
 
 #, php-format
 msgid "%s replaced. Install it to apply any new database steps."
@@ -5658,6 +5670,10 @@ msgid "No hosts are assigned an image"
 msgstr ""
 
 #, fuzzy
+msgid "No hosts are selected"
+msgstr "ルールが選択されていません"
+
+#, fuzzy
 msgid "No hosts associated to this group yet"
 msgstr "このグループにマスターとして関連付けられたスナップインはありません"
 
@@ -6809,9 +6825,17 @@ msgstr "ルールの削除に失敗しました"
 msgid "Queue Deletion Cancel Success"
 msgstr "ルールを削除しました"
 
+#, fuzzy
+msgid "Queue Task"
+msgstr "デバッグ"
+
 #, php-format
 msgid "Queue a task against a %s"
 msgstr ""
+
+#, fuzzy
+msgid "Queue task on selected hosts"
+msgstr "選択したホストを削除"
 
 msgid "Queued"
 msgstr "キュー済み"
@@ -8590,6 +8614,10 @@ msgstr "タスクタイプが無効です"
 #, fuzzy
 msgid "Task type update failed!"
 msgstr "タスクタイプの更新に失敗しました"
+
+#, php-format
+msgid "Tasking created for %d hosts"
+msgstr ""
 
 msgid "Tasks"
 msgstr "タスク"
@@ -12471,9 +12499,6 @@ msgstr ""
 
 #~ msgid "No query sent"
 #~ msgstr "クエリが送信されていません"
-
-#~ msgid "No rule selected"
-#~ msgstr "ルールが選択されていません"
 
 #~ msgid "No valid Image defined for this host"
 #~ msgstr "このホストに有効なイメージが定義されていません"

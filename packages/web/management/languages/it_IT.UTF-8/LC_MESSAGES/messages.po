@@ -123,6 +123,10 @@ msgstr ""
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d selected hosts"
+msgstr "Approvare MAC selezionati"
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -153,6 +157,10 @@ msgstr ""
 
 #, php-format
 msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
@@ -194,6 +202,10 @@ msgstr ""
 #, php-format
 msgid "%s is required"
 msgstr "%s è richiesto"
+
+#, php-format
+msgid "%s needs more than one host"
+msgstr ""
 
 #, php-format
 msgid "%s replaced. Install it to apply any new database steps."
@@ -5694,6 +5706,10 @@ msgid "No hosts are assigned an image"
 msgstr ""
 
 #, fuzzy
+msgid "No hosts are selected"
+msgstr "Nessun host disponibile per task"
+
+#, fuzzy
 msgid "No hosts associated to this group yet"
 msgstr "Nessun snapins associato a questo gruppo come master"
 
@@ -6840,9 +6856,17 @@ msgstr "Aggiunta tipo attività fallita"
 msgid "Queue Deletion Cancel Success"
 msgstr "Aggiunta tipo attività riuscita"
 
+#, fuzzy
+msgid "Queue Task"
+msgstr "mettere a punto"
+
 #, php-format
 msgid "Queue a task against a %s"
 msgstr ""
+
+#, fuzzy
+msgid "Queue task on selected hosts"
+msgstr "Cancella selezionato"
 
 msgid "Queued"
 msgstr "In coda"
@@ -8646,6 +8670,10 @@ msgstr "Tipo di attività non è valido"
 #, fuzzy
 msgid "Task type update failed!"
 msgstr "Aggiornamento tipo attività fallita"
+
+#, php-format
+msgid "Tasking created for %d hosts"
+msgstr ""
 
 msgid "Tasks"
 msgstr "Attività"

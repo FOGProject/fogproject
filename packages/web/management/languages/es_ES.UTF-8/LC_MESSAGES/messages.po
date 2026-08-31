@@ -121,6 +121,10 @@ msgstr ""
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%d selected hosts"
+msgstr "retirar"
+
 #, php-format
 msgid "%d token(s) disabled."
 msgstr ""
@@ -151,6 +155,10 @@ msgstr ""
 
 #, php-format
 msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
@@ -192,6 +200,10 @@ msgstr ""
 #, fuzzy, php-format
 msgid "%s is required"
 msgstr "%s se requiere"
+
+#, php-format
+msgid "%s needs more than one host"
+msgstr ""
 
 #, php-format
 msgid "%s replaced. Install it to apply any new database steps."
@@ -5988,6 +6000,10 @@ msgid "No hosts are assigned an image"
 msgstr ""
 
 #, fuzzy
+msgid "No hosts are selected"
+msgstr "Anfitriones en tareas"
+
+#, fuzzy
 msgid "No hosts associated to this group yet"
 msgstr "No hay snapins asociados con este anfitrión"
 
@@ -7184,9 +7200,17 @@ msgstr "creado por el usuario"
 msgid "Queue Deletion Cancel Success"
 msgstr "creado por el usuario"
 
+#, fuzzy
+msgid "Queue Task"
+msgstr "Opciones de arranque:"
+
 #, php-format
 msgid "Queue a task against a %s"
 msgstr ""
+
+#, fuzzy
+msgid "Queue task on selected hosts"
+msgstr "Eliminar seleccionado"
 
 msgid "Queued"
 msgstr ""
@@ -9102,6 +9126,10 @@ msgstr "tipo de tarea no es válida"
 #, fuzzy
 msgid "Task type update failed!"
 msgstr "actualización Valoración falló"
+
+#, php-format
+msgid "Tasking created for %d hosts"
+msgstr ""
 
 msgid "Tasks"
 msgstr "Tareas"
