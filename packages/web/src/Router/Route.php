@@ -57,6 +57,29 @@ class Route extends FOGBase
      */
     const EMPTY_CELL = '<span class="text-muted">&mdash;</span>';
     /**
+     * Foreign-key fields whose grid cell is a plain link to the related
+     * record, as `field => [management node, rel() class]`.
+     *
+     * The node doubles as the `dt` name's prefix ('group' -> 'groupLink'),
+     * because that is what the five hand-written arms this replaces all did.
+     * The class spelling is carried verbatim rather than normalized: rel()
+     * lowercases for its cache key but hands the string to getClass(), and
+     * tests/fixtures/route-column-contract.txt records what each primer
+     * primed, so changing the spelling here would be a fixture diff that
+     * says nothing.
+     *
+     * See _entityLinkColumn() for why hostID, imageID and archID are absent.
+     *
+     * @var array
+     */
+    const ENTITY_LINK_COLUMNS = [
+        'groupID' => ['group', 'group'],
+        'snapinID' => ['snapin', 'Snapin'],
+        'storagegroupID' => ['storagegroup', 'storagegroup'],
+        'storagenodeID' => ['storagenode', 'storagenode'],
+        'userID' => ['user', 'user']
+    ];
+    /**
      * The api setup is enabled?
      *
      * @var bool
@@ -3340,26 +3363,23 @@ class Route extends FOGBase
                         }
                     ];
                     break;
+                    // The five plain foreign-key columns, which differed only
+                    // in the node, the dt name and the class. See
+                    // ENTITY_LINK_COLUMNS and _entityLinkColumn().
                 case 'groupID':
+                case 'snapinID':
+                case 'storagegroupID':
+                case 'storagenodeID':
+                case 'userID':
+                    list($linkNode, $linkClass) = self::ENTITY_LINK_COLUMNS[$common];
                     $columns[] = [
                         'db' => $real,
                         'dt' => $common
                     ];
-                    $columns[] = self::relColumn(
+                    $columns[] = self::_entityLinkColumn(
                         $real,
-                        'groupLink',
-                        'group',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=group&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('group', $d)->get('name')
-                                . '</a>';
-                        }
+                        $linkNode,
+                        $linkClass
                     );
                     break;
                 case 'hostID':
@@ -3470,28 +3490,6 @@ class Route extends FOGBase
                         }
                     );
                     break;
-                case 'snapinID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'snapinLink',
-                        'Snapin',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=snapin&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('Snapin', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    break;
                 case 'mem':
                     $columns[] = [
                         'db' => $real,
@@ -3513,72 +3511,6 @@ class Route extends FOGBase
                             return Inventory::getMemory($d);
                         }
                     ];
-                    break;
-                case 'storagegroupID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'storagegroupLink',
-                        'storagegroup',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=storagegroup&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('storagegroup', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    break;
-                case 'storagenodeID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'storagenodeLink',
-                        'storagenode',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=storagenode&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('storagenode', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
-                    break;
-                case 'userID':
-                    $columns[] = [
-                        'db' => $real,
-                        'dt' => $common
-                    ];
-                    $columns[] = self::relColumn(
-                        $real,
-                        'userLink',
-                        'user',
-                        function ($d, $row) use ($tmpcolumns) {
-                            if (!$d) {
-                                return self::EMPTY_CELL;
-                            }
-                            return '<a href="../management/index.php?node=user&'
-                                . 'sub=edit&id='
-                                . $d
-                                . '">'
-                                . '(' . $d . ') - ' . self::rel('user', $d)->get('name')
-                                . '</a>';
-                        }
-                    );
                     break;
                 case 'regMenu':
                     $columns[] = [
@@ -7481,6 +7413,63 @@ class Route extends FOGBase
             $column['order'] = $order;
         }
         return $column;
+    }
+    /**
+     * Builds the id/link column pair for a plain foreign-key field.
+     *
+     * groupID, snapinID, storagegroupID, storagenodeID and userID were five
+     * arms of _gridColumns()'s switch that differed in three strings and
+     * nothing else: the management node the anchor points at, the `dt` name,
+     * and the class handed to rel(). 105 lines of copy, and the copies had
+     * already started to drift -- which is the same failure relColumn() was
+     * written to stop one level down, so it gets the same treatment. A sixth
+     * foreign key is now a line in ENTITY_LINK_COLUMNS rather than a sixth
+     * copy of this markup.
+     *
+     * Deliberately NOT extended to hostID, imageID or archID. Those three
+     * look like members of this family and are not: hostID resolves its label
+     * through _hostLabel() and escapes it, carries an `order` clause from
+     * _hostNameOrder(), and answers from the stored name when the host is
+     * gone (ADR 0020); imageID falls back to the bare name when the image no
+     * longer validates; archID renders a plain string with no anchor at all.
+     * Folding them in would mean parameterising this on three more axes to
+     * serve one caller each, which is the abstraction-for-its-own-sake the
+     * column table's plan already rejected once.
+     *
+     * The `(id) - Name` order is preserved exactly, including for the empty
+     * case. It disagrees with entityLink()'s `Name - (id)`, which the 'name'
+     * arm uses; that disagreement is pre-existing and visible on screen, so
+     * settling it is a change to what a reader sees rather than part of this
+     * deduplication.
+     *
+     * @param string $real     The database column holding the id.
+     * @param string $node     The management node the anchor links to, which
+     *                         is also the `dt` name's prefix.
+     * @param string $relclass The class the ids refer to, in the spelling
+     *                         rel() is called with today -- 'Snapin' rather
+     *                         than 'snapin' -- so the cache keys and the
+     *                         column contract fixture are unchanged.
+     *
+     * @return array The column definition.
+     */
+    private static function _entityLinkColumn($real, $node, $relclass)
+    {
+        return self::relColumn(
+            $real,
+            $node . 'Link',
+            $relclass,
+            function ($d, $row) use ($node, $relclass) {
+                if (!$d) {
+                    return self::EMPTY_CELL;
+                }
+                return '<a href="../management/index.php?node=' . $node . '&'
+                    . 'sub=edit&id='
+                    . $d
+                    . '">'
+                    . '(' . $d . ') - ' . self::rel($relclass, $d)->get('name')
+                    . '</a>';
+            }
+        );
     }
     /**
      * A userTracking action code as its label.

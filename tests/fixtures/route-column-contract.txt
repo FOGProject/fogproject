@@ -8,7 +8,7 @@ filedeletequeue	0	fdqID	id	-	-
 filedeletequeue	1	fdqID	DT_RowId	f	-
 filedeletequeue	2	fdqPathName	path	-	-
 filedeletequeue	3	fdqStorageGroupID	storagegroupID	-	-
-filedeletequeue	4	fdqStorageGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+filedeletequeue	4	fdqStorageGroupID	storagegroupLink	f:node,relclass	storagegroup
 filedeletequeue	5	fdqCreateDate	createdTime	f	-
 filedeletequeue	6	fdqCreateBy	createdBy	-	-
 filedeletequeue	7	fdqCompletedDate	completedTime	f	-
@@ -34,7 +34,7 @@ groupassociation	1	gmID	DT_RowId	f	-
 groupassociation	2	gmHostID	hostID	-	-
 groupassociation	3	gmHostID	hostLink	f:classname	host
 groupassociation	4	gmGroupID	groupID	-	-
-groupassociation	5	gmGroupID	groupLink	f:tmpcolumns	group
+groupassociation	5	gmGroupID	groupLink	f:node,relclass	group
 history	0	hID	id	-	-
 history	1	hID	DT_RowId	f	-
 history	2	hText	info	-	-
@@ -136,7 +136,7 @@ imageassociation	1	igaID	DT_RowId	f	-
 imageassociation	2	igaImageID	imageID	-	-
 imageassociation	3	igaImageID	imageLink	f:classname	image
 imageassociation	4	igaStorageGroupID	storagegroupID	-	-
-imageassociation	5	igaStorageGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+imageassociation	5	igaStorageGroupID	storagegroupLink	f:node,relclass	storagegroup
 imageassociation	6	igaPrimary	primary	-	-
 imagepartitiontype	0	imagePartitionTypeID	id	-	-
 imagepartitiontype	1	imagePartitionTypeID	DT_RowId	f	-
@@ -242,7 +242,7 @@ multicastsession	13	msState	stateID	-	-
 multicastsession	14	msCompleteDateTime	completetime	f	-
 multicastsession	15	msIsDD	isDD	-	-
 multicastsession	16	msNFSGroupID	storagegroupID	-	-
-multicastsession	17	msNFSGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+multicastsession	17	msNFSGroupID	storagegroupLink	f:node,relclass	storagegroup
 multicastsession	18	msShutdown	shutdown	-	-
 multicastsession	19	msMaxwait	maxwait	-	-
 multicastsession	20	msSenderPID	senderpid	-	-
@@ -256,12 +256,12 @@ multicastsessionassociation	3	tID	taskID	-	-
 nodefailure	0	nfID	id	-	-
 nodefailure	1	nfID	DT_RowId	f	-
 nodefailure	2	nfNodeID	storagenodeID	-	-
-nodefailure	3	nfNodeID	storagenodeLink	f:tmpcolumns	storagenode
+nodefailure	3	nfNodeID	storagenodeLink	f:node,relclass	storagenode
 nodefailure	4	nfTaskID	taskID	-	-
 nodefailure	5	nfHostID	hostID	-	-
 nodefailure	6	nfHostID	hostLink	f:classname	host
 nodefailure	7	nfGroupID	storagegroupID	-	-
-nodefailure	8	nfGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+nodefailure	8	nfGroupID	storagegroupLink	f:node,relclass	storagegroup
 nodefailure	9	nfDateTime	failureTime	f	-
 notifyevent	0	neID	id	-	-
 notifyevent	1	neID	DT_RowId	f	-
@@ -357,7 +357,7 @@ roleuserassociation	2	ruaName	name	-	-
 roleuserassociation	3	ruaName	mainlink	f:classname,tmpcolumns	-
 roleuserassociation	4	ruaRoleID	roleID	-	-
 roleuserassociation	5	ruaUserID	userID	-	-
-roleuserassociation	6	ruaUserID	userLink	f:tmpcolumns	user
+roleuserassociation	6	ruaUserID	userLink	f:node,relclass	user
 roleusergroupassociation	0	rugID	id	-	-
 roleusergroupassociation	1	rugID	DT_RowId	f	-
 roleusergroupassociation	2	rugName	name	-	-
@@ -437,14 +437,14 @@ snapinassociation	1	saID	DT_RowId	f	-
 snapinassociation	2	saHostID	hostID	-	-
 snapinassociation	3	saHostID	hostLink	f:classname	host
 snapinassociation	4	saSnapinID	snapinID	-	-
-snapinassociation	5	saSnapinID	snapinLink	f:tmpcolumns	snapin
+snapinassociation	5	saSnapinID	snapinLink	f:node,relclass	snapin
 snapinassociation	6	saSequence	sequence	-	-
 snapingroupassociation	0	sgaID	id	-	-
 snapingroupassociation	1	sgaID	DT_RowId	f	-
 snapingroupassociation	2	sgaSnapinID	snapinID	-	-
-snapingroupassociation	3	sgaSnapinID	snapinLink	f:tmpcolumns	snapin
+snapingroupassociation	3	sgaSnapinID	snapinLink	f:node,relclass	snapin
 snapingroupassociation	4	sgaStorageGroupID	storagegroupID	-	-
-snapingroupassociation	5	sgaStorageGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+snapingroupassociation	5	sgaStorageGroupID	storagegroupLink	f:node,relclass	storagegroup
 snapingroupassociation	6	sgaPrimary	primary	-	-
 snapinjob	0	sjID	id	-	-
 snapinjob	1	sjID	DT_RowId	f	-
@@ -460,7 +460,7 @@ snapintask	3	stState	stateID	-	-
 snapintask	4	stCheckinDate	checkin	-	-
 snapintask	5	stCompleteDate	complete	-	-
 snapintask	6	stSnapinID	snapinID	-	-
-snapintask	7	stSnapinID	snapinLink	f:tmpcolumns	snapin
+snapintask	7	stSnapinID	snapinLink	f:node,relclass	snapin
 snapintask	8	stSequence	sequence	-	-
 snapintask	9	stReturnCode	return	-	-
 snapintask	10	stReturnDetails	details	-	-
@@ -489,7 +489,7 @@ storagenode	3	ngmMemberName	mainlink	f:classname,tmpcolumns	-
 storagenode	4	ngmMemberDescription	description	-	-
 storagenode	5	ngmIsMasterNode	isMaster	-	-
 storagenode	6	ngmGroupID	storagegroupID	-	-
-storagenode	7	ngmGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+storagenode	7	ngmGroupID	storagegroupLink	f:node,relclass	storagegroup
 storagenode	8	ngmIsEnabled	isEnabled	-	-
 storagenode	9	ngmGraphEnabled	isGraphEnabled	-	-
 storagenode	10	ngmRootPath	path	-	-
@@ -532,9 +532,9 @@ task	17	taskDataCopied	dataCopied	-	-
 task	18	taskPercentText	percent	-	-
 task	19	taskDataTotal	dataTotal	-	-
 task	20	taskNFSGroupID	storagegroupID	-	-
-task	21	taskNFSGroupID	storagegroupLink	f:tmpcolumns	storagegroup
+task	21	taskNFSGroupID	storagegroupLink	f:node,relclass	storagegroup
 task	22	taskNFSMemberID	storagenodeID	-	-
-task	23	taskNFSMemberID	storagenodeLink	f:tmpcolumns	storagenode
+task	23	taskNFSMemberID	storagenodeLink	f:node,relclass	storagenode
 task	24	taskNFSFailures	NFSFailures	-	-
 task	25	taskLastMemberID	NFSLastMemberID	-	-
 task	26	taskShutdown	shutdown	-	-
@@ -604,7 +604,7 @@ usergroupmember	2	ugmName	name	-	-
 usergroupmember	3	ugmName	mainlink	f:classname,tmpcolumns	-
 usergroupmember	4	ugmGroupID	usergroupID	-	-
 usergroupmember	5	ugmUserID	userID	-	-
-usergroupmember	6	ugmUserID	userLink	f:tmpcolumns	user
+usergroupmember	6	ugmUserID	userLink	f:node,relclass	user
 usertracking	0	utID	id	-	-
 usertracking	1	utID	DT_RowId	f	-
 usertracking	2	utHostID	hostID	-	-
