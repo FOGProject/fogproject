@@ -1327,6 +1327,38 @@ class Route extends FOGBase
                 sprintf('a plugin route must live under %s', self::PLUGIN_ROUTE_PREFIX)
             );
         }
+        /*
+         * Qualify the handler's class before testing it.
+         *
+         * A plugin declares its handler as [class, method] and the class is
+         * routinely the BARE name -- that is the spelling the plugin guide
+         * promises core will resolve, and what every getClass() literal in
+         * FOG already relies on. is_callable() does NOT resolve it: a class
+         * name inside a string is looked up in the GLOBAL namespace, and
+         * since ADR 0035 the class is really
+         * FOG\Plugins\OIDC\Util\OIDCFlow.
+         *
+         * So the test failed for a handler that was perfectly valid, and the
+         * route was dropped with nothing but an error_log line to say so.
+         * That took OIDC's /ext/oidc/start and /ext/oidc/callback off the
+         * router: a signed-out browser was redirected to start by
+         * LOGIN_PAGE_REDIRECT, got 401 because the route no longer existed,
+         * and the sign-in loop had no exit but management/login.php.
+         *
+         * Qualifying here rather than at dispatch fixes both halves at once
+         * -- the stored handler is what _registerRoute() is later called
+         * with -- and matches how Authorization::_pageClassFor() and
+         * Plugin::installdb() already treat a class name they were handed as
+         * a string.
+         */
+        if (isset($entry['handler'])
+            && is_array($entry['handler'])
+            && 2 === count($entry['handler'])
+            && isset($entry['handler'][0])
+            && is_string($entry['handler'][0])
+        ) {
+            $entry['handler'][0] = self::qualify($entry['handler'][0]);
+        }
         if (!isset($entry['handler']) || !is_callable($entry['handler'])) {
             return $reject('the handler is not callable');
         }
