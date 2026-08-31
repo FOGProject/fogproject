@@ -1,0 +1,328 @@
+<?php
+/**
+ * A behavioral net under the API WRITE path's guards.
+ *
+ * The sibling of route-read-path-guards.test.php, and it exists for the same
+ * reason that one did: the guards on this path are pinned by SOURCE GREPS
+ * and by tests of their suppliers, and neither of those can see a guard stop
+ * working. Three mutations run against the whole suite on working-1.6 at
+ * 2c1db9a3e -- each wrapping one guard in `if (false)` -- left 243 tests
+ * green:
+ *
+ *   Route::edit()        the server-owned refusal        243 passed
+ *   Route::deletemass()  the lockout guard               243 passed
+ *   Route::joining()     the POST class gate             243 passed
+ *
+ * api-server-owned-fields.test.php looks like it covers the first. It does
+ * not: it asserts Route::serverOwnedFields() returns the right list, then
+ * greps edit()'s and create()'s bodies for the string
+ * `_refuseServerOwned(`. Wrapping the call in `if (false)` leaves that
+ * string exactly where it was. Same shape for the second --
+ * lockout-guard-is-unscoped.test.php drives
+ * Authorization::adminExistsGiven() thoroughly and never mentions Route.
+ *
+ * WHAT IS COVERED HERE: the server-owned refusal, on both verbs, in both
+ * directions -- it refuses a change, and it does NOT refuse a round trip.
+ *
+ * WHAT IS NOT, AND WHY. Two of the three mutations above are still
+ * unguarded, because neither can be driven on this fixture yet:
+ *
+ *   - deletemass()'s lockout guard needs an install that really would be
+ *     locked out, which means a users/roles/permissions picture this
+ *     harness cannot yet answer. lockout-guard-is-unscoped.test.php builds
+ *     one for the supplier; the call site needs the same fixture reachable
+ *     from a booted router.
+ *   - joining()'s POST class gate refuses a non-group class with a 400 --
+ *     and on this fixture `group` is refused with a 400 as well, further
+ *     down, because it has no real rows to join. Status code, message and
+ *     statement count are identical for both, so there is nothing to assert
+ *     that the gate's removal would change. A check written against it
+ *     passed with the gate disabled, which is why there is not one here:
+ *     an assertion that has only ever been green is worse than none.
+ *
+ * Both are real holes and both are recorded rather than papered over.
+ *
+ * DB-free. FogTestHarness::fakeDb() logs every statement and can answer any
+ * of them, so no MySQL is involved anywhere here.
+ *
+ * Usage: php tests/route-write-path-guards.test.php
+ * Exit status 0 = pass, 1 = fail.
+ */
+
+use FOG\Base\FOGCore;
+use FOG\Router\Route;
+
+require_once __DIR__ . '/lib/fog-test-harness.php';
+
+// ---------------------------------------------------------------------------
+// Child mode.
+//
+// Every guard here reads the request body, which the code takes from
+// php://input -- and the CLI SAPI does not populate php://input at all,
+// whatever stdin is pointed at. So each case runs as a child process under a
+// CGI PHP, which does.
+//
+// A child identifies its case through QUERY_STRING (CGI) or --case= (so the
+// same file can be run by hand for debugging).
+// ---------------------------------------------------------------------------
+$childCase = null;
+foreach (array_slice(isset($argv) ? $argv : [], 1) as $arg) {
+    if (0 === strpos($arg, '--case=')) {
+        $childCase = substr($arg, 7);
+    }
+}
+if (null === $childCase && isset($_GET['case'])) {
+    $childCase = (string)$_GET['case'];
+}
+if (null !== $childCase) {
+    runChild($childCase);
+    exit(0);
+}
+
+/**
+ * One body-fed case, in its own process. Prints a single marker line the
+ * parent parses. Never asserts -- the parent owns the verdict.
+ *
+ * @param string $case the case name
+ *
+ * @return void
+ */
+function runChild($case)
+{
+    FogTestHarness::boot('write-path-child');
+    $db = FogTestHarness::fakeDb();
+    // One synthetic row for every SELECT, so an edit finds its object and
+    // reaches the field loop. Without this the call answers 404 before any
+    // guard runs, and the case passes for the wrong reason.
+    $db->pdo->rowCount = 1;
+    // Zero, deliberately. A create asks "does one of these already exist"
+    // as a COUNT through the PDO layer, and a non-zero answer refuses it as
+    // "Already created" -- which IS a refusal, so the server-owned case
+    // would report a pass while never reaching the guard it is about.
+    $db->pdo->countValue = 0;
+    // An edit has to find its object or it answers 404 before any guard
+    // runs, and the case then passes for the wrong reason. FOGController
+    // ::load() issues `SELECT users.* ... WHERE uId=:id` through query(),
+    // not through the PDO layer, and a `*` select is the one shape
+    // FogFakePdo cannot synthesize columns for -- so the row is named here.
+    // Column spellings are User::$databaseFields verbatim: `uId`, not
+    // `uID`. A wrong key is not an error, it is an empty field.
+    // Every column the class declares, so a load leaves no field undefined;
+    // FOGBase reads each one by name and a missing key is a warning per
+    // field, not an error. Built from $databaseFields rather than typed out,
+    // so a schema change cannot leave this fixture describing a table that
+    // no longer exists.
+    $userRow = [];
+    $userVars = FOGCore::getClass('User', '', true);
+    foreach ($userVars['databaseFields'] as $friendly => $column) {
+        $userRow[$column] = '';
+    }
+    $userRow[$userVars['databaseFields']['id']] = 1;
+    $userRow[$userVars['databaseFields']['name']] = 'probe';
+    $userRow[$userVars['databaseFields']['token']] = 'stored-token';
+    $db->responder = function ($sql, $params) use ($userRow) {
+        // FOGController::load() issues `SELECT users.* ... WHERE uId=:id`
+        // through query(), not through the PDO layer, and a `*` select is
+        // the one shape FogFakePdo cannot synthesize columns for. Answered
+        // as a FLAT row: load() reads it through fetch()->get() with no
+        // field, which is a single row rather than a list of them.
+        // Only the load BY ID. A lookup by any other column is the
+        // uniqueness check a create runs before it inserts, and answering
+        // that with this row makes every create fail as "Already created"
+        // -- which is a refusal, so the case would look like it passed.
+        if (false !== strpos($sql, 'FROM `users`')
+            && false !== strpos($sql, ':id')
+        ) {
+            return $userRow;
+        }
+        return null;
+    };
+
+    $admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+    foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
+        FogTestHarness::setStatic($cls, 'FOGUser', $admin);
+    }
+    FogTestHarness::setStatic('Authorization', '_permCache', [1 => ['*']]);
+
+    // edit:<class>:<id> and create:<class> both write a body straight onto an
+    // object. The marker reports how the call ended and, when it was allowed
+    // through, which statements it issued -- because "refused" and "silently
+    // dropped the field" are the two outcomes that have to be told apart, and
+    // only the second one writes.
+    if (0 === strpos($case, 'edit:') || 0 === strpos($case, 'create:')) {
+        $parts = explode(':', $case);
+        try {
+            Route::asValue(
+                function () use ($parts) {
+                    if ('edit' === $parts[0]) {
+                        Route::edit($parts[1], (int)$parts[2]);
+                        return;
+                    }
+                    Route::create($parts[1]);
+                }
+            );
+            $wrote = [];
+            foreach ($db->log as $sql) {
+                if (preg_match('/^\s*(INSERT|UPDATE|REPLACE)/i', $sql)) {
+                    $wrote[] = preg_replace('/\s+/', ' ', substr($sql, 0, 200));
+                }
+            }
+            echo 'ALLOWED ' . implode(' ;; ', $wrote) . "\n";
+        } catch (\Throwable $e) {
+            echo 'REFUSED ' . str_replace("\n", ' ', $e->getMessage()) . "\n";
+        }
+        return;
+    }
+
+    echo "UNKNOWN CASE\n";
+}
+
+/**
+ * The php-cgi binary, or false when there is not one.
+ *
+ * @return string|false
+ */
+function cgiBinary()
+{
+    $found = trim((string)@shell_exec('command -v php-cgi 2>/dev/null'));
+    return ('' !== $found && is_executable($found)) ? $found : false;
+}
+
+/**
+ * Run one body-fed case in a child process.
+ *
+ * @param string $case   the case name
+ * @param string $body   the raw request body
+ * @param string $method the request method
+ *
+ * @return string the child's marker line
+ */
+function child($case, $body, $method = 'PUT')
+{
+    $bin = cgiBinary();
+    if (false === $bin) {
+        return 'NO CGI';
+    }
+    $env = [
+        'REDIRECT_STATUS' => '200',
+        'SCRIPT_FILENAME' => __FILE__,
+        'REQUEST_METHOD' => $method,
+        'CONTENT_TYPE' => 'application/json',
+        'CONTENT_LENGTH' => (string)strlen($body),
+        'QUERY_STRING' => 'case=' . rawurlencode($case),
+        'PATH' => getenv('PATH') ?: '/usr/bin:/bin',
+    ];
+    $pipes = [];
+    $proc = proc_open(
+        [$bin, '-q'],
+        [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+        $pipes,
+        null,
+        $env
+    );
+    if (!is_resource($proc)) {
+        return 'SPAWN FAILED';
+    }
+    fwrite($pipes[0], $body);
+    fclose($pipes[0]);
+    $out = stream_get_contents($pipes[1]);
+    $err = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    proc_close($proc);
+
+    $payload = $out;
+    $split = preg_split('/\r?\n\r?\n/', $out, 2);
+    if (count($split) === 2) {
+        $payload = $split[1];
+    }
+    foreach (preg_split('/\r?\n/', $payload) as $candidate) {
+        $candidate = trim($candidate);
+        if ('' === $candidate) {
+            continue;
+        }
+        if (preg_match('/^(REFUSED|ALLOWED|UNKNOWN CASE)/', $candidate)) {
+            return $candidate;
+        }
+    }
+    // Surface the child's own output rather than a bare mismatch; a bootstrap
+    // failure here otherwise reads as a guard failure.
+    return 'NO MARKER: ' . trim(str_replace("\n", ' | ', $payload . ' ' . $err));
+}
+
+// ---------------------------------------------------------------------------
+// Parent.
+// ---------------------------------------------------------------------------
+FogTestHarness::boot('write-path');
+FogTestHarness::fakeDb();
+$t = new FogChecks();
+
+if (false === cgiBinary()) {
+    echo "SKIP: no php-cgi binary; the request-body guards cannot be driven\n";
+    exit(0);
+}
+
+/*
+ * ===========================================================================
+ * 1. A server-maintained field cannot be written, on either verb.
+ *
+ *    Route::serverOwnedFields() is the list, and
+ *    api-server-owned-fields.test.php pins its CONTENTS. What is pinned here
+ *    is that edit() and create() actually consult it, and that they REFUSE
+ *    rather than dropping the field -- a silently ignored write leaves a
+ *    client believing state it never achieved.
+ *
+ *    Asserted on the MESSAGE, not on "was it refused". With the guard
+ *    disabled the call is still refused, because writing a server-owned
+ *    column into this fixture fails on its own further down and answers
+ *    500. A check reading only "refused" therefore passes with the guard
+ *    gone; the message is the only part that names the guard.
+ * ===========================================================================
+ */
+$refusal = 'is maintained by the server and cannot be set';
+
+$line = child('edit:user:1', json_encode(['token' => 'forged']));
+$t->check(
+    "edit(): writing a server-owned field is refused BY THE GUARD "
+    . "(got: $line)",
+    false !== strpos($line, $refusal)
+);
+$t->check(
+    "edit(): the refusal names the field (got: $line)",
+    false !== strpos($line, 'token')
+);
+
+$line = child('create:user', json_encode(['token' => 'forged']), 'POST');
+$t->check(
+    "create(): writing a server-owned field is refused BY THE GUARD "
+    . "(got: $line)",
+    false !== strpos($line, $refusal)
+);
+$t->check(
+    "create(): the refusal names the field (got: $line)",
+    false !== strpos($line, 'token')
+);
+
+/*
+ * ===========================================================================
+ * 2. It refuses a CHANGE, not a round trip.
+ *
+ *    Reading an object and PUTting the whole thing back is ordinary REST,
+ *    and a single-entity GET returns these fields, so a body carrying the
+ *    value already stored is asking for nothing. _refuseServerOwned()
+ *    compares before it refuses for exactly that reason, and nothing
+ *    asserted the comparison -- a guard tightened to refuse on presence
+ *    alone would break every round-tripping client with the suite green.
+ *
+ *    The stored token on the fixture row is 'stored-token'; sending it back
+ *    must not produce the message above.
+ * ===========================================================================
+ */
+$line = child('edit:user:1', json_encode(['token' => 'stored-token']));
+$t->check(
+    "edit(): re-sending the STORED value is not refused as a write "
+    . "(got: $line)",
+    false === strpos($line, $refusal)
+);
+
+$t->finish();
