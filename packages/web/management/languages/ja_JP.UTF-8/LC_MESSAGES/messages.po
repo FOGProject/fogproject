@@ -1898,29 +1898,25 @@ msgstr "WOL ブロードキャストを作成しますか？"
 msgid "Create New Capone"
 msgstr "新しいスナップインを作成"
 
-#, fuzzy
 msgid "Create New Group"
-msgstr "新しいグループを作成"
+msgstr "新しい グループ を作成"
 
 #, fuzzy
 msgid "Create New Hello World"
 msgstr "新しいキーを作成"
 
-#, fuzzy
 msgid "Create New Host"
-msgstr "新しい %s を作成"
+msgstr "新しい ホスト を作成"
 
-#, fuzzy
 msgid "Create New Image"
-msgstr "イメージを作成"
+msgstr "新しい イメージ を作成"
 
 #, fuzzy
 msgid "Create New Immediate"
 msgstr "新しいプリンターを作成"
 
-#, fuzzy
 msgid "Create New Ipxe Menu"
-msgstr "新しいキーを作成"
+msgstr "新しい Ipxe Menu を作成"
 
 #, fuzzy
 msgid "Create New LDAP Group"
@@ -1933,9 +1929,8 @@ msgstr "新しい LDAP を作成"
 msgid "Create New Location"
 msgstr "新しいロケーションを作成"
 
-#, fuzzy
 msgid "Create New Module"
-msgstr "新しいキーを作成"
+msgstr "新しい モジュール MD5 を作成"
 
 #, fuzzy
 msgid "Create New OU"
@@ -1952,28 +1947,24 @@ msgstr "新しいプリンターを作成"
 msgid "Create New Provider Group"
 msgstr "新しいサブネットグループを作成しますか？"
 
-#, fuzzy
 msgid "Create New Role"
-msgstr "新しいキーを作成"
+msgstr "新しい ロール を作成"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "新しい電源管理スケジュールを作成"
 
-#, fuzzy
 msgid "Create New Site"
-msgstr "新しいプリンターを作成"
+msgstr "新しい サイト を作成"
 
 msgid "Create New Snapin"
 msgstr "新しいスナップインを作成"
 
-#, fuzzy
 msgid "Create New Storage Group"
-msgstr "ストレージグループを作成"
+msgstr "新しい Storage Group を作成"
 
-#, fuzzy
 msgid "Create New Storage Node"
-msgstr "ストレージノードを作成"
+msgstr "新しい Storage Node を作成"
 
 #, fuzzy
 msgid "Create New Subnet Group"
@@ -1987,13 +1978,11 @@ msgstr "タスク状態を作成"
 msgid "Create New Task Type"
 msgstr "タスクタイプを作成"
 
-#, fuzzy
 msgid "Create New User"
-msgstr "新しい %s を作成"
+msgstr "新しい ユーザー を作成"
 
-#, fuzzy
 msgid "Create New User Group"
-msgstr "新しいサブネットグループを作成しますか？"
+msgstr "新しい User Group を作成"
 
 #, fuzzy
 msgid "Create New Windows Key"
@@ -13575,3 +13564,46 @@ msgstr ""
 
 #~ msgid "would you like to install it now"
 #~ msgstr "今すぐインストールしますか？"
+
+#. GH-435: seeded from this catalog's own "List All %s" /
+#. "Create New %s" and noun, so the label renders exactly as it
+#. did before those format strings became whole phrases.
+
+msgid "List All Groups"
+msgstr "すべての グループs を一覧表示"
+
+msgid "List All Hosts"
+msgstr "すべての ホストs を一覧表示"
+
+msgid "List All Images"
+msgstr "すべての イメージs を一覧表示"
+
+msgid "List All Ipxe Menus"
+msgstr "すべての Ipxe Menus を一覧表示"
+
+msgid "List All Modules"
+msgstr "すべての モジュール MD5s を一覧表示"
+
+msgid "List All Printers"
+msgstr "すべての プリンターs を一覧表示"
+
+msgid "List All Roles"
+msgstr "すべての ロールs を一覧表示"
+
+msgid "List All Sites"
+msgstr "すべての サイトs を一覧表示"
+
+msgid "List All Snapins"
+msgstr "すべての スナップインs を一覧表示"
+
+msgid "List All Storage Groups"
+msgstr "すべての Storage Groups を一覧表示"
+
+msgid "List All Storage Nodes"
+msgstr "すべての Storage Nodes を一覧表示"
+
+msgid "List All User Groups"
+msgstr "すべての User Groups を一覧表示"
+
+msgid "List All Users"
+msgstr "すべての ユーザーs を一覧表示"

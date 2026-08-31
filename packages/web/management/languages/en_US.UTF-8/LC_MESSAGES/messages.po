@@ -1972,29 +1972,25 @@ msgstr "Create New %s"
 msgid "Create New Capone"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Group"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Hello World"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Host"
-msgstr "Create New %s"
+msgstr ""
 
-#, fuzzy
 msgid "Create New Image"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Immediate"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Ipxe Menu"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New LDAP Group"
@@ -2008,9 +2004,8 @@ msgstr "Create New %s"
 msgid "Create New Location"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Module"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New OU"
@@ -2020,37 +2015,32 @@ msgstr "Create New %s"
 msgid "Create New OpenID Connect Provider"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Provider Group"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Role"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Site"
-msgstr "Create New %s"
+msgstr ""
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Storage Group"
 msgstr "Storage Group"
 
-#, fuzzy
 msgid "Create New Storage Node"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Subnet Group"
@@ -2064,13 +2054,11 @@ msgstr "Create New %s"
 msgid "Create New Task Type"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New User"
-msgstr "Create New %s"
+msgstr ""
 
-#, fuzzy
 msgid "Create New User Group"
-msgstr "Create New %s"
+msgstr ""
 
 #, fuzzy
 msgid "Create New Windows Key"

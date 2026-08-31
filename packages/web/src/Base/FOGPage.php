@@ -971,6 +971,141 @@ abstract class FOGPage extends FOGBase
     }
 
     /**
+     * The "List All X" / "Create New X" pair for one node, written out.
+     *
+     * GH-435. These used to be built by sprintf()ing a translated noun into a
+     * translated format string -- `List All %s` and `Create New %s` -- and
+     * that cannot be translated correctly, in any language that inflects.
+     *
+     * French was the report: `Creer un nouveau %s` is masculine, so
+     * `machine` and `image` (both feminine) need `une nouvelle`, and
+     * `utilisateur` needs `nouvel` before its vowel. One format string cannot
+     * be all three. `Lister tous les %s` has the same problem in the plural.
+     * German inflects the adjective the same way -- `Neue %s erstellen`
+     * should be `Neuen Benutzer erstellen` for a masculine noun.
+     *
+     * The plural was broken independently of gender: the list label appended
+     * a literal `s` to the ALREADY TRANSLATED noun, which is an English rule
+     * applied to a French, German or Japanese word. Japanese marks no plural
+     * at all, German `Rechner` is its own plural, and French nouns ending in
+     * -al take -aux.
+     *
+     * Whole phrases fix both at once, and cost nothing anywhere else: each is
+     * an ordinary literal xgettext extracts, and a translator sees the entire
+     * sentence rather than a fragment with a hole in it. The codebase already
+     * writes them this way where the string is not composed -- ImageManagement
+     * has _('Create New Image'), UserManagement has _('Create New User').
+     *
+     * Nodes NOT listed here fall back to the composed form, which is what
+     * plugins get: a plugin's node name is not knowable from here, and a
+     * plugin can ship its own catalog. The fallback is no worse for them than
+     * it was before this change.
+     *
+     * @param string $node lowercase node name
+     *
+     * @return array empty when the node has no written-out pair
+     */
+    private static function _nodeMenuStrings($node)
+    {
+        switch ($node) {
+            case 'group':
+                return ['list' => _('List All Groups'),
+                        'add' => _('Create New Group')];
+            case 'host':
+                // host and image reach here too. The switch below only INSERTS
+                // extra entries for them (Pending Hosts, Multicast Image); it
+                // never replaces the pair built here, unlike task/report/plugin
+                // which assign over it. They are also the two the GH-435 reporter
+                // actually cited -- machine and image are both feminine, so
+                // `Creer un nouveau %s` was wrong for exactly them.
+                return ['list' => _('List All Hosts'),
+                        'add' => _('Create New Host')];
+            case 'image':
+                return ['list' => _('List All Images'),
+                        'add' => _('Create New Image')];
+            case 'ipxe':
+                return ['list' => _('List All Ipxe Menus'),
+                        'add' => _('Create New Ipxe Menu')];
+            case 'module':
+                return ['list' => _('List All Modules'),
+                        'add' => _('Create New Module')];
+            case 'printer':
+                return ['list' => _('List All Printers'),
+                        'add' => _('Create New Printer')];
+            case 'role':
+                return ['list' => _('List All Roles'),
+                        'add' => _('Create New Role')];
+            case 'site':
+                return ['list' => _('List All Sites'),
+                        'add' => _('Create New Site')];
+            case 'snapin':
+                return ['list' => _('List All Snapins'),
+                        'add' => _('Create New Snapin')];
+            case 'storagegroup':
+                return ['list' => _('List All Storage Groups'),
+                        'add' => _('Create New Storage Group')];
+            case 'storagenode':
+                return ['list' => _('List All Storage Nodes'),
+                        'add' => _('Create New Storage Node')];
+            case 'user':
+                return ['list' => _('List All Users'),
+                        'add' => _('Create New User')];
+            case 'usergroup':
+                return ['list' => _('List All User Groups'),
+                        'add' => _('Create New User Group')];
+        }
+        return [];
+    }
+
+    /**
+     * sprintf() for a format string that came out of a translation catalog.
+     *
+     * The catalog is edited by translators, so this format string is not under
+     * the codebase's control -- and a bad one fails DIFFERENTLY on the two PHP
+     * versions this project supports, which is why both arms below are needed.
+     * Measured, not assumed:
+     *
+     *   PHP 8.3   sprintf('Lister 100% des %s', $n)  ArgumentCountError
+     *             sprintf('List %q of %s', $n)       ValueError
+     *   PHP 7.4   both of the above                  warning, returns false
+     *
+     * So on 8 an uncaught one takes the whole navigation menu out with a 500
+     * on every page, and on 7.4 -- the supported floor -- nothing throws at
+     * all and `false` flows on to be rendered as an empty menu label. A
+     * Throwable catch alone would silently leave the 7.4 half broken.
+     *
+     * Not hypothetical for these two strings specifically: es_ES already ships
+     * `Crear nuevo grupo` for `Create New %s`, having dropped the placeholder
+     * and hardcoded one entity's name. A catalog that can lose a specifier can
+     * just as easily gain a stray one.
+     *
+     * Falling back to the untranslated argument keeps the menu rendering. It
+     * is not a good label, but it is a legible one, and it degrades in the one
+     * language whose catalog is at fault rather than everywhere. The 7.4
+     * warning is deliberately not suppressed -- it is the only record that the
+     * catalog needs fixing.
+     *
+     * @param string $format translated format string
+     * @param string $value  already-translated noun to substitute
+     *
+     * @return string
+     */
+    private static function _composeMenuLabel($format, $value)
+    {
+        try {
+            $out = sprintf((string)$format, $value);
+        } catch (\Throwable $e) {
+            return (string)$value;
+        }
+        // The cast is the 7.4 arm, not decoration: there sprintf() returns
+        // FALSE rather than throwing, and (string)false is ''. Comparing to ''
+        // rather than to false covers both that and a catalog entry that is
+        // simply empty, and phpstan -- whose sprintf() stub returns string at
+        // every version in the configured 7.4-8.3 range -- can typecheck it.
+        return '' === (string)$out ? (string)$value : (string)$out;
+    }
+
+    /**
      * Creates the sub menu items.
      *
      * @param string $refNode The node to "append"
@@ -982,24 +1117,27 @@ abstract class FOGPage extends FOGBase
         $node = strtolower($refNode);
         $refNode = ucfirst($refNode);
         $refNode = _($refNode);
-        $menu = [];
-        $menu = [
-            /**
-             * No _() around the sprintf: $refNode was already translated on
-             * its own above, and a msgid built at runtime can never match the
-             * literal xgettext extracted -- so the outer call was a guaranteed
-             * miss that returned its own argument. Dropping it changes nothing
-             * at runtime and stops the line claiming to be translatable.
-             */
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                sprintf('%ss', $refNode)
-            ),
-            'add' => sprintf(
-                self::$foglang['CreateNew'],
-                $refNode
-            )
-        ];
+        $menu = self::_nodeMenuStrings($node);
+        if (!count($menu)) {
+            $menu = [
+                /**
+                 * No _() around the sprintf: $refNode was already translated
+                 * on its own above, and a msgid built at runtime can never
+                 * match the literal xgettext extracted -- so the outer call
+                 * was a guaranteed miss that returned its own argument.
+                 * Dropping it changes nothing at runtime and stops the line
+                 * claiming to be translatable.
+                 */
+                'list' => self::_composeMenuLabel(
+                    self::$foglang['ListAll'],
+                    sprintf('%ss', $refNode)
+                ),
+                'add' => self::_composeMenuLabel(
+                    self::$foglang['CreateNew'],
+                    $refNode
+                )
+            ];
+        }
         if (isset(self::$foglang[$refNode])) {
             $menu['export'] = self::$foglang['Export'] . ' ' . self::$foglang[$refNode];
             $menu['import'] = self::$foglang['Import'] . ' ' . self::$foglang[$refNode];

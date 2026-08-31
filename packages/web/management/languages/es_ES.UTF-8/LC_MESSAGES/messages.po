@@ -1992,7 +1992,6 @@ msgstr "Crear nuevo grupo"
 msgid "Create New Capone"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Group"
 msgstr "Crear nuevo grupo"
 
@@ -2000,21 +1999,18 @@ msgstr "Crear nuevo grupo"
 msgid "Create New Hello World"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Host"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo anfitrión"
 
-#, fuzzy
 msgid "Create New Image"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nueva imagen"
 
 #, fuzzy
 msgid "Create New Immediate"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Ipxe Menu"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo menú iPXE"
 
 #, fuzzy
 msgid "Create New LDAP Group"
@@ -2028,9 +2024,8 @@ msgstr "Crear nuevo grupo"
 msgid "Create New Location"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Module"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo módulo"
 
 #, fuzzy
 msgid "Create New OU"
@@ -2040,37 +2035,31 @@ msgstr "Crear nuevo grupo"
 msgid "Create New OpenID Connect Provider"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nueva impresora"
 
 #, fuzzy
 msgid "Create New Provider Group"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Role"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo rol"
 
 #, fuzzy
 msgid "Create New Scheduled"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New Site"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo sitio"
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo snapin"
 
-#, fuzzy
 msgid "Create New Storage Group"
-msgstr "Grupo de almacenamiento"
+msgstr "Crear nuevo grupo de almacenamiento"
 
-#, fuzzy
 msgid "Create New Storage Node"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo nodo de almacenamiento"
 
 #, fuzzy
 msgid "Create New Subnet Group"
@@ -2084,13 +2073,11 @@ msgstr "Crear nuevo grupo"
 msgid "Create New Task Type"
 msgstr "Crear nuevo grupo"
 
-#, fuzzy
 msgid "Create New User"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo usuario"
 
-#, fuzzy
 msgid "Create New User Group"
-msgstr "Crear nuevo grupo"
+msgstr "Crear nuevo grupo de usuarios"
 
 #, fuzzy
 msgid "Create New Windows Key"
@@ -5605,9 +5592,8 @@ msgstr "Modelo"
 msgid "Models"
 msgstr "Modelo"
 
-#, fuzzy
 msgid "Module"
-msgstr "Nombre del módulo"
+msgstr "Módulo"
 
 #, fuzzy
 msgid "Module Create Fail"
@@ -6962,9 +6948,8 @@ msgstr "Grupo de almacenamiento"
 msgid "Primary User"
 msgstr "usuario principal"
 
-#, fuzzy
 msgid "Printer"
-msgstr "impresora IP"
+msgstr "Impresora"
 
 #, fuzzy
 msgid "Printer Associations"
@@ -7460,9 +7445,8 @@ msgstr "Volviendo valor de clave"
 msgid "Reverse"
 msgstr ""
 
-#, fuzzy
 msgid "Role"
-msgstr "Nombre del módulo"
+msgstr "Rol"
 
 #, fuzzy
 msgid "Role Association"
@@ -8076,9 +8060,8 @@ msgstr ""
 msgid "Single Logout"
 msgstr "snapin"
 
-#, fuzzy
 msgid "Site"
-msgstr "minutos"
+msgstr "Sitio"
 
 #, fuzzy
 msgid "Site Create Fail"
@@ -10287,9 +10270,8 @@ msgstr "creado por el usuario"
 msgid "User DN"
 msgstr "Nombre de usuario"
 
-#, fuzzy
 msgid "User Group"
-msgstr "Grupo"
+msgstr "Grupo de usuarios"
 
 #, fuzzy
 msgid "User Group Association"
@@ -11088,9 +11070,8 @@ msgstr "actualización de servicio no pudo"
 msgid "iPXE Management"
 msgstr "Gestión de usuarios"
 
-#, fuzzy
 msgid "iPXE Menu"
-msgstr "Crear nueva entrada de menú gpxe"
+msgstr "Menú iPXE"
 
 #, fuzzy
 msgid "iPXE Menu Configuration"
@@ -12452,3 +12433,46 @@ msgstr ""
 #, fuzzy
 #~ msgid "version"
 #~ msgstr "Versión"
+
+#. GH-435: seeded from this catalog's own "List All %s" /
+#. "Create New %s" and noun, so the label renders exactly as it
+#. did before those format strings became whole phrases.
+
+msgid "List All Groups"
+msgstr "Listar todos los grupos"
+
+msgid "List All Hosts"
+msgstr "Listar todos los anfitriones"
+
+msgid "List All Images"
+msgstr "Listar todas las imágenes"
+
+msgid "List All Ipxe Menus"
+msgstr "Listar todos los menús iPXE"
+
+msgid "List All Modules"
+msgstr "Listar todos los módulos"
+
+msgid "List All Printers"
+msgstr "Listar todas las impresoras"
+
+msgid "List All Roles"
+msgstr "Listar todos los roles"
+
+msgid "List All Sites"
+msgstr "Listar todos los sitios"
+
+msgid "List All Snapins"
+msgstr "Listar todos los snapins"
+
+msgid "List All Storage Groups"
+msgstr "Listar todos los grupos de almacenamiento"
+
+msgid "List All Storage Nodes"
+msgstr "Listar todos los nodos de almacenamiento"
+
+msgid "List All User Groups"
+msgstr "Listar todos los grupos de usuarios"
+
+msgid "List All Users"
+msgstr "Listar todos los usuarios"
