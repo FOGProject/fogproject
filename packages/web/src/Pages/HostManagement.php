@@ -4332,77 +4332,26 @@ class HostManagement extends FOGPage
      */
     public function hostTasks()
     {
-        // Predefine needed variables for closure function.
         global $id;
-        $data = [];
-        /**
-         * Closure allowing us to iterate from a common point.
-         *
-         * @param stdClass $TaskType The Task Type data.
-         * @param int      $advanced The advanced flag.
-         *
-         * @uses array $data The data to store into.
-         * @uses int   $id   The id of the object we are on.
-         *
-         * @return void
-         */
-        $taskTypeIterator = function ($TaskType, $advanced) use (
-            &$data,
-            $id
-        ) {
-            if ($advanced != $TaskType->isAdvanced) {
-                return;
-            }
-            $data['<a href="?node=host&sub=deploy&id='
-                . $id
-                . '&type='
-                . $TaskType->id
-                . '" class="taskitem"><i class="fas fa-'
-                . $TaskType->icon
-                . ' fa-2x"></i><br/>'
-                . $TaskType->name
-                . '</a>'
-            ] = $TaskType->description;
-        };
-        // The keys we need to search for.
-        $key = [
-            'access' => [
-                'host',
-                'both'
-            ]
-        ];
-        // The items we're getting.
-        $items = Route::getList(
-            'tasktype',
-            $key,
-            'AND',
-            'id'
-        );
-        // Loop 1, the basic non-advanced tasks.
-        foreach ($items as &$TaskType) {
-            $taskTypeIterator($TaskType, 0);
-            unset($TaskType);
-        }
-        self::$HookManager->processEvent(
-            'HOST_BASICTASKS_DATA',
-            ['data' => &$data]
-        );
-        $basic = self::stripedTable($data);
 
-        $data = [];
-        $advanced = 1;
-        // Loop 2, the advanced tasks.
-        foreach ($items as &$TaskType) {
-            $taskTypeIterator($TaskType, 1);
-            unset($TaskType);
-        }
-        self::$HookManager->processEvent(
-            'HOST_ADVANCEDTASKS_DATA',
-            ['data' => &$data]
+        $accordion = $this->taskTypeAccordion(
+            ['host', 'both'],
+            function ($TaskType) use ($id) {
+                return '<a href="?node=host&sub=deploy&id='
+                    . $id
+                    . '&type='
+                    . $TaskType->id
+                    . '" class="taskitem"><i class="fas fa-'
+                    . $TaskType->icon
+                    . ' fa-2x"></i><br/>'
+                    . $TaskType->name
+                    . '</a>';
+            },
+            'taskAccordian',
+            'HOST_BASICTASKS_DATA',
+            'HOST_ADVANCEDTASKS_DATA'
         );
-        $advanced = self::stripedTable($data);
-        unset($data);
-        unset($items);
+
         $modalApprovalBtns = self::makeButton(
             'tasking-send',
             _('Create'),
@@ -4427,56 +4376,417 @@ class HostManagement extends FOGPage
 
         echo '<div class="card" id="host-tasks">';
         echo '<div class="card-body">';
-        echo '<div id="taskAccordian">';
-
-        // Basic Tasks
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo '<a href="#tasksBasic" class="" data-bs-toggle="collapse" '
-            . 'data-bs-parent="#taskAccordian">';
-        echo _('Basic Tasks');
-        echo '</a>';
-        echo '</h4>';
-        echo '</div>';
-        echo '<div id="tasksBasic" class="collapse show">';
-        echo '<div class="card-body">';
-        echo '<table class="table table-striped">';
-        echo '<tbody>';
-        echo $basic;
-        echo '</tbody>';
-        echo '</table>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-
-        // Advanced Tasks
-        echo '<div class="card card-warning card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo '<a href="#tasksAdvanced" class="" data-bs-toggle="collapse" '
-            . 'data-bs-parent="#taskAccordian">';
-        echo _('Advanced Tasks');
-        echo '</a>';
-        echo '</h4>';
-        echo '</div>';
-        echo '<div id="tasksAdvanced" class="collapse">';
-        echo '<div class="card-body">';
-        echo '<table class="table table-striped">';
-        echo '<tbody>';
-        echo $advanced;
-        echo '</tbody>';
-        echo '</table>';
-        echo '</div>';
-        echo '</div>';
-        echo '</div>';
-
+        echo $accordion;
         echo '</div>';
         echo '<div class="card-footer">';
         echo $taskModal;
         echo '</div>';
         echo '</div>';
-        echo '</div>';
+    }
+    /**
+     * The Queue Task control for the host list: one button, one modal.
+     *
+     * Called by FOGPage::process() when the page defines it, the same way
+     * addModal() is picked up, so the generic list toolbar stays generic.
+     *
+     * The modal holds the same Basic/Advanced accordion the host edit page
+     * shows, built from the same taskTypes rows. What differs is the anchor:
+     * no `id` in the href, because which hosts are tasked is whatever is
+     * ticked at the moment of the click, and only the browser knows that.
+     * Each row carries its `access` value instead, which is what lets the
+     * script show Multi-Cast only when more than one row is selected (it is
+     * `ttIsAccess = 'group'`) and Capture only when exactly one is (it is
+     * `ttIsAccess = 'host'`).
+     *
+     * @return array ['button' => string, 'modal' => string]
+     */
+    public function queueTaskActions()
+    {
+        $accordion = $this->taskTypeAccordion(
+            ['host', 'group', 'both'],
+            function ($TaskType) {
+                return '<a href="#" class="taskitem queuetaskitem" '
+                    . 'data-type="' . (int)$TaskType->id . '" '
+                    . 'data-access="'
+                    . \Initiator::e($TaskType->access)
+                    . '"><i class="fas fa-'
+                    . \Initiator::e($TaskType->icon)
+                    . ' fa-2x"></i><br/>'
+                    . \Initiator::e($TaskType->name)
+                    . '</a>';
+            },
+            'queueTaskAccordion',
+            'HOST_BASICTASKS_DATA',
+            'HOST_ADVANCEDTASKS_DATA'
+        );
+
+        $button = self::makeButton(
+            'queueTask',
+            _('Queue Task'),
+            'btn btn-secondary'
+        );
+
+        $modal = self::makeModal(
+            'queueTaskModal',
+            '<h4 class="card-title">'
+            . _('Queue task on selected hosts')
+            . '<span class="queue-task-name"></span></h4>',
+            '<div id="queue-task-picker">' . $accordion . '</div>'
+            . '<div id="queue-task-form-holder"></div>',
+            self::makeButton(
+                'queueTaskClose',
+                _('Cancel'),
+                'btn btn-outline-secondary float-start',
+                'data-bs-dismiss="modal"'
+            )
+            . self::makeButton(
+                'queueTaskSend',
+                _('Create'),
+                'btn btn-primary float-end d-none'
+            ),
+            '',
+            'success',
+            'modal-lg'
+        );
+
+        return ['button' => $button, 'modal' => $modal];
+    }
+    /**
+     * The task options form for an ad-hoc selection of hosts.
+     *
+     * Deliberately takes a COUNT and not the ids. The form does not vary by
+     * which hosts were picked -- only by task type -- and putting a few
+     * hundred ids in a query string to build a form that ignores them buys
+     * nothing and eventually exceeds the request line. The ids are posted to
+     * deployMultiPost(), which is where they are checked and used.
+     *
+     * The count is not decoration: it decides whether the chosen type is
+     * even applicable. `ttIsAccess = 'group'` (Multi-Cast) needs more than
+     * one host to mean anything, and `ttIsAccess = 'host'` (Capture) needs
+     * exactly one -- capturing an image from several machines at once is not
+     * a thing. The script hides those entries, and this refuses them, so a
+     * hand-made request gets the same answer as the UI.
+     *
+     * @return void
+     */
+    public function deployMulti()
+    {
+        header('Content-type: application/json');
+        global $type;
+
+        try {
+            if (!is_numeric($type) || $type < 1) {
+                $type = 1;
+            }
+            $count = (int)filter_input(INPUT_GET, 'count');
+            if ($count < 1) {
+                throw new \Exception(_('No hosts are selected'));
+            }
+
+            $TaskType = self::getClass('TaskType', $type);
+            if (!$TaskType->isValid()) {
+                throw new \Exception(
+                    sprintf(
+                        _('Task type %d is missing from this server.'),
+                        $type
+                    )
+                );
+            }
+            $this->assertSelectionTaskable($TaskType, $count);
+
+            $this->title = $TaskType->get('name');
+
+            $labelClass = 'col-sm-3 col-form-label';
+            $fields = $this->taskingOptionFields($type, $labelClass);
+
+            $buttons = '';
+            self::$HookManager->processEvent(
+                'HOST_CREATE_TASKING',
+                [
+                    'fields' => &$fields,
+                    'buttons' => &$buttons,
+                    'Host' => &$this->obj
+                ]
+            );
+            $rendered = self::formFields($fields);
+            unset($fields);
+            ob_start();
+            echo self::makeFormTag(
+                '',
+                'host-deploy-multi-form',
+                '../management/index.php?node=host&sub=deployMulti&type='
+                . (int)$type,
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo $rendered;
+            echo $buttons;
+            echo '</form>';
+            $msg = json_encode(
+                [
+                    'msg' => ob_get_clean(),
+                    'title' => _('Create task form success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+        } catch (\Exception $e) {
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create task form fail')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
+     * Refuses a task type the selection size cannot support.
+     *
+     * Shared by the form builder and the create, so a request that skips the
+     * UI is answered the same way the UI would have.
+     *
+     * @param object $TaskType the task type being created
+     * @param int    $count    how many hosts are selected
+     *
+     * @throws \Exception
+     *
+     * @return void
+     */
+    private function assertSelectionTaskable($TaskType, $count)
+    {
+        $access = $TaskType->get('access');
+        if ('group' === $access && $count < 2) {
+            throw new \Exception(
+                sprintf(
+                    _('%s needs more than one host'),
+                    $TaskType->get('name')
+                )
+            );
+        }
+        if ('host' === $access && $count > 1) {
+            throw new \Exception(
+                sprintf(
+                    _('%s can only be run on one host at a time'),
+                    $TaskType->get('name')
+                )
+            );
+        }
+    }
+    /**
+     * Creates the tasking for an ad-hoc selection of hosts.
+     *
+     * Instant only. A scheduled task is one `scheduledTasks` row carrying a
+     * single hostID plus an isGroupTask flag, so it can name a host or a
+     * group and has nowhere to put a set of hosts that is neither. Giving it
+     * one is a schema change; until then the list creates tasks now and the
+     * edit page still schedules them per host or per group.
+     *
+     * The work itself goes through Group::createImagePackage() on a Group
+     * that is built here and never saved. That is not a shortcut around the
+     * host path -- it is the only path that gets Multi-Cast right. One
+     * multicast session has to cover the whole selection: one port, one
+     * sender, one row per host in multicastSessionsAssoc. Looping
+     * Host::createImagePackage() would create a separate session per host
+     * and none of them would ever stream.
+     *
+     * @return void
+     */
+    public function deployMultiPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        self::$HookManager->processEvent('HOST_DEPLOY_POST');
+
+        $serverFault = false;
+        try {
+            global $type;
+            if (!is_numeric($type) || $type < 1) {
+                $type = 1;
+            }
+
+            $hosts = filter_input(
+                INPUT_POST,
+                'hosts',
+                FILTER_DEFAULT,
+                FILTER_REQUIRE_ARRAY
+            );
+            $hosts = array_values(
+                array_unique(
+                    array_filter(
+                        array_map('intval', (array)$hosts)
+                    )
+                )
+            );
+            if (count($hosts) < 1) {
+                throw new \Exception(_('No hosts are selected'));
+            }
+            // Airtight: one id outside the caller's site scope denies the
+            // whole request rather than quietly tasking the rest. The ids
+            // come from the browser, so this is the only place they are
+            // bounded.
+            Authorization::requirePageObjectScopeMass('host', $hosts);
+
+            $TaskType = self::getClass('TaskType', $type);
+            if (!$TaskType->isValid()) {
+                throw new \Exception(
+                    sprintf(
+                        _('Task type %d is missing from this server.'),
+                        $type
+                    )
+                );
+            }
+            $this->assertSelectionTaskable($TaskType, count($hosts));
+
+            // Pending hosts cannot be tasked -- the same refusal the single
+            // host path makes, applied to the selection.
+            $hosts = Route::getIds(
+                'host',
+                [
+                    'id' => $hosts,
+                    'pending' => ['', 0]
+                ]
+            );
+            if (count($hosts ?: []) < 1) {
+                throw new \Exception(_('No hosts available to be tasked'));
+            }
+
+            if ($TaskType->isImagingTask()) {
+                $images = [];
+                $withImage = [];
+                foreach (Route::getList('host', ['id' => $hosts]) as $Host) {
+                    if (!$Host->imageID) {
+                        continue;
+                    }
+                    $withImage[] = (int)$Host->id;
+                    $images[] = (int)$Host->imageID;
+                }
+                if (count($withImage) < 1) {
+                    throw new \Exception(_('No hosts are assigned an image'));
+                }
+                // One session, one image. Checked here rather than left to
+                // the replicator, which would otherwise start a stream the
+                // odd host out can never use.
+                if (TaskType::MULTICAST == $type
+                    && count(array_unique($images)) !== 1
+                ) {
+                    throw new \Exception(
+                        _('All hosts must have the same image assigned')
+                    );
+                }
+                $hosts = $withImage;
+            }
+
+            // Password reset setup
+            $passreset = trim(
+                (string)filter_input(INPUT_POST, 'account')
+            );
+            if (TaskType::PASSWORD_RESET == $type
+                && !$passreset
+            ) {
+                throw new \Exception(_('Password reset requires a user account'));
+            }
+
+            // Snapin setup
+            $enableSnapins = (int)filter_input(INPUT_POST, 'snapin');
+            if (0 === $enableSnapins) {
+                $enableSnapins = -1;
+            }
+            if (TaskType::DEPLOY_NO_SNAPINS === $type || $enableSnapins < -1) {
+                $enableSnapins = 0;
+            }
+            $snapinAbortOnFailure = isset($_POST['snapinAbortOnFailure']);
+
+            $enableShutdown = isset($_POST['shutdown']);
+
+            $enableDebug = isset($_POST['debug']) || isset($_POST['isDebugTask']);
+
+            $wol = (TaskType::WAKE_UP == $type) || isset($_POST['wol']);
+
+            // The carrier for the selection. Never saved -- nothing reads it
+            // back and a groups row would outlive the tasking it exists for.
+            // Group::loadHosts() short circuits on an unsaved group, so the
+            // ids set here are the ids used.
+            $Selection = self::getClass('Group')
+                ->set(
+                    'name',
+                    sprintf(
+                        /* translators: %d is a number of hosts */
+                        _('%d selected hosts'),
+                        count($hosts)
+                    )
+                )
+                ->set('hosts', $hosts);
+
+            // getItem(), not indiv(): a deleted task type used to end the
+            // response with a 404 rather than report it. Refs ADR 0011.
+            $tasktype = Route::getItem('tasktype', $type);
+            if (!$tasktype) {
+                throw new \Exception(
+                    sprintf(
+                        _('Task type %d is missing from this server.'),
+                        $type
+                    )
+                );
+            }
+            $Selection->createImagePackage(
+                $tasktype,
+                sprintf('%s Task', $TaskType->get('name')),
+                $enableShutdown,
+                $enableDebug,
+                $enableSnapins,
+                true,
+                self::$FOGUser->get('name'),
+                $passreset,
+                false,
+                $wol,
+                false,
+                $snapinAbortOnFailure
+            );
+
+            $code = HTTPResponseCodes::HTTP_CREATED;
+            $hook = 'HOST_DEPLOY_SUCCESS';
+            $msg = json_encode(
+                [
+                    'msg' => sprintf(
+                        /* translators: %d is a number of hosts */
+                        _('Tasking created for %d hosts'),
+                        count($hosts)
+                    ),
+                    'title' => _('Create Task Success')
+                ]
+            );
+        } catch (\Exception $e) {
+            // Always 400, unlike deployPost(). Everything this method can
+            // refuse is a property of the REQUEST -- an empty or
+            // out-of-scope selection, a task type the selection size cannot
+            // support, hosts with no image -- and all of it is checked
+            // before anything is written. What createImagePackage() itself
+            // throws is configuration the caller has to fix as well (image
+            // not enabled, not replicated to the group), so there is no arm
+            // here that means "the server failed". $serverFault stays in the
+            // hook payload because a listener may still set it.
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $hook = 'HOST_DEPLOY_FAIL';
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Create Task Fail')
+                ]
+            );
+        }
+
+        $this->jsonHookResponse(
+            [
+                'Host' => &$this->obj,
+                'hook' => &$hook,
+                'code' => &$code,
+                'msg' => &$msg,
+                'serverFault' => &$serverFault
+            ],
+            $hook
+        );
     }
     /**
      * Tasking for this host.
@@ -4513,10 +4823,6 @@ class HostManagement extends FOGPage
 
             $iscapturetask = $TaskType->isCapture;
 
-            $issnapintask = $TaskType->isSnapinTasking;
-
-            $isinitneeded = $TaskType->isInitNeeded;
-
             $isdebug = $TaskType->isDebug;
 
             $image = $this->obj->getImage();
@@ -4541,166 +4847,9 @@ class HostManagement extends FOGPage
                 throw new \Exception(_('Assigned image is protected'));
             }
             $labelClass = 'col-sm-3 col-form-label';
-            $fields = [];
-            if ($issnapintask
-                && TaskType::SINGLE_SNAPIN == $type
-            ) {
-                $snapinSelector = self::getClass('SnapinManager')
-                    ->buildSelectBox('', 'snapin');
-                $fields[
-                    self::makeLabel(
-                        $labelClass,
-                        'snapin',
-                        _('Select Snapin to run')
-                    )
-                ] = $snapinSelector;
-            } elseif (TaskType::PASSWORD_RESET == $type) {
-                $fields [
-                    self::makeLabel(
-                        $labelClass,
-                        'account',
-                        _('Account Name')
-                    )
-                ] = self::makeInput(
-                    'form-control',
-                    'account',
-                    _('Administrator'),
-                    'text',
-                    'account',
-                    '',
-                    true
-                );
-            }
-            if ($TaskType->isSnapinTask) {
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        self::makeLabel(
-                            $labelClass,
-                            'snapinAbortOnFailure',
-                            _('Abort snapin sequence on failure')
-                        ) => self::makeInput(
-                            '',
-                            'snapinAbortOnFailure',
-                            '',
-                            'checkbox',
-                            'snapinAbortOnFailure'
-                        )
-                    ]
-                );
-            }
-            if ($isinitneeded) {
-                if ($iscapturetask) {
-                    $fields = self::fastmerge(
-                        $fields,
-                        [
-                            self::makeLabel(
-                                $labelClass,
-                                'bitlocker',
-                                _('Bypass Bitlocker Detection')
-                            ) => self::makeInput(
-                                '',
-                                'bitlocker',
-                                '',
-                                'checkbox',
-                                'bitlocker',
-                                '',
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                ''
-                            )
-                        ]
-                    );
-                }
-                if (!$isdebug) {
-                    $shutdownchecked = self::getSetting(
-                        'FOG_TASKING_ADV_SHUTDOWN_ENABLED'
-                    ) ? ' checked' : '';
-                    $fields = self::fastmerge(
-                        $fields,
-                        [
-                            '<div class="hideFromDebug deploy-field-group">'
-                            . self::makeLabel(
-                                $labelClass,
-                                'shutdown',
-                                _('Shutdown when complete')
-                            ) => self::makeInput(
-                                '',
-                                'shutdown',
-                                '',
-                                'checkbox',
-                                'shutdown',
-                                '',
-                                false,
-                                false,
-                                -1,
-                                -1,
-                                $shutdownchecked
-                            )
-                            . '</div>'
-                        ]
-                    );
-                }
-            }
-            if (TaskType::WAKE_UP != $type) {
-                $wolchecked = self::getSetting(
-                    'FOG_TASKING_ADV_WOL_ENABLED'
-                ) ? ' checked' : '';
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        self::makeLabel(
-                            $labelClass,
-                            'wol',
-                            _('Wake Up')
-                        ) => self::makeInput(
-                            '',
-                            'wol',
-                            '',
-                            'checkbox',
-                            'wol',
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            $wolchecked
-                        )
-                    ]
-                );
-            }
-            if (TaskType::PASSWORD_RESET != $type
-                && !$isdebug
-                && $isinitneeded
-            ) {
-                $debugchecked = self::getSetting(
-                    'FOG_TASKING_ADV_DEBUG_ENABLED'
-                ) ? ' checked' : '';
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        self::makeLabel(
-                            $labelClass,
-                            'checkdebug',
-                            _('Debug Task')
-                        ) => self::makeInput(
-                            '',
-                            'isDebugTask',
-                            '',
-                            'checkbox',
-                            'checkdebug',
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            $debugchecked
-                        )
-                    ]
-                );
-            }
+            // Shared with GroupManagement::deploy() and deployMulti(); the
+            // three forms differ only in which hosts they apply to.
+            $fields = $this->taskingOptionFields($type, $labelClass);
             $fields = self::fastmerge(
                 $fields,
                 $this->scheduleTypeFields($labelClass, $isdebug, $type)

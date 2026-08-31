@@ -3188,8 +3188,6 @@ class GroupManagement extends FOGPage
 
             $imagingTypes = $TaskType->isImagingTask();
             $iscapturetask = $TaskType->isCapture();
-            $issnapintask = $TaskType->isSnapinTasking();
-            $isinitneeded = $TaskType->isInitNeededTasking();
             $isdebug = $TaskType->isDebug();
             $hosts = $this->obj->get('hosts');
 
@@ -3205,143 +3203,9 @@ class GroupManagement extends FOGPage
 
             $labelClass = 'col-sm-3 col-form-label';
 
-            $fields = [];
-
-            if ($issnapintask
-                && TaskType::SINGLE_SNAPIN == $type
-            ) {
-                $snapinSelector = self::getClass('SnapinManager')
-                    ->buildSelectBox('', 'snapin');
-                $fields[
-                    self::makeLabel(
-                        $labelClass,
-                        'snapin',
-                        _('Select Snapin to run')
-                    )
-                ] = $snapinSelector;
-            } elseif (TaskType::PASSWORD_RESET == $type) {
-                $fields [
-                    self::makeLabel(
-                        $labelClass,
-                        'account',
-                        _('Account Name')
-                    )
-                ] = self::makeInput(
-                    'form-control',
-                    'account',
-                    'Administrator',
-                    'text',
-                    'account',
-                    '',
-                    true
-                );
-            }
-            if ($TaskType->isSnapinTask()) {
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        self::makeLabel(
-                            $labelClass,
-                            'snapinAbortOnFailure',
-                            _('Abort snapin sequence on failure')
-                        ) => self::makeInput(
-                            '',
-                            'snapinAbortOnFailure',
-                            '',
-                            'checkbox',
-                            'snapinAbortOnFailure'
-                        )
-                    ]
-                );
-            }
-            if ($isinitneeded
-                && !$isdebug
-            ) {
-                $shutdownchecked = self::getSetting(
-                    'FOG_TASKING_ADV_SHUTDOWN_ENABLED'
-                ) ? ' checked' : '';
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        '<div class="hideFromDebug deploy-field-group">'
-                        . self::makeLabel(
-                            $labelClass,
-                            'shutdown',
-                            _('Shutdown when complete')
-                        ) => self::makeInput(
-                            '',
-                            'shutdown',
-                            '',
-                            'checkbox',
-                            'shutdown',
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            $shutdownchecked
-                        )
-                        . '</div>'
-                    ]
-                );
-            }
-            if (TaskType::WAKE_UP != $type) {
-                $wolchecked = self::getSetting(
-                    'FOG_TASKING_ADV_WOL_ENABLED'
-                ) ? ' checked' : '';
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        self::makeLabel(
-                            $labelClass,
-                            'wol',
-                            _('Wake Up')
-                        ) => self::makeInput(
-                            '',
-                            'wol',
-                            '',
-                            'checkbox',
-                            'wol',
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            $wolchecked
-                        )
-                    ]
-                );
-            }
-            if (TaskType::PASSWORD_RESET != $type
-                && !$isdebug
-                && $isinitneeded
-            ) {
-                $debugchecked = self::getSetting(
-                    'FOG_TASKING_ADV_DEBUG_ENABLED'
-                ) ? ' checked' : '';
-                $fields = self::fastmerge(
-                    $fields,
-                    [
-                        self::makeLabel(
-                            $labelClass,
-                            'checkdebug',
-                            _('Debug Task')
-                        ) => self::makeInput(
-                            '',
-                            'isDebugTask',
-                            '',
-                            'checkbox',
-                            'checkdebug',
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            $debugchecked
-                        )
-                    ]
-                );
-            }
+            // Shared with HostManagement::deploy() and deployMulti(); the
+            // three forms differ only in which hosts they apply to.
+            $fields = $this->taskingOptionFields($type, $labelClass);
             $fields = self::fastmerge(
                 $fields,
                 $this->scheduleTypeFields($labelClass, $isdebug, $type)

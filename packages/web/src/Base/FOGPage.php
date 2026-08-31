@@ -1835,6 +1835,17 @@ abstract class FOGPage extends FOGBase
                         'btn btn-danger float-start'
                     );
                     $actionbox .= '<div class="btn-group float-end">';
+                    // Picked up the same way addModal() is, so the toolbar
+                    // stays generic: a page that can task its selection says
+                    // so by defining the method. The button is emitted first
+                    // because this is a btn-group -- a flex container, where
+                    // emission order IS left-to-right and the float classes
+                    // do nothing -- so the primary "Add" stays rightmost.
+                    if (method_exists($this, 'queueTaskActions')) {
+                        $queue = $this->queueTaskActions();
+                        $actionbox .= $queue['button'];
+                        $modals .= $queue['modal'];
+                    }
                     if (method_exists($this, 'addModal')) {
                         if ($node == 'host') {
                             $actionbox .= self::makeButton(

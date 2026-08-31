@@ -100,6 +100,10 @@ msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
+msgid "%d selected hosts"
+msgstr ""
+
+#, php-format
 msgid "%d token(s) disabled."
 msgstr ""
 
@@ -129,6 +133,10 @@ msgstr ""
 
 #, php-format
 msgid "%s already has a token called \"%s\". Names have to be unique per user so a token can be told apart from its neighbors when it comes time to revoke one."
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
@@ -169,6 +177,10 @@ msgstr ""
 
 #, php-format
 msgid "%s is required"
+msgstr ""
+
+#, php-format
+msgid "%s needs more than one host"
 msgstr ""
 
 #, php-format
@@ -5003,6 +5015,9 @@ msgstr ""
 msgid "No hosts are assigned an image"
 msgstr ""
 
+msgid "No hosts are selected"
+msgstr ""
+
 msgid "No hosts associated to this group yet"
 msgstr ""
 
@@ -6011,8 +6026,14 @@ msgstr ""
 msgid "Queue Deletion Cancel Success"
 msgstr ""
 
+msgid "Queue Task"
+msgstr ""
+
 #, php-format
 msgid "Queue a task against a %s"
+msgstr ""
+
+msgid "Queue task on selected hosts"
 msgstr ""
 
 msgid "Queued"
@@ -7596,6 +7617,10 @@ msgid "Task type is invalid"
 msgstr ""
 
 msgid "Task type update failed!"
+msgstr ""
+
+#, php-format
+msgid "Tasking created for %d hosts"
 msgstr ""
 
 msgid "Tasks"
