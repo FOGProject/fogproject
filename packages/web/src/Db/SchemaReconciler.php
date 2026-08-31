@@ -445,8 +445,13 @@ class SchemaReconciler extends FOGBase
      *
      * @return array Ordered SQL statements.
      */
-    public static function planConstraints($map, $have, $haveFks, $group = null)
-    {
+    public static function planConstraints(
+        $map,
+        $have,
+        $haveFks,
+        $group = null,
+        $nullable = null
+    ) {
         $plan = [];
         $known = [];
         foreach ((array)$haveFks as $fkName => $fkDef) {
@@ -518,6 +523,40 @@ class SchemaReconciler extends FOGBase
             }
             if (!in_array(strtolower($rel['column']), $have[$child])
                 || !in_array(strtolower((string)$rel['pcolumn']), $have[$parent])
+            ) {
+                $done[$lname] = true;
+                continue;
+            }
+            // A SET NULL constraint over a NOT NULL column is not a
+            // failure, it is a PRECONDITION that has not landed yet, and
+            // InnoDB refuses it outright with errno 150 "incorrectly
+            // formed" -- no rows involved, so the orphan scanner the
+            // failure log points at reports nothing and the trail ends.
+            //
+            // The preparation -- make the column nullable, convert the `0`
+            // sentinel -- lives in the step that owns the group, and for a
+            // plugin that is the PLUGIN's own schema(), which runs only
+            // when the plugin is installed. planConstraints() decides a
+            // plugin relationship is applicable from the child TABLE being
+            // present, and on an upgrade from 1.5 that is not the same
+            // question: 1.5's plugins lived in the web tree and left their
+            // tables behind, so `location` exists, holds rows, and has had
+            // no 1.6 step run against it.
+            //
+            // Verified on a real 1.5.10 database (2079 hosts, schema 278):
+            // fk_location_lStorageNodeID was the ONE constraint of 80 that
+            // an otherwise clean upgrade could not add, with zero orphans
+            // and `plugins`.`pInstalled` empty for `location`.
+            //
+            // So it is skipped, not attempted. The constraint lands when
+            // the plugin is installed and its own step has prepared the
+            // column, which is the order the design already intends.
+            if ('SET NULL' === strtoupper((string)$rel['action'])
+                && is_array($nullable)
+                && !in_array(
+                    strtolower($rel['column']),
+                    (array)($nullable[$child] ?? [])
+                )
             ) {
                 $done[$lname] = true;
                 continue;
@@ -699,7 +738,13 @@ class SchemaReconciler extends FOGBase
         $haveFks = self::constraintSnapshot();
         $have = self::snapshot();
         if (null !== $haveFks && null !== $have) {
-            $fkPlan = self::planConstraints($map, $have, $haveFks, $group);
+            $fkPlan = self::planConstraints(
+                $map,
+                $have,
+                $haveFks,
+                $group,
+                self::nullableSnapshot()
+            );
             $fkApplied = [];
             foreach ($fkPlan as $sql) {
                 if (false === self::$DB->query($sql)->error) {
@@ -721,9 +766,24 @@ class SchemaReconciler extends FOGBase
                 if (strlen($reason) > 200) {
                     $reason = substr($reason, 0, 197) . '...';
                 }
+                // 1452 and 1005/150 are different problems with different
+                // remedies, and until now both were reported with "Run
+                // bin/fk-orphan-scan.php to find the rows". For a structural
+                // refusal that scan returns zero rows and the admin has
+                // nowhere to go next -- the worst shape a diagnostic can
+                // take, because it looks like an answer.
+                //
+                //   1452  rows point at a parent that is not there. The scan
+                //         finds them and the sweep can remove them.
+                //   1005  the column itself cannot carry the constraint --
+                //   (150) its type differs from the parent's, or a SET NULL
+                //         is declared over a NOT NULL column. No row is
+                //         involved and no cleanup helps.
+                $structural = 1005 === (int)self::$DB->errorCode;
                 self::$_constraintFailures[] = [
                     'name' => $m[1] ?? $sql,
                     'reason' => $reason,
+                    'structural' => $structural,
                 ];
             }
             foreach ($fkApplied as $sql) {
@@ -735,13 +795,27 @@ class SchemaReconciler extends FOGBase
                 // that was never declared: FOG carries on relying on
                 // Route::deletemass() alone and no one finds out until the
                 // orphan does something visible.
+                $structuralCount = count(
+                    array_filter(
+                        self::$_constraintFailures,
+                        function ($failure) {
+                            return !empty($failure['structural']);
+                        }
+                    )
+                );
                 error_log(
                     sprintf(
                         '%s: %d %s. %s',
                         _('Schema reconcile'),
                         count(self::$_constraintFailures),
                         _('foreign key(s) could not be added'),
-                        _('Run bin/fk-orphan-scan.php to find the rows.')
+                        $structuralCount === count(self::$_constraintFailures)
+                            ? _(
+                                'All are structural (column type or'
+                                . ' nullability), not orphan rows --'
+                                . ' bin/fk-orphan-scan.php will report none.'
+                            )
+                            : _('Run bin/fk-orphan-scan.php to find the rows.')
                     )
                 );
                 foreach (self::$_constraintFailures as $failure) {
