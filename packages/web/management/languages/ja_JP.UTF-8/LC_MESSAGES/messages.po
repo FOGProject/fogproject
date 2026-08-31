@@ -9206,6 +9206,10 @@ msgid "Unable to connect to SSH"
 msgstr "接続に失敗しました"
 
 #, fuzzy
+msgid "Unable to connect to TFTP server over SSH"
+msgstr "接続に失敗しました"
+
+#, fuzzy
 msgid "Unable to connect to ssh"
 msgstr "接続に失敗しました"
 
