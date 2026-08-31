@@ -4159,13 +4159,6 @@ msgid "Import Partially Succeeded"
 msgstr "インポートに失敗しました"
 
 #, fuzzy
-msgid "Import Report"
-msgstr "レポートをインポートしますか？"
-
-msgid "Import Reports"
-msgstr "レポートをインポート"
-
-#, fuzzy
 msgid "Import Subnet Groups"
 msgstr "サブネットグループをインポート"
 
@@ -9008,9 +9001,6 @@ msgstr ""
 msgid "This section allows you to update"
 msgstr "このセクションでは更新を行えます"
 
-msgid "This section allows you to upload user defined reports that may not be a part of the base FOG install."
-msgstr ""
-
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
@@ -11872,6 +11862,13 @@ msgstr ""
 
 #~ msgid "Import Printers"
 #~ msgstr "プリンターをインポート"
+
+#, fuzzy
+#~ msgid "Import Report"
+#~ msgstr "レポートをインポートしますか？"
+
+#~ msgid "Import Reports"
+#~ msgstr "レポートをインポート"
 
 #~ msgid "Import Sites"
 #~ msgstr "サイトをインポート"

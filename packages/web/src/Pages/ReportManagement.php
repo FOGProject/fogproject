@@ -92,10 +92,10 @@ class ReportManagement extends FOGPage
      * precisely so that rendering a sidebar does not load fourteen classes,
      * and a `const REPORT_GROUP` on each would give that up for a label.
      *
-     * Anything not named here -- an uploaded report, a plugin's -- lands
-     * under Lists, which is what a FOG report has always been. A plugin that
-     * disagrees can move its entry with the SUB_MENULINK_DATA hook, the
-     * same seam it used to add the entry.
+     * A report not named here -- a plugin's -- lands under Lists, which is
+     * what a FOG report has always been. A plugin that disagrees can move
+     * its entry with the SUB_MENULINK_DATA hook, the same seam it used to
+     * add the entry.
      *
      * @var array
      */
@@ -233,10 +233,10 @@ class ReportManagement extends FOGPage
     /**
      * The label for one report, by name.
      *
-     * FALLS BACK TO THE OLD DERIVATION rather than to an empty entry. An
-     * uploaded report, or one a plugin drops in, is not in the map and must
-     * still get a menu entry -- and the entry it gets is exactly the one it
-     * got before this map existed, so nothing outside core changes.
+     * FALLS BACK TO THE OLD DERIVATION rather than to an empty entry. A
+     * report a plugin drops in is not in the map and must still get a menu
+     * entry -- and the entry it gets is exactly the one it got before this
+     * map existed, so nothing outside core changes.
      *
      * @param string $report the report name, e.g. 'pending mac list'
      *
@@ -545,104 +545,5 @@ class ReportManagement extends FOGPage
         set_time_limit(0);
         $this->name = _('Report Management');
         parent::__construct($this->name);
-    }
-    /**
-     * Allows the user to upload new reports if they created one.
-     *
-     * @return void
-     */
-    public function upload()
-    {
-        $this->title = _('Import Reports');
-
-        $buttons = self::makeButton(
-            'import-send',
-            _('Import'),
-            'btn btn-primary float-end'
-        );
-
-        $labelClass = 'col-sm-3 col-form-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'import',
-                _('Import Report')
-                . '<br/>('
-                . _('Max Size')
-                . ': '
-                . ini_get('post_max_size')
-                . ')'
-            ) => '<div class="input-group">'
-            . self::makeLabel(
-                'btn btn-info',
-                'import',
-                _('Browse')
-                . self::makeInput(
-                    'd-none',
-                    'report',
-                    '',
-                    'file',
-                    'import',
-                    '',
-                    true
-                )
-            )
-            . self::makeInput(
-                'form-control filedisp',
-                '',
-                '',
-                'text',
-                'reportfiledisp',
-                '',
-                false,
-                false,
-                -1,
-                -1,
-                '',
-                true
-            )
-            . '</div>'
-        ];
-
-        self::$HookManager->processEvent(
-            'IMPORT_REPORT_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo self::makeFormTag(
-            '',
-            'import-form',
-            $this->formAction,
-            'post',
-            'multipart/form-data',
-            true
-        );
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo $this->title;
-        echo '</h4>';
-        echo '<p class="form-text">';
-        echo _(
-            'This section allows you to upload user '
-            . 'defined reports that may not be a part of '
-            . 'the base FOG install.'
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-        echo '</form>';
     }
 }

@@ -97,6 +97,32 @@ class Plugin extends FOGController
         return rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS;
     }
     /**
+     * The same directory as bundledRoot(), spelled as the browser sees it.
+     *
+     * Plugin assets are fetched by URL, not read off disk, so the path a
+     * <script src> needs is relative to the document root -- management/ --
+     * rather than absolute on the filesystem. The two spellings are the same
+     * directory reached two ways, which is exactly why they belong beside
+     * each other: they have to move together, and nothing else in the tree
+     * would notice if they did not.
+     *
+     * This is correct for an EXTERNAL plugin as well. FOG_PLUGIN_DIR is
+     * outside the document root by design, so its assets are unreachable by
+     * URL -- syncAssetLinks() closes that by putting a symlink for every
+     * external plugin inside this directory. There is deliberately only one
+     * asset path, and it is this one.
+     *
+     * Relative rather than rooted at a leading slash: FOG is routinely served
+     * from a subdirectory (/fog/management/), and the alias an admin chooses
+     * is not knowable here.
+     *
+     * @return string with a trailing separator
+     */
+    public static function bundledWebRoot()
+    {
+        return '../lib/plugins/';
+    }
+    /**
      * True only if a REAL bundled plugin of this name exists.
      *
      * Not just is_dir(): syncAssetLinks() puts a symlink at

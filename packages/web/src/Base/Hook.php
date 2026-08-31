@@ -125,7 +125,16 @@ abstract class Hook extends FOGBase
             return;
         }
         $case = $cases[$node];
-        $base = "../lib/plugins/{$this->node}/js/";
+        // Not a literal path. The bundled plugin root is spelled out in
+        // several places and this is the only one the BROWSER sees, so a move
+        // that missed it would 404 every plugin's JS with nothing failing on
+        // the server -- Plugin owns both spellings, and
+        // plugin-asset-path.test.php pins them to the same directory.
+        //
+        // Also correct for a plugin installed under FOG_PLUGIN_DIR: those are
+        // symlinked into this root on every boot by Plugin::syncAssetLinks(),
+        // so there is one asset path rather than one per root.
+        $base = \FOG\Items\Plugin::bundledWebRoot() . "{$this->node}/js/";
         if (!empty($case['secondary'])) {
             $stub = "fog.{$this->node}.{$node}";
         } else {
