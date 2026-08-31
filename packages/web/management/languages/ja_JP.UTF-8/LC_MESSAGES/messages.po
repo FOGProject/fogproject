@@ -7181,6 +7181,10 @@ msgstr ""
 msgid "Schema row seed"
 msgstr ""
 
+#, fuzzy
+msgid "Schema shape"
+msgstr "サイトの更新に失敗しました"
+
 msgid "Schema sweep"
 msgstr ""
 
@@ -10127,6 +10131,9 @@ msgstr "日"
 msgid "deploy task occurs for it"
 msgstr "展開タスクが実行されたとき"
 
+msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
+msgstr ""
+
 msgid "directive in php.ini"
 msgstr "php.ini のディレクティブ"
 
@@ -10390,6 +10397,10 @@ msgstr ""
 msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
+#, php-format
+msgid "is `%s` but the manifest says `%s`"
+msgstr ""
+
 #, fuzzy
 msgid "is already being sent by another node"
 msgstr "MAC アドレスは別のホストで既に使用されています"
@@ -10397,6 +10408,9 @@ msgstr "MAC アドレスは別のホストで既に使用されています"
 #, fuzzy
 msgid "is already running with pid"
 msgstr "は既に次の PID で実行中です: "
+
+msgid "is missing -- a UNIQUE index the manifest declares"
+msgstr ""
 
 msgid "is new"
 msgstr "新規です"

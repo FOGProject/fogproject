@@ -81,7 +81,7 @@ foreach (array_slice($argv, 1) as $arg) {
 
 $db = $opts['db'] ?? '';
 if ($web === '' || $cmd === '' || $db === '') {
-    fwrite(STDERR, "usage: php bin/upgrade-rehearsal.php <web-root> <build|seed|upgrade|report|census> --db=D [--to=N] [--profile=P]\n");
+    fwrite(STDERR, "usage: php bin/upgrade-rehearsal.php <web-root> <build|seed|upgrade|report|census|shape> --db=D [--to=N] [--profile=P]\n");
     exit(2);
 }
 
@@ -682,6 +682,26 @@ switch ($cmd) {
             printf("    %-44s %s\n", $f['name'], $f['reason']);
         }
         exit(count($out['errors']) ? 1 : 0);
+
+    case 'shape':
+        // GH-1542. plan() repairs existence, never shape, so a drifted column
+        // type or an absent UNIQUE index survives every upgrade unreported.
+        // The rehearsal is the only place that can say how often that is
+        // actually true, because it is the only place a decade of real data
+        // meets the current manifest.
+        $drift = \FOG\Db\SchemaReconciler::shapeDrift();
+        printf("shape   %s (schema %d)\n", $db, $runner->version());
+        printf("  differences from the manifest: %d\n", count($drift));
+        foreach ($drift as $d) {
+            printf(
+                "    %-28s %-22s %s -> %s\n",
+                $d['table'],
+                $d['name'],
+                $d['expected'],
+                $d['actual']
+            );
+        }
+        exit(0);
 
     case 'report':
         // What the upgrade actually achieved, read from the database rather
