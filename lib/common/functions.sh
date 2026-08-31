@@ -665,6 +665,62 @@ applySystemHostname() {
     fi
     _ensureHostsEntry "$fqdn" "$short"
 }
+# Reports one node<->master maintenance POST that did not land, and says how.
+#
+# GH-575: the two calls below post to this node's own web tier, and what
+# actually reaches that web tier is not always what the installer aimed at.
+# Three things intercept it, and none of them is a connection failure -- curl
+# exits 0 every time:
+#
+#   * an inline filtering proxy answering for the address (the reporter's was
+#     an iboss appliance returning ERR_CONNECT_FAIL as an HTML block page),
+#   * this node's own web tier bouncing every request to ?node=schema when it
+#     cannot read the master's database -- a 308, which is what a storage node
+#     under SELinux did before fog.te grew its mysqld_port_t rule,
+#   * anything else in front of the server that answers 200 with markup.
+#
+# So both a status check and a body check are needed, and they catch different
+# halves: a 3xx has no markup in it, and an interception answering 200 has no
+# bad status. create_update_node.php outputs nothing at all on success -- both
+# of its branches fall off the end after save() -- so a '<' in the body is the
+# response of something that is not it.
+#
+# Not fatal, in either caller. By this point the node's shares, services and
+# FTP are configured, and both operations have a normal by-hand recovery in
+# Storage Management. Same choice _installNodeWebCert() makes when the master
+# declines to issue: say plainly what failed, then carry on.
+#
+# $1 status, $2 response body, $3 what the caller was trying to do.
+_reportNodePostFailure() {
+    local status="${1:-000}" body="$2" what="$3"
+    echo "Failed"
+    echo " * ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php"
+    case $status in
+        000)
+            # curl's own placeholder when no HTTP response arrived at all --
+            # refused, timed out, TLS handshake failed. Not an interception.
+            echo "   could not be reached, so ${what}."
+            ;;
+        *)
+            echo "   answered HTTP ${status}, so ${what}."
+            ;;
+    esac
+    case $status in
+        3*)
+            echo " * A redirect here usually means this node's own web tier cannot"
+            echo "   reach the master's database and is bouncing every request to"
+            echo "   the schema page -- check for SELinux denials with:"
+            echo "     ausearch -m avc -ts recent"
+            ;;
+    esac
+    if [[ $body == *'<'* ]]; then
+        echo " * The reply was markup, not this server's answer, so something on"
+        echo "   the network answered in its place. A filtering proxy in front of"
+        echo "   ${NET_fog_server_ip} is the usual cause; exempt this server from it."
+    fi
+    echo " * Fix the cause and re-run this installer, or set it by hand under"
+    echo "   Storage Management in the web UI."
+}
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
     # the two disagreed about where the app lives whenever webroot arrived
@@ -693,7 +749,7 @@ registerStorageNode() {
     # over ${DB_password}, which is the real control on the node<->master trust
     # bootstrap. Closing this properly needs the master to hand a node its
     # anchor out of band, which is a design change, not a flag change.
-    storageNodeExists=$(curl -s --noproxy '*' -X POST -d "ip=${NET_fog_server_ip}" -d "fogverified" -kL ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/check_node_exists.php -o -)
+    storageNodeExists=$(curl -s --noproxy '*' -X POST -d "ip=${NET_fog_server_ip}" -d "fogverified" -kL ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/check_node_exists.php -o -)
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
@@ -703,24 +759,17 @@ registerStorageNode() {
         # as the Name if this one is unusable or already taken.
         nodeRegName=$(_nodeRegistrationName)
         dots "Node being registered as ${nodeRegName}"
-        # -L and a status check, neither of which this call used to have while
-        # the existence check right above it already followed redirects.
+        # A status check and a body check, neither of which this call used to
+        # have. It DID have -L, and -L is why the check it already carried
+        # could not do its job: curl reports %{http_code} for the LAST transfer
+        # it made, so following a 308 to the schema page turned the very
+        # failure the check was written for into a green 200. Verified against
+        # a local 308 -> 200 server: with -L curl reports 200, without it 308.
         #
-        # Both post to THIS node's own web tier, which writes to the master's
-        # database. Anything that makes that web tier answer with a redirect
-        # therefore swallows the registration whole: the POST lands on the 3xx,
-        # nothing reaches create_update_node.php, and the unconditional "Done"
-        # below reported success anyway. That is exactly what a storage node
-        # under SELinux did before fog.te grew its mysqld_port_t rule -- the
-        # node could not read the master's database, so every page including
-        # this one 308'd to ?node=schema, the node never registered, and the
-        # first visible symptom was the master refusing it a certificate much
-        # later with "no storage node is registered at <ip>".
-        #
-        # Not fatal: the node's shares, services and FTP are already configured
-        # by this point, and registering by hand in the web UI is a normal
-        # recovery. Same choice _installNodeWebCert() makes when the master
-        # declines to issue -- say plainly what failed, then carry on.
+        # There is no legitimate redirect to lose by dropping it. The URL is
+        # built from ${WEB_url_proto} and ${WEB_root}, both of which this
+        # installer set itself, so a 3xx here is always the pathology and never
+        # the route. See _reportNodePostFailure for the three of them.
         #
         # The POST field names here are create_update_node.php's own -- they map
         # to storageNode DB columns and are NOT .fogsettings keys. So `sslpath=`,
@@ -728,21 +777,21 @@ registerStorageNode() {
         # the VALUES now come from ${PKI_client_cert_dir}, ${NET_interface} and
         # ${WEB_root}. Renaming the field names to match the settings would make
         # the master silently drop them.
-        regstatus=$(curl -s --noproxy '*' -k -L -o /dev/null -w '%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n ${STORAGE_image_share_path}|base64)" -d "ftppath=$(echo -n ${STORAGE_image_share_path}|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n ${PKI_client_cert_dir}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "bandwidth=1" -d "webroot=$(echo -n ${WEB_root}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php)
+        regbody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $nodeRegName|base64)" -d "path=$(echo -n ${STORAGE_image_share_path}|base64)" -d "ftppath=$(echo -n ${STORAGE_image_share_path}|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n ${PKI_client_cert_dir}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "bandwidth=1" -d "webroot=$(echo -n ${WEB_root}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php)
+        regstatus=${regbody##*$'\n'}
+        regbody=${regbody%$'\n'*}
         case $regstatus in
             2*)
-                echo "Done"
+                if [[ $regbody == *'<'* ]]; then
+                    _reportNodePostFailure "$regstatus" "$regbody" \
+                        "this node did not register itself with the master and will not appear in Storage Management"
+                else
+                    echo "Done"
+                fi
                 ;;
             *)
-                echo "Failed"
-                echo " * ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php"
-                echo "   answered HTTP ${regstatus:-000}, so this node did not register"
-                echo "   itself with the master and will not appear in Storage Management."
-                echo " * Add it by hand there, or fix the cause and re-run this installer."
-                echo "   A redirect (3xx) here usually means this node's own web tier"
-                echo "   cannot reach the master's database and is bouncing every request"
-                echo "   to the schema page -- check for SELinux denials with:"
-                echo "     ausearch -m avc -ts recent"
+                _reportNodePostFailure "$regstatus" "$regbody" \
+                    "this node did not register itself with the master and will not appear in Storage Management"
                 ;;
         esac
     else
@@ -755,8 +804,32 @@ updateStorageNodeCredentials() {
     # -k on purpose -- see registerStorageNode. This is called from the node
     # path before any anchor exists, and from the master path after one does;
     # the shared function has to work in the earlier of the two.
-    curl -s --noproxy '*' -k -X POST -d "nodePass" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}/maintenance/create_update_node.php
-    echo "Done"
+    # GH-575, and the half of that report the fix for registerStorageNode above
+    # never reached even though the two share an endpoint. This call had no -o,
+    # so whatever answered was written STRAIGHT to the installer's stdout, in
+    # the middle of the dotted line -- which is why the reporter's console read
+    #
+    #   Node being registered.....................<!doctype html>
+    #
+    # followed by a proxy's block page. Then it echoed "Done" regardless,
+    # because nothing looked at the status or at what came back.
+    credbody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "nodePass" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "user=$(echo -n ${SVC_user}|base64)" --data-urlencode "pass=$(echo -n ${SVC_password}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php)
+    credstatus=${credbody##*$'\n'}
+    credbody=${credbody%$'\n'*}
+    case $credstatus in
+        2*)
+            if [[ $credbody == *'<'* ]]; then
+                _reportNodePostFailure "$credstatus" "$credbody" \
+                    "this node's storage credentials were not written to the master"
+            else
+                echo "Done"
+            fi
+            ;;
+        *)
+            _reportNodePostFailure "$credstatus" "$credbody" \
+                "this node's storage credentials were not written to the master"
+            ;;
+    esac
 }
 # Mirrors fog_git_path/fog_update_channel/extraServerNames/servicelogs into
 # globalSettings so the GUI can show them without SSH. Like fogprogramdir's
@@ -943,7 +1016,7 @@ backupDB() {
     if [[ -n $dbhastables ]]; then
         [[ ! -d ${DB_backup_path}/fogDBbackups ]] && mkdir -p ${DB_backup_path}/fogDBbackups >>$error_log 2>&1
         local selfName=$(_servedCertName)
-        url="${WEB_url_proto}://${selfName}${WEB_root}/maintenance/backup_db.php"
+        url="${WEB_url_proto}://${selfName}${WEB_root}maintenance/backup_db.php"
         # %H, not %I: %I is the 12-hour clock with no AM/PM marker, so an
         # update run at 05:57 and one at 17:57 on the same day produced the
         # same filename and the second silently overwrote the first.
