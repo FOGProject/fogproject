@@ -44,6 +44,41 @@ if (!(isset($_POST['file'])
 $file = '';
 $lines = '';
 /**
+ * Re-labels FOG's own service-log timestamps into the viewer's display zone.
+ *
+ * FOG's service logs (Scheduler, Multicast, Image Replicator, ...) stamp
+ * every line via Service_Log_message(), which has no signed-in viewer to
+ * convert for and so always writes in the storage zone -- UTC once the
+ * storage boundary is crossed. This re-parses that exact stamp in the same
+ * zone it was written, then shows it in the requesting viewer's own display
+ * zone, same as every other date in the UI. A line that doesn't match
+ * (Apache, nginx, syslog, ...) is left untouched -- their own software chose
+ * whatever zone they carry, and this cannot know it.
+ *
+ * @param string $output raw log text, possibly spanning many lines.
+ *
+ * @return string
+ */
+function convertServiceLogTimestamps($output)
+{
+    return preg_replace_callback(
+        '/^\[(\d{2}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2} [ap]m)\]/m',
+        function ($matches) {
+            $stamp = \DateTime::createFromFormat(
+                'm-d-y g:i:s a',
+                $matches[1],
+                FOGCore::storageTimeZone()
+            );
+            if (!$stamp) {
+                return $matches[0];
+            }
+            $stamp->setTimezone(FOGCore::displayTimeZone());
+            return '['.$stamp->format('m-d-y g:i:s a').']';
+        },
+        $output
+    );
+}
+/**
  * Returns vals.
  *
  * @param int         $reverse     Log reverse or forward.
@@ -117,6 +152,7 @@ function vals($reverse, $HookManager, $lines, $file)
         );
     }
     fclose($fh);
+    $output = convertServiceLogTimestamps($output);
     if ($reverse) {
         $output = implode(
             "\n",
