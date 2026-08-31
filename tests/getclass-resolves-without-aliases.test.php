@@ -199,7 +199,13 @@ foreach ($dirs as $dir) {
     }
 }
 
-/** The 46 discovery-named classes under lib/, which carry their own aliases. */
+/**
+ * The discovery-named classes that used to live under lib/{pages,hooks,
+ * reports,events}. All 52 moved to src/<Bucket>/<Class>.php, so this finds
+ * nothing on a current tree -- it is kept because a webroot upgraded rather
+ * than laid fresh can still be carrying them, and a name that resolves there
+ * and nowhere else is exactly what this file exists to name.
+ */
 $libClasses = [];
 foreach (['pages', 'hooks', 'reports', 'events'] as $dir) {
     foreach (glob($web . '/lib/' . $dir . '/*.php') as $file) {
@@ -207,15 +213,23 @@ foreach (['pages', 'hooks', 'reports', 'events'] as $dir) {
     }
 }
 
-/** Plugin classes: global-namespace by design (ADR 0009), never aliased. */
+/**
+ * Plugin classes, which are PSR-4 exactly as core is: a plugin declares
+ * FOG\Plugins\<Segment>\<Bucket>\<Class> out of
+ * <plugin>/src/<Bucket>/<Class>.php (ADR 0035), and qualify() answers the
+ * SHORT name from that path.
+ *
+ * Keyed on the basename, because the short name is what a getClass() literal
+ * holds. This block used to match the pre-1.6 discovery suffixes, and that is
+ * a mistake worth naming: lib/plugins is FETCHED rather than tracked, so it
+ * is absent in CI and in a fresh clone -- the loop found no files, every
+ * plugin literal fell through to the class_exists() escape, and the check
+ * passed by never running. It only goes red on a tree that actually has
+ * plugins, which is to say on a real server and nowhere else.
+ */
 $pluginClasses = [];
-if (is_dir($web . '/lib/plugins')) {
-    $walk = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($web . '/lib/plugins'));
-    foreach ($walk as $file) {
-        if ($file->isFile() && preg_match('/\.(class|page|hook|report|event|task)\.php$/', $file->getFilename())) {
-            $pluginClasses[strtolower(preg_replace('/\.(class|page|hook|report|event|task)\.php$/', '', $file->getFilename()))] = true;
-        }
-    }
+foreach ((array)glob($web . '/lib/plugins/*/src/*/*.php') as $file) {
+    $pluginClasses[strtolower(basename($file, '.php'))] = true;
 }
 
 $unresolved = [];
