@@ -9977,3 +9977,59 @@ $this->schema[] = [
     . "audit trail records every impersonation either way; this controls only "
     . "whether the person is told.','1','Logging Settings')",
 ];
+// 399
+$this->schema[] = [
+    // Retire the stale `site` plugins row -- GH-1543.
+    //
+    // Step 334 already tried this and CANNOT succeed on an upgrade, which is
+    // the only path it exists for. Its gate reads `plugins`.`pLocation` and
+    // returns early when that is empty:
+    //
+    //     if ('' === $loc || 0 !== strncmp($loc, $bundled, strlen($bundled)))
+    //
+    // but `pLocation` is a RENAME of `pAnon3` (the CHANGE earlier in this
+    // file), and 1.5 never wrote `pAnon3` -- it declares the column in
+    // plugin.class.php's field map and assigns it nothing. So on every row
+    // carried across from 1.5 the value is the empty string, the first arm
+    // matches, and the DELETE is unreachable. Verified against a real 1.5.10
+    // database: the one `plugins` row has `pAnon3` of length 0.
+    //
+    // A step runs once, so 334 cannot be corrected in place -- anything
+    // already past it will never revisit it. Hence a new step, and one that
+    // reaches the same conclusion without `pLocation`.
+    //
+    // THE GATE IS THE TABLES, NOT THE FILESYSTEM. Step 332 migrates the
+    // plugin's rows into core's `sites` and then DROPS `site` and its
+    // association tables, but only when the migrated counts match exactly --
+    // when they disagree it keeps them deliberately. So `sites` present AND
+    // `site` absent is precisely "the migration ran and was believed", which
+    // is the condition under which the plugin's row is stale. If the counts
+    // disagreed, `site` still exists, this does nothing, and the row stays --
+    // which is the right answer, because an admin whose data did not migrate
+    // needs the plugin listed.
+    //
+    // Reading tables rather than the plugin directory also drops step 334's
+    // one genuine worry -- an unmounted external plugin root making every
+    // plugin look absent at once -- since no path is consulted at all. The
+    // plugin's code no longer ships: it was deleted from fog-plugins when
+    // core took over sites.
+    function () {
+        $has = function ($table) {
+            $row = self::$DB->query(
+                "SELECT COUNT(*) AS `n` FROM `information_schema`.`TABLES`"
+                . " WHERE `TABLE_SCHEMA` = DATABASE()"
+                . " AND LOWER(`TABLE_NAME`) = :t",
+                [],
+                [':t' => $table]
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            return (int)($row['n'] ?? 0) > 0;
+        };
+        if (!$has('sites') || $has('site')) {
+            return true;
+        }
+        self::$DB->query(
+            "DELETE FROM `plugins` WHERE LOWER(`pName`) = 'site'"
+        );
+        return true;
+    },
+];
