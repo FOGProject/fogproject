@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Boot\UbootTftpSync;
 use FOG\Router\Route;
 
 /**
@@ -322,6 +323,11 @@ class Task extends TaskType
         // log pane showed a canceled task as still running.
         if ($this->set('stateID', self::getCancelledState())->save()) {
             TaskLog::recordState($this);
+            // No existing event fires on cancel (unlike completion, which
+            // goes through HOST_TASKING_COMPLETE), so this is a direct call
+            // rather than a listener -- same reasoning as the materialize()
+            // call at task creation.
+            UbootTftpSync::remove($this->getHost());
         }
 
         return $this;

@@ -15,6 +15,7 @@ namespace FOG\Items;
 
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
+use FOG\Boot\UbootTftpSync;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -1357,6 +1358,14 @@ class Host extends FOGController
                     throw new \Exception(self::$foglang['FailedTask']);
                 }
                 $this->set('task', $Task);
+                // Best-effort: a wget-less U-Boot board can only find its
+                // task over TFTP (see UbootTftpSync), and this is what
+                // closes the gap between queuing and the board being
+                // rebooted right after. Never allowed to fail the task
+                // itself -- UbootTftpSync::materialize() swallows its own
+                // errors, and Service/TaskScheduler.php's reconcile() picks
+                // up anything this misses.
+                UbootTftpSync::materialize($this);
             }
             if ($TaskType->isSnapinTask) {
                 if ($deploySnapins === true) {

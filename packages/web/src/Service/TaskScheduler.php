@@ -13,6 +13,7 @@
 
 namespace FOG\Service;
 
+use FOG\Boot\UbootTftpSync;
 use FOG\Router\Route;
 
 /**
@@ -354,6 +355,12 @@ class TaskScheduler extends FOGService
                     )
                 );
             }
+            // Self-healing pass for wget-less U-Boot boards' TFTP files --
+            // see UbootTftpSync's class doc. It never throws (a failure here
+            // is logged through logFault(), not this service's own output),
+            // so it needs no try/catch of its own beyond the one already
+            // wrapping this whole method.
+            UbootTftpSync::reconcile();
         } catch (\Exception $e) {
             self::outall($e->getMessage());
         }

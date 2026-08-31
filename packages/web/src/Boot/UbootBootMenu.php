@@ -13,6 +13,7 @@
 
 namespace FOG\Boot;
 
+use FOG\Items\Host;
 use FOG\Items\StorageNode;
 use FOG\Router\Route;
 
@@ -43,9 +44,16 @@ use FOG\Router\Route;
  *     different tree adds `fdt` to their own bootcmd.
  *   - Choose a load address. Those are per-board and belong in the U-Boot
  *     environment.
- *   - Serve U-Boot itself, or write pxelinux.cfg files. FOG stays stateless:
- *     the board fetches this endpoint by MAC and gets an answer computed from
- *     the database, so nothing on disk can disagree with what is queued.
+ *   - Serve U-Boot itself.
+ *
+ * service/uboot/boot.php answers a live HTTP request the way this class
+ * always has: computed from the database at the moment a board asks, nothing
+ * stored. A board with no `wget` cannot ask that question at all, so
+ * UbootTftpSync separately materializes this same rendered output as a
+ * pxelinux.cfg/01-<mac> file for U-Boot's TFTP-native `pxe get` to find --
+ * see that class for the write/cleanup lifecycle. renderForHost() below is
+ * what makes that possible: the identical decision-and-syntax path this
+ * class already runs for the HTTP request, minus the HTTP response.
  *
  * @category UbootBootMenu
  * @package  FOGProject
@@ -67,13 +75,51 @@ class UbootBootMenu extends BootMenuBase
      * @var string
      */
     private $_initrdUrl;
+    /**
+     * The rendered extlinux document, once built
+     *
+     * @var string
+     */
+    private $_output = '';
+
+    /**
+     * Render the extlinux document for a specific host, without an HTTP
+     * response.
+     *
+     * The same decisions and syntax service/uboot/boot.php serves live,
+     * computed here for UbootTftpSync to write to disk instead of a
+     * request. self::$Host is process-global (FOGBase::$Host), so this
+     * saves and restores whatever it held before -- a caller looping over
+     * many hosts must not have host N+1's render see host N's Host object.
+     *
+     * @param Host $Host the host to render for
+     *
+     * @return string
+     */
+    public static function renderForHost(Host $Host)
+    {
+        $previousHost = self::$Host;
+        self::$Host = $Host;
+        try {
+            $menu = new self(false);
+
+            return $menu->_output;
+        } finally {
+            self::$Host = $previousHost;
+        }
+    }
 
     /**
      * Builds and emits the config for whatever this host should do next.
      *
+     * @param bool $emitOutput echo the rendered document and exit(), the
+     *                         way a live HTTP request needs -- false is
+     *                         renderForHost()'s path, which wants the
+     *                         string back with the process left running
+     *
      * @return void
      */
-    public function __construct()
+    public function __construct($emitOutput = true)
     {
         parent::__construct();
 
@@ -173,12 +219,24 @@ class UbootBootMenu extends BootMenuBase
             $this->_storage
         );
 
-        if (self::$Host->isValid() && self::$Host->get('task')->isValid()) {
-            $this->getTasking();
+        try {
+            if (self::$Host->isValid() && self::$Host->get('task')->isValid()) {
+                $this->getTasking();
+            } else {
+                $this->printDefault();
+            }
+        } catch (UbootRenderHalted $e) {
+            // _printImageIgnored() already built $this->_output; getTasking()
+            // has no return after calling it (see that hook's own comment),
+            // so this is what stops it here instead of running on into
+            // _printTasking() and overwriting a single-document format with
+            // a second, contradictory one.
+            unset($e);
+        }
+        if ($emitOutput) {
+            echo $this->_output;
             exit();
         }
-        $this->printDefault();
-        exit();
     }
 
     /**
@@ -209,7 +267,7 @@ class UbootBootMenu extends BootMenuBase
             $out[] = '    ' . $line;
         }
 
-        echo implode("\n", $out) . "\n";
+        $this->_output = implode("\n", $out) . "\n";
     }
 
     /**
@@ -258,7 +316,7 @@ class UbootBootMenu extends BootMenuBase
          * whichever it saw first. Emitting both would make the ignore flag
          * either meaningless or silently authoritative depending on order.
          */
-        exit();
+        throw new UbootRenderHalted();
     }
 
     /**
