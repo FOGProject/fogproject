@@ -7229,6 +7229,10 @@ msgstr ""
 msgid "Schema row seed"
 msgstr ""
 
+#, fuzzy
+msgid "Schema shape"
+msgstr "Aggiornamento della stampante non riuscito"
+
 msgid "Schema sweep"
 msgstr ""
 
@@ -10196,6 +10200,9 @@ msgstr "giorno"
 msgid "deploy task occurs for it"
 msgstr "attività di distribuzione avviene per esso"
 
+msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
+msgstr ""
+
 msgid "directive in php.ini"
 msgstr "direttiva in php.ini"
 
@@ -10455,12 +10462,19 @@ msgstr ""
 msgid "instead, which uses iPXE's built-in NIC drivers rather than the firmware's. Arm64 clients use the files under secureboot/arm64-efi/"
 msgstr ""
 
+#, php-format
+msgid "is `%s` but the manifest says `%s`"
+msgstr ""
+
 #, fuzzy
 msgid "is already being sent by another node"
 msgstr "L'indirizzo MAC è già in uso da un altro host"
 
 msgid "is already running with pid"
 msgstr "è già in esecuzione con pid"
+
+msgid "is missing -- a UNIQUE index the manifest declares"
+msgstr ""
 
 msgid "is new"
 msgstr "è nuovo"
