@@ -124,7 +124,7 @@ $classes = [
 
 /*
  * OUAssociation is the one name here that a plugin owns
- * (lib/plugins/ou/class/ouassociation.class.php), and plugins are FETCHED by
+ * (lib/plugins/ou/src/Items/OUAssociation.php), and plugins are FETCHED by
  * bin/fetch-plugins.sh rather than tracked -- so lib/plugins does not exist
  * at all in a fresh clone, a fresh worktree, or on a CI runner. Failing on it
  * there says "a class lost its path to Host" when the truth is "nobody ran

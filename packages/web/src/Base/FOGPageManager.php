@@ -281,20 +281,16 @@ class FOGPageManager extends FOGBase
     public function loadPageClasses()
     {
         global $node;
-        $extension = '.page.php';
-        // Core pages are PSR-4 files under src/Pages; plugin pages keep the
-        // <plugin>/pages/<name>.page.php shape fileitems() reads. Two sources
-        // because there are now two file shapes, not because core is special.
+        // Core pages are src/Pages/<Class>.php and a plugin's are
+        // <plugin>/src/Pages/<Class>.php -- one shape, two roots. Two calls
+        // because they are two roots, not because core is special (ADR 0035).
         $files = self::fastmerge(
             self::coreitems('Pages'),
-            self::fileitems(
-                $extension,
-                'pages'
-            )
+            self::pluginitems('Pages')
         );
 
         foreach ($files as &$file) {
-            $className = self::classFromDiscoveredFile($file, $extension);
+            $className = self::classFromDiscoveredFile($file);
             if ($node == 'report') {
                 $f = filter_input(INPUT_GET, 'f');
                 if ($f) {
@@ -340,7 +336,13 @@ class FOGPageManager extends FOGBase
             // everyone, and the only way out is a shell. Observed exactly
             // that way while verifying the PSR-4 move -- a probe plugin
             // uploaded through Plugin Management, 500 on every page, and the
-            // fix was rm plus clearing /opt/fog/cache/filelist.*.json.
+            // fix was rm plus clearing /opt/fog/cache/pluginsrc.*.json.
+            //
+            // Narrower now than it was: the class name is DERIVED from the
+            // path (ADR 0035) rather than looked up from a basename, so a
+            // filename and a class that disagree can no longer name a class
+            // no file declares. What is left is a file that declares
+            // something else entirely, which is what these two guards report.
             //
             // Skipped and logged rather than swallowed, and error_log() for
             // the reasons startClassFromFiles() sets out: a page that does
@@ -367,9 +369,10 @@ class FOGPageManager extends FOGBase
                         . ' declare a class named after the file: a core page'
                         . ' is src/Pages/<Class>.php declaring'
                         . ' FOG\Pages\<Class>, and a plugin page is'
-                        . ' <plugin>/pages/<name>.page.php declaring'
-                        . ' FOG\Plugins\<Plugin>\<Name>, where <Plugin> is'
-                        . ' the plugin\'s own directory name. See ADR 0013.',
+                        . ' <plugin>/src/Pages/<Class>.php declaring'
+                        . ' FOG\Plugins\<Segment>\Pages\<Class>, where'
+                        . ' <Segment> lowercases to the plugin\'s own'
+                        . ' directory name. See ADR 0035.',
                         $file,
                         $className
                     )

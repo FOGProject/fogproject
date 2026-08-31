@@ -40,22 +40,15 @@ class ReportManagement extends FOGPage
      */
     public static function loadCustomReports()
     {
-        $extension = '.report.php';
-        // Core reports are PSR-4 files under src/Reports; plugin reports keep
-        // the <plugin>/reports/<name>.report.php shape.
+        // Core reports are src/Reports/<Class>.php and a plugin's are
+        // <plugin>/src/Reports/<Class>.php -- one shape, one bucket name,
+        // two roots (ADR 0035).
         $files = self::fastmerge(
             self::coreitems('Reports'),
-            self::fileitems(
-                $extension,
-                'reports'
-            )
+            self::pluginitems('Reports')
         );
-        $strlen = -strlen($extension);
         foreach ($files as $i => &$file) {
-            $base = basename($file);
-            $base = substr($base, $strlen) === $extension
-                ? substr($base, 0, $strlen)
-                : basename($base, '.php');
+            $base = basename($file, '.php');
             // Lowercased because this name is a contract in three directions
             // and every one of them is lowercase: the menu label, the base64
             // `f` parameter loadPageClasses() decodes back into a class name,
@@ -63,7 +56,10 @@ class ReportManagement extends FOGPage
             // out lowercase for free -- the file was audit_report.report.php.
             // The PSR-4 filename is Audit_Report.php, so the case has to be
             // normalized here or the same report answers to a different URL
-            // and a different permission node than it did before.
+            // and a different permission node than it did before. A plugin's
+            // report is normalized by the same line, which is why plugin
+            // report classes keep core's underscored spelling (LDAP_Report)
+            // rather than being renamed with the rest of the move.
             $files[$i] = strtolower(
                 str_replace(
                     '_',

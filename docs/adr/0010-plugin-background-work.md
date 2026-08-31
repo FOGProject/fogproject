@@ -4,6 +4,14 @@
 
 accepted
 
+> **Amended 2026-08-31 by [ADR 0035](0035-a-plugin-is-laid-out-like-core.md).**
+> The decision below — one core daemon runs plugin-declared background work,
+> on the plugin's own lifecycle — stands unchanged. Only where those task
+> files *live* has moved: `<plugin>/tasks/*.task.php` is now
+> `<plugin>/src/Tasks/<Class>.php` declaring
+> `FOG\Plugins\<Segment>\Tasks\<Class>`, and the suffix regex this ADR
+> extended no longer exists. Both spots are marked below.
+
 ## Context
 
 ADR 0009 gave plugins a lifecycle independent of this repository. The extension
@@ -53,6 +61,11 @@ declared by active, installed plugins. **Plugins never ship a systemd unit.**
 
 ### 1. The seam is `<plugin>/tasks/*.task.php`
 
+> **Superseded by ADR 0035:** the seam is now
+> `<plugin>/src/Tasks/<Class>.php`, declaring
+> `FOG\Plugins\<Segment>\Tasks\<Class>`. What a task *is* — the base class,
+> the two properties and `run()` — did not change.
+
 A class extending a new `PluginTask` base, declaring:
 
 - `$interval` — seconds between runs
@@ -62,6 +75,12 @@ A class extending a new `PluginTask` base, declaring:
 `task` joins `report|event|class|hook|page` in the autoloader's file-scan regex,
 so the directory layout stays uniform with every other plugin sub-directory and
 discovery costs nothing new.
+
+> **Superseded by ADR 0035.** There is no file-scan regex any more. `Tasks`
+> is one of the five enumerated buckets, discovered by
+> `FOGBase::pluginitems('Tasks')` exactly as core's own buckets are — so the
+> claim that the layout stays uniform with the rest of the plugin held, and
+> now holds against core as well.
 
 ### 2. The lifecycle is the plugin's, not systemd's
 
@@ -191,6 +210,11 @@ avoid.
   `spl_autoload_extensions()`. The file-list cache is keyed on the scan roots,
   not the regex, so an existing install picks the new extension up when the
   300-second TTL expires — no flush, no migration.
+  **Superseded by ADR 0035:** all three of those mechanisms are gone. A task
+  class is resolved by deriving its path from its name, and discovered by
+  listing `<plugin>/src/Tasks/`. The upgrade note is the opposite one — the
+  installer now *drops* the stale caches, because a list built under the old
+  layout names files that no longer exist.
 - `packages/service` is not carried by `copybacktrunk.sh`; deploying the runner
   is a separate step from deploying the web tier.
 - The runner is itself a new candidate for the "active but silent" failure it

@@ -2,41 +2,38 @@
 /**
  * A plugin file may not shadow a core class of the same name.
  *
- * Initiator::autoload() maps a lowercased basename to a path. Two files
- * claiming one key used to be resolved by whichever the directory walk
- * reached first -- readdir order, which differs per install, so the same
- * code resolves to a different file on two servers with nothing to say so.
- * That is the usertracking failure recorded in _scanClassFiles(), and it had
- * a second edge: external plugins under FOG_PLUGIN_DIR already lost to core
- * (BASEPATH is scanned first and first-wins did the rest), but the BUNDLED
- * plugins live inside BASEPATH at lib/plugins, so they shared one directory
- * walk with lib/fog and the winner was a coin flip. A bundled plugin
- * shipping class/authorization.class.php could replace core's Authorization
- * on some installs and not others.
+ * The original failure: Initiator::autoload() mapped a lowercased basename to
+ * a path, and two files claiming one key were resolved by whichever the
+ * directory walk reached first -- readdir order, which differs per install,
+ * so the same code resolved to a different file on two servers with nothing
+ * to say so. A bundled plugin shipping class/authorization.class.php could
+ * replace core's Authorization on some installs and not others.
  *
- * autoload() now prefers the core file and logs the collision. This test
- * pins that, because the rule is invisible until it matters and its failure
- * mode is a class that silently is not the class the caller meant.
+ * That basename map is gone. Core is PSR-4 under src/ and a plugin is PSR-4
+ * under <plugin>/src/ (ADR 0013, ADR 0035), so both sides are DERIVED from a
+ * class name and there is no shared key space left to collide in. What
+ * replaced the ordering rule is three separate things, and they are not
+ * interchangeable:
  *
- * It matters right now for a specific reason. Sites are moving out of the
- * site plugin and into core, and core's Site cannot be declared while the
- * plugin's site/class/site.class.php is still on disk without exactly this
- * collision. Core winning is what makes the changeover a decision rather
- * than a coin flip -- and it is why core's Site lands in the same commit as
- * the FOG_PLUGINS_VERSION bump that removes the plugin's copy, not before.
+ *   1. Namespace separation. A plugin's classes are all under FOG\Plugins\,
+ *      so its ProbeAlpha and core's are two different classes that both
+ *      exist. tests/psr4-bridge.test.php holds this.
+ *   2. ORDER, for the BARE spelling, which is the one flat name space core
+ *      and plugins still share. autoload() answers a bare core name with a
+ *      refusal and RETURNS rather than falling through to the plugin roots,
+ *      and FOGBase::qualify() consults core's map before the plugin one.
+ *      tests/psr4-bridge.test.php and tests/plugin-namespace.test.php hold
+ *      those two halves.
+ *   3. Uniqueness WITHIN src/, which is what this file holds. Two core files
+ *      folding to one bare key cannot be ordered -- there is no honest basis
+ *      to prefer one core file over another -- so srcFileList() refuses to
+ *      serve either and says so. tests/psr4-layout.test.php refuses the same
+ *      thing in the tree; this is the runtime half, because a hand-placed
+ *      file never went through that gate.
  *
- * Scope note, once core moves to src/ (docs/composer-psr4-plan.md). This test
- * keeps guarding the classMap's core-wins rule, and that rule keeps mattering:
- * the classMap still holds the 46 discovery-named files and the generated
- * config.class.php, none of which move. What it stops covering is the classes
- * that DO move, because a core file that is no longer in the map cannot win a
- * collision inside it -- for those, the guarantee is provided by ORDER
- * instead, and tests/psr4-bridge.test.php is the half that holds it.
- *
- * Two halves, then, and they are not interchangeable: this one says the map
- * prefers core, that one says the map is not consulted for a core class in
- * the first place. Deleting either leaves a plugin able to shadow some part
- * of core.
+ * It also carries the four site membership models (section 3), which landed
+ * here because moving Site out of the site plugin and into core was the
+ * change that first made the shadowing rule load-bearing.
  *
  * DB-free, same shape as autoload.test.php: the Initiator constructor only
  * registers the autoloader, so the cache dir is redirected somewhere
@@ -99,156 +96,93 @@ function check($label, $cond, array &$failures, &$checks)
 }
 
 /*
- * 1. The rule itself. _isPluginPath() is private, so it is reached through
- *    Reflection rather than being made public for a test -- the classifier
- *    is an autoloader implementation detail and should stay one.
- */
-$m = new \ReflectionMethod('Initiator', '_isPluginPath');
-$m->setAccessible(true);
-$isPlugin = function ($path) use ($m) {
-    return $m->invoke(null, $path);
-};
-
-$base = rtrim(BASEPATH, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-$cases = [
-    // path                                          => is it plugin code?
-    $base . 'src/Items/Host.php'                 => false,
-    $base . 'src/Items/Site.php'                 => false,
-    $base . 'src/Router/Route.php'             => false,
-    $base . 'lib/pages/hostmanagement.page.php'      => false,
-    $base . 'lib/plugins/site/class/site.class.php'  => true,
-    $base . 'lib/plugins/x/class/authorization.class.php' => true,
-    FOG_PLUGIN_DIR . '/mine/class/host.class.php'    => true,
-];
-foreach ($cases as $path => $expected) {
-    check(
-        '_isPluginPath(' . str_replace($base, '', $path) . ') is '
-        . ($expected ? 'true' : 'false'),
-        $isPlugin($path) === $expected,
-        $failures,
-        $checks
-    );
-}
-
-/*
- * 2. A path that merely CONTAINS the word plugins is not plugin code. The
- *    classifier decides whether a file may shadow a core class, so a
- *    substring match here would hand that right to any core file whose name
- *    happened to mention plugins -- src/Managers/PluginManager.php, for one.
- */
-check(
-    'src/Managers/PluginManager.php is core, not plugin',
-    $isPlugin($base . 'src/Managers/PluginManager.php') === false,
-    $failures,
-    $checks
-);
-check(
-    'lib/pages/pluginmanagement.page.php is core, not plugin',
-    $isPlugin($base . 'lib/pages/pluginmanagement.page.php') === false,
-    $failures,
-    $checks
-);
-
-/*
- * 3. The rule as autoload() actually applies it, driven with a synthetic
- *    file list so BOTH branches are reached deterministically. Walk order is
- *    the whole problem here, and it is exactly the thing a test cannot
- *    control by putting real files on disk -- hence Reflection on the two
- *    memoised statics rather than a fixture directory.
+ * 1. Two files under src/ claiming one bare key. Neither is served, and the
+ *    collision is logged: a bare name that silently resolves to whichever
+ *    file was walked first is the whole failure this file is named after,
+ *    and refusing is the only honest answer when both candidates are core.
  *
- *    error_log output is redirected for the duration: the collisions below
- *    are deliberate, and a passing test should not leave four alarming lines
- *    in the tester's PHP log.
+ *    Driven against a THROWAWAY src/ tree, because the assertion is about
+ *    what happens when the rule is broken and the repository's own src/ must
+ *    never hold a file that breaks it -- section 2 is the check that says so.
  */
-$fileList = new \ReflectionProperty('Initiator', 'fileList');
-$fileList->setAccessible(true);
-$classMap = new \ReflectionProperty('Initiator', 'classMap');
-$classMap->setAccessible(true);
-$heldList = $fileList->getValue();
-
 $errLog = ini_get('error_log');
 $quiet = $tmp . '/collisions.log';
 ini_set('error_log', $quiet);
 
-$build = function (array $list) use ($fileList, $classMap) {
-    $fileList->setValue(null, $list);
-    $classMap->setValue(null, null);
-    // Any name will do -- the map is built before the lookup.
-    Initiator::autoload('__does_not_exist__');
-    return $classMap->getValue();
-};
+@mkdir($tmp . '/probe/src/Items', 0700, true);
+@mkdir($tmp . '/probe/src/Managers', 0700, true);
+file_put_contents(
+    $tmp . '/probe/src/Items/Dup.php',
+    "<?php\nnamespace FOG\\Items;\nclass Dup { }\n"
+);
+file_put_contents(
+    $tmp . '/probe/src/Managers/Dup.php',
+    "<?php\nnamespace FOG\\Managers;\nclass Dup { }\n"
+);
+file_put_contents(
+    $tmp . '/probe/src/Items/Solo.php',
+    "<?php\nnamespace FOG\\Items;\nclass Solo { }\n"
+);
 
-/*
- * The core half of the collision is a DISCOVERY-named file, deliberately.
- * A src/ file is not in the classMap at all -- the map is keyed on a
- * basename with one of the six *.<type>.php suffixes stripped, and
- * src/Items/Site.php has none of them -- so a src/ path here would key as
- * "site.php", collide with nothing, and turn this into a test that passes
- * without exercising the rule. The classes that still live in the map are
- * exactly the ones this rule still protects: the 46 discovery-named files
- * and the generated config.class.php. For the moved classes the guarantee
- * is ORDER, and tests/psr4-bridge.test.php holds that half.
- */
-$corePath = $base . 'lib/pages/sitemanagement.page.php';
-$bundled = $base . 'lib/plugins/site/class/sitemanagement.class.php';
-$external = FOG_PLUGIN_DIR . '/mine/class/sitemanagement.class.php';
-
-$order = [
-    'bundled plugin walked first' => [$bundled, $corePath],
-    'core walked first' => [$corePath, $bundled],
-    'external plugin walked first' => [$external, $corePath],
-];
-foreach ($order as $label => $list) {
-    $map = $build($list);
-    check(
-        "core wins when the $label",
-        ($map['sitemanagement'] ?? null) === $corePath,
-        $failures,
-        $checks
-    );
-}
-
-// Two core files stay first-wins. Deliberately NOT ordered: there is no
-// honest basis to prefer one core file over another, and pretending there is
-// would hide the rename that actually fixes it.
-$map = $build([$base . 'lib/fog/dup.class.php', $base . 'lib/pages/dup.page.php']);
+// Driven in a SUBPROCESS against a copied init.php. Initiator derives
+// BASEPATH from its own file location and BASEPATH is a constant, so the
+// only way to point srcFileList() at a different src/ is to run a second
+// Initiator -- the same technique psr4-bridge.test.php uses, for the same
+// reason. This process keeps the real tree, which section 2 then checks.
+@mkdir($tmp . '/probe/commons', 0700, true);
+copy($root . '/commons/init.php', $tmp . '/probe/commons/init.php');
+$probe = <<<'PROBE'
+<?php
+define('FOG_CACHE_DIR', $argv[1] . '/cache');
+define('FOG_LOG_DIR', $argv[1] . '/log');
+define('FOG_PLUGIN_DIR', $argv[1] . '/extplugins');
+ini_set('log_errors', '1');
+ini_set('error_log', $argv[2]);
+require $argv[1] . '/probe/commons/init.php';
+new Initiator();
+$map = Initiator::srcFileList();
+echo json_encode(['dup' => isset($map['dup']), 'solo' => isset($map['solo'])]);
+PROBE;
+file_put_contents($tmp . '/probe.php', $probe);
+$out = (string)shell_exec(
+    escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg($tmp . '/probe.php')
+    . ' ' . escapeshellarg($tmp) . ' ' . escapeshellarg($quiet) . ' 2>/dev/null'
+);
+$res = json_decode($out, true);
 check(
-    'two core files keep first-wins',
-    ($map['dup'] ?? null) === $base . 'lib/fog/dup.class.php',
+    'a name two files under src/ both claim is served to nobody',
+    is_array($res) && $res['dup'] === false,
     $failures,
     $checks
 );
-
-// Every collision above must have been reported. A silent shadow is the
-// failure this whole mechanism exists to prevent, so an unlogged one is a
-// bug even when the resolution is right.
-$logged = is_readable($quiet) ? file_get_contents($quiet) : '';
 check(
-    'each collision was logged',
-    substr_count($logged, 'two files claim the class name') === 4,
+    'and the rest of the tree is unaffected',
+    is_array($res) && $res['solo'] === true,
     $failures,
     $checks
 );
-
+$logged = is_readable($quiet) ? (string)file_get_contents($quiet) : '';
+check(
+    'the collision was logged -- a silent shadow is the failure this whole '
+    . 'mechanism exists to prevent',
+    strpos($logged, 'two files under src/ claim the class name "dup"') !== false,
+    $failures,
+    $checks
+);
 ini_set('error_log', (string)$errLog);
-$fileList->setValue(null, $heldList);
-$classMap->setValue(null, null);
 
 /*
- * 4. The shipped tree still has no colliding basenames. This is the rule the
- *    precedence above is a backstop for, not a replacement of: two CORE files
- *    colliding are still unordered, and the only fix for those is a rename.
+ * 2. The shipped tree has no colliding names -- neither within src/, which
+ *    is the rule above, nor between two plugins, which is legal but makes
+ *    the SHORT spelling ambiguous and is reported for that reason.
  */
 $seen = [];
 $collisions = [];
-foreach (Initiator::classFileList() as $path) {
-    $key = strtolower(
-        preg_replace(
-            '#\.(report|event|class|hook|page|task)\.php$#',
-            '',
-            basename($path)
-        )
-    );
+foreach (Initiator::srcFileList() as $key => $path) {
+    $seen[$key] = $path;
+}
+foreach (Initiator::pluginFileList() as $path) {
+    $key = strtolower(basename($path, '.php'));
     if (isset($seen[$key])) {
         $collisions[$key] = [$seen[$key], $path];
         continue;
@@ -256,7 +190,7 @@ foreach (Initiator::classFileList() as $path) {
     $seen[$key] = $path;
 }
 check(
-    'no colliding basenames in the scanned tree'
+    'no plugin file claims a bare name core already uses'
     . (count($collisions)
         ? ' (found: ' . implode(', ', array_keys($collisions)) . ')'
         : ''),
@@ -266,7 +200,7 @@ check(
 );
 
 /*
- * 5. The four site membership models resolve and are wired to the tables
+ * 3. The four site membership models resolve and are wired to the tables
  *    schema step 331 creates. Cheap, and it catches the two mistakes that
  *    would otherwise surface as an empty result set rather than an error:
  *    a class name that does not match its filename, and a databaseFields

@@ -681,23 +681,22 @@ abstract class FOGBase
         if (isset($map[$key])) {
             return $map[$key];
         }
-        // Then the plugins, which are namespaced too now -- FOG\Plugins\
-        // <Plugin>\<Class>. Same problem, same shape of answer: roughly 150
-        // getClass('X') literals live inside the plugins themselves, discovery
-        // derives a bare name from basename($file), and a plugin model reaches
-        // the REST API as the lowercase string the plugin pushed into
+        // Then the plugins, which are laid out and namespaced exactly as core
+        // is -- FOG\Plugins\<Segment>\<Bucket>\<Class> (ADR 0035). Same
+        // problem, same shape of answer: roughly 150 getClass('X') literals
+        // live inside the plugins themselves, and a plugin model reaches the
+        // REST API as the lowercase string the plugin pushed into
         // Route::$validClasses through API_VALID_CLASSES. One lookup here
         // serves all of them.
         //
         // Core is consulted FIRST and that order is load-bearing, not
-        // stylistic: it is what stops a plugin answering a core name. Before
-        // plugins were namespaced the same guarantee came from autoload()
-        // resolving src/ ahead of the plugin roots; this preserves it one
-        // layer up, where the name is still a string.
+        // stylistic: it is what stops a plugin answering a core name. Both
+        // sides now have a namespace of their own, so the only place they can
+        // still collide is the BARE spelling -- which is this map's key, so
+        // this is the one place the collision has to be decided.
         //
-        // A plugin still in the global namespace produces no entry in this map
-        // at all (Initiator reads the declaration, it does not assume one), so
-        // it falls through and resolves by its bare name exactly as before.
+        // A name in neither map falls through untouched, which is what keeps
+        // getClass('DateTime') and the like working.
         return \Initiator::pluginShortMap()[$key] ?? $class;
     }
 
@@ -4705,26 +4704,23 @@ abstract class FOGBase
     /**
      * Starts the class based on the filename passed.
      *
-     * @param array  $files     The array of files.
-     * @param string $extension The discovery extension, e.g. '.hook.php'.
+     * @param array $files The array of files.
      *
      * @return void
      */
-    public static function startClassFromFiles($files, $extension)
+    public static function startClassFromFiles($files)
     {
         foreach ($files as &$file) {
-            // Derives the FQCN for a core file under src/ and the bare name
-            // for a plugin's, which is what the two shapes respectively
-            // answer to. This is also the short circuit -- a core class
-            // loaded under its namespaced name does not answer to its bare
-            // basename now that the global aliases are gone, so deriving it
-            // bare here would stop short-circuiting for every core file.
-            $className = self::classFromDiscoveredFile($file, $extension);
+            // Derives the FQCN from the path -- FOG\Hooks\<Class> for core,
+            // FOG\Plugins\<Segment>\<Bucket>\<Class> for a plugin. That is
+            // also the short circuit below: neither answers to a bare
+            // basename now that the global aliases are gone (ADR 0013 sec 2).
+            $className = self::classFromDiscoveredFile($file);
             if (class_exists($className, false)) {
                 continue;
             }
             // The file list is a TTL-cached snapshot (Initiator::
-            // classFileList), so it is ALLOWED to be stale -- that is the
+            // pluginFileList), so it is ALLOWED to be stale -- that is the
             // documented design, and forgetClassFileList() exists because of
             // it. This was the one consumer that treated staleness as fatal:
             // a file named by the cache and since removed produced an
@@ -4824,13 +4820,11 @@ abstract class FOGBase
      * Every core class file in one src/ bucket.
      *
      * The core half of discovery. Pages, hooks, reports and events used to be
-     * found by fileitems() like everything else, because they sat under
-     * lib/<dir>/ with a *.<type>.php name that both the scan regex in
-     * Initiator::_scanClassFiles() and fileitems()' own path regex could see.
-     * They are PSR-4 files under src/<Bucket>/<Class>.php now, so neither
-     * regex matches them and fileitems() cannot return them at all -- it is
-     * left serving the plugin roots, which is the only place that shape still
-     * exists (ADR 0009).
+     * found by a filename suffix -- lib/<dir>/<name>.<type>.php, matched by a
+     * regex over a recursive scan of the whole tree. They are PSR-4 files
+     * under src/<Bucket>/<Class>.php now, so the bucket directory IS the
+     * question discovery is asking and there is nothing to pattern-match.
+     * pluginitems() below is the same thing for a plugin (ADR 0035).
      *
      * Read off Initiator::srcFileList() rather than by walking the bucket:
      * that map is already built, already cached on its own TTL and already
@@ -4853,156 +4847,75 @@ abstract class FOGBase
         return $files;
     }
     /**
-     * The name of the class a discovered file declares.
+     * Every class file one installed plugin bucket holds, across all plugins.
      *
-     * Two file shapes reach discovery and they are named differently. A core
-     * class is src/<Bucket>/<Class>.php declaring FOG\<Bucket>\<Class>. A
-     * plugin class keeps the <plugin>/<dir>/<name>.<type>.php shape -- the
-     * discovery extension is how it is FOUND, so it did not move -- and
-     * declares FOG\Plugins\<Plugin>\<Name>.
+     * The plugin half of discovery, and the exact mirror of coreitems(): a
+     * plugin lays its PHP out the way core does, so the same question --
+     * "what is in this bucket?" -- answers both (ADR 0035).
      *
-     * Neither answers to a bare name any more, and this method never learns
-     * the difference between them. It strips the extension to get the short
-     * name the FILENAME carries and hands that to qualify(), which owns both
-     * maps. A plugin still written in the global namespace is in neither, so
-     * its bare name passes through and resolves exactly as it always did --
-     * which is the whole reason a third-party plugin does not have to be
-     * converted before it will load.
+     * Read off Initiator::pluginFileList(), which is walked once per request
+     * and cached on the same TTL as the rest of the boot lists, so this adds
+     * no stat and cannot disagree with what the autoloader will resolve.
      *
-     * @param string $file      Absolute path to the discovered file.
-     * @param string $extension The discovery extension, e.g. '.page.php'.
+     * Filtered to INSTALLED plugins. A plugin's directory being present is
+     * not consent to run its code: lib/plugins ships every bundled plugin on
+     * every install, and Plugin Management is what decides which of them are
+     * live. This filter is why an uninstalled plugin registers no hooks,
+     * serves no page and contributes no report -- the same job the
+     * $pluginsinstalled preg_grep did in the discovery-suffix scheme it
+     * replaces.
      *
-     * @return string the FQCN where core or a plugin declares one, else the
-     *                bare name the filename carries.
+     * @param string $bucket The src/ subdirectory, e.g. 'Hooks'.
+     *
+     * @return string[] Absolute file paths.
      */
-    public static function classFromDiscoveredFile(
-        string $file,
-        string $extension
-    ): string {
-        $base = basename($file);
-        $strlen = -strlen($extension);
-        $short = substr($base, $strlen) === $extension
-            ? substr($base, 0, $strlen)
-            : basename($base, '.php');
-        return self::qualify(
-            str_replace(["\t","\n",' '], '_', $short)
+    public static function pluginitems(string $bucket): array
+    {
+        $installed = array_flip(
+            array_map('strtolower', (array) self::$pluginsinstalled)
         );
+        $files = [];
+        foreach (\Initiator::pluginFileList() as $path) {
+            if (basename(dirname($path)) !== $bucket) {
+                continue;
+            }
+            if (!isset($installed[strtolower(\Initiator::pluginOf($path))])) {
+                continue;
+            }
+            $files[] = $path;
+        }
+        @natcasesort($files);
+        return array_values($files);
     }
     /**
-     * Get the file items.
+     * The name of the class a discovered file declares.
      *
-     * @param string $extension The file extension.
-     * @param string $dirpath   The folder path to scan within.
-     * @param bool   $split     Do we need to split the normal/plugin files?
-     * @param bool   $needplug  Do we need plugins?
+     * One shape reaches discovery now, and both halves of the tree use it:
+     * src/<Bucket>/<Class>.php declaring FOG\<Bucket>\<Class> for core, and
+     * <plugin>/src/<Bucket>/<Class>.php declaring
+     * FOG\Plugins\<Segment>\<Bucket>\<Class> for a plugin.
      *
-     * @return string
+     * So this is pure derivation -- the path IS the name. It used to strip a
+     * *.<type>.php suffix to recover a bare short name and hand that to
+     * qualify() to be looked up in one of two maps, which meant discovery
+     * could name a class no file declared (a plugin whose filename and class
+     * disagreed took the whole admin UI down with an uncaught TypeError;
+     * see FOGPageManager::loadPageClasses). A derived name cannot do that:
+     * if the file exists, the name is right by construction, and if the class
+     * inside disagrees the callers' own guards report which file lied.
+     *
+     * @param string $file Absolute path to the discovered file.
+     *
+     * @return string the fully qualified class name.
      */
-    public static function fileitems(
-        $extension = '.class.php',
-        $dirpath = 'fog',
-        $split = false,
-        $needplug = true
-    ) {
-        // Quote the regex strings in this string (e.g. . becomes \.)
-        $regex_ext = preg_quote($extension);
-        // Set our pathing directory separators to that of this system.
-        $regex_dir = str_replace(['\\','/'], [DS,DS], $dirpath);
-        // Set our pathing directory for plugins with the directory separator also.
-        $regex_pdir = DS . 'plugins' . DS;
-        // Main regex string.
-        $regext = "#^.+{$regex_dir}.*{$regex_ext}$#";
-        // Preg Grep Regex.
-        $regex_pgrep = '#'
-            . DS
-            . '('
-            . implode('|', self::$pluginsinstalled)
-            . ')'
-            . DS
-            . '#';
-        // initialize plugin regex caller.
-        $plugins = '';
-
-        // Filter the request-wide cached file list (built once by
-        // Initiator::classFileList) instead of re-walking BASEPATH here. Each
-        // kept path is wrapped as a [0 => path] match array to preserve the
-        // shape the closure below and startClassFromFiles() expect.
-        $files = [];
-        foreach (\Initiator::classFileList() as $path) {
-            if (preg_match($regext, $path)) {
-                $files[] = [$path];
-            }
+    public static function classFromDiscoveredFile(string $file): string
+    {
+        $plugin = \Initiator::pluginFqcnFor($file);
+        if ($plugin !== '') {
+            return $plugin;
         }
-        if (!$needplug) {
-            @natcasesort($files);
-            return $files;
-        }
-
-        // Closure so we can use a common function call.
-        $fileitems = function ($element) use (
-            $regex_dir,
-            $regex_pdir,
-            &$plugins
-        ) {
-            preg_match(
-                "#^($plugins.+{$regex_pdir})(?=.*{$regex_dir}).*$#",
-                $element[0],
-                $match
-            );
-            return isset($match[0]) ? $match[0] : '';
-        };
-
-        $normalfiles = [];
-        $pluginfiles = [];
-        foreach ($files as &$file) {
-            $plugins = '?!';
-            $normalfiles[] = $fileitems($file);
-            $plugins = '?=';
-            $pluginfiles[] = $fileitems($file);
-            unset($file);
-        }
-
-        $pluginfiles = preg_grep(
-            $regex_pgrep,
-            $pluginfiles
-        );
-
-        $files = self::fastmerge(
-            $normalfiles,
-            $pluginfiles
-        );
-        if ($split) {
-            @natcasesort($normalfiles);
-            @natcasesort($pluginfiles);
-            $normalfiles = array_values(
-                array_filter(
-                    array_unique(
-                        $normalfiles
-                    )
-                )
-            );
-            $pluginfiles = array_values(
-                array_filter(
-                    array_unique(
-                        $pluginfiles
-                    )
-                )
-            );
-
-            return [$normalfiles, $pluginfiles];
-        }
-        unset($normalfiles, $pluginfiles);
-
-        @natcasesort($files);
-        $files = array_values(
-            array_filter(
-                array_unique(
-                    $files
-                )
-            )
-        );
-
-        return $files;
+        return 'FOG\\' . basename(dirname($file)) . '\\'
+            . basename($file, '.php');
     }
     /**
      * Get's token for our cookie

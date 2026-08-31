@@ -66,7 +66,7 @@ and only fires from the explicit **Uninstall** button.
 ## How steps are applied
 
 `Schema::applyUpdates(array $steps, int $applied): array`
-(`lib/fog/schema.class.php`) is the shared runner. It runs steps from index
+(`src/Items/Schema.php`) is the shared runner. It runs steps from index
 `$applied` onward, returns `['applied' => int, 'error' => string|null]`, and is
 used by both the install path and the upgrade path so there is one code path.
 
@@ -186,11 +186,11 @@ have no `schema()` method, so they never report "update available" and
 
 | File | Role |
 |------|------|
-| `lib/fog/schema.class.php` | `Schema::applyUpdates()` — the shared idempotent runner |
-| `lib/fog/plugin.class.php` | `Plugin::installdb()`, `Plugin::needsSchemaUpdate()`; `pSchema` field map |
-| `lib/fog/pluginmanager.class.php` | `PluginManager::getPluginsNeedingUpdate()` |
-| `lib/pages/pluginmanagement.page.php` | `upgrade`/`upgradePost` action; list JSON enrichment |
-| `lib/pages/dashboardpage.page.php` | "needs update" dashboard banner |
+| `src/Items/Schema.php` | `Schema::applyUpdates()` — the shared idempotent runner |
+| `src/Items/Plugin.php` | `Plugin::installdb()`, `Plugin::needsSchemaUpdate()`; `pSchema` field map |
+| `src/Managers/PluginManager.php` | `PluginManager::getPluginsNeedingUpdate()` |
+| `src/Pages/PluginManagement.php` | `upgrade`/`upgradePost` action; list JSON enrichment |
+| `src/Pages/DashboardPage.php` | "needs update" dashboard banner |
 | `management/js/fog/plugin/fog.plugin.list.js` | "Update available" badge + bulk Update button |
 | `commons/schema.php` | core migration that adds the `plugins.pSchema` column |
-| `lib/plugins/location/class/locationmanager.class.php` | reference implementation |
+| `lib/plugins/location/src/Managers/LocationManager.php` | reference implementation |

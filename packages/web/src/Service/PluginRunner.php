@@ -223,27 +223,26 @@ class PluginRunner extends FOGService
             if (Plugin::isMissing($location)) {
                 continue;
             }
-            $dir = rtrim($location, DS) . DS . 'tasks';
+            $dir = rtrim($location, DS) . DS . 'src' . DS . 'Tasks';
             if (!is_dir($dir)) {
                 continue;
             }
-            foreach ((array)glob($dir . DS . '*.task.php') as $file) {
-                // qualify(), because the basename is a BARE name and both
-                // uses below resolve a string. A plugin task declares
-                // FOG\Plugins\<Plugin>\<Class> (ADR 0013), so the bare name
-                // is not a class -- is_subclass_of() is then false for every
-                // task and the runner skips all of them, which is the exact
-                // failure the comment below records for the SECOND argument.
-                // A plugin still in the global namespace passes through
-                // unchanged, so both shapes work.
-                $class = self::qualify(basename($file, '.task.php'));
-                // is_subclass_of() rather than class_exists() alone. The
-                // autoloader resolves a class by basename across every
-                // scanned root, so a plugin shipping tasks/host.task.php
-                // would otherwise have this instantiate the core Host model
-                // and call run() on it. The check is on the base class, so
-                // the only thing that can be loaded here is something written
-                // to be a task.
+            foreach ((array)glob($dir . DS . '*.php') as $file) {
+                // Derived from the path, not qualified from a basename. A
+                // task is <plugin>/src/Tasks/<Class>.php declaring
+                // FOG\Plugins\<Segment>\Tasks\<Class> (ADR 0035), so the
+                // FQCN is the path and nothing has to be looked up. The
+                // basename on its own is a BARE name and is not a class at
+                // all now that core no longer re-exports itself globally --
+                // is_subclass_of() would then be false for every task and the
+                // runner would silently skip all of them.
+                $class = self::classFromDiscoveredFile($file);
+                // is_subclass_of() rather than class_exists() alone. Belt and
+                // braces since the name became derivable -- a plugin can no
+                // longer reach a core class by naming a file after it -- but
+                // it is also what keeps a file that is simply not a task from
+                // being instantiated and having run() called on it.
+                //
                 // PluginTask::class, not the string 'PluginTask'. A class
                 // name in a string is resolved as written, with no namespace
                 // applied and no `use` consulted, so the literal named the
