@@ -159,16 +159,29 @@ PY
 # the live install's state.
 printf "<?php\ndefine('FOG_BASE_DIR', '%s/var');\n" "$LAB/var" > "$LAB/web/commons/fogpaths.php"
 
-# The matrix. Three starting points, because they fail differently:
-#   270  1.5.9 (verified: git show 1.5.9:packages/web/lib/fog/system.class.php)
+# The matrix. TWO starting points, because they fail differently:
 #   278  1.5.10-era, and what the real fog-1.5 install on this box records
 #   278 + the site plugin holding real assignments -- the migration whose
 #        failure looks like a working server
+#
+# reh_159 (schema 270, decade) WAS here and was removed after being measured:
+# it produced a byte-identical result to reh_1510 on every run. Steps 270-277
+# are two globalSettings text edits, two nfsGroupMembers column additions and
+# step 276's renames, and the decade seed touches none of them, so the 1.5.9
+# starting point had nothing it could fail at that 1.5.10 did not.
+#
+# Differentiating it was tried and does not work. See the doc section "The
+# branch-divergence trap cannot be modeled from this build path" before
+# reaching for it again -- both obvious attempts produce a fixture that lies,
+# in opposite directions.
+
 run() {
     local db=$1 to=$2 profile=$3
     echo
     echo "############ $db  (from schema $to, profile $profile) ############"
     php "$REPO/bin/upgrade-rehearsal.php" "$LAB/web" build --db="$db" --to="$to" 2>&1 | grep -v '^PHP Warning'
+    # REFUSED and note are the two that decide whether a run means anything --
+    # a rejected row and a skipped plant both look exactly like a clean pass.
     php "$REPO/bin/upgrade-rehearsal.php" "$LAB/web" seed --db="$db" --profile="$profile" 2>&1 | grep -v '^PHP Warning' | grep -E 'REFUSED|note|seed '
     php "$REPO/bin/upgrade-rehearsal.php" "$LAB/web" census --db="$db" 2>&1 | grep -v '^PHP Warning' > "$LAB/census-$db-before.txt"
     php "$REPO/bin/upgrade-rehearsal.php" "$LAB/web" upgrade --db="$db" 2>&1 | grep -v '^PHP Warning' | grep -vE '^Schema reconcile: ALTER'
@@ -178,7 +191,6 @@ run() {
     diff -u "$LAB/census-$db-before.txt" "$LAB/census-$db-after.txt" | grep -E '^[-+] ' || echo "  none"
 }
 
-run reh_159  270 decade
 run reh_1510 278 decade
 run reh_site 278 site
 
@@ -187,5 +199,5 @@ if [[ -z $KEEP ]]; then
     echo "== removing $CONTAINER (pass --keep to inspect the databases)"
     podman rm -f "$CONTAINER" >/dev/null 2>&1
 else
-    echo "== $CONTAINER left running on port $PORT; databases reh_159, reh_1510, reh_site"
+    echo "== $CONTAINER left running on port $PORT; databases reh_1510, reh_site"
 fi
