@@ -4391,14 +4391,6 @@ msgid "Import Partially Succeeded"
 msgstr "Fecha"
 
 #, fuzzy
-msgid "Import Report"
-msgstr "Importar"
-
-#, fuzzy
-msgid "Import Reports"
-msgstr "Importar"
-
-#, fuzzy
 msgid "Import Subnet Groups"
 msgstr "grupo está"
 
@@ -9534,9 +9526,6 @@ msgstr ""
 msgid "This section allows you to update"
 msgstr ""
 
-msgid "This section allows you to upload user defined reports that may not be a part of the base FOG install."
-msgstr ""
-
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
@@ -11890,6 +11879,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Import Printers"
 #~ msgstr "Impresora TCP / IP Port"
+
+#, fuzzy
+#~ msgid "Import Report"
+#~ msgstr "Importar"
+
+#, fuzzy
+#~ msgid "Import Reports"
+#~ msgstr "Importar"
 
 #, fuzzy
 #~ msgid "Import Roles"

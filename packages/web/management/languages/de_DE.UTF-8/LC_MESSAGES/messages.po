@@ -4312,14 +4312,6 @@ msgid "Import Partially Succeeded"
 msgstr "Datenbank importieren"
 
 #, fuzzy
-msgid "Import Report"
-msgstr "Berichte importieren"
-
-#, fuzzy
-msgid "Import Reports"
-msgstr "Berichte importieren"
-
-#, fuzzy
 msgid "Import Subnet Groups"
 msgstr "Gruppen importieren"
 
@@ -9358,9 +9350,6 @@ msgstr ""
 msgid "This section allows you to update"
 msgstr "In diesem Abschnitt können Sie den Linux-Kernel"
 
-msgid "This section allows you to upload user defined reports that may not be a part of the base FOG install."
-msgstr ""
-
 msgid "This server becomes the platform owner, so Microsoft's published CA certificates are enrolled alongside FOG's own. That is not optional: Microsoft signs the shim in FOG's own Secure Boot PXE chain, so a database without it would stop this server from booting the very clients it enrolled, as well as breaking Windows."
 msgstr ""
 
@@ -11729,6 +11718,14 @@ msgstr ""
 
 #~ msgid "Import Printers"
 #~ msgstr "Drucker importieren"
+
+#, fuzzy
+#~ msgid "Import Report"
+#~ msgstr "Berichte importieren"
+
+#, fuzzy
+#~ msgid "Import Reports"
+#~ msgstr "Berichte importieren"
 
 #, fuzzy
 #~ msgid "Import Roles"
