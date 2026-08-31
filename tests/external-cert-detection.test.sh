@@ -125,6 +125,10 @@ echo "== _externallyManagedLeaf: the symlink test that replaced \$acmeLeaf =="
 # _pkiZoneDir derives from it, and unset it resolves to /pki/web.
 eml_env() {
     fogprogramdir="$WORK/eml/opt/fog"
+    # The tree lives at /etc/fog/pki on a real install. Point it inside the
+    # scratch $fogprogramdir instead, or every case below would reach for the
+    # host's own /etc/fog -- and _migratePkiTree would try to CREATE it.
+    PKI_root_dir="$fogprogramdir/pki"
     EMLZONE="$fogprogramdir/pki/web"
     EMLLEAF="$EMLZONE/leaf"
     mkdir -p "$EMLLEAF" "$WORK/eml/etc/letsencrypt/live/fog"

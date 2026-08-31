@@ -66,6 +66,10 @@ apacheuser="$(id -un)"
 # A fresh tree per scenario, so one case cannot leak into the next.
 newtree() {
     fogprogramdir="$WORK/$1/opt/fog"
+    # The tree lives at /etc/fog/pki on a real install. Point it inside the
+    # scratch $fogprogramdir instead, or every case below would reach for the
+    # host's own /etc/fog -- and _migratePkiTree would try to CREATE it.
+    PKI_root_dir="$fogprogramdir/pki"
     snapindir="$fogprogramdir/snapins"
     PKI_client_cert_dir="$snapindir/ssl"
     PKI_client_encrypt_key=""

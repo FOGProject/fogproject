@@ -96,14 +96,19 @@ elif [[ -r /etc/fog/fog.conf ]]; then
     [[ -r "${fogprogramdir}/.fogsettings" ]] && . "${fogprogramdir}/.fogsettings"
 fi
 : "${fogprogramdir:=/opt/fog}"
+# Where the four-zone tree physically lives. .fogsettings records it
+# (PKI_root_dir); a file written before the tree moved to /etc/fog/pki has no
+# such line, and the historic name is a symlink to the new one, so the fallback
+# resolves either way.
+: "${pkiroot:=${PKI_root_dir:-${fogprogramdir}/pki}}"
 # The shared openssl config both issuing zones read. Moved out of
 # $snapindir/ssl with the client keypair; installfog.sh's _pkiConfDir is the
 # authority on this path.
-: "${pkiconfdir:=${fogprogramdir}/pki/conf}"
+: "${pkiconfdir:=${pkiroot}/conf}"
 
 _reissueWeb() {
-    local key="${PKI_web_vhost_key:-${fogprogramdir}/pki/web/leaf/.webLeaf.key}"
-    local cert="${PKI_web_vhost_cert:-${fogprogramdir}/pki/web/leaf/.webLeaf.pem}"
+    local key="${PKI_web_vhost_key:-${pkiroot}/web/leaf/.webLeaf.key}"
+    local cert="${PKI_web_vhost_cert:-${pkiroot}/web/leaf/.webLeaf.pem}"
     local cakey="${PKI_web_ca_key:-}" capem="${PKI_web_ca_cert:-}"
     # "Is this leaf mine?" is a question for the filesystem, not a stored key.
     # GH-1120 retired acmeLeaf for exactly the reason it mattered here: it had to
@@ -111,7 +116,7 @@ _reissueWeb() {
     # resolving outside the web zone IS the signal -- the same test
     # _externallyManagedLeaf() makes in the installer.
     local zonedir target
-    zonedir="$(readlink -f "${fogprogramdir}/pki/web" 2>/dev/null)"
+    zonedir="$(readlink -f "${pkiroot}/web" 2>/dev/null)"
     target="$(readlink -f "$cert" 2>/dev/null)"
     if [[ -n $zonedir && -n $target && $target != "$zonedir"/* ]]; then
         echo "Refusing: this web certificate is managed outside FOG." >&2
@@ -164,7 +169,7 @@ _reissueWeb() {
     # writes with BOTH the FOG root and an external root where there is one --
     # so this verifies on an external-CA install too, where PKI_root_ca_cert
     # alone cannot complete the chain.
-    local anchor="${fogprogramdir}/pki/web/ca/.trustAnchor.pem"
+    local anchor="${pkiroot}/web/ca/.trustAnchor.pem"
     [[ -f $anchor ]] || anchor="${PKI_root_ca_cert:-}"
     if [[ -n ${PKI_web_trust_chain:-} && -f ${PKI_web_trust_chain} && -n $anchor ]] && \
         ! openssl verify -CAfile "$anchor" -untrusted "${PKI_web_trust_chain}" "$cert" >/dev/null 2>&1; then
@@ -186,8 +191,8 @@ _reissueWeb() {
 }
 
 _reissueSecureBoot() {
-    local cadir="${fogprogramdir}/pki/secureboot/ca"
-    local leafdir="${fogprogramdir}/pki/secureboot/leaf"
+    local cadir="${pkiroot}/secureboot/ca"
+    local leafdir="${pkiroot}/secureboot/leaf"
     if [[ ! -f "${cadir}/.fogSBCA.pem" ]]; then
         echo "No Secure Boot intermediate CA on this server (expected:" >&2
         echo "  ${cadir}/.fogSBCA.pem )." >&2

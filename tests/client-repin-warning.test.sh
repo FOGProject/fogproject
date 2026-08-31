@@ -60,6 +60,10 @@ setSELinuxContext() { :; }
 
 # --- a self-contained install tree -------------------------------------------
 fogprogramdir="$WORK/opt/fog"
+# The tree lives at /etc/fog/pki on a real install. Point it inside the scratch
+# $fogprogramdir instead, or this would reach for the host's own /etc/fog --
+# and _migratePkiTree would try to CREATE it.
+PKI_root_dir="$fogprogramdir/pki"
 snapindir="$WORK/opt/fog/snapins"
 PKI_client_cert_dir="$snapindir/ssl"
 webdirdest="$WORK/var/www/fog"

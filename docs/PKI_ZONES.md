@@ -68,9 +68,42 @@ That also has a useful consequence: because the certificate fog-client pins
 **is** the root, the Web CA sits beneath something every client already
 trusts. Trusting `ca.cert.der` now validates the web certificate too.
 
-Under `$fogprogramdir/pki/` (default `/opt/fog/pki/`), one subfolder per zone,
-each split into `ca/` (the zone's own CA material) and `leaf/` (what that CA
-issues day to day) — everything is a dotfile (`ls -a`):
+### Where the tree lives
+
+`/etc/fog/pki/`, recorded as `PKI_root_dir` in `.fogsettings`.
+
+Keys and certificates are configuration, and `/etc` is where the rest of the
+system keeps them — it is what a backup policy and a config-management run
+already capture, while `/opt/<pkg>` is for a package's own static files.
+`/etc/fog` is not new: GH-850 already makes it a real directory on every
+install, to hold `fog.conf`, so this needs no per-distro branch and no
+"Debian has no `/etc/pki`" special case.
+
+**`$fogprogramdir/pki` — `/opt/fog/pki` on a default install — keeps
+resolving**, as a symlink to the above. Every path in this document, in
+`MULTI_SERVER_CA.md` and in `EXTERNAL_CA_AND_LETSENCRYPT.md` is written against
+that name; so is an admin's renewal cron entry, and so are the canonical paths
+recorded in a `.fogsettings` written before the move. Nothing has to be
+rewritten.
+
+`_migratePkiTree()` in `lib/common/functions.sh` does the move, once, on the
+next `installfog.sh` run — and it is a **copy, then remove only if the copy
+succeeded**, never an `mv`.
+`/opt` and `/etc` are frequently separate mounts, so `mv` degrades to
+copy-then-unlink anyway; doing it in explicit steps means a failed copy leaves
+the source authoritative rather than half a tree on each side, and it is what
+makes overwriting the source key blocks possible at all (best effort via
+`shred`, which promises nothing on a journaling or copy-on-write filesystem).
+
+The migration is driven from `_pkiRootDir()`, which every zone accessor calls,
+rather than from a call placed early in `installfog.sh`. Getting that ordering
+wrong is not a visible failure: an accessor answering `/etc/fog/pki` while the
+material still sits under `/opt/fog/pki` reads as "no CA yet", mints a fresh
+root, and every fog-client in the estate stops trusting the server.
+
+Under that root, one subfolder per zone, each split into `ca/` (the zone's own
+CA material) and `leaf/` (what that CA issues day to day) — everything is a
+dotfile (`ls -a`):
 
 ```
 root/ca/.fogCA.{key,pem}          the anchor. Key never regenerated, 0400 root:root.
@@ -97,6 +130,14 @@ web/leaf/.webLeaf.{key,pem}       what the web server actually serves
 web/ca/.trustAnchor.pem           what this server anchors the web zone on: the
                                   FOG root, plus an imported root where there is
                                   one, deduped by fingerprint
+web/ca/.externalRoot.pem          a root CA imported from the Certificates page.
+                                  Absent unless one was. Self-signed CAs only --
+                                  an intermediate in the uploaded file is
+                                  dropped rather than anchored, because
+                                  anchoring one would trust it AS a root.
+                                  PKI_web_external_root_cert records THIS path,
+                                  not wherever the admin's copy came from, so
+                                  the setting still resolves a year later.
 web/dhparam.pem                   Diffie-Hellman parameters the nginx vhost
                                   names directly
 secureboot/ca/.fogSBCA.{key,pem,der}  signs the code-signing leaf; .der is

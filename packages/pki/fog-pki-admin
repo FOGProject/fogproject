@@ -1,0 +1,579 @@
+#!/bin/bash
+#
+#  FOG is a computer imaging solution.
+#  Copyright (C) 2007  Chuck Syperski & Jian Zhang
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#    any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Read and change the parts of this server's PKI that a browser may reach.
+#
+# Invoked through sudo by the Certificates page after it has checked
+# system.pki. The split is the same one fog-sign-node-cert draws: the page
+# decides WHO may ask, this decides WHAT may be asked for and holds every
+# path. A compromise of the web application can therefore drive these five
+# verbs and nothing else -- it cannot read a private key, cannot name a file,
+# and cannot put a byte of its own choosing into .fogsettings.
+#
+# That last one is the reason this script exists at all rather than a sudo
+# rule on `sed`. .fogsettings is SOURCED AS SHELL by root on the next
+# installer run, so a helper that wrote arbitrary key=value pairs into it
+# would be a root shell with extra steps. Hence:
+#
+#  - set-preference takes a key from a three-entry allowlist and a value
+#    matching ^(yes|no)$. Nothing else reaches the file, and the key must
+#    already be present -- this never invents a line, so it cannot move the
+#    category blocks writeUpdateFile() maintains.
+#  - export takes a SLOT NAME, never a path. The slot resolves to a path from
+#    the root-only config, and every slot is a public certificate.
+#  - import-root parses what it was handed before believing any of it, keeps
+#    only the self-signed CA certificates out of it, and writes them to a
+#    canonical path of its own choosing.
+#
+# Modeled on fog-sign-node-cert throughout, including the argument patterns
+# validated before anything touches the filesystem.
+#
+# The one thing NOT here is replacing FOG's own root or its Web CA keypair.
+# That invalidates every fog-client enrollment at once and belongs on a command
+# line where it can be read back before it runs; the page composes the
+# installfog.sh invocation for it instead. See GH-1121.
+
+set -u
+
+CONF="/opt/fog/.fog-pki-admin"
+
+die() { echo "$*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "fog-pki-admin must run as root"
+[[ $# -ge 1 ]] || die "usage: fog-pki-admin <status|export|import-root|clear-root|set-preference> [args]"
+
+verb="$1"
+shift
+
+[[ -r $CONF ]] || die "missing $CONF -- re-run the FOG installer"
+# shellcheck disable=SC1090
+. "$CONF"
+
+: "${PKI_STAGING:=}"
+: "${PKI_SETTINGS:=}"
+: "${PKI_ROOT_CERT:=}"
+: "${PKI_ROOT_KEY:=}"
+: "${PKI_WEB_CA_CERT:=}"
+: "${PKI_WEB_CHAIN:=}"
+: "${PKI_WEB_ANCHOR:=}"
+: "${PKI_WEB_VHOST_CERT:=}"
+: "${PKI_WEB_ZONE_DIR:=}"
+: "${PKI_EXTERNAL_ROOT:=}"
+: "${PKI_CLIENT_CERT:=}"
+: "${PKI_SB_CA_CERT:=}"
+: "${PKI_WEB_CA_KEY:=}"
+: "${PKI_WEB_VHOST_KEY:=}"
+: "${PKI_SB_CA_KEY:=}"
+: "${PKI_CLIENT_KEY:=}"
+
+[[ -d $PKI_STAGING ]] || die "staging directory is not configured"
+
+# The three keys this may write, and the only ones it may. Every one is a
+# yes/no install preference -- nothing here names a path, holds a secret, or
+# takes effect without the installer running again.
+#
+# BOOT_url_proto_forced is deliberately absent even though it is the same
+# shape. Forcing netboot to HTTPS with neither steering key set is the case
+# GH-1116 calls "legal but warned": it breaks PXE for machines that have no
+# way to fix themselves, which is the one failure a web form must not be able
+# to cause by a misclick.
+PREF_KEYS="PKI_web_cert_publicly_trusted WEB_https_redirect BOOT_rebuild_ipxe_with_my_ca"
+
+# Where each downloadable slot lives. Public certificates only: this is the
+# whole reason export takes a slot name rather than a path, so adding a
+# private key here would defeat the mechanism rather than extend it.
+slotPath() {
+    case "$1" in
+        root)         printf '%s' "$PKI_ROOT_CERT" ;;
+        webca)        printf '%s' "$PKI_WEB_CA_CERT" ;;
+        webchain)     printf '%s' "$PKI_WEB_CHAIN" ;;
+        anchor)       printf '%s' "$PKI_WEB_ANCHOR" ;;
+        vhost)        printf '%s' "$PKI_WEB_VHOST_CERT" ;;
+        commleaf)     printf '%s' "$PKI_CLIENT_CERT" ;;
+        sbca)         printf '%s' "$PKI_SB_CA_CERT" ;;
+        externalroot) printf '%s' "$PKI_EXTERNAL_ROOT" ;;
+        *)            return 1 ;;
+    esac
+}
+
+# --- JSON emission -----------------------------------------------------------
+#
+# Hand-rolled because the helper must not depend on jq or python being
+# installed on a FOG server; nothing else here needs an interpreter either.
+# Everything escaped is openssl's own output, which is single-line by
+# construction -- the newline and tab cases below are belt and braces for a
+# subject carrying one, not an expected shape.
+jstr() {
+    local s="${1-}"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    s="${s//$'\t'/\\t}"
+    s="${s//$'\r'/}"
+    s="${s//$'\n'/ }"
+    printf '"%s"' "$s"
+}
+jbool() { [[ ${1:-} == 1 ]] && printf 'true' || printf 'false'; }
+
+# Field of an X.509 file, with the "subject="/"issuer=" prefix openssl prints
+# stripped off.
+certField() {
+    local file="$1" what="$2" out
+    shift 2
+    out=$(openssl x509 -in "$file" -noout "-$what" "$@" 2>/dev/null) || return 1
+    printf '%s' "${out#*=}"
+}
+
+# Is this certificate its own issuer -- i.e. a root rather than an intermediate.
+isSelfSigned() {
+    local subj issuer
+    subj=$(openssl x509 -in "$1" -noout -subject 2>/dev/null) || return 1
+    issuer=$(openssl x509 -in "$1" -noout -issuer 2>/dev/null) || return 1
+    [[ -n $subj && ${subj#subject=} == "${issuer#issuer=}" ]]
+}
+
+isCACert() {
+    openssl x509 -in "$1" -noout -text 2>/dev/null \
+        | grep -q 'CA:TRUE'
+}
+
+# Split a PEM bundle into one file per certificate.
+#
+# openssl cannot do this itself: `openssl x509 -in` reads only the FIRST
+# certificate of a bundle and discards the rest with no error and nothing in
+# any log. Same awk as _splitPemBundle() in lib/common/functions.sh, and it is
+# duplicated rather than shared because an installed server has bin/ but no
+# lib/.
+splitBundle() {
+    local src="$1" dir="$2" f found=1
+    [[ -n $src && -f $src && -d $dir ]] || return 1
+    awk -v d="$dir" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$src" 2>/dev/null
+    for f in "$dir"/c*.pem; do
+        [[ -f $f ]] && { found=0; break; }
+    done
+    return $found
+}
+
+# This host's system trust store, matching _caTrustLayout() in the installer.
+#
+# Re-detected here rather than baked into the config, unlike every path above.
+# The distinction is deliberate: the paths describe THIS FOG INSTALL and can
+# only come from the installer, while the trust store describes the HOST and
+# can change under a distribution upgrade without FOG being re-run. A stale
+# baked-in path would fail silently at the moment it mattered.
+caTrustLayout() {
+    if [[ -d /etc/pki/ca-trust/source/anchors ]] && command -v update-ca-trust >/dev/null 2>&1; then
+        caTrustDir="/etc/pki/ca-trust/source/anchors"
+        caTrustCmd="update-ca-trust extract"
+    elif [[ -d /etc/ca-certificates/trust-source/anchors ]] && command -v trust >/dev/null 2>&1; then
+        caTrustDir="/etc/ca-certificates/trust-source/anchors"
+        caTrustCmd="trust extract-compat"
+    elif [[ -d /usr/local/share/ca-certificates ]] && command -v update-ca-certificates >/dev/null 2>&1; then
+        caTrustDir="/usr/local/share/ca-certificates"
+        caTrustCmd="update-ca-certificates"
+    else
+        return 1
+    fi
+    return 0
+}
+
+# Rebuild pki/web/ca/.trustAnchor.pem.
+#
+# The same three inputs _resolveTrustAnchor() uses -- FOG's root, the root of
+# the web trust chain, and the imported external root -- deduplicated by
+# fingerprint so a FOG-issued install collapses to one certificate.
+#
+# Duplicated from the installer for the reason splitBundle() is: no lib/ on an
+# installed server. tests/pki-admin-helper.test.sh pins the two against each
+# other so they cannot drift into disagreeing about what this box trusts.
+#
+# This half is mandatory: the anchor file is what FOG itself verifies against,
+# so a failure here means the import did not take. Pushing it into the HOST
+# trust store is a separate, best-effort call -- see anchorInHostStore().
+rebuildAnchor() {
+    local out="$PKI_WEB_ANCHOR" tmp seen="" fp chainroot f tmpd
+    [[ -n $out ]] || return 1
+    mkdir -p "$(dirname "$out")" 2>/dev/null || return 1
+    tmp=$(mktemp) || return 1
+
+    if [[ -n $PKI_ROOT_CERT && -f $PKI_ROOT_CERT ]]; then
+        fp=$(openssl x509 -in "$PKI_ROOT_CERT" -noout -fingerprint -sha256 2>/dev/null)
+        if [[ -n $fp ]]; then
+            cat "$PKI_ROOT_CERT" >> "$tmp"
+            seen="${fp}"
+        fi
+    fi
+    # Every self-signed certificate found in the chain and in the imported
+    # root, in that order. Selected by self-signedness rather than by
+    # position, because the writers of these bundles do not agree on order --
+    # see _rootFromChain()'s comment.
+    for f in "$PKI_WEB_CHAIN" "$PKI_EXTERNAL_ROOT"; do
+        [[ -n $f && -f $f ]] || continue
+        tmpd=$(mktemp -d) || continue
+        if splitBundle "$f" "$tmpd"; then
+            for chainroot in "$tmpd"/c*.pem; do
+                [[ -f $chainroot ]] || continue
+                isSelfSigned "$chainroot" || continue
+                fp=$(openssl x509 -in "$chainroot" -noout -fingerprint -sha256 2>/dev/null)
+                [[ -n $fp ]] || continue
+                [[ $seen == *"${fp}"* ]] && continue
+                cat "$chainroot" >> "$tmp"
+                seen="${seen}${fp}"
+            done
+        fi
+        rm -rf "$tmpd"
+    done
+
+    if [[ ! -s $tmp ]]; then
+        rm -f "$tmp"
+        return 1
+    fi
+    { cat "$tmp" > "$out"; } 2>/dev/null || { rm -f "$tmp"; return 1; }
+    chmod 0644 "$out" 2>/dev/null
+    rm -f "$tmp"
+    return 0
+}
+
+# Push the rebuilt anchor into the HOST's system trust store, and say which of
+# three things happened: ok, unavailable (no store on this host), or failed.
+#
+# Reported rather than fatal, matching _installCATrustAnchor(): a server whose
+# trust store could not be updated is still a working server, and failing the
+# import would leave the admin with a certificate they can see on the page and
+# no way to tell what part went wrong.
+#
+# Re-encoded per certificate rather than copied, again as the installer does:
+# Debian's update-ca-certificates reads only *.crt in PEM, and a single-shot
+# `openssl x509 -in` over a bundle would write the first certificate and
+# silently drop the imported root -- which is the entire point of this call.
+anchorInHostStore() {
+    local out="$PKI_WEB_ANCHOR" staged tmpd f st=0
+    [[ -n $out && -s $out ]] || { printf 'trust:failed'; return 0; }
+    caTrustLayout || { printf 'trust:unavailable'; return 0; }
+    staged="${caTrustDir}/.fog-server-ca.crt.$$"
+    tmpd=$(mktemp -d) || { printf 'trust:failed'; return 0; }
+    # Braced: redirections apply left to right, so `: > f 2>/dev/null` still
+    # lets bash print its own "Permission denied" before the 2> takes effect.
+    { : > "$staged"; } 2>/dev/null || st=1
+    if [[ $st -eq 0 ]] && splitBundle "$out" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            openssl x509 -in "$f" >> "$staged" 2>/dev/null || st=1
+        done
+    else
+        st=1
+    fi
+    rm -rf "$tmpd"
+    if [[ $st -eq 0 && -s $staged ]]; then
+        chmod 0644 "$staged" 2>/dev/null
+        # A fixed destination filename, so a later import overwrites the
+        # previous anchor rather than leaving a retired CA trusted alongside
+        # its replacement. mv within one directory is atomic, so a re-run
+        # cannot be caught halfway.
+        mv -f "$staged" "${caTrustDir}/fog-server-ca.crt" 2>/dev/null || st=1
+        [[ $st -eq 0 ]] && { $caTrustCmd >/dev/null 2>&1 || st=1; }
+    else
+        st=1
+    fi
+    rm -f "$staged" 2>/dev/null
+    [[ $st -eq 0 ]] && printf 'trust:ok' || printf 'trust:failed'
+    return 0
+}
+
+# Rewrite one .fogsettings key in place.
+#
+# The key must ALREADY be present, and this never appends. writeUpdateFile()
+# maintains the file as category blocks followed by a "## End of FOG Settings"
+# marker and then any lines the installer does not manage; appending a managed
+# key after that marker would put it in the carried-over region, where the next
+# in-place merge treats it as an admin's own line. A server old enough to be
+# missing the key is a server that needs the installer run, and says so.
+#
+# Value quoting matches settingLine()'s exactly, including the single-quote
+# escape, so a line written here is byte-identical in shape to one the
+# installer wrote. Both callers pass a value this script chose -- yes/no from a
+# literal pattern match, or a path out of the root-only config -- so the escape
+# is defense in depth rather than the thing holding the boundary.
+writeSetting() {
+    local key="$1" value="$2" tmp
+    [[ -n $PKI_SETTINGS && -f $PKI_SETTINGS && -w $PKI_SETTINGS ]] || return 1
+    grep -q "^${key}=" "$PKI_SETTINGS" 2>/dev/null || return 1
+    tmp=$(mktemp) || return 1
+    if ! wkey="$key" wval="$value" awk '
+        BEGIN {
+            k = ENVIRON["wkey"]
+            v = ENVIRON["wval"]
+            gsub(/\047/, "\047\\\047\047", v)
+            line = k "=\047" v "\047"
+        }
+        {
+            eq = index($0, "=")
+            if (eq && substr($0, 1, eq - 1) == k) {
+                if (!seen) { print line; seen = 1 }
+                next
+            }
+            print
+        }
+    ' "$PKI_SETTINGS" > "$tmp"; then
+        rm -f "$tmp"
+        return 1
+    fi
+    [[ -s $tmp ]] || { rm -f "$tmp"; return 1; }
+    # Written through the existing inode rather than moved over it, so the
+    # 0600 root:root mode and any ACL survive a helper that never has to
+    # remember to reapply them.
+    cat "$tmp" > "$PKI_SETTINGS" || { rm -f "$tmp"; return 1; }
+    rm -f "$tmp"
+    return 0
+}
+
+# Record (or clear) the imported external root. Separate from set-preference
+# because this is a PATH rather than one of the three yes/no preferences, and
+# because it is never caller-influenced: the only two values it is ever handed
+# are $PKI_EXTERNAL_ROOT from the root-only config, and the empty string.
+setPreferencePath() {
+    writeSetting PKI_web_external_root_cert "$1"
+}
+
+# Read one .fogsettings key without sourcing the file. Sourcing it here would
+# run whatever an admin has hand-written into it as root, in a script the web
+# user can start.
+readSetting() {
+    local key="$1" line
+    [[ -n $PKI_SETTINGS && -r $PKI_SETTINGS ]] || return 1
+    line=$(grep -m1 "^${key}=" "$PKI_SETTINGS" 2>/dev/null) || return 1
+    line="${line#*=}"
+    line="${line#\'}"
+    line="${line%\'}"
+    printf '%s' "$line"
+}
+
+case "$verb" in
+
+status)
+    [[ $# -eq 0 ]] || die "usage: fog-pki-admin status"
+
+    # Every value below is public: subjects, validity dates and fingerprints
+    # of certificates FOG either publishes already or hands to any client that
+    # connects. The two booleans say whether a private key is PRESENT, never
+    # anything about its contents.
+    printf '{\n'
+    printf '  "certificates": [\n'
+    first=1
+    for slot in root webca webchain anchor vhost commleaf sbca externalroot; do
+        path=$(slotPath "$slot") || continue
+        [[ $first -eq 1 ]] || printf ',\n'
+        first=0
+        printf '    {"slot": %s, "path": %s' "$(jstr "$slot")" "$(jstr "$path")"
+        if [[ -n $path && -f $path ]] && certField "$path" subject >/dev/null 2>&1; then
+            selfsigned=0; isSelfSigned "$path" && selfsigned=1
+            printf ', "present": true'
+            printf ', "subject": %s' "$(jstr "$(certField "$path" subject)")"
+            printf ', "issuer": %s' "$(jstr "$(certField "$path" issuer)")"
+            printf ', "not_before": %s' "$(jstr "$(certField "$path" startdate)")"
+            printf ', "not_after": %s' "$(jstr "$(certField "$path" enddate)")"
+            printf ', "sha256": %s' "$(jstr "$(certField "$path" fingerprint -sha256)")"
+            printf ', "self_signed": %s' "$(jbool $selfsigned)"
+            # A bundle is normal for webchain, anchor and externalroot, and
+            # the count is the only thing on this page that would show an
+            # imported root silently failing to land.
+            printf ', "count": %s' "$(grep -c 'BEGIN CERTIFICATE' "$path" 2>/dev/null || echo 0)"
+        else
+            printf ', "present": false'
+        fi
+        printf '}'
+    done
+    printf '\n  ],\n'
+
+    # Derived, never persisted. GH-1120 retired the acmeLeaf key precisely
+    # because a flag and the filesystem could disagree; the test is whether
+    # the canonical vhost path resolves outside the web zone.
+    managed=0
+    if [[ -n $PKI_WEB_VHOST_CERT && -n $PKI_WEB_ZONE_DIR ]]; then
+        target=$(readlink -f "$PKI_WEB_VHOST_CERT" 2>/dev/null)
+        zonedir=$(readlink -f "$PKI_WEB_ZONE_DIR" 2>/dev/null)
+        if [[ -n $target && -n $zonedir && $target != "$zonedir"/* ]]; then
+            managed=1
+        fi
+    fi
+    printf '  "externally_managed_leaf": %s,\n' "$(jbool $managed)"
+
+    rootkey=0
+    [[ -n $PKI_ROOT_KEY && -f $PKI_ROOT_KEY ]] && rootkey=1
+    printf '  "root_key_on_server": %s,\n' "$(jbool $rootkey)"
+
+    # The PATHS of the private keys, and nothing else about them.
+    #
+    # The page tests readability itself, with the web server's own
+    # credentials, because that is the only test that answers the question it
+    # is asking -- PHP is the threat model, and this helper runs as root, so
+    # "root can read it" proves nothing. All this does is say where to look,
+    # which the page used to hardcode against a layout the zone split retired.
+    #
+    # expect_readable is not a nicety. The client communication key IS meant to
+    # be readable by the web user (0640 root:$apacheuser in a 0710 directory) --
+    # FOGBase::certDecrypt() opens it on every fog-client handshake -- so a page
+    # that flagged every readable key would report the correct configuration as
+    # a breach on every install. The vhost key inherits the flag from the leaf
+    # being managed elsewhere, because _hardenPkiPermissions() deliberately
+    # leaves that one alone: an ACME renewal writes it as whatever user its
+    # hook runs as.
+    printf '  "private_keys": [\n'
+    first=1
+    while IFS='|' read -r label path expect; do
+        [[ -n $path ]] || continue
+        [[ $first -eq 1 ]] || printf ',\n'
+        first=0
+        printf '    {"label": %s, "path": %s, "expect_readable": %s}' \
+            "$(jstr "$label")" "$(jstr "$path")" "$(jbool "$expect")"
+    done <<EOF
+CA private key|${PKI_ROOT_KEY}|0
+Web CA private key|${PKI_WEB_CA_KEY}|0
+Web server private key|${PKI_WEB_VHOST_KEY}|${managed}
+Secure Boot CA private key|${PKI_SB_CA_KEY}|0
+Client communication private key|${PKI_CLIENT_KEY}|1
+EOF
+    printf '\n  ],\n'
+
+    store=0; storedir=""; anchored=0
+    if caTrustLayout; then
+        store=1
+        storedir="$caTrustDir"
+        [[ -f "${caTrustDir}/fog-server-ca.crt" ]] && anchored=1
+    fi
+    printf '  "trust_store": {"available": %s, "directory": %s, "anchored": %s},\n' \
+        "$(jbool $store)" "$(jstr "$storedir")" "$(jbool $anchored)"
+
+    printf '  "preferences": {'
+    first=1
+    for key in $PREF_KEYS; do
+        [[ $first -eq 1 ]] || printf ', '
+        first=0
+        printf '%s: %s' "$(jstr "$key")" "$(jstr "$(readSetting "$key")")"
+    done
+    printf '}\n'
+    printf '}\n'
+    ;;
+
+export)
+    [[ $# -eq 2 ]] || die "usage: fog-pki-admin export <slot> <request-id>"
+    slot="$1"
+    reqid="$2"
+    # Validated before use, not after. A request id reaching the filesystem
+    # unchecked is a path traversal into whatever the web user can write.
+    [[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
+    path=$(slotPath "$slot") || die "unknown certificate slot"
+    [[ -n $path && -f $path ]] || die "the ${slot} certificate is not present on this server"
+
+    out="${PKI_STAGING}/${reqid}.pem"
+    rm -f "$out"
+    # Re-emitted through openssl per certificate rather than copied, so what
+    # leaves here is certainly a certificate and certainly nothing else. A
+    # slot whose path an earlier install pointed at a bundle, or at a file
+    # with a key appended, cannot leak the extra bytes.
+    tmpd=$(mktemp -d) || die "could not create a temporary directory"
+    trap 'rm -rf "$tmpd"' EXIT
+    splitBundle "$path" "$tmpd" || die "no certificate found in the ${slot} slot"
+    { : > "$out"; } 2>/dev/null || die "could not write to the staging directory"
+    for f in "$tmpd"/c*.pem; do
+        [[ -f $f ]] || continue
+        openssl x509 -in "$f" >> "$out" 2>/dev/null || true
+    done
+    [[ -s $out ]] || { rm -f "$out"; die "the ${slot} slot did not parse as a certificate"; }
+    chmod 0644 "$out"
+    echo "OK"
+    ;;
+
+import-root)
+    [[ $# -eq 1 ]] || die "usage: fog-pki-admin import-root <request-id>"
+    reqid="$1"
+    [[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
+    src="${PKI_STAGING}/${reqid}.pem"
+    [[ -f $src ]] || die "no certificate at ${src}"
+    [[ -n $PKI_EXTERNAL_ROOT ]] || die "no external root path is configured -- re-run the FOG installer"
+
+    # Everything below runs before a byte is written anywhere the server
+    # reads. What arrives here came off a browser upload, so it is treated as
+    # a blob that claims to be a certificate rather than as one.
+    tmpd=$(mktemp -d) || die "could not create a temporary directory"
+    trap 'rm -rf "$tmpd"' EXIT
+    splitBundle "$src" "$tmpd" || die "that file contains no PEM certificate"
+
+    keep="${tmpd}/keep.pem"
+    : > "$keep"
+    kept=0
+    for f in "$tmpd"/c*.pem; do
+        [[ -f $f ]] || continue
+        openssl x509 -in "$f" -noout >/dev/null 2>&1 || die "that file contains something that is not a certificate"
+        # Only self-signed CA certificates are kept. An intermediate in the
+        # bundle is dropped rather than anchored: adding one to the host trust
+        # store would trust it as a root, which is a real widening of what
+        # this box accepts and is never what "import our corporate root" means.
+        isSelfSigned "$f" || continue
+        isCACert "$f" || die "a self-signed certificate in that file is not a CA (basicConstraints CA:TRUE is missing)"
+        openssl x509 -in "$f" -noout -checkend 0 >/dev/null 2>&1 \
+            || die "the CA certificate in that file has already expired"
+        cat "$f" >> "$keep"
+        kept=$((kept + 1))
+    done
+    [[ $kept -gt 0 ]] || die "that file contains no self-signed CA certificate -- a root CA is what this expects, not an intermediate or a server certificate"
+
+    install -o root -g root -m 0644 "$keep" "$PKI_EXTERNAL_ROOT" 2>/dev/null \
+        || die "could not write ${PKI_EXTERNAL_ROOT}"
+
+    # Recorded as the canonical path, not as wherever the admin's file came
+    # from. --ca-root persists the SOURCE path, which is routinely a temp file
+    # that is gone by the next installer run; the copy above is what makes the
+    # setting still mean something a year later.
+    setPreferencePath "$PKI_EXTERNAL_ROOT" || die "could not record the imported root in .fogsettings"
+
+    rebuildAnchor || die "the certificate was imported but the trust anchor could not be rebuilt"
+    # The trust-store outcome rides on the success line rather than failing the
+    # verb, so the page can say "imported, but this host's store was not
+    # updated" instead of "import failed" over a certificate that did land.
+    echo "OK ${kept} $(anchorInHostStore)"
+    ;;
+
+clear-root)
+    [[ $# -eq 0 ]] || die "usage: fog-pki-admin clear-root"
+    [[ -n $PKI_EXTERNAL_ROOT ]] || die "no external root path is configured"
+    rm -f "$PKI_EXTERNAL_ROOT"
+    setPreferencePath "" || die "could not clear the imported root in .fogsettings"
+    rebuildAnchor || die "the certificate was removed but the trust anchor could not be rebuilt"
+    echo "OK 0 $(anchorInHostStore)"
+    ;;
+
+set-preference)
+    [[ $# -eq 2 ]] || die "usage: fog-pki-admin set-preference <key> <yes|no>"
+    key="$1"
+    value="$2"
+    ok=0
+    for k in $PREF_KEYS; do [[ $k == "$key" ]] && ok=1; done
+    [[ $ok -eq 1 ]] || die "not a settable preference: ${key}"
+    # The whole security argument for this verb. .fogsettings is sourced as
+    # shell by root, so the value is matched against a literal pattern rather
+    # than quoted and hoped over.
+    [[ $value =~ ^(yes|no)$ ]] || die "value must be yes or no"
+    writeSetting "$key" "$value" || die "could not update ${key} in .fogsettings"
+    echo "OK"
+    ;;
+
+*)
+    die "unknown verb: ${verb}"
+    ;;
+esac

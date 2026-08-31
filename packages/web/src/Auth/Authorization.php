@@ -186,6 +186,18 @@ class Authorization extends FOGBase
         // these, _subToAction() reads the sub's prefix and lands them on
         // user.view/user.edit, so anyone who could open the page could
         // revoke the tokens on it.
+        // Keyed by the ALIASED node, so these are the FOG Configuration page's
+        // subs -- `about` resolves to `settings` above.
+        'settings' => [
+            // Reading the certificate hierarchy is reading server
+            // configuration, so the GET stays where the rest of the page is.
+            // The POST is not: it imports a root CA into this host's trust
+            // store and writes preferences into a file root SOURCES AS SHELL
+            // on the next installer run. "May change a setting" is not
+            // self-evidently "may decide what this server trusts", and SIX
+            // page nodes already map onto settings.edit (GH-1121).
+            'certificates' => ['GET' => 'settings.view', 'POST' => 'system.pki']
+        ],
         'user' => [
             'userapitokenlist' => 'apitoken.view',
             'userapitokenenable' => 'apitoken.edit',
@@ -617,7 +629,18 @@ class Authorization extends FOGBase
             // It also fixes the audit trail as a side effect: _auditGate()
             // records the permission string, so the row now says the whole
             // database left the server instead of saying settings.edit.
-            'system' => ['export'],
+            //
+            // `pki` joins it for the same reason and arrives the same way.
+            // It decides what certificate authorities this host trusts --
+            // an imported root reaches the OS trust store, so every
+            // server-side HTTPS call on the box accepts anything it signs --
+            // and it writes the three install preferences that decide
+            // whether FOG re-issues the admin's web certificate. Deny by
+            // default: no schema step seeds it, so until an administrator
+            // grants it only a holder of '*' has it, and a role holding
+            // settings.edit and nothing else LOSES nothing it ever had,
+            // because the page could not do any of this before.
+            'system' => ['export', 'pki'],
             // Impersonation (ADR 0033). ONE action, and it is `start` --
             // there is deliberately no `impersonate.end`, because ending is
             // never checked against anything. A user holding no roles is a

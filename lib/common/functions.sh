@@ -5381,6 +5381,126 @@ _installNodeCertSigner() {
     # errorStat for the same reason.
     setSELinuxContext "$stagedir" fog_share_t
 }
+# Install the PKI administration helper and the sudoers rule that lets the web
+# tier reach it.
+#
+# Master only, and for a stronger reason than _installNodeCertSigner's: a
+# storage node does not serve the management UI at all -- configureMinHttpd
+# stubs out management/index.php -- so the Certificates page that drives this
+# does not exist there. Installing the rule would grant a node's web user a
+# sudo entry nothing can call.
+#
+# Same shape as _installNodeCertSigner and _installSecureBootSigner: a
+# root-only config holding every path, a staging directory the web user owns,
+# and a validated sudoers drop-in. The web user learns nothing about where the
+# keys live and cannot rewrite these paths to point somewhere else.
+#
+# What makes this one different, and why the helper is a script rather than a
+# sudo rule on some existing tool: one of its verbs writes .fogsettings, which
+# root SOURCES AS SHELL on the next installer run. A helper that wrote
+# arbitrary key=value pairs there would be a root shell with extra steps. The
+# helper therefore takes a key from a three-entry allowlist and a value
+# matching ^(yes|no)$, and tests/pki-admin-helper.test.sh holds it to that.
+_installPkiAdminHelper() {
+    local bindir="${fogprogramdir}/bin"
+    local helper="${bindir}/fog-pki-admin"
+    local conf="${fogprogramdir}/.fog-pki-admin"
+    local stagedir="${fogprogramdir}/pkiadmin-staging"
+    local sudoersfile="/etc/sudoers.d/fog-pki-admin"
+    local webdir sbca
+
+    # Guarded here as well as at the call site, for the reason
+    # _installNodeCertSigner states: the call site is exactly the kind of thing
+    # a later refactor moves. Remove any rule a previous run installed rather
+    # than leaving a sudo entry for a helper nothing can reach -- a server
+    # converted from master to node is the case that matters.
+    if [[ ${FOG_install_type} == [Ss] ]]; then
+        rm -f "$helper" "$conf" "$sudoersfile" >>$error_log 2>&1
+        return 0
+    fi
+
+    dots "Installing the certificate management helper"
+    mkdir -p "$bindir" >>$error_log 2>&1
+    install -o root -g root -m 0755 ../packages/pki/fog-pki-admin "$helper" >>$error_log 2>&1 || {
+        echo "Failed"
+        return 0
+    }
+    # Point the helper at this install's config. It takes no path arguments on
+    # purpose -- that is what stops a compromised web server naming its own CA
+    # key or its own .fogsettings -- so the location has to be baked in here.
+    # Quoted: $fogprogramdir may contain a space, and CONF=/a/fog custom/x
+    # assigns "/a/fog" and then tries to RUN "custom/x", which bash -n does not
+    # catch.
+    sed -i "s|^CONF=.*|CONF=\"${conf}\"|" "$helper" >>$error_log 2>&1
+    if ! grep -qxF "CONF=\"${conf}\"" "$helper"; then
+        echo "Failed"
+        echo " * Could not set the config path in $helper."
+        return 0
+    fi
+
+    webdir="$(_pkiZoneDir web)"
+    sbca="$(_pkiZoneDir secureboot)/ca/.fogSBCA.pem"
+    {
+        # Every path below names a PUBLIC certificate, except the two key
+        # paths, which the helper only ever tests for EXISTENCE -- "is the
+        # root key still on this server" is the one question the Certificates
+        # page has always answered, and answering it needs the path, not the
+        # contents.
+        echo "PKI_ROOT_CERT=${PKI_root_ca_cert}"
+        echo "PKI_ROOT_KEY=${PKI_root_ca_key}"
+        echo "PKI_WEB_CA_KEY=${PKI_web_ca_key}"
+        echo "PKI_WEB_VHOST_KEY=${PKI_web_vhost_key}"
+        echo "PKI_CLIENT_KEY=${PKI_client_encrypt_key}"
+        echo "PKI_WEB_CA_CERT=${PKI_web_ca_cert}"
+        echo "PKI_WEB_CHAIN=${PKI_web_trust_chain}"
+        echo "PKI_WEB_ANCHOR=${webdir}/ca/.trustAnchor.pem"
+        echo "PKI_WEB_VHOST_CERT=${PKI_web_vhost_cert}"
+        # The zone directory, so the helper can answer "is this leaf managed
+        # outside FOG" exactly as _externallyManagedLeaf() does. GH-1120
+        # retired the acmeLeaf key precisely because a persisted flag and the
+        # filesystem could disagree; deriving it in two places from the same
+        # test keeps that property.
+        echo "PKI_WEB_ZONE_DIR=${webdir}"
+        # The canonical home for a root imported from the page. Not the
+        # admin's own path: --ca-root persists the SOURCE, which is routinely
+        # a temp file that is gone by the next run.
+        echo "PKI_EXTERNAL_ROOT=${webdir}/ca/.externalRoot.pem"
+        echo "PKI_CLIENT_CERT=${PKI_client_encrypt_cert}"
+        if [[ -f $sbca ]]; then
+            echo "PKI_SB_CA_CERT=${sbca}"
+            echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
+        fi
+        echo "PKI_SETTINGS=${fogprogramdir}/.fogsettings"
+        echo "PKI_STAGING=${stagedir}"
+    } > "$conf"
+    chown root:root "$conf" >>$error_log 2>&1
+    chmod 0600 "$conf" >>$error_log 2>&1
+
+    # The web user owns only the staging directory: it writes an upload there
+    # and reads an exported certificate back, and can reach nothing else.
+    mkdir -p "$stagedir" >>$error_log 2>&1
+    chown "${apacheuser}":"${apacheuser}" "$stagedir" >>$error_log 2>&1
+    chmod 0750 "$stagedir" >>$error_log 2>&1
+
+    # Validate before installing: a malformed sudoers drop-in breaks sudo for
+    # the whole machine, which is far worse than a Certificates page that can
+    # only read.
+    echo "${apacheuser} ALL=(root) NOPASSWD: ${helper}" > "${sudoersfile}.tmp"
+    chmod 0440 "${sudoersfile}.tmp" >>$error_log 2>&1
+    if visudo -cqf "${sudoersfile}.tmp" >>$error_log 2>&1; then
+        mv -f "${sudoersfile}.tmp" "$sudoersfile" >>$error_log 2>&1
+        chown root:root "$sudoersfile" >>$error_log 2>&1
+        echo "Done"
+    else
+        rm -f "${sudoersfile}.tmp" >>$error_log 2>&1
+        echo "Failed"
+        echo " * Refusing to install an invalid sudoers rule; the Certificates"
+        echo "   page will show the chain but will not be able to change it."
+    fi
+    # After this function own Done/Failed, never before -- setSELinuxContext
+    # prints its own dots()/OK pair and would run into an unterminated line.
+    setSELinuxContext "$stagedir" fog_share_t
+}
 # Ask the master for a certificate, as a storage node.
 #
 # Returns non-zero on any failure, and every caller treats that as "carry on
@@ -5628,7 +5748,10 @@ _resolveTrustAnchor() {
         fp=$(openssl x509 -in "${PKI_root_ca_cert}" -noout -fingerprint -sha256 2>/dev/null)
         if [[ -n $fp ]]; then
             cat "${PKI_root_ca_cert}" >> "$out" 2>>$error_log
-            seen="$fp"
+            # Accumulates now that there are three possible sources rather than
+            # two, newline-separated so no two fingerprints can abut and
+            # manufacture a match that is in neither.
+            seen="${fp}"$'\n'
         fi
     fi
     if [[ -n ${PKI_web_trust_chain} && -f ${PKI_web_trust_chain} ]]; then
@@ -5639,10 +5762,46 @@ _resolveTrustAnchor() {
             # Fingerprint, not a path comparison: on a FOG-issued install these
             # are the same certificate reached by two different routes, and
             # comparing filenames would append it twice.
-            if [[ -n $fp && $fp != "$seen" ]]; then
+            if [[ -n $fp && $seen != *"$fp"* ]]; then
                 printf '%s\n' "$chainroot" >> "$out" 2>>$error_log
+                seen="${seen}${fp}"$'\n'
             fi
         fi
+    fi
+    # A root imported on its own, with no matching intermediate and key.
+    #
+    # ${PKI_web_external_root_cert} used to reach this bundle only via the chain
+    # file, which is written by validateExternalCA -- and that runs only when
+    # all THREE of --ca-cert/--ca-key/--ca-root were supplied. "Trust our
+    # corporate root" is the narrower ask: no certificate is issued from it,
+    # nothing chains to it, it is simply a root this box should accept. The
+    # Certificates page writes exactly that case (GH-1121), and without this
+    # the next installer run rebuilt the anchor without it and silently undid
+    # the import.
+    #
+    # Additive and idempotent everywhere else: on a full --external-ca install
+    # this certificate is already in the chain above, so the fingerprint check
+    # collapses it. The -f guard matters -- validateExternalCA persists the
+    # admin's SOURCE path, which is routinely a temp file that is gone by the
+    # next run.
+    if [[ -n ${PKI_web_external_root_cert} && -f ${PKI_web_external_root_cert} ]]; then
+        local tmpd extroot
+        tmpd=$(mktemp -d 2>>$error_log)
+        if [[ -n $tmpd ]] && _splitPemBundle "${PKI_web_external_root_cert}" "$tmpd"; then
+            for extroot in "$tmpd"/c*.pem; do
+                [[ -f $extroot ]] || continue
+                # Self-signed only. Anchoring an intermediate would trust it as
+                # a root, widening what this box accepts -- see the same rule in
+                # packages/pki/fog-pki-admin's import-root.
+                [[ $(openssl x509 -in "$extroot" -noout -subject 2>/dev/null | cut -d= -f2-) \
+                    == "$(openssl x509 -in "$extroot" -noout -issuer 2>/dev/null | cut -d= -f2-)" ]] || continue
+                fp=$(openssl x509 -in "$extroot" -noout -fingerprint -sha256 2>/dev/null)
+                [[ -n $fp && $seen != *"$fp"* ]] || continue
+                cat "$extroot" >> "$out" 2>>$error_log
+                seen="${seen}${fp}"$'\n'
+            done
+        fi
+        [[ -n $tmpd ]] && rm -rf "$tmpd" >>$error_log 2>&1
     fi
     [[ -s $out ]] || return 1
     trustAnchorPem="$out"
@@ -6244,9 +6403,9 @@ _hardenPkiPermissions() {
     mkdir -p "${fogprogramdir}/bin" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-offline-ca-key \
         "${fogprogramdir}/bin/fog-offline-ca-key" >>$error_log 2>&1
-    mkdir -p "${fogprogramdir}/pki" >>$error_log 2>&1
+    mkdir -p "$(_pkiRootDir)" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/renewal-helper \
-        "${fogprogramdir}/pki/renewal-helper" >>$error_log 2>&1
+        "$(_pkiRootDir)/renewal-helper" >>$error_log 2>&1
     # A storage node does not hold the fleet's root CA -- whatever CA it
     # minted (or was issued) is local to itself, so "restore it to issue a
     # certificate for a new storage node" is nonsense advice on the node
@@ -6632,6 +6791,12 @@ writeUpdateFile() {
     # ${!key}, so an unset key emits an empty line, which #1121 would read as
     # "no client cert configured".
     if [[ -n $fogprogramdir ]]; then
+        # Where the zone tree physically is. Recorded rather than left implicit
+        # so the utils scripts -- renewal-helper, fog-offline-ca-key,
+        # fog-mint-web-ca -- read it from here instead of each carrying its own
+        # copy of the default, and so an install that predates the move keeps
+        # working off its recorded (empty -> compat symlink) value.
+        PKI_root_dir="$(_pkiRootDir)"
         PKI_client_encrypt_key="$(_pkiZoneDir client)/leaf/.srvprivate.key"
         PKI_client_encrypt_cert="$(_pkiZoneDir client)/leaf/.srvpublic.crt"
     fi
@@ -6828,6 +6993,11 @@ writeUpdateFile() {
         # extra vhost/cert name(s) must carry forward on every upgrade, not just
         # the run they were set on.
         PKI_san_ip_addresses PKI_san_dns_names
+        # Where FOG's own four-zone PKI tree lives: /etc/fog/pki, reachable at
+        # its historic $fogprogramdir/pki name through a symlink. An empty value
+        # in a file written before the move means the same thing as the default,
+        # because that name still resolves.
+        PKI_root_dir
         # Where the client-communication leaf and the uploaded snapin SSL
         # material live. NOT where FOG's CAs live any more, which is the whole
         # reason the old name (sslpath) had to go.
@@ -7449,19 +7619,107 @@ _linkCanonical() {
     [[ "$(readlink -f "$real" 2>/dev/null)" == "$(readlink -f "$canon" 2>/dev/null)" ]] && return 0
     ln -sf "$real" "$canon" >>$error_log 2>&1
 }
+# Where FOG's own PKI tree physically lives: /etc/fog/pki, not $fogprogramdir/pki.
+#
+# Keys and certificates are CONFIGURATION. /etc is where the rest of the system
+# keeps them, and it is what a backup policy and a config-management run
+# already capture, while /opt/<pkg> is for a package's own static files. The
+# directory is not new and needs no per-distro branch: GH-850 already makes
+# /etc/fog a real directory on every install, to hold fog.conf.
+#
+# $fogprogramdir/pki keeps working, as a SYMLINK at the same name, because it
+# is a PUBLISHED path -- PKI_ZONES.md, MULTI_SERVER_CA.md and
+# EXTERNAL_CA_AND_LETSENCRYPT.md all name /opt/fog/pki/..., an admin's renewal
+# cron names /opt/fog/pki/renewal-helper, and a .fogsettings written before
+# this change records canonical paths underneath it.
+#
+# Overridable through PKI_root_dir, recorded in .fogsettings alongside every
+# other PKI location. That is what makes the tree EXPRESSIBLE rather than
+# hardcoded twice -- the migration below has to be able to name its own source,
+# and the shell tests point it at a scratch directory the same way they already
+# point $fogprogramdir.
+_pkiRootDir() {
+    local root="${PKI_root_dir:-/etc/fog/pki}"
+    root="${root%/}"
+    # The migration is driven from HERE, not from a call site early in the
+    # install, because getting that ordering wrong is not a visible failure: a
+    # zone accessor answering /etc/fog/pki while the real material still sits
+    # under /opt/fog/pki reads as "no CA yet", mints a fresh root, and every
+    # fog-client in the estate stops trusting this server. One -L test per call
+    # makes the ordering impossible to get wrong, and after the first run that
+    # test is all this branch costs.
+    #
+    # The other two preconditions -- no $fogprogramdir, and a tree already at
+    # the target -- are checked once, inside _migratePkiTree, rather than
+    # duplicated here. Two copies of the same guard means removing either one
+    # is invisible, which is how a guard stops being one.
+    [[ -L ${fogprogramdir}/pki ]] || _migratePkiTree "$root"
+    echo "$root"
+}
+# Move an existing $fogprogramdir/pki to $1 and leave a symlink behind.
+#
+# COPY, then remove, and only if the copy reported success on every file --
+# never mv. /opt and /etc are frequently separate mounts, so mv degrades to
+# copy-then-unlink anyway; separating the two means a failure at any point
+# leaves the SOURCE authoritative and the next run simply redoes the whole
+# move, rather than half a tree on each side with no record of which half.
+#
+# The one window that is not recoverable that way is between the removal and
+# the ln, and it recovers too: the next call finds neither a link nor a
+# directory, skips the copy, and links the already-populated target.
+#
+# Idempotent by construction. Every later run stops at the -L test in
+# _pkiRootDir and never reaches here.
+_migratePkiTree() {
+    local target="${1:-/etc/fog/pki}" legacy="${fogprogramdir}/pki"
+    [[ -z ${fogprogramdir} ]] && return 0
+    [[ $legacy == "$target" ]] && return 0
+    [[ -L $legacy ]] && return 0
+    mkdir -p "$target" >>$error_log 2>&1 || return 1
+    # The tree root is traversed by the web tier on its way to client/leaf. The
+    # zones set their own (much tighter) modes; this one only has to be enterable.
+    chmod 0755 "$target" >>$error_log 2>&1
+    if [[ -d $legacy ]]; then
+        # Nothing is removed unless the copy reported success on every file.
+        # A partial copy leaves the source authoritative, which is the whole
+        # reason this is not an mv.
+        cp -a "$legacy/." "$target/" >>$error_log 2>&1 || return 1
+        # The key material crossed a filesystem boundary, so the source blocks
+        # are still on the old device after the unlink. Overwrite what we can
+        # before dropping the tree. Best effort and NOT a guarantee -- shred
+        # promises nothing on a journaling or copy-on-write filesystem -- but
+        # leaving the fleet's root CA key recoverable from freed blocks because
+        # the move was "just a rename" is the worse default.
+        if command -v shred >/dev/null 2>&1; then
+            find "$legacy" -type f -exec shred -u {} + >>$error_log 2>&1
+        fi
+        rm -rf "$legacy" >>$error_log 2>&1
+    fi
+    mkdir -p "$(dirname "$legacy")" >>$error_log 2>&1
+    ln -s "$target" "$legacy" >>$error_log 2>&1
+    # cp -a preserves the SOURCE's SELinux labels, so the moved files would
+    # carry /opt's usr_t while sitting under /etc. Both are readable by the web
+    # tier, so nothing breaks either way -- but relabeling to the target's own
+    # default is what the next restorecon anyone runs would do, so do it now
+    # rather than ship a tree whose labels change under them later.
+    command -v restorecon >/dev/null 2>&1 && restorecon -RF "$target" >>$error_log 2>&1
+    return 0
+}
 # Single source of truth for the PKI layout, one directory per zone under
-# $fogprogramdir/pki, each split by its callers into ca/ (the zone's own CA)
-# and leaf/ (what that CA issues for this server to serve/sign with).
+# _pkiRootDir, each split by its callers into ca/ (the zone's own CA) and leaf/
+# (what that CA issues for this server to serve/sign with).
 # Independent of ${PKI_client_cert_dir} -- unlike ${PKI_client_cert_dir}, which also holds admin-uploaded
 # snapin SSL material and the client-communication leaf, this tree holds only
 # FOG's own PKI, so it can move without dragging that other content along.
+# Which is exactly what it did: the tree lives at /etc/fog/pki now, reachable
+# at its historic $fogprogramdir/pki name through a symlink.
 _pkiZoneDir() {
+    local root
     case "$1" in
-        root) echo "${fogprogramdir}/pki/root" ;;
-        web) echo "${fogprogramdir}/pki/web" ;;
-        client) echo "${fogprogramdir}/pki/client" ;;
-        secureboot) echo "${fogprogramdir}/pki/secureboot" ;;
+        root|web|client|secureboot) root="$(_pkiRootDir)" ;;
+        *) return 0 ;;
     esac
+    echo "${root}/$1"
 }
 # The shared openssl configuration both issuing zones read.
 #
@@ -7477,7 +7735,7 @@ _pkiZoneDir() {
 # certificates, so giving it the ca/+leaf/ shape the zones have would say
 # something false about it.
 _pkiConfDir() {
-    echo "${fogprogramdir}/pki/conf"
+    echo "$(_pkiRootDir)/conf"
 }
 # The client zone's leaf directory, and the compatibility links that keep the
 # canonical names working.

@@ -254,6 +254,10 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 error_log="$tmp/error.log"
 fogprogramdir="$tmp/opt-fog"
+# The tree lives at /etc/fog/pki on a real install. Point it inside the scratch
+# $fogprogramdir instead, or this would reach for the host's own /etc/fog --
+# and _migratePkiTree would try to CREATE it.
+PKI_root_dir="$fogprogramdir/pki"
 mkdir -p "$fogprogramdir"
 
 # shellcheck source=/dev/null
