@@ -6241,6 +6241,30 @@ class Route extends FOGBase
             if (!$class instanceof $fqcn) {
                 return null;
             }
+            // The extras only. Every arm below used to end in an identical
+            // `$data = FOGCore::fastmerge($class->get(), [...])`, fifteen
+            // copies of the same two lines wrapped around the one part that
+            // differs, and the default arm was the same call with nothing to
+            // add. Each arm now names only what it contributes and the merge
+            // happens once, so an arm cannot forget to merge, cannot merge
+            // the wrong object, and reads as the list of extra keys it is.
+            //
+            // The switch STAYS a switch. Turning fifteen arms into fifteen
+            // per-class methods is the shape docs/route-listem-plan.md
+            // rejected for the column table -- "abstraction for its own
+            // sake" -- and the reasoning carries over unchanged: they are
+            // single-call-site bodies dispatched on one variable.
+            // Read the object BEFORE the switch, not after it. Each arm
+            // used to call fastmerge($class->get(), [...]), and PHP
+            // evaluates that first argument before the extras -- so the
+            // snapshot was taken before the arm's own accessors ran. Some of
+            // those accessors populate the object as a side effect:
+            // Group::getHostCount() leaves `hosts` on it, Snapin's arm
+            // leaves `storagegroups`, and reading afterward silently added
+            // both to the payload. Two extra keys on two entities, from a
+            // change that only moved a merge.
+            $base = $class->get();
+            $serialExtras = [];
             switch ($classname) {
                 case 'host':
                     $pass = $class->get('ADPass');
@@ -6261,100 +6285,85 @@ class Route extends FOGBase
                     } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
                         $productKey = $productKeytest;
                     }
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'ADPass' => $pass,
-                            'productKey' => $productKey,
-                            'hostscreen' => self::embed(
-                                $classname,
-                                'hostscreen',
-                                $class->get('hostscreen')
-                            ),
-                            'hostalo' => self::embed(
-                                $classname,
-                                'hostalo',
-                                $class->get('hostalo')
-                            ),
-                            'inventory' => self::embed(
-                                $classname,
-                                'inventory',
-                                $class->get('inventory'),
-                                true
-                            ),
-                            'image' => self::embed(
-                                $classname,
-                                'image',
-                                $class->get('imagename')
-                            ),
-                            'imagename' => $class->getImageName(),
-                            // Both spellings, for the same reason imagename
-                            // sits beside image: a caller wanting to know
-                            // what a host IS should not have to reach into a
-                            // nested object for a one-word answer, and a
-                            // caller wanting the row can still have it.
-                            'arch' => self::embed(
-                                $classname,
-                                'arch',
-                                $class->get('arch')
-                            ),
-                            'archname' => $class->getArch()->get('name'),
-                            'primac' => $class->get('mac')->__toString(),
-                            'macs' => $class->getMyMacs(),
-                        ]
-                    );
+                    $serialExtras = [
+                        'ADPass' => $pass,
+                        'productKey' => $productKey,
+                        'hostscreen' => self::embed(
+                            $classname,
+                            'hostscreen',
+                            $class->get('hostscreen')
+                        ),
+                        'hostalo' => self::embed(
+                            $classname,
+                            'hostalo',
+                            $class->get('hostalo')
+                        ),
+                        'inventory' => self::embed(
+                            $classname,
+                            'inventory',
+                            $class->get('inventory'),
+                            true
+                        ),
+                        'image' => self::embed(
+                            $classname,
+                            'image',
+                            $class->get('imagename')
+                        ),
+                        'imagename' => $class->getImageName(),
+                        // Both spellings, for the same reason imagename
+                        // sits beside image: a caller wanting to know
+                        // what a host IS should not have to reach into a
+                        // nested object for a one-word answer, and a
+                        // caller wanting the row can still have it.
+                        'arch' => self::embed(
+                            $classname,
+                            'arch',
+                            $class->get('arch')
+                        ),
+                        'archname' => $class->getArch()->get('name'),
+                        'primac' => $class->get('mac')->__toString(),
+                        'macs' => $class->getMyMacs(),
+                    ];
                     break;
                 case 'inventory':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['memory' => $class->getMem()]
-                    );
+                    $serialExtras = ['memory' => $class->getMem()];
                     break;
                 case 'group':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['hostcount' => $class->getHostCount()]
-                    );
+                    $serialExtras = ['hostcount' => $class->getHostCount()];
                     break;
                 case 'image':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'os' => self::embed(
-                                $classname,
-                                'os',
-                                $class->get('os')
-                            ),
-                            'imagepartitiontype' => self::embed(
-                                $classname,
-                                'imagepartitiontype',
-                                $class->get('imagepartitiontype')
-                            ),
-                            'imagetype' => self::embed(
-                                $classname,
-                                'imagetype',
-                                $class->get('imagetype')
-                            ),
-                            'imagetypename' => $class->getImageType()->get('name'),
-                            'imageparttypename' => $class->getImagePartitionType()->get(
-                                'name'
-                            ),
-                            'arch' => self::embed(
-                                $classname,
-                                'arch',
-                                $class->get('arch')
-                            ),
-                            'archname' => $class->getArch()->get('name'),
-                            'osname' => $class->getOS()->get('name'),
-                            'storagegroupname' => $class->getStorageGroup()->get('name')
-                        ]
-                    );
+                    $serialExtras = [
+                        'os' => self::embed(
+                            $classname,
+                            'os',
+                            $class->get('os')
+                        ),
+                        'imagepartitiontype' => self::embed(
+                            $classname,
+                            'imagepartitiontype',
+                            $class->get('imagepartitiontype')
+                        ),
+                        'imagetype' => self::embed(
+                            $classname,
+                            'imagetype',
+                            $class->get('imagetype')
+                        ),
+                        'imagetypename' => $class->getImageType()->get('name'),
+                        'imageparttypename' => $class->getImagePartitionType()->get(
+                            'name'
+                        ),
+                        'arch' => self::embed(
+                            $classname,
+                            'arch',
+                            $class->get('arch')
+                        ),
+                        'archname' => $class->getArch()->get('name'),
+                        'osname' => $class->getOS()->get('name'),
+                        'storagegroupname' => $class->getStorageGroup()->get('name')
+                    ];
                     break;
                 case 'snapin':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['storagegroupname' => $class->getStorageGroup()->get('name')]
-                    );
+                    $serialExtras = ['storagegroupname' => $class->getStorageGroup()->get('name')];
                     break;
                 case 'storagenode':
                     $extra = [
@@ -6402,61 +6411,52 @@ class Route extends FOGBase
                     if (self::wantsExpand('snapinfiles')) {
                         $extra['snapinfiles'] = $class->get('snapinfiles');
                     }
-                    $data = FOGCore::fastmerge($class->get(), $extra);
+                    $serialExtras = $extra;
                     break;
                 case 'storagegroup':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'totalsupportedclients' => $class->getTotalSupportedClients(),
-                            'enablednodes' => $class->get('enablednodes'),
-                            'allnodes' => $class->get('allnodes')
-                        ]
-                    );
+                    $serialExtras = [
+                        'totalsupportedclients' => $class->getTotalSupportedClients(),
+                        'enablednodes' => $class->get('enablednodes'),
+                        'allnodes' => $class->get('allnodes')
+                    ];
                     break;
                 case 'task':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'image' => self::embed(
-                                $classname,
-                                'image',
-                                $class->get('image')
-                            ),
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $class->get('host'),
-                                true
-                            ),
-                            'type' => self::embed(
-                                $classname,
-                                'type',
-                                $class->get('type')
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $class->get('state')
-                            ),
-                            'storagenode' => self::embed(
-                                $classname,
-                                'storagenode',
-                                $class->get('storagenode')
-                            ),
-                            'storagegroup' => self::embed(
-                                $classname,
-                                'storagegroup',
-                                $class->get('storagegroup')
-                            )
-                        ]
-                    );
+                    $serialExtras = [
+                        'image' => self::embed(
+                            $classname,
+                            'image',
+                            $class->get('image')
+                        ),
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $class->get('host'),
+                            true
+                        ),
+                        'type' => self::embed(
+                            $classname,
+                            'type',
+                            $class->get('type')
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $class->get('state')
+                        ),
+                        'storagenode' => self::embed(
+                            $classname,
+                            'storagenode',
+                            $class->get('storagenode')
+                        ),
+                        'storagegroup' => self::embed(
+                            $classname,
+                            'storagegroup',
+                            $class->get('storagegroup')
+                        )
+                    ];
                     break;
                 case 'plugin':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        ['hash' => md5($class->get('name'))]
-                    );
+                    $serialExtras = ['hash' => md5($class->get('name'))];
                     break;
                 case 'snapintask':
                     // Same trap as the snapin task LIST (see the snapintask
@@ -6487,33 +6487,30 @@ class Route extends FOGBase
                         ? new Host($snapinjob->get('hostID'))
                         : null;
                     $snapin = $class->get('snapin');
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'snapin' => self::embed(
-                                $classname,
-                                'snapin',
-                                $snapin
-                            ),
-                            'snapinjob' => self::embed(
-                                $classname,
-                                'snapinjob',
-                                $sj,
-                                true
-                            ),
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $host,
-                                true
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $class->get('state')
-                            )
-                        ]
-                    );
+                    $serialExtras = [
+                        'snapin' => self::embed(
+                            $classname,
+                            'snapin',
+                            $snapin
+                        ),
+                        'snapinjob' => self::embed(
+                            $classname,
+                            'snapinjob',
+                            $sj,
+                            true
+                        ),
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $host,
+                            true
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $class->get('state')
+                        )
+                    ];
                     break;
                 case 'snapinjob':
                     // Reached through getter() from the snapintask case above
@@ -6523,22 +6520,19 @@ class Route extends FOGBase
                     // snapintask case stopped throwing on its own.
                     // Refs https://github.com/FOGProject/fogproject/issues/895
                     $sjState = $class->get('state');
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $class->get('host'),
-                                true
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $sjState
-                            )
-                        ]
-                    );
+                    $serialExtras = [
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $class->get('host'),
+                            true
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $sjState
+                        )
+                    ];
                     break;
                 case 'usertracking':
                     // getter() is safe on its own -- it returns early unless
@@ -6550,39 +6544,40 @@ class Route extends FOGBase
                     // reproduced failure.
                     // Refs https://github.com/FOGProject/fogproject/issues/895
                     $utHost = $class->get('host');
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'host' => self::embed(
-                                $classname,
-                                'host',
-                                $utHost,
-                                true
-                            ),
-                            'hostname' => is_object($utHost)
-                                ? $utHost->get('name')
-                                : ''
-                        ]
-                    );
+                    $serialExtras = [
+                        'host' => self::embed(
+                            $classname,
+                            'host',
+                            $utHost,
+                            true
+                        ),
+                        'hostname' => is_object($utHost)
+                            ? $utHost->get('name')
+                            : ''
+                    ];
                     break;
                 case 'multicastsession':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'imageID' => $class->get('image'),
-                            'image' => self::embed(
-                                $classname,
-                                'image',
-                                $class->get('imagename')
-                            ),
-                            'state' => self::embed(
-                                $classname,
-                                'state',
-                                $class->get('state')
-                            )
-                        ]
-                    );
-                    unset($data['imagename']);
+                    $serialExtras = [
+                        'imageID' => $class->get('image'),
+                        'image' => self::embed(
+                            $classname,
+                            'image',
+                            $class->get('imagename')
+                        ),
+                        'state' => self::embed(
+                            $classname,
+                            'state',
+                            $class->get('state')
+                        )
+                    ];
+                    // From the SNAPSHOT, not from the merged payload: this
+                    // used to run after the merge, and there is no merged
+                    // payload inside the switch any more. Equivalent because
+                    // `imagename` comes from the object's own fields and no
+                    // arm puts it back -- the embed above reads the object,
+                    // not this array -- so dropping it before the merge and
+                    // dropping it after reach the same payload.
+                    unset($base['imagename']);
                     break;
                 case 'scheduledtask':
                     // Lifted out of the nested ternaries it used to be: the
@@ -6593,43 +6588,42 @@ class Route extends FOGBase
                     $stObj = $stGroupBased
                         ? $class->getGroup()
                         : $class->getHost();
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            $stKey => self::embed(
-                                $classname,
-                                $stKey,
-                                $stObj,
-                                true
-                            ),
-                            'tasktype' => self::embed(
-                                $classname,
-                                'tasktype',
-                                $class->getTaskType()
-                            ),
-                            'runtime' => $class->getTime()
-                        ]
-                    );
+                    $serialExtras = [
+                        $stKey => self::embed(
+                            $classname,
+                            $stKey,
+                            $stObj,
+                            true
+                        ),
+                        'tasktype' => self::embed(
+                            $classname,
+                            'tasktype',
+                            $class->getTaskType()
+                        ),
+                        'runtime' => $class->getTime()
+                    ];
                     break;
                 case 'tasktype':
-                    $data = FOGCore::fastmerge(
-                        $class->get(),
-                        [
-                            'isSnapinTasking' => $class->isSnapinTasking(),
-                            'isSnapinTask' => $class->isSnapinTask(),
-                            'isImagingTask' => $class->isImagingTask(),
-                            'isCapture' => $class->isCapture(),
-                            'isDeploy' => $class->isDeploy(),
-                            'isInitNeeded' => $class->isInitNeededTasking(),
-                            'initIDs' => $class->isInitNeededTasking(true),
-                            'isMulticast' => $class->isMulticast(),
-                            'isDebug' => $class->isDebug()
-                        ]
-                    );
+                    $serialExtras = [
+                        'isSnapinTasking' => $class->isSnapinTasking(),
+                        'isSnapinTask' => $class->isSnapinTask(),
+                        'isImagingTask' => $class->isImagingTask(),
+                        'isCapture' => $class->isCapture(),
+                        'isDeploy' => $class->isDeploy(),
+                        'isInitNeeded' => $class->isInitNeededTasking(),
+                        'initIDs' => $class->isInitNeededTasking(true),
+                        'isMulticast' => $class->isMulticast(),
+                        'isDebug' => $class->isDebug()
+                    ];
                     break;
-                default:
-                    $data = $class->get();
             }
+            // count(), not a truthiness test: the default path has no extras
+            // and must stay a bare get(), byte for byte. fastmerge() with an
+            // empty second operand is not asserted anywhere to be identical
+            // to not calling it, and this is not the commit to find out.
+            $data = count($serialExtras)
+                ? FOGCore::fastmerge($base, $serialExtras)
+                : $base;
             self::$HookManager->processEvent(
                 'API_GETTER',
                 [

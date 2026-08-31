@@ -1,0 +1,39 @@
+group	hostcount	1
+host	THREW	Error: Call to a member function get() on string
+image	THREW	Error: Call to a member function get() on string
+inventory	memory	'0.00 iB'
+multicastsession	image	array(0)[]
+multicastsession	imageID	''
+multicastsession	state	array(0)[]
+plugin	hash	'd41d8cd98f00b204e9800998ecf8427e'
+scheduledtask	THREW	Error: Call to a member function get() on string
+snapin	storagegroupname	''
+snapinjob	host	array(0)[]
+snapinjob	state	array(0)[]
+snapintask	host	array(0)[]
+snapintask	snapin	array(0)[]
+snapintask	snapinjob	array(0)[]
+snapintask	state	array(0)[]
+storagegroup	allnodes	array(0)[]
+storagegroup	enablednodes	array(1)[0]
+storagegroup	totalsupportedclients	0
+storagenode	THREW	Error: Call to a member function isAvailable() on null
+task	host	array(0)[]
+task	image	array(0)[]
+task	state	array(0)[]
+task	storagegroup	array(0)[]
+task	storagenode	array(0)[]
+task	type	array(0)[]
+tasklog	ip	NULL
+tasklog	type	'state'
+tasktype	initIDs	array(20)[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+tasktype	isCapture	false
+tasktype	isDebug	false
+tasktype	isDeploy	false
+tasktype	isImagingTask	false
+tasktype	isInitNeeded	false
+tasktype	isMulticast	false
+tasktype	isSnapinTask	false
+tasktype	isSnapinTasking	false
+usertracking	host	array(0)[]
+usertracking	hostname	''
