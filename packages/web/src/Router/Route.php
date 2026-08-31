@@ -4818,11 +4818,7 @@ class Route extends FOGBase
             // not name its own class.
             self::$emitClassname = $classname;
             $class = self::_newEntity($class, $id);
-            if (!$class->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND
-                );
-            }
+            self::_requireFound($class);
             self::$data = [];
             // Before getter(), not after: getter() now asks wantsExpand()
             // whether to build storagenode's images/snapinfiles, and reading
@@ -5202,11 +5198,7 @@ class Route extends FOGBase
                 true
             );
             $class = self::_newEntity($class, $id);
-            if (!$class->isValid()) {
-                self::sendResponse(
-                    HTTPResponseCodes::HTTP_NOT_FOUND
-                );
-            }
+            self::_requireFound($class);
             $vars = json_decode(
                 file_get_contents('php://input')
             );
@@ -5239,11 +5231,7 @@ class Route extends FOGBase
     {
         $classname = strtolower($class);
         $class = self::_newEntity($class, $id);
-        if (!$class->isValid()) {
-            self::sendResponse(
-                HTTPResponseCodes::HTTP_NOT_FOUND
-            );
-        }
+        self::_requireFound($class);
         $tids = Route::getIds('tasktype', false);
         $task = json_decode(
             file_get_contents('php://input')
@@ -5792,6 +5780,30 @@ class Route extends FOGBase
      *
      * @return void
      */
+    /**
+     * Answers 404 unless the named item exists.
+     *
+     * Seven call sites: indiv(), edit(), task(), and four of cancel()'s five
+     * arms. cancel()'s `default:` arm deliberately does NOT call it -- an id
+     * it cannot load is its signal to fall through to a bulk search rather
+     * than a refusal -- and that omission is now visible, which it was not
+     * while every arm carried its own copy of the block.
+     *
+     * Answers through sendResponse(), which throws, so this either returns
+     * having found the item or does not return at all.
+     *
+     * @param object $class The item addressed by the request.
+     *
+     * @return void
+     */
+    private static function _requireFound($class)
+    {
+        if (!$class->isValid()) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
+    }
     public static function cancel($class, $id)
     {
         try {
@@ -5808,11 +5820,7 @@ class Route extends FOGBase
             );
             switch ($classname) {
                 case 'group':
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     // Read ids, filtered by state, rather than paging through
                     // listem(). Two separate faults lived in that call:
                     //
@@ -5847,11 +5855,7 @@ class Route extends FOGBase
                     self::getClass('TaskManager')->cancel($taskIDs);
                     break;
                 case 'host':
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     // isValid(), not instanceof. Host::loadTask() sets this
                     // field to `new Task(null)` when the host has nothing
                     // running, and that IS `instanceof Task` -- so the old
@@ -5877,11 +5881,7 @@ class Route extends FOGBase
                     // therefore never canceled a scheduled task. Its model
                     // cancel() is a destroy(), which is what the management
                     // page does too, and there is no state to be wrong about.
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     $class->cancel();
                     break;
                 case 'filedeletequeue':
@@ -5892,11 +5892,7 @@ class Route extends FOGBase
                     // the caller got a bodyless 500. The daemon does set these
                     // rows to the progress state (filedeleter.class.php), so
                     // that is reachable, not theoretical.
-                    if (!$class->isValid()) {
-                        self::sendResponse(
-                            HTTPResponseCodes::HTTP_NOT_FOUND
-                        );
-                    }
+                    self::_requireFound($class);
                     if (!in_array($class->get('stateID'), $states)) {
                         self::_notCancellable(
                             _('Queued deletion is not active and cannot be canceled')

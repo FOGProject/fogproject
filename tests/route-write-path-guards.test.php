@@ -25,7 +25,8 @@
  *
  *   - the server-owned refusal, on both verbs, in both directions -- it
  *     refuses a change, and it does NOT refuse a round trip;
- *   - joining()'s POST class gate.
+ *   - joining()'s POST class gate;
+ *   - _requireFound(), the 404 on an id that does not exist.
  *
  * The joining gate took two goes. The first check compared status codes,
  * found `host` and `group` both refused with a 400, and passed with the gate
@@ -192,6 +193,31 @@ function runChild($case)
     // and the failures further down the same arm all end in a 400 -- the
     // count is the only thing that tells "refused at the gate" apart from
     // "ran, then failed".
+    // missing:<class>:<id> asks for an item that does not exist. The fixture
+    // above is deliberately undone first: rowCount 0 and a responder that
+    // answers nothing, so _newEntity() hands back an object whose isValid()
+    // is false.
+    if (0 === strpos($case, 'missing:')) {
+        $parts = explode(':', $case);
+        $db->pdo->rowCount = 0;
+        $db->responder = function ($sql, $params) {
+            return null;
+        };
+        $db->log = [];
+        try {
+            Route::asValue(
+                function () use ($parts) {
+                    Route::edit($parts[1], (int)$parts[2]);
+                }
+            );
+            echo 'ALLOWED STATEMENTS ' . count($db->log) . "\n";
+        } catch (\Throwable $e) {
+            echo 'REFUSED ' . str_replace("\n", ' ', $e->getMessage())
+                . ' STATEMENTS ' . count($db->log) . "\n";
+        }
+        return;
+    }
+
     if (0 === strpos($case, 'joining:')) {
         $parts = explode(':', $case);
         // Route-only. Booting the harness issues a handful of statements of
@@ -401,6 +427,28 @@ $t->check(
     "joining(): POST to `group` still reaches the create arm -- otherwise "
     . "the check above passes because nothing works (got: $line)",
     false === strpos($line, 'STATEMENTS 0')
+);
+
+/*
+ * ===========================================================================
+ * 4. An id that does not exist is a 404, not a write.
+ *
+ *    _requireFound() is one guard with seven call sites -- indiv(), edit(),
+ *    task() and four of cancel()'s arms -- and until it was one function it
+ *    was seven copies of the same five lines, none of them netted. Disabling
+ *    it left the whole suite green.
+ *
+ *    It matters on edit() in particular: past the guard, the object is an
+ *    empty one with id 0, and the field loop would happily populate it and
+ *    save. A PUT to a nonexistent id would then CREATE a row and report it
+ *    under the id the caller asked for, which is not the id it got.
+ * ===========================================================================
+ */
+$line = child('missing:user:987654', json_encode(['name' => 'ghost']));
+$t->check(
+    "edit(): a PUT to an id that does not exist answers 404 (got: $line)",
+    false !== strpos($line, 'REFUSED')
+    && false !== strpos($line, '404')
 );
 
 $t->finish();
