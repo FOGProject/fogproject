@@ -523,6 +523,24 @@ parameters:
 			path: tests/plugin-list-scope-events.test.php
 
 		-
+			message: '#^Call to an undefined static method Initiator\:\:forgetClassFileList\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/plugin-namespace.test.php
+
+		-
+			message: '#^Call to an undefined static method Initiator\:\:pluginClassMap\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/plugin-namespace.test.php
+
+		-
+			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
+			identifier: new.resultUnused
+			count: 1
+			path: tests/plugin-namespace.test.php
+
+		-
 			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
 			identifier: new.resultUnused
 			count: 1

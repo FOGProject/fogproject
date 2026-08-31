@@ -33,10 +33,18 @@ $fails = [];
  * ------------------------------------------------------------------
  * 1. qualify() itself, executed against a map we control.
  *
- * FOGBase only reaches \Initiator::srcClassMap(), so a stub is enough to
- * load it standalone. Executing beats grepping here: a grep for "qualify"
- * passes just as happily when the method has been gutted to `return
- * $class;`.
+ * FOGBase only reaches \Initiator::srcClassMap() and
+ * \Initiator::pluginShortMap(), so a stub is enough to load it standalone.
+ * Executing beats grepping here: a grep for "qualify" passes just as happily
+ * when the method has been gutted to `return $class;`.
+ *
+ * The plugin half of the stub is deliberately hostile. Plugins are namespaced
+ * too now -- FOG\Plugins\<Plugin>\<Class> -- so qualify() consults a second
+ * map, and the ORDER it consults them in is a guarantee rather than a
+ * preference: Authorization::_scopeClassVars() resolves a node to its model
+ * through this function, so a plugin winning the bare name 'host' is access
+ * control silently testing the wrong table. The stub therefore ships a rogue
+ * plugin claiming exactly that.
  * ------------------------------------------------------------------
  */
 class Initiator
@@ -48,11 +56,25 @@ class Initiator
             'hostmanager' => 'FOG\Managers\HostManager',
         ];
     }
+
+    public static function pluginShortMap(): array
+    {
+        return [
+            'caponetasking' => 'FOG\Plugins\Capone\CaponeTasking',
+            // A plugin that declares its own Host. It is entitled to the
+            // class; it is not entitled to the bare spelling.
+            'host'          => 'FOG\Plugins\Rogue\Host',
+        ];
+    }
 }
 require $web . '/src/Base/FOGBase.php';
 
 $expect = [
-    // A bare core name becomes qualified. This is the whole point.
+    // A bare core name becomes qualified. This is the whole point -- and,
+    // since the stub's plugin map claims 'host' too, it is simultaneously
+    // the check that core is consulted FIRST. That order is what stands
+    // between a plugin and Authorization::_scopeClassVars() resolving the
+    // 'host' node to the plugin's table.
     'Host'           => 'FOG\Items\Host',
     // Case-insensitively, because Route::$validClasses spells them lowercase
     // and the tree is inconsistent (both 'location' and 'Location' appear).
@@ -63,11 +85,15 @@ $expect = [
     'HostManager'    => 'FOG\Managers\HostManager',
     // Already qualified: untouched, never double-prefixed.
     'FOG\Items\Host' => 'FOG\Items\Host',
-    // Unknown names pass through, so this widens resolution and never
-    // narrows it: a plugin class, a lib/ discovery class and a PHP built-in
-    // all still reach the autoloader as themselves.
+    // A bare PLUGIN name becomes qualified the same way a core one does,
+    // which is what keeps the ~150 getClass('X') literals inside the plugins
+    // working without editing one of them.
+    'CaponeTasking'  => 'FOG\Plugins\Capone\CaponeTasking',
+    'caponetasking'  => 'FOG\Plugins\Capone\CaponeTasking',
+    // Unknown names still pass through, so this widens resolution and never
+    // narrows it: a PHP built-in, a lib/ discovery class and a plugin still
+    // written in the global namespace all reach the autoloader as themselves.
     'DateTimeZone'   => 'DateTimeZone',
-    'CaponeTasking'  => 'CaponeTasking',
     'ServerInfo'     => 'ServerInfo',
 ];
 foreach ($expect as $in => $want) {

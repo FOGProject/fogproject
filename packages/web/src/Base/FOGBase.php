@@ -630,28 +630,36 @@ abstract class FOGBase
         return self::shortName($this);
     }
     /**
-     * Resolves a bare core class name to its fully qualified name.
+     * Resolves a bare class name to its fully qualified one.
      *
-     * Every FOG class under src/ is namespaced, but almost nothing that
-     * NAMES one is: `getClass('Host')`, `new $short.'Manager'`, the 52
-     * lowercase strings in Route::$validClasses and FOGPage's $childClass all
-     * spell the bare name. `new $string` and a class name in a string resolve
-     * from the GLOBAL namespace -- `use` is not consulted and the enclosing
-     * namespace is not applied -- so they worked only while each file under
-     * src/ ended in a class_alias() re-exporting itself there. Those aliases
-     * are retired (ADR 0013 §2), and this is the one place the translation
-     * happens, so retiring them did not mean editing every caller.
+     * Every FOG class under src/ is namespaced, and so is every bundled
+     * plugin class, but almost nothing that NAMES one is: `getClass('Host')`,
+     * `new $short.'Manager'`, the 52 lowercase strings in
+     * Route::$validClasses and FOGPage's $childClass all spell the bare name.
+     * `new $string` and a class name in a string resolve from the GLOBAL
+     * namespace -- `use` is not consulted and the enclosing namespace is not
+     * applied -- so they worked only while each file under src/ ended in a
+     * class_alias() re-exporting itself there. Those aliases are retired
+     * (ADR 0013 §2), and this is the one place the translation happens, so
+     * retiring them did not mean editing every caller.
      *
-     * Three things pass through untouched, each on purpose:
+     * Two maps, consulted in that order:
      *
-     *  - a plugin class, which is global-namespace by design (ADR 0009) and
-     *    is resolved by Initiator::autoload() from a directory that did not
-     *    exist at build time;
-     *  - a name src/ does not declare at all -- \DateTimeZone reaches here
-     *    from a real caller, and the 46 discovery-named classes under lib/
-     *    carry their own aliases;
+     *  - Initiator::srcClassMap(), core, under src/;
+     *  - Initiator::pluginShortMap(), the plugin classes that declare a
+     *    FOG\Plugins\<Plugin>\ namespace.
+     *
+     * Core first is a guarantee, not a preference -- see the comment in the
+     * body.
+     *
+     * Two things still pass through untouched, each on purpose:
+     *
+     *  - a name neither map declares -- \DateTimeZone reaches here from a
+     *    real caller, and a plugin still written in the global namespace
+     *    resolves by its bare name through Initiator::autoload() exactly as
+     *    it did before;
      *  - a name that is already qualified. That needs no guard of its own:
-     *    the map is keyed on lowercased SHORT names, so 'fog\items\host'
+     *    both maps are keyed on lowercased SHORT names, so 'fog\items\host'
      *    matches nothing and falls through. An explicit early return for it
      *    was written first and removed -- mutation testing showed deleting
      *    it changed no behavior, which is the definition of a branch
@@ -663,12 +671,34 @@ abstract class FOGBase
      *
      * @param string $class the class name, bare or qualified
      *
-     * @return string the FQCN where src/ declares one, else $class unchanged
+     * @return string the FQCN where core or a plugin declares one, else
+     *                $class unchanged
      */
     public static function qualify(string $class): string
     {
+        $key = strtolower($class);
         $map = \Initiator::srcClassMap();
-        return $map[strtolower($class)] ?? $class;
+        if (isset($map[$key])) {
+            return $map[$key];
+        }
+        // Then the plugins, which are namespaced too now -- FOG\Plugins\
+        // <Plugin>\<Class>. Same problem, same shape of answer: roughly 150
+        // getClass('X') literals live inside the plugins themselves, discovery
+        // derives a bare name from basename($file), and a plugin model reaches
+        // the REST API as the lowercase string the plugin pushed into
+        // Route::$validClasses through API_VALID_CLASSES. One lookup here
+        // serves all of them.
+        //
+        // Core is consulted FIRST and that order is load-bearing, not
+        // stylistic: it is what stops a plugin answering a core name. Before
+        // plugins were namespaced the same guarantee came from autoload()
+        // resolving src/ ahead of the plugin roots; this preserves it one
+        // layer up, where the name is still a string.
+        //
+        // A plugin still in the global namespace produces no entry in this map
+        // at all (Initiator reads the declaration, it does not assume one), so
+        // it falls through and resolves by its bare name exactly as before.
+        return \Initiator::pluginShortMap()[$key] ?? $class;
     }
 
     /**
@@ -4825,21 +4855,25 @@ abstract class FOGBase
     /**
      * The name of the class a discovered file declares.
      *
-     * Two file shapes reach discovery now and they answer to different names.
-     * A core class is src/<Bucket>/<Class>.php and, since the global aliases
-     * were retired, answers ONLY to its namespaced name. A plugin class is
-     * <plugin>/<dir>/<name>.<type>.php, is global-namespace by design and
-     * answers to its bare basename.
+     * Two file shapes reach discovery and they are named differently. A core
+     * class is src/<Bucket>/<Class>.php declaring FOG\<Bucket>\<Class>. A
+     * plugin class keeps the <plugin>/<dir>/<name>.<type>.php shape -- the
+     * discovery extension is how it is FOUND, so it did not move -- and
+     * declares FOG\Plugins\<Plugin>\<Name>.
      *
-     * qualify() spans both without a branch on where the file came from: it
-     * maps a name src/ declares onto its FQCN and passes anything else
-     * through untouched. So a plugin keeps resolving exactly as it did, and
-     * core resolves under the only name it now has.
+     * Neither answers to a bare name any more, and this method never learns
+     * the difference between them. It strips the extension to get the short
+     * name the FILENAME carries and hands that to qualify(), which owns both
+     * maps. A plugin still written in the global namespace is in neither, so
+     * its bare name passes through and resolves exactly as it always did --
+     * which is the whole reason a third-party plugin does not have to be
+     * converted before it will load.
      *
      * @param string $file      Absolute path to the discovered file.
      * @param string $extension The discovery extension, e.g. '.page.php'.
      *
-     * @return string FQCN for a core class, bare name for a plugin's.
+     * @return string the FQCN where core or a plugin declares one, else the
+     *                bare name the filename carries.
      */
     public static function classFromDiscoveredFile(
         string $file,

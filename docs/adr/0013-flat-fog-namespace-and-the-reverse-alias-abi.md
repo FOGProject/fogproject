@@ -4,6 +4,90 @@
 
 accepted
 
+## Amended 2026-08-31 — plugins are namespaced too, and the alias advice is withdrawn
+
+**Every bundled plugin class declares `FOG\Plugins\<Plugin>\<Class>`.** The
+`<Plugin>` segment is `ucfirst()` of the plugin's own directory name, applied
+mechanically with no lookup table and no exceptions, so `ldap/class/
+ldapmanager.class.php` declares `FOG\Plugins\Ldap\LDAPManager` and
+`helloworld/` gets `FOG\Plugins\Helloworld`. The subdirectory is not part of
+it: every class in one plugin shares one flat namespace, for the same reason
+core's models and managers share one — `FOGController::getManager()` is
+`qualify(shortName($this) . 'Manager')`, so a `Model\` / `Manager\` split
+would stop resolving.
+
+This reverses the clause in the 2026-08-30 amendment below:
+
+> **Nothing changes for plugins.** They keep the
+> `<plugin>/<dir>/<name>.<type>.php` shape, keep the global namespace (ADR
+> 0009), and a namespaced plugin page still requires its own `class_alias`.
+
+The first half stands and the second half does not. The file shape is
+unchanged — the discovery extensions are how a page, hook, event, report or
+task is *found*, so this is namespacing and not a second PSR-4 move — but
+plugins are no longer global and no longer need an alias.
+
+**Why the alias advice had to go rather than merely being tidied.** It was a
+rule whose failure mode was the whole admin UI. A plugin page that declared a
+namespace without aliasing itself back did not declare the class its filename
+promised; `FOGPageManager::loadPageClasses()` then called `get_class_vars()` on
+a name nothing declares, which is an uncaught `TypeError` in PHP 8, thrown from
+a constructor `management/index.php` builds before it can render anything. One
+third-party plugin, 500 on every page, recovery only from a shell. Documenting
+a footgun more clearly is not the same as removing it.
+
+**What made removing it possible.** Discovery had already been taught to route
+every derived name through `FOGBase::qualify()` (previous amendment), so there
+was exactly one place that had to learn a second map — and `qualify()` is also
+what `getClass()`'s ~520 literals, `getManager()`, `FOGPage::$childClass`,
+`Route::_newEntity()` and `Authorization::_scopeClassVars()` all go through.
+Teaching that one function meant no call site changed, in core or in the
+plugins: the roughly 150 `self::getClass('LDAPGroupManager')` literals inside
+`fog-plugins` still read exactly as they did.
+
+**Core is consulted first, and that order is the guarantee.**
+`Initiator::srcClassMap()` then `Initiator::pluginShortMap()`. Before plugins
+were namespaced the same property came from `autoload()` answering `src/` ahead
+of the plugin roots; it now has to hold one layer up, where the name is still a
+string. Its failure mode is the worst in the tree and is completely silent:
+`Authorization::_scopeClassVars()` resolves a node to its model through
+`qualify()`, so a plugin winning the bare name `host` is access control testing
+the wrong table, with nothing logged.
+
+**The map is READ from each file, never derived from its path.** This is the
+one implementation decision that is invisible in the code and load-bearing in
+the field. The path says what a plugin class *should* be called; only the file
+says whether it declares that name. Deriving would hand `qualify()` a
+`FOG\Plugins\` name for a plugin still written globally, and the
+`class_exists()` that follows would be false for a class sitting right there —
+breaking every unconverted third-party plugin at once. Because the declaration
+is read, such a plugin produces no entry, falls through to the bare-name
+`$classMap`, and loads exactly as before. **Plugins are installable artifacts
+FOG does not control (ADR 0009), so this change is additive or it is wrong.**
+
+**What plugins gain.** Two plugins may now each ship `class/settings.class.php`.
+Under the global namespace those folded to one key in `Initiator::$classMap`,
+the autoloader picked one, and the loser silently got the wrong class. Today's
+bundled tree happens to have zero duplicate basenames across all 176 plugin
+classes — that was luck, not a property. A consequence worth naming: the
+basename-collision warning in `autoload()` is now *suppressed* when both
+colliding files are namespaced plugin classes, because nothing is shadowed and
+a warning for a legal configuration is how a log stops being read.
+
+**What is unchanged, and deliberately.** Plugins still reference core by
+leading-backslash FQCN — all 403 references across the tree already did, and a
+leading backslash means the same thing inside a namespace, which is why the
+plugin-side diff is one line per file. `FOG\Plugins\` is the only prefix core
+claims: a plugin under a namespace of its own keeps the older contract and must
+still `class_alias()` itself back, because discovery still finds it by filename.
+
+**Gated by** `tests/plugin-namespace.test.php` here (the derivation, the
+autoload arm, `qualify()`'s precedence, the diagnostics, cache invalidation, and
+that a global-namespace plugin still resolves) and
+`tests/plugins-are-namespaced.test.php` in `fog-plugins` (every class file
+declares the namespace its path implies, and none declares a `class_alias`).
+Both were mutation-verified rather than merely observed green.
+
 ## Amended 2026-08-31 — decision 3's "no swap is coming" is superseded for the router
 
 **The AltoRouter fork is gone.** `lib/router/altorouter.class.php` and

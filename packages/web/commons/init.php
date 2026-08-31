@@ -394,6 +394,16 @@ class Initiator
      */
     private const BRIDGE_NS = 'FOG\\';
 
+    /**
+     * The namespace prefix core hands out to plugins.
+     *
+     * A plugin class declares FOG\Plugins\<Plugin>\<Class>, where <Plugin>
+     * is its own directory name. Core claims only this prefix: a plugin under
+     * a namespace of its own, or under none at all, resolves exactly as it did
+     * before (ADR 0013).
+     */
+    private const PLUGIN_NS = 'FOG\\Plugins\\';
+
     /** In-process memo of the class-source file list. */
     private static ?array $fileList = null;
 
@@ -479,8 +489,19 @@ class Initiator
         self::$classMap = null;
         self::$srcMap = null;
         self::$srcClassMap = null;
+        self::$pluginClassMap = null;
+        self::$pluginShortMap = null;
         @unlink(
             FOG_CACHE_DIR . DS . 'filelist.'
+            . md5(implode('|', self::_scanRoots())) . '.json'
+        );
+        // The plugin map keys on the same roots and heals on the same TTL, so
+        // leaving it would mean an uploaded plugin's classes resolving by their
+        // bare name (the file list is fresh) but not by their namespaced one
+        // (this map is not) -- the plugin half-loading for up to five minutes,
+        // which is the exact failure the function above exists to prevent.
+        @unlink(
+            FOG_CACHE_DIR . DS . 'pluginmap.'
             . md5(implode('|', self::_scanRoots())) . '.json'
         );
         // src/ too. Nothing writes there at runtime today -- the plugin
@@ -586,11 +607,12 @@ class Initiator
      * TTL and its refusal to serve a name two files both claim. Under PSR-4
      * the path IS the name: src/<Bucket>/<Class>.php is FOG\<Bucket>\<Class>.
      *
-     * Only src/ is covered, and deliberately. The 46 discovery-named classes
-     * under lib/ carry their own class_alias and are not part of the alias
-     * set being retired; plugins are global-namespace by design (ADR 0009)
-     * and must keep resolving as bare names. Both fall through untouched --
-     * see FOGBase::qualify().
+     * Only src/ is covered, and deliberately. Plugins have a map of their
+     * own -- pluginClassMap() below -- because they are found by reading
+     * what each file declares rather than by deriving a name from its path,
+     * and because core has to be consulted FIRST so a plugin cannot answer a
+     * core name. Anything in neither map falls through untouched; see
+     * FOGBase::qualify().
      *
      * A useful side effect: because this is built from FOG's own tree rather
      * than from Composer's classmap, a vendored package sharing a short name
@@ -611,6 +633,286 @@ class Initiator
                 . basename($path, '.php');
         }
         return self::$srcClassMap = $map;
+    }
+
+    /**
+     * Every namespaced plugin class, by lowercased FQCN => absolute path.
+     *
+     * Plugins were the last global-namespace code in the tree. They declare
+     * `namespace FOG\Plugins\<Plugin>;` now, and this is the map that makes
+     * that name resolvable -- the mirror of srcClassMap() for the half of the
+     * tree Composer cannot see, because a plugin is installed at runtime into
+     * a directory that did not exist when the classmap was dumped (ADR 0009).
+     *
+     * Read from the file rather than derived from the path, which is the one
+     * design decision here worth stating. The path says what a plugin class
+     * SHOULD be called; only the file says whether it actually declares that
+     * name. Deriving it would hand qualify() a FOG\Plugins\ name for a plugin
+     * still written in the global namespace, and the lookup that follows would
+     * then fail on a class nothing declares -- breaking every third-party
+     * plugin that has not been converted. Those keep working precisely because
+     * a file with no FOG\Plugins\ namespace produces no entry here and falls
+     * through to the bare-name $classMap exactly as before.
+     *
+     * @var array<string, string>|null
+     */
+    private static ?array $pluginClassMap = null;
+
+    /**
+     * Lowercased short name => cased FQCN, for FOGBase::qualify().
+     *
+     * The reason this exists is the same reason srcClassMap() exists: almost
+     * nothing NAMES a class with its namespace. Roughly 150 getClass('X')
+     * literals live inside the plugins themselves, discovery derives a bare
+     * name from basename($file), and plugin models reach the REST API as the
+     * lowercase strings a plugin pushes into Route::$validClasses through the
+     * API_VALID_CLASSES hook. One lookup keeps all of them working, instead of
+     * rewriting every call site.
+     *
+     * @var array<string, string>|null
+     */
+    private static ?array $pluginShortMap = null;
+
+    /**
+     * Every namespaced plugin class, by lowercased FQCN => absolute path.
+     *
+     * @return array<string, string>
+     */
+    public static function pluginClassMap(): array
+    {
+        self::_buildPluginMaps();
+        return self::$pluginClassMap;
+    }
+
+    /**
+     * Every namespaced plugin class, by lowercased short name => cased FQCN.
+     *
+     * @return array<string, string>
+     */
+    public static function pluginShortMap(): array
+    {
+        self::_buildPluginMaps();
+        return self::$pluginShortMap;
+    }
+
+    /**
+     * Build both plugin maps from one scan, memoised and cached.
+     *
+     * Cached on the same TTL and invalidated by the same forgetClassFileList()
+     * as the file list it is built from, so a plugin installed while the
+     * server is running becomes resolvable at the same moment its files do.
+     *
+     * @return void
+     */
+    private static function _buildPluginMaps(): void
+    {
+        if (self::$pluginClassMap !== null) {
+            return;
+        }
+        $cacheFile = FOG_CACHE_DIR . DS . 'pluginmap.'
+            . md5(implode('|', self::_scanRoots())) . '.json';
+        $declared = self::_readPluginMapCache($cacheFile);
+        if ($declared === null) {
+            $declared = self::_scanPluginNamespaces();
+            self::_writeFileListCache($cacheFile, $declared);
+        }
+        $byFqcn = [];
+        $byShort = [];
+        foreach ($declared as $fqcn => $path) {
+            $byFqcn[strtolower($fqcn)] = $path;
+            $short = strtolower(substr($fqcn, strrpos($fqcn, '\\') + 1));
+            if (isset($byShort[$short])) {
+                // Two plugins declaring the same class name. This is what
+                // namespacing is FOR -- both classes exist, both resolve, and
+                // neither shadows the other -- so it is not an error. What is
+                // ambiguous is only the SHORT spelling, so say which one the
+                // short name will answer to and name the cure.
+                error_log(
+                    sprintf(
+                        'FOG autoloader: two plugins declare a class named '
+                        . '"%s" (%s and %s). Both resolve under their own '
+                        . 'namespace; the bare name resolves to the first. '
+                        . 'Spell it fully qualified where you mean the other.',
+                        $short,
+                        $byShort[$short],
+                        $fqcn
+                    )
+                );
+                continue;
+            }
+            $byShort[$short] = $fqcn;
+        }
+        self::$pluginClassMap = $byFqcn;
+        self::$pluginShortMap = $byShort;
+    }
+
+    /**
+     * Scan the plugin roots for classes declaring a FOG\Plugins\ namespace.
+     *
+     * Whole-file reads, not a bounded prefix: the namespace is always a
+     * leading statement, but the class declaration it applies to is not, and
+     * a prefix that missed the declaration would silently drop a converted
+     * class out of the map -- which is the one failure mode this method has
+     * to avoid, because such a class then resolves under NEITHER name. The
+     * whole bundled plugin tree is about a megabyte and this runs once per
+     * FILELIST_TTL, alongside a directory walk that stats the entire tree.
+     *
+     * Only the FOG\Plugins\ prefix is claimed. A plugin under a namespace of
+     * its own keeps the pre-existing contract -- it must class_alias() itself
+     * back into the global namespace, because discovery still finds it by
+     * filename -- and a plugin with no namespace at all is untouched.
+     *
+     * @return array<string, string> cased FQCN => absolute path
+     */
+    private static function _scanPluginNamespaces(): array
+    {
+        $nsPattern = '#^[ \t]*namespace[ \t]+('
+            . preg_quote(self::PLUGIN_NS, '#')
+            . '[A-Za-z0-9_\x80-\xff\\\\]+)[ \t]*;#m';
+        $clsPattern = '#^[ \t]*(?:(?:final|abstract|readonly)[ \t]+)*'
+            . '(?:class|interface|trait|enum)[ \t]+'
+            . '([A-Za-z_\x80-\xff][A-Za-z0-9_\x80-\xff]*)#m';
+        $map = [];
+        $seen = [];
+        foreach (self::classFileList() as $path) {
+            if (!self::_isPluginPath($path)) {
+                continue;
+            }
+            $source = @file_get_contents($path);
+            if ($source === false || !preg_match($nsPattern, $source, $ns)) {
+                continue;
+            }
+            if (!preg_match($clsPattern, $source, $cls)) {
+                // A namespace with nothing to put in it. Loud, because the
+                // file is now unreachable by either spelling and the symptom
+                // surfaces as a missing feature rather than as an error.
+                error_log(
+                    sprintf(
+                        'FOG autoloader: %s declares namespace %s but no '
+                        . 'class, interface, trait or enum.',
+                        $path,
+                        $ns[1]
+                    )
+                );
+                continue;
+            }
+            $expected = self::PLUGIN_NS . ucfirst(self::_pluginOf($path));
+            if (strcasecmp($ns[1], $expected) !== 0) {
+                // Not refused -- what a file declares is what resolves, and
+                // narrowing that here would make a working plugin stop
+                // loading over a naming opinion. But the per-plugin segment is
+                // what guarantees two plugins cannot collide, and a plugin
+                // that opts out of it has opted out of the guarantee.
+                error_log(
+                    sprintf(
+                        'FOG autoloader: %s declares namespace %s; the plugin '
+                        . 'directory it sits in makes it %s. It will resolve '
+                        . 'as declared, but only the directory-derived name '
+                        . 'is guaranteed unique across plugins.',
+                        $path,
+                        $ns[1],
+                        $expected
+                    )
+                );
+            }
+            $fqcn = $ns[1] . '\\' . $cls[1];
+            $key = strtolower($fqcn);
+            if (isset($seen[$key])) {
+                error_log(
+                    sprintf(
+                        'FOG autoloader: two files declare the plugin class '
+                        . '"%s" (%s and %s); using the first.',
+                        $fqcn,
+                        $seen[$key],
+                        $path
+                    )
+                );
+                continue;
+            }
+            $seen[$key] = $path;
+            $map[$fqcn] = $path;
+        }
+        return $map;
+    }
+
+    /**
+     * The plugin directory name a path sits under.
+     *
+     * The first path segment below whichever plugin root contains the file --
+     * bundled at lib/plugins, or the external FOG_PLUGIN_DIR. That segment is
+     * the plugin's machine name: it is what plugin.config.php's 'name' must
+     * equal, what ?node= addresses, and what plugins.pName holds. Using it,
+     * rather than anything inside the file, is what makes two plugins
+     * structurally unable to claim the same namespace.
+     *
+     * @param string $path an absolute path known to be under a plugin root
+     *
+     * @return string the directory name, or '' if the path has no segment
+     */
+    private static function _pluginOf(string $path): string
+    {
+        foreach (self::_pluginRoots() as $root) {
+            if (strncmp($path, $root, strlen($root)) !== 0) {
+                continue;
+            }
+            $rest = substr($path, strlen($root));
+            $cut = strpos($rest, DS);
+            return $cut === false ? '' : substr($rest, 0, $cut);
+        }
+        return '';
+    }
+
+    /**
+     * Read a cached plugin map, or null when it is missing, stale or suspect.
+     *
+     * Same validation as _readFileListCache -- FOG_CACHE_DIR is
+     * world-writable, so a persisted map is trusted only while every value
+     * still sits under a scanned root -- with one deliberate difference: an
+     * EMPTY map is a valid answer here and is served from cache.
+     *
+     * That difference is the whole reason this is not _readFileListCache. A
+     * tree whose plugins are all still global-namespace, or a server with no
+     * plugins installed, legitimately yields no entries; treating that as a
+     * cache miss would re-read every plugin file on every single request,
+     * forever, on exactly the installs that gain nothing from the scan.
+     *
+     * @param string $file the cache file
+     *
+     * @return array<string, string>|null
+     */
+    private static function _readPluginMapCache(string $file): ?array
+    {
+        clearstatcache(true, $file);
+        if (!is_file($file)
+            || (time() - (int) filemtime($file)) > self::FILELIST_TTL
+        ) {
+            return null;
+        }
+        $json = @file_get_contents($file);
+        if ($json === false) {
+            return null;
+        }
+        $data = json_decode($json, true);
+        if (!is_array($data)) {
+            return null;
+        }
+        $roots = self::_scanRoots();
+        foreach ($data as $fqcn => $path) {
+            if (!is_string($fqcn) || !is_string($path)) {
+                return null;
+            }
+            $inRoot = false;
+            foreach ($roots as $root) {
+                if (strncmp($path, $root, strlen($root)) === 0) {
+                    $inRoot = true;
+                    break;
+                }
+            }
+            if (!$inRoot) {
+                return null;
+            }
+        }
+        return $data;
     }
 
     /**
@@ -669,13 +971,62 @@ class Initiator
      *
      * @return bool
      */
-    private static function _isPluginPath(string $path): bool
+    /**
+     * The directories plugins are loaded from, with a trailing separator.
+     *
+     * Bundled plugins live inside BASEPATH at lib/plugins; an install may
+     * also carry an external root at FOG_PLUGIN_DIR (ADR 0009). One
+     * definition, because two callers derive different things from the same
+     * list -- whether a path is plugin code at all, and which plugin it
+     * belongs to -- and a list that drifted between them would classify the
+     * same file two ways.
+     *
+     * The trailing separator is not cosmetic: every caller compares by string
+     * prefix, and without it a root would also match a sibling directory
+     * whose name merely starts the same way.
+     *
+     * @return string[]
+     */
+    private static function _pluginRoots(): array
     {
         $roots = [rtrim(BASEPATH, DS) . DS . 'lib' . DS . 'plugins' . DS];
         if (defined('FOG_PLUGIN_DIR') && FOG_PLUGIN_DIR) {
             $roots[] = rtrim(FOG_PLUGIN_DIR, DS) . DS;
         }
-        foreach ($roots as $root) {
+        return $roots;
+    }
+
+    /**
+     * Are both of these files namespaced plugin classes?
+     *
+     * Answers the one question autoload()'s basename-collision branch needs:
+     * is this collision real. Two plugin files folding to one bare key used
+     * to mean one class silently replaced the other, because the bare name
+     * was the only name either had. Since plugins declare
+     * FOG\Plugins\<Plugin>\<Class> that is no longer true -- each has a
+     * name of its own, and the shared key is simply not the key anything
+     * looks either of them up by.
+     *
+     * Consulting pluginClassMap() here is safe despite being called from
+     * inside autoload(): the map is built from classFileList(), which is
+     * already in hand by this point, and building it reads files with
+     * file_get_contents() and preg_match(), neither of which can re-enter
+     * the autoloader.
+     *
+     * @param string $a first path
+     * @param string $b second path
+     *
+     * @return bool true only when BOTH declare a FOG\Plugins\ namespace
+     */
+    private static function _bothNamespacedPlugins(string $a, string $b): bool
+    {
+        $paths = self::pluginClassMap();
+        return in_array($a, $paths, true) && in_array($b, $paths, true);
+    }
+
+    private static function _isPluginPath(string $path): bool
+    {
+        foreach (self::_pluginRoots() as $root) {
             if (strncmp($path, $root, strlen($root)) === 0) {
                 return true;
             }
@@ -927,6 +1278,21 @@ class Initiator
                 if (self::_isPluginPath($held) && !self::_isPluginPath($path)) {
                     $map[$base] = $path;
                 }
+                // Unless both files are namespaced plugin classes, in which
+                // case nothing is shadowed and there is nothing to report.
+                // Two plugins each shipping class/settings.class.php is the
+                // configuration namespacing exists to make legal: both
+                // classes are declared, both resolve under their own
+                // FOG\Plugins\<Plugin>\ name, and this key is never the one
+                // consulted for either -- qualify() hands the caller an FQCN
+                // and pluginClassMap() answers it. Warning anyway would put a
+                // line reading "a shadowed class resolves to whichever file
+                // this rule picks" in the log on every cold request, for a
+                // tree that is behaving exactly as designed, which is how a
+                // log stops being read.
+                if (self::_bothNamespacedPlugins($held, $path)) {
+                    continue;
+                }
                 $loser = ($map[$base] === $held) ? $path : $held;
                 error_log(
                     sprintf(
@@ -1002,6 +1368,28 @@ class Initiator
             // something else.
             include_once self::$classMap[$key];
             return;
+        }
+
+        // A namespaced plugin class -- FOG\Plugins\<Plugin>\<Class>.
+        //
+        // Nothing above can answer it. Composer claims the FOG\ prefix and
+        // maps it onto src/, so it looks for src/Plugins/<Plugin>/<Class>.php
+        // and misses; the classMap above is keyed on bare basenames, so
+        // 'fog\plugins\ldap\ldapmanager' is not a key it holds; and
+        // _bridgeNamespaced() refuses any name carrying a second backslash.
+        // Before this arm existed a namespaced plugin simply did not resolve,
+        // which is why ADR 0013 told plugin authors to class_alias()
+        // themselves back into the global namespace.
+        //
+        // Answered LAST, and only for this one prefix. Core is already served,
+        // and served first; the bare-name classMap is untouched, which is what
+        // keeps an unconverted third-party plugin loading exactly as it did.
+        if (strncasecmp($class, self::PLUGIN_NS, strlen(self::PLUGIN_NS)) === 0) {
+            $file = self::pluginClassMap()[$key] ?? null;
+            if ($file !== null) {
+                include_once $file;
+                return;
+            }
         }
 
         self::_bridgeNamespaced($class);
