@@ -27,7 +27,9 @@
  *     refuses a change, and it does NOT refuse a round trip;
  *   - joining()'s POST class gate;
  *   - _requireFound(), the 404 on an id that does not exist;
- *   - deletemass()'s lockout guard, in both directions.
+ *   - deletemass()'s lockout guard, in both directions;
+ *   - that the lockout guard runs ONCE, at the top, and not per cascade
+ *     table (F-53).
  *
  * The joining gate took two goes. The first check compared status codes,
  * found `host` and `group` both refused with a 400, and passed with the gate
@@ -40,17 +42,15 @@
  *
  * All three of the mutations above are covered now.
  *
- * WHAT IS NOT, AND WHY. The lockout guard's DEPTH condition is not. It runs
- * only at `self::$_deleteDepth < 1`, because the cascade re-enters
- * deletemass() for each dependent table and those intermediate states are
- * part of one operation already judged as a whole. Removing the condition --
- * `if (true || self::$_deleteDepth < 1)` -- leaves every check here green,
- * because the cascade on this fixture finds no rows to re-enter with. Netting
- * it needs a fixture whose cascade produces an intermediate state that reads
- * as a lockout while the whole operation does not, which is a bigger picture
- * than the one built below.
+ * The lockout guard's DEPTH condition is covered too, by section 6. F-53
+ * called for a fixture whose cascade produces an intermediate state reading
+ * as a lockout while the whole operation does not, and that turned out to be
+ * the wrong thing to build: the condition's contract is not "the guard would
+ * refuse at depth", it is "the guard does not RUN at depth". That is directly
+ * observable in the query log and needs no lockout at all.
  *
- * That is a real hole and it is recorded rather than papered over.
+ * WHAT IS NOT. Nothing known. Every mutation tried against this file's
+ * subjects is red; the ones that were once green are listed above.
  *
  * DB-free. FogTestHarness::fakeDb() logs every statement and can answer any
  * of them, so no MySQL is involved anywhere here.
@@ -248,6 +248,129 @@ function runChild($case)
             echo 'REFUSED ' . str_replace("\n", ' ', $e->getMessage())
                 . ' STATEMENTS ' . count($db->log) . "\n";
         }
+        return;
+    }
+
+    // depth:<id> deletes ONE of two administrators, which is a delete the
+    // outer guard must allow. What it is for is the cascade underneath: the
+    // user arm re-enters deletemass() for roleuserassociation and
+    // usergroupmember, and BOTH of those are classes
+    // assertAdminRemainsAfterDelete() has a real arm for. If the guard were
+    // to run at depth, it would ask its question again about a half-applied
+    // state -- and the only way to see whether it did is that its
+    // association arm reads roleUserAssoc with a WHERE on it, through
+    // Authorization::_remaining(). Nothing else in this call does.
+    //
+    // So the marker carries that count. Zero means the guard ran once, at
+    // the top, which is the contract.
+    if (0 === strpos($case, 'depth:')) {
+        $parts = explode(':', $case);
+        $ids = array_map('intval', explode(',', $parts[1]));
+        $users = [1, 2];
+        // The rua row ids the cascade will find for the user being deleted.
+        // They have to be non-empty or assertAdminRemainsAfterDelete()
+        // returns on `count($ids) < 1` before doing anything, and the
+        // mutation would then be invisible for the most boring reason there
+        // is.
+        $ruaIDs = [11];
+        $db->responder = function ($sql, $params) use ($users, $ids, $ruaIDs) {
+            $flat = preg_replace('/\s+/', ' ', trim($sql));
+            if (false !== strpos($flat, 'FROM `users` WHERE `uId` IN')) {
+                return array_map(function ($u) { return ['uId' => $u]; }, $ids);
+            }
+            if ($flat === 'SELECT `uID` FROM `users`') {
+                return array_map(function ($u) { return ['uID' => $u]; }, $users);
+            }
+            if (false !== strpos($flat, '`uAuthSource` FROM `users`')) {
+                return array_map(function ($u) { return ['uID' => $u, 'uAuthSource' => '']; }, $users);
+            }
+            if (false !== strpos($flat, '`uAPIOnly` FROM `users`')) {
+                return array_map(function ($u) { return ['uID' => $u, 'uAPIOnly' => '0']; }, $users);
+            }
+            // The cascade's own lookup, and _remaining()'s: both are
+            // roleUserAssoc with a WHERE. Answered with row ids when the
+            // projection is `ruaID`, with the membership pair when it is
+            // the wholesale read adminExistsGiven() does.
+            if (false !== strpos($flat, 'FROM `roleUserAssoc`')) {
+                if (false !== strpos($flat, 'SELECT `ruaID`')) {
+                    return array_map(
+                        function ($r) { return ['ruaID' => $r]; },
+                        $ruaIDs
+                    );
+                }
+                if (false !== strpos($flat, 'SELECT `ruaUserID`')) {
+                    return array_map(
+                        function ($u) { return ['ruaUserID' => $u]; },
+                        $ids
+                    );
+                }
+                if (false !== strpos($flat, 'SELECT `ruaRoleID` FROM')) {
+                    return [['ruaRoleID' => 1]];
+                }
+                return array_map(
+                    function ($u) { return ['ruaRoleID' => 1, 'ruaUserID' => $u]; },
+                    $users
+                );
+            }
+            if (false !== strpos($flat, 'FROM `userGroupMembers`')) {
+                return [];
+            }
+            if (false !== strpos($flat, 'FROM `roleUserGroupAssoc`')) {
+                return [];
+            }
+            if (false !== strpos($flat, 'FROM `rolePermissions`')) {
+                return [['rpRoleID' => 1]];
+            }
+            return null;
+        };
+        // An OFFSET rather than `$db->log = []`, unlike the cases above.
+        // They only ever count the log; this one iterates it, and after an
+        // assignment of [] phpstan knows the array is empty and calls the
+        // loop dead. Taking the mark instead is also the more honest thing
+        // to do -- the harness's own record is left intact.
+        $logFrom = count($db->log);
+        $outcome = 'ALLOWED';
+        try {
+            Route::asValue(
+                function () use ($ids) {
+                    Route::deletemass('user', ['id' => $ids]);
+                }
+            );
+        } catch (\Throwable $e) {
+            $outcome = 'REFUSED ' . str_replace("\n", ' ', $e->getMessage());
+        }
+        // Whether the guard ran AT ALL on this call, so the check below is
+        // not one-sided: adminExistsGiven(), localAdminExists() and
+        // interactiveAdminExists() are the only things in the tree that read
+        // the users table bare, and all three are reached only through the
+        // guard.
+        $userReads = 0;
+        $scoped = 0;
+        $issued = array_slice($db->log, $logFrom);
+        foreach ($issued as $q) {
+            if ('SELECT `uID` FROM `users`' === preg_replace('/\s+/', ' ', trim($q))) {
+                $userReads++;
+            }
+        }
+        foreach ($issued as $q) {
+            $flat = preg_replace('/\s+/', ' ', trim($q));
+            // Not just "reads roleUserAssoc with a WHERE" -- the cascade
+            // itself does that, looking up the rows it is about to delete,
+            // and it projects `ruaID`. _remaining() is the one that asks
+            // roleUserAssoc WHICH USER or WHICH ROLE a set of rows belongs
+            // to, and it is the only caller here that projects `ruaUserID`
+            // or `ruaRoleID` with a WHERE on it. adminExistsGiven()'s own
+            // membership read selects both columns and carries no WHERE.
+            if (false !== strpos($flat, 'FROM `roleUserAssoc`')
+                && false !== strpos($flat, 'WHERE')
+                && (false !== strpos($flat, 'SELECT `ruaUserID` FROM')
+                    || false !== strpos($flat, 'SELECT `ruaRoleID` FROM'))
+            ) {
+                $scoped++;
+            }
+        }
+        echo $outcome . ' USERREADS ' . ($userReads > 0 ? 'yes' : 'no')
+            . ' RUAREADS ' . $scoped . "\n";
         return;
     }
 
@@ -541,6 +664,53 @@ $t->check(
     . "otherwise the check above passes on a guard that refuses everything "
     . "(got: $line)",
     false === strpos($line, 'able to administer FOG')
+);
+
+/*
+ * ===========================================================================
+ * 6. ...and it asks ONCE, at the top, not again inside the cascade.
+ *
+ *    `if (self::$_deleteDepth < 1)`. The cascade re-enters deletemass() for
+ *    each dependent table, and two of the four a user delete cascades into --
+ *    roleuserassociation and usergroupmember -- are classes
+ *    assertAdminRemainsAfterDelete() has a real arm for. Running it there
+ *    would judge a half-applied state that is part of one operation already
+ *    judged as a whole, and refuse deletes that are fine.
+ *
+ *    Recorded as F-53 in docs/refactor-facts.md as the one mutation section 5
+ *    did not cover: `if (true || self::$_deleteDepth < 1)` left every check
+ *    green, because the fixture there cascades into nothing.
+ *
+ *    The signal is which QUERIES the call makes, because the outcome cannot
+ *    tell you -- the delete succeeds either way on this fixture; what changes
+ *    is how many times the install was interrogated about its administrators.
+ *
+ *      USERREADS  the bare `SELECT `uID` FROM `users`` that
+ *                 adminExistsGiven(), localAdminExists() and
+ *                 interactiveAdminExists() issue, and nothing else does.
+ *                 Proves the guard ran at the top of THIS call, so the
+ *                 RUAREADS assertion cannot pass by the guard being gone.
+ *      RUAREADS   roleUserAssoc read with a WHERE and projecting ruaUserID
+ *                 or ruaRoleID -- the shape only Authorization::_remaining()
+ *                 produces, and _remaining() is reachable only from the
+ *                 guard's ASSOCIATION arms, which only a call at depth can
+ *                 reach. The cascade's own lookup of the rows it is about to
+ *                 delete projects ruaID and is deliberately not counted.
+ *
+ *    Deleting one of two administrators, so the whole operation is allowed
+ *    and the only question left is how often it was asked.
+ * ===========================================================================
+ */
+$line = child('depth:1', '{}', 'DELETE');
+$t->check(
+    "deletemass(): the lockout guard runs at the top of the delete "
+    . "(got: $line)",
+    false !== strpos($line, 'USERREADS yes')
+);
+$t->check(
+    "deletemass(): the lockout guard does NOT run again inside the cascade "
+    . "(got: $line)",
+    false !== strpos($line, 'RUAREADS 0')
 );
 
 $t->finish();
