@@ -4799,6 +4799,53 @@ EOF
                 echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                 echo "    RewriteRule .* - [F]" >> "$etcconf"
                 echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+                # GH-978: every path a BOOTLOADER itself fetches must not be
+                # redirected to an HTTPS it cannot validate. On this line that
+                # is one directory -- service/ipxe/ -- holding boot.php and
+                # advanced.php, the menu artwork, refind, grub and memtest.
+                #
+                # This RESTORES the redirect's original scope rather than
+                # punching a new hole in it. It was written in 2017 as
+                #
+                #   RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}...
+                #
+                # and 2b8bacfed ("Make sure query string is passed properly",
+                # 2017-04-29) replaced the whole rule with `(.*)` to fix how the
+                # query string was carried. Widening it from the management UI
+                # to the entire site was collateral of that fix, not a decision;
+                # nothing in the commit or its message mentions scope.
+                #
+                # Why it cannot simply be "rebuild iPXE with the CA": the
+                # binaries that need this most are the ones FOG must NOT build.
+                # downloadipxesecureboot() stages upstream's Microsoft-signed
+                # shim and iPXE's signed loader, and those are built with no
+                # TRUST=/CERT= at all -- they can never trust a private CA, by
+                # construction. With $httpproto=https, default.ipxe chains over
+                # https and they fail validation; point one at http instead and
+                # the redirect below returned them to the same untrusted TLS.
+                # Either way the client prints "Permission denied" and stops,
+                # which is what GH-978 reported. Secure Boot and --force-https
+                # were mutually exclusive on this line until this condition.
+                #
+                # The cost, stated plainly because it is real: boot.php accepts
+                # a FOG admin username/password (bootmenu.class.php -- advanced
+                # menu access, host deletion, quick-image, debug access), so
+                # that POST becomes possible in cleartext for a client that
+                # chains over http. What bounds it is that the PXE chain has no
+                # confidentiality at its root anyway: DHCP hands out the next
+                # server and default.ipxe arrives over TFTP, both unencrypted.
+                # Anyone positioned to downgrade a client to http already
+                # controls the boot chain and can serve their own iPXE. The
+                # management UI, the API and fog-client are untouched and stay
+                # redirected.
+                #
+                # Conditions guard only the NEXT RewriteRule, and multiple
+                # RewriteConds are ANDed -- so this pair means "redirect only
+                # when the request is not for the netboot directory and is not
+                # already HTTPS". working-1.6 carries the same guard over three
+                # directories; service/secureboot/ and service/uboot/ do not
+                # exist on this line.
+                echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/ipxe/" >> "$etcconf"
                 echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
                 # GH-978: ^/?(.*)$ rather than (.*). In vhost context a
                 # RewriteRule pattern is matched against the URL-path WITH its
