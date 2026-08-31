@@ -134,6 +134,31 @@ function _childLoad($start, $listFile, $progressFile)
     foreach (['cache', 'log', 'plugins'] as $sub) {
         @mkdir($tmp . '/' . $sub, 0700, true);
     }
+    // The child is resumed after every fatal, so one run of this test forks
+    // several of these and each got a directory named after a pid that is
+    // never reused. Left behind they accumulate one tree per run, forever --
+    // and sys_get_temp_dir() is a tmpfs on a normal Linux box, so the leak is
+    // resident memory rather than disk. Registered before init.php loads
+    // anything, because a declaration error is fatal and shutdown functions
+    // are the only cleanup that still runs on that path.
+    register_shutdown_function(
+        function () use ($tmp) {
+            if (!is_dir($tmp)) {
+                return;
+            }
+            $it = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator(
+                    $tmp,
+                    \FilesystemIterator::SKIP_DOTS
+                ),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($it as $f) {
+                $f->isDir() ? @rmdir($f->getPathname()) : @unlink($f->getPathname());
+            }
+            @rmdir($tmp);
+        }
+    );
     define('FOG_CACHE_DIR', $tmp . '/cache');
     define('FOG_LOG_DIR', $tmp . '/log');
     define('FOG_PLUGIN_DIR', $tmp . '/plugins');
