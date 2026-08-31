@@ -67,10 +67,21 @@ FogTestHarness::setStatic('Authorization', '_permCache', [1 => ['*']]);
 /**
  * One value, rendered so a diff is readable and stable.
  *
- * Arrays are reduced to their size and keys rather than their contents: what
- * is under test is which keys the serializer produces and what SHAPE each
- * one has, and an embedded object's own contents are that object's contract,
- * not this one's.
+ * Arrays are reduced to their SHAPE, never their contents: `list` for a
+ * positional one, `map[a,b,c]` for an associative one. What is under test is
+ * which keys the serializer produces and what shape each one has -- an
+ * embedded object's own contents are that object's contract, not this one's.
+ *
+ * A list's LENGTH is deliberately not rendered, and this is not tidiness.
+ * The first version of this file recorded `array(N)[keys]`, and
+ * `storagegroup.enablednodes` then came out as array(1) on PHP 8.3 and
+ * array(0) on 7.4: StorageGroup::loadEnablednodes() skips a node whose
+ * `maxClients < 1`, and against the harness's synthesized non-numeric value
+ * PHP 7.4 casts the string to 0 while PHP 8 compares it as a string. The
+ * length was a property of the fake row and of the PHP version, not of the
+ * serializer, and the suite is run on both. (Production is unaffected --
+ * maxClients is an integer column, and a numeric string compares the same
+ * on either version.)
  *
  * @param mixed $v the value
  *
@@ -82,8 +93,15 @@ function renderValue($v)
         return var_export($v, true);
     }
     if (is_array($v)) {
-        return 'array(' . count($v) . ')['
-            . implode(',', array_map('strval', array_keys($v))) . ']';
+        $keys = array_keys($v);
+        // Empty counts as a list, because in PHP an empty array HAS no
+        // shape -- and because an arm whose value is empty on one PHP
+        // version and one-element on another must render identically or
+        // the fixture is version-dependent again. See the note above.
+        if (!count($keys) || $keys === range(0, count($keys) - 1)) {
+            return 'list';
+        }
+        return 'map[' . implode(',', array_map('strval', $keys)) . ']';
     }
     return 'object(' . get_class($v) . ')';
 }
