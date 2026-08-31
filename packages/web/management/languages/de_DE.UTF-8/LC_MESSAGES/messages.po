@@ -1200,6 +1200,15 @@ msgstr "Neue %s erstellen"
 msgid "Create New Access Control Role"
 msgstr "Neue Zugriffssteuerungsrolle erstellen"
 
+msgid "Create New Group"
+msgstr "Neue Gruppe erstellen"
+
+msgid "Create New Host"
+msgstr "Neue Host erstellen"
+
+msgid "Create New Image"
+msgstr "Neue Image erstellen"
+
 #, fuzzy
 msgid "Create New Key"
 msgstr "Neuen Schlüssel erstellen"
@@ -1212,17 +1221,24 @@ msgstr "Neues LDAP erstellen"
 msgid "Create New Location"
 msgstr "Neuen Standort erstellen"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Neuen Drucker erstellen"
+msgstr "Neue Drucker erstellen"
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "Neues Snapin erstellen"
+msgstr "Neue Snapin erstellen"
+
+msgid "Create New Storage Group"
+msgstr "Neue Storage Group erstellen"
+
+msgid "Create New Storage Node"
+msgstr "Neue Storage Node erstellen"
 
 #, fuzzy
 msgid "Create New SubnetGroup?"
 msgstr "Neue Gruppe erstellen"
+
+msgid "Create New User"
+msgstr "Neue Benutzer erstellen"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "Neuen iPXE Menü-Eintrag erstellen"
@@ -3773,6 +3789,30 @@ msgstr "Zeige"
 #, php-format
 msgid "List All %s"
 msgstr "Alle %s auflisten"
+
+msgid "List All Groups"
+msgstr "Alle Gruppes auflisten"
+
+msgid "List All Hosts"
+msgstr "Alle Hosts auflisten"
+
+msgid "List All Images"
+msgstr "Alle Images auflisten"
+
+msgid "List All Printers"
+msgstr "Alle Druckers auflisten"
+
+msgid "List All Snapins"
+msgstr "Alle Snapins auflisten"
+
+msgid "List All Storage Groups"
+msgstr "Alle Storage Groups auflisten"
+
+msgid "List All Storage Nodes"
+msgstr "Alle Storage Nodes auflisten"
+
+msgid "List All Users"
+msgstr "Alle Benutzers auflisten"
 
 #, fuzzy, php-format
 msgid "List all roles"

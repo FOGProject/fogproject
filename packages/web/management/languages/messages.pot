@@ -1027,6 +1027,15 @@ msgstr ""
 msgid "Create New Access Control Role"
 msgstr ""
 
+msgid "Create New Group"
+msgstr ""
+
+msgid "Create New Host"
+msgstr ""
+
+msgid "Create New Image"
+msgstr ""
+
 msgid "Create New Key"
 msgstr ""
 
@@ -1042,7 +1051,16 @@ msgstr ""
 msgid "Create New Snapin"
 msgstr ""
 
+msgid "Create New Storage Group"
+msgstr ""
+
+msgid "Create New Storage Node"
+msgstr ""
+
 msgid "Create New SubnetGroup?"
+msgstr ""
+
+msgid "Create New User"
 msgstr ""
 
 msgid "Create New iPXE Menu Entry"
@@ -3268,6 +3286,30 @@ msgstr ""
 
 #, php-format
 msgid "List All %s"
+msgstr ""
+
+msgid "List All Groups"
+msgstr ""
+
+msgid "List All Hosts"
+msgstr ""
+
+msgid "List All Images"
+msgstr ""
+
+msgid "List All Printers"
+msgstr ""
+
+msgid "List All Snapins"
+msgstr ""
+
+msgid "List All Storage Groups"
+msgstr ""
+
+msgid "List All Storage Nodes"
+msgstr ""
+
+msgid "List All Users"
 msgstr ""
 
 #, php-format

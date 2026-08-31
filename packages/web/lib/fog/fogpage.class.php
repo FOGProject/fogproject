@@ -245,6 +245,112 @@ abstract class FOGPage extends FOGBase
      */
     protected static $returnData;
     /**
+     * The "List All X" / "Create New X" pair for one node, written out.
+     *
+     * GH-435. These used to be built by sprintf()ing a translated noun into a
+     * translated format string -- `List All %s` and `Create New %s` -- and
+     * that cannot be translated correctly, in any language that inflects.
+     *
+     * French was the report: `Creer un nouveau %s` is masculine, so `machine`
+     * and `image` (both feminine) need `une nouvelle`, and `utilisateur` needs
+     * `nouvel` before its vowel. One format string cannot be all three. German
+     * inflects the adjective the same way -- `Neue %s erstellen` should be
+     * `Neuen Benutzer erstellen` for a masculine noun.
+     *
+     * The plural was broken independently of gender, and worse here than on
+     * working-1.6: the list label appended a literal `s` to $this->childClass,
+     * which was never translated at all, so every locale read a half-English
+     * label like "Alle Hosts auflisten". Japanese marks no plural, German
+     * `Rechner` is its own plural, and French nouns in -al take -aux.
+     *
+     * Whole phrases fix both at once and cost nothing anywhere else: each is
+     * an ordinary literal xgettext extracts, and a translator sees the entire
+     * sentence rather than a fragment with a hole in it.
+     *
+     * Keyed on childClass rather than on the node, because that is the value
+     * the composed form used and it already folds the storage special cases
+     * (node `storage` becomes StorageNode or StorageGroup above).
+     *
+     * Nodes NOT listed here fall back to the composed form, which is what
+     * plugins get: a plugin's class name is not knowable from here, and a
+     * plugin can ship its own catalog. The fallback is no worse for them than
+     * it was before this change.
+     *
+     * @param string $childClass the page's child class name
+     *
+     * @return array empty when the class has no written-out pair
+     */
+    private static function _nodeMenuStrings($childClass)
+    {
+        switch ($childClass) {
+            case 'Group':
+                return array('list' => _('List All Groups'),
+                             'add' => _('Create New Group'));
+            case 'Host':
+                return array('list' => _('List All Hosts'),
+                             'add' => _('Create New Host'));
+            case 'Image':
+                return array('list' => _('List All Images'),
+                             'add' => _('Create New Image'));
+            case 'Printer':
+                return array('list' => _('List All Printers'),
+                             'add' => _('Create New Printer'));
+            case 'Snapin':
+                return array('list' => _('List All Snapins'),
+                             'add' => _('Create New Snapin'));
+            case 'StorageGroup':
+                return array('list' => _('List All Storage Groups'),
+                             'add' => _('Create New Storage Group'));
+            case 'StorageNode':
+                return array('list' => _('List All Storage Nodes'),
+                             'add' => _('Create New Storage Node'));
+            case 'User':
+                return array('list' => _('List All Users'),
+                             'add' => _('Create New User'));
+        }
+        return array();
+    }
+
+    /**
+     * sprintf() for a format string that came out of a translation catalog.
+     *
+     * The catalog is edited by translators, so this format string is not under
+     * the codebase's control -- and a bad one fails DIFFERENTLY depending on
+     * the PHP version, which is why both arms below are needed:
+     *
+     *   PHP 8    sprintf('Lister 100% des %s', $n)   ArgumentCountError
+     *            sprintf('List %q of %s', $n)        ValueError
+     *   PHP 7    both of the above                   warning, returns false
+     *
+     * So on 8 an uncaught one takes the whole navigation menu out with a 500
+     * on every page, and on 7 nothing throws at all and `false` flows on to be
+     * rendered as an empty menu label. A Throwable catch alone would silently
+     * leave the 7.x half broken.
+     *
+     * Falling back to the untranslated argument keeps the menu rendering. It
+     * is not a good label, but it is a legible one, and it degrades in the one
+     * language whose catalog is at fault rather than everywhere.
+     *
+     * @param string $format translated format string
+     * @param string $value  already-translated noun to substitute
+     *
+     * @return string
+     */
+    private static function _composeMenuLabel($format, $value)
+    {
+        try {
+            $out = sprintf((string)$format, $value);
+        } catch (\Throwable $e) {
+            return (string)$value;
+        }
+        // The cast is the PHP 7 arm, not decoration: there sprintf() returns
+        // FALSE rather than throwing, and (string)false is ''. Comparing to ''
+        // rather than to false covers both that and a catalog entry that is
+        // simply empty.
+        return '' === (string)$out ? (string)$value : (string)$out;
+    }
+
+    /**
      * Initializes the page class
      *
      * @param mixed $name name of the page to initialize
@@ -435,22 +541,29 @@ abstract class FOGPage extends FOGBase
         );
         $exportMenu = sprintf('Export%s', $this->childClass);
         $importMenu = sprintf('Import%s', $this->childClass);
+        $pair = self::_nodeMenuStrings($this->childClass);
+        if (!count($pair)) {
+            $pair = array(
+                /**
+                 * No _() around the sprintf: a msgid built at runtime can
+                 * never match the literal xgettext extracted, so the outer
+                 * call was a guaranteed miss that returned its own argument.
+                 * Dropping it changes nothing at runtime and stops the line
+                 * claiming to be translatable.
+                 */
+                'list' => self::_composeMenuLabel(
+                    self::$foglang['ListAll'],
+                    sprintf('%ss', $this->childClass)
+                ),
+                'add' => self::_composeMenuLabel(
+                    self::$foglang['CreateNew'],
+                    _($this->childClass)
+                ),
+            );
+        }
         $this->menu = array(
-            /**
-             * No _() around the sprintf: a msgid built at runtime can never
-             * match the literal xgettext extracted, so the outer call was a
-             * guaranteed miss that returned its own argument. Dropping it
-             * changes nothing at runtime and stops the line claiming to be
-             * translatable.
-             */
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                sprintf('%ss', $this->childClass)
-            ),
-            'add' => sprintf(
-                self::$foglang['CreateNew'],
-                _($this->childClass)
-            ),
+            'list' => $pair['list'],
+            'add' => $pair['add'],
             'export' => isset(self::$foglang[$exportMenu]) ? sprintf(self::$foglang[$exportMenu]) : '',
             'import' => isset(self::$foglang[$importMenu]) ? sprintf(self::$foglang[$importMenu]) : '',
         );

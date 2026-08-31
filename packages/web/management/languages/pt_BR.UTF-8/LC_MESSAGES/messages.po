@@ -1053,6 +1053,15 @@ msgstr "Criar Novo(a) %s"
 msgid "Create New Access Control Role"
 msgstr "Criar Nova Função de Controle de Acesso"
 
+msgid "Create New Group"
+msgstr "Criar Novo(a) Grupo"
+
+msgid "Create New Host"
+msgstr "Criar Novo(a) Host"
+
+msgid "Create New Image"
+msgstr "Criar Novo(a) Imagem"
+
 msgid "Create New Key"
 msgstr "Criar Nova Chave"
 
@@ -1068,8 +1077,17 @@ msgstr "Criar Nova Impressora"
 msgid "Create New Snapin"
 msgstr "Criar Novo Snapin"
 
+msgid "Create New Storage Group"
+msgstr "Criar Novo(a) Storage Group"
+
+msgid "Create New Storage Node"
+msgstr "Criar Novo(a) Storage Node"
+
 msgid "Create New SubnetGroup?"
 msgstr "Criar Novo Grupo de Sub-rede?"
+
+msgid "Create New User"
+msgstr "Criar Novo(a) Usuário"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "Criar Nova Entrada de Menu iPXE"
@@ -3319,6 +3337,30 @@ msgstr "Listar"
 #, php-format
 msgid "List All %s"
 msgstr "Listar Todos os %s"
+
+msgid "List All Groups"
+msgstr "Listar Todos os Grupos"
+
+msgid "List All Hosts"
+msgstr "Listar Todos os Hosts"
+
+msgid "List All Images"
+msgstr "Listar Todos os Imagems"
+
+msgid "List All Printers"
+msgstr "Listar Todos os Impressoras"
+
+msgid "List All Snapins"
+msgstr "Listar Todos os Snapins"
+
+msgid "List All Storage Groups"
+msgstr "Listar Todos os Storage Groups"
+
+msgid "List All Storage Nodes"
+msgstr "Listar Todos os Storage Nodes"
+
+msgid "List All Users"
+msgstr "Listar Todos os Usuários"
 
 #, php-format
 msgid "List all roles"
