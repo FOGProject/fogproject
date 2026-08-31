@@ -811,17 +811,19 @@ class Host extends FOGController
     /**
      * Creates the tasking so I don't have to keep typing it in for each element.
      *
-     * @param string $taskName        the name to assign to the tasking
-     * @param int    $taskTypeID      the task type id to set the tasking
-     * @param string $username        the username to associate with the tasking
-     * @param int    $groupID         the Storage Group ID to associate with
-     * @param int    $memID           the Storage Node ID to associate with
-     * @param bool   $imagingTask     if the task is an imaging type
-     * @param bool   $shutdown        if the task is to be shutdown once completed
-     * @param string $passreset       if the task is a password reset task
-     * @param bool   $debug           if the task is a debug task
-     * @param bool   $wol             if the task is to wol
-     * @param bool   $bypassbitlocker bypass bitlocker checks
+     * @param string   $taskName        the name to assign to the tasking
+     * @param int      $taskTypeID      the task type id to set the tasking
+     * @param string   $username        the username to associate with
+     * @param int|null $groupID         the Storage Group ID to associate
+     *                                  with; null when no group serves it
+     * @param int|null $memID           the Storage Node ID to associate
+     *                                  with; null when no node serves it
+     * @param bool     $imagingTask     if the task is an imaging type
+     * @param bool     $shutdown        if the task is to be shutdown once done
+     * @param string   $passreset       if the task is a password reset task
+     * @param bool     $debug           if the task is a debug task
+     * @param bool     $wol             if the task is to wol
+     * @param bool     $bypassbitlocker bypass bitlocker checks
      *
      * @return object
      */
@@ -1343,8 +1345,15 @@ class Host extends FOGController
                     $taskName,
                     $TaskType->id,
                     $username,
-                    $imagingTypes ? $StorageGroup->get('id') : 0,
-                    $imagingTypes ? $StorageNode->get('id') : 0,
+                    // A non-imaging task -- inventory, wake-up, a snapin-only
+                    // run -- is served by no storage group and no node, and
+                    // "none" is NULL now that taskNFSGroupID and
+                    // taskNFSMemberID are nullable and constrained (ADR
+                    // 0031). The 0 that used to stand for it is not a
+                    // nfsGroups row, so the INSERT is refused outright with
+                    // 1452 and the task cannot be created at all.
+                    $imagingTypes ? $StorageGroup->get('id') : null,
+                    $imagingTypes ? $StorageNode->get('id') : null,
                     $imagingTypes,
                     $shutdown,
                     $passreset,
