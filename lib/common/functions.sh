@@ -819,7 +819,7 @@ recordGitUpdateSettings() {
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('SERVICE_LOG_PATH', 'Where the linux side fog services write their logs. Recorded automatically by installfog.sh from the install path -- editing it here has no effect. To move the logs, re-run the installer with a different base path.', \"${servicelogs%/}/\", 'FOG Linux Service Logs') ON DUPLICATE KEY UPDATE settingValue=\"${servicelogs%/}/\", settingDesc=VALUES(settingDesc)" ${DB_name} >>$error_log 2>&1
     errorStat $?
 }
-# Keeps FOG_WEB_HOST in step with the name netboot uses.
+# Keeps FOG_WEB_HOST to something the netboot certificate can prove.
 #
 # A boot is two hops with two host sources. default.ipxe names the server for
 # the fetch of boot.php; IpxeBootMenu builds everything after it -- the iPXE menu,
@@ -833,12 +833,51 @@ recordGitUpdateSettings() {
 # install FOG_WEB_HOST is a name plenty of admins set deliberately and no
 # certificate has to match it, so rewriting it there would be a regression
 # dressed as a fix.
+#
+# The same argument applies under HTTPS to a value the certificate DOES carry,
+# which is why this corrects rather than overwrites -- see the check below. An
+# address is a legitimate answer there: iPXE verifies one against an iPAddress
+# SAN exactly as it verifies a name, so "netboot needs a name" was never true.
+# _resolveNetbootHost() has the detail.
 recordNetbootWebHost() {
+    local currentwebhost=""
     [[ ${BOOT_url_proto} == https ]] || return 0
+    # An existing value the served certificate ALREADY serves is left alone.
+    #
+    # This row is not only netboot's. It is the canonical address of the
+    # server: ClientManagement hands it to every FOG client, FOGService,
+    # PingHosts and FOGURLRequests identify themselves by it, and a plugin
+    # building a browser-facing absolute URL -- OIDC's start, callback and
+    # post-logout among them -- resolves against it. Overwriting it therefore
+    # moved an admin's whole install onto whichever name the certificate
+    # happened to lead with, silently, on every run. It is how a server
+    # deliberately addressed as https://<ip>/ ended up bouncing its
+    # administrators to a DNS name at sign-in.
+    #
+    # What this function is FOR is narrower: making sure the boot URLs iPXE
+    # fetches after boot.php name something the certificate can prove. A value
+    # that already satisfies that needs no correction, whether it is a name or
+    # an address -- so check it, and only overwrite when it fails.
+    #
+    # Fail-safe in the direction that matters: a value that cannot be read (no
+    # globalSettings yet on a first install, a query that errors) is empty, so
+    # this falls through and records the certificate name exactly as before.
+    currentwebhost=$(mysql $sqloptionsuser --password="${DB_password}" -N -B \
+        --execute="SELECT settingValue FROM globalSettings WHERE settingKey='FOG_WEB_HOST'" \
+        ${DB_name} 2>>$error_log)
+    currentwebhost="${currentwebhost#"${currentwebhost%%[![:space:]]*}"}"
+    currentwebhost="${currentwebhost%"${currentwebhost##*[![:space:]]}"}"
+    [[ $currentwebhost == NULL ]] && currentwebhost=""
+    if [[ -n $currentwebhost ]] && _servedCertServes "$currentwebhost"; then
+        dots "Keeping FOG_WEB_HOST as $currentwebhost"
+        errorStat 0
+        echo "   The served certificate carries it, so netboot can prove it."
+        return 0
+    fi
     _resolveNetbootHost || return 1
     [[ -n $netboothost ]] || return 0
     dots "Pointing FOG_WEB_HOST at the netboot certificate name"
-    mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_WEB_HOST', 'This setting defines the hostname or ip address of the web server used with fog. Under HTTPS netboot it is recorded automatically from the served certificate name, because every boot URL iPXE fetches after boot.php is built from it -- an edit here is overwritten on the next install.', \"$netboothost\", 'Web Server') ON DUPLICATE KEY UPDATE settingValue=\"$netboothost\", settingDesc=VALUES(settingDesc)" ${DB_name} >>$error_log 2>&1
+    mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_WEB_HOST', 'This setting defines the hostname or ip address of the web server used with fog. Under HTTPS netboot it must be a name or address the served certificate carries, because every boot URL iPXE fetches after boot.php is built from it. An edit the certificate vouches for is kept; one it does not is replaced by the certificate name on the next install.', \"$netboothost\", 'Web Server') ON DUPLICATE KEY UPDATE settingValue=\"$netboothost\", settingDesc=VALUES(settingDesc)" ${DB_name} >>$error_log 2>&1
     errorStat $?
     echo "   FOG_WEB_HOST is now $netboothost. Every boot URL after boot.php is"
     echo "   built from it, and HTTPS netboot needs them to match the certificate."
@@ -5774,6 +5813,27 @@ _certServesName() {
     done <<< "$sans"
     return 1
 }
+# Does the SERVED certificate vouch for $1, whether it is a name or an address?
+#
+# The two are separate questions to a TLS client and so they are separate
+# functions here -- an address is matched against iPAddress SANs only and a
+# name against dNSName (or a lone commonName), with no crossover in either
+# direction. This is the one place that does not care which kind it was handed,
+# because its caller is asking about a host an admin chose rather than about a
+# name it derived.
+_servedCertServes() {
+    local host="$1" cert
+    [[ -n $host ]] || return 1
+    cert=$(_vhostCertPath)
+    [[ -n $cert && -f $cert ]] || cert="${PKI_web_vhost_cert}"
+    [[ -n $cert && -f $cert ]] || cert="$sslfullchain"
+    [[ -n $cert && -f $cert ]] || return 1
+    if [[ $(validip "$host") -eq 0 ]]; then
+        _certServesAddress "$cert" "$host"
+        return $?
+    fi
+    _certServesName "$cert" "$host" >/dev/null
+}
 # The single name HTTPS netboot addresses this server by. Sets $netboothost.
 #
 # Not local, on purpose. A boot is two hops with two host sources: default.ipxe
@@ -5801,8 +5861,28 @@ _resolveNetbootHost() {
     [[ -n $cert && -f $cert ]] || cert="$sslfullchain"
     [[ -n $cert && -f $cert ]] || cert=""
     # validip echoes 0 for a valid IPv4 literal, 1 otherwise.
-    if [[ -z $netboothost || $(validip "$netboothost") -eq 0 ]]; then
+    #
+    # An address is allowed, but only when the certificate carries it as an
+    # iPAddress SAN. It used to be refused outright, on the belief that HTTPS
+    # netboot needs a NAME -- that is not what iPXE does. x509_check_name()
+    # walks the subjectAltName list and dispatches X509_GENERAL_NAME_IP to
+    # x509_check_ipaddress(), which parses the requested host with sock_aton()
+    # and compares the binary address against the SAN. An IP literal verifies
+    # exactly as a name does, provided the SAN is there; what it cannot do is
+    # match a commonName, which is why _certServesAddress() has no CN
+    # fallback.
+    #
+    # The blanket refusal cost more than a missing feature. FOG_WEB_HOST is
+    # this row's other job -- the canonical address of the server, read by
+    # ClientManagement, the services and every browser-facing absolute URL a
+    # plugin builds -- so refusing an address here forced an install that is
+    # addressed by IP onto a name for everything else too.
+    if [[ -z $netboothost ]]; then
         reason="address"
+    elif [[ $(validip "$netboothost") -eq 0 ]]; then
+        if [[ -z $cert ]] || ! _certServesAddress "$cert" "$netboothost"; then
+            reason="addressnotincert"
+        fi
     elif [[ -n $cert ]] && ! match=$(_certServesName "$cert" "$netboothost"); then
         reason="mismatch"
     fi
@@ -5821,6 +5901,16 @@ _resolveNetbootHost() {
             echo
             echo "   Set a resolvable name with --hostname, or put netboot back on"
             echo "   HTTP with --netboot-proto http."
+        elif [[ $reason == addressnotincert ]]; then
+            echo "   Resolved address: $netboothost"
+            echo "   Certificate:     $cert"
+            echo "   It carries:      $(_certDnsNames "$cert" | tr '\n' ' ')"
+            echo
+            echo "   An address has to appear as an iPAddress SAN -- iPXE compares"
+            echo "   the binary address and will not read it out of a commonName or"
+            echo "   a DNS entry. Re-issue the certificate with $netboothost in its"
+            echo "   SAN list, address this server by a name instead, or put netboot"
+            echo "   back on HTTP with --netboot-proto http."
         else
             echo "   Resolved name: $netboothost"
             echo "   Certificate:   $cert"
