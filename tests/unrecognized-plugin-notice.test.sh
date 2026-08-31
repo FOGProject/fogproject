@@ -34,6 +34,14 @@
 #   4. Nothing here is fatal -- the function returns 0 in every case, so it
 #      can never abort an install (matches the pattern _warnClientRepin sets
 #      for a non-fatal, informational check).
+#   5. accesscontrol is named SEPARATELY and given the OPPOSITE advice. It is
+#      retired rather than relocated -- 1.6 replaces it with core roles and
+#      permissions -- so the "copy it to $fogprogramdir/plugins" line the rest
+#      of this notice gives would tell an admin to reinstall the thing the
+#      upgrade just removed. It is also unreachable by the scan: the backup
+#      step deletes it out of the backup before this function ever runs, so
+#      the notice keys on a flag _stripRetiredAccessControl sets, and is
+#      emitted ahead of both guards that exist only for the comparison.
 #
 # No install, no network, no root.
 #
@@ -173,6 +181,121 @@ if [[ $rc -eq 0 ]]; then
 else
     bad "should never be fatal, returned $rc"
 fi
+
+# --- 8. the RETIRED accesscontrol plugin is named, with different advice -----
+#
+# accesscontrol is not a plugin to relocate. 1.6 replaces it with core roles
+# and permissions (schema steps 302-306 migrate the roles and the user
+# assignments; step 307 deletes its `plugins` row), so telling an admin to copy
+# it into $fogprogramdir/plugins would reinstall the thing the upgrade just
+# retired.
+#
+# It also cannot come from the scan the rest of this function does. The backup
+# step calls _stripRetiredAccessControl, which DELETES the directory out of the
+# backup, and only then does configureHttpd call _warnUnrecognizedPlugins --
+# so at scan time there is nothing on disk to find. The flag is the only record.
+reset_old_tree
+accesscontrolstripped=1
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
+out="$(_warnUnrecognizedPlugins)"
+if [[ $out == *"accesscontrol"* ]]; then
+    ok "the retired accesscontrol plugin is named"
+else
+    bad "expected 'accesscontrol' in output, got: $out"
+fi
+if [[ $out == *"Do NOT copy it to ${fogprogramdir}/plugins"* ]]; then
+    ok "accesscontrol is told NOT to be relocated"
+else
+    bad "expected the do-not-relocate line for accesscontrol, got: $out"
+fi
+if [[ $out == *"Role Management"* ]]; then
+    ok "accesscontrol points at core Role Management"
+else
+    bad "expected 'Role Management' in output, got: $out"
+fi
+accesscontrolstripped=""
+
+# --- 9. no accesscontrol, no accesscontrol notice ----------------------------
+reset_old_tree
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/mycompanytool"
+out="$(_warnUnrecognizedPlugins)"
+if [[ $out == *"accesscontrol"* ]]; then
+    bad "named accesscontrol when it was never there: $out"
+else
+    ok "no accesscontrol in the old tree produces no accesscontrol notice"
+fi
+
+# --- 10. the accesscontrol notice survives both guards on the scan below -----
+#
+# The two early returns exist for the COMPARISON -- no old lib/plugins/, and no
+# bundled set to compare against. Neither has any bearing on a retired plugin
+# whose advice is not a comparison, and a storage-node install (which reaches
+# configureHttpd with an empty $webdirsrc/lib/plugins, installfog.sh:1353)
+# would otherwise swallow it.
+reset_old_tree
+accesscontrolstripped=1
+out="$(_warnUnrecognizedPlugins)"
+if [[ $out == *"accesscontrol"* ]]; then
+    ok "accesscontrol is named with no old lib/plugins/ left to scan"
+else
+    bad "the no-backup guard swallowed the accesscontrol notice: $out"
+fi
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
+saved_src="$webdirsrc"
+webdirsrc="$WORK/emptysrc2"
+mkdir -p "$webdirsrc/lib/plugins"
+out="$(_warnUnrecognizedPlugins)"
+if [[ $out == *"accesscontrol"* ]]; then
+    ok "accesscontrol is named with an empty bundled set"
+else
+    bad "the empty-bundled-set guard swallowed the accesscontrol notice: $out"
+fi
+webdirsrc="$saved_src"
+accesscontrolstripped=""
+
+# --- 11. _stripRetiredAccessControl: removes it, records it, never fails -----
+#
+# The removal is not new -- it predates this notice and is correct. What is
+# pinned here is that it still happens, that the flag is set only when the
+# directory was really there, and that it returns 0: it sits between a cp and
+# an `errorStat $?` reporting on the BACKUP, so a non-zero here would report a
+# failed backup that did not fail.
+reset_old_tree
+accesscontrolstripped=""
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol/class"
+_stripRetiredAccessControl
+rc=$?
+if [[ ! -d "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol" ]]; then
+    ok "accesscontrol is removed from the backup"
+else
+    bad "accesscontrol was left in the backup"
+fi
+[[ -n $accesscontrolstripped ]] && ok "the strip records that it happened" \
+    || bad "the strip did not record that accesscontrol was there"
+[[ $rc -eq 0 ]] && ok "the strip returns 0 (it feeds an errorStat for the backup)" \
+    || bad "the strip returned $rc"
+
+reset_old_tree
+accesscontrolstripped=""
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
+_stripRetiredAccessControl
+rc=$?
+if [[ -z $accesscontrolstripped ]]; then
+    ok "the strip records nothing when accesscontrol was not there"
+else
+    bad "the strip claimed accesscontrol was there when it was not"
+fi
+[[ $rc -eq 0 ]] && ok "the strip returns 0 with nothing to remove" \
+    || bad "the strip returned $rc with nothing to remove"
+
+# --- 12. still never fatal with the accesscontrol notice to print -----------
+reset_old_tree
+accesscontrolstripped=1
+_warnUnrecognizedPlugins >/dev/null
+rc=$?
+[[ $rc -eq 0 ]] && ok "the accesscontrol notice is non-fatal too" \
+    || bad "should never be fatal, returned $rc"
+accesscontrolstripped=""
 
 echo
 echo "  $PASS passed, $FAIL failed"

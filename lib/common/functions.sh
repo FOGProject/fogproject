@@ -10457,9 +10457,52 @@ EOF
 # not a hand-kept list that would drift the moment a plugin joins or leaves
 # fog-plugins.
 #
+# Remove the retired accesscontrol plugin from the backup, remembering that it
+# was there.
+#
+# The removal itself is old behavior and is right: 1.6 replaces that plugin with
+# core roles and permissions, its registration row is deleted by schema step 307,
+# and --oldcopy restoring its PHP into a 1.6 tree would lay a retired plugin back
+# down beside the core that retired it.
+#
+# What was missing is the record. This runs inside the backup step, which is
+# BEFORE _warnUnrecognizedPlugins scans that same backup -- so by the time
+# anything could name accesscontrol, the directory is already gone. No scan of
+# the backup can find it however it is written, which is why the fact is carried
+# in a variable instead.
+_stripRetiredAccessControl() {
+    local ac="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol"
+    [[ -d $ac ]] && accesscontrolstripped=1
+    rm -rf "$ac"
+    # Never fatal, and never the step's exit status: this sits between a cp and
+    # an errorStat $? that is reporting on the BACKUP, not on this.
+    return 0
+}
 # Detection only -- nothing here copies, deletes or blocks anything.
 _warnUnrecognizedPlugins() {
     local oldplugins="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins"
+    # accesscontrol is named FIRST and outside every guard below, because it is
+    # not an unrecognized plugin -- it is a RETIRED one, and the advice the rest
+    # of this function gives would be wrong for it. Its 1.6 equivalent is core
+    # roles and permissions, so copying it to $fogprogramdir/plugins would
+    # reinstall the thing the upgrade just replaced.
+    #
+    # Outside the guards for two reasons. It cannot come from the scan at all
+    # (_stripRetiredAccessControl deleted it from the backup already), and it is
+    # not a comparison against the bundled set -- so neither "no old plugins
+    # directory" nor "nothing bundled to compare against" has any bearing on
+    # whether this is worth saying.
+    if [[ -n ${accesscontrolstripped:-} ]]; then
+        echo
+        echo "  The retired accesscontrol plugin was in the old web tree."
+        echo "  1.6 replaces it with core roles and permissions -- your roles and"
+        echo "  user assignments were migrated into them by the schema update, and"
+        echo "  the plugin's own registration row was removed."
+        echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: it is not a"
+        echo "  plugin to relocate, and it is not carried into the backup either."
+        echo "  Review what came across under Role Management once this finishes."
+        echo
+    fi
     [[ -d $oldplugins ]] || return 0
     # "Unrecognized" is decided by comparison, so with nothing to compare
     # against there is no finding to report -- only a list of every plugin
@@ -10637,13 +10680,18 @@ configureHttpd() {
     # ${WEB_docroot}fog was a symlink this run removed. See the report at the end
     # of this step for why that has to be said out loud.
     webbackedup=""
+    # Whether the retired accesscontrol plugin was in the tree just backed
+    # up. Set by _stripRetiredAccessControl below, read by
+    # _warnUnrecognizedPlugins, because by the time that runs the evidence
+    # has been deleted.
+    accesscontrolstripped=""
     if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
         rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP >>$error_log 2>&1
     fi
     if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
-        rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
+        _stripRetiredAccessControl
         rm -rf "$webdirdest" >>$error_log 2>&1
     elif [[ -n $priorwebdir && -d $priorwebdir ]]; then
         # Copy only, no removal. The branch above deletes $webdirdest because
@@ -10653,7 +10701,7 @@ configureHttpd() {
         # and deleting it would be a new behavior nobody asked for.
         cp -RT "$priorwebdir" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
-        rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
+        _stripRetiredAccessControl
     fi
     if [[ ${FOG_os_id} -eq 2 ]]; then
         # GH-953: this removed ${WEB_docroot} -- the whole document root, taking any
