@@ -9,3 +9,4 @@
     MACs claimed by more than one host       1
     hosts with more than one primary MAC     1
     zero dates in hosts.hostLastDeploy       0
+  (both refusals above are seed-induced and by design -- see the comment on this block)
