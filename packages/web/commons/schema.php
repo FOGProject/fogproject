@@ -10033,3 +10033,198 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 400
+$this->schema[] = [
+    // `multicastSessions`.`msShutdown` survived as enum('0','1') on any
+    // server that came from 1.5, which is every server the boolean
+    // conversion was written for.
+    //
+    // WHY IT ESCAPED. The column is `msAnon3` renamed, and the two branches'
+    // schema step arrays share positions up to 263 and diverge from 264. A
+    // 1.5 database's schemaVersion counts against dev-branch's array, so an
+    // upgrade to 1.6 treats 264-277 as already applied and skips them --
+    // including that rename. When the boolean sweep ran it looked for
+    // `msShutdown`, found no such column, and moved on; SchemaReconciler's
+    // rename pass then produced the column afterward, preserving the enum
+    // type it had all along. Observed on a real 1.5.10 upgrade, reported by
+    // SchemaReconciler::shapeDrift() as
+    // `enum('0','1') NOT NULL` where the manifest says `tinyint(1) NOT NULL`.
+    //
+    // ONLY THIS COLUMN, and that is checked rather than assumed: of every
+    // rename in the skipped range -- plugins pAnon1..pAnon4 and
+    // multicastSessions msAnon3/msAnon4 -- `msShutdown` is the one whose
+    // target column also appears in the boolean map. The rest are LONGTEXT
+    // and INTEGER, whose types no later step changes.
+    //
+    // Safe to run on a server that is already correct: enumToTinyint()
+    // matches `enum('0','1')` exactly and skips anything else, so this is a
+    // single information_schema read and no ALTER on a healthy database.
+    // That idempotence is why the fix is a re-run of the shared helper
+    // rather than a bespoke ALTER -- ADR 0028's three-statement rule (widen
+    // to VARCHAR, normalize the values, narrow to TINYINT) is not
+    // re-implemented here.
+    function () {
+        return Schema::enumToTinyint(
+            ['multicastSessions' => ['msShutdown']]
+        );
+    },
+];
+// 401
+$this->schema[] = [
+    // `roles`.`rName` is declared UNIQUE by the manifest and is missing that
+    // index on any server whose `roles` table was created by the 1.5
+    // accesscontrol plugin, which did not declare one. Native RBAC adopted
+    // the existing table rather than rebuilding it, so the gap came across
+    // the upgrade intact and nothing since has restored it.
+    //
+    // DUPLICATES ARE RENAMED, NEVER DELETED, and that is the whole design.
+    // Six tables reference `roles`.`rID` with ON DELETE CASCADE --
+    // rolePermissions, roleUserAssoc, roleUserGroupAssoc, siteRoleGrants,
+    // and the plugins' ldapGroupRoleAssoc and oidcGroupRoleAssoc. Deleting
+    // one duplicate row would therefore silently remove that role's
+    // permissions, its user and group assignments, its site grants and its
+    // directory-group mappings. That is an access-control change, and a
+    // schema step running unattended in the middle of an upgrade is the
+    // worst possible place to make one. Renaming keeps every row and every
+    // grant exactly as it was: nobody gains or loses access, and the admin
+    // is left with two distinguishable roles to merge by hand if they want.
+    //
+    // The FIRST holder of a name keeps it, so anything resolving a role by
+    // name still finds the row it finds today. (Nothing in core does -- every
+    // reference is by rID -- but the plugins are a separate repository and
+    // this costs nothing to guarantee.)
+    //
+    // COLLATION MATTERS HERE. `rName` is utf8mb3_general_ci, so the UNIQUE
+    // index treats 'Admins' and 'admins' as the same value. The duplicate
+    // search below is a plain GROUP BY for exactly that reason: it inherits
+    // the column's own collation and so finds precisely the pairs the index
+    // will reject. A binary or case-sensitive comparison would pass over
+    // case-variant duplicates and leave ADD UNIQUE to fail with 1062.
+    //
+    // IT NEVER ABORTS THE UPGRADE. If anything still collides after the
+    // renames -- a name too long to disambiguate, or a rename that lands on
+    // a name someone already used -- the index is skipped and the reason is
+    // logged, following schema step 332's precedent with the site tables. A
+    // missing UNIQUE index means FOG carries on as it has for years; an
+    // aborted schema update strands the admin on ?node=schema over data that
+    // is entirely intact.
+    function () {
+        $has = function ($table) {
+            $row = self::$DB->query(
+                "SELECT COUNT(*) AS `n` FROM `information_schema`.`TABLES`"
+                . " WHERE `TABLE_SCHEMA` = DATABASE()"
+                . " AND LOWER(`TABLE_NAME`) = :t",
+                [],
+                [':t' => $table]
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            return (int)($row['n'] ?? 0) > 0;
+        };
+        if (!$has('roles')) {
+            return true;
+        }
+        // Probed rather than guarded with IF NOT EXISTS, which ADD INDEX
+        // does not have on the server versions FOG supports.
+        $idx = self::$DB->query(
+            "SELECT DISTINCT `INDEX_NAME` AS `i`"
+            . " FROM `information_schema`.`STATISTICS`"
+            . " WHERE `TABLE_SCHEMA` = DATABASE()"
+            . " AND LOWER(`TABLE_NAME`) = 'roles' AND `NON_UNIQUE` = 0"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array)$idx as $row) {
+            if (isset($row['i']) && 0 === strcasecmp($row['i'], 'rName')) {
+                return true;
+            }
+        }
+
+        // Every row except the lowest-id holder of each repeated name. The
+        // GROUP BY runs in the column's own collation, so this is exactly
+        // the set the UNIQUE index would reject.
+        $dupes = self::$DB->query(
+            "SELECT `r`.`rID` AS `id`, `r`.`rName` AS `name`"
+            . " FROM `roles` `r`"
+            . " JOIN (SELECT `rName`, MIN(`rID`) AS `keep` FROM `roles`"
+            . " GROUP BY `rName` HAVING COUNT(*) > 1) `d`"
+            . " ON `d`.`rName` = `r`.`rName`"
+            . " WHERE `r`.`rID` <> `d`.`keep`"
+            . " ORDER BY `r`.`rID`"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+        $renamed = [];
+        foreach ((array)$dupes as $row) {
+            if (!isset($row['id'], $row['name'])) {
+                continue;
+            }
+            // rID is unique, so the suffix is too. Truncated to fit
+            // varchar(255) from the LEFT, keeping the tail: the suffix is
+            // what makes the value unique, so it is the part that must
+            // survive.
+            $suffix = sprintf(' (duplicate %d)', (int)$row['id']);
+            $base = (string)$row['name'];
+            $keep = 255 - strlen($suffix);
+            if (strlen($base) > $keep) {
+                $base = substr($base, 0, $keep);
+            }
+            $new = $base . $suffix;
+            self::$DB->query(
+                "UPDATE `roles` SET `rName` = :n WHERE `rID` = :id",
+                [],
+                [':n' => $new, ':id' => (int)$row['id']]
+            );
+            $renamed[] = sprintf('%s -> %s', $row['name'], $new);
+        }
+
+        if (count($renamed)) {
+            error_log(
+                sprintf(
+                    'FOG schema 401: renamed %d duplicate role name(s) so'
+                    . ' that the UNIQUE index the manifest declares could be'
+                    . ' restored. No role, permission or assignment was'
+                    . ' removed: %s',
+                    count($renamed),
+                    implode('; ', $renamed)
+                )
+            );
+            Audit::record(
+                [
+                    'type' => 'schema.role.rename',
+                    'subjectType' => 'schema',
+                    'subjectId' => 401,
+                    'summary' => sprintf(
+                        /* translators: %d is a count of roles */
+                        _('Renamed %d duplicate role name(s) to restore the'
+                        . ' unique-name guarantee. No access was changed.'),
+                        count($renamed)
+                    ),
+                    'detail' => json_encode(['renamed' => $renamed]),
+                    'affectedCount' => count($renamed),
+                    'renderable' => 1,
+                ]
+            );
+        }
+
+        // Re-checked rather than assumed: a rename can in principle collide
+        // with a name that was already in use.
+        $still = self::$DB->query(
+            "SELECT COUNT(*) AS `n` FROM (SELECT `rName` FROM `roles`"
+            . " GROUP BY `rName` HAVING COUNT(*) > 1) `d`"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if ((int)($still['n'] ?? 0) > 0) {
+            error_log(
+                sprintf(
+                    'FOG schema 401: %d role name(s) still collide after'
+                    . ' renaming, so the UNIQUE index was NOT added. Nothing'
+                    . ' was deleted and the upgrade continues; rename them by'
+                    . ' hand and the index is added on the next update.',
+                    (int)$still['n']
+                )
+            );
+            return true;
+        }
+
+        self::$DB->query(
+            "ALTER TABLE `roles` ADD UNIQUE KEY `rName` (`rName`)"
+        );
+        return true;
+    },
+];
