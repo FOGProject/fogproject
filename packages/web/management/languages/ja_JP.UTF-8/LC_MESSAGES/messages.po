@@ -4909,9 +4909,42 @@ msgstr "すべての %s を一覧表示"
 msgid "List All %s"
 msgstr "すべての %s を一覧表示"
 
+msgid "List All Groups"
+msgstr "すべての グループs を一覧表示"
+
+msgid "List All Hosts"
+msgstr "すべての ホストs を一覧表示"
+
+msgid "List All Images"
+msgstr "すべての イメージs を一覧表示"
+
+msgid "List All Ipxe Menus"
+msgstr "すべての Ipxe Menus を一覧表示"
+
+msgid "List All Modules"
+msgstr "すべての モジュール MD5s を一覧表示"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "プラグインをインストール"
+
+msgid "List All Printers"
+msgstr "すべての プリンターs を一覧表示"
+
+msgid "List All Roles"
+msgstr "すべての ロールs を一覧表示"
+
+msgid "List All Sites"
+msgstr "すべての サイトs を一覧表示"
+
+msgid "List All Snapins"
+msgstr "すべての スナップインs を一覧表示"
+
+msgid "List All Storage Groups"
+msgstr "すべての Storage Groups を一覧表示"
+
+msgid "List All Storage Nodes"
+msgstr "すべての Storage Nodes を一覧表示"
 
 #, fuzzy
 msgid "List All Task States"
@@ -4920,6 +4953,12 @@ msgstr "タスク状態"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "タスクタイプ"
+
+msgid "List All User Groups"
+msgstr "すべての User Groups を一覧表示"
+
+msgid "List All Users"
+msgstr "すべての ユーザーs を一覧表示"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -13564,46 +13603,3 @@ msgstr ""
 
 #~ msgid "would you like to install it now"
 #~ msgstr "今すぐインストールしますか？"
-
-#. GH-435: seeded from this catalog's own "List All %s" /
-#. "Create New %s" and noun, so the label renders exactly as it
-#. did before those format strings became whole phrases.
-
-msgid "List All Groups"
-msgstr "すべての グループs を一覧表示"
-
-msgid "List All Hosts"
-msgstr "すべての ホストs を一覧表示"
-
-msgid "List All Images"
-msgstr "すべての イメージs を一覧表示"
-
-msgid "List All Ipxe Menus"
-msgstr "すべての Ipxe Menus を一覧表示"
-
-msgid "List All Modules"
-msgstr "すべての モジュール MD5s を一覧表示"
-
-msgid "List All Printers"
-msgstr "すべての プリンターs を一覧表示"
-
-msgid "List All Roles"
-msgstr "すべての ロールs を一覧表示"
-
-msgid "List All Sites"
-msgstr "すべての サイトs を一覧表示"
-
-msgid "List All Snapins"
-msgstr "すべての スナップインs を一覧表示"
-
-msgid "List All Storage Groups"
-msgstr "すべての Storage Groups を一覧表示"
-
-msgid "List All Storage Nodes"
-msgstr "すべての Storage Nodes を一覧表示"
-
-msgid "List All User Groups"
-msgstr "すべての User Groups を一覧表示"
-
-msgid "List All Users"
-msgstr "すべての ユーザーs を一覧表示"

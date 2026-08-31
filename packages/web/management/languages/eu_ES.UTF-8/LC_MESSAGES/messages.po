@@ -5102,9 +5102,42 @@ msgstr "Alle %s auflisten"
 msgid "List All %s"
 msgstr "Alle %s auflisten"
 
+msgid "List All Groups"
+msgstr "Alle Gruppes auflisten"
+
+msgid "List All Hosts"
+msgstr "Alle Hosts auflisten"
+
+msgid "List All Images"
+msgstr "Alle Images auflisten"
+
+msgid "List All Ipxe Menus"
+msgstr "Alle Ipxe Menus auflisten"
+
+msgid "List All Modules"
+msgstr "Alle Modulnames auflisten"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "Plugins installieren"
+
+msgid "List All Printers"
+msgstr "Alle Druckers auflisten"
+
+msgid "List All Roles"
+msgstr "Alle Rollennames auflisten"
+
+msgid "List All Sites"
+msgstr "Alle Sitess auflisten"
+
+msgid "List All Snapins"
+msgstr "Alle Snapins auflisten"
+
+msgid "List All Storage Groups"
+msgstr "Alle Storage Groups auflisten"
+
+msgid "List All Storage Nodes"
+msgstr "Alle Storage Nodes auflisten"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5113,6 +5146,12 @@ msgstr "Task Status"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "Task-Typen"
+
+msgid "List All User Groups"
+msgstr "Alle User Groups auflisten"
+
+msgid "List All Users"
+msgstr "Alle Benutzers auflisten"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -11990,9 +12029,6 @@ msgstr ""
 #~ msgid "Latest SVN Version"
 #~ msgstr "Neueste SVN-Version"
 
-msgid "List All Roles"
-msgstr "Alle Rollennames auflisten"
-
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "Alle %s auflisten"
@@ -12326,43 +12362,3 @@ msgstr "Alle Rollennames auflisten"
 #, fuzzy
 #~ msgid "version"
 #~ msgstr "Version"
-
-#. GH-435: seeded from this catalog's own "List All %s" /
-#. "Create New %s" and noun, so the label renders exactly as it
-#. did before those format strings became whole phrases.
-
-msgid "List All Groups"
-msgstr "Alle Gruppes auflisten"
-
-msgid "List All Hosts"
-msgstr "Alle Hosts auflisten"
-
-msgid "List All Images"
-msgstr "Alle Images auflisten"
-
-msgid "List All Ipxe Menus"
-msgstr "Alle Ipxe Menus auflisten"
-
-msgid "List All Modules"
-msgstr "Alle Modulnames auflisten"
-
-msgid "List All Printers"
-msgstr "Alle Druckers auflisten"
-
-msgid "List All Sites"
-msgstr "Alle Sitess auflisten"
-
-msgid "List All Snapins"
-msgstr "Alle Snapins auflisten"
-
-msgid "List All Storage Groups"
-msgstr "Alle Storage Groups auflisten"
-
-msgid "List All Storage Nodes"
-msgstr "Alle Storage Nodes auflisten"
-
-msgid "List All User Groups"
-msgstr "Alle User Groups auflisten"
-
-msgid "List All Users"
-msgstr "Alle Benutzers auflisten"

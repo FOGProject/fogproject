@@ -5101,9 +5101,42 @@ msgstr "列表中的所有%s"
 msgid "List All %s"
 msgstr "列表中的所有%s"
 
+msgid "List All Groups"
+msgstr "列表中的所有组s"
+
+msgid "List All Hosts"
+msgstr "列表中的所有主办s"
+
+msgid "List All Images"
+msgstr "列表中的所有图片s"
+
+msgid "List All Ipxe Menus"
+msgstr "列表中的所有Ipxe Menus"
+
+msgid "List All Modules"
+msgstr "列表中的所有模块名称s"
+
 #, fuzzy
 msgid "List All Plugins"
 msgstr "安装插件"
+
+msgid "List All Printers"
+msgstr "列表中的所有打印机s"
+
+msgid "List All Roles"
+msgstr "列表中的所有模块名称s"
+
+msgid "List All Sites"
+msgstr "列表中的所有分钟s"
+
+msgid "List All Snapins"
+msgstr "列表中的所有管理单元s"
+
+msgid "List All Storage Groups"
+msgstr "列表中的所有Storage Groups"
+
+msgid "List All Storage Nodes"
+msgstr "列表中的所有Storage Nodes"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5112,6 +5145,12 @@ msgstr "任务的国家"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "任务类型"
+
+msgid "List All User Groups"
+msgstr "列表中的所有User Groups"
+
+msgid "List All Users"
+msgstr "列表中的所有用户s"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -11968,9 +12007,6 @@ msgstr ""
 #~ msgid "Latest SVN Version"
 #~ msgstr "最新版本"
 
-msgid "List All Roles"
-msgstr "列表中的所有模块名称s"
-
 #, fuzzy
 #~ msgid "List All Rules"
 #~ msgstr "列表中的所有%s"
@@ -12274,43 +12310,3 @@ msgstr "列表中的所有模块名称s"
 #, fuzzy
 #~ msgid "version"
 #~ msgstr "版"
-
-#. GH-435: seeded from this catalog's own "List All %s" /
-#. "Create New %s" and noun, so the label renders exactly as it
-#. did before those format strings became whole phrases.
-
-msgid "List All Groups"
-msgstr "列表中的所有组s"
-
-msgid "List All Hosts"
-msgstr "列表中的所有主办s"
-
-msgid "List All Images"
-msgstr "列表中的所有图片s"
-
-msgid "List All Ipxe Menus"
-msgstr "列表中的所有Ipxe Menus"
-
-msgid "List All Modules"
-msgstr "列表中的所有模块名称s"
-
-msgid "List All Printers"
-msgstr "列表中的所有打印机s"
-
-msgid "List All Sites"
-msgstr "列表中的所有分钟s"
-
-msgid "List All Snapins"
-msgstr "列表中的所有管理单元s"
-
-msgid "List All Storage Groups"
-msgstr "列表中的所有Storage Groups"
-
-msgid "List All Storage Nodes"
-msgstr "列表中的所有Storage Nodes"
-
-msgid "List All User Groups"
-msgstr "列表中的所有User Groups"
-
-msgid "List All Users"
-msgstr "列表中的所有用户s"

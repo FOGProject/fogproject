@@ -5102,8 +5102,52 @@ msgid "List All %s"
 msgstr "List All %s"
 
 #, fuzzy
+msgid "List All Groups"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Hosts"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Images"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Ipxe Menus"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Modules"
+msgstr "List All %s"
+
+#, fuzzy
 msgid "List All Plugins"
 msgstr "Install Plugins"
+
+#, fuzzy
+msgid "List All Printers"
+msgstr "Printers"
+
+#, fuzzy
+msgid "List All Roles"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Sites"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Snapins"
+msgstr "Install Plugins"
+
+#, fuzzy
+msgid "List All Storage Groups"
+msgstr "All Storage Groups"
+
+#, fuzzy
+msgid "List All Storage Nodes"
+msgstr "All Storage Nodes"
 
 #, fuzzy
 msgid "List All Task States"
@@ -5112,6 +5156,14 @@ msgstr "Task States"
 #, fuzzy
 msgid "List All Task Types"
 msgstr "Task Types"
+
+#, fuzzy
+msgid "List All User Groups"
+msgstr "Groups"
+
+#, fuzzy
+msgid "List All Users"
+msgstr "List All %s"
 
 #, fuzzy
 msgid "List Available Plugins"
@@ -11963,14 +12015,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Latest SVN Version"
 #~ msgstr "Latest Version"
-
-#, fuzzy
-#~ msgid "List All Roles"
-#~ msgstr "List All %s"
-
-#, fuzzy
-#~ msgid "List All Rules"
-#~ msgstr "List All %s"
 
 #, fuzzy
 #~ msgid "Login accepted"
