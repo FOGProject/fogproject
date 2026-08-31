@@ -65,10 +65,10 @@ $line = '[08-31-26 3:45:12 pm] Scheduler Task queued';
 if (!preg_match($pattern, $line, $m)) {
     $results[] = [false, 'the regex matches a real Service_Log_message() line'];
 } else {
-    $utc = new DateTimeZone('UTC');
-    $ny = new DateTimeZone('America/New_York');
+    $utc = new \DateTimeZone('UTC');
+    $ny = new \DateTimeZone('America/New_York');
 
-    $stamp = DateTime::createFromFormat($format, $m[1], $utc);
+    $stamp = \DateTime::createFromFormat($format, $m[1], $utc);
     $results[] = [
         false !== $stamp,
         'the stamp round-trips through DateTime::createFromFormat() -- the '
@@ -95,7 +95,7 @@ if (!preg_match($pattern, $line, $m)) {
     }
 
     // A stamp already in the viewer's own zone must come back unchanged.
-    $same = DateTime::createFromFormat($format, $m[1], $utc);
+    $same = \DateTime::createFromFormat($format, $m[1], $utc);
     if (false !== $same) {
         $same->setTimezone($utc);
         $results[] = [
