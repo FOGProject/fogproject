@@ -1187,6 +1187,15 @@ msgstr "Crear Nuevo %s"
 msgid "Create New Access Control Role"
 msgstr "Crear un nuevo rol de acceso"
 
+msgid "Create New Group"
+msgstr "Crear nuevo grupo"
+
+msgid "Create New Host"
+msgstr "Crear nuevo equipo"
+
+msgid "Create New Image"
+msgstr "Crear nueva imagen"
+
 #, fuzzy
 msgid "Create New Key"
 msgstr "Crear Nuevo %s"
@@ -1199,17 +1208,24 @@ msgstr "Crear Nuevo %s"
 msgid "Create New Location"
 msgstr "Crear un nuevo rol de acceso"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Impresora"
+msgstr "Crear nueva impresora"
 
-#, fuzzy
 msgid "Create New Snapin"
-msgstr "Crear un nuevo rol de acceso"
+msgstr "Crear nuevo snapin"
+
+msgid "Create New Storage Group"
+msgstr "Crear nuevo grupo de almacenamiento"
+
+msgid "Create New Storage Node"
+msgstr "Crear nuevo nodo de almacenamiento"
 
 #, fuzzy
 msgid "Create New SubnetGroup?"
 msgstr "Crear un nuevo grupo"
+
+msgid "Create New User"
+msgstr "Crear nuevo usuario"
 
 msgid "Create New iPXE Menu Entry"
 msgstr ""
@@ -3775,6 +3791,30 @@ msgstr "Lista"
 #, php-format
 msgid "List All %s"
 msgstr "Listar todos %s"
+
+msgid "List All Groups"
+msgstr "Listar todos los grupos"
+
+msgid "List All Hosts"
+msgstr "Listar todos los equipos"
+
+msgid "List All Images"
+msgstr "Listar todas las imágenes"
+
+msgid "List All Printers"
+msgstr "Listar todas las impresoras"
+
+msgid "List All Snapins"
+msgstr "Listar todos los snapins"
+
+msgid "List All Storage Groups"
+msgstr "Listar todos los grupos de almacenamiento"
+
+msgid "List All Storage Nodes"
+msgstr "Listar todos los nodos de almacenamiento"
+
+msgid "List All Users"
+msgstr "Listar todos los usuarios"
 
 #, php-format
 msgid "List all roles"

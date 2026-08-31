@@ -1205,6 +1205,18 @@ msgid "Create New Access Control Role"
 msgstr "All Access Controls"
 
 #, fuzzy
+msgid "Create New Group"
+msgstr "Create new group"
+
+#, fuzzy
+msgid "Create New Host"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "Create New Image"
+msgstr "Create Date"
+
+#, fuzzy
 msgid "Create New Key"
 msgstr "Create New %s"
 
@@ -1216,17 +1228,27 @@ msgstr "Create New %s"
 msgid "Create New Location"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Create New %s"
+msgstr ""
+
+msgid "Create New Snapin"
+msgstr ""
 
 #, fuzzy
-msgid "Create New Snapin"
-msgstr "Create New %s"
+msgid "Create New Storage Group"
+msgstr "Storage Node"
+
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
 #, fuzzy
 msgid "Create New SubnetGroup?"
 msgstr "Create new group"
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Create New %s"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "Create New iPXE Menu Entry"
@@ -3773,6 +3795,38 @@ msgstr "Host List"
 
 #, php-format
 msgid "List All %s"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Groups"
+msgstr "All Groups"
+
+#, fuzzy
+msgid "List All Hosts"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Images"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Printers"
+msgstr "Export Printers"
+
+#, fuzzy
+msgid "List All Snapins"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Storage Groups"
+msgstr "All Storage Groups"
+
+#, fuzzy
+msgid "List All Storage Nodes"
+msgstr "All Storage Nodes"
+
+#, fuzzy
+msgid "List All Users"
 msgstr "List All %s"
 
 #, fuzzy, php-format
@@ -8305,10 +8359,6 @@ msgstr ""
 
 #~ msgid "Could not read temp file"
 #~ msgstr "Could not read temp file"
-
-#, fuzzy
-#~ msgid "Create New Host Ext"
-#~ msgstr "Create New %s"
 
 #, fuzzy
 #~ msgid "Database connection unavailable"

@@ -1043,6 +1043,15 @@ msgstr "新しい %s を作成"
 msgid "Create New Access Control Role"
 msgstr "新しいアクセス制御ロールを作成"
 
+msgid "Create New Group"
+msgstr "新しい グループ を作成"
+
+msgid "Create New Host"
+msgstr "新しい ホスト を作成"
+
+msgid "Create New Image"
+msgstr "新しい イメージ を作成"
+
 msgid "Create New Key"
 msgstr "新しいキーを作成"
 
@@ -1058,8 +1067,17 @@ msgstr "新しいプリンターを作成"
 msgid "Create New Snapin"
 msgstr "新しいスナップインを作成"
 
+msgid "Create New Storage Group"
+msgstr "新しい Storage Group を作成"
+
+msgid "Create New Storage Node"
+msgstr "新しい Storage Node を作成"
+
 msgid "Create New SubnetGroup?"
 msgstr "新しいサブネットグループを作成しますか？"
+
+msgid "Create New User"
+msgstr "新しい ユーザー を作成"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "新しい iPXE メニューエントリを作成"
@@ -3299,6 +3317,30 @@ msgstr "一覧"
 #, php-format
 msgid "List All %s"
 msgstr "すべての %s を一覧表示"
+
+msgid "List All Groups"
+msgstr "すべての グループs を一覧表示"
+
+msgid "List All Hosts"
+msgstr "すべての ホストs を一覧表示"
+
+msgid "List All Images"
+msgstr "すべての イメージs を一覧表示"
+
+msgid "List All Printers"
+msgstr "すべての プリンターs を一覧表示"
+
+msgid "List All Snapins"
+msgstr "すべての スナップインs を一覧表示"
+
+msgid "List All Storage Groups"
+msgstr "すべての Storage Groups を一覧表示"
+
+msgid "List All Storage Nodes"
+msgstr "すべての Storage Nodes を一覧表示"
+
+msgid "List All Users"
+msgstr "すべての ユーザーs を一覧表示"
 
 #, php-format
 msgid "List all roles"
