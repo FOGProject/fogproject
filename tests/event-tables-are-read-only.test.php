@@ -76,14 +76,24 @@ foreach ($eventClasses as $class) {
 /*
  * The router itself. This is the assertion that survives someone changing
  * how the lists are combined.
+ *
+ * FastRoute distinguishes NOT_FOUND from METHOD_NOT_ALLOWED (path matches
+ * under some OTHER verb -- which is exactly what happens here: /history
+ * matches the GET routes' pattern, since history is in $validClasses, just
+ * not any POST/PUT/DELETE pattern). Route::setMatches() collapses both to
+ * `false`, matching AltoRouter's own match(), which never distinguished
+ * them either -- so "matches no route" here means anything but FOUND.
  */
 $prop = new \ReflectionProperty('FOG\Router\Route', 'router');
 $prop->setAccessible(true);
-$prop->setValue(null, new \AltoRouter([], ''));
 $define = new \ReflectionMethod('FOG\Router\Route', 'defineRoutes');
 $define->setAccessible(true);
-$define->invoke(null);
-$router = $prop->getValue();
+$router = \FastRoute\simpleDispatcher(
+    function (\FastRoute\RouteCollector $r) use ($define) {
+        $define->invoke(null, $r);
+    }
+);
+$prop->setValue(null, $router);
 
 $writes = [
     ['POST', '/%s'],
@@ -96,18 +106,18 @@ foreach ($eventClasses as $class) {
         $uri = sprintf($w[1], $class);
         $t->check(
             "$w[0] $uri matches no route",
-            false === $router->match($uri, $w[0])
+            \FastRoute\Dispatcher::FOUND !== $router->dispatch($w[0], $uri)[0]
         );
     }
     // And the read side really does still answer, or "no write route" is
     // true for the boring reason that the class is not routed at all.
     $t->check(
         "GET /$class still matches",
-        false !== $router->match('/' . $class, 'GET')
+        \FastRoute\Dispatcher::FOUND === $router->dispatch('GET', '/' . $class)[0]
     );
     $t->check(
         "GET /$class/5 still matches",
-        false !== $router->match('/' . $class . '/5', 'GET')
+        \FastRoute\Dispatcher::FOUND === $router->dispatch('GET', '/' . $class . '/5')[0]
     );
 }
 
@@ -118,7 +128,7 @@ foreach ($eventClasses as $class) {
 foreach ([['POST', '/host'], ['PUT', '/host/5'], ['DELETE', '/host/5']] as $c) {
     $t->check(
         "control: $c[0] $c[1] still matches",
-        false !== $router->match($c[1], $c[0])
+        \FastRoute\Dispatcher::FOUND === $router->dispatch($c[0], $c[1])[0]
     );
 }
 

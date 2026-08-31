@@ -57,7 +57,7 @@ use FOG\Db\SchemaReconciler;
  *
  * Linters warn that /{class}/search/{item} and /{class}/{id}/task are
  * ambiguous templates, and as templates they are. They cannot actually
- * collide: AltoRouter constrains the id segment to [i:id], so 'search' never
+ * collide: the router constrains the id segment to digits only, so 'search' never
  * matches it and an integer never matches the 'search' literal. The warning
  * is a property of OpenAPI's path syntax having no type constraint, not of
  * the routing, and the alternative -- inventing distinct paths the server

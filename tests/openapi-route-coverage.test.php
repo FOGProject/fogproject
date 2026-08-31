@@ -65,7 +65,7 @@ $specSrc = (string)file_get_contents($specFile);
 
 // Only defineRoutes(), so a handler array written anywhere else in the
 // class cannot be mistaken for a route registration.
-$start = strpos($routeSrc, 'protected static function defineRoutes()');
+$start = strpos($routeSrc, 'protected static function defineRoutes(');
 if (false === $start) {
     fwrite(STDERR, "FAIL: could not find Route::defineRoutes()\n");
     exit(1);
