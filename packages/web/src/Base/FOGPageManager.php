@@ -335,8 +335,8 @@ class FOGPageManager extends FOGBase
             //
             // Reachable from outside the tree since ADR 0009: a third-party
             // plugin whose page file does not declare the class its name
-            // promises (a namespace with no class_alias back to the global
-            // name is the easy way to get there) takes the whole UI down for
+            // promises (a namespace that is not the one its directory implies
+            // is the easy way to get there) takes the whole UI down for
             // everyone, and the only way out is a shell. Observed exactly
             // that way while verifying the PSR-4 move -- a probe plugin
             // uploaded through Plugin Management, 500 on every page, and the
@@ -367,14 +367,11 @@ class FOGPageManager extends FOGBase
                         . ' declare a class named after the file: a core page'
                         . ' is src/Pages/<Class>.php declaring'
                         . ' FOG\Pages\<Class>, and a plugin page is'
-                        . ' <plugin>/pages/<name>.page.php declaring the bare'
-                        . ' <name> -- a namespaced plugin page needs'
-                        . ' class_alias(__NAMESPACE__ . \'\\%s\', \'%s\');'
-                        . ' see ADR 0013.',
+                        . ' <plugin>/pages/<name>.page.php declaring'
+                        . ' FOG\Plugins\<Plugin>\<Name>, where <Plugin> is'
+                        . ' the plugin\'s own directory name. See ADR 0013.',
                         $file,
-                        $className,
-                        basename($file, '.php'),
-                        basename($file, '.php')
+                        $className
                     )
                 );
                 continue;

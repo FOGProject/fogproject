@@ -186,6 +186,8 @@ existed keeps working untouched.
 ### 4.2 Model — `class/helloworld.class.php`
 
 ```php
+namespace FOG\Plugins\Helloworld;
+
 class HelloWorld extends \FOG\Base\FOGController
 {
     protected $databaseTable = 'helloWorld';
@@ -208,6 +210,8 @@ The manager owns table creation and **schema evolution**. This is the most
 important part to get right, so it gets its own section (§5). The shape:
 
 ```php
+namespace FOG\Plugins\Helloworld;
+
 class HelloWorldManager extends \FOG\Base\FOGManagerController
 {
     public $tablename = 'helloWorld';
@@ -503,14 +507,26 @@ Global configuration lives in the `globalSettings` table.
 
 **Read this before you write a class.** Core moved to PSR-4 under
 `packages/web/src/` and is now reachable **only by its fully qualified name**.
-Bare `FOGController`, `Host`, `Hook` no longer resolve to anything.
+Bare `FOGController`, `Host`, `Hook` no longer resolve to anything. Plugins
+have since followed core: every plugin class now declares its own namespace
+too.
 
 ### The rule
 
-**Stay in the global namespace. Reference core by its FQCN, with a leading
-backslash.** That is what every one of the bundled plugins does:
+**Declare `namespace FOG\Plugins\<Ucfirst-plugin-directory>;` at the top of
+every file, and reference core by its FQCN with a leading backslash.** The
+namespace segment is `ucfirst()` of the plugin's directory name — mechanical,
+no lookup table, no exceptions: `helloworld/` → `FOG\Plugins\Helloworld`,
+`ldap/` → `FOG\Plugins\Ldap`. The **subdirectory is not part of it** — every
+class in a plugin, whatever mix of `class/`, `pages/`, `hooks/`, `events/`,
+`reports/` and `tasks/` it ships, shares that one flat namespace.
+(`FOGController::getManager()` derives a model's manager class as
+`qualify(shortName($this) . 'Manager')`, so a model and its manager have to
+resolve in the same namespace or the derivation breaks.)
 
 ```php
+namespace FOG\Plugins\Helloworld;
+
 class HelloWorld           extends \FOG\Base\FOGController {}
 class HelloWorldManager    extends \FOG\Base\FOGManagerController {}
 class HelloWorldManagement extends \FOG\Base\FOGPage {}
@@ -518,8 +534,9 @@ class AddHelloWorldMenuItem extends \FOG\Base\Hook {}
 class HelloWorldHeartbeat  extends \FOG\Base\PluginTask {}
 ```
 
-The names are **bucketed**, matching the directory they live in — there is no
-flat `FOG\Host`. The ones a plugin actually reaches for:
+This is what every bundled plugin does now — copying one gets you the house
+style. The names you reference on core stay **bucketed**, matching the
+directory they live in under `src/` — there is no flat `FOG\Host`:
 
 | Bare name you used to write | Now |
 |---|---|
@@ -536,45 +553,75 @@ flat `FOG\Host`. The ones a plugin actually reaches for:
 | `Host`, `Image`, `User`, `TaskType`, … | `\FOG\Items\<Name>` |
 | `HostManager`, `TaskTypeManager`, … | `\FOG\Managers\<Name>Manager` |
 
-A `use` import at the top of a global-namespace file works too, and is the
-better shape if you name a class many times:
+A `use` import works too, and is the better shape if you name a class many
+times — it sits below your own `namespace` declaration, not instead of it:
 
 ```php
+namespace FOG\Plugins\Helloworld;
+
 use FOG\Base\FOGController;
 
 class HelloWorld extends FOGController {}
 ```
 
-Both are correct. The FQCN form is what the bundled plugins use, so copying one
-of them gets you the house style.
+Both forms are correct. The FQCN form is what most of the bundled plugins use,
+so copying one of them gets you the house style.
 
-### ⚠️ If you declare a namespace, you must alias yourself back
+### Discovery still works by filename
 
-The autoloader finds a **page, hook, event, report or task** by lowercasing the
-filename and expecting a class of that exact name. Those files are discovered,
-not imported — nothing ever writes their name in a `use` statement. So if you
-put one in your own namespace, the class FOG looks for does not exist and your
-page silently never registers.
+File layout does not change, and neither does the rule about it: a **page,
+hook, event, report or task** is still found by its filename, and the class
+it declares must still be named after that file — `class
+HelloWorldManagement` in `helloworldmanagement.page.php`, same as always. The
+`.page.php` / `.hook.php` / `.event.php` / `.report.php` / `.task.php` suffix
+is how the file gets found at all, so nothing moved and nothing was renamed.
+This is namespacing, not a move to PSR-4 autoloading.
 
-This is a rule about **plugin** files, and core is no longer an example of it.
-Core's pages, hooks, reports and events moved to `src/{Pages,Hooks,Reports,
-Events}` and dropped their aliases: they are found by their bucketed namespace
-now, not by basename. Your files keep the discovered shape, so they still need
-the alias. If you want a namespace, end each such file like this:
+What changed is what core does once it has found the bare name. It now reads
+each plugin file's actual `namespace` declaration and maps the plugin's bare
+short name to its namespaced FQCN, so discovery, `getClass('HelloWorld')`,
+`FOGController::getManager()`, `FOGPage::$childClass`, `Route::_newEntity()`
+and `Authorization`'s object-scope lookup all keep resolving the class from
+the bare spelling you've always used. You never have to spell the namespace
+out anywhere except the `namespace` declaration itself.
 
-```php
-namespace Vendor\HelloWorld;
+**`class_alias()` is no longer needed, and should not be used.** It used to
+be the workaround for exactly this gap: discovery derived a bare class name
+from `basename($file)`, so a plugin that declared its own namespace had to
+alias itself back into the global one or its page/hook/event/report silently
+never registered. That gap is closed at the source now — core builds the
+bare-name → FQCN map from the declaration itself — so there is nothing left
+for an alias to do, and shipping one just adds a second, redundant name for
+the same class.
 
-class HelloWorldManagement extends \FOG\Base\FOGPage { /* ... */ }
+### Backwards compatible
 
-class_alias(__NAMESPACE__ . '\\HelloWorldManagement', 'HelloWorldManagement');
-```
+A plugin that declares **no** namespace keeps working exactly as it did
+before this change. Core reads each plugin file's actual `namespace`
+declaration rather than assuming every plugin has one now — an unconverted
+third-party plugin produces no entry in the map and keeps resolving by its
+bare name, in the global namespace, same as always. Nothing here requires a
+third-party author to do anything before their plugin keeps loading.
 
-Model and manager classes are reached through `FOGBase::getClass('HelloWorld')`,
-which resolves by short name, so they have the same requirement.
+### Two plugins, one class name, no collision
 
-**The simplest correct answer is not to declare a namespace at all**, which is
-why none of the bundled plugins do.
+Because the namespace segment comes from the plugin's own directory, two
+plugins can now each ship a class called `Settings` without one shadowing the
+other. Before this, every plugin class shared one global basename keyspace —
+whichever plugin's `Settings` loaded first silently won, and the other's was
+unreachable.
+
+### The one place a bare name still bites
+
+Core resolves a bare name wherever *it* does the resolving: `getClass()`,
+`getManager()`, discovery, `$childClass`, `Route::_newEntity()`,
+`Authorization`. A class name **your own code** holds in a plain string is
+resolved exactly as written, with no such mapping behind it. So
+`self::getClass('LDAPGroupManager')` inside a plugin is fine — core resolves
+it — but a raw `new $someString` or `is_subclass_of($x, 'SomeClass')` naming
+a bare plugin class in your own code is not. Spell those fully qualified
+(`\FOG\Plugins\Ldap\LDAPGroupManager`) or route them through
+`self::getClass()` instead.
 
 ### What the failure looks like
 
@@ -600,16 +647,17 @@ line is why, and this section is the fix.
 
 ### `get_class($this)` returns a namespaced name
 
-Unchanged advice, and still the one thing that bites plugins which *produce* a
-class name rather than consume one — comparing it to a literal, building a
-column name or an array key from it, putting it in a filename or a log line:
+Unchanged advice, and now true of plugin classes too — it bites whatever
+*produces* a class name rather than consumes one: comparing it to a literal,
+building a column name or an array key from it, putting it in a filename or a
+log line:
 
 ```php
-// Wrong: 'FOG\Items\Host', and the comparison silently fails.
-if (get_class($obj) === 'Host') { /* ... */ }
+// Wrong: 'FOG\Plugins\Helloworld\HelloWorld', and the comparison silently fails.
+if (get_class($obj) === 'HelloWorld') { /* ... */ }
 
-// Right: 'Host', namespaced or not.
-if (self::shortName($obj) === 'Host') { /* ... */ }
+// Right: 'HelloWorld', namespaced or not.
+if (self::shortName($obj) === 'HelloWorld') { /* ... */ }
 ```
 
 `FOGBase::shortName()` takes an object or a class-name string, strips any
@@ -621,7 +669,10 @@ ADR 0013 originally kept a `class_alias()` in every core file re-exporting it
 into the global namespace, and called that alias the 1.6 plugin ABI. **All 202
 were deleted before 1.6.0 shipped and the ADR is amended accordingly** — there
 was no released 1.6 for the promise to have been made to, and carrying the shim
-through a major version bought compatibility with nothing.
+through a major version bought compatibility with nothing. Plugins have now
+followed the same path: the `class_alias()` a plugin author would once have
+had to write to stay reachable is gone too, for the same reason — core
+resolves the namespaced class directly instead of leaning on a shim to do it.
 
 ## 7b. Composer dependencies
 
@@ -1038,11 +1089,12 @@ an error.
 - **Core is FQCN-only.** `extends FOGController` is a fatal error, not a
   deprecation — see §7a. The autoloader logs one line naming the class and the
   name to use before the request dies, so check the error log first.
-- **A namespace of your own means aliasing yourself back.** Pages, hooks,
-  events, reports and tasks are found by filename and must declare exactly that
-  class name in the global namespace. Put one in a namespace without a
-  `class_alias()` and it never registers — no error, the feature simply is not
-  there. §7a has the shape. Not declaring a namespace avoids the whole question.
+- **Every plugin class declares `namespace FOG\Plugins\<Ucfirst-directory>;`.**
+  One flat namespace per plugin, whatever subdirectory the file lives in — a
+  model and its manager must resolve in the same one. No `class_alias()`
+  needed, not even for a page/hook/event/report/task: core maps the bare name
+  to the namespaced FQCN for you. §7a has the shape. A plugin with no
+  namespace declared keeps working unchanged.
 - **Filename = `strtolower(ClassName)` + suffix.** A mismatch means the class
   won't autoload. Silently, for most classes — but not for your manager:
   install refuses outright if `class/<name>manager.class.php` exists and does

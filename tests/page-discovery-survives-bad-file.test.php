@@ -21,10 +21,12 @@
  *      expires rather than fixing it.
  *   2. The file is present and declares something else. Since ADR 0009 that
  *      is reachable from outside this repository: a third-party plugin
- *      uploaded through Plugin Management whose page file declares
- *      `namespace FOG; class Foo` with no class_alias back to the global
- *      name. The bare name never exists, and the whole UI dies for everyone
- *      with `rm` plus clearing /opt/fog/cache as the only way out.
+ *      uploaded through Plugin Management whose page file declares a class
+ *      under a namespace nothing will look in -- `namespace FOG; class Foo`
+ *      is the easy way there now that plugins declare
+ *      FOG\Plugins\<Plugin>\<Class>. The name discovery derives never
+ *      exists, and the whole UI dies for everyone with `rm` plus clearing
+ *      /opt/fog/cache as the only way out.
  *
  * Observed both ways while verifying the PSR-4 move.
  *
@@ -102,8 +104,11 @@ function check($label, $cond, array &$failures, &$checks)
  * probealiased is emitted LAST for that reason: a guard that threw instead of
  * continuing would never reach it, so "probealiased was loaded and NOT
  * complained about" is simultaneously the proof that the walk continued and
- * the proof that the guard does not over-reject the forward-compatible
- * spelling ADR 0013 tells plugin authors to use.
+ * the proof that the guard does not over-reject a namespace-plus-alias file.
+ * That spelling is no longer what ADR 0013 recommends -- a plugin declares
+ * FOG\Plugins\<Plugin>\<Class> and needs no alias -- but it remains valid
+ * for a plugin that picks a namespace of its own, and these fixtures do not
+ * sit under a plugin root, so it is the shape that belongs here.
  */
 $pages = $tmp . '/pages/';
 file_put_contents(
@@ -178,18 +183,23 @@ check(
     $failures,
     $checks
 );
+// The message is asserted, not just its existence. It is the only thing a
+// plugin author gets, and it used to tell them to write a class_alias() --
+// advice that is now wrong, since core resolves FOG\Plugins\<Plugin>\<Class>
+// directly. A diagnostic that names the wrong cure is worse than a terse one.
 check(
-    'the mis-declared file was reported, and the message names class_alias',
+    'the mis-declared file was reported, and the message names the fix',
     strpos($logged, 'probebadns.page.php') !== false
     && strpos($logged, 'does not declare') !== false
-    && strpos($logged, 'class_alias') !== false,
+    && strpos($logged, 'FOG\\Plugins\\<Plugin>\\<Name>') !== false
+    && strpos($logged, 'class_alias') === false,
     $failures,
     $checks
 );
 // The walk reached the third file: it was loaded (so the guard let it past)
-// and nothing was logged about it (so the guard did not reject the
-// namespaced-plus-alias spelling, which is what ADR 0013 tells plugin
-// authors to write).
+// and nothing was logged about it (so the guard did not reject a
+// namespaced-plus-alias file, which a plugin outside FOG\Plugins\ still
+// legitimately ships).
 check(
     'the walk continued to the last file and loaded it',
     class_exists('probealiased', false),
