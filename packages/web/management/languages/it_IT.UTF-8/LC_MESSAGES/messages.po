@@ -1352,9 +1352,6 @@ msgstr "Chiamata"
 msgid "Can be a comma seperated list."
 msgstr ""
 
-msgid "Can not redeclare route"
-msgstr "Impossibile ridichiarare il percorso"
-
 #, fuzzy
 msgid "Cancel"
 msgstr "compito Annullato"
@@ -7079,9 +7076,6 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
-msgid "Routes should be an array or an instance of Traversable"
-msgstr "I percorsi devono essere un array o un'istanza di Traversable"
-
 msgid "Row"
 msgstr "Riga"
 
@@ -11116,6 +11110,9 @@ msgstr ""
 #~ msgid "Bulk Changes"
 #~ msgstr "Applicare cambiamenti?"
 
+#~ msgid "Can not redeclare route"
+#~ msgstr "Impossibile ridichiarare il percorso"
+
 #~ msgid "Check that database is running"
 #~ msgstr "Controllare che database è in esecuzione"
 
@@ -11493,6 +11490,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Resume"
 #~ msgstr "Risultati"
+
+#~ msgid "Routes should be an array or an instance of Traversable"
+#~ msgstr "I percorsi devono essere un array o un'istanza di Traversable"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "numero di riga non impostato correttamente"

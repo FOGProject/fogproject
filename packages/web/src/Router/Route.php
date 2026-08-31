@@ -108,21 +108,34 @@ class Route extends FOGBase
      */
     const PLUGIN_ROUTE_NAME_PREFIX = 'ext:';
     /**
+     * Prefix for a FastRoute placeholder name synthesized for an AltoRouter-
+     * syntax bracket that carried no name of its own (a no-colon literal or
+     * alternation, e.g. [status|info]). FastRoute requires every placeholder
+     * to be named; AltoRouter's own match() strips these from $params before
+     * a handler ever sees them (they come back as numeric-keyed captures),
+     * so setMatches() strips anything with this prefix the same way -- the
+     * name exists only to satisfy FastRoute's grammar, never to be read.
+     *
+     * @var string
+     */
+    const IGNORED_PARAM_PREFIX = '_ignore';
+    /**
      * Validated plugin routes, or null before the hook has been fired.
      *
      * @var array|null
      */
     private static $_pluginRoutes = null;
     /**
-     * AltoRouter object container.
+     * The compiled FastRoute dispatcher.
      *
-     * @var \AltoRouter
+     * @var \FastRoute\Dispatcher
      */
     public static $router = null;
     /**
-     * Matches from AltoRouter.
+     * Matched route data: ['target'=>callable, 'params'=>array, 'name'=>string],
+     * or false when nothing matched.
      *
-     * @var array
+     * @var array|false
      */
     public static $matches = [];
     /**
@@ -894,14 +907,15 @@ class Route extends FOGBase
         /**
          * GH-529: the base path was the literal '/fog', so every route was
          * registered somewhere the request could never reach on a custom
-         * webroot. AltoRouter wants it without the trailing slash, and an
-         * install served from the document root itself wants it empty.
+         * webroot. The base path is stripped from the request URI before
+         * dispatch, below; an install served from the document root itself
+         * wants that prefix empty.
          */
-        self::$router = new \AltoRouter(
-            [],
-            rtrim(self::$_webrootbase, '/')
+        self::$router = \FastRoute\simpleDispatcher(
+            static function (\FastRoute\RouteCollector $r) {
+                self::defineRoutes($r);
+            }
         );
-        self::defineRoutes();
         self::setMatches();
         self::runMatches();
         self::printer(self::$data);
@@ -1293,6 +1307,13 @@ class Route extends FOGBase
         if (!isset($entry['handler']) || !is_callable($entry['handler'])) {
             return $reject('the handler is not callable');
         }
+        if (null === self::_toFastRoutePattern($path)) {
+            return $reject(
+                'a mandatory path segment follows an optional one -- '
+                . 'FastRoute can only express optional segments at the end '
+                . 'of a route'
+            );
+        }
         $method = strtoupper(
             isset($entry['method']) ? (string)$entry['method'] : 'GET'
         );
@@ -1341,9 +1362,19 @@ class Route extends FOGBase
     /**
      * Defines our standard routes.
      *
+     * @param \FastRoute\RouteCollector $r The collector being built. Passed
+     *                                      in rather than read from
+     *                                      self::$router because FastRoute
+     *                                      only hands one back once every
+     *                                      route is already registered --
+     *                                      simpleDispatcher() builds the
+     *                                      collector, invokes this as its
+     *                                      callback, then compiles the
+     *                                      dispatcher from it.
+     *
      * @return void
      */
-    protected static function defineRoutes()
+    protected static function defineRoutes(\FastRoute\RouteCollector $r)
     {
         $expanded = sprintf(
             '/[%s:class]',
@@ -1363,197 +1394,88 @@ class Route extends FOGBase
             '/[%s:class]',
             implode('|', self::writableClasses())
         );
-        self::$router->map(
-            'HEAD|GET',
-            '/system/[status|info]',
-            [__CLASS__, 'status'],
-            'status'
-        )->get(
-            '/system/openapi',
-            [__CLASS__, 'openapi'],
-            'openapi'
-        )->get(
-            // Alias. swagger.json is the filename people and tooling reach
-            // for first -- Swagger UI predates the OpenAPI rename and the
-            // habit stuck. Same handler, same document, so neither name is
-            // the one that goes stale.
-            '/swagger.json',
-            [__CLASS__, 'openapi'],
-            'openapiSwaggerAlias'
-        )->get(
-            '/system/export',
-            [__CLASS__, 'export'],
-            'export'
-        )->get(
-            // Every preference the CALLER holds, in one request. The saved
-            // state of a dozen grids is a dozen keys, and a page that had to
-            // ask for them one at a time would spend a round trip per table
-            // before it could draw any of them.
-            '/system/userprefs',
-            [__CLASS__, 'userprefs'],
-            'userprefs'
-        )->map(
-            // One preference of the CALLER's. Note there is no user in the
-            // path and no way to put one there: the id comes from the
-            // session, so this route cannot address anybody else's row. That
-            // is what lets it carry no permission beyond being signed in.
-            'GET|POST|PUT|DELETE',
-            '/system/userpref/[*:key]',
-            [__CLASS__, 'userpref'],
-            'userpref'
-        )->map(
-            // The CALLER's saved filters for one grid, and saving a new one.
-            // Like userpref above there is no user in the path: the id comes
-            // from the session, and the manager filters every read and write
-            // on it. Saving a GLOBAL filter is the one privileged operation
-            // and is checked inside the handler, because it is a property of
-            // the request body rather than of the route.
-            'GET|POST',
-            '/system/savedfilters',
-            [__CLASS__, 'savedfilters'],
-            'savedfilters'
-        )->map(
-            'GET|PUT|DELETE',
-            '/system/savedfilter/[i:id]',
-            [__CLASS__, 'savedfilter'],
-            'savedfilter'
-        )->get(
-            // Who a filter can be shared WITH. A separate route rather than a
-            // reuse of /user, /usergroup and /role because it returns id and
-            // name only, and because it answers all three in one request --
-            // the share editor needs every list before it can draw anything.
-            //
-            // Each section is gated on that entity's own view permission and
-            // omitted when the caller lacks it, so this route discloses
-            // nothing they could not already list.
-            '/system/savedfiltertargets',
-            [__CLASS__, 'savedfiltertargets'],
-            'savedfiltertargets'
-        )->map(
-            'GET|POST',
-            '/[search|unisearch]/[*:item]/[i:limit]?',
-            [__CLASS__, 'unisearch'],
-            'unisearch'
-        )->map(
-            'PUT|POST',
-            "{$expandedw}/join",
-            [__CLASS__, 'joining'],
-            'join'
-        )->get(
-            '/availablekernels',
-            [__CLASS__, 'availablekernels'],
-            'kernelUpdate'
-        )->get(
-            '/availableinitrds',
-            [__CLASS__, 'availableinitrds'],
-            'initrdUpdate'
-        )->get(
-            "{$expandeda}/[current|active]",
-            [__CLASS__, 'active'],
-            'active'
-        )->get(
-            "{$expanded}/count/[*:whereItems]?",
-            [__CLASS__, 'count'],
-            'count'
-        )->get(
-            "{$expanded}/names/[*:whereItems]?",
-            [__CLASS__, 'names'],
-            'names'
-        )->get(
-            "{$expanded}/ids/[*:whereItems]?/[*:getField]?",
-            [__CLASS__, 'ids'],
-            'ids'
-        )->get(
-            '/bandwidth/[*:dev]',
-            [__CLASS__, 'bandwidth'],
-            'bandwidth'
-        )->get(
-            "{$expanded}/search/[*:item]",
-            [__CLASS__, 'search'],
-            'search'
-        )->get(
-            "{$expanded}/[i:id]",
-            [__CLASS__, 'indiv'],
-            'indiv'
-        )->get(
-            "{$expanded}/[list|all]?/[*:whereItems]?",
-            [__CLASS__, 'listem'],
-            'list'
-        )->get(
-            '/pendingmacs',
-            [__CLASS__, 'pendingmacs'],
-            'pendingmacs'
-        )->get(
-            '/whoami',
-            [__CLASS__, 'whoami'],
-            'whoami'
-        )->get(
-            '/logfiles/[i:id]',
-            [__CLASS__, 'logfiles'],
-            'logfiles'
-        )->put(
-            "{$expandedw}/[i:id]/[update|edit]?",
-            [__CLASS__, 'edit'],
-            'update'
-        )->post(
-            "{$expandedt}/[i:id]/[task]",
-            [__CLASS__, 'task'],
-            'task'
-        )->post(
-            '/snapin/createwithfile',
-            [__CLASS__, 'createSnapinWithFile'],
-            'snapinCreateWithFile'
-        )->post(
-            '/storagegroup/[i:id]/uploadsnapinfiles',
-            [__CLASS__, 'uploadSnapinFiles'],
-            'uploadSnapinFiles'
-        )->post(
-            '/plugin/[i:id]/install',
-            [__CLASS__, 'pluginInstall'],
-            'pluginInstall'
-        )->post(
-            "{$expandedw}/[create|new]?",
-            [__CLASS__, 'create'],
-            'create'
-        )->get(
-            '/settings/cache',
-            [__CLASS__, 'settingsCacheView'],
-            'settingsCacheView'
-        )->post(
-            '/settings/cache/flush',
-            [__CLASS__, 'settingsCacheFlush'],
-            'settingsCacheFlush'
-        )->post(
-            '/settings/cache/refresh',
-            [__CLASS__, 'settingsCacheRefresh'],
-            'settingsCacheRefresh'
-        )->delete(
-            "{$expandedt}/[i:id]?/[cancel]",
-            [__CLASS__, 'cancel'],
-            'cancel'
-        )->delete(
-            "{$expandedw}/[i:id]/[delete|remove]?",
-            [__CLASS__, 'delete'],
-            'delete'
-        );
+        self::_registerRoute($r, 'HEAD|GET', '/system/[status|info]', [__CLASS__, 'status'], 'status');
+        self::_registerRoute($r, 'GET', '/system/openapi', [__CLASS__, 'openapi'], 'openapi');
+        // Alias. swagger.json is the filename people and tooling reach
+        // for first -- Swagger UI predates the OpenAPI rename and the
+        // habit stuck. Same handler, same document, so neither name is
+        // the one that goes stale.
+        self::_registerRoute($r, 'GET', '/swagger.json', [__CLASS__, 'openapi'], 'openapiSwaggerAlias');
+        self::_registerRoute($r, 'GET', '/system/export', [__CLASS__, 'export'], 'export');
+        // Every preference the CALLER holds, in one request. The saved
+        // state of a dozen grids is a dozen keys, and a page that had to
+        // ask for them one at a time would spend a round trip per table
+        // before it could draw any of them.
+        self::_registerRoute($r, 'GET', '/system/userprefs', [__CLASS__, 'userprefs'], 'userprefs');
+        // One preference of the CALLER's. Note there is no user in the
+        // path and no way to put one there: the id comes from the
+        // session, so this route cannot address anybody else's row. That
+        // is what lets it carry no permission beyond being signed in.
+        self::_registerRoute($r, 'GET|POST|PUT|DELETE', '/system/userpref/[*:key]', [__CLASS__, 'userpref'], 'userpref');
+        // The CALLER's saved filters for one grid, and saving a new one.
+        // Like userpref above there is no user in the path: the id comes
+        // from the session, and the manager filters every read and write
+        // on it. Saving a GLOBAL filter is the one privileged operation
+        // and is checked inside the handler, because it is a property of
+        // the request body rather than of the route.
+        self::_registerRoute($r, 'GET|POST', '/system/savedfilters', [__CLASS__, 'savedfilters'], 'savedfilters');
+        self::_registerRoute($r, 'GET|PUT|DELETE', '/system/savedfilter/[i:id]', [__CLASS__, 'savedfilter'], 'savedfilter');
+        // Who a filter can be shared WITH. A separate route rather than a
+        // reuse of /user, /usergroup and /role because it returns id and
+        // name only, and because it answers all three in one request --
+        // the share editor needs every list before it can draw anything.
+        //
+        // Each section is gated on that entity's own view permission and
+        // omitted when the caller lacks it, so this route discloses
+        // nothing they could not already list.
+        self::_registerRoute($r, 'GET', '/system/savedfiltertargets', [__CLASS__, 'savedfiltertargets'], 'savedfiltertargets');
+        self::_registerRoute($r, 'GET|POST', '/[search|unisearch]/[*:item]/[i:limit]?', [__CLASS__, 'unisearch'], 'unisearch');
+        self::_registerRoute($r, 'PUT|POST', "{$expandedw}/join", [__CLASS__, 'joining'], 'join');
+        self::_registerRoute($r, 'GET', '/availablekernels', [__CLASS__, 'availablekernels'], 'kernelUpdate');
+        self::_registerRoute($r, 'GET', '/availableinitrds', [__CLASS__, 'availableinitrds'], 'initrdUpdate');
+        self::_registerRoute($r, 'GET', "{$expandeda}/[current|active]", [__CLASS__, 'active'], 'active');
+        self::_registerRoute($r, 'GET', "{$expanded}/count/[*:whereItems]?", [__CLASS__, 'count'], 'count');
+        self::_registerRoute($r, 'GET', "{$expanded}/names/[*:whereItems]?", [__CLASS__, 'names'], 'names');
+        self::_registerRoute($r, 'GET', "{$expanded}/ids/[*:whereItems]?/[*:getField]?", [__CLASS__, 'ids'], 'ids');
+        self::_registerRoute($r, 'GET', '/bandwidth/[*:dev]', [__CLASS__, 'bandwidth'], 'bandwidth');
+        self::_registerRoute($r, 'GET', "{$expanded}/search/[*:item]", [__CLASS__, 'search'], 'search');
+        self::_registerRoute($r, 'GET', "{$expanded}/[i:id]", [__CLASS__, 'indiv'], 'indiv');
+        self::_registerRoute($r, 'GET', "{$expanded}/[list|all]?/[*:whereItems]?", [__CLASS__, 'listem'], 'list');
+        self::_registerRoute($r, 'GET', '/pendingmacs', [__CLASS__, 'pendingmacs'], 'pendingmacs');
+        self::_registerRoute($r, 'GET', '/whoami', [__CLASS__, 'whoami'], 'whoami');
+        self::_registerRoute($r, 'GET', '/logfiles/[i:id]', [__CLASS__, 'logfiles'], 'logfiles');
+        self::_registerRoute($r, 'PUT', "{$expandedw}/[i:id]/[update|edit]?", [__CLASS__, 'edit'], 'update');
+        self::_registerRoute($r, 'POST', "{$expandedt}/[i:id]/[task]", [__CLASS__, 'task'], 'task');
+        self::_registerRoute($r, 'POST', '/snapin/createwithfile', [__CLASS__, 'createSnapinWithFile'], 'snapinCreateWithFile');
+        self::_registerRoute($r, 'POST', '/storagegroup/[i:id]/uploadsnapinfiles', [__CLASS__, 'uploadSnapinFiles'], 'uploadSnapinFiles');
+        self::_registerRoute($r, 'POST', '/plugin/[i:id]/install', [__CLASS__, 'pluginInstall'], 'pluginInstall');
+        self::_registerRoute($r, 'POST', "{$expandedw}/[create|new]?", [__CLASS__, 'create'], 'create');
+        self::_registerRoute($r, 'GET', '/settings/cache', [__CLASS__, 'settingsCacheView'], 'settingsCacheView');
+        self::_registerRoute($r, 'POST', '/settings/cache/flush', [__CLASS__, 'settingsCacheFlush'], 'settingsCacheFlush');
+        self::_registerRoute($r, 'POST', '/settings/cache/refresh', [__CLASS__, 'settingsCacheRefresh'], 'settingsCacheRefresh');
+        // "{$expandedt}/[i:id]?/[cancel]" in AltoRouter syntax -- an OPTIONAL
+        // segment ([i:id]?) followed by a MANDATORY one (/cancel). FastRoute's
+        // parser rejects that shape outright ("Optional segments can only
+        // occur at the end of a route"), so this is the one route in the core
+        // table registered as two explicit patterns instead of going through
+        // _toFastRoutePattern(), rather than through the general translator.
+        self::_registerRoute($r, 'DELETE', "{$expandedt}/cancel", [__CLASS__, 'cancel'], 'cancel');
+        self::_registerRoute($r, 'DELETE', "{$expandedt}/[i:id]/cancel", [__CLASS__, 'cancel'], 'cancel');
+        self::_registerRoute($r, 'DELETE', "{$expandedw}/[i:id]/[delete|remove]?", [__CLASS__, 'delete'], 'delete');
         /**
          * Plugin routes go on LAST, so a core path always matches first --
-         * AltoRouter returns the first route that matches, and the /ext/
-         * mount point means the two sets cannot overlap anyway. Belt and
-         * braces on purpose: this is a seam that lets third-party code answer
-         * a URL, and it should be safe for two independent reasons.
+         * FastRoute's data structure is keyed by method and static/variable
+         * shape rather than "first registered wins", and the /ext/ mount
+         * point means the two sets cannot overlap anyway. Belt and braces on
+         * purpose: this is a seam that lets third-party code answer a URL,
+         * and it should be safe for two independent reasons.
          *
          * The permission each declares is handed to Authorization here rather
          * than read from the route later, so there is exactly one moment at
          * which a route and its permission are decided together.
          */
         foreach (self::pluginRoutes() as $route) {
-            self::$router->map(
-                $route['method'],
-                $route['path'],
-                $route['handler'],
-                $route['name']
-            );
+            self::_registerRoute($r, $route['method'], $route['path'], $route['handler'], $route['name']);
             if ('public' === $route['auth']) {
                 // Declared public: no permission, because there is no
                 // authenticated user to hold one.
@@ -1574,13 +1496,186 @@ class Route extends FOGBase
         }
     }
     /**
+     * Registers one route with the FastRoute collector, translating FOG's
+     * AltoRouter-style bracket syntax on the way in.
+     *
+     * FastRoute has no concept of a route NAME (its reverse-routing feature
+     * would be AltoRouter's generate(), which has zero callers anywhere in
+     * this tree -- confirmed before this migration), but
+     * Authorization::resolveApiPermission() and the OpenAPI route-coverage
+     * test both key off the name string, so it rides along inside the
+     * handler value instead of being dropped. setMatches() destructures it
+     * back out.
+     *
+     * @param \FastRoute\RouteCollector $r      The collector being built.
+     * @param string                    $method One or more '|'-joined verbs.
+     * @param string                    $path   An AltoRouter-syntax path.
+     * @param callable                  $target The route's handler.
+     * @param string                    $name   The route's name.
+     *
+     * @return void
+     */
+    private static function _registerRoute(
+        \FastRoute\RouteCollector $r,
+        $method,
+        $path,
+        $target,
+        $name
+    ) {
+        $r->addRoute(
+            explode('|', $method),
+            self::_toFastRoutePattern($path),
+            ['target' => $target, 'name' => $name]
+        );
+    }
+    /**
+     * Translates one of FOG's AltoRouter-syntax route strings into FastRoute
+     * syntax.
+     *
+     * AltoRouter: (/|.|)[type:name](?) -- e.g. /[i:id], /[*:key]?,
+     * /[literal|literal] (no colon: a plain alternation, not a named
+     * capture). FastRoute: {name:regex}, with optional segments expressed as
+     * a trailing, NESTED [...] wrapper rather than a per-segment suffix.
+     *
+     * Returns null if the pattern can't be expressed in FastRoute's grammar
+     * -- specifically, a mandatory segment following an optional one, which
+     * FastRoute's own parser rejects ("Optional segments can only occur at
+     * the end of a route"). Every route in FOG's own table that hits this
+     * (there is exactly one: `cancel`) is registered by hand instead of
+     * calling this method; a plugin-declared path that hits it is rejected
+     * by _validatePluginRoute(), the same as any other malformed plugin
+     * route, rather than silently mis-registered.
+     *
+     * @param string $route An AltoRouter-syntax route string.
+     *
+     * @return string|null
+     */
+    private static function _toFastRoutePattern($route)
+    {
+        $bracket = '`(/|\.|)\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
+        if (!preg_match_all($bracket, $route, $m, PREG_OFFSET_CAPTURE | PREG_SET_ORDER)) {
+            // No AltoRouter bracket tokens at all -- a pure literal path.
+            return $route;
+        }
+        $shorthand = [
+            'i'  => '[0-9]++',
+            'a'  => '[0-9A-Za-z]++',
+            'h'  => '[0-9A-Fa-f]++',
+            '*'  => '.+?',
+            '**' => '.++',
+        ];
+        $tokens = [];
+        $cursor = 0;
+        $ignoreN = 0;
+        foreach ($m as $set) {
+            $whole = $set[0][0];
+            $offset = $set[0][1];
+            $pre = $set[1][0];
+            $type = $set[2][0];
+            // An unmatched optional group (no colon in the bracket) still
+            // has an offset-capture entry -- PCRE fills it with '' rather
+            // than omitting it -- so a plain read already gives the '' this
+            // needs, with no isset() to check an offset that always exists.
+            $param = $set[3][0];
+            $optional = '' !== $set[4][0];
+            // No colon in the original bracket ($param === '') means
+            // AltoRouter treated it as an unnamed literal/alternation, not a
+            // capture -- give it a throwaway name so FastRoute's grammar
+            // accepts it, and mark it for stripping in setMatches().
+            $name = '' !== $param
+                ? $param
+                : (self::IGNORED_PARAM_PREFIX . $ignoreN++);
+            $regex = isset($shorthand[$type]) ? $shorthand[$type] : $type;
+            $tokens[] = [
+                'gap' => substr($route, $cursor, $offset - $cursor),
+                'segment' => $pre . "{{$name}:{$regex}}",
+                'optional' => $optional,
+            ];
+            $cursor = $offset + strlen($whole);
+        }
+        $tail = substr($route, $cursor);
+        $seenOptional = false;
+        foreach ($tokens as $token) {
+            if ($seenOptional && ('' !== $token['gap'] || !$token['optional'])) {
+                return null;
+            }
+            $seenOptional = $seenOptional || $token['optional'];
+        }
+        if ($seenOptional && '' !== $tail) {
+            return null;
+        }
+        // Gap text (literal, non-bracket) is always mandatory, no matter
+        // which token follows it -- only the bracket ITSELF is optional. A
+        // gap can only be non-empty on the FIRST optional token (the
+        // validation above rejects a non-empty gap on any later one), so
+        // folding it into $mandatory before opening the chain is always
+        // correct: it is the literal text between the mandatory run and the
+        // optional one, e.g. "/count" in "{class}/count/[*:whereItems]?".
+        $mandatory = '';
+        $optionalChain = [];
+        foreach ($tokens as $token) {
+            $mandatory .= $token['gap'];
+            if ($token['optional']) {
+                $optionalChain[] = $token['segment'];
+            } else {
+                $mandatory .= $token['segment'];
+            }
+        }
+        $nested = '';
+        foreach (array_reverse($optionalChain) as $segment) {
+            $nested = '[' . $segment . $nested . ']';
+        }
+        return $mandatory . $nested . $tail;
+    }
+    /**
      * Sets the matches variable
+     *
+     * Preserves AltoRouter's own match-failure behavior exactly: a
+     * completely unmatched path and a matched path with the wrong verb both
+     * become plain `false` here, same as they always collapsed to a single
+     * `false` out of AltoRouter's match(). FastRoute's dispatch() DOES
+     * distinguish NOT_FOUND from METHOD_NOT_ALLOWED (with an allowed-methods
+     * list), but returning a different status for that distinction is a
+     * real behavior change, made deliberately out of scope for this engine
+     * swap -- runMatches() still answers every unmatched case with the same
+     * 501 it always has.
      *
      * @return void
      */
     public static function setMatches()
     {
-        self::$matches = self::$router->match();
+        $requestUri = (string)filter_input(INPUT_SERVER, 'REQUEST_URI');
+        if ('' === $requestUri) {
+            $requestUri = '/';
+        }
+        // Blind length-based prefix strip, matching AltoRouter's own
+        // match(): substr($requestUrl, strlen($this->basePath)). Not a
+        // starts-with check -- deliberately identical to prior behavior.
+        $requestUri = substr($requestUri, strlen(rtrim(self::$_webrootbase, '/')));
+        if (false !== ($qpos = strpos($requestUri, '?'))) {
+            $requestUri = substr($requestUri, 0, $qpos);
+        }
+        $requestMethod = (string)filter_input(INPUT_SERVER, 'REQUEST_METHOD');
+        if ('' === $requestMethod) {
+            $requestMethod = 'GET';
+        }
+        $result = self::$router->dispatch($requestMethod, $requestUri);
+        if (\FastRoute\Dispatcher::FOUND !== $result[0]) {
+            self::$matches = false;
+            return;
+        }
+        $params = array_filter(
+            $result[2],
+            static function ($key) {
+                return 0 !== strpos((string)$key, self::IGNORED_PARAM_PREFIX);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
+        self::$matches = [
+            'target' => $result[1]['target'],
+            'params' => $params,
+            'name' => $result[1]['name'],
+        ];
     }
     /**
      * Gets the matches.

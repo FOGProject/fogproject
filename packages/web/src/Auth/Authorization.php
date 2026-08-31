@@ -1283,7 +1283,7 @@ class Authorization extends FOGBase
     /**
      * Resolve an API request to a required permission string.
      *
-     * @param string $routeName the matched AltoRouter route name
+     * @param string $routeName the matched route name
      * @param string $class     the model class url parameter, if any
      *
      * @return string|null the required permission, null = no check

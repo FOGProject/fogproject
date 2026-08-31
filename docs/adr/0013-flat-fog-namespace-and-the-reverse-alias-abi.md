@@ -4,6 +4,59 @@
 
 accepted
 
+## Amended 2026-08-31 — decision 3's "no swap is coming" is superseded for the router
+
+**The AltoRouter fork is gone.** `lib/router/altorouter.class.php` and
+`altotransformer.class.php` are deleted; `Route.php` now builds its dispatcher
+with `nikic/fast-route`, a Composer dependency. Decision 3 below said, of
+these two files: *"No swap is coming; the reason for the exclusion is the
+license and the attribution, not a pending change."* That line is reversed.
+
+**Why now, and why this is a different swap than the one decision 3
+considered.** Decision 3 evaluated one thing: taking `altorouter/altorouter`
+itself off Packagist in place of the fork. It correctly rejected that —
+`Route::defineRoutes()`'s `->get()/->post()` fluent chain exists only because
+of `__call()`, which the fork added and upstream AltoRouter never had, so the
+swap it was asked about really would have been "reimplement the fork on top
+of the package," which is worse than keeping the fork. This is a different
+question: not "which AltoRouter," but "does routing need to be AltoRouter at
+all." FastRoute has none of the fork's shape to reproduce, because
+`Route.php` doesn't lean on it — the API surface actually used against the
+router object was four touches, and reverse-routing
+(`generate()`/named-route lookups) had zero callers anywhere in the tree.
+There was no fluent chain to keep faithful to; there was a `[target, params,
+name]` result contract to preserve, which does not depend on which library
+produces it.
+
+**A dedicated regression test existed specifically to force this
+conversation, and had to be deleted to do it.**
+`tests/altorouter-fork-not-vendored.test.php` counted `->verb()` call sites
+in `Route.php` and failed under ten, precisely so that a `defineRoutes()`
+rewritten onto a different registration shape would not slip past the gate
+quietly. Its own docblock: *"If a future FOG genuinely wants the Packagist
+package, this test is what it has to argue with, and rewriting Route's table
+into separate map() calls is what would let it. That is the intended
+conversation."* This amendment is that conversation, recorded rather than
+worked around — the test is deleted, not patched to keep passing.
+
+**What stayed true and drove the design.** The license/attribution reasoning
+in decision 3 is still correct as far as it goes — moving someone else's
+fork into `FOG\` would still misattribute it, if the fork still existed to
+move. It doesn't any more, so that reasoning is moot rather than wrong.
+`mysqldump.class.php`'s earlier swap (also referenced in decision 3) is the
+closer precedent: a fork that turned out to be almost entirely additive
+becomes a thin FOG layer over a real package, once actually measured.
+
+Route's own `[target, params, name]` contract is unchanged, so nothing
+downstream of `Route::setMatches()` — permission resolution, the OpenAPI
+route-coverage test, plugin route registration via
+`Route::pluginRoutes()`/`API_PLUGIN_ROUTES` — needed to change. Plugin
+authors declare routes exactly as before; `Route.php` translates
+AltoRouter-syntax path strings (`[i:id]`, `[literal|literal]`, dynamic
+class-list alternations) into FastRoute's `{name:regex}` syntax internally,
+via `Route::_toFastRoutePattern()`, so the documented plugin route shape
+never had to change either.
+
 ## Amended 2026-08-30 — the last flat classes are bucketed, and the flat namespace is gone
 
 **There is no `namespace FOG;` in core any more.** The 52 discovery-named
@@ -299,6 +352,12 @@ directions, and the entries have been corrected rather than left:
   Taking the Packagist release would mean reimplementing the fork on top of it.
   No swap is coming; the reason for the exclusion is the license and the
   attribution, not a pending change.
+
+  > **Superseded 2026-08-31.** Both files are deleted; routing runs on
+  > `nikic/fast-route`. See the amendment at the top of this file — this was
+  > never the swap this paragraph rejected (that was "which AltoRouter", not
+  > "does it need to be AltoRouter"), but the "no swap is coming" line still
+  > has to be recorded as reversed rather than left standing.
 
 ## Why flat, when mirroring the directories is the obvious instinct
 

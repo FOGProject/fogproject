@@ -31,7 +31,7 @@
  * within the three lines above it saying why the raw name is fine.
  *
  * Two things deliberately out of scope. `[__CLASS__, 'method']` callables
- * (about fifty of them, from Route's AltoRouter wiring) are consumers by
+ * (about fifty of them, from Route's route table) are consumers by
  * construction. `self::class` is likewise only ever used here as a callable
  * or a getClass() argument; if that changes, widen NEEDLES.
  *

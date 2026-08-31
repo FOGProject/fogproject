@@ -1387,9 +1387,6 @@ msgstr "Aufruf"
 msgid "Can be a comma seperated list."
 msgstr ""
 
-msgid "Can not redeclare route"
-msgstr "Route kann nicht nochmal neu definiert werden"
-
 #, fuzzy
 msgid "Cancel"
 msgstr "Stornierter Task"
@@ -7299,9 +7296,6 @@ msgstr ""
 msgid "Roles"
 msgstr ""
 
-msgid "Routes should be an array or an instance of Traversable"
-msgstr "Routen sollten ein Array oder eine Instanz von Traversable sein"
-
 msgid "Row"
 msgstr "Zeile"
 
@@ -11495,6 +11489,9 @@ msgstr ""
 #~ msgid "Bulk Changes"
 #~ msgstr "Änderungen speichern?"
 
+#~ msgid "Can not redeclare route"
+#~ msgstr "Route kann nicht nochmal neu definiert werden"
+
 #~ msgid "Check that database is running"
 #~ msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
@@ -11881,6 +11878,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Resume"
 #~ msgstr "Ergebnis"
+
+#~ msgid "Routes should be an array or an instance of Traversable"
+#~ msgstr "Routen sollten ein Array oder eine Instanz von Traversable sein"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "Zeilennummer nicht richtig eingestellt"

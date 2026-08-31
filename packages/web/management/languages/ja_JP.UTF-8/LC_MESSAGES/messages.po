@@ -1335,9 +1335,6 @@ msgstr "呼び出し"
 msgid "Can be a comma seperated list."
 msgstr "カンマ区切りの一覧を指定できます。"
 
-msgid "Can not redeclare route"
-msgstr "ルートを再定義できません"
-
 #, fuzzy
 msgid "Cancel"
 msgstr "キャンセルされたタスク"
@@ -7038,9 +7035,6 @@ msgstr ""
 msgid "Roles"
 msgstr "ロール"
 
-msgid "Routes should be an array or an instance of Traversable"
-msgstr "ルートは配列または Traversable のインスタンスである必要があります"
-
 msgid "Row"
 msgstr "行"
 
@@ -11159,6 +11153,9 @@ msgstr ""
 #~ msgid "Boot Exit settings"
 #~ msgstr "ブート終了設定"
 
+#~ msgid "Can not redeclare route"
+#~ msgstr "ルートを再定義できません"
+
 #~ msgid "Cannot add Primary mac as additional mac"
 #~ msgstr "プライマリ MAC アドレスを追加 MAC アドレスとして追加できません"
 
@@ -12534,6 +12531,9 @@ msgstr ""
 
 #~ msgid "Rexmit Hello Interval"
 #~ msgstr "Hello 再送信間隔"
+
+#~ msgid "Routes should be an array or an instance of Traversable"
+#~ msgstr "ルートは配列または Traversable のインスタンスである必要があります"
 
 #~ msgid "Row number not set properly"
 #~ msgstr "行番号が正しく設定されていません"
