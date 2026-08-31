@@ -278,19 +278,19 @@ class GroupManagementPage extends FOGPage
     {
         self::$HookManager->processEvent('GROUP_ADD_POST');
         $name = trim(
-            filter_input(INPUT_POST, 'name')
+            (string)filter_input(INPUT_POST, 'name')
         );
         $desc = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $kern = trim(
-            filter_input(INPUT_POST, 'kern')
+            (string)filter_input(INPUT_POST, 'kern')
         );
         $args = trim(
-            filter_input(INPUT_POST, 'args')
+            (string)filter_input(INPUT_POST, 'args')
         );
         $dev = trim(
-            filter_input(INPUT_POST, 'dev')
+            (string)filter_input(INPUT_POST, 'dev')
         );
         try {
             if (!$name) {
@@ -1833,19 +1833,19 @@ class GroupManagementPage extends FOGPage
             global $tab;
             $hostids = $this->obj->get('hosts');
             $name = trim(
-                filter_input(INPUT_POST, 'name')
+                (string)filter_input(INPUT_POST, 'name')
             );
             $desc = trim(
-                filter_input(INPUT_POST, 'description')
+                (string)filter_input(INPUT_POST, 'description')
             );
             $kern = trim(
-                filter_input(INPUT_POST, 'kern')
+                (string)filter_input(INPUT_POST, 'kern')
             );
             $args = trim(
-                filter_input(INPUT_POST, 'args')
+                (string)filter_input(INPUT_POST, 'args')
             );
             $dev = trim(
-                filter_input(INPUT_POST, 'dev')
+                (string)filter_input(INPUT_POST, 'dev')
             );
             $key = filter_input(INPUT_POST, 'key');
             $image = filter_input(INPUT_POST, 'image');

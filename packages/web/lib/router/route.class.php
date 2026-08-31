@@ -894,7 +894,7 @@ class Route extends FOGBase
     private static function _testToken()
     {
         $passtoken = base64_decode(
-            filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
+            (string)filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
         );
         if ($passtoken !== self::$_token) {
             self::sendResponse(
@@ -910,7 +910,7 @@ class Route extends FOGBase
     private static function _testAuth()
     {
         $usertoken = base64_decode(
-            filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
+            (string)filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
         );
         $pwtoken = self::getClass('User')
             ->set('token', $usertoken)

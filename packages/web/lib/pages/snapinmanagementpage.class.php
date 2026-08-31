@@ -412,7 +412,7 @@ class SnapinManagementPage extends FOGPage
         );
         $storagegroup = filter_input(INPUT_POST, 'storagegroup');
         $snapinfileexist = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
+            (string)filter_input(INPUT_POST, 'snapinfileexist')
         );
         $name = filter_input(INPUT_POST, 'name');
         $desc = filter_input(INPUT_POST, 'description');
@@ -714,7 +714,7 @@ class SnapinManagementPage extends FOGPage
         $runWithArgs = filter_input(INPUT_POST, 'rwa');
         $storagegroup = (int)filter_input(INPUT_POST, 'storagegroup');
         $snapinfile = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
+            (string)filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
             isset($_FILES['snapin']['name']) ? $_FILES['snapin']['name'] : ''
@@ -905,7 +905,7 @@ class SnapinManagementPage extends FOGPage
             '${input}'
         );
         $snapinfileexists = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
+            (string)filter_input(INPUT_POST, 'snapinfileexist')
         );
         if (!$snapinfileexists) {
             $snapinfileexists = $this->obj->get('file');
@@ -1464,7 +1464,7 @@ class SnapinManagementPage extends FOGPage
         $runWith = htmlspecialchars_decode(filter_input(INPUT_POST, 'rw'), ENT_QUOTES | ENT_SUBSTITUTE);
         $runWithArgs = htmlspecialchars_decode(filter_input(INPUT_POST, 'rwa'), ENT_QUOTES | ENT_SUBSTITUTE);
         $snapinfile = basename(
-            filter_input(INPUT_POST, 'snapinfileexist')
+            (string)filter_input(INPUT_POST, 'snapinfileexist')
         );
         $uploadfile = basename(
             isset($_FILES['snapin']['name']) ? $_FILES['snapin']['name'] : ''

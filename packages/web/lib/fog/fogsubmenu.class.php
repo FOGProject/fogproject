@@ -600,7 +600,7 @@ class FOGSubMenu extends FOGBase
         return !empty($components['host'])
             && strcasecmp(
                 $components['host'],
-                filter_input(INPUT_SERVER, 'HTTP_HOST')
+                (string)filter_input(INPUT_SERVER, 'HTTP_HOST')
             );
     }
 }
