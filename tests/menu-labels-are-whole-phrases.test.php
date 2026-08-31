@@ -246,9 +246,25 @@ foreach ($catalogs as $po) {
     $entries = [];
     $n = count($lines);
     for ($i = 0; $i < $n; $i++) {
-        // Live entries only. An obsolete `#~` entry is not compiled and is not
-        // shown to anyone.
+        // COMPILED entries only, which is a narrower thing than "live". An
+        // obsolete `#~` entry is not compiled, and neither is a `#, fuzzy`
+        // one -- msgfmt drops both, so gettext falls back to the msgid and
+        // nothing in either is ever shown to a user.
+        //
+        // That distinction is load-bearing here rather than pedantic. The
+        // `regenerate` job runs msgmerge on every pull request, and msgmerge
+        // FILLS an empty msgstr with a fuzzy guess: the eight `List All X`
+        // msgids this change adds came back from it holding `List All %s` in
+        // en_US. Asserting over those would fail the build for a state the
+        // catalog reaches on its own, on entries no user can see. What must
+        // never carry a %s is a CONFIRMED entry, and that is what is checked.
         if (!preg_match('/^msgid "(.*)"$/', $lines[$i], $m)) {
+            continue;
+        }
+        if ($i > 0
+            && 0 === strpos($lines[$i - 1], '#,')
+            && false !== strpos($lines[$i - 1], 'fuzzy')
+        ) {
             continue;
         }
         if (isset($lines[$i + 1])
