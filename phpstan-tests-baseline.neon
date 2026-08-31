@@ -79,7 +79,13 @@ parameters:
 			path: tests/autoload-core-wins.test.php
 
 		-
-			message: '#^Call to an undefined static method Initiator\:\:classFileList\(\)\.$#'
+			message: '#^Call to an undefined static method Initiator\:\:pluginFileList\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/autoload-core-wins.test.php
+
+		-
+			message: '#^Call to an undefined static method Initiator\:\:srcFileList\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: tests/autoload-core-wins.test.php
@@ -91,7 +97,7 @@ parameters:
 			path: tests/autoload-core-wins.test.php
 
 		-
-			message: '#^Call to an undefined static method Initiator\:\:classFileList\(\)\.$#'
+			message: '#^Call to an undefined static method Initiator\:\:pluginFileList\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
 			path: tests/autoload.test.php
@@ -529,7 +535,25 @@ parameters:
 			path: tests/plugin-namespace.test.php
 
 		-
-			message: '#^Call to an undefined static method Initiator\:\:pluginClassMap\(\)\.$#'
+			message: '#^Call to an undefined static method Initiator\:\:pluginFileList\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/plugin-namespace.test.php
+
+		-
+			message: '#^Call to an undefined static method Initiator\:\:pluginFqcnFor\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/plugin-namespace.test.php
+
+		-
+			message: '#^Call to an undefined static method Initiator\:\:pluginOf\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: tests/plugin-namespace.test.php
+
+		-
+			message: '#^Call to an undefined static method Initiator\:\:pluginSegment\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 2
 			path: tests/plugin-namespace.test.php

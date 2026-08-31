@@ -29,7 +29,7 @@ $web = $root . '/packages/web';
 $tmp = sys_get_temp_dir() . '/fog-hook-contract-' . getmypid();
 @mkdir($tmp . '/cache', 0777, true);
 @mkdir($tmp . '/log', 0777, true);
-@mkdir($tmp . '/plugins/demo/hooks', 0777, true);
+@mkdir($tmp . '/plugins/demo/src/Hooks', 0777, true);
 define('FOG_CACHE_DIR', $tmp . '/cache');
 define('FOG_LOG_DIR', $tmp . '/log');
 define('FOG_PLUGIN_DIR', $tmp . '/plugins');
@@ -479,19 +479,24 @@ $variants = [
     // found no literal and skipped the file.
     ['V7', '', true],
 ];
-@mkdir($tmp . '/hooks', 0777, true);
+// Laid out the way a core hook is -- src/Hooks/<Class>.php declaring
+// FOG\Hooks\<Class> -- because _declaresActive() derives the class name from
+// the PATH (ADR 0035) and a fixture in any other shape would name a class
+// nothing declares, which is a different case entirely (the one below).
+@mkdir($tmp . '/Hooks', 0777, true);
 foreach ($variants as list($tag, $line, $active)) {
     $class = 'CharActive' . $tag;
-    $path = $tmp . '/hooks/' . strtolower($class) . '.hook.php';
+    $path = $tmp . '/Hooks/' . $class . '.php';
     file_put_contents(
         $path,
-        "<?php\nclass $class extends \\FOG\\Base\\Hook\n{\n"
+        "<?php\nnamespace FOG\\Hooks;\n"
+        . "class $class extends \\FOG\\Base\\Hook\n{\n"
         . "    public \$node = 'demo';\n"
         . ('' === $line ? '' : "    $line\n")
         . "    public function fire(\$a) {}\n}\n"
     );
     require $path;
-    if ($decl->invoke(null, $path, '.hook.php') !== $active) {
+    if ($decl->invoke(null, $path) !== $active) {
         $fails[] = sprintf(
             'activation verdict for %s is wrong; the property says %s',
             '' === $line ? 'a file declaring no $active' : var_export($line, true),
@@ -504,7 +509,7 @@ foreach ($variants as list($tag, $line, $active)) {
 // name nothing declares throws, and load() runs inside LoadGlobals, so an
 // unresolvable file here would be a 500 rather than one hook not starting.
 try {
-    if (false !== $decl->invoke(null, $tmp . '/hooks/charnosuch.hook.php', '.hook.php')) {
+    if (false !== $decl->invoke(null, $tmp . '/Hooks/CharNoSuch.php')) {
         $fails[] = 'a hook file with no resolvable class is treated as active';
     }
 } catch (\Throwable $t) {
@@ -529,29 +534,27 @@ if (false !== strpos($loader, 'active' . chr(92) . 's?=')) {
     $fails[] = 'the source-text activation regex is back in EventManager';
 }
 
-// F-22, fixed. load() used to pick its file extension with two sequential
+// F-22, fixed. load() used to pick what it loaded with two sequential
 // instanceof checks. HookManager extends EventManager, so it satisfied both,
-// and reached .hook.php only because the second assignment overwrote the
-// first -- reordering the blocks silently made every HookManager load
-// .event.php. Each manager now declares what it loads.
+// and reached hooks only because the second assignment overwrote the first --
+// reordering the blocks silently made every HookManager load events. Each
+// manager now declares its own bucket, which is the single name that
+// identifies its listeners in core's src/ and in every plugin's (ADR 0035).
 foreach ([
-    'FOG\\Base\\EventManager' => ['.event.php', 'events'],
-    'FOG\\Base\\HookManager' => ['.hook.php', 'hooks'],
-] as $class => list($ext, $dir)) {
+    'FOG\\Base\\EventManager' => 'Events',
+    'FOG\\Base\\HookManager' => 'Hooks',
+] as $class => $want) {
     $obj = $bare($class);
-    foreach (['fileExtension' => $ext, 'fileDirectory' => $dir] as $prop => $want) {
-        $r = new \ReflectionProperty($class, $prop);
-        $r->setAccessible(true);
-        if ($want !== $r->getValue($obj)) {
-            $fails[] = sprintf(
-                '%s::$%s is %s, not %s -- the manager would load the other'
-                . " manager's files",
-                $class,
-                $prop,
-                var_export($r->getValue($obj), true),
-                var_export($want, true)
-            );
-        }
+    $r = new \ReflectionProperty($class, 'fileBucket');
+    $r->setAccessible(true);
+    if ($want !== $r->getValue($obj)) {
+        $fails[] = sprintf(
+            '%s::$fileBucket is %s, not %s -- the manager would load the'
+            . " other manager's files",
+            $class,
+            var_export($r->getValue($obj), true),
+            var_export($want, true)
+        );
     }
 }
 $loadBody = substr($loader, strpos($loader, 'public function load()'));
@@ -567,8 +570,9 @@ if (false !== strpos($loadBody, 'instanceof')) {
 // anyway. Fixture lives under FOG_PLUGIN_DIR so its ReflectionClass filename
 // carries the substring.
 file_put_contents(
-    $tmp . '/plugins/demo/hooks/charplugin.hook.php',
-    "<?php\nclass CharPluginHook extends \\FOG\\Base\\Hook\n{\n"
+    $tmp . '/plugins/demo/src/Hooks/CharPluginHook.php',
+    "<?php\nnamespace FOG\\Plugins\\Demo\\Hooks;\n"
+    . "class CharPluginHook extends \\FOG\\Base\\Hook\n{\n"
     . "    public \$name = 'CharPluginHook';\n"
     . "    public \$node = 'demo';\n"
     . "    public \$active = false;\n"
@@ -576,13 +580,13 @@ file_put_contents(
     . "    public function fire(\$arguments) { \$this->seen[] = \$arguments; }\n"
     . "}\n"
 );
-require $tmp . '/plugins/demo/hooks/charplugin.hook.php';
+require $tmp . '/plugins/demo/src/Hooks/CharPluginHook.php';
 
 $known = new \ReflectionProperty('FOG\Base\HookManager', 'knownEvents');
 $known->setAccessible(true);
 $known->setValue(null, ['CHAR_DISPATCH' => true, 'CHAR_CORE_DISPATCH' => true]);
 
-$pluginHook = $bare('CharPluginHook');
+$pluginHook = $bare('FOG\\Plugins\\Demo\\Hooks\\CharPluginHook');
 $hm2 = $bare('FOG\Base\HookManager');
 $hm2->register('CHAR_DISPATCH', [$pluginHook, 'fire']);
 $hm2->processEvent('CHAR_DISPATCH', ['payload' => 1]);

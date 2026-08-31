@@ -6,6 +6,18 @@ accepted
 
 ## Amended 2026-08-31 — plugins are namespaced too, and the alias advice is withdrawn
 
+> **Superseded the same day by [ADR 0035](0035-a-plugin-is-laid-out-like-core.md),
+> in one respect: the file shape.** This amendment shipped as fog-plugins
+> v1.6.22 and said in terms that namespacing was "not a second PSR-4 move".
+> It was. v1.6.23 moves every plugin class to
+> `<plugin>/src/<Bucket>/<Class>.php` declaring
+> `FOG\Plugins\<Segment>\<Bucket>\<Class>`, which is core's own layout, and
+> `strtolower(<Segment>)` is the directory name rather than the segment being
+> `ucfirst()` of it. Everything else below still holds — plugins are
+> namespaced, the alias advice is withdrawn, `qualify()` is the single seam,
+> and core is consulted first — so the amendment is left standing with this
+> note rather than rewritten.
+
 **Every bundled plugin class declares `FOG\Plugins\<Plugin>\<Class>`.** The
 `<Plugin>` segment is `ucfirst()` of the plugin's own directory name, applied
 mechanically with no lookup table and no exceptions, so `ldap/class/
@@ -26,6 +38,11 @@ The first half stands and the second half does not. The file shape is
 unchanged — the discovery extensions are how a page, hook, event, report or
 task is *found*, so this is namespacing and not a second PSR-4 move — but
 plugins are no longer global and no longer need an alias.
+
+> **The sentence above is what ADR 0035 reverses.** It was a second PSR-4
+> move, one release later: with a layout the tree can enforce, a plugin class
+> is *found* by deriving its path from its name, exactly as core's is, and
+> the discovery extensions stop being load-bearing at all.
 
 **Why the alias advice had to go rather than merely being tidied.** It was a
 rule whose failure mode was the whole admin UI. A plugin page that declared a

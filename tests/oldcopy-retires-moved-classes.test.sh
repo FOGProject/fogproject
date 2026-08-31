@@ -139,11 +139,15 @@ echo generated > "$webdirdest/commons/config.class.php"
 echo plugin > "$webdirdest/lib/plugins/site/class/site.class.php"
 
 # GH-1528 retired the four DISCOVERY extensions the same way: every core page,
-# hook, report and event is src/<Bucket>/<Class>.php now. These matter more
+# hook, report and event is src/<Bucket>/<Class>.php now. These mattered more
 # than the class files above, which are inert once src/ answers first -- a
-# stale *.report.php is FOUND by ReportManagement::loadCustomReports()'s
-# plugin walk, so every core report appears in the menu twice. Reproduced on a
-# 1.6 install: 17 reports became 30.
+# stale *.report.php used to be FOUND by
+# ReportManagement::loadCustomReports()'s plugin walk, so every core report
+# appeared in the menu twice. Reproduced on a 1.6 install: 17 reports became
+# 30. That walk is gone with ADR 0035 -- discovery lists src/<Bucket>/ on both
+# sides and no suffix is scanned anywhere -- so a stale file is now merely
+# dead weight rather than a duplicate menu entry. It is still not the
+# release's to leave behind, which is what these checks hold.
 mkdir -p "$webdirdest/lib/pages" "$webdirdest/lib/hooks" \
     "$webdirdest/lib/reports" "$webdirdest/lib/events" \
     "$webdirsrc/lib/pages" "$webdirdest/lib/plugins/site/reports"

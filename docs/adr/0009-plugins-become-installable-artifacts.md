@@ -4,6 +4,14 @@
 
 accepted
 
+> **Extended 2026-08-31 by [ADR 0035](0035-a-plugin-is-laid-out-like-core.md),**
+> which answers the "contracts are conventions" complaint below for the half
+> that is about layout: a plugin is now laid out and discovered exactly like
+> core, and the two rules that makes are gated in CI rather than enforced by
+> silent failure. Nothing else in this ADR changes — the manifest, the
+> lifecycle, the install/uninstall path and the two plugin roots are as
+> decided here.
+
 ## Context
 
 What FOG calls a plugin system is really an extension system, and a good one:
@@ -32,6 +40,14 @@ but `Plugin::_getDirs()` overwrites it back to `../lib/plugins/` on every call.
 **The contracts are conventions.** Class name must equal filename; directory
 name must equal the routing node; JS must be `fog.<node>.<sub>.js`. Real rules,
 enforced by silent failure.
+
+> **ADR 0035 closes the first of those three.** Class name equals file name and
+> file path equals namespace, both checked by a test in fog-plugins' own suite,
+> and a plugin still on the pre-1.6 layout is now refused with a message naming
+> itself rather than being silently absent. The other two — directory name is
+> the routing node, and the JS naming — are unchanged and still conventions;
+> ADR 0035 depends on the first of those staying true, which is why the
+> directory name is the one thing it deliberately does not move.
 
 Two places where core had been hand-edited on a plugin's behalf — an
 `API_CLASS_ENTITIES` entry and a `$sensitiveAlwaysFields` entry, both for LDAP —

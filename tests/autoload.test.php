@@ -38,11 +38,10 @@
  * other check still asserts: they are invariants of any tree that boots.
  *
  * Four things are checked:
- *   1. A representative class from each scan root resolves, by the name its
- *      own file declares -- namespaced for core under src/, including the 52
- *      discovery-named page/hook/report/event classes now bucketed there
- *      too; bare only for plugins, which still declare `namespace FOG;` with
- *      their own class_alias under lib/.
+ *   1. A representative class from each src/ bucket resolves, by the name its
+ *      own file declares -- namespaced, including the 52 discovery-named
+ *      page/hook/report/event classes bucketed there too. Nothing resolves
+ *      bare any more, core or plugin (ADR 0013 sec 2, ADR 0035).
  *   2. Composer's autoloader is registered and reaches vendor/. Mysqldump
  *      is the proof: it is a FOG class whose parent lives in a package, so
  *      it cannot resolve unless both loaders are in the chain and in the
@@ -52,35 +51,15 @@
  *      the tree PSR-4-hostile. The swap to ifsnop/mysqldump-php removed
  *      it, so the check now pins the arrangement that replaced it.
  *   3. Every autoloadable file declares a class matching its own filename.
- *      All four discovery paths derive the class name arithmetically from
- *      the basename and none of them parses source for a `class` token, so
- *      a file that breaks this is invisible to hooks, events, pages and
- *      reports while looking perfectly fine.
- *   4. The shape of what resolves and what does not. See EXPECT_BRIDGE.
+ *      Under PSR-4 that is not a convention but the autoloading contract:
+ *      every path is DERIVED from a class name and never searched for, so a
+ *      file that breaks it is unreachable while looking perfectly fine.
+ *   4. The shape of what the FOG\<Name> bridge does and does not answer.
  *
  * Usage: php tests/autoload.test.php [path/to/packages/web]
  * Exit status 0 = pass, 1 = fail.
  */
 
-/*
- * Flipped false by the same change that bucketed the last 52 discovery-named
- * classes -- 28 pages, 10 hooks, 13 reports, 1 event -- out of a flat
- * `namespace FOG;` under lib/ and into src/{Pages,Hooks,Reports,Events}
- * (ADR 0013, amended 2026-08-30). Every one of them is in srcClassMap() now,
- * so the bridge's first arm refuses the flat spelling with a diagnostic
- * instead of resolving it -- the same refusal every other core class has
- * always gotten from Initiator::_bridgeNamespaced(). What is left for the
- * bridge to actually RESOLVE is a lib/ file that still declares a flat
- * `namespace FOG;` with its own class_alias() -- which no core file does any
- * more, only a plugin's own page/hook/report class can (ADR 0009), and
- * nothing under this checkout is one.
- *
- * This constant existing rather than the assertion simply being deleted is
- * the point: the flip is the bridge's regression test. It goes back to true
- * only if a discovery-named class is deliberately moved back under a flat
- * lib/ namespace.
- */
-const EXPECT_BRIDGE = false;
 
 // An explicit path means "probe that tree", which is a different job from
 // "check this checkout" -- see the header. Compared by realpath so that
@@ -123,9 +102,9 @@ register_shutdown_function(
  * FOG_CACHE_DIR is forced to a throwaway directory ALWAYS, in both modes,
  * and this is the one line here that must never become conditional.
  *
- * Left alone it defaults under FOG_BASE_DIR, and classFileList() does not
- * merely read that directory -- it WRITES filelist.<md5>.json into it
- * (commons/init.php:195, :415-429). Point the harness at a live server
+ * Left alone it defaults under FOG_BASE_DIR, and the boot source lists do
+ * not merely read that directory -- they WRITE srcmap.<md5>.json and
+ * pluginsrc.<md5>.json into it. Point the harness at a live server
  * without this and a test script rebuilds, or clobbers, that server's live
  * class-file cache. FOG_BASE_DIR and FOG_CACHE_DIR are guarded separately by
  * init.php, which is exactly what makes "real tree, harmless cache" possible.
@@ -161,19 +140,19 @@ require $init;
 new Initiator();
 
 /*
- * classFileList() and the O(1) class map arrived with 1.6. A 1.5 tree has an
- * Initiator that only sets include_path and registers the built-in resolver,
- * so everything below either fatals on an undefined method or silently checks
- * nothing. Caught here rather than left to blow up two hundred lines later:
- * pointing this at a 1.5 server is a reasonable thing to try, and "that tree
- * predates what this checks" is a useful answer where an uncaught Error is
- * not.
+ * srcFileList() and the PSR-4 tree it describes arrived with 1.6. A 1.5 tree
+ * has an Initiator that only sets include_path and registers the built-in
+ * resolver, so everything below either fatals on an undefined method or
+ * silently checks nothing. Caught here rather than left to blow up two
+ * hundred lines later: pointing this at a 1.5 server is a reasonable thing to
+ * try, and "that tree predates what this checks" is a useful answer where an
+ * uncaught Error is not.
  */
-if (!method_exists('Initiator', 'classFileList')) {
+if (!method_exists('Initiator', 'srcFileList')) {
     fwrite(
         STDERR,
-        "FAIL: $webroot has no Initiator::classFileList(), so it predates "
-        . "the 1.6 class map this checks. Nothing to test here.\n"
+        "FAIL: $webroot has no Initiator::srcFileList(), so it predates "
+        . "the 1.6 PSR-4 tree this checks. Nothing to test here.\n"
     );
     exit(1);
 }
@@ -198,7 +177,7 @@ if (!class_exists('FOG\\Db\\Mysqldump')) {
         . 're-vendored by hand, which is what ADR 0013 exists to prevent';
 }
 
-// 1. One name per scan root, plus the two base classes everything descends
+// 1. One name per src/ bucket, plus the two base classes everything descends
 // from and the two traits FOGPage is built out of.
 //
 // Named as each file names ITSELF. Core moved to src/ under a namespace per
@@ -251,25 +230,18 @@ foreach (['Host', 'HostManager', 'FOGBase', 'PDODB', 'Route',
 $mismatched = [];
 $declares = [];
 /*
- * Both scans, because the property is the same one and the floor below is
- * only honest if it covers the whole tree. classFileList() is the six
- * *.<type>.php suffixes -- the 46 discovery-named files, the generated
- * config.class.php and every plugin file. srcFileList() is core's PSR-4
- * tree, where "filename == declared name" is not a convention but the
- * autoloading contract itself. Before the move to src/ this loop saw ~250
- * files; without the second scan it sees 49 on a tree with no plugins
- * fetched, which is what CI runs.
+ * Both lists, because the property is the same one and the floor below is
+ * only honest if it covers the whole tree: srcFileList() is core's PSR-4
+ * tree and pluginFileList() is every installed plugin's. On CI the second is
+ * empty -- lib/plugins is gitignored staging and nothing fetches it -- which
+ * is why the floor is set against core alone.
  */
 $scanned = array_merge(
-    array_values(Initiator::classFileList()),
-    array_values(Initiator::srcFileList())
+    array_values(Initiator::srcFileList()),
+    array_values(Initiator::pluginFileList())
 );
 foreach ($scanned as $path) {
-    $stem = preg_replace(
-        '#\.(report|event|class|hook|page|task)?\.?php$#',
-        '',
-        basename($path)
-    );
+    $stem = basename($path, '.php');
     $src = file_get_contents($path);
     // Anchored to the start of a line so `class` inside a comment, a string
     // or `::class` cannot match. Abstract/final are the only modifiers this
@@ -287,9 +259,9 @@ foreach ($scanned as $path) {
         $mismatched[] = basename($path) . " declares {$m[1]}";
     }
 }
-if (count($declares) < 100) {
+if (count($declares) < 250) {
     $failures[] = 'only ' . count($declares) . ' autoloadable files found; '
-        . 'the scan roots look wrong';
+        . 'the source roots look wrong';
 }
 foreach ($mismatched as $m) {
     $failures[] = "filename/class mismatch: $m";
@@ -300,23 +272,18 @@ foreach ($mismatched as $m) {
 // an older FOG than the tree you are standing in, and failing over that would
 // make the diagnostic mode useless.
 //
-// Probed with a discovery-named class, not with a model. FOG\Items\Host is
-// Composer's job now and proves nothing about the bridge. FOG\HostManagement
-// is the flat spelling ADR 0013's 2026-08-30 amendment retired:
-// HostManagement moved out of a flat lib/ file into src/Pages/, so it is now
-// IN srcClassMap() and the bridge's first arm refuses the flat spelling with
-// a diagnostic instead of resolving it, exactly like every other core class.
+// It RESOLVES nothing now. It existed to answer the 46 discovery-named files
+// that declared a flat `namespace FOG;` under lib/; those were bucketed into
+// src/ (ADR 0013, amended 2026-08-30) and the last flat namespace in the tree
+// went with the plugin layout (ADR 0035). So every flat FOG\<Name> is a wrong
+// spelling of a bucketed class, and the bridge's whole job is to say which
+// one was meant -- refusing, with a diagnostic, rather than resolving.
 $bridged = class_exists('FOG\HostManagement');
-if (!$diagnostic && $bridged !== EXPECT_BRIDGE) {
-    $failures[] = EXPECT_BRIDGE
-        ? 'FOG\HostManagement did not resolve; Initiator::_bridgeNamespaced() '
-            . 'is missing or no longer answers a flat FOG\<Name> spelling for '
-            . 'a class that has been deliberately moved back under a flat '
-            . 'lib/ namespace'
-        : 'FOG\HostManagement resolved; Initiator::_bridgeNamespaced() is '
-            . 'answering a flat spelling for a class srcClassMap() already '
-            . 'knows about instead of refusing it, which reopens the '
-            . 'shadowing hole ADR 0013 closed';
+if (!$diagnostic && $bridged) {
+    $failures[] = 'FOG\HostManagement resolved; Initiator::_bridgeNamespaced() '
+        . 'is answering a flat spelling for a class srcClassMap() already '
+        . 'knows about instead of refusing it, which reopens the '
+        . 'shadowing hole ADR 0013 closed';
 }
 // The refusal has to be a refusal, not a silent no-op: the namespaced
 // spelling the diagnostic points to still has to resolve.

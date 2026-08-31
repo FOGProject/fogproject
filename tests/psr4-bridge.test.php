@@ -18,25 +18,21 @@
  *   2. The bare name does NOT resolve, in any spelling. This is the whole
  *      point of the retirement, and an accidental alias anywhere would make
  *      every other check here pass for the wrong reason.
- *   3. A plugin shipping class/probealpha.class.php STILL cannot answer a
- *      bare `ProbeAlpha`. Core is not in the classMap, so that plugin file
- *      is the only candidate for the key and would win outright -- the
- *      autoloader recognizes the name as core's and refuses rather than
- *      falling through. Losing that is a privilege escalation with no other
- *      symptom, and note it is now a REFUSAL rather than a preference: the
- *      old ordering guarantee has nothing left to order.
- *   4. A FLAT FOG\<Name> still resolves when a flat FOG\<Name> is what the
- *      file declares. The 46 discovery-named classes under lib/ -- pages,
- *      hooks, reports, the one event -- are `namespace FOG;` and stay there,
- *      because FOGPageManager::loadPageClasses() derives their class name
- *      from basename($file) and PSR-4 does not do discovery. Composer maps
- *      FOG\ onto src/, so `use FOG\ReportManagement;` in a core file is
- *      answered by Initiator::_bridgeNamespaced() and by nothing else. The
- *      plan said to delete that bridge alongside the aliases; doing so breaks
- *      every core file that imports one of the 46.
+ *   3. A plugin shipping src/Items/ProbeAlpha.php STILL cannot answer a bare
+ *      `ProbeAlpha`. The autoloader recognizes the name as core's and
+ *      refuses rather than falling through to the plugin roots. Losing that
+ *      is a privilege escalation with no other symptom, and note it is a
+ *      REFUSAL rather than a preference: core and the plugin no longer share
+ *      a key space to be ordered within.
+ *   4. Both classes exist. That is what namespacing bought: the plugin's
+ *      FOG\Plugins\ProbePlug\Items\ProbeAlpha resolves to the plugin's own
+ *      file at the same time as FOG\Items\ProbeAlpha resolves to core's, and
+ *      neither shadows the other. A FLAT FOG\<Name> resolves to neither --
+ *      every core class is in a bucket now, so a flat name is a misspelling
+ *      and _bridgeNamespaced() answers it with a diagnostic (ADR 0035).
  *
  * Runs against a MINIATURE tree in the system temp directory -- a copy of
- * commons/init.php with its own src/, lib/pages/ and lib/plugins/ -- rather
+ * commons/init.php with its own src/ and lib/plugins/ -- rather
  * than against packages/web. Initiator derives BASEPATH from its own location,
  * so a copied init.php gets a BASEPATH of the copy, and the probe classes
  * never touch the repository. That matters more than tidiness here: this test
@@ -70,13 +66,23 @@ register_shutdown_function(
     }
 );
 
-foreach (['commons', 'src/Items', 'src/Base', 'lib/pages',
-          'lib/plugins/probeplug/class', 'cache', 'log', 'extplugins'] as $d) {
+foreach (['commons', 'src/Items', 'src/Base',
+          'lib/plugins/probeplug/src/Items',
+          'lib/plugins/probeplug/config', 'cache', 'log',
+          'extplugins'] as $d) {
     if (!@mkdir($tmp . '/' . $d, 0700, true) && !is_dir($tmp . '/' . $d)) {
         fwrite(STDERR, "FAIL: cannot create $tmp/$d\n");
         exit(1);
     }
 }
+
+// config/plugin.config.php is what makes a directory a plugin: it is what
+// Plugin::_getDirs() globs for and what Initiator::_scanPluginSource()
+// requires before it will look for a src/ tree at all.
+file_put_contents(
+    $tmp . '/lib/plugins/probeplug/config/plugin.config.php',
+    "<?php\n\$fog_plugin = ['name' => 'probeplug'];\n"
+);
 
 if (!@copy($web . '/commons/init.php', $tmp . '/commons/init.php')) {
     fwrite(STDERR, "FAIL: cannot copy commons/init.php\n");
@@ -96,16 +102,33 @@ file_put_contents(
     . "class ProbeAlpha { public static function who() { return 'core'; } }\n"
 );
 file_put_contents(
-    $tmp . '/lib/plugins/probeplug/class/probealpha.class.php',
-    "<?php\nclass ProbeAlpha { public static function who() { return 'plugin'; } }\n"
+    $tmp . '/lib/plugins/probeplug/src/Items/ProbeAlpha.php',
+    "<?php\nnamespace FOG\\Plugins\\ProbePlug\\Items;\n"
+    . "class ProbeAlpha { public static function who() { return 'plugin'; } }\n"
 );
 /*
  * A plugin class core knows nothing about, proving the src/ arm FALLS
  * THROUGH rather than swallowing every bare name.
  */
 file_put_contents(
-    $tmp . '/lib/plugins/probeplug/class/probeonlyplugin.class.php',
-    "<?php\nclass ProbeOnlyPlugin { }\n"
+    $tmp . '/lib/plugins/probeplug/src/Items/ProbeOnlyPlugin.php',
+    "<?php\nnamespace FOG\\Plugins\\ProbePlug\\Items;\n"
+    . "class ProbeOnlyPlugin { }\n"
+);
+/*
+ * A third plugin class, used only to prove the plugin arm's prefix match is
+ * case-insensitive (strncasecmp). It needs its own file because the check has
+ * to be the FIRST request for the class: once any spelling has been loaded,
+ * PHP's own class table answers every other casing without consulting an
+ * autoloader at all, so asserting against an already-loaded probe passes
+ * whatever the autoloader does. That is exactly how the version of this check
+ * that used to live in autoload.test.php was a fake gate -- verified by
+ * mutating strncasecmp to strncmp, which it did not catch.
+ */
+file_put_contents(
+    $tmp . '/lib/plugins/probeplug/src/Items/ProbeCased.php',
+    "<?php\nnamespace FOG\\Plugins\\ProbePlug\\Items;\n"
+    . "class ProbeCased { }\n"
 );
 /*
  * A second core class, in a DIFFERENT bucket. srcClassMap() derives the
@@ -115,33 +138,11 @@ file_put_contents(
     $tmp . '/src/Base/ProbeBeta.php',
     "<?php\nnamespace FOG\\Base;\nclass ProbeBeta { }\n"
 );
-/*
- * A discovery-named page, standing in for the 46 under lib/. Flat
- * `namespace FOG;` plus its own class_alias back to the global name -- which
- * is NOT the retired kind. FOGPageManager::loadPageClasses() looks the class
- * up by basename, so these files keep theirs.
- */
-file_put_contents(
-    $tmp . '/lib/pages/probediscovered.page.php',
-    "<?php\nnamespace FOG;\nclass ProbeDiscovered { }\n"
-    . "class_alias(__NAMESPACE__ . '\\ProbeDiscovered', 'ProbeDiscovered');\n"
-);
 
-/*
- * A SECOND one, used only to prove the bridge's prefix match is
- * case-insensitive (strncasecmp). It needs its own file because the check has
- * to be the FIRST request for the class: once any spelling has been loaded,
- * PHP's own class table answers every other casing without consulting an
- * autoloader at all, so asserting against an already-loaded probe passes
- * whatever the bridge does. That is exactly how the version of this check
- * that used to live in autoload.test.php was a fake gate -- verified by
- * mutating strncasecmp to strncmp, which it did not catch.
- */
-file_put_contents(
-    $tmp . '/lib/pages/probecased.page.php',
-    "<?php\nnamespace FOG;\nclass ProbeCased { }\n"
-    . "class_alias(__NAMESPACE__ . '\\ProbeCased', 'ProbeCased');\n"
-);
+// Diverted so the deliberate refusals below can be asserted on, and so a
+// passing test leaves no alarming lines in the tester's own PHP log.
+ini_set('log_errors', '1');
+ini_set('error_log', $tmp . '/php-error.log');
 
 define('FOG_CACHE_DIR', $tmp . '/cache');
 define('FOG_LOG_DIR', $tmp . '/log');
@@ -217,11 +218,30 @@ foreach (['ProbeAlpha', 'probealpha', 'PROBEALPHA'] as $spelling) {
 }
 
 // 3. THE ONE THAT MATTERS. A plugin file named after a core class cannot
-// answer the bare name either -- the refusal in check 2 has to be a refusal,
-// not a fall-through to lib/plugins.
+// answer the bare name either. Structural now rather than a preference:
+// nothing maps a bare name to a file any more, so there is no path by which
+// lib/plugins could answer one. The assertion stays because that is a
+// property of the whole chain, not of one branch -- a single class_alias()
+// anywhere, or a fourth autoloader added later, re-opens it silently.
+//
+// The live ORDERING guarantee is FOGBase::qualify(), which consults core's
+// map before the plugin one, and tests/plugin-namespace.test.php holds it.
 check(
     'the plugin file did not answer bare ProbeAlpha',
     null === $fileOf('ProbeAlpha'),
+    $failures,
+    $checks
+);
+// And the refusal says which spelling was meant. It is the only thing an
+// author gets -- PHP's own "class not found" points at the caller and gives
+// no hint that the class exists one segment away.
+$log = is_file($tmp . '/php-error.log')
+    ? (string)file_get_contents($tmp . '/php-error.log')
+    : '';
+check(
+    'and the refusal named the qualified spelling to use instead',
+    strpos($log, '"ProbeAlpha" is a core class') !== false
+    && strpos($log, 'FOG\Items\ProbeAlpha') !== false,
     $failures,
     $checks
 );
@@ -256,50 +276,62 @@ check(
     $checks
 );
 
-// 6. A FLAT FOG\<Name> that a lib/ file actually DECLARES does resolve.
-// This is the arm the plan said to delete; `use FOG\ReportManagement;` in
-// core has no other answer. See the header.
+// 6. The plugin's own class exists at the same time, under its own name, and
+// is the PLUGIN file. Two classes of one short name, neither shadowing the
+// other, is the thing namespacing bought.
 check(
-    'FOG\ProbeDiscovered resolves through the bridge',
-    class_exists('FOG\ProbeDiscovered'),
+    'FOG\Plugins\ProbePlug\Items\ProbeAlpha resolves',
+    class_exists('FOG\Plugins\ProbePlug\Items\ProbeAlpha'),
     $failures,
     $checks
 );
 check(
-    'and it is the lib/pages file that declared it',
-    $fileOf('FOG\ProbeDiscovered') === $tmp . '/lib/pages/probediscovered.page.php',
+    'and it is the plugin implementation that answers',
+    class_exists('FOG\Plugins\ProbePlug\Items\ProbeAlpha')
+    && \FOG\Plugins\ProbePlug\Items\ProbeAlpha::who() === 'plugin',
     $failures,
     $checks
 );
 check(
-    'and its own class_alias still exports the bare name, which is what '
-    . 'FOGPageManager::loadPageClasses() looks up',
-    class_exists('ProbeDiscovered'),
+    'and it is the plugin file, not the src/ one',
+    $fileOf('FOG\Plugins\ProbePlug\Items\ProbeAlpha')
+    === $tmp . '/lib/plugins/probeplug/src/Items/ProbeAlpha.php',
     $failures,
     $checks
 );
-// The prefix match is strncasecmp and PHP class names are case-insensitive,
-// so the bridge has to answer a differently-cased prefix too. Asserted
-// against ProbeCased, whose FIRST request this is -- see the fixture comment
-// for why reusing ProbeDiscovered here proves nothing.
+// The plugin arm's prefix match is strncasecmp and PHP class names are
+// case-insensitive, so it has to answer a differently-cased prefix too.
+// Asserted against ProbeCased, whose FIRST request this is -- see the fixture
+// comment for why reusing ProbeAlpha here would prove nothing.
 check(
-    'the bridge is case-insensitive on the FOG\ prefix',
-    class_exists('fog\ProbeCased'),
+    'the plugin arm is case-insensitive on the FOG\Plugins\ prefix',
+    class_exists('fog\plugins\ProbePlug\Items\ProbeCased'),
     $failures,
     $checks
 );
 
-// 7. The arm falls through: a plugin-only class still resolves via classMap.
+// 7. The bare name of a plugin-only class. Nothing autoloads it -- the
+// autoloader answers namespaced names only -- so it reaches core through
+// pluginShortMap(), which is what FOGBase::qualify() consults and what keeps
+// the getClass('X') literals inside the plugins working.
+$short = Initiator::pluginShortMap();
 check(
-    'a plugin-only class still resolves',
-    class_exists('ProbeOnlyPlugin'),
+    'a plugin-only class is reachable by its bare name through the short map',
+    ($short['probeonlyplugin'] ?? null)
+    === 'FOG\Plugins\ProbePlug\Items\ProbeOnlyPlugin',
     $failures,
     $checks
 );
 check(
-    'and it resolves to the plugin file',
-    $fileOf('ProbeOnlyPlugin')
-    === $tmp . '/lib/plugins/probeplug/class/probeonlyplugin.class.php',
+    'and that name resolves to the plugin file',
+    $fileOf($short['probeonlyplugin'] ?? '')
+    === $tmp . '/lib/plugins/probeplug/src/Items/ProbeOnlyPlugin.php',
+    $failures,
+    $checks
+);
+check(
+    'while the BARE spelling still autoloads nothing at all',
+    !class_exists('ProbeOnlyPlugin'),
     $failures,
     $checks
 );

@@ -54,19 +54,19 @@ hasnt() { [[ -e "$1" ]] && bad "$2 ($1 exists)" || ok "$2"; }
 
 VER="v9.9.9"
 
-# A stand-in release, laid out the way fog-plugins ships: a class directory a
-# hook needs, and files under other directories so a partial deletion can be
+# A stand-in release, laid out the way fog-plugins ships (ADR 0035): buckets
+# under <plugin>/src, plus files outside src/ so a partial deletion can be
 # told from a total one.
 build_release() {
     local src="$WORK/src"
     rm -rf "$src" "$WORK/rel"
-    mkdir -p "$src/location/class" "$src/location/hooks" "$src/location/js" \
-        "$src/oidc/class"
-    echo '<?php // location' > "$src/location/class/locationassociation.class.php"
-    echo '<?php // manager'  > "$src/location/class/locationmanager.class.php"
-    echo '<?php // hook'     > "$src/location/hooks/locationdeletemassitems.hook.php"
+    mkdir -p "$src/location/src/Items" "$src/location/src/Managers" \
+        "$src/location/src/Hooks" "$src/location/js" "$src/oidc/src/Items"
+    echo '<?php // location' > "$src/location/src/Items/LocationAssociation.php"
+    echo '<?php // manager'  > "$src/location/src/Managers/LocationManager.php"
+    echo '<?php // hook'     > "$src/location/src/Hooks/LocationDeleteMassItems.php"
     echo '// js'             > "$src/location/js/fog.location.list.js"
-    echo '<?php // oidc'     > "$src/oidc/class/oidc.class.php"
+    echo '<?php // oidc'     > "$src/oidc/src/Items/OIDC.php"
     mkdir -p "$WORK/rel/$VER"
     tar -czf "$WORK/rel/$VER/fog-plugins-${VER}.tar.gz" -C "$src" .
     (cd "$WORK/rel/$VER" && sha256sum "fog-plugins-${VER}.tar.gz" \
@@ -75,7 +75,7 @@ build_release() {
 
 # The script derives its destination from its own location, so it runs from a
 # throwaway tree rather than being handed an override it would not otherwise
-# have. pluginsVer in the environment keeps it from reading system.class.php.
+# have. pluginsVer in the environment keeps it from reading System.php.
 FAKE="$WORK/repo"
 DEST="$FAKE/packages/web/lib/plugins"
 mkdir -p "$FAKE/bin"
@@ -111,22 +111,22 @@ is "$(find "$DEST" -type f -printf '%p\n' | sort | sha256sum)" "$before" \
 
 # --- the branch-switch case: files gone, stamp still right -------------------
 # Exactly what `git checkout dev-branch && git checkout working-1.6` leaves.
-rm -rf "$DEST/location/class"
+rm -rf "$DEST/location/src/Items"
 out="$(run)"
 case "$out" in
     *incomplete*) ok "half-deleted tree is reported incomplete" ;;
     *) bad "half-deleted tree is reported incomplete (said: $out)" ;;
 esac
-has "$DEST/location/class/locationassociation.class.php" \
+has "$DEST/location/src/Items/LocationAssociation.php" \
     "the class the delete hook needs is restored"
-has "$DEST/location/class/locationmanager.class.php" "sibling class restored"
+has "$DEST/location/src/Managers/LocationManager.php" "sibling class restored"
 
 # --- an install predating the manifest heals itself --------------------------
 rm -f "$DEST/.fog-plugins-manifest"
-rm -f "$DEST/oidc/class/oidc.class.php"
+rm -f "$DEST/oidc/src/Items/OIDC.php"
 run >/dev/null
 has "$DEST/.fog-plugins-manifest" "a tree with no manifest is refetched"
-has "$DEST/oidc/class/oidc.class.php" "and repaired while it is there"
+has "$DEST/oidc/src/Items/OIDC.php" "and repaired while it is there"
 
 # --- a hand-placed tree is still untouchable ---------------------------------
 rm -rf "$DEST"
@@ -143,11 +143,11 @@ hasnt "$DEST/.fog-plugins-manifest" "offline tree got no manifest"
 # --- a repair that cannot reach the release keeps what is there --------------
 rm -rf "$DEST"
 run >/dev/null
-rm -rf "$DEST/location/class"
+rm -rf "$DEST/location/src/Items"
 out="$( export pluginsVer="$VER" pluginsurl="file://$WORK/nowhere"
         bash "$FAKE/bin/fetch-plugins.sh" 2>&1 )"
 is "$?" "1" "unreachable release fails loudly"
-has "$DEST/location/hooks/locationdeletemassitems.hook.php" \
+has "$DEST/location/src/Hooks/LocationDeleteMassItems.php" \
     "failed repair left the surviving files alone"
 has "$DEST/.fog-plugins-version" "failed repair left the stamp alone"
 
