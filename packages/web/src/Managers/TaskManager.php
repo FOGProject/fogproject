@@ -14,6 +14,7 @@
 namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
+use FOG\Boot\UbootTftpSync;
 use FOG\Items\TaskLog;
 use FOG\Items\TaskType;
 use FOG\Router\Route;
@@ -89,6 +90,10 @@ class TaskManager extends FOGManagerController
             // this arm cancels a whole group and rebuilding a Task per id to
             // write its row cost five queries apiece.
             TaskLog::recordStates($canceledIDs);
+            // Batched for the same reason as Group::createImagePackage()'s
+            // materializeMany() call: a bulk cancel can span many hosts, and
+            // this should open one SSH session, not one per host.
+            UbootTftpSync::removeMany($hostIDs);
         }
         $findWhere = [
             'hostID' => $hostIDs,

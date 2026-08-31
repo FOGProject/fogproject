@@ -8166,6 +8166,9 @@ msgstr ""
 msgid "Unable to connect to SSH"
 msgstr ""
 
+msgid "Unable to connect to TFTP server over SSH"
+msgstr ""
+
 msgid "Unable to connect to ssh"
 msgstr ""
 

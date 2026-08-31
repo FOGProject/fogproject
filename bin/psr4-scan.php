@@ -173,6 +173,16 @@ const TABLE = [
     'BootMenuBase' => 'Boot',
     'IpxeBootMenu' => 'Boot',
     'UbootBootMenu' => 'Boot',
+    // Extends \Exception, not FOGBase or FOGController -- a catchable
+    // stand-in for the exit() UbootBootMenu's constructor used to call, so
+    // no RULES ancestry rule can place it. Same subsystem, same file as the
+    // class it exists for.
+    'UbootRenderHalted' => 'Boot',
+    // Extends FOGBase directly, not FOGController -- like MACAddress above,
+    // an entity in everything but its parent. Boot, not Util, for the same
+    // reason WakeOnLan is: it exists to get a host to the point where a
+    // board's boot request can be answered, same subsystem as UbootBootMenu.
+    'UbootTftpSync' => 'Boot',
     'Registration' => 'Boot',
     'WakeOnLan' => 'Boot',
     // Boot, not Util, for the same reason WakeOnLan is: it is the vocabulary

@@ -9563,6 +9563,10 @@ msgid "Unable to connect to SSH"
 msgstr "Verbindung nicht möglich"
 
 #, fuzzy
+msgid "Unable to connect to TFTP server over SSH"
+msgstr "Verbindung nicht möglich"
+
+#, fuzzy
 msgid "Unable to connect to ssh"
 msgstr "Verbindung nicht möglich"
 

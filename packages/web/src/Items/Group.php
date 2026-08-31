@@ -15,6 +15,7 @@ namespace FOG\Items;
 
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
+use FOG\Boot\UbootTftpSync;
 use FOG\Router\Route;
 
 /**
@@ -903,6 +904,30 @@ class Group extends FOGController
             set_time_limit(0);
             $this->wakeOnLAN();
         }
+        // Batched, not one materialize() per host: queuing this group task
+        // may have just tasked 100+ hosts, and that should open one SSH
+        // session here, not one inside each iteration of the branches
+        // above. Re-derived from the database rather than tracked through
+        // the branches -- every branch above computes its own $hostIDs
+        // under a different filter (WAKE_UP tasks nothing at all, Secure
+        // Boot enrollment drops ineligible members), so asking "who among
+        // $hostids actually has a task now" is correct regardless of which
+        // branch ran, where threading a per-branch list through would not
+        // be.
+        UbootTftpSync::materializeMany(
+            Route::getIds(
+                'task',
+                [
+                    'hostID' => $hostids,
+                    'stateID' => self::fastmerge(
+                        self::getQueuedStates(),
+                        (array)self::getProgressState()
+                    ),
+                ],
+                'hostID'
+            )
+        );
+
         return $stat;
     }
     /**

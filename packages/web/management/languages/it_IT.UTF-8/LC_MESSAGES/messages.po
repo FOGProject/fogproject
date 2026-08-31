@@ -9263,6 +9263,10 @@ msgid "Unable to connect to SSH"
 msgstr "Connessione fallita"
 
 #, fuzzy
+msgid "Unable to connect to TFTP server over SSH"
+msgstr "Connessione fallita"
+
+#, fuzzy
 msgid "Unable to connect to ssh"
 msgstr "Connessione fallita"
 

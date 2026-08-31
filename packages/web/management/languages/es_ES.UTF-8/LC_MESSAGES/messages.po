@@ -9733,6 +9733,10 @@ msgid "Unable to connect to SSH"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
+msgid "Unable to connect to TFTP server over SSH"
+msgstr "No se ha podido destruir"
+
+#, fuzzy
 msgid "Unable to connect to ssh"
 msgstr "No se ha podido destruir"
 

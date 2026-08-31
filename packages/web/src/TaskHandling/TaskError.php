@@ -15,6 +15,8 @@ namespace FOG\TaskHandling;
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
+use FOG\Boot\UbootTftpSync;
+use FOG\Items\Task;
 use FOG\Items\TaskLog;
 use FOG\Items\TaskState;
 
@@ -296,6 +298,7 @@ class TaskError extends FOGBase
             return;
         }
         $Task->set('stateID', $failed)->save();
+        UbootTftpSync::remove($Task->getHost());
     }
     private static function _logRow($Task, $type, $text)
     {

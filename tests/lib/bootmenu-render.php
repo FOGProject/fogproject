@@ -267,6 +267,15 @@ $baseFile = dirname($classFile) . '/BootMenuBase.php';
 if (is_file($baseFile)) {
     require_once $baseFile;
 }
+/*
+ * Same reasoning: UbootBootMenu's image-ignored path throws this rather than
+ * calling exit(), so renderForHost() can be used from a process that renders
+ * more than one host (UbootTftpSync). Only UbootBootMenu depends on it.
+ */
+$haltFile = dirname($classFile) . '/UbootRenderHalted.php';
+if (is_file($haltFile)) {
+    require_once $haltFile;
+}
 require_once $classFile;
 
 /*

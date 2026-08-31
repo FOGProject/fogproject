@@ -14,6 +14,7 @@
 namespace FOG\TaskHandling;
 
 use FOG\Audit\Audit;
+use FOG\Boot\UbootTftpSync;
 use FOG\Items\Image;
 use FOG\Items\StorageNode;
 use FOG\Items\TaskType;
@@ -714,6 +715,11 @@ class TaskQueue extends TaskingElement
                     'Task' => &$this->Task
                 ]
             );
+            // A wget-less U-Boot board's file has to go the moment the task
+            // it describes is gone, not at the next reconcile cycle -- a
+            // board that reboots itself right after finishing (shutdown=1)
+            // must not re-fetch the same, now-finished task.
+            UbootTftpSync::remove(self::$Host);
             if (!$this->taskLog()) {
                 throw new \Exception(_('Failed to update task log'));
             }
