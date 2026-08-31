@@ -4420,10 +4420,18 @@ class HostManagement extends FOGPage
             'HOST_ADVANCEDTASKS_DATA'
         );
 
+        // Green, not gray. Tasking is a genuinely different operation from
+        // the two edit actions beside it -- it starts work on machines
+        // rather than changing a record -- and the convention for that is
+        // btn-success, the same reason image replication's Resume Reload is
+        // green next to a blue Create. It also stops the toolbar reading as
+        // two identical gray buttons: the cluster is now
+        // [Queue Task (success)][Add to group (secondary)][Add (primary)],
+        // three distinguishable actions with the commit still rightmost.
         $button = self::makeButton(
             'queueTask',
             _('Queue Task'),
-            'btn btn-secondary'
+            'btn btn-success'
         );
 
         $modal = self::makeModal(
