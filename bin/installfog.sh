@@ -1527,6 +1527,10 @@ while [[ -z $blGo ]]; do
                     # sudoers rule is the only route the web tier has to the
                     # CA keys rather than one of two.
                     _installNodeCertSigner
+                    # Master only, for the same reason and one more: a storage
+                    # node does not serve the management UI, so the page this
+                    # helper exists for is not there to call it (GH-1121).
+                    _installPkiAdminHelper
                     # Anchors the root the two calls above have just finished
                     # settling, so this host's own curl/wget/PHP can verify
                     # this host. Reads only ${PKI_root_ca_cert} -- no key -- so it is

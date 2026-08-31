@@ -402,9 +402,20 @@ that exists only to cover a deploy ordering the installer fixes anyway.
 | `utils/FOGBackup/FOGBackup.sh` | root | Reads `DB_*` and `STORAGE_image_share_path` |
 | `utils/reporting/report.sh` | root | Reads `DB_*`, `WEB_docroot`, `WEB_root` |
 | `Route::whoami()` | web user | Reads `.fogsettings.pub`. **The only non-root reader** |
+| `packages/pki/fog-pki-admin` | root, started by the web user over `sudo` | Reads three preference keys and rewrites them in place. Not a non-root reader: the web tier names a key from a three-entry allowlist and a value matching `^(yes|no)$`, and never sees the file (ADR 0036) |
 
 If you add a non-root reader, it reads `.fogsettings.pub` or it does not read
 this file at all.
+
+**And nothing writes it on behalf of a non-root caller except through a fixed
+key allowlist.** This file is *sourced as shell by root* on the next installer
+run, so an unvalidated value written into it executes as root. `fog-pki-admin`
+is the only such writer, it may touch exactly three keys
+(`PKI_web_cert_publicly_trusted`, `WEB_https_redirect`,
+`BOOT_rebuild_ipxe_with_my_ca`) plus `PKI_web_external_root_cert`, and its value
+pattern lives on the far side of `sudo` where the caller cannot remove it.
+`tests/pki-admin-helper.test.sh` exercises the injection cases and then sources
+the resulting file to prove nothing ran.
 
 The correct order for any new script:
 

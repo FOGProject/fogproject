@@ -110,6 +110,7 @@ newcase() {
     mkdir -p "$fogprogramdir"
     PKI_root_ca_cert=""
     PKI_web_trust_chain=""
+    PKI_web_external_root_cert=""
     trustAnchorPem=""
     FOG_install_type=""
 }
@@ -208,6 +209,89 @@ if _resolveTrustAnchor; then
     bad "F: returned success with no root and no chain"
 else
     ok "F: returns non-zero when there is nothing to anchor"
+fi
+
+# --- an imported root with no intermediate behind it (GH-1121) ---------------
+#
+# The Certificates page can import a corporate root on its own: nothing is
+# issued from it and nothing chains to it, it is simply a root this box should
+# accept. That never reaches the chain file, because validateExternalCA only
+# runs when all three of --ca-cert/--ca-key/--ca-root were supplied -- so
+# before GH-1121 the next installer run rebuilt the anchor without it and
+# silently undid the import.
+
+# Case G -- the case above, on an otherwise ordinary FOG-issued install.
+newcase G
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_trust_chain="$WORK/g-chain.pem"
+cat "$WORK/fog/int.pem" "$WORK/fog/root.pem" > "${PKI_web_trust_chain}"
+PKI_web_external_root_cert="$WORK/ext/root.pem"
+if _resolveTrustAnchor; then
+    check "$(count_certs "$trustAnchorPem")" "2" "G: an imported root is anchored alongside FOG's"
+    has_fp "$trustAnchorPem" "$EXTROOT_FP" \
+        && ok "G: the imported root survives a rebuild" \
+        || bad "G: the imported root was dropped -- the next installer run undoes the import"
+    has_fp "$trustAnchorPem" "$FOGROOT_FP" \
+        && ok "G: FOG's own root is still anchored" || bad "G: FOG's own root was dropped"
+else
+    bad "G: _resolveTrustAnchor returned non-zero"
+fi
+
+# Case H -- an intermediate must not ride in on the import. Anchoring one
+# trusts it AS a root, which widens what this box accepts; fog-pki-admin
+# filters the same way at import time and this is the second half of that.
+newcase H
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_external_root_cert="$WORK/h-import.pem"
+cat "$WORK/ext/int.pem" "$WORK/ext/root.pem" > "${PKI_web_external_root_cert}"
+if _resolveTrustAnchor; then
+    has_fp "$trustAnchorPem" "$EXTROOT_FP" \
+        && ok "H: the root out of an imported bundle is anchored" \
+        || bad "H: the root out of an imported bundle is missing"
+    has_fp "$trustAnchorPem" "$EXTINT_FP" \
+        && bad "H: an intermediate was anchored as a root" \
+        || ok "H: the intermediate in the bundle is not anchored"
+else
+    bad "H: _resolveTrustAnchor returned non-zero"
+fi
+
+# Case I -- the full --external-ca install, where the same certificate arrives
+# by both routes. It must collapse, not appear twice: a duplicated anchor is
+# not a verification failure, so nothing would ever report it.
+newcase I
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_trust_chain="$WORK/i-chain.pem"
+cat "$WORK/ext/root.pem" "$WORK/ext/int.pem" > "${PKI_web_trust_chain}"
+PKI_web_external_root_cert="$WORK/ext/root.pem"
+if _resolveTrustAnchor; then
+    check "$(count_certs "$trustAnchorPem")" "2" \
+        "I: a root reached by both routes is anchored once"
+else
+    bad "I: _resolveTrustAnchor returned non-zero"
+fi
+
+# Case J -- validateExternalCA persists the admin's SOURCE path, which is
+# routinely a temp file that is gone by the next run. That must be a no-op,
+# not a failure.
+newcase J
+PKI_root_ca_cert="$WORK/fog/root.pem"
+PKI_web_external_root_cert="$WORK/this-file-was-deleted.pem"
+if _resolveTrustAnchor; then
+    check "$(count_certs "$trustAnchorPem")" "1" "J: a vanished imported root is simply skipped"
+else
+    bad "J: _resolveTrustAnchor returned non-zero"
+fi
+
+# Case K -- an imported root and NOTHING else. A server whose own root has not
+# been minted yet still has something to anchor.
+newcase K
+PKI_web_external_root_cert="$WORK/ext/root.pem"
+if _resolveTrustAnchor; then
+    check "$(count_certs "$trustAnchorPem")" "1" "K: an imported root alone is enough to anchor"
+    has_fp "$trustAnchorPem" "$EXTROOT_FP" \
+        && ok "K: it is the imported root" || bad "K: the wrong certificate was anchored"
+else
+    bad "K: _resolveTrustAnchor returned non-zero with an imported root present"
 fi
 
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"

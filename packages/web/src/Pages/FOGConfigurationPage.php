@@ -313,28 +313,99 @@ class FOGConfigurationPage extends FOGPage
         $this->_downloadPost('initrd');
     }
     /**
-     * Where this server keeps its certificate material.
+     * Ask the PKI helper a question, as root, through sudo.
      *
-     * Read from the storage node record rather than from .fogsettings, which
-     * is root-only and deliberately unreadable here. This is the same lookup
-     * FOGBase::certDecrypt() uses to find the communication key, so the two
-     * can never disagree about where the PKI lives.
+     * The helper is the privilege boundary: it holds every path, takes no path
+     * from here, and implements five verbs and nothing else. This side decides
+     * WHO may ask -- Authorization gates the sub on system.pki -- and the
+     * helper decides what may be asked for. Same split as
+     * service/nodecert.php and FOGPage::secureBootSign().
      *
-     * @return string Path with no trailing separator, or '' if unknown.
+     * @param array $args the verb and its arguments, each escaped separately.
+     *
+     * @return array{ok:bool,out:string} the helper's combined output.
      */
-    private static function _sslPath()
+    private static function _pkiRun(array $args)
     {
-        $paths = Route::getIds('storagenode', [], 'sslpath');
-        foreach ((array) $paths as $path) {
-            if (!$path) {
-                continue;
-            }
-            return rtrim(str_replace(['\\', '/'], [DS, DS], $path), DS);
+        $helper = FOG_BASE_DIR . DS . 'bin' . DS . 'fog-pki-admin';
+        if (!is_executable($helper)) {
+            return ['ok' => false, 'out' => ''];
         }
-        return '';
+        // escapeshellarg on every piece, including values this method chose
+        // rather than received. $reqid is hex from random_bytes and the slot
+        // names are literals, so nothing here is caller-influenced today --
+        // quoting anyway costs nothing and means a later change that lets one
+        // become caller-influenced does not silently become a shell injection.
+        // FOG_BASE_DIR is installer-written and may contain a space, which
+        // would split into two arguments and no longer match the sudoers rule.
+        $cmd = 'sudo -n ' . escapeshellarg($helper);
+        foreach ($args as $arg) {
+            $cmd .= ' ' . escapeshellarg((string) $arg);
+        }
+        $out = [];
+        $ret = 1;
+        exec($cmd . ' 2>&1', $out, $ret);
+        return ['ok' => 0 === $ret, 'out' => trim(implode("\n", $out))];
     }
     /**
-     * Show this server's certificate hierarchy and the state of its keys.
+     * This server's PKI as the helper reports it, or null when the helper is
+     * not installed.
+     *
+     * Cached for the request: certificates() asks several questions of it and
+     * a sudo round trip per card would be four processes to answer one page.
+     *
+     * @return array|null
+     */
+    private static function _pkiStatus()
+    {
+        static $status = false;
+        if (false !== $status) {
+            return $status;
+        }
+        $status = null;
+        $res = self::_pkiRun(['status']);
+        if ($res['ok']) {
+            $decoded = json_decode($res['out'], true);
+            // An empty answer decodes to null rather than throwing, so it has
+            // to be tested for explicitly -- a null here would otherwise kill
+            // the render on first property access and leave the page blank
+            // with nothing to say why.
+            if (is_array($decoded)) {
+                $status = $decoded;
+            }
+        }
+        return $status;
+    }
+    /**
+     * The staging directory the helper and the web tier exchange files in.
+     *
+     * @return string '' when PKI administration is not configured here.
+     */
+    private static function _pkiStagingDir()
+    {
+        $dir = FOG_BASE_DIR . DS . 'pkiadmin-staging';
+        return (is_dir($dir) && is_writable($dir)) ? $dir : '';
+    }
+    /**
+     * One row of the certificate table, by slot.
+     *
+     * @param array|null $status the helper's report.
+     * @param string     $slot   the slot name.
+     *
+     * @return array|null
+     */
+    private static function _pkiCert($status, $slot)
+    {
+        foreach ((array) ($status['certificates'] ?? []) as $cert) {
+            if (($cert['slot'] ?? '') === $slot) {
+                return $cert;
+            }
+        }
+        return null;
+    }
+    /**
+     * Show this server's certificate hierarchy, and change the parts of it a
+     * browser may safely change.
      *
      * The reason this page runs the private key check in PHP rather than
      * simply reporting what the installer did: PHP *is* the threat model. The
@@ -345,105 +416,478 @@ class FOGConfigurationPage extends FOGPage
      * set 0400 and a web tier that can nonetheless open the file is precisely
      * the failure worth surfacing, and it is invisible from anywhere else.
      *
-     * That failure is not hypothetical. $sslpath lives under $snapindir, and
-     * configureSnapins() used to chown the whole tree to the web user at 775
-     * -- after the certificates were created, so it silently undid them.
+     * That failure is not hypothetical. The client zone lives under
+     * $snapindir, and configureSnapins() used to chown the whole tree to the
+     * web user at 775 -- after the certificates were created, so it silently
+     * undid them.
+     *
+     * The key PATHS now come from the helper. They used to be built here from
+     * the storage-node record as $sslpath/CA/.fogCA.key, and the zoned PKI
+     * moved every one of them: only .fogCA.pem, .fogWebCA.pem and the client
+     * keypair kept compat symlinks at the old names, and .fogCA.key was not
+     * among them. So the check that this whole card exists for had been
+     * testing paths that no longer exist, and passing every time (GH-1121).
      *
      * @return void
      */
     public function certificates()
     {
-        $sslpath = self::_sslPath();
-        $capem = BASEPATH . 'management' . DS . 'other' . DS . 'ca.cert.pem';
+        $this->title = _('Certificates');
+        $status = self::_pkiStatus();
+        $mayEdit = Authorization::can('system.pki');
 
-        // What every fog-client pins, and now also the anchor the web
-        // certificate chains to. Its fingerprint is the one value worth
-        // showing: it is what an admin compares against a client's trust store
-        // when working out why a client stopped authenticating.
+        // --- what the certificates are for, and what fog-client pins --------
         $body = '<p>' . _(
             'FOG uses certificates for three unrelated jobs: the web server, '
             . 'the encrypted fog-client check-in, and the signature on the FOS '
             . 'kernels. They are issued by separate CAs beneath one anchor, so '
             . 'replacing any one of them leaves the other two alone.'
         ) . '</p>';
-        if (file_exists($capem)) {
-            $der = openssl_x509_read(file_get_contents($capem));
-            $subject = '';
-            if ($der !== false) {
-                $parsed = openssl_x509_parse($der);
-                $subject = isset($parsed['subject']['CN'])
-                    ? $parsed['subject']['CN']
-                    : '';
-            }
+        $root = self::_pkiCert($status, 'root');
+        if ($root && !empty($root['present'])) {
             $body .= '<p><strong>' . _('Trust anchor') . '</strong> &mdash; '
                 . _('published as ca.cert.der and pinned by every fog-client')
                 . '</p>';
-            if ($subject) {
-                $body .= '<pre>' . \Initiator::e($subject) . '</pre>';
-            }
+            $body .= '<pre>' . \Initiator::e($root['subject']) . '</pre>';
             $body .= '<p><strong>' . _('SHA-256') . '</strong></p>';
-            $body .= '<pre>' . \Initiator::e(
-                strtoupper(
-                    implode(':', str_split(hash_file('sha256', $capem), 2))
-                )
-            ) . '</pre>';
+            $body .= '<pre>' . \Initiator::e($root['sha256']) . '</pre>';
+            $body .= '<p>' . _(
+                'This is the value to compare against a client\'s trust store '
+                . 'when working out why a client stopped authenticating.'
+            ) . '</p>';
         }
+        if (null === $status) {
+            // Says which of the two it is. A page that simply showed less
+            // would leave an administrator comparing it against the
+            // documentation and finding nothing to explain the difference.
+            $body .= '<p class="text-warning">' . _(
+                'The certificate management helper is not installed on this '
+                . 'server, so this page can only show what it can read for '
+                . 'itself. Re-run the installer to enable it. On a storage '
+                . 'node this is expected: a node has no CA of its own.'
+            ) . '</p>';
+        }
+        echo $this->_box(_('Certificates'), $body, ['color' => 'info']);
 
-        // The check that matters. Every path here is one a compromised web
-        // application would go looking for first.
-        $keys = [];
-        if ($sslpath) {
-            $keys[_('CA private key')] = $sslpath . DS . 'CA' . DS . '.fogCA.key';
-            $keys[_('Web CA private key')] = $sslpath . DS . 'CA' . DS . 'web'
-                . DS . '.fogWebCA.key';
-            $keys[_('Web server private key')] = $sslpath . DS . 'CA' . DS . 'web'
-                . DS . '.webLeaf.key';
+        $this->_certificateKeyExposure($status);
+        $this->_certificateChain($status);
+        $this->_certificateExternalRoot($status, $mayEdit);
+        $this->_certificatePreferences($status, $mayEdit);
+        $this->_certificateOwnPki($status);
+    }
+    /**
+     * The check that matters: can this web application read a private key it
+     * must not be able to read.
+     *
+     * @param array|null $status the helper's report.
+     *
+     * @return void
+     */
+    private function _certificateKeyExposure($status)
+    {
+        $keys = (array) ($status['private_keys'] ?? []);
+        if (!$keys) {
+            return;
         }
-        $keys[_('Secure Boot CA private key')] = FOG_BASE_DIR . DS . 'secureboot'
-            . DS . 'ca' . DS . '.fogSBCA.key';
         $exposed = [];
-        foreach ($keys as $label => $path) {
-            if (file_exists($path) && is_readable($path)) {
-                $exposed[$label] = $path;
+        foreach ($keys as $key) {
+            $path = (string) ($key['path'] ?? '');
+            // The client communication key is MEANT to be readable here --
+            // FOGBase::certDecrypt() opens it on every fog-client handshake --
+            // so flagging every readable key would report a correct install as
+            // a breach. Same for the vhost key once the leaf is managed
+            // outside FOG, which _hardenPkiPermissions() deliberately leaves
+            // alone because an ACME renewal writes it as its hook's user.
+            if (!empty($key['expect_readable'])) {
+                continue;
+            }
+            if ($path && file_exists($path) && is_readable($path)) {
+                $exposed[(string) ($key['label'] ?? $path)] = $path;
             }
         }
-        if (count($exposed) > 0) {
-            $warn = '<p>' . _(
-                'The web application can read the following private keys. It '
-                . 'should not be able to read any of them, and anything able to '
-                . 'run code in this web application can copy them.'
-            ) . '</p><ul>';
-            foreach ($exposed as $label => $path) {
-                $warn .= '<li><strong>' . \Initiator::e($label) . '</strong> &mdash; <code>'
-                    . \Initiator::e($path) . '</code></li>';
-            }
-            $warn .= '</ul><p>' . _(
-                'Re-run the installer, which restricts them to root. If this '
-                . 'persists, check that nothing else is widening permissions on '
-                . 'the snapins directory afterward.'
-            ) . '</p>';
-            echo $this->_box(_('Private keys are readable by the web server'), $warn, ['color' => 'danger']);
+        if (!$exposed) {
+            return;
         }
-
-        // Pseudo-offline is the shipped default and a deliberate starting
-        // point, not the recommended end state. Saying so here is the only
-        // place an admin who never reads the install output will see it.
-        $rootkey = $sslpath ? $sslpath . DS . 'CA' . DS . '.fogCA.key' : '';
-        if ($rootkey && file_exists($rootkey)) {
-            $body .= '<p><strong>' . _('The CA private key is on this server')
-                . '</strong></p>';
-            $body .= '<p>' . _(
-                'It is restricted to root, which protects it from a compromise '
-                . 'of this web application but not from a compromise of the '
-                . 'machine. Moving it to a vault is a separate step:'
+        $warn = '<p>' . _(
+            'The web application can read the following private keys. It '
+            . 'should not be able to read any of them, and anything able to '
+            . 'run code in this web application can copy them.'
+        ) . '</p><ul>';
+        foreach ($exposed as $label => $path) {
+            $warn .= '<li><strong>' . \Initiator::e(_($label))
+                . '</strong> &mdash; <code>' . \Initiator::e($path)
+                . '</code></li>';
+        }
+        $warn .= '</ul><p>' . _(
+            'Re-run the installer, which restricts them to root. If this '
+            . 'persists, check that nothing else is widening permissions on '
+            . 'the snapins directory afterward.'
+        ) . '</p>';
+        echo $this->_box(
+            _('Private keys are readable by the web server'),
+            $warn,
+            ['color' => 'danger']
+        );
+    }
+    /**
+     * The chain, and a download for each public certificate in it.
+     *
+     * Every file here is public: the root is already published as
+     * ca.cert.der, the vhost certificate is handed to anyone who connects,
+     * and the rest are what a client needs to build a chain. They are behind
+     * settings.view rather than a plain link only because the page is, and
+     * because the web tier cannot read most of them off disk -- pki/web/ca
+     * and pki/web/leaf are 0700 root:root, so the helper fetches them.
+     *
+     * @param array|null $status the helper's report.
+     *
+     * @return void
+     */
+    private function _certificateChain($status)
+    {
+        if (null === $status) {
+            return;
+        }
+        $labels = [
+            'root' => [
+                _('Root'),
+                _('The trust anchor. Every fog-client pins this one.')
+            ],
+            'webca' => [
+                _('Web CA'),
+                _('Signs the web server certificate and every storage node certificate.')
+            ],
+            'webchain' => [
+                _('Web trust chain'),
+                _('Web CA plus the root that anchors it -- what a client needs to verify this server.')
+            ],
+            'anchor' => [
+                _('Trust anchor bundle'),
+                _('What this server itself trusts: FOG\'s root, plus any root imported below.')
+            ],
+            'vhost' => [
+                _('Web server certificate'),
+                _('What the browser is shown. Replaced by an ACME renewal where one is configured.')
+            ],
+            'commleaf' => [
+                _('Client communication certificate'),
+                _('The public half of the keypair fog-client encrypts its check-in to.')
+            ],
+            'sbca' => [
+                _('Secure Boot CA'),
+                _('Signs the FOS kernel signing certificate. Not a web certificate.')
+            ],
+            'externalroot' => [
+                _('Imported root'),
+                _('A root CA uploaded on this page. Absent unless one was imported.')
+            ]
+        ];
+        $rows = '';
+        foreach ($labels as $slot => $meta) {
+            $cert = self::_pkiCert($status, $slot);
+            if (!$cert || empty($cert['present'])) {
+                continue;
+            }
+            $count = (int) ($cert['count'] ?? 1);
+            $rows .= '<tr><td><strong>' . \Initiator::e($meta[0]) . '</strong>'
+                . '<br><small class="text-muted">' . \Initiator::e($meta[1])
+                . '</small></td>'
+                . '<td><code>' . \Initiator::e($cert['subject']) . '</code>'
+                . ($count > 1
+                    ? '<br><small class="text-muted">' . sprintf(
+                        _('%d certificates in this file'),
+                        $count
+                    ) . '</small>'
+                    : '')
+                . '</td>'
+                . '<td class="text-nowrap"><small>'
+                . \Initiator::e($cert['not_after']) . '</small></td>'
+                . '<td class="text-nowrap"><a class="btn btn-sm btn-secondary" href="'
+                . \Initiator::e(
+                    '?node=about&sub=certificatedownload&slot=' . $slot
+                ) . '">' . _('Download') . '</a></td></tr>';
+        }
+        if ('' === $rows) {
+            return;
+        }
+        $body = '<p>' . _(
+            'Each of these is a public certificate. Downloading one is how you '
+            . 'add this server to another machine\'s trust store, hand an '
+            . 'auditor the chain, or check what a client is actually being '
+            . 'offered.'
+        ) . '</p>';
+        $body .= '<div class="table-responsive"><table class="table table-sm align-middle">';
+        $body .= '<thead><tr><th>' . _('Certificate') . '</th><th>' . _('Subject')
+            . '</th><th>' . _('Expires') . '</th><th></th></tr></thead>';
+        $body .= '<tbody>' . $rows . '</tbody></table></div>';
+        $body .= '<p class="form-text">' . _(
+            'Private keys are deliberately absent. Nothing on this page can '
+            . 'read one, and nothing on it can hand one out.'
+        ) . '</p>';
+        echo $this->_box(_('The certificate chain'), $body, ['color' => 'info']);
+    }
+    /**
+     * Import, show and remove an external root CA.
+     *
+     * The narrow case that --ca-root cannot express on its own: a corporate
+     * or step-ca root that FOG issues nothing from and nothing chains to, but
+     * which this server must accept. validateExternalCA() only runs when all
+     * THREE of --ca-cert/--ca-key/--ca-root were given, so before this there
+     * was no way to say "just trust this" short of editing the host trust
+     * store by hand -- which the next installer run would not know about.
+     *
+     * @param array|null $status  the helper's report.
+     * @param bool       $mayEdit does the caller hold system.pki.
+     *
+     * @return void
+     */
+    private function _certificateExternalRoot($status, $mayEdit)
+    {
+        if (null === $status) {
+            return;
+        }
+        $cert = self::_pkiCert($status, 'externalroot');
+        $have = $cert && !empty($cert['present']);
+        $body = '<p>' . _(
+            'Upload a root CA certificate to have this server trust it. It is '
+            . 'added to the host\'s own trust store, so every HTTPS call this '
+            . 'server makes will accept a certificate issued beneath it, and '
+            . 'it is re-applied on every later installer run.'
+        ) . '</p>';
+        $body .= '<p>' . _(
+            'This does not change what FOG issues, and it does not change what '
+            . 'fog-client pins. Only a self-signed CA certificate is accepted: '
+            . 'an intermediate in the same file is dropped rather than trusted, '
+            . 'because anchoring an intermediate would trust it as a root.'
+        ) . '</p>';
+        if ($have) {
+            $body .= '<p><strong>' . _('Currently imported') . '</strong></p>';
+            $body .= '<pre>' . \Initiator::e($cert['subject']) . '</pre>';
+            $body .= '<p><strong>' . _('SHA-256') . '</strong></p>';
+            $body .= '<pre>' . \Initiator::e($cert['sha256']) . '</pre>';
+            $body .= '<p class="form-text">' . sprintf(
+                _('Valid until %s.'),
+                \Initiator::e($cert['not_after'])
             ) . '</p>';
-            $body .= '<pre>' . \Initiator::e(FOG_BASE_DIR . '/bin/fog-offline-ca-key /mnt/vault')
-                . '</pre>';
-            $body .= '<p>' . _(
-                'Nothing needs it day to day. Restore it only to issue a new '
-                . 'intermediate, or a certificate for a new storage node.'
+        } else {
+            $body .= '<p class="form-text">' . _(
+                'No external root is imported on this server.'
             ) . '</p>';
-        } elseif ($rootkey) {
+        }
+        $store = (array) ($status['trust_store'] ?? []);
+        if (empty($store['available'])) {
+            $body .= '<p class="text-warning">' . _(
+                'This host has no system trust store that FOG recognizes, so '
+                . 'an imported root is recorded and re-applied but never '
+                . 'reaches the host\'s own HTTPS clients.'
+            ) . '</p>';
+        }
+        if (!$mayEdit) {
+            echo $this->_box(_('External root CA'), $body, ['color' => 'info']);
+            return;
+        }
+        $body .= '<label class="form-label" for="pki-root-file">'
+            . _('Root CA certificate (PEM)') . '</label>';
+        $body .= self::makeInput(
+            'form-control',
+            'rootca',
+            '',
+            'file',
+            'pki-root-file',
+            '',
+            true,
+            false,
+            -1,
+            -1,
+            'accept=".pem,.crt,.cer"'
+        );
+        // The action rides in the form rather than in the button, so
+        // processForm's FormData carries it with the file in one POST --
+        // certificatesPost() serves three actions and has to be told which.
+        $body .= self::makeInput('', 'action', '', 'hidden', 'pki-action', 'importRoot');
+        $buttons = self::makeButton(
+            'pki-import-root',
+            _('Import'),
+            'btn btn-primary float-end'
+        );
+        if ($have) {
+            // Destructive, so left, per the button convention. Removing an
+            // imported root is genuinely undoable -- the file is the admin's
+            // and can be uploaded again -- but it stops this server trusting
+            // whatever that CA issued, which is worth the deliberate travel.
+            $buttons .= self::makeButton(
+                'pki-clear-root',
+                _('Remove imported root'),
+                'btn btn-danger float-start'
+            );
+        }
+        // Wrapped in its own form: the upload needs multipart, and this card
+        // is the only thing on the page that posts a file.
+        echo self::makeFormTag(
+            '',
+            'pki-root-form',
+            $this->formAction,
+            'post',
+            'multipart/form-data',
+            true
+        );
+        echo $this->_box(
+            _('External root CA'),
+            $body,
+            ['color' => 'info', 'footer' => $buttons]
+        );
+        echo '</form>';
+    }
+    /**
+     * The three install preferences that decide what FOG does to the web
+     * certificate on its next run.
+     *
+     * Each one states its consequence beside the control, because that is the
+     * whole difference between setting this here and setting it on a command
+     * line: an installer flag is read back before it runs, and a checkbox is
+     * not.
+     *
+     * They are PREFERENCES, not switches -- nothing on this page rewrites the
+     * vhost or rebuilds iPXE. Saying so at the point of change is the only
+     * place an administrator will see it before wondering why nothing
+     * happened.
+     *
+     * @param array|null $status  the helper's report.
+     * @param bool       $mayEdit does the caller hold system.pki.
+     *
+     * @return void
+     */
+    private function _certificatePreferences($status, $mayEdit)
+    {
+        if (null === $status) {
+            return;
+        }
+        $prefs = (array) ($status['preferences'] ?? []);
+        $meta = [
+            'PKI_web_cert_publicly_trusted' => [
+                _('The web certificate chains to a public CA'),
+                _(
+                    'Turn this on for a Let\'s Encrypt or purchased '
+                    . 'certificate. It stops FOG re-issuing the leaf, stops it '
+                    . 'locking the private key to root -- which would break the '
+                    . 'renewal that writes it -- and steers netboot to HTTPS '
+                    . 'with no iPXE rebuild, because upstream iPXE '
+                    . 'cross-certifies public CAs already.'
+                )
+            ],
+            'WEB_https_redirect' => [
+                _('Redirect HTTP to HTTPS'),
+                _(
+                    'Off by default on purpose. Trust in FOG\'s CA reaches a '
+                    . 'client when fog-client installs it there, so on a server '
+                    . 'whose clients are not enrolled yet a forced redirect '
+                    . 'breaks exactly the machines that cannot fix themselves. '
+                    . 'Turn it on once trust is in place.'
+                )
+            ],
+            'BOOT_rebuild_ipxe_with_my_ca' => [
+                _('Rebuild iPXE with this server\'s CA embedded'),
+                _(
+                    'Only needed for HTTPS netboot behind a PRIVATE CA, and it '
+                    . 'costs a 10-25 minute build on every install. It also '
+                    . 'makes Secure Boot harder, not easier: a binary carrying '
+                    . 'a private CA is not upstream\'s signed one, so the chain '
+                    . 'has to hand off to a MOK-signed FOG build and the MOK '
+                    . 'must be enrolled first.'
+                )
+            ]
+        ];
+        $rows = '';
+        foreach ($meta as $key => $text) {
+            $on = 'yes' === (string) ($prefs[$key] ?? 'no');
+            $rows .= '<div class="form-check form-switch mb-3">';
+            // data-action rather than reading it off the upload form: that
+            // form is only rendered when an external root can be imported, so
+            // the switches would have lost their POST target on a server where
+            // it is absent.
+            $rows .= '<input class="form-check-input pki-pref" type="checkbox"'
+                . ' id="' . \Initiator::e($key) . '"'
+                . ' data-key="' . \Initiator::e($key) . '"'
+                . ' data-action="' . \Initiator::e($this->formAction) . '"'
+                . ($on ? ' checked' : '')
+                . ($mayEdit ? '' : ' disabled')
+                . '>';
+            $rows .= '<label class="form-check-label" for="'
+                . \Initiator::e($key) . '"><strong>'
+                . \Initiator::e($text[0]) . '</strong>'
+                . '<br><span class="text-muted">' . \Initiator::e($text[1])
+                . '</span><br><code>' . \Initiator::e($key) . '</code></label>';
+            $rows .= '</div>';
+        }
+        $body = '<p>' . _(
+            'These decide what the NEXT installer run does. Nothing here takes '
+            . 'effect until the installer runs again -- this page records the '
+            . 'preference, it does not rewrite the web server configuration or '
+            . 'reissue a certificate.'
+        ) . '</p>';
+        $body .= $rows;
+        $body .= '<p class="form-text">' . sprintf(
+            '%s <a href="%s" target="_blank" rel="noopener">%s</a>.',
+            _('A worked example of the first one, end to end:'),
+            \Initiator::e(
+                'https://docs.fogproject.org/en/latest/1.6/kb/how-tos/lets-encrypt-setup'
+            ),
+            _('Let\'s Encrypt with FOG')
+        ) . '</p>';
+        if (!empty($status['externally_managed_leaf'])) {
+            $body .= '<p class="text-info">' . _(
+                'This server\'s web certificate already resolves outside FOG\'s '
+                . 'own PKI, so FOG treats it as managed elsewhere and will not '
+                . 'reissue it or lock its key down, whatever these say. That is '
+                . 'derived from where the certificate actually is, not from a '
+                . 'setting, so the two cannot disagree.'
+            ) . '</p>';
+        }
+        echo $this->_box(
+            _('Install preferences'),
+            $body,
+            ['color' => 'info']
+        );
+    }
+    /**
+     * Replacing FOG's own PKI: what it costs, and the command that does it.
+     *
+     * Deliberately NOT a button. Rotating the root invalidates every
+     * fog-client enrollment on the estate at once, and the recovery is to
+     * re-pin every client -- so it belongs somewhere it can be read back
+     * before it runs. The page composes the invocation; the administrator
+     * runs it (GH-1121).
+     *
+     * @param array|null $status the helper's report.
+     *
+     * @return void
+     */
+    private function _certificateOwnPki($status)
+    {
+        $body = '<p>' . _(
+            'To have your own CA issue FOG\'s web certificates, import the CA '
+            . 'and its key by re-running the installer. That replaces the CA '
+            . 'that signs the web server certificate and the storage node '
+            . 'certificates -- and only that. The root fog-client pins is left '
+            . 'alone, so no client re-enrolls.'
+        ) . '</p>';
+        $body .= '<pre>' . \Initiator::e(
+            './installfog.sh --external-ca \\
+    --web-ca-cert /path/to/intermediate.pem \\
+    --web-ca-key  /path/to/intermediate.key \\
+    --web-ca-root /path/to/root.pem'
+        ) . '</pre>';
+        $body .= '<p><strong>' . _('Not offered here, on purpose')
+            . '</strong></p>';
+        $body .= '<p>' . _(
+            'Replacing the root itself -- so that FOG\'s anchor becomes an '
+            . 'intermediate of yours -- is a migration rather than a setting. '
+            . 'It changes the certificate every registered fog-client pins, so '
+            . 'every one of them stops authenticating until it is re-pinned. '
+            . 'That is not something a web form should be able to do in one '
+            . 'click, so it is not on this page.'
+        ) . '</p>';
+        if ($status && empty($status['root_key_on_server'])) {
             $body .= '<p><strong>' . _('The CA private key is not on this server')
                 . '</strong></p>';
             $body .= '<p>' . _(
@@ -451,8 +895,239 @@ class FOGConfigurationPage extends FOGPage
                 . 'intermediate or a certificate for a new storage node, then '
                 . 'move it back.'
             ) . '</p>';
+        } elseif ($status) {
+            $body .= '<p><strong>' . _('The CA private key is on this server')
+                . '</strong></p>';
+            $body .= '<p>' . _(
+                'It is restricted to root, which protects it from a compromise '
+                . 'of this web application but not from a compromise of the '
+                . 'machine. Moving it to a vault is a separate step:'
+            ) . '</p>';
+            $body .= '<pre>' . \Initiator::e(
+                FOG_BASE_DIR . '/bin/fog-offline-ca-key /mnt/vault'
+            ) . '</pre>';
+            $body .= '<p>' . _(
+                'Nothing needs it day to day. Restore it only to issue a new '
+                . 'intermediate, or a certificate for a new storage node.'
+            ) . '</p>';
         }
-        echo $this->_box(_('Certificates'), $body, ['color' => 'info']);
+        echo $this->_box(
+            _('Using your own PKI'),
+            $body,
+            ['color' => 'warning']
+        );
+    }
+    /**
+     * Hand back one public certificate as a file.
+     *
+     * The slot name is passed straight through to the helper, which holds the
+     * allowlist -- so this method never learns a path and a slot it does not
+     * recognize is refused on the far side of sudo rather than here. Gated on
+     * settings.view: the page is, and every one of these is public.
+     *
+     * @return void
+     */
+    public function certificatedownload()
+    {
+        $slot = (string) filter_input(INPUT_GET, 'slot');
+        $staging = self::_pkiStagingDir();
+        // Generated here rather than accepted, and in the exact shape the
+        // helper validates.
+        $reqid = bin2hex(random_bytes(16));
+        $out = $staging . DS . $reqid . '.pem';
+        $res = $staging ? self::_pkiRun(['export', $slot, $reqid]) : ['ok' => false];
+        $pem = ($res['ok'] && file_exists($out)) ? file_get_contents($out) : '';
+        if (file_exists($out)) {
+            unlink($out);
+        }
+        if ('' === $pem) {
+            $this->title = _('Certificates');
+            echo $this->_box(
+                _('Certificate download failed'),
+                '<p>' . _('That certificate is not available on this server.')
+                . '</p>',
+                ['color' => 'danger']
+            );
+            return;
+        }
+        // basename() on a value the helper already constrained to its own
+        // allowlist. Belt and braces: this string lands in a header, and a
+        // newline in a filename splits the response.
+        $name = 'fog-' . preg_replace('/[^a-z0-9]/', '', strtolower($slot))
+            . '.pem';
+        header('Content-Type: application/x-pem-file');
+        header('Content-Disposition: attachment; filename="' . $name . '"');
+        header('Content-Length: ' . strlen($pem));
+        // The output buffer collapses whitespace (Initiator::sanitizeOutput),
+        // which would corrupt PEM's line structure and produce a file openssl
+        // cannot read. Discard it rather than flushing it.
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        echo $pem;
+        exit;
+    }
+    /**
+     * Import a root CA, remove one, or set an install preference.
+     *
+     * Gated on system.pki by Authorization::SUB_OVERRIDES, not on
+     * settings.edit: an imported root reaches this host's trust store, and the
+     * preferences are written into a file root sources as shell.
+     *
+     * @return void
+     */
+    public function certificatesPost()
+    {
+        self::checkAuthAndCSRF();
+        $action = (string) filter_input(INPUT_POST, 'action');
+        try {
+            switch ($action) {
+                case 'importRoot':
+                    $this->_pkiImportRoot();
+                    break;
+                case 'clearRoot':
+                    $this->_pkiClearRoot();
+                    break;
+                case 'setPreference':
+                    $this->_pkiSetPreference();
+                    break;
+                default:
+                    throw new \Exception(_('Unknown action'));
+            }
+        } catch (\Exception $e) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Certificate change failed')
+                ]
+            );
+        }
+    }
+    /**
+     * Stage an uploaded root CA and hand it to the helper.
+     *
+     * Nothing is validated here beyond the upload itself. The helper parses
+     * it, requires a self-signed CA that has not expired, keeps only the
+     * self-signed certificates out of a bundle, and chooses where it lands --
+     * because this side is the side that might be compromised.
+     *
+     * @return void
+     */
+    private function _pkiImportRoot()
+    {
+        $staging = self::_pkiStagingDir();
+        if (!$staging) {
+            throw new \Exception(
+                _('Certificate management is not configured on this server')
+            );
+        }
+        if (!isset($_FILES['rootca']) || !is_uploaded_file($_FILES['rootca']['tmp_name'] ?? '')) {
+            throw new \Exception(_('No certificate file was uploaded'));
+        }
+        if (UPLOAD_ERR_OK !== ($_FILES['rootca']['error'] ?? UPLOAD_ERR_NO_FILE)) {
+            throw new UploadException($_FILES['rootca']['error']);
+        }
+        // A root CA certificate is a couple of kilobytes; a bundle of them is
+        // a few more. The cap is here so a multi-megabyte upload is refused
+        // before it is written into the staging directory rather than after.
+        if (($_FILES['rootca']['size'] ?? 0) > 128 * 1024) {
+            throw new \Exception(
+                _('That file is too large to be a root CA certificate')
+            );
+        }
+        $reqid = bin2hex(random_bytes(16));
+        $dest = $staging . DS . $reqid . '.pem';
+        if (!move_uploaded_file($_FILES['rootca']['tmp_name'], $dest)) {
+            throw new \Exception(_('Could not stage the uploaded certificate'));
+        }
+        $res = self::_pkiRun(['import-root', $reqid]);
+        if (file_exists($dest)) {
+            unlink($dest);
+        }
+        if (!$res['ok']) {
+            throw new \Exception(
+                $res['out'] ?: _('The certificate was refused')
+            );
+        }
+        // The helper answers "OK <kept> trust:<ok|failed|unavailable>". A
+        // trust-store failure is reported rather than fatal, matching
+        // _installCATrustAnchor(): the certificate did land and is re-applied
+        // on every later run, so calling this a failure would be wrong and
+        // saying nothing would be worse.
+        $parts = explode(' ', $res['out']);
+        $trust = $parts[2] ?? '';
+        $msg = _('The root CA has been imported and this server now trusts it.');
+        if ('trust:ok' !== $trust) {
+            $msg = _(
+                'The root CA has been imported, but this host\'s system trust '
+                . 'store could not be updated -- so HTTPS calls made on this '
+                . 'server will not accept it yet. Re-run the installer, and '
+                . 'check the installation log.'
+            );
+        }
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            ['msg' => $msg, 'title' => _('Root imported')]
+        );
+    }
+    /**
+     * Stop trusting a previously imported root CA.
+     *
+     * The helper removes the file, clears the recorded path and rebuilds the
+     * anchor, so the removal survives the next installer run the same way the
+     * import did. Offered at all because an import nobody can undo from the
+     * same screen is the destructive-web-form problem this page is otherwise
+     * careful to avoid.
+     *
+     * @return void
+     */
+    private function _pkiClearRoot()
+    {
+        $res = self::_pkiRun(['clear-root']);
+        if (!$res['ok']) {
+            throw new \Exception(
+                $res['out'] ?: _('Could not remove the imported root')
+            );
+        }
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => _('The imported root CA has been removed.'),
+                'title' => _('Root removed')
+            ]
+        );
+    }
+    /**
+     * Set one install preference.
+     *
+     * Both the key and the value are passed through unexamined. The helper
+     * holds the three-entry key allowlist and the ^(yes|no)$ value pattern,
+     * and it has to: .fogsettings is sourced as shell by root on the next
+     * installer run, so validating here -- on the side that might be
+     * compromised -- would be validating in the wrong place.
+     *
+     * @return void
+     */
+    private function _pkiSetPreference()
+    {
+        $key = (string) filter_input(INPUT_POST, 'key');
+        $value = filter_input(INPUT_POST, 'value') ? 'yes' : 'no';
+        $res = self::_pkiRun(['set-preference', $key, $value]);
+        if (!$res['ok']) {
+            throw new \Exception(
+                $res['out'] ?: _('Could not save that preference')
+            );
+        }
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => _(
+                    'Saved. It takes effect the next time the installer runs.'
+                ),
+                'title' => _('Preference saved')
+            ]
+        );
     }
     /**
      * Show the Secure Boot enrollment page.

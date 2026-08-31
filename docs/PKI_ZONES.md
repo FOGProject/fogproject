@@ -97,6 +97,14 @@ web/leaf/.webLeaf.{key,pem}       what the web server actually serves
 web/ca/.trustAnchor.pem           what this server anchors the web zone on: the
                                   FOG root, plus an imported root where there is
                                   one, deduped by fingerprint
+web/ca/.externalRoot.pem          a root CA imported from the Certificates page.
+                                  Absent unless one was. Self-signed CAs only --
+                                  an intermediate in the uploaded file is
+                                  dropped rather than anchored, because
+                                  anchoring one would trust it AS a root.
+                                  PKI_web_external_root_cert records THIS path,
+                                  not wherever the admin's copy came from, so
+                                  the setting still resolves a year later.
 web/dhparam.pem                   Diffie-Hellman parameters the nginx vhost
                                   names directly
 secureboot/ca/.fogSBCA.{key,pem,der}  signs the code-signing leaf; .der is
