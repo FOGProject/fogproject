@@ -4857,6 +4857,334 @@ class Route extends FOGBase
         }
     }
     /**
+     * Refuses an edit whose `name` is empty or already taken.
+     *
+     * Two separate refusals, and the second one is narrower than it looks.
+     * A name that already exists is only a collision when it belongs to a
+     * DIFFERENT object -- PUTting an object back under its own name is
+     * ordinary REST -- so the stored name is compared before refusing.
+     * Classes in $nonUniqueNameClasses are exempt entirely.
+     *
+     * Both answer through setErrorMessage(), which throws, so this either
+     * returns having found nothing wrong or does not return at all.
+     *
+     * @param object $class     The loaded object being edited.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _assertEditName($class, $classname, $vars)
+    {
+        $exists = false;
+        $var_name = false;
+        if (property_exists($vars, 'name')) {
+            $exists = self::getClass($classname)
+                ->getManager()
+                ->exists($vars->name);
+            $var_name = strtolower($vars->name);
+            if (!$var_name) {
+                self::setErrorMessage(
+                    _('A name must be defined if using the "name" property'),
+                    HTTPResponseCodes::HTTP_FORBIDDEN
+                );
+            }
+        }
+        $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
+        if ($uniqueNames
+            && $exists
+            && $var_name
+            && strtolower($class->get('name')) != $var_name
+        ) {
+            self::setErrorMessage(
+                _('Already created'),
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+    /**
+     * Copies the request body onto a loaded object, field by field.
+     *
+     * Deliberately NOT shared with create()'s loop, which looks almost
+     * identical and differs in three ways that all matter: create tests
+     * property_exists() so an explicit null reads as absent, passes null to
+     * _refuseServerOwned() because there is no stored value to compare a
+     * create against, and has no object to leave untouched. One flag
+     * parameter doing those three jobs would hide exactly the distinctions
+     * the comments here exist to explain.
+     *
+     * @param object $class     The loaded object being edited.
+     * @param string $classname The lowercased class name.
+     * @param array  $classVars The class's reflected variables.
+     * @param object $vars      The decoded request body.
+     *
+     * @return void
+     */
+    private static function _applyEditFields($class, $classname, $classVars, $vars)
+    {
+        $serverOwned = self::serverOwnedFields($classname);
+        foreach ($classVars['databaseFields'] as &$key) {
+            $key = $class->key($key);
+            if ($key == 'id') {
+                unset($key);
+                continue;
+            }
+            // A field the body did not mention is left exactly as
+            // loaded. It used to be re-set to its own current value,
+            // which looks like a no-op and is not: set() may
+            // transform, and User::set() hashes any non-override
+            // write to 'password'. So every PUT to a user re-hashed
+            // the stored hash and locked that account out for good.
+            // save() writes from $this->data for every databaseField
+            // regardless of what was set(), so skipping is otherwise
+            // byte-identical.
+            if (!isset($vars->$key)) {
+                unset($key);
+                continue;
+            }
+            if (in_array($key, $serverOwned, true)) {
+                self::_refuseServerOwned($class, $key, $vars->$key);
+                unset($key);
+                continue;
+            }
+            $class->set($key, $vars->$key);
+            unset($key);
+        }
+    }
+    /**
+     * Applies the association changes an edit's body asks for.
+     *
+     * The associations are not columns, so the databaseFields loop above
+     * cannot reach them: `snapins`, `printers`, `modules`, `hosts`,
+     * `groups`, `macs` and `storagegroups` each mean a join table, and each
+     * class supports a different subset. This is the DIFF form -- what the
+     * body names becomes the whole membership, so anything missing from it
+     * is removed -- which is what makes it different from create()'s
+     * add-only version and from joining()'s, and why the three are not one
+     * function.
+     *
+     * Stays a switch, dispatched on one variable. Fifteen per-class methods
+     * is the shape docs/route-listem-plan.md rejected for the column table
+     * and the reasoning is unchanged here.
+     *
+     * $id rather than $class->get('id') for the plugin arm, which has to
+     * read the STORED state rather than the object it has just mutated.
+     *
+     * @param object $class     The loaded object being edited.
+     * @param string $classname The lowercased class name.
+     * @param object $vars      The decoded request body.
+     * @param int    $id        The id being edited.
+     *
+     * @return void
+     */
+    private static function _applyEditAssociations($class, $classname, $vars, $id)
+    {
+        switch ($classname) {
+            case 'host':
+                if (isset($vars->macs)) {
+                    $macsToAdd = array_diff(
+                        (array)$vars->macs,
+                        $class->getMyMacs()
+                    );
+                    $macsToRem = array_diff(
+                        $class->getMyMacs(),
+                        (array)$vars->macs
+                    );
+                    $class
+                        ->addMAC($macsToAdd)
+                        ->removeMAC($macsToRem);
+                }
+                if (isset($vars->primac)) {
+                    $oldMac = $class->get('mac');
+                    if ($vars->primac != $oldMac) {
+                        $class
+                            ->removeMAC([$oldMac])
+                            ->addMAC([$oldMac])
+                            ->addPriMAC($vars->primac);
+
+                    }
+                }
+                if (isset($vars->snapins)) {
+                    $snapinsToAdd = array_diff(
+                        (array)$vars->snapins,
+                        $class->get('snapins')
+                    );
+                    $snapinsToRem = array_diff(
+                        $class->get('snapins'),
+                        (array)$vars->snapins
+                    );
+                    $class
+                        ->removeSnapin($snapinsToRem)
+                        ->addSnapin($snapinsToAdd);
+                }
+                if (isset($vars->printers)) {
+                    $printersToAdd = array_diff(
+                        (array)$vars->printers,
+                        $class->get('printers')
+                    );
+                    $printersToRem = array_diff(
+                        $class->get('printers'),
+                        (array)$vars->printers
+                    );
+                    $class
+                        ->removePrinter($printersToRem)
+                        ->addPrinter($printersToAdd);
+                }
+                if (isset($vars->modules)) {
+                    $modulesToAdd = array_diff(
+                        (array)$vars->modules,
+                        $class->get('modules')
+                    );
+                    $modulesToRem = array_diff(
+                        $class->get('modules'),
+                        (array)$vars->modules
+                    );
+                    $class
+                        ->removeModule($modulesToRem)
+                        ->addModule($modulesToAdd);
+                }
+                if (isset($vars->groups)) {
+                    $groupsToAdd = array_diff(
+                        (array)$vars->groups,
+                        $class->get('groups')
+                    );
+                    $groupsToRem = array_diff(
+                        $class->get('groups'),
+                        (array)$vars->groups
+                    );
+                    $class
+                        ->removeGroup($groupsToRem)
+                        ->addGroup($groupsToAdd);
+                }
+                break;
+            case 'group':
+                if (isset($vars->snapins)) {
+                    $snapins = Route::getIds('snapin', false);
+                    $snapinsToRem = array_diff(
+                        $snapins,
+                        (array)$vars->snapins
+                    );
+                    $class
+                        ->removeSnapin($snapinsToRem)
+                        ->addSnapin($vars->snapins);
+                }
+                if (isset($vars->printers)) {
+                    $printers = Route::getIds('printer', false);
+                    $printersToRem = array_diff(
+                        $printers,
+                        (array)$vars->printers
+                    );
+                    $class
+                        ->removePrinter($printersToRem)
+                        ->addPrinter($vars->printers);
+                }
+                if (isset($vars->modules)) {
+                    $modules = Route::getIds('module', false);
+                    $modulesToRem = array_diff(
+                        $modules,
+                        (array)$vars->modules
+                    );
+                    $class
+                        ->removeModule($modulesToRem)
+                        ->addModule($vars->modules);
+                }
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                if (isset($vars->imageID)) {
+                    $class
+                        ->addImage($vars->imageID);
+                }
+                break;
+            case 'image':
+            case 'snapin':
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                if (isset($vars->storagegroups)) {
+                    $storageGroupsToAdd = array_diff(
+                        (array)$vars->storagegroups,
+                        $class->get('storagegroups')
+                    );
+                    $storageGroupsToRem = array_diff(
+                        $class->get('storagegroups'),
+                        (array)$vars->storagegroups
+                    );
+                    $class
+                        ->removeGroup($storageGroupsToRem)
+                        ->addGroup($storageGroupsToAdd);
+                }
+                break;
+            case 'printer':
+                if (isset($vars->hosts)) {
+                    $hostsToAdd = array_diff(
+                        (array)$vars->hosts,
+                        $class->get('hosts')
+                    );
+                    $hostsToRem = array_diff(
+                        $class->get('hosts'),
+                        (array)$vars->hosts
+                    );
+                    $class
+                        ->removeHost($hostsToRem)
+                        ->addHost($hostsToAdd);
+                }
+                break;
+            case 'plugin':
+                // installed and schema are server-owned, but state is
+                // deliberately not: activating is a plain column write
+                // and doing it over the API is legitimate. What is NOT
+                // legitimate is using it to switch on a plugin the
+                // server refuses to run -- an installed plugin left
+                // deactivated because a FOG upgrade moved past its
+                // fog_max is exactly the case activationBlockers()
+                // exists for, and without this it is one PUT away from
+                // loading on every boot (installed=1 AND state=1 is
+                // what getActivePlugins() selects on).
+                //
+                // Gated on the TRANSITION to active, read from the
+                // stored row rather than the mutated object, for the
+                // same reason _refuseServerOwned() compares values: a
+                // client that reads a plugin and PUTs it back
+                // unchanged is asking for nothing, and an ordinary
+                // description edit on an already-active plugin must
+                // not start failing the day it becomes blocked.
+                if (isset($vars->state)
+                    && (int)$vars->state === 1
+                    && !(int)self::getClass('Plugin', $id)->get('state')
+                ) {
+                    $blockers = Plugin::activationBlockers([(int)$id]);
+                    if (count($blockers)) {
+                        self::setErrorMessage(
+                            self::_blockerReasons($blockers),
+                            HTTPResponseCodes::HTTP_BAD_REQUEST
+                        );
+                    }
+                }
+                break;
+        }
+    }
+    /**
      * Enables editing/updating a specified object.
      *
      * @param string $class The class to work with.
@@ -4882,263 +5210,9 @@ class Route extends FOGBase
             $vars = json_decode(
                 file_get_contents('php://input')
             );
-            $exists = false;
-            $var_name = false;
-            if (property_exists($vars, 'name')) {
-                $exists = self::getClass($classname)
-                    ->getManager()
-                    ->exists($vars->name);
-                $var_name = strtolower($vars->name);
-                if (!$var_name) {
-                    self::setErrorMessage(
-                        _('A name must be defined if using the "name" property'),
-                        HTTPResponseCodes::HTTP_FORBIDDEN
-                    );
-                }
-            }
-            $uniqueNames = !in_array($classname, self::$nonUniqueNameClasses);
-            if ($uniqueNames
-                && $exists
-                && $var_name
-                && strtolower($class->get('name')) != $var_name
-            ) {
-                self::setErrorMessage(
-                    _('Already created'),
-                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
-                );
-            }
-            $serverOwned = self::serverOwnedFields($classname);
-            foreach ($classVars['databaseFields'] as &$key) {
-                $key = $class->key($key);
-                if ($key == 'id') {
-                    unset($key);
-                    continue;
-                }
-                // A field the body did not mention is left exactly as
-                // loaded. It used to be re-set to its own current value,
-                // which looks like a no-op and is not: set() may
-                // transform, and User::set() hashes any non-override
-                // write to 'password'. So every PUT to a user re-hashed
-                // the stored hash and locked that account out for good.
-                // save() writes from $this->data for every databaseField
-                // regardless of what was set(), so skipping is otherwise
-                // byte-identical.
-                if (!isset($vars->$key)) {
-                    unset($key);
-                    continue;
-                }
-                if (in_array($key, $serverOwned, true)) {
-                    self::_refuseServerOwned($class, $key, $vars->$key);
-                    unset($key);
-                    continue;
-                }
-                $class->set($key, $vars->$key);
-                unset($key);
-            }
-            switch ($classname) {
-                case 'host':
-                    if (isset($vars->macs)) {
-                        $macsToAdd = array_diff(
-                            (array)$vars->macs,
-                            $class->getMyMacs()
-                        );
-                        $macsToRem = array_diff(
-                            $class->getMyMacs(),
-                            (array)$vars->macs
-                        );
-                        $class
-                            ->addMAC($macsToAdd)
-                            ->removeMAC($macsToRem);
-                    }
-                    if (isset($vars->primac)) {
-                        $oldMac = $class->get('mac');
-                        if ($vars->primac != $oldMac) {
-                            $class
-                                ->removeMAC([$oldMac])
-                                ->addMAC([$oldMac])
-                                ->addPriMAC($vars->primac);
-
-                        }
-                    }
-                    if (isset($vars->snapins)) {
-                        $snapinsToAdd = array_diff(
-                            (array)$vars->snapins,
-                            $class->get('snapins')
-                        );
-                        $snapinsToRem = array_diff(
-                            $class->get('snapins'),
-                            (array)$vars->snapins
-                        );
-                        $class
-                            ->removeSnapin($snapinsToRem)
-                            ->addSnapin($snapinsToAdd);
-                    }
-                    if (isset($vars->printers)) {
-                        $printersToAdd = array_diff(
-                            (array)$vars->printers,
-                            $class->get('printers')
-                        );
-                        $printersToRem = array_diff(
-                            $class->get('printers'),
-                            (array)$vars->printers
-                        );
-                        $class
-                            ->removePrinter($printersToRem)
-                            ->addPrinter($printersToAdd);
-                    }
-                    if (isset($vars->modules)) {
-                        $modulesToAdd = array_diff(
-                            (array)$vars->modules,
-                            $class->get('modules')
-                        );
-                        $modulesToRem = array_diff(
-                            $class->get('modules'),
-                            (array)$vars->modules
-                        );
-                        $class
-                            ->removeModule($modulesToRem)
-                            ->addModule($modulesToAdd);
-                    }
-                    if (isset($vars->groups)) {
-                        $groupsToAdd = array_diff(
-                            (array)$vars->groups,
-                            $class->get('groups')
-                        );
-                        $groupsToRem = array_diff(
-                            $class->get('groups'),
-                            (array)$vars->groups
-                        );
-                        $class
-                            ->removeGroup($groupsToRem)
-                            ->addGroup($groupsToAdd);
-                    }
-                    break;
-                case 'group':
-                    if (isset($vars->snapins)) {
-                        $snapins = Route::getIds('snapin', false);
-                        $snapinsToRem = array_diff(
-                            $snapins,
-                            (array)$vars->snapins
-                        );
-                        $class
-                            ->removeSnapin($snapinsToRem)
-                            ->addSnapin($vars->snapins);
-                    }
-                    if (isset($vars->printers)) {
-                        $printers = Route::getIds('printer', false);
-                        $printersToRem = array_diff(
-                            $printers,
-                            (array)$vars->printers
-                        );
-                        $class
-                            ->removePrinter($printersToRem)
-                            ->addPrinter($vars->printers);
-                    }
-                    if (isset($vars->modules)) {
-                        $modules = Route::getIds('module', false);
-                        $modulesToRem = array_diff(
-                            $modules,
-                            (array)$vars->modules
-                        );
-                        $class
-                            ->removeModule($modulesToRem)
-                            ->addModule($vars->modules);
-                    }
-                    if (isset($vars->hosts)) {
-                        $hostsToAdd = array_diff(
-                            (array)$vars->hosts,
-                            $class->get('hosts')
-                        );
-                        $hostsToRem = array_diff(
-                            $class->get('hosts'),
-                            (array)$vars->hosts
-                        );
-                        $class
-                            ->removeHost($hostsToRem)
-                            ->addHost($hostsToAdd);
-                    }
-                    if (isset($vars->imageID)) {
-                        $class
-                            ->addImage($vars->imageID);
-                    }
-                    break;
-                case 'image':
-                case 'snapin':
-                    if (isset($vars->hosts)) {
-                        $hostsToAdd = array_diff(
-                            (array)$vars->hosts,
-                            $class->get('hosts')
-                        );
-                        $hostsToRem = array_diff(
-                            $class->get('hosts'),
-                            (array)$vars->hosts
-                        );
-                        $class
-                            ->removeHost($hostsToRem)
-                            ->addHost($hostsToAdd);
-                    }
-                    if (isset($vars->storagegroups)) {
-                        $storageGroupsToAdd = array_diff(
-                            (array)$vars->storagegroups,
-                            $class->get('storagegroups')
-                        );
-                        $storageGroupsToRem = array_diff(
-                            $class->get('storagegroups'),
-                            (array)$vars->storagegroups
-                        );
-                        $class
-                            ->removeGroup($storageGroupsToRem)
-                            ->addGroup($storageGroupsToAdd);
-                    }
-                    break;
-                case 'printer':
-                    if (isset($vars->hosts)) {
-                        $hostsToAdd = array_diff(
-                            (array)$vars->hosts,
-                            $class->get('hosts')
-                        );
-                        $hostsToRem = array_diff(
-                            $class->get('hosts'),
-                            (array)$vars->hosts
-                        );
-                        $class
-                            ->removeHost($hostsToRem)
-                            ->addHost($hostsToAdd);
-                    }
-                    break;
-                case 'plugin':
-                    // installed and schema are server-owned, but state is
-                    // deliberately not: activating is a plain column write
-                    // and doing it over the API is legitimate. What is NOT
-                    // legitimate is using it to switch on a plugin the
-                    // server refuses to run -- an installed plugin left
-                    // deactivated because a FOG upgrade moved past its
-                    // fog_max is exactly the case activationBlockers()
-                    // exists for, and without this it is one PUT away from
-                    // loading on every boot (installed=1 AND state=1 is
-                    // what getActivePlugins() selects on).
-                    //
-                    // Gated on the TRANSITION to active, read from the
-                    // stored row rather than the mutated object, for the
-                    // same reason _refuseServerOwned() compares values: a
-                    // client that reads a plugin and PUTs it back
-                    // unchanged is asking for nothing, and an ordinary
-                    // description edit on an already-active plugin must
-                    // not start failing the day it becomes blocked.
-                    if (isset($vars->state)
-                        && (int)$vars->state === 1
-                        && !(int)self::getClass('Plugin', $id)->get('state')
-                    ) {
-                        $blockers = Plugin::activationBlockers([(int)$id]);
-                        if (count($blockers)) {
-                            self::setErrorMessage(
-                                self::_blockerReasons($blockers),
-                                HTTPResponseCodes::HTTP_BAD_REQUEST
-                            );
-                        }
-                    }
-                    break;
-            }
+            self::_assertEditName($class, $classname, $vars);
+            self::_applyEditFields($class, $classname, $classVars, $vars);
+            self::_applyEditAssociations($class, $classname, $vars, $id);
             // Store the data and recreate.
             // If failed present so.
             if ($class->save()) {

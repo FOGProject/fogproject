@@ -269,14 +269,26 @@ $bodyOf = function ($src, $needle) {
         : substr($src, $start);
 };
 
+// The field loop that consults the list. edit()'s lives in
+// _applyEditFields() since its phases were given names; create()'s is still
+// inline. Read whichever function actually carries it, because this is a
+// source grep and a grep that points at the wrong function passes for the
+// wrong reason.
+//
+// It is a grep, so it can only see the call disappear -- not the call stop
+// firing. `if (false) { _refuseServerOwned(...) }` leaves every string here
+// in place, and that mutation left the whole suite green until
+// route-write-path-guards.test.php was written. That file drives the
+// refusal and is what actually holds this guard; these two checks are the
+// cheap companion that catches an outright deletion.
 foreach (
     [
-        'public static function edit(' => 'edit',
+        'private static function _applyEditFields(' => 'edit',
         'public static function create(' => 'create'
     ] as $needle => $what
 ) {
     $check(
-        "Route::$what() is gone or renamed",
+        "Route::$what()'s field loop is gone or renamed ($needle)",
         null !== $bodyOf($route, $needle)
     );
     $body = (string)$bodyOf($route, $needle);
@@ -287,7 +299,7 @@ foreach (
     );
 }
 
-$edit = (string)$bodyOf($route, 'public static function edit(');
+$edit = (string)$bodyOf($route, 'private static function _applyEditFields(');
 $check(
     'Route::edit() assigns a field back to its own stored value again. '
     . 'That is not a no-op: User::set() hashes any non-override write to '
