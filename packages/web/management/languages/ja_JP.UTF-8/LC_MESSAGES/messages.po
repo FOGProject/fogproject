@@ -867,6 +867,9 @@ msgstr "すべてのストレージノード"
 msgid "All Types"
 msgstr "ルールタイプ"
 
+msgid "All are structural (column type or nullability), not orphan rows -- bin/fk-orphan-scan.php will report none."
+msgstr ""
+
 #, fuzzy
 msgid "All files synced for this item"
 msgstr "この項目のすべてのファイルが同期されました。"

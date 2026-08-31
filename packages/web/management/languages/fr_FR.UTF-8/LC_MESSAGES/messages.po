@@ -911,6 +911,9 @@ msgstr "Tous les nœuds de stockage"
 msgid "All Types"
 msgstr "Type de module"
 
+msgid "All are structural (column type or nullability), not orphan rows -- bin/fk-orphan-scan.php will report none."
+msgstr ""
+
 msgid "All files synced for this item"
 msgstr ""
 
