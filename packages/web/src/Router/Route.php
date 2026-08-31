@@ -1092,7 +1092,7 @@ class Route extends FOGBase
             return;
         }
         self::_assertNoSensitiveFilter($whereItems, $class);
-        $classVars = self::getClass($class, '', true);
+        $classVars = self::_classVars($class);
         // Blocked fields are dropped from the advertised list as well as
         // refused above -- an error that names them as valid alternatives
         // would be telling the caller to retry with the one thing this
@@ -3097,11 +3097,7 @@ class Route extends FOGBase
             $ttlstr = $classman->getTotalStr();
             $tmpcolumns = $classman->getColumns();
 
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
 
             $where = self::_buildSql(
                 '',
@@ -4570,7 +4566,7 @@ class Route extends FOGBase
      */
     private static function _searchRows($class, $item, $limit = 0)
     {
-        $classVars = self::getClass($class, '', true);
+        $classVars = self::_classVars($class);
         // An entity with no `name` field has nothing to match on or to
         // label a result with. Not ours alone to enumerate, either:
         // SEARCH_PAGES hands $searchPages to plugins BY REFERENCE and they
@@ -5192,16 +5188,10 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
             $class = self::_newEntity($class, $id);
             self::_requireFound($class);
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $vars = self::_requestBody();
             self::_assertEditName($class, $classname, $vars);
             self::_applyEditFields($class, $classname, $classVars, $vars);
             self::_applyEditAssociations($class, $classname, $vars, $id);
@@ -5233,9 +5223,7 @@ class Route extends FOGBase
         $class = self::_newEntity($class, $id);
         self::_requireFound($class);
         $tids = Route::getIds('tasktype', false);
-        $task = json_decode(
-            file_get_contents('php://input')
-        );
+        $task = self::_requestBody();
         Route::indiv('tasktype', $task->taskTypeID);
         $TaskType = json_decode(Route::getData());
         try {
@@ -5487,18 +5475,10 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
             $class = self::_newEntity($class);
 
-            $vars = json_decode(
-                file_get_contents(
-                    'php://input'
-                )
-            );
+            $vars = self::_requestBody();
 
             self::_assertCreateName($classname, $vars);
             self::_applyCreateFields($class, $classname, $classVars, $vars);
@@ -5980,14 +5960,8 @@ class Route extends FOGBase
     public static function getsearchbody($class)
     {
         try {
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $vars = self::_requestBody();
+            $classVars = self::_classVars($class);
             $find = [];
             $classname = $class;
             $class = self::_newEntity($class);
@@ -6061,14 +6035,8 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
             $whereItems = ['id' => $id];
             $count = self::getCount($classname, $whereItems);
             if (!$count) {
@@ -7352,14 +7320,8 @@ class Route extends FOGBase
             }
             $data = [];
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
 
             if (empty($orderby)) {
                 $orderby = 'name';
@@ -8620,6 +8582,46 @@ class Route extends FOGBase
         return $result;
     }
     /**
+     * A class's reflected variables: databaseTable, databaseFields and the
+     * required/ignored lists.
+     *
+     * getClass($class, '', true) with a name on it. The third argument is
+     * FOGBase::getClass()'s $props flag, and nothing about `'', true` at a
+     * call site says "give me the schema description rather than an object"
+     * -- which is what eleven sites in this file were asking for, in two
+     * different formattings.
+     *
+     * @param string $class The class name.
+     *
+     * @return array the class's reflected variables
+     */
+    private static function _classVars($class)
+    {
+        return self::getClass($class, '', true);
+    }
+    /**
+     * The decoded JSON request body, or null when there is not one.
+     *
+     * Every write route opens by reading php://input, and this is the one
+     * place that names what that stream is. json_decode() returns null both
+     * for an absent body and for a malformed one, which is why every caller
+     * tests with property_exists()/isset() rather than trusting the object
+     * -- a guard that would have to be added in eight places without this.
+     *
+     * @return mixed whatever json_decode() made of the body -- an object for
+     *               the JSON objects every caller here expects, null for an
+     *               absent or malformed one, and in principle any other JSON
+     *               scalar. Deliberately not narrowed: pretending it is
+     *               always an object would move the callers' isset() guards
+     *               from "checking the body" to "silencing the analyzer".
+     */
+    private static function _requestBody()
+    {
+        return json_decode(
+            file_get_contents('php://input')
+        );
+    }
+    /**
      * Delete items in mass.
      *
      * Four phases, in order: announce what is going, work out what else has
@@ -8650,14 +8652,8 @@ class Route extends FOGBase
             }
             $data = [];
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
 
             // getIds(), not ids()+getData(): the payload carries a `data`
             // envelope now, and decoding it whole leaves $itemIDs holding
@@ -9175,11 +9171,7 @@ class Route extends FOGBase
             }
             $data = [];
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
+            $classVars = self::_classVars($class);
 
             $sql = 'SELECT `'
                 . $classVars['databaseFields']['id']
@@ -9467,14 +9459,8 @@ class Route extends FOGBase
     {
         try {
             $classname = strtolower($class);
-            $classVars = self::getClass(
-                $class,
-                '',
-                true
-            );
-            $vars = json_decode(
-                file_get_contents('php://input')
-            );
+            $classVars = self::_classVars($class);
+            $vars = self::_requestBody();
             if ('POST' == self::$reqmethod) {
                 if ($classname != 'group') {
                     self::sendResponse(
