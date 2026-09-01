@@ -188,3 +188,15 @@ psrfix
 # with the branch, was removed in the same change: with nothing stamping a
 # version there is nothing for it to guard, and it would have blocked every
 # push instead.
+
+# GH-1581: the hook's exit status is the status of the last command, which was
+# psrfix -- and psrfix returns 1 when php-cs-fixer is not installed, via
+# require_tools. So a machine without the optional tools printed "the commit
+# will proceed WITHOUT those changes" and then blocked the commit, with git
+# exiting 1 and saying nothing.
+#
+# Every step above is deliberately advisory: require_tools exists so a missing
+# formatter is a skip, not a failure, and CI regenerates all of it. Nothing in
+# this hook is a gate. Say so explicitly rather than leaving the status to
+# whichever helper happens to run last -- post-commit already ends this way.
+exit 0
