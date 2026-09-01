@@ -9,22 +9,28 @@
  *    resolve LIVE on each request, because there is no task to hang a
  *    snapshot on and a removal has to reach the machine.
  *
- * 2. THE EMPTY CASE IS STILL SPELLED `np`. Under printer level `ar` the
+ * 2. THE EMPTY CASE CARRIES BOTH SPELLINGS. Under printer level `ar` the
  *    resolved list is authoritative in both directions -- fog-client removes
  *    every installed printer that is not on it -- and `np`, matched
  *    case-insensitively against ReturnCode, is the ONE string that triggers
  *    removal-on-empty. Decision 9 turns the empty case into an ordinary
- *    success carrying an explicit flag instead, and traces through
- *    fog-client 0.13.0 to show that is safe. That trace has not been watched
- *    happen on a mode-`ar` host with steady printers (UNKNOWN-4). Changing
- *    where the list comes from AND what the empty case means to the client in
- *    one release leaves nothing to bisect if a fleet comes back with no
- *    printers, so this test holds the wire format still while the source of
- *    the list moves.
+ *    success carrying an explicit flag instead, and its shipping order is to
+ *    send `np` ALONGSIDE that flag for a release before dropping it. Both are
+ *    sent now, and this file pins both halves:
  *
- *    When decision 9 does land, this check is expected to be REPLACED, not
- *    deleted quietly -- by one asserting the new flag alongside `np` for the
- *    release they overlap.
+ *      - `noPrinters` must appear in BOTH returns. A client cannot use a flag
+ *        that shows up only when it is true, because an absent key is
+ *        indistinguishable from a server too old to send it. The check counts
+ *        occurrences rather than looking for one, because a single one would
+ *        be satisfied by the empty branch alone -- the version nothing can
+ *        consume.
+ *      - `np` must stay until UNKNOWN-4 is observed. Dropping it changes what
+ *        an OLD client does with this response, and no mode-`ar` host with
+ *        steady printers has been watched through a poll cycle yet.
+ *
+ *    So the `np` check is not permanent, and is not to be deleted quietly
+ *    either: when that observation exists it is REPLACED by one asserting the
+ *    empty case no longer carries an `error` at all.
  *
  * Source-anchored, for the reason set out at length in
  * tests/task-creation-resolves-assignments.test.php: the resolver's behavior
@@ -104,6 +110,22 @@ $check(
 $check(
     'nothing else in the endpoint answers `np`',
     1 === substr_count($body, "'np'")
+);
+
+// The flag, and specifically that it is in BOTH returns. Counting is what
+// makes that assertion real: a single occurrence would be satisfied by the
+// empty branch alone, which is the version a client cannot consume.
+$check(
+    'the empty case also carries the explicit noPrinters flag',
+    false !== strpos($body, "'noPrinters' => true,")
+);
+$check(
+    'the success case carries it too, so a client can tell it apart',
+    false !== strpos($body, "'noPrinters' => false,")
+);
+$check(
+    'the flag appears exactly twice -- once per return',
+    2 === substr_count($body, "'noPrinters' =>")
 );
 
 if (count($failures)) {
