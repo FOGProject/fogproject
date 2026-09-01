@@ -418,6 +418,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
+msgid "A name that is not already a group is created when you add. Remove only works on groups that exist."
+msgstr ""
+
 #, fuzzy
 msgid "A page of results."
 msgstr "No disponible"
@@ -769,10 +772,6 @@ msgid "Add Storage Node"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Add To Group(s)"
-msgstr "Grupo de almacenamiento"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "Añadir fallidos SNAPin!"
 
@@ -841,10 +840,6 @@ msgid "Add selected"
 msgstr "Impresora"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "Impresora"
-
-#, fuzzy
 msgid "Add site failed!"
 msgstr "Añadir fallidos SNAPin!"
 
@@ -887,6 +882,10 @@ msgstr "Añadir fallidos SNAPin!"
 #, fuzzy
 msgid "Add/Remove Managed Printers"
 msgstr "Impresoras FOG Managed"
+
+#, php-format
+msgid "Added %1$d host(s) to %2$d group(s)."
+msgstr ""
 
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
@@ -1887,6 +1886,10 @@ msgstr "No se ha podido destruir"
 msgid "Could not create the catch-all site"
 msgstr "No se pudo crear Complemento de empleo"
 
+#, fuzzy, php-format
+msgid "Could not create the group \"%s\""
+msgstr "No se pudo leer el archivo tmp."
+
 #, fuzzy
 msgid "Could not create the staging directory."
 msgstr "No se pudo crear Complemento de empleo"
@@ -2001,6 +2004,10 @@ msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not update host"
+msgstr "No se ha podido destruir"
+
+#, fuzzy, php-format
+msgid "Could not update the group \"%s\""
 msgstr "No se ha podido destruir"
 
 #, php-format
@@ -2609,6 +2616,10 @@ msgstr "snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "snapins"
+
+#, fuzzy
+msgid "Edit groups"
+msgstr "modificar Grupo"
 
 #, fuzzy
 msgid "Edit selected hosts"
@@ -3559,6 +3570,10 @@ msgstr ""
 #, fuzzy
 msgid "Group Member Attribute"
 msgstr "Nombre de usuario"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "miembros"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -6081,6 +6096,10 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+#, php-format
+msgid "No group named \"%s\" exists to remove hosts from"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -6104,10 +6123,6 @@ msgstr "Anfitriones en tareas"
 
 #, fuzzy
 msgid "No hosts available to task"
-msgstr "Anfitriones en tareas"
-
-#, fuzzy
-msgid "No hosts selected to be added"
 msgstr "Anfitriones en tareas"
 
 #, fuzzy
@@ -7438,6 +7453,14 @@ msgid "Remove Fail"
 msgstr "Remoto"
 
 #, fuzzy
+msgid "Remove Hosts from Groups Fail"
+msgstr "Añadir al grupo"
+
+#, fuzzy
+msgid "Remove Hosts from Groups Success"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
 msgid "Remove LDAP Group Associations"
 msgstr "Asociación para la imagen"
 
@@ -7471,6 +7494,10 @@ msgstr "retirar"
 
 #, php-format
 msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed %1$d host(s) from %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -8963,10 +8990,6 @@ msgstr "Exitoso"
 #, fuzzy
 msgid "Success."
 msgstr "Exitoso"
-
-#, fuzzy
-msgid "Successfully added hosts to the provided groups!"
-msgstr "actualizado exitosamente"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -11999,6 +12022,10 @@ msgstr ""
 #~ msgstr "Impresora"
 
 #, fuzzy
+#~ msgid "Add To Group(s)"
+#~ msgstr "Grupo de almacenamiento"
+
+#, fuzzy
 #~ msgid "Add accesscontrol failed!"
 #~ msgstr "Añadir fallidos SNAPin!"
 
@@ -12007,8 +12034,8 @@ msgstr ""
 #~ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
-#~ msgid "Admin Group"
-#~ msgstr "modificar Grupo"
+#~ msgid "Add selected to group"
+#~ msgstr "Impresora"
 
 #, fuzzy
 #~ msgid "Administrator Group"
@@ -12358,6 +12385,10 @@ msgstr ""
 #~ msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
+#~ msgid "No hosts selected to be added"
+#~ msgstr "Anfitriones en tareas"
+
+#, fuzzy
 #~ msgid "No query sent"
 #~ msgstr "Se desconoce el valor de clase enviado"
 
@@ -12474,6 +12505,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node FTP User"
 #~ msgstr "Uso del disco nodo de almacenamiento"
+
+#, fuzzy
+#~ msgid "Successfully added hosts to the provided groups!"
+#~ msgstr "actualizado exitosamente"
 
 #, fuzzy
 #~ msgid "Task run time"

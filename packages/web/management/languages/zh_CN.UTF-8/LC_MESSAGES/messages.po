@@ -420,6 +420,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
+msgid "A name that is not already a group is created when you add. Remove only works on groups that exist."
+msgstr ""
+
 #, fuzzy
 msgid "A page of results."
 msgstr "列表中的所有%s"
@@ -759,10 +762,6 @@ msgid "Add Storage Node"
 msgstr "添加存储节点"
 
 #, fuzzy
-msgid "Add To Group(s)"
-msgstr "添加存储组"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "添加管理单元失败！"
 
@@ -831,10 +830,6 @@ msgid "Add selected"
 msgstr "打印机"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "打印机"
-
-#, fuzzy
 msgid "Add site failed!"
 msgstr "添加管理单元失败！"
 
@@ -876,6 +871,10 @@ msgstr "添加管理单元失败！"
 #, fuzzy
 msgid "Add/Remove Managed Printers"
 msgstr "FOG管理的打印机"
+
+#, php-format
+msgid "Added %1$d host(s) to %2$d group(s)."
+msgstr ""
 
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
@@ -1867,6 +1866,10 @@ msgstr "无法更新"
 msgid "Could not create the catch-all site"
 msgstr "无法创建管理单元工作"
 
+#, fuzzy, php-format
+msgid "Could not create the group \"%s\""
+msgstr "无法读取tmp文件。"
+
 #, fuzzy
 msgid "Could not create the staging directory."
 msgstr "无法创建管理单元工作"
@@ -1982,6 +1985,10 @@ msgstr "无法读取tmp文件。"
 
 #, fuzzy
 msgid "Could not update host"
+msgstr "无法更新"
+
+#, fuzzy, php-format
+msgid "Could not update the group \"%s\""
 msgstr "无法更新"
 
 #, php-format
@@ -2577,6 +2584,10 @@ msgstr "出口Snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Edit groups"
+msgstr "修改组"
 
 #, fuzzy
 msgid "Edit selected hosts"
@@ -3509,6 +3520,10 @@ msgstr ""
 #, fuzzy
 msgid "Group Member Attribute"
 msgstr "用户名"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "籍"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -5960,6 +5975,10 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+#, php-format
+msgid "No group named \"%s\" exists to remove hosts from"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -5983,10 +6002,6 @@ msgstr "在任务主机"
 
 #, fuzzy
 msgid "No hosts available to task"
-msgstr "在任务主机"
-
-#, fuzzy
-msgid "No hosts selected to be added"
 msgstr "在任务主机"
 
 #, fuzzy
@@ -7299,6 +7314,14 @@ msgid "Remove Fail"
 msgstr "去除"
 
 #, fuzzy
+msgid "Remove Hosts from Groups Fail"
+msgstr "添加到组"
+
+#, fuzzy
+msgid "Remove Hosts from Groups Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
 msgid "Remove LDAP Group Associations"
 msgstr "图像协会"
 
@@ -7331,6 +7354,10 @@ msgstr "去除"
 
 #, php-format
 msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed %1$d host(s) from %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -8791,10 +8818,6 @@ msgstr "成功"
 #, fuzzy
 msgid "Success."
 msgstr "访问"
-
-#, fuzzy
-msgid "Successfully added hosts to the provided groups!"
-msgstr "成功关联主机与本集团"
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -11828,6 +11851,10 @@ msgstr ""
 #~ msgstr "打印机"
 
 #, fuzzy
+#~ msgid "Add To Group(s)"
+#~ msgstr "添加存储组"
+
+#, fuzzy
 #~ msgid "Add accesscontrol failed!"
 #~ msgstr "添加管理单元失败！"
 
@@ -11836,8 +11863,8 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
-#~ msgid "Admin Group"
-#~ msgstr "修改组"
+#~ msgid "Add selected to group"
+#~ msgstr "打印机"
 
 #, fuzzy
 #~ msgid "Administrator Group"
@@ -12183,6 +12210,10 @@ msgstr ""
 #~ msgid "No directory groups defined."
 #~ msgstr "已安装的插件"
 
+#, fuzzy
+#~ msgid "No hosts selected to be added"
+#~ msgstr "在任务主机"
+
 #~ msgid "No query sent"
 #~ msgstr "没有查询发送"
 
@@ -12309,6 +12340,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node FTP User"
 #~ msgstr "存储节点的用户名"
+
+#, fuzzy
+#~ msgid "Successfully added hosts to the provided groups!"
+#~ msgstr "成功关联主机与本集团"
 
 #, fuzzy
 #~ msgid "Task run time"

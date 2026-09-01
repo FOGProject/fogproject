@@ -402,6 +402,9 @@ msgstr "この名前のロールは既に存在します！"
 msgid "A name must be defined if using the \"name\" property"
 msgstr "\"name\" プロパティを使用する場合は、名前を定義する必要があります"
 
+msgid "A name that is not already a group is created when you add. Remove only works on groups that exist."
+msgstr ""
+
 #, fuzzy
 msgid "A page of results."
 msgstr "すべてのルールを一覧表示"
@@ -729,10 +732,6 @@ msgstr "ストレージグループを追加"
 msgid "Add Storage Node"
 msgstr "ストレージノードを追加"
 
-#, fuzzy
-msgid "Add To Group(s)"
-msgstr "グループに追加"
-
 msgid "Add broadcast failed!"
 msgstr "ブロードキャストの追加に失敗しました！"
 
@@ -793,10 +792,6 @@ msgstr "ロールの追加に失敗しました！"
 msgid "Add selected"
 msgstr "選択したホストを追加"
 
-#, fuzzy
-msgid "Add selected to group"
-msgstr "選択したストレージグループを追加"
-
 msgid "Add site failed!"
 msgstr "サイトの追加に失敗しました！"
 
@@ -834,6 +829,10 @@ msgstr "Windows キーの追加に失敗しました！"
 #, fuzzy
 msgid "Add/Remove Managed Printers"
 msgstr "FOG 管理プリンター"
+
+#, php-format
+msgid "Added %1$d host(s) to %2$d group(s)."
+msgstr ""
 
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
@@ -1799,6 +1798,10 @@ msgstr "見つかりませんでした"
 msgid "Could not create the catch-all site"
 msgstr "スナップインジョブの作成に失敗しました"
 
+#, fuzzy, php-format
+msgid "Could not create the group \"%s\""
+msgstr "一時ファイルを読み取れませんでした。"
+
 #, fuzzy
 msgid "Could not create the staging directory."
 msgstr "スナップインジョブの作成に失敗しました"
@@ -1908,6 +1911,10 @@ msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not update host"
+msgstr "ホストの更新に失敗しました"
+
+#, fuzzy, php-format
+msgid "Could not update the group \"%s\""
 msgstr "ホストの更新に失敗しました"
 
 #, php-format
@@ -2496,6 +2503,10 @@ msgstr "ノードを編集"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "ノードを編集"
+
+#, fuzzy
+msgid "Edit groups"
+msgstr "ホストを編集"
 
 #, fuzzy
 msgid "Edit selected hosts"
@@ -3395,6 +3406,10 @@ msgstr ""
 
 msgid "Group Member Attribute"
 msgstr "グループメンバー属性"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "ホストメンバーシップ"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -5751,6 +5766,10 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr "\"snapinfiles[]\" マルチパートフィールドを使用して、1 つ以上のファイルをアップロードする必要があります"
 
+#, php-format
+msgid "No group named \"%s\" exists to remove hosts from"
+msgstr ""
+
 #, fuzzy
 msgid "No groups are being created or selected"
 msgstr "削除するグループが選択されていません"
@@ -5775,10 +5794,6 @@ msgstr "タスクを実行できるホストがありません"
 
 msgid "No hosts available to task"
 msgstr "タスクを実行できるホストがありません"
-
-#, fuzzy
-msgid "No hosts selected to be added"
-msgstr "削除するグループが選択されていません"
 
 msgid "No hosts to task"
 msgstr "タスク対象のホストがありません"
@@ -7060,6 +7075,14 @@ msgid "Remove Fail"
 msgstr "削除に失敗しました"
 
 #, fuzzy
+msgid "Remove Hosts from Groups Fail"
+msgstr "ホストのグループ追加に失敗しました"
+
+#, fuzzy
+msgid "Remove Hosts from Groups Success"
+msgstr "ホストをグループに追加しました"
+
+#, fuzzy
 msgid "Remove LDAP Group Associations"
 msgstr "グループの関連付け"
 
@@ -7091,6 +7114,10 @@ msgstr "削除済み"
 
 #, php-format
 msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed %1$d host(s) from %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -8475,10 +8502,6 @@ msgstr "インポートに成功しました"
 #, fuzzy
 msgid "Success."
 msgstr "アクセス"
-
-#, fuzzy
-msgid "Successfully added hosts to the provided groups!"
-msgstr "選択したホストをグループに追加しました！"
 
 msgid "Successfully deleted"
 msgstr "削除しました"
@@ -11427,6 +11450,10 @@ msgstr ""
 #~ msgid "Add Storage Groups"
 #~ msgstr "ストレージグループを追加"
 
+#, fuzzy
+#~ msgid "Add To Group(s)"
+#~ msgstr "グループに追加"
+
 #~ msgid "Add User"
 #~ msgstr "ユーザーを追加"
 
@@ -11446,6 +11473,10 @@ msgstr ""
 
 #~ msgid "Add selected rules"
 #~ msgstr "選択したルールを追加"
+
+#, fuzzy
+#~ msgid "Add selected to group"
+#~ msgstr "選択したストレージグループを追加"
 
 #~ msgid "Additional MACs"
 #~ msgstr "追加の MAC アドレス"
@@ -11724,9 +11755,6 @@ msgstr ""
 
 #~ msgid "ESC is defaulted"
 #~ msgstr "ESC が既定です"
-
-#~ msgid "Edit Host"
-#~ msgstr "ホストを編集"
 
 #~ msgid "Edit Image"
 #~ msgstr "イメージを編集"
@@ -12089,9 +12117,6 @@ msgstr ""
 
 #~ msgid "Host MAC"
 #~ msgstr "ホスト MAC アドレス"
-
-#~ msgid "Host Membership"
-#~ msgstr "ホストメンバーシップ"
 
 #~ msgid "Host Memory"
 #~ msgstr "ホストメモリ"
@@ -12589,6 +12614,10 @@ msgstr ""
 
 #~ msgid "No groups defined, search will return all hosts."
 #~ msgstr "グループが定義されていないため、検索ではすべてのホストが対象となります。"
+
+#, fuzzy
+#~ msgid "No hosts selected to be added"
+#~ msgstr "削除するグループが選択されていません"
 
 #, fuzzy
 #~ msgid "No mappings defined."
@@ -13108,6 +13137,10 @@ msgstr ""
 
 #~ msgid "SubnetGroup General"
 #~ msgstr "サブネットグループ全般"
+
+#, fuzzy
+#~ msgid "Successfully added hosts to the provided groups!"
+#~ msgstr "選択したホストをグループに追加しました！"
 
 #~ msgid "Successfully created"
 #~ msgstr "作成しました"
