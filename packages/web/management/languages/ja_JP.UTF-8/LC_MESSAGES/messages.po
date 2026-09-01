@@ -658,6 +658,22 @@ msgstr "有効"
 msgid "Active Directory"
 msgstr "Active Directory"
 
+#, fuzzy
+msgid "Active Directory Domain Name"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Active Directory Organizational Unit"
+msgstr "組織単位"
+
+#, fuzzy
+msgid "Active Directory Password"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Active Directory Username"
+msgstr "Active Directory"
+
 msgid "Active Multicast Tasks"
 msgstr "実行中のマルチキャストタスク"
 
@@ -3616,6 +3632,10 @@ msgid "Host EFI Exit Type"
 msgstr "ホスト EFI 終了方法"
 
 #, fuzzy
+msgid "Host Enforce Hostname Changes"
+msgstr "ホスト名変更"
+
+#, fuzzy
 msgid "Host Group Associations"
 msgstr "グループの関連付け"
 
@@ -3694,6 +3714,10 @@ msgstr "プリンターの関連付け"
 #, fuzzy
 msgid "Host Printer Configuration"
 msgstr "ホストプリンター設定"
+
+#, fuzzy
+msgid "Host Printer Management Level"
+msgstr "プリンター管理なし"
 
 msgid "Host Product Key"
 msgstr "ホスト プロダクトキー"
@@ -4616,6 +4640,10 @@ msgstr "クライアントに次の場所からスナップインをダウンロ
 #, fuzzy
 msgid "It will operate based on the fields the area typcially requires."
 msgstr "通常その領域で必要とされるフィールドに基づいて動作します"
+
+#, fuzzy
+msgid "Join Domain after image task"
+msgstr "展開後にドメイン参加"
 
 msgid "Kbps"
 msgstr ""
@@ -12276,9 +12304,6 @@ msgstr ""
 
 #~ msgid "Job Create Date"
 #~ msgstr "ジョブ作成日"
-
-#~ msgid "Join Domain after deploy"
-#~ msgstr "展開後にドメイン参加"
 
 #~ msgid "Kernel Name"
 #~ msgstr "カーネル名"
