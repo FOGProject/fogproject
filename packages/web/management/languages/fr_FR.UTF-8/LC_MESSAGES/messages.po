@@ -5426,6 +5426,14 @@ msgid "Marked failed, task"
 msgstr "Échec du chargement: %s"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "mise à jour de l'utilisateur a échoué"
 
@@ -5874,6 +5882,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "Aucun champ passé"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "Aucun fichier a été téléchargé"
@@ -10052,6 +10063,10 @@ msgstr "Un nom de l'image est nécessaire!"
 #, fuzzy
 msgid "Update selected"
 msgstr "Imprimante"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"

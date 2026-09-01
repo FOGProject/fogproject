@@ -5425,6 +5425,14 @@ msgid "Marked failed, task"
 msgstr "加载失败： %s"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "用户更新失败"
 
@@ -5874,6 +5882,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "否字段通过"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "没有文件被上传"
@@ -10054,6 +10065,10 @@ msgstr "图像名是必需的！"
 #, fuzzy
 msgid "Update selected"
 msgstr "打印机"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"

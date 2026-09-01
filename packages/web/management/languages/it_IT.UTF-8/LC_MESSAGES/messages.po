@@ -5258,6 +5258,14 @@ msgid "Marked failed, task"
 msgstr "Caricamento non riuscito"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "Aggiornamento ruolo non riuscito"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "Aggiornamento host completato!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "Aggiornamento ruolo non riuscito"
 
@@ -5701,6 +5709,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "Nessun campo passato"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "Nessun file è stato caricato"
@@ -9755,6 +9766,10 @@ msgstr "È richiesto un nome!"
 #, fuzzy
 msgid "Update selected"
 msgstr "Aggiungi stampanti selezionate"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"

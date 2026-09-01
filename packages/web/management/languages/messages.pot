@@ -4622,6 +4622,12 @@ msgstr ""
 msgid "Marked failed, task"
 msgstr ""
 
+msgid "Mass Edit Fail"
+msgstr ""
+
+msgid "Mass Edit Success"
+msgstr ""
+
 msgid "Mass update failed"
 msgstr ""
 
@@ -5010,6 +5016,9 @@ msgid "No external root is imported on this server."
 msgstr ""
 
 msgid "No fields passed"
+msgstr ""
+
+msgid "No fields were set to change"
 msgstr ""
 
 msgid "No file was uploaded"
@@ -8611,6 +8620,10 @@ msgid "Update not required"
 msgstr ""
 
 msgid "Update selected"
+msgstr ""
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
 msgstr ""
 
 msgid "Upload"

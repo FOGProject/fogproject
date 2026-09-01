@@ -5426,6 +5426,14 @@ msgid "Marked failed, task"
 msgstr "Laden fehlgeschlagen: %s"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "Host Aktualisierung erfolgreich!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "Aktualisierung der Rolle fehlgeschlagen"
 
@@ -5875,6 +5883,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "Keine Felder übergeben"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "Keine Datei wurde hochgeladen"
@@ -10058,6 +10069,10 @@ msgstr "Ein Name ist erforderlich!"
 #, fuzzy
 msgid "Update selected"
 msgstr "ausgewählte Images hinzufügen"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"
