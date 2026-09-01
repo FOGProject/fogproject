@@ -7,6 +7,12 @@ none in this pass. The sizing, the evidence behind every claim, and the
 questions that need a lab to settle are in
 [`docs/development/group-split.md`](../development/group-split.md).
 
+**Decision 16 (groups become the tag concept, presented as tags) is the
+maintainer's decision, not a derivation.** It is recorded with its argument and
+with the rejected alternative stated in full. Decision 16a's five presentation
+requirements are **binding parts of that decision**, not follow-up work: the
+decision is only correct if a group is cheap to apply in bulk.
+
 Amends [ADR 0001](0001-group-association-state.md) rather than superseding it:
 0001's tri-state derivation is still how the group page reports *member* state
 after this change, but its opening sentence — "a group owns no associations of
@@ -531,54 +537,190 @@ nothing in the UI would have told them. This is a **notification**, not an
 advisory; whether it warrants more than that is the maintainer's call and is
 flagged as such rather than decided here.
 
-### 16. Groups, not tags
+### 16. Groups become the tag concept, and are presented as tags
 
-Both are many-to-many sets of hosts, so the data model does not discriminate.
-The real difference is editing direction and semantics, and both readings
-deserve stating.
+No new entity. **A group is the tag**, and the UI presents it as one.
 
-**The reading that favours tags.** Group membership is edited from the group
-side. "Add 40 hosts to 3 groups" is three trips through Group Management;
-"apply 3 tags to 40 hosts" is one selection and one action. After this ADR
-groups get *heavier* — they own snapins, printers, an order column and a
-resolution semantics — and a heavy object is a poor fit for "label these forty
-machines ex-lab-B". People will make forty tags and will not make forty groups.
-That last observation is true and is the strongest argument on this side.
+**The argument is the schema.** A tag is a set of hosts you filter and select
+by. That is precisely what group membership already is, and `groupMembers` says
+so in three columns:
 
-**The reading that wins.** The complaint is entirely about **editing
-direction**, and editing direction is a UI affordance, not an entity.
+```sql
+CREATE TABLE `groupMembers` (
+  `gmID` int(11) NOT NULL AUTO_INCREMENT,
+  `gmHostID` int(11) NOT NULL,
+  `gmGroupID` int(11) NOT NULL,
+  PRIMARY KEY (`gmID`),
+  UNIQUE KEY (`gmHostID`,`gmGroupID`), ...
+)
+```
 
-1. The host list **already has** "Add to group" on the same selection gate
-   (`fog.host.list.js:2`, `:394`). The tag workflow half-exists. What is
-   missing is *remove from group* and *apply several at once* — which is an
-   extension of one existing modal, not a new object.
-2. "Groups get heavy" cuts the other way once you ask what heavy means. A group
-   with no snapins and no printers **is** a tag: one row in `groups`, N rows in
-   `groupMembers`, zero behaviour. The weight is opt-in and its default is
-   nothing. Forty label-groups cost forty rows.
+A plain many-to-many join with **no attributes at all** — no ordering, no
+state, no metadata. That is a labelling table and nothing else. Everything
+heavier was hung off it later, and hung off it *because it was the only place
+to hang things*: a group was the only object in FOG that meant "these hosts",
+so every feature needing "these hosts" grew a group tab, and each one wrote its
+result onto the member rows because the group had nowhere of its own to keep
+it. That accumulation is the defect this ADR is about.
+
+So the split takes a group **back toward what its schema always looked like**.
+Adding a second overlapping set-of-hosts concept alongside it would be solving a
+**presentation gap with a data model** — introducing an entity, its tables, its
+routes, its permissions and its scope rules to fix the fact that one existing
+entity is edited from the wrong side and rendered in a dropdown.
+
+**Rejected: a separate `tags` entity.** Stated rather than omitted, because the
+case for it is not weak.
+
+The case: group membership is edited from the group side, so "add 40 hosts to 3
+groups" is three trips through Group Management, while "apply 3 tags to 40
+hosts" is one selection and one action. And after this ADR groups get *heavier*
+— they own snapins, printers, an order column and a resolution semantics — and
+a heavy object is a poor fit for "label these forty machines ex-lab-B". People
+will make forty tags and will not make forty groups. That last observation is
+true and is the strongest thing on that side.
+
+Why it loses anyway:
+
+1. **The complaint is editing direction and rendering, and neither is an
+   entity.** Both are fixable on the object that already exists, and Decision
+   16a makes fixing them binding.
+2. **Weight is opt-in and its floor is zero.** A group with no snapins and no
+   printers *is* a tag: one row in `groups`, N rows in `groupMembers`, no
+   behaviour. Forty label-groups cost forty rows. The heaviness people will
+   feel is the dropdown, not the schema.
 3. **A second entity doubles the semantics, not just the storage.** The day
-   tags exist, somebody asks whether a tag can carry a snapin. If no, tags and
-   groups differ only by a rule invisible in the UI, and every admin will pick
-   the wrong one half the time. If yes, there are two group systems and
-   Decision 8's single resolver has to merge them.
-4. The bill for a second entity is measurable, because absorbing the `site`
-   plugin paid it recently: `Route::$validClasses` (52 entries,
-   `Route.php:562`), `$nonUniqueNameClasses`, the `deletemass` cascade case,
-   `SiteScope::$_nodes`, the permission registry, FK declarations under ADR
-   0031, a page class, five JS files under `management/js/fog/`, saved-filter
-   targets, and the API description. None of that is hard; all of it is real.
+   tags exist somebody asks whether a tag can carry a snapin. If no, tags and
+   groups differ only by a rule invisible in the UI and every admin picks wrong
+   half the time. If yes, there are two group systems and Decision 8's single
+   resolver has to merge them — which is the same drift failure Decision 8
+   exists to prevent, reintroduced at the entity level.
+4. **The bill is measurable**, because absorbing the `site` plugin paid it
+   recently: `Route::$validClasses`, `$nonUniqueNameClasses`, the `deletemass`
+   cascade case, `SiteScope::$_nodes`, the permission registry, FK declarations
+   under ADR 0031, a page class, five JS files, saved-filter targets and the
+   API description. None of it is hard; all of it is real; and none of it moves
+   a host into a group any faster.
 
-**Decision: no tag entity. Build bulk group-membership editing from the host
-list** — add to several groups, remove from several groups, in one action on
-the existing selection gate — and get the tag workflow with one entity.
+**Rejected: do nothing and let people use groups as they are.** This is what
+happens today, and what happens today is that people do not use groups for
+labelling, because applying one to forty hosts is unpleasant enough that they
+keep the information somewhere else. That is the gap tags were being reached
+for. Deciding against tags without closing it decides nothing.
 
-**What this costs, stated rather than hidden.** "Group" is a bad name for a
-label, and admins will keep asking for tags because the word is wrong, not
-because the model is. The partial mitigation is to make weightlessness visible:
-the group list gets a column showing whether a group grants anything, so
-label-groups read as labels at a glance. That is a mitigation, not an answer,
-and if the asks keep coming after 1.6 the honest response is to revisit this
-decision with usage data rather than to have pre-built the entity.
+### 16a. What "presented as tags" requires — binding, not follow-up
+
+These are part of this decision. A group that is correct but unpleasant to
+apply in bulk fails at the thing this decision exists to enable, and the
+failure mode is specific: people keep not using groups for labelling, and the
+gap that tags were reached for comes straight back with the split having made
+groups *heavier* in the meantime.
+
+**1. The host list carries a groups column, rendered as chips, and it is
+filterable.**
+
+Not a comma-joined string. Chips, because the unit an admin acts on is one
+label and they need to see at a glance which of several a host carries. The
+column does not exist today (`HostManagement.php:114-169` enumerates the
+header set) and, more to the point, **the grid has no per-column search UI at
+all** — its own comment says so, and says sorting is the substitute
+(`HostManagement.php:150-153`). So "filterable" is a genuinely new capability
+on this grid, not a column definition.
+
+The mechanism it should use already exists and is documented with its reasoning:
+the site boundary is pushed into the list query as a subquery ANDed into the row
+query, the filter count *and* the total count, precisely because `complex()`
+applies the `LIMIT` before any row-level filtering and a post-filter therefore
+returns empty pages and lying counts (`Route.php:3149-3172`). A group filter has
+exactly that shape — `hostID IN (SELECT gmHostID FROM groupMembers WHERE
+gmGroupID IN (...))` — and must be applied the same way, never by filtering the
+returned page.
+
+The rendering half is cheap and also already has its mechanism: `relColumn()`
+takes a `prime` callback that receives every row on the page at once
+(`Route.php:7667`), so the chips cost one extra query per page rather than one
+per host.
+
+**2. Membership is editable from the host side, in bulk, both directions.**
+
+Add **and remove**, over the list selection, on the same gate as Queue Task /
+Add to Group / Delete. Today membership is add-only from the list and otherwise
+only editable from the group side, which is the whole "three trips through
+Group Management" complaint. Remove is not a nicety: a label you can apply and
+cannot retract is not a label, and its absence is why the current modal reads
+as a group operation rather than a tagging one.
+
+**3. It has to *feel* lightweight, and that is a requirement with a test.**
+
+Chips, typeahead, and create-on-the-fly from the list. Nobody minds twenty
+tags; everybody minds twenty groups in a dropdown. The test this requirement
+has to pass: **applying three labels to forty hosts is one selection and one
+action** — the same sentence that was the argument for tags. If the
+implementation cannot pass that sentence, it has not satisfied this decision.
+
+Two thirds of this already exists and is easy to miss: the list's Add to Group
+modal is already a select2 with `tags: true`, `tokenSeparators`, ajax typeahead
+against `/group/names/`, and a `createTag` handler that badges an unmatched
+term `(new)` (`fog.host.list.js:29-90`). What is missing is remove, multi-group
+clarity, and requirement 4.
+
+**4. Create-and-associate goes through the shared path, not a second one.**
+
+The host **edit** page already does this properly:
+`$.registerCreateAndAssociate('host-group', hostGroupsTable)`
+(`fog.host.edit.js:617`). The helper (`fog.common.js:1761`) POSTs the created
+id to the association tab's own update URL — its docblock is explicit that this
+is "the same call *Add selected* makes, so this is not a second write path" —
+and it is already used by eleven tabs across host, group and site.
+
+The **list** modal does not use it. It posts `groups[]` and `groups_new[]` to
+`sub=saveGroup`, which creates a group from a raw string with
+`->set('name', $group)->addHost($hosts)->save()` and no name-collision check
+(`HostManagement.php:4115-4123`) — where the group page's own rename path does
+check, via `getManager()->exists()` (`GroupManagement.php:733`). So there are
+already two creation paths and the newer one is the looser one.
+
+Reuse the shared helper. This is not tidiness: the list modal is about to
+become the *primary* surface for membership, and a second write path that
+skips the first one's validation is the wrong thing to promote.
+
+**Two defects on that path must be fixed as part of this, not after it.**
+`saveGroup()` (`HostManagement.php:4083`) is a state-changing POST handler and:
+
+- **It performs no CSRF check.** `FOGPageManager` calls `checkAuthAndCSRF()`
+  centrally only when the resolved method takes an `Ajax` or `Post` suffix
+  (`FOGPageManager.php:178-189`); the handler is named `saveGroup`, there is no
+  `saveGroupPost`, and the handler does not call it itself — it is absent from
+  all seven `checkAuthAndCSRF()` call sites in the file. Page *permission* is
+  still checked, because `requirePagePermission()` runs unconditionally on
+  every dispatch (`FOGPageManager.php:195`); CSRF is the gap.
+- **It does not bound the posted host ids to the caller's object scope.**
+  `deployMultiPost()` calls `requirePageObjectScopeMass('host', $hosts)` on the
+  identical shape of input, with the comment "Airtight: one id outside the
+  caller's site scope denies the whole request rather than quietly tasking the
+  rest" (`HostManagement.php:4633`). `saveGroup()` has no equivalent. The
+  central `requirePageObjectScope()` is passed the URL `$id`, of which a
+  list-level action has none.
+
+Both are pre-existing and neither is created by this ADR. They are named here
+because this decision promotes that endpoint from a convenience to the main
+way membership is edited, and promoting an unbounded, un-CSRF'd write is not
+something to discover afterward. Confirmation procedure in the proposal
+(UNKNOWN-6) — this is a code reading, not an observed request.
+
+**5. The group list shows what a group grants.**
+
+A column saying whether a group carries snapins or printers, so a label-group
+reads as a label at a glance and a heavy group reads as heavy. This is the
+cheapest half of making one entity serve both jobs legibly, and without it the
+Group Management list is forty rows that all look identically consequential.
+
+**What this decision costs, stated rather than hidden.** "Group" remains a bad
+name for a label. The model is right and the word is wrong, and no amount of
+chips fixes a noun. If the requests for tags continue after 1.6 with all five
+requirements shipped, that is evidence about the *word*, and the answer is
+renaming or aliasing the concept in the UI — not building the second entity
+this decision rejected.
 
 ### 17. No exclusion mechanism, and the loss is real
 
@@ -705,6 +847,22 @@ semantics gate, which is the second reason the boundary is not one.
   required.** ADR 0017 records that "there is no shipped 1.6 plugin ABI", so
   this is free before 1.6.0 and expensive after it. That is an argument about
   *when*, and it is made in the proposal.
+- **The host list grows its first per-column filter.** Decision 16a's groups
+  column is the first thing on that grid anyone can filter *by* rather than
+  sort by, and the mechanism it establishes — a subquery ANDed into the row
+  query and both counts, on `scopedObjectWhere()`'s pattern — is the one every
+  later filterable association column should reuse.
+- **`saveGroup()` gets a CSRF check and an object-scope bound.** Both are
+  pre-existing gaps this ADR does not create; it promotes the endpoint, which
+  is why closing them is inside the work rather than beside it.
+- **There will be exactly one create-and-associate path for host↔group.** The
+  list modal stops creating groups from raw strings and joins the eleven tabs
+  already using `$.registerCreateAndAssociate()`.
+- **The presentation requirements are not a follow-up and a release that ships
+  the split without them has not delivered this decision.** Decision 16 is only
+  correct if a group is cheap to apply in bulk; the model change alone makes
+  groups heavier and leaves the labelling gap exactly where it was, which is
+  the outcome that made a `tags` entity look necessary in the first place.
 
 ## Alternatives considered
 
@@ -736,8 +894,16 @@ guess into a column makes it look like a fact.
 **Build the exclusion mechanism now, before anyone asks.** Rejected per
 Decision 17; the composition rule is the problem, not the storage.
 
-**Build tags.** Rejected per Decision 16, with the counter-argument recorded
-rather than dismissed.
+**Build a `tags` entity.** Rejected per Decision 16: `groupMembers` is already
+an attribute-free many-to-many labelling table, so a second set-of-hosts
+concept would be solving a presentation gap with a data model. The
+counter-argument is recorded there rather than dismissed, along with what the
+decision costs.
+
+**Decide against tags and stop there.** Rejected as deciding nothing. The
+labelling gap is real and is what made tags look necessary; Decision 16a is the
+half of the decision that closes it, which is why those requirements are
+binding rather than a follow-up.
 
 ## The claim that would hurt most if it is false
 
@@ -752,7 +918,7 @@ check, a fallback when the job is missing — then a group edited mid-run *does*
 change a task in flight, Decision 4 is a lie, and the snapin half needs a
 genuine snapshot table rather than a redirected read.
 
-It is checkable in an afternoon and it is UNKNOWN-2 in the proposal. Nothing
+It is one grep and a three-step lab test — UNKNOWN-2 in the proposal. Nothing
 else here is load-bearing in the same way: if `groupName` turns out not to be
 unique the resolver's third tiebreak starts earning its keep, which is why it
 is there; if the trigger's duplicate-key behaviour is different from the

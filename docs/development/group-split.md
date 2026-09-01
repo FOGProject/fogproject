@@ -283,7 +283,129 @@ git show origin/stable:packages/web/commons/schema.php | grep -n -B2 -A2 'ADD UN
 UNIQUE, the accesscontrol plugin never created it, native RBAC adopted the
 table as it found it, and schema step 401 exists to repair it. Query in §5.
 
-### 1.9 Plugin duplication
+### 1.9 The host list, and what "presented as tags" actually costs
+
+Evidence for ADR 0038 Decision 16a, whose five requirements are binding.
+
+**VERIFIED — there is no groups column on the host list, and the grid has no
+per-column search UI of any kind.** The header set is enumerated in one place,
+and its own comment says sorting is the substitute for filtering.
+
+```
+sed -n '105,170p' packages/web/src/Pages/HostManagement.php
+grep -n 'data-col' packages/web/src/Pages/HostManagement.php
+```
+
+> "Sorting is the filter here -- this grid has no per-column search UI, so the
+> global box matches the STORED word" — `HostManagement.php:150-153`
+
+So requirement 1's "filterable" is a **new capability on this grid**, not a
+column definition. That is the honest sizing and it is the requirement most
+likely to be under-scoped.
+
+**VERIFIED — the grid is server-side, so a filter must be SQL.**
+
+```
+sed -n '298,310p' packages/web/management/js/fog/host/fog.host.list.js
+# processing: true, serverSide: true, POST ?node=host&sub=list
+```
+
+**VERIFIED — the mechanism for a query-level filter already exists and is
+documented with the trap it avoids.** The site boundary is passed to
+`complex()` as a subquery ANDed into the row query, the filter count and the
+total count, because the `LIMIT` is applied before any row-level filtering:
+post-filtering returned empty first pages and counts describing rows the user
+could not see.
+
+```
+sed -n '3149,3178p' packages/web/src/Router/Route.php
+grep -n 'scopedObjectWhere' packages/web/src/Auth/Authorization.php
+```
+
+A groups filter is the same shape — `hostID IN (SELECT gmHostID FROM
+groupMembers WHERE gmGroupID IN (...))` — and inherits the same rule: into the
+query, never onto the page.
+
+**VERIFIED — rendering chips is cheap, because the column table already has a
+per-page batch loader.** `relColumn()` takes a `prime` callback handed every row
+on the page at once.
+
+```
+sed -n '7660,7690p' packages/web/src/Router/Route.php
+```
+
+One extra query per page, not per host.
+
+**VERIFIED — the list's Add to Group modal already has typeahead, chips and
+create-on-the-fly.** This is easy to miss and it changes what requirement 3
+costs: select2 with `tags: true`, `tokenSeparators: [',', ' ']`, ajax against
+`/group/names/name=%term%`, and a `createTag` handler that badges an unmatched
+term `(new)`.
+
+```
+sed -n '29,120p' packages/web/management/js/fog/host/fog.host.list.js
+```
+
+**What it does not have: remove.** The modal is add-only, and `saveGroup()`
+only ever calls `addHost()`. A label you can apply and cannot retract is not a
+label — requirement 2.
+
+**VERIFIED — the list modal is a second create-and-associate path, and the
+looser one.** The shared helper POSTs the created id to the association tab's
+own update URL and its docblock says so explicitly ("this is not a second write
+path"); it is used by eleven tabs, including `host-group` on the host **edit**
+page.
+
+```
+grep -rn 'registerCreateAndAssociate' packages/web/management/js/   # 11 call sites
+sed -n '1752,1790p' packages/web/management/js/fog/fog.common.js    # the helper
+sed -n '617p'       packages/web/management/js/fog/host/fog.host.edit.js
+```
+
+The list modal instead posts `groups[]` / `groups_new[]` to `sub=saveGroup`,
+which builds a group from a raw string:
+
+```
+sed -n '4083,4141p' packages/web/src/Pages/HostManagement.php
+```
+
+`->set('name', $group)->addHost($hosts)->save()` — **no name-collision check**,
+where the group page's own rename path does check via
+`getManager()->exists()` (`GroupManagement.php:733`).
+
+**VERIFIED by code reading — `saveGroup()` performs no CSRF check.**
+`FOGPageManager` calls `checkAuthAndCSRF()` centrally only when the resolved
+method takes an `Ajax`/`Post` suffix; the handler is `saveGroup`, there is no
+`saveGroupPost`, and it does not call it itself.
+
+```
+sed -n '176,208p' packages/web/src/Base/FOGPageManager.php    # central gate
+grep -c 'function saveGroupPost' packages/web/src/Pages/HostManagement.php   # 0
+grep -n 'checkAuthAndCSRF' packages/web/src/Pages/HostManagement.php
+# 1643 1983 2251 2922 3730 4606 4919 -- saveGroup() is at 4083, not among them
+grep -n -A30 'function requireForStateChanging' packages/web/src/Auth/CSRF.php
+```
+
+`CSRF::requireForStateChanging()` is reached from exactly two places
+(`FOGBase::checkAuthAndCSRF()` and `Route.php:901`), so there is no third,
+global enforcement. Page **permission** is unaffected —
+`requirePagePermission()` runs on every dispatch (`FOGPageManager.php:195`).
+
+**VERIFIED — `saveGroup()` does not bound the posted host ids to the caller's
+object scope**, where `deployMultiPost()` does on identical input.
+
+```
+grep -n 'requirePageObjectScopeMass' packages/web/src/Pages/HostManagement.php  # 4633 only
+```
+
+The central `requirePageObjectScope()` is passed the URL `$id`
+(`FOGPageManager.php:203`), and a list-level action has none.
+
+Both gaps are pre-existing. They are in scope because ADR 0038 Decision 16a
+promotes this endpoint from a convenience to the primary membership surface.
+Confirm both with a request, not a reading — UNKNOWN-6.
+
+### 1.10 Plugin duplication
 
 **VERIFIED — two plugins each ship a host hook and a near-identical group hook
 whose only job is to write one value across many hosts.**
@@ -327,7 +449,7 @@ grep -n 'no shipped 1.6 plugin ABI' docs/adr/0017-hook-dispatch-contract.md
 This is the strongest single argument for putting `HOST_MASSEDIT_*` in **1.6.0**
 rather than 1.6.x.
 
-### 1.10 Where the plugin code lives, and what an upgrade removes
+### 1.11 Where the plugin code lives, and what an upgrade removes
 
 **VERIFIED — bundled plugins are fetched into the web tree, which is
 `rm -rf`'d on upgrade; the external plugin root is not.**
@@ -346,7 +468,7 @@ trigger.** `DROP TRIGGER` appears only in the plugin's own `uninstall()` and
 grep -n 'DROP TRIGGER' <fog-plugins>/persistentgroups/src/Managers/PersistentGroupsManager.php
 ```
 
-### 1.11 The retirement precedent
+### 1.12 The retirement precedent
 
 **VERIFIED — schema step 399 is the pattern, and its comment is the argument
 for why the gate must read table facts.**
@@ -362,7 +484,7 @@ grep -n '^// [0-9]\+$' packages/web/commons/schema.php | tail -3      # 399, 400
 grep -c '^// [0-9]\+$' packages/web/commons/schema.php                # 360 numbered comments in file
 ```
 
-### 1.12 Audit
+### 1.13 Audit
 
 **VERIFIED — ADR 0021 Decision 11 already answers the 400-host question,
 against this exact example.** One header, `affectedCount`, `outcome` allowed or
@@ -425,11 +547,22 @@ grep -rl "printerassociation\|PrinterAssociation" packages/web/src packages/web/
 | Mass edit form + apply | `Pages/HostManagement.php`, `js/fog/host/fog.host.list.js` | 2, plus `_uniformHostValues()` lifted to a shared home |
 | Bulk group-membership editing | same 2 files | extends the existing `#addToGroupModal` |
 | `HOST_MASSEDIT_*` hooks | `Pages/HostManagement.php` + `docs/plugin-development.md` | 2 |
+| **Groups column + filter** (Dec 16a.1) | `Router/Route.php` (column + `prime` + filter subquery), `Pages/HostManagement.php` (header), `js/fog/host/fog.host.list.js` (chips, filter control) | 3, and the filter is the first of its kind on this grid |
+| **Bulk add/remove + shared create path** (Dec 16a.2–4) | `Pages/HostManagement.php` (`saveGroup` rewritten: remove, CSRF, scope), `js/fog/host/fog.host.list.js` | 2 |
+| **Group list "grants" column** (Dec 16a.5) | `Pages/GroupManagement.php` | 1 |
 | Retirement step | `commons/schema.php` | 1 |
 | Docs | `GROUP_SHARED_STATE.md` rewritten as the mass edit doc; ADR 0001 amendment note; release notes | 3 |
 
-**Roughly 20 core files touched, 7 new.** The heavy ones are
-`GroupManagement.php` (3532 lines, 8 tabs) and `HostManagement.php` (5256).
+**Roughly 22 core files touched, 7 new** — the presentation work overlaps
+almost entirely with files the rest of the change already opens. The heavy ones
+are `GroupManagement.php` (3532 lines, 8 tabs), `HostManagement.php` (5256) and
+`Route.php`.
+
+Requirement 16a.3 ("it has to feel lightweight") is mostly **already built**:
+the list modal has select2 chips, typeahead and create-on-the-fly today
+(§1.9). What is genuinely new is the **filter** (16a.1) — no per-column
+filtering exists on this grid at all — and **remove** (16a.2). Those two are
+the presentation work; the rest is reuse and two security fixes.
 
 ### 2.3 Plugin files
 
@@ -455,7 +588,10 @@ items, in the order they block work:
    the printer resolver, because it decides the blast radius of a resolver bug.
 5. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
    determines whether the mass edit needs a set-based scope check.
-6. **A migration rehearsal** on a 1.5-origin dump, per
+6. **UNKNOWN-6** (`saveGroup()`'s CSRF and scope gaps) — does not block, but
+   both are on the endpoint ADR 0038 Decision 16a promotes to primary. Cheap:
+   two requests.
+7. **A migration rehearsal** on a 1.5-origin dump, per
    `docs/development/upgrade-rehearsal.md`, for step 405.
 
 ### 2.5 1.6.0 or 1.6.x
@@ -464,7 +600,7 @@ The honest read, with the argument on both sides.
 
 **What argues for 1.6.0:**
 
-- **The plugin ABI is unshipped** (§1.9). `HOST_MASSEDIT_*` costs nothing now
+- **The plugin ABI is unshipped** (§1.10). `HOST_MASSEDIT_*` costs nothing now
   and needs a deprecation window after 1.6.0 ships. This is the strongest
   argument and it is not about the group split at all — it is about the hook.
 - **There is no destructive migration** (Decision 18). The upgrade is four
@@ -492,10 +628,21 @@ The honest read, with the argument on both sides.
 
 **Recommendation, and it is a split rather than a single answer:**
 
-- **1.6.0:** the `HOST_MASSEDIT_*` hooks and the mass edit form; the bulk
-  group-membership editor; schema step 405 (the trigger drop) and the
-  `persistentgroups` deletion. None of these depends on the resolver, all of
-  them are additive, and the ABI half genuinely gets harder after 1.6.0.
+- **1.6.0:** the `HOST_MASSEDIT_*` hooks and the mass edit form; **all five of
+  Decision 16a's presentation requirements** (groups column + filter, bulk
+  add/remove from the host side, the shared create-and-associate path with
+  `saveGroup()`'s CSRF and scope gaps closed, the group list's "grants"
+  column); schema step 405 (the trigger drop) and the `persistentgroups`
+  deletion. None of these depends on the resolver, all of them are additive,
+  and the ABI half genuinely gets harder after 1.6.0.
+
+  **16a is in the earlier release deliberately, and it is the half that must
+  not slip.** It is the part of Decision 16 that closes the labelling gap, and
+  the failure mode of shipping the split without it is specific: groups become
+  heavier while staying just as unpleasant to apply, which is the exact state
+  that made a `tags` entity look necessary. Landing 16a first also means the
+  presentation improvement stands on its own even if the declarative split
+  slips further — it is useful against today's groups, unchanged.
 - **1.6.x:** the declarative split itself — steps 402–404, the resolver, the
   group page rework, and the removal of the group page's imperative tabs. It
   depends on two UNKNOWNs that need a lab, and Decision 10's sequencing already
@@ -506,7 +653,7 @@ earlier release, the removals in the later one.
 
 ---
 
-## 3. The three things most likely to be built wrong
+## 3. The five things most likely to be built wrong
 
 Recorded here rather than in the ADR because they are implementation hazards,
 not decisions.
@@ -522,6 +669,16 @@ not decisions.
    a fleet-wide printer removal, delivered one machine at a time as they poll.
    The resolver throws; §1.6 shows the endpoint already turns a throw into a
    body with no `printers` key.
+4. **A groups filter applied to the returned page instead of the query.**
+   `complex()` applies the `LIMIT` before any row filtering, so a post-filter
+   gives empty first pages and counts that describe rows the caller cannot see.
+   That trap is already documented at `Route.php:3149-3172`, where the site
+   boundary hit it; the groups filter is the same shape and must go into the
+   query, the filter count and the total count.
+5. **A second create-and-associate path for host↔group.** There are already two
+   (§1.9) and the newer one skips the name-collision check. The list modal
+   should use `$.registerCreateAndAssociate()` like the other eleven tabs, not
+   grow a third.
 
 ---
 
@@ -546,13 +703,23 @@ reduces the declarative half to one chunk, so the case that needs a transaction
 is the one the design removes. Introducing transactions to the DB layer for it
 would be a much larger change with its own failure modes.
 
-**Build a `tags` entity.** Rejected in ADR 0038 Decision 16. The cost is
-measurable from the `site` plugin's absorption: `$validClasses`, the deletemass
-cascade, `SiteScope::$_nodes`, permissions, FKs, a page, five JS files, the API
-description.
+**Build a `tags` entity.** Rejected in ADR 0038 Decision 16: `groupMembers` is
+already an attribute-free many-to-many labelling table
+(`gmID, gmHostID, gmGroupID`, §1.1), so a second set-of-hosts concept solves a
+presentation gap with a data model. The cost of the entity is measurable from
+the `site` plugin's absorption: `$validClasses`, the deletemass cascade,
+`SiteScope::$_nodes`, permissions, FKs, a page, five JS files, the API
+description — and none of it moves a host into a group any faster.
+
+**Ship the split and treat the presentation work as a follow-up.** Rejected,
+and this is the one rejection that is a scheduling decision rather than a
+design one. Decision 16 is only correct if a group is cheap to apply in bulk;
+the split alone makes groups *heavier* and leaves the labelling gap untouched,
+which reproduces the state that made tags look necessary. §2.5 puts all of
+Decision 16a in 1.6.0 for that reason.
 
 **Retire `persistentgroups` by deleting the directory.** Rejected: the trigger
-outlives the code (§1.10), and it is active rather than cosmetic.
+outlives the code (§1.11), and it is active rather than cosmetic.
 
 **Gate the rollup semantics on a provenance boundary.** Rejected: deciding a
 legacy row came from a group is the same unknowable inference as backfilling
@@ -695,6 +862,43 @@ time for one `deployMultiPost` of 400 hosts. If it is material, the fix is to
 use `SiteScope::allInScopeIDs()` once and diff, which is the set-based answer
 the class already provides — and it is a pre-existing improvement to the Queue
 Task path, not new work this creates.
+
+### UNKNOWN-6 — is `saveGroup()` really unprotected?
+
+Code reading says yes (§1.9). Confirm with requests rather than trusting the
+reading, because dispatch has paths this session did not trace.
+
+**CSRF.** Logged in as an admin in a browser, from a page on another origin (or
+with `curl` reusing the session cookie and **omitting** both the
+`X-CSRF-Token` header and a `_csrf` body field):
+
+```
+curl -i -b "<session cookie>" \
+  -X POST '<server>/management/index.php?node=host&sub=saveGroup' \
+  --data 'hosts[]=<id>&groups[]=<groupID>'
+```
+
+Expected if the reading is right: `202` and the host is added. Expected if
+something else enforces CSRF: `403 Forbidden (invalid CSRF token)`. Compare
+against the same request to `sub=deployMulti` (a `*Post` handler), which must
+give the 403.
+
+**Object scope.** As a user restricted to site A, with host `H` in site B:
+
+```
+curl -i -b "<cookie for the restricted user>" \
+  -X POST '<server>/management/index.php?node=host&sub=saveGroup' \
+  --data 'hosts[]=<H>&groups[]=<a group the user can see>'
+```
+
+Expected if the reading is right: the request succeeds and `H` joins the group.
+The same ids sent to `sub=deployMultiPost` must be refused with 403, which is
+the control that shows the difference is the missing
+`requirePageObjectScopeMass()` call and not something about the user.
+
+If either comes back protected, find what protects it before removing anything
+— a gap that is not there does not need fixing, and the reading was wrong about
+where enforcement lives.
 
 ### The retirement rehearsal
 
