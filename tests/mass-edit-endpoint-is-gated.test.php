@@ -187,6 +187,89 @@ $check(
         && false === strpos($body, "strcasecmp")
 );
 
+// --- The whitelist itself -------------------------------------------------
+//
+// massEditCoreFields() is what decides which columns a mass edit can reach,
+// so the shape of its entries is a gate too: a spec missing `field` is
+// silently skipped by columnUpdates(), and a spec missing `empty` clears an
+// int column to '' -- which stores 0 on a permissive server and errors on a
+// strict one. Neither shows up as a failing request.
+$spec = $methodBody($source, 'private function massEditCoreFields()');
+$check('massEditCoreFields() is still findable', null !== $spec);
+$spec = (string)$spec;
+
+// Every column ADR 0038's disposition table sends to mass edit. Named one by
+// one rather than counted, because "there are 14 of them" stays green when
+// the wrong 14 are present.
+$expected = [
+    'image', 'kernel', 'kernelArgs', 'kernelDevice', 'init', 'biosexit',
+    'efiexit', 'productKey', 'printerLevel', 'useAD', 'enforce', 'ADDomain',
+    'ADOU', 'ADUser', 'ADPass',
+];
+$missing = [];
+foreach ($expected as $key) {
+    if (false === strpos($spec, "'" . $key . "' => [")) {
+        $missing[] = $key;
+    }
+}
+$check(
+    'the whitelist carries every column ADR 0038 sends to mass edit ('
+    . implode(', ', $missing) . ')',
+    0 === count($missing)
+);
+
+// hostBuilding is copied by the persistentgroups trigger and written by
+// nothing. It must not be revived by being listed in a new form.
+$check(
+    'the dead `building` column is not in the whitelist',
+    false === strpos($spec, "'building'")
+);
+
+// Each entry must be complete. Counting the parts is what catches an entry
+// added by copy-paste with a key renamed and an `empty` left behind.
+$entries = preg_match_all("/'[A-Za-z]+' => \[/", $spec);
+$fields = substr_count($spec, "'field' =>");
+$empties = substr_count($spec, "'empty' =>");
+$labels = substr_count($spec, "'label' =>");
+$kinds = substr_count($spec, "'kind' =>");
+$check(
+    'every whitelist entry declares field, empty, label and kind',
+    $entries > 0
+        && $fields === $entries
+        && $empties === $entries
+        && $labels === $entries
+        && $kinds === $entries
+);
+
+// The credential fields must be marked, because the form reads `secret` to
+// decide it has no read path. ADPass and productKey both match
+// Redaction::CREDENTIAL_PATTERN, so an unmarked one would be rendered back
+// into a form that is editing hundreds of hosts at once.
+$check(
+    'the AD password is marked secret',
+    1 === preg_match(
+        "/'ADPass' => \[[^\]]*'secret' => true/s",
+        $spec
+    )
+);
+$check(
+    'the product key is marked secret',
+    1 === preg_match(
+        "/'productKey' => \[[^\]]*'secret' => true/s",
+        $spec
+    )
+);
+
+// No 32-asterisk placeholder anywhere near the mass edit. That is the group
+// page's pattern (GroupManagement.php:878) and ADR 0038 decision 11 rejects
+// it: a fake value rendered into a form has to be matched back out at every
+// call site that ever touches it.
+$check(
+    'the mass edit does not use the 32-asterisk password placeholder',
+    false === strpos($spec, '*{32}')
+        && false === strpos($body, '*{32}')
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass-edit endpoint lost a gate:\n");
     foreach ($failures as $f) {
