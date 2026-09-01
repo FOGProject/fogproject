@@ -23,8 +23,9 @@
     disableButtons(true);
 
     function onSelect(selected) {
-        var disabled = selected.count() == 0;
-        disableButtons(disabled);
+        var count = selected.count();
+        disableButtons(count == 0);
+        applyQuickAvailability(count);
     }
 
     function loadGroupSelect(){
@@ -288,7 +289,127 @@
         });
     }
 
+    // ---------------------------------------------------------------
+    // QUICK TASKS
+    //
+    // One click, one task. The Queue Task button in the toolbar stays and is
+    // still the way to reach anything that needs options -- a snapin choice,
+    // an account to reset, a debug session. These three need none, so making
+    // somebody open a modal, pick the type and then confirm a form with
+    // nothing on it is three clicks spent on a decision already made.
+    //
+    // They sit in the grid's own button bar, under the search box, rather
+    // than in the toolbar with Delete/Queue Task/Add. That bar is where the
+    // controls that act on the SELECTION already live (Select All, Deselect
+    // All), and it is the strip a person's eye is on while they are ticking
+    // rows.
+    //
+    // Which ones are usable is decided by how many rows are ticked, using
+    // the ttIsAccess value the SERVER put on each entry rather than a rule
+    // written again here: 'host' (Capture) means exactly one row, 'group'
+    // (Multi-Cast) means two or more, 'both' (Deploy) means any. The Queue
+    // Task modal filters on the same value and deployMultiPost() refuses on
+    // it, so all three agree by construction and a button that somehow
+    // slipped through enabled still cannot create a task the server would
+    // not have made anyway.
+    var quickTasks = $('#quick-task-data .quicktaskitem').map(function() {
+        var el = $(this);
+        return {
+            type: el.attr('data-type'),
+            access: el.attr('data-access'),
+            icon: el.attr('data-icon'),
+            name: el.attr('data-name'),
+            // The handle enable()/disable() addresses the button by. Class
+            // rather than index because the shared button set sits in front
+            // of these and an index would move the day one is added there.
+            cls: 'quicktask-' + el.attr('data-type')
+        };
+    }).get();
+
+    function quickTaskUsable(access, count) {
+        if (count < 1) {
+            return false;
+        }
+        if (access === 'group') {
+            return count > 1;
+        }
+        if (access === 'host') {
+            return count === 1;
+        }
+        return true;
+    }
+
+    // Gray the ones this many rows cannot run, rather than hiding them. The
+    // Queue Task modal hides its rows because it is a list of everything the
+    // server offers and an unusable entry there is noise; here there are
+    // three fixed buttons in a fixed order, and a button that disappears and
+    // comes back as you tick rows is harder to aim at than one that grays.
+    function applyQuickAvailability(count) {
+        if (!quickTasks.length) {
+            return;
+        }
+        $.each(quickTasks, function(i, task) {
+            table.buttons('.' + task.cls)
+                .enable(quickTaskUsable(task.access, count));
+        });
+    }
+
+    // Guards the window between the click and the server's answer. The
+    // button stays enabled underneath -- disabling it would fight
+    // applyQuickAvailability() on the deselect that follows -- so without
+    // this an impatient double-click is two identical taskings.
+    var quickTaskRunning = false;
+
+    function runQuickTask(task, dt) {
+        var hosts = $.getSelectedIds(dt);
+        if (quickTaskRunning || !quickTaskUsable(task.access, hosts.length)) {
+            return;
+        }
+        quickTaskRunning = true;
+        // Straight to the create. deployMulti (the options form) is skipped
+        // deliberately: there is nothing on it these three types need, and
+        // fetching it only to post it back unchanged is the click this
+        // feature exists to remove. Everything the form's POST is checked
+        // for -- site scope, pending hosts, an assigned and enabled image,
+        // one image across a multicast -- is checked in deployMultiPost(),
+        // not in the form, so nothing is skipped but the rendering.
+        $.apiCall(
+            'post',
+            '../management/index.php?node=host&sub=deployMulti&type='
+                + encodeURIComponent(task.type),
+            {hosts: hosts},
+            function(err) {
+                quickTaskRunning = false;
+                if (err) {
+                    // Keep the selection. The refusal is nearly always
+                    // something about these hosts that the person is about
+                    // to go and fix, and losing the ticks means finding them
+                    // again.
+                    return;
+                }
+                dt.rows({selected: true}).deselect();
+            }
+        );
+    }
+
+    var quickButtons = $.map(quickTasks, function(task) {
+        return {
+            // Escaped: both values are shown as markup here, and a task type
+            // name is admin-editable text from the taskTypes table.
+            text: '<i class="fas fa-' + $.escapeHtml(task.icon) + '"></i> '
+                + $.escapeHtml(task.name),
+            className: task.cls,
+            // Nothing is ticked on first draw, so every one of them starts
+            // grayed rather than enabled-then-corrected on the first select.
+            enabled: false,
+            action: function(e, dt) {
+                runQuickTask(task, dt);
+            }
+        };
+    });
+
     var table = $('#dataTable').registerTable(onSelect, {
+        extraButtons: quickButtons,
         // Sort on the host name. Named rather than numbered for the same
         // reason columnDefs is: the position moves when a column is added
         // or gated, and a stale index silently sorts the wrong column.

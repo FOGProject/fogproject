@@ -1845,6 +1845,11 @@ abstract class FOGPage extends FOGBase
                         $queue = $this->queueTaskActions();
                         $actionbox .= $queue['button'];
                         $modals .= $queue['modal'];
+                        // Hidden data, not markup: the one-click task
+                        // buttons are drawn by the browser into the grid's
+                        // own button bar, and this is what tells it which
+                        // ones to draw. Empty when the page offers none.
+                        $modals .= $queue['quick'] ?? '';
                     }
                     if (method_exists($this, 'addModal')) {
                         if ($node == 'host') {

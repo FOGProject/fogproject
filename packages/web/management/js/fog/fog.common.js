@@ -4162,6 +4162,17 @@ $.fn.registerTable = function(onSelect, opts) {
     defaults.dom = "<'row'<'col-sm-6'><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>";
   }
 
+  // Page-specific buttons, APPENDED to the shared set rather than replacing
+  // it. Passing `buttons` in opts cannot do this: fogDefaults() is a shallow
+  // merge, so a page that supplied its own array would silently lose Select
+  // All, the search builder, saved filters, column search, column visibility
+  // and Refresh. Pulled off opts for the same reason columnResize is --
+  // DataTables has no such option and would only carry it around.
+  if (opts.extraButtons && opts.extraButtons.length) {
+    defaults.buttons = defaults.buttons.concat(opts.extraButtons);
+  }
+  delete opts.extraButtons;
+
   // Column resizing is on for every table. Pulled off opts before they reach
   // DataTables, which has no such option and would only carry it around.
   var columnResize = opts.columnResize !== false;
