@@ -49,7 +49,13 @@
 #   1 not root, or no install found     3 bad argument
 #   6 git failed                        7 no terminal for an interactive install
 
-bindir=$(dirname $(readlink -f "$BASH_SOURCE"))
+# Resolved BEFORE the cd, and kept: relaunchFromCopy() reads this path, and $0
+# is whatever the caller typed. Invoked as `bash bin/updatefog.sh` from the
+# checkout root -- or from a cron entry with a relative path -- $0 is
+# `bin/updatefog.sh`, which stops resolving the moment this cd happens, and the
+# copy this script cannot run without would fail.
+selfpath=$(readlink -f "$BASH_SOURCE")
+bindir=$(dirname "$selfpath")
 cd "$bindir"
 workingdir=$(pwd)
 
@@ -95,7 +101,7 @@ fail() {
 relaunchFromCopy() {
     local copy
     copy=$(mktemp -t fog-updatefog.XXXXXX) || return 1
-    cat "$0" > "$copy" || { rm -f "$copy"; return 1; }
+    cat "$selfpath" > "$copy" || { rm -f "$copy"; return 1; }
     chmod +x "$copy"
     FOG_UPDATE_RELAUNCHED=1 FOG_UPDATE_ORIGIN="$workingdir" \
         FOG_UPDATE_COPY="$copy" exec bash "$copy" "$@"
@@ -264,6 +270,22 @@ if [[ $crossing -eq 1 ]]; then
     echo
 fi
 
+# Checked BEFORE the checkout, not after.
+#
+# It used to sit beside the installer invocation, which meant a headless run
+# -- cron, CI, a container with no tty -- moved the working copy to 1.6 and
+# only then discovered it could not run the installer, leaving a 1.5 server
+# with a 1.6 source tree. bin/bootstrap.sh gets this ordering right and so
+# should this: the test costs nothing here and refuses before anything moves.
+if [[ -z $autoYes ]] && ! (exec < /dev/tty) 2>/dev/null; then
+    fail "No terminal is available, so the installer cannot run interactively." \
+         "Nothing has been changed." \
+         "" \
+         "Re-run from a terminal, or with --yes for an unattended install." \
+         "For a 1.5 -> 1.6 crossing --yes is a poor idea: the 1.6 installer" \
+         "asks about settings your .fogsettings has never held." 7
+fi
+
 if [[ -z $autoYes ]]; then
     echo -n " * Continue? (Y/N) "
     read confirmGo
@@ -302,14 +324,8 @@ if [[ -n $autoYes ]]; then
     (cd "${gitpath}/bin" && bash installfog.sh -Y)
     installStatus=$?
 else
-    if ! (exec < /dev/tty) 2>/dev/null; then
-        fail "No terminal is available, so the installer cannot run interactively." \
-             "The checkout has already been moved to ${branch}; only the install" \
-             "did not start. Re-run this from a terminal, or with --yes." \
-             "" \
-             "To put the checkout back:" \
-             "  git -C ${gitpath} reset --hard ${currentCommit}" 7
-    fi
+    # No tty test here any more -- it happens before the checkout now, so by
+    # this point a terminal is known to exist.
     echo " * Starting the installer"
     echo
     (cd "${gitpath}/bin" && bash installfog.sh < /dev/tty)
