@@ -949,12 +949,6 @@ parameters:
 			path: packages/web/src/Pages/ServiceConfigurationPage.php
 
 		-
-			message: '#^Parameter \#2 \$obj of static method FOG\\Base\\FOGPage\:\:tabFields\(\) expects int\|object, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Pages/ServiceConfigurationPage.php
-
-		-
 			message: '#^Parameter \#2 \$value of static method FOG\\Base\\FOGBase\:\:setSetting\(\) expects string, int given\.$#'
 			identifier: argument.type
 			count: 4
@@ -1149,12 +1143,6 @@ parameters:
 		-
 			message: '#^Constructor of class FOG\\Pages\\TaskManagement has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/TaskManagement.php
-
-		-
-			message: '#^Parameter \#2 \$obj of static method FOG\\Base\\FOGPage\:\:tabFields\(\) expects int\|object, false given\.$#'
-			identifier: argument.type
 			count: 1
 			path: packages/web/src/Pages/TaskManagement.php
 
