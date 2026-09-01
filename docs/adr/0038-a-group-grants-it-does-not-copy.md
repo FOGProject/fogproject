@@ -12,8 +12,20 @@ holds — `snapinTasks` is already a sufficient snapshot, proven in both
 directions, so the snapin half needs no new table. Decision 9 was **revised**
 after reading the shipped `fog-client` (0.13.0): the failure path is already
 fail-safe at both ends, and the real rule is narrower than the first draft's.
-Decision 16a's two named gaps on `saveGroup()` are **confirmed real**. Evidence
-and the remaining open items are in the proposal's §5.
+Decision 16a's two named gaps on `saveGroup()` are **confirmed real**, and the
+permission split in 16a.6 is now decided rather than flagged.
+
+Decision 14's retirement case was tested separately, in a throwaway container
+cloned from the live database rather than against the lab: the trigger's
+duplicate-key failures are **fatal to the membership insert**, and the module
+arm is reachable for **98.8% of hosts**, which moves the plugin from "fragile"
+to "substantially non-functional on 1.6 data". The same run refuted one hazard
+the proposal had listed (the template subquery's missing `LIMIT` is unreachable
+while `hosts.hostName` is UNIQUE) and sharpened another (the `'fog'` literal is
+a cross-database read, not merely a mis-scoped one).
+
+Evidence and the remaining open items — UNKNOWN-1 and UNKNOWN-5, neither
+blocking — are in the proposal's §5.
 
 **Decision 16 (groups become the tag concept, presented as tags) is the
 maintainer's decision, not a derivation.** It is recorded with its argument and
@@ -551,9 +563,36 @@ WHERE TRIGGER_SCHEMA = DATABASE() AND TRIGGER_NAME = 'persistentGroups';
 ```
 
 `TRIGGER_SCHEMA = DATABASE()` and not a literal, which is also the fix for a
-latent bug in the plugin: its own location-copy branch tests
-`table_schema = 'fog'` hardcoded (`PersistentGroupsManager.php:56`), so on any
-server whose database is not named `fog` that branch has silently never run.
+real bug in the plugin: its own location-copy branch tests
+`table_schema = 'fog'` hardcoded (`PersistentGroupsManager.php:56`), and
+`information_schema.tables` is **server-global**. So the guard asks about
+whatever database on that server happens to be named `fog`, and the
+unqualified `INSERT INTO locationAssoc` two lines later writes to the
+trigger's *own* database — it tests one database and writes to another.
+Verified in an isolated container 2026-09-01, both directions reachable on a
+box hosting two FOG databases.
+
+**What the retirement note has to reckon with: on 1.6 data the plugin is
+substantially non-functional, not merely fragile.** The `printerAssoc` and
+`moduleStatusByHost` copies carry no `ON DUPLICATE KEY UPDATE`, so a collision
+raises 1062 inside an `AFTER INSERT` trigger and rolls back the
+`INSERT INTO groupMembers` that fired it — the host is not added at all.
+Reproduced in a clone of the live 1.6 database:
+`ERROR 1062 (23000): Duplicate entry '9002-1' for key 'paHostID'` and
+`... '9004-1' for key 'msHostID'`, `groupMembers` empty afterwards in both
+cases.
+
+The module arm is the one that matters, because **85 of 86 hosts (98.8%) on
+that database carry `moduleStatusByHost` rows**. For a group using the template
+convention, adding almost any host fails. Two limits on how far that
+generalises: it only fires for groups that *have* a template host, and it says
+nothing about how often 1.5-era databases populated `moduleStatusByHost` — so
+this is evidence the plugin does not work now, not that it never worked.
+
+That changes the register of the release note. It is not "we removed a
+workaround you were relying on"; it is closer to "we removed a workaround that
+had been failing your group additions with a database error, and the feature it
+was faking is now in core."
 
 The step drops the trigger unconditionally (`IF EXISTS` makes it a no-op on a
 server that never installed the plugin) and deletes the `plugins` row only when
@@ -583,6 +622,16 @@ registry somebody forgot to add to (`Auth/Redaction.php:28-38`). A mechanism
 that has been propagating a domain credential for a decade is not a smaller
 version of that; it is a larger one, and the only reason it does not appear in
 the audit trail is that it never went through PHP.
+
+**Refinement from the reproduction, and it narrows the affected set without
+weakening the case.** The `hosts` column UPDATE is the trigger's *first*
+statement, and a later collision rolls it back with everything else. So the
+password propagated on **clean** adds only — hosts that shared no printer and
+no module override with the template. On the lab clone that is a small
+fraction of adds today; on the 1.5-era databases where this plugin was
+actually used it may have been most of them. The admin cannot tell which from
+the UI, which is exactly why the note is needed: the affected set is
+unknowable from the outside and is not "every host in the group".
 
 What the note should say, and its limits: the password was copied **between
 hosts within one FOG server's database**, from a host the admin designated by

@@ -13,9 +13,13 @@ names the claim that would hurt most if it turned out to be false.
 Repository state: `working-1.6` at `4729701`. Plugins at `fog-plugins`
 `ec101b3`.
 
-**Update 2026-09-01:** UNKNOWN-2, UNKNOWN-4 and UNKNOWN-6 were run against the
-1.6 lab (`10.255.20.1`) and are recorded in §5 with their evidence. One of them
-changed a decision — see UNKNOWN-4 and ADR 0038 Decision 9.
+**Update 2026-09-01:** UNKNOWN-2, UNKNOWN-3, UNKNOWN-4 and UNKNOWN-6 were run
+and are recorded in §5 with their evidence — UNKNOWN-3 in a throwaway container
+cloned from the live database, the rest against the 1.6 lab (`10.255.20.1`).
+Two changed a decision: UNKNOWN-4 (ADR 0038 Decision 9) and UNKNOWN-6 (Decision
+16a.6, the permission split). UNKNOWN-3 refuted one hazard this document
+claimed and made another materially worse. **UNKNOWN-1** and **UNKNOWN-5**
+remain open; neither blocks.
 
 ---
 
@@ -78,15 +82,15 @@ sed -n '30,100p' <fog-plugins>/persistentgroups/src/Managers/PersistentGroupsMan
 
 | Line | What | Note |
 |---|---|---|
-| 44 | template = host whose `hostName` = the group's `groupName` | scalar subquery, **no `LIMIT`** |
+| 44 | template = host whose `hostName` = the group's `groupName` | scalar subquery, no `LIMIT` — **unreachable, see below** |
 | 46–54 | copies the 13 `hosts` columns | the empirical list |
 | 56 | `information_schema` probe for `locationAssoc` | **`table_schema = 'fog'` hardcoded** |
 | 58–60 | copies `locationAssoc` | no `ON DUPLICATE KEY` |
-| 63–65 | copies `printerAssoc` incl. `paIsDefault` | **no `ON DUPLICATE KEY`** |
+| 63–65 | copies `printerAssoc` incl. `paIsDefault` | **no `ON DUPLICATE KEY` — proven fatal** |
 | 69–72 | copies `snapinAssoc` | has `ON DUPLICATE KEY`; **never sets `saSequence`** |
 | 75–83 | finds or creates a `snapinJobs` row | **adding a host runs snapins on it** |
 | 86–89 | inserts `snapinTasks` | **never sets `stSequence`** |
-| 92–94 | copies `moduleStatusByHost` incl. `msState` | **no `ON DUPLICATE KEY`** |
+| 92–94 | copies `moduleStatusByHost` incl. `msState` | **no `ON DUPLICATE KEY` — proven fatal, and reachable for 98.8% of hosts** |
 
 **VERIFIED — `printerAssoc` and `moduleStatusByHost` both carry composite
 UNIQUE keys.**
@@ -97,27 +101,51 @@ foreach (["printerAssoc","moduleStatusByHost","snapinAssoc"] as $t)
   echo $m["tables"][$t]["create"], "\n\n";' | grep -o 'UNIQUE KEY [^,]*'
 ```
 
-**INFERRED — adding a host to a group fails outright if that host already
+**VERIFIED — adding a host to a group fails outright if that host already
 shares any printer, or any module override, with the template host.** The
 copies at lines 63 and 92 carry no `ON DUPLICATE KEY UPDATE`, so a duplicate
 raises error 1062 inside an `AFTER INSERT` trigger, which rolls back the
 `INSERT INTO groupMembers` that fired it. The snapin copy is immune because it
-has the clause. Reproduction in §5.1 (UNKNOWN-3) — this is a mechanism argument
-from MySQL semantics, not something observed.
+has the clause.
 
-**VERIFIED — the location branch has silently never run on a server whose
-database is not named `fog`.** Line 56 tests `table_schema = 'fog'` as a
-literal. The core equivalent, schema step 399, uses
-`TABLE_SCHEMA = DATABASE()`.
+Reproduced 2026-09-01 in an isolated container against a clone of the live 1.6
+database — `ERROR 1062 (23000): Duplicate entry '9002-1' for key 'paHostID'`
+and `... '9004-1' for key 'msHostID'`, with `groupMembers` empty afterwards in
+both cases. Full results, including the 98.8% prevalence figure that makes the
+module arm the dominant one, in §5.1 (UNKNOWN-3).
+
+**VERIFIED — the location branch asks about one database and then writes to a
+different one.** Line 56 tests `table_schema = 'fog'` as a literal, and
+`information_schema.tables` is **server-global** — so the guard is answered by
+whatever database on that server happens to be named `fog`, while the
+`INSERT INTO locationAssoc` two lines later is unqualified and resolves to the
+trigger's *own* database. The core equivalent, schema step 399, uses
+`TABLE_SCHEMA = DATABASE()`, which is the correct form.
+
+Both failure directions are reachable, and neither is hypothetical on a box
+hosting two FOG databases — this machine has `fog` and `fog-1.5` side by side:
+
+- No database named `fog` on the server → the branch never runs, and location
+  associations are silently not copied even though the table exists.
+- A `fog` database exists but the *trigger's* database is an older schema
+  without `locationAssoc` → the guard passes and the INSERT fails with 1146,
+  taking the membership row with it.
 
 ```
 grep -n "table_schema" <fog-plugins>/persistentgroups/src/Managers/PersistentGroupsManager.php
 grep -n 'TABLE_SCHEMA. = DATABASE()' packages/web/commons/schema.php
 ```
 
-**INFERRED — every snapin task the trigger creates ties at sequence 0.** Line
+Confirmed 2026-09-01 in a second isolated container holding only `fogtest`: the
+branch was skipped, the membership insert succeeded, and the template's own
+`locationAssoc` row was left alone. The *first* attempt was a false negative —
+`fog` and `fogtest` coexisted in one container and the branch ran from inside
+`fogtest`, which is what exposed the server-global behaviour.
+
+**VERIFIED — every snapin task the trigger creates ties at sequence 0.** Line
 86 names four columns and `stSequence` is not among them; the column defaults
-to `0` and `snapinTasks` is read in sequence order. So on a plugin-managed
+to `0` and `snapinTasks` is read in sequence order. Observed in the lab clone:
+`stID=70, stJobID=28, stSnapinID=1, stSequence=0`. So on a plugin-managed
 server the snapin run order for a newly added host is whatever the engine
 returns.
 
@@ -590,12 +618,12 @@ grep -rl "printerassociation\|PrinterAssociation" packages/web/src packages/web/
 | Bulk group-membership editing | same 2 files | extends the existing `#addToGroupModal` |
 | `HOST_MASSEDIT_*` hooks | `Pages/HostManagement.php` + `docs/plugin-development.md` | 2 |
 | **Groups column + filter** (Dec 16a.1) | `Router/Route.php` (column + `prime` + the subquery form), `Base/FOGManagerController.php` (`_sbCriterion`/`searchBuilderType` accept it), `Pages/HostManagement.php` (header + the stale comment), `tests/searchbuilder-filter-clause.test.php` | 4; the shared-helper change is plan-first on its own account |
-| **Bulk add/remove + shared create path** (Dec 16a.2–4) | `Pages/HostManagement.php` (`saveGroup` rewritten: remove, CSRF, scope), `js/fog/host/fog.host.list.js` | 2 |
+| **Bulk add/remove + shared create path** (Dec 16a.2–4) | `Pages/HostManagement.php` (`saveGroup` rewritten: remove, CSRF, scope, and the `group.create` → `group.edit` split), `Auth/Authorization.php` (`SUB_OVERRIDES`), `js/fog/host/fog.host.list.js` | 3; the permission change is **access-control**, so it lands as its own reviewed commit |
 | **Group list "grants" column** (Dec 16a.5) | `Pages/GroupManagement.php` | 1 |
 | Retirement step | `commons/schema.php` | 1 |
 | Docs | `GROUP_SHARED_STATE.md` rewritten as the mass edit doc; ADR 0001 amendment note; release notes | 3 |
 
-**Roughly 22 core files touched, 7 new** — the presentation work overlaps
+**Roughly 23 core files touched, 7 new** — the presentation work overlaps
 almost entirely with files the rest of the change already opens. The heavy ones
 are `GroupManagement.php` (3532 lines, 8 tabs), `HostManagement.php` (5256) and
 `Route.php`.
@@ -621,9 +649,11 @@ Nothing in §2.1–§2.3 can be signed off from a cloud session. The lab-gated
 items, in the order they block work:
 
 **Closed 2026-09-01** against the 1.6 lab: **UNKNOWN-2** (VERIFIED — the task
-is the authority, no new snapshot table needed), **UNKNOWN-4** (VERIFIED from
-`fog-client` source; the live poll cycle is still unobserved), **UNKNOWN-6**
-(VERIFIED — both gaps real).
+is the authority, no new snapshot table needed), **UNKNOWN-3** (VERIFIED in an
+isolated container — both collisions are fatal, and the module arm is reachable
+for 98.8% of hosts), **UNKNOWN-4** (VERIFIED from `fog-client` source; the live
+poll cycle is still unobserved), **UNKNOWN-6** (VERIFIED — both gaps real, and
+the permission split is now decided rather than flagged).
 
 Still open:
 
@@ -632,17 +662,14 @@ Still open:
    (UNKNOWN-4), so any change to the empty-case spelling is a client-visible
    change. Confirm the trace on a real mode-`ar` host before shipping the
    printer resolver — that is the one piece UNKNOWN-4 could not observe.
-2. **UNKNOWN-1** (`groupName` uniqueness on real upgraded databases) — does not
-   block; determines whether step 404 also needs an index repair like 401.
-3. **UNKNOWN-3** (trigger duplicate-key behaviour) — does not block the
-   retirement; determines how the release note describes what admins have been
-   hitting. **Isolated lab database only** — see the warning on that section.
-4. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
+2. **UNKNOWN-1** (`groupName` *and* `hostName` uniqueness on real upgraded
+   databases) — does not block; determines whether step 404 also needs an index
+   repair like 401. Grew after UNKNOWN-3: neither index is created by a
+   numbered step on 1.6, so both reach a 1.5-origin database only through the
+   manifest reconciler.
+3. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
    determines whether the mass edit needs a set-based scope check.
-5. **The `group.create` question** raised by UNKNOWN-6: membership editing
-   should not require the permission to mint groups. An access-control change,
-   so it is a decision rather than a test.
-6. **A migration rehearsal** on a 1.5-origin dump, per
+4. **A migration rehearsal** on a 1.5-origin dump, per
    `docs/development/upgrade-rehearsal.md`, for step 405.
 
 ### 2.5 1.6.0 or 1.6.x
@@ -682,9 +709,9 @@ The honest read, with the argument on both sides.
 - **1.6.0:** the `HOST_MASSEDIT_*` hooks and the mass edit form; **all five of
   Decision 16a's presentation requirements** (groups column + filter, bulk
   add/remove from the host side, the shared create-and-associate path with
-  `saveGroup()`'s CSRF and scope gaps closed, the group list's "grants"
-  column); schema step 405 (the trigger drop) and the `persistentgroups`
-  deletion. None of these depends on the resolver, all of them are additive,
+  `saveGroup()`'s CSRF and scope gaps closed and its permission narrowed from
+  `group.create` to `group.edit`, the group list's "grants" column); schema
+  step 405 (the trigger drop) and the `persistentgroups` deletion. None of these depends on the resolver, all of them are additive,
   and the ABI half genuinely gets harder after 1.6.0.
 
   **16a is in the earlier release deliberately, and it is the half that must
@@ -820,6 +847,26 @@ If (c) returns rows, the trigger's template subquery (`:44`) returns more than
 one row and **every** `INSERT INTO groupMembers` on this server errors — worth
 knowing before writing the release note.
 
+**Partially answered 2026-09-01, and (c) is now the more interesting half.**
+On a clone of the live 1.6 database, `hosts` carries `UNIQUE KEY hostName
+(hostName)`, so (c) is empty and the missing-`LIMIT` hazard is unreachable
+*there* (UNKNOWN-3 case E).
+
+But **no numbered schema step adds that index on 1.6.** Step 161 calls
+`Schema::dropDuplicateData(DATABASE_NAME, ['hosts', ['hostName']])`, and
+`dropDuplicateData`'s third parameter `$indexNeeded` defaults to `false` — it
+deletes duplicate rows and creates nothing. The UNIQUE therefore comes from the
+manifest via `SchemaReconciler`, which is precisely the `roles.rName` shape.
+
+```
+grep -n -A25 'function dropDuplicateData' packages/web/src/Items/Schema.php
+sed -n '2405,2425p' packages/web/commons/schema.php
+```
+
+So this question now covers **both** `groups.groupName` and `hosts.hostName`,
+and on a 1.5-origin database both are open. One real 1.6 database is one
+sample, not a guarantee.
+
 ### UNKNOWN-2 — is `snapinTasks` a sufficient snapshot? — **VERIFIED, closed**
 
 **Answered 2026-09-01 on the 1.6 lab (`10.255.20.1`). The task is the
@@ -885,7 +932,113 @@ Repeat with the addition case (add C after job creation, see whether C runs).
 
 </details>
 
-### UNKNOWN-3 — does the trigger break `add host to group`?
+### UNKNOWN-3 — does the trigger break `add host to group`? — **VERIFIED, and worse than inferred**
+
+**Answered 2026-09-01 in an isolated podman MariaDB 11 container cloned from
+the live 1.6 database, torn down afterwards. The trigger was installed verbatim
+from `PersistentGroupsManager::triggerSql()`. No live database was written to.**
+
+**A. Printer collision — VERIFIED.**
+
+```
+INSERT INTO groupMembers (gmHostID, gmGroupID) VALUES (9002, 9001);
+ERROR 1062 (23000): Duplicate entry '9002-1' for key 'paHostID'
+```
+
+`groupMembers` afterwards: **empty**. The whole INSERT rolled back, membership
+included — the row is not created, so the failure is total rather than partial.
+
+**B. Module collision — VERIFIED, and it is the one that matters.**
+
+```
+ERROR 1062 (23000): Duplicate entry '9004-1' for key 'msHostID'
+```
+
+**85 of 86 hosts (98.8%) in the cloned database carry at least one
+`moduleStatusByHost` row.** So on this data shape B is not an edge case: adding
+almost *any* host to a template-backed group fails. The printer collision needs
+a shared printer; the module collision needs only a host that has ever had its
+modules touched, which is nearly all of them.
+
+That reframes the plugin's status. It is not "a workaround that is fragile" —
+on a 1.6 database with this row distribution it is **substantially
+non-functional for its own use case**, and has been failing silently at the
+`INSERT` rather than doing anything visible.
+
+*Careful about how far that generalises.* It only fires for groups that use the
+template convention (a host named exactly like the group); groups without one
+skip the whole `IF` block and insert normally. And it says nothing about how
+often 1.5-era databases populated `moduleStatusByHost`, so it is not evidence
+that the plugin never worked — only that it does not work now, here.
+
+**C. Control, no collision — VERIFIED on every count.** Membership row created;
+`hostImage`, `hostKernelArgs` and `hostADPass` copied H←T exactly; a
+`snapinJobs` row created (`sjID=28`); `snapinTasks` row created. This is what
+proves A and B are about the collision rather than a generally broken trigger.
+
+It also pins the ordering that matters for the credential question: the `hosts`
+column UPDATE is the trigger's *first* statement, and the rollback takes it with
+everything else. So `hostADPass` propagates on **clean** adds only — see the
+refinement to ADR 0038 Decision 15.
+
+**D. `stSequence` — VERIFIED.** `stID=70, stJobID=28, stSnapinID=1,
+stSequence=0`. Trigger-created snapin tasks land at 0 and their run order is
+whatever the engine returns.
+
+**E. Duplicate host names — REFUTED as reachable (on 1.6).** `hosts.hostName`
+carries `UNIQUE KEY hostName (hostName)`, confirmed by `SHOW INDEX` on the
+cloned live database; a second host with the template's name is refused with
+1062 before the trigger is involved. So the scalar subquery's missing `LIMIT`
+(line 44) cannot be reached.
+
+**Caveat, and it moves E into UNKNOWN-1 rather than closing it.** That index is
+**not added by any schema step**. Step 161 calls
+`Schema::dropDuplicateData(DATABASE_NAME, ['hosts', ['hostName']])` with
+`$indexNeeded` defaulting to false, so it deletes duplicates and creates
+nothing; the UNIQUE comes from the manifest via `SchemaReconciler`. That is
+exactly the `roles.rName` shape schema step 401 exists to repair. Verified
+present on one real 1.6 database — not proven for a 1.5-origin one.
+
+```
+grep -n -A25 'function dropDuplicateData' packages/web/src/Items/Schema.php
+sed -n '2414,2427p' packages/web/commons/schema.php
+```
+
+**F. The hardcoded `'fog'` literal — VERIFIED, and the real bug is sharper than
+this document claimed.**
+
+The first attempt gave a **false negative** worth recording: with `fog` and
+`fogtest` both present on the same server, the branch ran even from inside
+`fogtest`, because **`information_schema.tables` is server-global**. A second,
+isolated container holding only `fogtest` confirmed the intended result —
+membership insert succeeded, the template's own `locationAssoc` row survived,
+and H got no row.
+
+So this document's earlier phrasing ("silently never runs on a server whose
+database is not named `fog`") was wrong. The condition is **"no database *on
+that server* is named `fog`"**, and that makes the guard worse than a
+mis-scoped test:
+
+> **It checks for the table's existence in one database and then writes to a
+> different one.** `SET @myDBTest = (SELECT count(table_name) ... WHERE
+> table_schema = 'fog' ...)` is answered by whatever database is called `fog`;
+> the `INSERT INTO locationAssoc` that follows is unqualified and resolves to
+> the *trigger's own* database.
+
+Both directions are reachable on a box that hosts two FOG databases — which is
+not hypothetical, since this machine has `fog` and `fog-1.5` side by side. A
+1.5 install whose own schema lacks `locationAssoc` would pass the guard on the
+strength of the 1.6 database's table and then fail the INSERT with 1146.
+
+**G. Prevalence on the live 1.6 lab — read-only, no writes.** The collision
+query returned **0 rows**. Exactly one group (`test`, groupID 1) has a
+`groupName` matching a `hostName`, so the template convention is in use on that
+box — but that template host has no `printerAssoc` rows, so collision A is not
+currently reachable there. "Zero" here means "not reachable on this box today",
+not "does not happen".
+
+<details>
+<summary>Original procedure, kept for the record</summary>
 
 **🔴 Run this on the isolated lab database only, never on a lab server whose
 hosts are real.** The trigger under test does not merely copy columns: it
@@ -928,6 +1081,8 @@ JOIN `printerAssoc` pa2 ON pa2.paPrinterID = pa1.paPrinterID
 WHERE gm.gmHostID <> t.hostID
 GROUP BY g.groupID;
 ```
+
+</details>
 
 ### UNKNOWN-4 — what does the client do with the printer list? — **VERIFIED from source; live poll COULDN'T-TEST**
 
@@ -1082,10 +1237,32 @@ That is right for the endpoint as it exists, because the endpoint can create
 groups from `groups_new[]`. It is **wrong for the endpoint ADR 0038 Decision
 16a is asking for**: adding forty existing hosts to three existing groups is
 not a group *creation*, and requiring `group.create` for it means an operator
-who may label hosts must also be able to mint groups. Splitting that —
-`group.create` only when `groups_new[]` is non-empty, membership editing behind
-something narrower — is an **access-control change** and is flagged here rather
-than decided.
+who may label hosts must also be able to mint groups.
+
+**Decided (ADR 0038 Decision 16a.6): `group.edit` for membership,
+`group.create` only when `groups_new[]` is non-empty.**
+
+The reasoning, because the obvious alternatives are both worse:
+
+- **A new `group.assign` verb is not available.** `Authorization::coreRegistry()`
+  (`Authorization.php:496`) declares a *fixed* action vocabulary per node —
+  `'group' => ['view', 'create', 'edit', 'delete', 'task']`. A bespoke sixth
+  verb would be the registry's first, and worse, it would **regress the
+  upgrade**: every role that exists today would lack it, so labelling would
+  stop working for everyone on upgrade until an admin edited every role.
+- **`host.edit` is the wider grant, not the narrower one.** It carries the
+  whole imperative half — image, AD credentials, kernel args — which is exactly
+  what Decision 1 is separating membership *from*. Gating a label behind the
+  permission to rewrite a host's AD password inverts the point of the split.
+- **`group.edit` already exists on every role that can manage groups**, and it
+  is the right shape: membership is an edit to a group. It is strictly narrower
+  than the `group.create` in force today, so the change only ever *removes*
+  reach — no role gains anything, and no upgrade step is needed.
+
+This is an access-control change, so it is called out explicitly rather than
+folded into the mass-edit work: the same permission split must land on the
+rewritten `saveGroup` **and** on the host-side bulk add/remove that Decision
+16a.2 introduces, or the narrower gate is bypassable through the new endpoint.
 
 Fixtures created and removed, verified back to baseline: host 228 and its
 `snapinJobs` / `snapinTasks` / `snapinAssoc` / `tasks` rows; groups
