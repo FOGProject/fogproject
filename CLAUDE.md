@@ -144,9 +144,15 @@ there is not a plain `git push`:
   base + the entry and tests that. So the queue is not a version-bump
   mechanism — the version left git in GH-1510/GH-1513 — it is the thing that
   now catches a pull request whose base moved under it;
-- **eight checks must pass**: the seven `fogproject / …` contexts plus
+- **nine checks must pass**: the eight `fogproject / …` contexts plus
   `phpstan`. `regenerate / …` is deliberately *not* required: it is skipped on
   fork PRs, and requiring it would leave those unmergeable.
+  `fogproject / upgrade rehearsal` was added on 2026-09-01, having reported
+  since the day it landed without ever being required — the ruleset was last
+  edited the day before. That gap is not academic: #1604 merged with the
+  rehearsal RED, because the required-context list is the only thing the merge
+  queue consults, and the stale baseline it left behind then failed every
+  branch that came after it.
 - **the price is two full suite runs per pull request.** The required contexts
   have to be reported against the merge-group ref as well, so `tests.yml`
   triggers on both `pull_request` and `merge_group` and there is no way to

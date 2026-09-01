@@ -161,15 +161,23 @@ jobs:
     # suite is running is the useful thing for this segment to say.
     #
     # THESE NAMES ARE NOW LOAD-BEARING. The ruleset "working-1.6 pull request
-    # gate" (active since 2026-08-26) requires all seven of `fogproject / tests
+    # gate" (active since 2026-08-26) requires all eight of `fogproject / tests
     # (PHP 7.4)`, `fogproject / tests (PHP 8.3)`, `fogproject / vendor matches
     # composer.lock`, `fogproject / schema on mariadb:10.5`, `fogproject /
-    # schema on mariadb:11.8`, `fogproject / schema on mysql:8.0` and
-    # `fogproject / release pins resolve` -- plus `phpstan`, which is an inline
-    # job below and so carries no prefix. Renaming this job, or a job inside
-    # fogproject-tests.yml, silently orphans a required context and parks every
-    # pull request on "Expected -- waiting for status to be reported". Update
-    # the ruleset in the same change.
+    # schema on mariadb:11.8`, `fogproject / schema on mysql:8.0`, `fogproject /
+    # release pins resolve` and `fogproject / upgrade rehearsal` -- plus
+    # `phpstan`, which is an inline job below and so carries no prefix.
+    # Renaming this job, or a job inside fogproject-tests.yml, silently orphans
+    # a required context and parks every pull request on "Expected -- waiting
+    # for status to be reported". Update the ruleset in the same change.
+    #
+    # `fogproject / upgrade rehearsal` joined on 2026-09-01. It had been
+    # reporting since 2026-08-31 and was simply never added -- the ruleset was
+    # last edited the day before the job landed -- so it was an omission rather
+    # than a decision, and it showed: #1604 merged with that check RED, because
+    # a required-context list is the only thing the merge queue consults. Its
+    # own docblock in fog-workflows argues the case ("a gate nobody can fail is
+    # the thing these jobs exist to stop"); it is now one that can be failed.
     name: fogproject
     needs: regen
 
@@ -225,7 +233,7 @@ jobs:
   #
   # A REQUIRED CONTEXT since 2026-08-28, after four consecutive green pull
   # requests (#1437, #1438, #1439, #1440). The ruleset "working-1.6 pull
-  # request gate" now requires eight checks: the seven `fogproject / ...` ones
+  # request gate" now requires nine checks: the eight `fogproject / ...` ones
   # the `suite:` comment lists, and this one.
   #
   # THE CONTEXT IS `phpstan` -- exactly that, with no prefix. Verified against
