@@ -474,6 +474,34 @@ $check(
     array_key_exists(12, $mods) && ($mods[12] ?? null) === []
 );
 
+/*
+ * THE DEFAULT ON msState IS LOAD-BEARING.
+ *
+ * FOGController::addRemItem() used to append an explicit `state` of 1 to
+ * every module row, because the column was a varchar(1) NOT NULL DEFAULT ''
+ * and an insert that omitted it wrote the empty string. Schema step 409 made
+ * it tinyint(1) NOT NULL DEFAULT 1, so that special case was removed and the
+ * database now supplies the value.
+ *
+ * Which means the DEFAULT and the generic insert are one mechanism held in
+ * two files. Under ADR 0038 a state of 0 is a host saying OFF and beats every
+ * group grant, so if the default is ever dropped or flipped, every module
+ * added through the generic path silently becomes the strongest statement in
+ * the system -- and nothing would fail. This inserts a row the way
+ * addRemItem() now does, against the REAL DDL out of the manifest, and reads
+ * the answer back through the resolver rather than off the column: what
+ * matters is not that the column says 1, it is that the module comes out
+ * enabled.
+ */
+$pdo->exec(
+    "INSERT INTO `moduleStatusByHost` (`msHostID`,`msModuleID`) VALUES (12,960)"
+);
+$defaulted = \FOG\Assign\Resolver::resolveModules([12]);
+$check(
+    'a module row inserted without a state resolves as enabled',
+    ($defaulted[12] ?? []) === [960]
+);
+
 // The decision-9 gate again, on the table this resolver added. Same reason:
 // under the client's module protocol an empty answer is a legitimate "all
 // modules off", so a read that fails silently switches the fleet off rather

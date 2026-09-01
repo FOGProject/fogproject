@@ -179,6 +179,32 @@ $check(
     && false === strpos($host, "'modulesResolved'")
 );
 
+/*
+ * 9. The generic association insert stays generic. addRemItem() used to
+ * append an explicit `state` of 1 for module rows, because the column was a
+ * varchar(1) NOT NULL DEFAULT '' and an omitted value wrote the empty
+ * string. Schema step 409 made it tinyint(1) NOT NULL DEFAULT 1, so the
+ * database supplies it and the special case is gone.
+ *
+ * Pinned on the source because the BEHAVIOR is indistinguishable: writing 1
+ * explicitly and letting the default write 1 produce the same row. What this
+ * catches is the special case coming back with a different value in it --
+ * and under ADR 0038, 0 is a host saying OFF and beats every group grant.
+ * That the default itself is 1 is pinned behaviorally, against the real DDL,
+ * in tests/assign-resolver.test.php.
+ */
+$controller = (string)@file_get_contents(
+    $webroot . '/src/Base/FOGController.php'
+);
+$check(
+    'addRemItem() has no module special case left',
+    false === strpos($controller, "\$assocstr == 'moduleID'")
+        && false === strpos(
+            $controller,
+            "strtolower(\$classCall) == 'moduleassociation'"
+        )
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the module read path is wrong:\n");
     foreach ($failures as $f) {

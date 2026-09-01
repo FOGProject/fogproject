@@ -2816,7 +2816,13 @@ class HostManagement extends FOGPage
         }
         if (isset($_POST['confirmalosend'])) {
             $tme = (int)filter_input(INPUT_POST, 'tme');
-            if (!(is_numeric($tme) && $tme > 4)) {
+            // HostAutoLogout::MIN_MINUTES, not the literal it was spelled as.
+            // The same rule is stated in three other places -- the host page's
+            // own validator, the group page's constant, and the data-alo-min
+            // the group form hands the browser -- and this was the one copy
+            // that would not move if the minimum ever changed. Below the
+            // minimum means OFF, which is the existing behavior.
+            if ($tme < HostAutoLogout::MIN_MINUTES) {
                 $tme = 0;
             }
             $this->obj->setAlo($tme);
