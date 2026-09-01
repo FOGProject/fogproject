@@ -1,24 +1,34 @@
 <?php
 /**
- * The Certificates page is a table of certificates, not a card per fact.
+ * The Certificates page is one card with tabs, and its table is a table.
  *
- * Two things are pinned, and they fail in different ways.
+ * Three things are pinned, and they fail in three different ways.
  *
- * THE EXPIRY BADGE is the only thing on the page that reads a certificate
- * and reaches a conclusion, so it is the only thing that can be silently
- * wrong. openssl's notAfter is GMT and the cell renders it with gmdate();
- * swapping that for date() would relabel every row into FOG_TZ_INFO's zone
- * and, within a few hours of midnight, name the wrong day -- which is the
- * same class of error that has already gone wrong elsewhere with that
- * setting. The zone check below runs from a zone BEHIND UTC so the two
- * answers land on different calendar days and a swap cannot pass.
+ * NOTHING SHIPS BEHIND A COLLAPSE. This page briefly rendered its longest
+ * section as an AdminLTE `.collapsed-card`, and the content was unreachable:
+ * AdminLTE binds the collapse toggle with
+ * `document.querySelectorAll(...).forEach(el => el.addEventListener(...))`
+ * once at DOMContentLoaded, it is NOT delegated, and FOG replaces the content
+ * by AJAX on every sidebar click -- so a card arriving by navigation has no
+ * handler on its toggle at all. It works only on a hard reload, which is
+ * exactly what a static snapshot of the page is, which is how it passed
+ * review. Bootstrap's own tab toggle IS delegated, which is why the house
+ * pattern works where that did not. This asserts on the rendered page rather
+ * than on a call site, so re-introducing it any other way still fails.
  *
- * THE TABLE ITSELF is pinned by rendering it, not by grepping for a <table>.
- * The page previously showed the root's subject and fingerprint as prose in
- * one card, the imported root's in a second, and the other six slots in a
- * table carrying neither -- so "every present slot is one row, and every row
- * carries the fingerprint" is exactly the property that was missing and the
- * one worth holding.
+ * THE EXPIRY BADGE is the only thing on the page that reads a certificate and
+ * reaches a conclusion, so it is the only thing that can be silently wrong.
+ * openssl's notAfter is GMT and the cell renders it with gmdate(); swapping
+ * that for date() would relabel every row into FOG_TZ_INFO's zone -- the zone
+ * rows are STORED in -- and, within a few hours of midnight, name the wrong
+ * day. The zone check below runs from a zone BEHIND UTC so the two answers
+ * land on different calendar days and a swap cannot pass.
+ *
+ * THE TABLE is pinned by rendering it, not by grepping for a <table>. The
+ * page used to show the root's subject and fingerprint as prose in one card,
+ * the imported root's in a second, and the other six slots in a table
+ * carrying neither -- so "every present slot is one row, and every row
+ * carries the fingerprint" is exactly the property that was missing.
  *
  * Usage: php tests/certificate-table.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -90,8 +100,8 @@ $t->check(
 );
 
 /*
- * 3. The table. A fixture in the helper's own shape: six present slots, one
- *    absent, one self-signed.
+ * 3. The table. A fixture in the helper's own shape: seven present slots,
+ *    one absent, three self-signed.
  */
 $cert = function ($slot, $selfSigned = false, $present = true) {
     return [
@@ -100,7 +110,7 @@ $cert = function ($slot, $selfSigned = false, $present = true) {
         'subject' => 'CN = subject-' . $slot,
         'issuer' => $selfSigned ? 'CN = subject-' . $slot : 'CN = issuer-' . $slot,
         'not_after' => 'Jul 30 09:12:44 2035 GMT',
-        'sha256' => strtoupper(substr(md5($slot), 0, 2)) . ':FINGERPRINT:' . strtoupper($slot),
+        'sha256' => 'AA:FINGERPRINT:' . strtoupper($slot),
         'self_signed' => $selfSigned,
         'count' => 1
     ];
@@ -123,14 +133,14 @@ $status = [
 // anything -- the fake exists only so the page can be constructed.
 FogTestHarness::fakeDb();
 $page = new \FOG\Pages\FOGConfigurationPage();
-$chain = new \ReflectionMethod(
-    'FOG\\Pages\\FOGConfigurationPage',
-    '_certificateChain'
-);
-$chain->setAccessible(true);
-ob_start();
-$chain->invoke($page, $status);
-$html = (string) ob_get_clean();
+
+$invoke = function ($method, array $args) use ($page) {
+    $m = new \ReflectionMethod('FOG\\Pages\\FOGConfigurationPage', $method);
+    $m->setAccessible(true);
+    return (string) $m->invokeArgs($page, $args);
+};
+
+$html = $invoke('_certificateChain', [$status]);
 
 $t->check(
     'the present slots render as one table',
@@ -160,26 +170,107 @@ $t->check(
 );
 
 /*
- * 4. The reference card arrives shut. AdminLTE hides a .collapsed-card's
- *    body in CSS, so the class in the markup is the whole mechanism -- there
- *    is no JavaScript to fall back on if _box stops emitting it.
+ * 4. Every section is a tab BODY, not a card it echoes for itself -- that is
+ *    what lets certificates() drop a tab whose content is empty rather than
+ *    render an empty pane. A storage node has no helper, so on one of those
+ *    three of the four sections have nothing to say.
  */
-$ownPki = new \ReflectionMethod(
-    'FOG\\Pages\\FOGConfigurationPage',
-    '_certificateOwnPki'
+$t->check(
+    'the chain builder returns its body rather than echoing it',
+    '' !== $html && false !== strpos($html, '<table')
 );
-$ownPki->setAccessible(true);
+foreach (
+    [
+        '_certificateChain' => [null],
+        '_certificateExternalRoot' => [null, true],
+        '_certificatePreferences' => [null, true]
+    ] as $method => $args
+) {
+    $t->check(
+        $method . ' has nothing to show without the helper',
+        '' === $invoke($method, $args)
+    );
+}
+$t->check(
+    '_certificateOwnPki still does -- it needs no helper',
+    '' !== $invoke('_certificateOwnPki', [null])
+);
+
+/*
+ * 4b. The alarm. Its whole job is to fire when the web tier can open a key
+ *     it must not, and to stay quiet for the two keys that are MEANT to be
+ *     readable -- the client communication key, which certDecrypt() opens on
+ *     every fog-client handshake, and the vhost key once an ACME renewal
+ *     owns it. Flagging those would report a correct install as a breach,
+ *     which is the failure that makes an alarm get ignored.
+ */
+$readable = __FILE__;
+$t->check(
+    'a readable key the installer should have locked down raises the alarm',
+    false !== strpos(
+        $invoke('_certificateKeyExposure', [[
+            'private_keys' => [
+                ['label' => 'Root CA private key', 'path' => $readable]
+            ]
+        ]]),
+        'Private keys are readable by the web server'
+    )
+);
+$t->check(
+    'a key that is meant to be readable does not',
+    '' === $invoke('_certificateKeyExposure', [[
+        'private_keys' => [
+            [
+                'label' => 'Client communication key',
+                'path' => $readable,
+                'expect_readable' => true
+            ]
+        ]
+    ]])
+);
+$t->check(
+    'and a key that is not there at all does not',
+    '' === $invoke('_certificateKeyExposure', [[
+        'private_keys' => [
+            ['label' => 'Root CA private key', 'path' => '/nonexistent/ca.key']
+        ]
+    ]])
+);
+
+/*
+ * 5. The page itself. This runs where the PKI helper is absent (no sudoers
+ *    rule for whoever runs the suite), which is the storage-node shape: the
+ *    warning, then a tab card carrying the one section that survives.
+ */
 ob_start();
-$ownPki->invoke($page, null);
-$pki = (string) ob_get_clean();
+$page->certificates();
+$rendered = (string) ob_get_clean();
+
 $t->check(
-    '"Using your own PKI" is collapsed on arrival',
-    false !== strpos($pki, 'collapsed-card')
+    'the page is a card with tabs, like every other management page',
+    false !== strpos($rendered, 'nav nav-tabs')
 );
 $t->check(
-    'and its toggle offers to expand rather than to collapse again',
-    false !== strpos($pki, 'data-lte-icon="expand"')
-        && false !== strpos($pki, 'data-lte-icon="collapse"')
+    'each section is a tab pane',
+    false !== strpos($rendered, 'id="pki-own"')
+        && false !== strpos($rendered, 'data-bs-toggle="tab"')
+);
+$t->check(
+    'a section with nothing to show is not an empty tab',
+    false === strpos($rendered, 'id="pki-chain"')
+);
+$t->check(
+    'the missing-helper warning is rendered',
+    false !== strpos($rendered, 'helper is not installed')
+);
+$t->check(
+    'and it is ABOVE the tabs, not behind one of them',
+    strpos($rendered, 'helper is not installed')
+        < strpos($rendered, 'nav nav-tabs')
+);
+$t->check(
+    'nothing on the page ships behind a collapse an AJAX visit cannot open',
+    false === strpos($rendered, 'collapsed-card')
 );
 
 $t->finish();

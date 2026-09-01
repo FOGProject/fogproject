@@ -10228,3 +10228,76 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 402
+$this->schema[] = [
+    // Retire the persistentgroups plugin: drop its TRIGGER, then its row.
+    //
+    // ADR 0038 decision 14. The plugin existed to make a group assignment
+    // stick to hosts added later, which core now does by resolving group
+    // grants instead of copying them. Deleting the plugin's code is not
+    // enough on its own, and that is the whole reason this step exists:
+    //
+    //   THE TRIGGER OUTLIVES THE PLUGIN. Bundled plugins live in
+    //   packages/web/lib/plugins, which configureHttpd() rm -rf's and
+    //   re-lays on every upgrade, so removing it from fog-plugins does
+    //   remove the code. It does not touch the database. `persistentGroups`
+    //   is an AFTER INSERT trigger on `groupMembers` and would go on firing
+    //   forever, silently, with nothing left on disk to explain it.
+    //
+    // Unlike the stale `site` row step 399 cleaned up, this one is ACTIVE
+    // rather than cosmetic. Verified 2026-09-01 against a clone of a live
+    // 1.6 database, in a throwaway container: the trigger copies 13 `hosts`
+    // columns -- `hostADPass` among them -- plus locationAssoc, printerAssoc,
+    // snapinAssoc and moduleStatusByHost rows from a "template" host onto
+    // every host added to a matching group, and creates snapinJobs and
+    // snapinTasks rows, i.e. it queues software onto the machine.
+    //
+    // It is also substantially BROKEN on 1.6 data, which is worth knowing
+    // when reading a bug report from before this ran. The printerAssoc and
+    // moduleStatusByHost copies carry no ON DUPLICATE KEY UPDATE, so a
+    // collision raises 1062 inside an AFTER INSERT trigger and rolls back
+    // the INSERT INTO groupMembers that fired it -- the host is not added at
+    // all. 85 of 86 hosts on the database tested carried moduleStatusByHost
+    // rows, so for a group using the template convention nearly every add
+    // failed with a database error.
+    //
+    // THE DROP IS UNCONDITIONAL, the row delete is not.
+    //
+    // DROP TRIGGER IF EXISTS is already a no-op on a server that never
+    // installed the plugin, so gating it would only add a way to be wrong.
+    // Deleting the `plugins` row is gated on evidence, on step 399's
+    // pattern and for step 399's reason: step 334 tried to retire the `site`
+    // row by reading `plugins`.`pLocation`, which 1.5 never wrote, so its
+    // gate matched the empty string on every upgraded row and the DELETE was
+    // unreachable. A step runs once and cannot be corrected in place.
+    //
+    // Here the evidence is the trigger itself -- a fact this database
+    // carries, not a column whose value depends on which branch wrote it --
+    // read BEFORE the drop, because afterward there is nothing to read.
+    // No filesystem path is consulted, so an unmounted external plugin root
+    // cannot make this decide anything.
+    function () {
+        $row = self::$DB->query(
+            "SELECT COUNT(*) AS `n` FROM `information_schema`.`TRIGGERS`"
+            . " WHERE `TRIGGER_SCHEMA` = DATABASE()"
+            . " AND `TRIGGER_NAME` = 'persistentGroups'"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        $hadTrigger = (int)($row['n'] ?? 0) > 0;
+
+        // TRIGGER_SCHEMA = DATABASE(), never a literal. The plugin's own
+        // location-copy branch hardcoded `table_schema = 'fog'` against
+        // information_schema.tables, which is SERVER-global: it asked about
+        // whatever database on the server happened to be named `fog` and
+        // then wrote to its own. Both failure directions are reachable on a
+        // box hosting two FOG databases, which is not hypothetical.
+        self::$DB->query("DROP TRIGGER IF EXISTS `persistentGroups`");
+
+        if ($hadTrigger) {
+            self::$DB->query(
+                "DELETE FROM `plugins` WHERE LOWER(`pName`) = 'persistentgroups'"
+            );
+        }
+        return true;
+    },
+];

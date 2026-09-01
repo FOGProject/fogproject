@@ -52,7 +52,20 @@ class SnapinManagement extends FOGPage
             '-ExecutionPolicy Bypass -NoProfile -File',
             ''
         ],
-        'Mono' => ['mono', '', '']
+        'Mono' => ['mono', '', ''],
+        // GH-356. The client always injects the downloaded snapin file as a
+        // quoted positional argument BETWEEN runWithArgs and args, so a
+        // template can only work if the uploaded file is something the tool
+        // consumes positionally. For Chocolatey that is a packages.config:
+        // `choco install <pkg|packages.config>`, where any argument ending
+        // in .config is read as a package list and may be an absolute path.
+        // Installing from a .nupkg path is deprecated upstream, so the
+        // config file is the shape that keeps working.
+        'Chocolatey (packages.config)' => [
+            '%ProgramData%\\chocolatey\\bin\\choco.exe',
+            'install',
+            '-y -r --no-progress'
+        ]
     ];
     /**
      * Template for non-pack.
@@ -172,6 +185,15 @@ class SnapinManagement extends FOGPage
                 'mono',
                 '&quot;[FOG_SNAPIN_PATH]/MyFile.exe&quot;'
             ],
+            // GH-356. A pack unzips on the client and nothing is appended
+            // to the command, so here Chocolatey can be given package names
+            // -- which is what makes the unpacked directory usable as an
+            // offline `--source` holding the .nupkg files from the archive.
+            _('Chocolatey (offline source)') => [
+                '%ProgramData%\\chocolatey\\bin\\choco.exe',
+                'install MyPackage --source=&quot;[FOG_SNAPIN_PATH]&quot; '
+                . '-y -r --no-progress'
+            ],
         ];
         ob_start();
         printf(
@@ -219,7 +241,10 @@ class SnapinManagement extends FOGPage
             'template' => '<p class="form-text">'
                 . _(
                     'Optional. Pick a type to pre-fill the command fields '
-                    . 'below; you can still edit them afterward.'
+                    . 'below; you can still edit them afterward. The '
+                    . 'Chocolatey entry expects the uploaded file to be a '
+                    . 'Chocolatey packages.config naming the packages to '
+                    . 'install.'
                 )
                 . '</p>',
             'packargs' => '<p class="form-text packtemplate d-none">'
