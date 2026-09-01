@@ -5220,6 +5220,14 @@ msgid "Marked failed, task"
 msgstr "読み込みに失敗しました"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "ホストの更新に成功しました"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "ホストの更新に失敗しました"
 
@@ -5663,6 +5671,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "フィールドが渡されていません"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "ファイルはアップロードされませんでした"
@@ -9699,6 +9710,10 @@ msgstr "更新は必要ありません！"
 #, fuzzy
 msgid "Update selected"
 msgstr "選択項目を削除"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"

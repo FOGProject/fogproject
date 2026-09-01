@@ -15,6 +15,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Boot\SecureBootState;
@@ -27,6 +28,7 @@ use FOG\Items\TaskType;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 use FOG\Util\FOGCron;
+use FOG\Util\MassEdit;
 
 /**
  * Host management page
@@ -4074,6 +4076,252 @@ class HostManagement extends FOGPage
                 }
             }
         );
+    }
+    /**
+     * The core host fields a mass edit may change.
+     *
+     * The set is deliberately the one the group page pushes today through
+     * its in-band `NULL` sentinel (GroupManagement.php:713-720) -- these are
+     * the fields that convention was invented for, so they are the ones the
+     * three-state replacement has to cover before anything can be taken away
+     * from the group page (ADR 0038 decision 10).
+     *
+     * `empty` is per field because "empty" is not one value: a varchar
+     * clears to '', an image reference clears to 0. Writing '' into an int
+     * column stores 0 on a permissive server and errors on a strict one, so
+     * the answer belongs here rather than in a cast at the write.
+     *
+     * A field ABSENT from this map cannot be written by a mass edit at all,
+     * whatever a request asks for -- FOG\Util\MassEdit::columnUpdates()
+     * skips what the spec does not name. That is the map's second job and
+     * the reason it is a whitelist rather than a blacklist.
+     *
+     * @return array key => ['field' => ..., 'empty' => ..., 'label' => ...]
+     */
+    private function massEditCoreFields()
+    {
+        return [
+            'image' => [
+                'field' => 'imageID',
+                'empty' => 0,
+                'label' => _('Image')
+            ],
+            'kernel' => [
+                'field' => 'kernel',
+                'empty' => '',
+                'label' => _('Host Kernel')
+            ],
+            'kernelArgs' => [
+                'field' => 'kernelArgs',
+                'empty' => '',
+                'label' => _('Host Kernel Arguments')
+            ],
+            'kernelDevice' => [
+                'field' => 'kernelDevice',
+                'empty' => '',
+                'label' => _('Host Primary Disk')
+            ],
+            'init' => [
+                'field' => 'init',
+                'empty' => '',
+                'label' => _('Host Init')
+            ],
+            'biosexit' => [
+                'field' => 'biosexit',
+                'empty' => '',
+                'label' => _('Host BIOS Exit Type')
+            ],
+            'efiexit' => [
+                'field' => 'efiexit',
+                'empty' => '',
+                'label' => _('Host EFI Exit Type')
+            ],
+            'productKey' => [
+                'field' => 'productKey',
+                'empty' => '',
+                'label' => _('Product Key')
+            ],
+        ];
+    }
+    /**
+     * The plugin-contributed field keys a mass edit may act on.
+     *
+     * HOST_MASSEDIT_FIELDS is the CONTRIBUTION seam: a plugin adds a key, a
+     * label and a value control, and core renders the three-state action
+     * control around it. The action control is core's on purpose -- a plugin
+     * that rendered its own could ship a two-state field, and a two-state
+     * field in a mass edit is the defect ADR 0038 decision 11 is entirely
+     * about.
+     *
+     * This is also what makes the apply side safe: a key is actionable only
+     * because a plugin declared it here, so a request cannot name one that
+     * nothing offered.
+     *
+     * The wider point (decision 13): the ABI already has a bulk READ seam
+     * (API_MASSDATA_MAPPING) and a bulk DELETE seam (DELETEMASS_API) and no
+     * bulk EDIT seam. Between them sat the operation neither covers --
+     * changing a value across a set -- and its absence is why `location` and
+     * `ou` each ship a whole second hook file whose only job is to set one
+     * value across many hosts, always clobbering, unable to express "leave
+     * alone" at all.
+     *
+     * @return array key => ['label' => ..., 'input' => <html>]
+     */
+    private function massEditPluginFields()
+    {
+        $fields = [];
+        self::$HookManager->processEvent(
+            'HOST_MASSEDIT_FIELDS',
+            ['fields' => &$fields]
+        );
+
+        return $fields;
+    }
+    /**
+     * Applies a three-state edit to a selection of hosts.
+     *
+     * ADR 0038 decisions 11 and 12. The three-state resolution itself lives
+     * in FOG\Util\MassEdit and fails closed; this is the endpoint around it.
+     *
+     * ONE STATEMENT, ONE AUDIT ROW. The host columns go out as a single
+     * UPDATE ... WHERE hostID IN (...), so four hundred hosts is one
+     * statement rather than four hundred: it succeeds or fails whole, and
+     * "a 400-row loop that times out" is not a risk this path has. Per ADR
+     * 0021 decision 11 that is ONE authorized action and therefore one audit
+     * header with affectedCount, never a header per host. And per ADR 0021
+     * decision 5 it carries NO auditChange rows, because a bulk update has
+     * no before/after to record -- that gap is named in the ADR rather than
+     * being a bug here.
+     *
+     * @return void
+     */
+    public function massEditPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        try {
+            $hosts = filter_input(
+                INPUT_POST,
+                'hosts',
+                FILTER_DEFAULT,
+                FILTER_REQUIRE_ARRAY
+            );
+            $hosts = array_values(
+                array_unique(
+                    array_filter(
+                        array_map('intval', (array)$hosts)
+                    )
+                )
+            );
+            if (count($hosts) < 1) {
+                throw new \Exception(_('No hosts are selected'));
+            }
+            // Airtight: one id outside the caller's site scope denies the
+            // whole request rather than quietly editing the rest. The ids
+            // come from the browser, so this is the only place they are
+            // bounded -- same stance, and the same call, as
+            // deployMultiPost() and saveGroup().
+            Authorization::requirePageObjectScopeMass('host', $hosts);
+
+            $coreFields = $this->massEditCoreFields();
+            $pluginFields = $this->massEditPluginFields();
+            // Core wins a key collision. A plugin cannot capture `image` and
+            // quietly redirect what the Image control writes, which it could
+            // if the arrays were merged the other way round.
+            $keys = array_values(
+                array_unique(
+                    array_merge(
+                        array_keys($coreFields),
+                        array_keys($pluginFields)
+                    )
+                )
+            );
+
+            $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+            $posted = filter_input_array(
+                INPUT_POST,
+                ['action' => $flags, 'value' => $flags]
+            );
+            $resolved = MassEdit::resolve(
+                $keys,
+                $posted['action'] ?? null,
+                $posted['value'] ?? null
+            );
+            $touched = MassEdit::touched($resolved);
+            if (count($touched) < 1) {
+                // Refused rather than treated as a no-op success. A form
+                // that reports "12 hosts updated" having changed nothing is
+                // how somebody concludes the edit landed and moves on.
+                throw new \Exception(_('No fields were set to change'));
+            }
+
+            $updates = MassEdit::columnUpdates($resolved, $coreFields);
+            $affected = 0;
+            if (count($updates) > 0) {
+                // One statement over the whole selection. Guarded on being
+                // non-empty because an UPDATE with no assignments is either
+                // a syntax error or, worse, a statement whose WHERE is the
+                // only part left.
+                self::getClass('HostManager')
+                    ->update(['id' => $hosts], '', $updates);
+                $affected = count($hosts);
+            }
+
+            // The plugin half receives the RESOLVED actions for its own keys
+            // only, already reduced to leave/set/clear. A plugin never parses
+            // a sentinel, because there is no sentinel to parse.
+            $forPlugins = array_intersect_key(
+                $resolved,
+                $pluginFields
+            );
+            if (count($forPlugins) > 0) {
+                self::$HookManager->processEvent(
+                    'HOST_MASSEDIT_APPLY',
+                    [
+                        'hostIDs' => &$hosts,
+                        'actions' => &$forPlugins
+                    ]
+                );
+            }
+
+            Audit::record(
+                [
+                    'type' => 'host.massedit',
+                    'subjectType' => 'host',
+                    'subjectLabel' => implode(', ', $touched),
+                    'permission' => 'host.edit',
+                    'affectedCount' => $affected,
+                    'renderable' => 1
+                ]
+            );
+
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            $msg = json_encode(
+                [
+                    'msg' => sprintf(
+                        _('Updated %1$d field(s) on %2$d host(s).'),
+                        count($touched),
+                        count($hosts)
+                    ),
+                    'title' => _('Mass Edit Success')
+                ]
+            );
+        } catch (\Exception $e) {
+            // Always a 400. Every throw above is a bad request -- no hosts,
+            // nothing to change, or a scope refusal -- so there is no
+            // server-fault branch to carry. deployMultiPost() has one
+            // because it can fail on a task type the server is missing;
+            // this cannot.
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Mass Edit Fail')
+                ]
+            );
+        }
+        $this->jsonSend($code, $msg);
     }
     /**
      * Saves host to a selected or new group depending on action.

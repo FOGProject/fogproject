@@ -5438,6 +5438,14 @@ msgid "Marked failed, task"
 msgstr "Load failed: %s"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "User update failed"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "User update failed"
 
@@ -5887,6 +5895,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "No fields passed"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "No file was uploaded"
@@ -10067,6 +10078,10 @@ msgstr "An image name is required!"
 #, fuzzy
 msgid "Update selected"
 msgstr "Remove selected printers"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"

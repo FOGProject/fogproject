@@ -5535,6 +5535,14 @@ msgid "Marked failed, task"
 msgstr "Carga ha fallado: %s"
 
 #, fuzzy
+msgid "Mass Edit Fail"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Mass Edit Success"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "actualización Valoración falló"
 
@@ -5995,6 +6003,9 @@ msgstr ""
 
 msgid "No fields passed"
 msgstr "No hay campos pasaron"
+
+msgid "No fields were set to change"
+msgstr ""
 
 msgid "No file was uploaded"
 msgstr "Ningún archivo fue subido"
@@ -10225,6 +10236,10 @@ msgstr "Se requiere un nombre de imagen!"
 #, fuzzy
 msgid "Update selected"
 msgstr "Impresora"
+
+#, php-format
+msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
 
 #, fuzzy
 msgid "Upload"
