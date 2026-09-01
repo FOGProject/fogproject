@@ -3576,6 +3576,10 @@ msgstr "usuário criado"
 msgid "Group OU Updated!"
 msgstr "grupo adicionado"
 
+#, fuzzy
+msgid "Group Order"
+msgstr "Grupo"
+
 msgid "Group Primary Disk"
 msgstr "Primary Disk grupo"
 
@@ -5409,6 +5413,9 @@ msgid "Logout"
 msgstr "Sair"
 
 msgid "Logs"
+msgstr ""
+
+msgid "Lowest first. When a host is in more than one group, this decides which group is applied first -- groups sharing a number fall back to name order. It only matters where two groups disagree, such as granting different default printers."
 msgstr ""
 
 msgid "MAC"
@@ -9318,6 +9325,9 @@ msgstr ""
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
+msgid "The fields below that are written onto hosts apply the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
+msgstr ""
+
 msgid "The file itself."
 msgstr ""
 
@@ -9617,9 +9627,6 @@ msgid "This account already has a token called \"%s\". Pick a different name."
 msgstr ""
 
 msgid "This account is for API access only and cannot sign in."
-msgstr ""
-
-msgid "This applies the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
 msgstr ""
 
 msgid "This change would leave no user with administrator access."
