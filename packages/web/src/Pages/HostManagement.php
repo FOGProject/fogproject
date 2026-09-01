@@ -5351,13 +5351,17 @@ class HostManagement extends FOGPage
      */
     public function massEditActions()
     {
-        // Secondary, beside "Add selected to group". It changes records
-        // rather than starting work on machines, so it is deliberately not
-        // the green Queue Task shares a group with.
+        // Left half of the toolbar, immediately right of "Delete selected".
+        // Both act ON the rows already ticked, which is the distinction the
+        // toolbar is split on -- the right-hand group brings something new
+        // into existence instead. Secondary rather than danger because it
+        // edits records rather than removing them, and deliberately not the
+        // green Queue Task shares a group with: this changes records, it
+        // does not start work on machines.
         $button = self::makeButton(
             'massEditSelected',
             _('Mass edit'),
-            'btn btn-secondary'
+            'btn btn-secondary float-start ms-2'
         );
 
         $modal = self::makeModal(
