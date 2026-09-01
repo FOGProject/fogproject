@@ -4082,6 +4082,12 @@ class HostManagement extends FOGPage
      */
     public function saveGroup()
     {
+        // This handler mutates and was reachable without either -- a session
+        // cookie alone was enough, from any origin. Every other mutating
+        // handler on this page calls it; saveGroup was missed because the
+        // router's CSRF gate keys off a *Post/*Ajax suffix and this method
+        // has neither (ADR 0038 decision 16a, UNKNOWN-6).
+        self::checkAuthAndCSRF();
         header('Content-type: application/json');
         $flags = ['flags' => FILTER_REQUIRE_ARRAY];
         $items = filter_input_array(
@@ -4092,17 +4098,62 @@ class HostManagement extends FOGPage
                 'groups_new' => $flags
             ]
         );
-        $groups = $items['groups'];
-        $hosts = $items['hosts'];
-        $groups_new = $items['groups_new'];
+        // Normalized to ints before anything is bounded by them: the ids come
+        // from the browser, and requirePageObjectScopeMass() below is the only
+        // place they are checked. Same shape as deployMultiPost().
+        $ids = function ($v) {
+            return array_values(
+                array_unique(
+                    array_filter(
+                        array_map('intval', (array)$v)
+                    )
+                )
+            );
+        };
+        $groups = $ids($items['groups']);
+        $hosts = $ids($items['hosts']);
+        // Names, not ids -- deliberately not passed through $ids().
+        $groups_new = array_values(
+            array_filter(
+                array_map('trim', (array)($items['groups_new'] ?: [])),
+                function ($name) {
+                    return '' !== $name;
+                }
+            )
+        );
+        // Airtight, both directions: one host outside the caller's site scope
+        // denies the whole request rather than quietly adding the rest, and
+        // the same for the target groups. A site-scoped operator could
+        // previously add ANY host to ANY group from here, because neither
+        // side was bounded.
+        Authorization::requirePageObjectScopeMass('host', $hosts);
+        Authorization::requirePageObjectScopeMass('group', $groups);
+        // The body-dependent half of the permission split. The route requires
+        // group.edit (Authorization::SUB_OVERRIDES); creating a group needs
+        // group.create as well, and only when the request actually asks for
+        // one. Checked here rather than at the route because the route cannot
+        // see the body.
+        if (count($groups_new) && !Authorization::can('group.create')) {
+            $this->jsonSend(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(
+                    [
+                        'error' => _(
+                            'You do not have permission to create groups.'
+                        ),
+                        'title' => _('Add Hosts to Group Fail')
+                    ]
+                )
+            );
+        }
         try {
-            if (!count($hosts ?: [])) {
+            if (!count($hosts)) {
                 throw new \Exception(_('No hosts selected to be added'));
             }
-            if (!count($groups ?: []) && !count($groups_new ?: [])) {
+            if (!count($groups) && !count($groups_new)) {
                 throw new \Exception(_('No groups are being created or selected'));
             }
-            if (count($groups ?: [])) {
+            if (count($groups)) {
                 foreach ($groups as &$group) {
                     $Group = new Group($group);
                     if (!$Group->isValid()) {
@@ -4112,7 +4163,7 @@ class HostManagement extends FOGPage
                     unset($group);
                 }
             }
-            if (count($groups_new ?: [])) {
+            if (count($groups_new)) {
                 foreach ($groups_new as &$group) {
                     self::getClass('Group')
                         ->set('name', $group)

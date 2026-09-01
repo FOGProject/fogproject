@@ -10198,6 +10198,10 @@ msgid "You do not have permission to change site grants."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 #, fuzzy
+msgid "You do not have permission to create groups."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
+#, fuzzy
 msgid "You do not have permission to export the database."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 

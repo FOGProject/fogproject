@@ -10587,6 +10587,10 @@ msgid "You do not have permission to change site grants."
 msgstr ""
 
 #, fuzzy
+msgid "You do not have permission to create groups."
+msgstr "No connection to the database"
+
+#, fuzzy
 msgid "You do not have permission to export the database."
 msgstr "No connection to the database"
 

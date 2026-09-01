@@ -9063,6 +9063,9 @@ msgstr ""
 msgid "You do not have permission to change site grants."
 msgstr ""
 
+msgid "You do not have permission to create groups."
+msgstr ""
+
 msgid "You do not have permission to export the database."
 msgstr ""
 
