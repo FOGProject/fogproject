@@ -810,8 +810,46 @@ requiring `group.create` means anyone who may label hosts may also create
 groups. The membership editor should require `group.create` only when
 `groups_new[]` is non-empty, and something narrower otherwise.
 
-That is an **access-control change**, so it is named here and left open rather
-than decided in passing.
+**Decided: `group.create` only when `groups_new[]` is non-empty; membership
+editing behind `group.edit`.**
+
+`group.edit`, and not a new `group.assign`, because the permission registry has
+a **fixed action vocabulary per node** — `coreRegistry()` declares
+`'group' => ['view', 'create', 'edit', 'delete', 'task']`
+(`Authorization.php:496`) and permissions are `<node>.<action>` strings (ADR
+0005). A sixth action for one endpoint would be the first node in the registry
+with a bespoke verb, and the thing it describes is not bespoke: **adding a host
+to a group is editing the group.** The membership rows are the group's.
+
+It also avoids an upgrade regression a new permission would create. Every
+existing role would lack `group.assign` on the day it shipped, so bulk
+membership editing would stop working for everyone holding `group.edit` until
+an admin went round the roles — a silent loss of a capability people already
+have, to gain a distinction nobody asked for.
+
+`host.edit` was the other candidate and is rejected: it would let anyone who
+can rename a host also rewrite what every group contains, which is the wider
+grant, not the narrower one.
+
+So the endpoint checks two permissions rather than one, and which it needs
+depends on the request body:
+
+| Request | Requires |
+|---|---|
+| add/remove existing hosts to/from existing groups | `group.edit` |
+| the same, plus `groups_new[]` naming a group that does not exist | `group.edit` **and** `group.create` |
+
+That is a **narrowing** for the common case — today's endpoint demands
+`group.create` for all of it — so a role holding `group.edit` but not
+`group.create` gains bulk membership editing it could not previously reach,
+and no role loses anything. Both checks are inside the handler rather than in
+`SUB_OVERRIDES`, because the answer depends on the body and a route-level
+override can only name one permission; that is the same reasoning
+`savedfilters` records for its own `null` entry (`Authorization.php:289`).
+
+The existing `SUB_OVERRIDES['host']['savegroup'] => 'group.create'` entry stays
+as the floor until the handler is split, so nothing is loosened before the
+narrower check exists to replace it.
 
 **5. The group list shows what a group grants.**
 
