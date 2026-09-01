@@ -4856,8 +4856,20 @@ errorStat() {
             tail -n 5 $error_log
             exit $status
         fi
+        # $exitFail is set, so the caller handles this failure itself rather
+        # than the process ending here. RETURN -- do not fall through: the
+        # line below prints "OK", and reaching it after "Failed!" reported
+        # both outcomes for the same step. All four scripts that source this
+        # set exitFail (installfog.sh, updatefog.sh, restorekernel.sh,
+        # revertfog.sh), so every failed step in any of them showed it.
+        return $status
     fi
     [[ -z $skipOk ]] && echo "OK"
+    # Explicit, because the line above is a && whose test is FALSE whenever
+    # skipOk was passed -- which used to make this function return 1 for a
+    # step that succeeded. Nothing reads the value today; this keeps it from
+    # being a trap for the first caller that does.
+    return 0
 }
 stopInitScript() {
     for serviceItem in $serviceList; do
@@ -10986,23 +10998,47 @@ EOF
 # not a hand-kept list that would drift the moment a plugin joins or leaves
 # fog-plugins.
 #
-# Remove the retired accesscontrol plugin from the backup, remembering that it
-# was there.
+# Bundled plugins 1.6 RETIRES rather than relocates, in the order they should
+# be reported.
 #
-# The removal itself is old behavior and is right: 1.6 replaces that plugin with
-# core roles and permissions, its registration row is deleted by schema step 307,
-# and --oldcopy restoring its PHP into a 1.6 tree would lay a retired plugin back
-# down beside the core that retired it.
+# Top level rather than inside the backup step so it is a property of the
+# installer that both _stripRetiredPlugins and the test suite can read. A copy
+# living inside one step would let the list and its coverage drift apart
+# silently, which is the whole failure mode a retirement list exists to stop.
+#
+# Each is deleted from the backup so --oldcopy cannot lay it back down beside
+# the core that replaced it, and each gets its OWN advice in
+# _warnUnrecognizedPlugins -- the "copy it to $fogprogramdir/plugins" line the
+# rest of that notice gives would tell an admin to reinstall what this upgrade
+# just removed.
+retiredplugins="accesscontrol persistentgroups"
+# Remove each RETIRED bundled plugin from the backup, remembering which were
+# there.
+#
+# The removal itself is old behavior and is right: 1.6 replaces these plugins
+# with core, their registration rows are deleted by schema steps (307 for
+# accesscontrol, 402 for persistentgroups), and --oldcopy restoring their PHP
+# into a 1.6 tree would lay a retired plugin back down beside the core that
+# retired it.
 #
 # What was missing is the record. This runs inside the backup step, which is
 # BEFORE _warnUnrecognizedPlugins scans that same backup -- so by the time
-# anything could name accesscontrol, the directory is already gone. No scan of
+# anything could name one of these, the directory is already gone. No scan of
 # the backup can find it however it is written, which is why the fact is carried
 # in a variable instead.
-_stripRetiredAccessControl() {
-    local ac="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol"
-    [[ -d $ac ]] && accesscontrolstripped=1
-    rm -rf "$ac"
+#
+# persistentgroups joined the list for ADR 0038: core now resolves group grants
+# instead of copying them onto hosts, so the plugin compensates for a defect
+# that no longer exists. Its retirement matters more than accesscontrol's,
+# because it leaves behind something no file deletion reaches -- an AFTER INSERT
+# trigger on `groupMembers`, dropped by schema step 402.
+_stripRetiredPlugins() {
+    local name dir
+    for name in $retiredplugins; do
+        dir="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/${name}"
+        [[ -d $dir ]] && retiredpluginsstripped="${retiredpluginsstripped} ${name}"
+        rm -rf "$dir"
+    done
     # Never fatal, and never the step's exit status: this sits between a cp and
     # an errorStat $? that is reporting on the BACKUP, not on this.
     return 0
@@ -11010,28 +11046,45 @@ _stripRetiredAccessControl() {
 # Detection only -- nothing here copies, deletes or blocks anything.
 _warnUnrecognizedPlugins() {
     local oldplugins="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins"
-    # accesscontrol is named FIRST and outside every guard below, because it is
-    # not an unrecognized plugin -- it is a RETIRED one, and the advice the rest
-    # of this function gives would be wrong for it. Its 1.6 equivalent is core
-    # roles and permissions, so copying it to $fogprogramdir/plugins would
+    # Retired plugins are named FIRST and outside every guard below, because
+    # they are not unrecognized plugins -- they are RETIRED ones, and the advice
+    # the rest of this function gives would be wrong for them. Their 1.6
+    # equivalent is core, so copying them to $fogprogramdir/plugins would
     # reinstall the thing the upgrade just replaced.
     #
-    # Outside the guards for two reasons. It cannot come from the scan at all
-    # (_stripRetiredAccessControl deleted it from the backup already), and it is
+    # Outside the guards for two reasons. They cannot come from the scan at all
+    # (_stripRetiredPlugins deleted them from the backup already), and this is
     # not a comparison against the bundled set -- so neither "no old plugins
     # directory" nor "nothing bundled to compare against" has any bearing on
     # whether this is worth saying.
-    if [[ -n ${accesscontrolstripped:-} ]]; then
+    local retired
+    for retired in ${retiredpluginsstripped:-}; do
         echo
-        echo "  The retired accesscontrol plugin was in the old web tree."
-        echo "  1.6 replaces it with core roles and permissions -- your roles and"
-        echo "  user assignments were migrated into them by the schema update, and"
-        echo "  the plugin's own registration row was removed."
-        echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: it is not a"
-        echo "  plugin to relocate, and it is not carried into the backup either."
-        echo "  Review what came across under Role Management once this finishes."
+        case $retired in
+            accesscontrol)
+                echo "  The retired accesscontrol plugin was in the old web tree."
+                echo "  1.6 replaces it with core roles and permissions -- your roles and"
+                echo "  user assignments were migrated into them by the schema update, and"
+                echo "  the plugin's own registration row was removed."
+                echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: it is not a"
+                echo "  plugin to relocate, and it is not carried into the backup either."
+                echo "  Review what came across under Role Management once this finishes."
+                ;;
+            persistentgroups)
+                echo "  The retired persistentgroups plugin was in the old web tree."
+                echo "  1.6 makes a group's snapins and printers a standing grant that is"
+                echo "  resolved when it is used, so a host added to a group picks them up"
+                echo "  without anything being copied onto it -- which is what that plugin"
+                echo "  existed to fake."
+                echo "  Its database TRIGGER has been dropped by the schema update. That"
+                echo "  matters, because the trigger outlived the plugin's files: removing"
+                echo "  the code never stopped it firing."
+                echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: installing it"
+                echo "  again re-creates that trigger."
+                ;;
+        esac
         echo
-    fi
+    done
     [[ -d $oldplugins ]] || return 0
     # "Unrecognized" is decided by comparison, so with nothing to compare
     # against there is no finding to report -- only a list of every plugin
@@ -11209,18 +11262,18 @@ configureHttpd() {
     # ${WEB_docroot}fog was a symlink this run removed. See the report at the end
     # of this step for why that has to be said out loud.
     webbackedup=""
-    # Whether the retired accesscontrol plugin was in the tree just backed
-    # up. Set by _stripRetiredAccessControl below, read by
-    # _warnUnrecognizedPlugins, because by the time that runs the evidence
-    # has been deleted.
-    accesscontrolstripped=""
+    # Which retired plugins were actually in the tree just backed up. Set by
+    # _stripRetiredPlugins below, read by _warnUnrecognizedPlugins, because by
+    # the time that runs the evidence has been deleted. The list itself is
+    # $retiredplugins, defined at the top level beside those two functions.
+    retiredpluginsstripped=""
     if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
         rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP >>$error_log 2>&1
     fi
     if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
-        _stripRetiredAccessControl
+        _stripRetiredPlugins
         rm -rf "$webdirdest" >>$error_log 2>&1
     elif [[ -n $priorwebdir && -d $priorwebdir ]]; then
         # Copy only, no removal. The branch above deletes $webdirdest because
@@ -11230,7 +11283,7 @@ configureHttpd() {
         # and deleting it would be a new behavior nobody asked for.
         cp -RT "$priorwebdir" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
-        _stripRetiredAccessControl
+        _stripRetiredPlugins
     fi
     if [[ ${FOG_os_id} -eq 2 ]]; then
         # GH-953: this removed ${WEB_docroot} -- the whole document root, taking any

@@ -18,7 +18,7 @@
  *      re-seeding one puts the entry back on every page and in the API with
  *      no other code change.
  *
- *   2. Step 402 deletes the referencing rows BEFORE the task types.
+ *   2. Step 406 deletes the referencing rows BEFORE the task types.
  *      `tasks`.`taskTypeID` and `scheduledTasks`.`stTaskTypeID` both
  *      reference `taskTypes`.`ttID` ON DELETE RESTRICT (ADR 0031, groups 6
  *      and 5), and 1451 is not in Schema::runSteps()'s skippable list. Get
@@ -51,11 +51,11 @@ $constraints = include $web . '/commons/schema-constraints.php';
  * step count is already pinned by tests/schema-gate.test.php.
  */
 $t->check(
-    'the removal is schema step 402',
-    false !== strpos($schema, "\n// 402\n")
-    && false === strpos($schema, "\n// 403\n")
+    'the removal is schema step 406',
+    false !== strpos($schema, "\n// 406\n")
+    && false === strpos($schema, "\n// 407\n")
 );
-$step = substr($schema, (int)strpos($schema, "\n// 402\n"));
+$step = substr($schema, (int)strpos($schema, "\n// 406\n"));
 
 /*
  * 2. The delete order. Both children come before the parent, or an upgrade

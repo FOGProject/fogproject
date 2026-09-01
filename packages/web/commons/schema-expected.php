@@ -206,8 +206,26 @@ return [
                 'gmGroupID' => 'int(11) NOT NULL',
             ],
         ],
+        'groupPrinterAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupPrinterAssoc` ( `gpaID` int(11) NOT NULL AUTO_INCREMENT, `gpaGroupID` int(11) NOT NULL, `gpaPrinterID` int(11) NOT NULL, `gpaIsDefault` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`gpaID`), UNIQUE KEY `gpaGroupPrinter` (`gpaGroupID`,`gpaPrinterID`), KEY `gpaPrinterID` (`gpaPrinterID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'gpaID' => 'int(11) NOT NULL',
+                'gpaGroupID' => 'int(11) NOT NULL',
+                'gpaPrinterID' => 'int(11) NOT NULL',
+                'gpaIsDefault' => 'tinyint(1) NOT NULL DEFAULT 0',
+            ],
+        ],
+        'groupSnapinAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupSnapinAssoc` ( `gsaID` int(11) NOT NULL AUTO_INCREMENT, `gsaGroupID` int(11) NOT NULL, `gsaSnapinID` int(11) NOT NULL, `gsaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`gsaID`), UNIQUE KEY `gsaGroupSnapin` (`gsaGroupID`,`gsaSnapinID`), KEY `gsaSnapinID` (`gsaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'gsaID' => 'int(11) NOT NULL',
+                'gsaGroupID' => 'int(11) NOT NULL',
+                'gsaSnapinID' => 'int(11) NOT NULL',
+                'gsaSequence' => 'int(11) NOT NULL DEFAULT 0',
+            ],
+        ],
         'groups' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `groups` ( `groupID` int(11) NOT NULL AUTO_INCREMENT, `groupName` varchar(50) NOT NULL, `groupDesc` longtext NOT NULL DEFAULT \'\', `groupDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `groupCreateBy` varchar(50) NOT NULL DEFAULT \'\', `groupBuilding` int(11) NOT NULL DEFAULT 0, `groupKernel` varchar(255) NOT NULL DEFAULT \'\', `groupKernelArgs` varchar(255) NOT NULL DEFAULT \'\', `groupPrimaryDisk` varchar(255) NOT NULL DEFAULT \'\', `groupInit` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`groupID`), UNIQUE KEY `groupName` (`groupName`), UNIQUE KEY `groupName_2` (`groupName`), KEY `new_index` (`groupName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `groups` ( `groupID` int(11) NOT NULL AUTO_INCREMENT, `groupName` varchar(50) NOT NULL, `groupDesc` longtext NOT NULL DEFAULT \'\', `groupDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `groupCreateBy` varchar(50) NOT NULL DEFAULT \'\', `groupBuilding` int(11) NOT NULL DEFAULT 0, `groupKernel` varchar(255) NOT NULL DEFAULT \'\', `groupKernelArgs` varchar(255) NOT NULL DEFAULT \'\', `groupPrimaryDisk` varchar(255) NOT NULL DEFAULT \'\', `groupInit` longtext NOT NULL DEFAULT \'\', `groupOrder` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`groupID`), UNIQUE KEY `groupName` (`groupName`), UNIQUE KEY `groupName_2` (`groupName`), KEY `new_index` (`groupName`), KEY `groupOrder` (`groupOrder`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'groupID' => 'int(11) NOT NULL',
                 'groupName' => 'varchar(50) NOT NULL',
@@ -219,6 +237,7 @@ return [
                 'groupKernelArgs' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'groupPrimaryDisk' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'groupInit' => 'longtext NOT NULL DEFAULT \'\'',
+                'groupOrder' => 'int(11) NOT NULL DEFAULT 0',
             ],
         ],
         'history' => [
