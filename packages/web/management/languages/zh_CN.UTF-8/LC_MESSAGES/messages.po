@@ -686,6 +686,22 @@ msgstr "活性"
 msgid "Active Directory"
 msgstr "活动目录"
 
+#, fuzzy
+msgid "Active Directory Domain Name"
+msgstr "活动目录"
+
+#, fuzzy
+msgid "Active Directory Organizational Unit"
+msgstr "组织单位"
+
+#, fuzzy
+msgid "Active Directory Password"
+msgstr "活动目录"
+
+#, fuzzy
+msgid "Active Directory Username"
+msgstr "活动目录"
+
 msgid "Active Multicast Tasks"
 msgstr "活动组播任务"
 
@@ -3739,6 +3755,10 @@ msgid "Host EFI Exit Type"
 msgstr "主持人EFI退出类型"
 
 #, fuzzy
+msgid "Host Enforce Hostname Changes"
+msgstr "换主机名"
+
+#, fuzzy
 msgid "Host Group Associations"
 msgstr "无关联的节点"
 
@@ -3820,6 +3840,10 @@ msgstr "服务配置"
 #, fuzzy
 msgid "Host Printer Configuration"
 msgstr "服务配置"
+
+#, fuzzy
+msgid "Host Printer Management Level"
+msgstr "没有打印机管理"
 
 msgid "Host Product Key"
 msgstr "主机产品密钥"
@@ -4793,6 +4817,9 @@ msgid "It tells the client to download snapins from"
 msgstr ""
 
 msgid "It will operate based on the fields the area typcially requires."
+msgstr ""
+
+msgid "Join Domain after image task"
 msgstr ""
 
 msgid "Kbps"

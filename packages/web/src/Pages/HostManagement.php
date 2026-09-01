@@ -4080,23 +4080,38 @@ class HostManagement extends FOGPage
     /**
      * The core host fields a mass edit may change.
      *
-     * The set is deliberately the one the group page pushes today through
-     * its in-band `NULL` sentinel (GroupManagement.php:713-720) -- these are
-     * the fields that convention was invented for, so they are the ones the
-     * three-state replacement has to cover before anything can be taken away
-     * from the group page (ADR 0038 decision 10).
+     * The set is every `hosts` column ADR 0038's disposition table sends to
+     * mass edit -- the General tab's fields, the AD tab's, the Enforce tab's
+     * and the printer level. Those are the ones the group page pushes today
+     * through its in-band `NULL` sentinel and its tri-state selects, so they
+     * are the ones the three-state replacement has to cover before anything
+     * can be taken away from the group page (ADR 0038 decision 10).
+     *
+     * `hostBuilding` is deliberately NOT here. The `persistentgroups` trigger
+     * copies it and both field maps declare it, but nothing in the tree ever
+     * writes it and the only place it is read is an always-hidden export
+     * column. Carrying a dead column into a new form would make it look
+     * alive.
      *
      * `empty` is per field because "empty" is not one value: a varchar
      * clears to '', an image reference clears to 0. Writing '' into an int
      * column stores 0 on a permissive server and errors on a strict one, so
      * the answer belongs here rather than in a cast at the write.
      *
+     * `kind` tells the form which control to draw. It carries no authority --
+     * the apply path reads `field` and `empty` only -- but it lives here so
+     * that the form and the whitelist cannot disagree about which fields
+     * exist. `secret` marks a field the form must render EMPTY with no read
+     * path: ADR 0038 decision 11 rejects the 32-asterisk placeholder the
+     * group page uses, because a fake value rendered into a form has to be
+     * pattern-matched back out at every call site that ever touches it.
+     *
      * A field ABSENT from this map cannot be written by a mass edit at all,
      * whatever a request asks for -- FOG\Util\MassEdit::columnUpdates()
      * skips what the spec does not name. That is the map's second job and
      * the reason it is a whitelist rather than a blacklist.
      *
-     * @return array key => ['field' => ..., 'empty' => ..., 'label' => ...]
+     * @return array key => ['field', 'empty', 'label', 'kind', 'secret']
      */
     private function massEditCoreFields()
     {
@@ -4104,42 +4119,113 @@ class HostManagement extends FOGPage
             'image' => [
                 'field' => 'imageID',
                 'empty' => 0,
-                'label' => _('Image')
+                'label' => _('Image'),
+                'kind' => 'image'
             ],
             'kernel' => [
                 'field' => 'kernel',
                 'empty' => '',
-                'label' => _('Host Kernel')
+                'label' => _('Host Kernel'),
+                'kind' => 'text'
             ],
             'kernelArgs' => [
                 'field' => 'kernelArgs',
                 'empty' => '',
-                'label' => _('Host Kernel Arguments')
+                'label' => _('Host Kernel Arguments'),
+                'kind' => 'text'
             ],
             'kernelDevice' => [
                 'field' => 'kernelDevice',
                 'empty' => '',
-                'label' => _('Host Primary Disk')
+                'label' => _('Host Primary Disk'),
+                'kind' => 'text'
             ],
             'init' => [
                 'field' => 'init',
                 'empty' => '',
-                'label' => _('Host Init')
+                'label' => _('Host Init'),
+                'kind' => 'text'
             ],
             'biosexit' => [
                 'field' => 'biosexit',
                 'empty' => '',
-                'label' => _('Host BIOS Exit Type')
+                'label' => _('Host BIOS Exit Type'),
+                'kind' => 'biosexit'
             ],
             'efiexit' => [
                 'field' => 'efiexit',
                 'empty' => '',
-                'label' => _('Host EFI Exit Type')
+                'label' => _('Host EFI Exit Type'),
+                'kind' => 'efiexit'
             ],
             'productKey' => [
                 'field' => 'productKey',
                 'empty' => '',
-                'label' => _('Product Key')
+                'label' => _('Product Key'),
+                'kind' => 'text',
+                'secret' => true
+            ],
+            // Printer level is a `hosts` column and so belongs to the
+            // imperative half (ADR 0038 decision 1) even though the printers
+            // it governs are becoming group-owned. Clearing it means level 0,
+            // "no printer management", which is a real setting rather than an
+            // absence -- so CLEAR and "set to 0" land on the same value on
+            // purpose.
+            'printerLevel' => [
+                'field' => 'printerLevel',
+                'empty' => 0,
+                'label' => _('Host Printer Management Level'),
+                'kind' => 'printerlevel'
+            ],
+            // The two booleans. A boolean has no meaningful "clear", so the
+            // form draws them as No change / Enable on all / Disable on all
+            // -- the shape the group page already gets right
+            // (GroupManagement.php:1405, :1519) -- which lands here as SET
+            // with '1' or '0'. `empty` is 0 so that a request that does ask
+            // to clear one gets the safe answer rather than an error.
+            'useAD' => [
+                'field' => 'useAD',
+                'empty' => 0,
+                'label' => _('Join Domain after image task'),
+                'kind' => 'bool'
+            ],
+            'enforce' => [
+                'field' => 'enforce',
+                'empty' => 0,
+                'label' => _('Host Enforce Hostname Changes'),
+                'kind' => 'bool'
+            ],
+            'ADDomain' => [
+                'field' => 'ADDomain',
+                'empty' => '',
+                'label' => _('Active Directory Domain Name'),
+                'kind' => 'text'
+            ],
+            'ADOU' => [
+                'field' => 'ADOU',
+                'empty' => '',
+                'label' => _('Active Directory Organizational Unit'),
+                'kind' => 'text'
+            ],
+            'ADUser' => [
+                'field' => 'ADUser',
+                'empty' => '',
+                'label' => _('Active Directory Username'),
+                'kind' => 'text'
+            ],
+            // Set-only. There is no read path and there is deliberately no
+            // 32-asterisk placeholder: the form renders an empty password
+            // input whose action defaults to LEAVE, and typing into it is
+            // what selects SET. ADPass matches Redaction::CREDENTIAL_PATTERN,
+            // so it is already redacted from the audit trail -- displaying it
+            // back into a form editing four hundred hosts at once would be
+            // the one place it leaked.
+            'ADPass' => [
+                'field' => 'ADPass',
+                'empty' => '',
+                'label' => _('Active Directory Password'),
+                'kind' => 'password',
+                'secret' => true
             ],
         ];
     }

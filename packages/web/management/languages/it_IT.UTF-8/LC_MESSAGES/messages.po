@@ -672,6 +672,22 @@ msgstr "Attivo"
 msgid "Active Directory"
 msgstr "Active Directory"
 
+#, fuzzy
+msgid "Active Directory Domain Name"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Active Directory Organizational Unit"
+msgstr "Unità organizzativa"
+
+#, fuzzy
+msgid "Active Directory Password"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Active Directory Username"
+msgstr "Active Directory"
+
 msgid "Active Multicast Tasks"
 msgstr "Compiti multicast attivi"
 
@@ -3642,6 +3658,10 @@ msgid "Host EFI Exit Type"
 msgstr "Host EFI Tipo Exit"
 
 #, fuzzy
+msgid "Host Enforce Hostname Changes"
+msgstr "Nome host Changer"
+
+#, fuzzy
 msgid "Host Group Associations"
 msgstr "Host associato"
 
@@ -3722,6 +3742,10 @@ msgstr "Configurazione della stampante"
 #, fuzzy
 msgid "Host Printer Configuration"
 msgstr "Configurazione della stampante"
+
+#, fuzzy
+msgid "Host Printer Management Level"
+msgstr "No Printer Management"
 
 msgid "Host Product Key"
 msgstr "Host Product Key"
@@ -4653,6 +4677,9 @@ msgid "It tells the client to download snapins from"
 msgstr "indica al client di scaricare gli snapins da"
 
 msgid "It will operate based on the fields the area typcially requires."
+msgstr ""
+
+msgid "Join Domain after image task"
 msgstr ""
 
 msgid "Kbps"
