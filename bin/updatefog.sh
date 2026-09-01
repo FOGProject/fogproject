@@ -90,6 +90,9 @@ optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
 
+# Kept before the option loop shifts them away: the re-exec below needs the
+# ORIGINAL arguments.
+origArgs=("$@")
 autoYes=""
 while :; do
     case $1 in
@@ -123,6 +126,50 @@ while :; do
             ;;
     esac
 done
+
+# ---------------------------------------------------------------------------
+# Re-exec from a copy of this file, before going anywhere near git.
+#
+# This script replaces itself. gitUpdateToBranch() checks out a different
+# branch, which rewrites bin/updatefog.sh underneath a bash process that is
+# still reading it -- and bash reads a script incrementally, seeking by byte
+# offset, so a file that changes length mid-run makes it resume in the middle
+# of a different line. The failure is silent, arbitrary, and happens AFTER the
+# checkout has already succeeded: the server's code has moved and the process
+# driving the update is executing fragments.
+#
+# It is not hypothetical here. Every channel switch changes this file, and the
+# 1.5 -> 1.6 crossing changes it beyond recognition.
+#
+# So: copy, re-exec, and do the git work from a file nothing is going to
+# rewrite. FOG_UPDATE_RELAUNCHED marks the copy so it does not loop; the copy
+# removes itself on exit, not here, because it is the file being read.
+# ---------------------------------------------------------------------------
+if [[ -z $FOG_UPDATE_RELAUNCHED ]]; then
+    updateSelfCopy=$(mktemp -t fog-updatefog.XXXXXX) && cat "$0" > "$updateSelfCopy" || {
+        echo " * Could not copy this script to a temporary location."
+        echo " | The update has to run from a copy, because checking out another"
+        echo " | branch rewrites this file while bash is still reading it."
+        exit 1
+    }
+    chmod +x "$updateSelfCopy"
+    FOG_UPDATE_RELAUNCHED=1 FOG_UPDATE_ORIGIN="$workingdir" \
+        FOG_UPDATE_COPY="$updateSelfCopy" exec bash "$updateSelfCopy" "${origArgs[@]}"
+fi
+[[ -n $FOG_UPDATE_COPY ]] && trap 'rm -f "$FOG_UPDATE_COPY"' EXIT
+# After the re-exec $bindir is the temp directory, so everything that has to
+# resolve against the CHECKOUT uses the original location instead.
+workingdir="${FOG_UPDATE_ORIGIN:-$workingdir}"
+cd "$workingdir"
+
+# The update log. Set AFTER the re-exec, so it lands in the checkout rather
+# than beside the temporary copy -- and before anything that writes to it:
+# gitUpdateToBranch redirects into $error_log, and with it unset that is a
+# redirect into a file named "".
+[[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
+error_log="${workingdir}/error_logs/fog_update_error.log"
+: > "$error_log"
+
 
 # Un-exported on purpose: it inverts errorStat so a failed git step returns
 # control here instead of ending the process, and it must NOT leak into the
