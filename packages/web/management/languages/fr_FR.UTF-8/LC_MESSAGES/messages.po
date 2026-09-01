@@ -121,6 +121,10 @@ msgid "%d certificates in this file"
 msgstr ""
 
 #, php-format
+msgid "%d days left"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -2163,10 +2167,6 @@ msgstr "Enregistrements courants"
 msgid "Current member-host AD state"
 msgstr ""
 
-#, fuzzy
-msgid "Currently imported"
-msgstr "Enregistrements courants"
-
 msgid "DMI Field"
 msgstr ""
 
@@ -2532,7 +2532,7 @@ msgstr "Durée"
 msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
-msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered."
+msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
 msgstr ""
 
 msgid "Edit"
@@ -2734,6 +2734,10 @@ msgstr ""
 
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
+
+#, fuzzy
+msgid "Expired"
+msgstr "Nom de session"
 
 msgid "Expires"
 msgstr ""
@@ -4756,6 +4760,10 @@ msgstr "Jeton d'accès"
 msgid "Issue a token on behalf of a user"
 msgstr ""
 
+#, php-format
+msgid "Issued by %s"
+msgstr ""
+
 msgid "Issuer"
 msgstr ""
 
@@ -6283,6 +6291,9 @@ msgstr ""
 msgid "One entry per row. The element shape follows the requested fields: a scalar when a single column is projected, an object when several are."
 msgstr ""
 
+msgid "One is imported. It is the \"Imported root\" row in the table above."
+msgstr ""
+
 msgid "One or more files must be uploaded via the \"snapinfiles[]\" multipart field"
 msgstr ""
 
@@ -6952,9 +6963,6 @@ msgstr "La clé privée pas lisible"
 
 msgid "Private key path not found"
 msgstr "chemin de la clé privée non trouvée"
-
-msgid "Private keys are deliberately absent. Nothing on this page can read one, and nothing on it can hand one out."
-msgstr ""
 
 #, fuzzy
 msgid "Private keys are readable by the web server"
@@ -7737,6 +7745,9 @@ msgstr "Sélectionnez un type de cron"
 #, fuzzy
 msgid "Selected tasks canceled!"
 msgstr "a été mis à jour avec succès"
+
+msgid "Self-signed"
+msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
@@ -9120,10 +9131,6 @@ msgstr ""
 msgid "The calling user's preferences."
 msgstr ""
 
-#, fuzzy
-msgid "The certificate chain"
-msgstr "Créer un nouveau %s"
-
 msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
 msgstr ""
 
@@ -9347,7 +9354,7 @@ msgstr "Le nœud de stockage des groupes de stockage associé est pas valide"
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
-msgid "The trust anchor. Every fog-client pins this one."
+msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
 msgstr ""
 
 msgid "The upload did not arrive."
@@ -9545,9 +9552,6 @@ msgid "This is the only time it will be shown. FOG stores only a hash of it and 
 msgstr ""
 
 msgid "This is the only time it will be shown. Hand it to the person or service it was issued for &mdash; you are seeing a credential that belongs to another account."
-msgstr ""
-
-msgid "This is the value to compare against a client's trust store when working out why a client stopped authenticating."
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
@@ -9748,9 +9752,6 @@ msgid "Transport to the master storage node failed, or the row would not save af
 msgstr ""
 
 msgid "True only when the server capped an unbounded request at MAX_ROWS. Never set when the caller sent start/length."
-msgstr ""
-
-msgid "Trust anchor"
 msgstr ""
 
 msgid "Trust anchor bundle"
@@ -10325,10 +10326,6 @@ msgstr ""
 msgid "VNC"
 msgstr ""
 
-#, php-format
-msgid "Valid until %s."
-msgstr ""
-
 msgid "Value"
 msgstr "Valeur"
 
@@ -10418,6 +10415,10 @@ msgstr ""
 
 #, fuzzy
 msgid "What gets enrolled"
+msgstr "a été mis à jour avec succès"
+
+#, fuzzy
+msgid "What it does"
 msgstr "a été mis à jour avec succès"
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
@@ -11297,9 +11298,6 @@ msgstr ""
 msgid "previous install if needed"
 msgstr ""
 
-msgid "published as ca.cert.der and pinned by every fog-client"
-msgstr ""
-
 msgid "re-run the installer and check the installation log for a key generation or signing failure"
 msgstr ""
 
@@ -11777,6 +11775,10 @@ msgstr ""
 #~ msgstr "Aucun noeud associé"
 
 #, fuzzy
+#~ msgid "Currently imported"
+#~ msgstr "Enregistrements courants"
+
+#, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pas de hachage disponible"
 
@@ -12203,6 +12205,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Imprimante existe déjà"
+
+#, fuzzy
+#~ msgid "The certificate chain"
+#~ msgstr "Créer un nouveau %s"
 
 #, fuzzy
 #~ msgid "There are no "
