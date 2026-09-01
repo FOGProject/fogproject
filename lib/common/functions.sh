@@ -139,7 +139,9 @@ channelToBranch() {
 # different problems for the admin.
 rcBranch() {
     local ref
-    ref=$(git ls-remote --heads --sort=-v:refname         "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'rc-*'         2>/dev/null | head -n1) || return 1
+    ref=$(git ls-remote --heads --sort=-v:refname \
+        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'rc-*' \
+        2>/dev/null | head -n1) || return 1
     [[ -n $ref ]] || return 1
     ref="${ref##*refs/heads/}"
     [[ -n $ref ]] || return 1
