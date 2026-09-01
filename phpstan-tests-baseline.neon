@@ -874,6 +874,12 @@ parameters:
 			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
 			identifier: new.resultUnused
 			count: 1
+			path: tests/savegroup-is-gated.test.php
+
+		-
+			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
+			identifier: new.resultUnused
+			count: 1
 			path: tests/site-scope.test.php
 
 		-
@@ -937,7 +943,7 @@ parameters:
 			path: tests/usertracking-permission-split.test.php
 
 		-
-			message: '#^Offset ''getloginhist'' on array\{savegroup\?\: ''group\.create'', getloginhist\: ''usertracking\.view''\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''getloginhist'' on array\{savegroup\?\: ''group\.edit'', getloginhist\: ''usertracking\.view''\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/usertracking-permission-split.test.php
