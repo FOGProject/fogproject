@@ -73,6 +73,14 @@ trait FOGPageRender
      *                          Suppresses the Remove button and the confirm
      *                          modal it opens, so the tab stops offering an
      *                          operation the model has no way to perform.
+     * @param string $assocHeader optional header for the association column.
+     *                          Defaults to "Associated", which is right for
+     *                          a link row that either exists or does not.
+     *                          The host Modules tab passes "State": a module
+     *                          has three (on, off, unstated -- ADR 0038), and
+     *                          a column headed "Associated" over a control
+     *                          offering three answers describes something
+     *                          else.
      *
      * @return void
      */
@@ -85,11 +93,12 @@ trait FOGPageRender
         $helpBlock = '',
         $createNode = '',
         $noun = '',
-        $allowRemove = true
+        $allowRemove = true,
+        $assocHeader = ''
     ) {
         $this->headerData = [
             $colHeader,
-            _('Associated')
+            '' !== $assocHeader ? $assocHeader : _('Associated')
         ];
         $this->attributes = [
             [],

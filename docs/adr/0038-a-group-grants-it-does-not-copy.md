@@ -293,6 +293,7 @@ new, so no upgraded database has one.
 | `Assign\Resolver::resolveModules()`, the three tiers | #1632 |
 | the client paths read the resolved list; `get('modules')` stays host-direct | #1633 |
 | `addRemItem()`'s module special case removed, the default now supplies it | #1634 |
+| the host Modules tab becomes genuinely tri-state, so a host can say OFF | #TBD |
 
 **`get('modules')` deliberately stays host-direct.** Route's host update arm
 diffs against it, so a resolved value there would write a host row for every
@@ -310,6 +311,42 @@ two and leave the group page granting on one tab and copying on the next. The
 host Modules tab also has to become genuinely tri-state before a host can
 express OFF at all — today unticking deletes the row, which under this design
 means "unstated" and would let a group grant re-enable it.
+
+**Built (M5).** The Modules tab's per-row control is a **select** — *On / Off /
+Not set* — rather than a checkbox, and the column is headed **State** rather
+than *Associated*: a column called "Associated" over a control offering three
+answers is describing something else. Four things settled in the building:
+
+- **The tab has exactly one writer, and it is not `assocSetter`'s.**
+  `addModule()`/`removeModule()` go through the `modules` array and
+  `assocSetter`, which can only insert a row or delete one — it has no way to
+  write a row that exists and means OFF. Every write from the tab, the two
+  bulk buttons included, goes through `Host::setModuleState()`, which writes
+  `msState` directly and never marks `modules` dirty.
+- **The bulk buttons keep working and needed no client change.** They read
+  DataTables' own row selection, not the cell, so replacing the checkbox cost
+  nothing. On the wire they are unchanged — `confirmadd` means ON,
+  `confirmdel` means *unstated*, which is what deleting the row has always
+  meant.
+- **One statement covers stating a module and flipping it.** `save()` emits
+  `INSERT … ON DUPLICATE KEY UPDATE … msState=VALUES(msState)`, and
+  `UNIQUE (msHostID, msModuleID)` is what makes that fire. So ON → OFF needs
+  no read to tell it apart from a first statement.
+- **A save had to stop eating OFF rows, and that is a bug this decision
+  created rather than found.** `assocSetter` deletes `($cur - $items)`, where
+  `$cur` is every row in `moduleStatusByHost` and `$items` is
+  `get('modules')` — which `loadModules()` filters to state 1. The two sides
+  of that diff were reading different sets the moment a row could mean OFF, so
+  any save touching modules would drop it. `Host::save()` now unions the
+  existing OFF ids into the diff set, so they appear on both sides and neither
+  branch fires.
+
+  **The limit that leaves, stated because it is real.** A caller that lists
+  `modules` — the API's host update arm — cannot turn an OFF module back ON,
+  because the row already exists and `assocSetter` only inserts or deletes.
+  Clearing an OFF is the tab's job. That fails closed, which is the direction
+  "only the host may say OFF" wants: the alternative is an API write silently
+  re-enabling a module the host had switched off.
 
 ADR 0001's closing sentence anticipated the opposite migration ("if snapins or
 printers ever gain a per-host enabled/disabled state, they should converge on

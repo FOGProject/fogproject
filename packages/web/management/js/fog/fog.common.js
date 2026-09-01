@@ -1561,7 +1561,13 @@ $.registerGeneralTab = function(opts) {
 //                    (group's tri-state All/Some/None badge + host drill-down).
 //                    The returned markup must still carry an
 //                    input.associated[value=row.id] so the toggle/add/remove
-//                    plumbing keeps working.
+//                    plumbing keeps working -- UNLESS the tab commits the
+//                    cell itself, as host-module does: its cell is a
+//                    three-state select (ADR 0038) and there is no checkbox
+//                    to toggle, so it binds its own change handler in
+//                    onDraw. The Add/Remove buttons are unaffected either
+//                    way; they read DataTables' row selection, not this
+//                    cell.
 // opts.onDraw      - optional function(table) run at the end of every table
 //                    redraw, after the checkbox styling/binding and button
 //                    enable/disable. For tabs that mirror a side panel off the

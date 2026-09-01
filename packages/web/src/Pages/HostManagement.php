@@ -2598,6 +2598,11 @@ class HostManagement extends FOGPage
     public function hostModules()
     {
         // Association Area
+        // ADR 0038: a module is a switch with three states, not a link that
+        // exists or does not. The per-row control is a select rather than a
+        // checkbox, so "off" can be said out loud -- unticking used to
+        // delete the row, which now means "unstated" and lets a group grant
+        // turn the module back on.
         $this->renderAssocTab(
             'host-module',
             _('Host Module Associations'),
@@ -2605,6 +2610,13 @@ class HostManagement extends FOGPage
             'module',
             'btn btn-primary float-end',
             _('Disabled items are not displayed. Legacy items are removed.')
+            . ' '
+            . _('Not set means a group may enable this module. Off is the '
+            . 'host\'s own answer and no group can override it.'),
+            '',
+            '',
+            true,
+            _('State')
         );
 
         $props = ' method="post" action="'
@@ -2815,7 +2827,47 @@ class HostManagement extends FOGPage
      */
     public function hostModulePost()
     {
-        $this->assocPost('addModule', 'removeModule');
+        self::checkAuthAndCSRF();
+        // NOT assocPost('addModule', 'removeModule'). Those go through the
+        // `modules` array and assocSetter, which can only insert a row or
+        // delete one -- it has no way to write a row that exists and means
+        // OFF, which is the state ADR 0038 adds. Every write from this tab
+        // therefore goes through Host::setModuleState(), including the two
+        // bulk buttons, so the tab has exactly one writer and `modules` is
+        // never marked dirty from here.
+        //
+        // The wire shape is the association tab's own, unchanged, so the
+        // bulk buttons keep working with no client change:
+        //   confirmadd + additems[]  -> ON
+        //   confirmdel + remitems[]  -> unstated (the row is removed)
+        // plus this tab's own third state:
+        //   confirmmodulestate + moduleid + state
+        if (isset($_POST['confirmadd'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['additems' => ['flags' => FILTER_REQUIRE_ARRAY]]
+            );
+            $this->obj->setModuleState((array)$items['additems'], 1);
+        }
+        if (isset($_POST['confirmdel'])) {
+            $items = filter_input_array(
+                INPUT_POST,
+                ['remitems' => ['flags' => FILTER_REQUIRE_ARRAY]]
+            );
+            $this->obj->setModuleState((array)$items['remitems'], null);
+        }
+        if (isset($_POST['confirmmodulestate'])) {
+            $moduleID = (int)filter_input(INPUT_POST, 'moduleid');
+            $state = filter_input(INPUT_POST, 'state');
+            // Three spellings, and anything else is refused rather than
+            // guessed at: a state this endpoint does not recognize must not
+            // silently become one it does.
+            $states = ['on' => 1, 'off' => 0, 'unset' => null];
+            if (!array_key_exists((string)$state, $states)) {
+                throw new \Exception(_('Unknown module state'));
+            }
+            $this->obj->setModuleState([$moduleID], $states[(string)$state]);
+        }
         if (isset($_POST['confirmdisplaysend'])) {
             $x = (int)filter_input(INPUT_POST, 'x');
             $y = (int)filter_input(INPUT_POST, 'y');
@@ -5368,6 +5420,19 @@ class HostManagement extends FOGPage
             'db' => 'hostAssoc',
             'dt' => 'association',
             'removeFromQuery' => true
+        ];
+        // The host's own state for this module, which the association
+        // column cannot carry: 'associated'/'dissociated' has two values
+        // and ADR 0038 gives a module three. NULL here is the third -- the
+        // LEFT JOIN found no row, so the host has said nothing and a group
+        // grant may still turn it on.
+        //
+        // nosearch because the free-text box would otherwise match every
+        // row on a typed 0 or 1, which is never what the box is for.
+        $columns[] = [
+            'db' => 'msState',
+            'dt' => 'state',
+            'nosearch' => true
         ];
         return $this->obj->getItemsList(
             'module',
