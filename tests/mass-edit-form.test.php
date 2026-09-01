@@ -347,6 +347,42 @@ $check(
         )
 );
 
+// --- Where the button sits ------------------------------------------------
+//
+// The toolbar is split on a real distinction: the LEFT half acts on the rows
+// that are already ticked (Delete selected, Mass edit) and the RIGHT-hand
+// btn-group brings something new into existence (Queue Task, Add to group,
+// Add). Mass edit shipped in the right-hand group by mistake and was moved.
+//
+// Position is not something the rendering checks above can see -- they call
+// massEditActions() and get a button back with no toolbar around it -- so
+// this reads the emission order out of FOGPage::process(), which is what
+// actually decides it. Two floated buttons stack in emission order, so
+// "after deleteSelected and before the btn-group opens" IS "to the right of
+// Delete".
+$page = (string)@file_get_contents(
+    $root . '/packages/web/src/Base/FOGPage.php'
+);
+$posDelete = strpos($page, "'deleteSelected',");
+$posMass = strpos($page, "massEditActions')");
+$posGroup = strpos($page, '<div class="btn-group float-end">');
+$check(
+    'FOGPage::process() still emits all three toolbar landmarks',
+    false !== $posDelete && false !== $posMass && false !== $posGroup
+);
+$check(
+    'Mass edit is emitted after Delete selected and before the right group',
+    false !== $posDelete && false !== $posMass && false !== $posGroup
+        && $posDelete < $posMass && $posMass < $posGroup
+);
+$check(
+    'the Mass edit button floats left, so it lands beside Delete',
+    1 === preg_match(
+        "/'massEditSelected',\s*_\('Mass edit'\),\s*'[^']*\bfloat-start\b/",
+        $source
+    )
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass edit form is not three-state:\n");
     foreach ($failures as $f) {
