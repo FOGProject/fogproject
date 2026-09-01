@@ -209,8 +209,8 @@ usage() {
     echo -e "\t                       \t\tbin/restorekernel.sh. See"
     echo -e "\t                       \t\tdocs/SUPPORTED_CUSTOMIZATIONS.md"
     echo -e "\t      --channel\t\t\tUpdate channel this server tracks: stable,"
-    echo -e "\t                       \t\tpatches or beta. Recorded in .fogsettings and"
-    echo -e "\t                       \t\tused by bin/updatefog.sh to pick a branch."
+    echo -e "\t                       \t\tpatches, beta or rc. Recorded in .fogsettings"
+    echo -e "\t                       \t\tand used by bin/updatefog.sh to pick a branch."
     echo -e "\t                       \t\tOmit to leave a recorded channel unchanged"
     echo -e "\t      --restore-kernel-backup\tAlso restore the previous kernel/init set"
     echo -e "\t                       \t\tthis run. Pass it when rolling a failed"
@@ -679,7 +679,7 @@ while :; do
             if schannel="$(normalizeChannel "${2}" 2>/dev/null)"; then
                 sFOG_update_channel="$schannel"
             else
-                echo "$1 requires one of: stable, patches, beta"
+                echo "$1 requires one of: stable, patches, beta, rc"
                 usage
                 exit 3
             fi

@@ -179,10 +179,15 @@ for br in stable dev-branch working-1.6; do
     fi
 done
 
-# The two labels with no update channel. Pinned so that a later attempt to give
-# them one has to come here and think about it, rather than silently inventing a
-# fourth spelling of an existing channel.
-for pair in "rc:Release Candidate" "feature:Feature"; do
+# feature is the only label left with no update channel. Still pinned so that a
+# later attempt to give it one has to come here and think about it, rather than
+# silently inventing a second spelling of an existing channel.
+#
+# rc was in this loop and is not any more -- it HAS a channel now (see
+# channelToBranch in lib/common/functions.sh for why the old reasoning was
+# retired). What it does not have is a title-case-derived label, so it is
+# pinned as explicit pairs below instead of going through the F loop.
+for pair in "feature:Feature"; do
     arm="${pair%%:*}"; want="${pair#*:}"
     got=$(labelForArm "$arm")
     [[ $got == "$want" ]] && ok "F. $arm labels '$want'" \
@@ -191,6 +196,28 @@ for pair in "rc:Release Candidate" "feature:Feature"; do
         && bad "F. $arm has no update channel" "branchToChannel returned one" \
         || ok "F. $arm correctly has no update channel"
 done
+
+# rc, the deliberate exception to "the label is the channel's title-case form".
+# Asserted as literal pairs, in both directions, so the exception stays exactly
+# one word wide and cannot quietly become a second name for something else.
+got=$(labelForArm rc)
+[[ $got == "Release Candidate" ]] && ok "F. rc labels 'Release Candidate'" \
+    || bad "F. rc labels 'Release Candidate'" "got '$got'"
+
+got=$(branchToChannel "rc-1.6.0")
+[[ $got == rc ]] && ok "F. an rc-* branch maps to the rc channel" \
+    || bad "F. an rc-* branch maps to the rc channel" "got '$got'"
+
+got=$(normalizeChannel rc)
+[[ $got == rc ]] && ok "F. rc is its own canonical spelling" \
+    || bad "F. rc is its own canonical spelling" "got '$got'"
+
+# The distinction that keeps two different failures apart: a channel FOG does
+# not know is exit 1; a channel it knows but cannot resolve right now -- no
+# release candidate published -- is exit 2. Callers say different things.
+channelToBranch nonsense >/dev/null 2>&1; st=$?
+[[ $st -eq 1 ]] && ok "F. an unknown channel exits 1" \
+    || bad "F. an unknown channel exits 1" "got exit $st"
 
 # --- F2. the same thing EXECUTED, where the checkout allows it ------------
 # Belt and braces for a full local clone: proves the parse above describes what
