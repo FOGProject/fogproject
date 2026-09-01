@@ -6281,6 +6281,9 @@ msgstr ""
 msgid "Not reported"
 msgstr "Inventory"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "Installed Plugins"
@@ -10102,6 +10105,9 @@ msgid "Unknown filter field(s) for %s: %s"
 msgstr ""
 
 msgid "Unknown identity provider"
+msgstr ""
+
+msgid "Unknown module state"
 msgstr ""
 
 #, fuzzy

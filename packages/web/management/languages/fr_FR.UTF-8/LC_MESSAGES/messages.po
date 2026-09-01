@@ -6268,6 +6268,9 @@ msgstr ""
 msgid "Not reported"
 msgstr "Inventaire"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "Plugins installés"
@@ -10090,6 +10093,10 @@ msgid "Unknown identity provider"
 msgstr ""
 
 #, fuzzy
+msgid "Unknown module state"
+msgstr "hôte description de"
+
+#, fuzzy
 msgid "Unknown permission"
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
@@ -12089,10 +12096,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Update Site Fail"
 #~ msgstr "Mise à jour de l'hôte a échoué"
-
-#, fuzzy
-#~ msgid "Host module settings"
-#~ msgstr "hôte description de"
 
 #, fuzzy
 #~ msgid "Hostext Create Fail"

@@ -6268,6 +6268,9 @@ msgstr ""
 msgid "Not reported"
 msgstr "库存"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "已安装的插件"
@@ -10092,6 +10095,10 @@ msgid "Unknown identity provider"
 msgstr ""
 
 #, fuzzy
+msgid "Unknown module state"
+msgstr "主机描述"
+
+#, fuzzy
 msgid "Unknown permission"
 msgstr "发生未知上传错误。返回代码："
 
@@ -12091,10 +12098,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Update Site Fail"
 #~ msgstr "主机更新失败"
-
-#, fuzzy
-#~ msgid "Host module settings"
-#~ msgstr "主机描述"
 
 #, fuzzy
 #~ msgid "Hostext Create Fail"

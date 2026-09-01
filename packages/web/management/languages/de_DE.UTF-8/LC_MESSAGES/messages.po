@@ -6270,6 +6270,9 @@ msgstr "(empfohlen)"
 msgid "Not reported"
 msgstr "(empfohlen)"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "Nicht synchronisieren"
@@ -10096,6 +10099,10 @@ msgid "Unknown identity provider"
 msgstr ""
 
 #, fuzzy
+msgid "Unknown module state"
+msgstr "Host Moduleinstellungen"
+
+#, fuzzy
 msgid "Unknown permission"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
@@ -12112,10 +12119,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Update Site Fail"
 #~ msgstr "Host-Update fehlgeschlagen"
-
-#, fuzzy
-#~ msgid "Host module settings"
-#~ msgstr "Host Moduleinstellungen"
 
 #, fuzzy
 #~ msgid "Hostext Create Fail"

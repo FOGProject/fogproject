@@ -6393,6 +6393,9 @@ msgstr ""
 msgid "Not reported"
 msgstr "ID de inventario"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "Instalador inteligente (recomendado)"
@@ -10263,6 +10266,10 @@ msgid "Unknown identity provider"
 msgstr ""
 
 #, fuzzy
+msgid "Unknown module state"
+msgstr "Descripción del Grupo"
+
+#, fuzzy
 msgid "Unknown permission"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
@@ -12265,10 +12272,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Update Site Fail"
 #~ msgstr "actualización Valoración falló"
-
-#, fuzzy
-#~ msgid "Host module settings"
-#~ msgstr "Descripción del Grupo"
 
 #, fuzzy
 #~ msgid "Hostext Create Fail"
