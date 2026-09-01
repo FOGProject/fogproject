@@ -18,11 +18,15 @@ use FOG\Base\FOGBase;
 /**
  * Resolves what a host is actually assigned, host-direct plus group-granted.
  *
- * ADR 0038. A group GRANTS a snapin or a printer; it does not copy rows onto
- * whichever hosts happened to be members when a button was pressed. The grant
- * is a row keyed by group (`groupSnapinAssoc`, `groupPrinterAssoc`), and what
- * a given host ends up with is computed here, from that grant plus the host's
- * own direct associations.
+ * ADR 0038. A group GRANTS a snapin, a printer or a module; it does not copy
+ * rows onto whichever hosts happened to be members when a button was pressed.
+ * The grant is a row keyed by group (`groupSnapinAssoc`, `groupPrinterAssoc`,
+ * `groupModuleAssoc`), and what a given host ends up with is computed here,
+ * from that grant plus the host's own direct associations.
+ *
+ * Modules are the one of the three that is a SWITCH rather than a thing, so
+ * they resolve in three tiers rather than two and a host may hold one OFF
+ * against every group that grants it. resolveModules() carries the reasoning.
  *
  * ONE function answers it, for every caller -- task creation, the client's
  * printer request, and any UI preview. Three sorts in three files drift, and
@@ -246,6 +250,113 @@ class Resolver extends FOGBase
         return $resolved;
     }
 
+    /**
+     * Resolves the enabled module list for each host.
+     *
+     * MODULES ARE THE THIRD DECLARATIVE GRANT, and they are not shaped like
+     * the other two. A snapin or a printer is a thing a host either has or
+     * does not; a module is a switch, and a host is allowed to hold it OFF
+     * against every group that grants it. So this is a three-tier answer,
+     * not a two-tier union:
+     *
+     *   host row, msState = 0   the host says OFF. Beats everything.
+     *   host row, msState = 1   the host says ON.
+     *   group grant             any group the host is in says ON.
+     *   nothing anywhere        OFF.
+     *
+     * Lowest tier wins, and only the host is allowed to say OFF. A group
+     * grant is presence-only -- `groupModuleAssoc` has no state column -- so
+     * two groups can only ever union and can never contradict each other.
+     * That is the whole reason the table is shaped that way: "this group
+     * says disable, that one says enable, which wins?" is a question with no
+     * defensible answer, so the schema refuses to let it be asked.
+     *
+     * WHY "NOTHING ANYWHERE" IS OFF RATHER THAN `modules`.`default`. Before
+     * group grants, a host's rows in `moduleStatusByHost` WERE its enabled
+     * set and nothing read msState -- ServiceModule::checkPassiveModule()
+     * still computes its disabled list as array_diff(globalModules,
+     * hostRows). Absence therefore already means OFF on every existing
+     * install, and falling back to `default` here would silently switch
+     * modules on across a fleet at upgrade. `default` keeps the one job it
+     * has: seeding a newly registered host's rows.
+     *
+     * WHY msState CAN BE TRUSTED NOW. It was a varchar(1) that only ever
+     * held '1', because the only writer -- FOGController::addRemItem() --
+     * hardcodes it. Schema step 409 makes it the tinyint(1) it always was.
+     * A host row that means OFF is new, so no upgraded database has one, and
+     * this resolver returns exactly what the old code did until someone
+     * turns a module off in the UI.
+     *
+     * Order is by module id. Modules have no sequence anywhere in the
+     * schema -- unlike snapins, nothing runs them in turn -- so the order is
+     * for determinism only, and sorting by id keeps it stable across the
+     * host-direct and group-granted halves rather than exposing which half a
+     * module arrived through.
+     *
+     * @param array $hostIDs the hosts to resolve for
+     *
+     * @return array hostID => [moduleID, ...] ascending. Every host id
+     *               passed in is a key, with an empty array when it has
+     *               nothing; see resolveSnapins() for why.
+     * @throws \RuntimeException on any query failure
+     */
+    public static function resolveModules(array $hostIDs)
+    {
+        $hostIDs = self::_ids($hostIDs);
+        if (count($hostIDs) < 1) {
+            return [];
+        }
+        $resolved = [];
+        $on = [];
+        $off = [];
+        $rows = self::_rows(
+            'SELECT `msHostID`, `msModuleID`, `msState` '
+            . 'FROM `moduleStatusByHost` '
+            . 'WHERE `msHostID` IN (' . implode(',', $hostIDs) . ')'
+        );
+        foreach ($rows as $row) {
+            $hostID = (int)$row['msHostID'];
+            $moduleID = (int)$row['msModuleID'];
+            if ((int)$row['msState'] > 0) {
+                $on[$hostID][$moduleID] = true;
+                continue;
+            }
+            $off[$hostID][$moduleID] = true;
+        }
+
+        list($groupsByHost, $groupIDs) = self::_membership($hostIDs);
+        $byGroup = [];
+        if (count($groupIDs) > 0) {
+            $rows = self::_rows(
+                'SELECT `gmaGroupID`, `gmaModuleID` FROM `groupModuleAssoc` '
+                . 'WHERE `gmaGroupID` IN (' . implode(',', $groupIDs) . ')'
+            );
+            foreach ($rows as $row) {
+                $byGroup[(int)$row['gmaGroupID']][] = (int)$row['gmaModuleID'];
+            }
+        }
+
+        foreach ($hostIDs as $hostID) {
+            $out = $on[$hostID] ?? [];
+            foreach (array_keys($groupsByHost[$hostID] ?? []) as $groupID) {
+                foreach ($byGroup[$groupID] ?? [] as $moduleID) {
+                    // The host's OFF is checked here rather than by
+                    // subtracting at the end, so a module the host turned
+                    // off can never be in $out even momentarily -- there is
+                    // no ordering of the two halves that could leak it.
+                    if (isset($off[$hostID][$moduleID])) {
+                        continue;
+                    }
+                    $out[$moduleID] = true;
+                }
+            }
+            $ids = array_keys($out);
+            sort($ids);
+            $resolved[$hostID] = $ids;
+        }
+
+        return $resolved;
+    }
     /**
      * Reads group membership for a set of hosts.
      *
