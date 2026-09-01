@@ -149,8 +149,11 @@ abstract class FOGClient extends FOGBase
             ) {
                 throw new \Exception('#!ng');
             }
+            // RESOLVED, not host-direct -- see ServiceModule. A module a
+            // group grants must let the client reach its endpoint, or the
+            // grant is one the server honors and the gate refuses.
             $find = [
-                'id' => self::$Host->get('modules'),
+                'id' => self::$Host->resolvedModules(),
                 'shortName' => $this->shortName
             ];
             $hostModInfo = Route::getIds(

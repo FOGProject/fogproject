@@ -3559,9 +3559,12 @@ abstract class FOGPage extends FOGBase
                 false,
                 self::$newService || self::$json
             );
+            // RESOLVED, not host-direct -- see ServiceModule. This is the
+            // list the client is told to run, so a group grant has to be in
+            // it.
             $hostModules = Route::getIds(
                 'module',
-                ['id' => self::$Host->get('modules')],
+                ['id' => self::$Host->resolvedModules()],
                 'shortName'
             );
             $hostEnabled = array_diff(

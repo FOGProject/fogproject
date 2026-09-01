@@ -88,9 +88,13 @@ class ServiceModule extends FOGClient
             }
             unset($en);
         }
+        // RESOLVED, not host-direct. ADR 0038: a group grants a module, so
+        // what this host actually runs is its own ON rows plus every grant
+        // from a group it is in, minus anything it has turned OFF.
+        // get('modules') is the edit view and would silently ignore grants.
         $hostModules = Route::getIds(
-            'moduleassociation',
-            ['id' => self::$Host->get('modules')],
+            'module',
+            ['id' => self::$Host->resolvedModules()],
             'shortName'
         );
         $hostEnabled = (

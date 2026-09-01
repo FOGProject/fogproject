@@ -319,6 +319,12 @@ parameters:
 			path: tests/hook-event-contract.test.php
 
 		-
+			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
+			identifier: new.resultUnused
+			count: 1
+			path: tests/host-modules-are-resolved.test.php
+
+		-
 			message: '#^If condition is always false\.$#'
 			identifier: if.alwaysFalse
 			count: 1

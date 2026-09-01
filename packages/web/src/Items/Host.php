@@ -671,19 +671,61 @@ class Host extends FOGController
         $this->set('snapins', (array)$snapins);
     }
     /**
-     * Loads any modules this host has
+     * Loads the modules this host itself has turned ON.
+     *
+     * HOST-DIRECT, NOT RESOLVED, and that is the whole point. This is the
+     * value the edit surfaces diff against -- Route's host update arm
+     * computes its add/remove lists from it, and the host page's module tab
+     * ticks it. If it returned the group-granted modules too, saving either
+     * of those would write a host row for every grant, turning a grant back
+     * into a copy: exactly what ADR 0038 exists to stop. What the client
+     * gets is resolvedModules().
+     *
+     * The `state` filter is new and changes nothing today. Every row in
+     * `moduleStatusByHost` on every existing install carries state 1,
+     * because the only writer -- FOGController::addRemItem() -- hardcodes
+     * it. A row meaning OFF is the new thing, and this is what keeps it out
+     * of the ON list once something writes one.
      *
      * @return void
      */
     protected function loadModules()
     {
-        $find = ['hostID' => $this->get('id')];
+        $find = ['hostID' => $this->get('id'), 'state' => 1];
         $modules = Route::getIds(
             'moduleassociation',
             $find,
             'moduleID'
         );
         $this->set('modules', (array)$modules);
+    }
+    /**
+     * The modules actually enabled on this host, grants included.
+     *
+     * ADR 0038: a group GRANTS a module. What a host ends up with is this
+     * host's own ON rows, plus every module granted by a group it is in,
+     * minus anything this host has explicitly turned OFF. The reasoning for
+     * the three tiers lives on Resolver::resolveModules(); this is the
+     * accessor the client protocol reads.
+     *
+     * NOT a loadX() pseudo-field. Those are cached on the object and the
+     * edit surfaces diff against them, and a value that changes when someone
+     * edits a GROUP has no business being cached on a host or being written
+     * back. Kept as an explicit call so every caller is visibly asking for
+     * the resolved answer rather than picking it up by accident.
+     *
+     * @return array module ids, ascending
+     * @throws \RuntimeException on any query failure
+     */
+    public function resolvedModules()
+    {
+        $id = (int)$this->get('id');
+        if ($id < 1) {
+            return [];
+        }
+        $resolved = Resolver::resolveModules([$id]);
+
+        return (array)($resolved[$id] ?? []);
     }
     /**
      * Loads any powermanagement tasks this host has
