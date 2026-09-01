@@ -146,10 +146,29 @@ channelToBranch() {
 # rely on one layer alone when the answer decides what gets checked out.
 rcBranch() {
     local ref
-    ref=$(git ls-remote --heads --sort=-v:refname \
-        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'refs/heads/rc-*' \
-        2>/dev/null \
+    # Sorted with `sort -Vr`, NOT with git's own --sort=-v:refname.
+    #
+    # `git ls-remote --sort` needs git 2.18 (2018). RHEL/CentOS 7 ships
+    # 1.8.3.1 and Ubuntu 18.04 ships 2.17.1 -- and those are exactly the
+    # hosts this matters on, because they are 1.5-era servers and `rc` is the
+    # DEFAULT channel of the 1.5 updater whose whole job is moving them to
+    # 1.6. On an older git the option is a usage error, 2>/dev/null swallows
+    # it, and every caller reports "no release candidate is currently
+    # published": a confident, wrong diagnosis. sort -V is coreutils 7
+    # (2008), which predates every distro FOG supports.
+    #
+    # Asks the checkout's OWN origin where there is one; the constant is only
+    # a fallback for bin/bootstrap.sh, which has no clone yet. A server
+    # installed from a fork or an internal mirror must not be told about a
+    # release candidate its origin does not carry -- gitUpdateToBranch would
+    # then fail at `git checkout` -- and an air-gapped one must not reach for
+    # github.com.
+    local remote
+    remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
+    [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
+    ref=$(git ls-remote --heads "$remote" 'refs/heads/rc-*' 2>/dev/null \
         | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | sort -Vr \
         | head -n1) || return 1
     [[ -n $ref ]] || return 1
     echo "$ref"
@@ -266,7 +285,7 @@ detectOSFamily() {
         [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
         [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
     fi
-    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr "[:upper:]" "[:lower:]")
     osfamily=""
     case $linuxReleaseName_lower in
         *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
@@ -289,8 +308,14 @@ detectOSFamily() {
 }
 backupReports() {
     dots "Backing up user reports"
-    [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
-    [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$error_log
+    # EMPTIED first. It was only created-if-absent, and nothing ever removed
+    # it, so it accumulated across upgrades -- which was harmless while nothing
+    # read it back and is not now: a report the admin deleted through the web
+    # UI was still sitting here from a previous run and would be restored on
+    # the next one, undeleting itself.
+    rm -rf ../rpttmp >>$error_log 2>&1
+    mkdir -p ../rpttmp >>$error_log 2>&1
+    [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/. ../rpttmp/ >>$error_log 2>&1
     echo "Done"
     return 0
 }
@@ -2288,14 +2313,26 @@ join() {
 # that was not there is a worse outcome than the one this exists to prevent.
 restoreReports() {
     local warn=0
-    [[ -d $webdirdest/management/reports && -d ../rpttmp ]] || return 0
+    [[ -d ../rpttmp ]] || return 0
     # find, not a glob: `cp -a ../rpttmp/*` passes the unexpanded pattern
     # through to cp when the directory is empty, which fails.
     [[ -n $(find ../rpttmp -mindepth 1 -print -quit 2>/dev/null) ]] || return 0
     dots "Restoring user reports"
+    # mkdir, not a test for the directory. The original guard required
+    # management/reports/ to already exist in the rebuilt tree -- and it never
+    # does: packages/web/management ships no reports/ directory, the web root
+    # is rebuilt from that source tree by configureHttpd, and the directory is
+    # created at runtime by the reporting code. So the guard was false on every
+    # ordinary upgrade and this function returned having restored nothing,
+    # which made the GH-1580 fix a no-op on exactly the path it was written
+    # for. The test asserted that the missing-directory case was a silent
+    # success, so the suite agreed with it.
+    mkdir -p "$webdirdest/management/reports" >>$error_log 2>&1 || { warn=1; }
     # /. so dotfiles come along and the copy lands INSIDE the target rather
     # than creating ../rpttmp underneath it.
     cp -a ../rpttmp/. $webdirdest/management/reports/ >>$error_log 2>&1 || warn=1
+    # Cleared on the way out, for the same reason it is cleared on the way in.
+    [[ $warn -eq 0 ]] && rm -rf ../rpttmp >>$error_log 2>&1
     [[ $warn -ne 0 ]] && echo -n "(some reports could not be restored) "
     errorStat 0
 }
@@ -4842,6 +4879,12 @@ errorStat() {
     local skipOk=$2
     if [[ $status != 0 ]]; then
         echo "Failed!"
+        # Return rather than falling through. With $exitFail set -- which
+        # bin/updatefog.sh does, so a failed git step returns control instead
+        # of ending the process -- the abort block below is skipped and
+        # execution reached the "OK" at the end of this function, printing
+        # `Failed!OK` for every failed fetch/checkout/reset.
+        [[ -n $exitFail ]] && return 0
         if [[ -z $exitFail ]]; then
             echo
             echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"

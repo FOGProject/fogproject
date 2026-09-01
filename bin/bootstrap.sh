@@ -131,7 +131,7 @@ if [[ ! $EUID -eq 0 ]]; then
 fi
 
 [[ -z $OS ]] && OS=$(uname -s)
-if [[ ! $(echo "$OS" | tr [:upper:] [:lower:]) =~ "linux" ]]; then
+if [[ ! $(echo "$OS" | tr "[:upper:]" "[:lower:]") =~ "linux" ]]; then
     echo "We do not currently support Installation on non-Linux Operating Systems"
     exit 2
 fi
@@ -154,7 +154,7 @@ detectOSFamily() {
         [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
         [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
     fi
-    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr "[:upper:]" "[:lower:]")
     osfamily=""
     case $linuxReleaseName_lower in
         *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
@@ -209,8 +209,18 @@ normalizeChannel() {
 # rely on one layer alone when the answer decides what gets checked out.
 rcBranch() {
     local ref
-    ref=$(git ls-remote --heads --sort=-v:refname "$repo" 'refs/heads/rc-*' 2>/dev/null \
+    # sort -Vr rather than git --sort=-v:refname: ls-remote --sort needs git
+    # 2.18, and this script runs on a machine whose git it has only just
+    # installed from the distro repository -- which on an older release is
+    # 1.8.3.1 or 2.17.1. There the option is a usage error and the failure is
+    # indistinguishable from "no release candidate published".
+    #
+    # No local origin to ask here, unlike functions.sh rcBranch: there is no
+    # clone yet. $repo is the constant this script clones from anyway, so the
+    # branch it resolves is one that remote definitely carries.
+    ref=$(git ls-remote --heads "$repo" 'rc-*' 2>/dev/null \
         | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | sort -Vr \
         | head -n1) || return 1
     [[ -n $ref ]] || return 1
     echo "$ref"
