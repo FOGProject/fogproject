@@ -19,7 +19,7 @@
 #
 # The rotation is EXECUTED against a fixture, not read. A textual check for the
 # right variable name passes on a loop that names it and gets the direction
-# backwards, and the direction is the whole of the behaviour: rotating the
+# backwards, and the direction is the whole of the behavior: rotating the
 # wrong way overwrites the newest snapshot with the oldest.
 #
 # No root, no network, no FOG install.
