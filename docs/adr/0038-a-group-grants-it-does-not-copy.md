@@ -293,7 +293,7 @@ new, so no upgraded database has one.
 | `Assign\Resolver::resolveModules()`, the three tiers | #1632 |
 | the client paths read the resolved list; `get('modules')` stays host-direct | #1633 |
 | `addRemItem()`'s module special case removed, the default now supplies it | #1634 |
-| the host Modules tab becomes genuinely tri-state, so a host can say OFF | #TBD |
+| the host Modules tab becomes genuinely tri-state, so a host can say OFF | #1646 |
 
 **`get('modules')` deliberately stays host-direct.** Route's host update arm
 diffs against it, so a resolved value there would write a host row for every
