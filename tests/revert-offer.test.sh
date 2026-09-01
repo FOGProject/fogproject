@@ -241,15 +241,44 @@ buildFixture() {
 }
 
 if buildFixture; then
-    out=$( cd "$uwork/bin" && VICTIM="$uwork/bin/updatefog.sh"            bash ./updatefog.sh --channel beta --yes 2>&1 )
+    mkdir -p "$uwork/tmp"
+    out=$( cd "$uwork/bin" && VICTIM="$uwork/bin/updatefog.sh" TMPDIR="$uwork/tmp"            bash ./updatefog.sh --channel beta --yes 2>&1 )
     st=$?
     check "updatefog.sh keeps executing after its own file is emptied mid-run"         "$(grep -q 'No existing FOG install found' <<< "$out"; echo $?)"
     check "and exits deliberately rather than falling off the end of a lost file"         "$([[ $st -eq 1 ]]; echo $?)"
     check "the original really was emptied, so that proved something"         "$([[ ! -s $uwork/bin/updatefog.sh ]]; echo $?)"
-    check "no temporary copy is left behind"         "$([[ $(ls /tmp/fog-updatefog.* 2>/dev/null | wc -l) -eq 0 ]]; echo $?)"
+    # Counted inside this run's own TMPDIR, not /tmp: a global count picks up
+    # copies left by anything else on the machine -- including an earlier
+    # manual run of this very script -- and fails for reasons that have
+    # nothing to do with the code under test.
+    check "no temporary copy is left behind"         "$([[ $(ls "$uwork"/tmp/fog-updatefog.* 2>/dev/null | wc -l) -eq 0 ]]; echo $?)"
 else
     check "could not build the self-rewrite fixture (a source line moved)" 1
 fi
+
+# Invoked by a RELATIVE path, which is how a cron entry or a hand-typed
+# `bash bin/updatefog.sh` from the repository root reaches it.
+#
+# The self-copy reads the script off disk, and the script cd's to its own bin/
+# before that point -- so copying from "$0" resolved the caller's relative path
+# against the new directory and failed, breaking an invocation form that worked
+# before the copy existed. It must read the path resolved before the cd.
+relwork="$work/relative"
+mkdir -p "$relwork/repo/bin"
+sed -e 's/^if \[\[ ! \$EUID -eq 0 \]\]; then$/if false; then/' \
+    -e 's#^\. \.\./lib/common/functions\.sh$#echo reached-past-the-relaunch; exit 0#' \
+    "$updater" > "$relwork/repo/bin/updatefog.sh"
+
+if grep -q 'reached-past-the-relaunch' "$relwork/repo/bin/updatefog.sh"; then
+    relout=$( cd "$relwork/repo" && bash bin/updatefog.sh --channel beta --yes 2>&1 )
+    check "a relative invocation can still copy itself" \
+        "$(grep -q 'reached-past-the-relaunch' <<< "$relout"; echo $?)"
+    check "and does not report that it could not copy itself" \
+        "$(! grep -q 'Could not copy this script' <<< "$relout"; echo $?)"
+else
+    check "could not build the relative-invocation fixture" 1
+fi
+
 
 u=$(sed 's/#.*//' "$updater")
 
