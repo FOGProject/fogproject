@@ -367,6 +367,150 @@ $check(
     )
 );
 
+// --- Redaction ------------------------------------------------------------
+//
+// ADPass and productKey both match Redaction::CREDENTIAL_PATTERN, and the
+// mass edit form renders a hint beside every control. Agreement is worth
+// reporting; the value is not.
+$check(
+    'a redacted agreed value reports agreement, never the value',
+    _('(set on all)') === \FOG\Util\SharedHostValues::text(
+        ['uniform' => true, 'value' => 'hunter2'],
+        true
+    )
+);
+$check(
+    'redaction does not leak the value into the hint markup',
+    false === strpos(
+        \FOG\Util\SharedHostValues::hint(
+            ['uniform' => true, 'value' => 'hunter2'],
+            true
+        ),
+        'hunter2'
+    )
+);
+$check(
+    'redaction still distinguishes varies from set-on-all',
+    _('(varies)') === \FOG\Util\SharedHostValues::text(
+        ['uniform' => false, 'value' => 'hunter2'],
+        true
+    )
+);
+$check(
+    'redaction still distinguishes empty-on-all',
+    _('(empty on all)') === \FOG\Util\SharedHostValues::text(
+        ['uniform' => true, 'value' => ''],
+        true
+    )
+);
+
+// --- Row-backed tables ----------------------------------------------------
+//
+// Auto-logout and screen resolution are one row per host, and a host with no
+// row is a host with no override. The property that matters, and the one a
+// naive query gets wrong, is that "every host agrees" must mean every
+// SELECTED host -- not every host that happens to have a row.
+$pdo->exec(
+    'CREATE TABLE `hostAutoLogOut` ('
+    . '`haloID` int(11) NOT NULL AUTO_INCREMENT, '
+    . '`haloHostID` int(11) NOT NULL, '
+    . '`haloTime` varchar(6) NULL, '
+    . 'PRIMARY KEY (`haloID`)'
+    . ') ENGINE=InnoDB'
+);
+$pdo->exec(
+    "INSERT INTO `hostAutoLogOut` (`haloHostID`,`haloTime`) VALUES "
+    // 1 and 2 agree. 3 has NO ROW AT ALL -- the case the whole method is
+    // about. 4 disagrees. 5 and 6 both HAVE rows and 6's value is NULL,
+    // which is the COALESCE trap: COUNT(DISTINCT) skips NULLs, so without
+    // the COALESCE the pair counts as one distinct value and reports
+    // agreement on a time that host 6 does not have.
+    . "(1,'15'), (2,'15'), (4,'30'), (5,'15'), (6,NULL)"
+);
+
+$stub->resetRow();
+$got = \FOG\Util\SharedHostValues::forHostRows(
+    [1, 2],
+    'hostAutoLogOut',
+    'haloHostID',
+    ['alo' => 'haloTime']
+);
+$check(
+    'row-backed hosts that all have a row and agree are uniform',
+    true === ($got['alo']['uniform'] ?? null)
+        && '15' === ($got['alo']['value'] ?? null)
+);
+
+$stub->resetRow();
+$got = \FOG\Util\SharedHostValues::forHostRows(
+    [1, 2, 3],
+    'hostAutoLogOut',
+    'haloHostID',
+    ['alo' => 'haloTime']
+);
+// THE ONE THAT MATTERS. Hosts 1 and 2 hold '15'; host 3 has no row. A query
+// that only compared the rows it found would report agreement on a value one
+// of the three does not have, and the form would say "15 (all)" over a
+// selection where a third of the hosts have no auto-logout at all.
+$check(
+    'a selected host with NO ROW breaks uniformity',
+    false === ($got['alo']['uniform'] ?? null)
+);
+
+$stub->resetRow();
+$got = \FOG\Util\SharedHostValues::forHostRows(
+    [1, 4],
+    'hostAutoLogOut',
+    'haloHostID',
+    ['alo' => 'haloTime']
+);
+$check(
+    'row-backed hosts holding different values are not uniform',
+    false === ($got['alo']['uniform'] ?? null)
+);
+
+$stub->resetRow();
+svTakeQueryCount();
+$got = \FOG\Util\SharedHostValues::forHostRows(
+    [1, 2, 3, 4],
+    'hostAutoLogOut',
+    'haloHostID',
+    ['alo' => 'haloTime']
+);
+$check(
+    'the row-backed answer also takes ONE query',
+    1 === svTakeQueryCount()
+);
+
+$stub->resetRow();
+$got = \FOG\Util\SharedHostValues::forHostRows(
+    [5, 6],
+    'hostAutoLogOut',
+    'haloHostID',
+    ['alo' => 'haloTime']
+);
+// The COALESCE guard for the row-backed side, and the only case that tests
+// it. Both hosts HAVE rows -- so the every-host-has-a-row rule above is
+// satisfied and cannot be what answers this -- but one holds NULL.
+// COUNT(DISTINCT) skips NULLs, so without the COALESCE this counts one
+// distinct value and the form says "15 (all)" over a host with no
+// auto-logout time at all.
+$check(
+    'a NULL value among rows that exist is a disagreement',
+    false === ($got['alo']['uniform'] ?? null)
+);
+
+$got = \FOG\Util\SharedHostValues::forHostRows(
+    [],
+    'hostAutoLogOut',
+    'haloHostID',
+    ['alo' => 'haloTime']
+);
+$check(
+    'an empty selection is not uniform and asks nothing',
+    false === ($got['alo']['uniform'] ?? null)
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: shared host values are not telling the truth:\n");
     foreach ($failures as $f) {

@@ -242,6 +242,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1649,6 +1652,10 @@ msgstr "クリア"
 msgid "Clear Fields"
 msgstr "フィールドをクリア"
 
+#, fuzzy
+msgid "Clear on all"
+msgstr "すべてのフィールドをクリアしますか？"
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2489,6 +2496,14 @@ msgstr "ノードを編集"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "ノードを編集"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "選択したホストを承認"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3522,6 +3537,10 @@ msgstr "ホストはアクセス用にロックされていません"
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "午前 0 時"
 
 msgid "Height must be 120 pixels."
 msgstr "高さは 120 ピクセルである必要があります。"
@@ -5263,6 +5282,18 @@ msgid "Mass Edit Success"
 msgstr "ホストの更新に成功しました"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "ホストの更新に失敗しました"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "ホストの更新に成功しました"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "ホストの更新に失敗しました"
 
@@ -6980,6 +7011,9 @@ msgstr ""
 msgid "Redirect URI"
 msgstr ""
 
+msgid "Refresh"
+msgstr ""
+
 msgid "Refresh Settings Cache"
 msgstr ""
 
@@ -7674,6 +7708,10 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr "ストレージグループの説明"
 
 msgid "Set failed"
+msgstr "設定に失敗しました"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "設定に失敗しました"
 
 #, fuzzy
@@ -10156,6 +10194,9 @@ msgstr ""
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
 msgstr ""
 
+msgid "Width"
+msgstr ""
+
 msgid "Width must be 650 pixels."
 msgstr "幅は 650 ピクセルである必要があります。"
 
@@ -11561,9 +11602,6 @@ msgstr ""
 
 #~ msgid "City/State/Zip"
 #~ msgstr "市区町村/都道府県/郵便番号"
-
-#~ msgid "Clear all fields?"
-#~ msgstr "すべてのフィールドをクリアしますか？"
 
 #~ msgid "Clear all history"
 #~ msgstr "すべての履歴をクリア"

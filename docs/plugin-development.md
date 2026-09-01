@@ -1070,9 +1070,85 @@ fire for page routes too: `docs/adr/0006-site-object-scope-boundary.md`.
 | `API_SERVER_OWNED_FIELDS` | refuse API writes to columns your own code maintains — see §8 |
 | `<NODE>_ADD_FIELDS` / `_GENERAL_FIELDS` | let others extend your forms |
 | `<NODE>_ADD_POST` / `_EDIT_POST` / `_ADD_SUCCESS` / `_ADD_FAIL` | extension points around your saves |
+| `HOST_MASSEDIT_FIELDS` / `HOST_MASSEDIT_APPLY` | change one of your own values across a whole host selection — see §9b |
 
 Fire your own events with `&`‑by‑reference args so listeners can mutate them
 (see the example's `HELLOWORLD_*` events).
+
+### 9b. Changing a value across many hosts — `HOST_MASSEDIT_*`
+
+Every other editing extension point a plugin has is a **per-object** edit with
+a loop behind it. The ABI has a bulk *read* seam (`API_MASSDATA_MAPPING`) and a
+bulk *delete* seam (`DELETEMASS_API`), and between them sat the operation
+neither covers: changing a value across a set. `HOST_MASSEDIT_*` is that seam
+(ADR 0038 decision 13).
+
+It is why `location` and `ou` each shipped a whole second hook file whose only
+job was to set one value across a group's members — and those files always
+clobbered, because there was no way to say *leave this host alone*.
+
+**Contribute a field** — fired when the Mass Edit form is built, and again
+when it is applied, with the same arguments both times so the two can never
+disagree about which keys exist:
+
+```php
+public function massEditFields($arguments)
+{
+    $hostIDs = $arguments['hostIDs'];   // the selection, for your hint
+    $arguments['fields']['myplugin_thing'] = [
+        'label' => _('My Thing'),
+        'input' => '<input class="form-control" '
+            . 'name="value[myplugin_thing]" value=""/>',
+        'hint'  => $this->sharedHint($hostIDs),
+    ];
+}
+```
+
+Three things about that array:
+
+- **`name="value[<your key>]"`.** That is what the resolver reads.
+- **Render it EMPTY.** There is no read path in this form. A control
+  pre-filled from a selection has to answer *"pre-filled with which host's
+  value"*, and there is no honest answer when they differ. Say what the hosts
+  hold in the `hint` instead, where *(varies)* is sayable —
+  `FOG\Util\SharedHostValues` computes exactly that in one query.
+- **Do not draw an action control.** Core draws it. A plugin that drew its own
+  could ship a two-state field, and a two-state field in a mass edit is the
+  defect this whole design is about: it looks identical to a correct one until
+  somebody's values are gone.
+
+**Apply it** — you receive the host ids and the **resolved** instructions for
+your own keys only, already reduced to one of three states:
+
+```php
+public function massEditApply($arguments)
+{
+    foreach ($arguments['actions'] as $key => $instruction) {
+        switch ($instruction['action']) {
+            case 'leave':                       // the default, always
+                break;
+            case 'set':
+                $this->writeAll($arguments['hostIDs'], $instruction['value']);
+                break;
+            case 'clear':
+                $this->clearAll($arguments['hostIDs']);
+                break;
+        }
+    }
+}
+```
+
+You never parse a sentinel, because there is no sentinel. Anything the request
+got wrong — a missing action, a misspelled one, a key you never offered, a
+value that arrived as an array — has already resolved to `leave` before you
+see it. `FOG\Util\MassEdit` fails closed, and *leave alone* is what closed
+means.
+
+**Write in one statement, not a loop.** The core half sends one
+`UPDATE ... WHERE hostID IN (...)` for four hundred hosts, and the row-backed
+half is one delete plus one `insertBatch`. A `foreach` calling `save()` per
+host is the shape the group page had, and it is what ADR 0038 exists to
+remove.
 
 ### 9a. Naming your report
 

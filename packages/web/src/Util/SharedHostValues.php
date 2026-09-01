@@ -127,19 +127,111 @@ class SharedHostValues extends FOGBase
     }
 
     /**
+     * forHosts() for a table holding at most one row per host.
+     *
+     * Auto-logout and screen resolution are not `hosts` columns -- each is a
+     * row in its own table, and a host with no row is a host with no
+     * override. That asymmetry is the whole reason this is a second method
+     * rather than a parameter: "every host agrees" has to mean every SELECTED
+     * host, not every host that happens to have a row. A selection where
+     * thirty hosts share a value and ten have no row at all is NOT uniform,
+     * and a query that only counted the thirty would confidently say it was.
+     *
+     * So the row count is compared against the selection size, not against
+     * itself.
+     *
+     * @param array  $hostIDs the selected host ids
+     * @param string $table   the table holding one row per host
+     * @param string $hostCol the column in it naming the host
+     * @param array  $columns map of friendly key => column in that table
+     *
+     * @return array friendly key => ['uniform' => bool, 'value' => string]
+     */
+    public static function forHostRows(
+        array $hostIDs,
+        $table,
+        $hostCol,
+        array $columns
+    ) {
+        $result = [];
+        foreach ($columns as $key => $col) {
+            $result[$key] = ['uniform' => false, 'value' => ''];
+        }
+        $hostIDs = array_values(
+            array_unique(
+                array_filter(
+                    array_map('intval', $hostIDs),
+                    function ($id) {
+                        return $id > 0;
+                    }
+                )
+            )
+        );
+        if (count($hostIDs) < 1 || count($columns) < 1) {
+            return $result;
+        }
+        $selects = ['COUNT(*) AS `_n`'];
+        foreach ($columns as $key => $col) {
+            $safe = self::_alias($key);
+            $selects[] = sprintf(
+                "COUNT(DISTINCT COALESCE(`%s`, '')) AS `d_%s`",
+                $col,
+                $safe
+            );
+            $selects[] = sprintf(
+                "MIN(COALESCE(`%s`, '')) AS `v_%s`",
+                $col,
+                $safe
+            );
+        }
+        $sql = sprintf(
+            'SELECT %s FROM `%s` WHERE `%s` IN (%s)',
+            implode(',', $selects),
+            $table,
+            $hostCol,
+            implode(',', $hostIDs)
+        );
+        $row = self::$DB->query($sql)->fetch();
+        $n = (int)$row->get('_n');
+        // The line this method exists for. Every selected host must have a
+        // row before the values in those rows can be called uniform.
+        $everyHostHasOne = ($n === count($hostIDs));
+        foreach ($columns as $key => $col) {
+            $safe = self::_alias($key);
+            $distinct = (int)$row->get('d_' . $safe);
+            $result[$key] = [
+                'uniform' => ($everyHostHasOne && $n > 0 && $distinct <= 1),
+                'value' => (string)$row->get('v_' . $safe),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * The text a form shows for one column's shared state.
      *
-     * @param array $info an entry from forHosts()
+     * @param array $info   an entry from forHosts() or forHostRows()
+     * @param bool  $redact  report agreement without reporting the value
      *
      * @return string ready-to-render, with the value HTML-escaped
      */
-    public static function text($info)
+    public static function text($info, $redact = false)
     {
         if (empty($info['uniform'])) {
             return _('(varies)');
         }
         if ('' === (string)$info['value']) {
             return _('(empty on all)');
+        }
+        // A credential's shared state is still worth reporting -- "they all
+        // have the same one" is what an admin needs to know before changing
+        // it across four hundred hosts -- but the VALUE is not. ADR 0038
+        // decision 11: ADPass and productKey both match
+        // Redaction::CREDENTIAL_PATTERN, and a form editing hundreds of them
+        // at once is the last place either should be rendered.
+        if ($redact) {
+            return _('(set on all)');
         }
 
         return \Initiator::e((string)$info['value']) . ' ' . _('(all)');
@@ -148,14 +240,15 @@ class SharedHostValues extends FOGBase
     /**
      * The muted "Hosts: ..." hint beneath a control.
      *
-     * @param array $info an entry from forHosts()
+     * @param array $info   an entry from forHosts() or forHostRows()
+     * @param bool  $redact  report agreement without reporting the value
      *
      * @return string
      */
-    public static function hint($info)
+    public static function hint($info, $redact = false)
     {
         return '<p class="form-text help-block-tight">'
-            . _('Hosts:') . ' ' . self::text($info)
+            . _('Hosts:') . ' ' . self::text($info, $redact)
             . '</p>';
     }
 

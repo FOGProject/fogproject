@@ -250,6 +250,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1711,6 +1714,9 @@ msgstr "明确"
 msgid "Clear Fields"
 msgstr "清除所有历史"
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2571,6 +2577,14 @@ msgstr "出口Snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "批准选定主机"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3643,6 +3657,10 @@ msgstr ""
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "午夜"
 
 msgid "Height must be 120 pixels."
 msgstr ""
@@ -5468,6 +5486,18 @@ msgid "Mass Edit Success"
 msgstr "安装/升级成功！"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "用户更新失败"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "用户更新失败"
 
@@ -7220,6 +7250,10 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
+msgid "Refresh"
+msgstr "默认刷新频率"
+
+#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "服务状态"
 
@@ -7941,6 +7975,10 @@ msgstr "存储组名称"
 
 #, fuzzy
 msgid "Set failed"
+msgstr "服务更新失败"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "服务更新失败"
 
 #, fuzzy
@@ -10522,6 +10560,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."

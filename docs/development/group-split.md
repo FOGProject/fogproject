@@ -720,12 +720,21 @@ serialize through conflicts anyway.
 | A | Steps 402-405 | `commons/schema.php`, `schema-expected.php`, `schema-constraints.php` | nothing; rehearsed on the 1.5-origin dump first | **merged** (#1604, #1610) |
 | B | `saveGroup` security + permission split | `Auth/Authorization.php`, the one method | nothing; these are live bugs today (§5, UNKNOWN-6) | **merged** (#1598) |
 | C1 | `FOG\Assign\Resolver` + its tests, wired to nothing | new `src/Assign/`, `bin/psr4-scan.php` | A | **merged** (#1611) |
-| C2 | Snapin resolution at task creation + docs | `Items/Group.php`, `Items/Host.php`, `docs/GROUP_SHARED_STATE.md` | C1 | open (#1612) |
+| C2 | Snapin resolution at task creation + docs | `Items/Group.php`, `Items/Host.php`, `docs/GROUP_SHARED_STATE.md` | C1 | **merged** (#1612) |
 | C3 | `persistentgroups` deletion from `fog-plugins` | `fog-plugins` | C2 | open (fog-plugins #35) |
-| C4 | Printer resolution in `PrinterClient` | `Client/PrinterClient.php` | C2, and UNKNOWN-4 observed | not started |
-| C5 | Mass edit + `HOST_MASSEDIT_*` | `Pages/HostManagement.php`, `docs/plugin-development.md` | B (same method) | not started |
+| C4 | Printer resolution in `PrinterClient` | `Client/PrinterClient.php` | C2, and UNKNOWN-4 observed | **merged** (#1616, #1621) |
+| C5a | The three-state action model (`FOG\Util\MassEdit`) | new `src/Util/MassEdit.php` | B | **merged** (#1622) |
+| C5b | The apply endpoint | `Pages/HostManagement.php` | C5a | **merged** (#1623) |
+| C5c | Every `hosts` column ADR 0038 sends to mass edit | `Pages/HostManagement.php` | C5b | **merged** (#1625) |
+| C5d | The row-backed settings + composite values | `Util/MassEdit.php`, `Items/HostAutoLogout.php` | C5c | open (#1626) |
+| C5e | The form, the modal, and `HOST_MASSEDIT_FIELDS` | `Pages/HostManagement.php`, `Base/FOGPage.php`, `Util/SharedHostValues.php`, `fog.host.list.js`, `docs/plugin-development.md` | C5d | open |
 | D | Presentation: groups column + filter, bulk add/remove, group list "grants" | `Router/Route.php`, `Base/FOGManagerController.php`, `Pages/HostManagement.php`, JS | C5 | not started |
 | E | Group page rework + removal of the imperative tabs | `Pages/GroupManagement.php`, JS | **C5 proven** (Decision 10), D | not started |
+
+C5 split into five as it was built. The split is by what each piece can be
+tested against on its own -- the action model with no endpoint, the endpoint
+with no form, the form over a field set that is already complete -- and not
+by file, which is why three of them touch the same method.
 
 A and B are independent of everything and of each other, so they went first and
 in parallel. E is last by Decision 10 and is the only unit that removes

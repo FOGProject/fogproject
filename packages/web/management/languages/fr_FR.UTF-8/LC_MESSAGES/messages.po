@@ -251,6 +251,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1712,6 +1715,9 @@ msgstr "Clair"
 msgid "Clear Fields"
 msgstr "clairement toute l'histoire"
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2572,6 +2578,14 @@ msgstr "Export SnapIns"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "Approuver hôtes sélectionnés"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3644,6 +3658,10 @@ msgstr ""
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "Minuit"
 
 msgid "Height must be 120 pixels."
 msgstr ""
@@ -5469,6 +5487,18 @@ msgid "Mass Edit Success"
 msgstr "Installation / Mise à jour réussie!"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "mise à jour de l'utilisateur a échoué"
 
@@ -7220,6 +7250,10 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
+msgid "Refresh"
+msgstr "Par défaut Taux de rafraîchissement"
+
+#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "État du service"
 
@@ -7940,6 +7974,10 @@ msgstr "Nom du groupe de stockage"
 
 #, fuzzy
 msgid "Set failed"
+msgstr "mise à jour du service n'a pas"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "mise à jour du service n'a pas"
 
 #, fuzzy
@@ -10520,6 +10558,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
