@@ -284,7 +284,21 @@ if [[ -z $autoYes ]]; then
 fi
 
 if ! gitUpdateToBranch "$branch"; then
-    echo " * Git update failed -- nothing was installed. See $error_log."
+    echo " * Git update failed -- nothing was installed."
+    # SHOW it, do not just name it. errorStat's own non-exitFail path already
+    # tails the log for exactly this reason, and this path is the one an admin
+    # reaches most: the git error ("couldn't find remote ref", "would be
+    # overwritten by checkout") is the whole diagnosis, and naming a file makes
+    # them go and open it. exitFail is set here, so errorStat returned instead
+    # of doing this itself.
+    if [[ -s $error_log ]]; then
+        echo " |"
+        while IFS= read -r line; do
+            echo " | $line"
+        done < <(tail -n 5 "$error_log")
+        echo " |"
+    fi
+    echo " * Full log: $error_log"
     exit 1
 fi
 
