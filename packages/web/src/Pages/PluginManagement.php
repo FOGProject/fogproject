@@ -57,18 +57,23 @@ class PluginManagement extends FOGPage
             _('Installed')
         ];
         // Percentages, not content-driven widths. Without them the browser
-        // sizes columns to their longest cell, and Description -- a full
-        // sentence next to four short values -- took most of the table while
-        // Plugin Name wrapped. These proportions are only honored because
-        // the table carries .fog-table-fixed (see fog.plugin.list.js), which
-        // switches it to a fixed layout.
+        // sizes columns to their longest cell and Plugin Name wrapped while
+        // the wide columns took the table. These proportions are only honored
+        // because the table carries .fog-table-fixed (see registerTable()),
+        // which switches it to a fixed layout.
+        //
+        // The five VISIBLE widths sum to 100. Description is not one of them:
+        // it is the row's tooltip on every grid now, not a column, so its
+        // header is emitted (DataTables needs a <th> per column) and then
+        // hidden, and whatever width it carried would only be subtracted from
+        // the total the other five have to share.
         $this->attributes = [
-            ['width' => '18%'],
-            ['width' => '32%'],
-            ['width' => '10%'],
-            ['width' => '20%'],
-            ['width' => '10%'],
-            ['width' => '10%']
+            ['width' => '25%'],
+            ['width' => '0%'],
+            ['width' => '15%'],
+            ['width' => '30%'],
+            ['width' => '15%'],
+            ['width' => '15%']
         ];
     }
     /**
