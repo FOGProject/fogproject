@@ -462,7 +462,46 @@ function fogHideDescriptionState(indexes, state) {
  *
  * @return {void}
  */
+var fogPrefInFlight = {},
+  fogPrefPending = {};
+
 function fogPrefStore(key, value, cb) {
+  // AT MOST ONE WRITE PER KEY IN FLIGHT, and the newest value wins.
+  //
+  // One user gesture routinely produces SEVERAL saves of the same key: a grid
+  // writes its whole state on every column-sizing pass and every redraw, and
+  // DataTables fires those itself while a column is being resized. Sent
+  // concurrently they are answered in whatever order the server finishes
+  // them, and the row keeps whichever ANSWERS last rather than whichever was
+  // SENT last.
+  //
+  // Measured on the lab, one double-click-to-fit on the host list:
+  //
+  //     send 1012   send 1012   send 1522
+  //       ok 1012     ok 1522     ok 1012
+  //
+  // -- the stale write answered last, so the page showed the fitted layout
+  // while the server kept the old one, and the next page load undid the fit.
+  // It reads exactly like the layout being ignored, which is why it is worth
+  // the queue: the write succeeded, twice, with the wrong value.
+  //
+  // So while a key's write is in flight, later values for it are held rather
+  // than sent, and only the newest is sent when that one completes. Anything
+  // superseded in between is dropped -- it was never going to be the final
+  // answer. Per KEY, not globally: two different preferences have no ordering
+  // relationship and must not wait on each other.
+  if (fogPrefInFlight[key]) {
+    // Callbacks accumulate rather than replace. A caller that passed one is
+    // waiting to hear what happened, and dropping its callback with its value
+    // would leave it waiting forever; they are all told the outcome of the
+    // write that actually lands, which is the one whose value stuck.
+    fogPrefPending[key] = {
+      value: value,
+      cbs: (fogPrefPending[key] ? fogPrefPending[key].cbs : []).concat(cb ? [cb] : [])
+    };
+    return;
+  }
+  fogPrefInFlight[key] = true;
   $.ajax({
     url: fogApiBase() + 'system/userpref/' + encodeURIComponent(key),
     type: 'POST',
@@ -470,7 +509,22 @@ function fogPrefStore(key, value, cb) {
     data: JSON.stringify({ value: value }),
     global: false,
     success: function() { if (cb) { cb(null); } },
-    error: function(xhr) { if (cb) { cb(xhr); } }
+    error: function(xhr) { if (cb) { cb(xhr); } },
+    // complete, not success: a failed write must release the key too, or one
+    // error would wedge that preference for the rest of the page's life.
+    complete: function() {
+      delete fogPrefInFlight[key];
+      var next = fogPrefPending[key];
+      if (!next) {
+        return;
+      }
+      delete fogPrefPending[key];
+      fogPrefStore(key, next.value, function(err) {
+        for (var i = 0; i < next.cbs.length; i++) {
+          next.cbs[i](err);
+        }
+      });
+    }
   });
 }
 
