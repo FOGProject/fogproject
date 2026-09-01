@@ -6268,6 +6268,9 @@ msgstr ""
 msgid "Not reported"
 msgstr "Inventário"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "Plugins instalados"
@@ -10092,6 +10095,10 @@ msgid "Unknown identity provider"
 msgstr ""
 
 #, fuzzy
+msgid "Unknown module state"
+msgstr "anfitrião Descrição"
+
+#, fuzzy
 msgid "Unknown permission"
 msgstr "Ocorreu um erro de upload desconhecido. Código de retorno: "
 
@@ -12091,10 +12098,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Update Site Fail"
 #~ msgstr "Anfitrião Update Failed"
-
-#, fuzzy
-#~ msgid "Host module settings"
-#~ msgstr "anfitrião Descrição"
 
 #, fuzzy
 #~ msgid "Hostext Create Fail"

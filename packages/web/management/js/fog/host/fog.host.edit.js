@@ -828,6 +828,45 @@
     // CLIENT SETTINGS TAB
     // Association area — col 0 is the module name (not a mainLink), given
     // responsivePriority so it never collapses.
+    // A module is a SWITCH with three states, not a link that exists or
+    // does not (ADR 0038):
+    //
+    //   On       a host row saying yes
+    //   Off      a host row saying no -- and only a host may say it, so it
+    //            beats every group grant
+    //   Not set  no host row; a group that grants the module turns it on,
+    //            and nothing else does
+    //
+    // So the cell is a select, not a checkbox. Unticking a checkbox deletes
+    // the row, which under this design means "not set" -- and a group grant
+    // would then switch the module straight back on, which is the opposite
+    // of what the click meant.
+    //
+    // The row-selection plumbing is untouched: "Add selected" and "Remove
+    // selected" read DataTables' own selection, not this control, so bulk
+    // still works and now means On and Not set respectively.
+    function moduleStateSelect(row) {
+        // NULL from the LEFT JOIN is the third state, and it must not be
+        // confused with '0'. == null catches null and undefined only.
+        var state = row.state == null
+                ? 'unset'
+                : (parseInt(row.state, 10) === 1 ? 'on' : 'off'),
+            options = [
+                ['on', 'On'],
+                ['off', 'Off'],
+                ['unset', 'Not set']
+            ],
+            html = '<select class="form-select form-select-sm module-state"'
+                + ' data-module="' + $.escapeHtml(String(row.id)) + '">';
+        $.each(options, function(i, opt) {
+            html += '<option value="' + opt[0] + '"'
+                + (state === opt[0] ? ' selected' : '')
+                + '>' + opt[1] + '</option>';
+        });
+
+        return html + '</select>';
+    }
+
     var hostModulesTable = $.registerAssociationTab({
         slug: 'host-module',
         item: 'module',
@@ -841,7 +880,42 @@
                 responsivePriority: -1,
                 targets: 0
             }
-        ]
+        ],
+        checkboxRender: moduleStateSelect,
+        // Bound here rather than once at load: the cell is re-rendered on
+        // every draw, so a handler bound to the old element is gone. .off()
+        // first for the same reason the shared checkbox binding does it --
+        // a responsive recalc redraws and would otherwise stack handlers
+        // and fire one commit per draw.
+        onDraw: function(table) {
+            var btn = $('#host-module-send');
+            $('#host-module-table select.module-state')
+                .off('change.moduleState')
+                .on('change.moduleState', function() {
+                    var sel = $(this);
+                    $.apiCall(
+                        btn.attr('method'),
+                        btn.attr('action'),
+                        {
+                            confirmmodulestate: 1,
+                            moduleid: sel.data('module'),
+                            state: sel.val()
+                        },
+                        function(err) {
+                            if (err) {
+                                // Redraw so the control shows what the
+                                // server actually holds. Leaving the failed
+                                // choice on screen is the worse outcome:
+                                // the row would read as OFF while the host
+                                // still says nothing.
+                                table.draw(false);
+                                return;
+                            }
+                            table.draw(false);
+                        }
+                    );
+                });
+        }
     });
 
     // Display manager area

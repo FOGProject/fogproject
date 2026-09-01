@@ -6084,6 +6084,9 @@ msgstr "Consigliato"
 msgid "Not reported"
 msgstr "Consigliato"
 
+msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgstr ""
+
 #, fuzzy
 msgid "Not signed in"
 msgstr "Non sincronizzo"
@@ -9794,6 +9797,10 @@ msgid "Unknown identity provider"
 msgstr ""
 
 #, fuzzy
+msgid "Unknown module state"
+msgstr "Impostazioni del modulo host"
+
+#, fuzzy
 msgid "Unknown permission"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
@@ -11733,9 +11740,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Update Site Fail"
 #~ msgstr "Aggiornamento Host completato"
-
-#~ msgid "Host module settings"
-#~ msgstr "Impostazioni del modulo host"
 
 #, fuzzy
 #~ msgid "Hostext Create Fail"

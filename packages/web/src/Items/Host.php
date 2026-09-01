@@ -344,6 +344,41 @@ class Host extends FOGController
         // it left the other assocSetter() call sites able to persist an id-0
         // row, and the isLoaded() gate it needed in order to run at all is
         // what poisoned assocSetter into wiping the host's snapins (PR #906).
+        // An explicit OFF row must survive a save that did not ask to clear
+        // it. ADR 0038: only a HOST may say a module is off, and that is the
+        // one statement a group grant cannot overrule -- so losing it
+        // silently switches a module back on across a fleet.
+        //
+        // assocSetter deletes ($cur - $items), where $cur is every row in
+        // moduleStatusByHost and $items is get('modules'). loadModules()
+        // filters to state 1, so an OFF row is in $cur and never in $items:
+        // the two sides of the diff are not reading the same set, and every
+        // save that touches modules at all would drop it. Union the OFF ids
+        // into the diff set so they appear on both sides and neither insert
+        // nor delete fires for them.
+        //
+        // The consequence, stated because it is a real limit rather than an
+        // oversight: a caller that lists `modules` cannot turn an OFF module
+        // back ON, because the row already exists and assocSetter only ever
+        // inserts or deletes. Clearing an OFF is the host Modules tab's job
+        // (Host::setModuleState()), which writes msState directly. That
+        // fails closed, which is the direction this rule wants.
+        if ($this->isDirty('modules')) {
+            $off = self::statedModuleIDs($this->get('id'), 0);
+            if (count($off)) {
+                $this->set(
+                    'modules',
+                    array_values(
+                        array_unique(
+                            array_merge(
+                                (array)$this->get('modules'),
+                                $off
+                            )
+                        )
+                    )
+                );
+            }
+        }
         $this
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
@@ -1905,6 +1940,93 @@ class Host extends FOGController
                     ['sequence' => $sequence]
                 );
         }
+        return $this;
+    }
+    /**
+     * The module ids this host has STATED a state for.
+     *
+     * ADR 0038 gives a module three states on a host: a row with msState 1
+     * (on), a row with msState 0 (off, and it beats every group grant), and
+     * no row at all (unstated -- a group may grant it, and nothing else
+     * turns it on). loadModules() answers the middle question only.
+     *
+     * @param int      $hostID The host.
+     * @param int|null $state  1, 0, or null for either.
+     *
+     * @return array int module ids
+     */
+    public static function statedModuleIDs($hostID, $state = null)
+    {
+        $hostID = (int)$hostID;
+        if ($hostID < 1) {
+            return [];
+        }
+        $find = ['hostID' => $hostID];
+        if (null !== $state) {
+            $find['state'] = (int)$state;
+        }
+
+        return array_map(
+            'intval',
+            (array)Route::getIds('moduleassociation', $find, 'moduleID')
+        );
+    }
+    /**
+     * Writes a module's state on this host, or clears it.
+     *
+     * The tri-state half of ADR 0038's module rule. Deliberately NOT routed
+     * through addModule()/removeModule(): those go through the `modules`
+     * array and assocSetter, which has no vocabulary for a row that exists
+     * and means OFF -- it can only insert a row or delete one. Writing
+     * msState directly is the only way to express the third state, and
+     * leaving `modules` untouched is what keeps save() from re-running that
+     * diff over a value this method already settled.
+     *
+     * @param array    $moduleIDs The modules to write.
+     * @param int|null $state     1 for on, 0 for off, null to clear the row
+     *                            and leave the module unstated.
+     *
+     * @return object
+     */
+    public function setModuleState($moduleIDs, $state)
+    {
+        $hostID = (int)$this->get('id');
+        $ids = [];
+        foreach ((array)$moduleIDs as $id) {
+            $id = (int)$id;
+            if ($id > 0) {
+                $ids[$id] = $id;
+            }
+        }
+        if ($hostID < 1 || !count($ids)) {
+            return $this;
+        }
+        if (null === $state) {
+            Route::deletemass(
+                'moduleassociation',
+                ['hostID' => $hostID, 'moduleID' => array_values($ids)]
+            );
+
+            return $this;
+        }
+        $state = (int)$state ? 1 : 0;
+        // One call covers both creating the row and flipping an existing
+        // one, because save() emits
+        //
+        //   INSERT INTO `moduleStatusByHost` (...) VALUES (...)
+        //   ON DUPLICATE KEY UPDATE ... `msState`=VALUES(`msState`)
+        //
+        // and UNIQUE (msHostID, msModuleID) is what makes that fire. So
+        // turning ON to OFF is the same statement as stating it for the
+        // first time, and no read is needed to tell the two apart.
+        foreach ($ids as $id) {
+            self::getClass('ModuleAssociation')
+                ->set('hostID', $hostID)
+                ->set('moduleID', $id)
+                ->set('state', $state)
+                ->save();
+        }
+
         return $this;
     }
     /**
