@@ -4710,6 +4710,24 @@ class HostManagement extends FOGPage
     }
 
     /**
+     * Refuses a GET to the mass edit form endpoint.
+     *
+     * @return void
+     */
+    public function massEditForm()
+    {
+        // Dispatch anchor. FOGPageManager::render() will not look for
+        // massEditFormPost() until a method literally named for the sub
+        // resolves, so without this the POST below is unreachable and the
+        // request is answered by the host list instead -- 200, valid JSON,
+        // no msg, an empty modal. See FOGPagePost::methodNotAllowed().
+        //
+        // There is no GET form here on purpose: the form's "(varies)" hints
+        // are computed over the actual selection, and several hundred host
+        // ids do not go in a query string.
+        self::methodNotAllowed();
+    }
+    /**
      * Builds the mass edit form for a selection of hosts.
      *
      * A POST rather than a GET, and that is not incidental. The hints beside
@@ -4826,6 +4844,19 @@ class HostManagement extends FOGPage
         $this->jsonSend($code, $msg);
     }
 
+    /**
+     * Refuses a GET to the mass edit apply endpoint.
+     *
+     * @return void
+     */
+    public function massEdit()
+    {
+        // Dispatch anchor for massEditPost(); see massEditForm() above.
+        // This one is a WRITE, so being silently answered by the host list
+        // meant the Update button reported nothing wrong and changed
+        // nothing at all.
+        self::methodNotAllowed();
+    }
     /**
      * Applies a three-state edit to a selection of hosts.
      *

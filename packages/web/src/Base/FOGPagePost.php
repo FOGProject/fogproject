@@ -55,6 +55,49 @@ trait FOGPagePost
     }
 
     /**
+     * Answers a GET that reached a POST-only endpoint.
+     *
+     * WHY THIS EXISTS, and it is a dispatcher constraint rather than a
+     * nicety. FOGPageManager::render() resolves the sub to a method BEFORE
+     * it considers an Ajax or Post suffix:
+     *
+     *     if (... || !method_exists($class, $method) || empty($method)) {
+     *         $method = 'index';
+     *     }
+     *     if (self::$ajax && method_exists($class, $method.'Ajax')) { ... }
+     *     if (self::$post && method_exists($class, $method.'Post')) { ... }
+     *
+     * So a sub implemented ONLY as <sub>Post is never reached. The name is
+     * not found, $method is rewritten to 'index', and the request is
+     * answered by the node's own list -- HTTP 200, valid JSON, and nothing
+     * anywhere saying the endpoint does not exist. That is how the host
+     * list's mass edit shipped unreachable: the browser POSTed to
+     * sub=masseditform, got the 86-row host list back, read data.msg as
+     * undefined and rendered an empty modal.
+     *
+     * A page therefore declares the bare method too, and points it here.
+     * The Post handler still runs for the POST -- the dispatcher appends
+     * the suffix once the bare name resolves -- so the central
+     * checkAuthAndCSRF() on that path is unchanged, and this only ever
+     * answers the verb the endpoint does not implement.
+     *
+     * @return never
+     */
+    protected static function methodNotAllowed()
+    {
+        header('Content-type: application/json');
+        header('Allow: POST');
+        self::jsonSend(
+            HTTPResponseCodes::HTTP_METHOD_NOT_ALLOWED,
+            json_encode(
+                [
+                    'error' => _('This endpoint accepts POST only.'),
+                    'title' => _('Method not allowed')
+                ]
+            )
+        );
+    }
+    /**
      * Fires a result hook then emits the JSON response.
      *
      * Preserves the existing per-method hook contract exactly: the

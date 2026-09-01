@@ -5618,6 +5618,10 @@ msgstr "Non autorisé ici"
 msgid "Method does not exist"
 msgstr "Méthode n'existe pas"
 
+#, fuzzy
+msgid "Method not allowed"
+msgstr "Non autorisé ici"
+
 msgid "Microsoft AD"
 msgstr ""
 
@@ -9607,6 +9611,9 @@ msgid "This document"
 msgstr ""
 
 msgid "This does not change what FOG issues, and it does not change what fog-client pins. Only a self-signed CA certificate is accepted: an intermediate in the same file is dropped rather than trusted, because anchoring an intermediate would trust it as a root."
+msgstr ""
+
+msgid "This endpoint accepts POST only."
 msgstr ""
 
 msgid "This endpoint only accepts POST."
