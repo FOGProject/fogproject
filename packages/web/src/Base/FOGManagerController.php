@@ -1831,8 +1831,8 @@ abstract class FOGManagerController extends FOGBase
          * number" to a named parameter used twice. So every batch of two or
          * more rows into a table with an unnamed NOT NULL column failed
          * outright, silently to the user: tasking a GROUP of two hosts with
-         * anything that is not a deploy or a multicast (wipe, virus scan,
-         * hardware inventory, password reset, snapins) names none of
+         * anything that is not a deploy or a multicast (wipe, hardware
+         * inventory, password reset, snapins) names none of
          * `tasks`' four NFS/image columns and so hit this every time.
          * See background_scripts/prove_batch_fill_duplicate_bind.php.
          */
