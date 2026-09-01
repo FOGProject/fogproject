@@ -40,7 +40,7 @@
 #      of this notice gives would tell an admin to reinstall the thing the
 #      upgrade just removed. It is also unreachable by the scan: the backup
 #      step deletes it out of the backup before this function ever runs, so
-#      the notice keys on a flag _stripRetiredAccessControl sets, and is
+#      the notice keys on a flag _stripRetiredPlugins sets, and is
 #      emitted ahead of both guards that exist only for the comparison.
 #
 # No install, no network, no root.
@@ -191,11 +191,11 @@ fi
 # retired.
 #
 # It also cannot come from the scan the rest of this function does. The backup
-# step calls _stripRetiredAccessControl, which DELETES the directory out of the
+# step calls _stripRetiredPlugins, which DELETES the directory out of the
 # backup, and only then does configureHttpd call _warnUnrecognizedPlugins --
 # so at scan time there is nothing on disk to find. The flag is the only record.
 reset_old_tree
-accesscontrolstripped=1
+retiredpluginsstripped="accesscontrol"
 mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
 out="$(_warnUnrecognizedPlugins)"
 if [[ $out == *"accesscontrol"* ]]; then
@@ -213,7 +213,7 @@ if [[ $out == *"Role Management"* ]]; then
 else
     bad "expected 'Role Management' in output, got: $out"
 fi
-accesscontrolstripped=""
+retiredpluginsstripped=""
 
 # --- 9. no accesscontrol, no accesscontrol notice ----------------------------
 reset_old_tree
@@ -233,7 +233,7 @@ fi
 # configureHttpd with an empty $webdirsrc/lib/plugins, installfog.sh:1353)
 # would otherwise swallow it.
 reset_old_tree
-accesscontrolstripped=1
+retiredpluginsstripped="accesscontrol"
 out="$(_warnUnrecognizedPlugins)"
 if [[ $out == *"accesscontrol"* ]]; then
     ok "accesscontrol is named with no old lib/plugins/ left to scan"
@@ -251,9 +251,9 @@ else
     bad "the empty-bundled-set guard swallowed the accesscontrol notice: $out"
 fi
 webdirsrc="$saved_src"
-accesscontrolstripped=""
+retiredpluginsstripped=""
 
-# --- 11. _stripRetiredAccessControl: removes it, records it, never fails -----
+# --- 11. _stripRetiredPlugins: removes them, records them, never fails ----
 #
 # The removal is not new -- it predates this notice and is correct. What is
 # pinned here is that it still happens, that the flag is set only when the
@@ -261,26 +261,26 @@ accesscontrolstripped=""
 # an `errorStat $?` reporting on the BACKUP, so a non-zero here would report a
 # failed backup that did not fail.
 reset_old_tree
-accesscontrolstripped=""
+retiredpluginsstripped=""
 mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol/class"
-_stripRetiredAccessControl
+_stripRetiredPlugins
 rc=$?
 if [[ ! -d "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol" ]]; then
     ok "accesscontrol is removed from the backup"
 else
     bad "accesscontrol was left in the backup"
 fi
-[[ -n $accesscontrolstripped ]] && ok "the strip records that it happened" \
+[[ $retiredpluginsstripped == *accesscontrol* ]] && ok "the strip records that it happened" \
     || bad "the strip did not record that accesscontrol was there"
 [[ $rc -eq 0 ]] && ok "the strip returns 0 (it feeds an errorStat for the backup)" \
     || bad "the strip returned $rc"
 
 reset_old_tree
-accesscontrolstripped=""
+retiredpluginsstripped=""
 mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
-_stripRetiredAccessControl
+_stripRetiredPlugins
 rc=$?
-if [[ -z $accesscontrolstripped ]]; then
+if [[ $retiredpluginsstripped != *accesscontrol* ]]; then
     ok "the strip records nothing when accesscontrol was not there"
 else
     bad "the strip claimed accesscontrol was there when it was not"
@@ -290,12 +290,108 @@ fi
 
 # --- 12. still never fatal with the accesscontrol notice to print -----------
 reset_old_tree
-accesscontrolstripped=1
+retiredpluginsstripped="accesscontrol"
 _warnUnrecognizedPlugins >/dev/null
 rc=$?
 [[ $rc -eq 0 ]] && ok "the accesscontrol notice is non-fatal too" \
     || bad "should never be fatal, returned $rc"
-accesscontrolstripped=""
+retiredpluginsstripped=""
+
+# --- 13. the production retirement list, read from functions.sh -------------
+#
+# The point of $retiredplugins being top level rather than assigned inside the
+# backup step: this asserts the list the INSTALLER uses, so a name dropped from
+# it fails here instead of silently losing its notice. Everything below sets
+# $retiredpluginsstripped by hand to exercise the reporting, which would keep
+# passing against an empty production list.
+if [[ $retiredplugins == *accesscontrol* ]]; then
+    ok "accesscontrol is on the installer's retirement list"
+else
+    bad "accesscontrol missing from retiredplugins='$retiredplugins'"
+fi
+if [[ $retiredplugins == *persistentgroups* ]]; then
+    ok "persistentgroups is on the installer's retirement list"
+else
+    bad "persistentgroups missing from retiredplugins='$retiredplugins'"
+fi
+
+# --- 14. persistentgroups is retired too, with its OWN advice ---------------
+#
+# ADR 0038. It is on the same list for the same reason -- core replaced it, so
+# "copy it to $fogprogramdir/plugins" would reinstall what the upgrade removed
+# -- but its advice is not accesscontrol's, and the difference is the point:
+# this plugin left a database TRIGGER behind that deleting its files never
+# reached, so the notice has to say the trigger is gone and that reinstalling
+# brings it back. Schema step 402 is what actually drops it.
+reset_old_tree
+retiredpluginsstripped="persistentgroups"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
+out="$(_warnUnrecognizedPlugins)"
+if [[ $out == *"persistentgroups"* ]]; then
+    ok "the retired persistentgroups plugin is named"
+else
+    bad "expected 'persistentgroups' in output, got: $out"
+fi
+if [[ $out == *"TRIGGER"* ]]; then
+    ok "the notice says the database trigger was dropped"
+else
+    bad "expected the trigger to be mentioned, got: $out"
+fi
+if [[ $out == *"Do NOT copy it to ${fogprogramdir}/plugins"* ]]; then
+    ok "persistentgroups is told NOT to be relocated"
+else
+    bad "expected the do-not-relocate line for persistentgroups, got: $out"
+fi
+if [[ $out == *"Role Management"* ]]; then
+    bad "gave persistentgroups accesscontrol's advice: $out"
+else
+    ok "persistentgroups does not get accesscontrol's Role Management advice"
+fi
+retiredpluginsstripped=""
+
+# --- 15. both at once, each with its own advice -----------------------------
+#
+# The list is iterated, so two retired plugins in one old tree must produce two
+# notices rather than the first one only.
+reset_old_tree
+retiredpluginsstripped="accesscontrol persistentgroups"
+out="$(_warnUnrecognizedPlugins)"
+if [[ $out == *"accesscontrol"* && $out == *"persistentgroups"* ]]; then
+    ok "both retired plugins are named when both were present"
+else
+    bad "expected both retired plugins, got: $out"
+fi
+if [[ $out == *"Role Management"* && $out == *"TRIGGER"* ]]; then
+    ok "each retired plugin keeps its own advice"
+else
+    bad "expected both advice blocks, got: $out"
+fi
+retiredpluginsstripped=""
+
+# --- 16. the strip walks the whole list ------------------------------------
+reset_old_tree
+retiredpluginsstripped=""
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol/class"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/persistentgroups/src"
+mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
+_stripRetiredPlugins
+rc=$?
+if [[ ! -d "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/persistentgroups" ]]; then
+    ok "persistentgroups is removed from the backup"
+else
+    bad "persistentgroups was left in the backup"
+fi
+if [[ -d "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext" ]]; then
+    ok "a third-party plugin beside them is NOT removed"
+else
+    bad "the strip removed a plugin that is not retired"
+fi
+[[ $retiredpluginsstripped == *accesscontrol* && $retiredpluginsstripped == *persistentgroups* ]] \
+    && ok "the strip records every retired plugin it found" \
+    || bad "the strip recorded '$retiredpluginsstripped'"
+[[ $rc -eq 0 ]] && ok "the multi-plugin strip returns 0" \
+    || bad "the strip returned $rc"
+retiredpluginsstripped=""
 
 echo
 echo "  $PASS passed, $FAIL failed"
