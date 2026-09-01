@@ -252,8 +252,14 @@ check "without --yes the installer is never given -Y" \
 
 if [[ $st -eq 7 ]]; then
     ok "with no terminal available it refuses (exit 7) rather than going unattended"
-    check "and tells the user how to put the checkout back" \
-        "$(grep -q 'reset --hard' <<< "$out"; echo $?)"
+    # The refusal now happens BEFORE the checkout, so there is nothing to put
+    # back and the message must not imply otherwise. It used to sit beside the
+    # installer invocation, which left a headless run with a 1.5 server and a
+    # 1.6 source tree.
+    check "and says nothing has been changed" \
+        "$(grep -qi 'Nothing has been changed' <<< "$out"; echo $?)"
+    check "and the checkout was never moved" \
+        "$(! grep -q 'checkout' "$calls"; echo $?)"
     check "and does not start the installer at all" \
         "$(! grep -q '^installfog' "$calls"; echo $?)"
 else
