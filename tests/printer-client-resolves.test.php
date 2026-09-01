@@ -32,11 +32,29 @@
  *    either: when that observation exists it is REPLACED by one asserting the
  *    empty case no longer carries an `error` at all.
  *
- * Source-anchored, for the reason set out at length in
- * tests/task-creation-resolves-assignments.test.php: the resolver's behavior
- * is covered behaviorally against a real database, and reaching
- * PrinterClient::json() needs a configured FOG, a host and a client session,
- * at which point the test is an install rehearsal rather than a gate.
+ *    UNKNOWN-4's SERVER half is now observed, in the behavioral file named
+ *    below: a mode-`ar` host in a granting group is told about its own
+ *    printers and the granted ones, and revoking the grant takes only the
+ *    granted ones away. What remains genuinely unobserved is what fog-client
+ *    DOES with that payload, which is a Windows binary's behavior and cannot
+ *    be reached from here. `np` stays until someone watches a real mode-`ar`
+ *    host through a poll cycle.
+ *
+ * Source-anchored, which is a weaker gate than it looked and is now backed by
+ * a behavioral one. This file used to say that reaching PrinterClient::json()
+ * "needs a configured FOG, a host and a client session, at which point the
+ * test is an install rehearsal rather than a gate". That was wrong in one
+ * specific way worth recording: json() needs a HOST OBJECT and a DATABASE,
+ * both of which the harness supplies. What needs the client session is
+ * FOGClient's CONSTRUCTOR, which resolves the host from the request's MAC
+ * list -- and a constructor is not the method under test.
+ *
+ * tests/printer-grants-reach-the-client.test.php drives the real method
+ * against a fixture and asserts on the payload, including the arm this file
+ * cannot reach at all: that revoking a grant REMOVES those printers from the
+ * list while leaving the host's own. Under mode `ar` that is the direction
+ * with teeth. These source anchors stay, because they pin the wiring cheaply
+ * and one of them (`np`) is a deliberate temporary.
  *
  * Usage: php tests/printer-client-resolves.test.php
  * Exit status 0 = pass, 1 = fail.
