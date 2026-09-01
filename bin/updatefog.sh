@@ -62,10 +62,11 @@ done
 export PATH
 
 usage() {
-    echo -e "Usage: $0 [-h?y] [--channel stable|patches|beta] [--branch <name>] [--git-path </path>]"
+    echo -e "Usage: $0 [-h?y] [--channel stable|patches|beta|rc] [--branch <name>] [--git-path </path>]"
     echo -e "\t-h -? --help\t\tDisplay this info"
-    echo -e "\t      --channel\tUpdate channel to track: stable, patches, or beta"
+    echo -e "\t      --channel\tUpdate channel to track: stable, patches, beta or rc"
     echo -e "\t               \t\tdefaults to whatever this server already tracks."
+    echo -e "\t               \t\trc follows the newest published rc-* branch"
     echo -e "\t               \t\tForwarded to installfog.sh, which records it"
     echo -e "\t      --branch\tCheck out an arbitrary branch instead of a channel"
     echo -e "\t               \t\t(e.g. to test a PR/feature branch). One-off: does"
@@ -181,18 +182,33 @@ else
 
     if [[ -z ${FOG_update_channel} ]]; then
         echo " * No update channel configured for this server, and none given via --channel."
-        echo " * Pass --channel stable|patches|beta, or --branch for a one-off checkout."
+        echo " * Pass --channel stable|patches|beta|rc, or --branch for a one-off checkout."
         exit 1
     fi
 
-    branch=$(channelToBranch "${FOG_update_channel}") || {
-        # Names the retired spellings too. They still WORK -- normalizeChannel
-        # folds them -- so anyone who reaches this line has a genuine typo, and
-        # the two vocabularies were confusable enough to be worth a sentence.
-        echo " * Unknown update channel: ${FOG_update_channel} (expected stable, patches, or beta)"
-        echo " * The retired names staging and dev are still accepted, and mean patches and beta."
-        exit 1
-    }
+    branch=$(channelToBranch "${FOG_update_channel}")
+    case $? in
+        0) ;;
+        2)
+            # A channel FOG knows, that has nothing to point at right now. Not
+            # the admin's mistake, so it must not read like one -- and it is a
+            # state that resolves on its own when the next RC is published.
+            echo " * No release candidate is currently published, so the rc channel"
+            echo " | has nothing to check out. This is normal between releases."
+            echo " |"
+            echo " | Track the beta line instead with --channel beta, or pass a"
+            echo " | specific branch with --branch."
+            exit 1
+            ;;
+        *)
+            # Names the retired spellings too. They still WORK -- normalizeChannel
+            # folds them -- so anyone who reaches this line has a genuine typo, and
+            # the two vocabularies were confusable enough to be worth a sentence.
+            echo " * Unknown update channel: ${FOG_update_channel} (expected stable, patches, beta, or rc)"
+            echo " * The retired names staging and dev are still accepted, and mean patches and beta."
+            exit 1
+            ;;
+    esac
 
     [[ -n $schannel ]] && channelArgs=(--channel "${FOG_update_channel}")
 

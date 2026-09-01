@@ -64,12 +64,42 @@ linkIfAbsent() {
 #   stable        stable    Stable
 #   dev-branch    patches   Patches
 #   working-1.6   beta      Beta
-#   rc-*          --        Release Candidate
+#   rc-*          rc        Release Candidate
 #   feature-*     --        Feature
 #
-# The last two have no update channel: nobody tracks a release candidate or a
-# feature branch as a standing preference, so FOG_CHANNEL is a superset rather
-# than a mismatch.
+# feature has no update channel: nobody tracks a feature branch as a standing
+# preference, so FOG_CHANNEL stays a superset rather than a mismatch.
+#
+# rc DID have none, for the stated reason that nobody tracks a release
+# candidate as a standing preference. That turned out to be wrong about who is
+# tracking one. The 1.5 -> 1.6 crossing is the case: a 1.5 server moving onto
+# 1.6 wants the release candidate, not the beta branch, and "track the current
+# RC until it becomes stable" is exactly a standing preference. So the reason
+# is retired rather than the decision quietly reversed.
+#
+# rc is also the one channel that is a QUERY rather than a constant. The others
+# name a branch that always exists; rc-* is a family whose members come and go,
+# so channelToBranch has to ask the remote which one is current. Two
+# consequences that are not obvious:
+#
+#   * It can legitimately resolve to NOTHING, when no release candidate is
+#     published. That is not the same failure as a misspelled channel and does
+#     not deserve the same message, so channelToBranch returns 2 for it and 1
+#     for an unknown name.
+#   * "Current" is the highest VERSION, not the newest commit date. Version
+#     order is what an RC series means (rc-1.6.10 follows rc-1.6.2, which a
+#     lexical sort gets backwards), it survives someone pushing a fix to an
+#     older RC branch, and -- the deciding reason -- it is answerable from
+#     `git ls-remote`, which reports no dates at all. bin/bootstrap.sh has to
+#     resolve this before it has a clone to run for-each-ref against, so a
+#     date-based answer could not be shared with it.
+#
+# And rc is the one label that is not its channel's title-case form: the stored
+# value is the abbreviation, the label spells it out. That is a deliberate
+# exception to the rule above rather than a drift -- "Release Candidate" is
+# already in released version strings, and nobody reads it as naming something
+# other than rc. tests/update-channel-vocabulary.test.sh pins the pair
+# explicitly instead of deriving it.
 #
 # WHY THIS DIRECTION, given GH-1012 deliberately chose stable/staging/dev to
 # match README.md's table. That decision was "match README", not "these three
@@ -89,8 +119,40 @@ channelToBranch() {
         stable) echo "stable" ;;
         patches) echo "dev-branch" ;;
         beta) echo "working-1.6" ;;
+        rc) rcBranch || return 2 ;;
         *) return 1 ;;
     esac
+}
+# The current release-candidate branch, or nothing.
+#
+# Asked of the REMOTE, not of local refs: a checkout that has never fetched
+# has no origin/rc-* to find, and bin/bootstrap.sh runs before there is a
+# checkout at all. ls-remote answers both cases identically and needs no fetch.
+#
+# --sort=-v:refname is a version sort, so rc-1.6.10 beats rc-1.6.2 -- which a
+# plain lexical sort gets backwards, and which is the whole point of asking.
+# Sorting by date is not an option here even if it were preferable: the remote
+# ref advertisement carries no commit dates.
+#
+# Returns 1 with no output when nothing matches. The caller is expected to say
+# "no release candidate is published" rather than "unknown channel"; those are
+# different problems for the admin.
+# refs/heads/rc-*, NOT a bare rc-*. ls-remote matches a pattern against the
+# TAIL of each ref at slash boundaries, so `rc-*` also matches
+# refs/heads/feat/rc-update-channel -- a feature branch, offered to an admin as
+# the current release candidate. Anchoring at refs/heads/ makes "rc-" mean the
+# start of the branch name rather than the start of its last path segment, and
+# the sed re-checks that on the way out: matching rules are not the place to
+# rely on one layer alone when the answer decides what gets checked out.
+rcBranch() {
+    local ref
+    ref=$(git ls-remote --heads --sort=-v:refname \
+        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'refs/heads/rc-*' \
+        2>/dev/null \
+        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | head -n1) || return 1
+    [[ -n $ref ]] || return 1
+    echo "$ref"
 }
 # Folds a channel name to its canonical spelling, so exactly one place knows the
 # retired names. Returns 1 for anything unrecognized rather than echoing it
@@ -108,6 +170,7 @@ normalizeChannel() {
         stable) echo "stable" ;;
         patches|staging) echo "patches" ;;
         beta|dev) echo "beta" ;;
+        rc) echo "rc" ;;
         *) return 1 ;;
     esac
 }
@@ -120,6 +183,7 @@ branchToChannel() {
         stable) echo "stable" ;;
         dev-branch) echo "patches" ;;
         working-1.6) echo "beta" ;;
+        rc-*) echo "rc" ;;
         *) return 1 ;;
     esac
 }
@@ -168,6 +232,59 @@ offerRevert() {
     echo " | restored by this run -- see docs/SUPPORTED_CUSTOMIZATIONS.md -- and"
     echo " | bin/restorekernel.sh --list will show the kernel sets kept for you."
     echo
+    return 0
+}
+# Which of FOG's four packaging families this box belongs to, so a caller can
+# pick a package manager instead of hardcoding one.
+#
+# Sets linuxReleaseName / OSVersion / linuxReleaseName_lower -- the same three
+# globals installfog.sh has always derived at this point in its flow -- plus
+# $osfamily. Each is guarded with [[ -z ]] like the values it replaces, so a
+# caller that has already set them (a test, an override) is left alone.
+#
+# MUST be called directly, never as $(detectOSFamily): command substitution
+# runs it in a subshell and every one of those globals is lost.
+#
+# The patterns are lib/common/input.sh's, which were the more complete of the
+# two copies -- installfog.sh's inline block did not know *mageia*. That is the
+# drift this exists to end: the distro-name parse lived in installfog.sh, the
+# family map lived in input.sh, and neither could see the other.
+#
+# Returns 1 with $osfamily empty for a distro matching none of the four. It
+# does NOT fall back to redhat the way input.sh's suggestion does, and the
+# difference is deliberate: there, redhat is a pre-filled answer to a prompt a
+# person can correct; here it would be a guess about which package-manager
+# binary actually exists, made by something with nobody watching.
+detectOSFamily() {
+    if [[ -f /etc/os-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+        [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+    elif [[ -f /etc/redhat-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
+    elif [[ -f /etc/debian_version ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
+    fi
+    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+    osfamily=""
+    case $linuxReleaseName_lower in
+        *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
+            osfamily="redhat"
+            ;;
+        *ubuntu*|*bian*|*mint*)
+            osfamily="debian"
+            ;;
+        *alpine*)
+            osfamily="alpine"
+            ;;
+        *arch*|*manjaro*)
+            osfamily="arch"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
     return 0
 }
 backupReports() {

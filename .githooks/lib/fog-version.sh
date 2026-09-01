@@ -56,11 +56,18 @@ compute_version() {
     # The channel labels below are the title-case form of the SAME vocabulary
     # lib/common/functions.sh uses for fog_update_channel (GH-1279):
     #
-    #   stable -> Stable   patches -> Patches   beta -> Beta
+    #   stable -> Stable   patches -> Patches   beta -> Beta   rc -> Release Candidate
     #
-    # rc and feature have no update channel -- nobody tracks a release candidate
-    # as a standing preference -- so those two labels are this file's alone.
-    # tests/update-channel-vocabulary.test.sh fails if the two halves drift.
+    # rc is the one label that is not its channel's title-case form: the stored
+    # channel is the abbreviation, this label spells it out. Deliberate, and
+    # pinned as a pair in tests/update-channel-vocabulary.test.sh rather than
+    # derived -- "Release Candidate" is already in released version strings and
+    # nobody reads it as naming something other than rc.
+    #
+    # feature is the only label left with no update channel: nobody tracks a
+    # feature branch as a standing preference. rc used to be in that sentence
+    # too; see channelToBranch in lib/common/functions.sh for why it no longer
+    # is. tests/update-channel-vocabulary.test.sh fails if the halves drift.
     case "$branchon" in
         dev)
             tagversion=$(git describe --tags "$gitcom")
