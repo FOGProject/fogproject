@@ -10,7 +10,7 @@
 # an administrator's own reports were destroyed on every install and upgrade
 # and left only in a temporary directory nothing ever read.
 #
-# Two assertions, and both are needed. The behaviour test alone passes on a
+# Two assertions, and both are needed. The behavior test alone passes on a
 # correct function that is still never called -- which is precisely the state
 # this fixes -- so the call sites are pinned separately. The call-site test
 # alone passes on a function that is called and then fails the install, which
