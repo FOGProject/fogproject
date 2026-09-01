@@ -4116,7 +4116,9 @@ class HostManagement extends FOGPage
         $groups_new = array_values(
             array_filter(
                 array_map('trim', (array)($items['groups_new'] ?: [])),
-                'strlen'
+                function ($name) {
+                    return '' !== $name;
+                }
             )
         );
         // Airtight, both directions: one host outside the caller's site scope
@@ -4143,7 +4145,6 @@ class HostManagement extends FOGPage
                     ]
                 )
             );
-            return;
         }
         try {
             if (!count($hosts)) {
