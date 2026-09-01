@@ -331,6 +331,43 @@ abstract class FOGPage extends FOGBase
         self::redirect("../management/index.php?node={$node}");
     }
     /**
+     * Does this sub act on ONE object, named by an id in the URL?
+     *
+     * EXACT, not a substring, and that is the whole of this method. The
+     * constructor asked `false !== stripos($sub, 'edit')`, which is true of
+     * every sub whose name merely CONTAINS the word -- and the two the mass
+     * edit feature added do:
+     *
+     *     stripos('masseditform', 'edit') === 4
+     *     stripos('massedit', 'edit')     === 4
+     *
+     * Both act on a selection POSTed in the body and have no id by design, so
+     * the guard fired on every use and answered 404 `No host exists with ID`
+     * with nothing after "ID" -- the id it was complaining about did not
+     * exist because there was never meant to be one. The modal that fetches
+     * the form sat on "Loading, please wait..." for as long as it was left
+     * open, because a 404 is not the shape its success handler reads.
+     *
+     * Mass edit therefore could not work at all on a running server, in
+     * either half: the form fetch AND the apply were both refused before
+     * either handler ran. Nothing in the suite could see it, because every
+     * gate on that feature tests a handler or a builder directly and this
+     * guard is upstream of both.
+     *
+     * A method rather than an inline comparison so the rule can be executed
+     * by a test against the sub names that actually exist, rather than
+     * grepped for. `sub=edit` is the only object sub in the tree -- 27 URLs
+     * spell it, and nothing else containing "edit" is an object page.
+     *
+     * @param mixed $sub the sub from the request
+     *
+     * @return bool
+     */
+    protected static function subNeedsObjectID($sub)
+    {
+        return 'edit' === strtolower(trim((string)$sub));
+    }
+    /**
      * Initializes the page class
      *
      * @param mixed $name name of the page to initialize
@@ -372,7 +409,7 @@ abstract class FOGPage extends FOGBase
             $f = filter_input(INPUT_GET, 'f');
         }
         if ($node !== 'service'
-            && false !== stripos($sub, 'edit')
+            && self::subNeedsObjectID($sub)
             && (!isset($id)
             || !is_numeric($id)
             || $id < 1)
