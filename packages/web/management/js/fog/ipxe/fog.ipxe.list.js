@@ -40,7 +40,7 @@
                         var label = 'danger',
                             check = 'times-circle';
                     }
-                    return '<span class="badge bg-'
+                    return '<span class="badge text-bg-'
                         + label
                         + '"><i class="fas fa-'
                         + check
@@ -57,7 +57,7 @@
                         var label = 'danger',
                             check = 'times-circle';
                     }
-                    return '<span class="badge bg-'
+                    return '<span class="badge text-bg-'
                         + label
                         + '"><i class="fas fa-'
                         + check

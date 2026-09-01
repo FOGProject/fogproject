@@ -83,7 +83,7 @@
 
     function showChip(dt, name) {
         var host = chipHost(dt);
-        var chip = el('span', 'badge bg-primary d-inline-flex align-items-center gap-2');
+        var chip = el('span', 'badge text-bg-primary d-inline-flex align-items-center gap-2');
         var close = el('button', 'btn-close btn-close-white');
         host.innerHTML = '';
         chip.appendChild(el('i', 'fas fa-filter'));
@@ -224,19 +224,19 @@
         var by = filter.sharedBy ? ' by ' + filter.sharedBy : '';
         switch (filter.source) {
         case 'user':
-            return el('span', 'badge bg-info ms-2', 'Shared with you' + by);
+            return el('span', 'badge text-bg-info ms-2', 'Shared with you' + by);
         case 'group':
             return el(
-                'span', 'badge bg-info ms-2',
+                'span', 'badge text-bg-info ms-2',
                 'Shared with a group you are in' + by
             );
         case 'role':
             return el(
-                'span', 'badge bg-info ms-2',
+                'span', 'badge text-bg-info ms-2',
                 'Shared with a role you hold' + by
             );
         default:
-            return el('span', 'badge bg-secondary ms-2', 'Everyone');
+            return el('span', 'badge text-bg-secondary ms-2', 'Everyone');
         }
     }
 

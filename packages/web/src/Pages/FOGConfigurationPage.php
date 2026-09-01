@@ -609,12 +609,12 @@ class FOGConfigurationPage extends FOGPage
             . \Initiator::e(gmdate('Y-m-d', $ts)) . '</small>';
         $days = (int) floor(($ts - time()) / 86400);
         if ($days < 0) {
-            $out .= '<br><span class="badge bg-danger">'
+            $out .= '<br><span class="badge text-bg-danger">'
                 . _('Expired') . '</span>';
         } elseif ($days <= 30) {
             // 30 days is the window every ACME client renews inside, so a
             // certificate still amber here is one nothing is renewing.
-            $out .= '<br><span class="badge bg-warning">' . sprintf(
+            $out .= '<br><span class="badge text-bg-warning">' . sprintf(
                 // One day left is precisely when somebody reads this badge,
                 // so it is the case worth getting right.
                 /* translators: %d is a number of days */

@@ -3506,7 +3506,7 @@ class Route extends FOGBase
                             // green now" question and is worth reading off
                             // the grid.
                             if ($d === null || $d === '') {
-                                return '<span class="badge bg-secondary">'
+                                return '<span class="badge text-bg-secondary">'
                                     . _('Not pinged')
                                     . '</span>';
                             }
@@ -3525,7 +3525,7 @@ class Route extends FOGBase
                                 // around them is, which also keeps an HTML
                                 // entity out of the msgid.
                                 if (Ping::METHOD_ICMP === $how) {
-                                    return '<span class="badge bg-success">'
+                                    return '<span class="badge text-bg-success">'
                                         . sprintf(
                                             '%s &middot; ICMP',
                                             _('Online')
@@ -3533,23 +3533,23 @@ class Route extends FOGBase
                                         . '</span>';
                                 }
                                 if (Ping::METHOD_TCP === $how) {
-                                    return '<span class="badge bg-success">'
+                                    return '<span class="badge text-bg-success">'
                                         . sprintf(
                                             '%s &middot; TCP',
                                             _('Online')
                                         )
                                         . '</span>';
                                 }
-                                return '<span class="badge bg-success">'
+                                return '<span class="badge text-bg-success">'
                                     . _('Online')
                                     . '</span>';
                             }
                             if (Ping::isAlive($d)) {
-                                return '<span class="badge bg-info">'
+                                return '<span class="badge text-bg-info">'
                                     . _('Up, port closed')
                                     . '</span>';
                             }
-                            return '<span class="badge bg-secondary">'
+                            return '<span class="badge text-bg-secondary">'
                                 . _(socket_strerror((int)$d))
                                 . '</span>';
                         }
@@ -10006,7 +10006,7 @@ class Route extends FOGBase
                         // "experimental experimental". Plain type text is easy
                         // to skim past on a page whose whole purpose is picking
                         // the build every client will boot from.
-                        $k_i_type = '<span class="badge bg-warning">'
+                        $k_i_type = '<span class="badge text-bg-warning">'
                             . $k_i_type
                             . '</span>';
                     }

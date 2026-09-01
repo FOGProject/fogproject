@@ -92,8 +92,8 @@
         columnDefs.push({
             responsivePriority: 0,
             render: function(data, type, row) {
-                var lock = '<span class="badge bg-warning"><i class="fas fa-lock fa-1x"></i></span>';
-                var unlock = '<span class="badge bg-danger"><i class="fas fa-unlock fa-fx"></i></span>';
+                var lock = '<span class="badge text-bg-warning"><i class="fas fa-lock fa-1x"></i></span>';
+                var unlock = '<span class="badge text-bg-danger"><i class="fas fa-unlock fa-fx"></i></span>';
                 if (row.protected > 0) {
                     return lock;
                 }
@@ -105,8 +105,8 @@
     if ('isEnabled' in colIndex) {
         columnDefs.push({
             render: function(data, type, row) {
-                var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
-                var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
+                var enabled = '<span class="badge text-bg-success"><i class="fas fa-circle-check"></i></span>';
+                var disabled = '<span class="badge text-bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                 if (row.isEnabled > 0) {
                     return enabled;
                 }

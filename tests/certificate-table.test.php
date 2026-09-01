@@ -59,7 +59,7 @@ $t->check(
 $soon = $expiry->invoke(null, ['not_after' => gmdate('M j H:i:s Y', time() + 10 * 86400) . ' GMT']);
 $t->check(
     'one inside 30 days is amber',
-    false !== strpos($soon, 'badge bg-warning')
+    false !== strpos($soon, 'badge text-bg-warning')
 );
 $t->check(
     'and says how many days are left',
@@ -69,7 +69,7 @@ $t->check(
 $gone = $expiry->invoke(null, ['not_after' => gmdate('M j H:i:s Y', time() - 86400) . ' GMT']);
 $t->check(
     'an expired one is red',
-    false !== strpos($gone, 'badge bg-danger')
+    false !== strpos($gone, 'badge text-bg-danger')
 );
 $t->check(
     'and says so rather than showing a negative count',

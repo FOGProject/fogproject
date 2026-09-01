@@ -21,8 +21,8 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
+                    var enabled = '<span class="badge text-bg-success"><i class="fas fa-circle-check"></i></span>';
+                    var disabled = '<span class="badge text-bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                     if (data > 0) {
                         return enabled;
                     } else {
@@ -44,9 +44,9 @@
                 // fa-key rather than fa-robot because the bundled Font
                 // Awesome is 4.7.0 and has no fa-robot.
                 render: function(data, type, row) {
-                    var apiOnly = '<span class="badge bg-warning">'
+                    var apiOnly = '<span class="badge text-bg-warning">'
                         + '<i class="fas fa-key"></i></span>';
-                    var interactive = '<span class="badge bg-secondary">'
+                    var interactive = '<span class="badge text-bg-secondary">'
                         + '<i class="fas fa-user"></i></span>';
                     if (data > 0) {
                         return apiOnly;

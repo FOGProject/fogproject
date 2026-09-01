@@ -48,8 +48,13 @@
                     // cell uses. These strings are composed server-side
                     // because they are translated, not because they are
                     // trusted.
+                    // text-bg-secondary, not bg-secondary: it pins the
+                    // text color as well as the background, both
+                    // !important, so the badge reads the same in either
+                    // theme. See the host list's group chips for the rule
+                    // in fog-default-ui that otherwise wins the color.
                     return $.map(list, function(grant) {
-                        return '<span class="badge bg-secondary me-1">' +
+                        return '<span class="badge text-bg-secondary me-1">' +
                             $.escapeHtml(String(grant)) +
                             '</span>';
                     }).join('');
