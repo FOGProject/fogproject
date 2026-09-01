@@ -716,17 +716,39 @@ page rework, and — pragmatically — file ownership, because
 `Route.php` are touched by most of the work and concurrent PRs against them
 serialize through conflicts anyway.
 
-| # | Unit | Owns | Gated by |
-|---|---|---|---|
-| A | Step 405 + `persistentgroups` deletion | `commons/schema.php`, `schema-expected.php`, `fog-plugins` | nothing; rehearsed on the 1.5-origin dump first |
-| B | `saveGroup` security + permission split | `Auth/Authorization.php`, the one method | nothing; these are live bugs today (§5, UNKNOWN-6) |
-| C | Resolver + mass edit + `HOST_MASSEDIT_*` | new `src/` classes, `Pages/HostManagement.php`, `docs/plugin-development.md` | B (same method) |
-| D | Presentation: groups column + filter, bulk add/remove, group list "grants" | `Router/Route.php`, `Base/FOGManagerController.php`, `Pages/HostManagement.php`, JS | C |
-| E | Group page rework + removal of the imperative tabs | `Pages/GroupManagement.php`, JS | **C proven** (Decision 10), D |
+| # | Unit | Owns | Gated by | State |
+|---|---|---|---|---|
+| A | Steps 402-405 | `commons/schema.php`, `schema-expected.php`, `schema-constraints.php` | nothing; rehearsed on the 1.5-origin dump first | **merged** (#1604, #1610) |
+| B | `saveGroup` security + permission split | `Auth/Authorization.php`, the one method | nothing; these are live bugs today (§5, UNKNOWN-6) | **merged** (#1598) |
+| C1 | `FOG\Assign\Resolver` + its tests, wired to nothing | new `src/Assign/`, `bin/psr4-scan.php` | A | **merged** (#1611) |
+| C2 | Snapin resolution at task creation + docs | `Items/Group.php`, `Items/Host.php`, `docs/GROUP_SHARED_STATE.md` | C1 | open (#1612) |
+| C3 | `persistentgroups` deletion from `fog-plugins` | `fog-plugins` | C2 | open (fog-plugins #35) |
+| C4 | Printer resolution in `PrinterClient` | `Client/PrinterClient.php` | C2, and UNKNOWN-4 observed | not started |
+| C5 | Mass edit + `HOST_MASSEDIT_*` | `Pages/HostManagement.php`, `docs/plugin-development.md` | B (same method) | not started |
+| D | Presentation: groups column + filter, bulk add/remove, group list "grants" | `Router/Route.php`, `Base/FOGManagerController.php`, `Pages/HostManagement.php`, JS | C5 | not started |
+| E | Group page rework + removal of the imperative tabs | `Pages/GroupManagement.php`, JS | **C5 proven** (Decision 10), D | not started |
 
-A and B are independent of everything and of each other, so they go first and
-in parallel. C is the bulk and unblocks both D and E. E is last by Decision 10
-and is the only unit that removes anything.
+A and B are independent of everything and of each other, so they went first and
+in parallel. E is last by Decision 10 and is the only unit that removes
+anything.
+
+**C split into five, and the reasons are worth keeping** — two were planned,
+three were found by building it:
+
+- **C1 before C2** because a resolver wired to nothing can be reviewed for what
+  the order *is*, rather than for what changes when it lands. The behavior is
+  covered by 13 checks against a real database, every one of which was made to
+  fail; the wiring is then a two-line swap with its own gate.
+- **C3 moved out of unit A**, where this table originally had it. Deleting the
+  plugin while core still lacked the replacement would have left anyone
+  installing from `working-1.6` with neither — and the deletion does not remove
+  the plugin from a server anyway, because the work is a TRIGGER that outlives
+  the files. Step 402 is what actually retires it; C3 only stops shipping the
+  source that would re-create it.
+- **C4 is on its own** because it is the only part carrying a wire-format
+  change and a client behavior nobody has watched happen (UNKNOWN-4). Splitting
+  it means the snapin half is not held behind an observation it does not need.
+- **C5 is the mass edit**, unchanged in scope, and still what gates D and E.
 
 **Two things inside that order need calling out rather than discovering.**
 
