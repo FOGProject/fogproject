@@ -254,9 +254,6 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
-msgid "(default on all)"
-msgstr ""
-
 msgid "(deleted user)"
 msgstr ""
 
@@ -2247,9 +2244,6 @@ msgstr "Registros actuales"
 msgid "Current Records"
 msgstr "Registros actuales"
 
-msgid "Current member-host AD state"
-msgstr ""
-
 msgid "DMI Field"
 msgstr ""
 
@@ -2449,10 +2443,6 @@ msgstr "Descarga fracasó"
 msgid "Deploy Method"
 msgstr "última Desplegado"
 
-#, fuzzy
-msgid "Deprecated."
-msgstr "Crear"
-
 msgid "Depth"
 msgstr ""
 
@@ -2551,18 +2541,6 @@ msgid "Domain Password"
 msgstr "Contraseña de dominio"
 
 msgid "Domain Username"
-msgstr "Nombre de dominio usuario"
-
-#, fuzzy
-msgid "Domain joining"
-msgstr "Nombre de dominio"
-
-#, fuzzy
-msgid "Domain name"
-msgstr "Nombre de dominio usuario"
-
-#, fuzzy
-msgid "Domain username"
 msgstr "Nombre de dominio usuario"
 
 msgid "Donate"
@@ -3504,10 +3482,6 @@ msgid "Group Associations"
 msgstr "nodo de almacenamiento"
 
 #, fuzzy
-msgid "Group BIOS Exit"
-msgstr "snapins"
-
-#, fuzzy
 msgid "Group Claim"
 msgstr "Nombre del grupo"
 
@@ -3535,28 +3509,12 @@ msgid "Group Description"
 msgstr "Descripción del Grupo"
 
 #, fuzzy
-msgid "Group Display Manager Settings"
-msgstr "Configuración Tecla"
-
-#, fuzzy
-msgid "Group EFI Exit"
-msgstr "snapins"
-
-#, fuzzy
 msgid "Group Host Associations"
 msgstr "No nodo asociado"
 
 #, fuzzy
 msgid "Group Host Inventories"
 msgstr "Grupo"
-
-#, fuzzy
-msgid "Group Image"
-msgstr "Nombre del grupo"
-
-#, fuzzy
-msgid "Group Image Association"
-msgstr "Asociación para la imagen"
 
 #, fuzzy
 msgid "Group Init"
@@ -3636,13 +3594,6 @@ msgstr "Disco de grupo primario"
 #, fuzzy
 msgid "Group Printer Assignment"
 msgstr "Argumentos grupo Kernel"
-
-#, fuzzy
-msgid "Group Printer Configuration"
-msgstr "Configuración de servicio"
-
-msgid "Group Product Key"
-msgstr "Clave del producto Grupo"
 
 #, fuzzy
 msgid "Group Search DN"
@@ -5242,9 +5193,6 @@ msgstr "Versión del sistema"
 #, fuzzy
 msgid "Latest Version"
 msgstr "Versión del sistema"
-
-msgid "Leave a field blank to keep each host's current value."
-msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -9501,9 +9449,6 @@ msgstr ""
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
-msgid "The fields below that are written onto hosts apply the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
-msgstr ""
-
 msgid "The file itself."
 msgstr ""
 
@@ -9970,9 +9915,6 @@ msgstr ""
 msgid "This setting turns off all FOG Printer Management. Although there are multiple levels already, this is just another level if needed."
 msgstr ""
 
-msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
-msgstr ""
-
 msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 msgstr ""
 
@@ -9986,9 +9928,6 @@ msgid "This will allow you to configure how services"
 msgstr ""
 
 msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
 msgid "This would leave no account able to administer FOG without its identity provider."
@@ -10409,9 +10348,6 @@ msgstr ""
 
 msgid "Uptime"
 msgstr "el tiempo de actividad"
-
-msgid "Use \"Edit selected hosts\" on the Hosts list instead; these controls will be removed in a later release."
-msgstr ""
 
 msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
 msgstr ""
@@ -11157,10 +11093,6 @@ msgid "disabled"
 msgstr "habilitado"
 
 #, fuzzy
-msgid "disabled (all)"
-msgstr "habilitado"
-
-#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "está protegido, no se permite la eliminación"
 
@@ -11172,10 +11104,6 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
-
-#, fuzzy
-msgid "enabled (all)"
-msgstr "habilitado"
 
 #, fuzzy
 msgid "error"
@@ -11506,10 +11434,6 @@ msgstr ""
 #, fuzzy
 msgid "min"
 msgstr "minutos"
-
-#, fuzzy
-msgid "min (all)"
-msgstr "habilitado"
 
 msgid "minutes"
 msgstr "minutos"
@@ -11843,9 +11767,6 @@ msgstr "Impresora actualiza!"
 msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
 msgstr ""
 
-msgid "to clear the field on every host in this group."
-msgstr ""
-
 #, fuzzy
 msgid "to get the requested Kernel"
 msgstr "se requiere ninguna clave"
@@ -12139,6 +12060,22 @@ msgstr ""
 #~ msgstr "No se dispone de hash"
 
 #, fuzzy
+#~ msgid "Deprecated."
+#~ msgstr "Crear"
+
+#, fuzzy
+#~ msgid "Domain joining"
+#~ msgstr "Nombre de dominio"
+
+#, fuzzy
+#~ msgid "Domain name"
+#~ msgstr "Nombre de dominio usuario"
+
+#, fuzzy
+#~ msgid "Domain username"
+#~ msgstr "Nombre de dominio usuario"
+
+#, fuzzy
 #~ msgid "End"
 #~ msgstr "habilitado"
 
@@ -12227,8 +12164,35 @@ msgstr ""
 #~ msgstr "En "
 
 #, fuzzy
+#~ msgid "Group BIOS Exit"
+#~ msgstr "snapins"
+
+#, fuzzy
+#~ msgid "Group Display Manager Settings"
+#~ msgstr "Configuración Tecla"
+
+#, fuzzy
+#~ msgid "Group EFI Exit"
+#~ msgstr "snapins"
+
+#, fuzzy
+#~ msgid "Group Image"
+#~ msgstr "Nombre del grupo"
+
+#, fuzzy
+#~ msgid "Group Image Association"
+#~ msgstr "Asociación para la imagen"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Lista de host"
+
+#, fuzzy
+#~ msgid "Group Printer Configuration"
+#~ msgstr "Configuración de servicio"
+
+#~ msgid "Group Product Key"
+#~ msgstr "Clave del producto Grupo"
 
 #, fuzzy
 #~ msgid "Group Site"
@@ -12675,6 +12639,14 @@ msgstr ""
 #~ msgstr "suprimido"
 
 #, fuzzy
+#~ msgid "disabled (all)"
+#~ msgstr "habilitado"
+
+#, fuzzy
+#~ msgid "enabled (all)"
+#~ msgstr "habilitado"
+
+#, fuzzy
 #~ msgid "has been successfully destroyed"
 #~ msgstr "se ha actualizado correctamente"
 
@@ -12684,6 +12656,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "has failed to destroy"
 #~ msgstr "ha dejado de ser destruido"
+
+#, fuzzy
+#~ msgid "min (all)"
+#~ msgstr "habilitado"
 
 #, fuzzy
 #~ msgid "multicast tasks!"

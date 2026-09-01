@@ -232,9 +232,6 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
-msgid "(default on all)"
-msgstr ""
-
 msgid "(deleted user)"
 msgstr ""
 
@@ -1917,9 +1914,6 @@ msgstr ""
 msgid "Current Records"
 msgstr ""
 
-msgid "Current member-host AD state"
-msgstr ""
-
 msgid "DMI Field"
 msgstr ""
 
@@ -2084,9 +2078,6 @@ msgstr ""
 msgid "Deploy Method"
 msgstr ""
 
-msgid "Deprecated."
-msgstr ""
-
 msgid "Depth"
 msgstr ""
 
@@ -2166,15 +2157,6 @@ msgid "Domain Password"
 msgstr ""
 
 msgid "Domain Username"
-msgstr ""
-
-msgid "Domain joining"
-msgstr ""
-
-msgid "Domain name"
-msgstr ""
-
-msgid "Domain username"
 msgstr ""
 
 msgid "Donate"
@@ -2980,9 +2962,6 @@ msgstr ""
 msgid "Group Associations"
 msgstr ""
 
-msgid "Group BIOS Exit"
-msgstr ""
-
 msgid "Group Claim"
 msgstr ""
 
@@ -3004,22 +2983,10 @@ msgstr ""
 msgid "Group Description"
 msgstr ""
 
-msgid "Group Display Manager Settings"
-msgstr ""
-
-msgid "Group EFI Exit"
-msgstr ""
-
 msgid "Group Host Associations"
 msgstr ""
 
 msgid "Group Host Inventories"
-msgstr ""
-
-msgid "Group Image"
-msgstr ""
-
-msgid "Group Image Association"
 msgstr ""
 
 msgid "Group Init"
@@ -3083,12 +3050,6 @@ msgid "Group Primary Disk"
 msgstr ""
 
 msgid "Group Printer Assignment"
-msgstr ""
-
-msgid "Group Printer Configuration"
-msgstr ""
-
-msgid "Group Product Key"
 msgstr ""
 
 msgid "Group Search DN"
@@ -4385,9 +4346,6 @@ msgid "Latest Development Version"
 msgstr ""
 
 msgid "Latest Version"
-msgstr ""
-
-msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
 msgid "Leave blank to keep the current password"
@@ -7953,9 +7911,6 @@ msgstr ""
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
-msgid "The fields below that are written onto hosts apply the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
-msgstr ""
-
 msgid "The file itself."
 msgstr ""
 
@@ -8393,9 +8348,6 @@ msgstr ""
 msgid "This setting turns off all FOG Printer Management. Although there are multiple levels already, this is just another level if needed."
 msgstr ""
 
-msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
-msgstr ""
-
 msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 msgstr ""
 
@@ -8409,9 +8361,6 @@ msgid "This will allow you to configure how services"
 msgstr ""
 
 msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
 msgid "This would leave no account able to administer FOG without its identity provider."
@@ -8771,9 +8720,6 @@ msgid "Uploaded file too large."
 msgstr ""
 
 msgid "Uptime"
-msgstr ""
-
-msgid "Use \"Edit selected hosts\" on the Hosts list instead; these controls will be removed in a later release."
 msgstr ""
 
 msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
@@ -9427,9 +9373,6 @@ msgstr ""
 msgid "disabled"
 msgstr ""
 
-msgid "disabled (all)"
-msgstr ""
-
 msgid "does not exist and cannot be created"
 msgstr ""
 
@@ -9440,9 +9383,6 @@ msgid "either already selected or uploaded"
 msgstr ""
 
 msgid "either because you have updated"
-msgstr ""
-
-msgid "enabled (all)"
 msgstr ""
 
 msgid "error"
@@ -9726,9 +9666,6 @@ msgid "meaning a node that has no images on it"
 msgstr ""
 
 msgid "min"
-msgstr ""
-
-msgid "min (all)"
 msgstr ""
 
 msgid "minutes"
@@ -10035,9 +9972,6 @@ msgid "to apply the update."
 msgstr ""
 
 msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
-msgstr ""
-
-msgid "to clear the field on every host in this group."
 msgstr ""
 
 msgid "to get the requested Kernel"
