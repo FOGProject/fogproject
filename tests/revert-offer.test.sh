@@ -220,7 +220,7 @@ mkdir -p "$uwork/bin"
 
 # Built fresh each time, because running it is what destroys it.
 #
-# HONEST LIMIT OF THE BEHAVIOURAL CHECK BELOW. Bash reads ahead in blocks, and
+# HONEST LIMIT OF THE BEHAVIORAL CHECK BELOW. Bash reads ahead in blocks, and
 # this script is small enough that a given bash on a given filesystem may
 # already hold the rest of it when the truncation lands -- so the run can
 # survive WITHOUT the copy too, and this fixture was observed doing exactly
@@ -229,7 +229,7 @@ mkdir -p "$uwork/bin"
 #
 # What pins the guard is the pair of structural assertions after it: that the
 # re-exec exists, and that it happens before gitUpdateToBranch. Those do fail
-# when the guard is removed, which was verified. The behavioural case is kept
+# when the guard is removed, which was verified. The behavioral case is kept
 # because the failure it describes is real -- it just cannot be provoked
 # reliably on a file this size, and a check that only sometimes reproduces is
 # worth having as long as nobody reads it as the proof.
