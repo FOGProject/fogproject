@@ -382,6 +382,72 @@ function fogStripVolatileState(state) {
 }
 
 /**
+ * Turns a grid's Description column into a row tooltip.
+ *
+ * A description is prose ABOUT the whole record, not a value to line up
+ * against the other columns. It is routinely longer than everything else on
+ * the row put together, so as a column it either dictates the table's widths
+ * or is clipped to an ellipsis that says nothing -- and it does that on every
+ * grid that carries one, which is why the rule lives here rather than being
+ * decided page by page. A page writes `{data: 'description'}` and gets the
+ * same treatment whichever list it is.
+ *
+ * HIDDEN, NOT DROPPED, and the difference matters. The column still rides the
+ * request, so the global search box and the Filter button still match on a
+ * description -- FOGManagerController::filter() resolves each searchable
+ * column out of `request.columns`, which carries invisible columns too, so
+ * removing it would have quietly taken description search with it. It is kept
+ * out of the Column Visibility picker (`noVis`) because "sometimes a column,
+ * sometimes a tooltip" is a worse answer than either one.
+ *
+ * @param {Array} columns the DataTables column list, modified in place
+ *
+ * @return {Array} indexes of the description columns, for the state fix-up
+ */
+function fogDescriptionColumns(columns) {
+  var found = [],
+    col,
+    i;
+  for (i = 0; i < (columns || []).length; i++) {
+    col = columns[i];
+    if (!col || col.data !== 'description') {
+      continue;
+    }
+    col.visible = false;
+    col.className = (col.className ? col.className + ' ' : '') + 'noVis';
+    found.push(i);
+  }
+  return found;
+}
+
+/**
+ * Forces Description hidden in a state saved before it became a tooltip.
+ *
+ * Column visibility is part of the saved state and the state wins over the
+ * column definition, so without this every user who has ever loaded one of
+ * these grids would keep the column they already have and see no change at
+ * all -- the feature would look like it had not shipped. Only the visible
+ * flag is touched; the rest of their layout is theirs.
+ *
+ * @param {Array}  indexes the description columns, from fogDescriptionColumns
+ * @param {object} state   the state about to be handed to DataTables
+ *
+ * @return {object} the same state
+ */
+function fogHideDescriptionState(indexes, state) {
+  var i;
+  if (!state || !state.columns) {
+    return state;
+  }
+  for (i = 0; i < indexes.length; i++) {
+    if (state.columns[indexes[i]]) {
+      state.columns[indexes[i]].visible = false;
+    }
+  }
+  return state;
+}
+
+/**
  * Stores one preference for the signed-in user.
  *
  * Deliberately not $.apiCall: that raises a toast on every response, and
@@ -700,6 +766,11 @@ var shouldReAuth,
     columnSearchButton,
     {
       extend: 'colvis',
+      // Skips columns the grid hides on purpose rather than as a default --
+      // today that is Description, which is a row tooltip everywhere (see
+      // fogDescriptionColumns) and is not a column anyone should be able to
+      // turn back on from here.
+      columns: ':not(.noVis)',
       text: '<i class="fas fa-table-columns"></i> Column Visibility'
     },
     {
@@ -735,6 +806,11 @@ var shouldReAuth,
     columnSearchButton,
     {
       extend: 'colvis',
+      // Skips columns the grid hides on purpose rather than as a default --
+      // today that is Description, which is a row tooltip everywhere (see
+      // fogDescriptionColumns) and is not a column anyone should be able to
+      // turn back on from here.
+      columns: ':not(.noVis)',
       text: '<i class="fas fa-table-columns"></i> Column Visibility'
     },
     {
@@ -1936,7 +2012,7 @@ $.registerReloadToggle = function(btn, opts) {
 // the others leave, so there is no neighbor to take width from.
 
 // Resolve the pieces of a DataTable that resizing needs to talk to.
-function fogTableParts(node) {
+function fogTableParts(node, api) {
   var body = $(node),
     wrap = body.closest('.dt-container, .dataTables_wrapper'),
     head = wrap.find('.dt-scroll-head table, .dataTables_scrollHead table')
@@ -1969,6 +2045,9 @@ function fogTableParts(node) {
   });
 
   return {
+    // The table's column definitions, when the caller has an API to hand.
+    // Only used to name a column (see fogColKey); resizing works without it.
+    columns: api ? api.settings()[0].aoColumns : null,
     // The header the user actually sees and grabs.
     visibleHead: visibleHead,
     // The table holding the actual rows.
@@ -1999,10 +2078,34 @@ function fogTableParts(node) {
 //    one. Shares restore the same PROPORTIONS at whatever width is available,
 //    which is what "my layout came back" actually feels like.
 //
-// Deliberately in-memory and per page load. localStorage would also survive a
-// reload, but that needs an answer for what happens when a table's columns
-// change underneath a stored layout, and this has no such answer yet.
+// Persisted per user, not just per page load. The shares ride the table's
+// DataTables state -- the same object that already carries column order,
+// visibility, page length and sort -- so they are written to localStorage AND
+// to the preference store by stateSaveCallback below, and come back through
+// stateLoadCallback before the first sizing pass runs. Nothing new is stored
+// and no new key is invented; a width is simply another thing about "how I
+// like to look at this list".
+//
+// What happens when a table's columns change underneath a stored layout was
+// the open question that kept this in memory. The answer is the same one the
+// saved SORT already uses: store against the column's NAME rather than its
+// position. A name the table no longer has is ignored, a column the store has
+// never seen takes its own freshly measured width (fogRestoredColWidths does
+// this already, for the Responsive case), and a layout that goes bad ages out
+// with the rest of the state after stateDuration.
 var fogColWidthStore = {};
+
+// Push the remembered widths out to where they survive a reload.
+//
+// Only ever called off a user GESTURE -- the end of a drag, a double-click to
+// fit -- and never off a sizing pass, which fires on every ajax load, tab
+// show and window resize and would turn a layout nobody touched into a stream
+// of preference writes.
+function fogSaveColWidths(api) {
+  if (api) {
+    api.state.save();
+  }
+}
 
 // A table with no id has no identity worth storing against.
 function fogTableKey(parts) {
@@ -2010,8 +2113,30 @@ function fogTableKey(parts) {
 }
 
 // Identity of the column at colgroup position i.
+//
+// The column's NAME (its DataTables `data` key) where there is one, because
+// that is what survives being stored and read back on a later visit -- an
+// index does not, since adding or removing a column shifts every index after
+// it and the stored widths would land on the wrong columns. Same reason the
+// saved sort stores a name; see fogOrderKeys().
+//
+// data-dt-column is still how we get there: it is the column's ORIGINAL index
+// and it stays put while ColReorder moves the cell around, so it is the one
+// handle that maps a colgroup position back to a column definition.
+//
+// Columns with no name -- the select checkbox, an actions column -- fall back
+// to that index, which is stable for as long as the column set is.
 function fogColKey(parts, i) {
-  return parts.headers.eq(i).attr('data-dt-column');
+  var idx = parts.headers.eq(i).attr('data-dt-column'),
+    col;
+  if (idx === undefined) {
+    return undefined;
+  }
+  col = parts.columns ? parts.columns[idx] : null;
+  if (col && typeof col.data === 'string' && col.data) {
+    return col.data;
+  }
+  return String(idx);
 }
 
 // The widths currently on the colgroup. After a drag this is where the truth
@@ -2299,9 +2424,14 @@ function fogSeedColWidths(parts) {
   return widths;
 }
 
-$.fn.makeColumnsResizable = function() {
+// `api` is the table's DataTables API, and it is optional only so that this
+// stays a plain jQuery plugin any caller can use. With it, a column is
+// remembered by name and the layout is saved through the table's state (so it
+// follows the user); without it, resizing still works but only for this page
+// load, keyed by column position.
+$.fn.makeColumnsResizable = function(api) {
   return this.each(function() {
-    var parts = fogTableParts(this),
+    var parts = fogTableParts(this, api),
       headers = parts.headers,
       colCount = parts.visibleHead.find('colgroup > col').length;
 
@@ -2384,6 +2514,7 @@ $.fn.makeColumnsResizable = function() {
           // Remember where the drag settled, read off the colgroup rather
           // than the header cells -- the cells have not been re-measured.
           fogRememberColWidths(parts, fogCurrentColWidths(parts));
+          fogSaveColWidths(api);
         }
         $('body').addClass('fog-col-resizing');
         $(document).on('mousemove.fogcol', move).on('mouseup.fogcol', up);
@@ -2401,6 +2532,7 @@ $.fn.makeColumnsResizable = function() {
           want = fogNaturalColWidth(parts, i);
         if (want) {
           fogRememberColWidths(parts, fogFitColumn(parts, i, want, widths));
+          fogSaveColWidths(api);
         }
       });
       // A plain click on the strip would still bubble to the sort handler.
@@ -3937,6 +4069,11 @@ $.fn.registerTable = function(onSelect, opts) {
   // Resolved on the first rowCallback; see the note there.
   var unadjustedTable = null;
 
+  // Which columns are Description, filled in once opts and the defaults have
+  // been merged. Declared here so stateLoadCallback below closes over it --
+  // that callback is defined before the answer is known and runs long after.
+  var descriptionColumns = [];
+
   // Default row count comes from FOG_VIEW_DEFAULT_SCREEN (hidden #pageLength).
   var pageLength = parseInt($('#pageLength').val());
 
@@ -3986,6 +4123,16 @@ $.fn.registerTable = function(onSelect, opts) {
     // this is a no-op on an install that has not crossed the boundary and on
     // every client-side table, neither of which sends one.
     rowCallback: function(tr, data) {
+      // The description is the row's tooltip rather than a column of its own
+      // -- see fogDescriptionColumns(). A native `title` rather than a
+      // Bootstrap tooltip on purpose: this runs for every row of every draw,
+      // and a 500-row grid has no business building 500 tooltip instances for
+      // text nobody may hover. The clipped-cell handler further down sets a
+      // title on the CELL, which correctly wins over this one where a cell's
+      // own content is what has been cut off.
+      if (data && typeof data.description === 'string' && data.description) {
+        tr.title = data.description;
+      }
       // Reached through the callback's own `this`, which DataTables sets to
       // the table's jQuery instance, and NOT through the row: rowCallback runs
       // while the row is still DETACHED -- DataTables builds every <tr>, fires
@@ -4037,6 +4184,11 @@ $.fn.registerTable = function(onSelect, opts) {
       // ours to fix here. The key survives any reordering, and fogApplyOrder()
       // puts the sort back where it belongs once the table is up.
       data.fogOrder = fogOrderKeys(settings, data.order);
+      // Hand-set column widths, as each column's SHARE of the table keyed by
+      // column name -- see fogColWidthStore. Absent on a table nobody has
+      // resized, and JSON.stringify drops the key entirely in that case, so
+      // this costs a saved state nothing until someone drags a border.
+      data.fogColWidths = fogColWidthStore[settings.sTableId];
       value = JSON.stringify(fogStripVolatileState(data));
       if (!key) {
         return;
@@ -4077,7 +4229,15 @@ $.fn.registerTable = function(onSelect, opts) {
           // -- or by localStorage before this shipped -- can carry a saved
           // search, and restoring one invisibly is the failure this whole
           // arrangement is written to avoid.
-          callback(fogStripVolatileState(JSON.parse(raw)));
+          var state = fogStripVolatileState(JSON.parse(raw));
+          // Put the column widths back before the table exists, which is what
+          // makes them available to the very first sizing pass: DataTables
+          // waits for this callback, and makeColumnsResizable() reads the
+          // store rather than the state.
+          if (state.fogColWidths) {
+            fogColWidthStore[settings.sTableId] = state.fogColWidths;
+          }
+          callback(fogHideDescriptionState(descriptionColumns, state));
         } catch (e) {
           // A corrupt or truncated value means "no saved layout", not a
           // broken table. JSON.parse throwing here would otherwise take out
@@ -4117,6 +4277,8 @@ $.fn.registerTable = function(onSelect, opts) {
       // differently would be worse than the gap.
       {
         extend: 'colvis',
+        // See the note on the export toolbar's copy of this button.
+        columns: ':not(.noVis)',
         text: '<i class="fas fa-table-columns"></i> Column Visibility'
       },
       {
@@ -4192,6 +4354,10 @@ $.fn.registerTable = function(onSelect, opts) {
   }
 
   opts = $.fogDefaults(opts, defaults);
+
+  // Description becomes the row tooltip on every grid, not a column on any of
+  // them. Applied after the merge so it covers the columns the caller passed.
+  descriptionColumns = fogDescriptionColumns(opts.columns);
 
   // Teach the Filter button what each column IS, and hide from it the columns
   // it could never filter.
@@ -4380,12 +4546,12 @@ $.fn.registerTable = function(onSelect, opts) {
     // strips go with it. draw fires on every Scroller redraw, which would mean
     // re-measuring the header on every scroll tick for nothing.
     table.on('column-sizing.dt', function() {
-      tableNode.makeColumnsResizable();
+      tableNode.makeColumnsResizable(table);
     });
     // First pass deferred: at this point an ajax table has not drawn yet and
     // the scroll header clone may not exist.
     setTimeout(function() {
-      tableNode.makeColumnsResizable();
+      tableNode.makeColumnsResizable(table);
     }, 0);
   }
 
