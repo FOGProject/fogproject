@@ -209,23 +209,64 @@ page and are all absent from the trigger. So "cover the persistentgroups list"
 is a floor, not a ceiling: mass edit must cover the **union**, or retiring
 either mechanism is a regression. That union is what Decision 8 sizes against.
 
-### 3. Modules go to the imperative half, and this is the one place ADR 0001's asymmetry pays off
+### 3. Modules stay in the imperative half — but the reason first given here was wrong
 
-ADR 0001 established that a module counts as "had" only when
-`moduleStatusByHost.msState = 1`, because a module carries an enabled/disabled
-state that snapins and printers do not.
+**The original argument does not survive contact with the code, and it is
+corrected here rather than quietly dropped, because the correction reopens a
+question this decision had treated as settled.**
 
-That state is exactly why modules cannot join the declarative half. A group
-granting a module and a second group granting the same module *disabled* is a
-contradiction with no correct resolution — and unlike a snapin, where the union
-is obviously right, both readings of a module conflict are defensible. So
-modules stay a per-host value that a bulk edit writes, which is what they
-already are.
+What this section said, and what it rested on:
+
+> ADR 0001 established that a module counts as "had" only when
+> `moduleStatusByHost.msState = 1`, because a module carries an
+> enabled/disabled state that snapins and printers do not. That state is
+> exactly why modules cannot join the declarative half. A group granting a
+> module and a second group granting the same module *disabled* is a
+> contradiction with no correct resolution.
+
+**`msState` is vestigial. A disabled association cannot exist.** Verified
+across the whole tree on 2026-09-01:
+
+- Every write sets it to **1**. `Group::addModule()` inserts
+  `[$hostid, $moduleid, 1]` (`Items/Group.php:358`), and
+  `FOGController::addRemItem()` appends a literal `1` for any
+  `moduleassociation` insert (`Base/FOGController.php:1922`, `:1933`). There
+  is no code path anywhere that writes `0`.
+- The **schema deletes any that survive**: `DELETE FROM moduleStatusByHost
+  WHERE msState='0'` runs in two separate steps (`commons/schema.php:1497`,
+  `:3352`), so an upgraded database is purged of them as well.
+- The **client ignores it**. `Host::loadModules()` selects `msModuleID` with
+  no state filter (`Items/Host.php:681`), and `ServiceModule` treats presence
+  in that list as enabled (`Client/ServiceModule.php:91-103`). A `0` row, if
+  one somehow existed, would read as ON to the machine.
+- The only reader that filters on it is the group page's tri-state derivation
+  (`Pages/GroupManagement.php:3064`), where — every row being `1` — it is
+  equivalent to "a row exists".
+
+So a module association is a **two-state** thing: the row is there or it is
+not. The contradiction the original argument turned on has no way to arise.
+
+**What that means for the decision.** With `msState` out of the picture,
+modules look exactly like snapins: a set of associations with no per-source
+attribution, where a union across sources is as well-defined as it is for a
+snapin, and removing a grant from one group leaves another group's grant
+standing. The declarative reading is therefore **available**, where this
+section previously said it was impossible.
+
+**Modules nonetheless stay imperative in this ADR, and that is now a choice
+rather than a forced move.** The reasons are cost and blast radius, not
+logic: the declarative reading needs a `groupModuleAssoc` table, a schema
+step, a constraint group, a third arm on `Assign\Resolver`, and a change to
+what `ServiceModule` reads — none of which the snapin and printer work
+already pays for. Nothing here is a reason it *could not* be done later, and
+moving modules is purely additive if it is.
 
 ADR 0001's closing sentence anticipated the opposite migration ("if snapins or
 printers ever gain a per-host enabled/disabled state, they should converge on
-the module rule"). This decision takes the other fork and the reason is the
-same fact: an item with a tri-state cannot be rolled up.
+the module rule"). That fork is now moot in the direction it named — the
+module rule's distinguishing state is not real — and ADR 0001's own
+description of it (`docs/adr/0001-group-association-state.md:24`) should be
+read with this section beside it.
 
 ### 4. Snapins resolve at task creation, and the snapshot already exists
 
