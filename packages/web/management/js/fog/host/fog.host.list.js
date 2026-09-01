@@ -94,8 +94,18 @@
             }
         });
 
-        hostGroupUpdateBtn.on('click', function(e) {
-            e.preventDefault();
+        // One submit for both directions. The only thing that differs on the
+        // wire is `action`, so add and remove cannot drift apart about what
+        // "the selection" is or which ids are sent -- which is the same
+        // reason massEditSelection() exists server-side.
+        //
+        // A term select2 could not match an existing group by is sent as a
+        // NAME, in groups_new. The server resolves those against the groups
+        // that exist before it creates anything (groupName is UNIQUE), so
+        // typing the name of a group instead of picking it from the list
+        // does the same thing either way, and remove is told which of the
+        // names it could not find rather than silently doing nothing.
+        function submitMembership(remove) {
             var items = groupModalSelect.find('option').map(function() {return $(this).val()}).get(),
                 hosts = $.getSelectedIds(table),
                 groups = [],
@@ -118,7 +128,8 @@
                 opts = {
                     hosts: hosts,
                     groups: groups,
-                    groups_new: groups_new
+                    groups_new: groups_new,
+                    action: remove ? 'remove' : 'add'
                 };
             $.apiCall(method,action,opts,function(err) {
                 if (err) {
@@ -126,8 +137,35 @@
                 }
                 groupModalSelect.val(null);
                 groupModal.modal('hide');
+                // The Groups column is on this grid now, so the chips are
+                // stale the moment this returns. Redrawn holding the current
+                // page and selection, because the point of editing labels in
+                // bulk is to keep going.
+                table.ajax.reload(null, false);
             });
-        });
+        }
+
+        // NAMESPACED, AND UNBOUND FIRST. loadGroupSelect() runs on every
+        // show.bs.modal -- select2 is destroyed on close and has to be built
+        // again -- so a plain .on() here stacked a second handler on the
+        // second open and a third on the third. That was already true of the
+        // Add button before Remove existed: open the modal twice, click Add
+        // once, and the POST went twice. Harmless for an idempotent add;
+        // not harmless for a remove, and not harmless at all now that the
+        // handler creates groups.
+        hostGroupUpdateBtn
+            .off('click.fogGroupMembership')
+            .on('click.fogGroupMembership', function(e) {
+                e.preventDefault();
+                submitMembership(false);
+            });
+
+        $('#confirmGroupRemove')
+            .off('click.fogGroupMembership')
+            .on('click.fogGroupMembership', function(e) {
+                e.preventDefault();
+                submitMembership(true);
+            });
     }
 
     // Build the column list from the header row instead of hardcoding it.
@@ -545,7 +583,7 @@
         });
     });
 
-    // Add host(s) to group.
+    // Edit the selected hosts' group membership, both directions.
     groupModal.registerModal(
         // On show
         null,

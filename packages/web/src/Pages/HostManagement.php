@@ -4991,7 +4991,18 @@ class HostManagement extends FOGPage
         $this->jsonSend($code, $msg);
     }
     /**
-     * Saves host to a selected or new group depending on action.
+     * Adds the selected hosts to groups, or removes them from groups.
+     *
+     * The list's membership editor, and since ADR 0038 Decision 16a the
+     * PRIMARY way membership is edited -- a group is a label now, and the
+     * group page's own Hosts tab is one host list per group, which is three
+     * trips to apply one label to a fleet.
+     *
+     * BOTH DIRECTIONS, because a label you can apply and cannot retract is
+     * not a label (requirement 2). `action=remove` is the only difference on
+     * the wire; everything else -- the gates, the id normalization, the
+     * scope bounds -- is one path, so add and remove cannot drift apart on
+     * who may do them or to what.
      *
      * @return void
      */
@@ -5036,6 +5047,55 @@ class HostManagement extends FOGPage
                 }
             )
         );
+        // Add unless the request says otherwise. Anything unrecognized is an
+        // add: that is what every client predating the remove half sends,
+        // and it is the direction that cannot take a label off a fleet if a
+        // value is somehow wrong.
+        $remove = 'remove' === strtolower(
+            (string)filter_input(INPUT_POST, 'action')
+        );
+        // A TYPED NAME THAT ALREADY NAMES A GROUP IS THAT GROUP.
+        //
+        // `groupName` is UNIQUE (the manifest declares it twice over), so
+        // ->set('name', $taken)->save() fails on the duplicate key -- and the
+        // old code discarded save()'s return, so typing a group's own name
+        // into the modal's (new) slot silently did nothing at all. The group
+        // page's rename path has checked for this the whole time
+        // (GroupManagement.php:705, via getManager()->exists()); this endpoint
+        // is now the primary membership surface and cannot be the looser of
+        // the two.
+        //
+        // Resolved HERE, ahead of the scope bound below, and that placement
+        // is the security half: a resolved id is an id, so it has to be
+        // subject to the same boundary an id posted directly is. Typing a
+        // name must not be a way round a check.
+        //
+        // One query for every typed name. groupName's collation is
+        // case-insensitive, so this matches on exactly what the UNIQUE index
+        // would have collided on.
+        if (count($groups_new)) {
+            $existing = [];
+            foreach ((array)Route::getNames('group', ['name' => $groups_new]) as $row) {
+                $id = (int)($row->id ?? 0);
+                $name = strtolower(trim((string)($row->name ?? '')));
+                if ($id > 0 && '' !== $name) {
+                    $existing[$name] = $id;
+                }
+            }
+            if (count($existing)) {
+                $stillNew = [];
+                foreach ($groups_new as $name) {
+                    $key = strtolower($name);
+                    if (isset($existing[$key])) {
+                        $groups[] = $existing[$key];
+                        continue;
+                    }
+                    $stillNew[] = $name;
+                }
+                $groups = array_values(array_unique($groups));
+                $groups_new = $stillNew;
+            }
+        }
         // Airtight, both directions: one host outside the caller's site scope
         // denies the whole request rather than quietly adding the rest, and
         // the same for the target groups. A site-scoped operator could
@@ -5048,6 +5108,12 @@ class HostManagement extends FOGPage
         // group.create as well, and only when the request actually asks for
         // one. Checked here rather than at the route because the route cannot
         // see the body.
+        //
+        // AFTER the resolution above, deliberately. A name that turned out to
+        // name an existing group creates nothing, so it is an edit and asking
+        // for group.create would be asking for the wider right to do the
+        // narrower thing -- which is the mistake this split was written to
+        // undo.
         if (count($groups_new) && !Authorization::can('group.create')) {
             $this->jsonSend(
                 HTTPResponseCodes::HTTP_FORBIDDEN,
@@ -5063,35 +5129,93 @@ class HostManagement extends FOGPage
         }
         try {
             if (!count($hosts)) {
-                throw new \Exception(_('No hosts selected to be added'));
+                throw new \Exception(_('No hosts are selected'));
             }
             if (!count($groups) && !count($groups_new)) {
                 throw new \Exception(_('No groups are being created or selected'));
             }
-            if (count($groups)) {
-                foreach ($groups as &$group) {
-                    $Group = new Group($group);
-                    if (!$Group->isValid()) {
-                        continue;
-                    }
-                    $Group->addHost($hosts)->save();
-                    unset($group);
-                }
+            // Every name left in groups_new after the resolution above is one
+            // that does NOT exist. Removing hosts from a group that does not
+            // exist removes nothing, and creating an empty group in order to
+            // remove nobody from it is not what anyone meant -- so say so
+            // rather than reporting success over a no-op.
+            if ($remove && count($groups_new)) {
+                throw new \Exception(
+                    sprintf(
+                        _('No group named "%s" exists to remove hosts from'),
+                        implode('", "', $groups_new)
+                    )
+                );
             }
-            if (count($groups_new)) {
-                foreach ($groups_new as &$group) {
-                    self::getClass('Group')
-                        ->set('name', $group)
-                        ->addHost($hosts)
-                        ->save();
-                    unset($group);
+            $touched = [];
+            foreach ($groups as $group) {
+                $Group = new Group($group);
+                if (!$Group->isValid()) {
+                    continue;
                 }
+                if ($remove) {
+                    $Group->removeHost($hosts);
+                } else {
+                    $Group->addHost($hosts);
+                }
+                if (!$Group->save()) {
+                    throw new \Exception(
+                        sprintf(
+                            _('Could not update the group "%s"'),
+                            $Group->get('name')
+                        )
+                    );
+                }
+                $touched[] = $Group->get('name');
             }
+            foreach ($groups_new as $group) {
+                // save()'s return is propagated rather than discarded. It was
+                // discarded here, which is how a duplicate name reported
+                // success while inserting nothing -- see the resolution above
+                // for the case that made it, and tests/save-propagates-
+                // failure.test.php for why this tree treats it as a rule.
+                $New = self::getClass('Group')
+                    ->set('name', $group)
+                    ->addHost($hosts);
+                if (!$New->save()) {
+                    throw new \Exception(
+                        sprintf(_('Could not create the group "%s"'), $group)
+                    );
+                }
+                $touched[] = $group;
+            }
+            // Membership is the label, and ADR 0038 makes this the surface it
+            // is edited from -- so who applied which label to how many hosts
+            // is exactly the question the audit log exists to answer. The
+            // mass edit beside it has recorded its own writes since it
+            // shipped; this one recorded nothing.
+            Audit::record(
+                [
+                    'type' => $remove ? 'host.groupremove' : 'host.groupadd',
+                    'subjectType' => 'host',
+                    'subjectLabel' => implode(', ', $touched),
+                    'permission' => 'group.edit',
+                    'affectedCount' => count($hosts),
+                    'renderable' => 1
+                ]
+            );
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
                 [
-                    'msg' => _('Successfully added hosts to the provided groups!'),
-                    'title' => _('Add Hosts to Groups Success')
+                    'msg' => $remove
+                        ? sprintf(
+                            _('Removed %1$d host(s) from %2$d group(s).'),
+                            count($hosts),
+                            count($touched)
+                        )
+                        : sprintf(
+                            _('Added %1$d host(s) to %2$d group(s).'),
+                            count($hosts),
+                            count($touched)
+                        ),
+                    'title' => $remove
+                        ? _('Remove Hosts from Groups Success')
+                        : _('Add Hosts to Groups Success')
                 ]
             );
         } catch (\Exception $e) {
@@ -5099,7 +5223,9 @@ class HostManagement extends FOGPage
             $msg = json_encode(
                 [
                     'error' => $e->getMessage(),
-                    'title' => _('Add Hosts to Group Fail')
+                    'title' => $remove
+                        ? _('Remove Hosts from Groups Fail')
+                        : _('Add Hosts to Group Fail')
                 ]
             );
         }
