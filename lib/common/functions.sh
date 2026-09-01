@@ -286,7 +286,16 @@ backupPreservedCustomizations() {
     if [[ -d $ipxedir ]]; then
         mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
         rm -rf "${kbdir}/gen-${BOOT_kernel_backups_kept}" >>$error_log 2>&1
-        for ((k = kernelBackupGenerations - 1; k >= 1; k--)); do
+        # GH-1579: rotate on BOOT_kernel_backups_kept, not on the retired
+        # pre-GH-1120 spelling kernelBackupGenerations. That name now survives
+        # only as a migration source (see migrateDeprecatedKeys) and in the
+        # deprecated-key strip list, so on a migrated install -- and on every
+        # fresh one -- it is unset, bash reads it as 0, k starts at -1 and this
+        # loop never runs. gen-1 was overwritten in place forever and gen-2
+        # onward were never created, which silently made
+        # --kernel-backup-count a no-op and restorekernel.sh --generation N
+        # unusable for any N above 1.
+        for ((k = BOOT_kernel_backups_kept - 1; k >= 1; k--)); do
             [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
         done
         mkdir -p "${kbdir}/gen-1" >>$error_log 2>&1 || warn=1
@@ -2105,14 +2114,26 @@ join() {
     shift
     echo "$*"
 }
+# GH-1580: the other half of backupReports(). This function existed but had no
+# call site anywhere, so configureHttpd()'s rm -rf $webdirdest took an admin's
+# own reports on every install and upgrade -- the backup was written to
+# ../rpttmp and then never read.
+#
+# Never fatal. An absent or empty ../rpttmp is the ordinary fresh-install case
+# rather than a failure, and aborting an otherwise good install over a report
+# that was not there is a worse outcome than the one this exists to prevent.
 restoreReports() {
+    local warn=0
+    [[ -d $webdirdest/management/reports && -d ../rpttmp ]] || return 0
+    # find, not a glob: `cp -a ../rpttmp/*` passes the unexpanded pattern
+    # through to cp when the directory is empty, which fails.
+    [[ -n $(find ../rpttmp -mindepth 1 -print -quit 2>/dev/null) ]] || return 0
     dots "Restoring user reports"
-    if [[ -d $webdirdest/management/reports ]]; then
-        if [[ -d ../rpttmp/ ]]; then
-            cp -a ../rpttmp/* $webdirdest/management/reports/
-        fi
-    fi
-    errorStat $?
+    # /. so dotfiles come along and the copy lands INSIDE the target rather
+    # than creating ../rpttmp underneath it.
+    cp -a ../rpttmp/. $webdirdest/management/reports/ >>$error_log 2>&1 || warn=1
+    [[ $warn -ne 0 ]] && echo -n "(some reports could not be restored) "
+    errorStat 0
 }
 installFOGServices() {
     dots "Setting up FOG Services"

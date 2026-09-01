@@ -324,6 +324,30 @@ hangs off and are already signed by their vendors.
 
 ---
 
+## Reports you have written
+
+**Automatic**, on both a full server and a storage node.
+
+Reports you add under `<webroot>/management/reports/` are copied aside before
+the web tree is rebuilt and copied back afterward, so they survive every
+install and upgrade.
+
+| Customization | How it is preserved |
+|---|---|
+| A report file you wrote or edited | Backed up before the web tree is rebuilt, restored after |
+| A report that ships with FOG, edited in place | Restored over the new release's copy — so your edit wins, and you stop receiving FOG's changes to that file |
+
+That second row is the trade-off worth knowing about: the restore does not try
+to tell your file apart from a newer FOG one of the same name. If you want
+FOG's version back, delete yours and re-run the installer.
+
+> Before FOG 1.6 these were backed up and never restored — the backup was
+> written and nothing read it, so an administrator's own reports were lost on
+> every run (GH-1580). If you are upgrading from an affected version, your
+> reports are in `<backuppath>/fog_web_<version>.BACKUP/management/reports`.
+
+---
+
 ## What is NOT automatically preserved
 
 Listed plainly so none of it is a surprise.
@@ -338,7 +362,10 @@ Listed plainly so none of it is a surprise.
   that generation re-signs with the *current* key, which is correct, but any
   client enrolled against the old key still needs re-enrollment.
 - **More than `--kernel-backup-count` generations back.** The oldest is
-  evicted on each run; the default keeps three.
+  evicted on each run; the default keeps three. On FOG before GH-1579 the
+  rotation never ran, so only ever one generation existed no matter what this
+  was set to — if `restorekernel.sh --list` shows a single generation on an
+  older server, that is why.
 - **`php.ini` / MariaDB config beyond FOG's own lines.** FOG patches only the
   specific directives it manages and leaves the rest of those files alone, so
   your edits generally survive — but they are not backed up, and are not
