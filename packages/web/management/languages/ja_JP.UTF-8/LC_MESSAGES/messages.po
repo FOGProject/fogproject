@@ -111,16 +111,20 @@ msgid "%d certificates in this file"
 msgstr ""
 
 #, php-format
-msgid "%d days left"
-msgstr ""
+msgid "%d day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
 
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%d selected hosts"
-msgstr "選択したホストを承認"
+msgid "%d selected host"
+msgid_plural "%d selected hosts"
+msgstr[0] "選択したホストを承認"
+msgstr[1] "選択したホストを承認"
 
 #, php-format
 msgid "%d token(s) disabled."
@@ -7525,8 +7529,10 @@ msgid "Server identity"
 msgstr "サーバーシェル"
 
 #, fuzzy, php-format
-msgid "Server is only configured to run %d multicast tasks"
-msgstr "サービス設定"
+msgid "Server is only configured to run %d multicast task"
+msgid_plural "Server is only configured to run %d multicast tasks"
+msgstr[0] "サービス設定"
+msgstr[1] "サービス設定"
 
 msgid "Server paging bounds. Also published as x-fog-paging at the root of this document."
 msgstr ""
@@ -8633,9 +8639,11 @@ msgstr "タスクタイプが無効です"
 msgid "Task type update failed!"
 msgstr "タスクタイプの更新に失敗しました"
 
-#, php-format
-msgid "Tasking created for %d hosts"
-msgstr ""
+#, fuzzy, php-format
+msgid "Tasking created for %d host"
+msgid_plural "Tasking created for %d hosts"
+msgstr[0] "次のタスクを開始しました"
+msgstr[1] "次のタスクを開始しました"
 
 msgid "Tasks"
 msgstr "タスク"

@@ -96,16 +96,20 @@ msgid "%d certificates in this file"
 msgstr ""
 
 #, php-format
-msgid "%d days left"
-msgstr ""
+msgid "%d day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
 
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
-msgid "%d selected hosts"
-msgstr ""
+msgid "%d selected host"
+msgid_plural "%d selected hosts"
+msgstr[0] ""
+msgstr[1] ""
 
 #, php-format
 msgid "%d token(s) disabled."
@@ -6661,8 +6665,10 @@ msgid "Server identity"
 msgstr ""
 
 #, php-format
-msgid "Server is only configured to run %d multicast tasks"
-msgstr ""
+msgid "Server is only configured to run %d multicast task"
+msgid_plural "Server is only configured to run %d multicast tasks"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Server paging bounds. Also published as x-fog-paging at the root of this document."
 msgstr ""
@@ -7638,8 +7644,10 @@ msgid "Task type update failed!"
 msgstr ""
 
 #, php-format
-msgid "Tasking created for %d hosts"
-msgstr ""
+msgid "Tasking created for %d host"
+msgid_plural "Tasking created for %d hosts"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Tasks"
 msgstr ""

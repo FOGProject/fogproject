@@ -115,16 +115,20 @@ msgid "%d certificates in this file"
 msgstr ""
 
 #, php-format
-msgid "%d days left"
-msgstr ""
+msgid "%d day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
 
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%d selected hosts"
-msgstr "Ausgewählten MAcs freigeben"
+msgid "%d selected host"
+msgid_plural "%d selected hosts"
+msgstr[0] "Ausgewählten MAcs freigeben"
+msgstr[1] "Ausgewählten MAcs freigeben"
 
 #, php-format
 msgid "%d token(s) disabled."
@@ -7791,8 +7795,10 @@ msgid "Server identity"
 msgstr "Server-Shell"
 
 #, fuzzy, php-format
-msgid "Server is only configured to run %d multicast tasks"
-msgstr "Service-Konfiguration"
+msgid "Server is only configured to run %d multicast task"
+msgid_plural "Server is only configured to run %d multicast tasks"
+msgstr[0] "Service-Konfiguration"
+msgstr[1] "Service-Konfiguration"
 
 msgid "Server paging bounds. Also published as x-fog-paging at the root of this document."
 msgstr ""
@@ -8972,9 +8978,11 @@ msgstr "Task-Typ ist nicht gültig"
 msgid "Task type update failed!"
 msgstr "Task-Typ aktualisieren fehlgeschlagen"
 
-#, php-format
-msgid "Tasking created for %d hosts"
-msgstr ""
+#, fuzzy, php-format
+msgid "Tasking created for %d host"
+msgid_plural "Tasking created for %d hosts"
+msgstr[0] "Task gestartet"
+msgstr[1] "Task gestartet"
 
 msgid "Tasks"
 msgstr "Tasks"

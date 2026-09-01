@@ -615,7 +615,10 @@ class FOGConfigurationPage extends FOGPage
             // 30 days is the window every ACME client renews inside, so a
             // certificate still amber here is one nothing is renewing.
             $out .= '<br><span class="badge bg-warning">' . sprintf(
-                _('%d days left'),
+                // One day left is precisely when somebody reads this badge,
+                // so it is the case worth getting right.
+                /* translators: %d is a number of days */
+                ngettext('%d day left', '%d days left', $days),
                 $days
             ) . '</span>';
         }
