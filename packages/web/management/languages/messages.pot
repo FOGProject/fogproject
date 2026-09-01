@@ -1054,6 +1054,9 @@ msgstr ""
 msgid "Auto Log Out Time"
 msgstr ""
 
+msgid "Auto Log Out Time (in minutes)"
+msgstr ""
+
 msgid "Auto Logout Settings"
 msgstr ""
 
@@ -3296,6 +3299,9 @@ msgid "Host Product Keys"
 msgstr ""
 
 msgid "Host Registration"
+msgstr ""
+
+msgid "Host Screen Resolution"
 msgstr ""
 
 msgid "Host Snapin Associations"

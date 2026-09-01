@@ -1227,6 +1227,10 @@ msgid "Auto Log Out Time"
 msgstr "默认注销时间（分钟）"
 
 #, fuzzy
+msgid "Auto Log Out Time (in minutes)"
+msgstr "默认注销时间（分钟）"
+
+#, fuzzy
 msgid "Auto Logout Settings"
 msgstr "设置"
 
@@ -3853,6 +3857,10 @@ msgid "Host Product Keys"
 msgstr "主机产品密钥"
 
 msgid "Host Registration"
+msgstr "主机注册"
+
+#, fuzzy
+msgid "Host Screen Resolution"
 msgstr "主机注册"
 
 #, fuzzy

@@ -1181,6 +1181,10 @@ msgid "Auto Log Out Time"
 msgstr "自動ログアウト時間（分）"
 
 #, fuzzy
+msgid "Auto Log Out Time (in minutes)"
+msgstr "既定のログアウト時間（分）"
+
+#, fuzzy
 msgid "Auto Logout Settings"
 msgstr "整合性設定"
 
@@ -3727,6 +3731,9 @@ msgstr "ホスト プロダクトキー"
 
 msgid "Host Registration"
 msgstr "ホスト登録"
+
+msgid "Host Screen Resolution"
+msgstr "ホスト画面解像度"
 
 #, fuzzy
 msgid "Host Snapin Associations"
@@ -11638,9 +11645,6 @@ msgstr ""
 #~ msgid "Date of checkout"
 #~ msgstr "貸出日"
 
-#~ msgid "Default log out time (in minutes)"
-#~ msgstr "既定のログアウト時間（分）"
-
 #~ msgid "Delayed Start"
 #~ msgstr "遅延開始"
 
@@ -12059,9 +12063,6 @@ msgstr ""
 
 #~ msgid "Host Printers"
 #~ msgstr "ホスト プリンター"
-
-#~ msgid "Host Screen Resolution"
-#~ msgstr "ホスト画面解像度"
 
 #~ msgid "Host Site"
 #~ msgstr "ホスト サイト"

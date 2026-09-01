@@ -1241,6 +1241,10 @@ msgid "Auto Log Out Time"
 msgstr "Por defecto cerrar sesión en el tiempo (en minutos)"
 
 #, fuzzy
+msgid "Auto Log Out Time (in minutes)"
+msgstr "Por defecto cerrar sesión en el tiempo (en minutos)"
+
+#, fuzzy
 msgid "Auto Logout Settings"
 msgstr "Configuración Tecla"
 
@@ -3917,6 +3921,10 @@ msgstr "Clave del producto Grupo"
 
 #, fuzzy
 msgid "Host Registration"
+msgstr "Lista de host"
+
+#, fuzzy
+msgid "Host Screen Resolution"
 msgstr "Lista de host"
 
 #, fuzzy
