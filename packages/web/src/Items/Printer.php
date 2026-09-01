@@ -72,7 +72,7 @@ class Printer extends FOGController
     /**
      * Stores/updates the printer
      *
-     * @return object
+     * @return bool|object false when the row itself could not be written
      */
     public function save()
     {

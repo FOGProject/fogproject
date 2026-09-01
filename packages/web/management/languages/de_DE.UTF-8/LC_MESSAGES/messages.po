@@ -415,6 +415,9 @@ msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
+msgid "A name that is not already a group is created when you add. Remove only works on groups that exist."
+msgstr ""
+
 #, fuzzy
 msgid "A page of results."
 msgstr "Alle Regeln auflisten"
@@ -755,10 +758,6 @@ msgid "Add Storage Node"
 msgstr "Speicherknoten hinzufügen"
 
 #, fuzzy
-msgid "Add To Group(s)"
-msgstr "Speichergruppe hinzufügen"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "Hinzufügen eines Broadcasts fehlgeschlagen!"
 
@@ -827,10 +826,6 @@ msgid "Add selected"
 msgstr "ausgewählte Images hinzufügen"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "Ausgewählte Speichergruppen hinzufügen"
-
-#, fuzzy
 msgid "Add site failed!"
 msgstr "Hinzufügen eines Hosts fehlgeschlagen!"
 
@@ -872,6 +867,10 @@ msgstr "Hinzufügen eines Hosts fehlgeschlagen!"
 #, fuzzy
 msgid "Add/Remove Managed Printers"
 msgstr "FOG-verwaltete Drucker"
+
+#, php-format
+msgid "Added %1$d host(s) to %2$d group(s)."
+msgstr ""
 
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
@@ -1864,6 +1863,10 @@ msgstr "Aktualisieren des Hosts fehlgeschlagen"
 msgid "Could not create the catch-all site"
 msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
 
+#, fuzzy, php-format
+msgid "Could not create the group \"%s\""
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
 #, fuzzy
 msgid "Could not create the staging directory."
 msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
@@ -1979,6 +1982,10 @@ msgstr "Tmp-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Could not update host"
+msgstr "Aktualisieren des Hosts fehlgeschlagen"
+
+#, fuzzy, php-format
+msgid "Could not update the group \"%s\""
 msgstr "Aktualisieren des Hosts fehlgeschlagen"
 
 #, php-format
@@ -2574,6 +2581,10 @@ msgstr "Snapins exportieren"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "Snapins exportieren"
+
+#, fuzzy
+msgid "Edit groups"
+msgstr "Admingruppe"
 
 #, fuzzy
 msgid "Edit selected hosts"
@@ -3506,6 +3517,10 @@ msgstr ""
 
 msgid "Group Member Attribute"
 msgstr "Gruppemmitglieder Attribut"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -5961,6 +5976,10 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+#, php-format
+msgid "No group named \"%s\" exists to remove hosts from"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -5984,10 +6003,6 @@ msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
 
 #, fuzzy
 msgid "No hosts available to task"
-msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
-
-#, fuzzy
-msgid "No hosts selected to be added"
 msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
 
 #, fuzzy
@@ -7301,6 +7316,14 @@ msgid "Remove Fail"
 msgstr "Entfernen fehlgeschlagen"
 
 #, fuzzy
+msgid "Remove Hosts from Groups Fail"
+msgstr "Hinzufügen zur Gruppe fehlgeschlagen"
+
+#, fuzzy
+msgid "Remove Hosts from Groups Success"
+msgstr "Host erfolgreich zur Gruppe hinzugefügt"
+
+#, fuzzy
 msgid "Remove LDAP Group Associations"
 msgstr "Regel Zuordnung"
 
@@ -7333,6 +7356,10 @@ msgstr "Entfernt"
 
 #, php-format
 msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed %1$d host(s) from %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -8795,10 +8822,6 @@ msgstr "Import erfolgreich"
 #, fuzzy
 msgid "Success."
 msgstr "Zugang"
-
-#, fuzzy
-msgid "Successfully added hosts to the provided groups!"
-msgstr "ausgewählte Hosts erfolgreich zur Gruppe hinzugefügt "
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -11840,6 +11863,10 @@ msgstr ""
 #~ msgstr "ausgewählte Images hinzufügen"
 
 #, fuzzy
+#~ msgid "Add To Group(s)"
+#~ msgstr "Speichergruppe hinzufügen"
+
+#, fuzzy
 #~ msgid "Add accesscontrol failed!"
 #~ msgstr "Standort hinzufügen fehlgeschlagen"
 
@@ -11848,8 +11875,8 @@ msgstr ""
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
-#~ msgid "Admin Group"
-#~ msgstr "Admingruppe"
+#~ msgid "Add selected to group"
+#~ msgstr "Ausgewählte Speichergruppen hinzufügen"
 
 #, fuzzy
 #~ msgid "Administrator Group"
@@ -12208,6 +12235,10 @@ msgstr ""
 #~ msgstr "Keine brauchbaren Speichergruppen gefunden"
 
 #, fuzzy
+#~ msgid "No hosts selected to be added"
+#~ msgstr "Keine Hosts für Aufgaben (Task) verfügbar"
+
+#, fuzzy
 #~ msgid "No mappings defined."
 #~ msgstr "Nicht synchronisieren"
 
@@ -12350,6 +12381,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node FTP User"
 #~ msgstr "Speicherknoten Benutzername"
+
+#, fuzzy
+#~ msgid "Successfully added hosts to the provided groups!"
+#~ msgstr "ausgewählte Hosts erfolgreich zur Gruppe hinzugefügt "
 
 #, fuzzy
 #~ msgid "Task is not an imaging task"

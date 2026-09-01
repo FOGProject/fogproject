@@ -956,6 +956,16 @@ Group Management" complaint. Remove is not a nicety: a label you can apply and
 cannot retract is not a label, and its absence is why the current modal reads
 as a group operation rather than a tagging one.
 
+**Built (D2).** `action=remove` is the only difference on the wire. Both
+directions run through one path — the same gates, the same id normalization,
+the same scope bounds, one loop with one branch in it — because two paths
+would be two chances to bound one direction and not the other. An
+unrecognized `action` adds, which is what every client predating this sends
+and is the direction that cannot strip a label off a fleet by accident.
+`Group::removeHost()` is the method the group page's own Hosts tab already
+uses through `assocPost('addHost', 'removeHost')`, so this is not a second
+removal path.
+
 **3. It has to *feel* lightweight, and that is a requirement with a test.**
 
 Chips, typeahead, and create-on-the-fly from the list. Nobody minds twenty
@@ -969,6 +979,20 @@ modal is already a select2 with `tags: true`, `tokenSeparators`, ajax typeahead
 against `/group/names/`, and a `createTag` handler that badges an unmatched
 term `(new)` (`fog.host.list.js:29-90`). What is missing is remove, multi-group
 clarity, and requirement 4.
+
+**Built (D2).** One modal, two buttons — Add and Remove — over the same
+multi-select, so three labels onto forty hosts is one selection and one
+action, and taking them off again is one selection and one action. The grid
+reloads in place afterward so the chips from requirement 1 are current and
+the selection survives, because the point of editing labels in bulk is to
+keep going.
+
+**A defect found while wiring the second button.** `loadGroupSelect()` runs on
+every `show.bs.modal` — select2 is destroyed on close and has to be rebuilt —
+and it bound the submit handler with a plain `.on()`. Opening the modal twice
+and clicking Add once therefore POSTed twice. Harmless while the endpoint only
+added; not harmless for a remove, and not harmless at all for a handler that
+mints groups. Both buttons are now namespaced and unbound first.
 
 **4. Create-and-associate goes through the shared path, not a second one.**
 
@@ -989,6 +1013,56 @@ already two creation paths and the newer one is the looser one.
 Reuse the shared helper. This is not tidiness: the list modal is about to
 become the *primary* surface for membership, and a second write path that
 skips the first one's validation is the wrong thing to promote.
+
+---
+
+**Amended in the building (D2): the validation moved to the endpoint, and the
+shared JS helper was NOT reused. The reasoning above was right about the
+defect and wrong about where the fix belongs.**
+
+`$.registerCreateAndAssociate()` is a helper for an association **grid tab**.
+It fetches that node's create FORM into a modal, and POSTs the created id to
+the tab's own update URL, which arrives on the button as a data attribute
+(`renderAssocCreate` puts it there). The host list has no association tab, no
+such endpoint, and no single subject — it has N hosts and M groups. Reusing it
+literally would mean opening the group create form once per new group and
+issuing one association POST per group, which is the exact opposite of
+requirement 3's stated test: *applying three labels to forty hosts is one
+selection and one action.* The two requirements conflict when requirement 4 is
+read as "use that function", and requirement 3 is the one carrying a test.
+
+What requirement 4 is actually *about* survives intact: **a second write path
+that skips the first one's validation is the wrong thing to promote.** So the
+validation was put where it holds for every caller rather than for one client:
+
+**`groupName` is UNIQUE — the manifest declares it twice over — so
+`->set('name', $taken)->save()` fails on the duplicate key, and `saveGroup()`
+discarded `save()`'s return.** Typing the name of a group that already exists
+into the modal's `(new)` slot answered `202 Successfully added` and inserted
+nothing at all. That is a worse failure than the missing collision check this
+section describes, and no amount of routing through the JS helper would have
+fixed it — a hand-rolled POST, a script, or a future client would still hit it.
+
+The endpoint now resolves every typed name against the groups that exist, in
+one query, before it does anything else; a name that resolves becomes an
+ordinary group id, and one that does not is created. `save()`'s return is
+propagated on both paths.
+
+**Two orderings in that are load-bearing and are pinned as positions, not as
+greps:**
+
+- **Resolution runs before `requirePageObjectScopeMass('group', ...)`.** A
+  resolved id is an id, so it has to be subject to the same boundary an id
+  posted directly is. Resolving afterward would make *typing a name* a way
+  past the site boundary, and nothing about the request would look wrong.
+- **Resolution runs before the `group.create` check**, for the reason given
+  under the permission table above.
+
+The endpoint also now writes an audit row (`host.groupadd` / `host.groupremove`
+with the affected count). It recorded nothing, where the mass edit beside it
+has recorded its own writes since it shipped — and once membership *is* the
+label, who applied which one to how many hosts is precisely the question the
+audit log exists to answer.
 
 **Two defects on that path must be fixed as part of this, not after it.**
 `saveGroup()` (`HostManagement.php:4083`) is a state-changing POST handler and:
@@ -1066,9 +1140,17 @@ and no role loses anything. Both checks are inside the handler rather than in
 override can only name one permission; that is the same reasoning
 `savedfilters` records for its own `null` entry (`Authorization.php:289`).
 
-The existing `SUB_OVERRIDES['host']['savegroup'] => 'group.create'` entry stays
-as the floor until the handler is split, so nothing is loosened before the
-narrower check exists to replace it.
+**Shipped.** `SUB_OVERRIDES['host']['savegroup']` is `group.edit`, and the
+`group.create` half lives in the handler where it can read the body. Both are
+pinned by `tests/savegroup-is-gated.test.php`, which executes
+`resolvePagePermission()` rather than reading the constant.
+
+One refinement the build added: the `group.create` check runs **after** typed
+names are resolved against the groups that already exist (requirement 4
+below). A name that turns out to name a group creates nothing, so demanding
+`group.create` for it would be asking for the wider right in order to do the
+narrower thing — the same inversion this split exists to undo, one level
+down.
 
 **5. The group list shows what a group grants.**
 

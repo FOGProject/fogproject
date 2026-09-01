@@ -101,7 +101,7 @@ class Group extends FOGController
     /**
      * Saves the group elements.
      *
-     * @return object
+     * @return bool|object false when the row itself could not be written
      */
     public function save()
     {

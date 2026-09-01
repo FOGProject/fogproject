@@ -374,6 +374,9 @@ msgstr ""
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
+msgid "A name that is not already a group is created when you add. Remove only works on groups that exist."
+msgstr ""
+
 msgid "A page of results."
 msgstr ""
 
@@ -659,9 +662,6 @@ msgstr ""
 msgid "Add Storage Node"
 msgstr ""
 
-msgid "Add To Group(s)"
-msgstr ""
-
 msgid "Add broadcast failed!"
 msgstr ""
 
@@ -713,9 +713,6 @@ msgstr ""
 msgid "Add selected"
 msgstr ""
 
-msgid "Add selected to group"
-msgstr ""
-
 msgid "Add site failed!"
 msgstr ""
 
@@ -747,6 +744,10 @@ msgid "Add windows key failed!"
 msgstr ""
 
 msgid "Add/Remove Managed Printers"
+msgstr ""
+
+#, php-format
+msgid "Added %1$d host(s) to %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -1609,6 +1610,10 @@ msgstr ""
 msgid "Could not create the catch-all site"
 msgstr ""
 
+#, php-format
+msgid "Could not create the group \"%s\""
+msgstr ""
+
 msgid "Could not create the staging directory."
 msgstr ""
 
@@ -1698,6 +1703,10 @@ msgid "Could not stage the uploaded certificate"
 msgstr ""
 
 msgid "Could not update host"
+msgstr ""
+
+#, php-format
+msgid "Could not update the group \"%s\""
 msgstr ""
 
 #, php-format
@@ -2208,6 +2217,9 @@ msgid "Edit Capone"
 msgstr ""
 
 msgid "Edit Capone ID"
+msgstr ""
+
+msgid "Edit groups"
 msgstr ""
 
 msgid "Edit selected hosts"
@@ -3014,6 +3026,9 @@ msgid "Group Matching is off for this server, so directory groups cannot be read
 msgstr ""
 
 msgid "Group Member Attribute"
+msgstr ""
+
+msgid "Group Membership"
 msgstr ""
 
 msgid "Group Module Associations"
@@ -5082,6 +5097,10 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+#, php-format
+msgid "No group named \"%s\" exists to remove hosts from"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -5101,9 +5120,6 @@ msgid "No hosts available to be tasked"
 msgstr ""
 
 msgid "No hosts available to task"
-msgstr ""
-
-msgid "No hosts selected to be added"
 msgstr ""
 
 msgid "No hosts to task"
@@ -6231,6 +6247,12 @@ msgstr ""
 msgid "Remove Fail"
 msgstr ""
 
+msgid "Remove Hosts from Groups Fail"
+msgstr ""
+
+msgid "Remove Hosts from Groups Success"
+msgstr ""
+
 msgid "Remove LDAP Group Associations"
 msgstr ""
 
@@ -6257,6 +6279,10 @@ msgstr ""
 
 #, php-format
 msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed %1$d host(s) from %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -7490,9 +7516,6 @@ msgid "Succeeded"
 msgstr ""
 
 msgid "Success."
-msgstr ""
-
-msgid "Successfully added hosts to the provided groups!"
 msgstr ""
 
 msgid "Successfully deleted"

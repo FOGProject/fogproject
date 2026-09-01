@@ -759,17 +759,30 @@ serialize through conflicts anyway.
 | M3 | Client paths read the resolved list; `checkPassiveModule` fix | `Items/Host.php`, `Client/ServiceModule.php`, `Client/FOGClient.php`, `Base/FOGPage.php` | M2 | **merged** (#1633) |
 | M4 | `addRemItem()` module special case removed; auto-logout minimum named once | `Base/FOGController.php`, `Pages/HostManagement.php` | M3 | **merged** (#1634) |
 | M5 | Host Modules tab becomes genuinely tri-state, so a host can say OFF | `Pages/HostManagement.php`, JS | M4 | not started |
-| D1 | The `sqlfilter` relationship-filter contract, and the host list's groups column on it | `Base/FOGManagerController.php`, `Router/Route.php`, `Pages/HostManagement.php`, `fog.host.list.js` | C5 | open (#TBD) |
-| D2 | Bulk add AND remove from the list, through the shared create-and-associate path; the two `saveGroup()` defects and the permission split | `Pages/HostManagement.php`, `Auth/Authorization.php`, `fog.host.list.js` | D1 | not started |
+| D1 | The `sqlfilter` relationship-filter contract, and the host list's groups column on it | `Base/FOGManagerController.php`, `Router/Route.php`, `Pages/HostManagement.php`, `fog.host.list.js` | C5 | open (#1639) |
+| D2a | `saveGroup()` gated: CSRF, object scope both sides, and the `group.edit`/`group.create` split | `Pages/HostManagement.php`, `Auth/Authorization.php` | — | **merged** (3cb39b8df) |
+| D2b | Remove as well as add, from the list; typed names resolved against the groups that exist; the write audited | `Pages/HostManagement.php`, `Base/FOGPage.php`, `fog.host.list.js` | D1, D2a | open (#TBD) |
 | D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | not started |
 | E | Group page rework + removal of the imperative tabs, and `Group::addSnapin`/`addPrinter`/`addModule` become grants | `Pages/GroupManagement.php`, `Items/Group.php`, JS | **C5 proven** (Decision 10), D, M5 | not started |
 
-D split into three while building it, on the same rule C did: by what each
-piece can be tested on its own. D1 is the shared helper plus the one column
-that proves it, and it is the plan-first half -- a change to a path every grid
-in the product runs through. D2 is a write path with its own two security
-defects and a permission split, which is a different review from a read path.
-D3 needs D1's contract and nothing else.
+D split while building it, on the same rule C did: by what each piece can be
+tested on its own. D1 is the shared helper plus the one column that proves it,
+and it is the plan-first half -- a change to a path every grid in the product
+runs through. D2 is a write path, which is a different review from a read
+path; its security half (D2a) went in ahead of the rest, on its own, off the
+back of UNKNOWN-6. D3 needs D1's contract and nothing else.
+
+**Requirement 4 was amended rather than implemented as written**, and the ADR
+carries the reasoning. `$.registerCreateAndAssociate()` is a helper for an
+association GRID TAB -- it fetches that node's create form and POSTs to the
+tab's own update URL. The host list has no such tab and no single subject, so
+using it would mean one form and one POST per group, which is the opposite of
+requirement 3's stated test. What requirement 4 is about -- a second write path
+skipping the first one's validation -- was fixed at the endpoint instead, where
+it holds for a script and a future client as well as for this modal. The
+concrete defect turned out to be worse than the missing collision check the ADR
+described: `groupName` is UNIQUE, `save()`'s return was discarded, and typing an
+existing group's name answered 202 while inserting nothing.
 
 C5 split into five as it was built. The split is by what each piece can be
 tested against on its own -- the action model with no endpoint, the endpoint

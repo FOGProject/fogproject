@@ -420,6 +420,9 @@ msgstr "An image already exists with this name!"
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
+msgid "A name that is not already a group is created when you add. Remove only works on groups that exist."
+msgstr ""
+
 #, fuzzy
 msgid "A page of results."
 msgstr "List All %s"
@@ -759,10 +762,6 @@ msgid "Add Storage Node"
 msgstr "Add Storage Node"
 
 #, fuzzy
-msgid "Add To Group(s)"
-msgstr "Add Storage Group"
-
-#, fuzzy
 msgid "Add broadcast failed!"
 msgstr "Add snapin failed!"
 
@@ -831,10 +830,6 @@ msgid "Add selected"
 msgstr "Remove selected printers"
 
 #, fuzzy
-msgid "Add selected to group"
-msgstr "Remove selected snapins"
-
-#, fuzzy
 msgid "Add site failed!"
 msgstr "Add snapin failed!"
 
@@ -876,6 +871,10 @@ msgstr "Add snapin failed!"
 #, fuzzy
 msgid "Add/Remove Managed Printers"
 msgstr "FOG Managed Printers"
+
+#, php-format
+msgid "Added %1$d host(s) to %2$d group(s)."
+msgstr ""
 
 #, php-format
 msgid "Adding FOGPage: %s, Node: %s"
@@ -1866,6 +1865,10 @@ msgstr "Failed to update"
 msgid "Could not create the catch-all site"
 msgstr "Failed to create Snapin Job"
 
+#, fuzzy, php-format
+msgid "Could not create the group \"%s\""
+msgstr "Could not read tmp file."
+
 #, fuzzy
 msgid "Could not create the staging directory."
 msgstr "Failed to create Snapin Job"
@@ -1981,6 +1984,10 @@ msgstr "Could not read tmp file."
 
 #, fuzzy
 msgid "Could not update host"
+msgstr "Failed to update"
+
+#, fuzzy, php-format
+msgid "Could not update the group \"%s\""
 msgstr "Failed to update"
 
 #, php-format
@@ -2577,6 +2584,10 @@ msgstr "Export Snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Edit groups"
+msgstr "Modify Group"
 
 #, fuzzy
 msgid "Edit selected hosts"
@@ -3509,6 +3520,10 @@ msgstr ""
 #, fuzzy
 msgid "Group Member Attribute"
 msgstr "User Name"
+
+#, fuzzy
+msgid "Group Membership"
+msgstr "Membership"
 
 #, fuzzy
 msgid "Group Module Associations"
@@ -5973,6 +5988,10 @@ msgstr ""
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
 
+#, php-format
+msgid "No group named \"%s\" exists to remove hosts from"
+msgstr ""
+
 msgid "No groups are being created or selected"
 msgstr ""
 
@@ -5996,10 +6015,6 @@ msgstr "Hosts in Task"
 
 #, fuzzy
 msgid "No hosts available to task"
-msgstr "Hosts in Task"
-
-#, fuzzy
-msgid "No hosts selected to be added"
 msgstr "Hosts in Task"
 
 #, fuzzy
@@ -7312,6 +7327,14 @@ msgid "Remove Fail"
 msgstr "Removed"
 
 #, fuzzy
+msgid "Remove Hosts from Groups Fail"
+msgstr "Add to group"
+
+#, fuzzy
+msgid "Remove Hosts from Groups Success"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
 msgid "Remove LDAP Group Associations"
 msgstr "Image Association"
 
@@ -7344,6 +7367,10 @@ msgstr "Removed"
 
 #, php-format
 msgid "Removed %1$d association and satellite row(s) whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %2$s"
+msgstr ""
+
+#, php-format
+msgid "Removed %1$d host(s) from %2$d group(s)."
 msgstr ""
 
 #, php-format
@@ -8804,10 +8831,6 @@ msgstr "Successful"
 #, fuzzy
 msgid "Success."
 msgstr "Access"
-
-#, fuzzy
-msgid "Successfully added hosts to the provided groups!"
-msgstr "Successfully associated Hosts with the Group "
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -11841,6 +11864,10 @@ msgstr ""
 #~ msgstr "Remove selected printers"
 
 #, fuzzy
+#~ msgid "Add To Group(s)"
+#~ msgstr "Add Storage Group"
+
+#, fuzzy
 #~ msgid "Add accesscontrol failed!"
 #~ msgstr "Add snapin failed!"
 
@@ -11849,8 +11876,8 @@ msgstr ""
 #~ msgstr "Add snapin failed!"
 
 #, fuzzy
-#~ msgid "Admin Group"
-#~ msgstr "Modify Group"
+#~ msgid "Add selected to group"
+#~ msgstr "Remove selected snapins"
 
 #, fuzzy
 #~ msgid "Administrator Group"
@@ -12188,6 +12215,10 @@ msgstr ""
 #~ msgid "No directory groups defined."
 #~ msgstr "Installed Plugins"
 
+#, fuzzy
+#~ msgid "No hosts selected to be added"
+#~ msgstr "Hosts in Task"
+
 #~ msgid "No query sent"
 #~ msgstr "No query sent"
 
@@ -12314,6 +12345,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Storage Node FTP User"
 #~ msgstr "Storage Node Username"
+
+#, fuzzy
+#~ msgid "Successfully added hosts to the provided groups!"
+#~ msgstr "Successfully associated Hosts with the Group "
 
 #, fuzzy
 #~ msgid "Task run time"

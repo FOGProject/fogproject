@@ -1873,7 +1873,12 @@ abstract class FOGPage extends FOGBase
                         if ($node == 'host') {
                             $actionbox .= self::makeButton(
                                 'addSelectedToGroup',
-                                _('Add selected to group'),
+                                // Not "Add selected to group" any more: the
+                                // modal behind it removes as well now (ADR
+                                // 0038 Decision 16a requirement 2). The id is
+                                // unchanged, because it is what
+                                // fog.host.list.js addresses the button by.
+                                _('Edit groups'),
                                 'btn btn-secondary'
                             );
                         }
@@ -1908,20 +1913,40 @@ abstract class FOGPage extends FOGBase
                     if ($node == 'host') {
                         $modals .= self::makeModal(
                             'addToGroupModal',
-                            _('Add To Group(s)'),
+                            _('Group Membership'),
                             '<select id="groupSelect" class="" '
                             . 'name="" multiple="multiple">'
-                            . '</select>',
+                            . '</select>'
+                            . '<p class="form-text mt-2 mb-0">'
+                            . _(
+                                'A name that is not already a group is'
+                                . ' created when you add. Remove only works'
+                                . ' on groups that exist.'
+                            )
+                            . '</p>',
                             self::makeButton(
                                 'closeGroupModal',
                                 _('Cancel'),
                                 'btn btn-outline-secondary float-start',
                                 'data-bs-dismiss="modal"'
                             )
+                            // Add is emitted FIRST of the two float-end
+                            // buttons and so renders rightmost: floated
+                            // elements stack against the edge in emission
+                            // order, which is the same thing that decided
+                            // where the mass edit button sits. Reads
+                            // "Remove | Add" left to right, with the
+                            // non-destructive one under the cursor's usual
+                            // resting place.
                             . self::makeButton(
                                 'confirmGroupAdd',
                                 _('Add'),
-                                'btn btn-outline-secondary float-end'
+                                'btn btn-primary float-end ms-2'
+                            )
+                            . self::makeButton(
+                                'confirmGroupRemove',
+                                _('Remove'),
+                                'btn btn-outline-danger float-end'
                             ),
                             '',
                             'info'

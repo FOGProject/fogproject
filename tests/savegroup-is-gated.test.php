@@ -30,6 +30,29 @@
  * every existing role without it and break labeling on upgrade for
  * everybody.
  *
+ * FOUR MORE THINGS ARE PINNED SINCE THE ENDPOINT LEARNED TO REMOVE (ADR 0038
+ * Decision 16a requirement 2, unit D2). Membership is now editable in both
+ * directions from the list, and each of these fails silently rather than
+ * loudly if it is lost:
+ *
+ *   4. THE NAME RESOLUTION RUNS BEFORE THE SCOPE BOUND. A typed name that
+ *      already names a group is resolved to that group's id, and a resolved
+ *      id must be bounded exactly as an id posted directly is. Resolving
+ *      after requirePageObjectScopeMass('group', ...) would make typing a
+ *      name a way past the boundary, and nothing about the request would
+ *      look wrong.
+ *   5. AND BEFORE THE group.create GATE. A name that turned out to exist
+ *      creates nothing, so demanding group.create for it asks for the wider
+ *      right in order to do the narrower thing -- the exact inversion the
+ *      permission split was written to undo.
+ *   6. REMOVE AND ADD SHARE ONE PATH. Both directions run through the same
+ *      gates, the same id normalization and the same scope bounds; the only
+ *      difference is which method the loop calls. Two paths would be two
+ *      chances to bound one of them and not the other.
+ *   7. THE DEFAULT IS ADD. Anything unrecognized in `action` must add, not
+ *      remove: that is what every client predating this sends, and it is the
+ *      direction that cannot strip a label off a fleet by accident.
+ *
  * The three call sites cannot be executed without a session and a database,
  * so they are pinned POSITIONALLY: each must appear inside saveGroup() and
  * BEFORE its try block. A grep for the bare symbol would pass on
@@ -230,6 +253,118 @@ check(
         '/HTTPResponseCodes::HTTP_FORBIDDEN/',
         substr($body, 0, false === $tryAt ? strlen($body) : $tryAt)
     ),
+    $failures,
+    $checks
+);
+
+/*
+ * 5. Ordering. Positions inside saveGroup(), not merely presence: each of
+ *    these is correct only relative to the others, and a reordering compiles
+ *    and answers 202 exactly as before.
+ */
+$resolveAt = strpos($body, "Route::getNames('group', ['name' => \$groups_new])");
+check(
+    'saveGroup() resolves typed names against the groups that exist',
+    false !== $resolveAt,
+    $failures,
+    $checks
+);
+
+$groupScopeAt = strpos(
+    $body,
+    "Authorization::requirePageObjectScopeMass('group', \$groups);"
+);
+check(
+    'saveGroup() resolves names BEFORE bounding the group ids'
+    . ' (a typed name must not be a way past the scope check)',
+    false !== $resolveAt
+        && false !== $groupScopeAt
+        && $resolveAt < $groupScopeAt,
+    $failures,
+    $checks
+);
+
+$createGateAt = strpos($body, "Authorization::can('group.create')");
+check(
+    'saveGroup() resolves names BEFORE demanding group.create'
+    . ' (a name that already exists creates nothing)',
+    false !== $resolveAt
+        && false !== $createGateAt
+        && $resolveAt < $createGateAt,
+    $failures,
+    $checks
+);
+
+/*
+ * 6. Both directions, one path. The remove half must be a branch inside the
+ *    same loop, not a second loop with its own gates to get wrong.
+ */
+check(
+    'saveGroup() removes as well as adds',
+    false !== strpos($body, '$Group->removeHost($hosts);'),
+    $failures,
+    $checks
+);
+check(
+    'and both directions run through the same scope bounds'
+    . ' (one requirePageObjectScopeMass per node, not one per direction)',
+    1 === substr_count(
+        $body,
+        "Authorization::requirePageObjectScopeMass('host', \$hosts);"
+    )
+    && 1 === substr_count(
+        $body,
+        "Authorization::requirePageObjectScopeMass('group', \$groups);"
+    ),
+    $failures,
+    $checks
+);
+check(
+    'and the remove branch is inside the loop the add branch is in,'
+    . ' not a second loop of its own',
+    1 === substr_count($body, 'foreach ($groups as $group) {'),
+    $failures,
+    $checks
+);
+
+/*
+ * 7. The default direction is ADD. Read as an equality against the literal
+ *    'remove' -- anything else, including a missing field and a client that
+ *    predates this, is an add.
+ */
+check(
+    "saveGroup() removes only on action === 'remove', and adds otherwise",
+    1 === preg_match(
+        '/\$remove\s*=\s*\'remove\'\s*===\s*strtolower\(/',
+        $body
+    ),
+    $failures,
+    $checks
+);
+
+/*
+ * 8. Every write reports its own failure. save() returning false was
+ *    discarded here, which is how a duplicate group name answered 202 while
+ *    inserting nothing -- the defect the resolution above exists for.
+ */
+check(
+    'saveGroup() propagates a failed save() rather than reporting success',
+    0 === preg_match('/->addHost\(\$hosts\)\s*->save\(\)\s*;/', $body)
+        && 1 === preg_match('/if\s*\(\s*!\s*\$Group->save\(\)\s*\)/', $body)
+        && 1 === preg_match('/if\s*\(\s*!\s*\$New->save\(\)\s*\)/', $body),
+    $failures,
+    $checks
+);
+
+/*
+ * 9. The write is audited. Membership IS the label now, so who applied which
+ *    one to how many hosts is the question the audit log exists to answer,
+ *    and this handler recorded nothing at all.
+ */
+check(
+    'saveGroup() records an audit row naming the direction',
+    false !== strpos($body, 'Audit::record(')
+        && false !== strpos($body, "'host.groupremove' : 'host.groupadd'"),
     $failures,
     $checks
 );
