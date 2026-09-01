@@ -18,10 +18,20 @@ anything.
 > **no‑clobber**: a blank field leaves each host's value alone, so you only
 > change what you intend to.
 
+> **⚠️ This is changing. Snapins have already changed.**
+> A group is becoming something that **grants**, rather than something that
+> copies rows onto whoever happened to be a member when a button was pressed.
+> The first half has landed: see
+> [Snapins are granted, not copied](#snapins-are-granted-not-copied) below.
+> Everything else on this page still describes the push‑to‑all model and is
+> still accurate for the page as it stands today. The reasoning, and what is
+> left to move, are in [ADR 0038](adr/0038-a-group-grants-it-does-not-copy.md).
+
 ---
 
 ## Table of contents
 
+- [Snapins are granted, not copied](#snapins-are-granted-not-copied)
 - [Associations (tri‑state)](#associations-tri-state)
   - [What "has it" means](#what-has-it-means)
   - [The badge and Has/Missing drill‑down](#the-badge-and-hasmissing-drill-down)
@@ -33,6 +43,56 @@ anything.
   - [General fields](#general-fields)
   - [Default printer](#default-printer)
 - [Out of scope](#out-of-scope)
+
+---
+
+## Snapins are granted, not copied
+
+A group can now hold a snapin **grant** of its own. The grant is a row about the
+*group* (`groupSnapinAssoc`), not a pile of rows copied onto the hosts that were
+members at the time, and that single change fixes both halves of the old
+behavior:
+
+- a host **added** to the group afterward is covered by the grant, without
+  anyone re‑pushing anything;
+- a host **removed** from the group stops being covered, instead of silently
+  keeping a snapin nobody can now explain.
+
+### When it is worked out — and the one thing everybody gets wrong
+
+**The list is resolved when a task is created, and written onto the task.
+Editing the group afterward does not change a task that is already in flight.
+Re‑tasking is the only way to pick a change up.**
+
+That sentence is the whole rule, and it is worth reading twice, because the
+natural assumption is that the group is consulted at the moment the snapin runs.
+It is not. `snapinTasks` records what was decided when the task was made, which
+is what makes a queued task reproducible: you can look at a task from last
+Tuesday and see what it was actually going to install, not what the group would
+say today.
+
+If you change a group's snapins and want the change to reach machines with
+tasks already queued, **cancel and re‑task them**.
+
+### What a host ends up with, in order
+
+1. The snapins on the **host itself**, in the order the host has them.
+2. Then the snapins its **groups grant**, groups in the order they are given
+   (an explicit order on the group, then by name), and within a group in the
+   order the grant has them.
+
+A snapin reached **both** ways appears **once**, in the position the *host*
+gave it. A group grant never reorders something an admin deliberately placed on
+a host.
+
+Group order is an explicit setting rather than alphabetical for one reason:
+**renaming a group must never silently change what installs on a thousand
+machines.** An install that never sets it behaves alphabetically, which is the
+answer an admin can predict.
+
+> Printers have **not** moved yet, and the group Printers tab still pushes rows
+> onto member hosts as before. Nothing on the host side of printers has
+> changed.
 
 ---
 
