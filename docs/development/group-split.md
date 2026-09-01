@@ -111,7 +111,7 @@ has the clause.
 
 Reproduced 2026-09-01 in an isolated container against a clone of the live 1.6
 database — `ERROR 1062 (23000): Duplicate entry '9002-1' for key 'paHostID'`
-and `... '9004-1' for key 'msHostID'`, with `groupMembers` empty afterwards in
+and `... '9004-1' for key 'msHostID'`, with `groupMembers` empty afterward in
 both cases. Full results, including the 98.8% prevalence figure that makes the
 module arm the dominant one, in §5.1 (UNKNOWN-3).
 
@@ -141,7 +141,7 @@ Confirmed 2026-09-01 in a second isolated container holding only `fogtest`: the
 branch was skipped, the membership insert succeeded, and the template's own
 `locationAssoc` row was left alone. The *first* attempt was a false negative —
 `fog` and `fogtest` coexisted in one container and the branch ran from inside
-`fogtest`, which is what exposed the server-global behaviour.
+`fogtest`, which is what exposed the server-global behavior.
 
 **VERIFIED — every snapin task the trigger creates ties at sequence 0.** Line
 86 names four columns and `stSequence` is not among them; the column defaults
@@ -265,7 +265,7 @@ sed -n '36,50p' packages/web/src/Client/PrinterClient.php
 ```
 
 Three modes: `0` no management, `a` FOG-managed only, `ar` FOG handles all
-printers. Only `ar` implies removal. Whether the shipped `fog-client` honours
+printers. Only `ar` implies removal. Whether the shipped `fog-client` honors
 that is UNKNOWN-4 — it is a different repository and not readable from here.
 
 ### 1.7 The snapshot that already exists
@@ -336,7 +336,7 @@ STORED word". That comment is **stale**: it predates #1471/#1476/#1477
 (2026-08-29), which added a SearchBuilder **Filter** button and a **Column
 search** header row to every grid, server-parsed in
 `FOGManagerController::filter()`. All of it is on this branch. The first draft
-quoted the comment as evidence of current behaviour instead of grepping for the
+quoted the comment as evidence of current behavior instead of grepping for the
 mechanism — the comment should be corrected when the groups column lands.
 
 ```
@@ -591,7 +591,7 @@ what is reversible.
 | 403 | `groupPrinterAssoc` (`gpaGroupID`, `gpaPrinterID`, `gpaIsDefault`) + FKs | yes, same |
 | 404 | `groups.groupOrder INT NOT NULL DEFAULT 0` + index | yes |
 | 405 | `DROP TRIGGER IF EXISTS persistentGroups` + retire the `plugins` row | **no** — a dropped trigger cannot be un-dropped, only recreated from the plugin source |
-| 406 | *(optional, labelling only)* watermark row: `MAX(saID)`, `MAX(paID)` | yes |
+| 406 | *(optional, labeling only)* watermark row: `MAX(saID)`, `MAX(paID)` | yes |
 
 **Four required steps, one optional, and exactly one of them is irreversible.**
 Step 405 is the only step that touches existing state at all; 402–404 are pure
@@ -636,7 +636,7 @@ the list modal has select2 chips, typeahead and create-on-the-fly today
 (§1.9). The filter framework is built too — what 16a.1 needs is the column
 contract extended to express a relationship, which is server-side work on a
 shared helper rather than UI work. **Remove** (16a.2) is the one genuinely
-absent piece of behaviour. The rest is reuse and two security fixes.
+absent piece of behavior. The rest is reuse and two security fixes.
 
 ### 2.3 Plugin files
 
@@ -699,10 +699,10 @@ change:**
 - **Nothing is migrated** (Decision 18). The upgrade is additive schema steps
   plus one `DROP TRIGGER`, so an RC finding a design problem does not leave
   anyone with un-migrated data.
-- **Behaviour for existing hosts and groups is unchanged on upgrade**, which is
+- **Behavior for existing hosts and groups is unchanged on upgrade**, which is
   what makes the blast radius of an RC-stage discovery small.
 - **The ABI argument only ever pointed this way.** `HOST_MASSEDIT_*` is free
-  before 1.6.0 ships and needs a deprecation window afterwards (§1.10).
+  before 1.6.0 ships and needs a deprecation window afterward (§1.10).
 
 **What does not change: Decision 10's ordering constraint.** The mass edit must
 land, and be proven, *before* anything is removed from the group page. Within
@@ -738,7 +738,7 @@ and is the only unit that removes anything.
 - **Docs ship with C, not after it.** Decision 4 promises that re-tasking is
   the only way to pick up a snapin change and that "the docs must say so
   plainly". That sentence is load-bearing for support, so it lands in the same
-  unit as the behaviour it describes — `GROUP_SHARED_STATE.md` rewritten as the
+  unit as the behavior it describes — `GROUP_SHARED_STATE.md` rewritten as the
   mass edit document, the ADR 0001 amendment note, and the release note
   covering both the re-tasking semantics and Decision 15's credential
   propagation.
@@ -809,7 +809,7 @@ is the one the design removes. Introducing transactions to the DB layer for it
 would be a much larger change with its own failure modes.
 
 **Build a `tags` entity.** Rejected in ADR 0038 Decision 16: `groupMembers` is
-already an attribute-free many-to-many labelling table
+already an attribute-free many-to-many labeling table
 (`gmID, gmHostID, gmGroupID`, §1.1), so a second set-of-hosts concept solves a
 presentation gap with a data model. The cost of the entity is measurable from
 the `site` plugin's absorption: `$validClasses`, the deletemass cascade,
@@ -819,7 +819,7 @@ description — and none of it moves a host into a group any faster.
 **Ship the split and treat the presentation work as a follow-up.** Rejected,
 and this is the one rejection that is a scheduling decision rather than a
 design one. Decision 16 is only correct if a group is cheap to apply in bulk;
-the split alone makes groups *heavier* and leaves the labelling gap untouched,
+the split alone makes groups *heavier* and leaves the labeling gap untouched,
 which reproduces the state that made tags look necessary. §2.5 puts all of
 Decision 16a in 1.6.0 for that reason.
 
@@ -949,7 +949,7 @@ checkin path. `SnapinClient::json()` drives entirely off
 and `SnapinTask::getSnapin()` is `new Snapin($this->get('snapinID'))` — the
 stored `stSnapinID` off the task row.
 
-*Behaviour*, on throwaway host `te-u2-test` (id 228, deleted afterwards):
+*Behavior*, on throwaway host `te-u2-test` (id 228, deleted afterward):
 
 | Case | Setup | Result |
 |---|---|---|
@@ -985,7 +985,7 @@ sed -n '1,200p' packages/web/service/snapins.checkin.php
 sed -n '1,200p' packages/web/service/snapinlisting.php
 ```
 
-Then, on the lab, the behavioural test that settles it regardless of what the
+Then, on the lab, the behavioral test that settles it regardless of what the
 code reading suggests:
 
 1. Host H, snapins A and B associated. Create a snapin job.
@@ -1003,7 +1003,7 @@ Repeat with the addition case (add C after job creation, see whether C runs).
 ### UNKNOWN-3 — does the trigger break `add host to group`? — **VERIFIED, and worse than inferred**
 
 **Answered 2026-09-01 in an isolated podman MariaDB 11 container cloned from
-the live 1.6 database, torn down afterwards. The trigger was installed verbatim
+the live 1.6 database, torn down afterward. The trigger was installed verbatim
 from `PersistentGroupsManager::triggerSql()`. No live database was written to.**
 
 **A. Printer collision — VERIFIED.**
@@ -1013,7 +1013,7 @@ INSERT INTO groupMembers (gmHostID, gmGroupID) VALUES (9002, 9001);
 ERROR 1062 (23000): Duplicate entry '9002-1' for key 'paHostID'
 ```
 
-`groupMembers` afterwards: **empty**. The whole INSERT rolled back, membership
+`groupMembers` afterward: **empty**. The whole INSERT rolled back, membership
 included — the row is not created, so the failure is total rather than partial.
 
 **B. Module collision — VERIFIED, and it is the one that matters.**
@@ -1194,11 +1194,11 @@ printer**, not merely the ones FOG added — `managedPrinters` is empty and the
 empty case behaving as intended, and it is worth knowing how wide it is.
 
 **3. Under mode `a`, "FOG-managed" is inferred fresh from each response's
-`AllPrinters`** — the server's entire printer catalogue, from
+`AllPrinters`** — the server's entire printer catalog, from
 `Route::getIds('printer', [], 'name')` (`PrinterClient.php:60`) — and is **not**
 persisted client-side. `_configuredPrinters` is in-memory per service run and
 means "already configured this pass", not identity. So under `a` the client
-removes a printer only if it is in FOG's catalogue, absent from the resolved
+removes a printer only if it is in FOG's catalog, absent from the resolved
 list, and currently installed.
 
 #### 🔴 The consequence that changes a decision
@@ -1220,7 +1220,7 @@ Decision 9 was rewritten for them:
   branch removes every installed printer — the same outcome. One real
   difference: the `np` branch sits **above** the `!data.Encrypted` guard, so
   today the empty-case removal happens even on an unencrypted response, and
-  after the change it would not. That is an improvement, but it is a behaviour
+  after the change it would not. That is an improvement, but it is a behavior
   change on the wire and belongs in the release notes rather than being
   discovered.
 
@@ -1228,7 +1228,7 @@ Decision 9 was rewritten for them:
 required state — `telliottwin11` (host 105) is offline (`lastcheckin`
 2026-08-30) and its `printerLevel` is empty (mode `0`, not `ar`). Standing one
 up was out of scope for the verification run. So items 1–3 are source-verified
-and unobserved; the behavioural confirmation remains open and is cheap once a
+and unobserved; the behavioral confirmation remains open and is cheap once a
 mode-`ar` host with two steady printers exists.
 
 <details>
@@ -1244,7 +1244,7 @@ the response and answer three questions.
 3. Under mode `a`, what exactly counts as "FOG-managed"? Is it tracked
    client-side, or inferred from the current response?
 
-Behavioural test, on a lab host with mode `ar` and two printers:
+Behavioral test, on a lab host with mode `ar` and two printers:
 
 ```
 # 1. Confirm steady state: both printers present after a poll.
@@ -1310,7 +1310,7 @@ The reasoning, because the obvious alternatives are both worse:
   (`Authorization.php:496`) declares a *fixed* action vocabulary per node —
   `'group' => ['view', 'create', 'edit', 'delete', 'task']`. A bespoke sixth
   verb would be the registry's first, and worse, it would **regress the
-  upgrade**: every role that exists today would lack it, so labelling would
+  upgrade**: every role that exists today would lack it, so labeling would
   stop working for everyone on upgrade until an admin edited every role.
 - **`host.edit` is the wider grant, not the narrower one.** It carries the
   whole imperative half — image, AD credentials, kernel args — which is exactly
@@ -1421,7 +1421,7 @@ the change is safe, because a no-error response carrying `printers: []` reaches
   failure is printers that never disappear, which nobody reports for months.
 - **The `!data.Encrypted` guard sitting below the `np` branch.** Today the
   empty-case removal happens even on an unencrypted response; after the change
-  it would not. That is the right direction, and it is still a behaviour change
+  it would not. That is the right direction, and it is still a behavior change
   on a path nobody is watching.
 
 It is checkable the same way the rest of UNKNOWN-4 was — on one mode-`ar` host

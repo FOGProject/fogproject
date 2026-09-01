@@ -363,18 +363,18 @@ first draft of this ADR gave:
   set under `ar`. **Safe by that trace, not by design** — see the risk section
   at the end of the proposal. It changes one thing on the wire: the `np` branch
   sits *above* the `!data.Encrypted` guard, so today the empty-case removal
-  happens on an unencrypted response and afterwards it would not. That is an
-  improvement and it is a behaviour change; it goes in the release notes, and
+  happens on an unencrypted response and afterward it would not. That is an
+  improvement and it is a behavior change; it goes in the release notes, and
   the safest shipping order keeps `np` alongside the new field for a release.
 - **The mode gate stays and is documented as the blast radius, which is wider
   than "the printers FOG added".** Under `ar`, `RemoveExtraPrinters` removes
   **every installed printer** not in the resolved list, FOG's or not. Under `a`
   it removes only names present in `AllPrinters` — the server's entire printer
-  catalogue, sent on every response — so mode `a`'s notion of "FOG-managed" is
-  *inferred fresh from the catalogue each time* and is not persisted client
-  side. A change to what the catalogue contains is therefore a change to what
+  catalog, sent on every response — so mode `a`'s notion of "FOG-managed" is
+  *inferred fresh from the catalog each time* and is not persisted client
+  side. A change to what the catalog contains is therefore a change to what
   mode `a` removes.
-- **One behaviour remains unobserved.** The above is source-verified and has
+- **One behavior remains unobserved.** The above is source-verified and has
   not been watched happen: no mode-`ar` host with steady printers was available
   (UNKNOWN-4). The printer resolver should not ship on the reading alone.
 
@@ -512,7 +512,7 @@ no-clobber convention core adopted for its own group fields was never extended
 to the plugins beside them.
 
 So **the mass edit form takes plugin-contributed fields with the same
-three-state semantics as core ones**, through a hook pair modelled on the
+three-state semantics as core ones**, through a hook pair modeled on the
 existing `HOST_ADD_FIELDS` / `HOST_EDIT_SUCCESS` shape that both plugins
 already register against (`AddOUHost.php:60-63`):
 
@@ -537,7 +537,7 @@ point a plugin has (`HOST_ADD_FIELDS`, `HOST_EDIT_SUCCESS`, `GROUP_ADD_FIELDS`,
 That hole is why `AddOUGroup` exists as a separate file from `AddOUHost` at
 all: there was no other way to say "set this across many". Naming the gap is
 half the decision; `HOST_MASSEDIT_*` is the other half, and it is the shape the
-two neighbouring seams already imply.
+two neighboring seams already imply.
 
 Two consequences follow, and the second is a genuine open scope question:
 
@@ -601,7 +601,7 @@ raises 1062 inside an `AFTER INSERT` trigger and rolls back the
 `INSERT INTO groupMembers` that fired it — the host is not added at all.
 Reproduced in a clone of the live 1.6 database:
 `ERROR 1062 (23000): Duplicate entry '9002-1' for key 'paHostID'` and
-`... '9004-1' for key 'msHostID'`, `groupMembers` empty afterwards in both
+`... '9004-1' for key 'msHostID'`, `groupMembers` empty afterward in both
 cases.
 
 The module arm is the one that matters, because **85 of 86 hosts (98.8%) on
@@ -684,7 +684,7 @@ CREATE TABLE `groupMembers` (
 ```
 
 A plain many-to-many join with **no attributes at all** — no ordering, no
-state, no metadata. That is a labelling table and nothing else. Everything
+state, no metadata. That is a labeling table and nothing else. Everything
 heavier was hung off it later, and hung off it *because it was the only place
 to hang things*: a group was the only object in FOG that meant "these hosts",
 so every feature needing "these hosts" grew a group tab, and each one wrote its
@@ -715,7 +715,7 @@ Why it loses anyway:
    16a makes fixing them binding.
 2. **Weight is opt-in and its floor is zero.** A group with no snapins and no
    printers *is* a tag: one row in `groups`, N rows in `groupMembers`, no
-   behaviour. Forty label-groups cost forty rows. The heaviness people will
+   behavior. Forty label-groups cost forty rows. The heaviness people will
    feel is the dropdown, not the schema.
 3. **A second entity doubles the semantics, not just the storage.** The day
    tags exist somebody asks whether a tag can carry a snapin. If no, tags and
@@ -732,7 +732,7 @@ Why it loses anyway:
 
 **Rejected: do nothing and let people use groups as they are.** This is what
 happens today, and what happens today is that people do not use groups for
-labelling, because applying one to forty hosts is unpleasant enough that they
+labeling, because applying one to forty hosts is unpleasant enough that they
 keep the information somewhere else. That is the gap tags were being reached
 for. Deciding against tags without closing it decides nothing.
 
@@ -740,7 +740,7 @@ for. Deciding against tags without closing it decides nothing.
 
 These are part of this decision. A group that is correct but unpleasant to
 apply in bulk fails at the thing this decision exists to enable, and the
-failure mode is specific: people keep not using groups for labelling, and the
+failure mode is specific: people keep not using groups for labeling, and the
 gap that tags were reached for comes straight back with the split having made
 groups *heavier* in the meantime.
 
@@ -987,7 +987,7 @@ they literally are.**
 What that means concretely, and it is less alarming than it sounds:
 
 - On upgrade, every group owns **zero** snapins and **zero** printers, because
-  no group ever did. Every host keeps every row it has. **Behaviour is
+  no group ever did. Every host keeps every row it has. **Behavior is
   unchanged for every existing host and every existing group.**
 - The new removal semantics apply to what is granted after the upgrade. Take a
   host out of a group and the old copied rows stay — which is **exactly what
@@ -1022,7 +1022,7 @@ re-pushing from the host list restores direct rows — and it is testable, which
 a silent sweep is not. It is also **not required for correctness**, so it can
 ship after the split rather than blocking it.
 
-**Optional, and only for labelling:** a one-row watermark table recording
+**Optional, and only for labeling:** a one-row watermark table recording
 `MAX(saID)` and `MAX(paID)` at upgrade, so the UI can mark a direct row as
 "pre-1.6". `saID` and `paID` are `AUTO_INCREMENT`, so a watermark orders
 creation without a timestamp column. Its one caveat is that InnoDB's
@@ -1077,7 +1077,7 @@ semantics gate, which is the second reason the boundary is not one.
 - **The presentation requirements are not a follow-up and a release that ships
   the split without them has not delivered this decision.** Decision 16 is only
   correct if a group is cheap to apply in bulk; the model change alone makes
-  groups heavier and leaves the labelling gap exactly where it was, which is
+  groups heavier and leaves the labeling gap exactly where it was, which is
   the outcome that made a `tags` entity look necessary in the first place.
 
 ## Alternatives considered
@@ -1111,13 +1111,13 @@ guess into a column makes it look like a fact.
 Decision 17; the composition rule is the problem, not the storage.
 
 **Build a `tags` entity.** Rejected per Decision 16: `groupMembers` is already
-an attribute-free many-to-many labelling table, so a second set-of-hosts
+an attribute-free many-to-many labeling table, so a second set-of-hosts
 concept would be solving a presentation gap with a data model. The
 counter-argument is recorded there rather than dismissed, along with what the
 decision costs.
 
 **Decide against tags and stop there.** Rejected as deciding nothing. The
-labelling gap is real and is what made tags look necessary; Decision 16a is the
+labeling gap is real and is what made tags look necessary; Decision 16a is the
 half of the decision that closes it, which is why those requirements are
 binding rather than a follow-up.
 
@@ -1137,5 +1137,5 @@ genuine snapshot table rather than a redirected read.
 It is one grep and a three-step lab test — UNKNOWN-2 in the proposal. Nothing
 else here is load-bearing in the same way: if `groupName` turns out not to be
 unique the resolver's third tiebreak starts earning its keep, which is why it
-is there; if the trigger's duplicate-key behaviour is different from the
+is there; if the trigger's duplicate-key behavior is different from the
 inference, the retirement step is unchanged.
