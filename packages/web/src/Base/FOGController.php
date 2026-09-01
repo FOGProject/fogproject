@@ -1916,23 +1916,25 @@ abstract class FOGController extends FOGBase
             $assocstr
         ];
         $insert_values = [];
-        if ($assocstr == 'moduleID'
-            || strtolower($classCall) == 'moduleassociation'
-        ) {
-            $insert_fields[] = 'state';
-        }
-
+        // No special case for module associations any more. This used to
+        // append an explicit `state` of 1 to every module row, because
+        // `moduleStatusByHost`.`msState` was a varchar(1) NOT NULL DEFAULT
+        // '' -- an insert that omitted it wrote the empty string. Schema step
+        // 409 makes the column tinyint(1) NOT NULL DEFAULT 1, so the database
+        // supplies the same value and one generic insert covers every
+        // association table.
+        //
+        // The default is load-bearing, not cosmetic: under ADR 0038 a state
+        // of 0 is a host saying OFF, which beats every group grant. If the
+        // DEFAULT is ever dropped or changed, this insert starts writing the
+        // strongest statement in the system by accident. That pairing is
+        // pinned in tests/assign-resolver.test.php, which inserts a row
+        // omitting the column against the real DDL and reads it back.
         foreach ($diff as $id) {
-            $insert_val = [
+            $insert_values[] = [
                 $this->get('id'),
                 $id
             ];
-            if ($assocstr == 'moduleID'
-                || strtolower($classCall) == 'moduleassociation'
-            ) {
-                $insert_val[] = 1;
-            }
-            $insert_values[] = $insert_val;
         }
 
         // Perform batch insertion if there are values to insert.
