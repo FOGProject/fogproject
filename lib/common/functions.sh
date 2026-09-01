@@ -137,13 +137,20 @@ channelToBranch() {
 # Returns 1 with no output when nothing matches. The caller is expected to say
 # "no release candidate is published" rather than "unknown channel"; those are
 # different problems for the admin.
+# refs/heads/rc-*, NOT a bare rc-*. ls-remote matches a pattern against the
+# TAIL of each ref at slash boundaries, so `rc-*` also matches
+# refs/heads/feat/rc-update-channel -- a feature branch, offered to an admin as
+# the current release candidate. Anchoring at refs/heads/ makes "rc-" mean the
+# start of the branch name rather than the start of its last path segment, and
+# the sed re-checks that on the way out: matching rules are not the place to
+# rely on one layer alone when the answer decides what gets checked out.
 rcBranch() {
     local ref
     ref=$(git ls-remote --heads --sort=-v:refname \
-        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'rc-*' \
-        2>/dev/null | head -n1) || return 1
-    [[ -n $ref ]] || return 1
-    ref="${ref##*refs/heads/}"
+        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'refs/heads/rc-*' \
+        2>/dev/null \
+        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | head -n1) || return 1
     [[ -n $ref ]] || return 1
     echo "$ref"
 }
