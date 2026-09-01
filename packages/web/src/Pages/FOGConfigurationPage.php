@@ -75,8 +75,8 @@ class FOGConfigurationPage extends FOGPage
      *
      * @param string $title The box title (already translated/escaped).
      * @param string $body  The card-body HTML.
-     * @param array  $opts  color, collapse, help, footer, id, bodyId,
-     *                      bodyClass, bodyAttrs.
+     * @param array  $opts  color, collapse, cardClass, help, footer, id,
+     *                      bodyId, bodyClass, bodyAttrs.
      *
      * @return string
      */
@@ -90,6 +90,12 @@ class FOGConfigurationPage extends FOGPage
         $bodyId    = $opts['bodyId']    ?? '';
         $bodyClass = $opts['bodyClass'] ?? '';
         $bodyAttrs = $opts['bodyAttrs'] ?? '';
+        // Extra classes on the CARD, not the body. 'collapsed-card' is the
+        // only caller today: AdminLTE's collapse toggle reads that class to
+        // decide which way to go, and its own CSS hides the body, so a card
+        // that should arrive shut needs it in the markup rather than a
+        // click's worth of JavaScript after paint.
+        $cardExtra = $opts['cardClass'] ?? '';
 
         $o = '';
         if ($id !== '') {
@@ -98,12 +104,24 @@ class FOGConfigurationPage extends FOGPage
         $cardClass = ($color === 'solid' || $color === '')
             ? 'card'
             : 'card card-' . $color . ' card-outline';
+        if ($cardExtra !== '') {
+            $cardClass .= ' ' . $cardExtra;
+        }
         $o .= '<div class="' . $cardClass . '">';
         $o .= '<div class="card-header">';
         if ($collapse) {
+            // Both icons, tagged the way AdminLTE's own CSS expects: it hides
+            // [data-lte-icon=collapse] on a .collapsed-card and hides
+            // [data-lte-icon=expand] on one that is open. FOGPage's shared
+            // $FOGCollapseBox is a bare fa-minus, so a card rendered already
+            // collapsed -- which cardClass now allows -- would sit there
+            // offering to collapse itself again.
             $o .= '<div class="card-tools float-end">'
-                . self::$FOGCollapseBox
-                . '</div>';
+                . '<button type="button" class="btn btn-tool"'
+                . ' data-lte-toggle="card-collapse">'
+                . '<i data-lte-icon="expand" class="fas fa-plus"></i>'
+                . '<i data-lte-icon="collapse" class="fas fa-minus"></i>'
+                . '</button></div>';
         }
         $o .= '<h4 class="card-title">' . $title . '</h4>';
         if ($help !== '') {
@@ -407,6 +425,13 @@ class FOGConfigurationPage extends FOGPage
      * Show this server's certificate hierarchy, and change the parts of it a
      * browser may safely change.
      *
+     * The page is a TABLE of certificates plus the two controls that change
+     * one, not a card per fact. Everything a certificate has -- subject,
+     * issuer, expiry, fingerprint, a download -- is a column, so the slots can
+     * be read against each other; before this the root's subject and
+     * fingerprint were prose in one card, the imported root's were prose in
+     * another, and the remaining six were a table with none of it.
+     *
      * The reason this page runs the private key check in PHP rather than
      * simply reporting what the installer did: PHP *is* the threat model. The
      * whole point of the key isolation is that a compromise of this web
@@ -436,38 +461,21 @@ class FOGConfigurationPage extends FOGPage
         $status = self::_pkiStatus();
         $mayEdit = Authorization::can('system.pki');
 
-        // --- what the certificates are for, and what fog-client pins --------
-        $body = '<p>' . _(
-            'FOG uses certificates for three unrelated jobs: the web server, '
-            . 'the encrypted fog-client check-in, and the signature on the FOS '
-            . 'kernels. They are issued by separate CAs beneath one anchor, so '
-            . 'replacing any one of them leaves the other two alone.'
-        ) . '</p>';
-        $root = self::_pkiCert($status, 'root');
-        if ($root && !empty($root['present'])) {
-            $body .= '<p><strong>' . _('Trust anchor') . '</strong> &mdash; '
-                . _('published as ca.cert.der and pinned by every fog-client')
-                . '</p>';
-            $body .= '<pre>' . \Initiator::e($root['subject']) . '</pre>';
-            $body .= '<p><strong>' . _('SHA-256') . '</strong></p>';
-            $body .= '<pre>' . \Initiator::e($root['sha256']) . '</pre>';
-            $body .= '<p>' . _(
-                'This is the value to compare against a client\'s trust store '
-                . 'when working out why a client stopped authenticating.'
-            ) . '</p>';
-        }
         if (null === $status) {
             // Says which of the two it is. A page that simply showed less
             // would leave an administrator comparing it against the
             // documentation and finding nothing to explain the difference.
-            $body .= '<p class="text-warning">' . _(
-                'The certificate management helper is not installed on this '
-                . 'server, so this page can only show what it can read for '
-                . 'itself. Re-run the installer to enable it. On a storage '
-                . 'node this is expected: a node has no CA of its own.'
-            ) . '</p>';
+            echo $this->_box(
+                _('Certificates'),
+                '<p>' . _(
+                    'The certificate management helper is not installed on this '
+                    . 'server, so this page can only show what it can read for '
+                    . 'itself. Re-run the installer to enable it. On a storage '
+                    . 'node this is expected: a node has no CA of its own.'
+                ) . '</p>',
+                ['color' => 'warning']
+            );
         }
-        echo $this->_box(_('Certificates'), $body, ['color' => 'info']);
 
         $this->_certificateKeyExposure($status);
         $this->_certificateChain($status);
@@ -530,7 +538,48 @@ class FOGConfigurationPage extends FOGPage
         );
     }
     /**
-     * The chain, and a download for each public certificate in it.
+     * The Expires cell: the date, and a badge when it is worth acting on.
+     *
+     * A certificate table that cannot answer "is anything about to break" is
+     * only a list of names, so the badge is the point of the column and the
+     * date is context for it.
+     *
+     * Rendered in UTC rather than through FOG_TZ_INFO. That setting is the
+     * zone rows are STORED in and relabeling a value with it is how dates
+     * elsewhere have gone wrong before; openssl's notAfter is already GMT, so
+     * saying so is both correct and one fewer thing to get wrong. A value
+     * strtotime cannot read is shown verbatim rather than dropped -- the raw
+     * string is still the answer to the question.
+     *
+     * @param array $cert one entry of the helper's certificates list.
+     *
+     * @return string
+     */
+    private static function _certExpiry(array $cert)
+    {
+        $raw = (string) ($cert['not_after'] ?? '');
+        $ts = '' !== $raw ? strtotime($raw) : false;
+        if (false === $ts) {
+            return '<small>' . \Initiator::e($raw) . '</small>';
+        }
+        $out = '<small class="text-nowrap">'
+            . \Initiator::e(gmdate('Y-m-d', $ts)) . '</small>';
+        $days = (int) floor(($ts - time()) / 86400);
+        if ($days < 0) {
+            $out .= '<br><span class="badge bg-danger">'
+                . _('Expired') . '</span>';
+        } elseif ($days <= 30) {
+            // 30 days is the window every ACME client renews inside, so a
+            // certificate still amber here is one nothing is renewing.
+            $out .= '<br><span class="badge bg-warning">' . sprintf(
+                _('%d days left'),
+                $days
+            ) . '</span>';
+        }
+        return $out;
+    }
+    /**
+     * Every certificate this server holds, one row each.
      *
      * Every file here is public: the root is already published as
      * ca.cert.der, the vhost certificate is handed to anyone who connects,
@@ -538,6 +587,10 @@ class FOGConfigurationPage extends FOGPage
      * settings.view rather than a plain link only because the page is, and
      * because the web tier cannot read most of them off disk -- pki/web/ca
      * and pki/web/leaf are 0700 root:root, so the helper fetches them.
+     *
+     * The fingerprint is a column rather than a card because comparing one
+     * against a client's trust store is the reason anybody opens this page,
+     * and it was previously shown for two of the eight slots.
      *
      * @param array|null $status the helper's report.
      *
@@ -551,7 +604,7 @@ class FOGConfigurationPage extends FOGPage
         $labels = [
             'root' => [
                 _('Root'),
-                _('The trust anchor. Every fog-client pins this one.')
+                _('The trust anchor, published as ca.cert.der. Every fog-client pins this one.')
             ],
             'webca' => [
                 _('Web CA'),
@@ -589,20 +642,40 @@ class FOGConfigurationPage extends FOGPage
                 continue;
             }
             $count = (int) ($cert['count'] ?? 1);
+            $sub = '<td><code>' . \Initiator::e($cert['subject']) . '</code>';
+            // Issuer, not as its own column: a second distinguished name that
+            // wide would push the fingerprint off the table on any laptop, and
+            // what the reader wants from it is which row above signed this one.
+            if (!empty($cert['self_signed'])) {
+                $sub .= '<br><small class="text-muted">'
+                    . _('Self-signed') . '</small>';
+            } elseif (!empty($cert['issuer'])) {
+                $sub .= '<br><small class="text-muted">' . sprintf(
+                    _('Issued by %s'),
+                    \Initiator::e($cert['issuer'])
+                ) . '</small>';
+            }
+            if ($count > 1) {
+                $sub .= '<br><small class="text-muted">' . sprintf(
+                    _('%d certificates in this file'),
+                    $count
+                ) . '</small>';
+            }
+            $sub .= '</td>';
             $rows .= '<tr><td><strong>' . \Initiator::e($meta[0]) . '</strong>'
                 . '<br><small class="text-muted">' . \Initiator::e($meta[1])
                 . '</small></td>'
-                . '<td><code>' . \Initiator::e($cert['subject']) . '</code>'
-                . ($count > 1
-                    ? '<br><small class="text-muted">' . sprintf(
-                        _('%d certificates in this file'),
-                        $count
-                    ) . '</small>'
-                    : '')
-                . '</td>'
-                . '<td class="text-nowrap"><small>'
-                . \Initiator::e($cert['not_after']) . '</small></td>'
-                . '<td class="text-nowrap"><a class="btn btn-sm btn-secondary" href="'
+                . $sub
+                . '<td>' . self::_certExpiry($cert) . '</td>'
+                // user-select-all so one click takes the whole fingerprint --
+                // it is 95 characters and it exists to be pasted somewhere
+                // else. break-all rather than the text-break utility, which is
+                // word-wrap and will not break a colon-separated hex run.
+                . '<td><small class="font-monospace user-select-all"'
+                . ' style="word-break:break-all">'
+                . \Initiator::e($cert['sha256'] ?? '') . '</small></td>'
+                . '<td class="text-end text-nowrap">'
+                . '<a class="btn btn-sm btn-secondary" href="'
                 . \Initiator::e(
                     '?node=about&sub=certificatedownload&slot=' . $slot
                 ) . '">' . _('Download') . '</a></td></tr>';
@@ -610,24 +683,43 @@ class FOGConfigurationPage extends FOGPage
         if ('' === $rows) {
             return;
         }
-        $body = '<p>' . _(
+        $body = '<div class="table-responsive">'
+            . '<table class="table table-sm table-striped align-middle">';
+        $body .= '<thead><tr><th>' . _('Certificate') . '</th><th>' . _('Subject')
+            . '</th><th>' . _('Expires') . '</th><th>' . _('SHA-256')
+            . '</th><th></th></tr></thead>';
+        $body .= '<tbody>' . $rows . '</tbody></table></div>';
+        $body .= '<p class="form-text">' . _(
             'Each of these is a public certificate. Downloading one is how you '
             . 'add this server to another machine\'s trust store, hand an '
             . 'auditor the chain, or check what a client is actually being '
-            . 'offered.'
-        ) . '</p>';
-        $body .= '<div class="table-responsive"><table class="table table-sm align-middle">';
-        $body .= '<thead><tr><th>' . _('Certificate') . '</th><th>' . _('Subject')
-            . '</th><th>' . _('Expires') . '</th><th></th></tr></thead>';
-        $body .= '<tbody>' . $rows . '</tbody></table></div>';
-        $body .= '<p class="form-text">' . _(
-            'Private keys are deliberately absent. Nothing on this page can '
+            . 'offered; the SHA-256 is what to compare against a client\'s '
+            . 'trust store when working out why one stopped authenticating. '
+            . 'Private keys are deliberately absent -- nothing on this page can '
             . 'read one, and nothing on it can hand one out.'
         ) . '</p>';
-        echo $this->_box(_('The certificate chain'), $body, ['color' => 'info']);
+        echo $this->_box(
+            _('Certificates'),
+            $body,
+            [
+                'color' => 'info',
+                'help' => _(
+                    'FOG uses certificates for three unrelated jobs: the web '
+                    . 'server, the encrypted fog-client check-in, and the '
+                    . 'signature on the FOS kernels. They are issued by '
+                    . 'separate CAs beneath one anchor, so replacing any one '
+                    . 'of them leaves the other two alone.'
+                )
+            ]
+        );
     }
     /**
-     * Import, show and remove an external root CA.
+     * Import and remove an external root CA.
+     *
+     * What is imported is a ROW in the table above, so this card is only the
+     * control. It used to repeat the subject, the fingerprint and the expiry
+     * as prose, which is the same three facts in a second shape and the thing
+     * that made the page a train of cards.
      *
      * The narrow case that --ca-root cannot express on its own: a corporate
      * or step-ca root that FOG issues nothing from and nothing chains to, but
@@ -648,32 +740,21 @@ class FOGConfigurationPage extends FOGPage
         }
         $cert = self::_pkiCert($status, 'externalroot');
         $have = $cert && !empty($cert['present']);
-        $body = '<p>' . _(
+        $help = _(
             'Upload a root CA certificate to have this server trust it. It is '
             . 'added to the host\'s own trust store, so every HTTPS call this '
             . 'server makes will accept a certificate issued beneath it, and '
             . 'it is re-applied on every later installer run.'
-        ) . '</p>';
-        $body .= '<p>' . _(
+        );
+        $body = '<p class="form-text">' . _(
             'This does not change what FOG issues, and it does not change what '
             . 'fog-client pins. Only a self-signed CA certificate is accepted: '
             . 'an intermediate in the same file is dropped rather than trusted, '
             . 'because anchoring an intermediate would trust it as a root.'
         ) . '</p>';
-        if ($have) {
-            $body .= '<p><strong>' . _('Currently imported') . '</strong></p>';
-            $body .= '<pre>' . \Initiator::e($cert['subject']) . '</pre>';
-            $body .= '<p><strong>' . _('SHA-256') . '</strong></p>';
-            $body .= '<pre>' . \Initiator::e($cert['sha256']) . '</pre>';
-            $body .= '<p class="form-text">' . sprintf(
-                _('Valid until %s.'),
-                \Initiator::e($cert['not_after'])
-            ) . '</p>';
-        } else {
-            $body .= '<p class="form-text">' . _(
-                'No external root is imported on this server.'
-            ) . '</p>';
-        }
+        $body .= '<p class="form-text">' . ($have
+            ? _('One is imported. It is the "Imported root" row in the table above.')
+            : _('No external root is imported on this server.')) . '</p>';
         $store = (array) ($status['trust_store'] ?? []);
         if (empty($store['available'])) {
             $body .= '<p class="text-warning">' . _(
@@ -683,7 +764,11 @@ class FOGConfigurationPage extends FOGPage
             ) . '</p>';
         }
         if (!$mayEdit) {
-            echo $this->_box(_('External root CA'), $body, ['color' => 'info']);
+            echo $this->_box(
+                _('External root CA'),
+                $body,
+                ['color' => 'info', 'help' => $help]
+            );
             return;
         }
         $body .= '<label class="form-label" for="pki-root-file">'
@@ -734,7 +819,7 @@ class FOGConfigurationPage extends FOGPage
         echo $this->_box(
             _('External root CA'),
             $body,
-            ['color' => 'info', 'footer' => $buttons]
+            ['color' => 'info', 'help' => $help, 'footer' => $buttons]
         );
         echo '</form>';
     }
@@ -742,10 +827,10 @@ class FOGConfigurationPage extends FOGPage
      * The three install preferences that decide what FOG does to the web
      * certificate on its next run.
      *
-     * Each one states its consequence beside the control, because that is the
-     * whole difference between setting this here and setting it on a command
-     * line: an installer flag is read back before it runs, and a checkbox is
-     * not.
+     * A row each: switch, what it is, what turning it on costs. Each one
+     * states its consequence beside the control, because that is the whole
+     * difference between setting this here and setting it on a command line:
+     * an installer flag is read back before it runs, and a checkbox is not.
      *
      * They are PREFERENCES, not switches -- nothing on this page rewrites the
      * vhost or rebuilds iPXE. Saying so at the point of change is the only
@@ -800,7 +885,8 @@ class FOGConfigurationPage extends FOGPage
         $rows = '';
         foreach ($meta as $key => $text) {
             $on = 'yes' === (string) ($prefs[$key] ?? 'no');
-            $rows .= '<div class="form-check form-switch mb-3">';
+            $rows .= '<tr><td class="text-nowrap">';
+            $rows .= '<div class="form-check form-switch mb-0">';
             // data-action rather than reading it off the upload form: that
             // form is only rendered when an external root can be imported, so
             // the switches would have lost their POST target on a server where
@@ -812,20 +898,22 @@ class FOGConfigurationPage extends FOGPage
                 . ($on ? ' checked' : '')
                 . ($mayEdit ? '' : ' disabled')
                 . '>';
-            $rows .= '<label class="form-check-label" for="'
+            $rows .= '</div></td>';
+            // The label still points at the checkbox, so the setting name is
+            // the click target it always was -- it has just moved a cell.
+            $rows .= '<td><label class="form-check-label" for="'
                 . \Initiator::e($key) . '"><strong>'
                 . \Initiator::e($text[0]) . '</strong>'
-                . '<br><span class="text-muted">' . \Initiator::e($text[1])
-                . '</span><br><code>' . \Initiator::e($key) . '</code></label>';
-            $rows .= '</div>';
+                . '<br><code class="small">' . \Initiator::e($key)
+                . '</code></label></td>';
+            $rows .= '<td><small class="text-muted">'
+                . \Initiator::e($text[1]) . '</small></td></tr>';
         }
-        $body = '<p>' . _(
-            'These decide what the NEXT installer run does. Nothing here takes '
-            . 'effect until the installer runs again -- this page records the '
-            . 'preference, it does not rewrite the web server configuration or '
-            . 'reissue a certificate.'
-        ) . '</p>';
-        $body .= $rows;
+        $body = '<div class="table-responsive">'
+            . '<table class="table table-sm align-middle">';
+        $body .= '<thead><tr><th></th><th>' . _('Setting') . '</th><th>'
+            . _('What it does') . '</th></tr></thead>';
+        $body .= '<tbody>' . $rows . '</tbody></table></div>';
         $body .= '<p class="form-text">' . sprintf(
             '%s <a href="%s" target="_blank" rel="noopener">%s</a>.',
             _('A worked example of the first one, end to end:'),
@@ -852,11 +940,23 @@ class FOGConfigurationPage extends FOGPage
         echo $this->_box(
             _('Install preferences'),
             $body,
-            ['color' => 'info']
+            [
+                'color' => 'info',
+                'help' => _(
+                    'These decide what the NEXT installer run does. Nothing '
+                    . 'here takes effect until the installer runs again -- this '
+                    . 'page records the preference, it does not rewrite the web '
+                    . 'server configuration or reissue a certificate.'
+                )
+            ]
         );
     }
     /**
      * Replacing FOG's own PKI: what it costs, and the command that does it.
+     *
+     * Collapsed on arrival. It is reference material for a migration nobody
+     * does twice, and expanded it was the longest thing on a page whose job
+     * is to say what this server's certificates are right now.
      *
      * Deliberately NOT a button. Rotating the root invalidates every
      * fog-client enrollment on the estate at once, and the recovery is to
@@ -920,7 +1020,11 @@ class FOGConfigurationPage extends FOGPage
         echo $this->_box(
             _('Using your own PKI'),
             $body,
-            ['color' => 'warning']
+            [
+                'color' => 'warning',
+                'collapse' => true,
+                'cardClass' => 'collapsed-card'
+            ]
         );
     }
     /**
