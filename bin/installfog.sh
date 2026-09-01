@@ -208,9 +208,14 @@ usage() {
     echo -e "\t                       \t\tkeep (default 3). Restore one with"
     echo -e "\t                       \t\tbin/restorekernel.sh. See"
     echo -e "\t                       \t\tdocs/SUPPORTED_CUSTOMIZATIONS.md"
+    echo -e "\t      --channel\t\t\tUpdate channel this server tracks: stable,"
+    echo -e "\t                       \t\tpatches or beta. Recorded in .fogsettings and"
+    echo -e "\t                       \t\tused by bin/updatefog.sh to pick a branch."
+    echo -e "\t                       \t\tOmit to leave a recorded channel unchanged"
     echo -e "\t      --restore-kernel-backup\tAlso restore the previous kernel/init set"
-    echo -e "\t                       \t\tthis run. Used by updatefog.sh when reverting;"
-    echo -e "\t                       \t\tnot normally passed by hand"
+    echo -e "\t                       \t\tthis run. Pass it when rolling a failed"
+    echo -e "\t                       \t\tupdate back by hand. bin/restorekernel.sh is"
+    echo -e "\t                       \t\tthe friendlier way to pick a generation"
     echo -e "\t-N    --mysqldbname\t\tSpecify the FOG database name"
     echo -e "\t               \t\t\t\tdefaults to fog"
     echo -e "\t-B    --backuppath\t\tSpecify the backup path"
@@ -262,7 +267,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -665,6 +670,21 @@ while :; do
             esac
             shift 2
             ;;
+        --channel)
+            # Validated here rather than at use: normalizeChannel is the one
+            # place that knows the vocabulary, including the retired
+            # stable/staging/dev spellings, and a typo caught before the run
+            # starts is worth far more than one caught after the installer has
+            # begun rewriting the server.
+            if schannel="$(normalizeChannel "${2}" 2>/dev/null)"; then
+                sFOG_update_channel="$schannel"
+            else
+                echo "$1 requires one of: stable, patches, beta"
+                usage
+                exit 3
+            fi
+            shift 2
+            ;;
         --kernel-backup-count)
             if [[ -n "${2}" && "${2}" =~ ^[0-9]+$ && "${2}" -ge 1 ]]; then
                 sBOOT_kernel_backups_kept="${2}"
@@ -776,6 +796,15 @@ echo "Done"
 [[ -n $sfogprogramdir ]] && fogprogramdir="$sfogprogramdir"
 fogprogramdir="${fogprogramdir%/}"
 . ../lib/common/config.sh
+
+# Armed here because config.sh has just resolved FOG_git_path, and disarmed by
+# nothing: offerRevert reads FOG_last_good_commit at exit, so it sees whatever
+# .fogsettings and the run itself settled on rather than the value at the time
+# the trap was set.
+#
+# A trap rather than a call inside errorStat, because errorStat is not the only
+# way this script leaves -- and the offer is worth making however it failed.
+trap 'offerRevert $?' EXIT
 # Captured after config.sh so the /opt/fog default is included, and re-asserted
 # once .fogsettings has been sourced below. A stale fogprogramdir line in that
 # file must not silently relocate the install half-way through a run, after
@@ -981,6 +1010,11 @@ _applyInstallMode
 [[ -n ${sPKI_sb_codesign_cert} ]] && PKI_sb_codesign_cert=${sPKI_sb_codesign_cert}
 [[ -n ${sPKI_sb_enabled} ]] && PKI_sb_enabled=${sPKI_sb_enabled}
 [[ -n ${sBOOT_kernel_backups_kept} ]] && BOOT_kernel_backups_kept=${sBOOT_kernel_backups_kept}
+# Applied here, after .fogsettings has been sourced, so an explicit --channel
+# wins over the recorded one -- and only when given, so a plain re-run never
+# silently retargets a server that already chose a channel. config.sh has
+# already derived a default from the checked-out branch for a first install.
+[[ -n ${sFOG_update_channel} ]] && FOG_update_channel=${sFOG_update_channel}
 # Applied here, after .fogsettings is sourced, so an explicit flag beats a
 # persisted value. A persisted value does NOT beat the computed default any
 # more: netbootproto is re-derived every run unless netbootProtoForced records
@@ -1044,7 +1078,7 @@ _normalizeBooleanSettings
 # testing that would declare every install an external-CA install.
 [[ -n $importWebCACert || -n $importWebCAKey || -n $importWebCARoot ]] && externalca="yes"
 # Deliberately NOT persisted to .fogsettings: this is a one-shot instruction
-# for a single run (revertUpdate passes it), not a preference. Persisting it
+# for a single run, not a preference. Persisting it
 # would make every later update silently roll the kernels back.
 restoreKernelBackup=${srestoreKernelBackup:-0}
 
@@ -1382,6 +1416,11 @@ while [[ -z $blGo ]]; do
                     # the port set matches what was actually installed, and
                     # before writeUpdateFile so the chosen action persists.
                     configureFirewall
+                    # Immediately before writeUpdateFile, which is what persists it.
+                    # Everything destructive is behind this point, so a failure
+                    # earlier leaves the previous commit recorded -- which is the
+                    # one offerRevert should name. See FOG_last_good_commit.
+                    markInstallCommit
                     writeUpdateFile
                     linkOptFogDir
                     installUtilities
@@ -1557,6 +1596,11 @@ while [[ -z $blGo ]]; do
                     # the port set matches what was actually installed, and
                     # before writeUpdateFile so the chosen action persists.
                     configureFirewall
+                    # Immediately before writeUpdateFile, which is what persists it.
+                    # Everything destructive is behind this point, so a failure
+                    # earlier leaves the previous commit recorded -- which is the
+                    # one offerRevert should name. See FOG_last_good_commit.
+                    markInstallCommit
                     writeUpdateFile
                     linkOptFogDir
                     installUtilities

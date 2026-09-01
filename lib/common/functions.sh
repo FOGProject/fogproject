@@ -123,6 +123,53 @@ branchToChannel() {
         *) return 1 ;;
     esac
 }
+# Records the commit this install is being built from, so a LATER failed run
+# can name something to go back to. Called immediately before writeUpdateFile,
+# which is what persists it -- see FOG_last_good_commit in managedKeys for why
+# that is the point chosen.
+#
+# Never fails the install. A tarball install, or a checkout whose .git has been
+# removed, simply has no commit to record, and that is not an error: it means
+# offerRevert stays quiet, which is correct for a tree that cannot be reset.
+markInstallCommit() {
+    local head
+    head=$(git -C "${FOG_git_path}" rev-parse HEAD 2>/dev/null) || return 0
+    [[ -n $head ]] && FOG_last_good_commit="$head"
+    return 0
+}
+# Names the way back after a failed install, and does not take it.
+#
+# Deliberately an OFFER. Reverting means git-resetting the working copy and
+# re-running the installer -- and a process that has just failed is the worst
+# thing to trust with a second, equally invasive run. The admin has the
+# context to decide; this only removes the part they cannot easily reconstruct,
+# which is WHICH commit was last known to install cleanly.
+#
+# Silent unless all four hold: this run failed, a good commit was recorded, the
+# checkout is a git tree, and HEAD has actually moved since that commit. A
+# fresh install has nothing recorded, and a re-run at the same commit has
+# nothing to go back to -- in both cases the failure is not about the code
+# having changed, so pointing at git would be a wrong diagnosis.
+offerRevert() {
+    local status=$1 head
+    [[ $status -eq 0 ]] && return 0
+    [[ -n ${FOG_last_good_commit} ]] || return 0
+    [[ -d ${FOG_git_path}/.git ]] || return 0
+    head=$(git -C "${FOG_git_path}" rev-parse HEAD 2>/dev/null) || return 0
+    [[ -z $head || $head == ${FOG_last_good_commit} ]] && return 0
+    echo
+    echo " * This install did not finish, and the checkout has moved since the"
+    echo " | last one that did. To put the code back where it was and re-run:"
+    echo " |"
+    echo " |     git -C ${FOG_git_path} reset --hard ${FOG_last_good_commit}"
+    echo " |     cd ${FOG_git_path}/bin && ./installfog.sh"
+    echo " |"
+    echo " | Nothing has been reverted for you. Your customizations were already"
+    echo " | restored by this run -- see docs/SUPPORTED_CUSTOMIZATIONS.md -- and"
+    echo " | bin/restorekernel.sh --list will show the kernel sets kept for you."
+    echo
+    return 0
+}
 backupReports() {
     dots "Backing up user reports"
     [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
@@ -378,7 +425,7 @@ restorePreservedCustomizations() {
     #                                 an update.
     #
     # $restoreKernelBackup is the one exception: --restore-kernel-backup, which
-    # revertUpdate() passes when re-running the installer against the previous
+    # an admin passes when re-running the installer against a previous
     # commit. An older commit wants its older kernels, so the defaults are
     # forced back over the fresh ones -- what the retired
     # _restorePreviousKernel() used to do on that path.
@@ -6873,6 +6920,19 @@ writeUpdateFile() {
         # forward on every upgrade, not just on the run it was made. Its VALUES
         # are untouched pending GH-1279, which reconciles them with FOG_CHANNEL.
         FOG_git_path FOG_update_channel
+        # The commit that the last install to reach writeUpdateFile was built
+        # from. A RECORD, and deliberately not a control: nothing reads it to
+        # decide what to check out. Its only consumer is offerRevert(), which
+        # uses it to name a commit worth going back to when a later run fails.
+        #
+        # "Reached writeUpdateFile" is the definition of success here, and it is
+        # narrower than "finished". Everything expensive and destructive --
+        # configureHttpd's rebuild, updateDB, the TFTP tree, the services -- is
+        # already behind that point, and the steps after it are the ones a
+        # revert would not have helped with anyway. A failure before it leaves
+        # this key naming the previous good commit, which is exactly when the
+        # offer is worth making.
+        FOG_last_good_commit
         # GH-850: recorded so `grep FOG_program_dir .fogsettings` answers "where
         # does this install live" -- but it is a RECORD, not a control. See the
         # assignment above for why it cannot be one.
