@@ -4856,8 +4856,20 @@ errorStat() {
             tail -n 5 $error_log
             exit $status
         fi
+        # $exitFail is set, so the caller handles this failure itself rather
+        # than the process ending here. RETURN -- do not fall through: the
+        # line below prints "OK", and reaching it after "Failed!" reported
+        # both outcomes for the same step. All four scripts that source this
+        # set exitFail (installfog.sh, updatefog.sh, restorekernel.sh,
+        # revertfog.sh), so every failed step in any of them showed it.
+        return $status
     fi
     [[ -z $skipOk ]] && echo "OK"
+    # Explicit, because the line above is a && whose test is FALSE whenever
+    # skipOk was passed -- which used to make this function return 1 for a
+    # step that succeeded. Nothing reads the value today; this keeps it from
+    # being a trap for the first caller that does.
+    return 0
 }
 stopInitScript() {
     for serviceItem in $serviceList; do
