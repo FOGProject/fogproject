@@ -48,11 +48,75 @@ gitUpdateToBranch() {
     st=$?
     errorStat $st
     [[ $st -ne 0 ]] && return 1
+    # WHY THERE IS A LADDER HERE AND NOT JUST A RESET
+    #
+    # `git reset --hard` stays, and stays as the last rung, because the tree
+    # genuinely can be unclean in ways an ordinary checkout cannot survive --
+    # the reference case being a `chmod -R` over a parent directory, which
+    # leaves every file looking modified to git and makes a plain pull fail.
+    # Refusing there would strand exactly the server that most needs updating.
+    #
+    # What was wrong was doing it unconditionally and silently. A clean tree
+    # needs no reset at all, and a dirty one deserves to have its contents
+    # named before they are discarded -- an admin who edited something inside
+    # the checkout should be able to read what went, not discover it later.
+    #
+    # So: clean tree, no reset. Dirty tree, say what is dirty, then reset.
+    local dirty modecount total
+    dirty=$(git -C "${FOG_git_path}" status --porcelain 2>>$error_log)
+
     dots "Checking out ${branch}"
     git -C "${FOG_git_path}" checkout "$branch" >>$error_log 2>&1
     st=$?
     errorStat $st
-    [[ $st -ne 0 ]] && return 1
+    if [[ $st -ne 0 && -z $dirty ]]; then
+        # A clean tree that will not check out is not the case reset --hard
+        # was put here for, and hiding a real git failure behind it would be
+        # the worst of both.
+        echo " * Could not check out ${branch}, and the working tree is clean --"
+        echo " | so this is not a local-modification problem. See $error_log."
+        return 1
+    fi
+
+    if [[ -z $dirty ]]; then
+        # Nothing to discard. The reset would be a no-op against a tree that
+        # already matches, so skip it and say nothing.
+        dots "Fast-forwarding to origin/${branch}"
+        git -C "${FOG_git_path}" merge --ff-only "origin/${branch}" >>$error_log 2>&1
+        st=$?
+        errorStat $st
+        [[ $st -eq 0 ]] && return 0
+        # A clean tree that will not fast-forward means the branch has been
+        # rewritten upstream (a force-push, or a rebased rc-*). Falling through
+        # to the reset is right, and now it is the only thing left to try.
+        echo " * origin/${branch} is not a fast-forward from here, so the"
+        echo " | checkout is being reset onto it."
+    else
+        total=$(printf '%s
+' "$dirty" | grep -c .)
+        # Permission-only noise is its own case and has its own fix. A
+        # `chmod -R` over a parent leaves every tracked file modified with no
+        # content change at all, and `core.fileMode false` addresses that
+        # surgically -- worth saying, because the reset below will "fix" it
+        # once and it will come back the next time someone runs chmod.
+        modecount=$(git -C "${FOG_git_path}" diff --summary 2>/dev/null | grep -c 'mode change')
+        echo " * The checkout has ${total} local change(s), which are about to be discarded:"
+        printf '%s
+' "$dirty" | sed 's/^/ |   /' | head -n 20
+        [[ $total -gt 20 ]] && echo " |   ... and $((total - 20)) more"
+        if [[ $modecount -gt 0 ]]; then
+            echo " |"
+            echo " | ${modecount} of these are permission changes with no content change,"
+            echo " | which usually means a chmod ran over a parent directory. If that"
+            echo " | keeps happening, git config --global core.fileMode false stops git"
+            echo " | reporting it, and is a better fix than resetting every update."
+        fi
+        echo " |"
+        echo " | The full list is in $error_log."
+        printf '%s
+' "$dirty" >> "$error_log"
+    fi
+
     dots "Resetting to origin/${branch}"
     git -C "${FOG_git_path}" reset --hard "origin/${branch}" >>$error_log 2>&1
     st=$?

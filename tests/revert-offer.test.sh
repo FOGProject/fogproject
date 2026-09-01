@@ -75,6 +75,25 @@ eval "$snippet"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
+# offerRevert reads the RECORDED commit out of .fogsettings rather than the
+# in-memory variable, so the fixture has to be a file. That indirection is the
+# point: markInstallCommit necessarily sets the variable before
+# writeUpdateFile persists it -- writeUpdateFile emits the file FROM the
+# variable -- so a failure between the two leaves memory holding HEAD while
+# disk still names the last commit that actually got written down.
+fogprogramdir="$work/opt"
+mkdir -p "$fogprogramdir"
+
+# An empty argument removes the record entirely, standing in for a fresh
+# install that has never written one.
+record() {
+    if [[ -z $1 ]]; then
+        rm -f "$fogprogramdir/.fogsettings"
+        return 0
+    fi
+    printf "FOG_last_good_commit='%s'\n" "$1" > "$fogprogramdir/.fogsettings"
+}
+
 # A throwaway checkout with two commits, so there is a real "previous" one.
 FOG_git_path="$work/repo"
 mkdir -p "$FOG_git_path"
@@ -92,9 +111,20 @@ second=$(git -C "$FOG_git_path" rev-parse HEAD)
 # markInstallCommit records HEAD, and never fails a run that has no commit.
 # ---------------------------------------------------------------------------
 unset FOG_last_good_commit
+record ""
 markInstallCommit
 check "markInstallCommit records the current HEAD" \
     "$([[ $FOG_last_good_commit == "$second" ]]; echo $?)"
+
+# THE CASE THE DISK READ EXISTS FOR.
+#
+# markInstallCommit has just set the in-memory value to HEAD, and the run then
+# fails before writeUpdateFile gets the file written -- so .fogsettings still
+# names the previous good commit. Comparing against memory would find
+# HEAD == HEAD and stay silent on exactly the run that needed the offer.
+record "$first"
+check "a stale in-memory value does not silence the offer" \
+    "$(grep -q "checkout --detach ${first}" <<< "$(offerRevert 1)"; echo $?)"
 
 notarepo="$work/tarball"
 mkdir -p "$notarepo"
@@ -106,14 +136,22 @@ check "a tarball install records nothing and does not fail" "$?"
 # ---------------------------------------------------------------------------
 # The offer fires exactly once: failed run, recorded commit, HEAD moved.
 # ---------------------------------------------------------------------------
-FOG_last_good_commit="$first"
+record "$first"
 out=$(offerRevert 1)
 
 check "a failed run with a moved HEAD prints an offer" \
-    "$(grep -q 'reset --hard' <<< "$out"; echo $?)"
+    "$(grep -q 'checkout --detach' <<< "$out"; echo $?)"
 
 check "it names the RECORDED commit, not HEAD" \
-    "$(grep -q "reset --hard ${first}" <<< "$out"; echo $?)"
+    "$(grep -q "checkout --detach ${first}" <<< "$out"; echo $?)"
+
+# --detach rather than `reset --hard`, which would point the CURRENT branch
+# ref at the commit. The case this exists for is an update that switched
+# channels and then failed, so the checkout is on working-1.6 while the good
+# commit belongs to stable -- resetting there leaves a diverged branch that
+# outlives the problem it was fixing.
+check "it does not suggest moving the current branch ref" \
+    "$(! grep -q 'reset --hard' <<< "$out"; echo $?)"
 
 check "it names the checkout to run git in" \
     "$(grep -q -- "-C ${FOG_git_path}" <<< "$out"; echo $?)"
@@ -132,19 +170,19 @@ check "the file on disk is untouched" \
 # And the silence. Each of these is a case where naming git would be a wrong
 # diagnosis.
 # ---------------------------------------------------------------------------
-FOG_last_good_commit="$first"
+record "$first"
 check "a SUCCESSFUL run offers nothing" \
     "$([[ -z $(offerRevert 0) ]]; echo $?)"
 
-FOG_last_good_commit="$second"
+record "$second"
 check "a re-run at the same commit offers nothing" \
     "$([[ -z $(offerRevert 1) ]]; echo $?)"
 
-unset FOG_last_good_commit
+record ""
 check "a first install, with nothing recorded, offers nothing" \
     "$([[ -z $(offerRevert 1) ]]; echo $?)"
 
-FOG_last_good_commit="$first"
+record "$first"
 check "a checkout that is not a git tree offers nothing" \
     "$([[ -z $(FOG_git_path="$notarepo" offerRevert 1) ]]; echo $?)"
 
@@ -299,6 +337,33 @@ logAt=$(grep -n '^error_log=' <<< "$u" | head -1 | cut -d: -f1)
 firstUse=$(grep -n '[$]error_log' <<< "$u" | head -1 | cut -d: -f1)
 check "and sets it before its first use" \
     "$([[ -n $logAt && -n $firstUse && $logAt -lt $firstUse ]]; echo $?)"
+
+
+# ---------------------------------------------------------------------------
+# A run with nobody to answer must not report success.
+#
+# `read confirmGo` gets EOF from cron or the web UI, confirmGo comes back
+# empty, and the catch-all arm used to print "Update canceled." and exit 0 --
+# so the caller recorded a successful update that never happened. A scheduled
+# job reporting success forever is worse than one reporting a failure, because
+# nobody looks at the first kind.
+# ---------------------------------------------------------------------------
+check "updatefog.sh refuses when there is no terminal to confirm on" \
+    "$(grep -q 'exec < /dev/tty' <<< "$u"; echo $?)"
+
+# Before the git work, not after it: refusing once the checkout has moved
+# leaves the server on a different commit than its install.
+ttyAt=$(grep -n 'exec < /dev/tty' <<< "$u" | head -1 | cut -d: -f1)
+gitAt2=$(grep -n 'gitUpdateToBranch' <<< "$u" | head -1 | cut -d: -f1)
+check "and refuses before the checkout is moved" \
+    "$([[ -n $ttyAt && -n $gitAt2 && $ttyAt -lt $gitAt2 ]]; echo $?)"
+
+# An unrecognized answer is not the same as "no", and neither is EOF.
+check "an unrecognized answer does not exit 0" \
+    "$(grep -qE 'Answer not recognized' <<< "$u"; echo $?)"
+
+check "a deliberate no is still exit 0" \
+    "$(grep -qE '\[Nn\] \| \[Nn\]\[Oo\]\)' <<< "$u"; echo $?)"
 
 
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$pass" "$fail"

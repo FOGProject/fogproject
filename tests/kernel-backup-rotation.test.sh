@@ -142,6 +142,29 @@ check "a retention of 5 prunes gen-6" \
     "$([[ ! -d $kbdir/gen-6 ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
+# LOWERING the retention prunes what is now above it.
+#
+# The prune used to remove only gen-N, so going from 5 to 3 left gen-4 and
+# gen-5 on disk forever: above the rotation loop, so never shifted and never
+# pruned again, frozen at whatever they last held -- while restorekernel.sh
+# --list went on offering them as current snapshots.
+# ---------------------------------------------------------------------------
+BOOT_kernel_backups_kept=3
+install lowered
+
+check "lowering the retention prunes gen-4" \
+    "$([[ ! -d $kbdir/gen-4 ]]; echo $?)"
+
+check "and gen-5" \
+    "$([[ ! -d $kbdir/gen-5 ]]; echo $?)"
+
+check "while keeping what is still inside the new retention" \
+    "$([[ -d $kbdir/gen-1 && -d $kbdir/gen-2 ]]; echo $?)"
+
+check "and gen-1 still holds the newest snapshot" \
+    "$([[ $(cat "$kbdir/gen-1/marker" 2>/dev/null) == lowered ]]; echo $?)"
+
+# ---------------------------------------------------------------------------
 # A retention of 1 must not fall into the same off-by-one from the other side:
 # the loop is skipped legitimately here, and gen-1 is simply replaced.
 # ---------------------------------------------------------------------------
