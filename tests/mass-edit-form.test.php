@@ -383,6 +383,48 @@ $check(
     )
 );
 
+// -------------------------------------------------------------------------
+// The page guard must not swallow the mass edit subs.
+//
+// FOGPage::__construct() refuses a sub that acts on one object when the URL
+// carries no id. It asked `false !== stripos($sub, 'edit')`, and BOTH mass
+// edit subs contain the word:
+//
+//     stripos('masseditform', 'edit') === 4
+//     stripos('massedit', 'edit')     === 4
+//
+// so both were refused with 404 `No host exists with ID` -- no id after
+// "ID", because there was never meant to be one -- and the modal that
+// fetches the form sat on "Loading, please wait..." indefinitely, a 404
+// being nothing its success handler reads. The feature could not work at
+// all on a running server, in either half, and every other gate on it is
+// DOWNSTREAM of this guard and so could not see it.
+//
+// EXECUTED, not grepped. The rule lives in one method precisely so a test
+// can call it with the sub names that actually exist. A grep for the
+// absence of stripos() would pass on the next spelling of the same mistake.
+$needsID = new \ReflectionMethod('FOG\\Base\\FOGPage', 'subNeedsObjectID');
+$needsID->setAccessible(true);
+$check(
+    "the object guard fires for sub=edit, which is the one object sub there is",
+    true === $needsID->invoke(null, 'edit')
+);
+$check(
+    'and is case-insensitive about it',
+    true === $needsID->invoke(null, 'Edit')
+);
+foreach (['massedit', 'masseditform'] as $listSub) {
+    $check(
+        "the object guard does NOT fire for sub=$listSub,"
+        . ' which acts on a POSTed selection and has no id',
+        false === $needsID->invoke(null, $listSub)
+    );
+}
+$check(
+    'and does not fire for a sub that merely ends in the word',
+    false === $needsID->invoke(null, 'bulkedit')
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass edit form is not three-state:\n");
     foreach ($failures as $f) {
