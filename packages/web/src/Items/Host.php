@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
 use FOG\Boot\UbootTftpSync;
@@ -950,9 +951,23 @@ class Host extends FOGController
         $Task = false
     ) {
         try {
+            // ADR 0038 decision 4. The "all snapins" list is RESOLVED once,
+            // here, and written onto the task: the host's own associations
+            // plus whatever its groups grant, in the order Resolver
+            // promises. `snapinTasks` is already the snapshot, so a group
+            // edited while this task is in flight does not change it --
+            // re-tasking is the only way to pick a change up.
+            //
+            // Resolved ONCE and reused below rather than read twice. The old
+            // code called $this->get('snapins') here for the emptiness guard
+            // and again further down for the ids, which was harmless when
+            // both came off the same loaded property and is not once the
+            // answer involves a query.
+            $resolved = [];
             if (-1 == $snapin) {
-                $snapins = $this->get('snapins');
-                if (count($snapins ?: []) <= 0) {
+                $hostID = (int)$this->get('id');
+                $resolved = Resolver::resolveSnapins([$hostID])[$hostID] ?? [];
+                if (count($resolved) <= 0) {
                     throw new \Exception(_('No snapins associated'));
                 }
             }
@@ -980,7 +995,7 @@ class Host extends FOGController
             $insert_fields = ['jobID', 'stateID', 'snapinID', 'sequence'];
             $insert_values = [];
             if ($snapin == -1) {
-                $snapin = $this->get('snapins');
+                $snapin = $resolved;
             }
             // Drop any 0/blank snapin id before it becomes a snapintask row
             // that renders as a phantom "null" snapin. Mirrors the same guard

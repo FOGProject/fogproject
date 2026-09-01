@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
 use FOG\Boot\UbootTftpSync;
@@ -968,28 +969,28 @@ class Group extends FOGController
         if ($snapin === false) {
             return;
         }
-        $find = ['hostID' => $this->get('hosts')];
-        $hostIDs = $find['hostID'];
+        $hostIDs = $this->get('hosts');
         $snapins = [];
         $snapinJobs = [];
-        // GH-707: the "all snapins" case used to query snapinAssoc once per
-        // member host inside the loop below -- a thousand round trips for a
-        // thousand-host group. The association table answers every host in
-        // one pass, so read it once here and index it by host; the loop then
-        // just looks the host up.
+        // ADR 0038 decision 4: the "all snapins" list is RESOLVED here, at
+        // task creation, and what it resolves to is written onto the task.
+        // `snapinTasks` is already the snapshot -- it carries the snapin and
+        // its sequence per row -- so nothing about the task side changes.
+        // What changed is only where the list comes from: the host's own
+        // associations plus whatever its groups GRANT, in the one order
+        // Resolver promises. A group edited while a task is in flight does
+        // not change that task; re-tasking is the only way to pick a change
+        // up.
+        //
+        // Still one pass over the whole membership, which is not incidental.
+        // GH-707 was this exact code querying snapinAssoc once per member
+        // host inside the loop below -- a thousand round trips for a
+        // thousand-host group -- and a resolver taking one host at a time
+        // would have reintroduced it here first. That is why resolveSnapins()
+        // takes a set.
         $assocByHost = [];
         if ($snapin == -1) {
-            $assocs = Route::getIds(
-                'snapinassociation',
-                $find,
-                ['hostID', 'snapinID'],
-                'AND',
-                'sequence'
-            );
-            foreach ($assocs as $assoc) {
-                $assocByHost[$assoc['hostID']][] = $assoc['snapinID'];
-            }
-            unset($assocs);
+            $assocByHost = Resolver::resolveSnapins($hostIDs);
         }
         foreach ($hostIDs as $hostID) {
             if ($snapin == -1) {
