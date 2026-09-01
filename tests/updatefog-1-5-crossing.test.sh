@@ -291,6 +291,50 @@ check "and mentions revertfog.sh, because the database may already have moved" \
     "$(grep -q 'revertfog.sh' <<< "$out"; echo $?)"
 
 # ---------------------------------------------------------------------------
+# rcBranch, against a REAL remote.
+#
+# Everything above runs with a git stub whose ls-remote exits 0 saying nothing,
+# so none of it can see what this catches: a bare `rc-*` pattern matches the
+# TAIL of a ref at slash boundaries, so ls-remote also returns
+# refs/heads/feat/rc-anything. That would send a 1.5 server across to a feature
+# branch on --channel rc -- the very channel this script recommends for the
+# crossing -- while reporting it as the current release candidate.
+# ---------------------------------------------------------------------------
+rcfn=$(awk '/^rcBranch\(\) \{/ { grab = 1 } grab { print } grab && /^\}/ { exit }' "$SRC")
+if ! grep -q '^rcBranch() {' <<< "$rcfn"; then
+    echo "FAIL: could not find rcBranch() in bin/updatefog.sh." >&2
+    echo "  If it moved or was renamed, point this test at it -- do not" >&2
+    echo "  delete the assertions." >&2
+    exit 1
+fi
+eval "$rcfn"
+
+rcremote="$work/rc.git"
+rcseed="$work/rcseed"
+git init -q --bare "$rcremote"
+git init -q "$rcseed"
+git -C "$rcseed" config user.email t@example.invalid
+git -C "$rcseed" config user.name t
+echo x > "$rcseed/f"
+git -C "$rcseed" add f && git -C "$rcseed" commit -qm seed
+rcpublish() {
+    git -C "$rcseed" branch -f "$1" >/dev/null 2>&1
+    git -C "$rcseed" push -q "$rcremote" "$1" >/dev/null 2>&1
+}
+repo="$rcremote"
+
+rcpublish feat/rc-update-channel
+check "a feat/rc-* branch is not offered as a release candidate" \
+    "$([[ -z $(rcBranch) ]]; echo $?)"
+check "and rcBranch reports nothing published" \
+    "$(! rcBranch >/dev/null 2>&1; echo $?)"
+
+rcpublish rc-1.6.2
+rcpublish rc-1.6.10
+check "rc-1.6.10 beats rc-1.6.2 and the decoy (version order, not lexical)" \
+    "$([[ $(rcBranch) == rc-1.6.10 ]]; echo $?)"
+
+# ---------------------------------------------------------------------------
 # It stays standalone. The moment it sources the installer library it stops
 # being portable to a branch that does not have the same one.
 # ---------------------------------------------------------------------------

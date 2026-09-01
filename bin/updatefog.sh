@@ -169,11 +169,19 @@ normalizeChannel() {
 # Asked of the remote, by version order. -v:refname so rc-1.6.10 beats
 # rc-1.6.2; the remote advertises no commit dates, so a "newest" answer could
 # not be date-based even if that were preferable.
+#
+# refs/heads/rc-*, NOT a bare rc-*. ls-remote matches a pattern against the
+# TAIL of each ref at slash boundaries, so `rc-*` also matches
+# refs/heads/feat/rc-anything -- and against origin it does. That would put a
+# 1.5 server onto a feature branch while telling its admin it was the current
+# release candidate, on the one channel this whole script recommends. The sed
+# re-checks the extracted name for a further slash: two layers, because the
+# answer decides what a major upgrade checks out.
 rcBranch() {
     local ref
-    ref=$(git ls-remote --heads --sort=-v:refname "$repo" 'rc-*' 2>/dev/null | head -n1) || return 1
-    [[ -n $ref ]] || return 1
-    ref="${ref##*refs/heads/}"
+    ref=$(git ls-remote --heads --sort=-v:refname "$repo" 'refs/heads/rc-*' 2>/dev/null \
+        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | head -n1) || return 1
     [[ -n $ref ]] || return 1
     echo "$ref"
 }
