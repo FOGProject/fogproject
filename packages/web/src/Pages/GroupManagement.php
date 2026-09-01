@@ -17,6 +17,7 @@ namespace FOG\Pages;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
+use FOG\Items\HostAutoLogout;
 use FOG\Items\Setting;
 use FOG\Items\TaskType;
 use FOG\Router\HTTPResponseCodes;
@@ -52,9 +53,14 @@ class GroupManagement extends FOGPage
      * left as a literal -- folding it in would change the gettext msgid and
      * strand every existing translation of it.
      *
+     * The value itself now lives on HostAutoLogout, because the host mass
+     * edit enforces the same rule on the same column and ADR 0038 decision 10
+     * removes this page's tab. Kept as an alias so the two references below
+     * and the JS data attribute do not have to change with it.
+     *
      * @var int
      */
-    const ALO_MIN_MINUTES = 5;
+    const ALO_MIN_MINUTES = HostAutoLogout::MIN_MINUTES;
     /**
      * Initializes the group page
      *

@@ -27,6 +27,21 @@ use FOG\Base\FOGController;
 class HostAutoLogout extends FOGController
 {
     /**
+     * The shortest auto-logout the client honors; anything below this saves
+     * as 0 (disabled).
+     *
+     * It lives on the model rather than on a page because three places have
+     * to agree about it and none of them owns it: the group page enforces it
+     * on save and hands it to its JS so the readout can predict the result
+     * without a round trip, and the host mass edit enforces the same rule on
+     * the same column. It was on GroupManagement while that was the only
+     * writer; the mass edit is the second, and ADR 0038 decision 10 removes
+     * the first.
+     *
+     * @var int
+     */
+    const MIN_MINUTES = 5;
+    /**
      * The host auto logout table.
      *
      * @var string

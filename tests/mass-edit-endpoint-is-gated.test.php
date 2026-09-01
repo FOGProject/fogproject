@@ -270,6 +270,99 @@ $check(
         && false === strpos($body, '*{32}')
 );
 
+// --- The row-backed half --------------------------------------------------
+//
+// Auto-logout and screen resolution are not `hosts` columns; they are one row
+// per host in their own tables, written delete-then-insert. Two properties
+// have to hold and neither is visible from a passing request: the row fields
+// must be resolved SEPARATELY from the column fields (so a row key can never
+// reach columnUpdates()), and the composite one must go through
+// resolveComposite() rather than resolve(), whose safety rule is that an
+// array is never a value.
+$rows = $methodBody($source, 'private function massEditRowFields()');
+$check('massEditRowFields() is still findable', null !== $rows);
+$rows = (string)$rows;
+$check(
+    'the row-backed fields are auto-logout and resolution',
+    false !== strpos($rows, "'autologout' => [")
+        && false !== strpos($rows, "'resolution' => [")
+);
+$check(
+    'the resolution is declared composite',
+    1 === preg_match(
+        "/'resolution' => \[[^\]]*'composite' => true/s",
+        $rows
+    )
+);
+
+$rowKeys = strpos($body, 'massEditRowFields()');
+$colUpdates = strpos($body, 'columnUpdates(');
+$composite = strpos($body, 'resolveComposite(');
+$applyRows = strpos($body, 'massEditApplyRows(');
+$check('the endpoint asks for the row-backed fields', false !== $rowKeys);
+$check('the endpoint resolves the composite one', false !== $composite);
+$check('the endpoint applies the row-backed half', false !== $applyRows);
+
+// The load-bearing one: columnUpdates() is handed $coreFields, and the row
+// fields are never merged into the key list it resolves from. If a row key
+// ever reached the column spec the write would be an UPDATE against a column
+// that does not exist.
+$check(
+    'row-backed keys are never merged into the column key list',
+    1 === preg_match(
+        '/\$keys = array_values\(\s*array_unique\(\s*array_merge\(\s*'
+        . 'array_keys\(\$coreFields\),\s*array_keys\(\$pluginFields\)/s',
+        $body
+    )
+);
+
+// Scope is checked before the row-backed write too, not only before the
+// UPDATE. Two separate write paths, one boundary.
+$check(
+    'the row-backed write happens after the scope check',
+    false !== $scope && false !== $applyRows && $scope < $applyRows
+);
+
+// A row-backed-only submission must still count as work. Without this the
+// "nothing was set to change" refusal fires on a resolution-only edit and
+// the operator is told their submission was empty when it was not.
+$check(
+    'the touched list includes the row-backed instructions',
+    1 === preg_match(
+        '/\$touched = array_merge\(\s*MassEdit::touched\(\$resolved\),'
+        . '\s*MassEdit::touched\(\$resolvedRows\)/s',
+        $body
+    )
+);
+
+$apply = $methodBody($source, 'private function massEditApplyRows(');
+$check('massEditApplyRows() is still findable', null !== $apply);
+$apply = (string)$apply;
+
+// CLEAR is the delete with no insert -- no row IS the absence of an override.
+// The tell that this is wrong is an insert that runs unconditionally, which
+// would turn CLEAR into "set to zero" for auto-logout and "set to 0x0" for
+// the resolution.
+$check(
+    'the row arms insert only on SET',
+    2 === substr_count($apply, 'MassEdit::SET === ')
+        && 2 === substr_count($apply, 'insertBatch(')
+);
+$check(
+    'the row arms delete on both SET and CLEAR',
+    2 === substr_count($apply, 'Route::deletemass(')
+        && 2 === substr_count($apply, 'MassEdit::LEAVE !== ')
+);
+
+// One statement per field regardless of selection size, same reason the
+// column half is one UPDATE. A per-host loop here is the shape ADR 0038
+// decision 4 is about.
+$check(
+    'the row arms do not write one host at a time',
+    false === strpos($apply, '->save()')
+        && false === strpos($apply, 'foreach ($resolved')
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass-edit endpoint lost a gate:\n");
     foreach ($failures as $f) {

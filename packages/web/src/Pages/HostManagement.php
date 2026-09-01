@@ -22,6 +22,7 @@ use FOG\Boot\SecureBootState;
 use FOG\Items\Architecture;
 use FOG\Items\Group;
 use FOG\Items\Host;
+use FOG\Items\HostAutoLogout;
 use FOG\Items\MACAddress;
 use FOG\Items\Setting;
 use FOG\Items\TaskType;
@@ -4230,6 +4231,104 @@ class HostManagement extends FOGPage
         ];
     }
     /**
+     * The host settings a mass edit may change that are NOT `hosts` columns.
+     *
+     * Auto-logout and screen resolution live one row per host in their own
+     * tables, and the group page writes each by deleting every member's row
+     * and inserting a fresh one (`Group::setAlo()`, `Group::setDisp()`). That
+     * shape maps onto the three states exactly: SET is delete-then-insert,
+     * CLEAR is the delete on its own -- no row IS the absence of an override
+     * -- and LEAVE touches nothing.
+     *
+     * `composite` marks the one field whose value is more than one number.
+     * A resolution is width, height and refresh written as a single row, so
+     * "set the width and leave the height" has no meaning at the storage
+     * layer; it is one instruction carrying three parts, resolved through
+     * MassEdit::resolveComposite(). See that method for why it is not a
+     * `1024x768@60` string.
+     *
+     * Deliberately separate from massEditCoreFields(): nothing here can ever
+     * be a column update, and keeping the two lists apart is what stops one
+     * from being handed to columnUpdates() by accident.
+     *
+     * @return array key => ['label', 'kind', 'composite']
+     */
+    private function massEditRowFields()
+    {
+        return [
+            'autologout' => [
+                'label' => _('Auto Log Out Time (in minutes)'),
+                'kind' => 'number'
+            ],
+            'resolution' => [
+                'label' => _('Host Screen Resolution'),
+                'kind' => 'resolution',
+                'composite' => true
+            ],
+        ];
+    }
+
+    /**
+     * Applies the row-backed instructions, and says how many hosts it wrote.
+     *
+     * Each arm is delete-then-insert over the whole selection rather than a
+     * loop, so it is two statements per field regardless of how many hosts
+     * were picked -- the same reason the column half is one UPDATE.
+     *
+     * @param array $resolved the resolved row-backed instructions
+     * @param array $hostIDs  the selected host ids, already scope-checked
+     *
+     * @return int the number of hosts written, 0 if nothing was asked for
+     */
+    private function massEditApplyRows(array $resolved, array $hostIDs)
+    {
+        $wrote = 0;
+        $alo = $resolved['autologout'] ?? null;
+        if (null !== $alo && MassEdit::LEAVE !== $alo['action']) {
+            Route::deletemass('hostautologout', ['hostID' => $hostIDs]);
+            if (MassEdit::SET === $alo['action']) {
+                // Below the minimum means "off", which is how the group
+                // page has always read it. A blank SET is therefore 0 rather
+                // than an error, and CLEAR -- the delete with no insert -- is
+                // the same outcome expressed as an absent row.
+                $minutes = (int)$alo['value'];
+                if ($minutes < HostAutoLogout::MIN_MINUTES) {
+                    $minutes = 0;
+                }
+                $rows = [];
+                foreach ($hostIDs as $hostID) {
+                    $rows[] = [$hostID, $minutes];
+                }
+                self::getClass('HostAutoLogoutManager')
+                    ->insertBatch(['hostID', 'time'], $rows);
+            }
+            $wrote = count($hostIDs);
+        }
+
+        $res = $resolved['resolution'] ?? null;
+        if (null !== $res && MassEdit::LEAVE !== $res['action']) {
+            Route::deletemass('hostscreensetting', ['hostID' => $hostIDs]);
+            if (MassEdit::SET === $res['action']) {
+                $x = (int)($res['value']['x'] ?? 0);
+                $y = (int)($res['value']['y'] ?? 0);
+                $r = (int)($res['value']['r'] ?? 0);
+                $rows = [];
+                foreach ($hostIDs as $hostID) {
+                    $rows[] = [$hostID, $x, $y, $r];
+                }
+                self::getClass('HostScreenSettingManager')
+                    ->insertBatch(
+                        ['hostID', 'width', 'height', 'refresh'],
+                        $rows
+                    );
+            }
+            $wrote = count($hostIDs);
+        }
+
+        return $wrote;
+    }
+
+    /**
      * The plugin-contributed field keys a mass edit may act on.
      *
      * HOST_MASSEDIT_FIELDS is the CONTRIBUTION seam: a plugin adds a key, a
@@ -4311,6 +4410,7 @@ class HostManagement extends FOGPage
             Authorization::requirePageObjectScopeMass('host', $hosts);
 
             $coreFields = $this->massEditCoreFields();
+            $rowFields = $this->massEditRowFields();
             $pluginFields = $this->massEditPluginFields();
             // Core wins a key collision. A plugin cannot capture `image` and
             // quietly redirect what the Image control writes, which it could
@@ -4323,6 +4423,18 @@ class HostManagement extends FOGPage
                     )
                 )
             );
+            // The row-backed fields are resolved separately by shape, not
+            // merged into $keys: the composite one has an array value, and
+            // resolve()'s safety property is that an array is never a value.
+            $scalarRows = [];
+            $compositeRows = [];
+            foreach ($rowFields as $key => $rowSpec) {
+                if (!empty($rowSpec['composite'])) {
+                    $compositeRows[] = $key;
+                } else {
+                    $scalarRows[] = $key;
+                }
+            }
 
             $flags = ['flags' => FILTER_REQUIRE_ARRAY];
             $posted = filter_input_array(
@@ -4334,7 +4446,22 @@ class HostManagement extends FOGPage
                 $posted['action'] ?? null,
                 $posted['value'] ?? null
             );
-            $touched = MassEdit::touched($resolved);
+            $resolvedRows = array_merge(
+                MassEdit::resolve(
+                    $scalarRows,
+                    $posted['action'] ?? null,
+                    $posted['value'] ?? null
+                ),
+                MassEdit::resolveComposite(
+                    $compositeRows,
+                    $posted['action'] ?? null,
+                    $posted['value'] ?? null
+                )
+            );
+            $touched = array_merge(
+                MassEdit::touched($resolved),
+                MassEdit::touched($resolvedRows)
+            );
             if (count($touched) < 1) {
                 // Refused rather than treated as a no-op success. A form
                 // that reports "12 hosts updated" having changed nothing is
@@ -4353,6 +4480,11 @@ class HostManagement extends FOGPage
                     ->update(['id' => $hosts], '', $updates);
                 $affected = count($hosts);
             }
+            // Row-backed fields count toward the same affectedCount: one
+            // authorized action is one audit header (ADR 0021 decision 11),
+            // and a submission that only changed the resolution still
+            // changed every selected host.
+            $affected = max($affected, $this->massEditApplyRows($resolvedRows, $hosts));
 
             // The plugin half receives the RESOLVED actions for its own keys
             // only, already reduced to leave/set/clear. A plugin never parses
