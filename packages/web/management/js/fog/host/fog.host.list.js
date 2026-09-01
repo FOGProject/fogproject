@@ -180,6 +180,50 @@
             targets: colIndex.primac
         });
     }
+    if ('groups' in colIndex) {
+        columnDefs.push({
+            // Not sortable, because the server has nothing to ORDER BY. This
+            // column is a relationship through groupMembers rather than a
+            // column of `hosts`, so it carries no `db` and orderColumn()
+            // skips it -- a header click would re-request the page and give
+            // back the same order, which reads as the grid being broken.
+            // Filtering is what the column is for and that does reach the
+            // query; see the sqlfilter contract on
+            // FOGManagerController::relationFilter().
+            orderable: false,
+            // Kept through the responsive collapse. A label you cannot see
+            // on a narrow window is not doing its job.
+            responsivePriority: 1,
+            render: function (data, type, row) {
+                // Display only. Sort, search and the CSV export get the
+                // server's plain comma-joined names back untouched -- markup
+                // baked into the value is the GH-1446 failure, where
+                // registerExportTable() escapes each cell and the chips land
+                // in the CSV as literal '<a class="badge...'.
+                if (type !== 'display') {
+                    return data;
+                }
+                var list = row.groups_list || [];
+                if (!list.length) {
+                    return '';
+                }
+                // Built here rather than server-side so the names are escaped
+                // by the same helper every other JS-rendered cell uses. A
+                // group name is user-supplied text and this cell is markup.
+                return $.map(list, function(group) {
+                    return '<a class="badge bg-secondary ' +
+                        'text-decoration-none me-1" ' +
+                        'href="../management/index.php?node=group&amp;' +
+                        'sub=edit&amp;id=' +
+                        encodeURIComponent(group.id) + '">' +
+                        $.escapeHtml(String(group.name || '')) +
+                        '</a>';
+                }).join('');
+            },
+            targets: colIndex.groups
+        });
+    }
+
     if ('deployed' in colIndex) {
         columnDefs.push({
             render: function (data, type, row) {

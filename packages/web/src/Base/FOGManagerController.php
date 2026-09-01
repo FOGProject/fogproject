@@ -739,6 +739,12 @@ abstract class FOGManagerController extends FOGBase
      * learn a value the response refuses to contain. The searchable flag in
      * the request cannot serve for this -- the client sends it.
      *
+     * A column with no `db` at all is skipped too, and that is now decided in
+     * _likeClause() rather than in the guards: a relationship column
+     * deliberately has no `db` and is matched through its 'sqlfilter'
+     * instead. See relationFilter() for the contract and for why the absent
+     * `db` is the fail-safe rather than something to work around.
+     *
      * A SearchBuilder payload, when the request carries one, is ANDed onto
      * whatever the two boxes above produced -- the same relationship the
      * per-column boxes already have to the global one. See
@@ -770,15 +776,15 @@ abstract class FOGManagerController extends FOGBase
                 $column = self::columnFor($columns, $requestColumn['data']);
                 if (null === $column
                     || $requestColumn['searchable'] != 'true'
-                    || !isset($column['db'])
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
                     || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
                     continue;
                 }
-                $columnSrch = $column['db'];
-                $binding = self::bind($bindings, '%'.$str.'%', \PDO::PARAM_STR);
-                $globalSearch[] = "`".$columnSrch."` LIKE ".$binding;
+                $clause = self::_likeClause($column, $str, $bindings);
+                if ($clause !== '') {
+                    $globalSearch[] = $clause;
+                }
             }
         }
         // Individual column filtering
@@ -790,7 +796,6 @@ abstract class FOGManagerController extends FOGBase
                 if (null === $column
                     || $requestColumn['searchable'] != 'true'
                     || $str == ''
-                    || !isset($column['db'])
                     || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
                     || (isset($column['nosearch']) && $column['nosearch'])
                 ) {
@@ -821,13 +826,10 @@ abstract class FOGManagerController extends FOGBase
                     }
                     continue;
                 }
-                $columnSrch = $column['db'];
-                $binding = self::bind(
-                    $bindings,
-                    '%' . $str . '%',
-                    \PDO::PARAM_STR
-                );
-                $columnSearch[] = "`".$columnSrch."` LIKE ".$binding;
+                $clause = self::_likeClause($column, $str, $bindings);
+                if ($clause !== '') {
+                    $columnSearch[] = $clause;
+                }
             }
         }
         // Combine the filters into a single string
@@ -855,6 +857,40 @@ abstract class FOGManagerController extends FOGBase
             $where = 'WHERE '.$where;
         }
         return $where;
+    }
+    /**
+     * The contains-anywhere clause behind the free-text box and behind a
+     * per-column box carrying no condition.
+     *
+     * Split out because a relationship column spells it differently and the
+     * two boxes have to agree about that. They were one copied line apart,
+     * and a free-text box that cannot find a host by its group name is the
+     * same defect as a header box that cannot -- just harder to notice,
+     * because the box still works for every other column.
+     *
+     * @param array  $column   The column definition
+     * @param string $str      The text typed into the box
+     * @param array  $bindings Array of values for PDO bindings
+     *
+     * @return string The clause, or '' when the column cannot be matched
+     */
+    private static function _likeClause($column, $str, &$bindings)
+    {
+        $filter = self::relationFilter($column);
+        if (null !== $filter) {
+            $binding = self::bind($bindings, '%' . $str . '%', \PDO::PARAM_STR);
+
+            return self::_relationClause(
+                $filter,
+                self::_relationColumn($filter) . ' LIKE ' . $binding
+            );
+        }
+        if (!isset($column['db'])) {
+            return '';
+        }
+        $binding = self::bind($bindings, '%' . $str . '%', \PDO::PARAM_STR);
+
+        return '`' . $column['db'] . '` LIKE ' . $binding;
     }
     /**
      * The search type a column is treated as: 'date', 'num' or 'string'.
@@ -930,16 +966,130 @@ abstract class FOGManagerController extends FOGBase
             if (!isset($column['dt'])) {
                 continue;
             }
-            if (!isset($column['db'])
-                || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
+            if ((isset($column['removeFromQuery']) && $column['removeFromQuery'])
                 || (isset($column['nosearch']) && $column['nosearch'])
             ) {
+                $types[$column['dt']] = false;
+                continue;
+            }
+            // A relationship column carries no `db` and is typed from the
+            // column it actually compares, on the table it reaches. Still the
+            // SERVER reading a real column's real type, which is the whole
+            // invariant this method exists for -- see relationFilter().
+            $filter = self::relationFilter($column);
+            if (null !== $filter) {
+                $types[$column['dt']] = self::searchBuilderType(
+                    $filter['table'],
+                    $filter['column']
+                );
+                continue;
+            }
+            if (!isset($column['db'])) {
                 $types[$column['dt']] = false;
                 continue;
             }
             $types[$column['dt']] = self::searchBuilderType($table, $column['db']);
         }
         return $types;
+    }
+    /**
+     * A column's relationship filter, validated, or null if it has none.
+     *
+     * THE 'sqlfilter' CONTRACT. A grid column normally names one scalar of
+     * the table being listed, in `db`, and every path here builds SQL out of
+     * that identifier. Some columns are not scalars of anything: the host
+     * list's Groups column is a many-to-many through `groupMembers`, so there
+     * is no `hosts` column to name and no type to read off one.
+     *
+     * Such a column declares `sqlfilter` INSTEAD of `db`:
+     *
+     *     'sqlfilter' => [
+     *         'table'  => 'groups',      // a real table
+     *         'column' => 'groupName',   // a real column of it
+     *         'match'  => 'EXISTS (SELECT 1 FROM `groupMembers` ... '
+     *                   . 'WHERE `gmHostID` = `hosts`.`hostID` AND (%s))',
+     *     ]
+     *
+     * `match` is a membership test with ONE `%s`, which receives the
+     * comparison built from `table`.`column` -- so the criterion is still
+     * built, typed and bound by the code below, and the column definition
+     * supplies only the join that reaches the row.
+     *
+     * Leaving `db` unset is deliberate and is the fail-safe, not an
+     * oversight. Every path that interpolates a raw identifier -- the SELECT
+     * list via pluck(), ORDER BY via orderColumn(), the plain LIKE in
+     * filter() -- already skips a column without one, so a relationship
+     * column can only ever be reached through the arms that know what it is.
+     * A path taught about `sqlfilter` opts in; one that is not, ignores it.
+     *
+     * `match` is raw SQL and is only ever written in PHP, in a column
+     * definition -- the same standing as a column's `order` expression, which
+     * orderRef() emits unquoted for the same reason. Nothing from a request
+     * reaches it: the request names a column by its output name and that is
+     * matched against these definitions before anything here runs.
+     *
+     * @param array $column The column definition
+     *
+     * @return array|null The filter, or null when the column has none or the
+     *                    one it has is malformed
+     */
+    protected static function relationFilter($column)
+    {
+        if (!isset($column['sqlfilter']) || !is_array($column['sqlfilter'])) {
+            return null;
+        }
+        $filter = $column['sqlfilter'];
+        foreach (['table', 'column', 'match'] as $key) {
+            if (!isset($filter[$key])
+                || !is_string($filter[$key])
+                || '' === $filter[$key]
+            ) {
+                return null;
+            }
+        }
+        // The table and column are interpolated as identifiers, so they have
+        // to look like identifiers. A plugin's typo here would otherwise be a
+        // syntax error on every draw of its grid, with the list answering 406
+        // and nothing saying which column did it.
+        if (!preg_match('/^[A-Za-z0-9_]+$/', $filter['table'])
+            || !preg_match('/^[A-Za-z0-9_]+$/', $filter['column'])
+        ) {
+            return null;
+        }
+        // Exactly one placeholder: the comparison goes in one place, and a
+        // template with none would silently filter on nothing at all.
+        if (1 !== substr_count($filter['match'], '%s')) {
+            return null;
+        }
+        return $filter;
+    }
+    /**
+     * Puts a built comparison into a relationship column's membership test.
+     *
+     * str_replace rather than sprintf deliberately: `match` and the clause
+     * handed to it are both SQL, and SQL contains '%' -- a LIKE pattern, a
+     * plugin's own scope fragment -- which sprintf would read as a
+     * conversion and either mangle or refuse.
+     *
+     * @param array  $filter The validated filter
+     * @param string $inner  The comparison to place
+     *
+     * @return string
+     */
+    private static function _relationClause($filter, $inner)
+    {
+        return str_replace('%s', $inner, $filter['match']);
+    }
+    /**
+     * The quoted column a relationship filter compares.
+     *
+     * @param array $filter The validated filter
+     *
+     * @return string
+     */
+    private static function _relationColumn($filter)
+    {
+        return '`' . $filter['table'] . '`.`' . $filter['column'] . '`';
     }
     /**
      * Turns a DataTables SearchBuilder payload into a WHERE fragment.
@@ -1059,21 +1209,42 @@ abstract class FOGManagerController extends FOGBase
         // value, so matching on it would let a caller use match/no-match to
         // read what the response refuses to contain.
         if (null === $column
-            || !isset($column['db'])
             || (isset($column['removeFromQuery']) && $column['removeFromQuery'])
             || (isset($column['nosearch']) && $column['nosearch'])
         ) {
             return '';
         }
-        $type = self::searchBuilderType($table, $column['db']);
+        $filter = self::relationFilter($column);
+        if (null === $filter && !isset($column['db'])) {
+            return '';
+        }
+        if (null !== $filter) {
+            $col = self::_relationColumn($filter);
+            $type = self::searchBuilderType(
+                $filter['table'],
+                $filter['column']
+            );
+        } else {
+            $col = '`' . $column['db'] . '`';
+            $type = self::searchBuilderType($table, $column['db']);
+        }
         $condition = isset($criterion['condition'])
             ? (string)$criterion['condition']
             : '';
         if (!in_array($condition, self::$_sbConditions[$type], true)) {
             return '';
         }
-        $col = '`' . $column['db'] . '`';
         $values = self::_sbValues($criterion);
+        if (null !== $filter) {
+            return self::_sbRelation(
+                $filter,
+                $col,
+                $type,
+                $condition,
+                $values,
+                $bindings
+            );
+        }
         switch ($type) {
             case 'date':
                 return self::_sbDate($col, $condition, $values, $bindings);
@@ -1081,6 +1252,82 @@ abstract class FOGManagerController extends FOGBase
                 return self::_sbNum($col, $condition, $values, $bindings);
         }
         return self::_sbString($col, $condition, $values, $bindings);
+    }
+    /**
+     * One criterion against a relationship column.
+     *
+     * NEGATION IS THE WHOLE REASON THIS IS NOT A WRAPPER. A scalar's "is not
+     * lab01" is one comparison; a relationship's is not. Handing '!=' to
+     * _sbString() and dropping the result into the membership test asks
+     *
+     *     is this host in SOME group that is not called lab01
+     *
+     * which is true of nearly every host with two groups, where what the user
+     * picked means
+     *
+     *     is this host in NO group called lab01.
+     *
+     * So the POSITIVE comparison is built and the negation is applied to the
+     * membership test from outside. Every '!' condition in $_sbConditions has
+     * its positive twin in the same list, so stripping the '!' can only ever
+     * name a condition this server already implements for that type.
+     *
+     * 'null' and '!null' invert that, and it is not a special case so much as
+     * the same rule read carefully: on a relationship "empty" means no
+     * related row AT ALL, so the membership test IS the whole predicate and
+     * there is nothing to compare. 'null' therefore negates and '!null' does
+     * not -- the opposite way round to every other pair here.
+     *
+     * @param array  $filter    The validated filter
+     * @param string $col       The quoted column being compared
+     * @param string $type      The resolved column type
+     * @param string $condition The whitelisted condition key
+     * @param array  $values    The criterion's values
+     * @param array  $bindings  Array of values for PDO bindings
+     *
+     * @return string
+     */
+    private static function _sbRelation(
+        $filter,
+        $col,
+        $type,
+        $condition,
+        $values,
+        &$bindings
+    ) {
+        $negate = 0 === strpos($condition, '!');
+        $positive = $negate ? substr($condition, 1) : $condition;
+        if ('null' === $positive) {
+            // Nothing to compare, so the inner predicate is a constant and
+            // the sense flips: see the docblock.
+            $inner = '1';
+            $negate = !$negate;
+        } else {
+            switch ($type) {
+                case 'date':
+                    $inner = self::_sbDate($col, $positive, $values, $bindings);
+                    break;
+                case 'num':
+                    $inner = self::_sbNum($col, $positive, $values, $bindings);
+                    break;
+                default:
+                    $inner = self::_sbString(
+                        $col,
+                        $positive,
+                        $values,
+                        $bindings
+                    );
+            }
+            // An unfilled criterion, dropped for the reason _sbString() gives.
+            // The three builders all return '' BEFORE binding anything, so
+            // dropping here leaves no binding behind for PDO to refuse.
+            if ('' === $inner) {
+                return '';
+            }
+        }
+        $sql = self::_relationClause($filter, $inner);
+
+        return $negate ? 'NOT (' . $sql . ')' : $sql;
     }
     /**
      * The values off a criterion, in the order the client sorted them.

@@ -243,6 +243,20 @@ class Route extends FOGBase
      */
     protected static $relCache = [];
     /**
+     * Group memberships for the hosts on the grid page being rendered.
+     *
+     * Keyed host id => list of ['id' => int, 'name' => string], in the order
+     * assignment resolution walks the groups. Filled by ONE pair of queries
+     * in the Groups column's primer and read by its formatter -- the same
+     * per-page batching $relCache does for the foreign-key columns, and for
+     * the same reason: a lookup per row here is GH-707 again.
+     *
+     * Emptied at the top of every listem() call, exactly as $relCache is.
+     *
+     * @var array
+     */
+    protected static $hostGroupCache = [];
+    /**
      * The class the current API route is serving, recorded so printer() can
      * strip secrets from a payload that does not name its own class.
      *
@@ -3121,6 +3135,7 @@ class Route extends FOGBase
             self::$data = [];
             // Fresh per grid -- see $relCache and rel().
             self::$relCache = [];
+            self::$hostGroupCache = [];
             $classname = strtolower($class);
             $classman = self::getClass("{$classname}manager");
             $table = $classman->getTable();
@@ -3696,6 +3711,73 @@ class Route extends FOGBase
         switch ($classname) {
             case 'host':
                 $columns[] = ['db' => 'imageName', 'dt' => 'imagename'];
+                // The host's group memberships, and a filter that can find
+                // them. ADR 0038 Decision 16a requirement 1: a group is a
+                // label, and a label you cannot see on the list or search by
+                // is not one.
+                //
+                // Deliberately NO 'db'. There is no scalar on `hosts` behind
+                // this -- it is a many-to-many through `groupMembers` -- and
+                // every path in FOGManagerController that interpolates a raw
+                // identifier already skips a column that has none: the SELECT
+                // list, ORDER BY, the plain LIKE. That is the fail-safe this
+                // column relies on rather than works around, and it is why
+                // the column is unsortable (there is no expression to sort by
+                // that does not cost a correlated subquery per row before the
+                // LIMIT). See relationFilter() for the 'sqlfilter' contract.
+                //
+                // The membership test is scoped, because a group IS a
+                // site-scoped node (SiteScope::$_nodes). Without this a
+                // site-bounded user could read the names of groups outside
+                // their scope off a host they are allowed to see, and could
+                // use the filter to ask which of their hosts are in one.
+                $groupScope = Authorization::scopedObjectWhere(
+                    'group',
+                    '`groups`.`groupID`'
+                );
+                $columns[] = [
+                    'dt' => 'groups',
+                    'prime' => function ($rows) use ($groupScope) {
+                        self::_primeHostGroups(
+                            array_column((array) $rows, 'hostID'),
+                            $groupScope
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        // PLAIN TEXT, no markup, for the reason the sbstate
+                        // column states: registerExportTable() escapes each
+                        // cell, so a chip baked in here lands in the CSV as
+                        // a literal <span> (GH-1446). fog.host.list.js
+                        // renders the chips from groups_list below, and only
+                        // for type === 'display'.
+                        return implode(
+                            ', ',
+                            array_column(self::_hostGroups($row), 'name')
+                        );
+                    },
+                    'sqlfilter' => [
+                        'table' => 'groups',
+                        'column' => 'groupName',
+                        'match' => 'EXISTS (SELECT 1 FROM `groupMembers`'
+                            . ' INNER JOIN `groups`'
+                            . ' ON `groups`.`groupID`'
+                            . ' = `groupMembers`.`gmGroupID`'
+                            . ' WHERE `groupMembers`.`gmHostID`'
+                            . ' = `hosts`.`hostID`'
+                            . ($groupScope ? ' AND ' . $groupScope : '')
+                            . ' AND (%s))'
+                    ]
+                ];
+                // The same memberships as ids and names, for the renderer.
+                // Rides along in the JSON with no header of its own, exactly
+                // as primac_vendor and sbstatecode do, so it never reaches
+                // the CSV export path.
+                $columns[] = [
+                    'dt' => 'groups_list',
+                    'formatter' => function ($d, $row) {
+                        return self::_hostGroups($row);
+                    }
+                ];
                 $columns[] = ['db' => 'hmMAC', 'dt' => 'primac'];
                 // Vendor name for the primary MAC; rides along in the JSON
                 // and is rendered as a tooltip icon client-side. Not a
@@ -7644,6 +7726,107 @@ class Route extends FOGBase
                 $objects[$id] :
                 self::getClass($class)->set('id', $id);
         }
+    }
+    /**
+     * Loads the group memberships for a page of host rows.
+     *
+     * Two queries for the whole page: the membership rows, then the groups
+     * themselves in the order assignment resolution walks them. Chips read
+     * left to right in that order on purpose -- it is the order that decides
+     * which group's grant lands first (ADR 0038 Decision 6), so the list
+     * shows the precedence rather than hiding it behind alphabetical.
+     *
+     * @param array  $hostIDs    The page's host ids, unsanitized.
+     * @param string $scopeWhere The caller's group boundary as SQL, or ''.
+     *
+     * @return void
+     */
+    private static function _primeHostGroups($hostIDs, $scopeWhere = '')
+    {
+        self::$hostGroupCache = [];
+        $ids = [];
+        foreach ((array) $hostIDs as $id) {
+            $id = (int) $id;
+            if ($id > 0) {
+                $ids[$id] = $id;
+            }
+        }
+        if (!count($ids)) {
+            return;
+        }
+        $rows = self::_rawRows(
+            'SELECT `gmHostID`,`gmGroupID` FROM `groupMembers`'
+            . ' WHERE `gmHostID` IN (' . implode(',', $ids) . ')'
+        );
+        $byHost = [];
+        $groupIDs = [];
+        foreach ($rows as $row) {
+            $groupID = (int) $row['gmGroupID'];
+            $byHost[(int) $row['gmHostID']][$groupID] = true;
+            $groupIDs[$groupID] = $groupID;
+        }
+        if (!count($groupIDs)) {
+            return;
+        }
+        $named = self::_rawRows(
+            'SELECT `groupID`,`groupName` FROM `groups`'
+            . ' WHERE `groupID` IN (' . implode(',', $groupIDs) . ')'
+            . ($scopeWhere ? ' AND ' . $scopeWhere : '')
+            // The order Assign\Resolver::_orderedGroupIDs() uses, stated the
+            // same way for the same reason: groupID last so the sequence is
+            // deterministic whether or not groupName's UNIQUE index is
+            // actually on the disk (schema step 401).
+            . ' ORDER BY `groupOrder`,`groupName`,`groupID`'
+        );
+        foreach ($named as $row) {
+            $groupID = (int) $row['groupID'];
+            foreach ($byHost as $hostID => $memberships) {
+                if (!isset($memberships[$groupID])) {
+                    continue;
+                }
+                self::$hostGroupCache[$hostID][] = [
+                    'id' => $groupID,
+                    'name' => (string) $row['groupName']
+                ];
+            }
+        }
+    }
+    /**
+     * The primed memberships for one grid row.
+     *
+     * @param array $row The raw database row.
+     *
+     * @return array list of ['id' => int, 'name' => string]
+     */
+    private static function _hostGroups($row)
+    {
+        $hostID = isset($row['hostID']) ? (int) $row['hostID'] : 0;
+
+        return $hostID > 0 && isset(self::$hostGroupCache[$hostID])
+            ? self::$hostGroupCache[$hostID]
+            : [];
+    }
+    /**
+     * Runs one read and returns its rows.
+     *
+     * A failure returns no rows rather than throwing: this feeds a grid CELL,
+     * and a column that cannot answer should leave itself blank rather than
+     * take the whole list down. That is the opposite of Assign\Resolver,
+     * which throws on the same shape of query -- and deliberately so, because
+     * there a missing row is a grant silently not applied.
+     *
+     * @param string $sql The query. Built here, never from a request.
+     *
+     * @return array
+     */
+    private static function _rawRows($sql)
+    {
+        $res = self::$DB->query($sql);
+        if (false !== $res->error) {
+            return [];
+        }
+
+        return (array) $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
     }
     /**
      * Builds a grid column whose formatter resolves a related object.
