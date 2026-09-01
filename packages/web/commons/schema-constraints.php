@@ -219,7 +219,6 @@ return [
     ['child' => 'auditLog', 'column' => 'alSubjectID', 'parent' => '(alSubjectType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'history', 'column' => 'hSubjectID', 'parent' => '(hSubjectType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'auditChange', 'column' => 'acSubjectID', 'parent' => '(acSubjectType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
-    ['child' => 'virus', 'column' => 'vHostMAC', 'parent' => 'hostMAC.hmMAC', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 
     // ---- plugin tables (fog-plugins repo) -------------------------------
     //

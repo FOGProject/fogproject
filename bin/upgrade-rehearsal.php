@@ -718,11 +718,12 @@ switch ($cmd) {
         // Repointing it was not available either: of the 101 ENABLED
         // relationships in commons/schema-constraints.php, every resolvable
         // column on both sides is int or mediumint, so no enabled constraint
-        // can carry a collation at all. The single string-typed entry,
-        // virus.vHostMAC -> hostMAC.hmMAC, is deliberately `'class' => 'poly',
-        // 'action' => 'none'` with no `enabled` key, and its two sides are
-        // varchar(50) and varchar(59) -- it could not be a foreign key even if
-        // someone wanted it to be.
+        // can carry a collation at all. The map's last string-typed entry,
+        // virus.vHostMAC -> hostMAC.hmMAC, went with the ClamAV scan in
+        // GH-328; it was deliberately `'class' => 'poly', 'action' => 'none'`
+        // with no `enabled` key, and its two sides were varchar(50) and
+        // varchar(59) -- it could not have been a foreign key even if someone
+        // had wanted it to be.
         //
         // So errno 3780 is unreachable here TODAY. That is a census, not an
         // invariant, which is why it is pinned by

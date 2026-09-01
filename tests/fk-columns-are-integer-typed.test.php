@@ -16,10 +16,11 @@
  *
  * Repointing the seed was not available. Of the enabled relationships in
  * commons/schema-constraints.php, every column this file can resolve is int or
- * mediumint. The one string-typed entry in the whole map,
- * virus.vHostMAC -> hostMAC.hmMAC, is deliberately 'class' => 'poly',
- * 'action' => 'none' with no 'enabled' key -- and its sides are varchar(50) and
- * varchar(59), so it could not be a foreign key even if someone enabled it.
+ * mediumint. The map's last string-typed entry, virus.vHostMAC ->
+ * hostMAC.hmMAC, went with the ClamAV scan in GH-328; it was deliberately
+ * 'class' => 'poly', 'action' => 'none' with no 'enabled' key, and its sides
+ * were varchar(50) and varchar(59), so it could not have been a foreign key
+ * even if someone had enabled it.
  *
  * So the seed was removed rather than fixed, and THIS is what stands in its
  * place. "No enabled constraint can carry a collation" is a census of today's

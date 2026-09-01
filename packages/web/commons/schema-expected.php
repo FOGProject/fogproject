@@ -73,6 +73,13 @@ return [
             'reason' => 'ADR 0022 decision 3 -- taskLog records an imaging'
                 . ' run now, so the table was retired rather than ported',
         ],
+        [
+            'table' => 'virus',
+            'reason' => 'GH-328 -- the ClamAV scan is removed. 1.6 never'
+                . ' carried service/av.php across from 1.5, so nothing on'
+                . ' this branch has ever written the table and no model,'
+                . ' manager, report or page reads it',
+        ],
     ],
     'tables' => [
         'architectures' => [
@@ -1032,18 +1039,6 @@ return [
                 'utCreatedBy' => 'varchar(30) NOT NULL DEFAULT \'\'',
                 'utIP' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'utHostName' => 'varchar(16) NOT NULL DEFAULT \'\'',
-            ],
-        ],
-        'virus' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `virus` ( `vID` int(11) NOT NULL AUTO_INCREMENT, `vName` varchar(250) NOT NULL DEFAULT \'\', `vHostMAC` varchar(50) NOT NULL DEFAULT \'\', `vOrigFile` longtext NOT NULL DEFAULT \'\', `vDateTime` timestamp NOT NULL DEFAULT current_timestamp(), `vMode` varchar(5) NOT NULL DEFAULT \'\', `vAnon2` varchar(50) NOT NULL DEFAULT \'\', PRIMARY KEY (`vID`), KEY `new_index` (`vHostMAC`), KEY `new_index2` (`vDateTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'vID' => 'int(11) NOT NULL',
-                'vName' => 'varchar(250) NOT NULL DEFAULT \'\'',
-                'vHostMAC' => 'varchar(50) NOT NULL DEFAULT \'\'',
-                'vOrigFile' => 'longtext NOT NULL DEFAULT \'\'',
-                'vDateTime' => 'timestamp NOT NULL DEFAULT current_timestamp()',
-                'vMode' => 'varchar(5) NOT NULL DEFAULT \'\'',
-                'vAnon2' => 'varchar(50) NOT NULL DEFAULT \'\'',
             ],
         ],
     ],

@@ -81,7 +81,7 @@ parameters:
 		-
 			message: '#^Accessing self\:\:\$DB outside of class scope\.$#'
 			identifier: outOfClass.self
-			count: 116
+			count: 119
 			path: packages/web/commons/schema.php
 
 		-
@@ -129,7 +129,7 @@ parameters:
 		-
 			message: '#^Variable \$this might not be defined\.$#'
 			identifier: variable.undefined
-			count: 371
+			count: 372
 			path: packages/web/commons/schema.php
 
 		-
@@ -2570,12 +2570,6 @@ parameters:
 
 		-
 			message: '#^Variable \$chkdsk in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 1
-			path: packages/web/src/Boot/BootMenuBase.php
-
-		-
-			message: '#^Variable \$clamav in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.variable
 			count: 1
 			path: packages/web/src/Boot/BootMenuBase.php

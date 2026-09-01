@@ -10228,3 +10228,107 @@ $this->schema[] = [
         return true;
     },
 ];
+// 402
+$this->schema[] = [
+    // GH-328: the ClamAV virus scan is removed.
+    //
+    // It has not worked on 1.6 for its whole life. FOS `bin/fog.av` posts
+    // its findings to `service/av.php`, and that endpoint does not exist in
+    // this tree -- 1.5 has it, 1.6 never carried it across. So the scan
+    // boots, updates its definitions, runs, and throws every result away
+    // against a 404. Nothing writes the `virus` table on 1.6 and nothing
+    // reads it either: there is no Virus model, manager, report or page,
+    // only the rows a 1.5 install left behind. What remained was two task
+    // types (21 and 22) offering a scan that could not report.
+    //
+    // Id 9 is the original 1.x row, and step 33 truncated `taskTypes` and
+    // reseeded it without one -- so no current server has it. It is named
+    // here anyway because the delete costs nothing and a database restored
+    // from a pre-33 dump would otherwise keep an entry for a feature this
+    // release does not have.
+    //
+    // THE ROWS HAVE TO GO IN THIS ORDER. Both `tasks`.`taskTypeID` and
+    // `scheduledTasks`.`stTaskTypeID` reference `taskTypes`.`ttID` ON DELETE
+    // RESTRICT (ADR 0031, groups 6 and 5), and 1451 is not in Schema's
+    // skippable list -- so deleting the parent first aborts the update on
+    // any server that has ever queued a scan. Children first, parent last.
+    //
+    // WHAT IS LOST, said plainly. A scheduled scan can never run again, so
+    // deleting it removes nothing an admin can still use. A `tasks` row is
+    // history, and this destroys it -- but the run itself survives where the
+    // project already decided run history lives: `taskLog` carries
+    // `logTaskTypeName` as text, takes no constraint at all (ADR 0021), and
+    // is written by TaskLog::recordState() on every state change. That is
+    // the same argument ADR 0022 decision 3 used to retire `imagingLog`.
+    // The `virus` table's rows are 1.5-era leftovers that 1.6 has had no way
+    // to display since the upgrade.
+    //
+    // Menus need no code change: every task list is built from the
+    // `taskTypes` table itself (FOGPageRender::taskTypeAccordion() reads it
+    // through Route::getList('tasktype')), so removing the rows removes the
+    // entries from the host page, the group page, the queue-task modal and
+    // the API in one move.
+    //
+    // Counts are recorded rather than silently swallowed, following step
+    // 401: an admin who upgrades should be able to find out what went.
+    function () {
+        $counts = [];
+        foreach ([
+            'scheduledTasks' => 'stTaskTypeID',
+            'tasks' => 'taskTypeID',
+        ] as $table => $column) {
+            $row = self::$DB->query(
+                "SELECT COUNT(*) AS `n` FROM `$table`"
+                . " WHERE `$column` IN (9, 21, 22)"
+            )->fetch(\PDO::FETCH_ASSOC)->get();
+            $counts[$table] = (int)($row['n'] ?? 0);
+            if ($counts[$table] > 0) {
+                self::$DB->query(
+                    "DELETE FROM `$table` WHERE `$column` IN (9, 21, 22)"
+                );
+            }
+        }
+
+        self::$DB->query(
+            "DELETE FROM `taskTypes` WHERE `ttID` IN (9, 21, 22)"
+        );
+
+        $removed = $counts['tasks'] + $counts['scheduledTasks'];
+        if ($removed > 0) {
+            error_log(
+                sprintf(
+                    'FOG schema 402: removed the ClamAV virus scan (GH-328).'
+                    . ' %d task(s) and %d scheduled task(s) referencing task'
+                    . ' types 9, 21 and 22 were deleted so the task types'
+                    . ' themselves could be. The runs remain in taskLog.',
+                    $counts['tasks'],
+                    $counts['scheduledTasks']
+                )
+            );
+            Audit::record(
+                [
+                    'type' => 'schema.tasktype.remove',
+                    'subjectType' => 'schema',
+                    'subjectId' => 402,
+                    'summary' => sprintf(
+                        /* translators: %1$d tasks, %2$d scheduled tasks */
+                        _('Removed the virus scan task types. %1$d task(s)'
+                        . ' and %2$d scheduled task(s) were deleted with'
+                        . ' them; their run history remains in the task'
+                        . ' log.'),
+                        $counts['tasks'],
+                        $counts['scheduledTasks']
+                    ),
+                    'detail' => json_encode($counts),
+                    'affectedCount' => $removed,
+                    'renderable' => 1,
+                ]
+            );
+        }
+
+        return true;
+    },
+    // Neither read nor written on 1.6, and its only declared relationship
+    // (vHostMAC -> hostMAC.hmMAC) was class 'poly' and applied nothing.
+    Schema::dropTable('virus'),
+];

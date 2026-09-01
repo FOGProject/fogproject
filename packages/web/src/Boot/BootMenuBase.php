@@ -264,14 +264,6 @@ abstract class BootMenuBase extends FOGBase
             } else {
                 $mac = $_REQUEST['mac'];
             }
-            $clamav = '';
-            if (in_array($TaskType->get('id'), [21, 22])) {
-                $clamav = sprintf(
-                    '%s:%s',
-                    $ip,
-                    FOG_BASE_DIR . DS . 'clamav'
-                );
-            }
             $chkdsk = !isset($chkdsk) || $chkdsk == 1 ? 0 : 1;
             $MACs = self::$Host->getMyMacs();
             $clientMacs = array_filter(
@@ -306,10 +298,6 @@ abstract class BootMenuBase extends FOGBase
                             && self::$Host->get('id') > 0
                         )
                     ),
-                ],
-                [
-                    'value' => "clamav=" . (isset($clamav) ? $clamav : ''),
-                    'active' => in_array($TaskType->get('id'), [21, 22]),
                 ],
                 [
                     'value' => "chkdsk=" . (isset($chkdsk) ? $chkdsk : ''),
