@@ -13,13 +13,14 @@ names the claim that would hurt most if it turned out to be false.
 Repository state: `working-1.6` at `4729701`. Plugins at `fog-plugins`
 `ec101b3`.
 
-**Update 2026-09-01:** UNKNOWN-2, UNKNOWN-3, UNKNOWN-4 and UNKNOWN-6 were run
-and are recorded in §5 with their evidence — UNKNOWN-3 in a throwaway container
-cloned from the live database, the rest against the 1.6 lab (`10.255.20.1`).
-Two changed a decision: UNKNOWN-4 (ADR 0038 Decision 9) and UNKNOWN-6 (Decision
-16a.6, the permission split). UNKNOWN-3 refuted one hazard this document
-claimed and made another materially worse. **UNKNOWN-1** and **UNKNOWN-5**
-remain open; neither blocks.
+**Update 2026-09-01:** UNKNOWN-1, -2, -3, -4 and -6 were run and are recorded
+in §5 with their evidence — UNKNOWN-3 in a throwaway container cloned from the
+live database, UNKNOWN-1 read-only against both installs on this box, the rest
+against the 1.6 lab (`10.255.20.1`). Two changed a decision: UNKNOWN-4 (ADR
+0038 Decision 9) and UNKNOWN-6 (Decision 16a.6, the permission split).
+UNKNOWN-3 refuted one hazard this document claimed and made another materially
+worse; UNKNOWN-1 then removed a schema step the earlier write-up had wrongly
+added. **UNKNOWN-5** is the only one left open, and it blocks nothing.
 
 ---
 
@@ -310,10 +311,12 @@ sed -n '677,690p' packages/web/src/Router/Route.php
 git show origin/stable:packages/web/commons/schema.php | grep -n -B2 -A2 'ADD UNIQUE ( .groupName. )'
 ```
 
-**UNKNOWN-1 — whether a real upgraded 1.5-origin database actually has it.**
-`roles.rName` is the precedent for exactly this gap: the manifest declared it
-UNIQUE, the accesscontrol plugin never created it, native RBAC adopted the
-table as it found it, and schema step 401 exists to repair it. Query in §5.
+**VERIFIED on a real upgraded database — UNKNOWN-1 is closed.** The
+`roles.rName` precedent was the worry (manifest declares UNIQUE, nothing
+creates it, step 401 repairs it), and it does not apply: step 161's
+`dropDuplicateData()` creates the index as well as removing duplicates, so
+every database past 161 has it. Confirmed on the 1.5-origin install at schema
+278 with 2079 hosts and on the live 1.6 one. Details in §5.
 
 ### 1.9 The host list, and what "presented as tags" actually costs
 
@@ -648,12 +651,14 @@ absent piece of behaviour. The rest is reuse and two security fixes.
 Nothing in §2.1–§2.3 can be signed off from a cloud session. The lab-gated
 items, in the order they block work:
 
-**Closed 2026-09-01** against the 1.6 lab: **UNKNOWN-2** (VERIFIED — the task
-is the authority, no new snapshot table needed), **UNKNOWN-3** (VERIFIED in an
-isolated container — both collisions are fatal, and the module arm is reachable
-for 98.8% of hosts), **UNKNOWN-4** (VERIFIED from `fog-client` source; the live
-poll cycle is still unobserved), **UNKNOWN-6** (VERIFIED — both gaps real, and
-the permission split is now decided rather than flagged).
+**Closed 2026-09-01:** **UNKNOWN-1** (VERIFIED read-only on the 1.5-origin
+install at schema 278 *and* the live 1.6 one — both indexes present, both
+created by schema step 161, no repair needed), **UNKNOWN-2** (VERIFIED — the
+task is the authority, no new snapshot table needed), **UNKNOWN-3** (VERIFIED
+in an isolated container — both collisions are fatal, and the module arm is
+reachable for 98.8% of hosts), **UNKNOWN-4** (VERIFIED from `fog-client`
+source; the live poll cycle is still unobserved), **UNKNOWN-6** (VERIFIED —
+both gaps real, and the permission split is now decided rather than flagged).
 
 Still open:
 
@@ -662,14 +667,9 @@ Still open:
    (UNKNOWN-4), so any change to the empty-case spelling is a client-visible
    change. Confirm the trace on a real mode-`ar` host before shipping the
    printer resolver — that is the one piece UNKNOWN-4 could not observe.
-2. **UNKNOWN-1** (`groupName` *and* `hostName` uniqueness on real upgraded
-   databases) — does not block; determines whether step 404 also needs an index
-   repair like 401. Grew after UNKNOWN-3: neither index is created by a
-   numbered step on 1.6, so both reach a 1.5-origin database only through the
-   manifest reconciler.
-3. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
+2. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
    determines whether the mass edit needs a set-based scope check.
-4. **A migration rehearsal** on a 1.5-origin dump, per
+3. **A migration rehearsal** on a 1.5-origin dump, per
    `docs/development/upgrade-rehearsal.md`, for step 405.
 
 ### 2.5 1.6.0 or 1.6.x
@@ -847,25 +847,75 @@ If (c) returns rows, the trigger's template subquery (`:44`) returns more than
 one row and **every** `INSERT INTO groupMembers` on this server errors — worth
 knowing before writing the release note.
 
-**Partially answered 2026-09-01, and (c) is now the more interesting half.**
-On a clone of the live 1.6 database, `hosts` carries `UNIQUE KEY hostName
-(hostName)`, so (c) is empty and the missing-`LIMIT` hazard is unreachable
-*there* (UNKNOWN-3 case E).
+**ANSWERED 2026-09-01 — CLOSED. Both indexes are present, both are created by
+a numbered schema step, and there is no index repair for step 404 to do.**
 
-But **no numbered schema step adds that index on 1.6.** Step 161 calls
-`Schema::dropDuplicateData(DATABASE_NAME, ['hosts', ['hostName']])`, and
-`dropDuplicateData`'s third parameter `$indexNeeded` defaults to `false` — it
-deletes duplicate rows and creates nothing. The UNIQUE therefore comes from the
-manifest via `SchemaReconciler`, which is precisely the `roles.rName` shape.
+Run against the real 1.5-origin install on this box (`/var/www/html/fog-1.5`,
+schema **278**, **2079 hosts**) and against the live 1.6 install
+(`/var/www/html/fog`, schema 401, 86 hosts), read-only:
 
 ```
-grep -n -A25 'function dropDuplicateData' packages/web/src/Items/Schema.php
-sed -n '2405,2425p' packages/web/commons/schema.php
+php ~/scripts/background_scripts/check_group_host_unique_indexes.php /var/www/html/fog-1.5
+php ~/scripts/background_scripts/check_group_host_unique_indexes.php /var/www/html/fog
 ```
 
-So this question now covers **both** `groups.groupName` and `hosts.hostName`,
-and on a 1.5-origin database both are open. One real 1.6 database is one
-sample, not a guarantee.
+| | 1.5-origin (278, 2079 hosts) | 1.6 (401, 86 hosts) |
+|---|---|---|
+| `groups.groupName` single-column UNIQUE | **yes** (`groupName`, `groupName_2`) | **yes** (same two) |
+| duplicate `groupName` values | 0 | 0 |
+| `hosts.hostName` single-column UNIQUE | **yes** (`hostName`) | **yes** (`hostName`) |
+| duplicate `hostName` values | 0 of 2079 | 0 of 86 |
+
+**Correction to what this document said earlier, because it was wrong and it
+pointed at unnecessary work.** It claimed no numbered step creates these
+indexes and that the UNIQUE reaches a database only through
+`SchemaReconciler` — the `roles.rName` shape. That is not what
+`dropDuplicateData()` does. Its `$indexNeeded` parameter only chooses the
+*form* of the index clause; the `ADD UNIQUE` is unconditional and sits outside
+that branch:
+
+```php
+// packages/web/src/Items/Schema.php — the ALTER is outside the if
+if ($indexNeeded) { $ending = sprintf('INDEX (`%s`)', ...); }
+else              { $ending = sprintf('(`%s`)', ...); }
+...
+'ALTER TABLE `%s`.`_%s` ADD UNIQUE %s'
+```
+
+It builds a shadow `_hosts` **with** the UNIQUE, `INSERT IGNORE`s the rows in
+(which is how the duplicates get dropped), and renames it over the original. So
+step 161's `dropDuplicateData(DATABASE_NAME, ['hosts', ['hostName']])` both
+removes duplicates *and* creates the index. 1.5 does the same, from identical
+code in `lib/fog/schema.class.php`.
+
+```
+sed -n '92,155p' packages/web/src/Items/Schema.php
+git show origin/stable:packages/web/lib/fog/schema.class.php | sed -n '92,150p'
+```
+
+The observed index names corroborate the mechanism rather than just the
+outcome. Both databases carry **two** unique indexes on `groupName` —
+`groupName` from `dropDuplicateData`'s shadow-table `ADD UNIQUE`, and
+`groupName_2` from 1.5's separate explicit
+`ALTER TABLE groups ADD UNIQUE (groupName)`. `hosts` has only one, because only
+the `dropDuplicateData` path ever creates it. That is the fingerprint of the
+mechanism above and not of a reconciler.
+
+**Consequences:**
+
+- **Step 404 needs no index repair.** The `roles.rName` parallel does not hold;
+  drop it from the plan.
+- **UNKNOWN-3 case E is refuted generally, not only on 1.6.** The trigger's
+  template subquery (`:44`, no `LIMIT`) is unreachable on any database that has
+  reached schema 161, which is every supported one.
+- **`groupName` is a safe order tiebreak** (ADR 0038 Decision 6), on upgraded
+  databases as well as fresh ones.
+
+Remaining limit, stated rather than papered over: the 1.5 box has **0 rows in
+`groups`**, so its zero-duplicates result for `groupName` is vacuous. The
+*index* presence is what was in question and that is proven on both; the
+duplicate check is only load-bearing for `hosts`, where 2079 rows is a real
+sample.
 
 ### UNKNOWN-2 — is `snapinTasks` a sufficient snapshot? — **VERIFIED, closed**
 
@@ -991,18 +1041,12 @@ cloned live database; a second host with the template's name is refused with
 1062 before the trigger is involved. So the scalar subquery's missing `LIMIT`
 (line 44) cannot be reached.
 
-**Caveat, and it moves E into UNKNOWN-1 rather than closing it.** That index is
-**not added by any schema step**. Step 161 calls
-`Schema::dropDuplicateData(DATABASE_NAME, ['hosts', ['hostName']])` with
-`$indexNeeded` defaulting to false, so it deletes duplicates and creates
-nothing; the UNIQUE comes from the manifest via `SchemaReconciler`. That is
-exactly the `roles.rName` shape schema step 401 exists to repair. Verified
-present on one real 1.6 database — not proven for a 1.5-origin one.
-
-```
-grep -n -A25 'function dropDuplicateData' packages/web/src/Items/Schema.php
-sed -n '2414,2427p' packages/web/commons/schema.php
-```
+**Which raised a follow-up that is now also closed.** The index is not in
+`CREATE TABLE hosts` and no `ALTER ... ADD UNIQUE` names it, which briefly
+looked like the `roles.rName` shape — a manifest-only index that a 1.5-origin
+database might lack. It is not: schema step 161's `dropDuplicateData()` creates
+it. See UNKNOWN-1, verified on the 1.5-origin install at schema 278 as well as
+on 1.6, so **E is unreachable on any supported database**, not just this one.
 
 **F. The hardcoded `'fog'` literal — VERIFIED, and the real bug is sharper than
 this document claimed.**

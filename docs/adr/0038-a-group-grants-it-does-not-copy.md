@@ -24,8 +24,16 @@ the proposal had listed (the template subquery's missing `LIMIT` is unreachable
 while `hosts.hostName` is UNIQUE) and sharpened another (the `'fog'` literal is
 a cross-database read, not merely a mis-scoped one).
 
-Evidence and the remaining open items — UNKNOWN-1 and UNKNOWN-5, neither
-blocking — are in the proposal's §5.
+**UNKNOWN-1 is also closed**, read-only against the 1.5-origin install on the
+same box (schema 278, 2079 hosts) as well as 1.6: `groups.groupName` and
+`hosts.hostName` both carry single-column UNIQUE indexes, and both are created
+by schema step 161 rather than only by the manifest. So Decision 6's
+`groupName` tiebreak is safe on upgraded databases, and the retirement step
+needs no index repair.
+
+**UNKNOWN-5** — the cost of the per-id scope check at 400 hosts — is the only
+open item, and it blocks nothing; it decides whether the mass edit needs a
+set-based authorization path. Evidence for all of it is in the proposal's §5.
 
 **Decision 16 (groups become the tag concept, presented as tags) is the
 maintainer's decision, not a derivation.** It is recorded with its argument and
