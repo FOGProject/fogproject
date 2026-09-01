@@ -672,62 +672,80 @@ Still open:
 3. **A migration rehearsal** on a 1.5-origin dump, per
    `docs/development/upgrade-rehearsal.md`, for step 405.
 
-### 2.5 1.6.0 or 1.6.x
+### 2.5 Release targeting — **decided: all of it in 1.6.0**
 
-The honest read, with the argument on both sides.
+**Decision (maintainer, 2026-09-01): the whole change targets 1.6.0.** The
+sequencing below is kept, because the ordering constraints are real, but the
+release boundary that used to sit in the middle of it is gone.
 
-**What argues for 1.6.0:**
+**The reasoning, recorded because it overturns this section's own earlier
+recommendation.** There is no RC yet. An RC exists to surface the bugs that
+neither code review nor a lab can see, and the two items this document had used
+to justify deferring the declarative half were both *unobservable* items —
+UNKNOWN-2 and UNKNOWN-4. Both are now closed, and the residue of UNKNOWN-4 (the
+live poll cycle on a real mode-`ar` host) is precisely the kind of thing an RC
+observes and a pre-RC hold does not. Holding work back from the RC to avoid
+shipping bugs the RC is designed to find inverts what the RC is for.
 
-- **The plugin ABI is unshipped** (§1.10). `HOST_MASSEDIT_*` costs nothing now
-  and needs a deprecation window after 1.6.0 ships. This is the strongest
-  argument and it is not about the group split at all — it is about the hook.
-- **There is no destructive migration** (Decision 18). The upgrade is four
-  additive schema steps plus one `DROP TRIGGER`. The usual reason to hold a
-  model change for a point release — "we cannot un-migrate the data" — does not
-  apply, because no data is migrated.
-- **The trigger is active on real servers right now** and every day it runs it
-  copies a domain password between hosts (Decision 15). Step 405 is worth
-  shipping on its own schedule.
-- Behaviour for every existing host and group is unchanged on upgrade, which is
-  what makes the risk profile a point-release profile even though the model
-  change is a major one.
+**Why that is safe rather than merely faster, and it is specific to this
+change:**
 
-**What argues for 1.6.x:**
+- **The client is fail-safe at both ends** (§5, UNKNOWN-4, verified in
+  `fog-client` 0.13.0). A resolver error surfaces as `data.Error`, and the
+  client returns without touching printers; the empty case has its own explicit
+  `np` spelling. So the worst an RC exposes is a *wrong printer list*, not a
+  stripped fleet. That was the one failure mode that genuinely argued for
+  holding, and the client already bounds it.
+- **Nothing is migrated** (Decision 18). The upgrade is additive schema steps
+  plus one `DROP TRIGGER`, so an RC finding a design problem does not leave
+  anyone with un-migrated data.
+- **Behaviour for existing hosts and groups is unchanged on upgrade**, which is
+  what makes the blast radius of an RC-stage discovery small.
+- **The ABI argument only ever pointed this way.** `HOST_MASSEDIT_*` is free
+  before 1.6.0 ships and needs a deprecation window afterwards (§1.10).
 
-- **UNKNOWN-2 is unanswered.** If `snapinTasks` is not a sufficient snapshot,
-  the snapin half needs a real snapshot table and the sizing above is wrong by
-  a schema step and a service-path change.
-- **UNKNOWN-4 is unanswered**, and the failure mode is printers being stripped
-  from a fleet. That is not a bug you ship to find out about.
-- The mass edit form is the largest single piece and it is the one with no
-  existing equivalent to fall back on. Decision 10 forbids removing the group
-  tabs before it is proven, so a half-landed release is *safe* but is also two
-  ways to do the same thing.
+**What does not change: Decision 10's ordering constraint.** The mass edit must
+land, and be proven, *before* anything is removed from the group page. Within
+one release that is a merge-order constraint rather than a release-boundary
+one, and it is honored by the build order below.
 
-**Recommendation, and it is a split rather than a single answer:**
+**The build order, and why it is grouped this way.** The binding constraints
+are Decision 10 (mass edit before removals), the resolver preceding the group
+page rework, and — pragmatically — file ownership, because
+`HostManagement.php` (5256 lines), `GroupManagement.php` (3532) and
+`Route.php` are touched by most of the work and concurrent PRs against them
+serialize through conflicts anyway.
 
-- **1.6.0:** the `HOST_MASSEDIT_*` hooks and the mass edit form; **all five of
-  Decision 16a's presentation requirements** (groups column + filter, bulk
-  add/remove from the host side, the shared create-and-associate path with
-  `saveGroup()`'s CSRF and scope gaps closed and its permission narrowed from
-  `group.create` to `group.edit`, the group list's "grants" column); schema
-  step 405 (the trigger drop) and the `persistentgroups` deletion. None of these depends on the resolver, all of them are additive,
-  and the ABI half genuinely gets harder after 1.6.0.
+| # | Unit | Owns | Gated by |
+|---|---|---|---|
+| A | Step 405 + `persistentgroups` deletion | `commons/schema.php`, `schema-expected.php`, `fog-plugins` | nothing; rehearsed on the 1.5-origin dump first |
+| B | `saveGroup` security + permission split | `Auth/Authorization.php`, the one method | nothing; these are live bugs today (§5, UNKNOWN-6) |
+| C | Resolver + mass edit + `HOST_MASSEDIT_*` | new `src/` classes, `Pages/HostManagement.php`, `docs/plugin-development.md` | B (same method) |
+| D | Presentation: groups column + filter, bulk add/remove, group list "grants" | `Router/Route.php`, `Base/FOGManagerController.php`, `Pages/HostManagement.php`, JS | C |
+| E | Group page rework + removal of the imperative tabs | `Pages/GroupManagement.php`, JS | **C proven** (Decision 10), D |
 
-  **16a is in the earlier release deliberately, and it is the half that must
-  not slip.** It is the part of Decision 16 that closes the labelling gap, and
-  the failure mode of shipping the split without it is specific: groups become
-  heavier while staying just as unpleasant to apply, which is the exact state
-  that made a `tags` entity look necessary. Landing 16a first also means the
-  presentation improvement stands on its own even if the declarative split
-  slips further — it is useful against today's groups, unchanged.
-- **1.6.x:** the declarative split itself — steps 402–404, the resolver, the
-  group page rework, and the removal of the group page's imperative tabs. It
-  depends on two UNKNOWNs that need a lab, and Decision 10's sequencing already
-  says the removals come a release later than the replacement.
+A and B are independent of everything and of each other, so they go first and
+in parallel. C is the bulk and unblocks both D and E. E is last by Decision 10
+and is the only unit that removes anything.
 
-That ordering also satisfies Decision 10 by construction: mass edit is in the
-earlier release, the removals in the later one.
+**Two things inside that order need calling out rather than discovering.**
+
+- **D's filter work touches a shared helper.** Teaching `_sbCriterion()` /
+  `searchBuilderType()` to express a *relationship* column is a change to
+  something every grid depends on, so it gets a written design before it gets
+  code, and `tests/searchbuilder-filter-clause.test.php` is the existing gate
+  it has to keep green.
+- **Docs ship with C, not after it.** Decision 4 promises that re-tasking is
+  the only way to pick up a snapin change and that "the docs must say so
+  plainly". That sentence is load-bearing for support, so it lands in the same
+  unit as the behaviour it describes — `GROUP_SHARED_STATE.md` rewritten as the
+  mass edit document, the ADR 0001 amendment note, and the release note
+  covering both the re-tasking semantics and Decision 15's credential
+  propagation.
+
+**UNKNOWN-5** (per-id scope check cost at 400 hosts) is measured inside C,
+where the mass edit's authorization path is being written, rather than as a
+prerequisite to it.
 
 ---
 

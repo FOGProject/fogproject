@@ -2,8 +2,22 @@
 
 ## Status
 
-proposed. No code has been written for it, and this ADR deliberately proposes
-none in this pass. The sizing, the evidence behind every claim, and the
+**accepted** 2026-09-01. No code has been written for it yet — this ADR
+deliberately proposed none in the pass that produced it — and **the whole
+change targets 1.6.0**, not a 1.6.0/1.6.x split.
+
+The proposal's own earlier recommendation was to split it across two releases,
+and the maintainer overturned that with an argument this ADR records because it
+is the better one: there is no RC yet, and the items used to justify deferring
+the declarative half were exactly the ones no amount of pre-RC review can
+settle. An RC exists to surface what neither code review nor a lab can see, so
+holding work back from it to avoid shipping findable bugs inverts its purpose.
+What makes that safe here rather than merely faster is specific — the shipped
+client is fail-safe at both ends of the printer path (Decision 9), so an RC
+exposes a wrong printer list rather than a stripped fleet, and Decision 18
+migrates nothing, so an RC-stage rethink strands no data. Build order and its
+constraints are in the proposal's §2.5; Decision 10's sequencing is unchanged
+and becomes a merge-order constraint rather than a release boundary. The sizing, the evidence behind every claim, and the
 questions that need a lab to settle are in
 [`docs/development/group-split.md`](../development/group-split.md).
 
