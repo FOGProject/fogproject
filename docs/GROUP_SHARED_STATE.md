@@ -21,7 +21,7 @@ anything.
 > **⚠️ This is changing. Snapins have already changed.**
 > A group is becoming something that **grants**, rather than something that
 > copies rows onto whoever happened to be a member when a button was pressed.
-> The first half has landed: see
+> The first half has landed for **snapins and printers**: see
 > [Snapins are granted, not copied](#snapins-are-granted-not-copied) below.
 > Everything else on this page still describes the push‑to‑all model and is
 > still accurate for the page as it stands today. The reasoning, and what is
@@ -32,6 +32,7 @@ anything.
 ## Table of contents
 
 - [Snapins are granted, not copied](#snapins-are-granted-not-copied)
+  - [Printers work the same way, but are worked out live](#printers-work-the-same-way-but-are-worked-out-live)
 - [Associations (tri‑state)](#associations-tri-state)
   - [What "has it" means](#what-has-it-means)
   - [The badge and Has/Missing drill‑down](#the-badge-and-hasmissing-drill-down)
@@ -90,9 +91,25 @@ Group order is an explicit setting rather than alphabetical for one reason:
 machines.** An install that never sets it behaves alphabetically, which is the
 answer an admin can predict.
 
-> Printers have **not** moved yet, and the group Printers tab still pushes rows
-> onto member hosts as before. Nothing on the host side of printers has
-> changed.
+### Printers work the same way, but are worked out live
+
+A group can hold a **printer** grant too, and the precedence is identical: the
+host's own printers first, then what its groups grant, a printer reached both
+ways appearing once at the host's position. A **host's own default printer wins
+outright**; otherwise the default comes from the first group in order that names
+one.
+
+The difference is *when*. There is no task to attach a printer list to — the FOG
+client reconciles its printers on a schedule, and a removal has to reach the
+machine — so **the printer list is worked out fresh on every client request**.
+A change to a group's printers reaches its members on their next check-in, with
+no re-tasking.
+
+> **On printer level `ar` ("FOG Handles all printers"), the list is
+> authoritative in both directions:** the client removes every installed
+> printer that is not on it, including ones FOG did not add. That has always
+> been true of this mode; it is worth re-reading now that a group can add to
+> the list.
 
 ---
 
