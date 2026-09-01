@@ -721,7 +721,7 @@ serialize through conflicts anyway.
 | B | `saveGroup` security + permission split | `Auth/Authorization.php`, the one method | nothing; these are live bugs today (§5, UNKNOWN-6) | **merged** (#1598) |
 | C1 | `FOG\Assign\Resolver` + its tests, wired to nothing | new `src/Assign/`, `bin/psr4-scan.php` | A | **merged** (#1611) |
 | C2 | Snapin resolution at task creation + docs | `Items/Group.php`, `Items/Host.php`, `docs/GROUP_SHARED_STATE.md` | C1 | **merged** (#1612) |
-| C3 | `persistentgroups` deletion from `fog-plugins` | `fog-plugins` | C2 | open (fog-plugins #35) |
+| C3 | `persistentgroups` deletion from `fog-plugins` | `fog-plugins` | C2 | **merged** (fog-plugins #35) |
 | C4 | Printer resolution in `PrinterClient` | `Client/PrinterClient.php` | C2, and UNKNOWN-4 observed | **merged** (#1616, #1621) |
 | C5a | The three-state action model (`FOG\Util\MassEdit`) | new `src/Util/MassEdit.php` | B | **merged** (#1622) |
 | C5b | The apply endpoint | `Pages/HostManagement.php` | C5a | **merged** (#1623) |
