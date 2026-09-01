@@ -1,6 +1,7 @@
 <?php
 /**
- * Proves FOG\Assign\Resolver resolves the order ADR 0038 decision 6 promises.
+ * Proves FOG\Assign\Resolver resolves what ADR 0038 promises -- the order for
+ * snapins and printers (decision 6), and the three tiers for modules.
  *
  * The resolver is the single place that answers "what is this host actually
  * assigned". Everything it gets wrong is silent: a snapin runs in the wrong
@@ -36,6 +37,15 @@
  *        answer meaning "no printers", so a resolver that returns one on
  *        failure strips the fleet under printer mode `ar`, one machine at a
  *        time, for as long as nobody notices.
+ *   13   the saID tiebreak, pinned on the source -- see the comment there.
+ *   14-19 modules, the third grant and the only one that is a switch. A
+ *        host-direct OFF beats every group that grants the module; the same
+ *        grant still reaches a host that has not said OFF (one module, one
+ *        grant, opposite answers, so neither "OFF is global" nor "the grant
+ *        wins" survives); the union comes back ascending by module id rather
+ *        than host-then-group; a module two of a host's groups grant appears
+ *        once; a host with nothing is still a key; and a failed module read
+ *        throws for the same decision-9 reason as check 12.
  *
  * Skips without FOG_TEST_DSN, exactly as tests/schema-executes.test.php does.
  *
@@ -216,6 +226,8 @@ $need = [
     'printerAssoc',
     'groupSnapinAssoc',
     'groupPrinterAssoc',
+    'moduleStatusByHost',
+    'groupModuleAssoc',
 ];
 foreach ($need as $table) {
     if (!isset($expected[$table]['create'])) {
@@ -398,6 +410,114 @@ $check(
         $source,
         'ORDER BY `saHostID`, `saSequence`, `saID`'
     )
+);
+
+/*
+ * MODULES -- the third grant, and the only one that is a switch.
+ *
+ * The scenario is built so the three tiers are separable. Reusing the same
+ * groups keeps the membership fixture honest: host 13 has no `hosts` row at
+ * all and is in group 3, so it proves the manager-bypass property a second
+ * time on a table nobody has queried yet.
+ *
+ *   host 10  direct ON  950, direct OFF 901; in groups 1, 2, 3
+ *   host 11  no direct rows at all;          in groups 4, 5
+ *   host 12  nothing anywhere, in no group
+ *   host 13  no `hosts` row;                 in group 3
+ *
+ *   group 3 grants 901 and 902
+ *   group 1 grants 903
+ *   group 5 grants 910
+ *   group 4 grants 910 and 911
+ *
+ * 950 is deliberately the HIGHEST id in host 10's answer while being the
+ * host-direct one. A resolver that appends the group grants after the direct
+ * rows without sorting returns [950, 902, 903]; the promise is ascending by
+ * id, so the right answer is [902, 903, 950] and the two are different lists
+ * rather than the same list in a different order.
+ *
+ * 901 is the load-bearing pair. Host 10 says OFF and group 3 grants it, so
+ * host 10 must NOT have it -- and host 13, in the same group with nothing of
+ * its own to say, MUST. One module, one grant, opposite answers: a resolver
+ * that treats OFF as global, or that lets the grant win, fails one of the
+ * two whichever way it is wrong.
+ */
+$pdo->exec(
+    "INSERT INTO `moduleStatusByHost` (`msHostID`,`msModuleID`,`msState`) "
+    . "VALUES (10,950,1),(10,901,0)"
+);
+$pdo->exec(
+    "INSERT INTO `groupModuleAssoc` (`gmaGroupID`,`gmaModuleID`) VALUES "
+    . "(3,901),(3,902),(1,903),(5,910),(4,910),(4,911)"
+);
+
+$mods = \FOG\Assign\Resolver::resolveModules([10, 11, 12, 13]);
+
+$check(
+    'a host-direct OFF beats every group that grants the module',
+    !in_array(901, $mods[10] ?? [], true)
+);
+$check(
+    'the same grant still reaches a host that has not said OFF',
+    ($mods[13] ?? []) === [901, 902]
+);
+$check(
+    'host ON and group grants union, ascending by module id',
+    ($mods[10] ?? []) === [902, 903, 950]
+);
+$check(
+    'a module granted by two of a host\'s groups appears once',
+    ($mods[11] ?? []) === [910, 911]
+);
+$check(
+    'a host with nothing anywhere is still a key, with an empty list',
+    array_key_exists(12, $mods) && ($mods[12] ?? null) === []
+);
+
+/*
+ * THE DEFAULT ON msState IS LOAD-BEARING.
+ *
+ * FOGController::addRemItem() used to append an explicit `state` of 1 to
+ * every module row, because the column was a varchar(1) NOT NULL DEFAULT ''
+ * and an insert that omitted it wrote the empty string. Schema step 409 made
+ * it tinyint(1) NOT NULL DEFAULT 1, so that special case was removed and the
+ * database now supplies the value.
+ *
+ * Which means the DEFAULT and the generic insert are one mechanism held in
+ * two files. Under ADR 0038 a state of 0 is a host saying OFF and beats every
+ * group grant, so if the default is ever dropped or flipped, every module
+ * added through the generic path silently becomes the strongest statement in
+ * the system -- and nothing would fail. This inserts a row the way
+ * addRemItem() now does, against the REAL DDL out of the manifest, and reads
+ * the answer back through the resolver rather than off the column: what
+ * matters is not that the column says 1, it is that the module comes out
+ * enabled.
+ */
+$pdo->exec(
+    "INSERT INTO `moduleStatusByHost` (`msHostID`,`msModuleID`) VALUES (12,960)"
+);
+$defaulted = \FOG\Assign\Resolver::resolveModules([12]);
+$check(
+    'a module row inserted without a state resolves as enabled',
+    ($defaulted[12] ?? []) === [960]
+);
+
+// The decision-9 gate again, on the table this resolver added. Same reason:
+// under the client's module protocol an empty answer is a legitimate "all
+// modules off", so a read that fails silently switches the fleet off rather
+// than reporting anything.
+$pdo->exec('DROP TABLE `groupModuleAssoc`');
+$threw = false;
+$message = '';
+try {
+    \FOG\Assign\Resolver::resolveModules([10]);
+} catch (\RuntimeException $e) {
+    $threw = true;
+    $message = $e->getMessage();
+}
+$check(
+    'a failed module read throws rather than resolving to nothing',
+    $threw && 0 === strpos($message, 'Assignment resolution failed')
 );
 
 // 12: the decision-9 gate. A failed read must not look like "no printers".

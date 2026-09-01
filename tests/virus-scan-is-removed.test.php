@@ -47,15 +47,29 @@ $manifest = include $web . '/commons/schema-expected.php';
 $constraints = include $web . '/commons/schema-constraints.php';
 
 /*
- * 1. The step exists and is the last one. That FOG_SCHEMA matches the
- * step count is already pinned by tests/schema-gate.test.php.
+ * 1. The step exists and is still numbered 406. It was written as "406 and
+ * nothing after it", which asserted that no schema step would ever be
+ * appended again -- so it went red on the first one that was (step 407,
+ * groupModuleAssoc). A gate that fails on every future schema commit is one
+ * nobody can act on. What this file is actually for is that step 406 is not
+ * REWRITTEN: schema.php is an append-only replay log, so the number and the
+ * contents of the step are the thing to pin, not its position at the end.
+ * That FOG_SCHEMA matches the step count is already pinned by
+ * tests/schema-gate.test.php.
  */
 $t->check(
     'the removal is schema step 406',
     false !== strpos($schema, "\n// 406\n")
-    && false === strpos($schema, "\n// 407\n")
 );
-$step = substr($schema, (int)strpos($schema, "\n// 406\n"));
+// Bounded at the next step marker. While 406 was the last step, running to
+// the end of the file was the same thing; now that steps follow it, an
+// unbounded slice would let a later step satisfy -- or break -- a check that
+// is about this one.
+$stepStart = (int)strpos($schema, "\n// 406\n");
+$stepEnd = strpos($schema, "\n// 407\n", $stepStart);
+$step = false === $stepEnd
+    ? substr($schema, $stepStart)
+    : substr($schema, $stepStart, $stepEnd - $stepStart);
 
 /*
  * 2. The delete order. Both children come before the parent, or an upgrade

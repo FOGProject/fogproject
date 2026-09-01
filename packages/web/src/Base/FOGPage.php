@@ -1834,6 +1834,24 @@ abstract class FOGPage extends FOGBase
                         _('Delete selected'),
                         'btn btn-danger float-start'
                     );
+                    // Same seam as queueTaskActions() below: a page that can
+                    // edit its selection in bulk says so by defining the
+                    // method, and the toolbar does not learn a second node
+                    // name to do it.
+                    //
+                    // It sits on the LEFT, beside Delete selected, because
+                    // that is what it is: an action ON the rows that are
+                    // already ticked. The right-hand group is the opposite
+                    // half of the toolbar -- Queue Task, Add to group, Add
+                    // all bring something new into existence. Two floated
+                    // buttons stack in emission order, so emitting it after
+                    // Delete puts it to Delete's right; ms-2 is the gap the
+                    // btn-group gives its own children for free.
+                    if (method_exists($this, 'massEditActions')) {
+                        $mass = $this->massEditActions();
+                        $actionbox .= $mass['button'];
+                        $modals .= $mass['modal'];
+                    }
                     $actionbox .= '<div class="btn-group float-end">';
                     // Picked up the same way addModal() is, so the toolbar
                     // stays generic: a page that can task its selection says
@@ -1850,14 +1868,6 @@ abstract class FOGPage extends FOGBase
                         // own button bar, and this is what tells it which
                         // ones to draw. Empty when the page offers none.
                         $modals .= $queue['quick'] ?? '';
-                    }
-                    // Same seam, same reason: a page that can edit its
-                    // selection in bulk says so by defining the method, and
-                    // the toolbar does not learn a second node name to do it.
-                    if (method_exists($this, 'massEditActions')) {
-                        $mass = $this->massEditActions();
-                        $actionbox .= $mass['button'];
-                        $modals .= $mass['modal'];
                     }
                     if (method_exists($this, 'addModal')) {
                         if ($node == 'host') {
@@ -3549,9 +3559,12 @@ abstract class FOGPage extends FOGBase
                 false,
                 self::$newService || self::$json
             );
+            // RESOLVED, not host-direct -- see ServiceModule. This is the
+            // list the client is told to run, so a group grant has to be in
+            // it.
             $hostModules = Route::getIds(
                 'module',
-                ['id' => self::$Host->get('modules')],
+                ['id' => self::$Host->resolvedModules()],
                 'shortName'
             );
             $hostEnabled = array_diff(
