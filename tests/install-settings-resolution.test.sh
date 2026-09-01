@@ -296,10 +296,16 @@ for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
     fi
 done
 
-# All 69 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# All 70 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
 # starts being overwritten. That is a behavior change even though it looks
 # like documentation, so the count is asserted as well as the membership.
+#
+# FOG_last_good_commit joined the model deliberately (GH-1006 work): it is a
+# RECORD the installer writes on every run that reaches writeUpdateFile, read
+# only by offerRevert() to name a commit worth going back to. Hand-editing it
+# has no effect on what gets checked out, so having the installer overwrite an
+# admin's value is correct rather than a loss.
 modelKeys="
     BOOT_dhcp_delay_seconds BOOT_external_tftp_server BOOT_kernel_backups_kept BOOT_rebuild_ipxe_with_my_ca
     BOOT_tftp_options BOOT_url_proto BOOT_url_proto_forced DB_backup_path
@@ -307,7 +313,8 @@ modelKeys="
     DB_user DHCP_dns_server_ip DHCP_enabled DHCP_engine
     DHCP_range_end DHCP_range_start DHCP_router DHCP_service_name
     FOG_copy_back_old FOG_git_path FOG_install_lang FOG_install_mode
-    FOG_install_type FOG_installed FOG_os_id FOG_os_name
+    FOG_install_type FOG_installed FOG_last_good_commit FOG_os_id
+    FOG_os_name
     FOG_packages FOG_program_dir FOG_send_reports FOG_update_channel
     NET_fog_server_ip NET_hostname NET_interface NET_subnet_mask
     PKI_allowed_domain_names PKI_client_cert_dir PKI_client_encrypt_cert PKI_client_encrypt_key

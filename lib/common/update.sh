@@ -16,8 +16,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Functions used only by bin/updatefog.sh: the git fetch/checkout/revert cycle
-# around a channel update. Kept out of functions.sh, which installfog.sh alone
+# The one function used only by bin/updatefog.sh: the git fetch/checkout that
+# moves a working copy onto a channel branch. Kept out of functions.sh, which
 # already runs to nearly 5000 lines.
 #
 # This file used to also own backing up and restoring the files installfog.sh's
@@ -32,9 +32,14 @@
 
 # Fetches, checks out, and hard-resets ${FOG_git_path} to $1 (a branch name --
 # the caller has already resolved this from either ${FOG_update_channel} via
-# channelToBranch, or a one-off --branch override). Sets $updatePrevCommit
-# (module-global, read by revertUpdate below) to the commit HEAD was at
-# before touching anything.
+# channelToBranch, or a one-off --branch override).
+#
+# Sets $updatePrevCommit to the commit HEAD was at before touching anything.
+# Nothing reads it any more: revertUpdate() is gone, and installfog.sh names
+# its own commit to go back to via offerRevert(), from FOG_last_good_commit in
+# .fogsettings -- which is a better source, because it is the last commit that
+# actually INSTALLED cleanly rather than merely the last one checked out. Kept
+# because it costs one cheap call and is what a caller would reach for.
 gitUpdateToBranch() {
     local branch="$1" st
     updatePrevCommit=$(git -C "${FOG_git_path}" rev-parse HEAD 2>>$error_log)
@@ -53,29 +58,4 @@ gitUpdateToBranch() {
     st=$?
     errorStat $st
     return $st
-}
-
-# Failure path: put the git checkout back where it was and re-run
-# installfog.sh against the reverted commit.
-#
-# The restore used to happen here, after the re-install, because installfog.sh
-# was what overwrote bg.png and the kernel set and could itself fail partway
-# through -- restoring first and re-installing second left the fresh defaults
-# in place instead of the admin's customizations.
-#
-# That ordering problem is gone: installfog.sh now backs up and restores
-# within its own run (backupPreservedCustomizations /
-# restorePreservedCustomizations), so however the re-install attempt goes, it
-# is the thing that puts the customizations back. --restore-kernel-backup is
-# the one addition the revert path needs, telling that run to also roll the
-# default-named kernel/init set back -- an older commit wants the older
-# kernels, which a normal update deliberately does not do.
-revertUpdate() {
-    echo " * Reverting to the previous commit ($updatePrevCommit)"
-    dots "Reverting git checkout"
-    git -C "${FOG_git_path}" reset --hard "$updatePrevCommit" >>$error_log 2>&1
-    errorStat $?
-    dots "Re-running installfog.sh against the reverted commit"
-    (cd "${FOG_git_path}/bin" && bash installfog.sh -Y $updateVhostFlag --restore-kernel-backup >>$error_log 2>&1)
-    errorStat $?
 }
