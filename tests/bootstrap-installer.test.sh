@@ -95,14 +95,31 @@ if ! grep -q 'if false; then' "$sut"; then
 fi
 
 # --- stubs ----------------------------------------------------------------
-# Two directories on purpose. installGit() returns early when git is already
+# Three directories on purpose. installGit() returns early when git is already
 # on PATH, so the "which package manager" cases have to run with a PATH that
-# does NOT have the git stub in it -- otherwise they assert nothing, which is
-# how they first passed for the wrong reason.
+# reaches NO git at all -- not the stub, and not the real one in /usr/bin
+# either. Naming /usr/bin in that PATH is what made these six assertions pass
+# vacuously: every machine that runs this suite, developer box and CI runner
+# alike, already has git, so installGit() returned at its first line and no
+# package manager was ever reached.
+#
+# Hence $sandbox: symlinks to the tools bootstrap.sh actually calls, git
+# deliberately absent, and nothing else on PATH. A tool added to the script
+# later fails here loudly rather than silently falling back to the host.
 pmstubs="$work/pm"      # package managers only
 stubs="$work/stubs"     # package managers + git
-mkdir -p "$pmstubs" "$stubs"
+sandbox="$work/nogit"   # host tools, minus git
+mkdir -p "$pmstubs" "$stubs" "$sandbox"
 calls="$work/calls.log"
+
+# bash included: `bash "$sut"` is resolved with the PATH set for the run.
+for tool in bash awk cat cut date env grep head ls mkdir rm sed sort stat tr tty uname which; do
+    src=$(command -v "$tool" 2>/dev/null) || {
+        echo "FAIL: $tool is not on PATH; the sandbox cannot be built." >&2
+        exit 1
+    }
+    ln -sf "$src" "$sandbox/$tool"
+done
 
 for tool in apt-get dnf yum pacman apk; do
     cat > "$pmstubs/$tool" <<EOF
@@ -156,7 +173,7 @@ run() {
 runNoGit() {
     local distro="$1" version="$2"
     shift 2
-    ( export PATH="$pmstubs:/usr/bin:/bin" CALLS="$calls" OS="Linux"
+    ( export PATH="$pmstubs:$sandbox" CALLS="$calls" OS="Linux"
       export linuxReleaseName="$distro" OSVersion="$version"
       unset osfamily
       cd "$work" && bash "$sut" "$@" )
@@ -186,8 +203,11 @@ for name in Ubuntu Debian "Rocky Linux" "Alpine Linux" "Arch Linux"; do
     : > "$calls"
     dir="$work/fam-${name// /_}"
     runNoGit "$name" 1 --git-path "$dir" --yes >/dev/null 2>&1
+    # Asked to install GIT, not merely invoked: the debian arm runs
+    # `apt-get -yq update` first, so a bare "^apt-get " matches even when the
+    # install line is gone.
     check "${name} installs git with ${wanted[$name]}" \
-        "$(grep -q "^${wanted[$name]} " "$calls"; echo $?)"
+        "$(grep -qE "^${wanted[$name]} .*(^| )git( |$)" "$calls"; echo $?)"
 done
 
 # dnf-before-yum is the fallback installfog.sh already uses on this family.
@@ -195,12 +215,12 @@ done
 nodnf="$work/nodnf"
 mkdir -p "$nodnf"
 cp "$pmstubs/yum" "$nodnf/"
-( export PATH="$nodnf:/usr/bin:/bin" CALLS="$calls" OS="Linux"
+( export PATH="$nodnf:$sandbox" CALLS="$calls" OS="Linux"
   unset osfamily
   export linuxReleaseName="CentOS Linux" OSVersion=9
   cd "$work" && bash "$sut" --git-path "$work/yumbox" --yes ) >/dev/null 2>&1
 check "a Red Hat box without dnf falls back to yum" \
-    "$(grep -q '^yum ' "$calls"; echo $?)"
+    "$(grep -qE '^yum .*(^| )git( |$)' "$calls"; echo $?)"
 
 # ---------------------------------------------------------------------------
 # Channels resolve to branches, and rc says something true when there is none.

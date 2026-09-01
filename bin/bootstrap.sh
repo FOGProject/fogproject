@@ -63,7 +63,7 @@ usage() {
     echo -e "\t-y    --yes\t\tRun the installer unattended (-Y). Without it the"
     echo -e "\t              \t\tinstaller runs interactively, which is what a"
     echo -e "\t              \t\tfirst install wants. Pass it from Ansible/cloud-init"
-    echo -e "\n\tThis script only gets FOG onto the machine. Afterwards,"
+    echo -e "\n\tThis script only gets FOG onto the machine. Afterward,"
     echo -e "\tbin/updatefog.sh moves it between channels and bin/installfog.sh"
     echo -e "\tdoes everything else."
     exit 0
@@ -179,7 +179,7 @@ detectOSFamily() {
 # ---------------------------------------------------------------------------
 # The channel map, likewise a copy -- of channelToBranch()/normalizeChannel()
 # in lib/common/functions.sh. The retired stable/staging/dev spellings are
-# honoured here exactly as they are there, silently and forever: an admin who
+# honored here exactly as they are there, silently and forever: an admin who
 # pastes a command from an older forum post should get a working install, not a
 # lecture about vocabulary.
 #
