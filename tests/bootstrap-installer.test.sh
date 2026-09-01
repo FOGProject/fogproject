@@ -112,14 +112,40 @@ sandbox="$work/nogit"   # host tools, minus git
 mkdir -p "$pmstubs" "$stubs" "$sandbox"
 calls="$work/calls.log"
 
-# bash included: `bash "$sut"` is resolved with the PATH set for the run.
-for tool in bash awk cat cut date env grep head ls mkdir rm sed sort stat tr tty uname which; do
-    src=$(command -v "$tool" 2>/dev/null) || {
-        echo "FAIL: $tool is not on PATH; the sandbox cannot be built." >&2
-        exit 1
-    }
-    ln -sf "$src" "$sandbox/$tool"
-done
+# The sandbox is built from SYMLINKS, which is the one thing about it that is
+# not portable. Where `ln -s` silently copies instead -- Git Bash on Windows is
+# the case that found this -- a copied bash.exe cannot locate its DLLs and dies
+# with "error while loading shared libraries", so every arm using the sandbox
+# fails for a reason that has nothing to do with the code under test.
+#
+# Detected rather than assumed, and the arms are SKIPPED rather than reported
+# as failures: six phantom failures in a suite are worse than six absent
+# assertions, because someone has to chase them. Linux CI takes the real path,
+# so the gate is not weakened where it runs.
+sandboxOk=1
+if ln -s /dev/null "$sandbox/.linkprobe" 2>/dev/null && [[ -L $sandbox/.linkprobe ]]; then
+    rm -f "$sandbox/.linkprobe"
+    # bash included: `bash "$sut"` is resolved with the PATH set for the run.
+    for tool in bash awk cat cut date env grep head ls mkdir rm sed sort stat tr tty uname which; do
+        src=$(command -v "$tool" 2>/dev/null) || {
+            echo "FAIL: $tool is not on PATH; the sandbox cannot be built." >&2
+            exit 1
+        }
+        ln -sf "$src" "$sandbox/$tool"
+    done
+else
+    rm -f "$sandbox/.linkprobe"
+    sandboxOk=0
+fi
+
+# Skips an assertion that needs the symlink sandbox, and says why once.
+skipNote=0
+skipSandbox() {
+    if [[ $skipNote -eq 0 ]]; then
+        echo "  SKIP  sandbox arms: this filesystem does not make real symlinks"
+        skipNote=1
+    fi
+}
 
 for tool in apt-get dnf yum pacman apk; do
     cat > "$pmstubs/$tool" <<EOF
@@ -200,6 +226,7 @@ check "and nothing was cloned" \
 # ---------------------------------------------------------------------------
 declare -A wanted=( [Ubuntu]=apt-get [Debian]=apt-get ["Rocky Linux"]=dnf ["Alpine Linux"]=apk ["Arch Linux"]=pacman )
 for name in Ubuntu Debian "Rocky Linux" "Alpine Linux" "Arch Linux"; do
+    [[ $sandboxOk -eq 1 ]] || { skipSandbox; continue; }
     : > "$calls"
     dir="$work/fam-${name// /_}"
     runNoGit "$name" 1 --git-path "$dir" --yes >/dev/null 2>&1
@@ -211,6 +238,7 @@ for name in Ubuntu Debian "Rocky Linux" "Alpine Linux" "Arch Linux"; do
 done
 
 # dnf-before-yum is the fallback installfog.sh already uses on this family.
+if [[ $sandboxOk -eq 1 ]]; then
 : > "$calls"
 nodnf="$work/nodnf"
 mkdir -p "$nodnf"
@@ -221,6 +249,9 @@ cp "$pmstubs/yum" "$nodnf/"
   cd "$work" && bash "$sut" --git-path "$work/yumbox" --yes ) >/dev/null 2>&1
 check "a Red Hat box without dnf falls back to yum" \
     "$(grep -qE '^yum .*(^| )git( |$)' "$calls"; echo $?)"
+else
+    skipSandbox
+fi
 
 # ---------------------------------------------------------------------------
 # Channels resolve to branches, and rc says something true when there is none.

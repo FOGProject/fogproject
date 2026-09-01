@@ -4879,12 +4879,6 @@ errorStat() {
     local skipOk=$2
     if [[ $status != 0 ]]; then
         echo "Failed!"
-        # Return rather than falling through. With $exitFail set -- which
-        # bin/updatefog.sh does, so a failed git step returns control instead
-        # of ending the process -- the abort block below is skipped and
-        # execution reached the "OK" at the end of this function, printing
-        # `Failed!OK` for every failed fetch/checkout/reset.
-        [[ -n $exitFail ]] && return 0
         if [[ -z $exitFail ]]; then
             echo
             echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
