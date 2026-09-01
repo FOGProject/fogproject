@@ -13,6 +13,10 @@ names the claim that would hurt most if it turned out to be false.
 Repository state: `working-1.6` at `4729701`. Plugins at `fog-plugins`
 `ec101b3`.
 
+**Update 2026-09-01:** UNKNOWN-2, UNKNOWN-4 and UNKNOWN-6 were run against the
+1.6 lab (`10.255.20.1`) and are recorded in §5 with their evidence. One of them
+changed a decision — see UNKNOWN-4 and ADR 0038 Decision 9.
+
 ---
 
 ## 1. What is actually there today
@@ -616,21 +620,29 @@ absent piece of behaviour. The rest is reuse and two security fixes.
 Nothing in §2.1–§2.3 can be signed off from a cloud session. The lab-gated
 items, in the order they block work:
 
-1. **UNKNOWN-2** (snapshot sufficiency) — blocks the snapin half's whole design.
-   Cheapest to answer, answer it first.
+**Closed 2026-09-01** against the 1.6 lab: **UNKNOWN-2** (VERIFIED — the task
+is the authority, no new snapshot table needed), **UNKNOWN-4** (VERIFIED from
+`fog-client` source; the live poll cycle is still unobserved), **UNKNOWN-6**
+(VERIFIED — both gaps real).
+
+Still open:
+
+1. **The printer wire contract is now the top risk**, and it is not a question
+   about the server. `error: 'np'` is load-bearing in the shipped client
+   (UNKNOWN-4), so any change to the empty-case spelling is a client-visible
+   change. Confirm the trace on a real mode-`ar` host before shipping the
+   printer resolver — that is the one piece UNKNOWN-4 could not observe.
 2. **UNKNOWN-1** (`groupName` uniqueness on real upgraded databases) — does not
    block; determines whether step 404 also needs an index repair like 401.
 3. **UNKNOWN-3** (trigger duplicate-key behaviour) — does not block the
    retirement; determines how the release note describes what admins have been
-   hitting.
-4. **UNKNOWN-4** (client removal semantics under each mode) — blocks shipping
-   the printer resolver, because it decides the blast radius of a resolver bug.
-5. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
+   hitting. **Isolated lab database only** — see the warning on that section.
+4. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
    determines whether the mass edit needs a set-based scope check.
-6. **UNKNOWN-6** (`saveGroup()`'s CSRF and scope gaps) — does not block, but
-   both are on the endpoint ADR 0038 Decision 16a promotes to primary. Cheap:
-   two requests.
-7. **A migration rehearsal** on a 1.5-origin dump, per
+5. **The `group.create` question** raised by UNKNOWN-6: membership editing
+   should not require the permission to mint groups. An access-control change,
+   so it is a decision rather than a test.
+6. **A migration rehearsal** on a 1.5-origin dump, per
    `docs/development/upgrade-rehearsal.md`, for step 405.
 
 ### 2.5 1.6.0 or 1.6.x
@@ -808,10 +820,45 @@ If (c) returns rows, the trigger's template subquery (`:44`) returns more than
 one row and **every** `INSERT INTO groupMembers` on this server errors — worth
 knowing before writing the release note.
 
-### UNKNOWN-2 — is `snapinTasks` a sufficient snapshot? *(answer this first)*
+### UNKNOWN-2 — is `snapinTasks` a sufficient snapshot? — **VERIFIED, closed**
 
-This is §6. The question: does anything read `snapinAssoc` **after** a snapin
-job has been created, for that job?
+**Answered 2026-09-01 on the 1.6 lab (`10.255.20.1`). The task is the
+authority; `snapinTasks` is a sufficient snapshot. ADR 0038 Decision 4 holds
+and needs no new table.**
+
+Both halves agree.
+
+*Code:* zero reads of `snapinAssoc` / `snapinAssociation` anywhere in the
+checkin path. `SnapinClient::json()` drives entirely off
+`Route::getList('snapintask', ['jobID' => ..., 'stateID' => queued/progress])`,
+and `SnapinTask::getSnapin()` is `new Snapin($this->get('snapinID'))` — the
+stored `stSnapinID` off the task row.
+
+*Behaviour*, on throwaway host `te-u2-test` (id 228, deleted afterwards):
+
+| Case | Setup | Result |
+|---|---|---|
+| **Removal** | job 26 with tasks for snapins A and B; **deleted B from `snapinAssoc` before checkin** | both task 67 (A) and task 68 (B) went Queued → Checked-In on the same `stCheckinDate`. **B still ran.** |
+| **Addition** | job 27 with a task for A only; **added snapin C to `snapinAssoc` after job creation** | task 69 (A) advanced; **no task row ever existed for C.** C was never served. |
+
+Method note, because it matters for anyone repeating this: the JSON body is not
+readable without a full RSA/AES client emulator — `SnapinClient`'s
+`requestClientInfo` branch runs inside `FOGClient::__construct()` and PHP
+discards a constructor's return value, so real clients get their answer through
+the encrypted `#!enkey=` path in `sendData()`. The test therefore reads the
+**database side-effects** of the checkin call, before and after. The task-state
+transitions happen inside the same loop that builds the response, so they are
+direct evidence of what would have been served rather than a proxy for it.
+
+**Consequence for the docs:** "a group edited mid-run does not change a task in
+flight" is true *today*, undocumented, and becomes a promise the split makes
+explicit. Re-tasking really is the only way to pick up a change.
+
+<details>
+<summary>Original procedure, kept for the record</summary>
+
+The question: does anything read `snapinAssoc` **after** a snapin job has been
+created, for that job?
 
 ```bash
 # Every read of the association table on the running-task side.
@@ -835,6 +882,8 @@ association table is re-read at run time, Decision 4 is false as written, and
 the snapin half needs a real snapshot table plus a service-path change.
 
 Repeat with the addition case (add C after job creation, see whether C runs).
+
+</details>
 
 ### UNKNOWN-3 — does the trigger break `add host to group`?
 
@@ -880,10 +929,93 @@ WHERE gm.gmHostID <> t.hostID
 GROUP BY g.groupID;
 ```
 
-### UNKNOWN-4 — what does the client actually do with the printer list?
+### UNKNOWN-4 — what does the client do with the printer list? — **VERIFIED from source; live poll COULDN'T-TEST**
 
-**Blocks shipping the printer resolver.** Not answerable from this repository —
-`fog-client` is a separate codebase.
+**Answered 2026-09-01. `fog-client` is checked out locally at
+`/home/telliott/fog-client`, `master` @ `610ad5f` (Release 0.13.0), so this was
+read rather than inferred.** `Modules/PrinterManager/PrinterManager.cs:60-121`:
+
+```csharp
+if (msg.Mode == "0") return;
+var installedPrinters = _instance.GetPrinters();
+
+if (data.Error && data.ReturnCode.Equals("np", StringComparison.OrdinalIgnoreCase))
+{
+    RemoveExtraPrinters(new List<Printer>(), msg, installedPrinters);   // remove-all
+    return;
+}
+if (data.Error) return;                                    // <-- fail-safe
+if (!data.Encrypted) { Log.Error(Name, "Response was not encrypted"); return; }
+RemoveExtraPrinters(msg.Printers, msg, installedPrinters);
+```
+
+and
+
+```csharp
+private void RemoveExtraPrinters(List<Printer> newPrinters, ... ) {
+    var managedPrinters = newPrinters.Where(p => p != null).Select(p => p.Name).ToList();
+    if (!msg.Mode.Equals("ar", StringComparison.OrdinalIgnoreCase))
+        foreach (var name in msg.AllPrinters.Where(n => !managedPrinters.Contains(n)
+                                                     && installedPrinters.Contains(n)))
+            CleanPrinter(name, true);
+    else
+        foreach (var name in installedPrinters.Where(n => !managedPrinters.Contains(n)))
+            _instance.Remove(name);
+}
+```
+
+**1. A response with no `printers` key (the exception shape), under `ar`:
+printers are NOT removed.** `if (data.Error) return;` fires before anything
+touches them. The fleet-wide-strip scenario the design was written against
+**cannot happen with the shipped client** — the failure path is already safe at
+both ends. (It is safe by that guard alone: `RemoveExtraPrinters(null, …)` would
+throw on `.Where`, so nothing downstream is defending it.)
+
+**2. `{"error":"np","printers":[]}` under `ar` removes EVERY installed
+printer**, not merely the ones FOG added — `managedPrinters` is empty and the
+`ar` branch removes every name in `installedPrinters`. That is the legitimate
+empty case behaving as intended, and it is worth knowing how wide it is.
+
+**3. Under mode `a`, "FOG-managed" is inferred fresh from each response's
+`AllPrinters`** — the server's entire printer catalogue, from
+`Route::getIds('printer', [], 'name')` (`PrinterClient.php:60`) — and is **not**
+persisted client-side. `_configuredPrinters` is in-memory per service run and
+means "already configured this pass", not identity. So under `a` the client
+removes a printer only if it is in FOG's catalogue, absent from the resolved
+list, and currently installed.
+
+#### 🔴 The consequence that changes a decision
+
+**`error: 'np'` is a load-bearing wire contract, not an accident of spelling.**
+It is the *only* string that triggers removal-on-empty, matched
+case-insensitively against `ReturnCode`. Two things follow, and ADR 0038
+Decision 9 was rewritten for them:
+
+- **The rule "never return an empty list on failure" is still right, but its
+  justification changes.** It is not "or printers get stripped today" — this
+  client will not. It is: *never let a failure be spelled `np`*, because that
+  one string is indistinguishable from the legitimate empty case, and because a
+  less careful client (or a future one) has no other signal.
+- **Re-spelling the empty case is safe with this client, but only by
+  coincidence, and the trace has to be checked rather than assumed.** Sending
+  `{printers: [], mode: 'ar'}` with no `error` leaves `data.Error` false, passes
+  the encryption check, and reaches `RemoveExtraPrinters([], …)`, whose `ar`
+  branch removes every installed printer — the same outcome. One real
+  difference: the `np` branch sits **above** the `!data.Encrypted` guard, so
+  today the empty-case removal happens even on an unencrypted response, and
+  after the change it would not. That is an improvement, but it is a behaviour
+  change on the wire and belongs in the release notes rather than being
+  discovered.
+
+**COULDN'T-TEST: the live poll cycle.** No Windows fog-client host is in the
+required state — `telliottwin11` (host 105) is offline (`lastcheckin`
+2026-08-30) and its `printerLevel` is empty (mode `0`, not `ar`). Standing one
+up was out of scope for the verification run. So items 1–3 are source-verified
+and unobserved; the behavioural confirmation remains open and is cheap once a
+mode-`ar` host with two steady printers exists.
+
+<details>
+<summary>Original procedure, kept for the record</summary>
 
 Read side, in the `fog-client` source: find the printer module's handling of
 the response and answer three questions.
@@ -906,7 +1038,9 @@ Behavioural test, on a lab host with mode `ar` and two printers:
 
 Step 3's answer is the blast radius. If a thrown resolver strips printers today,
 that is a **pre-existing** bug worth its own fix regardless of this work, and
-the resolver must not be shipped until it is fixed.
+the resolver must not be shipped until it is fixed. *(Answered: it does not.)*
+
+</details>
 
 ### UNKNOWN-5 — what does the per-id scope check cost at 400 hosts?
 
@@ -923,10 +1057,43 @@ use `SiteScope::allInScopeIDs()` once and diff, which is the set-based answer
 the class already provides — and it is a pre-existing improvement to the Queue
 Task path, not new work this creates.
 
-### UNKNOWN-6 — is `saveGroup()` really unprotected?
+### UNKNOWN-6 — is `saveGroup()` really unprotected? — **VERIFIED, both gaps**
 
-Code reading says yes (§1.9). Confirm with requests rather than trusting the
-reading, because dispatch has paths this session did not trace.
+**Answered 2026-09-01 on the 1.6 lab. Both gaps are real, both confirmed with
+requests against controls.**
+
+| Test | `saveGroup` | Control (`deployMulti`) |
+|---|---|---|
+| **CSRF** — admin session, no `X-CSRF-Token`, no `_csrf` | `202 {"msg":"Successfully added hosts to the provided groups!"}` | `403 Forbidden (invalid CSRF token)` |
+| **Object scope** — site1-scoped user, `hosts[]=1` (a host outside site1) | `202`, host joined the group | `403 {"error":"You do not have permission to perform this action."}` |
+
+The controls matter: they are the same request shape to a `*Post`-suffixed
+handler, so the difference is the missing gate and not something about the
+session or the user.
+
+**A detail the code reading missed, and it has a design consequence.**
+`saveGroup`'s required permission is **`group.create`**, not `host.edit` —
+`Authorization::SUB_OVERRIDES['host']['savegroup'] => 'group.create'`
+(`Authorization.php:157`), which overrides what `_subToAction()` would derive.
+The verification run had to grant the Technician role to its throwaway user to
+get past the permission gate at all before object scope could be reached.
+
+That is right for the endpoint as it exists, because the endpoint can create
+groups from `groups_new[]`. It is **wrong for the endpoint ADR 0038 Decision
+16a is asking for**: adding forty existing hosts to three existing groups is
+not a group *creation*, and requiring `group.create` for it means an operator
+who may label hosts must also be able to mint groups. Splitting that —
+`group.create` only when `groups_new[]` is non-empty, membership editing behind
+something narrower — is an **access-control change** and is flagged here rather
+than decided.
+
+Fixtures created and removed, verified back to baseline: host 228 and its
+`snapinJobs` / `snapinTasks` / `snapinAssoc` / `tasks` rows; groups
+`te_csrf_throwaway_grp` and `te_scopetest_throwaway_grp`; user `te_scopetest`
+(id 123) with its role and site assignments. No standing lab fixtures touched.
+
+<details>
+<summary>Original procedure, kept for the record</summary>
 
 **CSRF.** Logged in as an admin in a browser, from a page on another origin (or
 with `curl` reusing the session cookie and **omitting** both the
@@ -958,7 +1125,9 @@ the control that shows the difference is the missing
 
 If either comes back protected, find what protects it before removing anything
 — a gap that is not there does not need fixing, and the reading was wrong about
-where enforcement lives.
+where enforcement lives. *(Answered: both gaps are real.)*
+
+</details>
 
 ### The retirement rehearsal
 
@@ -986,30 +1155,44 @@ the plugin, where step 405 must be a clean no-op.
 
 ## 6. The claim that would hurt most if it is false
 
-**That `snapinTasks` already constitutes the snapshot** — §1.7, ADR 0038
-Decision 4.
+**Superseded 2026-09-01.** The original answer was that `snapinTasks` already
+constitutes the snapshot. **It does** — UNKNOWN-2 is VERIFIED in both
+directions on the lab, so the snapin half is sized correctly, needs no new
+table and no schema step, and Decision 4's documentation promise is true rather
+than aspirational.
 
-The snapin half is sized on it. If task creation already materializes an
-ordered per-host list into a table the running task reads, then "snapshot at
-task creation" costs one changed data source in `_createSnapinTasking()` and
-nothing else: no new table, no schema step, no service-path change, and the
-promise that a group edited mid-run does not affect a task in flight is already
-true and merely undocumented.
+The risk has moved to the printers, and it is narrower and more specific than
+the one it replaces:
 
-If it is false — if `service/snapins.checkin.php` or the client re-reads
-`snapinAssoc` for a running job, as a re-resolve or a validity check or a
-fallback when the job row is missing — then three things follow at once. The
-snapin half needs a genuine snapshot table and a schema step it does not
-currently have. Decision 4's documentation promise is a lie that would ship in
-the release notes. And a group edited mid-run *does* change a task in flight
-today, which is a live bug independent of any of this and probably the reason
-somebody would file it.
+**That the printer wire contract can be changed server-side alone.**
 
-It is the cheapest UNKNOWN to close (one grep and one three-step lab test,
-§5/UNKNOWN-2) and the one with the largest downstream cost, so it should be
-closed before any code is written.
+ADR 0038 Decision 9 re-spells the empty case so that `error` means "I could not
+answer" and nothing else. UNKNOWN-4 shows the shipped client
+(`fog-client` 0.13.0) removes printers on exactly one signal —
+`data.Error && ReturnCode == "np"` — and that reading the trace end to end says
+the change is safe, because a no-error response carrying `printers: []` reaches
+`RemoveExtraPrinters([], …)` and removes the same set.
 
-Second place, and only because its consequence is narrower rather than smaller:
-**UNKNOWN-4**. If the shipped client removes printers on a response it should
-have treated as an error, then that is true *today*, and the printer half of
-this work cannot ship until it is not.
+**Safe by that trace, not by design.** Two things would make it false:
+
+- **A deployed client older than the one that was read.** The trace covers
+  `master @ 610ad5f`. Any client whose removal path requires the `np` sentinel
+  rather than falling through to the general branch would simply stop removing
+  printers under `ar` — silently, because nothing errors and nothing logs. The
+  failure is printers that never disappear, which nobody reports for months.
+- **The `!data.Encrypted` guard sitting below the `np` branch.** Today the
+  empty-case removal happens even on an unencrypted response; after the change
+  it would not. That is the right direction, and it is still a behaviour change
+  on a path nobody is watching.
+
+It is checkable the same way the rest of UNKNOWN-4 was — on one mode-`ar` host
+with two steady printers, induce the empty case both ways and see whether the
+printers go. Until that is observed, the honest position is that Decision 9's
+re-spelling is *reasoned* safe and not *shown* safe, and it should not ship
+without either the observation or keeping `np` alongside the new field for a
+release.
+
+Second place: **UNKNOWN-1**, and only because its consequence is cheap. If a
+real upgraded database turns out not to have a UNIQUE index on `groupName`, the
+resolver's `groupID` tiebreak stops being dead code and starts earning its
+keep — which is exactly why Decision 6 keeps it.

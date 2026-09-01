@@ -7,6 +7,14 @@ none in this pass. The sizing, the evidence behind every claim, and the
 questions that need a lab to settle are in
 [`docs/development/group-split.md`](../development/group-split.md).
 
+**Verified against the lab 2026-09-01** (1.6 server, `10.255.20.1`): Decision 4
+holds — `snapinTasks` is already a sufficient snapshot, proven in both
+directions, so the snapin half needs no new table. Decision 9 was **revised**
+after reading the shipped `fog-client` (0.13.0): the failure path is already
+fail-safe at both ends, and the real rule is narrower than the first draft's.
+Decision 16a's two named gaps on `saveGroup()` are **confirmed real**. Evidence
+and the remaining open items are in the proposal's §5.
+
 **Decision 16 (groups become the tag concept, presented as tags) is the
 maintainer's decision, not a derivation.** It is recorded with its argument and
 with the rejected alternative stated in full. Decision 16a's five presentation
@@ -277,30 +285,66 @@ errs by returning nothing does not fail to add a printer — it strips printers
 from every machine that polls, one machine at a time, for as long as nobody
 notices.
 
-Today's endpoint conflates the two cases, and it does so under the same key.
-A host with no printers gets `['error' => 'np', 'printers' => []]`
-(`PrinterClient.php:72`); an exception anywhere in `json()` is caught by
-`FOGClient::__construct()` and becomes `['error' => <message>]` with **no
-`printers` key at all** (`FOGClient.php:234`). So the failure shape is already
-the safe one — a response with no `printers` key — and the success-but-empty
-shape is already distinguished by carrying `printers` explicitly. What is wrong
-is only that both are spelled `error`, which invites a client to branch on the
-wrong thing.
+Today's endpoint conflates the two cases under one key. A host with no printers
+gets `['error' => 'np', 'printers' => []]` (`PrinterClient.php:72`); an
+exception anywhere in `json()` is caught by `FOGClient::__construct()` and
+becomes `['error' => <message>]` with **no `printers` key at all**
+(`FOGClient.php:234`).
 
-So:
+**The shipped client was read rather than assumed** — `fog-client` `master` @
+`610ad5f` (0.13.0), `Modules/PrinterManager/PrinterManager.cs:60-121` — and it
+changes what this decision has to say.
+
+```csharp
+if (data.Error && data.ReturnCode.Equals("np", StringComparison.OrdinalIgnoreCase))
+{
+    RemoveExtraPrinters(new List<Printer>(), msg, installedPrinters);   // remove-all
+    return;
+}
+if (data.Error) return;                                    // <-- the fail-safe
+if (!data.Encrypted) { ...; return; }
+RemoveExtraPrinters(msg.Printers, msg, installedPrinters);
+```
+
+**The fleet-wide strip this decision was written to prevent cannot happen with
+this client.** A thrown resolver produces `data.Error` with a `ReturnCode` that
+is the exception text, and `if (data.Error) return;` fires before anything
+touches a printer. The server's failure shape and the client's failure handling
+were already aligned; nobody had written down that they were.
+
+So the rules stand, and one of them stands for a different reason than the
+first draft of this ADR gave:
 
 - **The resolver throws on failure. It never returns an empty list to mean
-  failure.** A caught exception yields a body with no `printers` key, which no
-  correct client may read as "remove everything".
-- **"This host has no printers" stops being an `error`.** It becomes an
-  ordinary success carrying `printers: []` and an explicit flag. `error` is
-  reserved for "I could not answer".
-- **The mode gate stays and is documented as the blast radius.** Only `ar`
-  removes. Under `a` FOG manages only the printers it added, and under `0`
-  nothing. That narrows the danger but does not remove it, and it is a client-
-  side behaviour this repository cannot verify — see UNKNOWN-4.
+  failure.** Not "or printers get stripped today" — this client will not. The
+  real rule is sharper: **never let a failure be spelled `np`.** That one
+  string, matched case-insensitively against `ReturnCode`, is the *only*
+  removal-on-empty trigger in the client, and it is indistinguishable from the
+  legitimate empty case. A resolver that fails and happens to report `np` does
+  strip the fleet. Everything else is caught.
+- **"This host has no printers" stops being an `error`** and becomes an
+  ordinary success carrying `printers: []` with an explicit flag. Traced
+  through the client, this is safe: no error means `data.Error` is false, the
+  encryption guard passes, and `RemoveExtraPrinters([], …)` removes the same
+  set under `ar`. **Safe by that trace, not by design** — see the risk section
+  at the end of the proposal. It changes one thing on the wire: the `np` branch
+  sits *above* the `!data.Encrypted` guard, so today the empty-case removal
+  happens on an unencrypted response and afterwards it would not. That is an
+  improvement and it is a behaviour change; it goes in the release notes, and
+  the safest shipping order keeps `np` alongside the new field for a release.
+- **The mode gate stays and is documented as the blast radius, which is wider
+  than "the printers FOG added".** Under `ar`, `RemoveExtraPrinters` removes
+  **every installed printer** not in the resolved list, FOG's or not. Under `a`
+  it removes only names present in `AllPrinters` — the server's entire printer
+  catalogue, sent on every response — so mode `a`'s notion of "FOG-managed" is
+  *inferred fresh from the catalogue each time* and is not persisted client
+  side. A change to what the catalogue contains is therefore a change to what
+  mode `a` removes.
+- **One behaviour remains unobserved.** The above is source-verified and has
+  not been watched happen: no mode-`ar` host with steady printers was available
+  (UNKNOWN-4). The printer resolver should not ship on the reading alone.
 
-Every one of these is the same shape as `inScopeWhere()`'s tri-state return
+The first of these is the same shape as `inScopeWhere()`'s tri-state return
 (`SiteScope.php:498`), where the docblock spells out that the *falsy* value is
 the permissive one "on purpose" so that a caller writing the natural
 `if (!$x) { skip }` skips only the case where skipping is correct. The printer
@@ -748,8 +792,26 @@ skips the first one's validation is the wrong thing to promote.
 Both are pre-existing and neither is created by this ADR. They are named here
 because this decision promotes that endpoint from a convenience to the main
 way membership is edited, and promoting an unbounded, un-CSRF'd write is not
-something to discover afterward. Confirmation procedure in the proposal
-(UNKNOWN-6) — this is a code reading, not an observed request.
+something to discover afterward.
+
+**Both confirmed on the lab, 2026-09-01** (proposal §5, UNKNOWN-6): the CSRF-
+less POST returned `202` where the same shape to `deployMulti` returned `403`,
+and a site1-scoped user added a host from another site, where `deployMulti`
+refused the same id.
+
+**And a third thing the code reading had missed, which is a decision rather
+than a fix.** `saveGroup`'s required permission is **`group.create`**, not
+`host.edit` — `Authorization::SUB_OVERRIDES['host']['savegroup']`
+(`Authorization.php:157`) overrides what `_subToAction()` would derive. That is
+correct for the endpoint as it exists, because it can mint groups from
+`groups_new[]`. It is **wrong for the endpoint this decision asks for**: adding
+forty existing hosts to three existing groups is not a group creation, and
+requiring `group.create` means anyone who may label hosts may also create
+groups. The membership editor should require `group.create` only when
+`groups_new[]` is non-empty, and something narrower otherwise.
+
+That is an **access-control change**, so it is named here and left open rather
+than decided in passing.
 
 **5. The group list shows what a group grants.**
 
