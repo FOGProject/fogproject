@@ -45,6 +45,12 @@ class Group extends FOGController
         'id' => 'groupID',
         'name' => 'groupName',
         'description' => 'groupDesc',
+        // ADR 0038. FOG\Assign\Resolver orders the groups a host belongs to
+        // by this column before falling back to name, so it decides which
+        // group wins when two grant conflicting defaults. It shipped with the
+        // resolver but with nothing able to write it, which left every group
+        // on the default of 0 and made the fallback the only behavior.
+        'order' => 'groupOrder',
         'createdBy' => 'groupCreateBy',
         'createdTime' => 'groupDateTime',
         'building' => 'groupBuilding',

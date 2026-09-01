@@ -100,6 +100,7 @@ class GroupManagement extends FOGPage
         $args = filter_input(INPUT_POST, 'args');
         $init = filter_input(INPUT_POST, 'init');
         $dev = filter_input(INPUT_POST, 'dev');
+        $order = filter_input(INPUT_POST, 'order');
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -129,6 +130,31 @@ class GroupManagement extends FOGPage
                 'description',
                 $description
             ),
+            self::makeLabel(
+                $labelClass,
+                'order',
+                _('Group Order')
+            ) => self::makeInput(
+                'form-control grouporder-input',
+                'order',
+                '0',
+                'number',
+                'order',
+                $order,
+                false,
+                false,
+                -1,
+                -1,
+                'min="0" step="1"'
+            ) . '<p class="form-text">'
+            . _(
+                'Lowest first. When a host is in more than one group, this '
+                . 'decides which group is applied first -- groups sharing a '
+                . 'number fall back to name order. It only matters where two '
+                . 'groups disagree, such as granting different default '
+                . 'printers.'
+            )
+            . '</p>',
             self::makeLabel(
                 $labelClass,
                 'kernel',
@@ -240,6 +266,10 @@ class GroupManagement extends FOGPage
                 $dev = trim(
                     (string)filter_input(INPUT_POST, 'dev')
                 );
+                $order = max(
+                    0,
+                    (int)filter_input(INPUT_POST, 'order')
+                );
                 $exists = self::getClass('GroupManager')
                     ->exists($group);
                 if ($exists) {
@@ -250,6 +280,7 @@ class GroupManagement extends FOGPage
                 $Group = self::getClass('Group')
                     ->set('name', $group)
                     ->set('description', $description)
+                    ->set('order', $order)
                     ->set('kernel', $kernel)
                     ->set('kernelArgs', $args)
                     ->set('kernelDevice', $dev)
@@ -423,12 +454,16 @@ class GroupManagement extends FOGPage
      */
     private static function _pushDeprecationNotice()
     {
+        // Scoped wording. Some cards carrying this notice also hold fields
+        // that belong to the GROUP -- name, description, order -- which are
+        // not pushed anywhere and are not going away with the rest.
         return '<div class="alert alert-warning" role="alert">'
             . '<strong>' . _('Deprecated.') . '</strong> '
             . _(
-                'This applies the value once, to the hosts that are members '
-                . 'right now. A host added to the group later does not get '
-                . 'it, and a host removed keeps it.'
+                'The fields below that are written onto hosts apply the value '
+                . 'once, to the hosts that are members right now. A host '
+                . 'added to the group later does not get it, and a host '
+                . 'removed keeps it.'
             )
             . ' '
             . _(
@@ -503,6 +538,13 @@ class GroupManagement extends FOGPage
             filter_input(INPUT_POST, 'dev') ?:
             ($this->obj->get('kernelDevice') ?: '')
         );
+        // Not the ?: idiom the fields above use: an order of 0 is a real
+        // value and the default one, so ?: would discard it and redisplay
+        // the field as empty on every load.
+        $order = filter_input(INPUT_POST, 'order');
+        if ($order === null || $order === false || $order === '') {
+            $order = (int)$this->obj->get('order');
+        }
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -544,6 +586,31 @@ class GroupManagement extends FOGPage
                 'description',
                 $description
             ),
+            self::makeLabel(
+                $labelClass,
+                'order',
+                _('Group Order')
+            ) => self::makeInput(
+                'form-control grouporder-input',
+                'order',
+                '0',
+                'number',
+                'order',
+                $order,
+                false,
+                false,
+                -1,
+                -1,
+                'min="0" step="1"'
+            ) . '<p class="form-text">'
+            . _(
+                'Lowest first. When a host is in more than one group, this '
+                . 'decides which group is applied first -- groups sharing a '
+                . 'number fall back to name order. It only matters where two '
+                . 'groups disagree, such as granting different default '
+                . 'printers.'
+            )
+            . '</p>',
             self::makeLabel(
                 $labelClass,
                 'key',
@@ -732,6 +799,13 @@ class GroupManagement extends FOGPage
         $ebte = trim(
             (string)filter_input(INPUT_POST, 'efiBootTypeExit')
         );
+        // Clamped rather than validated: the field is a number input with
+        // min=0, so a negative or non-numeric value here is a hand-built
+        // POST, and there is no order it could mean other than the default.
+        $order = max(
+            0,
+            (int)filter_input(INPUT_POST, 'order')
+        );
         if ($group != $this->obj->get('name')) {
             if ($this->obj->getManager()->exists($group)) {
                 throw new \Exception(_('Please use another group name'));
@@ -741,6 +815,7 @@ class GroupManagement extends FOGPage
         $this->obj
             ->set('name', $group)
             ->set('description', $desc)
+            ->set('order', $order)
             ->set('kernel', $kernel)
             ->set('kernelArgs', $args)
             ->set('kernelDevice', $dev)
