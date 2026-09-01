@@ -265,7 +265,7 @@ msgstr ""
 msgid "(empty on all)"
 msgstr ""
 
-msgid "(none on all)"
+msgid "(none)"
 msgstr ""
 
 msgid "(set on all)"
@@ -435,6 +435,9 @@ msgstr ""
 msgid "A module already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
+msgid "A module granted here is on for every host in this group, including hosts added later -- unless the host itself says otherwise. A host set to Off on its own Modules tab stays off, and no grant can override that."
+msgstr ""
+
 msgid "A name must be defined if using the \"name\" property"
 msgstr ""
 
@@ -459,6 +462,9 @@ msgstr "Nenhuma imagem especificada"
 #, fuzzy
 msgid "A printer already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
+
+msgid "A printer granted here reaches every host in this group, including hosts added later. Removing a host from the group takes the printer away again. A printer the host was given directly is unaffected either way."
+msgstr ""
 
 #, fuzzy
 msgid "A provider already exists with this name!"
@@ -493,6 +499,9 @@ msgstr "Uma imagem já existe com este nome!"
 #, fuzzy
 msgid "A snapin already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
+
+msgid "A snapin granted here reaches every host in this group, including hosts added later. Granting a snapin does not run it; deploy it from the Tasks tab when you want it to run."
+msgstr ""
 
 #, fuzzy
 msgid "A storage group already exists with this name!"
@@ -675,9 +684,6 @@ msgstr ""
 
 msgid "Action"
 msgstr "Açao"
-
-msgid "Action will be perform on all hosts within this group"
-msgstr ""
 
 msgid "Actions"
 msgstr "Ações"
@@ -2415,6 +2421,10 @@ msgstr "Falha no download"
 msgid "Deploy Method"
 msgstr "Método Deploy"
 
+#, fuzzy
+msgid "Deprecated."
+msgstr "Crio"
+
 msgid "Depth"
 msgstr ""
 
@@ -3617,6 +3627,10 @@ msgid "Group added!"
 msgstr "grupo adicionado"
 
 #, fuzzy
+msgid "Group default:"
+msgstr "Atualizar impressora"
+
+#, fuzzy
 msgid "Group is not valid"
 msgstr "Grupo é inválido"
 
@@ -4003,10 +4017,6 @@ msgstr "Image Host"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "No nó associado"
-
-#, fuzzy
-msgid "Hosts default:"
-msgstr "Atualizar impressora"
 
 #, fuzzy
 msgid "Hosts in tasking"
@@ -6458,9 +6468,6 @@ msgid "Only for a peer running its own FOG database. On that peer run bin/fog-no
 msgstr ""
 
 msgid "Only needed for HTTPS netboot behind a PRIVATE CA, and it costs a 10-25 minute build on every install. It also makes Secure Boot harder, not easier: a binary carrying a private CA is not upstream's signed one, so the chain has to hand off to a MOK-signed FOG build and the MOK must be enrolled first."
-msgstr ""
-
-msgid "Only snapins shared by every host in the group can be ordered here. Saving sets this order on each host (shared snapins run first, in this order; any host-specific snapins run after). Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
@@ -9305,6 +9312,9 @@ msgstr "Falha ao criar tarefa"
 msgid "The current user is invalid."
 msgstr "tipo de tarefa não é válido"
 
+msgid "The default printer for hosts in this group. A host that has its own default keeps it."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -9413,6 +9423,9 @@ msgid "The object."
 msgstr "Objeto"
 
 msgid "The objects to apply these values to. An empty or absent list matches nothing and edits nothing."
+msgstr ""
+
+msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
@@ -9606,6 +9619,9 @@ msgstr ""
 msgid "This account is for API access only and cannot sign in."
 msgstr ""
 
+msgid "This applies the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -9785,22 +9801,11 @@ msgstr ""
 msgid "This tells the client to force reboots for host name changing and AD Joining."
 msgstr ""
 
-msgid "This will add and set (as needed) the default printer for all hosts in this group"
-msgstr ""
-
 msgid "This will allow you to configure how services"
 msgstr ""
 
 msgid "This will delete all powermanagement items from all hosts in this group"
 msgstr ""
-
-#, fuzzy
-msgid "This will perform the action on all hosts in this group"
-msgstr " | Este não é o grupo primário"
-
-#, fuzzy
-msgid "This will perform the action on all hosts in this group. A snapin is checked when every host in the group has it."
-msgstr " | Este não é o grupo primário"
 
 msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
@@ -10223,6 +10228,9 @@ msgstr ""
 
 msgid "Uptime"
 msgstr "uptime"
+
+msgid "Use \"Edit selected hosts\" on the Hosts list instead; these controls will be removed in a later release."
+msgstr ""
 
 msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
 msgstr ""
@@ -12404,6 +12412,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "This server is not a master node"
 #~ msgstr " | Este não é o nó mestre"
+
+#, fuzzy
+#~ msgid "This will perform the action on all hosts in this group"
+#~ msgstr " | Este não é o grupo primário"
+
+#, fuzzy
+#~ msgid "This will perform the action on all hosts in this group. A snapin is checked when every host in the group has it."
+#~ msgstr " | Este não é o grupo primário"
 
 #~ msgid "Total Rows"
 #~ msgstr "total de linhas"
