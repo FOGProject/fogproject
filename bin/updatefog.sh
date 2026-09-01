@@ -71,7 +71,10 @@ usage() {
     echo -e "\t               \t\t(e.g. to test a PR/feature branch). One-off: does"
     echo -e "\t               \t\tnot change the tracked channel for future runs"
     echo -e "\t      --git-path\tOverride the git checkout path this server records"
-    echo -e "\t-y    --yes\t\tSkip the confirmation prompt (for cron/GUI use)"
+    echo -e "\t-y    --yes\t\tSkip the confirmation prompt AND run the installer"
+    echo -e "\t               \t\tunattended (-Y). Without it the installer runs"
+    echo -e "\t               \t\tinteractively, which is what a 1.5 -> 1.6"
+    echo -e "\t               \t\tupgrade wants. Pass it from cron and the GUI"
     echo -e "\n\tEvery other install option belongs to installfog.sh and is no"
     echo -e "\tlonger mirrored here. Run it directly if you need one:"
     echo -e "\t  cd ${bindir} && ./installfog.sh --help"
@@ -199,10 +202,12 @@ else
     echo
 fi
 
-# Kept even though installfog.sh has a confirmation of its own, because it is
-# invoked with -Y below and so never shows it. The checkout is this script's
-# own destructive act and it happens BEFORE the installer runs at all, so this
-# is the confirmation that matters.
+# Kept even though installfog.sh has a confirmation of its own, and even now
+# that the installer runs interactively and so actually shows it. The two ask
+# different questions at different moments: the checkout is THIS script's own
+# destructive act and happens before the installer runs at all, so by the time
+# installfog.sh asks anything the working copy has already moved. --yes skips
+# both.
 if [[ -z $autoYes ]]; then
     echo -n " * Continue with this update? (Y/N) "
     read confirmGo
@@ -220,11 +225,28 @@ if ! gitUpdateToBranch "$branch"; then
     exit 1
 fi
 
-# -Y because the confirmation above already happened. Everything else the
-# installer does -- the backups, the restores, recording the channel, naming a
-# commit to go back to if this fails -- is its own, and is identical whether or
-# not this script invoked it.
-(cd "${FOG_git_path}/bin" && bash installfog.sh -Y "${channelArgs[@]}" >>$error_log 2>&1)
+# INTERACTIVE by default, and -Y only when the admin asked for unattended.
+#
+# It was unconditionally -Y, which is defensible for a same-line update where
+# .fogsettings already holds every answer -- and wrong for the case that
+# matters most, a 1.5 server crossing to 1.6. That upgrade meets settings the
+# old .fogsettings has never held, and -Y takes a default for each of them
+# without ever saying so. An unattended install is a thing to opt into, not the
+# thing that happens because you typed `updatefog.sh`.
+#
+# Teed rather than redirected, for the same reason: an install nobody can see
+# cannot be answered, and even under --yes a long upgrade that prints nothing
+# until it ends is worse for whoever is watching it. The log keeps everything
+# it kept before.
+#
+# Everything else the installer does -- the backups, the restores, recording
+# the channel, naming a commit to go back to if this fails -- is its own, and
+# is identical whether or not this script invoked it.
+yesFlag=()
+[[ -n $autoYes ]] && yesFlag=(-Y)
+# PIPESTATUS, not $?: piping into tee makes $? tee's status, which is 0 even
+# when the installer failed.
+(cd "${FOG_git_path}/bin" && bash installfog.sh "${yesFlag[@]}" "${channelArgs[@]}" 2>&1 | tee -a "$error_log"; exit "${PIPESTATUS[0]}")
 installStatus=$?
 cd "$workingdir"
 
