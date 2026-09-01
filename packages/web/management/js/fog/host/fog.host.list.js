@@ -248,8 +248,17 @@
                 // Built here rather than server-side so the names are escaped
                 // by the same helper every other JS-rendered cell uses. A
                 // group name is user-supplied text and this cell is markup.
+                //
+                // text-bg-secondary, not bg-secondary: it pins the text
+                // color AND the background, both !important, so the chip
+                // reads the same in either theme. bg-secondary pins only
+                // the background, which left the text to fog-default-ui's
+                // own .badge rule -- and that re-themes badges per mode
+                // (--fog-badge-bg / --fog-text-strong, and a white-on-
+                // primary variant), so dark mode came out near-invisible
+                // while light mode looked fine.
                 return $.map(list, function(group) {
-                    return '<a class="badge bg-secondary ' +
+                    return '<a class="badge text-bg-secondary ' +
                         'text-decoration-none me-1" ' +
                         'href="../management/index.php?node=group&amp;' +
                         'sub=edit&amp;id=' +
@@ -331,7 +340,12 @@
                     return '<span class="text-muted">' + (data || '') +
                         '</span>';
                 }
-                return '<span class="badge bg-' + tone + '">' +
+                // text-bg-, not bg-: see the group chips above. Bootstrap
+                // picks the readable foreground per tone -- white on danger,
+                // black on warning -- where bg- alone leaves it to
+                // fog-default-ui's own .badge rule and the answer changes
+                // with the theme.
+                return '<span class="badge text-bg-' + tone + '">' +
                     (data || '') + '</span>';
             },
             targets: colIndex.sbstate
@@ -355,7 +369,7 @@
                 // date alone would say the opposite.
                 if (String(row.sbenrollvia || '') === 'mok-pending') {
                     return data +
-                        ' <span class="badge bg-warning">pending</span>';
+                        ' <span class="badge text-bg-warning">pending</span>';
                 }
                 // The comparison the fingerprint column exists for, shown
                 // where somebody scanning a fleet will see it. 'stale' means
@@ -369,7 +383,7 @@
                 // is decoration -- the exception is what needs finding.
                 if (String(row.sbenrollfresh || '') === 'stale') {
                     return data +
-                        ' <span class="badge bg-danger">old cert</span>';
+                        ' <span class="badge text-bg-danger">old cert</span>';
                 }
                 return data;
             },

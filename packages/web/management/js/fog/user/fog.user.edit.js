@@ -126,10 +126,10 @@
                             return data;
                         }
                         if (data > 0) {
-                            return '<span class="badge bg-success">'
+                            return '<span class="badge text-bg-success">'
                                 + '<i class="fas fa-circle-check"></i></span>';
                         }
-                        return '<span class="badge bg-danger">'
+                        return '<span class="badge text-bg-danger">'
                             + '<i class="fas fa-circle-xmark"></i></span>';
                     },
                     targets: 4

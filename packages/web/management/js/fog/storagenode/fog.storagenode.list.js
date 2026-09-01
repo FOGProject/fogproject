@@ -45,16 +45,16 @@
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
+                    var enabled = '<span class="badge text-bg-success"><i class="fas fa-circle-check"></i></span>';
+                    var disabled = '<span class="badge text-bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                     return (data > 0 ? enabled : disabled);
                 },
                 targets: 2
             },
             {
                 render: function(data, type, row) {
-                    var enabled = '<span class="badge bg-success"><i class="fas fa-circle-check"></i></span>';
-                    var disabled = '<span class="badge bg-danger"><i class="fas fa-circle-xmark"></i></span>';
+                    var enabled = '<span class="badge text-bg-success"><i class="fas fa-circle-check"></i></span>';
+                    var disabled = '<span class="badge text-bg-danger"><i class="fas fa-circle-xmark"></i></span>';
                     return (data > 0 ? enabled : disabled);
                 },
                 targets: 3

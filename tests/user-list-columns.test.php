@@ -98,11 +98,11 @@ $t->check(
 $t->check(
     'API-only is marked with a warning badge, not a danger one',
     (bool)preg_match(
-        "/var apiOnly = '<span class=\"badge bg-warning\">/",
+        "/var apiOnly = '<span class=\"badge text-bg-warning\">/",
         $jsSrc
     )
     && (bool)preg_match(
-        "/var interactive = '<span class=\"badge bg-secondary\">/",
+        "/var interactive = '<span class=\"badge text-bg-secondary\">/",
         $jsSrc
     )
 );
