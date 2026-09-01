@@ -4603,6 +4603,73 @@ function macVendorIcon(vendor) {
 })();
 
 /**
+ * AdminLTE's card tools, re-armed for FOG's AJAX navigation.
+ *
+ * adminlte4 binds them exactly once, inside its own DOMContentLoaded:
+ *
+ *   document.querySelectorAll('[data-lte-toggle="card-collapse"]')
+ *           .forEach(el => el.addEventListener('click', ...))
+ *
+ * That is not delegated, and doPageLoad() replaces #ajaxPageWrapper wholesale
+ * on every sidebar click -- so every card that arrives by navigation, which is
+ * almost every card anyone ever sees, has a dead toggle. The three tools are
+ * all bound that way: collapse, remove and maximize.
+ *
+ * It went unreported for as long as it did because a card that starts OPEN
+ * only degrades to "cannot be collapsed", which reads as a UI nobody uses. A
+ * card rendered `collapsed-card` is the loud version: its body is
+ * display:none from AdminLTE's own CSS and the only thing that removes the
+ * class is the listener that was never attached, so the content is
+ * unreachable. That is how it was found (GH-1600).
+ *
+ * CAPTURE phase, deliberately. The handler has to run before the element's own
+ * listener whether or not AdminLTE managed to attach one, because a card that
+ * WAS present at DOMContentLoaded still carries it -- and two handlers both
+ * calling toggle() would collapse and expand in the same click, leaving the
+ * button looking just as dead. stopPropagation() during capture keeps the
+ * event from reaching the target at all, so exactly one of the two runs and it
+ * is this one. That also means the fix does not depend on script order, on
+ * which cards were present when, or on AdminLTE keeping its current binding.
+ *
+ * Not re-running AdminLTE's own initializer after each page load: it is not
+ * exported, and re-running it would re-bind the persistent chrome outside
+ * #ajaxPageWrapper once per navigation.
+ */
+(function () {
+  var METHODS = {
+    'card-collapse': 'toggle',
+    'card-remove': 'remove',
+    'card-maximize': 'toggleMaximize'
+  };
+  var TOOLS = '[data-lte-toggle="card-collapse"],'
+    + '[data-lte-toggle="card-remove"],'
+    + '[data-lte-toggle="card-maximize"]';
+
+  document.addEventListener('click', function (e) {
+    var target = e.target;
+    if (!target || !target.closest) {
+      return;
+    }
+    var tool = target.closest(TOOLS);
+    if (!tool) {
+      return;
+    }
+    // If AdminLTE is not loaded there is nothing to take over, and swallowing
+    // the click would be worse than leaving it alone -- the login page loads a
+    // different, smaller asset list and has no cards at all.
+    if (!window.adminlte || typeof window.adminlte.CardWidget !== 'function') {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    // The button, not e.target, which is the <i> whenever the tool carries an
+    // icon. CardWidget resolves .closest('.card') either way, so this is the
+    // same answer by a route that does not depend on where the click landed.
+    new window.adminlte.CardWidget(tool, {})[METHODS[tool.dataset.lteToggle]]();
+  }, true);
+})();
+
+/**
  * Live vendor lookup for MAC inputs on the host create/edit forms.
  *
  * Delegated on document so it covers the create modal (rendered after page
