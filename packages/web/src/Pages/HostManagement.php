@@ -117,11 +117,18 @@ class HostManagement extends FOGPage
         // entry with it and the two cannot fall out of step.
         $this->headerData = [
             _('Host'),
-            _('Primary MAC')
+            _('Primary MAC'),
+            // Beside the two columns that say WHICH machine this is, because
+            // that is what a group is now: a label on the host, not a place
+            // its settings were copied from (ADR 0038). Rendered as chips by
+            // fog.host.list.js and filterable from either search box -- see
+            // the groups column in Route::_gridColumns().
+            _('Groups')
         ];
         $this->attributes = [
             ['data-col' => 'mainlink'],
-            ['data-col' => 'primac']
+            ['data-col' => 'primac'],
+            ['data-col' => 'groups']
         ];
         if (self::$fogpingactive) {
             $this->headerData[] = _('Ping Status');
@@ -153,10 +160,11 @@ class HostManagement extends FOGPage
             // Both default to hidden in the column picker's sense of the
             // word only in that most fleets will not look at them daily;
             // they are emitted always, because the one time they matter is
-            // when someone is picking enrollment targets and needs to sort by
-            // them. Sorting is the filter here -- this grid has no
-            // per-column search UI, so the global box matches the STORED
-            // word ('disabled', 'setup') rather than the rendered label.
+            // when someone is picking enrollment targets and needs to sort or
+            // filter by them. Both are searchable on the STORED word
+            // ('disabled', 'setup') rather than the rendered label -- that is
+            // what the free-text box and the Column search header box match,
+            // and what the Filter panel offers as conditions.
             _('Secure Boot'),
             _('SB Enrolled'),
             _('Description')

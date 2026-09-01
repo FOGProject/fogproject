@@ -923,6 +923,30 @@ a `prime` callback that receives every row on the page at once
 (`Route.php:7667`), so the chips cost one extra query per page rather than one
 per host.
 
+**Requirement 1 is built (D1).** The contract is `sqlfilter`, documented on
+`FOGManagerController::relationFilter()`; the column is declared in the host
+arm of `Route::_gridColumns()` and rendered by `fog.host.list.js`. Three
+things settled in the building that this section had not:
+
+- **Negation is applied outside the membership test.** `!=` handed to the
+  inner comparison asks "is in SOME group that is not lab01" — true of nearly
+  every host with two labels — where the user meant "is in NO group called
+  lab01". Both are valid SQL and answer 200, so this is pinned by a test that
+  states both forms and by rows in a scratch database that separate them.
+- **`null`/`!null` invert.** On a relationship, "empty" is "no related row at
+  all", so the membership test is the whole predicate: `null` negates and
+  `!null` does not.
+- **The membership test carries the site boundary.** A group is a site-scoped
+  node, so without it a bounded user could read group names from outside their
+  scope off a host they may see, and use the filter as an oracle for which of
+  their hosts are in one. Same `Authorization::scopedObjectWhere()` the row
+  query uses, embedded in the template and in the chips' own query.
+
+The column is deliberately **not sortable**: there is no expression to ORDER BY
+that does not cost a correlated subquery per row before the LIMIT, and a header
+click that silently changes nothing reads as a broken grid. Filtering is what
+the column is for.
+
 **2. Membership is editable from the host side, in bulk, both directions.**
 
 Add **and remove**, over the list selection, on the same gate as Queue Task /

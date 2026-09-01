@@ -90,8 +90,10 @@ host	36	hostExitEfi	efiexit	-	-
 host	37	hostEnforce	enforce	-	-
 host	38	hostInfoLock	tokenlock	-	-
 host	39	imageName	imagename	-	-
-host	40	hmMAC	primac	-	-
-host	41	hmMAC	primac_vendor	f	(none)
+host	40	-	groups	f	(none)
+host	41	-	groups_list	f	-
+host	42	hmMAC	primac	-	-
+host	43	hmMAC	primac_vendor	f	(none)
 hostautologout	0	haloID	id	-	-
 hostautologout	1	haloID	DT_RowId	f	-
 hostautologout	2	haloHostID	hostID	-	-

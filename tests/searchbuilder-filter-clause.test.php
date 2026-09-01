@@ -33,6 +33,16 @@
  *    of this file rendered the bindings into the SQL text and so was blind
  *    to it, which shipped a 406 on 'before' and 'after'.
  *
+ * 5. A relationship column negates from OUTSIDE its membership test. A
+ *    column declaring 'sqlfilter' has no scalar behind it -- the host list's
+ *    Groups column is a many-to-many through `groupMembers` -- so "is not
+ *    lab01" cannot be one comparison. Pushed inside, it asks "is in SOME
+ *    group that is not lab01", which is true of nearly every host carrying
+ *    two labels; what the user picked means "is in NO group called lab01".
+ *    Both forms are valid SQL, both answer 200, and the wrong one returns
+ *    plausible rows -- which is why it is pinned here rather than left to a
+ *    lab run.
+ *
  * Standalone like its neighbors: filter() and its helpers are static and
  * touch no state, so a stub base carrying a fixed column-type map is enough
  * to exercise them with no boot and no database.
@@ -73,6 +83,12 @@ abstract class FOGBase
         'hosts.hostID' => 'INT(11) NOT NULL',
         'hosts.hostSecToken' => 'LONGTEXT NOT NULL',
         'hosts.hostMembers' => 'INT(11)',
+        // The column a relationship filter compares. On a real server this
+        // is read from the schema manifest exactly like the four above --
+        // the point being that a relationship column is still typed from a
+        // real column of a real table, never from what the request claims.
+        'groups.groupName' => 'VARCHAR(64) NOT NULL',
+        'groups.groupOrder' => 'INT(11) NOT NULL',
     ];
 
     /**
@@ -260,7 +276,42 @@ $columns = [
     ['db' => 'hostDeployed', 'dt' => 'deployed'],
     ['db' => 'hostSecToken', 'dt' => 'token', 'nosearch' => true],
     ['db' => 'hostMembers', 'dt' => 'members', 'removeFromQuery' => true],
+    // A relationship column, exactly as Route::_gridColumns() declares the
+    // host list's Groups column: no 'db', so every raw-identifier path skips
+    // it, and an 'sqlfilter' the criterion paths know how to read.
+    [
+        'dt' => 'groups',
+        'sqlfilter' => [
+            'table' => 'groups',
+            'column' => 'groupName',
+            'match' => 'EXISTS (SELECT 1 FROM `groupMembers`'
+                . ' INNER JOIN `groups`'
+                . ' ON `groups`.`groupID` = `groupMembers`.`gmGroupID`'
+                . ' WHERE `groupMembers`.`gmHostID` = `hosts`.`hostID`'
+                . ' AND (%s))'
+        ]
+    ],
 ];
+
+/**
+ * The membership test above, around one comparison.
+ *
+ * Written out once so a case below states the COMPARISON it expects rather
+ * than a wall of join text -- the comparison and its sense are what these
+ * cases are about.
+ *
+ * @param string $inner The comparison the criterion built
+ *
+ * @return string
+ */
+function groupsMatch($inner)
+{
+    return 'EXISTS (SELECT 1 FROM `groupMembers`'
+        . ' INNER JOIN `groups`'
+        . ' ON `groups`.`groupID` = `groupMembers`.`gmGroupID`'
+        . ' WHERE `groupMembers`.`gmHostID` = `hosts`.`hostID`'
+        . ' AND (' . $inner . '))';
+}
 
 /**
  * A DataTables request carrying per-column header-box searches.
@@ -627,6 +678,185 @@ $cases[] = [
         . " AND `hostName` LIKE 'lab%' ESCAPE '\\\\'",
 ];
 
+/* -- relationship columns --------------------------------------------- */
+
+$cases[] = [
+    'name' => 'a relationship column filters through its membership test',
+    'request' => sbRequest([sbCriterion('groups', 'contains', ['lab'])]),
+    'expect' => 'WHERE ('
+        . groupsMatch("`groups`.`groupName` LIKE '%lab%' ESCAPE '\\\\'")
+        . ')',
+];
+
+$cases[] = [
+    'name' => 'equals names the group exactly',
+    'request' => sbRequest([sbCriterion('groups', '=', ['lab01'])]),
+    'expect' => 'WHERE ('
+        . groupsMatch("`groups`.`groupName` = 'lab01'")
+        . ')',
+];
+
+$cases[] = [
+    // Invariant 5. The comparison inside stays POSITIVE and the whole
+    // membership test is negated, so this reads "in no group called lab01".
+    // The wrong form -- NOT pushed inside -- would read "in some group that
+    // is not lab01" and match nearly every host with two groups.
+    'name' => 'not-equals negates the membership, not the comparison',
+    'request' => sbRequest([sbCriterion('groups', '!=', ['lab01'])]),
+    'expect' => 'WHERE (NOT ('
+        . groupsMatch("`groups`.`groupName` = 'lab01'")
+        . '))',
+];
+
+$cases[] = [
+    'name' => 'not-contains negates the membership too',
+    'request' => sbRequest([sbCriterion('groups', '!contains', ['lab'])]),
+    'expect' => 'WHERE (NOT ('
+        . groupsMatch("`groups`.`groupName` LIKE '%lab%' ESCAPE '\\\\'")
+        . '))',
+];
+
+$cases[] = [
+    // 'null' on a relationship means no related row AT ALL, so the
+    // membership test is the whole predicate and the sense is the opposite
+    // way round to every other pair: 'null' negates, '!null' does not.
+    'name' => 'empty finds the hosts in no group at all',
+    'request' => sbRequest([sbCriterion('groups', 'null')]),
+    'expect' => 'WHERE (NOT (' . groupsMatch('1') . '))',
+];
+
+$cases[] = [
+    'name' => 'not-empty finds the hosts in at least one group',
+    'request' => sbRequest([sbCriterion('groups', '!null')]),
+    'expect' => 'WHERE (' . groupsMatch('1') . ')',
+];
+
+$cases[] = [
+    // The type comes from `groups`.`groupName`, which is text -- so a range
+    // condition is not on offer for this column any more than it is for
+    // hostName, even though the request says nothing about which table the
+    // comparison lands on.
+    'name' => 'a relationship column is typed from the column it compares',
+    'request' => sbRequest([sbCriterion('groups', '>', ['m'])]),
+    'expect' => '',
+];
+
+$cases[] = [
+    'name' => 'an unfilled relationship criterion is dropped',
+    'request' => sbRequest([sbCriterion('groups', 'contains', [''])]),
+    'expect' => '',
+];
+
+$cases[] = [
+    'name' => 'the header box reaches a relationship column',
+    'request' => colRequest(
+        ['groups' => colValue('starts', ['lab'])],
+        $columns
+    ),
+    'expect' => 'WHERE '
+        . groupsMatch("`groups`.`groupName` LIKE 'lab%' ESCAPE '\\\\'"),
+];
+
+$cases[] = [
+    // The free-text box has to find a group by name too. It and the header
+    // box were one copied line apart, and a global box that silently cannot
+    // match this column reads as the search being broken rather than as the
+    // column being special.
+    'name' => 'the free-text box reaches a relationship column',
+    'request' => [
+        'search' => ['value' => 'lab'],
+        'columns' => [
+            [
+                'data' => 'groups',
+                'searchable' => 'true',
+                'search' => ['value' => ''],
+            ],
+        ],
+    ],
+    'expect' => "WHERE (" . groupsMatch(
+        "`groups`.`groupName` LIKE '%lab%'"
+    ) . ")",
+];
+
+$cases[] = [
+    // The template is SQL and SQL contains '%' -- a LIKE pattern written
+    // into a plugin's own scope fragment is the case that turns up. sprintf
+    // would read '%L' as a conversion and either mangle the clause or throw
+    // a ValueError on PHP 8, so the placeholder is substituted with
+    // str_replace. Nothing about the wrong version looks wrong until the
+    // list answers 500.
+    'name' => "a literal '%' in the membership test survives substitution",
+    'assert' => function () use ($columns) {
+        $percent = $columns;
+        $percent[5]['sqlfilter']['match'] =
+            "EXISTS (SELECT 1 FROM `t` WHERE `x` LIKE 'a%L' AND (%s))";
+        $want = "WHERE (EXISTS (SELECT 1 FROM `t` WHERE `x` LIKE 'a%L'"
+            . " AND (`groups`.`groupName` = 'lab01')))";
+        $got = SearchBuilderProbe::build(
+            sbRequest([sbCriterion('groups', '=', ['lab01'])]),
+            $percent
+        );
+
+        return $got === $want
+            ? ''
+            : "expected: $want\n    got:      $got";
+    },
+];
+
+$cases[] = [
+    'name' => 'a malformed sqlfilter matches nothing rather than half of it',
+    'assert' => function () use ($columns) {
+        $broken = $columns;
+        // Every way the contract can be wrong, one at a time. Each must
+        // produce NO clause -- a template with no placeholder would filter
+        // on nothing while looking like it filtered, which is the shape that
+        // returns plausible wrong rows.
+        $mutations = [
+            'no table' => ['column' => 'groupName', 'match' => 'X (%s)'],
+            'no column' => ['table' => 'groups', 'match' => 'X (%s)'],
+            'no match' => ['table' => 'groups', 'column' => 'groupName'],
+            'no placeholder' => [
+                'table' => 'groups',
+                'column' => 'groupName',
+                'match' => 'X (1)',
+            ],
+            'two placeholders' => [
+                'table' => 'groups',
+                'column' => 'groupName',
+                'match' => 'X (%s) AND Y (%s)',
+            ],
+            'quoted identifier' => [
+                'table' => '`groups`',
+                'column' => 'groupName',
+                'match' => 'X (%s)',
+            ],
+            'injected identifier' => [
+                'table' => 'groups',
+                'column' => 'groupName` = 1 OR `1',
+                'match' => 'X (%s)',
+            ],
+        ];
+        $problems = [];
+        foreach ($mutations as $why => $filter) {
+            $broken[5]['sqlfilter'] = $filter;
+            $got = SearchBuilderProbe::build(
+                sbRequest([sbCriterion('groups', 'contains', ['lab'])]),
+                $broken
+            );
+            if ('' !== $got) {
+                $problems[] = $why . ' produced: ' . $got;
+            }
+            $types = SearchBuilderProbe::types('hosts', $broken);
+            if (false !== ($types['groups'] ?? null)) {
+                $problems[] = $why . ' was offered to the browser as '
+                    . json_encode($types['groups'] ?? null);
+            }
+        }
+
+        return implode("\n    ", $problems);
+    },
+];
+
 /* -- the viewer's timezone -------------------------------------------- */
 
 /*
@@ -716,6 +946,10 @@ $expectTypes = [
     'deployed' => 'date',
     'token' => false,
     'members' => false,
+    // Offered as a text filter even though there is no `hosts` column behind
+    // it: reported false, the UI would leave the column out of the picker
+    // entirely and the feature would be invisible.
+    'groups' => 'string',
 ];
 $gotTypes = SearchBuilderProbe::types('hosts', $columns);
 if ($gotTypes !== $expectTypes) {

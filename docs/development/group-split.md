@@ -339,6 +339,8 @@ search** header row to every grid, server-parsed in
 `FOGManagerController::filter()`. All of it is on this branch. The first draft
 quoted the comment as evidence of current behavior instead of grepping for the
 mechanism — the comment should be corrected when the groups column lands.
+**Corrected in D1**, along with the two sentences beside it that said sorting
+was the only filter available for Secure Boot state.
 
 ```
 git grep -l 'SearchBuilder\|_searchtypes\|_sbCriterion' -- packages/web
@@ -367,6 +369,29 @@ path its first relationship column**, by growing the column contract an optional
 subquery form that `_sbCriterion()` uses in place of `` `db` ``. Smaller than
 the first draft implied on the UI side, and a change to a helper every grid runs
 through on the server side.
+
+**Built in D1 as `sqlfilter`** — `FOGManagerController::relationFilter()` holds
+the contract and its reasoning. A column declares `table`, `column` and a
+`match` template with one `%s`, and deliberately declares **no `db`**: that is
+the fail-safe rather than a workaround, because pluck(), orderColumn() and the
+plain LIKE all already skip a column without one, so a path that has not been
+taught about relationships cannot reach it. Two things the build found that the
+plan above did not:
+
+- **Negation has to be applied OUTSIDE the membership test.** `!=` pushed
+  inside asks "is in SOME group that is not lab01", which is true of nearly
+  every host carrying two labels, where the user meant "is in NO group called
+  lab01". Both are valid SQL and both answer 200. Proven on rows, not asserted:
+  the wrong form returns a host that IS in lab01.
+- **`null` and `!null` invert the sense.** On a relationship "empty" means no
+  related row at all, so the membership test is the whole predicate and there
+  is nothing to compare — `null` negates and `!null` does not, the opposite way
+  round to every other pair.
+
+The free-text box goes through the same contract, not only the Filter panel.
+They were one copied line apart in `filter()`, and a global search box that
+silently cannot find a host by its group name reads as the search being broken
+rather than as the column being special.
 
 Two constraints on that expression, both already paid for here:
 
@@ -731,11 +756,20 @@ serialize through conflicts anyway.
 | C5f | Mass edit button moved beside "Delete selected" | `Base/FOGPage.php`, `Pages/HostManagement.php` | C5e | **merged** (#1631) |
 | M1 | `groupModuleAssoc`, constraint group 10, `msState` → tinyint (step 409) | `commons/schema.php`, `commons/schema-constraints.php`, `Base/System.php` | A | **merged** (#1629) |
 | M2 | `Resolver::resolveModules()`, the three tiers | `Assign/Resolver.php` | M1 | **merged** (#1632) |
-| M3 | Client paths read the resolved list; `checkPassiveModule` fix | `Items/Host.php`, `Client/ServiceModule.php`, `Client/FOGClient.php`, `Base/FOGPage.php` | M2 | open (#1633) |
-| M4 | `addRemItem()` module special case removed; auto-logout minimum named once | `Base/FOGController.php`, `Pages/HostManagement.php` | M3 | open (#1634) |
+| M3 | Client paths read the resolved list; `checkPassiveModule` fix | `Items/Host.php`, `Client/ServiceModule.php`, `Client/FOGClient.php`, `Base/FOGPage.php` | M2 | **merged** (#1633) |
+| M4 | `addRemItem()` module special case removed; auto-logout minimum named once | `Base/FOGController.php`, `Pages/HostManagement.php` | M3 | **merged** (#1634) |
 | M5 | Host Modules tab becomes genuinely tri-state, so a host can say OFF | `Pages/HostManagement.php`, JS | M4 | not started |
-| D | Presentation: groups column + filter, bulk add/remove, group list "grants" | `Router/Route.php`, `Base/FOGManagerController.php`, `Pages/HostManagement.php`, JS | C5 | not started |
+| D1 | The `sqlfilter` relationship-filter contract, and the host list's groups column on it | `Base/FOGManagerController.php`, `Router/Route.php`, `Pages/HostManagement.php`, `fog.host.list.js` | C5 | open (#TBD) |
+| D2 | Bulk add AND remove from the list, through the shared create-and-associate path; the two `saveGroup()` defects and the permission split | `Pages/HostManagement.php`, `Auth/Authorization.php`, `fog.host.list.js` | D1 | not started |
+| D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | not started |
 | E | Group page rework + removal of the imperative tabs, and `Group::addSnapin`/`addPrinter`/`addModule` become grants | `Pages/GroupManagement.php`, `Items/Group.php`, JS | **C5 proven** (Decision 10), D, M5 | not started |
+
+D split into three while building it, on the same rule C did: by what each
+piece can be tested on its own. D1 is the shared helper plus the one column
+that proves it, and it is the plan-first half -- a change to a path every grid
+in the product runs through. D2 is a write path with its own two security
+defects and a permission split, which is a different review from a read path.
+D3 needs D1's contract and nothing else.
 
 C5 split into five as it was built. The split is by what each piece can be
 tested against on its own -- the action model with no endpoint, the endpoint
