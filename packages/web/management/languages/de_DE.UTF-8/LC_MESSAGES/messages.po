@@ -245,6 +245,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1708,6 +1711,9 @@ msgstr "frei"
 msgid "Clear Fields"
 msgstr "Felder leeren"
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2568,6 +2574,14 @@ msgstr "Snapins exportieren"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "Snapins exportieren"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "Ausgewählten MAcs freigeben"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3641,6 +3655,10 @@ msgstr ""
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "Mitternacht"
 
 msgid "Height must be 120 pixels."
 msgstr "Höhe muss 120 Pixel betragen"
@@ -5469,6 +5487,18 @@ msgid "Mass Edit Success"
 msgstr "Host Aktualisierung erfolgreich!"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "Host Aktualisierung erfolgreich!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "Aktualisierung der Rolle fehlgeschlagen"
 
@@ -7222,6 +7252,10 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
+msgid "Refresh"
+msgstr "Standard-Bildwiederholrate"
+
+#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "Service-Status"
 
@@ -7943,6 +7977,10 @@ msgstr "Name der Speichergruppe"
 
 #, fuzzy
 msgid "Set failed"
+msgstr "Service-Update fehlgeschlagen"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "Service-Update fehlgeschlagen"
 
 #, fuzzy
@@ -10527,6 +10565,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."

@@ -248,6 +248,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1728,6 +1731,9 @@ msgstr "Tareas"
 msgid "Clear Fields"
 msgstr ""
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2603,6 +2609,14 @@ msgstr "snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "snapins"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "retirar"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3694,6 +3708,10 @@ msgstr ""
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "Medianoche"
 
 msgid "Height must be 120 pixels."
 msgstr ""
@@ -5578,6 +5596,18 @@ msgid "Mass Edit Success"
 msgstr "actualización Valoración falló"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "actualización Valoración falló"
 
@@ -7358,6 +7388,10 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
+msgid "Refresh"
+msgstr "Frecuencia de actualización predeterminado"
+
+#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "Estado del servicio"
 
@@ -8086,6 +8120,10 @@ msgstr "Nombre del grupo de almacenamiento"
 
 #, fuzzy
 msgid "Set failed"
+msgstr "actualización de servicio no pudo"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "actualización de servicio no pudo"
 
 #, fuzzy
@@ -10697,6 +10735,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."

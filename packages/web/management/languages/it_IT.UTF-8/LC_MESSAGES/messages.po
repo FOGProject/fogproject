@@ -250,6 +250,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1665,6 +1668,9 @@ msgstr "Pulire"
 msgid "Clear Fields"
 msgstr "Cancellare campi"
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2504,6 +2510,14 @@ msgstr "Export Snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "Export Snapins"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "Approvare MAC selezionati"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3548,6 +3562,10 @@ msgstr ""
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "Mezzanotte"
 
 msgid "Height must be 120 pixels."
 msgstr "Altezza deve essere di 120 pixel."
@@ -5301,6 +5319,18 @@ msgid "Mass Edit Success"
 msgstr "Aggiornamento host completato!"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "Aggiornamento ruolo non riuscito"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "Aggiornamento ruolo non riuscito"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "Aggiornamento host completato!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "Aggiornamento ruolo non riuscito"
 
@@ -7012,6 +7042,10 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
+msgid "Refresh"
+msgstr "Predefinito: frequenza aggiornamento"
+
+#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "Stato servizio"
 
@@ -7715,6 +7749,10 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr "Nome gruppo di archiviazione"
 
 msgid "Set failed"
+msgstr "Fallita impostazione"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "Fallita impostazione"
 
 #, fuzzy
@@ -10207,6 +10245,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."

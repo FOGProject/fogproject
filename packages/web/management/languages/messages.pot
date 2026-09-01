@@ -226,6 +226,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1471,6 +1474,9 @@ msgstr ""
 msgid "Clear Fields"
 msgstr ""
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2202,6 +2208,13 @@ msgid "Edit Capone"
 msgstr ""
 
 msgid "Edit Capone ID"
+msgstr ""
+
+msgid "Edit selected hosts"
+msgstr ""
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
 msgstr ""
 
 msgid "Editing Capone ID"
@@ -3122,6 +3135,9 @@ msgstr ""
 
 #, php-format
 msgid "Header is missing the required \"%s\" column"
+msgstr ""
+
+msgid "Height"
 msgstr ""
 
 msgid "Height must be 120 pixels."
@@ -4655,6 +4671,15 @@ msgstr ""
 msgid "Mass Edit Success"
 msgstr ""
 
+msgid "Mass edit"
+msgstr ""
+
+msgid "Mass edit form fail"
+msgstr ""
+
+msgid "Mass edit form success"
+msgstr ""
+
 msgid "Mass update failed"
 msgstr ""
 
@@ -6162,6 +6187,9 @@ msgstr ""
 msgid "Redirect URI"
 msgstr ""
 
+msgid "Refresh"
+msgstr ""
+
 msgid "Refresh Settings Cache"
 msgstr ""
 
@@ -6786,6 +6814,9 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr ""
 
 msgid "Set failed"
+msgstr ""
+
+msgid "Set on all"
 msgstr ""
 
 msgid "Setting"
@@ -9017,6 +9048,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."

@@ -250,6 +250,9 @@ msgstr ""
 msgid "(none on all)"
 msgstr ""
 
+msgid "(set on all)"
+msgstr ""
+
 msgid "(varies)"
 msgstr ""
 
@@ -1711,6 +1714,9 @@ msgstr "Claro"
 msgid "Clear Fields"
 msgstr "Limpar histórico"
 
+msgid "Clear on all"
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2571,6 +2577,14 @@ msgstr "exportação Snapins"
 #, fuzzy
 msgid "Edit Capone ID"
 msgstr "exportação Snapins"
+
+#, fuzzy
+msgid "Edit selected hosts"
+msgstr "Aprovar Hosts selecionados"
+
+#, php-format
+msgid "Editing %d selected hosts. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 #, fuzzy
 msgid "Editing Capone ID"
@@ -3643,6 +3657,10 @@ msgstr ""
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
+
+#, fuzzy
+msgid "Height"
+msgstr "meia-noite"
 
 msgid "Height must be 120 pixels."
 msgstr ""
@@ -5468,6 +5486,18 @@ msgid "Mass Edit Success"
 msgstr "Instalar / Atualizar sucesso!"
 
 #, fuzzy
+msgid "Mass edit"
+msgstr "atualização do utilizador falhou"
+
+#, fuzzy
+msgid "Mass edit form fail"
+msgstr "atualização do utilizador falhou"
+
+#, fuzzy
+msgid "Mass edit form success"
+msgstr "Instalar / Atualizar sucesso!"
+
+#, fuzzy
 msgid "Mass update failed"
 msgstr "atualização do utilizador falhou"
 
@@ -7220,6 +7250,10 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
+msgid "Refresh"
+msgstr "Padrão Refresh Rate"
+
+#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "status do serviço"
 
@@ -7941,6 +7975,10 @@ msgstr "Nome do grupo de armazenamento"
 
 #, fuzzy
 msgid "Set failed"
+msgstr "atualização do Service falhou"
+
+#, fuzzy
+msgid "Set on all"
 msgstr "atualização do Service falhou"
 
 #, fuzzy
@@ -10522,6 +10560,9 @@ msgid "Who a filter can be shared with"
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgstr ""
+
+msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
