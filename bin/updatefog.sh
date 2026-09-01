@@ -43,7 +43,12 @@
 #
 # What is left is the one thing installfog.sh genuinely cannot do for itself:
 # change which commit it is about to install.
-bindir=$(dirname $(readlink -f "$BASH_SOURCE"))
+# Resolved BEFORE the cd, and kept: the self-copy below reads this path, and
+# $0 is whatever the caller typed. Invoked as `bash bin/updatefog.sh` from the
+# repository root -- or from a cron entry with a relative path -- $0 is
+# `bin/updatefog.sh`, which stops resolving the moment this cd happens.
+selfpath=$(readlink -f "$BASH_SOURCE")
+bindir=$(dirname "$selfpath")
 cd $bindir
 workingdir=$(pwd)
 
@@ -146,7 +151,11 @@ done
 # removes itself on exit, not here, because it is the file being read.
 # ---------------------------------------------------------------------------
 if [[ -z $FOG_UPDATE_RELAUNCHED ]]; then
-    updateSelfCopy=$(mktemp -t fog-updatefog.XXXXXX) && cat "$0" > "$updateSelfCopy" || {
+    updateSelfCopy=$(mktemp -t fog-updatefog.XXXXXX) && cat "$selfpath" > "$updateSelfCopy" || {
+        # Removing it here too: mktemp may well have succeeded and the cat
+        # failed, which would otherwise leave an empty file in /tmp on every
+        # attempt.
+        [[ -n $updateSelfCopy ]] && rm -f "$updateSelfCopy"
         echo " * Could not copy this script to a temporary location."
         echo " | The update has to run from a copy, because checking out another"
         echo " | branch rewrites this file while bash is still reading it."

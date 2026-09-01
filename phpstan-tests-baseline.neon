@@ -55,6 +55,12 @@ parameters:
 			path: tests/arch-compatibility.test.php
 
 		-
+			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
+			identifier: new.resultUnused
+			count: 1
+			path: tests/assign-resolver.test.php
+
+		-
 			message: '#^Result of \|\| is always false\.$#'
 			identifier: booleanOr.alwaysFalse
 			count: 1

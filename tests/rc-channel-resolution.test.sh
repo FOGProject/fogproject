@@ -79,8 +79,16 @@ eval "$snippet"
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-# A bare repository standing in for origin. FOG_git_remote is what rcBranch
-# asks, so pointing it here keeps the whole test off the network.
+# A bare repository standing in for origin, and a working clone of it standing
+# in for the FOG checkout.
+#
+# BOTH are needed, because rcBranch asks the CHECKOUT'S OWN origin first and
+# only falls back to the built-in constant when there is no checkout to ask
+# (which is bin/bootstrap.sh's case, before it has cloned anything). Setting
+# FOG_git_remote alone is not enough: with FOG_git_path unset, `git -C ""`
+# resolves against the current directory -- which, when this suite runs from
+# the FOG repo, is a real checkout whose origin is the real fogproject, so
+# every lookup below would silently query the network and find no rc branch.
 FOG_git_remote="$work/remote.git"
 seed="$work/seed"
 git init -q --bare "$FOG_git_remote"
@@ -90,6 +98,11 @@ git -C "$seed" config user.name t
 echo x > "$seed/f"
 git -C "$seed" add f && git -C "$seed" commit -qm seed
 git -C "$seed" remote add origin "$FOG_git_remote"
+
+# The checkout rcBranch will interrogate. Its origin is the fixture, so nothing
+# here touches the network.
+FOG_git_path="$work/checkout"
+git clone -q "$FOG_git_remote" "$FOG_git_path" 2>/dev/null
 
 publish() {
     git -C "$seed" branch -f "$1" >/dev/null 2>&1
@@ -161,6 +174,29 @@ check "a stale lower series pushed later does not win" \
 # Nothing about the query may leak into the other channels.
 check "beta is unaffected by published release candidates" \
     "$([[ $(channelToBranch beta) == working-1.6 ]]; echo $?)"
+
+# ---------------------------------------------------------------------------
+# The checkout's own origin wins over the built-in constant.
+#
+# A server installed from a fork or an internal mirror must not be told about a
+# release candidate its own origin does not carry: gitUpdateToBranch would then
+# `git checkout` a branch that is not there and fail. An air-gapped server must
+# not reach for github.com at all.
+# ---------------------------------------------------------------------------
+fork="$work/fork.git"
+git init -q --bare "$fork"
+git -C "$seed" remote add fork "$fork" 2>/dev/null
+git -C "$seed" push -q fork stable >/dev/null 2>&1
+git -C "$seed" push -q fork rc-1.5.99 >/dev/null 2>&1
+
+forkco="$work/forkco"
+git clone -q "$fork" "$forkco" 2>/dev/null
+check "a checkout cloned from a fork resolves against THAT fork"     "$([[ $(FOG_git_path="$forkco" channelToBranch rc) == rc-1.5.99 ]]; echo $?)"
+
+check "and the built-in constant does not override it"     "$([[ $(FOG_git_path="$forkco" FOG_git_remote="$FOG_git_remote" channelToBranch rc) == rc-1.5.99 ]]; echo $?)"
+
+# No checkout at all -- bootstrap.sh's case -- falls back to the constant.
+check "with no checkout to ask, the configured remote is used"     "$([[ $(FOG_git_path="$work/nothing-here" channelToBranch rc) == rc-1.6.10 ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
 # The inverse, and the vocabulary.

@@ -4508,7 +4508,74 @@ class HostManagement extends FOGPage
             'modal-lg'
         );
 
-        return ['button' => $button, 'modal' => $modal];
+        return [
+            'button' => $button,
+            'modal' => $modal,
+            'quick' => $this->_quickTaskItems()
+        ];
+    }
+    /**
+     * The one-click task types offered beside the grid's own controls.
+     *
+     * Data only -- the buttons themselves are built by the browser, because
+     * they live in the DataTables button bar under the search box and that
+     * bar does not exist until the grid initializes. What the server owns is
+     * the part the browser cannot know: which of the three types this
+     * install actually has, what each is called in the reader's language,
+     * which icon it carries, and whether the reader may task at all.
+     *
+     * Three types and no more. Deploy and Capture are the pair a single
+     * host wants; Deploy and Multi-Cast are the pair a set of hosts wants.
+     * Anything else stays behind the Queue Task button, which is where a
+     * task that needs options -- a snapin choice, an account to reset, a
+     * debug session -- belongs. These three take no options, which is the
+     * whole reason they can be one click.
+     *
+     * `access` rides along rather than being hardcoded in the script: it is
+     * the same ttIsAccess the Queue Task modal filters on and the same value
+     * assertSelectionTaskable() refuses on, so all three agree by
+     * construction. 'host' shows only for one selected row (Capture),
+     * 'group' only for two or more (Multi-Cast), 'both' for any (Deploy).
+     *
+     * @return string
+     */
+    private function _quickTaskItems()
+    {
+        // ?node=host&sub=deployMulti resolves to host.task
+        // (Authorization::_subToAction maps the 'deploy' prefix), so a user
+        // without it would be shown three buttons that can only be refused.
+        if (!Authorization::can('host.task')) {
+            return '';
+        }
+
+        $items = '';
+        $types = [TaskType::DEPLOY, TaskType::CAPTURE, TaskType::MULTICAST];
+        foreach ($types as $typeId) {
+            $TaskType = self::getClass('TaskType', $typeId);
+            // A server whose taskTypes row was deleted simply loses that
+            // button, the same way the accordion loses the entry.
+            if (!$TaskType->isValid()) {
+                continue;
+            }
+            // get(), not ->prop. These are FOGController instances built
+            // by getClass(); the class has no __get, so a property read
+            // answers null and the whole span comes out blank -- which is
+            // exactly what the first cut of this did. The accordion above
+            // reads properties because ITS objects come from
+            // Route::getList(), which hands back plain decoded objects.
+            $items .= '<span class="quicktaskitem" '
+                . 'data-type="' . (int)$TaskType->get('id') . '" '
+                . 'data-access="' . \Initiator::e($TaskType->get('access'))
+                . '" '
+                . 'data-icon="' . \Initiator::e($TaskType->get('icon')) . '" '
+                . 'data-name="' . \Initiator::e($TaskType->get('name'))
+                . '"></span>';
+        }
+        if ('' === $items) {
+            return '';
+        }
+
+        return '<div id="quick-task-data" class="d-none">' . $items . '</div>';
     }
     /**
      * The task options form for an ad-hoc selection of hosts.
