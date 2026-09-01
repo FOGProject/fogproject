@@ -153,6 +153,12 @@ const TABLE = [
     // that identity's reach. The audit is a reader of the answer, not its
     // owner. See ADR 0033.
     'Identity' => 'Auth',
+    // Assign, not Items: it is policy, not a row. Resolver decides WHAT A
+    // HOST IS ASSIGNED out of its own associations plus what its groups
+    // grant, and putting it next to the ORM models in Items would say it
+    // was one of them. Same reasoning that puts SiteScope in Auth rather
+    // than beside the sites row it reads. See ADR 0038 decision 8.
+    'Resolver' => 'Assign',
     'Audit' => 'Audit',
     'ActivityWindow' => 'Audit',
     'AuditStats' => 'Audit',
